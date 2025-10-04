@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer as PrinterIcon, Share2, Package, Tag, BarChart3, Loader2, AlertTriangle, Info } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, Share2, Package, Loader2, AlertTriangle, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';

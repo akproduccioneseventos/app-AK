@@ -12,7 +12,7 @@ import { getMenus } from '@/app/actions/menus-catering';
 import { getReposteriaMasterTemplate, saveReposteriaMasterTemplate } from '@/app/actions/reposteria.actions';
 import { getBebidasMasterTemplate, saveBebidasMasterTemplate } from '@/app/actions/bebidas.actions';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { Accordion } from "@/components/ui/accordion"
 import { GestionReposteria } from '@/components/gastronomia/GestionReposteria';
 import { GestionBebidas } from '@/components/gastronomia/GestionBebidas';
 
@@ -72,7 +72,7 @@ export default function GestionMenusPage() {
             <Button variant="secondary"><List className="w-4 h-4 mr-2"/>Ver Catálogo de Platos</Button>
            </Link>
            <Link href="/empresa/insumos" passHref>
-            <Button variant="outline"><Package className="w-4 h-4 mr-2"/>Gestionar Insumos</Button>
+            <Button variant="outline"><Package className="w-4 h-4 mr-2"/>Gestionar Stock de Insumos</Button>
            </Link>
         </CardContent>
       </Card>
@@ -82,71 +82,65 @@ export default function GestionMenusPage() {
       ) : (
         <div className="space-y-4">
              <Accordion type="multiple" defaultValue={['menus', 'reposteria', 'bebidas']} className="w-full space-y-4">
-                <AccordionItem value="menus" className="border-none">
-                    <Card className="shadow-sm">
-                    <CardHeader>
-                      <CardTitle className="font-headline text-xl">Plantillas de Menú de Platos</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        {menus.length > 0 ? (
-                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {menus.map((menu) => (
-                                <Card key={menu.id} className="shadow-sm hover:shadow-md transition-shadow bg-muted/30">
-                                    <CardHeader className="pb-2">
-                                        <div className="flex justify-between items-start">
-                                        <CardTitle className="text-lg">{menu.name}</CardTitle>
-                                        <Link href={`/empresa/menus/${encodeURIComponent(menu.id)}/editar`} passHref>
-                                            <Button variant="outline" size="sm"><Edit className="w-4 h-4 mr-2"/>Editar</Button>
-                                        </Link>
-                                        </div>
-                                        <CardDescription>{menu.description}</CardDescription>
-                                    </CardHeader>
-                                    <CardContent>
-                                        {(menu.items || []).length > 0 && (
-                                        <ScrollArea className="h-20 text-xs text-muted-foreground border-t pt-2">
-                                            <p className="font-semibold text-xs mb-1">Platos Incluidos:</p>
-                                            <ul className="list-disc pl-4 space-y-0.5">
-                                            {menu.items.map(item => <li key={item.id}>{item.name}</li>)}
-                                            </ul>
-                                        </ScrollArea>
-                                        )}
-                                    </CardContent>
-                                </Card>
-                            ))}
-                           </div>
-                        ) : (
-                             <Card className="text-center py-10"><CardContent><Info className="w-10 h-10 mx-auto text-muted-foreground mb-3"/><p className="text-muted-foreground">No has creado ninguna plantilla de menú todavía.</p></CardContent></Card>
-                        )}
-                    </CardContent>
-                    </Card>
-                </AccordionItem>
+                <Card className="shadow-sm">
+                  <CardHeader>
+                    <CardTitle className="font-headline text-xl">Plantillas de Menú de Platos</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {menus.length > 0 ? (
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {menus.map((menu) => (
+                            <Card key={menu.id} className="shadow-sm hover:shadow-md transition-shadow bg-muted/30">
+                                <CardHeader className="pb-2">
+                                    <div className="flex justify-between items-start">
+                                    <CardTitle className="text-lg">{menu.name}</CardTitle>
+                                    <Link href={`/empresa/menus/${encodeURIComponent(menu.id)}/editar`} passHref>
+                                        <Button variant="outline" size="sm"><Edit className="w-4 h-4 mr-2"/>Editar</Button>
+                                    </Link>
+                                    </div>
+                                    <CardDescription>{menu.description}</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    {(menu.items || []).length > 0 && (
+                                    <ScrollArea className="h-20 text-xs text-muted-foreground border-t pt-2">
+                                        <p className="font-semibold text-xs mb-1">Platos Incluidos:</p>
+                                        <ul className="list-disc pl-4 space-y-0.5">
+                                        {menu.items.map(item => <li key={item.id}>{item.name}</li>)}
+                                        </ul>
+                                    </ScrollArea>
+                                    )}
+                                </CardContent>
+                            </Card>
+                        ))}
+                       </div>
+                    ) : (
+                         <Card className="text-center py-10"><CardContent><Info className="w-10 h-10 mx-auto text-muted-foreground mb-3"/><p className="text-muted-foreground">No has creado ninguna plantilla de menú todavía.</p></CardContent></Card>
+                    )}
+                  </CardContent>
+                </Card>
                 
                 {reposteriaTemplate && (
-                  <AccordionItem value="reposteria" className="border-none">
-                     <GestionReposteria 
-                            initialData={reposteriaTemplate} 
-                            onDataChange={(newData) => {
-                                setReposteriaTemplate(newData);
-                                saveReposteriaMasterTemplate(newData); // Save on change
-                            }}
-                            invitados={{adultos: 100, ninos: 0, adolescentes: 0}} // Placeholder for calculations
-                            isTemplateMode={true}
-                        />
-                  </AccordionItem>
+                  <GestionReposteria 
+                        initialData={reposteriaTemplate} 
+                        onDataChange={(newData) => {
+                            setReposteriaTemplate(newData);
+                            saveReposteriaMasterTemplate(newData); // Save on change
+                        }}
+                        invitados={{adultos: 100, ninos: 0, adolescentes: 0}} // Placeholder for calculations
+                        isTemplateMode={true}
+                    />
                 )}
 
                 {bebidasTemplate && (
-                  <AccordionItem value="bebidas" className="border-none">
-                    <GestionBebidas 
-                        initialData={bebidasTemplate} 
-                        onDataChange={(newData) => {
-                            setBebidasTemplate(newData);
-                            saveBebidasMasterTemplate(newData); // Save on change
-                        }}
-                        invitados={{adultos: 100, ninos: 0, adolescentes: 0}} // Placeholder
-                        isTemplateMode={true}
-                    />
-                  </AccordionItem>
+                  <GestionBebidas 
+                    initialData={bebidasTemplate} 
+                    onDataChange={(newData) => {
+                        setBebidasTemplate(newData);
+                        saveBebidasMasterTemplate(newData); // Save on change
+                    }}
+                    invitados={{adultos: 100, ninos: 0, adolescentes: 0}} // Placeholder
+                    isTemplateMode={true}
+                />
                 )}
             </Accordion>
         </div>

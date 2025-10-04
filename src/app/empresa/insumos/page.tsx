@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft, Package, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, DollarSign, Filter, Briefcase, Printer } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { ServicioEmpresa, CategoriaServicio } from '@/types/empresa';
+import type { ServicioEmpresa } from '@/types/empresa';
 import { getServiciosEmpresa, deleteServicioEmpresa } from '@/app/actions/servicios-empresa';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import {
@@ -58,7 +58,7 @@ export default function InventarioInsumosPage() {
       setAllItems(inventoryItems);
       // Initialize filters based on fetched data only if not already set
       if (Object.keys(categoryFilter).length === 0) {
-        const initialCategories = Array.from(new Set(inventoryItems.map(i => i.categoria))).reduce((acc, cat) => ({...acc, [cat]: true}), {});
+        const initialCategories = Array.from(new Set(inventoryItems.map(i => i.categoria))).reduce((acc, cat) => ({...acc, [cat as string]: true}), {});
         setCategoryFilter(initialCategories);
       }
     } catch (err: any) {
@@ -71,7 +71,7 @@ export default function InventarioInsumosPage() {
 
   useEffect(() => {
     fetchItems();
-  }, []);
+  }, [fetchItems]);
 
   useEffect(() => {
     const lowercasedFilter = searchTerm.toLowerCase();
@@ -163,7 +163,7 @@ export default function InventarioInsumosPage() {
                 <DropdownMenuLabel>Categorías</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {ALL_CATEGORIES.map(cat => (
-                  <DropdownMenuCheckboxItem key={cat} checked={categoryFilter[cat] ?? false} onCheckedChange={() => setCategoryFilter(prev => ({...prev, [cat]: !prev[cat]}))}>{cat}</DropdownMenuCheckboxItem>
+                  <DropdownMenuCheckboxItem key={cat} checked={categoryFilter[cat] ?? false} onCheckedChange={() => handleTipoFilterChange(cat)}>{cat}</DropdownMenuCheckboxItem>
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>

@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, AlertTriangle, Printer, Share2, Package, Tag, BarChart3 } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, Share2, Package, Loader2, AlertTriangle, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
@@ -26,7 +26,7 @@ export default function ReporteActivosPage() {
     setError(null);
     try {
       const data = await getServiciosEmpresa();
-      const inventoryItems = data.filter(s => s.tipoItem === 'Activo Fijo');
+      const inventoryItems = data.filter(s => s.tipoItem === 'Activo Fijo' && s.cantidadDisponible !== undefined && s.cantidadDisponible > 0);
       setAllItems(inventoryItems);
     } catch (err: any) {
       setError("No se pudo cargar el inventario de activos.");
@@ -108,7 +108,7 @@ export default function ReporteActivosPage() {
           </Link>
           <div className="flex gap-2">
             <Button onClick={handleShare} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir</Button>
-            <Button onClick={handlePrint} size="sm"><Printer className="w-4 h-4 mr-1.5" />Imprimir / PDF</Button>
+            <Button onClick={handlePrint} size="sm"><PrinterIcon className="w-4 h-4 mr-1.5" />Imprimir / PDF</Button>
           </div>
         </div>
 
@@ -120,10 +120,13 @@ export default function ReporteActivosPage() {
         </header>
 
         {allItems.length === 0 ? (
-          <div className="text-center py-10 text-muted-foreground">No hay activos registrados para generar un reporte.</div>
+          <div className="text-center py-10 text-muted-foreground">
+            <Info className="w-12 h-12 mx-auto mb-3 opacity-50"/>
+            <p>No hay activos con stock registrado para generar un reporte.</p>
+          </div>
         ) : (
           <Table>
-            <TableCaption>Resumen de inventario de activos fijos.</TableCaption>
+            <TableCaption>Resumen de inventario de activos fijos con stock mayor a cero.</TableCaption>
             <TableHeader>
               <TableRow>
                 <TableHead className="font-semibold">Activo</TableHead>
