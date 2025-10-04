@@ -38,7 +38,8 @@ const getCalculationMethodLabel = (method?: string): string => {
     }
 }
 
-export default function DynamicCatalogPage({ params }: { params: { slugs: string[] } }) {
+export default function DynamicCatalogPage({ params: paramsProp }: { params: { slugs: string[] } }) {
+  const params = React.use(paramsProp);
   const { toast } = useToast();
   const [categoria, subcategoria] = params.slugs.map(s => decodeURIComponent(s));
 
