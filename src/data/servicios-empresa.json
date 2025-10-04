@@ -1,6 +1,161 @@
 
 [
   {
+    "id": "ing_agua",
+    "nombre": "Agua",
+    "tipoItem": "Bebida (Insumo)",
+    "categoria": "Servicio de bebidas",
+    "unidad": "Litro"
+  },
+  {
+    "id": "insumo_tonica",
+    "nombre": "Agua Tónica",
+    "tipoItem": "Bebida (Insumo)",
+    "categoria": "Servicio de bebidas",
+    "unidad": "Litro"
+  },
+  {
+    "id": "item_1757285027582_71oyrff",
+    "nombre": "Barra de Tragos",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de bebidas",
+    "valorUnitarioEstimado": 200,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 250
+  },
+  {
+    "id": "serv_1752489600086_barlib",
+    "nombre": "Barra Libre de Bebidas sin Alcohol",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de bebidas",
+    "valorUnitarioEstimado": 200,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 250
+  },
+  {
+    "id": "ing-cana",
+    "nombre": "Caña",
+    "tipoItem": "Bebida (Insumo)",
+    "categoria": "Servicio de bebidas",
+    "valorUnitarioEstimado": 300,
+    "unidad": "Litro",
+    "cantidadDisponible": 4
+  },
+  {
+    "id": "insumo_gin",
+    "nombre": "Gin",
+    "tipoItem": "Bebida (Insumo)",
+    "categoria": "Servicio de bebidas",
+    "valorUnitarioEstimado": 300,
+    "unidad": "Litro",
+    "cantidadDisponible": 4
+  },
+  {
+    "id": "ing-jugo-durazno",
+    "nombre": "Jugo de Durazno",
+    "tipoItem": "Bebida (Insumo)",
+    "categoria": "Servicio de bebidas",
+    "valorUnitarioEstimado": 50,
+    "unidad": "Litro",
+    "cantidadDisponible": 4
+  },
+  {
+    "id": "ing-jugo-naranja",
+    "nombre": "Jugo de Naranja",
+    "tipoItem": "Bebida (Insumo)",
+    "categoria": "Servicio de bebidas",
+    "unidad": "Litro"
+  },
+  {
+    "id": "ing_jugo-rinde2",
+    "nombre": "Jugo rinde 2",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Servicio de bebidas",
+    "unidad": "Sobre"
+  },
+  {
+    "id": "ing-licor-blue",
+    "nombre": "Licor blue",
+    "tipoItem": "Bebida (Insumo)",
+    "categoria": "Servicio de bebidas",
+    "valorUnitarioEstimado": 350,
+    "unidad": "Litro",
+    "cantidadDisponible": 4
+  },
+  {
+    "id": "ing-licor-durazno",
+    "nombre": "Licor de Durazno",
+    "tipoItem": "Bebida (Insumo)",
+    "categoria": "Servicio de bebidas",
+    "valorUnitarioEstimado": 350,
+    "unidad": "Litro",
+    "cantidadDisponible": 5
+  },
+  {
+    "id": "ing-licor-frutilla",
+    "nombre": "Licor de Frutilla",
+    "tipoItem": "Bebida (Insumo)",
+    "categoria": "Servicio de bebidas",
+    "valorUnitarioEstimado": 350,
+    "unidad": "Litro",
+    "cantidadDisponible": 4
+  },
+  {
+    "id": "ing-pepsi",
+    "nombre": "Pepsi",
+    "tipoItem": "Bebida (Insumo)",
+    "categoria": "Servicio de bebidas",
+    "valorUnitarioEstimado": 100,
+    "unidad": "Litro",
+    "cantidadDisponible": 0
+  },
+  {
+    "id": "ing-refresco-lima",
+    "nombre": "Refresco lima barato",
+    "tipoItem": "Bebida (Insumo)",
+    "categoria": "Servicio de bebidas",
+    "unidad": "Litro"
+  },
+  {
+    "id": "insumo_ron",
+    "nombre": "Ron Blanco",
+    "tipoItem": "Bebida (Insumo)",
+    "categoria": "Servicio de bebidas",
+    "valorUnitarioEstimado": 300,
+    "unidad": "Litro",
+    "cantidadDisponible": 3.5
+  },
+  {
+    "id": "ing-sidra-750ml",
+    "nombre": "Sidra 750ml",
+    "tipoItem": "Bebida (Insumo)",
+    "categoria": "Servicio de bebidas",
+    "unidad": "Botella"
+  },
+  {
+    "id": "ing-vodka",
+    "nombre": "Vodka",
+    "tipoItem": "Bebida (Insumo)",
+    "categoria": "Servicio de bebidas",
+    "valorUnitarioEstimado": 280,
+    "unidad": "Litro",
+    "cantidadDisponible": 4.5
+  },
+  {
+    "id": "ing-vino-blanco-dulce",
+    "nombre": "Vino blanco dulce",
+    "tipoItem": "Bebida (Insumo)",
+    "categoria": "Servicio de bebidas",
+    "unidad": "Botella"
+  },
+  {
+    "id": "ing-vino-rosado-dulce",
+    "nombre": "Vino rosado dulce",
+    "tipoItem": "Bebida (Insumo)",
+    "categoria": "Servicio de bebidas",
+    "unidad": "Botella"
+  },
+  {
     "id": "ing-asado-vacio",
     "nombre": "Asado vacio",
     "tipoItem": "Insumo/Ingrediente",
@@ -154,40 +309,635 @@
     "proveedor": "CARNICERIA"
   },
   {
-    "id": "item_1757177422000_4ru2piy",
-    "nombre": "Fotografía",
+    "id": "ing-aros-cebolla",
+    "nombre": "Aros de cebolla",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Congelados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-bastones-muzzarella",
+    "nombre": "Bastones de muzarella",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Congelados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-croquetas-papa",
+    "nombre": "Croquetas de papa",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Congelados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-ensalada-rusa-congelada",
+    "nombre": "Ensalada rusa congelada",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Congelados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-formitas-merluza",
+    "nombre": "Formitas de merluza",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Congelados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-milanesa-pescado",
+    "nombre": "Milanesa de pescado",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Congelados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-noisettes",
+    "nombre": "Noisettes",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Congelados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-noquis-congelados",
+    "nombre": "Noquis congelados",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Congelados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-nugget-pollo",
+    "nombre": "Nugget de pollo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Congelados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-papas-congeladas-torneadas",
+    "nombre": "Papas congeladas torneadas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Congelados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-papas-fritas-congeladas",
+    "nombre": "Papas fritas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Congelados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-papas-para-freir",
+    "nombre": "Papas para freir",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Congelados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-papas-rusticas",
+    "nombre": "Papas rústicas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Congelados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-rabas-rebozadas",
+    "nombre": "Rabas rebozadas de calamar",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Congelados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-ravioles-fritos",
+    "nombre": "Ravioles Fritos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Congelados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-emboltorio",
+    "nombre": "Emboltorio",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Descartables",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-porta-pancho-medio-metro",
+    "nombre": "Porta pancho medio metro",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Descartables",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing_vasos-sorbitos",
+    "nombre": "vasos y sorvitos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Descartables",
+    "valorUnitarioEstimado": 3,
+    "unidad": "Unidad",
+    "cantidadDisponible": 100
+  },
+  {
+    "id": "ing-gas",
+    "nombre": "Gas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Equipamiento",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_pantalla_proyector",
+    "nombre": "Pantalla y Proyector",
     "tipoItem": "Servicio",
-    "categoria": "Servicio de fotografía",
-    "valorUnitarioEstimado": 15000,
-    "precioVenta": 20000,
+    "categoria": "Regalo exclusivo",
+    "valorUnitarioEstimado": 3000,
+    "precioVenta": 8000,
     "calculationMethod": "fijo"
   },
   {
-    "id": "item_1757258361278_fs8ba4x",
-    "nombre": "Servicio de Catering",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "valorUnitarioEstimado": 250,
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 300
+    "id": "ing-bondiola-cocida-ahumada",
+    "nombre": "Bondiola cocida ahumada",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Fiambres",
+    "unidad": "Gramos"
   },
   {
-    "id": "item_1757258437308_s0lgq1z",
-    "nombre": "Filmación",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de filmación",
-    "valorUnitarioEstimado": 15000,
-    "precioVenta": 20000,
-    "calculationMethod": "fijo"
+    "id": "ing-fernet",
+    "nombre": "Fernet",
+    "tipoItem": "Bebida (Insumo)",
+    "categoria": "Fiambres",
+    "valorUnitarioEstimado": 350,
+    "unidad": "Litro",
+    "cantidadDisponible": 5
   },
   {
-    "id": "item_1757280489194_y9qozwm",
-    "nombre": "Portero/Seguridad",
-    "tipoItem": "Servicio",
-    "categoria": "Personal",
-    "valorUnitarioEstimado": 2000,
-    "precioVenta": 2500,
-    "calculationMethod": "fijo"
+    "id": "ing-jamon",
+    "nombre": "Jamon",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Fiambres",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-jamon-crudo",
+    "nombre": "Jamon crudo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Fiambres",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-leonesa-primavera",
+    "nombre": "Leonesa primavera",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Fiambres",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-lomito-ahumado",
+    "nombre": "Lomito ahumado",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Fiambres",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-mortadela",
+    "nombre": "Mortadela",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Fiambres",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-paleta",
+    "nombre": "Paleta",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Fiambres",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-panceta",
+    "nombre": "Panceta",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Fiambres",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-panchos",
+    "nombre": "Panchos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Fiambres",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-panchos-medio-metro",
+    "nombre": "Panchos medio metro",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Fiambres",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-queso-cerdo",
+    "nombre": "Queso de cerdo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Fiambres",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-salame",
+    "nombre": "Salame",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Fiambres",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-banana",
+    "nombre": "Banana",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Frutas",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-cerezas-roja",
+    "nombre": "Cerezas roja",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Frutas",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-cerezas-verde",
+    "nombre": "Cerezas verde",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Frutas",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-frutilla-congelada",
+    "nombre": "Frutilla congelada",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Frutas",
+    "valorUnitarioEstimado": 120,
+    "unidad": "Gramos",
+    "cantidadDisponible": 10000
+  },
+  {
+    "id": "ing-limon",
+    "nombre": "Limon",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Frutas",
+    "valorUnitarioEstimado": 70,
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-fruta-mix",
+    "nombre": "Otra fruta (mix)",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Frutas",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-palta",
+    "nombre": "Palta",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Frutas",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-pasas-uva",
+    "nombre": "Pasas de uva",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Frutas",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-crema-leche",
+    "nombre": "Crema de leche",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Lácteos",
+    "unidad": "Litro"
+  },
+  {
+    "id": "ing-manteca",
+    "nombre": "Manteca",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Lácteos",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-muzzarella",
+    "nombre": "Muzarella",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Lácteos",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-muzzarella-rallar",
+    "nombre": "Muzzarella para rallar",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Lácteos",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-queso",
+    "nombre": "Queso",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Lácteos",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-queso-alpa",
+    "nombre": "Queso alpa",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Lácteos",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-queso-cheddar",
+    "nombre": "Queso Cheddar",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Lácteos"
+  },
+  {
+    "id": "ing-queso-colonia",
+    "nombre": "Queso colonia",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Lácteos",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-queso-colonial",
+    "nombre": "Queso colonial",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Lácteos",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-queso-con-cereza",
+    "nombre": "Queso con cereza",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Lácteos",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-queso-crema",
+    "nombre": "Queso crema",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Lácteos",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-queso-dambo",
+    "nombre": "Queso Dambo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Lácteos",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-queso-muzzarella-rallar",
+    "nombre": "Queso muzzarella para rallar",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Lácteos",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-queso-rallado",
+    "nombre": "Queso rallado",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Lácteos",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-arrolladitos-hojaldre",
+    "nombre": "Arrolladitos de hojaldre",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-canoncitos",
+    "nombre": "Cañoncitos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-catalan-20g-remolacha",
+    "nombre": "Catalan 20g con sesamo de remolacha",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-catalan-20g-verde",
+    "nombre": "Catalan 20g con sesamo verde",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-chipa",
+    "nombre": "Chipa",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-conos",
+    "nombre": "Conos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-escones-queso-sesamo",
+    "nombre": "Escones de queso con sesamo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-galletas",
+    "nombre": "Galletas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-galletas-malteadas-sin-sal",
+    "nombre": "Galletas malteadas sin sal",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-galletas-redondas-arcor",
+    "nombre": "Galletas redondas arcor",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-galletitas",
+    "nombre": "Galletitas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-grisines",
+    "nombre": "Grisines",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-grisines-chicos",
+    "nombre": "Grisines chicos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-jesuitas",
+    "nombre": "Jesuitas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-medialunas",
+    "nombre": "Medialunas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-palmitas",
+    "nombre": "Palmitas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-pan-campo",
+    "nombre": "Pan de campo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-pan-panchos",
+    "nombre": "Pan de panchos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-pan-panchos-medio-metro",
+    "nombre": "Pan de panchos medio metro",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-pan-sandwiches",
+    "nombre": "Pan de Sandwiches",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-pebetes",
+    "nombre": "Pebetes",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-pizzas",
+    "nombre": "Pizzas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-sandwiches-panblanco",
+    "nombre": "Sandwiches pan blanco",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-sandwiches-pannegro",
+    "nombre": "Sandwiches pan negro",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-tapa-empanada",
+    "nombre": "Tapa de Empanada",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-tapas-hojaldre",
+    "nombre": "Tapas de hojaldre",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-tarteletas",
+    "nombre": "Tarteletas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-tortugas",
+    "nombre": "Tortugas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-tortugas-brioche-70g",
+    "nombre": "Tortugas brioche 70 gramos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-tostadas-baguet-saborizadas",
+    "nombre": "Tostadas baguet saborizadas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-tostaditas",
+    "nombre": "Tostaditas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-vulevanes",
+    "nombre": "Vulevanes",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Panificados",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-ravioles",
+    "nombre": "Ravioles",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Pastas",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-sorrentinos",
+    "nombre": "Sorrentinos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Pastas",
+    "unidad": "Gramos"
   },
   {
     "id": "item_1757281980225_3x3nbzo",
@@ -199,12 +949,110 @@
     "calculationMethod": "fijo"
   },
   {
+    "id": "serv_mozo_cocina",
+    "nombre": "Personal de Cocina",
+    "tipoItem": "Servicio",
+    "categoria": "Personal",
+    "valorUnitarioEstimado": 2000,
+    "calculationMethod": "ratio",
+    "precioBase": 2800,
+    "invitadosPorUnidad": 50
+  },
+  {
+    "id": "item_1757280489194_y9qozwm",
+    "nombre": "Portero/Seguridad",
+    "tipoItem": "Servicio",
+    "categoria": "Personal",
+    "valorUnitarioEstimado": 2000,
+    "precioVenta": 2500,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_mozos",
+    "nombre": "Servicio de Mozos",
+    "tipoItem": "Servicio",
+    "categoria": "Personal",
+    "valorUnitarioEstimado": 1800,
+    "calculationMethod": "ratio",
+    "precioBase": 2500,
+    "invitadosPorUnidad": 20
+  },
+  {
+    "id": "ing-merluza",
+    "nombre": "Merluza",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Pescados y Mariscos",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-salmon",
+    "nombre": "Salmon",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Pescados y Mariscos",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "serv_manteleria_completa",
+    "nombre": "Mantelería Completa",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "valorUnitarioEstimado": 60,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 70
+  },
+  {
+    "id": "item_1757258361278_fs8ba4x",
+    "nombre": "Servicio de Catering",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "valorUnitarioEstimado": 250,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 300
+  },
+  {
+    "id": "item_1758319656786_6sjl431",
+    "nombre": "Vajilla Completa",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "valorUnitarioEstimado": 80,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 100
+  },
+  {
+    "id": "item_1758320278460_yqzpq1h",
+    "nombre": "Centros de mesa florales",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "valorUnitarioEstimado": 500,
+    "calculationMethod": "ratio",
+    "precioBase": 700,
+    "invitadosPorUnidad": 10
+  },
+  {
     "id": "item_1757282105396_39i6zkn",
     "nombre": "Decoración",
     "tipoItem": "Servicio",
     "categoria": "Servicio de decoración",
     "valorUnitarioEstimado": 20000,
     "precioVenta": 14500,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_invitaciones_digitales",
+    "nombre": "Invitaciones Digitales",
+    "tipoItem": "Servicio",
+    "categoria": "Regalo exclusivo",
+    "valorUnitarioEstimado": 1000,
+    "precioVenta": 2000,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "item_1756940568854_u5m4prf",
+    "nombre": "Servicio de discoteca",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de discoteca",
+    "valorUnitarioEstimado": 16000,
+    "precioVenta": 20000,
     "calculationMethod": "fijo"
   },
   {
@@ -223,6 +1071,42 @@
     "categoria": "Servicio de entretenimiento",
     "valorUnitarioEstimado": 6000,
     "precioVenta": 8000,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "item_1758320726157_k2ts7sy",
+    "nombre": "Show en vivo (Banda)",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de entretenimiento",
+    "valorUnitarioEstimado": 20000,
+    "precioVenta": 30000,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "item_1757258437308_s0lgq1z",
+    "nombre": "Filmación",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de filmación",
+    "valorUnitarioEstimado": 15000,
+    "precioVenta": 20000,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_video_vida",
+    "nombre": "Video de Vida",
+    "tipoItem": "Servicio",
+    "categoria": "Regalo exclusivo",
+    "valorUnitarioEstimado": 4000,
+    "precioVenta": 5000,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "item_1757177422000_4ru2piy",
+    "nombre": "Fotografía",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de fotografía",
+    "valorUnitarioEstimado": 15000,
+    "precioVenta": 20000,
     "calculationMethod": "fijo"
   },
   {
@@ -253,87 +1137,207 @@
     "precioPorPersona": 200
   },
   {
-    "id": "item_1758319656786_6sjl431",
-    "nombre": "Vajilla Completa",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "valorUnitarioEstimado": 80,
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 100
+    "id": "ing-ajo",
+    "nombre": "Ajo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Gramos"
   },
   {
-    "id": "item_1758320278460_yqzpq1h",
-    "nombre": "Centros de mesa florales",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de decoración",
-    "valorUnitarioEstimado": 500,
-    "calculationMethod": "ratio",
-    "precioBase": 700,
-    "invitadosPorUnidad": 10
+    "id": "ing-albahaca",
+    "nombre": "Albahaca",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Unidad"
   },
   {
-    "id": "item_1758320726157_k2ts7sy",
-    "nombre": "Show en vivo (Banda)",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de entretenimiento",
-    "valorUnitarioEstimado": 20000,
-    "precioVenta": 30000,
-    "calculationMethod": "fijo"
+    "id": "ing-boniato",
+    "nombre": "Boniato",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Gramos"
   },
   {
-    "id": "serv_1752489600086_barlib",
-    "nombre": "Barra Libre de Bebidas sin Alcohol",
-    "tipoItem": "Servicio",
+    "id": "ing-cebolla-blanca",
+    "nombre": "Cebolla blanca",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-cebolla-morada",
+    "nombre": "Cebolla morada",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-cebollas",
+    "nombre": "Cebollas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-chauchas",
+    "nombre": "Chauchas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-choclo",
+    "nombre": "Choclo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-guarnicion-verde",
+    "nombre": "Guarnicion verde",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-lechuga",
+    "nombre": "Lechuga",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-lechuga-crespa-lisa",
+    "nombre": "Lechuga crespa y lisa",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "insumo_menta",
+    "nombre": "Menta Fresca",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-morron",
+    "nombre": "Morron",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-morron-rojo",
+    "nombre": "Morrón rojo",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-morron-verde",
+    "nombre": "Morrón verde",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-papa",
+    "nombre": "Papa",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-pepino",
+    "nombre": "Pepino",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-perejil-ajo",
+    "nombre": "Perejil y ajo natural",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-remolacha",
+    "nombre": "Remolacha",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-repollo-blanco",
+    "nombre": "Repollo Blanco",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-repollo-morado",
+    "nombre": "Repollo Morado",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "ing-tomate",
+    "nombre": "Tomate",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-tomate-cherry",
+    "nombre": "Tomate cherry",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing-zanahoria",
+    "nombre": "Zanahoria",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "unidad": "Gramos"
+  },
+  {
+    "id": "ing_azucar",
+    "nombre": "Azucar",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Otro Insumo",
+    "valorUnitarioEstimado": 70,
+    "unidad": "Gramos",
+    "cantidadDisponible": 5000
+  },
+  {
+    "id": "ing_granadina",
+    "nombre": "Granadina",
+    "tipoItem": "Bebida (Insumo)",
     "categoria": "Servicio de bebidas",
-    "valorUnitarioEstimado": 200,
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 250
+    "valorUnitarioEstimado": 250,
+    "unidad": "Litro",
+    "cantidadDisponible": 2.5
   },
   {
-    "id": "serv_invitaciones_digitales",
-    "nombre": "Invitaciones Digitales",
-    "tipoItem": "Servicio",
-    "categoria": "Regalo exclusivo",
-    "valorUnitarioEstimado": 1000,
-    "precioVenta": 2000,
-    "calculationMethod": "fijo"
+    "id": "ing_lata-anana",
+    "nombre": "lata anana",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Frutas",
+    "valorUnitarioEstimado": 120,
+    "unidad": "Unidad",
+    "cantidadDisponible": 0
   },
   {
-    "id": "serv_mozo_cocina",
-    "nombre": "Personal de Cocina",
-    "tipoItem": "Servicio",
-    "categoria": "Personal",
-    "valorUnitarioEstimado": 2000,
-    "calculationMethod": "ratio",
-    "precioBase": 2800,
-    "invitadosPorUnidad": 50
-  },
-  {
-    "id": "serv_mozos",
-    "nombre": "Servicio de Mozos",
-    "tipoItem": "Servicio",
-    "categoria": "Personal",
-    "valorUnitarioEstimado": 1800,
-    "calculationMethod": "ratio",
-    "precioBase": 2500,
-    "invitadosPorUnidad": 20
-  },
-  {
-    "id": "serv_manteleria_completa",
-    "nombre": "Mantelería Completa",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de decoración",
-    "valorUnitarioEstimado": 60,
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 70
-  },
-  {
-    "id": "serv_video_vida",
-    "nombre": "Video de Vida",
-    "tipoItem": "Servicio",
-    "categoria": "Regalo exclusivo",
-    "valorUnitarioEstimado": 4000,
-    "precioVenta": 5000,
-    "calculationMethod": "fijo"
+    "id": "ing_lata-durazno",
+    "nombre": "Lata durazno",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Frutas",
+    "valorUnitarioEstimado": 90,
+    "unidad": "Unidad",
+    "cantidadDisponible": 1
   }
 ]
