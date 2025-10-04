@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Package, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, DollarSign, Filter, Briefcase } from 'lucide-react';
+import { ArrowLeft, Package, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, DollarSign, Filter, Briefcase, Printer } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ServicioEmpresa, CategoriaServicio } from '@/types/empresa';
 import { getServiciosEmpresa, deleteServicioEmpresa } from '@/app/actions/servicios-empresa';
@@ -128,6 +128,11 @@ export default function InventarioInsumosPage() {
           </h1>
         </div>
          <div className="flex gap-2 flex-wrap">
+            <Link href="/empresa/insumos/reporte" passHref>
+                <Button variant="secondary">
+                    <Printer className="w-4 h-4 mr-2"/>Ver Reporte de Stock
+                </Button>
+            </Link>
             <Link href="/empresa/todos-los-servicios/nuevo?type=Insumo/Ingrediente" passHref>
                 <Button variant="default">
                     <PackagePlus className="w-4 h-4 mr-2" />

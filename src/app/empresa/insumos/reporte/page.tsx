@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, AlertTriangle, Printer, Share2, Package, Tag, BarChart3 } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, Share2, Package, Tag, BarChart3, Loader2, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
@@ -15,7 +15,7 @@ const formatCurrency = (amount?: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
-export default function ReporteActivosPage() {
+export default function ReporteInsumosPage() {
   const { toast } = useToast();
   const [allItems, setAllItems] = useState<ServicioEmpresa[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -26,10 +26,10 @@ export default function ReporteActivosPage() {
     setError(null);
     try {
       const data = await getServiciosEmpresa();
-      const inventoryItems = data.filter(s => s.tipoItem === 'Activo Fijo');
+      const inventoryItems = data.filter(s => s.tipoItem === 'Insumo/Ingrediente' || s.tipoItem === 'Bebida (Insumo)');
       setAllItems(inventoryItems);
     } catch (err: any) {
-      setError("No se pudo cargar el inventario de activos.");
+      setError("No se pudo cargar el inventario de insumos.");
       toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
       setIsLoading(false);
@@ -40,14 +40,12 @@ export default function ReporteActivosPage() {
     fetchItems();
   }, [fetchItems]);
 
-  const handlePrint = () => {
-    window.print();
-  };
-  
+  const handlePrint = () => { window.print(); };
+
   const handleShare = async () => {
     const shareData = {
-      title: 'Reporte de Stock de Activos - AK Producciones',
-      text: `Reporte de inventario de activos fijos.`,
+      title: 'Reporte de Stock de Insumos - AK Producciones',
+      text: `Reporte de inventario de insumos y ingredientes.`,
       url: window.location.href,
     };
     try {
@@ -75,7 +73,7 @@ export default function ReporteActivosPage() {
   }, [allItems]);
 
   const categoriasOrdenadas = Object.keys(itemsAgrupadosPorCategoria).sort();
-
+  
   const capitalTotalGeneral = useMemo(() => {
     return allItems.reduce((sum, item) => {
       return sum + ((item.cantidadDisponible || 0) * (item.valorUnitarioEstimado || 0));
@@ -92,7 +90,7 @@ export default function ReporteActivosPage() {
           <AlertTriangle className="w-16 h-16 text-destructive mb-4" />
           <h1 className="text-2xl font-bold">Error al Generar Reporte</h1>
           <p className="text-muted-foreground mt-2">{error}</p>
-          <Link href="/empresa/todos-los-servicios" passHref>
+          <Link href="/empresa/insumos" passHref>
             <Button variant="outline" className="mt-4">Volver</Button>
           </Link>
       </div>
@@ -103,30 +101,30 @@ export default function ReporteActivosPage() {
     <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans">
       <div className="max-w-4xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2">
         <div className="flex justify-between items-center mb-6 print:hidden">
-          <Link href="/empresa/todos-los-servicios" passHref>
-            <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Activos</Button>
+          <Link href="/empresa/insumos" passHref>
+            <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Insumos</Button>
           </Link>
           <div className="flex gap-2">
             <Button onClick={handleShare} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir</Button>
-            <Button onClick={handlePrint} size="sm"><Printer className="w-4 h-4 mr-1.5" />Imprimir / PDF</Button>
+            <Button onClick={handlePrint} size="sm"><PrinterIcon className="w-4 h-4 mr-1.5" />Imprimir / PDF</Button>
           </div>
         </div>
 
         <header className="mb-6 print:mb-4 text-center border-b pb-3 print:pb-2">
           <h1 className="text-xl font-bold text-primary print:text-lg flex items-center justify-center gap-2">
-            <Package className="w-6 h-6 print:w-5 print:h-5" /> Reporte de Stock de Activos Fijos
+            <Package className="w-6 h-6 print:w-5 print:h-5" /> Reporte de Stock de Insumos
           </h1>
           <p className="text-sm text-gray-500 print:text-[9pt]">Generado el: {new Date().toLocaleDateString('es-ES')}</p>
         </header>
 
         {allItems.length === 0 ? (
-          <div className="text-center py-10 text-muted-foreground">No hay activos registrados para generar un reporte.</div>
+          <div className="text-center py-10 text-muted-foreground">No hay insumos registrados para generar un reporte.</div>
         ) : (
           <Table>
-            <TableCaption>Resumen de inventario de activos fijos.</TableCaption>
+            <TableCaption>Resumen de inventario de insumos e ingredientes.</TableCaption>
             <TableHeader>
               <TableRow>
-                <TableHead className="font-semibold">Activo</TableHead>
+                <TableHead className="font-semibold">Insumo</TableHead>
                 <TableHead>Proveedor</TableHead>
                 <TableHead className="text-right">Stock</TableHead>
                 <TableHead className="text-right">Costo Unit.</TableHead>
@@ -156,7 +154,7 @@ export default function ReporteActivosPage() {
             </TableBody>
             <TableFooter>
               <TableRow className="bg-muted font-bold text-lg">
-                <TableCell colSpan={4}>Capital Total en Activos</TableCell>
+                <TableCell colSpan={4}>Capital Total en Insumos</TableCell>
                 <TableCell className="text-right">{formatCurrency(capitalTotalGeneral)}</TableCell>
               </TableRow>
             </TableFooter>
