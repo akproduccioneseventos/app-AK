@@ -155,8 +155,15 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
       const result = await saveServicioEmpresa(itemDataToSave);
       if (result.success && result.servicio) {
         toast({ title: "¡Ítem Actualizado!", description: `El ítem "${result.servicio.nombre}" ha sido actualizado.` });
-        const redirectUrl = result.servicio.tipoItem === 'Servicio' ? '/empresa/servicios' : '/empresa/todos-los-servicios';
+        
+        let redirectUrl = '/empresa/todos-los-servicios';
+        if (result.servicio.tipoItem === 'Servicio') {
+            redirectUrl = '/empresa/servicios';
+        } else if (result.servicio.tipoItem === 'Insumo/Ingrediente' || result.servicio.tipoItem === 'Bebida (Insumo)') {
+            redirectUrl = '/empresa/insumos';
+        }
         router.push(redirectUrl);
+
       } else {
         throw new Error(result.error || "Error desconocido al actualizar el ítem.");
       }
@@ -192,7 +199,13 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
   const isCatering = formData.categoria === 'Servicio de catering';
   const isReposteria = formData.categoria === 'Servicio de repostería';
   const isServicio = formData.tipoItem === 'Servicio';
-  const backUrl = isServicio ? '/empresa/servicios' : '/empresa/todos-los-servicios';
+  
+  let backUrl = '/empresa/todos-los-servicios'; // Default fallback
+  if (isServicio) {
+    backUrl = '/empresa/servicios';
+  } else if (formData.tipoItem === 'Insumo/Ingrediente' || formData.tipoItem === 'Bebida (Insumo)') {
+    backUrl = '/empresa/insumos';
+  }
 
 
   return (
@@ -341,3 +354,5 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
     </div>
   );
 }
+
+    
