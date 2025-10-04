@@ -461,7 +461,7 @@ export default function ArmadoRapidoPage() {
                                     </div>
                                     {logoUrl && (
                                         <div className="w-20 h-20 print:w-16 print:h-16 flex-shrink-0">
-                                            <Image src={logoUrl} alt={`${COMPANY_NAME_BRAND} Logo`} width={80} height={80} className="object-contain" data-ai-hint="company logo"/>
+                                            <WatermarkedImage src={logoUrl} alt={`${COMPANY_NAME_BRAND} Logo`} width={80} height={80} className="object-contain" data-ai-hint="company logo"/>
                                         </div>
                                     )}
                                 </div>

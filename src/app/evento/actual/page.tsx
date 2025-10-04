@@ -495,7 +495,7 @@ export default function EventoPublicoPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {fiesta.webPageSettings.giftRegistry.map(gift => (
                   <Card key={gift.id} className={`flex flex-col ${gift.isClaimed ? 'bg-muted/50' : ''}`}>
-                    {gift.imageUrl && <WatermarkedImage containerClassName="aspect-video" src={gift.imageUrl} alt={gift.name} layout="fill" objectFit="cover" className="rounded-t-lg" data-ai-hint="gift idea"/>}
+                    {gift.imageUrl && <WatermarkedImage containerClassName="aspect-video" src={gift.imageUrl} alt={gift.name} width={600} height={400} className="rounded-t-lg object-cover" data-ai-hint="gift idea"/>}
                     <CardHeader><CardTitle>{gift.name}</CardTitle></CardHeader>
                     <CardContent className="flex-grow"><p className="text-sm text-muted-foreground">{gift.description}</p></CardContent>
                     <CardFooter>

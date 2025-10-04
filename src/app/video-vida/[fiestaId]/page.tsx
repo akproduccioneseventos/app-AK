@@ -1,17 +1,18 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, type ChangeEvent } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import React, { useState, useEffect, useCallback, useRef, type ChangeEvent } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Camera, Loader2, AlertTriangle, Upload, CheckCircle, PartyPopper } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, VideoVidaData } from '@/types/fiesta';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { saveLifeStoryVideoPhoto, getLifeStoryVideoPhotos } from '@/app/actions/fiesta/video-vida.actions';
 import NextImage from 'next/image';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { WatermarkedImage } from '@/components/watermarked-image';
 
 interface PhotoSlot {
   number: number;
@@ -56,8 +57,9 @@ const PhotoUploadSlot: React.FC<{
       toast({ title: "Error al subir", description: err.message, variant: "destructive" });
       onUploadComplete(slot.number, null);
     } finally {
-      setIsUploading(false);
-      if (event.target) event.target.value = '';
+        setIsUploading(false);
+        // Reset file input to allow re-uploading the same file
+        if (event.target) event.target.value = '';
     }
   };
 
@@ -65,7 +67,7 @@ const PhotoUploadSlot: React.FC<{
     <div className="aspect-square relative rounded-md bg-muted overflow-hidden border-2 border-dashed hover:border-primary transition-colors group">
       <Label htmlFor={inputId} className="w-full h-full cursor-pointer flex flex-col items-center justify-center text-center text-muted-foreground p-1">
         {slot.imageUrl && !isUploading ? (
-          <NextImage src={slot.imageUrl} alt={`Foto ${slot.number}`} layout="fill" objectFit="cover" />
+          <WatermarkedImage src={slot.imageUrl} alt={`Foto ${slot.number}`} layout="fill" objectFit="cover" />
         ) : !isUploading && (
           <div className="flex flex-col items-center">
             <Upload className="w-5 h-5 mb-1 text-gray-400 group-hover:text-primary transition-colors" />
@@ -86,8 +88,8 @@ const PhotoUploadSlot: React.FC<{
           <Loader2 className="w-6 h-6 text-white animate-spin" />
         </div>
       )}
-      <div className="absolute top-0.5 left-0.5 bg-black/60 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-br-md rounded-tl-sm">{String(slot.number).padStart(2, '0')}</div>
-      {slot.imageUrl && !isUploading && <CheckCircle className="absolute bottom-0.5 right-0.5 w-4 h-4 text-green-400 bg-white rounded-full"/>}
+       <div className="absolute top-0.5 left-0.5 bg-black/60 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-br-md rounded-tl-sm">{String(slot.number).padStart(2, '0')}</div>
+       {slot.imageUrl && !isUploading && <CheckCircle className="absolute bottom-0.5 right-0.5 w-4 h-4 text-green-400 bg-white rounded-full"/>}
     </div>
   );
 };
