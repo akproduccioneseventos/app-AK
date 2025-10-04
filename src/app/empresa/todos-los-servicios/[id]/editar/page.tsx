@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Edit3, Save, Loader2, AlertTriangle, StickyNote, DollarSign, PlusCircle, Trash2, Percent } from 'lucide-react';
+import { ArrowLeft, Edit3, Save, Loader2, AlertTriangle, StickyNote, DollarSign, PlusCircle, Trash2, Percent, Briefcase, Building } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveServicioEmpresa, getServicioEmpresaById, deleteServicioEmpresa } from '@/app/actions/servicios-empresa';
 import type { ServicioEmpresa, CategoriaServicio, UnidadServicio, TipoItemEmpresa, TramoDePrecio, CategoriaInsumo, CategoriaActivo, AnyCategoria } from '@/types/empresa';
@@ -123,6 +123,27 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
     }));
   };
   
+  const isServicio = formData.tipoItem === 'Servicio';
+
+  const backUrl = useMemo(() => {
+    if (isServicio) {
+      return '/empresa/servicios';
+    } else if (formData.tipoItem === 'Insumo/Ingrediente' || formData.tipoItem === 'Bebida (Insumo)') {
+      return '/empresa/insumos';
+    }
+    return '/empresa/todos-los-servicios';
+  }, [isServicio, formData.tipoItem]);
+
+  const currentCategories = useMemo(() => {
+    switch (formData.tipoItem) {
+        case 'Servicio': return ALL_CATEGORIAS_SERVICIO;
+        case 'Activo Fijo': return ALL_CATEGORIAS_ACTIVO;
+        case 'Insumo/Ingrediente':
+        case 'Bebida (Insumo)':
+        default: return ALL_CATEGORIAS_INSUMO;
+    }
+  }, [formData.tipoItem]);
+
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -198,31 +219,11 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
   if (isLoading) return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (notFound) return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>Ítem no encontrado. <Link href="/empresa/todos-los-servicios" className="underline">Volver al inventario</Link>.</div>;
 
-  const isServicio = formData.tipoItem === 'Servicio';
-  
-  let backUrl = '/empresa/todos-los-servicios'; // Default fallback
-  if (isServicio) {
-    backUrl = '/empresa/servicios';
-  } else if (formData.tipoItem === 'Insumo/Ingrediente' || formData.tipoItem === 'Bebida (Insumo)') {
-    backUrl = '/empresa/insumos';
-  }
-
-  const currentCategories = useMemo(() => {
-    switch (formData.tipoItem) {
-        case 'Servicio': return ALL_CATEGORIAS_SERVICIO;
-        case 'Activo Fijo': return ALL_CATEGORIAS_ACTIVO;
-        case 'Insumo/Ingrediente':
-        case 'Bebida (Insumo)':
-        default: return ALL_CATEGORIAS_INSUMO;
-    }
-  }, [formData.tipoItem]);
-
-
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Edit3 className="w-8 h-8 text-primary" />
+            {formData.tipoItem === 'Servicio' ? <Briefcase className="w-8 h-8 text-primary"/> : <Building className="w-8 h-8 text-primary"/>}
           <h1 className="text-3xl font-bold tracking-tight font-headline">
             Editando: <span className="text-primary">{item?.nombre}</span>
           </h1>
