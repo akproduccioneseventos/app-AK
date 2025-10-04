@@ -13,19 +13,123 @@
           "porcionesBase": 100,
           "costoTotalReceta": 2910,
           "ingredientes": [
-            { "id": "ing_1", "insumoId": "ing-jugo-naranja", "nombreInsumo": "Jugo de Naranja", "cantidad": 6000, "unidad": "ml", "costoUnitario": 0.04, "costoTotal": 240 },
-            { "id": "ing_2", "insumoId": "ing-banana", "nombreInsumo": "Banana", "cantidad": 5000, "unidad": "g", "costoUnitario": 0.05, "costoTotal": 250 },
-            { "id": "ing_3", "insumoId": "ing-fruta-mix", "nombreInsumo": "Otra fruta (mix)", "cantidad": 2000, "unidad": "g", "costoUnitario": 0.07, "costoTotal": 140 },
-            { "id": "ing_4", "insumoId": "ing-agua", "nombreInsumo": "Agua", "cantidad": 25000, "unidad": "ml", "costoUnitario": 0, "costoTotal": 0 },
-            { "id": "ing_5", "insumoId": "ing-durazno-lata", "nombreInsumo": "Durazno en lata", "cantidad": 4, "unidad": "lata", "costoUnitario": 100, "costoTotal": 400 },
-            { "id": "ing_6", "insumoId": "ing-anana-lata", "nombreInsumo": "Ananá en lata", "cantidad": 2, "unidad": "lata", "costoUnitario": 140, "costoTotal": 280 },
-            { "id": "ing_7", "insumoId": "ing-vino-rosado-dulce", "nombreInsumo": "Vino rosado dulce", "cantidad": 3, "unidad": "botella", "costoUnitario": 100, "costoTotal": 300 },
-            { "id": "ing_8", "insumoId": "ing-vino-blanco-dulce", "nombreInsumo": "Vino blanco dulce", "cantidad": 3, "unidad": "botella", "costoUnitario": 130, "costoTotal": 390 },
-            { "id": "ing_9", "insumoId": "ing-jugo-rinde2", "nombreInsumo": "Jugo rinde 2", "cantidad": 6, "unidad": "sobre", "costoUnitario": 18, "costoTotal": 108 },
-            { "id": "ing_10", "insumoId": "ing-azucar", "nombreInsumo": "Azúcar", "cantidad": 3, "unidad": "kg", "costoUnitario": 65, "costoTotal": 195 },
-            { "id": "ing_11", "insumoId": "ing-sidra-750ml", "nombreInsumo": "Sidra 750ml", "cantidad": 3, "unidad": "botella", "costoUnitario": 69, "costoTotal": 207 },
-            { "id": "ing_12", "insumoId": "ing-licor-frutilla", "nombreInsumo": "Licor de Frutilla", "cantidad": 0.5, "unidad": "lt", "costoUnitario": 400, "costoTotal": 200 },
-            { "id": "ing_13", "insumoId": "ing-licor-durazno", "nombreInsumo": "Licor de Durazno", "cantidad": 0.5, "unidad": "lt", "costoUnitario": 400, "costoTotal": 200 }
+            {
+              "id": "ing_1",
+              "insumoId": "ing-jugo-naranja",
+              "nombreInsumo": "Jugo de Naranja",
+              "cantidad": 6000,
+              "unidad": "ml",
+              "costoUnitario": 0.04,
+              "costoTotal": 240
+            },
+            {
+              "id": "ing_2",
+              "insumoId": "ing-banana",
+              "nombreInsumo": "Banana",
+              "cantidad": 5000,
+              "unidad": "g",
+              "costoUnitario": 0.05,
+              "costoTotal": 250
+            },
+            {
+              "id": "ing_3",
+              "insumoId": "ing-fruta-mix",
+              "nombreInsumo": "Otra fruta (mix)",
+              "cantidad": 2000,
+              "unidad": "g",
+              "costoUnitario": 0.07,
+              "costoTotal": 140
+            },
+            {
+              "id": "ing_4",
+              "insumoId": "ing-agua",
+              "nombreInsumo": "Agua",
+              "cantidad": 25000,
+              "unidad": "ml",
+              "costoUnitario": 0,
+              "costoTotal": 0
+            },
+            {
+              "id": "ing_5",
+              "insumoId": "ing-durazno-lata",
+              "nombreInsumo": "Durazno en lata",
+              "cantidad": 4,
+              "unidad": "lata",
+              "costoUnitario": 100,
+              "costoTotal": 400
+            },
+            {
+              "id": "ing_6",
+              "insumoId": "ing-anana-lata",
+              "nombreInsumo": "Ananá en lata",
+              "cantidad": 2,
+              "unidad": "lata",
+              "costoUnitario": 140,
+              "costoTotal": 280
+            },
+            {
+              "id": "ing_7",
+              "insumoId": "ing-vino-rosado-dulce",
+              "nombreInsumo": "Vino rosado dulce",
+              "cantidad": 3,
+              "unidad": "botella",
+              "costoUnitario": 100,
+              "costoTotal": 300
+            },
+            {
+              "id": "ing_8",
+              "insumoId": "ing-vino-blanco-dulce",
+              "nombreInsumo": "Vino blanco dulce",
+              "cantidad": 3,
+              "unidad": "botella",
+              "costoUnitario": 130,
+              "costoTotal": 390
+            },
+            {
+              "id": "ing_9",
+              "insumoId": "ing-jugo-rinde2",
+              "nombreInsumo": "Jugo rinde 2",
+              "cantidad": 6,
+              "unidad": "sobre",
+              "costoUnitario": 18,
+              "costoTotal": 108
+            },
+            {
+              "id": "ing_10",
+              "insumoId": "ing-azucar",
+              "nombreInsumo": "Azúcar",
+              "cantidad": 3,
+              "unidad": "kg",
+              "costoUnitario": 65,
+              "costoTotal": 195
+            },
+            {
+              "id": "ing_11",
+              "insumoId": "ing-sidra-750ml",
+              "nombreInsumo": "Sidra 750ml",
+              "cantidad": 3,
+              "unidad": "botella",
+              "costoUnitario": 69,
+              "costoTotal": 207
+            },
+            {
+              "id": "ing_12",
+              "insumoId": "ing-licor-frutilla",
+              "nombreInsumo": "Licor de Frutilla",
+              "cantidad": 0.5,
+              "unidad": "lt",
+              "costoUnitario": 400,
+              "costoTotal": 200
+            },
+            {
+              "id": "ing_13",
+              "insumoId": "ing-licor-durazno",
+              "nombreInsumo": "Licor de Durazno",
+              "cantidad": 0.5,
+              "unidad": "lt",
+              "costoUnitario": 400,
+              "costoTotal": 200
+            }
           ]
         }
       ],
@@ -71,24 +175,150 @@
       "nombreDisplay": "Barra de Tragos",
       "activada": false,
       "items": [
-        { "id": "beb-licor-frutilla", "nombre": "Licor de Frutilla", "cantidadNecesaria": 2, "unidadCantidad": "Litros", "costoUnitario": 300, "costoTotal": 600 },
-        { "id": "beb-licor-durazno", "nombre": "Licor de Durazno", "cantidadNecesaria": 2, "unidadCantidad": "Litros", "costoUnitario": 300, "costoTotal": 600 },
-        { "id": "beb-jugo-durazno", "nombre": "Jugo de Durazno", "cantidadNecesaria": 2, "unidadCantidad": "Litros", "costoUnitario": 50, "costoTotal": 100 },
-        { "id": "beb-licor-blue", "nombre": "Licor Blue Curaçao", "cantidadNecesaria": 2, "unidadCantidad": "Litros", "costoUnitario": 300, "costoTotal": 600 },
-        { "id": "beb-fernet", "nombre": "Fernet", "cantidadNecesaria": 4, "unidadCantidad": "Litros", "costoUnitario": 400, "costoTotal": 1600 },
-        { "id": "beb-granadina", "nombre": "Granadina", "cantidadNecesaria": 1, "unidadCantidad": "Litro", "costoUnitario": 220, "costoTotal": 220 },
-        { "id": "beb-lata-durazno", "nombre": "Lata de Durazno", "cantidadNecesaria": 3, "unidadCantidad": "Unidades", "costoUnitario": 80, "costoTotal": 240 },
-        { "id": "beb-lata-anana", "nombre": "Lata de Ananá", "cantidadNecesaria": 5, "unidadCantidad": "Unidades", "costoUnitario": 117, "costoTotal": 585 },
-        { "id": "beb-pepsi", "nombre": "Pepsi", "cantidadNecesaria": 14, "unidadCantidad": "Litros", "costoUnitario": 90, "costoTotal": 1260 },
-        { "id": "beb-vasos-sorbitos", "nombre": "Vasos y Sorbitos", "cantidadNecesaria": 300, "unidadCantidad": "Unidades", "costoUnitario": 2, "costoTotal": 600 },
-        { "id": "beb-refresco-lima", "nombre": "Refresco Lima", "cantidadNecesaria": 2, "unidadCantidad": "Litros", "costoUnitario": 65, "costoTotal": 130 },
-        { "id": "beb-vodka", "nombre": "Vodka", "cantidadNecesaria": 3, "unidadCantidad": "Litros", "costoUnitario": 280, "costoTotal": 840 },
-        { "id": "beb-ron", "nombre": "Ron", "cantidadNecesaria": 2, "unidadCantidad": "Litros", "costoUnitario": 300, "costoTotal": 600 },
-        { "id": "beb-limon", "nombre": "Limón", "cantidadNecesaria": 2000, "unidadCantidad": "Gramos", "costoUnitario": 0.07, "costoTotal": 140 },
-        { "id": "beb-frutilla", "nombre": "Frutilla", "cantidadNecesaria": 2000, "unidadCantidad": "Gramos", "costoUnitario": 0.12, "costoTotal": 240 },
-        { "id": "beb-azucar", "nombre": "Azúcar", "cantidadNecesaria": 2000, "unidadCantidad": "Gramos", "costoUnitario": 0.07, "costoTotal": 140 },
-        { "id": "beb-cana", "nombre": "Caña", "cantidadNecesaria": 2, "unidadCantidad": "Litros", "costoUnitario": 300, "costoTotal": 600 },
-        { "id": "beb-jugo-naranja", "nombre": "Jugo de Naranja", "cantidadNecesaria": 10, "unidadCantidad": "Litros", "costoUnitario": 35, "costoTotal": 350 }
+        {
+          "id": "beb-licor-frutilla",
+          "nombre": "Licor de Frutilla",
+          "cantidadNecesaria": 2,
+          "unidadCantidad": "Litros",
+          "costoUnitario": 300,
+          "costoTotal": 600
+        },
+        {
+          "id": "beb-licor-durazno",
+          "nombre": "Licor de Durazno",
+          "cantidadNecesaria": 2,
+          "unidadCantidad": "Litros",
+          "costoUnitario": 300,
+          "costoTotal": 600
+        },
+        {
+          "id": "beb-jugo-durazno",
+          "nombre": "Jugo de Durazno",
+          "cantidadNecesaria": 2,
+          "unidadCantidad": "Litros",
+          "costoUnitario": 50,
+          "costoTotal": 100
+        },
+        {
+          "id": "beb-licor-blue",
+          "nombre": "Licor Blue Curaçao",
+          "cantidadNecesaria": 2,
+          "unidadCantidad": "Litros",
+          "costoUnitario": 300,
+          "costoTotal": 600
+        },
+        {
+          "id": "beb-fernet",
+          "nombre": "Fernet",
+          "cantidadNecesaria": 4,
+          "unidadCantidad": "Litros",
+          "costoUnitario": 400,
+          "costoTotal": 1600
+        },
+        {
+          "id": "beb-granadina",
+          "nombre": "Granadina",
+          "cantidadNecesaria": 1,
+          "unidadCantidad": "Litro",
+          "costoUnitario": 220,
+          "costoTotal": 220
+        },
+        {
+          "id": "beb-lata-durazno",
+          "nombre": "Lata de Durazno",
+          "cantidadNecesaria": 3,
+          "unidadCantidad": "Unidades",
+          "costoUnitario": 80,
+          "costoTotal": 240
+        },
+        {
+          "id": "beb-lata-anana",
+          "nombre": "Lata de Ananá",
+          "cantidadNecesaria": 5,
+          "unidadCantidad": "Unidades",
+          "costoUnitario": 117,
+          "costoTotal": 585
+        },
+        {
+          "id": "beb-pepsi",
+          "nombre": "Pepsi",
+          "cantidadNecesaria": 14,
+          "unidadCantidad": "Litros",
+          "costoUnitario": 90,
+          "costoTotal": 1260
+        },
+        {
+          "id": "beb-vasos-sorbitos",
+          "nombre": "Vasos y Sorbitos",
+          "cantidadNecesaria": 300,
+          "unidadCantidad": "Unidades",
+          "costoUnitario": 2,
+          "costoTotal": 600
+        },
+        {
+          "id": "beb-refresco-lima",
+          "nombre": "Refresco Lima",
+          "cantidadNecesaria": 2,
+          "unidadCantidad": "Litros",
+          "costoUnitario": 65,
+          "costoTotal": 130
+        },
+        {
+          "id": "beb-vodka",
+          "nombre": "Vodka",
+          "cantidadNecesaria": 3,
+          "unidadCantidad": "Litros",
+          "costoUnitario": 280,
+          "costoTotal": 840
+        },
+        {
+          "id": "beb-ron",
+          "nombre": "Ron",
+          "cantidadNecesaria": 2,
+          "unidadCantidad": "Litros",
+          "costoUnitario": 300,
+          "costoTotal": 600
+        },
+        {
+          "id": "beb-limon",
+          "nombre": "Limón",
+          "cantidadNecesaria": 2000,
+          "unidadCantidad": "Gramos",
+          "costoUnitario": 0.07,
+          "costoTotal": 140
+        },
+        {
+          "id": "beb-frutilla",
+          "nombre": "Frutilla",
+          "cantidadNecesaria": 2000,
+          "unidadCantidad": "Gramos",
+          "costoUnitario": 0.12,
+          "costoTotal": 240
+        },
+        {
+          "id": "beb-azucar",
+          "nombre": "Azúcar",
+          "cantidadNecesaria": 2000,
+          "unidadCantidad": "Gramos",
+          "costoUnitario": 0.07,
+          "costoTotal": 140
+        },
+        {
+          "id": "beb-cana",
+          "nombre": "Caña",
+          "cantidadNecesaria": 2,
+          "unidadCantidad": "Litros",
+          "costoUnitario": 300,
+          "costoTotal": 600
+        },
+        {
+          "id": "beb-jugo-naranja",
+          "nombre": "Jugo de Naranja",
+          "cantidadNecesaria": 10,
+          "unidadCantidad": "Litros",
+          "costoUnitario": 35,
+          "costoTotal": 350
+        }
       ],
       "recetas": [],
       "descripcion": "Bebidas blancas y licores para la barra."
@@ -102,14 +332,46 @@
     }
   ],
   "consumoConfig": {
-    "coctel_bienvenida": { "adulto": 0.5, "adolescente": 0.5, "nino": 0.3 },
-    "refrescos_gaseosas": { "adulto": 0.2, "adolescente": 0.3, "nino": 0.25 },
-    "jugos": { "adulto": 0.1, "adolescente": 0.15, "nino": 0.15 },
-    "aguas_saborizadas": { "adulto": 0.15, "adolescente": 0.1, "nino": 0.1 },
-    "cervezas": { "adulto": 0.4, "adolescente": 0, "nino": 0 },
-    "vinos_espumantes": { "adulto": 0.3, "adolescente": 0, "nino": 0 },
-    "barra_tragos": { "adulto": 0.2, "adolescente": 0, "nino": 0 },
-    "cafeteria": { "adulto": 0.05, "adolescente": 0, "nino": 0 }
+    "coctel_bienvenida": {
+      "adulto": 0.5,
+      "adolescente": 0.5,
+      "nino": 0.3
+    },
+    "refrescos_gaseosas": {
+      "adulto": 0.2,
+      "adolescente": 0.3,
+      "nino": 0.25
+    },
+    "jugos": {
+      "adulto": 0.1,
+      "adolescente": 0.15,
+      "nino": 0.15
+    },
+    "aguas_saborizadas": {
+      "adulto": 0.15,
+      "adolescente": 0.1,
+      "nino": 0.1
+    },
+    "cervezas": {
+      "adulto": 0.4,
+      "adolescente": 0,
+      "nino": 0
+    },
+    "vinos_espumantes": {
+      "adulto": 0.3,
+      "adolescente": 0,
+      "nino": 0
+    },
+    "barra_tragos": {
+      "adulto": 0.2,
+      "adolescente": 0,
+      "nino": 0
+    },
+    "cafeteria": {
+      "adulto": 0.05,
+      "adolescente": 0,
+      "nino": 0
+    }
   },
   "notasGenerales": ""
 }
