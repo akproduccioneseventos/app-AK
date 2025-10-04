@@ -98,7 +98,7 @@ const assistantFlow = ai.defineFlow(
     // 3. Generate the response using the AI model
     const llmResponse = await ai.generate({
       prompt: input.query,
-      model: 'googleai/gemini-1.5-flash',
+      // The model will be automatically selected from the genkit configuration file.
       // The system prompt "trains" the AI for this specific request
       system: `You are "Asistente AK," an expert marketing and event planning assistant for a company named AK Producciones. Your tone should be creative, helpful, and professional.
 
