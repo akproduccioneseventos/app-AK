@@ -3,13 +3,13 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Package, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, DollarSign, Filter, Briefcase, Printer } from 'lucide-react';
+import { ArrowLeft, Package, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, Filter, Printer } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ServicioEmpresa } from '@/types/empresa';
-import { getServiciosEmpresa, deleteServicioEmpresa } from '@/app/actions/servicios-empresa';
+import { getInsumos, deleteInsumo } from '@/app/actions/insumos';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import {
   AlertDialog,
@@ -22,9 +22,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || amount === null || isNaN(amount)) return '$ 0';
@@ -45,20 +43,16 @@ export default function InventarioInsumosPage() {
     return Array.from(categories).sort();
   }, [allItems]);
 
-  const [categoryFilter, setCategoryFilter] = useState<Record<string, boolean>>(
-    {}
-  );
+  const [categoryFilter, setCategoryFilter] = useState<Record<string, boolean>>({});
 
   const fetchItems = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await getServiciosEmpresa();
-      const inventoryItems = data.filter(s => s.tipoItem === 'Insumo/Ingrediente' || s.tipoItem === 'Bebida (Insumo)');
-      setAllItems(inventoryItems);
-      // Initialize filters based on fetched data only if not already set
+      const data = await getInsumos();
+      setAllItems(data);
       if (Object.keys(categoryFilter).length === 0) {
-        const initialCategories = Array.from(new Set(inventoryItems.map(i => i.categoria))).reduce((acc, cat) => ({...acc, [cat as string]: true}), {});
+        const initialCategories = Array.from(new Set(data.map(i => i.categoria))).reduce((acc, cat) => ({...acc, [cat as string]: true}), {});
         setCategoryFilter(initialCategories);
       }
     } catch (err: any) {
@@ -80,8 +74,7 @@ export default function InventarioInsumosPage() {
     const filteredData = allItems.filter(item => {
       const matchesSearch = lowercasedFilter === '' ||
         item.nombre.toLowerCase().includes(lowercasedFilter) ||
-        (item.subcategoria && item.subcategoria.toLowerCase().includes(lowercasedFilter)) ||
-        (item.proveedor && item.proveedor.toLowerCase().includes(lowercasedFilter));
+        (item.categoria && item.categoria.toLowerCase().includes(lowercasedFilter));
         
       const matchesCategory = activeCategories.length === 0 || activeCategories.length === ALL_CATEGORIES.length || (item.categoria && activeCategories.includes(item.categoria));
 
@@ -93,7 +86,7 @@ export default function InventarioInsumosPage() {
   const handleDelete = async (id: string, nombreItem?: string) => {
     setDeletingId(id);
     try {
-      const result = await deleteServicioEmpresa(id);
+      const result = await deleteInsumo(id);
       if (result.success) {
         toast({ title: "Insumo Eliminado", description: `El insumo "${nombreItem || id}" ha sido eliminado.` });
         fetchItems(); 
@@ -133,7 +126,7 @@ export default function InventarioInsumosPage() {
                     <Printer className="w-4 h-4 mr-2"/>Ver Reporte de Stock
                 </Button>
             </Link>
-            <Link href="/empresa/todos-los-servicios/nuevo?type=Insumo/Ingrediente" passHref>
+            <Link href="/empresa/insumos/nuevo" passHref>
                 <Button variant="default">
                     <PackagePlus className="w-4 h-4 mr-2" />
                     Añadir Insumo
@@ -157,16 +150,6 @@ export default function InventarioInsumosPage() {
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input type="text" placeholder="Buscar por nombre, proveedor..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 text-base"/>
             </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild><Button variant="outline"><Filter className="w-4 h-4 mr-2"/>Filtrar Categoría</Button></DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuLabel>Categorías</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {ALL_CATEGORIES.map(cat => (
-                  <DropdownMenuCheckboxItem key={cat} checked={categoryFilter[cat] ?? false} onCheckedChange={() => handleTipoFilterChange(cat)}>{cat}</DropdownMenuCheckboxItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
           </div>
         </CardHeader>
         <CardContent>
@@ -181,24 +164,23 @@ export default function InventarioInsumosPage() {
               {categoriasOrdenadas.map((categoria) => (
                 <AccordionItem value={categoria} key={categoria} className="border rounded-lg shadow-sm bg-card">
                   <AccordionTrigger className="px-4 py-3 hover:no-underline text-lg font-headline text-primary hover:bg-muted/50 rounded-t-lg">
-                    <div className="flex items-center gap-2">{categoria} ({itemsAgrupadosPorCategoria[categoria]?.length || 0})</div>
+                    <div className="flex items-center gap-2">{categoria} ({insumosPorCategoria[categoria]?.length || 0})</div>
                   </AccordionTrigger>
                   <AccordionContent className="px-4 pt-0 pb-3">
                     <div className="space-y-3 mt-2">
-                      {itemsAgrupadosPorCategoria[categoria]?.map((item) => (
+                      {insumosPorCategoria[categoria]?.map((item) => (
                         <Card key={item.id} className="bg-muted/30 hover:shadow-sm transition-shadow">
                           <CardHeader className="pb-2 pt-3 px-3">
                             <div className="flex justify-between items-start">
                               <CardTitle className="text-base font-semibold">{item.nombre}</CardTitle>
                               <div className="flex gap-1">
-                                  <Link href={`/empresa/todos-los-servicios/${item.id}/editar`} passHref><Button variant="ghost" size="icon" className="h-7 w-7"><Edit className="w-3.5 h-3.5" /></Button></Link>
+                                  <Link href={`/empresa/insumos/${item.id}/editar`} passHref><Button variant="ghost" size="icon" className="h-7 w-7"><Edit className="w-3.5 h-3.5" /></Button></Link>
                                   <AlertDialog>
                                     <AlertDialogTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" disabled={deletingId === item.id}><Trash2 className="w-3.5 h-3.5" /></Button></AlertDialogTrigger>
                                     <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>¿Confirmar eliminación?</AlertDialogTitle><AlertDialogDescription>El ítem "{item.nombre}" será eliminado.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDelete(item.id, item.nombre)} disabled={deletingId === item.id} className="bg-destructive hover:bg-destructive/90">{deletingId === item.id && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin"/>}Eliminar</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
                                   </AlertDialog>
                               </div>
                             </div>
-                             {item.proveedor && <p className="text-xs text-muted-foreground flex items-center gap-1.5"><Briefcase className="w-3 h-3"/> {item.proveedor}</p>}
                           </CardHeader>
                           <CardContent className="px-3 pb-3 text-sm space-y-1">
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1">

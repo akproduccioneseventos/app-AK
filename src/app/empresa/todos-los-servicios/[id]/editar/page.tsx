@@ -1,122 +1,48 @@
+
 'use client';
 
-import Link from 'next/link';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import React, { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ContactRound, Briefcase, BarChart3, Building2, Package, Sparkles, Server, PlusCircle, ChefHat, Calculator, ShoppingCart, GlassWater, PackageSearch } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import Link from 'next/link';
 
-interface HubItem {
-  title: string;
-  description: string;
-  href: string;
-  icon: React.ElementType;
-  actionLabel: string;
-}
+// This page is obsolete. Its functionality has been moved.
+// We redirect to the new central hub for enterprise management.
+export default function DeprecatedGeneralEditIdPage({ params }: { params: { id: string } }) {
+    const router = useRouter();
 
-const empresaHubItems: HubItem[] = [
-  {
-    title: 'Panel Contable y Financiero',
-    description: 'Accede al CRM, presupuestos, facturas y reportes.',
-    href: '/empresa/contabilidad',
-    icon: BarChart3,
-    actionLabel: 'Ir al Panel',
-  },
-   {
-    title: 'Catálogo de Servicios',
-    description: 'Define y gestiona los servicios que vendes en tus presupuestos.',
-    href: '/empresa/servicios',
-    icon: Sparkles,
-    actionLabel: 'Gestionar Servicios',
-  },
-  {
-    title: 'Planificador Gastronómico Maestro',
-    description: 'Crea plantillas de menús, platos, gestiona insumos y calcula costos.',
-    href: '/empresa/menus',
-    icon: ChefHat,
-    actionLabel: 'Gestionar Plantillas',
-  },
-  {
-    title: 'Catálogo de Activos Fijos',
-    description: 'Gestiona tu inventario de activos reutilizables (mobiliario, equipo, etc.).',
-    href: '/empresa/activos-fijos',
-    icon: Package,
-    actionLabel: 'Gestionar Activos',
-  },
-  {
-    title: 'Gestión de Empleados',
-    description: 'Administra la información, roles y sueldos de tu personal.',
-    href: '/empleados',
-    icon: ContactRound,
-    actionLabel: 'Ir a Empleados',
-  },
-  {
-    title: 'Proveedores',
-    description: 'Mantén un registro de tus proveedores y sus servicios.',
-    href: '/proveedores',
-    icon: Briefcase,
-    actionLabel: 'Ir a Proveedores',
-  },
-   {
-    title: 'Carga Operativa General',
-    description: 'Gestiona el inventario maestro de todo lo necesario para la logística de tus eventos.',
-    href: '/settings/carga-operativa-templates',
-    icon: PackageSearch,
-    actionLabel: 'Gestionar Carga',
-  },
-  {
-    title: 'Redes Sociales y Publicaciones',
-    description: 'Planifica, redacta con IA y sigue el rendimiento de tus campañas en redes sociales.',
-    href: '/empresa/redes-sociales',
-    icon: Sparkles,
-    actionLabel: 'Gestionar Publicaciones',
-  },
-];
+    useEffect(() => {
+        // A more robust solution would be to fetch the item type and redirect accordingly.
+        // For now, redirecting to the main assets page is a safe fallback.
+        if(params.id) {
+            router.replace(`/empresa/activos-fijos/${params.id}/editar`);
+        } else {
+            router.replace('/empresa');
+        }
+    }, [router, params.id]);
 
-export default function EmpresaHubPage() {
-  return (
-    <div className="space-y-8">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-            <Building2 className="w-8 h-8 text-primary" />
-            <h1 className="text-3xl font-bold tracking-tight font-headline">
-              Gestión de la Empresa
-            </h1>
+    return (
+        <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4">
+            <Card className="max-w-xl text-center">
+                <CardHeader>
+                    <Loader2 className="w-12 h-12 mx-auto text-primary animate-spin" />
+                    <CardTitle className="font-headline text-2xl mt-4">Redirigiendo...</CardTitle>
+                </CardHeader>
+                <CardContent>
+                     <p className="text-muted-foreground">
+                        La edición de ítems ha sido reorganizada. Serás redirigido a la página correcta.
+                    </p>
+                </CardContent>
+                 <CardFooter className="justify-center">
+                    <Link href="/empresa" passHref>
+                        <Button variant="link">
+                            Si no eres redirigido, haz clic aquí.
+                        </Button>
+                    </Link>
+                </CardFooter>
+            </Card>
         </div>
-        <Link href="/" passHref>
-          <Button variant="outline">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver al Menú Principal
-          </Button>
-        </Link>
-      </div>
-      <CardDescription className="text-lg">
-        Desde aquí puedes acceder a todas las áreas administrativas y de gestión de tu empresa.
-      </CardDescription>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {empresaHubItems.map((item) => (
-          <Card key={item.title} className="flex flex-col shadow-lg hover:shadow-xl transition-shadow duration-300">
-            <CardHeader className="flex-row items-start gap-4 space-y-0 pb-3">
-              <div className="p-3 bg-primary/10 rounded-lg">
-                <item.icon className="w-7 h-7 text-primary" />
-              </div>
-              <div>
-                <CardTitle className="font-headline text-lg mb-1">{item.title}</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="flex-grow space-y-2">
-              <p className="text-sm text-muted-foreground line-clamp-3">{item.description}</p>
-            </CardContent>
-            <CardFooter className="pt-2">
-              <Link href={item.href} passHref className="w-full">
-                <Button variant="default" className="w-full">
-                  {item.actionLabel}
-                </Button>
-              </Link>
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
-    </div>
-  );
+    );
 }
