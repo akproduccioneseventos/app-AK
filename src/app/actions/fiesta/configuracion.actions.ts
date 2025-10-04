@@ -1,6 +1,7 @@
 
 
 
+
 'use server';
 
 import { initialFiestaActualData } from '@/lib/fiesta-defaults';
@@ -8,35 +9,22 @@ import type { FiestaEnPlanificacion, ConfigEventoDataStorage } from '@/types/fie
 import { readData, writeData } from '@/lib/data-service';
 import { syncCustomerFromFiestaConfig } from '@/app/actions/customers';
 import path from 'path';
-import { getAllFiestas } from './fiesta.actions';
+import { getFiestaById } from './fiesta.actions';
 
 const FIESTAS_DIR = 'fiestas';
 
-// Helper function to find the active fiesta file
-async function getActiveFiestaPath(): Promise<string | null> {
-    const fiestas = await getAllFiestas();
-    const activeFiesta = fiestas.find(f => f.id.startsWith('fiesta_'));
-    if (!activeFiesta) {
-        // Create a new one if none exists
-        const newFiesta = { ...initialFiestaActualData, id: `fiesta_${Date.now()}`};
-        const newFilePath = path.join(FIESTAS_DIR, `${newFiesta.id}.json`);
-        await writeData(newFilePath, newFiesta);
-        return newFilePath;
-    }
-    return path.join(FIESTAS_DIR, `${activeFiesta.id}.json`);
-}
 
-
-async function updateFiestaData(updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion): Promise<{ success: boolean; updatedData?: FiestaEnPlanificacion; error?: string }> {
-  const FIESTA_ACTUAL_FILE_PATH = await getActiveFiestaPath();
-  if (!FIESTA_ACTUAL_FILE_PATH) {
-    return { success: false, error: "No se pudo encontrar o crear un archivo de fiesta activa."};
-  }
+async function updateFiestaData(
+  fiestaId: string, 
+  updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion
+): Promise<{ success: boolean; updatedData?: FiestaEnPlanificacion; error?: string }> {
+  
+  const FIESTA_FILE_PATH = path.join(FIESTAS_DIR, `${fiestaId}.json`);
 
   try {
-    const currentData = await readData<FiestaEnPlanificacion>(FIESTA_ACTUAL_FILE_PATH, initialFiestaActualData);
+    const currentData = await readData<FiestaEnPlanificacion>(FIESTA_FILE_PATH, { ...initialFiestaActualData, id: fiestaId });
     const updatedData = updateFn(currentData);
-    await writeData(FIESTA_ACTUAL_FILE_PATH, updatedData);
+    await writeData(FIESTA_FILE_PATH, updatedData);
 
     // Sync changes to the customer file if a customer is linked
     if (updatedData.configuracion.clienteId) {
@@ -49,15 +37,11 @@ async function updateFiestaData(updateFn: (data: FiestaEnPlanificacion) => Fiest
   }
 }
 
-export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
-  const FIESTA_ACTUAL_FILE_PATH = await getActiveFiestaPath();
-   if (!FIESTA_ACTUAL_FILE_PATH) {
-    console.error("No active fiesta file found, returning initial data.");
-    return initialFiestaActualData;
-  }
-  return readData<FiestaEnPlanificacion>(FIESTA_ACTUAL_FILE_PATH, initialFiestaActualData);
+export async function getFiestaActual(fiestaId: string): Promise<FiestaEnPlanificacion> {
+  const FIESTA_FILE_PATH = path.join(FIESTAS_DIR, `${fiestaId}.json`);
+  return readData<FiestaEnPlanificacion>(FIESTA_FILE_PATH, {...initialFiestaActualData, id: fiestaId});
 }
 
-export async function updateConfiguracion(config: ConfigEventoDataStorage) {
-  return updateFiestaData(data => ({ ...data, configuracion: config }));
+export async function updateConfiguracion(fiestaId: string, config: ConfigEventoDataStorage) {
+  return updateFiestaData(fiestaId, data => ({ ...data, configuracion: config }));
 }

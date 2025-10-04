@@ -19,7 +19,7 @@ import {
     duplicateFiesta as duplicateFiestaFromModule,
     getHistorialFiestas as getHistorialFiestasFromModule
 } from './fiesta/fiesta.actions';
-import { getFiestaActual as getFiestaData } from './fiesta/configuracion.actions';
+import { getFiestaById as getFiestaData } from './fiesta/fiesta.actions';
 
 
 import { updateConfiguracion } from './fiesta/configuracion.actions';
@@ -44,7 +44,7 @@ import { updateVideoVidaSettings as updateVideoVidaSettingsFromModule } from './
 
 
 // --- General Fiesta Actions ---
-export const getFiestaActual = getFiestaData;
+export const getFiestaActual = getFiestaData; // Legacy, use getFiestaById
 export const getHistorialFiestas = getHistorialFiestasFromModule;
 export const getFiestas = getFiestasFromModule;
 export const getAllFiestas = getAllFiestasFromModule;
@@ -127,6 +127,7 @@ export const updateMenuAsignadoFiestaActual = updateMenuAsignado;
 
 // --- Video de Vida Actions ---
 export const updateVideoVidaSettingsFiestaActual = updateVideoVidaSettingsFromModule;
+
 
 
 
