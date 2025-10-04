@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, type FormEvent, Suspense, useMemo, useEffect } from 'react';
+import React, { useState, type FormEvent, Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -41,7 +41,10 @@ function NuevoInsumoContent() {
     if(subcategoriaParam) {
         setFormData(prev => ({...prev, subcategoria: subcategoriaParam}));
     }
-  }, [subcategoriaParam])
+    if (categoriaParam) {
+        setFormData(prev => ({...prev, categoria: categoriaParam as CategoriaInsumo}));
+    }
+  }, [subcategoriaParam, categoriaParam]);
 
   const handleFormChange = (field: keyof ServicioEmpresa, value: any) => {
      if (typeof value === 'string' && ['cantidadDisponible', 'valorUnitarioEstimado'].includes(field)) {
@@ -78,8 +81,8 @@ function NuevoInsumoContent() {
       const result = await saveInsumo(dataToSave);
       if (result.success && result.id) {
         toast({ title: "¡Ítem Guardado!", description: `El ítem "${dataToSave.nombre}" ha sido añadido.` });
-        if (categoriaParam && subcategoriaParam) {
-            router.push(`/empresa/servicios/${categoriaParam}/${subcategoriaParam}`);
+        if (searchParams.get('from') === 'gastronomia') {
+            router.push('/empresa/menus');
         } else {
             router.push('/empresa/insumos');
         }
@@ -93,9 +96,7 @@ function NuevoInsumoContent() {
     }
   };
   
-  const backUrl = (categoriaParam && subcategoriaParam) 
-    ? `/empresa/servicios/${categoriaParam}/${subcategoriaParam}`
-    : '/empresa/insumos';
+  const backUrl = searchParams.get('from') === 'gastronomia' ? '/empresa/menus' : '/empresa/insumos';
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
