@@ -14,7 +14,6 @@ import type { Presupuesto } from '@/types/presupuesto';
 import { defaultBebidasData, defaultReposteriaData } from '@/lib/fiesta-defaults';
 import { GestionReposteria } from '@/components/gastronomia/GestionReposteria';
 import { GestionBebidas } from '@/components/gastronomia/GestionBebidas';
-import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { getMenus } from '@/app/actions/menus-catering';
@@ -78,7 +77,7 @@ export default function PlannerGastronomicoFiestaPage() {
     loadData();
   }, [loadData]);
 
-   const handleSave = async () => {
+   const handleSaveAll = async () => {
         setIsSaving(true);
         try {
             await Promise.all([
@@ -113,7 +112,7 @@ export default function PlannerGastronomicoFiestaPage() {
           <CardHeader><CardTitle className="font-headline text-xl">Resumen de Invitados</CardTitle></CardHeader>
           <CardContent className="grid grid-cols-3 gap-4 text-center">
             <div><p className="text-sm text-muted-foreground">Adultos</p><p className="text-2xl font-bold">{adultos}</p></div>
-            <div><p className="text-sm text-muted-foreground">Niños/Adol.</p><p className="text-2xl font-bold">{ninos}</p></div>
+            <div><p className="text-sm text-muted-foreground">Niños/Adol.</p><p className="text-2xl font-bold">{ninos + adolescentes}</p></div>
             <div><p className="text-sm text-muted-foreground">Total</p><p className="text-2xl font-bold text-primary">{totalInvitados}</p></div>
           </CardContent>
           <CardFooter><p className="text-xs text-muted-foreground">Datos sincronizados desde el presupuesto o la configuración del evento actual.</p></CardFooter>
@@ -123,7 +122,7 @@ export default function PlannerGastronomicoFiestaPage() {
          <Link href="/fiestas/nueva/catering/lista-compras" passHref>
            <Button variant="outline"><ShoppingCart className="w-4 h-4 mr-2"/>Ver Lista de Compras</Button>
          </Link>
-         <Button onClick={handleSave} disabled={isSaving || isLoading}>{isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin"/>}Guardar Cambios</Button>
+         <Button onClick={handleSaveAll} disabled={isSaving || isLoading}>{isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin"/>}Guardar Cambios</Button>
       </div>
 
        {isLoading ? <div className="text-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div> :
@@ -149,13 +148,15 @@ export default function PlannerGastronomicoFiestaPage() {
 
             <GestionReposteria 
                 initialData={reposteriaData} 
-                onDataChange={setReposteriaData} 
+                onDataChange={setReposteriaData}
+                onSave={updateReposteriaFiestaActual}
                 invitados={{adultos: Number(adultos), ninos: Number(ninos), adolescentes: Number(adolescentes)}} 
             />
             
             <GestionBebidas 
                 initialData={bebidasData} 
                 onDataChange={setBebidasData}
+                onSave={updateBebidasFiestaActual}
                 invitados={{adultos: Number(adultos), ninos: Number(ninos), adolescentes: Number(adolescentes)}}
             />
         </>

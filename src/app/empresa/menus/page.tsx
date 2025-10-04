@@ -11,7 +11,7 @@ import type { FullMenu, ReposteriaData, BebidasData } from '@/types/fiesta';
 import { getMenus } from '@/app/actions/menus-catering';
 import { getReposteriaMasterTemplate, saveReposteriaMasterTemplate } from '@/app/actions/reposteria.actions';
 import { getBebidasMasterTemplate, saveBebidasMasterTemplate } from '@/app/actions/bebidas.actions';
-import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
+import { getServiciosEmpresa, getInsumos } from '@/app/actions/insumos';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Accordion } from "@/components/ui/accordion";
@@ -31,16 +31,16 @@ export default function GestionMenusPage() {
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [menusData, reposteriaData, bebidasData, serviciosData] = await Promise.all([
+      const [menusData, reposteriaData, bebidasData, insumosData] = await Promise.all([
         getMenus(),
         getReposteriaMasterTemplate(),
         getBebidasMasterTemplate(),
-        getServiciosEmpresa()
+        getInsumos()
       ]);
       setMenus(menusData);
       setReposteriaTemplate(reposteriaData);
       setBebidasTemplate(bebidasData);
-      setInsumos(serviciosData.filter(s => s.tipoItem === 'Insumo/Ingrediente' || s.tipoItem === 'Bebida (Insumo)'));
+      setInsumos(insumosData);
     } catch (error) {
       toast({ title: 'Error', description: 'No se pudieron cargar las plantillas gastronómicas.', variant: 'destructive' });
     } finally {
@@ -130,7 +130,10 @@ export default function GestionMenusPage() {
                         initialData={reposteriaTemplate} 
                         onDataChange={(newData) => {
                             setReposteriaTemplate(newData);
-                            saveReposteriaMasterTemplate(newData); // Save on change
+                        }}
+                        onSave={async (dataToSave) => {
+                            await saveReposteriaMasterTemplate(dataToSave);
+                            toast({ title: "Plantilla de Repostería Actualizada" });
                         }}
                         invitados={{adultos: 100, ninos: 0, adolescentes: 0}} // Placeholder for calculations
                         isTemplateMode={true}
@@ -142,7 +145,10 @@ export default function GestionMenusPage() {
                     initialData={bebidasTemplate} 
                     onDataChange={(newData) => {
                         setBebidasTemplate(newData);
-                        saveBebidasMasterTemplate(newData); // Save on change
+                    }}
+                     onSave={async (dataToSave) => {
+                        await saveBebidasMasterTemplate(dataToSave);
+                        toast({ title: "Plantilla de Bebidas Actualizada" });
                     }}
                     invitados={{adultos: 100, ninos: 0, adolescentes: 0}} // Placeholder
                     isTemplateMode={true}
