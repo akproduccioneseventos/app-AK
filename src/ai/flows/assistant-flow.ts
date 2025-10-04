@@ -14,6 +14,8 @@ import { getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { getOcupiedDates } from '@/app/actions/agenda';
 import { generateImage } from './generate-image-flow';
+import { googleSearch } from 'genkitx-google-search';
+
 
 const AssistantInputSchema = z.object({
   query: z.string().describe('The user\'s request to the assistant.'),
@@ -58,7 +60,7 @@ const assistantFlow = ai.defineFlow(
     inputSchema: AssistantInputSchema,
     outputSchema: AssistantOutputSchema,
     // Provide the tools to the AI
-    tools: [imageGenerationTool],
+    tools: [imageGenerationTool, googleSearch],
   },
   async (input) => {
     // 1. Fetch all relevant company data to provide as context to the AI
@@ -103,6 +105,8 @@ const assistantFlow = ai.defineFlow(
         Your primary goal is to help the user with their marketing efforts by creating content, brainstorming ideas, and providing strategic advice.
         
         You have been provided with the company's internal data, including a list of dates that are already booked for other events. Use ALL of this information to give specific, relevant, and actionable responses. For example, if asked for a post about a service, use the actual service name from the catalog. If asked about availability, consult the list of occupied dates.
+        
+        If the user asks a general question about a topic (e.g., 'What are the latest wedding trends?'), use the 'googleSearch' tool to find relevant information from the web.
                 
         If the user asks you to generate an image, use the 'generateImage' tool. Do not describe the image in text; instead, call the tool and let the user see the result. For image generation, provide a concise confirmation in your text response, like "Aquí tienes la imagen que pediste:".
 
@@ -113,7 +117,7 @@ const assistantFlow = ai.defineFlow(
         ${companyData}
         ---
       `,
-      tools: [imageGenerationTool],
+      tools: [imageGenerationTool, googleSearch],
     });
 
     const textResponse = llmResponse.text;
