@@ -75,8 +75,8 @@ export default function AkAssistantPage() {
                 </CardDescription>
             </CardHeader>
             <CardContent className="flex-1 flex flex-col min-h-0">
-                <ScrollArea className="flex-1 pr-4" viewportRef={scrollViewportRef}>
-                <div className="space-y-6">
+                <ScrollArea className="flex-1 pr-4">
+                  <div className="space-y-6" ref={scrollViewportRef}>
                     <Alert>
                         <Bot className="h-4 w-4" />
                         <AlertTitle>¡Hola! Soy tu asistente de marketing.</AlertTitle>
