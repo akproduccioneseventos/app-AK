@@ -11,7 +11,10 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Edit3, Save, Loader2, AlertTriangle, StickyNote, DollarSign, PlusCircle, Trash2, Percent, Briefcase, Building } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { saveServicioEmpresa, getServicioEmpresaById, deleteServicioEmpresa } from '@/app/actions/servicios-empresa';
+import { getServicioEmpresaById, saveServicioEmpresa, deleteServicioEmpresa } from '@/app/actions/servicios-empresa';
+import { getInsumoById, saveInsumo } from '@/app/actions/insumos';
+import { getActivoFijoById, saveActivoFijo } from '@/app/actions/activos-fijos';
+
 import type { ServicioEmpresa, CategoriaServicio, UnidadServicio, TipoItemEmpresa, TramoDePrecio, CategoriaInsumo, CategoriaActivo, AnyCategoria } from '@/types/empresa';
 import { ALL_CATEGORIAS_SERVICIO, ALL_UNIDADES_SERVICIO, ALL_TIPOS_ITEM_EMPRESA, ALL_CATEGORIAS_INSUMO, ALL_CATEGORIAS_ACTIVO } from '@/types/empresa';
 import { Textarea } from '@/components/ui/textarea';
@@ -48,7 +51,13 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
     setIsLoading(true);
     setNotFound(false);
     try {
-      const loadedItem = await getServicioEmpresaById(itemIdFromParams);
+      const [servicio, activo, insumo] = await Promise.all([
+          getServicioEmpresaById(itemIdFromParams),
+          getActivoFijoById(itemIdFromParams),
+          getInsumoById(itemIdFromParams)
+      ]);
+      const loadedItem = servicio || activo || insumo;
+
       if (loadedItem) {
         setItem(loadedItem);
         setFormData({
@@ -172,7 +181,22 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
     };
     
     try {
-      const result = await saveServicioEmpresa(itemDataToSave);
+      let result;
+      switch(item.tipoItem) {
+          case 'Servicio':
+              result = await saveServicioEmpresa(itemDataToSave);
+              break;
+          case 'Activo Fijo':
+              result = await saveActivoFijo(itemDataToSave);
+              break;
+          case 'Insumo/Ingrediente':
+          case 'Bebida (Insumo)':
+              result = await saveInsumo(itemDataToSave);
+              break;
+          default:
+              throw new Error("Tipo de ítem desconocido.");
+      }
+
       if (result.success && result.servicio) {
         toast({ title: "¡Ítem Actualizado!", description: `El ítem "${result.servicio.nombre}" ha sido actualizado.` });
         
@@ -198,13 +222,25 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
     if (!item) return;
     setIsDeleting(true);
     try {
-      const result = await deleteServicioEmpresa(item.id);
+      let result;
+       switch(item.tipoItem) {
+          case 'Servicio':
+              result = await deleteServicioEmpresa(item.id);
+              break;
+          case 'Activo Fijo':
+              result = await deleteActivoFijo(item.id);
+              break;
+          case 'Insumo/Ingrediente':
+          case 'Bebida (Insumo)':
+              result = await deleteInsumo(item.id);
+              break;
+          default:
+              throw new Error("Tipo de ítem desconocido.");
+      }
+
       if (result.success) {
         toast({ title: "Ítem Eliminado", variant: "destructive" });
-        let redirectUrl = '/empresa/todos-los-servicios';
-        if(item.tipoItem === 'Servicio') redirectUrl = '/empresa/servicios';
-        else if(item.tipoItem === 'Insumo/Ingrediente' || item.tipoItem === 'Bebida (Insumo)') redirectUrl = '/empresa/insumos';
-        router.push(redirectUrl);
+        router.push(backUrl);
       } else {
         throw new Error(result.error || "No se pudo eliminar el ítem.");
       }

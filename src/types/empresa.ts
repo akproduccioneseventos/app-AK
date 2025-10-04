@@ -39,6 +39,7 @@ export type CategoriaInsumo =
  | 'Pastas'
  | 'Pescados y Mariscos'
  | 'Verduras'
+ | 'Insumos varios'
  | 'Otro Insumo';
 
 export const ALL_CATEGORIAS_INSUMO: CategoriaInsumo[] = [
@@ -54,11 +55,12 @@ export const ALL_CATEGORIAS_INSUMO: CategoriaInsumo[] = [
   'Pastas',
   'Pescados y Mariscos',
   'Verduras',
+  'Insumos varios',
   'Otro Insumo'
 ];
 
-export type CategoriaActivo = 'Mobiliario' | 'Electrónica' | 'Decoración (Activo)' | 'Vajilla (Activo)' | 'Textiles' | 'Otro Activo';
-export const ALL_CATEGORIAS_ACTIVO: CategoriaActivo[] = ['Mobiliario', 'Electrónica', 'Decoración (Activo)', 'Vajilla (Activo)', 'Textiles', 'Otro Activo'];
+export type CategoriaActivo = 'Mobiliario' | 'Discoteca' | 'Decoración (Activo)' | 'Vajilla (Activo)' | 'Mantelería' | 'Equipamiento de Cocina' | 'Otro Activo' | 'Insumos varios';
+export const ALL_CATEGORIAS_ACTIVO: CategoriaActivo[] = ['Mobiliario', 'Discoteca', 'Decoración (Activo)', 'Vajilla (Activo)', 'Mantelería', 'Equipamiento de Cocina', 'Otro Activo', 'Insumos varios'];
 
 
 export type AnyCategoria = CategoriaServicio | CategoriaInsumo | CategoriaActivo;
@@ -88,7 +90,7 @@ export interface ServicioEmpresa {
   cantidadDisponible?: number; 
   valorUnitarioEstimado?: number; // Representa el COSTO
   proveedor?: string;
-  unidad?: UnidadServicio; 
+  unidad?: UnidadServicio | string; 
   notas?: string;
   
   // Pricing fields (primarily for 'Servicio' type)

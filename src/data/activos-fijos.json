@@ -226,6 +226,60 @@
     "unidad": "Caja"
   },
   {
+    "id": "lc_23",
+    "nombre": "Platinas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla (Activo)",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Caja"
+  },
+  {
+    "id": "lc_21",
+    "nombre": "Tablas de Pizzas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla (Activo)",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_22",
+    "nombre": "Tablas Redondas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla (Activo)",
+    "cantidadDisponible": 16,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_100_salsa",
+    "nombre": "Tarros para Salsa",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla (Activo)",
+    "cantidadDisponible": 4,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_bt_12",
+    "nombre": "Vasos y Sorbitos",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla (Activo)",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Caja"
+  },
+  {
+    "id": "lc_bt_13",
+    "nombre": "Tarros para Jugos",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla (Activo)",
+    "cantidadDisponible": 3,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
     "id": "lc_14",
     "nombre": "Bandejas de Horno",
     "tipoItem": "Activo Fijo",
@@ -298,33 +352,6 @@
     "unidad": "Unidad"
   },
   {
-    "id": "lc_23",
-    "nombre": "Platinas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Caja"
-  },
-  {
-    "id": "lc_21",
-    "nombre": "Tablas de Pizzas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_22",
-    "nombre": "Tablas Redondas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 16,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
     "id": "lc_item_tarrina_200l",
     "nombre": "Tarrina 200L",
     "tipoItem": "Activo Fijo",
@@ -352,24 +379,6 @@
     "unidad": "Caja"
   },
   {
-    "id": "lc_100_salsa",
-    "nombre": "Tarros para Salsa",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 4,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_102",
-    "nombre": "Soportes de Torta",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mobiliario",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
     "id": "lc_33",
     "nombre": "Jarra Eléctrica",
     "tipoItem": "Activo Fijo",
@@ -379,19 +388,37 @@
     "unidad": "Unidad"
   },
   {
-    "id": "lc_103",
-    "nombre": "Escurridor de Fregar",
+    "id": "lc_112",
+    "nombre": "Fuente de Chocolate",
     "tipoItem": "Activo Fijo",
-    "categoria": "Otro Activo",
+    "categoria": "Equipamiento de Cocina",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_bt_9",
+    "nombre": "Licuadoras",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Equipamiento de Cocina",
     "cantidadDisponible": 2,
     "valorUnitarioEstimado": 0,
     "unidad": "Unidad"
   },
   {
-    "id": "lc_104",
-    "nombre": "Lampazo y Paños de Piso",
+    "id": "lc_bt_14",
+    "nombre": "Conservadora",
     "tipoItem": "Activo Fijo",
-    "categoria": "Otro Activo",
+    "categoria": "Equipamiento de Cocina",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_102",
+    "nombre": "Soportes de Torta",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mobiliario",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 0,
     "unidad": "Unidad"
@@ -406,11 +433,56 @@
     "unidad": "Unidad"
   },
   {
-    "id": "lc_105",
-    "nombre": "Latones",
+    "id": "lc_71",
+    "nombre": "Barra DJ (Fierros y Tabla)",
     "tipoItem": "Activo Fijo",
-    "categoria": "Otro Activo",
+    "categoria": "Mobiliario",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_83",
+    "nombre": "Mesa de DJ para Luces",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mobiliario",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_113",
+    "nombre": "Mesas Plegables",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mobiliario",
     "cantidadDisponible": 2,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_111",
+    "nombre": "Porta Torta",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mobiliario",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_bt_3",
+    "nombre": "Casilleros de Licores",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mobiliario",
+    "cantidadDisponible": 4,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_bt_11",
+    "nombre": "Papeleras Barra",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mobiliario",
+    "cantidadDisponible": 1,
     "valorUnitarioEstimado": 0,
     "unidad": "Unidad"
   },
@@ -496,37 +568,19 @@
     "unidad": "Unidad"
   },
   {
-    "id": "lc_36",
-    "nombre": "Bolsas Negras para Manteleria",
+    "id": "lc_72",
+    "nombre": "Tela de Barra DJ",
     "tipoItem": "Activo Fijo",
-    "categoria": "Insumos varios",
-    "cantidadDisponible": 3,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_113",
-    "nombre": "Mesas Plegables",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mobiliario",
-    "cantidadDisponible": 2,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_111",
-    "nombre": "Porta Torta",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mobiliario",
+    "categoria": "Mantelería",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 0,
     "unidad": "Unidad"
   },
   {
-    "id": "lc_112",
-    "nombre": "Fuente de Chocolate",
+    "id": "lc_bt_6",
+    "nombre": "Lona de Barra",
     "tipoItem": "Activo Fijo",
-    "categoria": "Equipamiento de Cocina",
+    "categoria": "Mantelería",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 0,
     "unidad": "Unidad"
@@ -568,28 +622,10 @@
     "unidad": "Unidad"
   },
   {
-    "id": "lc_50",
-    "nombre": "Plancha a Vapor",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Otro Activo",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
     "id": "lc_51",
     "nombre": "Alfombra Grande",
     "tipoItem": "Activo Fijo",
     "categoria": "Decoración (Activo)",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_52",
-    "nombre": "Caja de Herramientas Deco",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Otro Activo",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 0,
     "unidad": "Unidad"
@@ -631,96 +667,6 @@
     "unidad": "Unidad"
   },
   {
-    "id": "lc_100_dj",
-    "nombre": "Cajas de 18\"",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Electrónica",
-    "cantidadDisponible": 2,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_58",
-    "nombre": "Cajas Activas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Electrónica",
-    "cantidadDisponible": 2,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_59",
-    "nombre": "Caja de Consola y Potencia",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Electrónica",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_60",
-    "nombre": "Controlador DJ Gonza",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Electrónica",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_61",
-    "nombre": "Controlador de Luces",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Electrónica",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_62",
-    "nombre": "Controlador DMX Luces Pendrive",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Electrónica",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_63",
-    "nombre": "Notebook DJ Gonza",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Electrónica",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_64",
-    "nombre": "Notebook de Luces",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Electrónica",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_65",
-    "nombre": "Microfonos Inalambricos y Pilas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Electrónica",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_115",
-    "nombre": "Intercomunicadores",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Electrónica",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
     "id": "lc_66",
     "nombre": "Barras de Bolas de Espejos",
     "tipoItem": "Activo Fijo",
@@ -748,6 +694,285 @@
     "unidad": "Unidad"
   },
   {
+    "id": "lc_73",
+    "nombre": "Cartel de Barra DJ",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Decoración (Activo)",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_93",
+    "nombre": "Cartel Lona Rollup",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Decoración (Activo)",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_bt_1",
+    "nombre": "Estructura de Arriba de la Barra",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Decoración (Activo)",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_100_dj",
+    "nombre": "Cajas de 18\"",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 2,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_58",
+    "nombre": "Cajas Activas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 2,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_59",
+    "nombre": "Caja de Consola y Potencia",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_60",
+    "nombre": "Controlador DJ Gonza",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_61",
+    "nombre": "Controlador de Luces",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_62",
+    "nombre": "Controlador DMX Luces Pendrive",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_63",
+    "nombre": "Notebook DJ Gonza",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_64",
+    "nombre": "Notebook de Luces",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_65",
+    "nombre": "Microfonos Inalambricos y Pilas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_114",
+    "nombre": "Pantalla y Proyector",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_115",
+    "nombre": "Intercomunicadores",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_70",
+    "nombre": "Pie de Luces y T de Arriba",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 2,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_74",
+    "nombre": "Caja de Cables",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_75",
+    "nombre": "Spider",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_76",
+    "nombre": "Cabezal Movil 10W",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 2,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_77",
+    "nombre": "Cabezal Movil 30W",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 4,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_78",
+    "nombre": "Laser",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_79",
+    "nombre": "Maquina de Humo",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_81",
+    "nombre": "Focos LED Luz Negra",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_82",
+    "nombre": "Focos LED Color",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_bt_7",
+    "nombre": "Focos LED Luz Negra Barra",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_bt_8",
+    "nombre": "Focos LED Color Barra",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_bt_10",
+    "nombre": "Pantalla LED Barra",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_103",
+    "nombre": "Escurridor de Fregar",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Otro Activo",
+    "cantidadDisponible": 2,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_104",
+    "nombre": "Lampazo y Paños de Piso",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Otro Activo",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_105",
+    "nombre": "Latones",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Otro Activo",
+    "cantidadDisponible": 2,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_50",
+    "nombre": "Plancha a Vapor",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Otro Activo",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_52",
+    "nombre": "Caja de Herramientas Deco",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Otro Activo",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
     "id": "lc_94",
     "nombre": "Tornillos Cercha",
     "tipoItem": "Activo Fijo",
@@ -766,150 +991,6 @@
     "unidad": "Unidad"
   },
   {
-    "id": "lc_70",
-    "nombre": "Pie de Luces y T de Arriba",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Electrónica",
-    "cantidadDisponible": 2,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_71",
-    "nombre": "Barra DJ (Fierros y Tabla)",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mobiliario",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_72",
-    "nombre": "Tela de Barra DJ",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mantelería",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_73",
-    "nombre": "Cartel de Barra DJ",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Decoración (Activo)",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_74",
-    "nombre": "Caja de Cables",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Electrónica",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_75",
-    "nombre": "Spider",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Electrónica",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_76",
-    "nombre": "Cabezal Movil 10W",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Electrónica",
-    "cantidadDisponible": 2,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_77",
-    "nombre": "Cabezal Movil 30W",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Electrónica",
-    "cantidadDisponible": 4,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_78",
-    "nombre": "Laser",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Electrónica",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_79",
-    "nombre": "Maquina de Humo",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Electrónica",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_81",
-    "nombre": "Focos LED Luz Negra",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Electrónica",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_82",
-    "nombre": "Focos LED Color",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Electrónica",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_83",
-    "nombre": "Mesa de DJ para Luces",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mobiliario",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_93",
-    "nombre": "Cartel Lona Rollup",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Decoración (Activo)",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_114",
-    "nombre": "Pantalla y Proyector",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Electrónica",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_bt_1",
-    "nombre": "Estructura de Arriba de la Barra",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Decoración (Activo)",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
     "id": "lc_bt_2",
     "nombre": "Caja de Herramientas Barman",
     "tipoItem": "Activo Fijo",
@@ -919,91 +1000,190 @@
     "unidad": "Unidad"
   },
   {
-    "id": "lc_bt_3",
-    "nombre": "Casilleros de Licores",
+    "id": "lc_36",
+    "nombre": "Bolsas Negras para Manteleria",
     "tipoItem": "Activo Fijo",
-    "categoria": "Mobiliario",
-    "cantidadDisponible": 4,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_bt_6",
-    "nombre": "Lona de Barra",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mantelería",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_bt_7",
-    "nombre": "Focos LED Luz Negra Barra",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Electrónica",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_bt_8",
-    "nombre": "Focos LED Color Barra",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Electrónica",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_bt_9",
-    "nombre": "Licuadoras",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Equipamiento de Cocina",
-    "cantidadDisponible": 2,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_bt_10",
-    "nombre": "Pantalla LED Barra",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Electrónica",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_bt_11",
-    "nombre": "Papeleras Barra",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mobiliario",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_bt_12",
-    "nombre": "Vasos y Sorbitos",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Caja"
-  },
-  {
-    "id": "lc_bt_13",
-    "nombre": "Tarros para Jugos",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
+    "categoria": "Insumos varios",
     "cantidadDisponible": 3,
     "valorUnitarioEstimado": 0,
     "unidad": "Unidad"
   },
   {
-    "id": "lc_bt_14",
-    "nombre": "Conservadora",
+    "id": "lc_80",
+    "nombre": "Liquido de Humo",
     "tipoItem": "Activo Fijo",
-    "categoria": "Equipamiento de Cocina",
+    "categoria": "Insumos varios",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_57",
+    "nombre": "Aerosol de Globos",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Insumos varios",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_26",
+    "nombre": "Alcohol y Guantes",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Insumos varios",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_27",
+    "nombre": "Repasadores",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Insumos varios",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_28",
+    "nombre": "Servilletas de Papel para Torta",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Insumos varios",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_29",
+    "nombre": "Rollo Servilletas de Papel",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Insumos varios",
+    "cantidadDisponible": 2,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_30",
+    "nombre": "Aderezos",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Insumos varios",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_31",
+    "nombre": "Jabón y Esponjas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Insumos varios",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_35",
+    "nombre": "Bolsas Negras de Residuos",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Insumos varios",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_20",
+    "nombre": "Escarbadientes y Saleros",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Insumos varios",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_37",
+    "nombre": "Canastas Paneras Marrones",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Insumos varios",
+    "cantidadDisponible": 16,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_38",
+    "nombre": "Platos Rectangulares Lisos",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Insumos varios",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_bt_4",
+    "nombre": "Refrescos Cola",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Insumos varios",
+    "cantidadDisponible": 12,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_bt_5",
+    "nombre": "Refrescos Lima",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Insumos varios",
+    "cantidadDisponible": 2,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_bt_15",
+    "nombre": "Latas de Anana",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Insumos varios",
+    "cantidadDisponible": 6,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_bt_16",
+    "nombre": "Latas de Durazno",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Insumos varios",
+    "cantidadDisponible": 4,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_bt_17",
+    "nombre": "Frutillas Congeladas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Insumos varios",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_bt_18",
+    "nombre": "Jugo de Durazno",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Insumos varios",
+    "cantidadDisponible": 3,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_bt_19",
+    "nombre": "Azucar",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Insumos varios",
+    "cantidadDisponible": 2,
+    "valorUnitarioEstimado": 0,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_bt_20",
+    "nombre": "Limones",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Insumos varios",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 0,
     "unidad": "Unidad"
