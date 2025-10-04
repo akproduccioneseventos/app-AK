@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
-import type { BebidasData, BebidaCategoria, BebidaItem, BebidaReceta, TipoAsistente } from '@/types/fiesta';
+import type { BebidasData, BebidaCategoria, BebidaItem, BebidaReceta, IngredienteReceta, TipoAsistente } from '@/types/fiesta';
 import { GlassWater, Edit, Trash2, PlusCircle, Info, Loader2 } from 'lucide-react';
 import { defaultBebidasData } from '@/lib/fiesta-defaults';
 import { useToast } from '@/hooks/use-toast';
@@ -189,6 +189,7 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
                 <AccordionContent className="px-4 pb-4 border-t">
                   <div className="space-y-4 pt-3">
                     <p className="text-sm text-muted-foreground">{cat.descripcion}</p>
+                    
                     {cat.items.length > 0 && (
                       <div className="space-y-2">
                           <h4 className="text-sm font-medium">Ítems de Compra Directa:</h4>
@@ -197,14 +198,23 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
                           </ul>
                       </div>
                     )}
+                    
                     {cat.recetas && cat.recetas.length > 0 && (
                        <div className="space-y-2">
                           <h4 className="text-sm font-medium">Recetas / Preparaciones:</h4>
-                          <ul className="list-disc pl-5 text-sm text-muted-foreground">
-                              {cat.recetas.map(receta => <li key={receta.id}>{receta.nombre}</li>)}
-                          </ul>
+                          {cat.recetas.map(receta => (
+                            <div key={receta.id} className="pl-4">
+                              <p className="font-medium text-sm text-foreground">{receta.nombre}</p>
+                              <ul className="list-disc pl-5 text-xs text-muted-foreground">
+                                {receta.ingredientes?.map(ing => (
+                                  <li key={ing.id}>{ing.nombreInsumo}: {ing.cantidad} {ing.unidad}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          ))}
                       </div>
                     )}
+
                      {isTemplateMode && (
                         <div className="flex justify-end pt-2">
                              <Button variant="outline" size="sm" onClick={() => openEditModal(cat)}>
