@@ -129,7 +129,7 @@ export default function CatalogoServiciosPage() {
             </Link>
         </div>
       </div>
-      <CardDescription>Define los servicios que ofreces, sus precios y cómo se calculan para incluirlos en los presupuestos.</CardDescription>
+      <CardDescription>Define los servicios que vendes, sus precios y cómo se calculan para incluirlos en los presupuestos.</CardDescription>
       
       <Card className="shadow-lg">
         <CardHeader>

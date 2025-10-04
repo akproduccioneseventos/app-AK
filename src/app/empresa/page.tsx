@@ -16,6 +16,41 @@ interface HubItem {
 
 const empresaHubItems: HubItem[] = [
   {
+    title: 'Panel Contable y Financiero',
+    description: 'Accede al CRM, presupuestos, facturas y reportes.',
+    href: '/empresa/contabilidad',
+    icon: BarChart3,
+    actionLabel: 'Ir al Panel',
+  },
+   {
+    title: 'Catálogo de Servicios',
+    description: 'Define y gestiona los servicios que vendes en tus presupuestos.',
+    href: '/empresa/servicios',
+    icon: Sparkles,
+    actionLabel: 'Gestionar Servicios',
+  },
+  {
+    title: 'Gestión de Menús de Catering',
+    description: 'Crea tus plantillas de menús y platos. Asocia ingredientes desde tu catálogo de insumos.',
+    href: '/empresa/menus',
+    icon: ChefHat,
+    actionLabel: 'Gestionar Menús',
+  },
+   {
+    title: 'Gestión de Insumos',
+    description: 'Gestiona tu inventario de ingredientes, bebidas y otros consumibles para tus menús.',
+    href: '/empresa/insumos',
+    icon: GlassWater,
+    actionLabel: 'Gestionar Insumos',
+  },
+  {
+    title: 'Catálogo de Activos Fijos',
+    description: 'Gestiona tu inventario de activos reutilizables (mobiliario, equipo, etc.).',
+    href: '/empresa/todos-los-servicios',
+    icon: Package,
+    actionLabel: 'Gestionar Activos',
+  },
+  {
     title: 'Gestión de Empleados',
     description: 'Administra la información, roles y sueldos de tu personal.',
     href: '/empleados',
@@ -28,41 +63,6 @@ const empresaHubItems: HubItem[] = [
     href: '/proveedores',
     icon: Briefcase,
     actionLabel: 'Ir a Proveedores',
-  },
-  {
-    title: 'Panel Contable y Financiero',
-    description: 'Accede al CRM, presupuestos, facturas y reportes.',
-    href: '/empresa/contabilidad',
-    icon: BarChart3,
-    actionLabel: 'Ir al Panel',
-  },
-   {
-    title: 'Gestión de Menús de Catering',
-    description: 'Crea, edita y gestiona las plantillas de menús para tus eventos.',
-    href: '/empresa/menus',
-    icon: ChefHat,
-    actionLabel: 'Gestionar Menús',
-  },
-   {
-    title: 'Catálogo de Servicios',
-    description: 'Define y gestiona los servicios que ofreces en los presupuestos.',
-    href: '/empresa/servicios',
-    icon: Sparkles,
-    actionLabel: 'Gestionar Catálogo',
-  },
-   {
-    title: 'Gestión de Insumos',
-    description: 'Gestiona tu inventario de ingredientes, bebidas y otros consumibles.',
-    href: '/empresa/insumos',
-    icon: GlassWater,
-    actionLabel: 'Gestionar Insumos',
-  },
-  {
-    title: 'Catálogo de Activos Fijos',
-    description: 'Gestiona tu inventario de activos reutilizables (mobiliario, equipo, etc.).',
-    href: '/empresa/todos-los-servicios',
-    icon: Package,
-    actionLabel: 'Gestionar Activos',
   },
    {
     title: 'Carga Operativa General',
