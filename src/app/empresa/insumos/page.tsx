@@ -6,9 +6,9 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Package, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, Filter, Printer } from 'lucide-react';
+import { ArrowLeft, Package, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, Filter } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { ServicioEmpresa } from '@/types/empresa';
+import type { ServicioEmpresa, CategoriaInsumo } from '@/types/empresa';
 import { getInsumos, deleteInsumo } from '@/app/actions/insumos';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import {
@@ -39,7 +39,7 @@ export default function InventarioInsumosPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const ALL_CATEGORIES = useMemo(() => {
-    const categories = new Set(allItems.map(item => item.categoria));
+    const categories = new Set(allItems.map(item => item.categoria as CategoriaInsumo));
     return Array.from(categories).sort();
   }, [allItems]);
 
@@ -51,7 +51,9 @@ export default function InventarioInsumosPage() {
     try {
       const data = await getInsumos();
       setAllItems(data);
-      if (Object.keys(categoryFilter).length === 0) {
+      
+      // Initialize category filter only once after data is fetched
+      if (Object.keys(categoryFilter).length === 0 && data.length > 0) {
         const initialCategories = Array.from(new Set(data.map(i => i.categoria))).reduce((acc, cat) => ({...acc, [cat as string]: true}), {});
         setCategoryFilter(initialCategories);
       }
@@ -66,7 +68,7 @@ export default function InventarioInsumosPage() {
   useEffect(() => {
     fetchItems();
   }, [fetchItems]);
-
+  
   useEffect(() => {
     const lowercasedFilter = searchTerm.toLowerCase();
     const activeCategories = Object.entries(categoryFilter).filter(([, checked]) => checked).map(([cat]) => cat);
@@ -82,6 +84,7 @@ export default function InventarioInsumosPage() {
     });
     setFilteredItems(filteredData);
   }, [searchTerm, allItems, categoryFilter, ALL_CATEGORIES]);
+
   
   const handleDelete = async (id: string, nombreItem?: string) => {
     setDeletingId(id);
@@ -100,7 +103,7 @@ export default function InventarioInsumosPage() {
     }
   };
   
-  const itemsAgrupadosPorCategoria = useMemo(() => {
+  const insumosPorCategoria = useMemo(() => {
     return filteredItems.reduce((acc, item) => {
       const categoria = item.categoria || 'Otros';
       if (!acc[categoria]) acc[categoria] = [];
@@ -109,7 +112,7 @@ export default function InventarioInsumosPage() {
     }, {} as Record<string, ServicioEmpresa[]>);
   }, [filteredItems]);
 
-  const categoriasOrdenadas = Object.keys(itemsAgrupadosPorCategoria).sort();
+  const categoriasOrdenadas = Object.keys(insumosPorCategoria).sort();
 
   return (
     <div className="space-y-6">
@@ -148,8 +151,26 @@ export default function InventarioInsumosPage() {
           <div className="flex flex-col md:flex-row gap-2 pt-2">
             <div className="relative flex-grow">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input type="text" placeholder="Buscar por nombre, proveedor..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 text-base"/>
+                <Input type="text" placeholder="Buscar por nombre..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 text-base"/>
             </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline"><Filter className="w-4 h-4 mr-2" />Filtrar por Categoría</Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuLabel>Categorías de Insumos</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {ALL_CATEGORIES.map(cat => (
+                  <DropdownMenuCheckboxItem
+                    key={cat}
+                    checked={categoryFilter[cat] ?? true}
+                    onCheckedChange={(checked) => setCategoryFilter(prev => ({...prev, [cat]: !!checked}))}
+                  >
+                    {cat}
+                  </DropdownMenuCheckboxItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </CardHeader>
         <CardContent>
