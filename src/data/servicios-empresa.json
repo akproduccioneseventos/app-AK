@@ -48,7 +48,7 @@
     "categoria": "Servicio de bebidas",
     "valorUnitarioEstimado": 300,
     "unidad": "Litro",
-    "cantidadDisponible": 4
+    "cantidadDisponible": 3.5
   },
   {
     "id": "ing-jugo-durazno",
@@ -160,8 +160,8 @@
     "nombre": "Asado vacio",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Carnes",
-    "unidad": "Gramos",
     "valorUnitarioEstimado": 370,
+    "unidad": "Gramos",
     "proveedor": "UNIPLAS"
   },
   {
@@ -169,8 +169,8 @@
     "nombre": "Bife",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Carnes",
-    "unidad": "Gramos",
     "valorUnitarioEstimado": 380,
+    "unidad": "Gramos",
     "proveedor": "CARNICERIA"
   },
   {
@@ -178,8 +178,8 @@
     "nombre": "Bondiola",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Carnes",
-    "unidad": "Gramos",
     "valorUnitarioEstimado": 190,
+    "unidad": "Gramos",
     "proveedor": "CARNICERIA"
   },
   {
@@ -187,8 +187,8 @@
     "nombre": "Carne",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Carnes",
-    "unidad": "Gramos",
     "valorUnitarioEstimado": 380,
+    "unidad": "Gramos",
     "proveedor": "CARNICERIA"
   },
   {
@@ -196,8 +196,8 @@
     "nombre": "Cerdo arrollado",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Carnes",
-    "unidad": "Unidad",
     "valorUnitarioEstimado": 110,
+    "unidad": "Unidad",
     "proveedor": "CARNICERIA"
   },
   {
@@ -205,8 +205,8 @@
     "nombre": "Chorizos",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Carnes",
-    "unidad": "Gramos",
     "valorUnitarioEstimado": 250,
+    "unidad": "Gramos",
     "proveedor": "CARNICERIA"
   },
   {
@@ -214,8 +214,8 @@
     "nombre": "Cordero crudo",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Carnes",
-    "unidad": "Gramos",
     "valorUnitarioEstimado": 300,
+    "unidad": "Gramos",
     "proveedor": "CARNICERIA"
   },
   {
@@ -223,8 +223,8 @@
     "nombre": "Hamburguesas",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Carnes",
-    "unidad": "Unidad",
     "valorUnitarioEstimado": 35,
+    "unidad": "Unidad",
     "proveedor": "DOPACA"
   },
   {
@@ -232,8 +232,8 @@
     "nombre": "Milanesa",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Carnes",
-    "unidad": "Gramos",
     "valorUnitarioEstimado": 350,
+    "unidad": "Gramos",
     "proveedor": "CARNICERIA"
   },
   {
@@ -241,8 +241,8 @@
     "nombre": "Milanesa de carne",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Carnes",
-    "unidad": "Gramos",
     "valorUnitarioEstimado": 320,
+    "unidad": "Gramos",
     "proveedor": "CARNICERIA"
   },
   {
@@ -250,8 +250,8 @@
     "nombre": "Milanesa de pollo",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Carnes",
-    "unidad": "Gramos",
     "valorUnitarioEstimado": 250,
+    "unidad": "Gramos",
     "proveedor": "CARNICERIA"
   },
   {
@@ -259,8 +259,8 @@
     "nombre": "Morcilla",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Carnes",
-    "unidad": "Gramos",
     "valorUnitarioEstimado": 380,
+    "unidad": "Gramos",
     "proveedor": "CARNICERIA"
   },
   {
@@ -268,8 +268,8 @@
     "nombre": "Muslos",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Carnes",
-    "unidad": "Unidad",
     "valorUnitarioEstimado": 70,
+    "unidad": "Unidad",
     "proveedor": "CARNICERIA"
   },
   {
@@ -277,8 +277,8 @@
     "nombre": "Picada de carne",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Carnes",
-    "unidad": "Gramos",
     "valorUnitarioEstimado": 330,
+    "unidad": "Gramos",
     "proveedor": "CARNICERIA"
   },
   {
@@ -286,8 +286,8 @@
     "nombre": "Pollo",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Carnes",
-    "unidad": "Gramos",
     "valorUnitarioEstimado": 120,
+    "unidad": "Gramos",
     "proveedor": "CARNICERIA"
   },
   {
@@ -295,8 +295,8 @@
     "nombre": "Pollo arrollado",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Carnes",
-    "unidad": "Unidad",
     "valorUnitarioEstimado": 500,
+    "unidad": "Unidad",
     "proveedor": "NICO"
   },
   {
@@ -304,8 +304,8 @@
     "nombre": "Suprema de pollo",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Carnes",
-    "unidad": "Gramos",
     "valorUnitarioEstimado": 300,
+    "unidad": "Gramos",
     "proveedor": "CARNICERIA"
   },
   {
