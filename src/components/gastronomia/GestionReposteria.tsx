@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useMemo, type FormEvent, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,12 +10,13 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { ReposteriaData, ReposteriaCategoria, ReposteriaItem } from '@/types/fiesta';
-import { Cake, Edit, Trash2, PlusCircle, Loader2 } from 'lucide-react';
+import { Cake, Edit, Trash2, PlusCircle } from 'lucide-react';
 import { defaultReposteriaData } from '@/lib/fiesta-defaults';
 import { useToast } from '@/hooks/use-toast';
 import { ALL_UNIDADES_SERVICIO, type UnidadServicio, type ServicioEmpresa } from '@/types/empresa';
-import { getServiciosEmpresa, saveServicioEmpresa } from '@/app/actions/servicios-empresa'; 
+import { getServiciosEmpresa } from '@/app/actions/servicios-empresa'; 
 
 interface GestionReposteriaProps {
   initialData: ReposteriaData | null;
@@ -206,7 +207,7 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
                         <Button variant="outline" size="sm" onClick={() => openItemModal(cat)}>
                             <PlusCircle className="w-3 h-3 mr-2"/>Añadir Ítem Manual
                         </Button>
-                        <Link href={`/empresa/servicios?categoria=Servicio+de+repostería&subcategoria=${encodeURIComponent(cat.nombreDisplay)}`} passHref>
+                        <Link href={`/empresa/insumos?categoria=Servicio+de+repostería&subcategoria=${encodeURIComponent(cat.nombreDisplay)}`} passHref>
                            <Button variant="outline" size="sm">
                                <Edit className="w-3 h-3 mr-2" /> Gestionar en Catálogo
                            </Button>
