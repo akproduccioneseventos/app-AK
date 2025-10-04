@@ -11,7 +11,6 @@ import type { FullMenu, ReposteriaData, BebidasData } from '@/types/fiesta';
 import { getMenus } from '@/app/actions/menus-catering';
 import { getReposteriaMasterTemplate, saveReposteriaMasterTemplate } from '@/app/actions/reposteria.actions';
 import { getBebidasMasterTemplate, saveBebidasMasterTemplate } from '@/app/actions/bebidas.actions';
-import { getServiciosEmpresa, getInsumos } from '@/app/actions/insumos';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Accordion } from "@/components/ui/accordion";
@@ -25,22 +24,19 @@ export default function GestionMenusPage() {
   const [menus, setMenus] = useState<FullMenu[]>([]);
   const [reposteriaTemplate, setReposteriaTemplate] = useState<ReposteriaData | null>(null);
   const [bebidasTemplate, setBebidasTemplate] = useState<BebidasData | null>(null);
-  const [insumos, setInsumos] = useState<ServicioEmpresa[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [menusData, reposteriaData, bebidasData, insumosData] = await Promise.all([
+      const [menusData, reposteriaData, bebidasData] = await Promise.all([
         getMenus(),
         getReposteriaMasterTemplate(),
         getBebidasMasterTemplate(),
-        getInsumos()
       ]);
       setMenus(menusData);
       setReposteriaTemplate(reposteriaData);
       setBebidasTemplate(bebidasData);
-      setInsumos(insumosData);
     } catch (error) {
       toast({ title: 'Error', description: 'No se pudieron cargar las plantillas gastronómicas.', variant: 'destructive' });
     } finally {
@@ -77,6 +73,9 @@ export default function GestionMenusPage() {
            <Link href="/empresa/menus/catalogo" passHref>
             <Button variant="secondary"><List className="w-4 h-4 mr-2"/>Ver Catálogo de Platos</Button>
            </Link>
+           <Link href="/empresa/insumos" passHref>
+            <Button variant="secondary"><Package className="w-4 h-4 mr-2"/>Gestionar Insumos</Button>
+           </Link>
             <Link href="/empresa/menus/reporte" passHref>
                 <Button variant="outline"><Printer className="w-4 h-4 mr-2"/>Reporte Gastronómico</Button>
            </Link>
@@ -87,7 +86,7 @@ export default function GestionMenusPage() {
         <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>
       ) : (
         <div className="space-y-4">
-             <Accordion type="multiple" defaultValue={['menus', 'reposteria', 'bebidas', 'insumos']} className="w-full space-y-4">
+             <Accordion type="multiple" defaultValue={['menus', 'reposteria', 'bebidas']} className="w-full space-y-4">
                 <Card className="shadow-sm">
                   <CardHeader>
                     <CardTitle className="font-headline text-xl">Plantillas de Menú de Platos</CardTitle>
@@ -154,8 +153,6 @@ export default function GestionMenusPage() {
                     isTemplateMode={true}
                 />
                 )}
-
-                <InsumosStockList insumos={insumos} onUpdate={loadData} />
             </Accordion>
         </div>
       )}

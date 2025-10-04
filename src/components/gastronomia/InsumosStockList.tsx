@@ -98,7 +98,7 @@ export const InsumosStockList: React.FC<InsumosStockListProps> = ({ insumos, onU
                             className="pl-9"
                         />
                     </div>
-                     <Link href="/empresa/insumos/nuevo" passHref>
+                     <Link href="/empresa/insumos/nuevo?from=gastronomia" passHref>
                         <Button variant="outline" className="h-10"><PlusCircle className="w-4 h-4 mr-2"/>Añadir</Button>
                     </Link>
                 </div>

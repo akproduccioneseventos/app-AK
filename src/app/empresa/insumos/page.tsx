@@ -209,7 +209,7 @@ function InventarioInsumosContent() {
       
       <Separator className="my-6 print:hidden" />
 
-      <Card className="shadow-lg">
+       <Card className="shadow-lg print:hidden">
         <CardHeader>
           <CardTitle>Catálogo de Insumos ({filteredItems.length})</CardTitle>
           <div className="flex flex-col md:flex-row gap-2 pt-2">
