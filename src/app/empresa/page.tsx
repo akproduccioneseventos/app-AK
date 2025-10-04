@@ -39,7 +39,7 @@ const empresaHubItems: HubItem[] = [
   {
     title: 'Catálogo de Activos Fijos',
     description: 'Gestiona tu inventario de activos reutilizables (mobiliario, equipo, etc.).',
-    href: '/empresa/todos-los-servicios',
+    href: '/empresa/activos-fijos',
     icon: Package,
     actionLabel: 'Gestionar Activos',
   },
