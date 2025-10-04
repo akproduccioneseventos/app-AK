@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -15,6 +16,7 @@ interface GestionBebidasProps {
   initialData: BebidasData | null;
   onDataChange: (data: BebidasData) => void;
   invitados: { adultos: number; ninos: number; adolescentes: number };
+  isTemplateMode?: boolean;
 }
 
 const formatCurrency = (amount?: number) => {
@@ -22,7 +24,7 @@ const formatCurrency = (amount?: number) => {
     return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
-export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onDataChange, invitados }) => {
+export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onDataChange, invitados, isTemplateMode = false }) => {
   const [bebidas, setBebidas] = useState<BebidasData>(initialData || defaultBebidasData);
 
   useEffect(() => {
@@ -39,7 +41,7 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
   const totalCostoBebidas = useMemo(() => {
     let total = 0;
     bebidas.categorias.forEach(cat => {
-      if (cat.activada) {
+      if (isTemplateMode || cat.activada) {
         cat.items.forEach(item => {
           total += item.costoTotal || ((item.costoUnitario || 0) * (item.cantidadNecesaria || 0));
         });
@@ -50,7 +52,7 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
       }
     });
     return total;
-  }, [bebidas, invitados]);
+  }, [bebidas, invitados, isTemplateMode]);
 
   return (
     <Card className="shadow-lg">
@@ -58,7 +60,9 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
         <div className="p-3 bg-primary/10 rounded-lg"><GlassWater className="w-8 h-8 text-primary" /></div>
         <div>
           <CardTitle className="font-headline text-2xl">Bebidas</CardTitle>
-          <CardDescription>Activa y configura las bebidas para el evento.</CardDescription>
+          <CardDescription>
+            {isTemplateMode ? "Define los ítems base y recetas para cada categoría de bebidas." : "Activa y configura las bebidas para el evento."}
+          </CardDescription>
         </div>
         <div className="ml-auto text-right">
             <p className="text-sm text-muted-foreground">Costo Total Estimado</p>
@@ -66,18 +70,20 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
         </div>
       </CardHeader>
       <CardContent>
-        <Accordion type="multiple" className="w-full space-y-3" defaultValue={bebidas.categorias.filter(c=>c.activada).map(c=>c.id)}>
+        <Accordion type="multiple" className="w-full space-y-3" defaultValue={isTemplateMode ? bebidas.categorias.map(c => c.id) : bebidas.categorias.filter(c=>c.activada).map(c=>c.id)}>
           {bebidas.categorias.map(cat => (
             <AccordionItem key={cat.id} value={cat.id} className="border rounded-lg shadow-sm">
               <div className="flex items-center p-3">
                 <AccordionTrigger className="hover:no-underline flex-1">
                   <span className="font-semibold text-primary">{cat.nombreDisplay}</span>
                 </AccordionTrigger>
-                <Switch
-                  checked={cat.activada}
-                  onCheckedChange={(checked) => handleCategoryActivation(cat.id, checked)}
-                  onClick={(e) => e.stopPropagation()}
-                />
+                {!isTemplateMode && (
+                  <Switch
+                    checked={cat.activada}
+                    onCheckedChange={(checked) => handleCategoryActivation(cat.id, checked)}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                )}
               </div>
               <AccordionContent className="px-4 pb-4 border-t">
                 <div className="space-y-4 pt-3">

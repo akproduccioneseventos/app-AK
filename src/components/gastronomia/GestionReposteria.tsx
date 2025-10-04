@@ -1,6 +1,7 @@
+
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -13,6 +14,7 @@ interface GestionReposteriaProps {
   initialData: ReposteriaData | null;
   onDataChange: (data: ReposteriaData) => void;
   invitados: { adultos: number; ninos: number; adolescentes: number };
+  isTemplateMode?: boolean;
 }
 
 const formatCurrency = (amount?: number) => {
@@ -20,10 +22,10 @@ const formatCurrency = (amount?: number) => {
     return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
-export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialData, onDataChange, invitados }) => {
-  const [reposteria, setReposteria] = useState<ReposteriaData>(initialData || defaultReposteriaData);
+export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialData, onDataChange, invitados, isTemplateMode = false }) => {
+  const [reposteria, setReposteria] = React.useState<ReposteriaData>(initialData || defaultReposteriaData);
 
-  useEffect(() => {
+  React.useEffect(() => {
     onDataChange(reposteria);
   }, [reposteria, onDataChange]);
 
@@ -34,17 +36,17 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
     }));
   };
 
-  const totalCostoReposteria = useMemo(() => {
+  const totalCostoReposteria = React.useMemo(() => {
     let total = 0;
     reposteria.categorias.forEach(cat => {
-      if (cat.activada) {
+      if (isTemplateMode || cat.activada) {
         cat.items.forEach(item => {
           total += (item.costoEstimado || 0) * (item.cantidad || 1);
         });
       }
     });
     return total;
-  }, [reposteria]);
+  }, [reposteria, isTemplateMode]);
 
   return (
     <Card className="shadow-lg">
@@ -52,7 +54,9 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
         <div className="p-3 bg-primary/10 rounded-lg"><Cake className="w-8 h-8 text-primary" /></div>
         <div>
           <CardTitle className="font-headline text-2xl">Repostería</CardTitle>
-          <CardDescription>Activa y configura las mesas dulces y postres.</CardDescription>
+          <CardDescription>
+            {isTemplateMode ? "Define los ítems base para cada categoría de repostería." : "Activa y configura las mesas dulces y postres para el evento."}
+          </CardDescription>
         </div>
         <div className="ml-auto text-right">
             <p className="text-sm text-muted-foreground">Costo Total Estimado</p>
@@ -60,18 +64,20 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
         </div>
       </CardHeader>
       <CardContent>
-        <Accordion type="multiple" className="w-full space-y-3" defaultValue={reposteria.categorias.filter(c=>c.activada).map(c=>c.id)}>
+        <Accordion type="multiple" className="w-full space-y-3" defaultValue={isTemplateMode ? reposteria.categorias.map(c => c.id) : reposteria.categorias.filter(c=>c.activada).map(c=>c.id)}>
           {reposteria.categorias.map(cat => (
             <AccordionItem key={cat.id} value={cat.id} className="border rounded-lg shadow-sm">
               <div className="flex items-center p-3">
                 <AccordionTrigger className="hover:no-underline flex-1">
                   <span className="font-semibold text-primary">{cat.nombreDisplay}</span>
                 </AccordionTrigger>
-                <Switch
-                  checked={cat.activada}
-                  onCheckedChange={(checked) => handleCategoryActivation(cat.id, checked)}
-                  onClick={(e) => e.stopPropagation()}
-                />
+                {!isTemplateMode && (
+                  <Switch
+                    checked={cat.activada}
+                    onCheckedChange={(checked) => handleCategoryActivation(cat.id, checked)}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                )}
               </div>
               <AccordionContent className="px-4 pb-4 border-t">
                 <div className="space-y-4 pt-3">

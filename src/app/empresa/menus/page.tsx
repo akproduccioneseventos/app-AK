@@ -9,8 +9,8 @@ import { ArrowLeft, ChefHat, PlusCircle, Edit, List, Loader2, Info, Package, Cak
 import { useToast } from '@/hooks/use-toast';
 import type { FullMenu, ReposteriaData, BebidasData } from '@/types/fiesta';
 import { getMenus } from '@/app/actions/menus-catering';
-import { getReposteriaMasterTemplate } from '@/app/actions/reposteria.actions';
-import { getBebidasMasterTemplate } from '@/app/actions/bebidas.actions';
+import { getReposteriaMasterTemplate, saveReposteriaMasterTemplate } from '@/app/actions/reposteria.actions';
+import { getBebidasMasterTemplate, saveBebidasMasterTemplate } from '@/app/actions/bebidas.actions';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { GestionReposteria } from '@/components/gastronomia/GestionReposteria';
@@ -117,35 +117,39 @@ export default function GestionMenusPage() {
                     </AccordionContent>
                 </AccordionItem>
                 
-                {/* Repostería Template Section */}
-                <AccordionItem value="reposteria" className="border-none">
-                    <AccordionTrigger className="text-xl font-semibold font-headline p-0 hover:no-underline"><div className="flex items-center gap-2"><Cake className="w-6 h-6"/>Plantilla Maestra de Repostería</div></AccordionTrigger>
+                {reposteriaTemplate && (
+                  <AccordionItem value="reposteria" className="border-none">
+                    <AccordionTrigger className="text-xl font-semibold font-headline p-0 hover:no-underline"></AccordionTrigger>
                     <AccordionContent className="pt-2">
-                         {reposteriaTemplate && (
-                            <GestionReposteria 
-                                initialData={reposteriaTemplate} 
-                                onDataChange={() => {}} // La gestión se hace en la página de evento
-                                invitados={{adultos: 100, ninos: 0, adolescentes: 0}} // Placeholder para cálculos base
-                                isTemplateMode={true}
-                            />
-                         )}
+                        <GestionReposteria 
+                            initialData={reposteriaTemplate} 
+                            onDataChange={(newData) => {
+                                setReposteriaTemplate(newData);
+                                saveReposteriaMasterTemplate(newData); // Save on change
+                            }}
+                            invitados={{adultos: 100, ninos: 0, adolescentes: 0}} // Placeholder for calculations
+                            isTemplateMode={true}
+                        />
                     </AccordionContent>
-                </AccordionItem>
-                
-                {/* Bebidas Template Section */}
-                <AccordionItem value="bebidas" className="border-none">
-                    <AccordionTrigger className="text-xl font-semibold font-headline p-0 hover:no-underline"><div className="flex items-center gap-2"><GlassWater className="w-6 h-6"/>Plantilla Maestra de Bebidas</div></AccordionTrigger>
+                  </AccordionItem>
+                )}
+
+                {bebidasTemplate && (
+                  <AccordionItem value="bebidas" className="border-none">
+                    <AccordionTrigger className="text-xl font-semibold font-headline p-0 hover:no-underline"></AccordionTrigger>
                     <AccordionContent className="pt-2">
-                         {bebidasTemplate && (
-                            <GestionBebidas 
-                                initialData={bebidasTemplate} 
-                                onDataChange={() => {}} // La gestión se hace en la página de evento
-                                invitados={{adultos: 100, ninos: 0, adolescentes: 0}} // Placeholder para cálculos base
-                                isTemplateMode={true}
-                            />
-                         )}
+                        <GestionBebidas 
+                            initialData={bebidasTemplate} 
+                            onDataChange={(newData) => {
+                                setBebidasTemplate(newData);
+                                saveBebidasMasterTemplate(newData); // Save on change
+                            }}
+                            invitados={{adultos: 100, ninos: 0, adolescentes: 0}} // Placeholder
+                            isTemplateMode={true}
+                        />
                     </AccordionContent>
-                </AccordionItem>
+                  </AccordionItem>
+                )}
             </Accordion>
         </div>
       )}
