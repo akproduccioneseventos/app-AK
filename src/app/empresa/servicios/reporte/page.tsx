@@ -1,0 +1,144 @@
+
+'use client';
+
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, Printer as PrinterIcon, Share2, Sparkles, Loader2, AlertTriangle, Info } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import type { ServicioEmpresa } from '@/types/empresa';
+import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableCaption } from '@/components/ui/table';
+
+const formatCurrency = (amount?: number) => {
+  if (amount === undefined || isNaN(amount)) return 'N/A';
+  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
+};
+
+const getCalculationMethodLabel = (method?: string): string => {
+    switch (method) {
+        case 'fijo': return 'Fijo';
+        case 'porPersona': return 'Por Persona';
+        case 'ratio': return 'Por Ratio';
+        case 'tramos': return 'Por Tramos';
+        default: return 'No definido';
+    }
+};
+
+export default function ReporteServiciosPage() {
+  const { toast } = useToast();
+  const [allItems, setAllItems] = useState<ServicioEmpresa[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchItems = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await getServiciosEmpresa();
+      const services = data.filter(s => s.tipoItem === 'Servicio');
+      setAllItems(services);
+    } catch (err: any) {
+      setError("No se pudo cargar el catálogo de servicios.");
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [toast]);
+
+  useEffect(() => {
+    fetchItems();
+  }, [fetchItems]);
+
+  const handlePrint = () => { window.print(); };
+
+  const handleShare = async () => {
+    const shareData = {
+      title: 'Catálogo de Servicios - AK Producciones',
+      text: 'Lista de servicios ofrecidos y sus precios base.',
+      url: window.location.href,
+    };
+    try {
+      if (navigator.share && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+      } else {
+        throw new Error();
+      }
+    } catch (err) {
+      navigator.clipboard.writeText(shareData.url);
+      toast({
+        title: "Enlace Copiado",
+        description: "El enlace a esta página ha sido copiado a tu portapapeles.",
+      });
+    }
+  };
+
+  if (isLoading) {
+    return <div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
+  }
+  
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen text-center p-4">
+          <AlertTriangle className="w-16 h-16 text-destructive mb-4" />
+          <h1 className="text-2xl font-bold">Error al Generar Reporte</h1>
+          <p className="text-muted-foreground mt-2">{error}</p>
+          <Link href="/empresa/servicios" passHref>
+            <Button variant="outline" className="mt-4">Volver</Button>
+          </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans">
+      <div className="max-w-4xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2">
+        <div className="flex justify-between items-center mb-6 print:hidden">
+          <Link href="/empresa/servicios" passHref>
+            <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Servicios</Button>
+          </Link>
+          <div className="flex gap-2">
+            <Button onClick={handleShare} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir</Button>
+            <Button onClick={handlePrint} size="sm"><PrinterIcon className="w-4 h-4 mr-1.5" />Imprimir / PDF</Button>
+          </div>
+        </div>
+
+        <header className="mb-6 print:mb-4 text-center border-b pb-3 print:pb-2">
+          <h1 className="text-xl font-bold text-primary print:text-lg flex items-center justify-center gap-2">
+            <Sparkles className="w-6 h-6 print:w-5 print:h-5" /> Reporte de Catálogo de Servicios
+          </h1>
+          <p className="text-sm text-gray-500 print:text-[9pt]">Generado el: {new Date().toLocaleDateString('es-ES')}</p>
+        </header>
+
+        {allItems.length === 0 ? (
+          <div className="text-center py-10 text-muted-foreground">
+            <Info className="w-12 h-12 mx-auto mb-3 opacity-50"/>
+            <p>No hay servicios registrados para generar un reporte.</p>
+          </div>
+        ) : (
+          <Table>
+            <TableCaption>Listado de servicios disponibles para presupuestos.</TableCaption>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="font-semibold">Servicio</TableHead>
+                <TableHead>Categoría</TableHead>
+                <TableHead>Método de Cálculo</TableHead>
+                <TableHead className="text-right">Precio Venta (Base)</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {allItems.map(item => (
+                <TableRow key={item.id}>
+                  <TableCell className="font-medium">{item.nombre}</TableCell>
+                  <TableCell>{item.categoria}</TableCell>
+                  <TableCell>{getCalculationMethodLabel(item.calculationMethod)}</TableCell>
+                  <TableCell className="text-right font-medium">{formatCurrency(item.precioVenta ?? item.precioPorPersona ?? item.precioBase)}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </div>
+    </div>
+  );
+}

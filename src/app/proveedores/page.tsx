@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { UserPlus, Edit, Trash2, Loader2, Users as UsersIcon, Briefcase, AlertTriangle, Filter } from 'lucide-react';
+import { UserPlus, Edit, Trash2, Loader2, Users as UsersIcon, Briefcase, AlertTriangle, Filter, Printer } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Proveedor, TipoRegistroProveedor } from '@/types/proveedor';
 import { getProveedores, deleteProveedor as deleteProveedorAction } from '@/app/actions/proveedores';
@@ -127,10 +127,13 @@ export default function ProveedoresPage() {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
+          <Link href="/proveedores/reporte" passHref>
+             <Button variant="secondary"><Printer className="w-4 h-4 mr-2"/>Ver Reporte</Button>
+          </Link>
           <Link href="/proveedores/new" passHref>
             <Button>
               <UserPlus className="w-5 h-5 mr-2" />
-              Añadir Proveedor o Servicio
+              Añadir Registro
             </Button>
           </Link>
         </div>

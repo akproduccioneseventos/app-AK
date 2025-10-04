@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Sparkles, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, DollarSign } from 'lucide-react';
+import { ArrowLeft, Sparkles, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, DollarSign, Printer } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { getServiciosEmpresa, deleteServicioEmpresa } from '@/app/actions/servicios-empresa';
@@ -115,7 +115,12 @@ export default function CatalogoServiciosPage() {
           </h1>
         </div>
          <div className="flex gap-2 flex-wrap">
-            <Link href="/empresa/todos-los-servicios/nuevo?type=Servicio" passHref>
+             <Link href="/empresa/servicios/reporte" passHref>
+                <Button variant="secondary">
+                    <Printer className="w-4 h-4 mr-2"/>Ver Reporte
+                </Button>
+            </Link>
+            <Link href="/empresa/servicios/nuevo" passHref>
                 <Button variant="default">
                     <PackagePlus className="w-4 h-4 mr-2" />
                     Añadir Servicio
@@ -161,7 +166,7 @@ export default function CatalogoServiciosPage() {
                             <div className="flex justify-between items-start">
                               <CardTitle className="text-base font-semibold">{item.nombre}</CardTitle>
                               <div className="flex gap-1">
-                                  <Link href={`/empresa/todos-los-servicios/${item.id}/editar`} passHref><Button variant="ghost" size="icon" className="h-7 w-7"><Edit className="w-3.5 h-3.5" /></Button></Link>
+                                  <Link href={`/empresa/servicios/${item.id}/editar`} passHref><Button variant="ghost" size="icon" className="h-7 w-7"><Edit className="w-3.5 h-3.5" /></Button></Link>
                                   <AlertDialog>
                                     <AlertDialogTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" disabled={deletingId === item.id}><Trash2 className="w-3.5 h-3.5" /></Button></AlertDialogTrigger>
                                     <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>¿Confirmar eliminación?</AlertDialogTitle><AlertDialogDescription>El servicio "{item.nombre}" será eliminado.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDelete(item.id, item.nombre)} disabled={deletingId === item.id} className="bg-destructive hover:bg-destructive/90">{deletingId === item.id && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin"/>}Eliminar</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
