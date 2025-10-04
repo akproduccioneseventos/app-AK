@@ -1,525 +1,93 @@
 
 [
   {
-    "id": "lc_1",
-    "nombre": "Platos de Sitio",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 120,
-    "valorUnitarioEstimado": 150,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_2",
-    "nombre": "Platos Grandes",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 120,
-    "valorUnitarioEstimado": 120,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_3",
-    "nombre": "Platos Chicos",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 120,
-    "valorUnitarioEstimado": 80,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_4",
-    "nombre": "Cucharitas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 120,
-    "valorUnitarioEstimado": 40,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_5",
-    "nombre": "Tenedores",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 120,
-    "valorUnitarioEstimado": 50,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_6",
-    "nombre": "Cuchillos",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 120,
-    "valorUnitarioEstimado": 60,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_84",
-    "nombre": "Cucharas de Postre",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 120,
-    "valorUnitarioEstimado": 45,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_85",
-    "nombre": "Tenedores de Postre",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 120,
-    "valorUnitarioEstimado": 45,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_86",
-    "nombre": "Cuchillos de Postre",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 120,
-    "valorUnitarioEstimado": 50,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_87",
-    "nombre": "Tazas de Café",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 120,
-    "valorUnitarioEstimado": 70,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_88",
-    "nombre": "Platillos de Café",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 120,
-    "valorUnitarioEstimado": 50,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_89",
-    "nombre": "Cucharitas de Café",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 120,
-    "valorUnitarioEstimado": 30,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_7",
-    "nombre": "Espátula de Torta",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 4,
-    "valorUnitarioEstimado": 300,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_8",
-    "nombre": "Jarras Chicas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 12,
-    "valorUnitarioEstimado": 150,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_9",
-    "nombre": "Jarras Grandes",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 24,
-    "valorUnitarioEstimado": 250,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_10",
-    "nombre": "Vasos",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 150,
-    "valorUnitarioEstimado": 80,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_90",
-    "nombre": "Copas de Agua",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 120,
-    "valorUnitarioEstimado": 100,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_91",
-    "nombre": "Copas de Vino",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 120,
-    "valorUnitarioEstimado": 110,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_92",
-    "nombre": "Copas de Champagne",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 120,
-    "valorUnitarioEstimado": 110,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_11",
-    "nombre": "Copas de Brindis",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 4,
-    "valorUnitarioEstimado": 400,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_99",
-    "nombre": "Copon Acrilico con Soporte",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
+    "id": "lc_bt_1",
+    "nombre": "Estructura de Arriba de la Barra",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 1200,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_40",
-    "nombre": "Copas Lacradas",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 12,
-    "valorUnitarioEstimado": 150,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_12",
-    "nombre": "Hieleras Grandes",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 16,
-    "valorUnitarioEstimado": 400,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_13",
-    "nombre": "Hieleras Chicas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 250,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_18",
-    "nombre": "Pinzas de Hieleras",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 20,
-    "valorUnitarioEstimado": 100,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_23",
-    "nombre": "Platinas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 20,
-    "valorUnitarioEstimado": 300,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_21",
-    "nombre": "Tablas de Pizzas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 12,
-    "valorUnitarioEstimado": 350,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_22",
-    "nombre": "Tablas Redondas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 16,
-    "valorUnitarioEstimado": 280,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_100_salsa",
-    "nombre": "Tarros para Salsa",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 4,
-    "valorUnitarioEstimado": 150,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_14",
-    "nombre": "Bandejas de Horno",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Equipamiento de Cocina",
-    "cantidadDisponible": 2,
-    "valorUnitarioEstimado": 800,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_15",
-    "nombre": "Cocina",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Equipamiento de Cocina",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 15000,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_16",
-    "nombre": "Hornallas de la Cocina",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Equipamiento de Cocina",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 3000,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_17",
-    "nombre": "Garrafa de Gas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Equipamiento de Cocina",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 3500,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_101",
-    "nombre": "Plancha de Hamburguesas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Equipamiento de Cocina",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 8000,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_24",
-    "nombre": "Freidora",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Equipamiento de Cocina",
-    "cantidadDisponible": 2,
-    "valorUnitarioEstimado": 9000,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_item_olla_50l",
-    "nombre": "Olla 50 Litros",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Equipamiento de Cocina",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 5000,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_item_colador_g",
-    "nombre": "Colador Grande",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Equipamiento de Cocina",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 700,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_item_tarrina_200l",
-    "nombre": "Tarrina 200L",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Equipamiento de Cocina",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 2000,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_19",
-    "nombre": "Espátulas, Cuchillos de Cocina",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Equipamiento de Cocina",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 3000,
-    "unidad": "Caja"
-  },
-  {
-    "id": "lc_25",
-    "nombre": "Pinzas de Ensaladas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Equipamiento de Cocina",
-    "cantidadDisponible": 10,
-    "valorUnitarioEstimado": 150,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_33",
-    "nombre": "Jarra Eléctrica",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Equipamiento de Cocina",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 1500,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_112",
-    "nombre": "Fuente de Chocolate",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Equipamiento de Cocina",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 4000,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_102",
-    "nombre": "Soportes de Torta",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mobiliario",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 1200,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_34",
-    "nombre": "Papeleras",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mobiliario",
-    "cantidadDisponible": 2,
-    "valorUnitarioEstimado": 800,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_71",
-    "nombre": "Barra DJ (Fierros y Tabla)",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mobiliario",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 3500,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_83",
-    "nombre": "Mesa de DJ para Luces",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mobiliario",
-    "cantidadDisponible": 1,
+    "categoria": "Barra de Tragos",
     "valorUnitarioEstimado": 2500,
     "unidad": "Unidad"
   },
   {
-    "id": "lc_113",
-    "nombre": "Mesas Plegables",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mobiliario",
-    "cantidadDisponible": 2,
-    "valorUnitarioEstimado": 1800,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_111",
-    "nombre": "Porta Torta",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mobiliario",
+    "id": "lc_bt_2",
+    "nombre": "Caja de Herramientas Barman",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 800,
+    "tipoItem": "Activo Fijo",
+    "categoria": "Barra de Tragos",
+    "valorUnitarioEstimado": 2000,
     "unidad": "Unidad"
   },
   {
-    "id": "lc_41",
-    "nombre": "Servilletas Negras de Tela",
+    "id": "lc_bt_3",
+    "nombre": "Casilleros de Licores",
+    "cantidadDisponible": 4,
     "tipoItem": "Activo Fijo",
-    "categoria": "Mantelería",
-    "cantidadDisponible": 120,
-    "valorUnitarioEstimado": 50,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_106",
-    "nombre": "Manteles Blancos Redondo",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mantelería",
-    "cantidadDisponible": 16,
+    "categoria": "Barra de Tragos",
     "valorUnitarioEstimado": 500,
     "unidad": "Unidad"
   },
   {
-    "id": "lc_107",
-    "nombre": "Nailon de Mesa",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mantelería",
-    "cantidadDisponible": 16,
-    "valorUnitarioEstimado": 100,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_108",
-    "nombre": "Cubre Mantel Blanco",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mantelería",
-    "cantidadDisponible": 16,
-    "valorUnitarioEstimado": 250,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_45",
-    "nombre": "Cubre Azul",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mantelería",
-    "cantidadDisponible": 10,
-    "valorUnitarioEstimado": 250,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_109",
-    "nombre": "Delantales Mozos",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mantelería",
-    "cantidadDisponible": 16,
-    "valorUnitarioEstimado": 400,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_110",
-    "nombre": "Cubre Sillas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mantelería",
-    "cantidadDisponible": 120,
-    "valorUnitarioEstimado": 150,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_42",
-    "nombre": "Delantales y Gorros Cocina",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mantelería",
-    "cantidadDisponible": 5,
-    "valorUnitarioEstimado": 400,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_43",
-    "nombre": "Manteles Negros de Cocina",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mantelería",
-    "cantidadDisponible": 5,
-    "valorUnitarioEstimado": 400,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_72",
-    "nombre": "Tela de Barra DJ",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mantelería",
+    "id": "lc_bt_6",
+    "nombre": "Lona de Barra",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 600,
+    "tipoItem": "Activo Fijo",
+    "categoria": "Barra de Tragos",
+    "valorUnitarioEstimado": 800,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_bt_7",
+    "nombre": "Focos LED Luz Negra Barra",
+    "cantidadDisponible": 1,
+    "tipoItem": "Activo Fijo",
+    "categoria": "Barra de Tragos",
+    "valorUnitarioEstimado": 800,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_bt_8",
+    "nombre": "Focos LED Color Barra",
+    "cantidadDisponible": 1,
+    "tipoItem": "Activo Fijo",
+    "categoria": "Barra de Tragos",
+    "valorUnitarioEstimado": 700,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_bt_9",
+    "nombre": "Licuadoras",
+    "cantidadDisponible": 2,
+    "tipoItem": "Activo Fijo",
+    "categoria": "Barra de Tragos",
+    "valorUnitarioEstimado": 2500,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_bt_10",
+    "nombre": "Pantalla LED Barra",
+    "cantidadDisponible": 1,
+    "tipoItem": "Activo Fijo",
+    "categoria": "Barra de Tragos",
+    "valorUnitarioEstimado": 4000,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_bt_13",
+    "nombre": "Tarros para Jugos",
+    "cantidadDisponible": 3,
+    "tipoItem": "Activo Fijo",
+    "categoria": "Barra de Tragos",
+    "valorUnitarioEstimado": 300,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_bt_14",
+    "nombre": "Conservadora",
+    "cantidadDisponible": 1,
+    "tipoItem": "Activo Fijo",
+    "categoria": "Barra de Tragos",
+    "valorUnitarioEstimado": 2000,
     "unidad": "Unidad"
   },
   {
@@ -829,6 +397,267 @@
     "unidad": "Unidad"
   },
   {
+    "id": "lc_14",
+    "nombre": "Bandejas de Horno",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Equipamiento de Cocina",
+    "cantidadDisponible": 2,
+    "valorUnitarioEstimado": 800,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_15",
+    "nombre": "Cocina",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Equipamiento de Cocina",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 15000,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_16",
+    "nombre": "Hornallas de la Cocina",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Equipamiento de Cocina",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 3000,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_17",
+    "nombre": "Garrafa de Gas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Equipamiento de Cocina",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 3500,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_101",
+    "nombre": "Plancha de Hamburguesas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Equipamiento de Cocina",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 8000,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_24",
+    "nombre": "Freidora",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Equipamiento de Cocina",
+    "cantidadDisponible": 2,
+    "valorUnitarioEstimado": 9000,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_item_olla_50l",
+    "nombre": "Olla 50 Litros",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Equipamiento de Cocina",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 5000,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_item_colador_g",
+    "nombre": "Colador Grande",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Equipamiento de Cocina",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 700,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_item_tarrina_200l",
+    "nombre": "Tarrina 200L",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Equipamiento de Cocina",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 2000,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_19",
+    "nombre": "Espátulas, Cuchillos de Cocina",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Equipamiento de Cocina",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 3000,
+    "unidad": "Caja"
+  },
+  {
+    "id": "lc_25",
+    "nombre": "Pinzas de Ensaladas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Equipamiento de Cocina",
+    "cantidadDisponible": 10,
+    "valorUnitarioEstimado": 150,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_33",
+    "nombre": "Jarra Eléctrica",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Equipamiento de Cocina",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 1500,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_112",
+    "nombre": "Fuente de Chocolate",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Equipamiento de Cocina",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 4000,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_41",
+    "nombre": "Servilletas Negras de Tela",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mantelería",
+    "cantidadDisponible": 120,
+    "valorUnitarioEstimado": 50,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_106",
+    "nombre": "Manteles Blancos Redondo",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mantelería",
+    "cantidadDisponible": 16,
+    "valorUnitarioEstimado": 500,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_107",
+    "nombre": "Nailon de Mesa",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mantelería",
+    "cantidadDisponible": 16,
+    "valorUnitarioEstimado": 100,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_108",
+    "nombre": "Cubre Mantel Blanco",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mantelería",
+    "cantidadDisponible": 16,
+    "valorUnitarioEstimado": 250,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_45",
+    "nombre": "Cubre Azul",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mantelería",
+    "cantidadDisponible": 10,
+    "valorUnitarioEstimado": 250,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_109",
+    "nombre": "Delantales Mozos",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mantelería",
+    "cantidadDisponible": 16,
+    "valorUnitarioEstimado": 400,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_110",
+    "nombre": "Cubre Sillas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mantelería",
+    "cantidadDisponible": 120,
+    "valorUnitarioEstimado": 150,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_42",
+    "nombre": "Delantales y Gorros Cocina",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mantelería",
+    "cantidadDisponible": 5,
+    "valorUnitarioEstimado": 400,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_43",
+    "nombre": "Manteles Negros de Cocina",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mantelería",
+    "cantidadDisponible": 5,
+    "valorUnitarioEstimado": 400,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_72",
+    "nombre": "Tela de Barra DJ",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mantelería",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 600,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_102",
+    "nombre": "Soportes de Torta",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mobiliario",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 1200,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_34",
+    "nombre": "Papeleras",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mobiliario",
+    "cantidadDisponible": 2,
+    "valorUnitarioEstimado": 800,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_71",
+    "nombre": "Barra DJ (Fierros y Tabla)",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mobiliario",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 3500,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_83",
+    "nombre": "Mesa de DJ para Luces",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mobiliario",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 2500,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_113",
+    "nombre": "Mesas Plegables",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mobiliario",
+    "cantidadDisponible": 2,
+    "valorUnitarioEstimado": 1800,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_111",
+    "nombre": "Porta Torta",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Mobiliario",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 800,
+    "unidad": "Unidad"
+  },
+  {
     "id": "lc_103",
     "nombre": "Escurridor de Fregar",
     "tipoItem": "Activo Fijo",
@@ -892,120 +721,264 @@
     "unidad": "Unidad"
   },
   {
-    "id": "lc_36",
-    "nombre": "Bolsas Negras para Manteleria",
+    "id": "lc_1",
+    "nombre": "Platos de Sitio",
     "tipoItem": "Activo Fijo",
-    "categoria": "Insumos varios",
-    "cantidadDisponible": 3,
-    "valorUnitarioEstimado": 100,
+    "categoria": "Vajilla (Activo)",
+    "cantidadDisponible": 120,
+    "valorUnitarioEstimado": 150,
     "unidad": "Unidad"
   },
   {
-    "id": "lc_80",
-    "nombre": "Liquido de Humo",
+    "id": "lc_2",
+    "nombre": "Platos Grandes",
     "tipoItem": "Activo Fijo",
-    "categoria": "Insumos varios",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 800,
+    "categoria": "Vajilla (Activo)",
+    "cantidadDisponible": 120,
+    "valorUnitarioEstimado": 120,
     "unidad": "Unidad"
   },
   {
-    "id": "lc_57",
-    "nombre": "Aerosol de Globos",
+    "id": "lc_3",
+    "nombre": "Platos Chicos",
     "tipoItem": "Activo Fijo",
-    "categoria": "Insumos varios",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 300,
+    "categoria": "Vajilla (Activo)",
+    "cantidadDisponible": 120,
+    "valorUnitarioEstimado": 80,
     "unidad": "Unidad"
   },
   {
-    "id": "lc_26",
-    "nombre": "Alcohol y Guantes",
+    "id": "lc_4",
+    "nombre": "Cucharitas",
     "tipoItem": "Activo Fijo",
-    "categoria": "Insumos varios",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 200,
+    "categoria": "Vajilla (Activo)",
+    "cantidadDisponible": 120,
+    "valorUnitarioEstimado": 40,
     "unidad": "Unidad"
   },
   {
-    "id": "lc_27",
-    "nombre": "Repasadores",
+    "id": "lc_5",
+    "nombre": "Tenedores",
     "tipoItem": "Activo Fijo",
-    "categoria": "Insumos varios",
-    "cantidadDisponible": 20,
+    "categoria": "Vajilla (Activo)",
+    "cantidadDisponible": 120,
     "valorUnitarioEstimado": 50,
     "unidad": "Unidad"
   },
   {
-    "id": "lc_28",
-    "nombre": "Servilletas de Papel para Torta",
+    "id": "lc_6",
+    "nombre": "Cuchillos",
     "tipoItem": "Activo Fijo",
-    "categoria": "Insumos varios",
-    "cantidadDisponible": 1,
+    "categoria": "Vajilla (Activo)",
+    "cantidadDisponible": 120,
+    "valorUnitarioEstimado": 60,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_84",
+    "nombre": "Cucharas de Postre",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla (Activo)",
+    "cantidadDisponible": 120,
+    "valorUnitarioEstimado": 45,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_85",
+    "nombre": "Tenedores de Postre",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla (Activo)",
+    "cantidadDisponible": 120,
+    "valorUnitarioEstimado": 45,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_86",
+    "nombre": "Cuchillos de Postre",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla (Activo)",
+    "cantidadDisponible": 120,
+    "valorUnitarioEstimado": 50,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_87",
+    "nombre": "Tazas de Café",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla (Activo)",
+    "cantidadDisponible": 120,
+    "valorUnitarioEstimado": 70,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_88",
+    "nombre": "Platillos de Café",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla (Activo)",
+    "cantidadDisponible": 120,
+    "valorUnitarioEstimado": 50,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_89",
+    "nombre": "Cucharitas de Café",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla (Activo)",
+    "cantidadDisponible": 120,
+    "valorUnitarioEstimado": 30,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_7",
+    "nombre": "Espátula de Torta",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla (Activo)",
+    "cantidadDisponible": 4,
+    "valorUnitarioEstimado": 300,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_8",
+    "nombre": "Jarras Chicas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla (Activo)",
+    "cantidadDisponible": 12,
     "valorUnitarioEstimado": 150,
     "unidad": "Unidad"
   },
   {
-    "id": "lc_29",
-    "nombre": "Rollo Servilletas de Papel",
+    "id": "lc_9",
+    "nombre": "Jarras Grandes",
     "tipoItem": "Activo Fijo",
-    "categoria": "Insumos varios",
-    "cantidadDisponible": 2,
+    "categoria": "Vajilla (Activo)",
+    "cantidadDisponible": 24,
+    "valorUnitarioEstimado": 250,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_10",
+    "nombre": "Vasos",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla (Activo)",
+    "cantidadDisponible": 150,
+    "valorUnitarioEstimado": 80,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_90",
+    "nombre": "Copas de Agua",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla (Activo)",
+    "cantidadDisponible": 120,
     "valorUnitarioEstimado": 100,
     "unidad": "Unidad"
   },
   {
-    "id": "lc_30",
-    "nombre": "Aderezos",
+    "id": "lc_91",
+    "nombre": "Copas de Vino",
     "tipoItem": "Activo Fijo",
-    "categoria": "Insumos varios",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 500,
+    "categoria": "Vajilla (Activo)",
+    "cantidadDisponible": 120,
+    "valorUnitarioEstimado": 110,
     "unidad": "Unidad"
   },
   {
-    "id": "lc_31",
-    "nombre": "Jabón y Esponjas",
+    "id": "lc_92",
+    "nombre": "Copas de Champagne",
     "tipoItem": "Activo Fijo",
-    "categoria": "Insumos varios",
+    "categoria": "Vajilla (Activo)",
+    "cantidadDisponible": 120,
+    "valorUnitarioEstimado": 110,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_11",
+    "nombre": "Copas de Brindis",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla (Activo)",
+    "cantidadDisponible": 4,
+    "valorUnitarioEstimado": 400,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_99",
+    "nombre": "Copon Acrilico con Soporte",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla (Activo)",
     "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 1200,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_40",
+    "nombre": "Copas Lacradas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla (Activo)",
+    "cantidadDisponible": 12,
     "valorUnitarioEstimado": 150,
     "unidad": "Unidad"
   },
   {
-    "id": "lc_35",
-    "nombre": "Bolsas Negras de Residuos",
+    "id": "lc_12",
+    "nombre": "Hieleras Grandes",
     "tipoItem": "Activo Fijo",
-    "categoria": "Insumos varios",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 100,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_20",
-    "nombre": "Escarbadientes y Saleros",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Insumos varios",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 200,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_37",
-    "nombre": "Canastas Paneras Marrones",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Insumos varios",
+    "categoria": "Vajilla (Activo)",
     "cantidadDisponible": 16,
-    "valorUnitarioEstimado": 150,
+    "valorUnitarioEstimado": 400,
     "unidad": "Unidad"
   },
   {
-    "id": "lc_38",
-    "nombre": "Platos Rectangulares Lisos",
+    "id": "lc_13",
+    "nombre": "Hieleras Chicas",
     "tipoItem": "Activo Fijo",
-    "categoria": "Insumos varios",
-    "cantidadDisponible": 10,
-    "valorUnitarioEstimado": 200,
+    "categoria": "Vajilla (Activo)",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 250,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_18",
+    "nombre": "Pinzas de Hieleras",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla (Activo)",
+    "cantidadDisponible": 20,
+    "valorUnitarioEstimado": 100,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_23",
+    "nombre": "Platinas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla (Activo)",
+    "cantidadDisponible": 20,
+    "valorUnitarioEstimado": 300,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_21",
+    "nombre": "Tablas de Pizzas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla (Activo)",
+    "cantidadDisponible": 12,
+    "valorUnitarioEstimado": 350,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_22",
+    "nombre": "Tablas Redondas",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla (Activo)",
+    "cantidadDisponible": 16,
+    "valorUnitarioEstimado": 280,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_100_salsa",
+    "nombre": "Tarros para Salsa",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Vajilla (Activo)",
+    "cantidadDisponible": 4,
+    "valorUnitarioEstimado": 150,
     "unidad": "Unidad"
   }
 ]

@@ -1,4 +1,5 @@
 
+
 export type CategoriaServicio =
   | 'Servicio de catering'
   | 'Servicio de filmación'
@@ -59,8 +60,8 @@ export const ALL_CATEGORIAS_INSUMO: CategoriaInsumo[] = [
   'Otro Insumo'
 ];
 
-export type CategoriaActivo = 'Mobiliario' | 'Discoteca' | 'Decoración (Activo)' | 'Vajilla (Activo)' | 'Mantelería' | 'Equipamiento de Cocina' | 'Otro Activo' | 'Insumos varios';
-export const ALL_CATEGORIAS_ACTIVO: CategoriaActivo[] = ['Mobiliario', 'Discoteca', 'Decoración (Activo)', 'Vajilla (Activo)', 'Mantelería', 'Equipamiento de Cocina', 'Otro Activo', 'Insumos varios'];
+export type CategoriaActivo = 'Mobiliario' | 'Discoteca' | 'Decoración (Activo)' | 'Vajilla (Activo)' | 'Mantelería' | 'Equipamiento de Cocina' | 'Otro Activo' | 'Insumos varios' | 'Barra de Tragos';
+export const ALL_CATEGORIAS_ACTIVO: CategoriaActivo[] = ['Mobiliario', 'Discoteca', 'Decoración (Activo)', 'Vajilla (Activo)', 'Mantelería', 'Equipamiento de Cocina', 'Otro Activo', 'Insumos varios', 'Barra de Tragos'];
 
 
 export type AnyCategoria = CategoriaServicio | CategoriaInsumo | CategoriaActivo;
@@ -103,3 +104,4 @@ export interface ServicioEmpresa {
 
   contactoPrincipal?: string;
 }
+
