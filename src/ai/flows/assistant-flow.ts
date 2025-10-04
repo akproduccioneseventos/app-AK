@@ -13,8 +13,8 @@ import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { getMenus } from '@/app/actions/menus-catering';
 import { getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
+import { getOcupiedDates } from '@/app/actions/agenda';
 import { generateImage } from './generate-image-flow';
-
 
 const AssistantInputSchema = z.object({
   query: z.string().describe('The user\'s request to the assistant.'),
@@ -39,7 +39,7 @@ const imageGenerationTool = ai.defineTool(
     name: 'generateImage',
     description: 'Generates an image based on a textual description. Use this when the user explicitly asks to "generate an image", "create a picture", "draw", or similar visual creation requests.',
     inputSchema: z.object({
-      prompt: z.string().describe('A detailed English description of the image to generate.'),
+      prompt: z.string().describe('A detailed English description of the image to generate, focusing on visual elements.'),
     }),
     outputSchema: z.object({
       imageUrl: z.string(),
@@ -58,7 +58,7 @@ const assistantFlow = ai.defineFlow(
     name: 'assistantFlow',
     inputSchema: AssistantInputSchema,
     outputSchema: AssistantOutputSchema,
-    // Provide the image generation tool to the AI
+    // Provide the tools to the AI
     tools: [imageGenerationTool],
   },
   async (input) => {
@@ -68,11 +68,13 @@ const assistantFlow = ai.defineFlow(
       menus,
       paquetesConfig,
       companyInfo,
+      occupiedDates,
     ] = await Promise.all([
       getServiciosEmpresa(),
       getMenus(),
       getArmadoRapidoConfig(),
       getInvoiceTemplateSettings(),
+      getOcupiedDates(),
     ]);
     
     // 2. Format the data into a structured string for the prompt
@@ -87,19 +89,22 @@ const assistantFlow = ai.defineFlow(
 
         **Simulator Packages:**
         ${paquetesConfig.paquetes.map(p => `- ${p.nombre}`).join('\n')}
+
+        **Occupied Event Dates (YYYY-MM-DD):**
+        ${occupiedDates.join(', ')}
     `;
 
     // 3. Generate the response using the AI model
     const llmResponse = await ai.generate({
       prompt: input.query,
-      model: 'googleai/gemini-pro',
+      model: 'googleai/gemini-1.5-flash',
       // The system prompt "trains" the AI for this specific request
       system: `You are "Asistente AK," an expert marketing and event planning assistant for a company named AK Producciones. Your tone should be creative, helpful, and professional.
 
         Your primary goal is to help the user with their marketing efforts by creating content, brainstorming ideas, and providing strategic advice.
         
         You have been provided with the company's internal data. Use this information to give specific, relevant, and actionable responses. For example, if asked for a post about a service, use the actual service name from the catalog.
-        
+                
         If the user asks you to generate an image, use the 'generateImage' tool. Do not describe the image in text; instead, call the tool and let the user see the result. For image generation, provide a concise confirmation in your text response, like "Aquí tienes la imagen que pediste:".
 
         Always respond in Spanish and use Markdown for formatting (e.g., lists, bold text).
@@ -113,12 +118,12 @@ const assistantFlow = ai.defineFlow(
     });
 
     const textResponse = llmResponse.text;
-    const toolCall = llmResponse.toolCalls?.find(call => call.tool === 'generateImage');
-    
     let finalImageUrl: string | undefined = undefined;
 
-    if (toolCall) {
-      const toolResult = await imageGenerationTool(toolCall.input);
+    // Check if the AI decided to use the image generation tool
+    const imageToolCall = llmResponse.toolCalls?.find(call => call.tool === 'generateImage');
+    if (imageToolCall) {
+      const toolResult = await imageGenerationTool(imageToolCall.input);
       finalImageUrl = toolResult.imageUrl;
     }
 

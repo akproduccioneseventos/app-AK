@@ -10,7 +10,7 @@ import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 
 const GenerateImageInputSchema = z.object({
-  prompt: z.string().describe('A detailed description of the image to generate.'),
+  prompt: z.string().describe('A detailed English description of the image to generate.'),
 });
 export type GenerateImageInput = z.infer<typeof GenerateImageInputSchema>;
 
@@ -32,7 +32,7 @@ const generateImageFlow = ai.defineFlow(
   async (input) => {
     const { media } = await ai.generate({
       model: 'googleai/imagen-2.0-fast-generate',
-      prompt: input.prompt,
+      prompt: `A high-quality, professional photograph for a marketing campaign. ${input.prompt}`,
     });
 
     const imageUrl = media.url;
