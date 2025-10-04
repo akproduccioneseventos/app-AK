@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -29,11 +30,11 @@ const empresaHubItems: HubItem[] = [
     actionLabel: 'Gestionar Servicios',
   },
   {
-    title: 'Gestión de Menús y Catering',
-    description: 'Crea menús, platos, y gestiona tu catálogo de insumos y bebidas.',
+    title: 'Planificador Gastronómico',
+    description: 'Crea menús, platos, gestiona insumos y calcula costos de catering.',
     href: '/empresa/menus',
-    icon: ChefHat,
-    actionLabel: 'Gestionar Menús',
+    icon: Calculator,
+    actionLabel: 'Ir al Planificador',
   },
   {
     title: 'Catálogo de Activos Fijos',

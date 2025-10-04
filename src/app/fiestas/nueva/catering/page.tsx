@@ -13,6 +13,7 @@ export default function DeprecatedCateringPage() {
     const router = useRouter();
 
     useEffect(() => {
+        // Redirect to the new central gastronomy planner page
         router.replace('/empresa/menus');
     }, [router]);
 
@@ -25,7 +26,7 @@ export default function DeprecatedCateringPage() {
                 </CardHeader>
                 <CardContent>
                      <p className="text-muted-foreground">
-                        La gestión de menús y catering ahora es centralizada. Serás redirigido a la nueva sección en "Gestión de Empresa".
+                        La gestión de menús y catering ahora es centralizada. Serás redirigido al nuevo Planificador Gastronómico.
                     </p>
                 </CardContent>
                  <CardFooter className="justify-center">
