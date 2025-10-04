@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, Sparkles, PlusCircle, AlertTriangle, List, Calendar, Filter, X, BrainCircuit, Bot } from 'lucide-react';
+import { ArrowLeft, Loader2, Sparkles, PlusCircle, AlertTriangle, List, Calendar, Filter, X, Wand2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { SocialPost, SocialPlatform } from '@/types/social-media';
 import { getSocialPosts, deleteSocialPost } from '@/app/actions/social-media';
@@ -22,8 +22,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { AkAssistant } from '@/components/asistente-ak/AkAssistant';
-
 
 function SocialMediaPageContent() {
     const [posts, setPosts] = useState<SocialPost[]>([]);
@@ -126,76 +124,64 @@ function SocialMediaPageContent() {
             )}
             <CardDescription>Planifica, redacta con IA y organiza tu contenido para redes sociales. Luego copia y pega para publicar.</CardDescription>
             
-            <Tabs defaultValue="planner" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 md:w-auto md:inline-flex">
-                    <TabsTrigger value="planner"><List className="w-4 h-4 mr-2"/>Planificador</TabsTrigger>
-                    <TabsTrigger value="assistant"><Bot className="w-4 h-4 mr-2"/>Asistente de IA</TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="planner" className="mt-4">
-                    <Card className="shadow-lg">
-                        <CardHeader>
-                            <CardTitle className="font-headline text-xl">Gestor de Contenido</CardTitle>
-                            <div className="flex flex-col md:flex-row gap-4 pt-2">
-                                {/* Event Filter */}
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild><Button variant="outline"><Filter className="w-4 h-4 mr-2"/>Filtrar por Evento</Button></DropdownMenuTrigger>
-                                    <DropdownMenuContent>
-                                        <DropdownMenuItem onSelect={() => setEventFilter('all')}>Todos los Eventos</DropdownMenuItem>
-                                        <DropdownMenuItem onSelect={() => setEventFilter('general')}>Campañas Generales</DropdownMenuItem>
-                                        <DropdownMenuSeparator/>
-                                        {allEvents.map(e => <DropdownMenuItem key={e.id} onSelect={() => setEventFilter(e.id)}>{e.configuracion.nombreEvento}</DropdownMenuItem>)}
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                                {/* Platform Filter */}
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild><Button variant="outline"><Filter className="w-4 h-4 mr-2"/>Filtrar por Plataforma</Button></DropdownMenuTrigger>
-                                    <DropdownMenuContent>
-                                        <DropdownMenuItem onSelect={() => setPlatformFilter('all')}>Todas las Plataformas</DropdownMenuItem>
-                                        <DropdownMenuItem onSelect={() => setPlatformFilter('Facebook')}>Facebook</DropdownMenuItem>
-                                        <DropdownMenuItem onSelect={() => setPlatformFilter('Instagram')}>Instagram</DropdownMenuItem>
-                                        <DropdownMenuItem onSelect={() => setPlatformFilter('TikTok')}>TikTok</DropdownMenuItem>
-                                        <DropdownMenuItem onSelect={() => setPlatformFilter('WhatsApp')}>WhatsApp</DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                                {(eventFilter !== 'all' || platformFilter !== 'all') && <Button variant="ghost" onClick={() => {setEventFilter('all'); setPlatformFilter('all');}}><X className="w-4 h-4 mr-2"/>Limpiar Filtros</Button>}
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            <Tabs defaultValue="list">
-                                <TabsList className="grid w-full grid-cols-2 md:w-auto md:inline-flex">
-                                    <TabsTrigger value="list"><List className="w-4 h-4 mr-2"/>Vista de Lista</TabsTrigger>
-                                    <TabsTrigger value="calendar"><Calendar className="w-4 h-4 mr-2"/>Vista de Calendario</TabsTrigger>
-                                </TabsList>
-                                <TabsContent value="list" className="mt-4">
-                                    {isLoading ? (
-                                        <div className="text-center py-10"><Loader2 className="w-8 h-8 animate-spin mx-auto text-primary"/></div>
-                                    ) : filteredPosts.length > 0 ? (
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                        {filteredPosts.map(post => <SocialPostCard key={post.id} post={post} onDelete={handleDelete} isDeleting={deletingPostId === post.id} onUpdate={fetchData} onDuplicate={handleDuplicatePost} />)}
-                                        </div>
-                                    ) : (
-                                        <p className="text-muted-foreground text-center py-10">No hay publicaciones que coincidan con los filtros seleccionados.</p>
-                                    )}
-                                </TabsContent>
-                                <TabsContent value="calendar" className="mt-4">
-                                {isLoading ? (
-                                        <div className="text-center py-10"><Loader2 className="w-8 h-8 animate-spin mx-auto text-primary"/></div>
-                                    ) : (
-                                    <SocialMediaCalendar posts={filteredPosts} />
-                                    )}
-                                </TabsContent>
-                            </Tabs>
-                        </CardContent>
-                        <CardFooter>
-                            <p className="text-xs text-muted-foreground">Usa este módulo para planificar tu contenido. Cuando sea la fecha de publicación, simplemente copia y pega el contenido en tus redes.</p>
-                        </CardFooter>
-                    </Card>
-                </TabsContent>
-                 <TabsContent value="assistant" className="mt-4">
-                    <AkAssistant />
-                </TabsContent>
-            </Tabs>
+            <Card className="shadow-lg">
+                <CardHeader>
+                    <CardTitle className="font-headline text-xl">Gestor de Contenido</CardTitle>
+                    <div className="flex flex-col md:flex-row gap-4 pt-2">
+                        {/* Event Filter */}
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild><Button variant="outline"><Filter className="w-4 h-4 mr-2"/>Filtrar por Evento</Button></DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                                <DropdownMenuItem onSelect={() => setEventFilter('all')}>Todos los Eventos</DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => setEventFilter('general')}>Campañas Generales</DropdownMenuItem>
+                                <DropdownMenuSeparator/>
+                                {allEvents.map(e => <DropdownMenuItem key={e.id} onSelect={() => setEventFilter(e.id)}>{e.configuracion.nombreEvento}</DropdownMenuItem>)}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                        {/* Platform Filter */}
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild><Button variant="outline"><Filter className="w-4 h-4 mr-2"/>Filtrar por Plataforma</Button></DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                                <DropdownMenuItem onSelect={() => setPlatformFilter('all')}>Todas las Plataformas</DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => setPlatformFilter('Facebook')}>Facebook</DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => setPlatformFilter('Instagram')}>Instagram</DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => setPlatformFilter('TikTok')}>TikTok</DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => setPlatformFilter('WhatsApp')}>WhatsApp</DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                        {(eventFilter !== 'all' || platformFilter !== 'all') && <Button variant="ghost" onClick={() => {setEventFilter('all'); setPlatformFilter('all');}}><X className="w-4 h-4 mr-2"/>Limpiar Filtros</Button>}
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    <Tabs defaultValue="list">
+                        <TabsList className="grid w-full grid-cols-2 md:w-auto md:inline-flex">
+                            <TabsTrigger value="list"><List className="w-4 h-4 mr-2"/>Vista de Lista</TabsTrigger>
+                            <TabsTrigger value="calendar"><Calendar className="w-4 h-4 mr-2"/>Vista de Calendario</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="list" className="mt-4">
+                            {isLoading ? (
+                                <div className="text-center py-10"><Loader2 className="w-8 h-8 animate-spin mx-auto text-primary"/></div>
+                            ) : filteredPosts.length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {filteredPosts.map(post => <SocialPostCard key={post.id} post={post} onDelete={handleDelete} isDeleting={deletingPostId === post.id} onUpdate={fetchData} onDuplicate={handleDuplicatePost} />)}
+                                </div>
+                            ) : (
+                                <p className="text-muted-foreground text-center py-10">No hay publicaciones que coincidan con los filtros seleccionados.</p>
+                            )}
+                        </TabsContent>
+                        <TabsContent value="calendar" className="mt-4">
+                        {isLoading ? (
+                                <div className="text-center py-10"><Loader2 className="w-8 h-8 animate-spin mx-auto text-primary"/></div>
+                            ) : (
+                            <SocialMediaCalendar posts={filteredPosts} />
+                            )}
+                        </TabsContent>
+                    </Tabs>
+                </CardContent>
+                <CardFooter>
+                    <p className="text-xs text-muted-foreground">Usa este módulo para planificar tu contenido. Cuando sea la fecha de publicación, simplemente copia y pega el contenido en tus redes.</p>
+                </CardFooter>
+            </Card>
         </div>
     )
 }
