@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -65,7 +66,7 @@ const empresaHubItems: HubItem[] = [
   },
   {
     title: 'Redes Sociales y Publicaciones',
-    description: 'Planifica, redacta con IA y sigue el rendimiento de tus campañas en redes.',
+    description: 'Planifica, redacta con IA y sigue el rendimiento de tus campañas en redes sociales.',
     href: '/empresa/redes-sociales',
     icon: Sparkles,
     actionLabel: 'Gestionar Publicaciones',

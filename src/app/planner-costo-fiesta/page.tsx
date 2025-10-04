@@ -8,12 +8,13 @@ import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
-// This page is obsolete. Its functionality has been moved to a central module.
+// This page is obsolete. Its functionality has been moved to the event planner itself.
+// We redirect to the new central page for this functionality.
 export default function DeprecatedPlannerHubPage() {
     const router = useRouter();
 
     useEffect(() => {
-        router.replace('/fiestas/nueva/gastronomia');
+        router.replace('/fiestas/nueva/catering');
     }, [router]);
 
     return (
@@ -29,7 +30,7 @@ export default function DeprecatedPlannerHubPage() {
                     </p>
                 </CardContent>
                  <CardFooter className="justify-center">
-                    <Link href="/fiestas/nueva/gastronomia" passHref>
+                    <Link href="/fiestas/nueva/catering" passHref>
                         <Button variant="link">
                             Si no eres redirigido, haz clic aquí.
                         </Button>

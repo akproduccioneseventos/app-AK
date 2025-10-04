@@ -5,15 +5,15 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ChefHat, PlusCircle, Edit, List, Loader2, Info, Package, Calculator } from 'lucide-react';
+import { ArrowLeft, ChefHat, PlusCircle, Edit, List, Loader2, Info, Package } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FullMenu } from '@/types/catering';
 import { getMenus } from '@/app/actions/menus-catering';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-const formatCurrency = (amount: number) => {
-  if (isNaN(amount)) return 'N/A';
-  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
+const formatCurrency = (amount?: number) => {
+    if (amount === undefined || isNaN(amount)) return 'N/A';
+    return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
 export default function GestionMenusPage() {
