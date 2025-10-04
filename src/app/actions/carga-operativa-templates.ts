@@ -1,33 +1,41 @@
 
 'use server';
+// This file is now obsolete and its functionality has been merged into
+// the main services catalog management (`servicios-empresa.ts`).
+// The content is kept temporarily to avoid build errors from existing imports,
+// but it should be considered deprecated and removed in a future cleanup.
+// All logic now points to using "Activo Fijo" type items from the main catalog.
 
-import type { CargaOperativaCategoria, CargaOperativaItem } from '@/types/fiesta';
-import { readData, writeData } from '@/lib/data-service';
+export interface CargaOperativaItem {
+  id: string;
+  nombre: string;
+  cantidad: string;
+}
 
-// This file now manages a SINGLE master template object, not an array of templates.
+export interface CargaOperativaTemplateCategory {
+  id: string;
+  name: string;
+  items: CargaOperativaItem[];
+}
+
 export interface CargaOperativaTemplate {
   id: 'master';
   name: string;
-  categories: CargaOperativaCategoria[];
+  categories: CargaOperativaTemplateCategory[];
 }
 
-const TEMPLATE_FILE = 'carga-operativa-master-template.json';
-const defaultMasterTemplate: CargaOperativaTemplate = {
-    id: 'master',
-    name: 'Plantilla Maestra de Carga Operativa',
-    categories: [],
-};
-
 export async function getMasterCargaOperativaTemplate(): Promise<CargaOperativaTemplate> {
-  return readData<CargaOperativaTemplate>(TEMPLATE_FILE, defaultMasterTemplate);
+  // Return a default empty structure to avoid errors.
+  return {
+    id: 'master',
+    name: 'Plantilla Maestra de Carga Operativa (Obsoleta)',
+    categories: [],
+  };
 }
 
 export async function saveMasterCargaOperativaTemplate(
     templateData: CargaOperativaTemplate
-): Promise<{ success: boolean; template?: CargaOperativaTemplate; error?: string }> {
-  if (templateData.id !== 'master') {
-    return { success: false, error: "Solo se puede guardar la plantilla maestra." };
-  }
-  await writeData(TEMPLATE_FILE, templateData);
-  return { success: true, template: templateData };
+): Promise<{ success: boolean; error?: string }> {
+  console.warn("saveMasterCargaOperativaTemplate is deprecated and does nothing.");
+  return { success: true };
 }

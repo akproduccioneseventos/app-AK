@@ -1,51 +1,25 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { DatePickerDemo } from '@/components/date-picker-demo';
-import { ArrowLeft, PackageSearch, PlusCircle, Trash2, Loader2, AlertTriangle, Save, FileText, Info, Search, BookOpen, GripVertical, FolderOpen } from 'lucide-react';
+import { ArrowLeft, PackageSearch, PlusCircle, Trash2, Loader2, AlertTriangle, Save, FileText, Info, Search, BookOpen, GripVertical } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import type { ListaDeCargaOperativa, CargaOperativaCategoria, CargaOperativaItem } from '@/types/fiesta';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { getFiestaActual, updateListaDeCargaOperativaFiestaActual } from '@/app/actions/fiesta-actual';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
-import { getMasterCargaOperativaTemplate, type CargaOperativaTemplate } from '@/app/actions/carga-operativa-templates';
-
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  DialogTrigger,
-  DialogClose
-} from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-
 
 function SortableCargaItem({ item, categoryId, onToggle, onQuantityChange, onDelete }: {
     item: CargaOperativaItem;
@@ -93,17 +67,13 @@ function SortableCargaItem({ item, categoryId, onToggle, onQuantityChange, onDel
 export default function ListaDeCargaOperativaPage() {
   const { toast } = useToast();
   const [listaDeCarga, setListaDeCarga] = useState<ListaDeCargaOperativa>({ categorias: [], notasGenerales: '' });
-  const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioEmpresa[]>([]);
+  const [activosCatalogo, setActivosCatalogo] = useState<ServicioEmpresa[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [newCategoryName, setNewCategoryName] = useState('');
   
-  const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
-  const [currentCategoryForAddItem, setCurrentCategoryForAddItem] = useState<CargaOperativaCategoria | null>(null);
-  const [newItemFormData, setNewItemFormData] = useState<{ nombre: string; cantidad: string; unidad?: string; notas?: string; origenId?: string }>({ nombre: '', cantidad: '', unidad: '', notas: '', origenId: undefined });
-
   const [isSelectCatalogModalOpen, setIsSelectCatalogModalOpen] = useState(false);
   const [catalogSearchTerm, setCatalogSearchTerm] = useState('');
   const [categoryForCatalogSelect, setCategoryForCatalogSelect] = useState<CargaOperativaCategoria | null>(null);
@@ -126,7 +96,7 @@ export default function ListaDeCargaOperativaPage() {
         items: cat.items || [] 
       }));
       setListaDeCarga({ ...loadedLista, categorias: categoriasConItems });
-      setServiciosCatalogo(catalogoData);
+      setActivosCatalogo(catalogoData.filter(s => s.tipoItem === 'Activo Fijo'));
 
     } catch (err: any) {
       setError("No se pudo cargar la lista de carga operativa o el catálogo.");
@@ -187,85 +157,34 @@ export default function ListaDeCargaOperativaPage() {
     }));
   };
   
-  const handleLoadFromMaster = async () => {
-    try {
-        const masterTemplate = await getMasterCargaOperativaTemplate();
-        const newCategories = masterTemplate.categories.map(catTemplate => ({
-            id: `cat_${Date.now()}_${Math.random()}`,
-            nombre: catTemplate.name,
-            items: catTemplate.items.map(itemTemplate => ({
-                id: `item_${Date.now()}_${Math.random()}`,
-                nombre: itemTemplate.nombre,
-                cantidad: itemTemplate.cantidad,
-                unidad: itemTemplate.unidad,
-                cargado: false,
-            }))
-        }));
-        setListaDeCarga(prev => ({
-            ...prev,
-            categorias: [...prev.categorias, ...newCategories]
-        }));
-        toast({title: "Lista Maestra Cargada"});
-    } catch(e: any) {
-        toast({title: "Error", description: "No se pudo cargar la lista maestra.", variant: "destructive"});
-    }
-  };
-
-  const openAddItemModal = (category: CargaOperativaCategoria, prefillData?: Partial<typeof newItemFormData>) => {
-    setCurrentCategoryForAddItem(category);
-    setNewItemFormData({ 
-        nombre: prefillData?.nombre || '', 
-        cantidad: prefillData?.cantidad || '1', 
-        unidad: prefillData?.unidad || '', 
-        notas: prefillData?.notas || '',
-        origenId: prefillData?.origenId || undefined
-    });
-    setIsAddItemModalOpen(true);
+  const handleCatalogItemSelected = (selectedAsset: ServicioEmpresa) => {
+    if (!categoryForCatalogSelect) return;
+    
+    const newItem: CargaOperativaItem = {
+      id: `item_${Date.now()}_${selectedAsset.id}`,
+      nombre: selectedAsset.nombre,
+      cantidad: String(selectedAsset.cantidadDisponible || 1), // Default to 1 if not set
+      unidad: selectedAsset.unidad,
+      cargado: false,
+      origenId: selectedAsset.id,
+    };
+    
+    setListaDeCarga(prev => ({
+      ...prev,
+      categorias: prev.categorias.map(cat =>
+        cat.id === categoryForCatalogSelect.id
+          ? { ...cat, items: [...cat.items, newItem] }
+          : cat
+      ),
+    }));
+    
+    toast({ description: `"${selectedAsset.nombre}" añadido a la lista.` });
   };
   
   const openSelectFromCatalogModal = (category: CargaOperativaCategoria) => {
     setCategoryForCatalogSelect(category);
     setCatalogSearchTerm('');
     setIsSelectCatalogModalOpen(true);
-  };
-
-  const handleCatalogItemSelected = (selectedServicio: ServicioEmpresa) => {
-    if (!categoryForCatalogSelect) return; 
-    
-    setIsSelectCatalogModalOpen(false); 
-    openAddItemModal(categoryForCatalogSelect, {
-      nombre: selectedServicio.nombre,
-      unidad: selectedServicio.unidad,
-      origenId: selectedServicio.id,
-      cantidad: '1' 
-    });
-  };
-
-  const handleAddItemToCategory = (e: FormEvent) => {
-    e.preventDefault();
-    if (!currentCategoryForAddItem || !newItemFormData.nombre.trim() || !newItemFormData.cantidad.trim()) {
-      toast({ title: "Datos del Ítem Requeridos", description: "Nombre y cantidad son obligatorios.", variant: "destructive" });
-      return;
-    }
-    const newItem: CargaOperativaItem = {
-      id: `item_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-      nombre: newItemFormData.nombre.trim(),
-      cantidad: newItemFormData.cantidad.trim(),
-      unidad: newItemFormData.unidad?.trim() || undefined,
-      notas: newItemFormData.notas?.trim() || undefined,
-      cargado: false,
-      origenId: newItemFormData.origenId,
-    };
-    setListaDeCarga(prev => ({
-      ...prev,
-      categorias: prev.categorias.map(cat =>
-        cat.id === currentCategoryForAddItem.id
-          ? { ...cat, items: [...cat.items, newItem] }
-          : cat
-      ),
-    }));
-    setIsAddItemModalOpen(false);
-    setCurrentCategoryForAddItem(null);
   };
 
   const toggleItemCargado = (categoryId: string, itemId: string) => {
@@ -325,13 +244,13 @@ export default function ListaDeCargaOperativaPage() {
   };
   
   const filteredCatalogItems = useMemo(() => {
-    if (!catalogSearchTerm) return serviciosCatalogo;
+    if (!catalogSearchTerm) return activosCatalogo;
     const lowerSearch = catalogSearchTerm.toLowerCase();
-    return serviciosCatalogo.filter(
+    return activosCatalogo.filter(
       item => item.nombre.toLowerCase().includes(lowerSearch) || 
               item.categoria?.toLowerCase().includes(lowerSearch)
     );
-  }, [serviciosCatalogo, catalogSearchTerm]);
+  }, [activosCatalogo, catalogSearchTerm]);
 
 
   if (isLoading) {
@@ -354,9 +273,7 @@ export default function ListaDeCargaOperativaPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-       {/* All Modals */}
-      <Dialog open={isAddItemModalOpen} onOpenChange={setIsAddItemModalOpen}><DialogContent className="sm:max-w-md"><DialogHeader><DialogTitle className="font-headline">Añadir Ítem a "{currentCategoryForAddItem?.nombre}"</DialogTitle></DialogHeader><form onSubmit={handleAddItemToCategory} className="space-y-3 py-2"><div className="space-y-1"><Label htmlFor="item-nombre-modal">Nombre del Ítem *</Label><Input id="item-nombre-modal" value={newItemFormData.nombre} onChange={(e) => setNewItemFormData(p => ({ ...p, nombre: e.target.value }))} required /></div><div className="grid grid-cols-2 gap-3"><div className="space-y-1"><Label htmlFor="item-cantidad-modal">Cantidad *</Label><Input id="item-cantidad-modal" value={newItemFormData.cantidad} onChange={(e) => setNewItemFormData(p => ({ ...p, cantidad: e.target.value }))} placeholder="Ej: 10, 1 caja" required /></div><div className="space-y-1"><Label htmlFor="item-unidad-modal">Unidad (Opcional)</Label><Input id="item-unidad-modal" value={newItemFormData.unidad || ''} onChange={(e) => setNewItemFormData(p => ({ ...p, unidad: e.target.value }))} placeholder="Ej: unidades, kg" /></div></div><Input type="hidden" value={newItemFormData.origenId || ''} /> <div className="space-y-1"><Label htmlFor="item-notas-modal">Notas (Opcional)</Label><Textarea id="item-notas-modal" value={newItemFormData.notas || ''} onChange={(e) => setNewItemFormData(p => ({ ...p, notas: e.target.value }))} rows={2} /></div><DialogFooter className="pt-3"><DialogClose asChild><Button type="button" variant="outline">Cancelar</Button></DialogClose><Button type="submit">Añadir Ítem</Button></DialogFooter></form></DialogContent></Dialog>
-      <Dialog open={isSelectCatalogModalOpen} onOpenChange={setIsSelectCatalogModalOpen}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle className="font-headline">Seleccionar Ítem del Catálogo Maestro</DialogTitle><DialogDescription>Para la categoría "{categoryForCatalogSelect?.nombre}"</DialogDescription></DialogHeader><div className="py-2 space-y-3"><div className="relative"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input type="text" placeholder="Buscar ítem por nombre o categoría..." value={catalogSearchTerm} onChange={(e) => setCatalogSearchTerm(e.target.value)} className="w-full pl-10"/></div><ScrollArea className="h-[300px] border rounded-md">{isLoading ? <div className="p-4 text-center"><Loader2 className="w-6 h-6 animate-spin"/></div> : filteredCatalogItems.length > 0 ? (<ul className="p-2 space-y-1">{filteredCatalogItems.map(item => (<li key={item.id}><Button variant="ghost" className="w-full justify-start text-left h-auto py-1.5 px-2" onClick={() => handleCatalogItemSelected(item)}><div><p className="font-medium text-sm">{item.nombre}</p><p className="text-xs text-muted-foreground">Cat: {item.categoria} | Un: {item.unidad || 'N/A'}</p></div></Button></li>))}</ul>) : (<p className="p-4 text-center text-sm text-muted-foreground">{catalogSearchTerm ? "No hay ítems que coincidan con tu búsqueda." : "El catálogo maestro está vacío o no tiene ítems."}</p>)}</ScrollArea></div><DialogFooter><DialogClose asChild><Button type="button" variant="outline">Cerrar</Button></DialogClose></DialogFooter></DialogContent></Dialog>
+      <Dialog open={isSelectCatalogModalOpen} onOpenChange={setIsSelectCatalogModalOpen}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle className="font-headline">Seleccionar Activo del Catálogo</DialogTitle><DialogDescription>Para la categoría "{categoryForCatalogSelect?.nombre}"</DialogDescription></DialogHeader><div className="py-2 space-y-3"><div className="relative"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input type="text" placeholder="Buscar activo..." value={catalogSearchTerm} onChange={(e) => setCatalogSearchTerm(e.target.value)} className="w-full pl-10"/></div><ScrollArea className="h-[300px] border rounded-md">{isLoading ? <div className="p-4 text-center"><Loader2 className="w-6 h-6 animate-spin"/></div> : filteredCatalogItems.length > 0 ? (<ul className="p-2 space-y-1">{filteredCatalogItems.map(item => (<li key={item.id}><Button variant="ghost" className="w-full justify-start text-left h-auto py-1.5 px-2" onClick={() => handleCatalogItemSelected(item)}><div><p className="font-medium text-sm">{item.nombre}</p><p className="text-xs text-muted-foreground">Stock: {item.cantidadDisponible || 0} {item.unidad}</p></div></Button></li>))}</ul>) : (<p className="p-4 text-center text-sm text-muted-foreground">{catalogSearchTerm ? "No hay ítems que coincidan con tu búsqueda." : "El catálogo de activos está vacío."}</p>)}</ScrollArea></div><DialogFooter><DialogClose asChild><Button type="button" variant="outline">Cerrar</Button></DialogClose></DialogFooter></DialogContent></Dialog>
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
@@ -392,10 +309,6 @@ export default function ListaDeCargaOperativaPage() {
                     <PlusCircle className="w-4 h-4 mr-2"/> Añadir Categoría
                 </Button>
             </div>
-            <Separator className="my-4" />
-            <div className="flex flex-wrap gap-2">
-                 <Button variant="secondary" onClick={handleLoadFromMaster}><FolderOpen className="w-4 h-4 mr-2"/>Cargar Lista Maestra</Button>
-            </div>
         </CardContent>
       </Card>
 
@@ -406,36 +319,14 @@ export default function ListaDeCargaOperativaPage() {
                   <AccordionTrigger className="text-lg font-medium text-primary hover:no-underline flex-1 p-0">
                       <span className="flex items-center gap-2">{category.nombre}</span>
                   </AccordionTrigger>
-                  <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={(e) => e.stopPropagation()}>
-                              <Trash2 className="w-4 h-4"/>
-                          </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                          <AlertDialogHeader>
-                              <AlertDialogTitle>¿Eliminar Categoría?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                  Se eliminará la categoría "{category.nombre}" y todos sus ítems. Esta acción no se puede deshacer.
-                              </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDeleteCategory(category.id)} className="bg-destructive hover:bg-destructive/90">Eliminar</AlertDialogAction>
-                          </AlertDialogFooter>
-                      </AlertDialogContent>
-                  </AlertDialog>
               </div>
             <AccordionContent className="px-4 pt-2 pb-4 border-t" data-category-id={category.id}>
-              <div className="flex flex-col sm:flex-row justify-end gap-2 mb-3">
-                <Button variant="outline" size="sm" onClick={() => openAddItemModal(category)}>
-                  <PlusCircle className="w-4 h-4 mr-1.5"/> Añadir Ítem Manualmente
-                </Button>
-                <Button variant="default" size="sm" onClick={() => openSelectFromCatalogModal(category)} disabled={serviciosCatalogo.length === 0}>
+              <div className="flex justify-end gap-2 mb-3">
+                <Button variant="default" size="sm" onClick={() => openSelectFromCatalogModal(category)} disabled={activosCatalogo.length === 0}>
                    <BookOpen className="w-4 h-4 mr-1.5"/> Seleccionar del Catálogo
                 </Button>
               </div>
-              {serviciosCatalogo.length === 0 && <p className="text-xs text-muted-foreground text-center mb-2">No hay ítems en el catálogo maestro para seleccionar.</p>}
+              {activosCatalogo.length === 0 && <p className="text-xs text-muted-foreground text-center mb-2">No hay ítems en el catálogo de activos para seleccionar.</p>}
               
               <ScrollArea className="h-auto max-h-[300px] rounded-md border p-2">
                 {category.items && category.items.length > 0 ? (
@@ -463,21 +354,6 @@ export default function ListaDeCargaOperativaPage() {
           </AccordionItem>
         ))}
       </Accordion>
-
-      <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle className="font-headline">Notas Generales de la Lista de Carga</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Textarea
-            value={listaDeCarga.notasGenerales || ''}
-            onChange={handleNotasGeneralesChange}
-            placeholder="Información adicional, contactos de logística, horarios de carga/descarga, etc."
-            rows={4}
-            disabled={isSaving}
-          />
-        </CardContent>
-      </Card>
 
       <div className="flex justify-end pt-6 border-t">
         <Button onClick={handleSaveListaDeCarga} disabled={isSaving || isLoading} size="lg">
