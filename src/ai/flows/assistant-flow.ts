@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview A comprehensive AI assistant for marketing and event planning.
@@ -103,7 +102,7 @@ const assistantFlow = ai.defineFlow(
 
         Your primary goal is to help the user with their marketing efforts by creating content, brainstorming ideas, and providing strategic advice.
         
-        You have been provided with the company's internal data. Use this information to give specific, relevant, and actionable responses. For example, if asked for a post about a service, use the actual service name from the catalog.
+        You have been provided with the company's internal data, including a list of dates that are already booked for other events. Use ALL of this information to give specific, relevant, and actionable responses. For example, if asked for a post about a service, use the actual service name from the catalog. If asked about availability, consult the list of occupied dates.
                 
         If the user asks you to generate an image, use the 'generateImage' tool. Do not describe the image in text; instead, call the tool and let the user see the result. For image generation, provide a concise confirmation in your text response, like "Aquí tienes la imagen que pediste:".
 
