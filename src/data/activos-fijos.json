@@ -352,33 +352,6 @@
     "unidad": "Caja"
   },
   {
-    "id": "lc_20",
-    "nombre": "Escarbadientes y Saleros",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Insumos varios",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Caja"
-  },
-  {
-    "id": "lc_37",
-    "nombre": "Canastas Paneras Marrones",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 16,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_38",
-    "nombre": "Platos Rectangulares Lisos",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
     "id": "lc_100_salsa",
     "nombre": "Tarros para Salsa",
     "tipoItem": "Activo Fijo",
@@ -406,60 +379,6 @@
     "unidad": "Unidad"
   },
   {
-    "id": "lc_26",
-    "nombre": "Alcohol y Guantes",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Insumos varios",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Caja"
-  },
-  {
-    "id": "lc_27",
-    "nombre": "Repasadores",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Textiles",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_28",
-    "nombre": "Servilletas de Papel para Torta",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Insumos varios",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Caja"
-  },
-  {
-    "id": "lc_29",
-    "nombre": "Rollo Servilletas de Papel",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Insumos varios",
-    "cantidadDisponible": 2,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_30",
-    "nombre": "Aderezos",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Insumos varios",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_31",
-    "nombre": "Jabón y Esponjas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Insumos varios",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Caja"
-  },
-  {
     "id": "lc_103",
     "nombre": "Escurridor de Fregar",
     "tipoItem": "Activo Fijo",
@@ -485,15 +404,6 @@
     "cantidadDisponible": 2,
     "valorUnitarioEstimado": 0,
     "unidad": "Unidad"
-  },
-  {
-    "id": "lc_35",
-    "nombre": "Bolsas Negras de Residuos",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Insumos varios",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Caja"
   },
   {
     "id": "lc_105",
@@ -716,15 +626,6 @@
     "nombre": "Cartel Neon",
     "tipoItem": "Activo Fijo",
     "categoria": "Decoración (Activo)",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_57",
-    "nombre": "Aerosol de Globos",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Insumos varios",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 0,
     "unidad": "Unidad"
@@ -955,15 +856,6 @@
     "unidad": "Unidad"
   },
   {
-    "id": "lc_80",
-    "nombre": "Liquido de Humo",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Insumos varios",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
     "id": "lc_81",
     "nombre": "Focos LED Luz Negra",
     "tipoItem": "Activo Fijo",
@@ -1032,24 +924,6 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Mobiliario",
     "cantidadDisponible": 4,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_bt_4",
-    "nombre": "Refrescos Cola",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Bebida (Insumo)",
-    "cantidadDisponible": 12,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_bt_5",
-    "nombre": "Refrescos Lima",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Bebida (Insumo)",
-    "cantidadDisponible": 2,
     "valorUnitarioEstimado": 0,
     "unidad": "Unidad"
   },
@@ -1133,59 +1007,5 @@
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 0,
     "unidad": "Unidad"
-  },
-  {
-    "id": "lc_bt_15",
-    "nombre": "Latas de Anana",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Frutas",
-    "cantidadDisponible": 6,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_bt_16",
-    "nombre": "Latas de Durazno",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Frutas",
-    "cantidadDisponible": 4,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_bt_17",
-    "nombre": "Frutillas Congeladas",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Frutas",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_bt_18",
-    "nombre": "Jugo de Durazno",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Bebida (Insumo)",
-    "cantidadDisponible": 3,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_bt_19",
-    "nombre": "Azucar",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumos varios",
-    "cantidadDisponible": 2,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_bt_20",
-    "nombre": "Limones",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Frutas",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Kg"
   }
 ]
