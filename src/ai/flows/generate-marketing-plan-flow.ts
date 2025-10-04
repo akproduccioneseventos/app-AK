@@ -15,7 +15,7 @@ export const MarketingPlanInputSchema = z.object({
   targetAudience: z.string().describe("A description of the ideal customer or target audience."),
   keyServices: z.string().describe("A list of the main services offered."),
   toneOfVoice: z.enum(['Profesional y Corporativo', 'Cercano y Amistoso', 'Moderno y Divertido', 'Lujoso y Exclusivo']).describe("The desired tone of voice for the social media posts."),
-  mainGoal: z.string().describe("The primary objective of the social media strategy for the week (e.g., generate leads, build brand awareness, showcase portfolio)."),
+  mainGoal: z.string().describe("The primary objective of the social media strategy for the week (e.g., 'generar leads', 'hacerme viral', 'construir autoridad en el rubro')."),
 });
 export type MarketingPlanInput = z.infer<typeof MarketingPlanInputSchema>;
 
@@ -28,7 +28,7 @@ const DailyPostIdeaSchema = z.object({
 });
 
 export const MarketingPlanOutputSchema = z.object({
-  weeklySummary: z.string().describe("A brief, high-level summary of the proposed strategy for the week."),
+  weeklySummary: z.string().describe("A brief, high-level summary of the proposed strategy for the week, explaining how it aligns with the mainGoal."),
   dailyPlan: z.array(DailyPostIdeaSchema).describe("A list of content ideas for each day of the week, from Lunes to Domingo."),
 });
 export type MarketingPlanOutput = z.infer<typeof MarketingPlanOutputSchema>;
@@ -45,22 +45,33 @@ const prompt = ai.definePrompt({
   name: 'generateMarketingPlanPrompt',
   input: { schema: MarketingPlanInputSchema },
   output: { schema: MarketingPlanOutputSchema },
-  prompt: `Eres un experto en marketing de redes sociales y estratega de contenido especializado en el rubro de eventos. Tu tarea es crear un plan de contenido semanal coherente y efectivo para la marca '{{{brandName}}}'.
+  prompt: `Eres un estratega de marketing de élite para redes sociales, especializado en el sector de eventos para la marca '{{{brandName}}}'. Tu misión es diseñar un plan de contenido semanal innovador y altamente efectivo que cumpla con el objetivo principal del cliente.
 
-**Identidad de la Marca y Objetivos:**
+**Análisis de la Marca y Objetivos:**
 - **Público Objetivo:** {{{targetAudience}}}
 - **Servicios Clave:** {{{keyServices}}}
 - **Tono de Voz:** {{{toneOfVoice}}}
-- **Objetivo Principal de la Semana:** {{{mainGoal}}}
+- **OBJETIVO PRINCIPAL DE ESTA SEMANA:** {{{mainGoal}}}
 
-**Instrucciones:**
-1.  **Estrategia Semanal:** Basado en el objetivo principal, crea un resumen de la estrategia a seguir durante la semana.
-2.  **Plan Diario:** Genera una idea de publicación para cada día de la semana (Lunes a Domingo).
-3.  **Contenido de Valor:** Las ideas deben seguir la filosofía de "vender sin vender". Enfócate en aportar valor, educar, entretener o mostrar el "detrás de escena". Evita llamados a la acción directos y agresivos como "¡Contrátanos ya!".
-4.  **Coherencia:** El plan debe ser coherente con el tono de voz y el público objetivo.
-5.  **Formato:** Responde ÚNICAMENTE con el objeto JSON de salida especificado. Asegúrate de que el 'dailyPlan' contenga 7 ideas, una para cada día.
+**Instrucciones Detalladas:**
 
-Crea el plan de contenido.`,
+1.  **Interpretación del Objetivo:**
+    *   Si el objetivo es **'Generar Leads'**: Enfócate en contenido que demuestre valor, muestre resultados y facilite el contacto. Incluye llamados a la acción sutiles.
+    *   Si el objetivo es **'Hacerme Viral'**: Prioriza ideas para videos cortos (Reels/TikTok) con audios en tendencia, formatos de "antes y después" impactantes, o contenido que genere polémica o debate en los comentarios.
+    *   Si el objetivo es **'Construir Autoridad'**: Concéntrate en "Pilares de Contenido". Crea posts educativos, comparte "secretos del rubro", analiza tendencias y muestra tu expertise. El objetivo es que te vean como un referente.
+    *   Para cualquier otro objetivo, adáptate creativamente.
+
+2.  **Estrategia Semanal (Resumen):** Basado en el objetivo principal, redacta un resumen claro y conciso de la estrategia que seguirás durante la semana. Explica el "porqué" de tu plan.
+
+3.  **Plan Diario (Lunes a Domingo):**
+    *   Genera una idea de publicación **para cada día**.
+    *   Para cada día, define un **tema** claro (Ej: "Lunes de Motivación", "Miércoles de Making-Of", "Viernes de Fiesta").
+    *   Para cada **idea de contenido**, sé extremadamente específico. Incluye el formato (Ej: Reel, Carrusel, Historia interactiva), el texto principal sugerido, y ideas para el visual (Ej: "Video mostrando la transformación de un salón vacío a uno decorado", "Gráfico con 3 tips para elegir tu DJ").
+    *   Incluye una lista de **hashtags** relevantes y de nicho.
+
+4.  **Filosofía "Vender sin Vender":** Incluso si el objetivo es generar leads, evita los llamados a la acción agresivos. Aporta valor, educa, entretiene y muestra el proceso. Genera confianza y deseo.
+
+5.  **Formato de Salida:** Responde ÚNICAMENTE con el objeto JSON especificado. Asegúrate de que el 'dailyPlan' contenga exactamente 7 ideas, una para cada día de la semana.`,
 });
 
 // Genkit Flow

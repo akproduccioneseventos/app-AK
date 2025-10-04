@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, Sparkles, PlusCircle, AlertTriangle, List, Calendar, Filter, X } from 'lucide-react';
+import { ArrowLeft, Loader2, Sparkles, PlusCircle, AlertTriangle, List, Calendar, Filter, X, BrainCircuit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { SocialPost, SocialPlatform } from '@/types/social-media';
 import { getSocialPosts, deleteSocialPost } from '@/app/actions/social-media';
@@ -109,6 +109,9 @@ function SocialMediaPageContent() {
                     <h1 className="text-3xl font-bold tracking-tight font-headline">Planificador de Contenido</h1>
                 </div>
                 <div className="flex gap-2">
+                    <Link href="/empresa/redes-sociales/ia-marketing" passHref>
+                        <Button variant="secondary"><BrainCircuit className="w-4 h-4 mr-2"/>Asesor de Marketing IA</Button>
+                    </Link>
                     <NewPostDialog onPostCreated={fetchData} />
                      <Link href="/empresa" passHref>
                         <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
