@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -56,13 +55,6 @@ const empresaHubItems: HubItem[] = [
     href: '/proveedores',
     icon: Briefcase,
     actionLabel: 'Ir a Proveedores',
-  },
-   {
-    title: 'Carga Operativa General',
-    description: 'Gestiona el inventario maestro de todo lo necesario para la logística de tus eventos.',
-    href: '/settings/carga-operativa-templates',
-    icon: PackageSearch,
-    actionLabel: 'Gestionar Carga',
   },
   {
     title: 'Redes Sociales y Publicaciones',
