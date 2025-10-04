@@ -94,8 +94,8 @@ export default function PlannerGastronomicoFiestaPage() {
         }
     }
   
-    const { adultos = 0, ninos = 0 } = presupuesto || { adultos: fiesta?.configuracion.invitadosEstimados || 0, ninos: 0 };
-    const totalInvitados = Number(adultos) + Number(ninos);
+    const { adultos = 0, ninos = 0, adolescentes = 0 } = presupuesto || { adultos: fiesta?.configuracion.invitadosEstimados || 0, ninos: 0, adolescentes: 0 };
+    const totalInvitados = Number(adultos) + Number(ninos) + Number(adolescentes);
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -150,13 +150,13 @@ export default function PlannerGastronomicoFiestaPage() {
             <GestionReposteria 
                 initialData={reposteriaData} 
                 onDataChange={setReposteriaData} 
-                invitados={{adultos: Number(adultos), ninos: Number(ninos), adolescentes: 0}} 
+                invitados={{adultos: Number(adultos), ninos: Number(ninos), adolescentes: Number(adolescentes)}} 
             />
             
             <GestionBebidas 
                 initialData={bebidasData} 
                 onDataChange={setBebidasData}
-                invitados={{adultos: Number(adultos), ninos: Number(ninos), adolescentes: 0}}
+                invitados={{adultos: Number(adultos), ninos: Number(ninos), adolescentes: Number(adolescentes)}}
             />
         </>
        }

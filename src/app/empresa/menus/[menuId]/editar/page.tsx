@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
@@ -10,8 +11,7 @@ import { getMenuById } from '@/app/actions/menus-catering';
 import type { FullMenu } from '@/types/catering';
 import { useToast } from '@/hooks/use-toast';
 
-export default function EditarMenuPage({ params: paramsProp }: { params: { menuId: string } }) {
-  const params = React.use(paramsProp);
+export default function EditarMenuPage({ params }: { params: { menuId: string } }) {
   const router = useRouter();
   const { toast } = useToast();
   const [menu, setMenu] = useState<FullMenu | null>(null);

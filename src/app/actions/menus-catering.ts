@@ -154,6 +154,7 @@ async function processMenuForSave(menuData: Omit<FullMenu, 'id' | 'createdAt' | 
     });
     // totalDishCost is now cost per person for the dish
     const totalDishCost = calculateDishCostPerPerson(ingredients);
+    const profitMargin = item.profitMargin === undefined ? 100 : item.profitMargin;
     
     return {
       ...item,
@@ -162,8 +163,8 @@ async function processMenuForSave(menuData: Omit<FullMenu, 'id' | 'createdAt' | 
       totalDishCost, // This is now the cost per person for the dish
       allergens: item.allergens?.trim() || undefined,
       notes: item.notes?.trim() || undefined,
-      profitMargin: item.profitMargin !== undefined ? Number(item.profitMargin) : 100, // Default to 100%
-      suggestedSellingPrice: totalDishCost * (1 + (item.profitMargin !== undefined ? Number(item.profitMargin) : 100) / 100),
+      profitMargin: Number(profitMargin),
+      suggestedSellingPrice: totalDishCost * (1 + Number(profitMargin) / 100),
     };
   });
 
