@@ -16,11 +16,12 @@ import { Cake, Edit, Trash2, PlusCircle } from 'lucide-react';
 import { defaultReposteriaData } from '@/lib/fiesta-defaults';
 import { useToast } from '@/hooks/use-toast';
 import { ALL_UNIDADES_SERVICIO, type UnidadServicio, type ServicioEmpresa } from '@/types/empresa';
-import { getServiciosEmpresa } from '@/app/actions/servicios-empresa'; 
+import { getServiciosEmpresa } from '@/app/actions/insumos';
 
 interface GestionReposteriaProps {
   initialData: ReposteriaData | null;
   onDataChange: (data: ReposteriaData) => void;
+  onSave: (data: ReposteriaData) => Promise<any>;
   invitados: { adultos: number; ninos: number; adolescentes: number };
   isTemplateMode?: boolean;
 }
@@ -30,7 +31,7 @@ const formatCurrency = (amount?: number) => {
     return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
-export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialData, onDataChange, invitados, isTemplateMode = false }) => {
+export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialData, onDataChange, onSave, invitados, isTemplateMode = false }) => {
   const { toast } = useToast();
   const [reposteria, setReposteria] = useState<ReposteriaData>(initialData || defaultReposteriaData);
   const [catalogoReposteria, setCatalogoReposteria] = useState<ServicioEmpresa[]>([]);
@@ -138,7 +139,7 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
             <div className="space-y-1"><Label htmlFor="item-nombre-manual">Nombre Ítem</Label><Input id="item-nombre-manual" value={currentItem.nombre || ''} onChange={e => handleItemChange('nombre', e.target.value)} /></div>
             <div className="grid grid-cols-3 gap-2">
               <div className="space-y-1"><Label htmlFor="item-qty-manual">Cantidad</Label><Input id="item-qty-manual" type="number" value={currentItem.cantidad || 1} onChange={e => handleItemChange('cantidad', e.target.value)} /></div>
-              <div className="space-y-1"><Label htmlFor="item-unit-manual">Unidad</Label><Select value={currentItem.unidad || 'unidad'} onValueChange={v => handleItemChange('unidad', v)}><SelectTrigger id="item-unit-manual"><SelectValue /></SelectTrigger><SelectContent>{ALL_UNIDADES_SERVICIO.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent></Select></div>
+              <div className="space-y-1"><Label htmlFor="item-unit-manual">Unidad</Label><Select value={currentItem.unidad || 'unidad'} onValueChange={v => handleItemChange('unidad', v as UnidadServicio)}><SelectTrigger id="item-unit-manual"><SelectValue /></SelectTrigger><SelectContent>{ALL_UNIDADES_SERVICIO.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent></Select></div>
               <div className="space-y-1"><Label htmlFor="item-cost-manual">Costo Est.</Label><Input id="item-cost-manual" type="number" value={currentItem.costoEstimado || 0} onChange={e => handleItemChange('costoEstimado', e.target.value)} /></div>
             </div>
             <div className="space-y-1"><Label htmlFor="item-notes-manual">Notas</Label><Input id="item-notes-manual" value={currentItem.notas || ''} onChange={e => handleItemChange('notas', e.target.value)} /></div>
@@ -207,7 +208,7 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
                         <Button variant="outline" size="sm" onClick={() => openItemModal(cat)}>
                             <PlusCircle className="w-3 h-3 mr-2"/>Añadir Ítem Manual
                         </Button>
-                        <Link href={`/empresa/servicios/Servicio de repostería/${encodeURIComponent(cat.nombreDisplay)}`} passHref>
+                        <Link href={`/empresa/insumos?categoria=${encodeURIComponent('Servicio de repostería')}&subcategoria=${encodeURIComponent(cat.nombreDisplay)}`} passHref>
                            <Button variant="outline" size="sm">
                                <Edit className="w-3 h-3 mr-2" /> Gestionar en Catálogo
                            </Button>
