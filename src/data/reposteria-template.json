@@ -1,4 +1,3 @@
-
 {
   "categorias": [
     {
@@ -35,10 +34,26 @@
     }
   ],
   "consumoConfig": {
-    "mesa_postres": { "adulto": 2, "adolescente": 2, "nino": 1.5 },
-    "candy_bar": { "adulto": 1, "adolescente": 1.5, "nino": 2 },
-    "fuente_chocolate": { "adulto": 1, "adolescente": 1, "nino": 1 },
-    "mesa_helada": { "adulto": 1.5, "adolescente": 1.5, "nino": 1.5 }
+    "mesa_postres": {
+      "adulto": 2,
+      "adolescente": 2,
+      "nino": 1.5
+    },
+    "candy_bar": {
+      "adulto": 1,
+      "adolescente": 1.5,
+      "nino": 2
+    },
+    "fuente_chocolate": {
+      "adulto": 1,
+      "adolescente": 1,
+      "nino": 1
+    },
+    "mesa_helada": {
+      "adulto": 1.5,
+      "adolescente": 1.5,
+      "nino": 1.5
+    }
   },
   "notasGenerales": ""
 }

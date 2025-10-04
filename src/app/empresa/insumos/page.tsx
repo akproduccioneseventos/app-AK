@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -24,14 +24,19 @@ import {
 } from "@/components/ui/alert-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
+import { useSearchParams } from 'next/navigation';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || amount === null || isNaN(amount)) return '$ 0';
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 };
 
-export default function InventarioInsumosPage() {
+function InventarioInsumosContent() {
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const categoriaParam = searchParams.get('categoria');
+  const subcategoriaParam = searchParams.get('subcategoria');
+
   const [allItems, setAllItems] = useState<ServicioEmpresa[]>([]);
   const [filteredItems, setFilteredItems] = useState<ServicioEmpresa[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -53,37 +58,61 @@ export default function InventarioInsumosPage() {
       const data = await getInsumos();
       setAllItems(data);
       
-      if (Object.keys(categoryFilter).length === 0 && data.length > 0) {
-        const initialCategories = Array.from(new Set(data.map(i => i.categoria))).reduce((acc, cat) => ({...acc, [cat as string]: true}), {});
-        setCategoryFilter(initialCategories);
+      const initialFilters: Record<string, boolean> = {};
+      const allCats = Array.from(new Set(data.map(i => i.categoria as string)));
+      
+      if (categoriaParam) {
+          allCats.forEach(cat => {
+              initialFilters[cat] = cat === categoriaParam;
+          });
+      } else {
+           allCats.forEach(cat => {
+              initialFilters[cat] = true;
+          });
       }
+      setCategoryFilter(initialFilters);
+
     } catch (err: any) {
       setError("No se pudo cargar el inventario de insumos.");
       toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
-  }, [toast, categoryFilter]);
+  }, [toast, categoriaParam]);
 
   useEffect(() => {
     fetchItems();
   }, [fetchItems]);
   
   useEffect(() => {
-    const lowercasedFilter = searchTerm.toLowerCase();
-    const activeCategories = Object.entries(categoryFilter).filter(([, checked]) => checked).map(([cat]) => cat);
-    
-    const filteredData = allItems.filter(item => {
-      const matchesSearch = lowercasedFilter === '' ||
-        item.nombre.toLowerCase().includes(lowercasedFilter) ||
-        (item.categoria && item.categoria.toLowerCase().includes(lowercasedFilter));
-        
-      const matchesCategory = activeCategories.length === 0 || activeCategories.length === ALL_CATEGORIES.length || (item.categoria && activeCategories.includes(item.categoria));
+    let tempItems = allItems;
+    const lowercasedTerm = searchTerm.toLowerCase();
 
-      return matchesSearch && matchesCategory;
-    });
-    setFilteredItems(filteredData);
-  }, [searchTerm, allItems, categoryFilter, ALL_CATEGORIES]);
+    // 1. Filter by category from URL param if it exists
+    if (categoriaParam) {
+        tempItems = tempItems.filter(item => item.categoria === categoriaParam);
+    }
+     // 2. Filter by subcategory from URL param if it exists
+    if (subcategoriaParam) {
+        tempItems = tempItems.filter(item => item.subcategoria === subcategoriaParam);
+    }
+
+    // 3. Filter by active category filters from Dropdown
+    const activeCategories = Object.entries(categoryFilter).filter(([, checked]) => checked).map(([cat]) => cat);
+    if (activeCategories.length > 0 && activeCategories.length < ALL_CATEGORIES.length) {
+        tempItems = tempItems.filter(item => item.categoria && activeCategories.includes(item.categoria));
+    }
+
+    // 4. Filter by search term
+    if (lowercasedTerm) {
+        tempItems = tempItems.filter(item =>
+          item.nombre.toLowerCase().includes(lowercasedTerm)
+        );
+    }
+
+    setFilteredItems(tempItems);
+}, [searchTerm, allItems, categoryFilter, ALL_CATEGORIES, categoriaParam, subcategoriaParam]);
+
 
   const handleDelete = async (id: string, nombreItem?: string) => {
     setDeletingId(id);
@@ -232,11 +261,13 @@ export default function InventarioInsumosPage() {
                               <div className="flex justify-between items-start">
                                 <CardTitle className="text-base font-semibold">{item.nombre}</CardTitle>
                                 <div className="flex gap-1">
-                                    <Link href={`/empresa/insumos/${item.id}/editar`} passHref><Button variant="ghost" size="icon" className="h-7 w-7"><Edit className="w-3.5 h-3.5" /></Button></Link>
-                                    <AlertDialog>
-                                      <AlertDialogTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" disabled={deletingId === item.id}><Trash2 className="w-3.5 h-3.5" /></Button></AlertDialogTrigger>
-                                      <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>¿Confirmar eliminación?</AlertDialogTitle><AlertDialogDescription>El ítem "{item.nombre}" será eliminado.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDelete(item.id, item.nombre)} disabled={deletingId === item.id} className="bg-destructive hover:bg-destructive/90">{deletingId === item.id && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin"/>}Eliminar</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
-                                    </AlertDialog>
+                                     <Link href={`/empresa/insumos/${item.id}/editar`} passHref>
+                                        <Button variant="ghost" size="icon" className="h-7 w-7"><Edit className="w-3.5 h-3.5"/></Button>
+                                     </Link>
+                                      <AlertDialog>
+                                        <AlertDialogTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" disabled={deletingId === item.id}><Trash2 className="w-3.5 h-3.5" /></Button></AlertDialogTrigger>
+                                        <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>¿Confirmar eliminación?</AlertDialogTitle><AlertDialogDescription>El ítem "{item.nombre}" será eliminado.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDelete(item.id, item.nombre)} disabled={deletingId === item.id} className="bg-destructive hover:bg-destructive/90">{deletingId === item.id && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin"/>}Eliminar</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
+                                      </AlertDialog>
                                 </div>
                               </div>
                             </CardHeader>
@@ -262,4 +293,12 @@ export default function InventarioInsumosPage() {
       </Card>
     </div>
   );
+}
+
+export default function InventarioInsumosPage() {
+    return (
+        <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>}>
+            <InventarioInsumosContent/>
+        </Suspense>
+    )
 }

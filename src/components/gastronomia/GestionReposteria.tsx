@@ -122,7 +122,7 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
         const itemsDeCatalogo = catalogoReposteria.filter(s => s.subcategoria === cat.nombreDisplay);
         const allItems = [...cat.items, ...itemsDeCatalogo];
         allItems.forEach(item => {
-          total += (item.costoEstimado || 0) * (item.cantidad || 1);
+          total += (item.costoEstimado || item.valorUnitarioEstimado || 0) * (item.cantidad || 1);
         });
       }
     });
@@ -207,7 +207,7 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
                         <Button variant="outline" size="sm" onClick={() => openItemModal(cat)}>
                             <PlusCircle className="w-3 h-3 mr-2"/>Añadir Ítem Manual
                         </Button>
-                        <Link href={`/empresa/insumos?categoria=Servicio+de+repostería&subcategoria=${encodeURIComponent(cat.nombreDisplay)}`} passHref>
+                        <Link href={`/empresa/servicios/Servicio de repostería/${encodeURIComponent(cat.nombreDisplay)}`} passHref>
                            <Button variant="outline" size="sm">
                                <Edit className="w-3 h-3 mr-2" /> Gestionar en Catálogo
                            </Button>
