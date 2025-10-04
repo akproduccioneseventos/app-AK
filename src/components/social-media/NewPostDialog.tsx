@@ -136,8 +136,8 @@ export function NewPostDialog({
                 setAllEvents(all);
                  if (activePost?.eventId) {
                     setAiSelectedEventId(activePost.eventId);
-                } else if (actual) {
-                    setAiSelectedEventId(actual.id);
+                } else {
+                    setAiSelectedEventId('general'); // Default to general campaign
                 }
             };
             fetchInitialData();
@@ -153,21 +153,19 @@ export function NewPostDialog({
     };
     
     const handleGenerateWithAI = async () => {
-        if (!aiSelectedEventId) {
-            toast({ title: "Selecciona un evento", description: "Debes seleccionar un evento para generar el texto.", variant: "destructive" });
-            return;
-        }
         setIsGeneratingText(true);
         try {
+            let input: GenerateSocialPostInput = { style: aiStyle };
             const selectedEvent = allEvents.find(e => e.id === aiSelectedEventId);
-            if (!selectedEvent) throw new Error("Evento no encontrado.");
-            
-            const input: GenerateSocialPostInput = {
-                eventName: selectedEvent.configuracion.nombreEvento,
-                eventType: typeof selectedEvent.configuracion.tipoCelebracion === 'string' ? selectedEvent.configuracion.tipoCelebracion : 'Evento',
-                eventDate: selectedEvent.configuracion.fechaEvento ? new Date(selectedEvent.configuracion.fechaEvento).toLocaleDateString('es-ES') : 'Próximamente',
-                style: aiStyle,
-            };
+
+            if (selectedEvent) {
+                input = {
+                    ...input,
+                    eventName: selectedEvent.configuracion.nombreEvento,
+                    eventType: typeof selectedEvent.configuracion.tipoCelebracion === 'string' ? selectedEvent.configuracion.tipoCelebracion : 'Evento',
+                    eventDate: selectedEvent.configuracion.fechaEvento ? new Date(selectedEvent.configuracion.fechaEvento).toLocaleDateString('es-ES') : 'Próximamente',
+                };
+            }
             
             const result = await generateSocialPost(input);
             setText(result.postText);
@@ -286,7 +284,7 @@ export function NewPostDialog({
                         <DialogFooter>
                             <Button variant="outline" onClick={() => setIsImageGenModalOpen(false)}>Cancelar</Button>
                             <Button onClick={handleGenerateImage} disabled={isGeneratingImage}>
-                                {isGeneratingImage ? <Loader2 className="w-4 h-4 animate-spin mr-2"/> : <Sparkles className="w-4 h-4 mr-2"/>}
+                                {isGeneratingImage ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Sparkles className="w-4 h-4 mr-2"/>}
                                 {isGeneratingImage ? 'Generando...' : 'Generar Imagen'}
                             </Button>
                         </DialogFooter>
@@ -319,10 +317,19 @@ export function NewPostDialog({
                         {isAiPanelOpen && (
                             <CardContent className="p-3 pt-0 space-y-3">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                    <div className="space-y-1"><Label htmlFor="ai-event">Basado en el evento:</Label><Select value={aiSelectedEventId} onValueChange={setAiSelectedEventId}><SelectTrigger><SelectValue placeholder="Seleccionar evento"/></SelectTrigger><SelectContent>{allEvents.map(e => <SelectItem key={e.id} value={e.id}>{e.configuracion.nombreEvento}</SelectItem>)}</SelectContent></Select></div>
+                                    <div className="space-y-1"><Label htmlFor="ai-event">Basado en:</Label>
+                                        <Select value={aiSelectedEventId} onValueChange={setAiSelectedEventId}>
+                                            <SelectTrigger><SelectValue placeholder="Seleccionar..."/></SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="general">Campaña General (sin evento)</SelectItem>
+                                                <Separator/>
+                                                {allEvents.map(e => <SelectItem key={e.id} value={e.id}>{e.configuracion.nombreEvento}</SelectItem>)}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
                                     <div className="space-y-1"><Label htmlFor="ai-style">Estilo del Post:</Label><Select value={aiStyle} onValueChange={(v) => setAiStyle(v as any)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="promocional">Promocional</SelectItem><SelectItem value="elegante">Elegante</SelectItem><SelectItem value="divertida">Divertido</SelectItem></SelectContent></Select></div>
                                 </div>
-                                <Button type="button" className="w-full" onClick={handleGenerateWithAI} disabled={isGeneratingText || !aiSelectedEventId}>
+                                <Button type="button" className="w-full" onClick={handleGenerateWithAI} disabled={isGeneratingText}>
                                     {isGeneratingText ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Wand2 className="w-4 h-4 mr-2"/>}
                                     {isGeneratingText ? 'Generando...' : 'Generar Texto'}
                                 </Button>
@@ -381,5 +388,3 @@ export function NewPostDialog({
         </Dialog>
     );
 }
-
-    

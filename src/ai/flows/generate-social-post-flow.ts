@@ -23,12 +23,18 @@ const prompt = ai.definePrompt({
 
 El estilo del post debe ser: {{{style}}}.
 
+{{#if eventName}}
 Aquí están los detalles del evento:
 - Nombre del Evento: {{{eventName}}}
 - Tipo de Evento: {{{eventType}}}
 - Fecha: {{{eventDate}}}
 
-Genera un texto para la publicación que cree expectación y emoción. Incluye al menos 3 hashtags relevantes y creativos. El texto debe ser conciso, ideal para redes sociales.
+Genera un texto para la publicación que cree expectación y emoción sobre el evento.
+{{else}}
+Genera un texto para una publicación general de marketing, no atada a un evento específico. El objetivo es promocionar la marca o un servicio de forma atractiva.
+{{/if}}
+
+Incluye al menos 3 hashtags relevantes y creativos. El texto debe ser conciso, ideal para redes sociales.
 
 Responde ÚNICAMENTE con el objeto JSON que contiene el texto del post.`,
 });
