@@ -127,7 +127,7 @@ export default function EditarEmpleadoPage({ params: paramsProp }: { params: { i
       } else {
         throw new Error(result.error || 'Error desconocido al eliminar el empleado.');
       }
-    } catch (error: any) => {
+    } catch (error: any) {
       toast({ title: 'Error al Eliminar', description: error.message, variant: 'destructive' });
     } finally {
       setIsDeleting(false);

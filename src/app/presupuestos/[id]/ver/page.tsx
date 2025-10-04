@@ -105,14 +105,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
   };
   
   const handlePrint = () => {
-    const printContents = document.getElementById('invoice-to-print')?.innerHTML;
-    const originalContents = document.body.innerHTML;
-    if (printContents) {
-      document.body.innerHTML = printContents;
-      window.print();
-      document.body.innerHTML = originalContents;
-      window.location.reload(); 
-    }
+    window.print();
   };
   
   const generarTextoWhatsApp = () => {
@@ -346,7 +339,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
               </div>
               {descuentoPromocional > 0 && (
                   <div className="flex justify-between text-destructive">
-                    <span>Descuento{presupuesto.nombrePromocion ? ` (${presupuesto.nombrePromocion})` : (armadoRapidoConfig?.descuentoGeneral ? ` (${armadoRapidoConfig.descuentoGeneral}%)` : '')}:</span>
+                    <span>Descuento{presupuesto.nombrePromocion ? ` (${presupuesto.nombrePromocion})` : ''}:</span>
                     <span>-{formatCurrency(descuentoPromocional, true, true)}</span>
                   </div>
               )}
@@ -375,11 +368,11 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
             </div>
         </section>
         
-        <footer className="mt-6 pt-3 border-t border-gray-300 print:mt-2 print:pt-1.5 print:border-gray-400 text-xs print:text-[8pt] text-gray-600 print:text-black">
-          <p className="text-red-600 font-bold text-sm">{BUDGET_DEPOSIT_NOTE_PDF}</p>
-          {presupuesto.notas && displaySettings.showPaymentMethodNotes && <p className="mt-1 print:mt-0.5 whitespace-pre-line">{presupuesto.notas}</p>}
-          {showAnnualAdjustmentLegend && (<p className="mt-1 print:mt-0.5 text-orange-600 font-medium">Nota: El importe total incluye un ajuste anual del {displaySettings.annualAdjustmentPercentage}% por cada año hasta la fecha del evento.</p>)}
-        </footer>
+           <footer className="mt-6 pt-3 border-t border-gray-300 print:mt-2 print:pt-1.5 print:border-gray-400 text-xs print:text-[8pt] text-gray-600 print:text-black">
+            <p className="text-red-600 font-bold text-lg">{BUDGET_DEPOSIT_NOTE_PDF}</p>
+            {presupuesto.notas && displaySettings.showPaymentMethodNotes && <p className="mt-1 print:mt-0.5 whitespace-pre-line">{presupuesto.notas}</p>}
+            {showAnnualAdjustmentLegend && (<p className="mt-1 print:mt-0.5 text-orange-600 font-medium">Nota: El importe total incluye un ajuste anual del {displaySettings.annualAdjustmentPercentage}% por cada año hasta la fecha del evento.</p>)}
+          </footer>
       </div>
     </div>
   );

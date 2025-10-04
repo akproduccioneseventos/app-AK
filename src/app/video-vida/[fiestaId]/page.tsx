@@ -12,7 +12,6 @@ import { saveLifeStoryVideoPhoto, getLifeStoryVideoPhotos } from '@/app/actions/
 import NextImage from 'next/image';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { WatermarkedImage } from '@/components/watermarked-image';
 
 interface PhotoSlot {
   number: number;
@@ -67,7 +66,7 @@ const PhotoUploadSlot: React.FC<{
     <div className="aspect-square relative rounded-md bg-muted overflow-hidden border-2 border-dashed hover:border-primary transition-colors group">
       <Label htmlFor={inputId} className="w-full h-full cursor-pointer flex flex-col items-center justify-center text-center text-muted-foreground p-1">
         {slot.imageUrl && !isUploading ? (
-          <WatermarkedImage src={slot.imageUrl} alt={`Foto ${slot.number}`} layout="fill" objectFit="cover" />
+          <NextImage src={slot.imageUrl} alt={`Foto ${slot.number}`} layout="fill" objectFit="cover" />
         ) : !isUploading && (
           <div className="flex flex-col items-center">
             <Upload className="w-5 h-5 mb-1 text-gray-400 group-hover:text-primary transition-colors" />

@@ -225,7 +225,7 @@ export default function ViewInvoicePage({ params: paramsProp }: { params: { id: 
     <div className="max-w-4xl mx-auto space-y-8 print:space-y-2 print:m-0 print:p-0">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 print:hidden">
         <Link href="/invoices" passHref><Button variant="outline" disabled={isAddingPayment}><ArrowLeft className="w-4 h-4 mr-2" />Volver a Facturas</Button></Link>
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-2 flex-wrap justify-end">
           <Button variant="outline" disabled={isAddingPayment} onClick={handleShare}><Share2 className="w-4 h-4 mr-2" />Compartir</Button>
           <Button onClick={handlePrint} disabled={isAddingPayment}><Download className="w-4 h-4 mr-2" />Imprimir/PDF</Button>
           <Link href={`/invoices/${invoice.id}/edit`} passHref><Button variant="secondary" disabled={isAddingPayment}><Edit className="w-4 h-4 mr-2" />Editar</Button></Link>
