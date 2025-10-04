@@ -43,7 +43,7 @@ export default function GestionMenusPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <ChefHat className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline">Gestión de Menús y Catering</h1>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">Planificador Gastronómico Maestro</h1>
         </div>
         <Link href="/empresa" passHref>
           <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver a Empresa</Button>
@@ -85,8 +85,8 @@ export default function GestionMenusPage() {
                   <CardDescription>{menu.description}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm font-semibold text-green-700 mb-2">Costo p/Persona: {formatCurrency(menu.items.reduce((sum, item) => sum + (item.totalDishCost || 0), 0))}</p>
-                  {menu.items.length > 0 && (
+                  <p className="text-sm font-semibold text-green-700 mb-2">Costo p/Persona: {formatCurrency((menu.items || []).reduce((sum, item) => sum + (item.totalDishCost || 0), 0))}</p>
+                  {(menu.items || []).length > 0 && (
                     <ScrollArea className="h-20 text-xs text-muted-foreground border-t pt-2">
                       <ul className="list-disc pl-4 space-y-0.5">
                         {menu.items.map(item => <li key={item.id}>{item.name}</li>)}

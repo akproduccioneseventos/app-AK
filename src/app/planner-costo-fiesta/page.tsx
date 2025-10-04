@@ -25,7 +25,7 @@ export default function DeprecatedPlannerHubPage() {
                 </CardHeader>
                 <CardContent>
                      <p className="text-muted-foreground">
-                        El Planificador Gastronómico ahora está centralizado. Serás redirigido al nuevo módulo del evento.
+                        El Planificador Gastronómico ahora está integrado en el planificador del evento. Serás redirigido.
                     </p>
                 </CardContent>
                  <CardFooter className="justify-center">
