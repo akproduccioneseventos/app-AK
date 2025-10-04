@@ -30,18 +30,11 @@ const empresaHubItems: HubItem[] = [
     actionLabel: 'Gestionar Servicios',
   },
   {
-    title: 'Gestión de Menús de Catering',
-    description: 'Crea tus plantillas de menús y platos. Asocia ingredientes desde tu catálogo de insumos.',
+    title: 'Gestión de Menús y Catering',
+    description: 'Crea menús, platos, y gestiona tu catálogo de insumos y bebidas.',
     href: '/empresa/menus',
     icon: ChefHat,
     actionLabel: 'Gestionar Menús',
-  },
-   {
-    title: 'Gestión de Insumos',
-    description: 'Gestiona tu inventario de ingredientes, bebidas y otros consumibles para tus menús.',
-    href: '/empresa/insumos',
-    icon: GlassWater,
-    actionLabel: 'Gestionar Insumos',
   },
   {
     title: 'Catálogo de Activos Fijos',
