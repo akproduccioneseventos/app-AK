@@ -11,8 +11,9 @@ import { updateReposteriaFiestaActual, updateBebidasFiestaActual } from '@/app/a
 import type { FiestaEnPlanificacion, ReposteriaData, BebidasData } from '@/types/fiesta';
 import { GestionReposteria } from '@/components/gastronomia/GestionReposteria';
 import { GestionBebidas } from '@/components/gastronomia/GestionBebidas';
-import { Presupuesto } from '@/types/presupuesto';
+import type { Presupuesto } from '@/types/presupuesto';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
+import { defaultBebidasData, defaultReposteriaData } from '@/lib/fiesta-defaults';
 
 export default function PlannerCostoFiestaHubPage() {
     const { toast } = useToast();
@@ -21,34 +22,38 @@ export default function PlannerCostoFiestaHubPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     
-    const [reposteriaData, setReposteriaData] = useState<ReposteriaData | null>(null);
-    const [bebidasData, setBebidasData] = useState<BebidasData | null>(null);
+    const [reposteriaData, setReposteriaData] = useState<ReposteriaData>(defaultReposteriaData);
+    const [bebidasData, setBebidasData] = useState<BebidasData>(defaultBebidasData);
     
     const loadData = useCallback(async () => {
         setIsLoading(true);
         try {
             const fiestaData = await getFiestaActual();
             setFiesta(fiestaData);
-            setReposteriaData(fiestaData.reposteria || null);
-            setBebidasData(fiestaData.bebidas || null);
+            
+            let initialReposteria = fiestaData.reposteria || defaultReposteriaData;
+            let initialBebidas = fiestaData.bebidas || defaultBebidasData;
 
             if (fiestaData.presupuestoId) {
                 const presupuestoData = await getPresupuestoById(fiestaData.presupuestoId);
                 setPresupuesto(presupuestoData);
                 
-                // Activar categorías basadas en el presupuesto
                 if (presupuestoData && presupuestoData.itemsPresupuestados.length > 0) {
                     const hasReposteria = presupuestoData.itemsPresupuestados.some(item => item.categoriaServicio?.toLowerCase().includes('repostería'));
                     const hasBebidas = presupuestoData.itemsPresupuestados.some(item => item.categoriaServicio?.toLowerCase().includes('bebida'));
                     
                     if (hasReposteria) {
-                        setReposteriaData(prev => prev ? { ...prev, categorias: (prev.categorias || []).map(c => ({...c, activada: true})) } : null);
+                        initialReposteria = { ...initialReposteria, categorias: (initialReposteria.categorias || []).map(c => ({...c, activada: true})) };
                     }
                     if (hasBebidas) {
-                         setBebidasData(prev => prev ? { ...prev, categorias: (prev.categorias || []).map(c => ({...c, activada: true})) } : null);
+                         initialBebidas = { ...initialBebidas, categorias: (initialBebidas.categorias || []).map(c => ({...c, activada: true})) };
                     }
                 }
             }
+            
+            setReposteriaData(initialReposteria);
+            setBebidasData(initialBebidas);
+
         } catch(e) {
             toast({title: "Error", description: "No se pudieron cargar los datos.", variant: "destructive"});
         } finally {
