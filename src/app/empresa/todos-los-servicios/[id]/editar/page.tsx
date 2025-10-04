@@ -55,11 +55,19 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
       const loadedItem = await getServicioEmpresaById(itemIdFromParams);
       if (loadedItem) {
         setItem(loadedItem);
-        setFormData({
-            ...loadedItem,
-            calculationMethod: loadedItem.calculationMethod || 'fijo',
-            tramosDePrecio: loadedItem.tramosDePrecio || [],
-        });
+        // Ensure numeric fields are numbers or undefined, not empty strings
+        const numericData = {
+          ...loadedItem,
+          cantidadDisponible: loadedItem.cantidadDisponible ?? undefined,
+          valorUnitarioEstimado: loadedItem.valorUnitarioEstimado ?? undefined,
+          precioVenta: loadedItem.precioVenta ?? undefined,
+          precioBase: loadedItem.precioBase ?? undefined,
+          precioPorPersona: loadedItem.precioPorPersona ?? undefined,
+          invitadosPorUnidad: loadedItem.invitadosPorUnidad ?? undefined,
+          calculationMethod: loadedItem.calculationMethod || 'fijo',
+          tramosDePrecio: loadedItem.tramosDePrecio || [],
+        };
+        setFormData(numericData);
       } else {
         setNotFound(true);
         toast({ title: 'Error', description: `No se encontró el ítem con ID ${itemIdFromParams}.`, variant: 'destructive' });
@@ -79,7 +87,12 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
   }, [itemIdFromParams, loadItem]);
 
   const handleFormChange = (field: keyof ServicioEmpresa, value: string | number | undefined) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    if (typeof value === 'string' && (field === 'cantidadDisponible' || field === 'valorUnitarioEstimado' || field === 'precioVenta' || field === 'precioBase' || field === 'precioPorPersona' || field === 'invitadosPorUnidad')) {
+      const numValue = value === '' ? undefined : Number(value);
+      setFormData(prev => ({ ...prev, [field]: numValue }));
+    } else {
+      setFormData(prev => ({ ...prev, [field]: value }));
+    }
   };
   
   const handleCategoryChange = (value: CategoriaServicio | '') => {
@@ -128,7 +141,7 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
         return;
     }
     
-    if (formData.tipoItem === 'Servicio' && (formData.calculationMethod === 'fijo' ? !formData.precioVenta : false) && (formData.calculationMethod === 'porPersona' ? !formData.precioPorPersona : false)) {
+    if (formData.tipoItem === 'Servicio' && (formData.calculationMethod === 'fijo' ? formData.precioVenta === undefined : false) && (formData.calculationMethod === 'porPersona' ? formData.precioPorPersona === undefined : false)) {
         toast({ title: "Precio Requerido", description: "El precio de venta es obligatorio para este método de cálculo.", variant: "destructive" });
         return;
     }
@@ -138,17 +151,6 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
         ...(item as ServicioEmpresa), 
         ...formData,
         nombre: formData.nombre.trim(),
-        tipoItem: formData.tipoItem,
-        categoria: formData.categoria,
-        unidad: formData.tipoItem === 'Servicio' ? undefined : formData.unidad,
-        subcategoria: formData.subcategoria?.trim() || undefined,
-        cantidadDisponible: formData.cantidadDisponible !== undefined ? Number(formData.cantidadDisponible) : undefined,
-        valorUnitarioEstimado: formData.valorUnitarioEstimado !== undefined ? Number(formData.valorUnitarioEstimado) : undefined,
-        precioVenta: formData.precioVenta !== undefined ? Number(formData.precioVenta) : undefined,
-        precioBase: formData.precioBase !== undefined ? Number(formData.precioBase) : undefined,
-        precioPorPersona: formData.precioPorPersona !== undefined ? Number(formData.precioPorPersona) : undefined,
-        invitadosPorUnidad: formData.invitadosPorUnidad !== undefined ? Number(formData.invitadosPorUnidad) : undefined,
-        notas: formData.notas?.trim() || undefined,
     };
     
     try {
@@ -181,7 +183,10 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
       const result = await deleteServicioEmpresa(item.id);
       if (result.success) {
         toast({ title: "Ítem Eliminado", variant: "destructive" });
-        router.push(item.tipoItem === 'Servicio' ? '/empresa/servicios' : '/empresa/todos-los-servicios');
+        let redirectUrl = '/empresa/todos-los-servicios';
+        if(item.tipoItem === 'Servicio') redirectUrl = '/empresa/servicios';
+        else if(item.tipoItem === 'Insumo/Ingrediente' || item.tipoItem === 'Bebida (Insumo)') redirectUrl = '/empresa/insumos';
+        router.push(redirectUrl);
       } else {
         throw new Error(result.error || "No se pudo eliminar el ítem.");
       }
@@ -354,5 +359,3 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
     </div>
   );
 }
-
-    
