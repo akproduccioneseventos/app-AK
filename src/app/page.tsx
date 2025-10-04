@@ -100,20 +100,26 @@ export default function DashboardPage() {
         throw new Error(kpiResult.error || "Failed to fetch dashboard data.");
       }
 
-      // Filter and sort tasks and meetings
-      const now = new Date();
-      if(fiestaActual.tareas) {
-        const pendingTasks = fiestaActual.tareas
-          .filter(t => !t.completada && t.fechaLimite && new Date(t.fechaLimite) >= now)
-          .sort((a,b) => new Date(a.fechaLimite!).getTime() - new Date(b.fechaLimite!).getTime());
-        setUpcomingTasks(pendingTasks.slice(0, 3));
-      }
+      // Filter and sort tasks and meetings only if there is an active event
+      if (fiestaActual) {
+        const now = new Date();
+        if(fiestaActual.tareas) {
+          const pendingTasks = fiestaActual.tareas
+            .filter(t => !t.completada && t.fechaLimite && new Date(t.fechaLimite) >= now)
+            .sort((a,b) => new Date(a.fechaLimite!).getTime() - new Date(b.fechaLimite!).getTime());
+          setUpcomingTasks(pendingTasks.slice(0, 3));
+        }
 
-       if(fiestaActual.reuniones) {
-        const pendingReuniones = fiestaActual.reuniones
-          .filter(r => r.fecha && new Date(r.fecha) >= now)
-          .sort((a,b) => new Date(a.fecha!).getTime() - new Date(b.fecha!).getTime());
-        setUpcomingReuniones(pendingReuniones.slice(0, 3));
+         if(fiestaActual.reuniones) {
+          const pendingReuniones = fiestaActual.reuniones
+            .filter(r => r.fecha && new Date(r.fecha) >= now)
+            .sort((a,b) => new Date(a.fecha!).getTime() - new Date(b.fecha!).getTime());
+          setUpcomingReuniones(pendingReuniones.slice(0, 3));
+        }
+      } else {
+        // Clear tasks and meetings if no active event
+        setUpcomingTasks([]);
+        setUpcomingReuniones([]);
       }
 
     } catch (err: any) {
