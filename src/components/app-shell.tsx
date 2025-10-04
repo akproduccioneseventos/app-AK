@@ -92,8 +92,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/regalos') return 'Lista de Regalos';
   if (pathname === '/fiestas/nueva/resumen-imprimible') return 'Resumen Imprimible del Evento';
   if (pathname === '/fiestas/nueva/pagina-web') return 'Página Pública del Evento';
-  if (pathname === '/fiestas/nueva/planner-costo-fiesta/reposteria') return 'Planificador de Repostería';
-  if (pathname === '/fiestas/nueva/planner-costo-fiesta/bebidas') return 'Planificador de Bebidas';
+  if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
 
   if (pathname === '/contabilidad/crm') return 'Gestión de Prospectos (CRM)';
 
@@ -111,7 +110,7 @@ const getPageTitle = (pathname: string): string => {
   
   if (pathname === '/simulador-de-presupuesto') return 'Simulador de Presupuesto';
   
-  if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
+  
 
   
   if (pathname === '/evento/actual') return 'Página Pública del Evento';
@@ -160,8 +159,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/regalos') return Gift;
     if (pathname === '/fiestas/nueva/resumen-imprimible') return Printer;
     if (pathname === '/fiestas/nueva/pagina-web') return Globe;
-    if (pathname === '/fiestas/nueva/planner-costo-fiesta/reposteria') return Cake;
-    if (pathname === '/fiestas/nueva/planner-costo-fiesta/bebidas') return GlassWater;
+    if (pathname === '/planner-costo-fiesta') return Calculator;
     return PartyPopper;
   }
 
@@ -212,7 +210,6 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/simulador-de-presupuesto') return Wand2;
   
 
-  if (pathname === '/planner-costo-fiesta') return Calculator;
   
   if (pathname === '/evento/actual') return PartyPopper;
   if (pathname === '/evento/actual/mesa') return Ticket;
