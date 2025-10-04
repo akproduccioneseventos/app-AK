@@ -27,7 +27,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMe
 
 
 const formatCurrency = (amount?: number) => {
-  if (amount === undefined || isNaN(amount)) return 'N/A';
+  if (amount === undefined || amount === null || isNaN(amount)) return '$ 0';
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
@@ -46,7 +46,7 @@ export default function InventarioInsumosPage() {
   }, [allItems]);
 
   const [categoryFilter, setCategoryFilter] = useState<Record<string, boolean>>(
-    ALL_CATEGORIES.reduce((acc, cat) => ({...acc, [cat]: true}), {})
+    {}
   );
 
   const fetchItems = useCallback(async () => {
@@ -56,21 +56,22 @@ export default function InventarioInsumosPage() {
       const data = await getServiciosEmpresa();
       const inventoryItems = data.filter(s => s.tipoItem === 'Insumo/Ingrediente' || s.tipoItem === 'Bebida (Insumo)');
       setAllItems(inventoryItems);
-      setFilteredItems(inventoryItems);
-      // Initialize filters based on fetched data
-      const initialCategories = Array.from(new Set(inventoryItems.map(i => i.categoria))).reduce((acc, cat) => ({...acc, [cat]: true}), {});
-      setCategoryFilter(initialCategories);
+      // Initialize filters based on fetched data only if not already set
+      if (Object.keys(categoryFilter).length === 0) {
+        const initialCategories = Array.from(new Set(inventoryItems.map(i => i.categoria))).reduce((acc, cat) => ({...acc, [cat]: true}), {});
+        setCategoryFilter(initialCategories);
+      }
     } catch (err: any) {
       setError("No se pudo cargar el inventario de insumos.");
       toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, [toast, categoryFilter]);
 
   useEffect(() => {
     fetchItems();
-  }, [fetchItems]);
+  }, []);
 
   useEffect(() => {
     const lowercasedFilter = searchTerm.toLowerCase();
@@ -132,10 +133,10 @@ export default function InventarioInsumosPage() {
                     Añadir Insumo
                 </Button>
             </Link>
-             <Link href="/empresa" passHref>
+             <Link href="/empresa/menus" passHref>
                 <Button variant="outline">
                     <ArrowLeft className="w-4 h-4 mr-2"/>
-                    Volver a Empresa
+                    Volver a Menús
                 </Button>
             </Link>
         </div>
@@ -156,7 +157,7 @@ export default function InventarioInsumosPage() {
                 <DropdownMenuLabel>Categorías</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {ALL_CATEGORIES.map(cat => (
-                  <DropdownMenuCheckboxItem key={cat} checked={categoryFilter[cat]} onCheckedChange={() => setCategoryFilter(prev => ({...prev, [cat]: !prev[cat]}))}>{cat}</DropdownMenuCheckboxItem>
+                  <DropdownMenuCheckboxItem key={cat} checked={categoryFilter[cat] ?? false} onCheckedChange={() => setCategoryFilter(prev => ({...prev, [cat]: !prev[cat]}))}>{cat}</DropdownMenuCheckboxItem>
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
