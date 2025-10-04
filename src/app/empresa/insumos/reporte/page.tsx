@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Printer as PrinterIcon, Share2, Package, Loader2, AlertTriangle, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ServicioEmpresa } from '@/types/empresa';
-import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
+import { getInsumos } from '@/app/actions/insumos';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableCaption, TableFooter } from '@/components/ui/table';
 
 const formatCurrency = (amount?: number) => {
@@ -25,7 +25,7 @@ export default function ReporteInsumosPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await getServiciosEmpresa();
+      const data = await getInsumos();
       // Filter for items that are insumos/bebidas AND have a defined stock greater than 0
       const inventoryItems = data.filter(s => 
         (s.tipoItem === 'Insumo/Ingrediente' || s.tipoItem === 'Bebida (Insumo)') &&

@@ -26,7 +26,7 @@ import { Separator } from '@/components/ui/separator';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
-  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
+  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 };
 
 export default function InventarioActivosPage() {
@@ -121,6 +121,11 @@ export default function InventarioActivosPage() {
           </h1>
         </div>
          <div className="flex gap-2 flex-wrap">
+             <Link href="/empresa/todos-los-servicios/reporte" passHref>
+                <Button variant="secondary">
+                    <Printer className="w-4 h-4 mr-2"/>Ver Reporte de Stock
+                </Button>
+            </Link>
             <Link href="/empresa/todos-los-servicios/nuevo?type=Activo Fijo" passHref>
                 <Button variant="default">
                     <PackagePlus className="w-4 h-4 mr-2" />
@@ -174,7 +179,7 @@ export default function InventarioActivosPage() {
       ) : error ? (
          <div className="py-10 text-center text-destructive"><AlertTriangle className="w-12 h-12 mx-auto mb-3" /><p className="font-semibold">{error}</p><Button onClick={fetchItems} variant="outline" className="mt-4">Reintentar</Button></div>
       ) : categoriasOrdenadas.length === 0 ? (
-        <Card className="shadow-md"><CardContent className="p-6 text-center text-muted-foreground"><Search className="w-16 h-16 mx-auto mb-4 opacity-30" />{searchTerm ? "No se encontraron activos que coincidan." : "Tu inventario de activos está vacío."}</CardContent></Card>
+        <Card className="shadow-md"><CardContent className="p-6 text-center text-muted-foreground">{searchTerm ? "No se encontraron activos que coincidan." : "Tu inventario de activos está vacío."}</CardContent></Card>
       ) : (
         <Accordion type="multiple" defaultValue={categoriasOrdenadas} className="w-full space-y-3">
           {categoriasOrdenadas.map((categoria) => (

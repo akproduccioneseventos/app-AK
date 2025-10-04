@@ -6,7 +6,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
     "cantidadDisponible": 120,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 150,
     "unidad": "Unidad"
   },
   {
@@ -15,7 +15,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
     "cantidadDisponible": 120,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 120,
     "unidad": "Unidad"
   },
   {
@@ -24,7 +24,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
     "cantidadDisponible": 120,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 80,
     "unidad": "Unidad"
   },
   {
@@ -33,7 +33,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
     "cantidadDisponible": 120,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 40,
     "unidad": "Unidad"
   },
   {
@@ -42,7 +42,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
     "cantidadDisponible": 120,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 50,
     "unidad": "Unidad"
   },
   {
@@ -51,7 +51,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
     "cantidadDisponible": 120,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 60,
     "unidad": "Unidad"
   },
   {
@@ -60,7 +60,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
     "cantidadDisponible": 120,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 45,
     "unidad": "Unidad"
   },
   {
@@ -69,7 +69,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
     "cantidadDisponible": 120,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 45,
     "unidad": "Unidad"
   },
   {
@@ -78,7 +78,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
     "cantidadDisponible": 120,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 50,
     "unidad": "Unidad"
   },
   {
@@ -87,7 +87,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
     "cantidadDisponible": 120,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 70,
     "unidad": "Unidad"
   },
   {
@@ -96,7 +96,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
     "cantidadDisponible": 120,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 50,
     "unidad": "Unidad"
   },
   {
@@ -105,7 +105,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
     "cantidadDisponible": 120,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 30,
     "unidad": "Unidad"
   },
   {
@@ -114,7 +114,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
     "cantidadDisponible": 4,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 300,
     "unidad": "Unidad"
   },
   {
@@ -122,27 +122,27 @@
     "nombre": "Jarras Chicas",
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Caja"
+    "cantidadDisponible": 12,
+    "valorUnitarioEstimado": 150,
+    "unidad": "Unidad"
   },
   {
     "id": "lc_9",
     "nombre": "Jarras Grandes",
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 4,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Caja"
+    "cantidadDisponible": 24,
+    "valorUnitarioEstimado": 250,
+    "unidad": "Unidad"
   },
   {
     "id": "lc_10",
     "nombre": "Vasos",
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 4,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Caja"
+    "cantidadDisponible": 150,
+    "valorUnitarioEstimado": 80,
+    "unidad": "Unidad"
   },
   {
     "id": "lc_90",
@@ -150,7 +150,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
     "cantidadDisponible": 120,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 100,
     "unidad": "Unidad"
   },
   {
@@ -159,7 +159,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
     "cantidadDisponible": 120,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 110,
     "unidad": "Unidad"
   },
   {
@@ -168,7 +168,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
     "cantidadDisponible": 120,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 110,
     "unidad": "Unidad"
   },
   {
@@ -176,9 +176,9 @@
     "nombre": "Copas de Brindis",
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 2,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Caja"
+    "cantidadDisponible": 4,
+    "valorUnitarioEstimado": 400,
+    "unidad": "Unidad"
   },
   {
     "id": "lc_99",
@@ -186,7 +186,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 1200,
     "unidad": "Unidad"
   },
   {
@@ -194,9 +194,9 @@
     "nombre": "Copas Lacradas",
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 9,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Caja"
+    "cantidadDisponible": 12,
+    "valorUnitarioEstimado": 150,
+    "unidad": "Unidad"
   },
   {
     "id": "lc_12",
@@ -204,7 +204,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
     "cantidadDisponible": 16,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 400,
     "unidad": "Unidad"
   },
   {
@@ -213,7 +213,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 250,
     "unidad": "Unidad"
   },
   {
@@ -221,26 +221,26 @@
     "nombre": "Pinzas de Hieleras",
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Caja"
+    "cantidadDisponible": 20,
+    "valorUnitarioEstimado": 100,
+    "unidad": "Unidad"
   },
   {
     "id": "lc_23",
     "nombre": "Platinas",
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Caja"
+    "cantidadDisponible": 20,
+    "valorUnitarioEstimado": 300,
+    "unidad": "Unidad"
   },
   {
     "id": "lc_21",
     "nombre": "Tablas de Pizzas",
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "cantidadDisponible": 12,
+    "valorUnitarioEstimado": 350,
     "unidad": "Unidad"
   },
   {
@@ -249,7 +249,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
     "cantidadDisponible": 16,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 280,
     "unidad": "Unidad"
   },
   {
@@ -258,25 +258,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Vajilla (Activo)",
     "cantidadDisponible": 4,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_bt_12",
-    "nombre": "Vasos y Sorbitos",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Caja"
-  },
-  {
-    "id": "lc_bt_13",
-    "nombre": "Tarros para Jugos",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
-    "cantidadDisponible": 3,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 150,
     "unidad": "Unidad"
   },
   {
@@ -285,7 +267,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Equipamiento de Cocina",
     "cantidadDisponible": 2,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 800,
     "unidad": "Unidad"
   },
   {
@@ -294,7 +276,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Equipamiento de Cocina",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 15000,
     "unidad": "Unidad"
   },
   {
@@ -303,7 +285,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Equipamiento de Cocina",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 3000,
     "unidad": "Unidad"
   },
   {
@@ -312,7 +294,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Equipamiento de Cocina",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 3500,
     "unidad": "Unidad"
   },
   {
@@ -321,7 +303,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Equipamiento de Cocina",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 8000,
     "unidad": "Unidad"
   },
   {
@@ -330,8 +312,8 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Equipamiento de Cocina",
     "cantidadDisponible": 2,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Caja"
+    "valorUnitarioEstimado": 9000,
+    "unidad": "Unidad"
   },
   {
     "id": "lc_item_olla_50l",
@@ -339,7 +321,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Equipamiento de Cocina",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 5000,
     "unidad": "Unidad"
   },
   {
@@ -348,7 +330,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Equipamiento de Cocina",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 700,
     "unidad": "Unidad"
   },
   {
@@ -357,7 +339,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Equipamiento de Cocina",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 2000,
     "unidad": "Unidad"
   },
   {
@@ -366,7 +348,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Equipamiento de Cocina",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 3000,
     "unidad": "Caja"
   },
   {
@@ -374,9 +356,9 @@
     "nombre": "Pinzas de Ensaladas",
     "tipoItem": "Activo Fijo",
     "categoria": "Equipamiento de Cocina",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Caja"
+    "cantidadDisponible": 10,
+    "valorUnitarioEstimado": 150,
+    "unidad": "Unidad"
   },
   {
     "id": "lc_33",
@@ -384,7 +366,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Equipamiento de Cocina",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 1500,
     "unidad": "Unidad"
   },
   {
@@ -393,25 +375,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Equipamiento de Cocina",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_bt_9",
-    "nombre": "Licuadoras",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Equipamiento de Cocina",
-    "cantidadDisponible": 2,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_bt_14",
-    "nombre": "Conservadora",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Equipamiento de Cocina",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 4000,
     "unidad": "Unidad"
   },
   {
@@ -420,7 +384,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Mobiliario",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 1200,
     "unidad": "Unidad"
   },
   {
@@ -429,7 +393,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Mobiliario",
     "cantidadDisponible": 2,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 800,
     "unidad": "Unidad"
   },
   {
@@ -438,7 +402,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Mobiliario",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 3500,
     "unidad": "Unidad"
   },
   {
@@ -447,7 +411,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Mobiliario",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 2500,
     "unidad": "Unidad"
   },
   {
@@ -456,7 +420,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Mobiliario",
     "cantidadDisponible": 2,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 1800,
     "unidad": "Unidad"
   },
   {
@@ -465,25 +429,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Mobiliario",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_bt_3",
-    "nombre": "Casilleros de Licores",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mobiliario",
-    "cantidadDisponible": 4,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_bt_11",
-    "nombre": "Papeleras Barra",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mobiliario",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 800,
     "unidad": "Unidad"
   },
   {
@@ -491,8 +437,8 @@
     "nombre": "Servilletas Negras de Tela",
     "tipoItem": "Activo Fijo",
     "categoria": "Mantelería",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "cantidadDisponible": 120,
+    "valorUnitarioEstimado": 50,
     "unidad": "Unidad"
   },
   {
@@ -501,7 +447,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Mantelería",
     "cantidadDisponible": 16,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 500,
     "unidad": "Unidad"
   },
   {
@@ -510,7 +456,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Mantelería",
     "cantidadDisponible": 16,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 100,
     "unidad": "Unidad"
   },
   {
@@ -519,7 +465,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Mantelería",
     "cantidadDisponible": 16,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 250,
     "unidad": "Unidad"
   },
   {
@@ -528,7 +474,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Mantelería",
     "cantidadDisponible": 10,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 250,
     "unidad": "Unidad"
   },
   {
@@ -537,7 +483,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Mantelería",
     "cantidadDisponible": 16,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 400,
     "unidad": "Unidad"
   },
   {
@@ -546,7 +492,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Mantelería",
     "cantidadDisponible": 120,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 150,
     "unidad": "Unidad"
   },
   {
@@ -555,7 +501,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Mantelería",
     "cantidadDisponible": 5,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 400,
     "unidad": "Unidad"
   },
   {
@@ -563,8 +509,8 @@
     "nombre": "Manteles Negros de Cocina",
     "tipoItem": "Activo Fijo",
     "categoria": "Mantelería",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "cantidadDisponible": 5,
+    "valorUnitarioEstimado": 400,
     "unidad": "Unidad"
   },
   {
@@ -573,16 +519,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Mantelería",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_bt_6",
-    "nombre": "Lona de Barra",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Mantelería",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 600,
     "unidad": "Unidad"
   },
   {
@@ -591,7 +528,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Decoración (Activo)",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 1500,
     "unidad": "Unidad"
   },
   {
@@ -600,7 +537,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Decoración (Activo)",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 4000,
     "unidad": "Unidad"
   },
   {
@@ -609,7 +546,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Decoración (Activo)",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 3000,
     "unidad": "Unidad"
   },
   {
@@ -618,7 +555,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Decoración (Activo)",
     "cantidadDisponible": 2,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 1000,
     "unidad": "Unidad"
   },
   {
@@ -627,7 +564,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Decoración (Activo)",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 3000,
     "unidad": "Unidad"
   },
   {
@@ -636,7 +573,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Decoración (Activo)",
     "cantidadDisponible": 2,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 800,
     "unidad": "Unidad"
   },
   {
@@ -645,7 +582,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Decoración (Activo)",
     "cantidadDisponible": 2,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 500,
     "unidad": "Unidad"
   },
   {
@@ -654,7 +591,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Decoración (Activo)",
     "cantidadDisponible": 3,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 600,
     "unidad": "Unidad"
   },
   {
@@ -663,7 +600,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Decoración (Activo)",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 3500,
     "unidad": "Unidad"
   },
   {
@@ -672,7 +609,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Decoración (Activo)",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 2000,
     "unidad": "Unidad"
   },
   {
@@ -681,16 +618,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Decoración (Activo)",
     "cantidadDisponible": 15,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_68",
-    "nombre": "Cerchas de Luces",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Decoración (Activo)",
-    "cantidadDisponible": 3,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 300,
     "unidad": "Unidad"
   },
   {
@@ -699,7 +627,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Decoración (Activo)",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 1000,
     "unidad": "Unidad"
   },
   {
@@ -708,16 +636,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Decoración (Activo)",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_bt_1",
-    "nombre": "Estructura de Arriba de la Barra",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Decoración (Activo)",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 2500,
     "unidad": "Unidad"
   },
   {
@@ -726,7 +645,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Discoteca",
     "cantidadDisponible": 2,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 12000,
     "unidad": "Unidad"
   },
   {
@@ -735,7 +654,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Discoteca",
     "cantidadDisponible": 2,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 8000,
     "unidad": "Unidad"
   },
   {
@@ -744,7 +663,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Discoteca",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 15000,
     "unidad": "Unidad"
   },
   {
@@ -753,7 +672,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Discoteca",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 25000,
     "unidad": "Unidad"
   },
   {
@@ -762,7 +681,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Discoteca",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 5000,
     "unidad": "Unidad"
   },
   {
@@ -771,7 +690,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Discoteca",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 2000,
     "unidad": "Unidad"
   },
   {
@@ -780,7 +699,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Discoteca",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 30000,
     "unidad": "Unidad"
   },
   {
@@ -789,7 +708,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Discoteca",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 20000,
     "unidad": "Unidad"
   },
   {
@@ -798,7 +717,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Discoteca",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 4000,
     "unidad": "Unidad"
   },
   {
@@ -807,7 +726,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Discoteca",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 15000,
     "unidad": "Unidad"
   },
   {
@@ -816,7 +735,16 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Discoteca",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 5000,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_68",
+    "nombre": "Cerchas de Luces",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Discoteca",
+    "cantidadDisponible": 3,
+    "valorUnitarioEstimado": 4000,
     "unidad": "Unidad"
   },
   {
@@ -825,7 +753,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Discoteca",
     "cantidadDisponible": 2,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 2000,
     "unidad": "Unidad"
   },
   {
@@ -834,7 +762,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Discoteca",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 5000,
     "unidad": "Unidad"
   },
   {
@@ -843,7 +771,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Discoteca",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 7000,
     "unidad": "Unidad"
   },
   {
@@ -852,7 +780,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Discoteca",
     "cantidadDisponible": 2,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 4000,
     "unidad": "Unidad"
   },
   {
@@ -861,7 +789,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Discoteca",
     "cantidadDisponible": 4,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 6000,
     "unidad": "Unidad"
   },
   {
@@ -870,7 +798,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Discoteca",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 3000,
     "unidad": "Unidad"
   },
   {
@@ -879,7 +807,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Discoteca",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 2500,
     "unidad": "Unidad"
   },
   {
@@ -887,8 +815,8 @@
     "nombre": "Focos LED Luz Negra",
     "tipoItem": "Activo Fijo",
     "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "cantidadDisponible": 4,
+    "valorUnitarioEstimado": 800,
     "unidad": "Unidad"
   },
   {
@@ -896,35 +824,8 @@
     "nombre": "Focos LED Color",
     "tipoItem": "Activo Fijo",
     "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_bt_7",
-    "nombre": "Focos LED Luz Negra Barra",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_bt_8",
-    "nombre": "Focos LED Color Barra",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_bt_10",
-    "nombre": "Pantalla LED Barra",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Discoteca",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "cantidadDisponible": 8,
+    "valorUnitarioEstimado": 700,
     "unidad": "Unidad"
   },
   {
@@ -933,7 +834,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Otro Activo",
     "cantidadDisponible": 2,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 500,
     "unidad": "Unidad"
   },
   {
@@ -941,8 +842,8 @@
     "nombre": "Lampazo y Paños de Piso",
     "tipoItem": "Activo Fijo",
     "categoria": "Otro Activo",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "cantidadDisponible": 2,
+    "valorUnitarioEstimado": 400,
     "unidad": "Unidad"
   },
   {
@@ -951,7 +852,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Otro Activo",
     "cantidadDisponible": 2,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 1000,
     "unidad": "Unidad"
   },
   {
@@ -960,7 +861,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Otro Activo",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 2000,
     "unidad": "Unidad"
   },
   {
@@ -969,7 +870,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Otro Activo",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 2500,
     "unidad": "Unidad"
   },
   {
@@ -978,7 +879,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Otro Activo",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 500,
     "unidad": "Unidad"
   },
   {
@@ -987,16 +888,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Otro Activo",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_bt_2",
-    "nombre": "Caja de Herramientas Barman",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Otro Activo",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 4000,
     "unidad": "Unidad"
   },
   {
@@ -1005,7 +897,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Insumos varios",
     "cantidadDisponible": 3,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 100,
     "unidad": "Unidad"
   },
   {
@@ -1014,7 +906,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Insumos varios",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 800,
     "unidad": "Unidad"
   },
   {
@@ -1023,7 +915,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Insumos varios",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 300,
     "unidad": "Unidad"
   },
   {
@@ -1032,7 +924,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Insumos varios",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 200,
     "unidad": "Unidad"
   },
   {
@@ -1040,8 +932,8 @@
     "nombre": "Repasadores",
     "tipoItem": "Activo Fijo",
     "categoria": "Insumos varios",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "cantidadDisponible": 20,
+    "valorUnitarioEstimado": 50,
     "unidad": "Unidad"
   },
   {
@@ -1050,7 +942,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Insumos varios",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 150,
     "unidad": "Unidad"
   },
   {
@@ -1059,7 +951,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Insumos varios",
     "cantidadDisponible": 2,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 100,
     "unidad": "Unidad"
   },
   {
@@ -1068,7 +960,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Insumos varios",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 500,
     "unidad": "Unidad"
   },
   {
@@ -1077,7 +969,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Insumos varios",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 150,
     "unidad": "Unidad"
   },
   {
@@ -1086,7 +978,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Insumos varios",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 100,
     "unidad": "Unidad"
   },
   {
@@ -1095,7 +987,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Insumos varios",
     "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 200,
     "unidad": "Unidad"
   },
   {
@@ -1104,7 +996,7 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Insumos varios",
     "cantidadDisponible": 16,
-    "valorUnitarioEstimado": 0,
+    "valorUnitarioEstimado": 150,
     "unidad": "Unidad"
   },
   {
@@ -1112,80 +1004,8 @@
     "nombre": "Platos Rectangulares Lisos",
     "tipoItem": "Activo Fijo",
     "categoria": "Insumos varios",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_bt_4",
-    "nombre": "Refrescos Cola",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Insumos varios",
-    "cantidadDisponible": 12,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_bt_5",
-    "nombre": "Refrescos Lima",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Insumos varios",
-    "cantidadDisponible": 2,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_bt_15",
-    "nombre": "Latas de Anana",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Insumos varios",
-    "cantidadDisponible": 6,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_bt_16",
-    "nombre": "Latas de Durazno",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Insumos varios",
-    "cantidadDisponible": 4,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_bt_17",
-    "nombre": "Frutillas Congeladas",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Insumos varios",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_bt_18",
-    "nombre": "Jugo de Durazno",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Insumos varios",
-    "cantidadDisponible": 3,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_bt_19",
-    "nombre": "Azucar",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Insumos varios",
-    "cantidadDisponible": 2,
-    "valorUnitarioEstimado": 0,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_bt_20",
-    "nombre": "Limones",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Insumos varios",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 0,
+    "cantidadDisponible": 10,
+    "valorUnitarioEstimado": 200,
     "unidad": "Unidad"
   }
 ]
