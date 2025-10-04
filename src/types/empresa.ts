@@ -10,9 +10,7 @@ export type CategoriaServicio =
   | 'Servicio de repostería'
   | 'Regalo exclusivo'
   | 'Personal'
-  | 'Otros servicios'
-  | 'Insumo/Ingrediente'
-  | 'Activo Fijo';
+  | 'Otros servicios';
 
 export const ALL_CATEGORIAS_SERVICIO: CategoriaServicio[] = [
   'Servicio de catering',
@@ -26,9 +24,45 @@ export const ALL_CATEGORIAS_SERVICIO: CategoriaServicio[] = [
   'Regalo exclusivo',
   'Personal',
   'Otros servicios',
-  'Insumo/Ingrediente',
-  'Activo Fijo',
 ];
+
+export type CategoriaInsumo =
+ | 'Bebida (Insumo)'
+ | 'Carnes'
+ | 'Congelados'
+ | 'Descartables'
+ | 'Equipamiento'
+ | 'Fiambres'
+ | 'Frutas'
+ | 'Lácteos'
+ | 'Panificados'
+ | 'Pastas'
+ | 'Pescados y Mariscos'
+ | 'Verduras'
+ | 'Otro Insumo';
+
+export const ALL_CATEGORIAS_INSUMO: CategoriaInsumo[] = [
+  'Bebida (Insumo)',
+  'Carnes',
+  'Congelados',
+  'Descartables',
+  'Equipamiento',
+  'Fiambres',
+  'Frutas',
+  'Lácteos',
+  'Panificados',
+  'Pastas',
+  'Pescados y Mariscos',
+  'Verduras',
+  'Otro Insumo'
+];
+
+export type CategoriaActivo = 'Mobiliario' | 'Electrónica' | 'Decoración (Activo)' | 'Vajilla (Activo)' | 'Textiles' | 'Otro Activo';
+export const ALL_CATEGORIAS_ACTIVO: CategoriaActivo[] = ['Mobiliario', 'Electrónica', 'Decoración (Activo)', 'Vajilla (Activo)', 'Textiles', 'Otro Activo'];
+
+
+export type AnyCategoria = CategoriaServicio | CategoriaInsumo | CategoriaActivo;
+
 
 export type UnidadServicio = 'Unidad' | 'Set' | 'Metro' | 'Kg' | 'Litro' | 'Caja' | 'Rollo' | 'Docena' | 'Por persona' | 'Por evento' | 'Gramos' | 'Cc' | 'Pack';
 export const ALL_UNIDADES_SERVICIO: UnidadServicio[] = ['Unidad', 'Set', 'Metro', 'Kg', 'Litro', 'Caja', 'Rollo', 'Docena', 'Por persona', 'Por evento', 'Gramos', 'Cc', 'Pack'];
@@ -47,13 +81,13 @@ export interface ServicioEmpresa {
   id: string;
   nombre: string;
   tipoItem?: TipoItemEmpresa; 
-  categoria: CategoriaServicio;
+  categoria?: AnyCategoria;
   subcategoria?: string; 
   
   // Inventory/Cost fields
   cantidadDisponible?: number; 
   valorUnitarioEstimado?: number; // Representa el COSTO
-  proveedor?: string; // Nuevo campo para el proveedor
+  proveedor?: string;
   unidad?: UnidadServicio; 
   notas?: string;
   

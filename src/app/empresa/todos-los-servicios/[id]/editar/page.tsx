@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -12,8 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, Edit3, Save, Loader2, AlertTriangle, StickyNote, DollarSign, PlusCircle, Trash2, Percent } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveServicioEmpresa, getServicioEmpresaById, deleteServicioEmpresa } from '@/app/actions/servicios-empresa';
-import type { ServicioEmpresa, CategoriaServicio, UnidadServicio, TipoItemEmpresa, TramoDePrecio } from '@/types/empresa';
-import { ALL_CATEGORIAS_SERVICIO, ALL_UNIDADES_SERVICIO, ALL_TIPOS_ITEM_EMPRESA } from '@/types/empresa';
+import type { ServicioEmpresa, CategoriaServicio, UnidadServicio, TipoItemEmpresa, TramoDePrecio, CategoriaInsumo, CategoriaActivo, AnyCategoria } from '@/types/empresa';
+import { ALL_CATEGORIAS_SERVICIO, ALL_UNIDADES_SERVICIO, ALL_TIPOS_ITEM_EMPRESA, ALL_CATEGORIAS_INSUMO, ALL_CATEGORIAS_ACTIVO } from '@/types/empresa';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -27,10 +27,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-
-
-const CATERING_SUBCATEGORIES = ['Entrada', 'Plato Principal', 'Menú para niños y adolescentes', 'Personal'];
-const REPOSTERIA_SUBCATEGORIES = ['Torta Principal', 'Mesa de Postres', 'Souvenirs Comestibles'];
 
 
 export default function EditarItemInventarioPage({ params: paramsProp }: { params: { id: string } }) {
@@ -57,12 +53,13 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
         setItem(loadedItem);
         setFormData({
           ...loadedItem,
-          cantidadDisponible: loadedItem.cantidadDisponible ?? undefined,
-          valorUnitarioEstimado: loadedItem.valorUnitarioEstimado ?? undefined,
-          precioVenta: loadedItem.precioVenta ?? undefined,
-          precioBase: loadedItem.precioBase ?? undefined,
-          precioPorPersona: loadedItem.precioPorPersona ?? undefined,
-          invitadosPorUnidad: loadedItem.invitadosPorUnidad ?? undefined,
+          cantidadDisponible: loadedItem.cantidadDisponible,
+          valorUnitarioEstimado: loadedItem.valorUnitarioEstimado,
+          proveedor: loadedItem.proveedor || '',
+          precioVenta: loadedItem.precioVenta,
+          precioBase: loadedItem.precioBase,
+          precioPorPersona: loadedItem.precioPorPersona,
+          invitadosPorUnidad: loadedItem.invitadosPorUnidad,
           calculationMethod: loadedItem.calculationMethod || (loadedItem.tipoItem === 'Servicio' ? 'fijo' : undefined),
           tramosDePrecio: loadedItem.tramosDePrecio || [],
         });
@@ -95,8 +92,8 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
     }
   };
   
-  const handleCategoryChange = (value: CategoriaServicio | '') => {
-    setFormData(prev => ({...prev, categoria: value as CategoriaServicio, subcategoria: '' }));
+  const handleCategoryChange = (value: AnyCategoria | '') => {
+    setFormData(prev => ({...prev, categoria: value as AnyCategoria }));
   }
 
   const handleTramoChange = (tramoId: string, field: 'desde' | 'hasta' | 'precio', value: string) => {
@@ -210,6 +207,16 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
     backUrl = '/empresa/insumos';
   }
 
+  const currentCategories = useMemo(() => {
+    switch (formData.tipoItem) {
+        case 'Servicio': return ALL_CATEGORIAS_SERVICIO;
+        case 'Activo Fijo': return ALL_CATEGORIAS_ACTIVO;
+        case 'Insumo/Ingrediente':
+        case 'Bebida (Insumo)':
+        default: return ALL_CATEGORIAS_INSUMO;
+    }
+  }, [formData.tipoItem]);
+
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -242,9 +249,9 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="item-categoria" className="text-base">Categoría *</Label>
-                <Select value={formData.categoria || ''} onValueChange={(value) => handleCategoryChange(value as CategoriaServicio)} required disabled={isSaving}>
-                  <SelectTrigger id="item-categoria"><SelectValue/></SelectTrigger>
-                  <SelectContent>{ALL_CATEGORIAS_SERVICIO.map(cat => (<SelectItem key={cat} value={cat}>{cat}</SelectItem>))}</SelectContent>
+                <Select value={formData.categoria || ''} onValueChange={(value) => handleCategoryChange(value as AnyCategoria)} required disabled={isSaving}>
+                  <SelectTrigger id="item-categoria"><SelectValue placeholder="Seleccionar categoría..."/></SelectTrigger>
+                  <SelectContent className="max-h-60">{currentCategories.map(cat => (<SelectItem key={cat} value={cat}>{cat}</SelectItem>))}</SelectContent>
                 </Select>
               </div>
             </div>
