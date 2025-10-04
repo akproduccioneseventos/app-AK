@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useMemo, type FormEvent } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from '@/components/ui/button';
@@ -75,6 +75,8 @@ export const InsumosStockList: React.FC<InsumosStockListProps> = ({ insumos, onU
             setDeletingId(null);
         }
     };
+    
+    const categoriasOrdenadas = Object.keys(insumosPorCategoria).sort();
 
     return (
         <Card className="shadow-sm">
@@ -102,8 +104,8 @@ export const InsumosStockList: React.FC<InsumosStockListProps> = ({ insumos, onU
                 </div>
             </CardHeader>
             <CardContent>
-                <Accordion type="multiple" className="w-full space-y-2">
-                    {Object.keys(insumosPorCategoria).sort().map(categoria => (
+                 <Accordion type="multiple" className="w-full space-y-2" defaultValue={categoriasOrdenadas}>
+                    {categoriasOrdenadas.map(categoria => (
                         <AccordionItem key={categoria} value={categoria} className="border rounded-md">
                             <AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">
                                 {categoria} ({insumosPorCategoria[categoria].length})
