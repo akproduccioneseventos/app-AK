@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer as PrinterIcon, Share2, Package, Tag, BarChart3, Loader2, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, Share2, Package, Tag, BarChart3, Loader2, AlertTriangle, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
@@ -26,7 +26,11 @@ export default function ReporteInsumosPage() {
     setError(null);
     try {
       const data = await getServiciosEmpresa();
-      const inventoryItems = data.filter(s => s.tipoItem === 'Insumo/Ingrediente' || s.tipoItem === 'Bebida (Insumo)');
+      // Filter for items that are insumos/bebidas AND have a defined stock greater than 0
+      const inventoryItems = data.filter(s => 
+        (s.tipoItem === 'Insumo/Ingrediente' || s.tipoItem === 'Bebida (Insumo)') &&
+        s.cantidadDisponible !== undefined && s.cantidadDisponible > 0
+      );
       setAllItems(inventoryItems);
     } catch (err: any) {
       setError("No se pudo cargar el inventario de insumos.");
@@ -35,6 +39,7 @@ export default function ReporteInsumosPage() {
       setIsLoading(false);
     }
   }, [toast]);
+
 
   useEffect(() => {
     fetchItems();
@@ -118,10 +123,13 @@ export default function ReporteInsumosPage() {
         </header>
 
         {allItems.length === 0 ? (
-          <div className="text-center py-10 text-muted-foreground">No hay insumos registrados para generar un reporte.</div>
+          <div className="text-center py-10 text-muted-foreground">
+            <Info className="w-12 h-12 mx-auto mb-3 opacity-50"/>
+            <p>No hay insumos con stock registrado para generar un reporte.</p>
+          </div>
         ) : (
           <Table>
-            <TableCaption>Resumen de inventario de insumos e ingredientes.</TableCaption>
+            <TableCaption>Resumen de inventario de insumos e ingredientes con stock mayor a cero.</TableCaption>
             <TableHeader>
               <TableRow>
                 <TableHead className="font-semibold">Insumo</TableHead>
