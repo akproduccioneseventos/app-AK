@@ -15,7 +15,6 @@
           "ingredientes": [
             {
               "id": "ing_1",
-              "insumoId": "ing-jugo-naranja",
               "nombreInsumo": "Jugo de Naranja",
               "cantidad": 6000,
               "unidad": "ml",
@@ -24,7 +23,6 @@
             },
             {
               "id": "ing_2",
-              "insumoId": "ing-banana",
               "nombreInsumo": "Banana",
               "cantidad": 5000,
               "unidad": "g",
@@ -33,8 +31,7 @@
             },
             {
               "id": "ing_3",
-              "insumoId": "ing-fruta-mix",
-              "nombreInsumo": "Otra fruta (mix)",
+              "nombreInsumo": "Otra fruta",
               "cantidad": 2000,
               "unidad": "g",
               "costoUnitario": 0.07,
@@ -42,7 +39,6 @@
             },
             {
               "id": "ing_4",
-              "insumoId": "ing-agua",
               "nombreInsumo": "Agua",
               "cantidad": 25000,
               "unidad": "ml",
@@ -51,25 +47,22 @@
             },
             {
               "id": "ing_5",
-              "insumoId": "ing-durazno-lata",
               "nombreInsumo": "Durazno en lata",
               "cantidad": 4,
-              "unidad": "lata",
+              "unidad": "unidad",
               "costoUnitario": 100,
               "costoTotal": 400
             },
             {
               "id": "ing_6",
-              "insumoId": "ing-anana-lata",
               "nombreInsumo": "Ananá en lata",
               "cantidad": 2,
-              "unidad": "lata",
+              "unidad": "unidad",
               "costoUnitario": 140,
               "costoTotal": 280
             },
             {
               "id": "ing_7",
-              "insumoId": "ing-vino-rosado-dulce",
               "nombreInsumo": "Vino rosado dulce",
               "cantidad": 3,
               "unidad": "botella",
@@ -78,7 +71,6 @@
             },
             {
               "id": "ing_8",
-              "insumoId": "ing-vino-blanco-dulce",
               "nombreInsumo": "Vino blanco dulce",
               "cantidad": 3,
               "unidad": "botella",
@@ -87,8 +79,7 @@
             },
             {
               "id": "ing_9",
-              "insumoId": "ing-jugo-rinde2",
-              "nombreInsumo": "Jugo rinde 2",
+              "nombreInsumo": "Jugo rinde 2 (frutilla, manzana, durazno)",
               "cantidad": 6,
               "unidad": "sobre",
               "costoUnitario": 18,
@@ -96,7 +87,6 @@
             },
             {
               "id": "ing_10",
-              "insumoId": "ing-azucar",
               "nombreInsumo": "Azúcar",
               "cantidad": 3,
               "unidad": "kg",
@@ -105,7 +95,6 @@
             },
             {
               "id": "ing_11",
-              "insumoId": "ing-sidra-750ml",
               "nombreInsumo": "Sidra 750ml",
               "cantidad": 3,
               "unidad": "botella",
@@ -114,7 +103,6 @@
             },
             {
               "id": "ing_12",
-              "insumoId": "ing-licor-frutilla",
               "nombreInsumo": "Licor de Frutilla",
               "cantidad": 0.5,
               "unidad": "lt",
@@ -123,7 +111,6 @@
             },
             {
               "id": "ing_13",
-              "insumoId": "ing-licor-durazno",
               "nombreInsumo": "Licor de Durazno",
               "cantidad": 0.5,
               "unidad": "lt",
