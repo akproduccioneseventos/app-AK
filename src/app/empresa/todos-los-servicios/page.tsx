@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { ArrowLeft, Package, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, DollarSign, Tag, BarChart3, StickyNote, Printer, Share2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ServicioEmpresa } from '@/types/empresa';
-import { getServiciosEmpresa, deleteServicioEmpresa } from '@/app/actions/servicios-empresa';
+import { getActivosFijos, deleteActivoFijo } from '@/app/actions/activos-fijos';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import {
   AlertDialog,
@@ -42,10 +42,9 @@ export default function InventarioActivosPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await getServiciosEmpresa();
-      const inventoryItems = data.filter(s => s.tipoItem === 'Activo Fijo');
-      setAllItems(inventoryItems);
-      setFilteredItems(inventoryItems);
+      const data = await getActivosFijos();
+      setAllItems(data);
+      setFilteredItems(data);
     } catch (err: any) {
       setError("No se pudo cargar el inventario de activos.");
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -70,7 +69,7 @@ export default function InventarioActivosPage() {
   const handleDelete = async (id: string, nombreItem?: string) => {
     setDeletingId(id);
     try {
-      const result = await deleteServicioEmpresa(id);
+      const result = await deleteActivoFijo(id);
       if (result.success) {
         toast({ title: "Activo Eliminado", description: `El activo "${nombreItem || id}" ha sido eliminado.` });
         fetchItems(); 
