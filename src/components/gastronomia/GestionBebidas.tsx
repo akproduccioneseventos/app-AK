@@ -36,6 +36,9 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<BebidaCategoria | null>(null);
 
+  const [isRecetaModalOpen, setIsRecetaModalOpen] = useState(false);
+  const [editingReceta, setEditingReceta] = useState<BebidaReceta | null>(null);
+
   useEffect(() => {
     onDataChange(bebidas);
   }, [bebidas, onDataChange]);
@@ -48,7 +51,7 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
   };
   
   const openEditModal = (category: BebidaCategoria) => {
-    setEditingCategory(JSON.parse(JSON.stringify(category))); // Deep copy to avoid direct state mutation
+    setEditingCategory(JSON.parse(JSON.stringify(category)));
     setIsEditModalOpen(true);
   };
   
@@ -60,7 +63,6 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
             items: prevCat.items.map(item => {
               if (item.id !== itemId) return item;
               const updatedItem = { ...item, [field]: value };
-              // Recalculate costoTotal if related fields change
               if (field === 'cantidadNecesaria' || field === 'costoUnitario') {
                 updatedItem.costoTotal = (updatedItem.cantidadNecesaria || 0) * (updatedItem.costoUnitario || 0);
               }
@@ -73,12 +75,7 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
   const addNewItem = () => {
     if (!editingCategory) return;
     const newItem: BebidaItem = {
-        id: `beb-item-${Date.now()}`,
-        nombre: 'Nueva Bebida',
-        cantidadNecesaria: 1,
-        unidadCantidad: 'Botellas',
-        costoUnitario: 0,
-        costoTotal: 0
+        id: `beb-item-${Date.now()}`, nombre: 'Nueva Bebida', cantidadNecesaria: 1, unidadCantidad: 'Botellas', costoUnitario: 0, costoTotal: 0
     };
     setEditingCategory(prev => prev ? {...prev, items: [...prev.items, newItem]} : null);
   };
@@ -97,6 +94,58 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
     setIsEditModalOpen(false);
     toast({title: "Cambios en Bebidas Guardados", description: `Se actualizaron los ítems de ${editingCategory.nombreDisplay}.`});
   };
+  
+  const openRecetaModal = (categoria: BebidaCategoria, receta: BebidaReceta) => {
+    setEditingCategory(categoria);
+    setEditingReceta(JSON.parse(JSON.stringify(receta)));
+    setIsRecetaModalOpen(true);
+  };
+
+  const handleRecetaChange = (field: keyof BebidaReceta, value: any) => {
+      setEditingReceta(prev => prev ? { ...prev, [field]: value } : null);
+  };
+
+  const handleIngredienteChange = (ingId: string, field: keyof IngredienteReceta, value: any) => {
+      setEditingReceta(prev => {
+          if (!prev) return null;
+          const newIngredients = prev.ingredientes.map(ing => {
+              if (ing.id !== ingId) return ing;
+              const updatedIng = { ...ing, [field]: value };
+              if (field === 'cantidad' || field === 'costoUnitario') {
+                  updatedIng.costoTotal = (Number(updatedIng.cantidad) || 0) * (Number(updatedIng.costoUnitario) || 0);
+              }
+              return updatedIng;
+          });
+          const costoTotalReceta = newIngredients.reduce((sum, ing) => sum + (ing.costoTotal || 0), 0);
+          return { ...prev, ingredientes: newIngredients, costoTotalReceta };
+      });
+  };
+  
+  const addIngrediente = () => {
+      setEditingReceta(prev => prev ? { ...prev, ingredientes: [...prev.ingredientes, { id: `ing-${Date.now()}`, nombreInsumo: '', cantidad: 0, unidad: 'g', costoUnitario: 0, costoTotal: 0 } as IngredienteReceta]} : null);
+  };
+
+  const deleteIngrediente = (ingId: string) => {
+      setEditingReceta(prev => {
+        if (!prev) return null;
+        const newIngredients = prev.ingredientes.filter(ing => ing.id !== ingId);
+        const costoTotalReceta = newIngredients.reduce((sum, ing) => sum + (ing.costoTotal || 0), 0);
+        return { ...prev, ingredientes: newIngredients, costoTotalReceta };
+      });
+  };
+
+  const handleSaveReceta = () => {
+      if (!editingReceta || !editingCategory) return;
+      const updatedCategorias = bebidas.categorias.map(cat => {
+          if (cat.id !== editingCategory.id) return cat;
+          const updatedRecetas = (cat.recetas || []).map(r => r.id === editingReceta.id ? editingReceta : r);
+          return { ...cat, recetas: updatedRecetas };
+      });
+      setBebidas({ ...bebidas, categorias: updatedCategorias });
+      setIsRecetaModalOpen(false);
+      toast({ title: "Receta Actualizada" });
+  };
+
 
   const totalCostoBebidas = useMemo(() => {
     let total = 0;
@@ -118,39 +167,49 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
     <>
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
         <DialogContent className="max-w-xl">
-          <DialogHeader>
-            <DialogTitle>Editar Plantilla: {editingCategory?.nombreDisplay}</DialogTitle>
-            <DialogDescription>Añade, edita o elimina los ítems de compra directa para esta categoría.</DialogDescription>
-          </DialogHeader>
+          <DialogHeader><DialogTitle>Editar Plantilla de Compra: {editingCategory?.nombreDisplay}</DialogTitle><DialogDescription>Añade, edita o elimina los ítems de compra directa para esta categoría.</DialogDescription></DialogHeader>
           <div className="max-h-[60vh] overflow-y-auto space-y-3 p-1">
             {editingCategory?.items.map(item => (
               <div key={item.id} className="p-3 border rounded-md grid grid-cols-1 md:grid-cols-3 gap-2 items-end">
-                <div className="space-y-1 md:col-span-3">
-                  <Label htmlFor={`beb-name-${item.id}`}>Nombre</Label>
-                  <Input id={`beb-name-${item.id}`} value={item.nombre} onChange={(e) => handleItemChange(item.id, 'nombre', e.target.value)} />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor={`beb-qty-${item.id}`}>Cantidad</Label>
-                  <Input id={`beb-qty-${item.id}`} type="number" value={item.cantidadNecesaria || ''} onChange={(e) => handleItemChange(item.id, 'cantidadNecesaria', Number(e.target.value))} />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor={`beb-unit-${item.id}`}>Unidad</Label>
-                  <Input id={`beb-unit-${item.id}`} value={item.unidadCantidad || ''} onChange={(e) => handleItemChange(item.id, 'unidadCantidad', e.target.value)} />
-                </div>
-                 <div className="space-y-1 relative">
-                  <Label htmlFor={`beb-cost-${item.id}`}>Costo Unitario</Label>
-                  <Input id={`beb-cost-${item.id}`} type="number" value={item.costoUnitario || ''} onChange={(e) => handleItemChange(item.id, 'costoUnitario', Number(e.target.value))} className="pl-6"/>
-                   <span className="absolute left-2 top-1/2 mt-1 text-muted-foreground">$</span>
-                </div>
+                <div className="space-y-1 md:col-span-3"><Label htmlFor={`beb-name-${item.id}`}>Nombre</Label><Input id={`beb-name-${item.id}`} value={item.nombre} onChange={(e) => handleItemChange(item.id, 'nombre', e.target.value)} /></div>
+                <div className="space-y-1"><Label htmlFor={`beb-qty-${item.id}`}>Cantidad</Label><Input id={`beb-qty-${item.id}`} type="number" value={item.cantidadNecesaria || ''} onChange={(e) => handleItemChange(item.id, 'cantidadNecesaria', Number(e.target.value))} /></div>
+                <div className="space-y-1"><Label htmlFor={`beb-unit-${item.id}`}>Unidad</Label><Input id={`beb-unit-${item.id}`} value={item.unidadCantidad || ''} onChange={(e) => handleItemChange(item.id, 'unidadCantidad', e.target.value)} /></div>
+                <div className="space-y-1 relative"><Label htmlFor={`beb-cost-${item.id}`}>Costo Unitario</Label><Input id={`beb-cost-${item.id}`} type="number" value={item.costoUnitario || ''} onChange={(e) => handleItemChange(item.id, 'costoUnitario', Number(e.target.value))} className="pl-6"/><span className="absolute left-2 top-1/2 mt-1 text-muted-foreground">$</span></div>
                 <Button variant="ghost" size="icon" className="text-destructive self-end" onClick={() => deleteItem(item.id)}><Trash2 className="w-4 h-4"/></Button>
               </div>
             ))}
           </div>
-          <Button variant="outline" size="sm" onClick={addNewItem}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Ítem</Button>
-          <DialogFooter>
-            <DialogClose asChild><Button variant="secondary">Cancelar</Button></DialogClose>
-            <Button onClick={handleSaveEdits}>Guardar Cambios</Button>
-          </DialogFooter>
+          <Button variant="outline" size="sm" onClick={addNewItem}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Ítem de Compra</Button>
+          <DialogFooter><DialogClose asChild><Button variant="secondary">Cancelar</Button></DialogClose><Button onClick={handleSaveEdits}>Guardar Cambios</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      <Dialog open={isRecetaModalOpen} onOpenChange={setIsRecetaModalOpen}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader><DialogTitle>Editar Receta: {editingReceta?.nombre}</DialogTitle></DialogHeader>
+          <div className="max-h-[60vh] overflow-y-auto space-y-3 p-1">
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+               <div className="space-y-1"><Label htmlFor="receta-nombre">Nombre Receta</Label><Input id="receta-nombre" value={editingReceta?.nombre || ''} onChange={e => handleRecetaChange('nombre', e.target.value)} /></div>
+               <div className="space-y-1"><Label htmlFor="receta-porciones">Rinde (Porciones)</Label><Input id="receta-porciones" type="number" value={editingReceta?.porcionesBase || 0} onChange={e => handleRecetaChange('porcionesBase', Number(e.target.value))} /></div>
+               <div className="space-y-1"><Label htmlFor="receta-capacidad">Rinde (Litros)</Label><Input id="receta-capacidad" type="number" value={editingReceta?.capacidadBaseLt || 0} onChange={e => handleRecetaChange('capacidadBaseLt', Number(e.target.value))} /></div>
+             </div>
+             <Separator/>
+             <h4 className="text-sm font-medium">Ingredientes de la Receta</h4>
+             {editingReceta?.ingredientes.map(ing => (
+                 <div key={ing.id} className="p-2 border rounded-md grid grid-cols-2 md:grid-cols-4 gap-2 items-end">
+                     <div className="space-y-1 col-span-2 md:col-span-1"><Label htmlFor={`ing-name-${ing.id}`}>Nombre</Label><Input id={`ing-name-${ing.id}`} value={ing.nombreInsumo} onChange={(e) => handleIngredienteChange(ing.id, 'nombreInsumo', e.target.value)} /></div>
+                     <div className="space-y-1"><Label htmlFor={`ing-qty-${ing.id}`}>Cantidad</Label><Input id={`ing-qty-${ing.id}`} type="number" value={ing.cantidad || ''} onChange={(e) => handleIngredienteChange(ing.id, 'cantidad', e.target.value)} /></div>
+                     <div className="space-y-1"><Label htmlFor={`ing-unit-${ing.id}`}>Unidad</Label><Input id={`ing-unit-${ing.id}`} value={ing.unidad || ''} onChange={(e) => handleIngredienteChange(ing.id, 'unidad', e.target.value)} /></div>
+                     <div className="flex items-end gap-1">
+                         <div className="space-y-1 flex-grow"><Label htmlFor={`ing-cost-${ing.id}`}>Costo Unit.</Label><Input id={`ing-cost-${ing.id}`} type="number" value={ing.costoUnitario || ''} onChange={(e) => handleIngredienteChange(ing.id, 'costoUnitario', e.target.value)} /></div>
+                         <Button variant="ghost" size="icon" className="text-destructive" onClick={() => deleteIngrediente(ing.id)}><Trash2 className="w-4 h-4"/></Button>
+                     </div>
+                 </div>
+             ))}
+             <p className="text-right font-semibold">Costo Total Receta: {formatCurrency(editingReceta?.costoTotalReceta)}</p>
+          </div>
+           <Button variant="outline" size="sm" onClick={addIngrediente}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Ingrediente</Button>
+          <DialogFooter><DialogClose asChild><Button variant="secondary">Cancelar</Button></DialogClose><Button onClick={handleSaveReceta}>Guardar Receta</Button></DialogFooter>
         </DialogContent>
       </Dialog>
     
@@ -210,6 +269,7 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
                                   <li key={ing.id}>{ing.nombreInsumo}: {ing.cantidad} {ing.unidad}</li>
                                 ))}
                               </ul>
+                                <Button variant="link" size="sm" className="text-xs h-auto p-0 mt-1" onClick={() => openRecetaModal(cat, receta)}>Editar Receta</Button>
                             </div>
                           ))}
                       </div>
@@ -218,7 +278,7 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
                      {isTemplateMode && (
                         <div className="flex justify-end pt-2">
                              <Button variant="outline" size="sm" onClick={() => openEditModal(cat)}>
-                                 <Edit className="w-3 h-3 mr-2" /> Editar Ítems
+                                 <Edit className="w-3 h-3 mr-2" /> Editar Ítems de Compra
                              </Button>
                         </div>
                      )}
