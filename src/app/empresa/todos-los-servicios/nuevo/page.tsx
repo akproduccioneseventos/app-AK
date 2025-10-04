@@ -17,7 +17,7 @@ import { ALL_CATEGORIAS_SERVICIO, ALL_UNIDADES_SERVICIO, ALL_TIPOS_ITEM_EMPRESA 
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 
-const CATERING_SUBCATEGORIES = ['Entrada', 'Plato Principal', 'Menú Niños/Adolescentes', 'Personal'];
+const CATERING_SUBCATEGORIES = ['Entrada', 'Plato Principal', 'Menú para niños y adolescentes', 'Personal'];
 const REPOSTERIA_SUBCATEGORIES = ['Torta Principal', 'Mesa de Postres', 'Souvenirs Comestibles'];
 
 
@@ -99,6 +99,8 @@ function NuevoItemInventarioContent() {
         let redirectUrl = '/empresa/todos-los-servicios'; // Default fallback
         if(tipoItem === 'Insumo/Ingrediente' || tipoItem === 'Bebida (Insumo)') {
           redirectUrl = '/empresa/insumos';
+        } else if (tipoItem === 'Servicio') {
+          redirectUrl = '/empresa/servicios';
         }
         
         router.push(redirectUrl);
@@ -139,6 +141,8 @@ function NuevoItemInventarioContent() {
   let backUrl = '/empresa/todos-los-servicios';
   if(tipoItem === 'Insumo/Ingrediente' || tipoItem === 'Bebida (Insumo)') {
     backUrl = '/empresa/insumos';
+  } else if (isServicio) {
+    backUrl = '/empresa/servicios';
   }
 
 
@@ -148,7 +152,7 @@ function NuevoItemInventarioContent() {
         <div className="flex items-center gap-3">
           <PackagePlus className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Añadir Nuevo Ítem
+            Añadir Nuevo Ítem al Catálogo
           </h1>
         </div>
         <Link href={backUrl} passHref>
