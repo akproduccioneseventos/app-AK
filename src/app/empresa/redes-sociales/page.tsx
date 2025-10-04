@@ -180,7 +180,7 @@ function SocialMediaPageContent() {
                     </Tabs>
                 </CardContent>
                  <CardFooter>
-                     <p className="text-xs text-muted-foreground">La función de arrastrar y soltar en el calendario y las estadísticas avanzadas se añadirán en futuras actualizaciones.</p>
+                     <p className="text-xs text-muted-foreground">Usa este módulo para planificar tu contenido. Cuando sea la fecha de publicación, simplemente copia y pega el contenido en tus redes.</p>
                  </CardFooter>
             </Card>
         </div>

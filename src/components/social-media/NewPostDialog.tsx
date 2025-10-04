@@ -31,8 +31,6 @@ import { Switch } from '@/components/ui/switch';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { getFiestaActual, getHistorialFiestas } from '@/app/actions/fiesta-actual';
 import { generateSocialPost, type GenerateSocialPostInput } from '@/ai/flows/generate-social-post-flow';
-import { getSocialConnections } from '@/app/actions/social-connections';
-import type { SocialConnection } from '@/types/settings';
 
 
 interface NewPostDialogProps {
@@ -71,7 +69,7 @@ export function NewPostDialog({
     const [status, setStatus] = useState<PostStatus>('Programado');
     const [promotionCost, setPromotionCost] = useState('');
     const [performanceLikes, setPerformanceLikes] = useState('');
-    const [autoPublish, setAutoPublish] = useState(false);
+    
     const [sendToWhatsApp, setSendToWhatsApp] = useState(false);
 
     // AI State
@@ -82,9 +80,7 @@ export function NewPostDialog({
 
     // Data for selectors
     const [allEvents, setAllEvents] = useState<FiestaEnPlanificacion[]>([]);
-    const [connections, setConnections] = useState<SocialConnection[]>([]);
     
-    const isPlatformConnected = useMemo(() => connections.some(c => c.platform === platform && c.isConnected), [connections, platform]);
     const activePost = postToEdit || postToDuplicate;
     const isWhatsAppSelected = platform === 'WhatsApp';
 
@@ -101,7 +97,6 @@ export function NewPostDialog({
         setStatus(isDuplicating ? 'Programado' : (activePost?.status || 'Programado'));
         setPromotionCost(isDuplicating ? '' : (activePost?.promotionCost?.toString() || ''));
         setPerformanceLikes(isDuplicating ? '' : (activePost?.performance?.likes?.toString() || ''));
-        setAutoPublish(false);
         setSendToWhatsApp(false);
         setIsAiPanelOpen(false);
         setAiSelectedEventId('');
@@ -111,10 +106,9 @@ export function NewPostDialog({
         if (isOpen) {
             resetForm();
             const fetchInitialData = async () => {
-                const [actual, historial, socialConnections] = await Promise.all([getFiestaActual(), getHistorialFiestas(), getSocialConnections()]);
+                const [actual, historial] = await Promise.all([getFiestaActual(), getHistorialFiestas()]);
                 const all = [actual, ...historial].filter(Boolean) as FiestaEnPlanificacion[];
                 setAllEvents(all);
-                setConnections(socialConnections);
                  if (activePost?.eventId) {
                     setAiSelectedEventId(activePost.eventId);
                 } else if (actual) {
@@ -180,20 +174,15 @@ export function NewPostDialog({
         if (activePost?.mediaUrl && !mediaFile) formData.append('existingMediaUrl', activePost.mediaUrl);
         if (activePost?.mediaType && !mediaFile) formData.append('existingMediaType', activePost.mediaType);
         
-        const finalStatus = isWhatsAppSelected ? 'Publicado' : status;
-        formData.append('status', finalStatus);
+        formData.append('status', status);
         
         if (promotionCost) formData.append('promotionCost', promotionCost);
         if (performanceLikes) formData.append('performance.likes', performanceLikes);
-        
-        const finalAutoPublish = isWhatsAppSelected ? false : autoPublish; // Auto-publish doesn't apply to WA link generation
-        formData.append('autoPublish', String(finalAutoPublish));
         
         try {
             const result = await saveSocialPost(formData);
             if (result.success) {
                 toast({ title: postToEdit ? "Publicación Actualizada" : (postToDuplicate ? "Publicación Duplicada" : "Publicación Creada") });
-                if(!isWhatsAppSelected && autoPublish && isPlatformConnected) toast({title: "Publicación Enviada", description: `Se ha enviado el post a ${platform} para su publicación.`});
 
                 if (isWhatsAppSelected && sendToWhatsApp) {
                     const whatsAppText = encodeURIComponent(text);
@@ -266,7 +255,7 @@ export function NewPostDialog({
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1"><Label htmlFor="link">Enlace (Opcional)</Label><Input id="link" value={link} onChange={e => setLink(e.target.value)} placeholder="https://ejemplo.com" /></div>
-                        {!isWhatsAppSelected && <div className="space-y-1"><Label htmlFor="status">Estado</Label><Select value={status} onValueChange={(val) => setStatus(val as PostStatus)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Programado">Programado</SelectItem><SelectItem value="Publicado">Publicado</SelectItem></SelectContent></Select></div>}
+                        <div className="space-y-1"><Label htmlFor="status">Estado</Label><Select value={status} onValueChange={(val) => setStatus(val as PostStatus)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Programado">Borrador / Programado</SelectItem><SelectItem value="Publicado">Publicado (Manual)</SelectItem></SelectContent></Select></div>
                     </div>
                      <div className="space-y-1"><Label htmlFor="mediaFile">Imagen o Video</Label><Input id="mediaFile" type="file" accept="image/*,video/*" onChange={handleFileChange} />
                      {mediaPreview && <div className="mt-2"><NextImage src={mediaPreview} alt="Vista previa" width={150} height={150} className="rounded-md object-cover"/></div>}
@@ -288,21 +277,8 @@ export function NewPostDialog({
                             </div>
                         </div>
                      ) : (
-                         <div className="p-3 border rounded-lg bg-card">
-                            <div className="flex items-center justify-between">
-                                <Label htmlFor="autoPublish" className="flex flex-col space-y-1">
-                                    <span className="font-medium flex items-center gap-2">
-                                        <Send className="w-4 h-4 text-primary"/> Publicar Automáticamente
-                                    </span>
-                                    <span className="text-xs font-normal leading-snug text-muted-foreground">
-                                        Enviar a {platform} usando la cuenta vinculada.
-                                    </span>
-                                </Label>
-                                <Switch id="autoPublish" checked={autoPublish} onCheckedChange={setAutoPublish} disabled={!isPlatformConnected}/>
-                            </div>
-                            {!isPlatformConnected && (
-                               <p className="text-xs text-destructive mt-2 flex items-center gap-1.5"><Lock className="w-3 h-3"/> La cuenta de {platform} no está conectada. <Link href="/settings/social-connections" className="underline">Conectar ahora.</Link></p>
-                            )}
+                         <div className="p-3 border rounded-lg bg-card text-muted-foreground">
+                           <p className="text-sm"><span className="font-medium text-foreground">Planifica tu contenido aquí.</span> Cuando sea el momento de publicar, simplemente copia el texto y la imagen para pegarlo en tu red social.</p>
                         </div>
                      )}
 
