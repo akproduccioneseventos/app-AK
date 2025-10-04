@@ -1,4 +1,3 @@
-
 {
   "categorias": [
     {
@@ -32,12 +31,46 @@
       ],
       "descripcion": "El cóctel especial que se sirve al recibir a los invitados."
     },
-    { "id": "refrescos_gaseosas", "nombreDisplay": "Refrescos / Gaseosas", "activada": false, "items": [], "descripcion": "Variedad de bebidas carbonatadas." },
-    { "id": "jugos", "nombreDisplay": "Mesa de jugos naturales", "activada": false, "items": [], "descripcion": "Opciones frutales y refrescantes." },
-    { "id": "aguas_saborizadas", "nombreDisplay": "Aguas Saborizadas y Minerales", "activada": false, "items": [], "descripcion": "Con y sin gas, opciones saborizadas." },
-    { "id": "cervezas", "nombreDisplay": "Cervezas", "activada": false, "items": [], "descripcion": "Variedad de cervezas nacionales e importadas." },
-    { "id": "vinos_espumantes", "nombreDisplay": "Vinos y Espumantes", "activada": false, "items": [], "descripcion": "Selección de tintos, blancos, rosados y espumosos." },
-    { "id": "barra_tragos", "nombreDisplay": "Barra de Tragos", "activada": false, "items": [
+    {
+      "id": "refrescos_gaseosas",
+      "nombreDisplay": "Refrescos / Gaseosas",
+      "activada": false,
+      "items": [],
+      "descripcion": "Variedad de bebidas carbonatadas."
+    },
+    {
+      "id": "jugos",
+      "nombreDisplay": "Mesa de jugos naturales",
+      "activada": false,
+      "items": [],
+      "descripcion": "Opciones frutales y refrescantes."
+    },
+    {
+      "id": "aguas_saborizadas",
+      "nombreDisplay": "Aguas Saborizadas y Minerales",
+      "activada": false,
+      "items": [],
+      "descripcion": "Con y sin gas, opciones saborizadas."
+    },
+    {
+      "id": "cervezas",
+      "nombreDisplay": "Cervezas",
+      "activada": false,
+      "items": [],
+      "descripcion": "Variedad de cervezas nacionales e importadas."
+    },
+    {
+      "id": "vinos_espumantes",
+      "nombreDisplay": "Vinos y Espumantes",
+      "activada": false,
+      "items": [],
+      "descripcion": "Selección de tintos, blancos, rosados y espumosos."
+    },
+    {
+      "id": "barra_tragos",
+      "nombreDisplay": "Barra de Tragos",
+      "activada": false,
+      "items": [
         { "id": "beb-licor-frutilla", "nombre": "Licor de Frutilla", "cantidadNecesaria": 2, "unidadCantidad": "Litros", "costoUnitario": 300, "costoTotal": 600 },
         { "id": "beb-licor-durazno", "nombre": "Licor de Durazno", "cantidadNecesaria": 2, "unidadCantidad": "Litros", "costoUnitario": 300, "costoTotal": 600 },
         { "id": "beb-jugo-durazno", "nombre": "Jugo de Durazno", "cantidadNecesaria": 2, "unidadCantidad": "Litros", "costoUnitario": 50, "costoTotal": 100 },
@@ -56,21 +89,27 @@
         { "id": "beb-azucar", "nombre": "Azúcar", "cantidadNecesaria": 2000, "unidadCantidad": "Gramos", "costoUnitario": 0.07, "costoTotal": 140 },
         { "id": "beb-cana", "nombre": "Caña", "cantidadNecesaria": 2, "unidadCantidad": "Litros", "costoUnitario": 300, "costoTotal": 600 },
         { "id": "beb-jugo-naranja", "nombre": "Jugo de Naranja", "cantidadNecesaria": 10, "unidadCantidad": "Litros", "costoUnitario": 35, "costoTotal": 350 }
-      ], 
-      "recetas": [], 
-      "descripcion": "Bebidas blancas y licores para la barra." 
+      ],
+      "recetas": [],
+      "descripcion": "Bebidas blancas y licores para la barra."
     },
-    { "id": "cafeteria", "nombreDisplay": "Servicio de Cafetería", "activada": false, "items": [], "descripcion": "Café, té, infusiones." }
+    {
+      "id": "cafeteria",
+      "nombreDisplay": "Servicio de Cafetería",
+      "activada": false,
+      "items": [],
+      "descripcion": "Café, té, infusiones."
+    }
   ],
   "consumoConfig": {
     "coctel_bienvenida": { "adulto": 0.5, "adolescente": 0.5, "nino": 0.3 },
     "refrescos_gaseosas": { "adulto": 0.2, "adolescente": 0.3, "nino": 0.25 },
     "jugos": { "adulto": 0.1, "adolescente": 0.15, "nino": 0.15 },
     "aguas_saborizadas": { "adulto": 0.15, "adolescente": 0.1, "nino": 0.1 },
-    "cervezas": { "adulto": 0.4, "adolescente": 0.0, "nino": 0.0 },
-    "vinos_espumantes": { "adulto": 0.3, "adolescente": 0.0, "nino": 0.0 },
-    "barra_tragos": { "adulto": 0.2, "adolescente": 0.0, "nino": 0.0 },
-    "cafeteria": { "adulto": 0.05, "adolescente": 0.0, "nino": 0.0 }
+    "cervezas": { "adulto": 0.4, "adolescente": 0, "nino": 0 },
+    "vinos_espumantes": { "adulto": 0.3, "adolescente": 0, "nino": 0 },
+    "barra_tragos": { "adulto": 0.2, "adolescente": 0, "nino": 0 },
+    "cafeteria": { "adulto": 0.05, "adolescente": 0, "nino": 0 }
   },
   "notasGenerales": ""
 }
