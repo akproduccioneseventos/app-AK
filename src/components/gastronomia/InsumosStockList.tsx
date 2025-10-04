@@ -21,7 +21,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useToast } from '@/hooks/use-toast';
-import { deleteServicioEmpresa } from '@/app/actions/servicios-empresa';
+import { deleteInsumo } from '@/app/actions/insumos';
 import Link from 'next/link';
 
 interface InsumosStockListProps {
@@ -62,7 +62,7 @@ export const InsumosStockList: React.FC<InsumosStockListProps> = ({ insumos, onU
     const handleDelete = async (id: string, nombre: string) => {
         setDeletingId(id);
         try {
-            const result = await deleteServicioEmpresa(id);
+            const result = await deleteInsumo(id);
             if (result.success) {
                 toast({ title: "Insumo Eliminado", variant: "destructive" });
                 onUpdate();
@@ -98,7 +98,7 @@ export const InsumosStockList: React.FC<InsumosStockListProps> = ({ insumos, onU
                             className="pl-9"
                         />
                     </div>
-                     <Link href="/empresa/todos-los-servicios/nuevo?type=Insumo/Ingrediente" passHref>
+                     <Link href="/empresa/insumos/nuevo" passHref>
                         <Button variant="outline" className="h-10"><PlusCircle className="w-4 h-4 mr-2"/>Añadir</Button>
                     </Link>
                 </div>
@@ -122,7 +122,7 @@ export const InsumosStockList: React.FC<InsumosStockListProps> = ({ insumos, onU
                                                     </p>
                                                 </div>
                                                 <div className="flex gap-1">
-                                                     <Link href={`/empresa/todos-los-servicios/${insumo.id}/editar`} passHref>
+                                                     <Link href={`/empresa/insumos/${insumo.id}/editar`} passHref>
                                                         <Button variant="ghost" size="icon" className="h-7 w-7"><Edit className="w-3.5 h-3.5"/></Button>
                                                      </Link>
                                                       <AlertDialog>

@@ -149,7 +149,7 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
                     )}
                     {isTemplateMode && (
                       <div className="flex justify-end pt-2">
-                        <Link href="/empresa/servicios">
+                        <Link href="/empresa/insumos">
                            <Button variant="outline" size="sm">
                                <Edit className="w-3 h-3 mr-2" /> Gestionar en Catálogo
                            </Button>

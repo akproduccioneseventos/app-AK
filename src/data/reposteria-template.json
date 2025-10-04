@@ -20,7 +20,16 @@
       "id": "candy_bar",
       "nombreDisplay": "Candy Bar Temático",
       "activada": false,
-      "items": [],
+      "items": [
+        {
+          "id": "item_1757456683585_bb9tztm",
+          "nombre": "Candy Bar Temático",
+          "costoEstimado": 100,
+          "precioSugerido": 150,
+          "unidad": "unidad",
+          "cantidad": 1
+        }
+      ],
       "descripcion": "Mesa de dulces y golosinas variadas.",
       "cantidadEstimadaPersonas": 0
     },
