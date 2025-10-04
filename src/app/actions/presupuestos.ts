@@ -5,6 +5,7 @@ import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto';
 import { readData, writeData } from '@/lib/data-service';
 import { getInvoiceById, saveInvoice } from './invoices';
 import type { Invoice, InvoiceItem } from '@/types/invoice';
+import { getInsumos } from './insumos';
 
 const PRESUPUESTOS_FILE = 'presupuestos.json';
 
