@@ -121,7 +121,7 @@ export default function InventarioActivosPage() {
           </h1>
         </div>
          <div className="flex gap-2 flex-wrap">
-             <Link href="/empresa/todos-los-servicios/reporte" passHref>
+            <Link href="/empresa/todos-los-servicios/reporte" passHref>
                 <Button variant="secondary">
                     <Printer className="w-4 h-4 mr-2"/>Ver Reporte de Stock
                 </Button>
