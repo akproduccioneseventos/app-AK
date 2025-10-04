@@ -106,7 +106,7 @@ function SocialMediaPageContent() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                     <Sparkles className="w-8 h-8 text-primary" />
-                    <h1 className="text-3xl font-bold tracking-tight font-headline">Redes Sociales y Publicaciones</h1>
+                    <h1 className="text-3xl font-bold tracking-tight font-headline">Planificador de Contenido</h1>
                 </div>
                 <div className="flex gap-2">
                     <NewPostDialog onPostCreated={fetchData} />
@@ -123,7 +123,7 @@ function SocialMediaPageContent() {
                     postToDuplicate={postToDuplicate}
                 />
             )}
-            <CardDescription>Planifica, redacta con IA y sigue el rendimiento de tus campañas en redes sociales.</CardDescription>
+            <CardDescription>Planifica, redacta con IA y organiza tu contenido para redes sociales. Luego copia y pega para publicar.</CardDescription>
             
             <Card className="shadow-lg">
                 <CardHeader>
@@ -194,5 +194,3 @@ export default function SocialMediaPage() {
         </Suspense>
     )
 }
-
-    
