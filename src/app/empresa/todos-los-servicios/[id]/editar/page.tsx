@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 
-const CATERING_SUBCATEGORIES = ['Entrada', 'Plato Principal', 'Menú Niños/Adolescentes', 'Personal'];
+const CATERING_SUBCATEGORIES = ['Entrada', 'Plato Principal', 'Menú para niños y adolescentes', 'Personal'];
 const REPOSTERIA_SUBCATEGORIES = ['Torta Principal', 'Mesa de Postres', 'Souvenirs Comestibles'];
 
 
@@ -55,8 +55,7 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
       const loadedItem = await getServicioEmpresaById(itemIdFromParams);
       if (loadedItem) {
         setItem(loadedItem);
-        // Ensure numeric fields are numbers or undefined, not empty strings
-        const numericData = {
+        setFormData({
           ...loadedItem,
           cantidadDisponible: loadedItem.cantidadDisponible ?? undefined,
           valorUnitarioEstimado: loadedItem.valorUnitarioEstimado ?? undefined,
@@ -64,10 +63,9 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
           precioBase: loadedItem.precioBase ?? undefined,
           precioPorPersona: loadedItem.precioPorPersona ?? undefined,
           invitadosPorUnidad: loadedItem.invitadosPorUnidad ?? undefined,
-          calculationMethod: loadedItem.calculationMethod || 'fijo',
+          calculationMethod: loadedItem.calculationMethod || (loadedItem.tipoItem === 'Servicio' ? 'fijo' : undefined),
           tramosDePrecio: loadedItem.tramosDePrecio || [],
-        };
-        setFormData(numericData);
+        });
       } else {
         setNotFound(true);
         toast({ title: 'Error', description: `No se encontró el ítem con ID ${itemIdFromParams}.`, variant: 'destructive' });
@@ -87,7 +85,9 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
   }, [itemIdFromParams, loadItem]);
 
   const handleFormChange = (field: keyof ServicioEmpresa, value: string | number | undefined) => {
-    if (typeof value === 'string' && (field === 'cantidadDisponible' || field === 'valorUnitarioEstimado' || field === 'precioVenta' || field === 'precioBase' || field === 'precioPorPersona' || field === 'invitadosPorUnidad')) {
+    const isNumericField = ['cantidadDisponible', 'valorUnitarioEstimado', 'precioVenta', 'precioBase', 'precioPorPersona', 'invitadosPorUnidad'].includes(field as string);
+    
+    if (isNumericField && typeof value === 'string') {
       const numValue = value === '' ? undefined : Number(value);
       setFormData(prev => ({ ...prev, [field]: numValue }));
     } else {
@@ -201,8 +201,6 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
   if (isLoading) return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (notFound) return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>Ítem no encontrado. <Link href="/empresa/todos-los-servicios" className="underline">Volver al inventario</Link>.</div>;
 
-  const isCatering = formData.categoria === 'Servicio de catering';
-  const isReposteria = formData.categoria === 'Servicio de repostería';
   const isServicio = formData.tipoItem === 'Servicio';
   
   let backUrl = '/empresa/todos-los-servicios'; // Default fallback
@@ -248,22 +246,6 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
                   <SelectTrigger id="item-categoria"><SelectValue/></SelectTrigger>
                   <SelectContent>{ALL_CATEGORIAS_SERVICIO.map(cat => (<SelectItem key={cat} value={cat}>{cat}</SelectItem>))}</SelectContent>
                 </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="item-subcategoria" className="text-base">Subcategoría</Label>
-                {isCatering ? (
-                    <Select value={formData.subcategoria || ''} onValueChange={(value) => handleFormChange('subcategoria', value)}>
-                        <SelectTrigger id="item-subcategoria"><SelectValue placeholder="General"/></SelectTrigger>
-                        <SelectContent>{CATERING_SUBCATEGORIES.map(cat => (<SelectItem key={cat} value={cat}>{cat}</SelectItem>))}</SelectContent>
-                    </Select>
-                ) : isReposteria ? (
-                    <Select value={formData.subcategoria || ''} onValueChange={(value) => handleFormChange('subcategoria', value)}>
-                        <SelectTrigger id="item-subcategoria"><SelectValue placeholder="General"/></SelectTrigger>
-                        <SelectContent>{REPOSTERIA_SUBCATEGORIES.map(cat => (<SelectItem key={cat} value={cat}>{cat}</SelectItem>))}</SelectContent>
-                    </Select>
-                ) : (
-                    <Input id="item-subcategoria" value={formData.subcategoria || ''} onChange={(e) => handleFormChange('subcategoria', e.target.value)} disabled={isSaving}/>
-                )}
               </div>
             </div>
              
@@ -315,15 +297,12 @@ export default function EditarItemInventarioPage({ params: paramsProp }: { param
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2"><Label htmlFor="item-cantidad">Cantidad Disponible (Stock)</Label><Input id="item-cantidad" type="number" value={formData.cantidadDisponible ?? ''} onChange={(e) => handleFormChange('cantidadDisponible', e.target.value)} disabled={isSaving}/></div>
-                    <div className="space-y-2"><Label htmlFor="item-valor-unitario">Valor Unitario (Costo UYU)</Label><Input id="item-valor-unitario" type="number" value={formData.valorUnitarioEstimado ?? ''} onChange={(e) => handleFormChange('valorUnitarioEstimado', e.target.value)} disabled={isSaving}/></div>
+                    <div className="space-y-2"><Label htmlFor="item-costo">Costo (UYU)</Label><Input id="item-costo" type="number" value={formData.valorUnitarioEstimado ?? ''} onChange={(e) => handleFormChange('valorUnitarioEstimado', e.target.value)} disabled={isSaving}/></div>
                      <div className="space-y-2"><Label htmlFor="item-unidad" className="text-base">Unidad *</Label><Select value={formData.unidad || ''} onValueChange={(value) => handleFormChange('unidad', value as UnidadServicio)} disabled={isSaving} required={!isServicio}><SelectTrigger id="item-unidad"><SelectValue /></SelectTrigger><SelectContent>{ALL_UNIDADES_SERVICIO.map(u => (<SelectItem key={u} value={u}>{u}</SelectItem>))}</SelectContent></Select></div>
+                     <div className="space-y-2"><Label htmlFor="item-proveedor">Proveedor</Label><Input id="item-proveedor" value={formData.proveedor || ''} onChange={(e) => handleFormChange('proveedor', e.target.value)} disabled={isSaving}/></div>
                 </div>
             )}
             
-            <div className="space-y-2">
-              <Label htmlFor="item-notas" className="text-base">Observaciones (Opcional)</Label>
-              <Textarea id="item-notas" value={formData.notas || ''} onChange={(e) => handleFormChange('notas', e.target.value)} rows={3} disabled={isSaving}/>
-            </div>
           </CardContent>
           <CardFooter className="border-t pt-6 flex justify-between items-center">
             <Button type="submit" className="w-auto" disabled={isSaving}>

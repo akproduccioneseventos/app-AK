@@ -52,7 +52,8 @@ export interface ServicioEmpresa {
   
   // Inventory/Cost fields
   cantidadDisponible?: number; 
-  valorUnitarioEstimado?: number; 
+  valorUnitarioEstimado?: number; // Representa el COSTO
+  proveedor?: string; // Nuevo campo para el proveedor
   unidad?: UnidadServicio; 
   notas?: string;
   

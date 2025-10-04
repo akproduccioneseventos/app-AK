@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Package, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, DollarSign, Filter } from 'lucide-react';
+import { ArrowLeft, Package, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, DollarSign, Filter, Briefcase } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ServicioEmpresa, CategoriaServicio } from '@/types/empresa';
 import { getServiciosEmpresa, deleteServicioEmpresa } from '@/app/actions/servicios-empresa';
@@ -80,7 +80,8 @@ export default function InventarioInsumosPage() {
     const filteredData = allItems.filter(item => {
       const matchesSearch = lowercasedFilter === '' ||
         item.nombre.toLowerCase().includes(lowercasedFilter) ||
-        (item.subcategoria && item.subcategoria.toLowerCase().includes(lowercasedFilter));
+        (item.subcategoria && item.subcategoria.toLowerCase().includes(lowercasedFilter)) ||
+        (item.proveedor && item.proveedor.toLowerCase().includes(lowercasedFilter));
         
       const matchesCategory = activeCategories.length === 0 || activeCategories.length === ALL_CATEGORIES.length || (item.categoria && activeCategories.includes(item.categoria));
 
@@ -136,7 +137,7 @@ export default function InventarioInsumosPage() {
              <Link href="/empresa/menus" passHref>
                 <Button variant="outline">
                     <ArrowLeft className="w-4 h-4 mr-2"/>
-                    Volver a Menús
+                    Volver al Planificador
                 </Button>
             </Link>
         </div>
@@ -149,7 +150,7 @@ export default function InventarioInsumosPage() {
           <div className="flex flex-col md:flex-row gap-2 pt-2">
             <div className="relative flex-grow">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input type="text" placeholder="Buscar por nombre..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 text-base"/>
+                <Input type="text" placeholder="Buscar por nombre, proveedor..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 text-base"/>
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild><Button variant="outline"><Filter className="w-4 h-4 mr-2"/>Filtrar Categoría</Button></DropdownMenuTrigger>
@@ -192,11 +193,12 @@ export default function InventarioInsumosPage() {
                                   </AlertDialog>
                               </div>
                             </div>
+                             {item.proveedor && <p className="text-xs text-muted-foreground flex items-center gap-1.5"><Briefcase className="w-3 h-3"/> {item.proveedor}</p>}
                           </CardHeader>
                           <CardContent className="px-3 pb-3 text-sm space-y-1">
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1">
-                              <p><span className="text-muted-foreground">Unidad: </span><span className="font-medium">{item.unidad || 'N/A'}</span></p>
                               <p><span className="text-muted-foreground">Stock: </span><span className="font-medium">{item.cantidadDisponible ?? 'N/A'}</span></p>
+                              <p><span className="text-muted-foreground">Unidad: </span><span className="font-medium">{item.unidad || 'N/A'}</span></p>
                               <p className="font-semibold text-primary/90"><span className="text-muted-foreground">Costo: </span>{formatCurrency(item.valorUnitarioEstimado)}</p>
                             </div>
                           </CardContent>
