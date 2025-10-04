@@ -5,7 +5,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ChefHat, PlusCircle, Edit, List, Loader2, Info, Package, Cake, GlassWater } from 'lucide-react';
+import { ArrowLeft, ChefHat, PlusCircle, Edit, List, Loader2, Info, Package, Cake, GlassWater, Printer } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FullMenu, ReposteriaData, BebidasData } from '@/types/fiesta';
 import { getMenus } from '@/app/actions/menus-catering';
@@ -76,6 +76,9 @@ export default function GestionMenusPage() {
            </Link>
            <Link href="/empresa/menus/catalogo" passHref>
             <Button variant="secondary"><List className="w-4 h-4 mr-2"/>Ver Catálogo de Platos</Button>
+           </Link>
+            <Link href="/empresa/menus/reporte" passHref>
+                <Button variant="outline"><Printer className="w-4 h-4 mr-2"/>Reporte Gastronómico</Button>
            </Link>
         </CardContent>
       </Card>
