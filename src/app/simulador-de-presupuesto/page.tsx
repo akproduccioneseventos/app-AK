@@ -23,6 +23,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableCaption } from '@/components/ui/table';
 import Image from 'next/image';
+import { WatermarkedImage } from '@/components/watermarked-image';
 
 const formatCurrency = (amount: number, includeSymbol = true) => {
     if (isNaN(amount)) return 'N/A';
@@ -107,13 +108,18 @@ export default function ArmadoRapidoPage() {
         if (!config || !serviciosCatalogo.length) {
             return { entradasDisponibles: [], principalesDisponibles: [], menusNinoDisponibles: [] };
         }
+        
+        const isPlatoVisible = (platoId: string) => {
+            const setting = config?.platosVisibles?.find(p => p.id === platoId);
+            return setting ? setting.visible : true; // Default to visible
+        };
 
         const menuCatering = config.menus.find(m => m.id === 'menu_catering');
         if (!menuCatering) {
             return { entradasDisponibles: [], principalesDisponibles: [], menusNinoDisponibles: [] };
         }
 
-        const serviciosDelMenu = menuCatering.serviciosIncluidos.map(s => serviciosCatalogo.find(sc => sc.id === s.id)).filter(Boolean) as ServicioEmpresa[];
+        const serviciosDelMenu = menuCatering.serviciosIncluidos.map(s => serviciosCatalogo.find(sc => sc.id === s.id)).filter((s): s is ServicioEmpresa => Boolean(s) && isPlatoVisible(s.id));
         
         const sortByPrice = (a: ServicioEmpresa, b: ServicioEmpresa) => {
             const priceA = a.precioPorPersona || a.precioBase || a.precioVenta || 0;

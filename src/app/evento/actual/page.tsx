@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, type FormEvent } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import NextImage from 'next/image';
 import { Loader2, AlertTriangle, PartyPopper, CalendarDays, MapPin, Music2 as MusicIcon, Check, Users, MessageSquare, Send, CheckCircle, Gift, Clock, QrCode, Facebook, Instagram, Music, Utensils, GlassWater, Diamond, Sparkles, CakeSlice, Camera, Link as LinkIcon } from 'lucide-react';
@@ -22,6 +22,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import QRCodeStylized from 'qrcode.react';
 import { defaultWebPageSettings } from '@/lib/fiesta-defaults';
 import { merge, cloneDeep } from 'lodash';
+import { WatermarkedImage } from '@/components/watermarked-image';
 
 const platformIcons: Record<string, React.ElementType> = {
     Facebook: Facebook,
@@ -371,7 +372,7 @@ export default function EventoPublicoPage() {
                     <div className="md:flex md:items-center md:gap-8">
                         {webSettings.ourStoryImageUrl && (
                             <div className="md:w-1/2 mb-6 md:mb-0">
-                                <NextImage src={webSettings.ourStoryImageUrl} alt="Nuestra Historia" width={600} height={400} className="rounded-lg shadow-lg object-cover mx-auto" data-ai-hint="couple story photo" />
+                                <WatermarkedImage src={webSettings.ourStoryImageUrl} alt="Nuestra Historia" width={600} height={400} className="rounded-lg shadow-lg object-cover mx-auto" data-ai-hint="couple story photo" />
                             </div>
                         )}
                         {webSettings.ourStoryText && (
@@ -494,7 +495,7 @@ export default function EventoPublicoPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {fiesta.webPageSettings.giftRegistry.map(gift => (
                   <Card key={gift.id} className={`flex flex-col ${gift.isClaimed ? 'bg-muted/50' : ''}`}>
-                    {gift.imageUrl && <div className="aspect-video relative"><NextImage src={gift.imageUrl} alt={gift.name} layout="fill" objectFit="cover" className="rounded-t-lg" data-ai-hint="gift idea"/></div>}
+                    {gift.imageUrl && <WatermarkedImage containerClassName="aspect-video" src={gift.imageUrl} alt={gift.name} layout="fill" objectFit="cover" className="rounded-t-lg" data-ai-hint="gift idea"/>}
                     <CardHeader><CardTitle>{gift.name}</CardTitle></CardHeader>
                     <CardContent className="flex-grow"><p className="text-sm text-muted-foreground">{gift.description}</p></CardContent>
                     <CardFooter>
@@ -519,7 +520,7 @@ export default function EventoPublicoPage() {
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
               {webSettings.galleryImageUrls.map((url, index) => (
                 <div key={index} className="aspect-square relative rounded-lg overflow-hidden border shadow-sm hover:shadow-xl transition-shadow">
-                  <NextImage src={url} alt={`Foto de galería ${index + 1}`} layout="fill" objectFit="cover" data-ai-hint="event photo gallery"/>
+                  <WatermarkedImage src={url} alt={`Foto de galería ${index + 1}`} layout="fill" objectFit="cover" data-ai-hint="event photo gallery"/>
                 </div>
               ))}
             </div>

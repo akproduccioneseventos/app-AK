@@ -27,6 +27,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Loader2, AlertTriangle, Heart, MessageCircle, Send, Upload, RefreshCw, PartyPopper, MonitorPlay, X } from 'lucide-react';
+import { WatermarkedImage } from '@/components/watermarked-image';
 
 const PostCard: React.FC<{ 
   post: SocialGalleryPost; 
@@ -61,9 +62,7 @@ const PostCard: React.FC<{
         </div>
       </CardHeader>
       <CardContent className="p-0 flex-grow">
-        <div className="aspect-square relative bg-muted">
-          <NextImage src={post.imageUrl} alt={`Foto de ${post.authorName}`} layout="fill" objectFit="cover" />
-        </div>
+        <WatermarkedImage containerClassName="aspect-square relative bg-muted" src={post.imageUrl} alt={`Foto de ${post.authorName}`} layout="fill" objectFit="cover" />
       </CardContent>
       <CardFooter className="p-3 flex flex-col items-start gap-2">
         <div className="w-full flex justify-between items-center">
@@ -257,7 +256,7 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
             <div className="relative w-full h-full">
                 {posts.map((post, index) => (
                     <div key={post.id} className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}>
-                        <NextImage src={post.imageUrl} layout="fill" objectFit="contain" alt={`Foto de ${post.authorName}`} />
+                        <WatermarkedImage src={post.imageUrl} layout="fill" objectFit="contain" alt={`Foto de ${post.authorName}`} />
                         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 text-white flex justify-between items-end">
                             <div>
                                 <p className="font-bold text-lg">@{post.authorName}</p>
