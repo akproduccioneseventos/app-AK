@@ -6,9 +6,9 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Loader2, Save, Users, UserCheck, AlertTriangle, Info, Printer } from 'lucide-react';
 import { getEmpleados } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
@@ -25,9 +25,11 @@ const formatCurrency = (amount: number) => {
 };
 
 interface AssignedStaffUIDetail {
-  empleado: Empleado;
-  rol?: Rol; // The primary role for salary calculation
-  eventSalary: number; 
+  empleadoId: string;
+  nombre: string;
+  rolId: string;
+  rolNombre: string;
+  eventSalary: number;
   employerContribution: number;
 }
 
@@ -58,13 +60,13 @@ export default function AsignarPersonalEventoPage() {
         fiestaActualData.personalAsignado.forEach(assigned => {
           const empleadoDetail = empleadosData.find(e => e.id === assigned.empleadoId);
           if (empleadoDetail) {
-            // Find the primary role for salary calculation (e.g., the first one)
-            const primaryRolId = empleadoDetail.rolIds?.[0];
-            const rolDetail = primaryRolId ? rolesData.find(r => r.id === primaryRolId) : undefined;
+            const rolDetail = rolesData.find(r => r.id === assigned.rolId);
             const aportes = (assigned.eventSalary * (rolDetail?.porcentajeAportesPatronales ?? 0)) / 100;
             initialAssignedMap.set(assigned.empleadoId, {
-              empleado: empleadoDetail,
-              rol: rolDetail,
+              empleadoId: empleadoDetail.id,
+              nombre: empleadoDetail.nombre,
+              rolId: assigned.rolId,
+              rolNombre: rolDetail?.nombre || 'Rol Desconocido',
               eventSalary: assigned.eventSalary,
               employerContribution: aportes,
             });
@@ -85,21 +87,29 @@ export default function AsignarPersonalEventoPage() {
     fetchInitialData();
   }, [fetchInitialData]);
 
-  const handleToggleAssign = (empleado: Empleado, isAssigned: boolean) => {
+  const handleAssignmentChange = (empleado: Empleado, selectedRolId: string) => {
     setAssignedStaff(prev => {
-      const newMap = new Map(prev);
-      if (isAssigned) {
-        const primaryRolId = empleado.rolIds?.[0];
-        const rol = primaryRolId ? allRoles.find(r => r.id === primaryRolId) : undefined;
-        const eventSalary = rol?.sueldoPorEvento ?? 0;
-        const employerContribution = (eventSalary * (rol?.porcentajeAportesPatronales ?? 0)) / 100;
-        newMap.set(empleado.id, { empleado, rol, eventSalary, employerContribution });
-      } else {
-        newMap.delete(empleado.id);
-      }
-      return newMap;
+        const newMap = new Map(prev);
+        if (selectedRolId === "ninguno") {
+            newMap.delete(empleado.id);
+        } else {
+            const rol = allRoles.find(r => r.id === selectedRolId);
+            if(rol) {
+                const eventSalary = rol.sueldoPorEvento;
+                const employerContribution = (eventSalary * (rol.porcentajeAportesPatronales || 0)) / 100;
+                newMap.set(empleado.id, {
+                    empleadoId: empleado.id,
+                    nombre: empleado.nombre,
+                    rolId: rol.id,
+                    rolNombre: rol.nombre,
+                    eventSalary,
+                    employerContribution
+                });
+            }
+        }
+        return newMap;
     });
-  };
+  }
 
   const handleEventSalaryChange = (empleadoId: string, newSalaryStr: string) => {
     const salaryNum = parseFloat(newSalaryStr);
@@ -109,7 +119,8 @@ export default function AsignarPersonalEventoPage() {
       const newMap = new Map(prev);
       const currentAssignment = newMap.get(empleadoId);
       if (currentAssignment) {
-        const aportes = (finalSalary * (currentAssignment.rol?.porcentajeAportesPatronales ?? 0)) / 100;
+        const rol = allRoles.find(r => r.id === currentAssignment.rolId);
+        const aportes = (finalSalary * (rol?.porcentajeAportesPatronales ?? 0)) / 100;
         newMap.set(empleadoId, { 
           ...currentAssignment, 
           eventSalary: finalSalary,
@@ -125,8 +136,9 @@ export default function AsignarPersonalEventoPage() {
         const newMap = new Map(prev);
         const currentAssignment = newMap.get(empleadoId);
         if (currentAssignment && (currentAssignment.eventSalary === 0 || isNaN(currentAssignment.eventSalary))) {
-            const fallbackSalary = currentAssignment.rol?.sueldoPorEvento ?? 0;
-            const aportes = (fallbackSalary * (currentAssignment.rol?.porcentajeAportesPatronales ?? 0)) / 100;
+            const rol = allRoles.find(r => r.id === currentAssignment.rolId);
+            const fallbackSalary = rol?.sueldoPorEvento ?? 0;
+            const aportes = (fallbackSalary * (rol?.porcentajeAportesPatronales ?? 0)) / 100;
             newMap.set(empleadoId, { ...currentAssignment, eventSalary: fallbackSalary, employerContribution: aportes });
         }
         return newMap;
@@ -141,7 +153,8 @@ export default function AsignarPersonalEventoPage() {
   const handleSaveChanges = async () => {
     setIsSaving(true);
     const personalToSave: PersonalAsignadoDetalleStorage[] = Array.from(assignedStaff.values()).map(item => ({
-      empleadoId: item.empleado.id,
+      empleadoId: item.empleadoId,
+      rolId: item.rolId,
       eventSalary: item.eventSalary
     }));
 
@@ -203,7 +216,7 @@ export default function AsignarPersonalEventoPage() {
         <CardHeader>
           <CardTitle className="font-headline">Seleccionar Personal</CardTitle>
           <CardDescription>
-            Marca los empleados que participarán en este evento y ajusta su pago total para el evento si es necesario.
+            Para cada empleado, selecciona el rol que desempeñará en este evento. El sueldo se cargará automáticamente pero puedes ajustarlo si es necesario.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -220,46 +233,48 @@ export default function AsignarPersonalEventoPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[50px] text-center">Asignar</TableHead>
                     <TableHead>Nombre</TableHead>
-                    <TableHead>Roles</TableHead>
+                    <TableHead>Rol en el Evento</TableHead>
                     <TableHead className="text-right">Pago Evento (UYU)</TableHead>
                     <TableHead className="text-right">Aportes Patronales</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {allEmpleados.map((empleado) => {
-                    const isAssigned = assignedStaff.has(empleado.id);
-                    const currentAssignment = assignedStaff.get(empleado.id);
-                    const empleadoRoles = (empleado.rolIds || [])
-                      .map(rolId => allRoles.find(r => r.id === rolId)?.nombre)
-                      .filter(Boolean);
+                    const assignedDetail = assignedStaff.get(empleado.id);
+                    const isAssigned = !!assignedDetail;
 
                     return (
                       <TableRow key={empleado.id} className={isAssigned ? 'bg-primary/5' : ''}>
-                        <TableCell className="text-center">
-                          <Checkbox
-                            id={`assign-${empleado.id}`}
-                            checked={isAssigned}
-                            onCheckedChange={(checked) => handleToggleAssign(empleado, Boolean(checked))}
-                            aria-label={`Asignar ${empleado.nombre}`}
-                          />
-                        </TableCell>
-                        <TableCell className="font-medium min-w-[150px]">{empleado.nombre}</TableCell>
-                        <TableCell className="min-w-[120px]">
-                            <div className="flex flex-wrap gap-1">
-                                {empleadoRoles.length > 0 ? (
-                                    empleadoRoles.map(rolName => <Badge key={rolName} variant="secondary">{rolName}</Badge>)
-                                ) : (
-                                    <span className="italic text-muted-foreground text-xs">Sin rol</span>
-                                )}
-                            </div>
+                        <TableCell className="font-medium min-w-[180px]">{empleado.nombre}</TableCell>
+                        <TableCell className="min-w-[200px]">
+                           <Select 
+                            value={assignedDetail?.rolId || 'ninguno'}
+                            onValueChange={(value) => handleAssignmentChange(empleado, value)}
+                            disabled={!empleado.rolIds || empleado.rolIds.length === 0}
+                           >
+                            <SelectTrigger className="text-xs h-9">
+                                <SelectValue placeholder="No Asignado" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="ninguno">No Asignado</SelectItem>
+                                {empleado.rolIds?.map(rolId => {
+                                    const rol = allRoles.find(r => r.id === rolId);
+                                    return rol ? <SelectItem key={rolId} value={rolId}>{rol.nombre}</SelectItem> : null
+                                })}
+                            </SelectContent>
+                           </Select>
+                           {(!empleado.rolIds || empleado.rolIds.length === 0) && (
+                               <p className="text-xs text-muted-foreground mt-1">
+                                   Este empleado no tiene roles. <Link href={`/empleados/${empleado.id}/editar`} className="underline">Asignar roles</Link>.
+                               </p>
+                           )}
                         </TableCell>
                         <TableCell className="text-right">
                           {isAssigned ? (
                             <Input
                               type="number"
-                              value={currentAssignment?.eventSalary ?? ''}
+                              value={assignedDetail.eventSalary ?? ''}
                               onChange={(e) => handleEventSalaryChange(empleado.id, e.target.value)}
                               onBlur={() => handleEventSalaryBlur(empleado.id)}
                               placeholder="Pago evento"
@@ -272,7 +287,7 @@ export default function AsignarPersonalEventoPage() {
                           )}
                         </TableCell>
                          <TableCell className="text-right min-w-[140px] font-mono">
-                           {isAssigned ? formatCurrency(currentAssignment?.employerContribution ?? 0) : '-'}
+                           {isAssigned ? formatCurrency(assignedDetail.employerContribution ?? 0) : '-'}
                         </TableCell>
                       </TableRow>
                     );

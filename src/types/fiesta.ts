@@ -1,3 +1,4 @@
+
 import type { TipoEvento } from './presupuesto';
 import type { Invitado } from './invitado'; 
 import type { UnidadServicio } from './empresa';
@@ -56,8 +57,10 @@ export interface ConfigEventoDataStorage {
 
 export interface PersonalAsignadoDetalleStorage {
   empleadoId: string;
+  rolId: string; // ID of the specific role for this event
   eventSalary: number;
 }
+
 
 export interface Reunion {
   id: string;
@@ -375,7 +378,7 @@ export interface CargaOperativaItem {
   origenId?: string; 
   unidad?: UnidadServicio | string;
   calculationMethod?: 'fijo' | 'porPersona' | 'porRatio';
-  ratioPorInvitado?: number; // e.g., 4 (meaning 1 unit for every 4 guests)
+  ratioPorInvitado?: number; // e.g., 1 unit for every 4 guests
 }
 
 export interface CargaOperativaCategoria {

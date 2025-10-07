@@ -36,6 +36,7 @@ const formatDate = (dateString?: string) => {
 interface FullStaffDetail {
   empleado: Empleado;
   rol?: Rol;
+  rolId: string;
   eventSalary: number;
   employerContribution: number;
 }
@@ -78,11 +79,12 @@ export default function RecibosDePagoPage() {
       const details = (fiestaData.personalAsignado || []).map(assigned => {
         const empleado = empleadosData.find(e => e.id === assigned.empleadoId);
         if (!empleado) return null;
-        const rol = empleado.rolId ? rolesData.find(r => r.id === empleado.rolId) : undefined;
+        const rol = rolesData.find(r => r.id === assigned.rolId);
         const contribution = (assigned.eventSalary * (rol?.porcentajeAportesPatronales ?? 0)) / 100;
         return {
           empleado,
           rol,
+          rolId: assigned.rolId,
           eventSalary: assigned.eventSalary,
           employerContribution: contribution
         };
@@ -128,7 +130,8 @@ export default function RecibosDePagoPage() {
   const handleSaveChanges = async () => {
     setIsSaving(true);
     const personalToSave: PersonalAsignadoDetalleStorage[] = assignedStaffDetails.map(item => ({
-      empleadoId: item.empleado.id,
+      empleadoId: item.empleadoId,
+      rolId: item.rolId,
       eventSalary: item.eventSalary
     }));
     try {
@@ -198,7 +201,6 @@ export default function RecibosDePagoPage() {
                         <h2 className="text-lg font-semibold text-gray-800 print:text-base">Recibo de Pago</h2>
                         <p className="text-sm text-gray-500 print:text-xs">AK Producciones</p>
                     </div>
-                    <Image src="https://placehold.co/80x80.png?text=Logo" alt="Logo Empresa" width={50} height={50} className="print:w-12 print:h-12"/>
                 </div>
 
                 <Separator className="my-3 print:my-1.5"/>
@@ -270,4 +272,3 @@ export default function RecibosDePagoPage() {
     </div>
   );
 }
-
