@@ -66,18 +66,11 @@ export default function MusicaPdfPage() {
       text: `Aquí tienes las preferencias musicales para el DJ del evento.`,
       url: window.location.href,
     };
-    try {
-      if (navigator.share && navigator.canShare(shareData)) {
-        await navigator.share(shareData);
-      } else {
-        throw new Error();
-      }
-    } catch (err) {
-      navigator.clipboard.writeText(shareData.url);
-      toast({
-        title: "Enlace Copiado",
-        description: "El enlace a esta página ha sido copiado a tu portapapeles.",
-      });
+    if (typeof navigator.share !== 'undefined' && navigator.canShare(shareData)) {
+        navigator.share(shareData).catch(err => console.error("Error al compartir:", err));
+    } else {
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareData.text + '\n' + shareData.url)}`;
+        window.open(whatsappUrl, '_blank');
     }
   };
 
@@ -115,13 +108,15 @@ export default function MusicaPdfPage() {
   return (
     <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans">
       <div className="max-w-3xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2 relative">
-        {logoUrl && <WatermarkedImage src={logoUrl} alt="Marca de agua" className="print:block hidden" />}
+        <div className="w-full h-24 print:h-20 mb-4 relative">
+            <WatermarkedImage src={logoUrl} alt="Marca de agua" containerClassName='w-full h-full'/>
+        </div>
         <div className="flex justify-between items-center mb-6 print:hidden">
           <Link href="/fiestas/nueva/musica" passHref>
             <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Editar</Button>
           </Link>
           <div className="flex gap-2">
-            <Button onClick={handleShare} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir</Button>
+            <Button onClick={handleShare} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir por WhatsApp</Button>
             <Button onClick={handlePrint} size="sm"><PrinterIcon className="w-4 h-4 mr-1.5" />Imprimir / Guardar PDF</Button>
           </div>
         </div>

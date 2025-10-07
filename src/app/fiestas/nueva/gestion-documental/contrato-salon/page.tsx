@@ -12,6 +12,8 @@ import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { getCustomerById } from '@/app/actions/customers';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertTriangle } from 'lucide-react';
+import { WatermarkedImage } from '@/components/watermarked-image';
+import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "____________";
@@ -34,18 +36,23 @@ export default function ContratoSalonPage() {
   const [cliente, setCliente] = useState<Customer | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const fiestaData = await getFiestaActual();
+      const [fiestaData, settings] = await Promise.all([
+          getFiestaActual(),
+          getInvoiceTemplateSettings()
+      ]);
       if (!fiestaData.configuracion.clienteId) {
         setError("Para generar este contrato, primero asigna un cliente al evento en la sección de 'Configuración del Evento'.");
         setIsLoading(false);
         return;
       }
       setFiesta(fiestaData);
+      setLogoUrl(settings.logoUrl);
       const clienteData = await getCustomerById(fiestaData.configuracion.clienteId);
       if (!clienteData) {
         setError(`No se encontraron los datos para el cliente ID: ${fiestaData.configuracion.clienteId}`);
@@ -92,11 +99,14 @@ export default function ContratoSalonPage() {
 
   return (
     <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans">
-      <div className="max-w-3xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2">
+      <div className="max-w-3xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2 relative">
+        <div className="w-full h-24 print:h-20 mb-4 relative">
+            <WatermarkedImage src={logoUrl} alt="Marca de agua" containerClassName='w-full h-full'/>
+        </div>
         <div className="flex justify-between items-center mb-6 print:hidden">
           <Link href="/fiestas/nueva/gestion-documental" passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver</Button></Link>
           <div className="flex gap-2">
-            <Button onClick={handleShare} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir</Button>
+            <Button onClick={handleShare} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir por WhatsApp</Button>
             <Button onClick={handlePrint} size="sm"><Printer className="w-4 h-4 mr-1.5" />Imprimir / PDF</Button>
           </div>
         </div>

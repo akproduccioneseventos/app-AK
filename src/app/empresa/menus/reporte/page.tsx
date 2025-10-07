@@ -10,6 +10,8 @@ import type { FullMenu, MenuItem, ReposteriaData, BebidasData } from '@/types/fi
 import { getMenus } from '@/app/actions/menus-catering';
 import { getReposteriaMasterTemplate } from '@/app/actions/reposteria.actions';
 import { getBebidasMasterTemplate } from '@/app/actions/bebidas.actions';
+import { WatermarkedImage } from '@/components/watermarked-image';
+import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -23,19 +25,22 @@ export default function ReporteMenusPage() {
   const [bebidas, setBebidas] = useState<BebidasData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
   const fetchItems = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const [menusData, reposteriaData, bebidasData] = await Promise.all([
+      const [menusData, reposteriaData, bebidasData, settings] = await Promise.all([
         getMenus(),
         getReposteriaMasterTemplate(),
-        getBebidasMasterTemplate()
+        getBebidasMasterTemplate(),
+        getInvoiceTemplateSettings()
       ]);
       setAllMenus(menusData);
       setReposteria(reposteriaData);
       setBebidas(bebidasData);
+      setLogoUrl(settings.logoUrl);
     } catch (err: any) {
       setError("No se pudo cargar el catálogo gastronómico.");
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -56,14 +61,11 @@ export default function ReporteMenusPage() {
       text: 'Resumen de menús, repostería y bebidas.',
       url: window.location.href,
     };
-    try {
-      await navigator.share(shareData);
-    } catch (err) {
-      await navigator.clipboard.writeText(shareData.url);
-      toast({
-        title: "Enlace Copiado",
-        description: "El enlace a esta página ha sido copiado a tu portapapeles.",
-      });
+    if (typeof navigator.share !== 'undefined' && navigator.canShare(shareData)) {
+        navigator.share(shareData).catch(err => console.error("Error al compartir:", err));
+    } else {
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareData.text + '\n' + shareData.url)}`;
+        window.open(whatsappUrl, '_blank');
     }
   };
 
@@ -94,13 +96,16 @@ export default function ReporteMenusPage() {
 
   return (
     <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans">
-      <div className="max-w-4xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2">
+      <div className="max-w-4xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2 relative">
+        <div className="w-full h-24 print:h-20 mb-4 relative">
+          <WatermarkedImage src={logoUrl} alt="Marca de agua" containerClassName='w-full h-full'/>
+        </div>
         <div className="flex justify-between items-center mb-6 print:hidden">
           <Link href="/empresa/menus" passHref>
             <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver al Planificador</Button>
           </Link>
           <div className="flex gap-2">
-            <Button onClick={handleShare} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir</Button>
+            <Button onClick={handleShare} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir por WhatsApp</Button>
             <Button onClick={handlePrint} size="sm"><PrinterIcon className="w-4 h-4 mr-1.5" />Imprimir / PDF</Button>
           </div>
         </div>

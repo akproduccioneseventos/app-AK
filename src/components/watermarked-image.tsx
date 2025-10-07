@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -33,7 +32,7 @@ export function WatermarkedImage({
   return (
     <>
       <div className={cn("relative w-full h-full print:hidden", containerClassName)}>
-        <NextImage src={src} alt={alt} {...props} />
+        <NextImage src={src} alt={alt} fill style={{objectFit: 'contain'}} {...props} />
       </div>
        <div className="hidden print:block fixed inset-0 flex items-center justify-center -z-10">
         <img

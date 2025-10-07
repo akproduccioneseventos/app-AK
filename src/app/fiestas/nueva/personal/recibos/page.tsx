@@ -5,7 +5,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Printer, Share2, Save, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaActual, updatePersonalFiestaActual } from '@/app/actions/fiesta-actual';
 import { getEmpleados } from '@/app/actions/empleados';
@@ -15,9 +14,9 @@ import type { Empleado } from '@/types/empleado';
 import type { Rol } from '@/types/rol';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertTriangle } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { WatermarkedImage } from '@/components/watermarked-image';
+import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -64,17 +63,20 @@ export default function RecibosDePagoPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const [fiestaData, empleadosData, rolesData] = await Promise.all([
+      const [fiestaData, empleadosData, rolesData, settings] = await Promise.all([
         getFiestaActual(),
         getEmpleados(),
-        getRoles()
+        getRoles(),
+        getInvoiceTemplateSettings()
       ]);
       setFiesta(fiestaData);
+      setLogoUrl(settings.logoUrl);
       
       const details = (fiestaData.personalAsignado || []).map(assigned => {
         const empleado = empleadosData.find(e => e.id === assigned.empleadoId);
@@ -181,6 +183,9 @@ export default function RecibosDePagoPage() {
         </div>
         
         <header className="mb-6 print:mb-4 text-center border-b pb-3 print:pb-2">
+            <div className="w-full h-24 print:h-20 mb-4 relative">
+                <WatermarkedImage src={logoUrl} alt="Marca de agua" containerClassName='w-full h-full'/>
+            </div>
             <h1 className="text-xl font-bold text-primary print:text-lg">Recibos de Pago de Personal</h1>
             <p className="text-md text-gray-700 print:text-sm mt-1">{fiesta.configuracion.nombreEvento}</p>
             <p className="text-xs text-gray-500 print:text-[8pt]">{formatDate(fiesta.configuracion.fechaEvento)}</p>
