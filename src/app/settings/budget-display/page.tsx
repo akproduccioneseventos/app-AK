@@ -342,16 +342,18 @@ export default function BudgetDisplaySettingsPage() {
   
   const renderServiciosList = (servicios: ServicioIncluidoArmadoRapido[]) => {
     const grouped = servicios.reduce((acc, s) => {
-      const fullServicio = serviciosCatalogo.find(sc => sc.id === s.id);
-      if (fullServicio) {
-        const categoria = fullServicio.categoria || 'Otros Servicios';
+      const allDishes = [...entradas, ...platosPrincipales, ...menusInfantiles];
+      const fullItem = allDishes.find(item => item.id === s.id) || serviciosCatalogo.find(sc => sc.id === s.id);
+      
+      if (fullItem) {
+        const categoria = (fullItem as MenuItem).type || (fullItem as ServicioEmpresa).categoria || 'Varios';
         if (!acc[categoria]) {
           acc[categoria] = [];
         }
-        acc[categoria].push(fullServicio);
+        acc[categoria].push(fullItem);
       }
       return acc;
-    }, {} as Record<string, ServicioEmpresa[]>);
+    }, {} as Record<string, (ServicioEmpresa | MenuItem)[]>);
 
     return Object.keys(grouped).sort().map(categoria => (
       <div key={categoria} className="mb-2">
@@ -510,13 +512,13 @@ export default function BudgetDisplaySettingsPage() {
         <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Configuración del Simulador</h1></div>
         <Link href="/settings" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
       </div>
-      
+
       <Card>
         <CardHeader>
-          <CardTitle>Visibilidad de Platos</CardTitle>
+          <CardTitle>Visibilidad de Platos en el Simulador</CardTitle>
           <CardDescription>
             Activa o desactiva los platos que aparecerán como opciones en el simulador para tus clientes.
-             Para editar los menús o platos, ve al <Link href="/empresa/menus" className="text-primary underline hover:text-primary/80">Planificador Gastronómico Maestro</Link>.
+             Para editar los detalles de los menús o platos, ve al <Link href="/empresa/menus" className="text-primary underline hover:text-primary/80">Planificador Gastronómico Maestro</Link>.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -579,8 +581,8 @@ export default function BudgetDisplaySettingsPage() {
 
       <Card className="shadow-lg">
           <CardHeader>
-            <CardTitle className="font-headline text-xl flex items-center gap-2"><ChefHat className="text-primary"/>Menús para Simulador</CardTitle>
-            <CardDescription>Configura los menús que aparecerán como opción en el simulador de presupuesto para clientes.</CardDescription>
+            <CardTitle className="font-headline text-xl flex items-center gap-2"><ChefHat className="text-primary"/>Menús Gastronómicos para Simulador</CardTitle>
+            <CardDescription>Configura los menús cerrados que aparecerán como opción en el simulador de presupuesto para clientes.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             <Button onClick={() => handleOpenModal('menu')}><PlusCircle className="w-4 h-4 mr-2"/>Crear Menú de Simulador</Button>
@@ -608,3 +610,5 @@ export default function BudgetDisplaySettingsPage() {
     </div>
   );
 }
+
+    
