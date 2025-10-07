@@ -9,13 +9,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save, Loader2, Sparkles, PlusCircle } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, Sparkles, PlusCircle, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveServicioEmpresa } from '@/app/actions/servicios-empresa';
 import type { ServicioEmpresa, AnyCategoria, TramoDePrecio } from '@/types/empresa';
 import { ALL_CATEGORIAS_SERVICIO } from '@/types/empresa';
-import { Trash2 } from 'lucide-react';
-
+import { Separator } from '@/components/ui/separator';
 
 function NuevoServicioContent() {
   const router = useRouter();

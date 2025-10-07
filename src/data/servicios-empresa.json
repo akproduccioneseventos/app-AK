@@ -1,5 +1,51 @@
-
 [
+  {
+    "id": "item_1757281980225_3x3nbzo",
+    "nombre": "Coordinador de Evento",
+    "tipoItem": "Servicio",
+    "categoria": "Personal",
+    "valorUnitarioEstimado": 8000,
+    "precioVenta": 10000,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_mozo_cocina",
+    "nombre": "Personal de Cocina",
+    "tipoItem": "Servicio",
+    "categoria": "Personal",
+    "valorUnitarioEstimado": 2000,
+    "calculationMethod": "ratio",
+    "precioBase": 2800,
+    "invitadosPorUnidad": 50
+  },
+  {
+    "id": "item_1757280489194_y9qozwm",
+    "nombre": "Portero/Seguridad",
+    "tipoItem": "Servicio",
+    "categoria": "Personal",
+    "valorUnitarioEstimado": 2000,
+    "precioVenta": 2500,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_mozos",
+    "nombre": "Servicio de Mozos",
+    "tipoItem": "Servicio",
+    "categoria": "Personal",
+    "valorUnitarioEstimado": 1800,
+    "calculationMethod": "ratio",
+    "precioBase": 2500,
+    "invitadosPorUnidad": 20
+  },
+  {
+    "id": "serv_invitaciones_digitales",
+    "nombre": "Invitaciones Digitales",
+    "tipoItem": "Servicio",
+    "categoria": "Regalo exclusivo",
+    "valorUnitarioEstimado": 1000,
+    "precioVenta": 2000,
+    "calculationMethod": "fijo"
+  },
   {
     "id": "serv_pantalla_proyector",
     "nombre": "Pantalla y Proyector",
@@ -10,13 +56,22 @@
     "calculationMethod": "fijo"
   },
   {
-    "id": "serv_manteleria_completa",
-    "nombre": "Mantelería Completa",
+    "id": "serv_video_vida",
+    "nombre": "Video de Vida",
     "tipoItem": "Servicio",
-    "categoria": "Servicio de decoración",
-    "valorUnitarioEstimado": 60,
+    "categoria": "Regalo exclusivo",
+    "valorUnitarioEstimado": 4000,
+    "precioVenta": 5000,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_1752489600086_barlib",
+    "nombre": "Barra Libre de Bebidas sin Alcohol",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de bebidas",
+    "valorUnitarioEstimado": 200,
     "calculationMethod": "porPersona",
-    "precioPorPersona": 70
+    "precioPorPersona": 250
   },
   {
     "id": "item_1757258361278_fs8ba4x",
@@ -56,13 +111,13 @@
     "calculationMethod": "fijo"
   },
   {
-    "id": "serv_invitaciones_digitales",
-    "nombre": "Invitaciones Digitales",
+    "id": "serv_manteleria_completa",
+    "nombre": "Mantelería Completa",
     "tipoItem": "Servicio",
-    "categoria": "Regalo exclusivo",
-    "valorUnitarioEstimado": 1000,
-    "precioVenta": 2000,
-    "calculationMethod": "fijo"
+    "categoria": "Servicio de decoración",
+    "valorUnitarioEstimado": 60,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 70
   },
   {
     "id": "item_1756940568854_u5m4prf",
@@ -110,15 +165,6 @@
     "calculationMethod": "fijo"
   },
   {
-    "id": "serv_video_vida",
-    "nombre": "Video de Vida",
-    "tipoItem": "Servicio",
-    "categoria": "Regalo exclusivo",
-    "valorUnitarioEstimado": 4000,
-    "precioVenta": 5000,
-    "calculationMethod": "fijo"
-  },
-  {
     "id": "item_1757177422000_4ru2piy",
     "nombre": "Fotografía",
     "tipoItem": "Servicio",
@@ -132,20 +178,10 @@
     "nombre": "Candy Bar Temático",
     "tipoItem": "Servicio",
     "categoria": "Servicio de repostería",
+    "subcategoria": "Candy Bar Temático",
     "valorUnitarioEstimado": 100,
     "calculationMethod": "porPersona",
-    "precioPorPersona": 150,
-    "subcategoria": "Candy Bar Temático"
-  },
-  {
-    "id": "item_1757539236109_vtqfjaz",
-    "nombre": "Torta Principal",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de repostería",
-    "valorUnitarioEstimado": 4000,
-    "precioVenta": 6000,
-    "calculationMethod": "fijo",
-    "subcategoria": "Torta Principal"
+    "precioPorPersona": 150
   },
   {
     "id": "serv_1762189912781_xyz",
@@ -154,18 +190,18 @@
     "categoria": "Servicio de repostería",
     "subcategoria": "Mesa de Postres",
     "valorUnitarioEstimado": 120,
-    "precioPorPersona": 180,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 180
   },
-   {
+  {
     "id": "serv_1762189912782_abc",
     "nombre": "Rogel",
     "tipoItem": "Servicio",
     "categoria": "Servicio de repostería",
     "subcategoria": "Mesa de Postres",
     "valorUnitarioEstimado": 110,
-    "precioPorPersona": 170,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 170
   },
   {
     "id": "serv_1762189912783_def",
@@ -174,12 +210,17 @@
     "categoria": "Servicio de repostería",
     "subcategoria": "Mesa de Postres",
     "valorUnitarioEstimado": 130,
-    "precioPorPersona": 200,
-    "calculationMethod": "porPersona"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 200
   },
-  { "id": "item_1757281980225_3x3nbzo", "nombre": "Coordinador de Evento", "tipoItem": "Servicio", "categoria": "Personal", "valorUnitarioEstimado": 8000, "precioVenta": 10000, "calculationMethod": "fijo" },
-  { "id": "serv_mozo_cocina", "nombre": "Personal de Cocina", "tipoItem": "Servicio", "categoria": "Personal", "valorUnitarioEstimado": 2000, "calculationMethod": "ratio", "precioBase": 2800, "invitadosPorUnidad": 50 },
-  { "id": "item_1757280489194_y9qozwm", "nombre": "Portero/Seguridad", "tipoItem": "Servicio", "categoria": "Personal", "valorUnitarioEstimado": 2000, "precioVenta": 2500, "calculationMethod": "fijo" },
-  { "id": "serv_mozos", "nombre": "Servicio de Mozos", "tipoItem": "Servicio", "categoria": "Personal", "valorUnitarioEstimado": 1800, "calculationMethod": "ratio", "precioBase": 2500, "invitadosPorUnidad": 20 },
-  { "id": "serv_1752489600086_barlib", "nombre": "Barra Libre de Bebidas sin Alcohol", "tipoItem": "Servicio", "categoria": "Servicio de bebidas", "valorUnitarioEstimado": 200, "calculationMethod": "porPersona", "precioPorPersona": 250 }
+  {
+    "id": "item_1757539236109_vtqfjaz",
+    "nombre": "Torta Principal",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "subcategoria": "Torta Principal",
+    "valorUnitarioEstimado": 4000,
+    "precioVenta": 6000,
+    "calculationMethod": "fijo"
+  }
 ]
