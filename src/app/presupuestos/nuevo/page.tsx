@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, PlusCircle, ArrowRight, Loader2, ListChecks, CheckCircle, FileClock, XCircle, FileText } from 'lucide-react';
+import { ArrowLeft, PlusCircle, ArrowRight, Loader2, ListChecks, CheckCircle, FileClock, XCircle, FileText, Printer } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Presupuesto } from '@/types/presupuesto';
 import { getPresupuestos } from '@/app/actions/presupuestos';
@@ -48,11 +48,14 @@ function PresupuestoDashboardContent() {
 
     return (
         <div className="space-y-6">
-             <div className="flex items-center justify-between">
+             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <h1 className="text-3xl font-bold tracking-tight font-headline flex items-center gap-2">
                   <ListChecks className="w-8 h-8 text-primary"/> Central de Presupuestos
                 </h1>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
+                  <Link href="/presupuestos/reporte" passHref>
+                    <Button variant="secondary"><Printer className="w-4 h-4 mr-2"/>Ver Reporte</Button>
+                  </Link>
                   <Link href="/presupuestos/nuevo/crear" passHref>
                     <Button><PlusCircle className="w-4 h-4 mr-2"/>Crear Nuevo Presupuesto</Button>
                   </Link>
