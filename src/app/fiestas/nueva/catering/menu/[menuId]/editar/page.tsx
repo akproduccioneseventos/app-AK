@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,8 @@ import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 // This page is obsolete. Its functionality has been moved to a central module.
-export default function DeprecatedEditarMenuIdPage({ params }: { params: { menuId: string } }) {
+export default function DeprecatedEditarMenuIdPage({ params: paramsProp }: { params: { menuId: string } }) {
+    const params = use(paramsProp);
     const router = useRouter();
     const { menuId } = params;
 

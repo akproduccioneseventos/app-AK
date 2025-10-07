@@ -1,15 +1,16 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, use } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Package, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search } from 'lucide-react';
+import { ArrowLeft, Package, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, DollarSign, Tag, BarChart3, StickyNote, Printer, Share2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { getInsumos, deleteInsumo } from '@/app/actions/insumos';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,7 +30,7 @@ const formatCurrency = (amount?: number) => {
 };
 
 export default function DynamicCatalogPage({ params: paramsProp }: { params: { slugs: string[] } }) {
-  const params = React.use(paramsProp);
+  const params = use(paramsProp);
   const { toast } = useToast();
   const [categoria, subcategoria] = params.slugs.map(s => decodeURIComponent(s));
 

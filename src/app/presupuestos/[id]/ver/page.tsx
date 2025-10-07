@@ -1,6 +1,7 @@
+
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, use } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'; 
@@ -56,7 +57,7 @@ const BUDGET_VALIDITY_DAYS_PDF = 30;
 const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos los servicios, se requiere una seña de $5.000. El presupuesto es válido por 30 días.";
 
 export default function VerPresupuestoPage({ params: paramsProp }: { params: { id: string } }) {
-  const params = React.use(paramsProp);
+  const params = use(paramsProp);
   const router = useRouter();
   const presupuestoId = params.id as string;
   const { toast } = useToast();

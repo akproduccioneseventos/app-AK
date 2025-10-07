@@ -1,6 +1,7 @@
+
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent, useRef, type ChangeEvent } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent, useRef, type ChangeEvent, use } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { getSocialPosts, uploadSocialPost, addLikeToPost, addCommentToPost } from '@/app/actions/social-gallery';
 import type { SocialGalleryPost, SocialComment } from '@/types/social-gallery';
@@ -98,7 +99,7 @@ const PostCard: React.FC<{
 
 
 export default function SocialGalleryPage({ params: paramsProp }: { params: { fiestaId: string } }) {
-  const params = React.use(paramsProp);
+  const params = use(paramsProp);
   const { toast } = useToast();
   
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);

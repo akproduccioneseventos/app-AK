@@ -1,6 +1,7 @@
+
 'use client';
 
-import React, { useState, useEffect, type FormEvent } from 'react';
+import React, { useState, useEffect, type FormEvent, use } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +13,7 @@ import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { saveFeedback } from '@/app/actions/feedback';
 
 export default function FeedbackPage({ params: paramsProp }: { params: { fiestaId: string } }) {
-  const params = React.use(paramsProp);
+  const params = use(paramsProp);
   const { toast } = useToast();
   const [clientName, setClientName] = useState('');
   const [enjoyedMost, setEnjoyedMost] = useState('');
