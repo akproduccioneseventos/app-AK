@@ -50,18 +50,15 @@ export default function ReporteProveedoresPage() {
       text: 'Lista de proveedores y servicios subcontratados.',
       url: window.location.href,
     };
-    try {
-      if (navigator.share && navigator.canShare(shareData)) {
+    if (typeof navigator.share !== 'undefined' && navigator.canShare(shareData)) {
+      try {
         await navigator.share(shareData);
-      } else {
-        throw new Error();
+      } catch (err) {
+        console.error("Error al compartir:", err);
       }
-    } catch (err) {
-      navigator.clipboard.writeText(shareData.url);
-      toast({
-        title: "Enlace Copiado",
-        description: "El enlace a esta página ha sido copiado a tu portapapeles.",
-      });
+    } else {
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareData.text + '\n' + shareData.url)}`;
+      window.open(whatsappUrl, '_blank');
     }
   };
 
@@ -85,7 +82,7 @@ export default function ReporteProveedoresPage() {
   return (
     <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans">
       <div className="max-w-4xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2 relative">
-        {logoUrl && <WatermarkedImage src={logoUrl} alt="Marca de agua" className="print:block hidden" />}
+        <WatermarkedImage src={logoUrl} alt="Marca de agua" />
         <div className="flex justify-between items-center mb-6 print:hidden">
           <Link href="/proveedores" passHref>
             <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Proveedores</Button>
