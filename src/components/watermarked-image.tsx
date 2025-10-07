@@ -7,7 +7,7 @@ import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { cn } from '@/lib/utils';
 import { Skeleton } from './ui/skeleton';
 
-interface WatermarkedImageProps extends Omit<ImageProps, 'src'> {
+interface WatermarkedImageProps extends Omit<ImageProps, 'src' | 'width' | 'height' | 'fill'> {
   src: string | null;
   containerClassName?: string;
 }
@@ -31,7 +31,7 @@ export function WatermarkedImage({
 
   return (
     <div className={cn("relative w-full h-full", containerClassName)}>
-      <NextImage src={src} alt={alt} {...props} />
+      <NextImage src={src} alt={alt} fill {...props} />
     </div>
   );
 }
