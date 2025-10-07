@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, Package, ChefHat, FileText, Send, CheckCircle, Gift, User, Phone, MessageSquare, Share2, Printer } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getArmadoRapidoConfig, generateLeadFromQuickBudget } from '@/app/actions/armado-rapido';
+import { getArmadoRapidoConfig, generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
@@ -24,6 +24,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableCaption } from '@/components/ui/table';
 import Image from 'next/image';
 import { WatermarkedImage } from '@/components/watermarked-image';
+import type { ItemPresupuestado } from '@/types/presupuesto';
 
 const formatCurrency = (amount: number, includeSymbol = true) => {
     if (isNaN(amount)) return 'N/A';
@@ -129,7 +130,7 @@ export default function ArmadoRapidoPage() {
 
         const entradas = serviciosDelMenu.filter(s => s.subcategoria === 'Entrada').sort(sortByPrice);
         const principales = serviciosDelMenu.filter(s => s.subcategoria === 'Plato Principal').sort(sortByPrice);
-        const menusNino = serviciosDelMenu.filter(s => s.subcategoria === 'Menú Niños/Adolescentes').sort(sortByPrice);
+        const menusNino = serviciosDelMenu.filter(s => s.subcategoria === 'Menú Infantil/Adolescente').sort(sortByPrice);
         
         return { entradasDisponibles: entradas, principalesDisponibles: principales, menusNinoDisponibles: menusNino };
     }, [config, serviciosCatalogo]);
@@ -321,12 +322,21 @@ export default function ArmadoRapidoPage() {
             adultos,
             ninos,
             costoEstimado: costoTotal,
-            serviciosIncluidos: serviciosDetallados.map(s => `${s.nombre}${s.esRegalo ? ' (REGALO)' : ''}`),
             paqueteNombre: config?.paquetes.find(p => p.id === selectedPaqueteId)?.nombre,
+            items: serviciosDetallados.map(s => ({
+                idServicioCatalogo: s.id,
+                nombreServicio: s.nombre,
+                cantidad: s.cantidad,
+                unidad: s.unidad,
+                precioUnitario: s.precioUnitario,
+                precioUnitarioPresupuesto: s.precioUnitario,
+                esRegalo: s.esRegalo,
+                categoriaServicio: s.categoria
+            }))
         };
 
         try {
-            const result = await generateLeadFromQuickBudget(data);
+            const result = await generateBudgetAndLeadFromSimulator(data);
             if(result.success) {
                 toast({ title: "Presupuesto registrado", description: "Tu estimación ha sido enviada al equipo de ventas."});
                 setStep(5); // Change to a dedicated success step
@@ -576,3 +586,5 @@ export default function ArmadoRapidoPage() {
 
     
 
+
+```

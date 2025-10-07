@@ -13,8 +13,8 @@ import type { ServicioEmpresa } from '@/types/empresa';
 import type { PaqueteArmadoRapido, MenuArmadoRapido } from '@/types/armado-rapido';
 import { savePresupuesto, deletePresupuesto } from '@/app/actions/presupuestos';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
-import { getArmadoRapidoConfig, generateLeadFromQuickBudget } from '@/app/actions/armado-rapido';
-import { getCrmStages, moveCrmLead } from '@/app/actions/crm'; // Importar acciones de CRM
+import { getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
+import { getCrmStages, moveCrmLead, addCrmLead } from '@/app/actions/crm';
 import { Paso1DatosEvento } from '@/components/presupuestos/paso-1-datos-evento';
 import Paso2Servicios from '@/components/presupuestos/paso-2-servicios';
 import Paso3Resumen from '@/components/presupuestos/paso-3-resumen';
@@ -191,7 +191,6 @@ function CrearPresupuestoContent() {
         }
         const totalFinalConDescuento = totalCalculado - descuentoAplicado;
 
-
         const presupuestoAGuardar: Omit<Presupuesto, 'id'> = {
             clienteNombre: formData.clienteNombre,
             clienteContacto: formData.clienteContacto,
@@ -239,8 +238,8 @@ function CrearPresupuestoContent() {
         setIsSaving(true);
         try {
           const result = await savePresupuesto(presupuestoAGuardar);
-          if (result.success && result.id) {
-            if (leadIdFromParams) {
+          if (result.success && result.id && result.presupuesto) {
+             if (leadIdFromParams) {
                 const stages = await getCrmStages();
                 const targetStage = stages.find(s => s.name.toLowerCase() === 'con presupuesto');
                 if (targetStage) {
@@ -248,14 +247,11 @@ function CrearPresupuestoContent() {
                     toast({ title: "Prospecto Actualizado", description: `Se movió a "${formData.clienteNombre}" a la etapa "Con presupuesto".` });
                 }
             } else {
-                await generateLeadFromQuickBudget({
-                    clienteNombre: presupuestoAGuardar.clienteNombre,
-                    clienteContacto: presupuestoAGuardar.clienteContacto,
-                    adultos: presupuestoAGuardar.invitadosAdultos || 0,
-                    ninos: presupuestoAGuardar.invitadosNinos || 0,
-                    costoEstimado: totalFinalConDescuento,
-                    serviciosIncluidos: presupuestoAGuardar.itemsPresupuestados.map(i => i.nombreServicio),
-                    paqueteNombre: undefined
+                const leadNotes = `Generado desde el Creador de Presupuestos Manual.\n- Presupuesto ID: ${result.id}\n- Invitados: ${totalInvitados}\n- Costo Estimado: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(result.presupuesto.totalConDescuento ?? result.presupuesto.costoTotalEstimado)}`;
+                await addCrmLead({
+                    name: formData.clienteNombre,
+                    phone: formData.clienteContacto,
+                    notes: leadNotes
                 });
                 toast({ title: "Prospecto Creado", description: `Se creó un nuevo prospecto en el CRM para "${formData.clienteNombre}".` });
             }
@@ -318,3 +314,4 @@ export default function CrearPresupuestoPage() {
         </Suspense>
     )
 }
+```

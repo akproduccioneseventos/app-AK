@@ -4,6 +4,8 @@
 import type { ArmadoRapidoConfig, LeadFromQuickBudget } from '@/types/armado-rapido';
 import { readData, writeData } from '@/lib/data-service';
 import { addCrmLead, getCrmStages } from './crm';
+import { savePresupuesto } from './presupuestos';
+import type { ItemPresupuestado, Presupuesto } from '@/types/presupuesto';
 
 const CONFIG_FILE = 'armado-rapido-config.json';
 const defaultConfig: ArmadoRapidoConfig = {
@@ -45,10 +47,31 @@ export async function saveArmadoRapidoConfig(
   }
 }
 
-export async function generateLeadFromQuickBudget(
-  data: LeadFromQuickBudget
-): Promise<{ success: boolean; leadId?: string; error?: string }> {
+export async function generateBudgetAndLeadFromSimulator(
+  data: LeadFromQuickBudget & { items: Omit<ItemPresupuestado, 'costoTotalItem'>[] }
+): Promise<{ success: boolean; leadId?: string; presupuestoId?: string; error?: string }> {
   try {
+    // 1. Create and save the Presupuesto
+    const presupuestoData: Omit<Presupuesto, 'id' | 'estado' | 'invoiceId' | 'costoTotalEstimado' | 'totalConDescuento' | 'ajusteAnualActivo'> = {
+      clienteNombre: data.clienteNombre,
+      clienteContacto: data.clienteContacto,
+      eventoTipo: 'Evento (desde Simulador)',
+      eventoFecha: new Date().toISOString(), // Use current date as placeholder
+      invitadosCantidad: data.adultos + data.ninos,
+      invitadosAdultos: data.adultos,
+      invitadosNinos: data.ninos,
+      salonFiestas: 'A definir',
+      itemsPresupuestados: data.items.map(item => ({...item, costoTotalItem: 0})), // cost will be recalculated
+      timestamp: new Date().toISOString(),
+      notas: `Presupuesto generado automáticamente desde el Simulador Web. Paquete seleccionado: ${data.paqueteNombre || 'N/A'}.`,
+    };
+
+    const budgetResult = await savePresupuesto(presupuestoData);
+    if (!budgetResult.success || !budgetResult.presupuesto) {
+      return { success: false, error: budgetResult.error || "No se pudo crear el presupuesto." };
+    }
+    
+    // 2. Create the CRM Lead, linking it to the new budget
     const allStages = await getCrmStages();
     const targetStage = allStages.find(stage => stage.name.toLowerCase() === 'con presupuesto');
     const targetStageId = targetStage?.id || allStages[0]?.id;
@@ -57,32 +80,29 @@ export async function generateLeadFromQuickBudget(
         return { success: false, error: "No hay etapas configuradas en el CRM." };
     }
     
-    let notes = `Generado desde el Simulador/Creador de Presupuestos.
+    let notes = `Generado desde el Simulador de Presupuestos.
+- Presupuesto ID: ${budgetResult.id}
 - Invitados: ${data.adultos} Adultos, ${data.ninos} Niños/Adol.
 - Costo Estimado: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(data.costoEstimado)}`;
-
     if (data.paqueteNombre) {
       notes += `\n- Paquete de Servicios: "${data.paqueteNombre}"`;
-    }
-    
-    if (data.serviciosIncluidos && data.serviciosIncluidos.length > 0) {
-        notes += `\n- Servicios Incluidos:\n`;
-        notes += data.serviciosIncluidos.map(s => `  • ${s}`).join('\n');
     }
     
     const leadResult = await addCrmLead({
       name: data.clienteNombre,
       phone: data.clienteContacto,
       notes: notes,
-      currentStageId: targetStageId 
+      currentStageId: targetStageId,
     });
 
     if (leadResult.success && leadResult.lead) {
-      return { success: true, leadId: leadResult.lead.id };
+      return { success: true, leadId: leadResult.lead.id, presupuestoId: budgetResult.id };
     } else {
-      return { success: false, error: leadResult.error || "No se pudo crear el prospecto en el CRM." };
+      // Budget was created but lead failed. This is a partial success state.
+      // For simplicity, we'll return an error, but in a real-world scenario, this might need compensation logic.
+      return { success: false, error: leadResult.error || "Presupuesto creado, pero no se pudo crear el prospecto en el CRM." };
     }
   } catch (error: any) {
-    return { success: false, error: error.message || "Error al generar el prospecto." };
+    return { success: false, error: error.message || "Error al generar el prospecto y presupuesto." };
   }
 }
