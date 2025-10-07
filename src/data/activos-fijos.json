@@ -94,7 +94,7 @@
     "id": "lc_46",
     "nombre": "Tul Blanco",
     "tipoItem": "Activo Fijo",
-    "categoria": "Decoración (Activo)",
+    "categoria": "Decoración",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 1500,
     "unidad": "Unidad"
@@ -103,7 +103,7 @@
     "id": "lc_47",
     "nombre": "Estructura Rectangular",
     "tipoItem": "Activo Fijo",
-    "categoria": "Decoración (Activo)",
+    "categoria": "Decoración",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 4000,
     "unidad": "Unidad"
@@ -112,7 +112,7 @@
     "id": "lc_48",
     "nombre": "Aro",
     "tipoItem": "Activo Fijo",
-    "categoria": "Decoración (Activo)",
+    "categoria": "Decoración",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 3000,
     "unidad": "Unidad"
@@ -121,7 +121,7 @@
     "id": "lc_49",
     "nombre": "Letras Chicas",
     "tipoItem": "Activo Fijo",
-    "categoria": "Decoración (Activo)",
+    "categoria": "Decoración",
     "cantidadDisponible": 2,
     "valorUnitarioEstimado": 1000,
     "unidad": "Unidad"
@@ -130,7 +130,7 @@
     "id": "lc_51",
     "nombre": "Alfombra Grande",
     "tipoItem": "Activo Fijo",
-    "categoria": "Decoración (Activo)",
+    "categoria": "Decoración",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 3000,
     "unidad": "Unidad"
@@ -139,7 +139,7 @@
     "id": "lc_53",
     "nombre": "Faroles Grandes",
     "tipoItem": "Activo Fijo",
-    "categoria": "Decoración (Activo)",
+    "categoria": "Decoración",
     "cantidadDisponible": 2,
     "valorUnitarioEstimado": 800,
     "unidad": "Unidad"
@@ -148,7 +148,7 @@
     "id": "lc_54",
     "nombre": "Faroles Chicos",
     "tipoItem": "Activo Fijo",
-    "categoria": "Decoración (Activo)",
+    "categoria": "Decoración",
     "cantidadDisponible": 2,
     "valorUnitarioEstimado": 500,
     "unidad": "Unidad"
@@ -157,7 +157,7 @@
     "id": "lc_55",
     "nombre": "Cilindros",
     "tipoItem": "Activo Fijo",
-    "categoria": "Decoración (Activo)",
+    "categoria": "Decoración",
     "cantidadDisponible": 3,
     "valorUnitarioEstimado": 600,
     "unidad": "Unidad"
@@ -166,9 +166,18 @@
     "id": "lc_56",
     "nombre": "Cartel Neon",
     "tipoItem": "Activo Fijo",
-    "categoria": "Decoración (Activo)",
+    "categoria": "Decoración",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 3500,
+    "unidad": "Unidad"
+  },
+  {
+    "id": "lc_93",
+    "nombre": "Cartel Lona Rollup",
+    "tipoItem": "Activo Fijo",
+    "categoria": "Decoración",
+    "cantidadDisponible": 1,
+    "valorUnitarioEstimado": 2500,
     "unidad": "Unidad"
   },
   {
@@ -196,15 +205,6 @@
     "categoria": "Discoteca",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 1000,
-    "unidad": "Unidad"
-  },
-  {
-    "id": "lc_93",
-    "nombre": "Cartel Lona Rollup",
-    "tipoItem": "Activo Fijo",
-    "categoria": "Decoración (Activo)",
-    "cantidadDisponible": 1,
-    "valorUnitarioEstimado": 2500,
     "unidad": "Unidad"
   },
   {
@@ -724,7 +724,7 @@
     "id": "lc_1",
     "nombre": "Platos de Sitio",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
+    "categoria": "Vajilla",
     "cantidadDisponible": 200,
     "valorUnitarioEstimado": 150,
     "unidad": "Unidad"
@@ -733,7 +733,7 @@
     "id": "lc_2",
     "nombre": "Platos Grandes",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
+    "categoria": "Vajilla",
     "cantidadDisponible": 200,
     "valorUnitarioEstimado": 120,
     "unidad": "Unidad"
@@ -742,7 +742,7 @@
     "id": "lc_3",
     "nombre": "Platos Chicos",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
+    "categoria": "Vajilla",
     "cantidadDisponible": 200,
     "valorUnitarioEstimado": 80,
     "unidad": "Unidad"
@@ -751,7 +751,7 @@
     "id": "lc_4",
     "nombre": "Cucharitas",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
+    "categoria": "Vajilla",
     "cantidadDisponible": 200,
     "valorUnitarioEstimado": 40,
     "unidad": "Unidad"
@@ -760,7 +760,7 @@
     "id": "lc_5",
     "nombre": "Tenedores",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
+    "categoria": "Vajilla",
     "cantidadDisponible": 200,
     "valorUnitarioEstimado": 50,
     "unidad": "Unidad"
@@ -769,7 +769,7 @@
     "id": "lc_6",
     "nombre": "Cuchillos",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
+    "categoria": "Vajilla",
     "cantidadDisponible": 200,
     "valorUnitarioEstimado": 60,
     "unidad": "Unidad"
@@ -778,7 +778,7 @@
     "id": "lc_84",
     "nombre": "Cucharas de Postre",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
+    "categoria": "Vajilla",
     "cantidadDisponible": 200,
     "valorUnitarioEstimado": 45,
     "unidad": "Unidad"
@@ -787,7 +787,7 @@
     "id": "lc_85",
     "nombre": "Tenedores de Postre",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
+    "categoria": "Vajilla",
     "cantidadDisponible": 200,
     "valorUnitarioEstimado": 45,
     "unidad": "Unidad"
@@ -796,7 +796,7 @@
     "id": "lc_86",
     "nombre": "Cuchillos de Postre",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
+    "categoria": "Vajilla",
     "cantidadDisponible": 200,
     "valorUnitarioEstimado": 50,
     "unidad": "Unidad"
@@ -805,7 +805,7 @@
     "id": "lc_87",
     "nombre": "Tazas de Café",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
+    "categoria": "Vajilla",
     "cantidadDisponible": 200,
     "valorUnitarioEstimado": 70,
     "unidad": "Unidad"
@@ -814,7 +814,7 @@
     "id": "lc_88",
     "nombre": "Platillos de Café",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
+    "categoria": "Vajilla",
     "cantidadDisponible": 200,
     "valorUnitarioEstimado": 50,
     "unidad": "Unidad"
@@ -823,7 +823,7 @@
     "id": "lc_89",
     "nombre": "Cucharitas de Café",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
+    "categoria": "Vajilla",
     "cantidadDisponible": 200,
     "valorUnitarioEstimado": 30,
     "unidad": "Unidad"
@@ -832,7 +832,7 @@
     "id": "lc_7",
     "nombre": "Espátula de Torta",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
+    "categoria": "Vajilla",
     "cantidadDisponible": 4,
     "valorUnitarioEstimado": 300,
     "unidad": "Unidad"
@@ -841,7 +841,7 @@
     "id": "lc_8",
     "nombre": "Jarras Chicas",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
+    "categoria": "Vajilla",
     "cantidadDisponible": 12,
     "valorUnitarioEstimado": 150,
     "unidad": "Unidad"
@@ -850,7 +850,7 @@
     "id": "lc_9",
     "nombre": "Jarras Grandes",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
+    "categoria": "Vajilla",
     "cantidadDisponible": 24,
     "valorUnitarioEstimado": 250,
     "unidad": "Unidad"
@@ -859,7 +859,7 @@
     "id": "lc_10",
     "nombre": "Vasos",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
+    "categoria": "Vajilla",
     "cantidadDisponible": 200,
     "valorUnitarioEstimado": 80,
     "unidad": "Unidad"
@@ -868,7 +868,7 @@
     "id": "lc_90",
     "nombre": "Copas de Agua",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
+    "categoria": "Vajilla",
     "cantidadDisponible": 200,
     "valorUnitarioEstimado": 100,
     "unidad": "Unidad"
@@ -877,7 +877,7 @@
     "id": "lc_91",
     "nombre": "Copas de Vino",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
+    "categoria": "Vajilla",
     "cantidadDisponible": 200,
     "valorUnitarioEstimado": 110,
     "unidad": "Unidad"
@@ -886,7 +886,7 @@
     "id": "lc_92",
     "nombre": "Copas de Champagne",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
+    "categoria": "Vajilla",
     "cantidadDisponible": 200,
     "valorUnitarioEstimado": 110,
     "unidad": "Unidad"
@@ -895,7 +895,7 @@
     "id": "lc_11",
     "nombre": "Copas de Brindis",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
+    "categoria": "Vajilla",
     "cantidadDisponible": 4,
     "valorUnitarioEstimado": 400,
     "unidad": "Unidad"
@@ -904,7 +904,7 @@
     "id": "lc_99",
     "nombre": "Copon Acrilico con Soporte",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
+    "categoria": "Vajilla",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 1200,
     "unidad": "Unidad"
@@ -913,7 +913,7 @@
     "id": "lc_40",
     "nombre": "Copas Lacradas",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
+    "categoria": "Vajilla",
     "cantidadDisponible": 12,
     "valorUnitarioEstimado": 150,
     "unidad": "Unidad"
@@ -922,7 +922,7 @@
     "id": "lc_12",
     "nombre": "Hieleras Grandes",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
+    "categoria": "Vajilla",
     "cantidadDisponible": 16,
     "valorUnitarioEstimado": 400,
     "unidad": "Unidad"
@@ -931,7 +931,7 @@
     "id": "lc_13",
     "nombre": "Hieleras Chicas",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
+    "categoria": "Vajilla",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 250,
     "unidad": "Unidad"
@@ -940,7 +940,7 @@
     "id": "lc_18",
     "nombre": "Pinzas de Hieleras",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
+    "categoria": "Vajilla",
     "cantidadDisponible": 20,
     "valorUnitarioEstimado": 100,
     "unidad": "Unidad"
@@ -949,7 +949,7 @@
     "id": "lc_23",
     "nombre": "Platinas",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
+    "categoria": "Vajilla",
     "cantidadDisponible": 20,
     "valorUnitarioEstimado": 300,
     "unidad": "Unidad"
@@ -958,7 +958,7 @@
     "id": "lc_21",
     "nombre": "Tablas de Pizzas",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
+    "categoria": "Vajilla",
     "cantidadDisponible": 12,
     "valorUnitarioEstimado": 350,
     "unidad": "Unidad"
@@ -967,7 +967,7 @@
     "id": "lc_22",
     "nombre": "Tablas Redondas",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
+    "categoria": "Vajilla",
     "cantidadDisponible": 16,
     "valorUnitarioEstimado": 280,
     "unidad": "Unidad"
@@ -976,7 +976,7 @@
     "id": "lc_100_salsa",
     "nombre": "Tarros para Salsa",
     "tipoItem": "Activo Fijo",
-    "categoria": "Vajilla (Activo)",
+    "categoria": "Vajilla",
     "cantidadDisponible": 4,
     "valorUnitarioEstimado": 150,
     "unidad": "Unidad"
