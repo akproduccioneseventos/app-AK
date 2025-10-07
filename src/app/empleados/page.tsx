@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { PlusCircle, Edit, Trash2, Loader2, UserPlus, Users, Settings2, AlertTriangle, Printer } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, Loader2, UserPlus, Users, Settings2, AlertTriangle, Printer, ArrowLeft } from 'lucide-react';
 import { getEmpleados, deleteEmpleado as deleteEmpleadoAction } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles'; // Para obtener nombres de roles
 import type { Empleado } from '@/types/empleado';
@@ -113,6 +113,9 @@ export default function EmpleadosPage() {
                 <UserPlus className="w-5 h-5 mr-2" />
                 Añadir Empleado
               </Button>
+            </Link>
+            <Link href="/empresa" passHref>
+                <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2"/>Volver a Empresa</Button>
             </Link>
         </div>
       </div>
