@@ -89,8 +89,8 @@ export default function ReporteClientesPage() {
       <div className="max-w-4xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2 relative">
         <WatermarkedImage src={logoUrl} alt="Marca de agua" />
         <div className="flex justify-between items-center mb-6 print:hidden">
-          <Link href="/customers" passHref>
-            <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Clientes</Button>
+          <Link href="/empresa/contabilidad" passHref>
+            <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver al Panel Contable</Button>
           </Link>
           <div className="flex gap-2">
             <Button onClick={handleShare} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir</Button>
