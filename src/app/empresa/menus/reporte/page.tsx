@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer as PrinterIcon, Share2, ChefHat, Loader2, AlertTriangle, Info, Cake, GlassWater } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, Share2, ChefHat, Loader2, AlertTriangle, Info, Cake, GlassWater, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FullMenu, MenuItem, ReposteriaData, BebidasData } from '@/types/fiesta';
 import { getMenus } from '@/app/actions/menus-catering';
@@ -98,14 +98,15 @@ export default function ReporteMenusPage() {
     <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans">
       <div className="max-w-4xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2 relative">
         <div className="w-full h-24 print:h-20 mb-4 relative">
-          <WatermarkedImage src={logoUrl} alt="Marca de agua" containerClassName='w-full h-full'/>
+          <WatermarkedImage src={logoUrl} alt="Marca de agua" />
         </div>
         <div className="flex justify-between items-center mb-6 print:hidden">
           <Link href="/empresa/menus" passHref>
             <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver al Planificador</Button>
           </Link>
           <div className="flex gap-2">
-            <Button onClick={handleShare} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir por WhatsApp</Button>
+            <Button onClick={handlePrint} variant="outline" size="sm"><Eye className="w-4 h-4 mr-1.5"/>Vista Previa</Button>
+            <Button onClick={handleShare} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir</Button>
             <Button onClick={handlePrint} size="sm"><PrinterIcon className="w-4 h-4 mr-1.5" />Imprimir / PDF</Button>
           </div>
         </div>

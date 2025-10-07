@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Filter, BarChart3, TrendingUp, TrendingDown, DollarSign, Loader2, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Filter, BarChart3, TrendingUp, TrendingDown, DollarSign, Loader2, AlertTriangle, Eye, Share2, Printer } from 'lucide-react';
 import { getProfitAndLossData, type ProfitAndLossData } from '@/app/actions/reportes';
 import { useToast } from '@/hooks/use-toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -24,6 +24,8 @@ export default function GananciasYPerdidasPage() {
   const [reportData, setReportData] = useState<ProfitAndLossData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  const handlePrint = () => window.print();
 
   const handleGenerateReport = useCallback(async () => {
     if (!startDate || !endDate) {
@@ -50,22 +52,26 @@ export default function GananciasYPerdidasPage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between print:hidden">
         <div className="flex items-center gap-3">
           <TrendingUp className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
             Reporte de Ganancias y Pérdidas
           </h1>
         </div>
-        <Link href="/empresa/contabilidad" passHref>
-          <Button variant="outline">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver a Contabilidad
-          </Button>
-        </Link>
+        <div className="flex gap-2">
+            <Button onClick={handlePrint} variant="outline" size="sm"><Eye className="w-4 h-4 mr-1.5"/>Vista Previa</Button>
+            <Button onClick={handlePrint} size="sm"><Printer className="w-4 h-4 mr-1.5"/>Imprimir / PDF</Button>
+            <Link href="/empresa/contabilidad" passHref>
+              <Button variant="outline">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Volver a Contabilidad
+              </Button>
+            </Link>
+        </div>
       </div>
       
-      <Card className="shadow-lg">
+      <Card className="shadow-lg print:hidden">
         <CardHeader>
           <CardTitle className="font-headline text-xl flex items-center gap-2"><Filter className="text-primary"/>Filtros del Reporte</CardTitle>
           <CardDescription>Selecciona el rango de fechas para generar el reporte.</CardDescription>
