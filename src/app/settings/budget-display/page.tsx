@@ -516,7 +516,7 @@ export default function BudgetDisplaySettingsPage() {
           <CardTitle>Visibilidad de Platos</CardTitle>
           <CardDescription>
             Activa o desactiva los platos que aparecerán como opciones en el simulador para tus clientes.
-            Para editar los menús o platos, ve al <Link href="/empresa/menus" className="text-primary underline">Planificador Gastronómico Maestro</Link>.
+             Para editar los menús o platos, ve al <Link href="/empresa/menus" className="text-primary underline hover:text-primary/80">Planificador Gastronómico Maestro</Link>.
           </CardDescription>
         </CardHeader>
         <CardContent>
