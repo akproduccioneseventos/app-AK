@@ -121,21 +121,16 @@ export default function BudgetDisplaySettingsPage() {
   const [allMenus, setAllMenus] = useState<FullMenu[]>([]);
 
   const { entradas, platosPrincipales, menusInfantiles } = useMemo(() => {
-    const menuEntradas = allMenus.find(m => m.name === 'Menú de Entradas');
-    const menuPrincipales = allMenus.find(m => m.name === 'Menú de Platos Principales');
-
-    const entradas = menuEntradas ? menuEntradas.items : [];
-    
-    let principales: MenuItem[] = [];
-    let infantiles: MenuItem[] = [];
-
-    if (menuPrincipales) {
-      principales = menuPrincipales.items.filter(item => item.type === 'Plato Principal');
-      infantiles = menuPrincipales.items.filter(item => item.type === 'Menú Infantil');
+    if (!allMenus || allMenus.length === 0) {
+      return { entradas: [], platosPrincipales: [], menusInfantiles: [] };
     }
-    
-    return { entradas, platosPrincipales: principales, menusInfantiles: infantiles };
-}, [allMenus]);
+    const allItems = allMenus.flatMap(m => m.items);
+    return {
+      entradas: allItems.filter(item => item.type === 'Entrada'),
+      platosPrincipales: allItems.filter(item => item.type === 'Plato Principal'),
+      menusInfantiles: allItems.filter(item => item.type === 'Menú Infantil/Adolescente'),
+    };
+  }, [allMenus]);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -515,26 +510,29 @@ export default function BudgetDisplaySettingsPage() {
         <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Configuración del Simulador</h1></div>
         <Link href="/settings" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
       </div>
-
-        <Card className="shadow-lg">
-            <CardHeader>
-                <CardTitle className="font-headline text-xl flex items-center gap-2"><Eye className="text-primary"/>Gestionar Visibilidad de Platos en el Simulador</CardTitle>
-                <CardDescription>Activa o desactiva los platos que aparecerán como opciones en el simulador para tus clientes.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <Accordion type="multiple" defaultValue={['entradas', 'principales', 'infantiles']} className="w-full space-y-2">
-                    <AccordionItem value="entradas" className="border rounded-md"><AccordionTrigger className="px-3 text-md font-medium hover:no-underline">Entradas</AccordionTrigger><AccordionContent className="p-3 border-t">
-                        <div className="grid grid-cols-2 gap-x-4 gap-y-2">{entradas.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-sm">{plato.name}</Label></div>))}</div>
-                    </AccordionContent></AccordionItem>
-                    <AccordionItem value="principales" className="border rounded-md"><AccordionTrigger className="px-3 text-md font-medium hover:no-underline">Platos Principales</AccordionTrigger><AccordionContent className="p-3 border-t">
-                        <div className="grid grid-cols-2 gap-x-4 gap-y-2">{platosPrincipales.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-sm">{plato.name}</Label></div>))}</div>
-                    </AccordionContent></AccordionItem>
-                    <AccordionItem value="infantiles" className="border rounded-md"><AccordionTrigger className="px-3 text-md font-medium hover:no-underline">Menús Infantiles/Adolescentes</AccordionTrigger><AccordionContent className="p-3 border-t">
-                        <div className="grid grid-cols-2 gap-x-4 gap-y-2">{menusInfantiles.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-sm">{plato.name}</Label></div>))}</div>
-                    </AccordionContent></AccordionItem>
-                </Accordion>
-            </CardContent>
-        </Card>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Visibilidad de Platos</CardTitle>
+          <CardDescription>
+            Activa o desactiva los platos que aparecerán como opciones en el simulador para tus clientes.
+            Para editar los menús o platos, ve al <Link href="/empresa/menus" className="text-primary underline">Planificador Gastronómico Maestro</Link>.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+            <Accordion type="multiple" defaultValue={['entradas', 'principales', 'infantiles']} className="w-full space-y-2">
+                <AccordionItem value="entradas" className="border rounded-md"><AccordionTrigger className="px-3 text-md font-medium hover:no-underline">Entradas</AccordionTrigger><AccordionContent className="p-3 border-t">
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-2">{entradas.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-sm">{plato.name}</Label></div>))}</div>
+                </AccordionContent></AccordionItem>
+                <AccordionItem value="principales" className="border rounded-md"><AccordionTrigger className="px-3 text-md font-medium hover:no-underline">Platos Principales</AccordionTrigger><AccordionContent className="p-3 border-t">
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-2">{platosPrincipales.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-sm">{plato.name}</Label></div>))}</div>
+                </AccordionContent></AccordionItem>
+                <AccordionItem value="infantiles" className="border rounded-md"><AccordionTrigger className="px-3 text-md font-medium hover:no-underline">Menús Infantiles/Adolescentes</AccordionTrigger><AccordionContent className="p-3 border-t">
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-2">{menusInfantiles.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-sm">{plato.name}</Label></div>))}</div>
+                </AccordionContent></AccordionItem>
+            </Accordion>
+        </CardContent>
+      </Card>
       
        <Card className="shadow-lg">
           <CardHeader>
