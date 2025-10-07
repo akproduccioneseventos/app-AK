@@ -9,6 +9,9 @@ import { useToast } from '@/hooks/use-toast';
 import type { Customer } from '@/types/customer';
 import { getCustomers } from '@/app/actions/customers';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableCaption } from '@/components/ui/table';
+import { WatermarkedImage } from '@/components/watermarked-image';
+import { getInvoiceTemplateSettings } from '@/app/actions/settings';
+
 
 const formatDate = (dateString?: string) => {
     if (!dateString) return "N/A";
@@ -24,13 +27,18 @@ export default function ReporteClientesPage() {
   const [allItems, setAllItems] = useState<Customer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
   const fetchItems = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await getCustomers();
+      const [data, settings] = await Promise.all([
+          getCustomers(),
+          getInvoiceTemplateSettings()
+      ]);
       setAllItems(data);
+      setLogoUrl(settings.logoUrl);
     } catch (err: any) {
       setError("No se pudo cargar la lista de clientes.");
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -85,7 +93,8 @@ export default function ReporteClientesPage() {
 
   return (
     <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans">
-      <div className="max-w-4xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2">
+      <div className="max-w-4xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2 relative">
+         {logoUrl && <WatermarkedImage src={logoUrl} alt="Marca de agua" className="print:block hidden" />}
         <div className="flex justify-between items-center mb-6 print:hidden">
           <Link href="/customers" passHref>
             <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Clientes</Button>

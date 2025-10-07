@@ -7,45 +7,31 @@ import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { cn } from '@/lib/utils';
 import { Skeleton } from './ui/skeleton';
 
-interface WatermarkedImageProps extends ImageProps {
+interface WatermarkedImageProps extends Omit<ImageProps, 'src'> {
+  src: string | null;
   containerClassName?: string;
 }
 
 export function WatermarkedImage({
   containerClassName,
   alt,
+  src,
   ...props
 }: WatermarkedImageProps) {
-  const [logoUrl, setLogoUrl] = useState<string | null | undefined>(undefined);
-
-  useEffect(() => {
-    async function fetchLogo() {
-      try {
-        const settings = await getInvoiceTemplateSettings();
-        setLogoUrl(settings.logoUrl);
-      } catch (error) {
-        console.error("Failed to fetch company logo for watermark", error);
-        setLogoUrl(null); // Set to null on error to stop loading state
-      }
-    }
-    fetchLogo();
-  }, []);
+  
+  if (!src) {
+    return (
+      <div className={cn("relative w-full h-full bg-muted/50", containerClassName)}>
+        <div className="absolute inset-0 flex items-center justify-center text-xs text-muted-foreground">
+            Imagen no disponible
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={cn("relative w-full h-full", containerClassName)}>
-      <NextImage alt={alt} {...props} />
-      {logoUrl && (
-        <div className="absolute top-2 left-2 w-10 h-10 md:w-12 md:h-12 pointer-events-none">
-          <NextImage
-            src={logoUrl}
-            alt="Logo Watermark"
-            layout="fill"
-            objectFit="contain"
-            className="opacity-70"
-            data-ai-hint="company logo"
-          />
-        </div>
-      )}
+      <NextImage src={src} alt={alt} {...props} />
     </div>
   );
 }

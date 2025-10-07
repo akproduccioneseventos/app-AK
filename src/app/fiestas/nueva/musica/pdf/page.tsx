@@ -12,6 +12,7 @@ import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertTriangle } from 'lucide-react';
+import { WatermarkedImage } from '@/components/watermarked-image';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no definida";
@@ -113,7 +114,8 @@ export default function MusicaPdfPage() {
 
   return (
     <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans">
-      <div className="max-w-3xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2">
+      <div className="max-w-3xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2 relative">
+        {logoUrl && <WatermarkedImage src={logoUrl} alt="Marca de agua" className="print:block hidden" />}
         <div className="flex justify-between items-center mb-6 print:hidden">
           <Link href="/fiestas/nueva/musica" passHref>
             <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Editar</Button>
@@ -125,11 +127,6 @@ export default function MusicaPdfPage() {
         </div>
 
         <header className="mb-6 print:mb-4 text-center border-b pb-3 print:pb-2">
-            {logoUrl && (
-                <div className="w-24 h-24 mx-auto mb-2 print:w-20 print:h-20">
-                    <Image src={logoUrl} alt={`${companyName} Logo`} width={96} height={96} className="object-contain" data-ai-hint="company logo"/>
-                </div>
-            )}
           <h1 className="text-xl font-bold text-primary print:text-lg flex items-center justify-center gap-2">
             <Music className="w-6 h-6 print:w-5 print:h-5" /> Preferencias Musicales para el DJ
           </h1>

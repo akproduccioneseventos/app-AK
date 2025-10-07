@@ -11,6 +11,8 @@ import type { Rol } from '@/types/rol';
 import { getEmpleados } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableCaption } from '@/components/ui/table';
+import { WatermarkedImage } from '@/components/watermarked-image';
+import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 
 export default function ReporteEmpleadosPage() {
   const { toast } = useToast();
@@ -18,14 +20,20 @@ export default function ReporteEmpleadosPage() {
   const [allRoles, setAllRoles] = useState<Rol[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
   const fetchItems = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const [empleadosData, rolesData] = await Promise.all([getEmpleados(), getRoles()]);
+      const [empleadosData, rolesData, settings] = await Promise.all([
+          getEmpleados(), 
+          getRoles(),
+          getInvoiceTemplateSettings()
+      ]);
       setAllItems(empleadosData);
       setAllRoles(rolesData);
+      setLogoUrl(settings.logoUrl);
     } catch (err: any) {
       setError("No se pudo cargar la lista de empleados.");
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -85,7 +93,8 @@ export default function ReporteEmpleadosPage() {
 
   return (
     <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans">
-      <div className="max-w-4xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2">
+      <div className="max-w-4xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2 relative">
+        {logoUrl && <WatermarkedImage src={logoUrl} alt="Marca de agua" className="print:block hidden" />}
         <div className="flex justify-between items-center mb-6 print:hidden">
           <Link href="/empleados" passHref>
             <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Personal</Button>
