@@ -1,5 +1,25 @@
 [
   {
+    "nombre": "Asador",
+    "categoriaServicio": "Personal",
+    "sueldoPorEvento": 2600,
+    "porcentajeSalarioVacacional": 8.33,
+    "porcentajeAguinaldo": 8.33,
+    "porcentajeAportesPatronales": 20,
+    "costoAportesCalculado": 520,
+    "id": "rol_1759834357947_a3kdp"
+  },
+  {
+    "nombre": "Ayudante de Barman",
+    "categoriaServicio": "Personal",
+    "sueldoPorEvento": 1800,
+    "porcentajeSalarioVacacional": 8.33,
+    "porcentajeAguinaldo": 8.33,
+    "porcentajeAportesPatronales": 20,
+    "costoAportesCalculado": 360,
+    "id": "rol_1759834185449_rvjwg"
+  },
+  {
     "id": "rol_17203",
     "nombre": "Ayudante de Cocina",
     "categoriaServicio": "Personal",
@@ -8,6 +28,16 @@
     "porcentajeAguinaldo": 8.33,
     "porcentajeAportesPatronales": 20.125,
     "costoAportesCalculado": 503.125
+  },
+  {
+    "nombre": "Barman",
+    "categoriaServicio": "Personal",
+    "sueldoPorEvento": 2000,
+    "porcentajeSalarioVacacional": 8.33,
+    "porcentajeAguinaldo": 8.33,
+    "porcentajeAportesPatronales": 20,
+    "costoAportesCalculado": 400,
+    "id": "rol_1759834166269_6v47o"
   },
   {
     "id": "rol_17204",
@@ -98,5 +128,15 @@
     "porcentajeAguinaldo": 8.33,
     "porcentajeAportesPatronales": 20.125,
     "costoAportesCalculado": 503.125
+  },
+  {
+    "nombre": "Utilero",
+    "categoriaServicio": "Personal",
+    "sueldoPorEvento": 1000,
+    "porcentajeSalarioVacacional": 8.33,
+    "porcentajeAguinaldo": 8.33,
+    "porcentajeAportesPatronales": 20,
+    "costoAportesCalculado": 200,
+    "id": "rol_1759834067607_e4pb7"
   }
 ]

@@ -7,19 +7,15 @@
       "serviciosIncluidos": [
         {
           "id": "item_1756940568854_u5m4prf",
-          "esRegalo": true
+          "esRegalo": false
         },
         {
           "id": "item_1757282105396_39i6zkn",
-          "esRegalo": true
+          "esRegalo": false
         },
         {
           "id": "serv_invitaciones_digitales",
           "esRegalo": true
-        },
-        {
-          "id": "item_1757258361278_fs8ba4x",
-          "esRegalo": false
         },
         {
           "id": "serv_mozos",
@@ -31,11 +27,7 @@
         },
         {
           "id": "item_1757281980225_3x3nbzo",
-          "esRegalo": false
-        },
-        {
-          "id": "item_1757280489194_y9qozwm",
-          "esRegalo": false
+          "esRegalo": true
         },
         {
           "id": "item_1758319049180_rrpf3lf",
@@ -47,6 +39,10 @@
         },
         {
           "id": "serv_manteleria_completa",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757539236109_vtqfjaz",
           "esRegalo": false
         }
       ]
@@ -347,6 +343,72 @@
           "esRegalo": false
         }
       ]
+    }
+  ],
+  "platosVisibles": [
+    {
+      "id": "dish_entrada_1",
+      "visible": false
+    },
+    {
+      "id": "dish_entrada_3",
+      "visible": false
+    },
+    {
+      "id": "dish_entrada_8",
+      "visible": false
+    },
+    {
+      "id": "dish_entrada_12",
+      "visible": false
+    },
+    {
+      "id": "dish_entrada_14",
+      "visible": false
+    },
+    {
+      "id": "dish_entrada_20",
+      "visible": false
+    },
+    {
+      "id": "dish_entrada_22",
+      "visible": false
+    },
+    {
+      "id": "dish_entrada_24",
+      "visible": false
+    },
+    {
+      "id": "dish_papas_cheddar",
+      "visible": false
+    },
+    {
+      "id": "dish_entrada_21",
+      "visible": false
+    },
+    {
+      "id": "dish_entrada_10",
+      "visible": false
+    },
+    {
+      "id": "dish_main_1",
+      "visible": false
+    },
+    {
+      "id": "dish_main_2",
+      "visible": false
+    },
+    {
+      "id": "dish_main_15",
+      "visible": false
+    },
+    {
+      "id": "dish_main_13",
+      "visible": false
+    },
+    {
+      "id": "dish_main_11",
+      "visible": false
     }
   ],
   "mostrarPrecios": true
