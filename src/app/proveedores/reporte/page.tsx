@@ -44,21 +44,17 @@ export default function ReporteProveedoresPage() {
 
   const handlePrint = () => { window.print(); };
 
-  const handleShare = async () => {
+  const handleShare = () => {
     const shareData = {
       title: 'Reporte de Proveedores - AK Producciones',
       text: 'Lista de proveedores y servicios subcontratados.',
       url: window.location.href,
     };
     if (typeof navigator.share !== 'undefined' && navigator.canShare(shareData)) {
-      try {
-        await navigator.share(shareData);
-      } catch (err) {
-        console.error("Error al compartir:", err);
-      }
+        navigator.share(shareData).catch(err => console.error("Error al compartir:", err));
     } else {
-      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareData.text + '\n' + shareData.url)}`;
-      window.open(whatsappUrl, '_blank');
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareData.text + '\n' + shareData.url)}`;
+        window.open(whatsappUrl, '_blank');
     }
   };
 
