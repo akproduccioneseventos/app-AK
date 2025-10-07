@@ -515,31 +515,57 @@ export default function BudgetDisplaySettingsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Visibilidad de Platos en el Simulador</CardTitle>
+          <CardTitle className="font-headline text-xl">Gestión Gastronómica del Simulador</CardTitle>
           <CardDescription>
-            Activa o desactiva los platos que aparecerán como opciones en el simulador para tus clientes.
-             Para editar los detalles de los menús o platos, ve al <Link href="/empresa/menus" className="text-primary underline hover:text-primary/80">Planificador Gastronómico Maestro</Link>.
+            Activa o desactiva los platos que estarán disponibles en el simulador y luego crea los menús cerrados que los clientes podrán elegir. Los platos se gestionan en el <Link href="/empresa/menus" className="text-primary underline hover:text-primary/80">Planificador Gastronómico Maestro</Link>.
           </CardDescription>
         </CardHeader>
         <CardContent>
-            <Accordion type="multiple" defaultValue={['entradas', 'principales', 'infantiles']} className="w-full space-y-2">
-                <AccordionItem value="entradas" className="border rounded-md"><AccordionTrigger className="px-3 text-md font-medium hover:no-underline">Entradas</AccordionTrigger><AccordionContent className="p-3 border-t">
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-2">{entradas.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-sm">{plato.name}</Label></div>))}</div>
-                </AccordionContent></AccordionItem>
-                <AccordionItem value="principales" className="border rounded-md"><AccordionTrigger className="px-3 text-md font-medium hover:no-underline">Platos Principales</AccordionTrigger><AccordionContent className="p-3 border-t">
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-2">{platosPrincipales.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-sm">{plato.name}</Label></div>))}</div>
-                </AccordionContent></AccordionItem>
-                <AccordionItem value="infantiles" className="border rounded-md"><AccordionTrigger className="px-3 text-md font-medium hover:no-underline">Menús Infantiles/Adolescentes</AccordionTrigger><AccordionContent className="p-3 border-t">
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-2">{menusInfantiles.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-sm">{plato.name}</Label></div>))}</div>
-                </AccordionContent></AccordionItem>
-            </Accordion>
+           <Accordion type="multiple" defaultValue={['visibility']} className="w-full space-y-4">
+              <AccordionItem value="visibility" className="border rounded-md shadow-sm">
+                  <AccordionTrigger className="px-3 text-md font-medium hover:no-underline">Visibilidad de Platos</AccordionTrigger>
+                  <AccordionContent className="p-3 border-t">
+                       <Accordion type="multiple" defaultValue={['entradas', 'principales', 'infantiles']} className="w-full space-y-2">
+                        <AccordionItem value="entradas" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Entradas</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{entradas.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.name}</Label></div>))}</div></AccordionContent></AccordionItem>
+                        <AccordionItem value="principales" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Platos Principales</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{platosPrincipales.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.name}</Label></div>))}</div></AccordionContent></AccordionItem>
+                        <AccordionItem value="infantiles" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Menús Infantiles/Adolescentes</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{menusInfantiles.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.name}</Label></div>))}</div></AccordionContent></AccordionItem>
+                      </Accordion>
+                  </AccordionContent>
+              </AccordionItem>
+           </Accordion>
         </CardContent>
+         <CardHeader>
+           <CardTitle className="font-headline text-lg">Menús para Simulador</CardTitle>
+           <CardDescription>Configura los menús que aparecerán como opción en el simulador de presupuesto para clientes.</CardDescription>
+        </CardHeader>
+         <CardContent className="space-y-3">
+            <Button onClick={() => handleOpenModal('menu')}><PlusCircle className="w-4 h-4 mr-2"/>Crear Menú de Simulador</Button>
+            <Separator/>
+            <Accordion type="multiple" className="w-full space-y-3">
+             {config.menus.map(menu => (
+                <AccordionItem key={menu.id} value={menu.id} className="border rounded-md shadow-sm">
+                    <div className="flex items-center p-3 font-semibold text-sm">
+                        <AccordionTrigger className="hover:no-underline flex-1 text-left">{menu.nombre}</AccordionTrigger>
+                        <div className="flex gap-2 pl-2">
+                           <Button variant="outline" size="sm" onClick={() => handleOpenModal('menu', menu)}>Editar</Button>
+                           <Button variant="destructive" size="sm" onClick={() => handleDeleteItem('menu', menu.id)} disabled={isSaving}>Eliminar</Button>
+                        </div>
+                    </div>
+                    <AccordionContent className="p-3 border-t">
+                      <p className="text-xs text-muted-foreground">{menu.descripcion || 'Sin descripción'}</p>
+                      <Separator className="my-2"/>
+                      {renderServiciosList((menu.serviciosIncluidos || []))}
+                    </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </CardContent>
       </Card>
       
        <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="font-headline text-xl flex items-center gap-2"><Package className="text-primary"/>Paquetes de Servicios para Simulador</CardTitle>
-            <CardDescription>Crea y gestiona paquetes de servicios predefinidos para el simulador de clientes.</CardDescription>
+            <CardDescription>Crea y gestiona paquetes de servicios predefinidos (discoteca, decoración, etc.) para el simulador de clientes.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             <Button onClick={() => handleOpenModal('paquete')}><PlusCircle className="w-4 h-4 mr-2"/>Crear Paquete</Button>
@@ -578,37 +604,6 @@ export default function BudgetDisplaySettingsPage() {
             </Accordion>
           </CardContent>
       </Card>
-
-      <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="font-headline text-xl flex items-center gap-2"><ChefHat className="text-primary"/>Menús Gastronómicos para Simulador</CardTitle>
-            <CardDescription>Configura los menús cerrados que aparecerán como opción en el simulador de presupuesto para clientes.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Button onClick={() => handleOpenModal('menu')}><PlusCircle className="w-4 h-4 mr-2"/>Crear Menú de Simulador</Button>
-            <Separator/>
-            <Accordion type="multiple" className="w-full space-y-3">
-             {config.menus.map(menu => (
-                <AccordionItem key={menu.id} value={menu.id} className="border rounded-md shadow-sm">
-                    <div className="flex items-center p-3 font-semibold text-sm">
-                        <AccordionTrigger className="hover:no-underline flex-1 text-left">{menu.nombre}</AccordionTrigger>
-                        <div className="flex gap-2 pl-2">
-                           <Button variant="outline" size="sm" onClick={() => handleOpenModal('menu', menu)}>Editar</Button>
-                           <Button variant="destructive" size="sm" onClick={() => handleDeleteItem('menu', menu.id)} disabled={isSaving}>Eliminar</Button>
-                        </div>
-                    </div>
-                    <AccordionContent className="p-3 border-t">
-                      <p className="text-xs text-muted-foreground">{menu.descripcion || 'Sin descripción'}</p>
-                      <Separator className="my-2"/>
-                      {renderServiciosList((menu.serviciosIncluidos || []))}
-                    </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </CardContent>
-      </Card>
     </div>
   );
 }
-
-    

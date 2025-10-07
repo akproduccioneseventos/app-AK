@@ -14,7 +14,7 @@ export interface Ingredient {
 export interface MenuItem { // Representa un Plato
   id: string;
   name: string;
-  type: 'Entrada' | 'Plato Principal' | 'Postre' | 'Bebida' | 'Menú para niños y adolescentes' | ''; // Categoría del plato
+  type: 'Entrada' | 'Plato Principal' | 'Postre' | 'Bebida' | 'Menú Infantil' | 'Menú Infantil/Adolescente' | ''; // Categoría del plato
   ingredients: Ingredient[];
   // totalDishCost is the cost of this dish FOR ONE PERSON, calculated from sum of its ingredient costs (which are per person)
   totalDishCost: number; 
@@ -29,10 +29,11 @@ export interface FullMenu { // Representa un Menú completo guardado
   name: string; // ej: 'Menú Clásico Casamiento'
   description: string; // Descripción general del menú
   items: MenuItem[]; // Lista de platos
-  templateType?: 'Personalizado' | 'Menú de Entradas' | 'Menú de Platos Principales' | 'Menú para Adolescente' | 'Menú para Niños' | 'Menu del personal'; // Tipo de plantilla/menu
+  templateType?: 'Personalizado' | 'Menú de Entradas' | 'Menú de Platos Principales' | 'Menú para Adolescente' | 'Menú Infantil' | 'Menú del personal'; // Tipo de plantilla/menu
   createdAt?: string; // ISO date string
   updatedAt?: string; // ISO date string
 }
 
 // Para el formulario, antes de tener un ID de FullMenu
 export type NewMenuFormData = Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'>;
+
