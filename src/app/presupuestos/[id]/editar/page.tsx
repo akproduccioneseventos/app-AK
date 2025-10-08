@@ -221,5 +221,3 @@ export default function EditarPresupuestoPage({ params: paramsProp }: { params: 
     </div>
   );
 }
-
-    

@@ -20,15 +20,6 @@
     "invitadosPorUnidad": 25
   },
   {
-    "id": "item_1757281980225_3x3nbzo",
-    "nombre": "Organizador de la Fiesta",
-    "tipoItem": "Servicio",
-    "categoria": "Personal",
-    "valorUnitarioEstimado": 8000,
-    "precioVenta": 10000,
-    "calculationMethod": "fijo"
-  },
-  {
     "id": "item_1757280489194_y9qozwm",
     "nombre": "Portero/Seguridad",
     "tipoItem": "Servicio",
@@ -42,17 +33,26 @@
     "nombre": "Invitaciones Digitales",
     "tipoItem": "Servicio",
     "categoria": "Regalo exclusivo",
-    "valorUnitarioEstimado": 1000,
-    "precioVenta": 2000,
+    "valorUnitarioEstimado": 0,
+    "precioVenta": 2500,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "item_1757281980225_3x3nbzo",
+    "nombre": "Organizador de la Fiesta",
+    "tipoItem": "Servicio",
+    "categoria": "Regalo exclusivo",
+    "valorUnitarioEstimado": 8000,
+    "precioVenta": 10000,
     "calculationMethod": "fijo"
   },
   {
     "id": "serv_pantalla_proyector",
-    "nombre": "Pantalla y Proyector",
+    "nombre": "Pantalla Gigante y Proyector",
     "tipoItem": "Servicio",
     "categoria": "Regalo exclusivo",
-    "valorUnitarioEstimado": 3000,
-    "precioVenta": 8000,
+    "valorUnitarioEstimado": 0,
+    "precioVenta": 2500,
     "calculationMethod": "fijo"
   },
   {
@@ -60,36 +60,27 @@
     "nombre": "Video de Vida",
     "tipoItem": "Servicio",
     "categoria": "Regalo exclusivo",
-    "valorUnitarioEstimado": 4000,
-    "precioVenta": 5000,
+    "valorUnitarioEstimado": 0,
+    "precioVenta": 2500,
     "calculationMethod": "fijo"
   },
   {
     "id": "serv_1752489600086_barlib",
-    "nombre": "Barra Libre de Bebidas sin Alcohol",
+    "nombre": "Barra de tragos",
     "tipoItem": "Servicio",
     "categoria": "Servicio de bebidas",
-    "valorUnitarioEstimado": 200,
+    "valorUnitarioEstimado": 160,
     "calculationMethod": "porPersona",
-    "precioPorPersona": 250
-  },
-  {
-    "id": "item_1757258361278_fs8ba4x",
-    "nombre": "Servicio de Catering",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "valorUnitarioEstimado": 250,
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 300
+    "precioPorPersona": 380
   },
   {
     "id": "item_1758319656786_6sjl431",
     "nombre": "Vajilla Completa",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "valorUnitarioEstimado": 80,
+    "valorUnitarioEstimado": 0,
     "calculationMethod": "porPersona",
-    "precioPorPersona": 100
+    "precioPorPersona": 75
   },
   {
     "id": "item_1758320278460_yqzpq1h",
@@ -126,15 +117,35 @@
     "categoria": "Servicio de discoteca",
     "valorUnitarioEstimado": 16000,
     "precioVenta": 20000,
-    "calculationMethod": "fijo"
+    "calculationMethod": "tramos",
+    "tramosDePrecio": [
+      {
+        "id": "tramo_1759920281582",
+        "desde": 1,
+        "hasta": 80,
+        "precio": 9990
+      },
+      {
+        "id": "tramo_1759920301189",
+        "desde": 81,
+        "hasta": 140,
+        "precio": 18990
+      },
+      {
+        "id": "tramo_1759920323087",
+        "desde": 141,
+        "hasta": 250,
+        "precio": 29900
+      }
+    ]
   },
   {
     "id": "item_1757284864269_4d9w4ml",
     "nombre": "Fotocabina",
     "tipoItem": "Servicio",
     "categoria": "Servicio de entretenimiento",
-    "valorUnitarioEstimado": 6000,
-    "precioVenta": 8000,
+    "valorUnitarioEstimado": 1000,
+    "precioVenta": 2900,
     "calculationMethod": "fijo"
   },
   {
@@ -195,23 +206,14 @@
   },
   {
     "id": "serv_1762189912782_abc",
-    "nombre": "Rogel",
+    "nombre": "Postre Rogel",
     "tipoItem": "Servicio",
     "categoria": "Servicio de repostería",
     "subcategoria": "Mesa de Postres",
-    "valorUnitarioEstimado": 110,
-    "calculationMethod": "porPersona",
+    "valorUnitarioEstimado": 1200,
+    "precioVenta": 1590,
+    "calculationMethod": "fijo",
     "precioPorPersona": 170
-  },
-  {
-    "id": "serv_1762189912783_def",
-    "nombre": "Tiramisú",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de repostería",
-    "subcategoria": "Mesa de Postres",
-    "valorUnitarioEstimado": 130,
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 200
   },
   {
     "id": "item_1757539236109_vtqfjaz",
@@ -219,8 +221,9 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de repostería",
     "subcategoria": "Torta Principal",
-    "valorUnitarioEstimado": 4000,
+    "valorUnitarioEstimado": 60,
     "precioVenta": 6000,
-    "calculationMethod": "fijo"
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 100
   }
 ]

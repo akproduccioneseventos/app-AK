@@ -179,5 +179,3 @@ export default function EditarServicioPage({ params: paramsProp }: { params: { i
     </div>
   );
 }
-
-    
