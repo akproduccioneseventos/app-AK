@@ -1,22 +1,22 @@
 [
   {
+    "id": "serv_mozo_cocina",
+    "nombre": "Mozo de Cocina",
+    "tipoItem": "Servicio",
+    "categoria": "Personal",
+    "valorUnitarioEstimado": 2100,
+    "calculationMethod": "ratio",
+    "precioBase": 2900,
+    "invitadosPorUnidad": 25
+  },
+  {
     "id": "item_1757281980225_3x3nbzo",
-    "nombre": "Coordinador de Evento",
+    "nombre": "Organizador de la Fiesta",
     "tipoItem": "Servicio",
     "categoria": "Personal",
     "valorUnitarioEstimado": 8000,
     "precioVenta": 10000,
     "calculationMethod": "fijo"
-  },
-  {
-    "id": "serv_mozo_cocina",
-    "nombre": "Personal de Cocina",
-    "tipoItem": "Servicio",
-    "categoria": "Personal",
-    "valorUnitarioEstimado": 2000,
-    "calculationMethod": "ratio",
-    "precioBase": 2800,
-    "invitadosPorUnidad": 50
   },
   {
     "id": "item_1757280489194_y9qozwm",
