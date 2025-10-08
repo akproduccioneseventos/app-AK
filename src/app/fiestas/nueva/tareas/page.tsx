@@ -16,9 +16,9 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { format as formatDateFn, formatDistanceToNowStrict } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
-import type { Tarea, ItineraryTemplate as TaskTemplate } from '@/types/fiesta';
+import type { Tarea } from '@/types/fiesta';
 import { getFiestaActual, updateTareasFiestaActual } from '@/app/actions/fiesta-actual';
-import { getTaskTemplates, deleteTaskTemplate, saveTaskTemplate } from '@/app/actions/task-templates';
+import { getTaskTemplates, deleteTaskTemplate, saveTaskTemplate, type TaskTemplate } from '@/app/actions/task-templates';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -428,3 +428,5 @@ export default function TareasEventoPage() {
     </div>
   );
 }
+
+    
