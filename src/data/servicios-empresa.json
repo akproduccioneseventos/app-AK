@@ -74,6 +74,15 @@
     "precioPorPersona": 380
   },
   {
+    "id": "serv_manteleria_completa",
+    "nombre": "Mantelería Completa",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "valorUnitarioEstimado": 35,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 75
+  },
+  {
     "id": "item_1758319656786_6sjl431",
     "nombre": "Vajilla Completa",
     "tipoItem": "Servicio",
@@ -84,13 +93,13 @@
   },
   {
     "id": "item_1758320278460_yqzpq1h",
-    "nombre": "Centros de mesa florales",
+    "nombre": "Alquiler de Centros de mesa florales",
     "tipoItem": "Servicio",
     "categoria": "Servicio de decoración",
-    "valorUnitarioEstimado": 500,
+    "valorUnitarioEstimado": 200,
     "calculationMethod": "ratio",
-    "precioBase": 700,
-    "invitadosPorUnidad": 10
+    "precioBase": 590,
+    "invitadosPorUnidad": 8
   },
   {
     "id": "item_1757282105396_39i6zkn",
@@ -102,20 +111,11 @@
     "calculationMethod": "fijo"
   },
   {
-    "id": "serv_manteleria_completa",
-    "nombre": "Mantelería Completa",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de decoración",
-    "valorUnitarioEstimado": 60,
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 70
-  },
-  {
     "id": "item_1756940568854_u5m4prf",
     "nombre": "Servicio de discoteca",
     "tipoItem": "Servicio",
     "categoria": "Servicio de discoteca",
-    "valorUnitarioEstimado": 16000,
+    "valorUnitarioEstimado": 3000,
     "precioVenta": 20000,
     "calculationMethod": "tramos",
     "tramosDePrecio": [
@@ -153,35 +153,26 @@
     "nombre": "Plataforma 360",
     "tipoItem": "Servicio",
     "categoria": "Servicio de entretenimiento",
-    "valorUnitarioEstimado": 6000,
-    "precioVenta": 8000,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "item_1758320726157_k2ts7sy",
-    "nombre": "Show en vivo (Banda)",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de entretenimiento",
-    "valorUnitarioEstimado": 20000,
-    "precioVenta": 30000,
+    "valorUnitarioEstimado": 1000,
+    "precioVenta": 3900,
     "calculationMethod": "fijo"
   },
   {
     "id": "item_1757258437308_s0lgq1z",
-    "nombre": "Filmación",
+    "nombre": "Filmación de la fiesta",
     "tipoItem": "Servicio",
     "categoria": "Servicio de filmación",
-    "valorUnitarioEstimado": 15000,
-    "precioVenta": 20000,
+    "valorUnitarioEstimado": 3500,
+    "precioVenta": 8990,
     "calculationMethod": "fijo"
   },
   {
     "id": "item_1757177422000_4ru2piy",
-    "nombre": "Fotografía",
+    "nombre": "Fotografía de exteriores",
     "tipoItem": "Servicio",
     "categoria": "Servicio de fotografía",
-    "valorUnitarioEstimado": 15000,
-    "precioVenta": 20000,
+    "valorUnitarioEstimado": 1500,
+    "precioVenta": 3900,
     "calculationMethod": "fijo"
   },
   {
@@ -196,12 +187,13 @@
   },
   {
     "id": "serv_1762189912781_xyz",
-    "nombre": "Lemon Pie",
+    "nombre": "Postre Lemon Pie",
     "tipoItem": "Servicio",
     "categoria": "Servicio de repostería",
     "subcategoria": "Mesa de Postres",
-    "valorUnitarioEstimado": 120,
-    "calculationMethod": "porPersona",
+    "valorUnitarioEstimado": 900,
+    "precioVenta": 1290,
+    "calculationMethod": "fijo",
     "precioPorPersona": 180
   },
   {
