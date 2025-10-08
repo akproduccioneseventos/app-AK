@@ -75,6 +75,17 @@ async function getActivas(): Promise<FiestaEnPlanificacion[]> {
     }
 }
 
+export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
+    const activas = await getActivas();
+    if (activas.length > 0) {
+        // Return the first active event found. This simplifies logic for single-event components.
+        return activas[0];
+    }
+    // If no active events, return a default placeholder.
+    return { ...initialFiestaActualData, id: `fiesta_placeholder_${Date.now()}`};
+}
+
+
 export async function getAllFiestas(): Promise<FiestaEnPlanificacion[]> {
   const [activas, archivadas] = await Promise.all([getActivas(), getHistorialFiestas()]);
   return [...activas, ...archivadas];
@@ -303,4 +314,5 @@ export async function removeInvoiceId(fiestaId: string, invoiceId: string): Prom
 
 
   
+
 

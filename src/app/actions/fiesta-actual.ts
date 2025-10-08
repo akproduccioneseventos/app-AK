@@ -3,7 +3,6 @@
 'use server';
 
 import type { FiestaEnPlanificacion, Tarea, Invitado, DecoracionData, ProgramaEventoItem, PersonalAsignadoDetalleStorage, ClientTarea, ClientPortalSettings, EventWebPageSettings, MusicaFiesta, GiftItem, ReposteriaData, BebidasData, ListaDeCargaOperativa, GestionCostosData, FotografiaYFilmacionData, OtroDocumento, DocumentoTipo, PagoProveedor, VideoVidaData } from '@/types/fiesta';
-import { initialFiestaActualData } from '@/lib/fiesta-defaults';
 import { 
     getFiestas as getFiestasFromModule,
     getAllFiestas as getAllFiestasFromModule,
@@ -19,7 +18,7 @@ import {
     duplicateFiesta as duplicateFiestaFromModule,
     getHistorialFiestas as getHistorialFiestasFromModule
 } from './fiesta/fiesta.actions';
-import { getFiestaById as getFiestaData } from './fiesta/fiesta.actions';
+import { getFiestaActual as getFiestaData } from './fiesta/fiesta.actions';
 
 
 import { updateConfiguracion } from './fiesta/configuracion.actions';

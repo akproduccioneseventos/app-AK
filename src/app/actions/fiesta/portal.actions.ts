@@ -6,7 +6,7 @@ import type { FiestaEnPlanificacion, ClientTarea, ClientPortalSettings, EventWeb
 import { readData, writeData } from '@/lib/data-service';
 import path from 'path';
 import { uploadSocialPost } from '../social-gallery';
-import { getFiestaActual as getFiestaData } from './configuracion.actions'; // Corrected import
+import { getFiestaActual as getFiestaData } from '@/app/actions/fiesta-actual';
 
 async function updateFiestaData(updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion | Promise<FiestaEnPlanificacion>): Promise<{ success: boolean; error?: string }> {
   try {

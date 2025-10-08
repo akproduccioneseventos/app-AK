@@ -97,7 +97,7 @@
     "nombre": "Decoración",
     "tipoItem": "Servicio",
     "categoria": "Servicio de decoración",
-    "valorUnitarioEstimado": 20000,
+    "valorUnitarioEstimado": 5000,
     "precioVenta": 14500,
     "calculationMethod": "fijo"
   },
@@ -190,9 +190,9 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de repostería",
     "subcategoria": "Candy Bar Temático",
-    "valorUnitarioEstimado": 100,
+    "valorUnitarioEstimado": 50,
     "calculationMethod": "porPersona",
-    "precioPorPersona": 150
+    "precioPorPersona": 100
   },
   {
     "id": "serv_1762189912781_xyz",
