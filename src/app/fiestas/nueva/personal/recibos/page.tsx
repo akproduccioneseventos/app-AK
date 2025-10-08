@@ -17,6 +17,7 @@ import { AlertTriangle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { WatermarkedImage } from '@/components/watermarked-image';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
+import { Separator } from '@/components/ui/separator';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -24,13 +25,19 @@ const formatCurrency = (amount?: number) => {
 };
 
 const formatDate = (dateString?: string) => {
-  if (!dateString) return "N/A";
+  if (!dateString) return "____________";
   try {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      day: 'numeric', month: 'long', year: 'numeric'
-    });
-  } catch (e) { return "Fecha inválida"; }
+    return new Date(dateString).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+  } catch (e) {
+    return "Fecha inválida";
+  }
 };
+
+const today = new Date().toLocaleDateString('es-ES', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric'
+});
 
 interface FullStaffDetail {
   empleado: Empleado;
@@ -158,7 +165,7 @@ export default function RecibosDePagoPage() {
   if (error || !fiesta) {
     return (
       <div className="p-8 max-w-4xl mx-auto bg-white text-center">
-        <div className="flex justify-between items-center mb-6 print:hidden">
+         <div className="flex justify-between items-center mb-6 print:hidden">
              <Link href="/fiestas/nueva/personal" passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Asignar</Button></Link>
         </div>
         <AlertTriangle className="w-12 h-12 mx-auto text-destructive mb-3" />
@@ -184,7 +191,7 @@ export default function RecibosDePagoPage() {
         
         <header className="mb-6 print:mb-4 text-center border-b pb-3 print:pb-2">
             <div className="w-full h-24 print:h-20 mb-4 relative">
-                <WatermarkedImage src={logoUrl} alt="Marca de agua" containerClassName='w-full h-full'/>
+                <WatermarkedImage src={logoUrl} alt="Marca de agua" />
             </div>
             <h1 className="text-xl font-bold text-primary print:text-lg">Recibos de Pago de Personal</h1>
             <p className="text-md text-gray-700 print:text-sm mt-1">{fiesta.configuracion.nombreEvento}</p>
@@ -248,7 +255,7 @@ export default function RecibosDePagoPage() {
                                         <span className="print:hidden">$</span>
                                         <Input
                                             type="number"
-                                            value={detail.eventSalary}
+                                            value={detail.eventSalary ?? ''}
                                             onChange={(e) => handleSalaryChange(detail.empleado.id, e.target.value)}
                                             className="text-right h-8 w-28 font-bold print:hidden"
                                         />
@@ -277,3 +284,5 @@ export default function RecibosDePagoPage() {
     </div>
   );
 }
+
+    

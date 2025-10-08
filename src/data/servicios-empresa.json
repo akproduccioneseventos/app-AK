@@ -1,5 +1,15 @@
 [
   {
+    "id": "serv_mozos",
+    "nombre": "Mozo",
+    "tipoItem": "Servicio",
+    "categoria": "Personal",
+    "valorUnitarioEstimado": 2100,
+    "calculationMethod": "ratio",
+    "precioBase": 2900,
+    "invitadosPorUnidad": 25
+  },
+  {
     "id": "serv_mozo_cocina",
     "nombre": "Mozo de Cocina",
     "tipoItem": "Servicio",
@@ -23,19 +33,9 @@
     "nombre": "Portero/Seguridad",
     "tipoItem": "Servicio",
     "categoria": "Personal",
-    "valorUnitarioEstimado": 2000,
+    "valorUnitarioEstimado": 1600,
     "precioVenta": 2500,
     "calculationMethod": "fijo"
-  },
-  {
-    "id": "serv_mozos",
-    "nombre": "Servicio de Mozos",
-    "tipoItem": "Servicio",
-    "categoria": "Personal",
-    "valorUnitarioEstimado": 1800,
-    "calculationMethod": "ratio",
-    "precioBase": 2500,
-    "invitadosPorUnidad": 20
   },
   {
     "id": "serv_invitaciones_digitales",

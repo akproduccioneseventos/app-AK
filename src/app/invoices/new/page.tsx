@@ -270,7 +270,7 @@ function NewInvoicePageContent() {
                 </div>
                  <div className="space-y-2">
                     <Label htmlFor="tax-rate-input">Tasa de IVA (%)</Label>
-                    <Input id="tax-rate-input" type="number" value={taxRate} onChange={(e) => setTaxRate(parseFloat(e.target.value) || 0)} placeholder="Ej: 22 para 22%" className="text-base p-3" min="0" max="100" step="any"/>
+                    <Input id="tax-rate-input" type="number" value={taxRate ?? ''} onChange={(e) => setTaxRate(parseFloat(e.target.value) || 0)} placeholder="Ej: 22 para 22%" className="text-base p-3" min="0" max="100" step="any"/>
                 </div>
             </div>
 
@@ -332,3 +332,5 @@ export default function NewInvoicePage() {
     </Suspense>
   );
 }
+
+    

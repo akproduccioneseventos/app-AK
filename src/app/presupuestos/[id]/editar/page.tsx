@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -200,7 +201,7 @@ export default function EditarPresupuestoPage({ params: paramsProp }: { params: 
                     {descuentoTipo === 'porcentaje' ? <Percent className="w-4 h-4 text-muted-foreground"/> : <span className="text-muted-foreground font-bold text-sm">$</span>}
                     Valor Descuento
                   </Label>
-                  <Input id="descuento-valor-edit" type="number" value={descuentoValor} onChange={e => setDescuentoValor(e.target.value)} min="0" step="any" disabled={isSaving || !descuentoTipo} placeholder="Ej: 10 o 5000"/>
+                  <Input id="descuento-valor-edit" type="number" value={descuentoValor ?? ''} onChange={e => setDescuentoValor(e.target.value)} min="0" step="any" disabled={isSaving || !descuentoTipo} placeholder="Ej: 10 o 5000"/>
                 </div>
               </div>
             </div>
@@ -220,3 +221,5 @@ export default function EditarPresupuestoPage({ params: paramsProp }: { params: 
     </div>
   );
 }
+
+    
