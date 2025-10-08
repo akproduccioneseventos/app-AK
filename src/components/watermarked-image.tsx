@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -8,11 +9,9 @@ import { Skeleton } from './ui/skeleton';
 interface WatermarkedImageProps extends Omit<ImageProps, 'src'> {
   src: string | null;
   alt: string;
-  containerClassName?: string;
 }
 
 export function WatermarkedImage({
-  containerClassName,
   alt,
   src,
   ...props
@@ -20,7 +19,7 @@ export function WatermarkedImage({
   
   if (!src) {
     return (
-      <div className={cn("relative w-full h-full bg-muted/50 print:hidden", containerClassName)}>
+      <div className={cn("relative w-full h-full bg-muted/50 print:hidden")}>
         <div className="absolute inset-0 flex items-center justify-center text-xs text-muted-foreground">
             Imagen no disponible
         </div>
@@ -31,7 +30,7 @@ export function WatermarkedImage({
   // Use a simple <img> tag for printing to better control background behavior
   return (
     <>
-      <div className={cn("relative w-full h-full print:hidden", containerClassName)}>
+      <div className={cn("relative w-full h-full print:hidden")}>
         <NextImage src={src} alt={alt} fill style={{objectFit: 'contain'}} {...props} />
       </div>
        <div className="hidden print:block fixed inset-0 flex items-center justify-center -z-10">
