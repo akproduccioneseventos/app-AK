@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef, type ChangeEvent } from 'react';
@@ -213,7 +212,7 @@ const DraggableLayoutElement: React.FC<{
             seats.push(<GuestSeat key={`bottom-${i}`} seatNumber={seatsTop + i + 1} guest={guest} style={style} {...config} />);
         }
     }
-    return <div className="absolute inset-0 pointer-events-none">{seats}</div>;
+    return <div className="absolute inset-0 pointer-events-none">{renderSeats}</div>;
   };
 
   const tableStyle = `absolute inset-0 border-4 border-gray-400 bg-white/80 flex items-center justify-center text-gray-700 font-bold text-lg cursor-move shadow-lg ${isRound ? 'rounded-full' : 'rounded-sm'}`;
@@ -730,9 +729,3 @@ export default function SalonLayoutPage() {
     </div>
   );
 }
-
-
-
-
-
-    
