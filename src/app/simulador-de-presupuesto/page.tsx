@@ -332,7 +332,7 @@ export default function ArmadoRapidoPage() {
                 precioUnitarioPresupuesto: s.precioUnitario,
                 esRegalo: s.esRegalo,
                 categoriaServicio: s.categoria
-            }))
+            })) as Omit<ItemPresupuestado, 'costoTotalItem'>[]
         };
 
         try {
@@ -583,8 +583,3 @@ export default function ArmadoRapidoPage() {
         </div>
     );
 }
-
-    
-
-
-```
