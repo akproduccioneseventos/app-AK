@@ -78,8 +78,8 @@ const menuItemToServicioEmpresa = (item: MenuItem): ServicioEmpresa => ({
     categoria: 'Servicio de catering',
     subcategoria: item.type,
     calculationMethod: 'porPersona',
-    precioPorPersona: item.suggestedSellingPrice || item.totalDishCost,
-    precioVenta: item.suggestedSellingPrice || item.totalDishCost,
+    precioPorPersona: item.totalDishCost, // Use the base cost per person for display
+    precioVenta: item.totalDishCost, // Fallback
 });
 
 
@@ -601,5 +601,6 @@ export default function ArmadoRapidoPage() {
         </div>
     );
 }
+
 
     
