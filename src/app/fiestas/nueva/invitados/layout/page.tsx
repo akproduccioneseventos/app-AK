@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, type ChangeEvent, use } from 'react';
 import Link from 'next/link';
 import NextImage from 'next/image';
 import Draggable, { type DraggableEvent, type DraggableData } from 'react-draggable';
@@ -138,7 +138,7 @@ const GuestSeat = ({ seatNumber, guest, guestNameStyle, guestIconStyle, style }:
     return (
         <div style={{...style, pointerEvents: 'none', userSelect: 'none'}} className="absolute flex flex-col items-center justify-center w-20 text-center">
             {guest ? (
-                <div className={`${iconBaseClass} ${iconTextColor}`} style={{ backgroundColor: iconBgColor }}>
+                <div className={cn(iconBaseClass, iconTextColor)} style={{ backgroundColor: iconBgColor }}>
                     {initials}
                 </div>
             ) : (
@@ -277,6 +277,7 @@ const DesignConfigSidebar = ({ decoracionData, onConfigChange, onInputChange, di
 
 
 export default function SalonLayoutPage() {
+  const params = use(params);
   const { toast } = useToast();
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [decoracionData, setDecoracionData] = useState<DecoracionData>(defaultDecoracion);
@@ -511,10 +512,14 @@ export default function SalonLayoutPage() {
   const handleDeleteTemplate = async (templateId: string) => {
     setProcessingPointName(templateId);
     try {
-        await deleteSalonLayoutTemplate(templateId);
-        toast({ title: "Plantilla Eliminada" });
-        const tpls = await getSalonLayoutTemplates();
-        setTemplates(tpls);
+        const result = await deleteSalonLayoutTemplate(templateId);
+        if(result.success) {
+            toast({ title: "Plantilla Eliminada" });
+            const tpls = await getSalonLayoutTemplates();
+            setTemplates(tpls);
+        } else {
+            throw new Error(result.error);
+        }
     } catch (e: any) {
         toast({ title: "Error", description: e.message, variant: "destructive" });
     } finally {
@@ -721,3 +726,5 @@ export default function SalonLayoutPage() {
     </div>
   );
 }
+
+    
