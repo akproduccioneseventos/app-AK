@@ -111,8 +111,9 @@ export default function ArmadoRapidoPage() {
         }
         
         const isPlatoVisible = (platoId: string) => {
-            const setting = config?.platosVisibles?.find(p => p.id === platoId);
-            return setting ? setting.visible : true; // Default to visible
+            const setting = config.platosVisibles?.find(p => p.id === platoId);
+            // If a setting exists, respect it. If not, default to visible.
+            return setting ? setting.visible : true;
         };
 
         const allCateringServices = serviciosCatalogo.filter(s => s.categoria === 'Servicio de catering');
@@ -579,3 +580,5 @@ export default function ArmadoRapidoPage() {
         </div>
     );
 }
+
+    
