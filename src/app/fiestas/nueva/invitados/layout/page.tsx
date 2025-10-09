@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef, type ChangeEvent } from 'react';
@@ -79,7 +80,7 @@ const nameToColor = (name: string): string => {
 
 // --- INTERNAL COMPONENTS ---
 
-function TableGenerationCard({ onGenerate, guestCount, setGuestCount, seatsPerTable, setSeatsPerTable, disabled, setConfirmOpen }: {
+const TableGenerationCard: React.FC<{
   onGenerate: () => void;
   guestCount: number;
   setGuestCount: (value: number) => void;
@@ -87,7 +88,7 @@ function TableGenerationCard({ onGenerate, guestCount, setGuestCount, seatsPerTa
   setSeatsPerTable: (value: number) => void;
   disabled: boolean;
   setConfirmOpen: (open: boolean) => void;
-}) {
+}> = ({ onGenerate, guestCount, setGuestCount, seatsPerTable, setSeatsPerTable, disabled, setConfirmOpen }) => {
   return (
     <Card className="shadow-lg">
       <CardHeader>
@@ -113,7 +114,7 @@ function TableGenerationCard({ onGenerate, guestCount, setGuestCount, seatsPerTa
       </CardFooter>
     </Card>
   );
-}
+};
 
 const GuestSeat: React.FC<{
     seatNumber: number;
@@ -729,5 +730,9 @@ export default function SalonLayoutPage() {
     </div>
   );
 }
+
+
+
+
 
     
