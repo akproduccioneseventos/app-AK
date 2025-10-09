@@ -6,7 +6,7 @@ import { readData, writeData } from '@/lib/data-service';
 import { saveCustomer } from '@/app/actions/customers'; 
 import type { Customer } from '@/types/customer'; 
 import { createNewFiestaForCustomer } from '@/app/actions/fiesta/fiesta.actions';
-import { activateAnnualAdjustmentForBudget } from './presupuestos';
+import { activateAnnualAdjustmentForBudget, getPresupuestos } from './presupuestos';
 import { addReunion } from './fiesta/reuniones.actions';
 import { createNotification } from './notifications';
 
@@ -27,7 +27,50 @@ export async function getCrmStages(): Promise<CrmStage[]> {
 }
 
 export async function getCrmLeads(): Promise<CrmLead[]> {
-  const leads = await readData<CrmLead[]>(LEADS_FILE, []);
+  let leads = await readData<CrmLead[]>(LEADS_FILE, []);
+  let needsWrite = false;
+
+  try {
+    const allBudgets = await getPresupuestos();
+    const allStages = await getCrmStages();
+    const targetStageId = allStages.find(stage => stage.name.toLowerCase() === 'con presupuesto')?.id || allStages[0]?.id;
+    
+    // Filter budgets that came from the simulator
+    const simulatorBudgets = allBudgets.filter(p => p.notas?.includes('Simulador Web'));
+    
+    for (const budget of simulatorBudgets) {
+      const budgetIdInNotes = `Presupuesto ID: ${budget.id}`;
+      // Check if a lead referencing this budget already exists
+      const leadExists = leads.some(lead => lead.notes?.includes(budgetIdInNotes));
+      
+      if (!leadExists && targetStageId) {
+        let notes = `Generado desde el Simulador de Presupuestos.\n- ${budgetIdInNotes}\n- Invitados: ${budget.invitadosAdultos} Adultos, ${budget.invitadosNinos} Niños/Adol.\n- Costo Estimado: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(budget.totalConDescuento ?? budget.costoTotalEstimado)}`;
+        
+        const newLead: CrmLead = {
+          id: `lead_recovered_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+          name: budget.clienteNombre,
+          phone: budget.clienteContacto,
+          notes: notes,
+          currentStageId: targetStageId,
+          createdAt: budget.timestamp,
+          updatedAt: new Date().toISOString(),
+          history: [{ stageId: targetStageId, stageName: allStages.find(s=>s.id === targetStageId)?.name || 'Con Presupuesto', timestamp: new Date().toISOString() }],
+        };
+        leads.push(newLead);
+        needsWrite = true;
+        console.log(`Recuperando prospecto para el presupuesto ${budget.id}`);
+      }
+    }
+
+    if (needsWrite) {
+      await writeData(LEADS_FILE, leads);
+    }
+
+  } catch (error) {
+    console.error("Error durante la recuperación de prospectos desde presupuestos:", error);
+    // Don't block the main function, just log the error.
+  }
+  
   // Default sort: newest first
   return leads.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
@@ -238,3 +281,4 @@ export async function convertToClientAndMoveProspect(
     return { success: false, error: error.message || "Error desconocido durante la conversión." };
   }
 }
+
