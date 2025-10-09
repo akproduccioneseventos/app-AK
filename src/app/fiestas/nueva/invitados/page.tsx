@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, type FormEvent, useEffect, useCallback } from 'react';
@@ -7,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Plus, Trash2, Users, Mail, Phone, Edit3, Save, Loader2, AlertTriangle, NotebookTextIcon, UserMinus, UserPlus2, QrCode, UserCheck, Ticket, LayoutDashboard, ArrowRight, Printer } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Users, Mail, Phone, Edit3, Save, Loader2, AlertTriangle, NotebookTextIcon, UserMinus, UserPlus2, QrCode, UserCheck, Ticket, LayoutDashboard, ArrowRight, Printer, Globe } from 'lucide-react';
 import Link from 'next/link';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
@@ -34,6 +35,8 @@ export default function InvitadosEventoPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false); 
   const [error, setError] = useState<string |null>(null);
+  const [fiestaId, setFiestaId] = useState<string>('');
+
 
   const [nuevoNombre, setNuevoNombre] = useState('');
   const [nuevoContacto, setNuevoContacto] = useState('');
@@ -49,6 +52,7 @@ export default function InvitadosEventoPage() {
     setError(null);
     try {
       const fiestaData = await getFiestaActual();
+      setFiestaId(fiestaData.id);
       setInvitados((fiestaData.invitados || []).sort((a,b) => a.nombre.localeCompare(b.nombre)));
       const tables = (fiestaData.decoracion?.salonElements || [])
         .filter(el => el.category?.toLowerCase().includes('mesa'))
@@ -236,26 +240,49 @@ export default function InvitadosEventoPage() {
         </div>
       </div>
 
-       <Card className="shadow-md bg-primary/5 border-primary/20 print:hidden">
-        <CardHeader className="flex-row items-center gap-4 space-y-0 pb-3">
-          <div className="p-3 bg-primary/10 rounded-lg">
-            <LayoutDashboard className="w-7 h-7 text-primary" />
-          </div>
-          <div>
-            <CardTitle className="font-headline text-xl">Diseño del Salón y Mesas</CardTitle>
-            <CardDescription className="text-sm text-muted-foreground">
-              Organiza visualmente las mesas y asigna a tus invitados.
-            </CardDescription>
-          </div>
-        </CardHeader>
-        <CardFooter className="pt-0">
-          <Link href="/fiestas/nueva/invitados/layout" passHref className="w-full">
-            <Button variant="default" className="w-full">
-              Ir al Diseñador de Salón <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </Link>
-        </CardFooter>
-      </Card>
+       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card className="shadow-md bg-primary/5 border-primary/20 print:hidden">
+          <CardHeader className="flex-row items-start gap-4 space-y-0 pb-3">
+            <div className="p-3 bg-primary/10 rounded-lg">
+              <LayoutDashboard className="w-7 h-7 text-primary" />
+            </div>
+            <div>
+              <CardTitle className="font-headline text-xl">Diseño del Salón y Mesas</CardTitle>
+              <CardDescription className="text-sm text-muted-foreground">
+                Organiza visualmente las mesas y asigna a tus invitados.
+              </CardDescription>
+            </div>
+          </CardHeader>
+          <CardFooter className="pt-0">
+            <Link href={`/fiestas/nueva/invitados/layout?fiestaId=${fiestaId}`} passHref className="w-full">
+              <Button variant="default" className="w-full">
+                Ir al Diseñador de Salón <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </Link>
+          </CardFooter>
+        </Card>
+        <Card className="shadow-md bg-secondary/5 border-secondary/20 print:hidden">
+          <CardHeader className="flex-row items-start gap-4 space-y-0 pb-3">
+            <div className="p-3 bg-secondary/10 rounded-lg">
+              <Globe className="w-7 h-7 text-secondary-foreground" />
+            </div>
+            <div>
+              <CardTitle className="font-headline text-xl">Página del Evento</CardTitle>
+              <CardDescription className="text-sm text-muted-foreground">
+                Personaliza la página web que verán tus invitados.
+              </CardDescription>
+            </div>
+          </CardHeader>
+          <CardFooter className="pt-0">
+            <Link href={`/fiestas/nueva/pagina-web?fiestaId=${fiestaId}`} passHref className="w-full">
+              <Button variant="secondary" className="w-full">
+                Configurar Página del Evento <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </Link>
+          </CardFooter>
+        </Card>
+      </div>
+
 
       <Card className="shadow-lg print:hidden">
         <CardHeader>
@@ -464,3 +491,5 @@ export default function InvitadosEventoPage() {
     </div>
   );
 }
+
+    
