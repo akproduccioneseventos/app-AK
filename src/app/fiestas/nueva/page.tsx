@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, AlertTriangle, PartyPopper, Calendar, Users, Palette, ChefHat, Music2, ListChecks, DollarSign, Camera, Gift, FileText, UserCheck, Clock, Archive, PackageSearch, Video, Globe, MessageSquare, LayoutDashboard } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, PartyPopper, Calendar, Users, Palette, ChefHat, Music2, ListChecks, DollarSign, Camera, Gift, FileText, UserCheck, Clock, Archive, PackageSearch, Video, Globe, MessageSquare, LayoutDashboard, Link as LinkIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -26,7 +26,7 @@ const modules = [
   { title: "Tareas", href: "tareas", icon: ListChecks, description: "Checklist de pendientes." },
   { title: "Invitados", href: "invitados", icon: Users, description: "Gestiona tu lista de invitados." },
   { title: "Diseño del Salón", href: "invitados/layout", icon: LayoutDashboard, description: "Organiza las mesas y asientos." },
-  { title: "Página del Evento", href: "pagina-web", icon: Globe, description: "Personaliza la página para invitados." },
+  { title: "Invitación y Página del Evento", href: "pagina-web", icon: LinkIcon, description: "Personaliza el enlace y la página que enviarás a tus invitados." },
   { title: "Diseño y Decoración", href: "decoracion", icon: Palette, description: "Define el estilo y la ambientación." },
   { title: "Catering", href: "catering", icon: ChefHat, description: "Planifica el menú gastronómico." },
   { title: "Música", href: "musica", icon: Music2, description: "Define las preferencias musicales." },
