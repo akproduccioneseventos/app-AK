@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import NextImage from 'next/image';
-import { Loader2, AlertTriangle, PartyPopper, CalendarDays, MapPin, Music2 as MusicIcon, Check, Users, MessageSquare, Send, CheckCircle, Gift, Clock, QrCode, Facebook, Instagram, Music, Utensils, GlassWater, Diamond, Sparkles, CakeSlice, Camera, Link as LinkIcon } from 'lucide-react';
+import { Loader2, AlertTriangle, PartyPopper, CalendarDays, MapPin, Music2 as MusicIcon, Check, Users, MessageSquare, Send, CheckCircle, Gift, Clock, QrCode, Facebook, Instagram, Music, Utensils, GlassWater, Diamond, Sparkles, CakeSlice, Camera, Link as LinkIcon, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, EventWebPageSettings, ColorPalette, Invitado, GiftItem, ProgramaEventoItem } from '@/types/fiesta';
 import { getFiestaActual, handleRsvpSubmissionFiestaActual, claimGiftFiestaActual } from '@/app/actions/fiesta-actual';
@@ -23,6 +23,7 @@ import QRCodeStylized from 'qrcode.react';
 import { defaultWebPageSettings } from '@/lib/fiesta-defaults';
 import { merge, cloneDeep } from 'lodash';
 import { WatermarkedImage } from '@/components/watermarked-image';
+import Link from 'next/link';
 
 const platformIcons: Record<string, React.ElementType> = {
     Facebook: Facebook,
@@ -315,7 +316,8 @@ export default function EventoPublicoPage() {
   const accentColor = paletaColores?.accent || 'hsl(var(--accent))';
   const heroTextStyle = webSettings.coverImageUrl ? 'text-white' : 'text-primary-foreground';
   const mapQuery = fiesta.configuracion.nombreLugar ? encodeURIComponent(fiesta.configuracion.nombreLugar) : '';
-  const mapUrl = mapQuery ? `https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY&q=${mapQuery}` : '';
+  const mapUrl = `https://www.google.com/maps?q=${mapQuery}`;
+  const mapEmbedUrl = mapQuery ? `https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY_HERE&q=${mapQuery}` : '';
   const qrCodeUrl = isClient ? `${window.location.origin}/evento/actual` : 'placeholder';
 
 
@@ -403,9 +405,13 @@ export default function EventoPublicoPage() {
                                 <div>
                                     <h3 className="font-semibold">Lugar</h3>
                                     <p className="text-muted-foreground">{fiesta.configuracion.nombreLugar}</p>
-                                    {mapUrl && (
-                                        <div className="mt-2 aspect-video w-full rounded-md overflow-hidden border">
-                                            <iframe width="100%" height="100%" frameBorder="0" style={{border:0}} src={mapUrl} allowFullScreen></iframe>
+                                    <div className="flex gap-2 mt-2">
+                                        <a href={mapUrl} target="_blank" rel="noopener noreferrer"><Button variant="outline" size="sm" className="gap-1.5"><MapPin className="w-4 h-4"/> Ver en Mapa</Button></a>
+                                        <a href={`https://www.google.com/maps/dir/?api=1&destination=${mapQuery}`} target="_blank" rel="noopener noreferrer"><Button variant="outline" size="sm" className="gap-1.5"><ExternalLink className="w-4 h-4"/> Cómo llegar</Button></a>
+                                    </div>
+                                    {mapEmbedUrl && (
+                                        <div className="mt-4 aspect-video w-full rounded-md overflow-hidden border">
+                                            <iframe width="100%" height="100%" frameBorder="0" style={{border:0}} src={mapEmbedUrl} allowFullScreen loading="lazy"></iframe>
                                         </div>
                                     )}
                                 </div>
@@ -495,7 +501,7 @@ export default function EventoPublicoPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {fiesta.webPageSettings.giftRegistry.map(gift => (
                   <Card key={gift.id} className={`flex flex-col ${gift.isClaimed ? 'bg-muted/50' : ''}`}>
-                    {gift.imageUrl && <WatermarkedImage containerClassName="aspect-video" src={gift.imageUrl} alt={gift.name} width={600} height={400} className="rounded-t-lg object-cover" data-ai-hint="gift idea"/>}
+                    {gift.imageUrl && <WatermarkedImage src={gift.imageUrl} alt={gift.name} width={600} height={400} className="rounded-t-lg object-cover" data-ai-hint="gift idea"/>}
                     <CardHeader><CardTitle>{gift.name}</CardTitle></CardHeader>
                     <CardContent className="flex-grow"><p className="text-sm text-muted-foreground">{gift.description}</p></CardContent>
                     <CardFooter>
@@ -520,7 +526,7 @@ export default function EventoPublicoPage() {
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
               {webSettings.galleryImageUrls.map((url, index) => (
                 <div key={index} className="aspect-square relative rounded-lg overflow-hidden border shadow-sm hover:shadow-xl transition-shadow">
-                  <WatermarkedImage src={url} alt={`Foto de galería ${index + 1}`} layout="fill" objectFit="cover" data-ai-hint="event photo gallery"/>
+                  <WatermarkedImage src={url} alt={`Foto de galería ${index + 1}`} fill objectFit="cover" data-ai-hint="event photo gallery"/>
                 </div>
               ))}
             </div>
@@ -563,4 +569,3 @@ export default function EventoPublicoPage() {
     </div>
   );
 }
-

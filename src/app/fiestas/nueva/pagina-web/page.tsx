@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { ArrowLeft, Save, Loader2, AlertTriangle, Globe, Share2, ClipboardCopy, Link as LinkIcon, Edit, Trash2, PlusCircle, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, EventWebPageSettings } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, EventWebPageSettings, ClientPortalSettings } from '@/types/fiesta';
 import { getFiestaActual, updatePortalSettingsFiestaActual as updatePortalSettings } from '@/app/actions/fiesta-actual';
 import { defaultWebPageSettings } from '@/lib/fiesta-defaults';
 import { Separator } from '@/components/ui/separator';
@@ -67,6 +67,10 @@ export default function PaginaWebSettingsPage() {
 
     const handleFileSelect = (file: File | null, setter: React.Dispatch<React.SetStateAction<FileWithPreview | null>>) => {
         if(file) {
+            if (file.size > 2 * 1024 * 1024) { // 2MB limit
+                toast({ title: "Archivo grande", description: "El tamaño máximo es 2MB.", variant: "destructive" });
+                return;
+            }
             const fileWithPreview = Object.assign(file, { preview: URL.createObjectURL(file) });
             setter(fileWithPreview);
         } else {
@@ -76,7 +80,13 @@ export default function PaginaWebSettingsPage() {
     
     const handleGalleryFileSelect = (files: FileList | null) => {
       if (files) {
-        const newFiles = Array.from(files).map(file => Object.assign(file, { preview: URL.createObjectURL(file) }));
+        const newFiles = Array.from(files).map(file => {
+             if (file.size > 2 * 1024 * 1024) { 
+                toast({ title: `Archivo ${file.name} grande`, description: "Se omitió por exceder los 2MB.", variant: "destructive" });
+                return null;
+            }
+            return Object.assign(file, { preview: URL.createObjectURL(file) })
+        }).filter(Boolean) as FileWithPreview[];
         setGalleryImageFiles(prev => [...prev, ...newFiles]);
       }
     };
@@ -111,7 +121,7 @@ export default function PaginaWebSettingsPage() {
                 } else {
                     const result = await uploadPublicPageAsset(fiesta.id, fileOrUrl);
                     if (result.success && result.url) newGalleryUrls.push(result.url);
-                    else throw new Error('Error al subir una de las imágenes de la galería.');
+                    else console.warn('Error al subir una de las imágenes de la galería.'); // Don't throw, just warn
                 }
             }
             finalWebSettings.galleryImageUrls = newGalleryUrls;
@@ -177,7 +187,14 @@ export default function PaginaWebSettingsPage() {
                             <Separator/>
                             <div className="flex items-center space-x-2"><Switch id="showCountdown" checked={webSettings.showCountdown} onCheckedChange={(val) => handleWebSettingChange('showCountdown', val)}/><Label htmlFor="showCountdown">Mostrar Cuenta Regresiva</Label></div>
                             <div className="flex items-center space-x-2"><Switch id="showEventDetails" checked={webSettings.showEventDetails} onCheckedChange={(val) => handleWebSettingChange('showEventDetails', val)}/><Label htmlFor="showEventDetails">Mostrar Detalles del Evento (Fecha, Lugar, Mapa)</Label></div>
+                             {webSettings.showEventDetails && <div className="pl-6 space-y-2 animate-in fade-in-50"><Label htmlFor="eventDetailsText">Texto adicional de Detalles</Label><Textarea id="eventDetailsText" value={webSettings.eventDetailsText || ''} onChange={e => handleWebSettingChange('eventDetailsText', e.target.value)} placeholder="Ej: Estacionamiento disponible, código de acceso..." /></div>}
+                            <div className="flex items-center space-x-2"><Switch id="showDressCode" checked={webSettings.showDressCode} onCheckedChange={(val) => handleWebSettingChange('showDressCode', val)}/><Label htmlFor="showDressCode">Mostrar Código de Vestimenta</Label></div>
+                            {webSettings.showDressCode && <div className="pl-6 space-y-2 animate-in fade-in-50"><Label htmlFor="dressCodeText">Texto de Vestimenta</Label><Input id="dressCodeText" value={webSettings.dressCodeText || ''} onChange={e => handleWebSettingChange('dressCodeText', e.target.value)} placeholder="Ej: Elegante Sport, Formal" /></div>}
                             <div className="flex items-center space-x-2"><Switch id="showRsvp" checked={webSettings.showRsvp} onCheckedChange={(val) => handleWebSettingChange('showRsvp', val)}/><Label htmlFor="showRsvp">Mostrar Formulario de RSVP</Label></div>
+                             <div className="flex items-center space-x-2"><Switch id="showPrograma" checked={webSettings.showPrograma} onCheckedChange={(val) => handleWebSettingChange('showPrograma', val)}/><Label htmlFor="showPrograma">Mostrar Cronograma del Evento</Label></div>
+                            <div className="flex items-center space-x-2"><Switch id="showGiftRegistry" checked={webSettings.showGiftRegistry} onCheckedChange={(val) => handleWebSettingChange('showGiftRegistry', val)}/><Label htmlFor="showGiftRegistry">Mostrar Lista de Regalos</Label></div>
+                            {webSettings.showGiftRegistry && <div className="pl-6 space-y-2 animate-in fade-in-50"><Label htmlFor="giftRegistryText">Texto para la Lista de Regalos</Label><Textarea id="giftRegistryText" value={webSettings.giftRegistryText || ''} onChange={e => handleWebSettingChange('giftRegistryText', e.target.value)} placeholder="Ej: Tu presencia es nuestro mejor regalo..." /></div>}
+                            <div className="space-y-2"><Label htmlFor="musicaEspecialText">Texto de Música Especial (Opcional)</Label><Input id="musicaEspecialText" value={webSettings.musicaEspecialText || ''} onChange={e => handleWebSettingChange('musicaEspecialText', e.target.value)} placeholder="Ej: ¡Ayúdanos a armar la playlist!"/></div>
                         </AccordionContent>
                     </AccordionItem>
                 </Accordion>
@@ -189,5 +206,3 @@ export default function PaginaWebSettingsPage() {
         </div>
     );
 }
-
-    

@@ -726,5 +726,3 @@ export default function SalonLayoutPage() {
     </div>
   );
 }
-
-    

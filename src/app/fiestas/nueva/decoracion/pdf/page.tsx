@@ -151,7 +151,7 @@ function DecorationPdfPageContent() {
                   })}</div>
               </section>}
               {decoracion?.decoracionTorta?.descripcion && <section className="mb-2 print:break-inside-avoid"><h2 className="text-lg font-semibold text-gray-800 print:text-base border-b mb-2 pb-1">Decoración de Torta</h2><p className="text-sm print:text-xs">{decoracion.decoracionTorta.descripcion}</p></section>}
-              {decoracion?.pdfNotasAdicionales && <section className="mt-4 pt-2 border-t print:break-before-page"><h2 className="text-lg font-semibold text-gray-800 print:text-base mb-1 flex items-center gap-2"><StickyNote className="w-5 h-5"/>Notas Adicionales</h2><p className="text-sm print:text-xs whitespace-pre-wrap">{decoracion.pdfNotasAdicionales}</p></section>}
+              {decoracion?.pdfNotasAdicionales && <section className="mt-4 pt-2 border-t print:break-before-page print:break-inside-avoid"><h2 className="text-lg font-semibold text-gray-800 print:text-base mb-1 flex items-center gap-2"><StickyNote className="w-5 h-5"/>Notas Adicionales</h2><p className="text-sm print:text-xs whitespace-pre-wrap">{decoracion.pdfNotasAdicionales}</p></section>}
             </div>
         )}
         <footer className="mt-8 pt-4 border-t text-center text-xs text-gray-400 print:mt-5 print:pt-2 print:border-gray-300"><p>Documento generado por {companyName} el: {new Date().toLocaleString('es-ES')}</p></footer>
