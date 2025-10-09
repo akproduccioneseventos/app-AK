@@ -731,6 +731,3 @@ export default function SalonLayoutPage() {
 }
 
     
-
-    
-
