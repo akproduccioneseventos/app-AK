@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -6,7 +5,8 @@ import NextImage, { type ImageProps } from 'next/image';
 import { cn } from '@/lib/utils';
 import { Skeleton } from './ui/skeleton';
 
-interface WatermarkedImageProps extends Omit<ImageProps, 'src'> {
+// Remove width and height from the props that can be passed down, as we are using `fill`.
+interface WatermarkedImageProps extends Omit<ImageProps, 'src' | 'width' | 'height'> {
   src: string | null;
   alt: string;
 }
