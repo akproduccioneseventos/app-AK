@@ -135,34 +135,35 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
 
   const handlePaqueteSelect = (paqueteId: string) => {
     const paquete = paquetesBase.find(p => p.id === paqueteId);
-    const newSelected = new Map<string, ServicioSeleccionadoValue>();
-    if (paquete) {
-        paquete.serviciosIncluidos.forEach(servicioEnPaquete => {
-            const servicioCompleto = serviciosCatalogo.find(s => s.id === servicioEnPaquete.id);
-            if (servicioCompleto) {
-                const esRegalo = servicioEnPaquete.esRegalo || false;
-                newSelected.set(servicioCompleto.id, {
-                    cantidad: 1,
-                    precioUnitarioOriginal: servicioCompleto.precioVenta || servicioCompleto.precioPorPersona || servicioCompleto.precioBase || 0,
-                    precioUnitarioPresupuesto: esRegalo ? 0 : (servicioCompleto.precioVenta || servicioCompleto.precioPorPersona || servicioCompleto.precioBase || 0),
-                    nombreServicio: servicioCompleto.nombre,
-                    unidad: servicioCompleto.unidad,
-                    categoriaServicio: servicioCompleto.categoria,
-                    esRegalo: esRegalo,
-                    calculationMethod: servicioCompleto.calculationMethod,
-                    precioBase: servicioCompleto.precioBase,
-                    precioPorPersona: servicioCompleto.precioPorPersona,
-                    invitadosPorUnidad: servicioCompleto.invitadosPorUnidad,
-                    tramosDePrecio: servicioCompleto.tramosDePrecio,
-                });
-            }
-        });
-    }
-    setFormData(prev => ({ 
-        ...prev, 
-        serviciosSeleccionados: newSelected,
-        selectedMenuId: '', // Clear full menu selection
-    }));
+    setFormData(prev => {
+      const newSelected = new Map(prev.serviciosSeleccionados);
+      // Remove all package-based services before adding new ones, but keep gastronomic selections
+      paquetesBase.flatMap(p => p.serviciosIncluidos).forEach(s => newSelected.delete(s.id));
+      
+      if (paquete) {
+          paquete.serviciosIncluidos.forEach(servicioEnPaquete => {
+              const servicioCompleto = serviciosCatalogo.find(s => s.id === servicioEnPaquete.id);
+              if (servicioCompleto) {
+                  const esRegalo = servicioEnPaquete.esRegalo || false;
+                  newSelected.set(servicioCompleto.id, {
+                      cantidad: 1,
+                      precioUnitarioOriginal: servicioCompleto.precioVenta || servicioCompleto.precioPorPersona || servicioCompleto.precioBase || 0,
+                      precioUnitarioPresupuesto: esRegalo ? 0 : (servicioCompleto.precioVenta || servicioCompleto.precioPorPersona || servicioCompleto.precioBase || 0),
+                      nombreServicio: servicioCompleto.nombre,
+                      unidad: servicioCompleto.unidad,
+                      categoriaServicio: servicioCompleto.categoria,
+                      esRegalo: esRegalo,
+                      calculationMethod: servicioCompleto.calculationMethod,
+                      precioBase: servicioCompleto.precioBase,
+                      precioPorPersona: servicioCompleto.precioPorPersona,
+                      invitadosPorUnidad: servicioCompleto.invitadosPorUnidad,
+                      tramosDePrecio: servicioCompleto.tramosDePrecio,
+                  });
+              }
+          });
+      }
+      return { ...prev, serviciosSeleccionados: newSelected };
+    });
   };
   
   const handleGastronomicSelectionChange = (type: 'entradas' | 'principal' | 'infantil', selectedIds: string | string[]) => {
