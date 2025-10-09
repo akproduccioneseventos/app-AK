@@ -26,7 +26,7 @@ export default function DeprecatedPortalClientePage() {
                 </CardHeader>
                 <CardContent>
                      <p className="text-muted-foreground">
-                        El Portal del Cliente ahora está integrado en la sección de Reuniones. Serás redirigido.
+                        El Portal del Cliente ahora está integrado en la sección de Colaboración. Serás redirigido.
                     </p>
                 </CardContent>
                  <CardFooter className="justify-center">
@@ -40,3 +40,5 @@ export default function DeprecatedPortalClientePage() {
         </div>
     );
 }
+
+    

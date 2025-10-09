@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import type { FiestaEnPlanificacion, Tarea, Invitado, DecoracionData, ProgramaEventoItem, PersonalAsignadoDetalleStorage, ClientTarea, ClientPortalSettings, EventWebPageSettings, MusicaFiesta, GiftItem, ReposteriaData, BebidasData, ListaDeCargaOperativa, GestionCostosData, FotografiaYFilmacionData, OtroDocumento, DocumentoTipo, PagoProveedor, VideoVidaData } from '@/types/fiesta';
@@ -16,9 +15,9 @@ import {
     deleteFiestaArchivada as deleteFiestaArchivadaFromModule,
     deleteFiesta as deleteFiestaFromModule,
     duplicateFiesta as duplicateFiestaFromModule,
-    getHistorialFiestas as getHistorialFiestasFromModule
+    getHistorialFiestas as getHistorialFiestasFromModule,
+    getFiestaActual as getFiestaData // Keep this for now for legacy components that don't pass an ID
 } from './fiesta/fiesta.actions';
-import { getFiestaActual as getFiestaData } from './fiesta/fiesta.actions';
 
 
 import { updateConfiguracion } from './fiesta/configuracion.actions';
@@ -126,3 +125,4 @@ export const updateMenuAsignadoFiestaActual = updateMenuAsignado;
 
 // --- Video de Vida Actions ---
 export const updateVideoVidaSettingsFiestaActual = updateVideoVidaSettingsFromModule;
+    

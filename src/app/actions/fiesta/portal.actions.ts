@@ -5,19 +5,21 @@ import { initialFiestaActualData, defaultWebPageSettings } from '@/lib/fiesta-de
 import type { FiestaEnPlanificacion, ClientTarea, ClientPortalSettings, EventWebPageSettings } from '@/types/fiesta';
 import { readData, writeData } from '@/lib/data-service';
 import path from 'path';
-import { uploadSocialPost } from '../social-gallery';
-import { getFiestaActual as getFiestaData } from '@/app/actions/fiesta-actual';
+import { getFiestaById, saveFiesta } from './fiesta.actions';
 
-async function updateFiestaData(updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion | Promise<FiestaEnPlanificacion>): Promise<{ success: boolean; error?: string }> {
+async function updateFiestaData(
+  fiestaId: string,
+  updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion | Promise<FiestaEnPlanificacion>
+): Promise<{ success: boolean; error?: string }> {
   try {
-    const currentData = await getFiestaData();
+    const currentData = await getFiestaById(fiestaId);
     if (!currentData) {
         throw new Error("No se pudo encontrar el archivo de la fiesta activa.");
     }
     const updatedData = await updateFn(currentData);
     
-    const FIESTA_ACTUAL_FILE_PATH = path.join('fiestas', `${updatedData.id}.json`);
-    await writeData(FIESTA_ACTUAL_FILE_PATH, updatedData);
+    await saveFiesta(updatedData);
+
     return { success: true };
   } catch (e: any) {
     console.error("Error updating fiesta data in portal.actions:", e.message);
@@ -25,16 +27,20 @@ async function updateFiestaData(updateFn: (data: FiestaEnPlanificacion) => Fiest
   }
 }
 
-export async function updateClientChecklist(checklist: ClientTarea[]) {
-  return updateFiestaData(data => ({ ...data, clientChecklist: checklist }));
+export async function updateClientChecklist(fiestaId: string, checklist: ClientTarea[]) {
+  return updateFiestaData(fiestaId, data => ({ ...data, clientChecklist: checklist }));
 }
 
-export async function updateClientNotes(notes: string) {
-  return updateFiestaData(data => ({ ...data, clientNotes: notes }));
+export async function updateClientNotes(fiestaId: string, notes: string) {
+  return updateFiestaData(fiestaId, data => ({ ...data, clientNotes: notes }));
 }
 
-export async function updatePortalSettings(clientSettings: ClientPortalSettings, webSettings: EventWebPageSettings) {
-  return updateFiestaData(async (currentData) => {
+export async function updatePortalSettings(
+  fiestaId: string, 
+  clientSettings: ClientPortalSettings, 
+  webSettings: EventWebPageSettings
+) {
+  return updateFiestaData(fiestaId, async (currentData) => {
     // Overwrite the settings properties with the complete new objects from the client form.
     // This ensures all toggles (true/false) are respected.
     const updatedData = {
@@ -45,3 +51,4 @@ export async function updatePortalSettings(clientSettings: ClientPortalSettings,
     return updatedData;
   });
 }
+    

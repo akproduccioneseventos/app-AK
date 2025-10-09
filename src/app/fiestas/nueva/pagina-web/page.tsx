@@ -38,7 +38,7 @@ export default function PaginaWebSettingsPage() {
     const [galleryImageFiles, setGalleryImageFiles] = useState<(FileWithPreview | string)[]>([]);
 
 
-    const publicPageUrl = typeof window !== 'undefined' && fiesta ? `${window.location.origin}/evento/actual` : '';
+    const publicPageUrl = typeof window !== 'undefined' && fiesta ? `${window.location.origin}/evento/actual?fiestaId=${fiesta.id}` : '';
 
     const loadData = useCallback(async () => {
         setIsLoading(true);
@@ -206,3 +206,4 @@ export default function PaginaWebSettingsPage() {
         </div>
     );
 }
+    
