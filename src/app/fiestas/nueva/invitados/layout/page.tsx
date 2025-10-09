@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
@@ -21,6 +22,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import NextImage from 'next/image';
+import { Separator } from '@/components/ui/separator';
 
 const grid = 20;
 
@@ -239,14 +241,14 @@ export default function SalonLayoutPage() {
         <div className="space-y-4">
           <Card>
             <CardHeader><CardTitle>Controles</CardTitle></CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent>
               <div className="grid grid-cols-2 gap-2">
                 <Button variant="outline" onClick={() => addElement('Mesa Redonda')}><Circle className="w-4 h-4 mr-2"/>Mesa Redonda</Button>
                 <Button variant="outline" onClick={() => addElement('Mesa Rectangular')}><Square className="w-4 h-4 mr-2"/>Mesa Rectangular</Button>
                 <Button variant="outline" onClick={() => addElement('Pista de Baile')}><Music className="w-4 h-4 mr-2"/>Pista</Button>
                 <Button variant="outline" onClick={() => addElement('Barra')}><Beer className="w-4 h-4 mr-2"/>Barra</Button>
               </div>
-               <Separator />
+               <Separator className="my-4"/>
                <div className="space-y-2">
                  <Label htmlFor="salon-width">Ancho del Salón (px)</Label>
                  <Input id="salon-width" type="number" value={decoracion.salonWidth || 800} onChange={e => setDecoracion(d => d ? {...d, salonWidth: Number(e.target.value)}: null)} />
@@ -294,5 +296,3 @@ export default function SalonLayoutPage() {
     </div>
   );
 }
-
-    
