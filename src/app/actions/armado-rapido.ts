@@ -63,7 +63,7 @@ export async function generateBudgetAndLeadFromSimulator(
       salonFiestas: 'A definir',
       itemsPresupuestados: data.items.map(item => ({...item, costoTotalItem: 0})), // cost will be recalculated
       timestamp: new Date().toISOString(),
-      notas: `Presupuesto generado automáticamente desde el Simulador Web. Paquete seleccionado: ${data.paqueteNombre || 'N/A'}.`,
+      notas: `Presupuesto generado automáticamente desde el Simulador de Presupuestos. Paquete seleccionado: ${data.paqueteNombre || 'N/A'}.`,
     };
 
     const budgetResult = await savePresupuesto(presupuestoData);
