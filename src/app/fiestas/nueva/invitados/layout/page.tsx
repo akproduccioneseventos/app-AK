@@ -204,7 +204,7 @@ const DraggableLayoutElement = ({ element, invitados, onDragStop, onDoubleClick,
         for(let i = 0; i < seatsBottom; i++) {
             const guest = seatOccupants[seatsTop + i];
             const xPosPercent = (100 / (seatsBottom + 1)) * (i + 1);
-            const style: React.CSSProperties = { left: '50%', top: `${element.height + 5}px`, transform: `translateX(-50%) translateY(${i * 40}px)` };
+            const style: React.CSSProperties = { left: `${xPosPercent}%`, bottom: `-45px`, transform: `translateX(-50%)` };
             seats.push(<GuestSeat key={`bottom-${i}`} seatNumber={seatsTop + i + 1} guest={guest} style={style} {...config} />);
         }
     }
@@ -529,27 +529,27 @@ export default function SalonLayoutPage() {
 
   const DesignerCanvas = ({ isFullscreen }: { isFullscreen: boolean }) => (
     <div
-      className={cn(
-        "relative flex-1 w-full border-2 border-dashed rounded-lg bg-muted/30 overflow-hidden canvas-grid-background",
-        isFullscreen ? "h-full" : "h-[600px]"
-      )}
-      style={{
-        width: isFullscreen ? '100%' : `${decoracionData.salonWidth || 800}px`,
-        height: isFullscreen ? '100%' : `${decoracionData.salonHeight || 600}px`,
-      }}
+        className={cn(
+            "relative flex-1 w-full border-2 border-dashed rounded-lg bg-muted/30 overflow-hidden canvas-grid-background",
+            isFullscreen ? "h-full" : "h-[600px]"
+        )}
+        style={{
+            width: isFullscreen ? '100%' : `${decoracionData.salonWidth || 800}px`,
+            height: isFullscreen ? '100%' : `${decoracionData.salonHeight || 600}px`,
+        }}
     >
-      {decoracionData.salonPlanBackgroundImageUrl && !failedImageUrls['salonPlanBackgroundImageUrl'] && (
-        <NextImage src={decoracionData.salonPlanBackgroundImageUrl} alt="Plano del Salón" layout="fill" objectFit="contain" onError={() => setFailedImageUrls(p => ({...p, salonPlanBackgroundImageUrl: true}))} data-ai-hint="event floor plan"/>
-      )}
-      {(decoracionData.salonElements || []).map(element => (
-        <DraggableLayoutElement key={element.id} element={{...element}} invitados={invitados} onDragStop={handleDragStop} onDoubleClick={openElementSheet}
-            config={{
-                guestNameStyle: decoracionData.guestNameStyle || 'full',
-                guestIconStyle: decoracionData.guestIconStyle || 'color',
-                layoutMode: decoracionData.layoutMode || 'libre'
-            }}
-        />
-      ))}
+        {decoracionData.salonPlanBackgroundImageUrl && !failedImageUrls['salonPlanBackgroundImageUrl'] && (
+            <NextImage src={decoracionData.salonPlanBackgroundImageUrl} alt="Plano del Salón" layout="fill" objectFit="contain" onError={() => setFailedImageUrls(p => ({...p, salonPlanBackgroundImageUrl: true}))} data-ai-hint="event floor plan"/>
+        )}
+        {(decoracionData.salonElements || []).map(element => (
+            <DraggableLayoutElement key={element.id} element={{...element}} invitados={invitados} onDragStop={handleDragStop} onDoubleClick={openElementSheet}
+                config={{
+                    guestNameStyle: decoracionData.guestNameStyle || 'full',
+                    guestIconStyle: decoracionData.guestIconStyle || 'color',
+                    layoutMode: decoracionData.layoutMode || 'libre'
+                }}
+            />
+        ))}
     </div>
   );
 
@@ -726,3 +726,5 @@ export default function SalonLayoutPage() {
     </div>
   );
 }
+
+    
