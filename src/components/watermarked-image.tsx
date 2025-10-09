@@ -5,21 +5,22 @@ import NextImage, { type ImageProps } from 'next/image';
 import { cn } from '@/lib/utils';
 import { Skeleton } from './ui/skeleton';
 
-// Remove width and height from the props that can be passed down, as we are using `fill`.
 interface WatermarkedImageProps extends Omit<ImageProps, 'src' | 'width' | 'height'> {
   src: string | null;
   alt: string;
+  containerClassName?: string;
 }
 
 export function WatermarkedImage({
   alt,
   src,
+  containerClassName,
   ...props
 }: WatermarkedImageProps) {
   
   if (!src) {
     return (
-      <div className={cn("relative w-full h-full bg-muted/50 print:hidden")}>
+      <div className={cn("relative w-full h-full bg-muted/50 print:hidden", containerClassName)}>
         <div className="absolute inset-0 flex items-center justify-center text-xs text-muted-foreground">
             Imagen no disponible
         </div>
@@ -30,7 +31,7 @@ export function WatermarkedImage({
   // Use a simple <img> tag for printing to better control background behavior
   return (
     <>
-      <div className={cn("relative w-full h-full print:hidden")}>
+      <div className={cn("relative w-full h-full print:hidden", containerClassName)}>
         <NextImage src={src} alt={alt} fill style={{objectFit: 'contain'}} {...props} />
       </div>
        <div className="hidden print:block fixed inset-0 flex items-center justify-center -z-10">
