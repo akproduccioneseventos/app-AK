@@ -239,51 +239,7 @@ export default function InvitadosEventoPage() {
             </Link>
         </div>
       </div>
-
-       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="shadow-md bg-primary/5 border-primary/20 print:hidden">
-          <CardHeader className="flex-row items-start gap-4 space-y-0 pb-3">
-            <div className="p-3 bg-primary/10 rounded-lg">
-              <LayoutDashboard className="w-7 h-7 text-primary" />
-            </div>
-            <div>
-              <CardTitle className="font-headline text-xl">Diseño del Salón y Mesas</CardTitle>
-              <CardDescription className="text-sm text-muted-foreground">
-                Organiza visualmente las mesas y asigna a tus invitados.
-              </CardDescription>
-            </div>
-          </CardHeader>
-          <CardFooter className="pt-0">
-            <Link href={`/fiestas/nueva/invitados/layout?fiestaId=${fiestaId}`} passHref className="w-full">
-              <Button variant="default" className="w-full">
-                Ir al Diseñador de Salón <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </Link>
-          </CardFooter>
-        </Card>
-        <Card className="shadow-md bg-secondary/5 border-secondary/20 print:hidden">
-          <CardHeader className="flex-row items-start gap-4 space-y-0 pb-3">
-            <div className="p-3 bg-secondary/10 rounded-lg">
-              <Globe className="w-7 h-7 text-secondary-foreground" />
-            </div>
-            <div>
-              <CardTitle className="font-headline text-xl">Página del Evento</CardTitle>
-              <CardDescription className="text-sm text-muted-foreground">
-                Personaliza la página web que verán tus invitados.
-              </CardDescription>
-            </div>
-          </CardHeader>
-          <CardFooter className="pt-0">
-            <Link href={`/fiestas/nueva/pagina-web?fiestaId=${fiestaId}`} passHref className="w-full">
-              <Button variant="secondary" className="w-full">
-                Configurar Página del Evento <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </Link>
-          </CardFooter>
-        </Card>
-      </div>
-
-
+      
       <Card className="shadow-lg print:hidden">
         <CardHeader>
           <CardTitle className="font-headline text-xl">Añadir Nuevo Invitado</CardTitle>
@@ -491,5 +447,3 @@ export default function InvitadosEventoPage() {
     </div>
   );
 }
-
-    
