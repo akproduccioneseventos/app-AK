@@ -74,6 +74,8 @@ export async function generateBudgetAndLeadFromSimulator(
     // 2. Create the CRM Lead, linking it to the new budget
     const allStages = await getCrmStages();
     const targetStage = allStages.find(stage => stage.name.toLowerCase() === 'con presupuesto');
+    
+    // If "Con presupuesto" stage is not found, fallback to the first stage.
     const targetStageId = targetStage?.id || allStages[0]?.id;
 
     if (!targetStageId) {

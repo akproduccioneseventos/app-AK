@@ -25,7 +25,9 @@ function PresupuestoDashboardContent() {
         setIsLoading(true);
         try {
             const guardados = await getPresupuestos();
-            setPresupuestos(guardados);
+            // Ordenar para mostrar los más recientes primero
+            const sorted = guardados.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+            setPresupuestos(sorted);
         } catch(e) {
             toast({ title: "Error", description: "No se pudieron cargar los presupuestos guardados."});
         } finally {
@@ -75,7 +77,7 @@ function PresupuestoDashboardContent() {
             <Card>
               <CardHeader>
                 <CardTitle className="font-headline text-2xl">Todos los Presupuestos</CardTitle>
-                <CardDescription>Visualiza, edita y gestiona todos los presupuestos generados.</CardDescription>
+                <CardDescription>Visualiza, edita y gestiona todos los presupuestos generados, incluyendo los del simulador.</CardDescription>
               </CardHeader>
               <CardContent>
                 <Tabs defaultValue="todos">
