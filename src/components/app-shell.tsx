@@ -26,7 +26,7 @@ const getPageTitle = (pathname: string): string => {
   const pathSegments = pathname.split('/').filter(Boolean);
   const idSegment = pathSegments[pathSegments.length -1];
 
-  if (pathname === '/') return 'Menú Principal';
+  if (pathname === '/') return 'Dashboard Principal';
 
   if (pathname === '/presupuestos/nuevo') return 'Central de Presupuestos';
   if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'editar' && pathSegments.length === 3) return `Editar Presupuesto #${idSegment?.substring(0,5)}`;
@@ -44,29 +44,28 @@ const getPageTitle = (pathname: string): string => {
   
   if (pathname === '/empresa') return 'Gestión de la Empresa';
   if (pathname === '/empresa/servicios') return 'Catálogo de Servicios';
+  if (pathname === '/empresa/servicios/nuevo') return 'Añadir Nuevo Servicio';
+  if (pathname === '/empresa/servicios/reporte') return 'Reporte de Servicios';
+  if (pathSegments[0] === 'empresa' && pathSegments[1] === 'servicios' && pathSegments[2] === 'editar') return `Editar Servicio`;
   if (pathname === '/empresa/contabilidad') return 'Panel Contable y Financiero';
   if (pathname === '/empresa/contabilidad/reportes') return 'Reporte de Ganancias y Pérdidas';
   if (pathname === '/proveedores') return 'Proveedores';
   if (pathname === '/proveedores/new') return 'Añadir Nuevo Proveedor';
-  if (pathname === '/empresa/todos-los-servicios') return 'Gestión de Activos Fijos';
-  if (pathname === '/empresa/todos-los-servicios/nuevo') return 'Añadir Nuevo Activo Fijo';
-  if (pathname === '/empresa/todos-los-servicios/reporte') return 'Reporte de Stock de Activos';
-  if (pathSegments[0] === 'empresa' && pathSegments[1] === 'todos-los-servicios' && pathSegments[2] === 'editar' && pathSegments[3]) return `Editar Activo`;
-  if (pathname === '/empresa/redes-sociales') return 'Redes Sociales y Publicaciones';
+  if (pathname === '/proveedores/reporte') return 'Reporte de Proveedores';
+  if (pathname === '/empresa/activos-fijos') return 'Gestión de Activos Fijos';
+  if (pathname === '/empresa/activos-fijos/nuevo') return 'Añadir Nuevo Activo Fijo';
+  if (pathname === '/empresa/activos-fijos/reporte') return 'Reporte de Stock de Activos';
+  if (pathSegments[0] === 'empresa' && pathSegments[1] === 'activos-fijos' && pathSegments[2] === 'editar') return `Editar Activo`;
+  if (pathname === '/empresa/redes-sociales') return 'Planificador de Contenido';
+  if (pathname === '/empresa/redes-sociales/ia-marketing') return 'Asesor de Marketing IA';
   if (pathname === '/empresa/menus') return 'Planificador Gastronómico Maestro';
   if (pathname === '/empresa/menus/catalogo') return 'Catálogo de Platos';
   if (pathname === '/empresa/menus/nuevo') return 'Crear Nuevo Menú';
   if (pathSegments[0] === 'empresa' && pathSegments[1] === 'menus' && pathSegments[3] === 'editar') return `Editando Menú`;
   if (pathname === '/empresa/insumos') return 'Gestión de Insumos';
+  if (pathname === '/empresa/insumos/nuevo') return 'Añadir Nuevo Insumo';
   if (pathname === '/empresa/insumos/reporte') return 'Reporte de Stock de Insumos';
-
-
-  if (pathname === '/compras') return 'Compras y Checklist';
-
-  if (pathname === '/empleados') return 'Gestión de Personal';
-  if (pathname === '/empleados/nuevo') return 'Añadir Nuevo Empleado';
-  if (pathSegments[0] === 'empleados' && pathSegments[2] === 'editar' && pathSegments.length === 3) return `Editar Empleado`;
-  if (pathname === '/empleados/roles') return 'Configuración de Roles';
+  if (pathSegments[0] === 'empresa' && pathSegments[1] === 'insumos' && pathSegments[2] === 'editar') return `Editar Insumo`;
 
   if (pathname === '/fiestas/nueva') return 'Planificador de Fiestas General';
   if (pathname === '/fiestas/nueva/tareas') return 'Tareas del Evento';
@@ -77,8 +76,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/decoracion') return 'Decoración y Diseño del Evento';
   if (pathname === '/fiestas/nueva/decoracion/pdf') return 'PDF Decoración';
   if (pathname === '/fiestas/nueva/configuracion') return 'Configuración del Evento';
-  if (pathname === '/portal') return 'Portal del Cliente';
-  if (pathname === '/fiestas/nueva/gastronomia') return 'Planificador Gastronómico del Evento';
+  if (pathname === '/fiestas/nueva/catering') return 'Catering y Menú del Evento';
   if (pathname === '/fiestas/nueva/catering/lista-compras') return 'Lista de Compras (Catering)';
   if (pathname === '/fiestas/nueva/personal') return 'Asignar Personal al Evento';
   if (pathname === '/fiestas/nueva/personal/recibos') return 'Recibos de Pago de Personal';
@@ -94,26 +92,22 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/regalos') return 'Lista de Regalos';
   if (pathname === '/fiestas/nueva/resumen-imprimible') return 'Resumen Imprimible del Evento';
   if (pathname === '/fiestas/nueva/pagina-web') return 'Página Pública del Evento';
-  if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
 
   if (pathname === '/contabilidad/crm') return 'Gestión de Prospectos (CRM)';
 
   if (pathname === '/settings') return 'Configuración General';
   if (pathname === '/settings/templates') return 'Personalizar Plantillas';
-  if (pathname === '/settings/budget-display') return 'Configuración de Paquetes';
+  if (pathname === '/settings/budget-display') return 'Configuración del Simulador';
   if (pathname === '/settings/company') return 'Información de la Empresa';
   if (pathname === '/settings/social-connections') return 'Cuentas Sociales Vinculadas';
   if (pathname === '/settings/notifications') return 'Configurar Notificaciones';
   if (pathname === '/settings/account') return 'Cuenta y Seguridad';
   if (pathname === '/settings/feedback') return 'Feedback y Testimonios';
-  if (pathname === '/admin/aaiff') return 'Análisis de Código con IA';
   if (pathname === '/admin/aaiff-fiesta') return 'Análisis de Evento con IA';
+  if (pathname === '/admin/asistente-ak') return 'Asistente de Marketing IA';
   if (pathname === '/settings/backup') return 'Backup y Restauración';
   
   if (pathname === '/simulador-de-presupuesto') return 'Simulador de Presupuesto';
-  
-  
-
   
   if (pathname === '/evento/actual') return 'Página Pública del Evento';
   if (pathname === '/evento/actual/mesa') return 'Asignación de Mesa';
@@ -123,10 +117,8 @@ const getPageTitle = (pathname: string): string => {
   if (pathname.startsWith('/feedback')) return 'Encuesta de Satisfacción';
   if (pathname.startsWith('/acceso-personal')) return 'Acceso de Colaboradores';
 
-
   if (pathname === '/eventos') return 'Gestor de Eventos';
   if (pathname === '/calendario') return 'Calendario General';
-  if (pathname === '/notas') return 'Bloc de Notas';
   
   if (pathname === '/login') return 'Login';
 
@@ -135,6 +127,7 @@ const getPageTitle = (pathname: string): string => {
 
 const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/') return LayoutDashboard;
+  
   if (pathname.startsWith('/fiestas/nueva')) {
     if (pathname === '/fiestas/nueva/personal') return UserCheck;
     if (pathname === '/fiestas/nueva/personal/recibos') return Printer;
@@ -143,7 +136,6 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/decoracion/pdf') return Printer;
     if (pathname === '/fiestas/nueva/catering') return ChefHat;
     if (pathname === '/fiestas/nueva/catering/lista-compras') return ShoppingCart;
-    if (pathname === '/portal') return Globe;
     if (pathname === '/fiestas/nueva/musica') return Music2;
     if (pathname === '/fiestas/nueva/musica/pdf') return Printer;
     if (pathname === '/fiestas/nueva/fotografia') return Film;
@@ -161,35 +153,27 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/regalos') return Gift;
     if (pathname === '/fiestas/nueva/resumen-imprimible') return Printer;
     if (pathname === '/fiestas/nueva/pagina-web') return Globe;
-    if (pathname === '/planner-costo-fiesta') return Calculator;
     return PartyPopper;
   }
 
   if (pathname === '/empresa') return Building2;
-  if (pathname === '/empresa/servicios') return Sparkles;
+  if (pathname === '/empresa/servicios' || pathname === '/empresa/servicios/reporte' || pathname === '/empresa/servicios/nuevo' || pathname.startsWith('/empresa/servicios/editar')) return Sparkles;
   if (pathname === '/empresa/contabilidad') return BarChart3; 
   if (pathname === '/empresa/contabilidad/reportes') return TrendingUp; 
-  if (pathname === '/empresa/todos-los-servicios') return Package; 
-  if (pathname === '/empresa/todos-los-servicios/nuevo') return PackagePlus;
-  if (pathname === '/empresa/todos-los-servicios/reporte') return Printer;
-  if (pathname.startsWith('/empresa/todos-los-servicios/editar')) return Edit;
+  if (pathname === '/empresa/activos-fijos' || pathname === '/empresa/activos-fijos/reporte' || pathname === '/empresa/activos-fijos/nuevo' || pathname.startsWith('/empresa/activos-fijos/editar')) return Package;
+  if (pathname === '/empresa/insumos' || pathname === '/empresa/insumos/reporte' || pathname === '/empresa/insumos/nuevo' || pathname.startsWith('/empresa/insumos/editar')) return Package;
   if (pathname.startsWith('/empresa/redes-sociales')) return Sparkles;
   if (pathname.startsWith('/empresa/menus')) return ChefHat;
-  if (pathname === '/empresa/insumos') return Package;
-  if (pathname === '/empresa/insumos/reporte') return Printer;
 
-
-  if (pathname === '/proveedores') return Briefcase;
+  if (pathname === '/proveedores' || pathname === '/proveedores/reporte') return Briefcase;
   if (pathname === '/proveedores/new') return UserPlus2Icon;
-  if (pathname === '/empleados') return ContactRound;
+  if (pathname === '/empleados' || pathname === '/empleados/reporte') return ContactRound;
   if (pathname === '/empleados/roles') return SettingsIcon;
-  if (pathname === '/customers') return Users;
+  if (pathname === '/customers' || pathname === '/customers/reporte') return Users;
 
   if (pathname === '/eventos') return CalendarClock;
-  if (pathname === '/compras') return ShoppingCart;
   if (pathname === '/calendario') return CalendarDaysIcon;
-  if (pathname === '/notas') return StickyNote;
-
+  
   if (pathname === '/login') return LogInIcon;
 
   if (pathname === '/presupuestos/nuevo') return ListChecks;
@@ -205,16 +189,13 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/settings/notifications') return BellRing;
   if (pathname === '/settings/account') return UserCog;
   if (pathname === '/settings/feedback') return Star;
-  if (pathname === '/admin/aaiff') return BrainCircuit;
   if (pathname === '/admin/aaiff-fiesta') return PartyPopper;
+  if (pathname === '/admin/asistente-ak') return Bot;
   if (pathname === '/settings/backup') return HardDriveDownload;
   if (pathname === '/settings/task-templates') return ListChecks;
   if (pathname === '/settings/accesos-personal') return UserCog;
   
   if (pathname === '/simulador-de-presupuesto') return Wand2;
-  
-  
-
   
   if (pathname === '/evento/actual') return PartyPopper;
   if (pathname === '/evento/actual/mesa') return Ticket;
@@ -224,7 +205,6 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname.startsWith('/feedback')) return Star;
   if (pathname.startsWith('/acceso-personal')) return UserCog;
   if (pathname.startsWith('/portal')) return Globe;
-
 
   return null;
 }
