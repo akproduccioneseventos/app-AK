@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -16,7 +15,7 @@ export default function SalonLayoutRemovedPage() {
           </div>
           <CardTitle className="mt-4 font-headline text-2xl">Módulo Deshabilitado</CardTitle>
           <CardDescription>
-            Esta funcionalidad ha sido removida para resolver un problema técnico.
+            Esta funcionalidad ha sido removida temporalmente para resolver un problema técnico.
           </CardDescription>
         </CardHeader>
         <CardContent>

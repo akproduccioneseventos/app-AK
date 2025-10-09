@@ -58,11 +58,11 @@ const empresaHubItems: HubItem[] = [
     actionLabel: 'Ir a Proveedores',
   },
   {
-    title: 'Redes Sociales y Publicaciones',
-    description: 'Planifica, redacta con IA y sigue el rendimiento de tus campañas en redes sociales.',
+    title: 'Redes Sociales',
+    description: 'Planifica contenido para tus redes sociales y usa el asistente de marketing IA.',
     href: '/empresa/redes-sociales',
     icon: Sparkles,
-    actionLabel: 'Gestionar Publicaciones',
+    actionLabel: 'Gestionar Contenido',
   },
 ];
 

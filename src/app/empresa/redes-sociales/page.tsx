@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, Sparkles, PlusCircle, AlertTriangle, List, Calendar, Filter, X, Wand2 } from 'lucide-react';
+import { ArrowLeft, Loader2, Sparkles, PlusCircle, AlertTriangle, List, Calendar, Filter, X, Wand2, Bot } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { SocialPost, SocialPlatform } from '@/types/social-media';
 import { getSocialPosts, deleteSocialPost } from '@/app/actions/social-media';
@@ -124,6 +124,26 @@ function SocialMediaPageContent() {
             )}
             <CardDescription>Planifica, redacta con IA y organiza tu contenido para redes sociales. Luego copia y pega para publicar.</CardDescription>
             
+            <Card className="shadow-lg border-primary/20">
+                <CardHeader>
+                    <CardTitle className="font-headline text-xl flex items-center gap-2">
+                        <Bot className="w-6 h-6 text-primary" />
+                        Asistente de Marketing con IA
+                    </CardTitle>
+                    <CardDescription>
+                        ¿Necesitas inspiración? Utiliza nuestro asistente de IA para generar ideas, textos e imágenes para tus publicaciones.
+                    </CardDescription>
+                </CardHeader>
+                <CardFooter>
+                     <Link href="/admin/asistente-ak" passHref>
+                        <Button variant="secondary">
+                            <Wand2 className="w-4 h-4 mr-2" />
+                            Abrir Asistente de IA
+                        </Button>
+                    </Link>
+                </CardFooter>
+            </Card>
+
             <Card className="shadow-lg">
                 <CardHeader>
                     <CardTitle className="font-headline text-xl">Gestor de Contenido</CardTitle>
@@ -179,7 +199,7 @@ function SocialMediaPageContent() {
                     </Tabs>
                 </CardContent>
                 <CardFooter>
-                    <p className="text-xs text-muted-foreground">Usa este módulo para planificar tu contenido. Cuando sea la fecha de publicación, simplemente copia y pega el contenido en tus redes.</p>
+                    <p className="text-xs text-muted-foreground">Usa este módulo para planificar tu contenido. Cuando sea la fecha de publicación, simplemente copia el texto y la imagen para pegarlo en tus redes.</p>
                 </CardFooter>
             </Card>
         </div>

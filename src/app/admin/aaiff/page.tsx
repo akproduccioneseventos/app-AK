@@ -27,7 +27,6 @@ const modules: ModuleCardProps[] = [
   { title: "Gestor de Eventos", description: "Organiza tus eventos, el actual y los pasados. Accede al Calendario General.", href: "/eventos", icon: CalendarClock },
   { title: "Contabilidad y Finanzas", description: "Accede al CRM, facturas y reportes.", href: "/empresa/contabilidad", icon: BarChart3 },
   { title: "Gestión de Empresa", description: "Administra personal, proveedores, menús y tu catálogo de servicios.", href: "/empresa", icon: Building2 },
-  { title: "Planificador de Contenido", description: "Genera estrategias, ideas, y textos para tus redes sociales.", href: "/empresa/redes-sociales", icon: Sparkles },
   { title: "Configuración General", description: "Ajusta las preferencias de la aplicación y plantillas de documentos.", href: "/settings", icon: Settings },
 ];
 
@@ -231,7 +230,7 @@ export default function DashboardPage() {
       
       <div className="pt-4">
         <h3 className="text-2xl font-semibold text-foreground mb-4 font-headline text-center">Módulos Principales</h3>
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {modules.map((module) => (
             <ModuleCard key={module.title} {...module} />
           ))}
