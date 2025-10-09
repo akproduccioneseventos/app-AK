@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef, type ChangeEvent, use } from 'react';
+import React, { useState, useEffect, useCallback, useRef, type ChangeEvent } from 'react';
 import Link from 'next/link';
 import NextImage from 'next/image';
 import Draggable, { type DraggableEvent, type DraggableData } from 'react-draggable';
@@ -277,7 +277,7 @@ const DesignConfigSidebar = ({ decoracionData, onConfigChange, onInputChange, di
 
 
 export default function SalonLayoutPage() {
-  const params = use(params);
+  const params = React.use(useSearchParams());
   const { toast } = useToast();
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [decoracionData, setDecoracionData] = useState<DecoracionData>(defaultDecoracion);
@@ -303,7 +303,7 @@ export default function SalonLayoutPage() {
   const [isSaveTemplateModalOpen, setIsSaveTemplateModalOpen] = useState(false);
   const [isLoadTemplateModalOpen, setIsLoadTemplateModalOpen] = useState(false);
   const [templates, setTemplates] = useState<SalonLayoutTemplate[]>([]);
-  const [isTemplateProcessing, setIsTemplateProcessing] = useState(false);
+  const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
   const [processingPointName, setProcessingPointName] = useState<string | null>(null);
 
 
