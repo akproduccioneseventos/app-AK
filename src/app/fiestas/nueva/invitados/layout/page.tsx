@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Loader2, AlertTriangle, PlusCircle, Settings2, LayoutDashboard, Printer, Trash2, Pointer, Move, Users, Save, RectangleHorizontal, Circle, Music, Sofa, User, Info, Building, Expand, Minimize, Sprout, Tent, Sparkles as SparklesIcon, FolderOpen } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, PlusCircle, Settings2, LayoutDashboard, Printer, Trash2, Pointer, Move, Users, Save, RectangleHorizontal, Circle, Music, Sofa, User, Info, Building, Expand, Minimize, Sprout, Tent, Sparkles as SparklesIcon, FolderOpen, ChevronDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaActual, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion, DecoracionData, LayoutElement, Invitado } from '@/types/fiesta';
@@ -48,7 +48,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { cn } from '@/lib/utils';
-
+import * as AccordionPrimitive from "@radix-ui/react-accordion";
 
 export const ALL_LAYOUT_ELEMENT_CATEGORIES = [
   'Mesa Redonda', 'Mesa Rectangular', 'Mesa Principal', 'Mobiliario (Sillón)', 'Pista de Baile', 'Cabina de DJ', 'Barra de Tragos', 'Estructura (Toldo/Truss)', 'Planta/Arreglo Floral', 'Elemento Decorativo', 'Otro'
@@ -204,10 +204,7 @@ const DraggableLayoutElement = ({ element, invitados, onDragStop, onDoubleClick,
         for(let i = 0; i < seatsBottom; i++) {
             const guest = seatOccupants[seatsTop + i];
             const xPosPercent = (100 / (seatsBottom + 1)) * (i + 1);
-            const style: React.CSSProperties = { left: '50%', top: `${element.height + 5}px`, transform: 'translateX(-50%)' }; // Position needs adjustment based on container
-             if (i > 0) {
-              style.transform = `translateX(-50%) translateY(${i*40}px)`; // This needs improvement
-            }
+            const style: React.CSSProperties = { left: '50%', top: `${element.height + 5}px`, transform: `translateX(-50%) translateY(${i * 40}px)` };
             seats.push(<GuestSeat key={`bottom-${i}`} seatNumber={seatsTop + i + 1} guest={guest} style={style} {...config} />);
         }
     }
@@ -478,7 +475,7 @@ export default function SalonLayoutPage() {
         setIsTemplateProcessing(false);
         setIsLoadTemplateModalOpen(true);
     }
-  }
+  };
 
   const handleSaveTemplate = async () => {
     const layoutNameToSave = decoracionData.layoutTemplateName?.trim();
@@ -500,7 +497,7 @@ export default function SalonLayoutPage() {
     } finally {
         setIsTemplateProcessing(false);
     }
-  }
+  };
 
   const handleLoadTemplate = (template: SalonLayoutTemplate) => {
     setDecoracionData(prev => ({
@@ -509,7 +506,7 @@ export default function SalonLayoutPage() {
     }));
     toast({ title: "Plantilla Cargada", description: `Se ha cargado el diseño "${template.name}".`});
     setIsLoadTemplateModalOpen(false);
-  }
+  };
   
   const handleDeleteTemplate = async (templateId: string) => {
     setProcessingPointName(templateId);
