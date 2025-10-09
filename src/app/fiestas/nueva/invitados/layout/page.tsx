@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
@@ -7,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Music, Beer, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Music, Beer, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Image as ImageIcon } from 'lucide-react';
 import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData } from '@/types/fiesta';
@@ -15,17 +14,13 @@ import { getFiestaActual, updateDecoracionFiestaActual } from '@/app/actions/fie
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
-import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import NextImage from 'next/image';
 
 const grid = 20;
 
@@ -62,7 +57,7 @@ export default function SalonLayoutPage() {
 
   const handleDragStop = (e: DraggableEvent, data: DraggableData, elementId: string) => {
     if (!decoracion) return;
-    const newElements = decoracion.salonElements?.map(el =>
+    const newElements = (decoracion.salonElements || []).map(el =>
       el.id === elementId ? { ...el, x: Math.round(data.x / grid) * grid, y: Math.round(data.y / grid) * grid } : el
     );
     setDecoracion({ ...decoracion, salonElements: newElements });
@@ -74,8 +69,8 @@ export default function SalonLayoutPage() {
       id: `el_${Date.now()}`,
       name: `${category} ${ (decoracion.salonElements?.filter(e => e.category === category).length || 0) + 1}`,
       x: 20, y: 20,
-      width: category.includes('Mesa') ? 80 : 100,
-      height: category.includes('Mesa Redonda') ? 80 : (category.includes('Mesa Rectangular') ? 120 : 100),
+      width: category.includes('Mesa') ? 100 : 120,
+      height: category.includes('Mesa Redonda') ? 100 : (category.includes('Mesa Rectangular') ? 60 : 100),
       rotation: 0,
       quantity: 1,
       type: 'predefined',
@@ -92,7 +87,7 @@ export default function SalonLayoutPage() {
 
   const handleUpdateElement = () => {
     if (!editingElement || !decoracion) return;
-    const newElements = decoracion.salonElements?.map(el => el.id === editingElement.id ? editingElement : el);
+    const newElements = (decoracion.salonElements || []).map(el => el.id === editingElement.id ? editingElement : el);
     setDecoracion({ ...decoracion, salonElements: newElements });
     setIsEditModalOpen(false);
     setEditingElement(null);
@@ -100,7 +95,7 @@ export default function SalonLayoutPage() {
   
   const handleElementRotation = (elementId: string) => {
     if (!decoracion) return;
-    const newElements = decoracion.salonElements?.map(el => {
+    const newElements = (decoracion.salonElements || []).map(el => {
       if (el.id === elementId) {
         return { ...el, rotation: (el.rotation + 45) % 360 };
       }
@@ -113,7 +108,7 @@ export default function SalonLayoutPage() {
     if (!decoracion) return;
     setDecoracion({
       ...decoracion,
-      salonElements: decoracion.salonElements?.filter(el => el.id !== elementId)
+      salonElements: (decoracion.salonElements || []).filter(el => el.id !== elementId)
     });
   };
   
@@ -122,9 +117,11 @@ export default function SalonLayoutPage() {
     const guestId = e.dataTransfer.getData('guestId');
     const table = decoracion?.salonElements?.find(el => el.id === tableId);
     const guestsAtTable = invitados.filter(i => i.tableNumber === table?.name).reduce((acc, g) => acc + (g.partySize || 1), 0);
+    const guestBeingDragged = invitados.find(i => i.id === guestId);
+    const guestPartySize = guestBeingDragged?.partySize || 1;
 
-    if (table && table.seats !== undefined && guestsAtTable >= table.seats) {
-      toast({ title: "Mesa Llena", description: `La mesa "${table.name}" no tiene más asientos disponibles.`, variant: "destructive" });
+    if (table && table.seats !== undefined && (guestsAtTable + guestPartySize) > table.seats) {
+      toast({ title: "Mesa Llena", description: `La mesa "${table.name}" no tiene suficientes asientos para este grupo.`, variant: "destructive" });
       return;
     }
 
@@ -138,35 +135,27 @@ export default function SalonLayoutPage() {
   const handleSave = async () => {
     if (!decoracion) return;
     setIsSaving(true);
-    // This is a complex operation; in a real app, it would be a transaction
-    // 1. Save decoracion (salon layout)
-    const decoracionResult = await updateDecoracionFiestaActual(decoracion);
-    
-    // 2. This part is tricky as it modifies another module.
-    // For now, we'll assume a batch update for guests is possible.
-    // Ideally this would be a single server action.
     try {
-      // In a real app: await batchUpdateGuestTables(invitados);
-      // For this demo, we'll rely on the parent state to eventually persist if the user navigates away.
-      // This is a simplification.
-       if (decoracionResult.success) {
-        toast({ title: "¡Guardado!", description: "La distribución del salón y la asignación de invitados se ha guardado." });
-        await loadData();
-      } else {
-        throw new Error(decoracionResult.error || "No se pudo guardar la distribución.");
-      }
+        const result = await updateDecoracionFiestaActual(decoracion);
+        if (result.success) {
+            toast({ title: "¡Guardado!", description: "La distribución del salón ha sido guardada." });
+            await loadData();
+        } else {
+            throw new Error(result.error || "No se pudo guardar la distribución.");
+        }
     } catch(err: any) {
-       toast({ title: "Error al Guardar", description: err.message, variant: "destructive" });
+        toast({ title: "Error al Guardar", description: err.message, variant: "destructive" });
     } finally {
-      setIsSaving(false);
+        setIsSaving(false);
     }
-  };
+};
 
   const invitadosConfirmados = useMemo(() => invitados.filter(i => i.rsvp === 'Confirmado'), [invitados]);
   const invitadosSinMesa = useMemo(() => invitadosConfirmados.filter(i => !i.tableNumber), [invitadosConfirmados]);
 
   if (isLoading) return <div className="flex items-center justify-center p-8"><Loader2 className="w-8 h-8 animate-spin" /></div>;
   if (error) return <div className="text-destructive text-center p-4">{error}</div>;
+  if (!decoracion) return null;
 
   return (
     <div className="space-y-6">
@@ -196,51 +185,53 @@ export default function SalonLayoutPage() {
           <Card>
             <CardHeader><CardTitle>Lienzo del Salón</CardTitle></CardHeader>
             <CardContent>
-              <div className="relative w-full h-[600px] border rounded-lg bg-muted/30 overflow-hidden canvas-grid-background" onDragOver={e => e.preventDefault()} onDrop={e => {
-                  const guestId = e.dataTransfer.getData('guestId');
-                  if (guestId) handleUnassignGuest(guestId);
-              }}>
-                {(decoracion?.salonElements || []).map(el => {
-                  const guestsAtTable = invitados.filter(i => i.tableNumber === el.name);
-                  const seatsTaken = guestsAtTable.reduce((acc, g) => acc + (g.partySize || 1), 0);
-                  const isFull = el.seats !== undefined && seatsTaken >= el.seats;
-                  const nodeRef = React.createRef<HTMLDivElement>();
-                  return (
-                    <Draggable
-                      key={el.id}
-                      nodeRef={nodeRef}
-                      bounds="parent"
-                      grid={[grid, grid]}
-                      position={{ x: el.x, y: el.y }}
-                      onStop={(e, data) => handleDragStop(e, data, el.id)}
-                    >
-                      <div 
-                        ref={nodeRef}
-                        id={el.id}
-                        onDragOver={e => e.preventDefault()}
-                        onDrop={e => handleGuestDrop(e, el.id)}
-                        className={`absolute border-2 flex flex-col items-center justify-center p-1 cursor-grab active:cursor-grabbing ${el.category?.includes('Mesa Redonda') ? 'rounded-full' : 'rounded-md'} ${selectedElementId === el.id ? 'border-primary shadow-lg z-10' : 'border-gray-500 bg-white/80'}`}
-                        style={{ width: el.width, height: el.height, transform: `rotate(${el.rotation}deg)`}}
-                        onClick={() => setSelectedElementId(el.id)}
+              <div className="relative border rounded-lg bg-muted/30 overflow-auto canvas-grid-background">
+                <div style={{ width: `${decoracion.salonWidth || 800}px`, height: `${decoracion.salonHeight || 600}px`}} className="relative">
+                  {decoracion.salonPlanBackgroundImageUrl && (
+                      <NextImage src={decoracion.salonPlanBackgroundImageUrl} alt="Plano del Salón" layout="fill" objectFit="contain" className="opacity-50" />
+                  )}
+                  {(decoracion.salonElements || []).map(el => {
+                    const guestsAtTable = invitados.filter(i => i.tableNumber === el.name);
+                    const seatsTaken = guestsAtTable.reduce((acc, g) => acc + (g.partySize || 1), 0);
+                    const isFull = el.seats !== undefined && seatsTaken >= el.seats;
+                    const nodeRef = React.createRef<HTMLDivElement>();
+                    return (
+                      <Draggable
+                        key={el.id}
+                        nodeRef={nodeRef}
+                        bounds="parent"
+                        grid={[grid, grid]}
+                        position={{ x: el.x, y: el.y }}
+                        onStop={(e, data) => handleDragStop(e, data, el.id)}
                       >
-                         <p className="text-xs font-bold text-center truncate px-1">{el.name}</p>
-                         {el.seats !== undefined && <p className={`text-[10px] ${isFull ? 'font-bold text-destructive' : 'text-muted-foreground'}`}>{seatsTaken} / {el.seats}</p>}
-                         {guestsAtTable.length > 0 && (
-                            <ul className="text-[8px] list-disc list-inside mt-1 overflow-y-auto max-h-12">
-                               {guestsAtTable.map(g => <li key={g.id} className="truncate">{g.nombre} ({g.partySize || 1})</li>)}
-                            </ul>
-                         )}
-                         {selectedElementId === el.id && (
-                            <div className="absolute -top-7 -right-2 flex gap-0.5 z-20" style={{transform: `rotate(-${el.rotation}deg)`}}>
-                                <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleOpenEditModal(el)}><Edit className="w-3 h-3"/></Button>
-                                <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleElementRotation(el.id)}><RotateCw className="w-3 h-3"/></Button>
-                                <Button type="button" variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => handleDeleteElement(el.id)}><Trash2 className="w-3 h-3"/></Button>
-                            </div>
-                         )}
-                      </div>
-                    </Draggable>
-                  )
-                })}
+                        <div 
+                          ref={nodeRef}
+                          id={el.id}
+                          onDragOver={e => e.preventDefault()}
+                          onDrop={e => handleGuestDrop(e, el.id)}
+                          className={`absolute border-2 flex flex-col items-center justify-center p-1 cursor-grab active:cursor-grabbing ${el.category?.includes('Mesa Redonda') ? 'rounded-full' : 'rounded-md'} ${selectedElementId === el.id ? 'border-primary shadow-lg z-10' : 'border-gray-500 bg-white/80'}`}
+                          style={{ width: el.width, height: el.height, transform: `rotate(${el.rotation}deg)`}}
+                          onClick={() => setSelectedElementId(el.id)}
+                        >
+                          <p className="text-xs font-bold text-center truncate px-1">{el.name}</p>
+                          {el.seats !== undefined && <p className={`text-[10px] ${isFull ? 'font-bold text-destructive' : 'text-muted-foreground'}`}>{seatsTaken} / {el.seats}</p>}
+                          {guestsAtTable.length > 0 && (
+                              <ul className="text-[8px] list-disc list-inside mt-1 overflow-y-auto max-h-12">
+                                {guestsAtTable.map(g => <li key={g.id} className="truncate">{g.nombre} ({g.partySize || 1})</li>)}
+                              </ul>
+                          )}
+                          {selectedElementId === el.id && (
+                              <div className="absolute -top-7 -right-2 flex gap-0.5 z-20" style={{transform: `rotate(-${el.rotation}deg)`}}>
+                                  <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleOpenEditModal(el)}><Edit className="w-3 h-3"/></Button>
+                                  <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleElementRotation(el.id)}><RotateCw className="w-3 h-3"/></Button>
+                                  <Button type="button" variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => handleDeleteElement(el.id)}><Trash2 className="w-3 h-3"/></Button>
+                              </div>
+                          )}
+                        </div>
+                      </Draggable>
+                    )
+                  })}
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -248,11 +239,26 @@ export default function SalonLayoutPage() {
         <div className="space-y-4">
           <Card>
             <CardHeader><CardTitle>Controles</CardTitle></CardHeader>
-            <CardContent className="grid grid-cols-2 gap-2">
-              <Button variant="outline" onClick={() => addElement('Mesa Redonda')}><Circle className="w-4 h-4 mr-2"/>Mesa Redonda</Button>
-              <Button variant="outline" onClick={() => addElement('Mesa Rectangular')}><Square className="w-4 h-4 mr-2"/>Mesa Rectangular</Button>
-              <Button variant="outline" onClick={() => addElement('Pista de Baile')}><Music className="w-4 h-4 mr-2"/>Pista</Button>
-              <Button variant="outline" onClick={() => addElement('Barra')}><Beer className="w-4 h-4 mr-2"/>Barra</Button>
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-2 gap-2">
+                <Button variant="outline" onClick={() => addElement('Mesa Redonda')}><Circle className="w-4 h-4 mr-2"/>Mesa Redonda</Button>
+                <Button variant="outline" onClick={() => addElement('Mesa Rectangular')}><Square className="w-4 h-4 mr-2"/>Mesa Rectangular</Button>
+                <Button variant="outline" onClick={() => addElement('Pista de Baile')}><Music className="w-4 h-4 mr-2"/>Pista</Button>
+                <Button variant="outline" onClick={() => addElement('Barra')}><Beer className="w-4 h-4 mr-2"/>Barra</Button>
+              </div>
+               <Separator />
+               <div className="space-y-2">
+                 <Label htmlFor="salon-width">Ancho del Salón (px)</Label>
+                 <Input id="salon-width" type="number" value={decoracion.salonWidth || 800} onChange={e => setDecoracion(d => d ? {...d, salonWidth: Number(e.target.value)}: null)} />
+               </div>
+               <div className="space-y-2">
+                 <Label htmlFor="salon-height">Alto del Salón (px)</Label>
+                 <Input id="salon-height" type="number" value={decoracion.salonHeight || 600} onChange={e => setDecoracion(d => d ? {...d, salonHeight: Number(e.target.value)}: null)} />
+               </div>
+               <div className="space-y-2">
+                 <Label htmlFor="salon-bg">URL Imagen de Fondo</Label>
+                 <Input id="salon-bg" type="url" value={decoracion.salonPlanBackgroundImageUrl || ''} onChange={e => setDecoracion(d => d ? {...d, salonPlanBackgroundImageUrl: e.target.value}: null)} placeholder="https://ejemplo.com/plano.png"/>
+               </div>
             </CardContent>
           </Card>
           <Card>
@@ -288,3 +294,5 @@ export default function SalonLayoutPage() {
     </div>
   );
 }
+
+    
