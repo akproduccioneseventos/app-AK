@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { PlusCircle, Trash2, Loader2, Save, BookOpen, Search, Percent } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveMenu } from '@/app/actions/menus-catering';
-import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
+import { getInsumos } from '@/app/actions/insumos';
 import type { FullMenu, MenuItem, Ingredient } from '@/types/catering';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogTrigger } from '@/components/ui/dialog';
@@ -125,7 +125,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
         quantityPerPerson: '1',
         unit: insumo.unidad || 'Unidad',
         cost: insumo.valorUnitarioEstimado || 0,
-        proveedor: insumo.contactoPrincipal || '', 
+        proveedor: insumo.proveedor || '', 
       };
       setMenu(prev => ({
       ...prev,
@@ -267,7 +267,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                      <div className="flex justify-between items-start">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                            <div className="space-y-2"><Label htmlFor={`item-name-${item.id}`}>Nombre Plato</Label><Input id={`item-name-${item.id}`} value={item.name} onChange={(e) => handleItemChange(item.id, 'name', e.target.value)} /></div>
-                           <div className="space-y-2"><Label htmlFor={`item-type-${item.id}`}>Tipo</Label><Select value={item.type || ''} onValueChange={(value) => handleItemChange(item.id, 'type', value)}><SelectTrigger id={`item-type-${item.id}`}><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Entrada">Entrada</SelectItem><SelectItem value="Plato Principal">Plato Principal</SelectItem><SelectItem value="Postre">Postre</SelectItem><SelectItem value="Bebida">Bebida</SelectItem><SelectItem value="Menú para niños y adolescentes">Menú para niños y adolescentes</SelectItem></SelectContent></Select></div>
+                           <div className="space-y-2"><Label htmlFor={`item-type-${item.id}`}>Tipo</Label><Select value={item.type || ''} onValueChange={(value) => handleItemChange(item.id, 'type', value)}><SelectTrigger id={`item-type-${item.id}`}><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Entrada">Entrada</SelectItem><SelectItem value="Plato Principal">Plato Principal</SelectItem><SelectItem value="Postre">Postre</SelectItem><SelectItem value="Bebida">Bebida</SelectItem><SelectItem value="Menú Infantil/Adolescente">Menú Infantil/Adolescente</SelectItem></SelectContent></Select></div>
                         </div>
                         <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive ml-2 flex-shrink-0" onClick={() => deleteItem(item.id)}><Trash2 className="w-4 h-4"/></Button>
                      </div>
@@ -277,11 +277,11 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                     <div className="mt-2 space-y-3">
                         {item.ingredients?.map(ing => (
                             <div key={ing.id} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 items-end p-3 border-l-4 border-primary/50 rounded-r-md bg-background shadow-sm">
-                                <div className="space-y-1 lg:col-span-2"><Label className="text-xs">Nombre</Label><Input value={ing.name} onChange={e => handleIngredientChange(item.id, ing.id, 'name', e.target.value)} className="h-8"/></div>
-                                <div className="space-y-1"><Label className="text-xs">Cant. p/p</Label><Input value={ing.quantityPerPerson} onChange={e => handleIngredientChange(item.id, ing.id, 'quantityPerPerson', e.target.value)} className="h-8"/></div>
-                                <div className="space-y-1"><Label className="text-xs">Unidad</Label><Input value={ing.unit} onChange={e => handleIngredientChange(item.id, ing.id, 'unit', e.target.value)} className="h-8"/></div>
+                                <div className="space-y-1 lg:col-span-2"><Label className="text-xs">Nombre</Label><Input value={ing.name || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'name', e.target.value)} className="h-8"/></div>
+                                <div className="space-y-1"><Label className="text-xs">Cant. p/p</Label><Input value={ing.quantityPerPerson || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'quantityPerPerson', e.target.value)} className="h-8"/></div>
+                                <div className="space-y-1"><Label className="text-xs">Unidad</Label><Input value={ing.unit || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'unit', e.target.value)} className="h-8"/></div>
                                 <div className="space-y-1"><Label className="text-xs">Proveedor</Label><Input value={ing.proveedor || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'proveedor', e.target.value)} className="h-8"/></div>
-                                <div className="space-y-1"><Label className="text-xs">Costo ($)</Label><Input type="number" value={ing.cost} onChange={e => handleIngredientChange(item.id, ing.id, 'cost', Number(e.target.value))} className="h-8"/></div>
+                                <div className="space-y-1"><Label className="text-xs">Costo ($)</Label><Input type="number" value={ing.cost || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'cost', Number(e.target.value))} className="h-8"/></div>
                                 <div className="lg:col-span-5 flex justify-end">
                                 <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteIngredient(item.id, ing.id)}><Trash2 className="w-3.5 h-3.5"/></Button>
                                 </div>
@@ -298,7 +298,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                     <div className="flex items-center gap-2">
                         <Label htmlFor={`profit-${item.id}`} className="text-sm">Margen de Ganancia</Label>
                         <div className="relative w-24">
-                          <Input id={`profit-${item.id}`} type="number" value={item.profitMargin} onChange={e => handleItemChange(item.id, 'profitMargin', Number(e.target.value))} className="pr-6"/>
+                          <Input id={`profit-${item.id}`} type="number" value={item.profitMargin ?? ''} onChange={e => handleItemChange(item.id, 'profitMargin', Number(e.target.value))} className="pr-6"/>
                           <Percent className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"/>
                         </div>
                     </div>
