@@ -42,13 +42,13 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
   DialogFooter,
-  DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
 import { cn } from '@/lib/utils';
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
+
+// --- CONSTANTS ---
 
 export const ALL_LAYOUT_ELEMENT_CATEGORIES = [
   'Mesa Redonda', 'Mesa Rectangular', 'Mesa Principal', 'Mobiliario (Sillón)', 'Pista de Baile', 'Cabina de DJ', 'Barra de Tragos', 'Estructura (Toldo/Truss)', 'Planta/Arreglo Floral', 'Elemento Decorativo', 'Otro'
@@ -67,8 +67,19 @@ export const PALETTE_ITEMS: { category: string; label: string; icon: React.Eleme
     { category: 'Elemento Decorativo', label: 'Decoración', icon: SparklesIcon, default: { width: 30, height: 30 } },
 ];
 
+const nameToColor = (name: string): string => {
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+        hash = name.charCodeAt(i) + ((hash << 5) - hash);
+        hash = hash & hash;
+    }
+    return `hsl(${hash % 360}, 70%, 80%)`;
+};
 
-function TableGenerationCard({ onGenerate, guestCount, setGuestCount, seatsPerTable, setSeatsPerTable, disabled, setConfirmOpen }: {
+
+// --- INTERNAL COMPONENTS ---
+
+const TableGenerationCard = ({ onGenerate, guestCount, setGuestCount, seatsPerTable, setSeatsPerTable, disabled, setConfirmOpen }: {
   onGenerate: () => void;
   guestCount: number;
   setGuestCount: (value: number) => void;
@@ -76,7 +87,7 @@ function TableGenerationCard({ onGenerate, guestCount, setGuestCount, seatsPerTa
   setSeatsPerTable: (value: number) => void;
   disabled: boolean;
   setConfirmOpen: (open: boolean) => void;
-}) {
+}) => {
   return (
     <Card className="shadow-lg">
       <CardHeader>
@@ -102,25 +113,15 @@ function TableGenerationCard({ onGenerate, guestCount, setGuestCount, seatsPerTa
       </CardFooter>
     </Card>
   );
-}
-
-const nameToColor = (name: string): string => {
-    let hash = 0;
-    for (let i = 0; i < name.length; i++) {
-        hash = name.charCodeAt(i) + ((hash << 5) - hash);
-        hash = hash & hash; // Convert to 32bit integer
-    }
-    const color = `hsl(${hash % 360}, 70%, 80%)`;
-    return color;
 };
 
-const GuestSeat = ({ seatNumber, guest, guestNameStyle, guestIconStyle, style }: {
+const GuestSeat: React.FC<{
     seatNumber: number;
     guest?: Invitado;
     style: React.CSSProperties;
     guestNameStyle: 'full' | 'initials' | 'none';
     guestIconStyle: 'color' | 'bw';
-}) => {
+}> = ({ seatNumber, guest, style, guestNameStyle, guestIconStyle }) => {
     let displayName = '';
     if (guest && guestNameStyle !== 'none') {
         if (guestNameStyle === 'full') {
@@ -151,13 +152,13 @@ const GuestSeat = ({ seatNumber, guest, guestNameStyle, guestIconStyle, style }:
     );
 };
 
-const DraggableLayoutElement = ({ element, invitados, onDragStop, onDoubleClick, config }: {
+const DraggableLayoutElement: React.FC<{
   element: LayoutElement;
   invitados: Invitado[];
   onDragStop: (e: DraggableEvent, data: DraggableData, elementId: string) => void;
   onDoubleClick: (element: LayoutElement) => void;
   config: { guestNameStyle: 'full' | 'initials' | 'none', guestIconStyle: 'color' | 'bw', layoutMode: 'libre' | 'asignado' };
-}) => {
+}> = ({ element, invitados, onDragStop, onDoubleClick, config }) => {
   const nodeRef = useRef(null);
   
   const isTable = element.category?.toLowerCase().includes('mesa');
@@ -229,14 +230,14 @@ const DraggableLayoutElement = ({ element, invitados, onDragStop, onDoubleClick,
   );
 };
 
-const DesignConfigSidebar = ({ decoracionData, onConfigChange, onInputChange, disabled, onSaveTemplate, onLoadTemplate }: {
+const DesignConfigSidebar: React.FC<{
     decoracionData: DecoracionData,
     onConfigChange: (key: keyof DecoracionData, value: string) => void,
     onInputChange: (key: keyof DecoracionData, value: string) => void,
     disabled: boolean,
     onSaveTemplate: () => void,
     onLoadTemplate: () => void,
-}) => {
+}> = ({ decoracionData, onConfigChange, onInputChange, disabled, onSaveTemplate, onLoadTemplate }) => {
   return (
     <Card className="w-full md:w-80 flex-shrink-0 shadow-lg">
       <CardHeader><CardTitle>Configuración del Diseño</CardTitle></CardHeader>
@@ -278,8 +279,9 @@ const DesignConfigSidebar = ({ decoracionData, onConfigChange, onInputChange, di
 };
 
 
+// --- MAIN PAGE COMPONENT ---
+
 export default function SalonLayoutPage() {
-  const params = React.use(useSearchParams());
   const { toast } = useToast();
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [decoracionData, setDecoracionData] = useState<DecoracionData>(defaultDecoracion);
@@ -293,15 +295,12 @@ export default function SalonLayoutPage() {
 
   const [failedImageUrls, setFailedImageUrls] = useState<Record<string, boolean>>({});
 
-  // Table Generation State
   const [generateGuestCount, setGenerateGuestCount] = useState<number>(0);
   const [seatsPerTable, setSeatsPerTable] = useState<number>(8);
   const [confirmGenerateOpen, setConfirmGenerateOpen] = useState(false);
   
-  // Fullscreen State
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // Template State
   const [isSaveTemplateModalOpen, setIsSaveTemplateModalOpen] = useState(false);
   const [isLoadTemplateModalOpen, setIsLoadTemplateModalOpen] = useState(false);
   const [templates, setTemplates] = useState<SalonLayoutTemplate[]>([]);
