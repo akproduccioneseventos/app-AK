@@ -521,7 +521,7 @@ export default function SalonLayoutPage() {
             throw new Error(result.error);
         }
     } catch (e: any) {
-        toast({ title: "Error", description: e.message, variant: "destructive" });
+        toast({ title: "Error al Eliminar", description: e.message, variant: "destructive" });
     } finally {
         setProcessingPointName(null);
     }
