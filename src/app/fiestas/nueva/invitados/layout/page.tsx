@@ -79,7 +79,7 @@ const nameToColor = (name: string): string => {
 
 // --- INTERNAL COMPONENTS ---
 
-const TableGenerationCard = ({ onGenerate, guestCount, setGuestCount, seatsPerTable, setSeatsPerTable, disabled, setConfirmOpen }: {
+function TableGenerationCard({ onGenerate, guestCount, setGuestCount, seatsPerTable, setSeatsPerTable, disabled, setConfirmOpen }: {
   onGenerate: () => void;
   guestCount: number;
   setGuestCount: (value: number) => void;
@@ -87,7 +87,7 @@ const TableGenerationCard = ({ onGenerate, guestCount, setGuestCount, seatsPerTa
   setSeatsPerTable: (value: number) => void;
   disabled: boolean;
   setConfirmOpen: (open: boolean) => void;
-}) => {
+}) {
   return (
     <Card className="shadow-lg">
       <CardHeader>
@@ -113,7 +113,7 @@ const TableGenerationCard = ({ onGenerate, guestCount, setGuestCount, seatsPerTa
       </CardFooter>
     </Card>
   );
-};
+}
 
 const GuestSeat: React.FC<{
     seatNumber: number;
@@ -151,6 +151,7 @@ const GuestSeat: React.FC<{
         </div>
     );
 };
+
 
 const DraggableLayoutElement: React.FC<{
   element: LayoutElement;
@@ -495,8 +496,8 @@ export default function SalonLayoutPage() {
         } else {
             throw new Error(result.error);
         }
-    } catch(e: any) {
-        toast({ title: "Error", description: e.message, variant: "destructive" });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
         setIsTemplateProcessing(false);
     }
@@ -730,3 +731,6 @@ export default function SalonLayoutPage() {
 }
 
     
+
+    
+
