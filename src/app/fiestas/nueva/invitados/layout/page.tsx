@@ -574,7 +574,7 @@ export default function SalonLayoutPage() {
         <Dialog open={isLoadTemplateModalOpen} onOpenChange={setIsLoadTemplateModalOpen}>
             <DialogContent>
                 <DialogHeader><DialogTitle>Cargar Diseño desde Plantilla</DialogTitle></DialogHeader>
-                {isTemplateProcessing ? <div className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin"/></div> : templates.length > 0 ? (
+                {isLoadingTemplates ? <div className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin"/></div> : templates.length > 0 ? (
                     <ul className="space-y-2 max-h-64 overflow-y-auto">
                     {templates.map(t => (
                         <li key={t.name} className="flex items-center justify-between p-2 border rounded-md">
@@ -726,4 +726,3 @@ export default function SalonLayoutPage() {
     </div>
   );
 }
-
