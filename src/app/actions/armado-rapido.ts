@@ -80,10 +80,7 @@ export async function generateBudgetAndLeadFromSimulator(
         return { success: false, error: "No hay etapas configuradas en el CRM." };
     }
     
-    let notes = `Generado desde el Simulador de Presupuestos.
-- Presupuesto ID: ${budgetResult.id}
-- Invitados: ${data.adultos} Adultos, ${data.ninos} Niños/Adol.
-- Costo Estimado: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(data.costoEstimado)}`;
+    let notes = `Generado desde el Simulador de Presupuestos.\n- Presupuesto ID: ${budgetResult.id}\n- Invitados: ${data.adultos} Adultos, ${data.ninos} Niños/Adol.\n- Costo Estimado: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(data.costoEstimado)}`;
     if (data.paqueteNombre) {
       notes += `\n- Paquete de Servicios: "${data.paqueteNombre}"`;
     }
