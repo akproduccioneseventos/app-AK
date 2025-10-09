@@ -168,7 +168,9 @@ const DraggableLayoutElement = ({ element, invitados, onDragStop, onDoubleClick,
   [invitados, element.name, isTable, config.layoutMode]);
 
   const renderSeats = () => {
-    if (!isTable || config.layoutMode !== 'asignado') return null;
+    if (!isTable || config.layoutMode !== 'asignado') {
+      return null;
+    }
 
     const seatCount = element.seats || (isRound ? 8 : 10);
     const seats = [];
@@ -305,6 +307,7 @@ export default function SalonLayoutPage() {
   const [templates, setTemplates] = useState<SalonLayoutTemplate[]>([]);
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
   const [processingPointName, setProcessingPointName] = useState<string | null>(null);
+  const [isTemplateProcessing, setIsTemplateProcessing] = useState(false);
 
 
   const loadData = useCallback(async () => {
@@ -682,8 +685,8 @@ export default function SalonLayoutPage() {
             />
             <DesignConfigSidebar 
                 decoracionData={decoracionData}
-                onConfigChange={handleConfigChange}
-                onInputChange={(key, val) => handleInputChange(key, val as string)}
+                onConfigChange={(key, value) => handleConfigChange(key as any, value)}
+                onInputChange={(key, value) => handleInputChange(key as any, value)}
                 disabled={isSaving}
                 onSaveTemplate={() => setIsSaveTemplateModalOpen(true)}
                 onLoadTemplate={handleOpenLoadTemplateModal}
@@ -726,3 +729,5 @@ export default function SalonLayoutPage() {
     </div>
   );
 }
+
+    
