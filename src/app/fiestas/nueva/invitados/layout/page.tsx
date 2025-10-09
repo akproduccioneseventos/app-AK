@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -200,19 +200,22 @@ export default function SalonLayoutPage() {
                   const guestId = e.dataTransfer.getData('guestId');
                   if (guestId) handleUnassignGuest(guestId);
               }}>
-                {decoracion?.salonElements?.map(el => {
+                {(decoracion?.salonElements || []).map(el => {
                   const guestsAtTable = invitados.filter(i => i.tableNumber === el.name);
                   const seatsTaken = guestsAtTable.reduce((acc, g) => acc + (g.partySize || 1), 0);
                   const isFull = el.seats !== undefined && seatsTaken >= el.seats;
+                  const nodeRef = React.createRef<HTMLDivElement>();
                   return (
                     <Draggable
                       key={el.id}
+                      nodeRef={nodeRef}
                       bounds="parent"
                       grid={[grid, grid]}
                       position={{ x: el.x, y: el.y }}
                       onStop={(e, data) => handleDragStop(e, data, el.id)}
                     >
                       <div 
+                        ref={nodeRef}
                         id={el.id}
                         onDragOver={e => e.preventDefault()}
                         onDrop={e => handleGuestDrop(e, el.id)}
@@ -285,5 +288,3 @@ export default function SalonLayoutPage() {
     </div>
   );
 }
-
-    
