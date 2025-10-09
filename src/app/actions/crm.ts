@@ -35,8 +35,8 @@ export async function getCrmLeads(): Promise<CrmLead[]> {
     const allStages = await getCrmStages();
     const targetStageId = allStages.find(stage => stage.name.toLowerCase() === 'con presupuesto')?.id || allStages[0]?.id;
     
-    // Filter budgets that came from the simulator
-    const simulatorBudgets = allBudgets.filter(p => p.notas?.includes('Simulador Web'));
+    // Filter budgets that came from the simulator (more robust search)
+    const simulatorBudgets = allBudgets.filter(p => p.notas?.toLowerCase().includes('simulador'));
     
     for (const budget of simulatorBudgets) {
       const budgetIdInNotes = `Presupuesto ID: ${budget.id}`;
@@ -44,7 +44,7 @@ export async function getCrmLeads(): Promise<CrmLead[]> {
       const leadExists = leads.some(lead => lead.notes?.includes(budgetIdInNotes));
       
       if (!leadExists && targetStageId) {
-        let notes = `Generado desde el Simulador de Presupuestos.\n- ${budgetIdInNotes}\n- Invitados: ${budget.invitadosAdultos} Adultos, ${budget.invitadosNinos} Niños/Adol.\n- Costo Estimado: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(budget.totalConDescuento ?? budget.costoTotalEstimado)}`;
+        let notes = `Generado desde el Simulador.\n- ${budgetIdInNotes}\n- Invitados: ${budget.invitadosAdultos || 0} Adultos, ${budget.invitadosNinos || 0} Niños/Adol.\n- Costo Estimado: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(budget.totalConDescuento ?? budget.costoTotalEstimado)}`;
         
         const newLead: CrmLead = {
           id: `lead_recovered_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
@@ -74,6 +74,7 @@ export async function getCrmLeads(): Promise<CrmLead[]> {
   // Default sort: newest first
   return leads.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
+
 
 export async function addCrmLead(
   leadData: NewCrmLeadData
@@ -281,4 +282,3 @@ export async function convertToClientAndMoveProspect(
     return { success: false, error: error.message || "Error desconocido durante la conversión." };
   }
 }
-
