@@ -25,7 +25,7 @@ const modules = [
   { title: "Configuración", href: "configuracion", icon: Users, description: "Datos generales del evento." },
   { title: "Tareas", href: "tareas", icon: ListChecks, description: "Checklist de pendientes." },
   { title: "Invitados", href: "invitados", icon: Users, description: "Gestiona tu lista de invitados." },
-  { title: "Diseño de Invitación", href: "invitados", icon: ImageIcon, description: "Crea la tarjeta de invitación digital para enviar." },
+  { title: "Diseño de Invitación", href: "invitados/invitacion", icon: ImageIcon, description: "Crea la tarjeta de invitación digital para enviar." },
   { title: "Página del Evento", href: "pagina-web", icon: Globe, description: "Personaliza la web que verán tus invitados." },
   { title: "Diseño del Salón", href: "invitados/layout", icon: LayoutDashboard, description: "Organiza las mesas y asientos." },
   { title: "Diseño y Decoración", href: "decoracion", icon: Palette, description: "Define el estilo y la ambientación." },
