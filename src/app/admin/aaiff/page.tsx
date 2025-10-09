@@ -200,6 +200,19 @@ export default function DashboardPage() {
         </Card>
         
         <div className="space-y-6">
+             <Card className="shadow-lg">
+                <CardHeader>
+                    <CardTitle className="font-headline text-lg flex items-center gap-2"><Briefcase className="text-primary"/>Prospectos del Simulador</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-sm text-muted-foreground">Revisa los presupuestos generados por tus clientes en el simulador.</p>
+                </CardContent>
+                <CardFooter className="flex flex-col sm:flex-row gap-2">
+                    <Button asChild className="w-full">
+                        <Link href="/contabilidad/crm"><Eye className="w-4 h-4 mr-2"/> Ir al CRM</Link>
+                    </Button>
+                </CardFooter>
+            </Card>
             <Card className="shadow-lg">
                 <CardHeader>
                     <CardTitle className="font-headline text-lg flex items-center gap-2"><Wand2 className="text-primary"/>Simulador de Presupuesto</CardTitle>
