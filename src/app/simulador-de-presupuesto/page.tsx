@@ -25,7 +25,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableCap
 import Image from 'next/image';
 import { WatermarkedImage } from '@/components/watermarked-image';
 import type { ItemPresupuestado } from '@/types/presupuesto';
-import type { MenuItem } from '@/types/catering';
+import type { FullMenu, MenuItem } from '@/types/catering'; // Import MenuItem
+import { getMenus } from '@/app/actions/menus-catering'; // Import getMenus
 
 const formatCurrency = (amount: number, includeSymbol = true) => {
     if (isNaN(amount)) return 'N/A';
@@ -70,6 +71,17 @@ function calcularCostoServicio(servicio: ServicioEmpresa, cantidadInvitados: num
   }
 }
 
+const menuItemToServicioEmpresa = (item: MenuItem): ServicioEmpresa => ({
+    id: item.id,
+    nombre: item.name,
+    tipoItem: 'Servicio',
+    categoria: 'Servicio de catering',
+    subcategoria: item.type,
+    calculationMethod: 'porPersona',
+    precioPorPersona: item.suggestedSellingPrice || item.totalDishCost,
+    precioVenta: item.suggestedSellingPrice || item.totalDishCost,
+});
+
 
 interface ServicioDetallado {
   id: string;
@@ -89,6 +101,7 @@ export default function ArmadoRapidoPage() {
 
     const [config, setConfig] = useState<ArmadoRapidoConfig | null>(null);
     const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioEmpresa[]>([]);
+    const [allMenus, setAllMenus] = useState<FullMenu[]>([]);
     const [whatsappNumber, setWhatsappNumber] = useState<string>('');
     const [logoUrl, setLogoUrl] = useState<string | null>(null);
     
@@ -107,7 +120,7 @@ export default function ArmadoRapidoPage() {
     const [isGeneratingLead, setIsGeneratingLead] = useState(false);
     
     const { entradasDisponibles, principalesDisponibles, menusNinoDisponibles } = useMemo(() => {
-        if (!config || !serviciosCatalogo.length) {
+        if (!config || !allMenus.length) {
             return { entradasDisponibles: [], principalesDisponibles: [], menusNinoDisponibles: [] };
         }
         
@@ -115,35 +128,41 @@ export default function ArmadoRapidoPage() {
             const setting = config.platosVisibles?.find(p => p.id === platoId);
             return setting !== undefined ? setting.visible : true;
         };
-        
-        const allCateringServices = serviciosCatalogo.filter(s => s.categoria === 'Servicio de catering');
-        const visibleCateringServices = allCateringServices.filter(s => isPlatoVisible(s.id));
-        
-        const sortByPrice = (a: ServicioEmpresa, b: ServicioEmpresa) => {
-            const priceA = a.precioPorPersona || a.precioBase || a.precioVenta || 0;
-            const priceB = b.precioPorPersona || b.precioBase || b.precioVenta || 0;
+
+        const allDishes = allMenus.flatMap(m => m.items);
+        const visibleDishes = allDishes.filter(d => isPlatoVisible(d.id));
+
+        const sortByPrice = (a: MenuItem, b: MenuItem) => {
+            const priceA = a.suggestedSellingPrice || a.totalDishCost || 0;
+            const priceB = b.suggestedSellingPrice || b.totalDishCost || 0;
             return priceA - priceB;
         };
 
-        const entradas = visibleCateringServices.filter(s => s.subcategoria === 'Entrada').sort(sortByPrice);
-        const principales = visibleCateringServices.filter(s => s.subcategoria === 'Plato Principal').sort(sortByPrice);
-        const menusNino = visibleCateringServices.filter(s => s.subcategoria === 'Menú Infantil/Adolescente').sort(sortByPrice);
+        const entradas = visibleDishes.filter(s => s.type === 'Entrada').sort(sortByPrice);
+        const principales = visibleDishes.filter(s => s.type === 'Plato Principal').sort(sortByPrice);
+        const menusNino = visibleDishes.filter(s => s.type === 'Menú Infantil/Adolescente').sort(sortByPrice);
         
-        return { entradasDisponibles: entradas, principalesDisponibles: principales, menusNinoDisponibles: menusNino };
-    }, [config, serviciosCatalogo]);
+        return { 
+            entradasDisponibles: entradas.map(menuItemToServicioEmpresa), 
+            principalesDisponibles: principales.map(menuItemToServicioEmpresa), 
+            menusNinoDisponibles: menusNino.map(menuItemToServicioEmpresa)
+        };
+    }, [config, allMenus]);
     
     useEffect(() => {
         const loadInitialData = async () => {
             setIsLoading(true);
             try {
-                const [armadoConfig, serviciosData, socialConnections, templateSettings] = await Promise.all([
+                const [armadoConfig, serviciosData, socialConnections, templateSettings, menuData] = await Promise.all([
                     getArmadoRapidoConfig(),
                     getServiciosEmpresa(),
                     getSocialConnections(),
-                    getInvoiceTemplateSettings()
+                    getInvoiceTemplateSettings(),
+                    getMenus(),
                 ]);
                 setConfig(armadoConfig);
                 setServiciosCatalogo(serviciosData.filter(s => s.tipoItem === 'Servicio'));
+                setAllMenus(menuData);
                 const whatsappConnection = socialConnections.find(c => c.platform === 'WhatsApp' && c.isConnected);
                 if (whatsappConnection?.phoneNumber) {
                     setWhatsappNumber(whatsappConnection.phoneNumber);
@@ -182,6 +201,8 @@ export default function ArmadoRapidoPage() {
         const totalInvitados = adultos + ninos;
         const includedServicesList: ServicioDetallado[] = [];
 
+        const allSimuladorServices = [...entradasDisponibles, ...principalesDisponibles, ...menusNinoDisponibles, ...serviciosCatalogo];
+
         const addServicio = (servicio: ServicioEmpresa | undefined, esRegalo: boolean, nota?: string, cantidadEspecifica?: number) => {
             if (!servicio) return;
             const cantidadParaCalculo = cantidadEspecifica ?? (servicio.calculationMethod === 'porPersona' || servicio.calculationMethod === 'ratio' ? totalInvitados : 1);
@@ -213,14 +234,14 @@ export default function ArmadoRapidoPage() {
         };
         
         selectedEntradas.forEach(id => {
-            addServicio(serviciosCatalogo.find(s => s.id === id), false);
+            addServicio(allSimuladorServices.find(s => s.id === id), false);
         });
 
         if (selectedPrincipal) {
-            addServicio(serviciosCatalogo.find(s => s.id === selectedPrincipal), false);
+            addServicio(allSimuladorServices.find(s => s.id === selectedPrincipal), false);
         }
         if (selectedMenuNino && ninos > 0) {
-            addServicio(serviciosCatalogo.find(s => s.id === selectedMenuNino), false, '(Niños/Adol.)', ninos);
+            addServicio(allSimuladorServices.find(s => s.id === selectedMenuNino), false, '(Niños/Adol.)', ninos);
         }
 
         const paqueteSeleccionado = config.paquetes.find(p => p.id === selectedPaqueteId);
@@ -238,7 +259,7 @@ export default function ArmadoRapidoPage() {
         const calculatedCostoTotal = calculatedSubtotal - calculatedDescuento;
 
         return { costoTotal: calculatedCostoTotal, subtotal: calculatedSubtotal, descuento: calculatedDescuento, serviciosDetallados: includedServicesList, totalRegalos: calculatedTotalRegalos };
-    }, [config, serviciosCatalogo, adultos, ninos, selectedEntradas, selectedPrincipal, selectedMenuNino, selectedPaqueteId]);
+    }, [config, serviciosCatalogo, entradasDisponibles, principalesDisponibles, menusNinoDisponibles, adultos, ninos, selectedEntradas, selectedPrincipal, selectedMenuNino, selectedPaqueteId]);
 
     const serviciosAgrupados = useMemo(() => {
         const agrupar = (servs: ServicioDetallado[]) => servs.reduce((acc, servicio) => {
