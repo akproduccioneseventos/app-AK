@@ -319,7 +319,7 @@ export default function BudgetDisplaySettingsPage() {
       s.subcategoria?.toLowerCase().includes(lowerCaseSearch)
     );
   }, [servicioSearchTerm, serviciosCatalogo]);
-  
+
   const serviciosAgrupadosParaPaquetes = useMemo(() => {
     return serviciosFiltrados.reduce((acc, servicio) => {
         const categoria = servicio.categoria || 'Otros';
@@ -402,7 +402,7 @@ export default function BudgetDisplaySettingsPage() {
                         <Separator/>
                         <Label>Servicios Incluidos</Label>
                         
-                        {modalType === 'paquete' ? (
+                        {modalType === 'paquete' && (
                             <>
                                 { (currentItem.serviciosIncluidos || []).length > 0 && (
                                     <div className="p-3 border rounded-md space-y-3">
@@ -460,43 +460,6 @@ export default function BudgetDisplaySettingsPage() {
                                     </ScrollArea>
                                 </div>
                             </>
-                        ) : (
-                             <div className="p-3 border rounded-md space-y-4">
-                               <div className='space-y-2'>
-                                  <Label>Entradas (Selección múltiple)</Label>
-                                  <MultiSelect
-                                    options={getVisibleDishes(entradas).map(e => ({ value: e.id, label: e.name }))}
-                                    selected={(currentItem.serviciosIncluidos || []).map(s => s.id)}
-                                    onValueChange={(selected) => handleGastronomicSelectionChange('entradas', selected)}
-                                    placeholder="Selecciona las entradas..."
-                                    className="w-full"
-                                  />
-                                </div>
-                                <div className='space-y-2'>
-                                  <Label>Plato Principal (Selección única)</Label>
-                                   <Select
-                                        onValueChange={(value) => handleGastronomicSelectionChange('principal', value)}
-                                        value={(currentItem.serviciosIncluidos || []).find(s => platosPrincipales.some(p => p.id === s.id))?.id || ''}
-                                    >
-                                        <SelectTrigger><SelectValue placeholder="Selecciona un plato principal..."/></SelectTrigger>
-                                        <SelectContent>
-                                            {getVisibleDishes(platosPrincipales).map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                 <div className='space-y-2'>
-                                  <Label>Menú Infantil/Adolescente</Label>
-                                   <Select
-                                        onValueChange={(value) => handleGastronomicSelectionChange('infantil', value)}
-                                        value={(currentItem.serviciosIncluidos || []).find(s => menusInfantiles.some(m => m.id === s.id))?.id || ''}
-                                  >
-                                    <SelectTrigger><SelectValue placeholder="Selecciona un menú..."/></SelectTrigger>
-                                    <SelectContent>
-                                      {getVisibleDishes(menusInfantiles).map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                            </div>
                         )}
                     </div>
                     <DialogFooter>
@@ -517,7 +480,7 @@ export default function BudgetDisplaySettingsPage() {
         <CardHeader>
           <CardTitle className="font-headline text-xl">Gestión Gastronómica del Simulador</CardTitle>
           <CardDescription>
-            Activa o desactiva los platos que estarán disponibles en el simulador y luego crea los menús cerrados que los clientes podrán elegir. Los platos se gestionan en el <Link href="/empresa/menus" className="text-primary underline hover:text-primary/80">Planificador Gastronómico Maestro</Link>.
+            Activa o desactiva los platos que estarán disponibles en el simulador. Los platos se gestionan en el <Link href="/empresa/menus" className="text-primary underline hover:text-primary/80">Planificador Gastronómico Maestro</Link>.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -534,32 +497,6 @@ export default function BudgetDisplaySettingsPage() {
               </AccordionItem>
            </Accordion>
         </CardContent>
-         <CardHeader>
-           <CardTitle className="font-headline text-lg">Menús para Simulador</CardTitle>
-           <CardDescription>Configura los menús que aparecerán como opción en el simulador de presupuesto para clientes.</CardDescription>
-        </CardHeader>
-         <CardContent className="space-y-3">
-            <Button onClick={() => handleOpenModal('menu')}><PlusCircle className="w-4 h-4 mr-2"/>Crear Menú de Simulador</Button>
-            <Separator/>
-            <Accordion type="multiple" className="w-full space-y-3">
-             {config.menus.map(menu => (
-                <AccordionItem key={menu.id} value={menu.id} className="border rounded-md shadow-sm">
-                    <div className="flex items-center p-3 font-semibold text-sm">
-                        <AccordionTrigger className="hover:no-underline flex-1 text-left">{menu.nombre}</AccordionTrigger>
-                        <div className="flex gap-2 pl-2">
-                           <Button variant="outline" size="sm" onClick={() => handleOpenModal('menu', menu)}>Editar</Button>
-                           <Button variant="destructive" size="sm" onClick={() => handleDeleteItem('menu', menu.id)} disabled={isSaving}>Eliminar</Button>
-                        </div>
-                    </div>
-                    <AccordionContent className="p-3 border-t">
-                      <p className="text-xs text-muted-foreground">{menu.descripcion || 'Sin descripción'}</p>
-                      <Separator className="my-2"/>
-                      {renderServiciosList((menu.serviciosIncluidos || []))}
-                    </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </CardContent>
       </Card>
       
        <Card className="shadow-lg">

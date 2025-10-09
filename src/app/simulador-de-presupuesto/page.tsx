@@ -115,12 +115,8 @@ export default function ArmadoRapidoPage() {
             return setting ? setting.visible : true; // Default to visible
         };
 
-        const menuCatering = config.menus.find(m => m.id === 'menu_catering');
-        if (!menuCatering) {
-            return { entradasDisponibles: [], principalesDisponibles: [], menusNinoDisponibles: [] };
-        }
-
-        const serviciosDelMenu = menuCatering.serviciosIncluidos.map(s => serviciosCatalogo.find(sc => sc.id === s.id)).filter((s): s is ServicioEmpresa => Boolean(s) && isPlatoVisible(s.id));
+        const allCateringServices = serviciosCatalogo.filter(s => s.categoria === 'Servicio de catering');
+        const visibleCateringServices = allCateringServices.filter(s => isPlatoVisible(s.id));
         
         const sortByPrice = (a: ServicioEmpresa, b: ServicioEmpresa) => {
             const priceA = a.precioPorPersona || a.precioBase || a.precioVenta || 0;
@@ -128,9 +124,9 @@ export default function ArmadoRapidoPage() {
             return priceA - priceB;
         };
 
-        const entradas = serviciosDelMenu.filter(s => s.subcategoria === 'Entrada').sort(sortByPrice);
-        const principales = serviciosDelMenu.filter(s => s.subcategoria === 'Plato Principal').sort(sortByPrice);
-        const menusNino = serviciosDelMenu.filter(s => s.subcategoria === 'Menú Infantil/Adolescente').sort(sortByPrice);
+        const entradas = visibleCateringServices.filter(s => s.subcategoria === 'Entrada').sort(sortByPrice);
+        const principales = visibleCateringServices.filter(s => s.subcategoria === 'Plato Principal').sort(sortByPrice);
+        const menusNino = visibleCateringServices.filter(s => s.subcategoria === 'Menú Infantil/Adolescente').sort(sortByPrice);
         
         return { entradasDisponibles: entradas, principalesDisponibles: principales, menusNinoDisponibles: menusNino };
     }, [config, serviciosCatalogo]);
