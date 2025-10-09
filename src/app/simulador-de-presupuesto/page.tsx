@@ -25,6 +25,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableCap
 import Image from 'next/image';
 import { WatermarkedImage } from '@/components/watermarked-image';
 import type { ItemPresupuestado } from '@/types/presupuesto';
+import type { MenuItem } from '@/types/catering';
 
 const formatCurrency = (amount: number, includeSymbol = true) => {
     if (isNaN(amount)) return 'N/A';
@@ -112,10 +113,9 @@ export default function ArmadoRapidoPage() {
         
         const isPlatoVisible = (platoId: string) => {
             const setting = config.platosVisibles?.find(p => p.id === platoId);
-            // If a setting exists, respect it. If not, default to visible.
-            return setting ? setting.visible : true;
+            return setting !== undefined ? setting.visible : true;
         };
-
+        
         const allCateringServices = serviciosCatalogo.filter(s => s.categoria === 'Servicio de catering');
         const visibleCateringServices = allCateringServices.filter(s => isPlatoVisible(s.id));
         
