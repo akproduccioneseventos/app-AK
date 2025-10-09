@@ -79,7 +79,7 @@ const menuItemToServicioEmpresa = (item: MenuItem): ServicioEmpresa => ({
     subcategoria: item.type,
     calculationMethod: 'porPersona',
     precioPorPersona: item.totalDishCost, // Use the base cost per person for display
-    precioVenta: item.totalDishCost, // Fallback
+    precioVenta: item.suggestedSellingPrice,
 });
 
 
@@ -489,7 +489,7 @@ export default function ArmadoRapidoPage() {
                                     </div>
                                     {logoUrl && (
                                         <div className="w-20 h-20 print:w-16 print:h-16 flex-shrink-0">
-                                            <WatermarkedImage src={logoUrl} alt={`${COMPANY_NAME_BRAND} Logo`} width={80} height={80} className="object-contain" data-ai-hint="company logo"/>
+                                            <WatermarkedImage src={logoUrl} alt={`${COMPANY_NAME_BRAND} Logo`} className="object-contain" data-ai-hint="company logo"/>
                                         </div>
                                     )}
                                 </div>
@@ -602,5 +602,7 @@ export default function ArmadoRapidoPage() {
     );
 }
 
+
+    
 
     
