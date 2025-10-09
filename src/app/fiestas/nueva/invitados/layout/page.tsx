@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -10,11 +11,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Loader2, AlertTriangle, PlusCircle, Settings2, LayoutDashboard, Printer, Trash2, Pointer, Move, Users, Save, RectangleHorizontal, Circle, Music, Sofa, User, Info, Building, Expand, Minimize, Sprout, Tent, Sparkle } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, PlusCircle, Settings2, LayoutDashboard, Printer, Trash2, Pointer, Move, Users, Save, RectangleHorizontal, Circle, Music, Sofa, User, Info, Building, Expand, Minimize, Sprout, Tent, Sparkles as SparklesIcon, FolderOpen } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaActual, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion, DecoracionData, LayoutElement, Invitado } from '@/types/fiesta';
 import { defaultDecoracion } from '@/lib/fiesta-defaults';
+import { getSalonLayoutTemplates, saveSalonLayoutTemplate, deleteSalonLayoutTemplate, type SalonLayoutTemplate } from '@/app/actions/salon-layout-templates';
 import {
   Sheet,
   SheetContent,
@@ -35,6 +37,16 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog";
 import { cn } from '@/lib/utils';
 
 
@@ -52,7 +64,7 @@ export const PALETTE_ITEMS: { category: string; label: string; icon: React.Eleme
     { category: 'Mobiliario (Sillón)', label: 'Sillón / Living', icon: Sofa, default: { width: 120, height: 60 } },
     { category: 'Estructura (Toldo/Truss)', label: 'Estructura', icon: Tent, default: { width: 200, height: 200 } },
     { category: 'Planta/Arreglo Floral', label: 'Planta', icon: Sprout, default: { width: 40, height: 40 } },
-    { category: 'Elemento Decorativo', label: 'Decoración', icon: Sparkle, default: { width: 30, height: 30 } },
+    { category: 'Elemento Decorativo', label: 'Decoración', icon: SparklesIcon, default: { width: 30, height: 30 } },
 ];
 
 
@@ -160,8 +172,6 @@ const DraggableLayoutElement = ({ element, invitados, onDragStop, onDoubleClick,
 
     const seatCount = element.seats || (isRound ? 8 : 10);
     const seats = [];
-    const centerX = 0; // Relative to the container
-    const centerY = 0; // Relative to the container
     
     const seatOccupants: (Invitado | undefined)[] = [...assignedGuests];
     while(seatOccupants.length < seatCount) {
@@ -194,7 +204,10 @@ const DraggableLayoutElement = ({ element, invitados, onDragStop, onDoubleClick,
         for(let i = 0; i < seatsBottom; i++) {
             const guest = seatOccupants[seatsTop + i];
             const xPosPercent = (100 / (seatsBottom + 1)) * (i + 1);
-            const style: React.CSSProperties = { left: `${element.height}px`, top: `${element.height}px`, transform: 'translateX(-50%)' };
+            const style: React.CSSProperties = { left: '50%', top: `${element.height + 5}px`, transform: 'translateX(-50%)' }; // Position needs adjustment based on container
+             if (i > 0) {
+              style.transform = `translateX(-50%) translateY(${i*40}px)`; // This needs improvement
+            }
             seats.push(<GuestSeat key={`bottom-${i}`} seatNumber={seatsTop + i + 1} guest={guest} style={style} {...config} />);
         }
     }
@@ -217,15 +230,17 @@ const DraggableLayoutElement = ({ element, invitados, onDragStop, onDoubleClick,
   );
 };
 
-const DesignConfigSidebar = ({ decoracionData, onConfigChange, onInputChange, disabled }: {
+const DesignConfigSidebar = ({ decoracionData, onConfigChange, onInputChange, disabled, onSaveTemplate, onLoadTemplate }: {
     decoracionData: DecoracionData,
     onConfigChange: (key: keyof DecoracionData, value: string) => void,
     onInputChange: (key: keyof DecoracionData, value: string) => void,
-    disabled: boolean
+    disabled: boolean,
+    onSaveTemplate: () => void,
+    onLoadTemplate: () => void,
 }) => {
   return (
     <Card className="w-full md:w-80 flex-shrink-0 shadow-lg">
-      <CardHeader><CardTitle>Configuración del diseño</CardTitle></CardHeader>
+      <CardHeader><CardTitle>Configuración del Diseño</CardTitle></CardHeader>
       <CardContent className="space-y-6">
         <div>
           <Label className="font-semibold">Nombre del Diseño</Label>
@@ -236,6 +251,10 @@ const DesignConfigSidebar = ({ decoracionData, onConfigChange, onInputChange, di
             className="mt-2"
             disabled={disabled}
           />
+        </div>
+        <div className="flex flex-col gap-2">
+            <Button onClick={onSaveTemplate} variant="secondary" disabled={disabled}><Save className="w-4 h-4 mr-2"/>Guardar Plantilla</Button>
+            <Button onClick={onLoadTemplate} variant="outline" disabled={disabled}><FolderOpen className="w-4 h-4 mr-2"/>Cargar Plantilla</Button>
         </div>
         <Separator/>
         <div>
@@ -279,7 +298,15 @@ export default function SalonLayoutPage() {
   const [seatsPerTable, setSeatsPerTable] = useState<number>(8);
   const [confirmGenerateOpen, setConfirmGenerateOpen] = useState(false);
   
+  // Fullscreen State
   const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Template State
+  const [isSaveTemplateModalOpen, setIsSaveTemplateModalOpen] = useState(false);
+  const [isLoadTemplateModalOpen, setIsLoadTemplateModalOpen] = useState(false);
+  const [templates, setTemplates] = useState<SalonLayoutTemplate[]>([]);
+  const [isTemplateProcessing, setIsTemplateProcessing] = useState(false);
+  const [processingPointName, setProcessingPointName] = useState<string | null>(null);
 
 
   const loadData = useCallback(async () => {
@@ -440,6 +467,64 @@ export default function SalonLayoutPage() {
     });
   };
 
+  const handleOpenLoadTemplateModal = async () => {
+    setIsTemplateProcessing(true);
+    try {
+        const tpls = await getSalonLayoutTemplates();
+        setTemplates(tpls);
+    } catch(e) {
+        toast({title: "Error", description: "No se pudieron cargar las plantillas."});
+    } finally {
+        setIsTemplateProcessing(false);
+        setIsLoadTemplateModalOpen(true);
+    }
+  }
+
+  const handleSaveTemplate = async () => {
+    const layoutNameToSave = decoracionData.layoutTemplateName?.trim();
+    if (!layoutNameToSave) {
+        toast({ title: "Falta Nombre", description: "Asigna un nombre al diseño para guardarlo como plantilla.", variant: "destructive" });
+        return;
+    }
+    setIsTemplateProcessing(true);
+    try {
+        const result = await saveSalonLayoutTemplate(layoutNameToSave, decoracionData);
+        if (result.success) {
+            toast({ title: "Plantilla Guardada", description: `Se ha guardado "${layoutNameToSave}".` });
+            setIsSaveTemplateModalOpen(false);
+        } else {
+            throw new Error(result.error);
+        }
+    } catch(e: any) {
+        toast({ title: "Error", description: e.message, variant: "destructive" });
+    } finally {
+        setIsTemplateProcessing(false);
+    }
+  }
+
+  const handleLoadTemplate = (template: SalonLayoutTemplate) => {
+    setDecoracionData(prev => ({
+        ...prev,
+        ...template.layoutData
+    }));
+    toast({ title: "Plantilla Cargada", description: `Se ha cargado el diseño "${template.name}".`});
+    setIsLoadTemplateModalOpen(false);
+  }
+  
+  const handleDeleteTemplate = async (templateId: string) => {
+    setProcessingPointName(templateId);
+    try {
+        await deleteSalonLayoutTemplate(templateId);
+        toast({ title: "Plantilla Eliminada" });
+        const tpls = await getSalonLayoutTemplates();
+        setTemplates(tpls);
+    } catch (e: any) {
+        toast({ title: "Error", description: e.message, variant: "destructive" });
+    } finally {
+        setProcessingPointName(null);
+    }
+  };
+
   const DesignerCanvas = ({ isFullscreen }: { isFullscreen: boolean }) => (
     <div
       className={cn(
@@ -466,12 +551,8 @@ export default function SalonLayoutPage() {
     </div>
   );
 
-  if (isLoading) {
-    return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando diseñador...</p></div>;
-  }
-  if (error) {
-    return <div className="py-10 text-center text-red-600"><AlertTriangle className="w-12 h-12 mx-auto mb-3" /><p className="font-semibold">{error}</p><Button onClick={loadData} className="mt-4">Reintentar</Button></div>;
-  }
+  if (isLoading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando diseñador...</p></div>;
+  if (error) return <div className="py-10 text-center text-red-600"><AlertTriangle className="w-12 h-12 mx-auto mb-3" /><p className="font-semibold">{error}</p><Button onClick={loadData} className="mt-4">Reintentar</Button></div>;
 
   return (
     <div className="space-y-6">
@@ -481,6 +562,32 @@ export default function SalonLayoutPage() {
                 <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={handleGenerateTables}>Sí, Generar</AlertDialogAction></AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>
+
+        <Dialog open={isSaveTemplateModalOpen} onOpenChange={setIsSaveTemplateModalOpen}>
+            <DialogContent><DialogHeader><DialogTitle>Guardar Diseño como Plantilla</DialogTitle></DialogHeader>
+                <div className="py-2 space-y-2"><Label htmlFor="template-name-save">Nombre de la Plantilla</Label><Input id="template-name-save" value={decoracionData.layoutTemplateName || ''} onChange={e => handleInputChange('layoutTemplateName', e.target.value)} placeholder="Ej: Salón Club Uruguay"/></div>
+            <DialogFooter><DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose><Button onClick={handleSaveTemplate} disabled={isTemplateProcessing}>{isTemplateProcessing ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : null} Guardar</Button></DialogFooter>
+        </Dialog>
+        
+        <Dialog open={isLoadTemplateModalOpen} onOpenChange={setIsLoadTemplateModalOpen}>
+            <DialogContent>
+                <DialogHeader><DialogTitle>Cargar Diseño desde Plantilla</DialogTitle></DialogHeader>
+                {isTemplateProcessing ? <div className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin"/></div> : templates.length > 0 ? (
+                    <ul className="space-y-2 max-h-64 overflow-y-auto">
+                    {templates.map(t => (
+                        <li key={t.name} className="flex items-center justify-between p-2 border rounded-md">
+                        <span>{t.name}</span>
+                        <div className="flex gap-1">
+                            <Button size="sm" onClick={() => handleLoadTemplate(t)}>Cargar</Button>
+                            <Button size="icon" variant="destructive" onClick={() => handleDeleteTemplate(t.id)} disabled={processingPointName===t.id}>{processingPointName===t.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}</Button>
+                        </div>
+                        </li>
+                    ))}
+                    </ul>
+                ) : <p className="p-4 text-center text-muted-foreground">No hay plantillas guardadas.</p>}
+                <DialogFooter><DialogClose asChild><Button variant="outline">Cerrar</Button></DialogClose></DialogFooter>
+            </DialogContent>
+        </Dialog>
 
         <Sheet open={isElementSheetOpen} onOpenChange={setIsElementSheetOpen}>
         <SheetContent>
@@ -495,10 +602,7 @@ export default function SalonLayoutPage() {
               </div>
               <div className="space-y-1">
                 <Label htmlFor="layout-el-cat">Categoría</Label>
-                <Select value={currentLayoutElement.category || 'Otro'} onValueChange={(val) => handleLayoutElementChange('category', val)}>
-                  <SelectTrigger><SelectValue placeholder="Seleccionar categoría..."/></SelectTrigger>
-                  <SelectContent>{ALL_LAYOUT_ELEMENT_CATEGORIES.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}</SelectContent>
-                </Select>
+                <Select value={currentLayoutElement.category || 'Otro'} onValueChange={(val) => handleLayoutElementChange('category', val)}><SelectTrigger><SelectValue placeholder="Seleccionar categoría..."/></SelectTrigger><SelectContent>{ALL_LAYOUT_ELEMENT_CATEGORIES.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}</SelectContent></Select>
               </div>
               {currentLayoutElement.category?.toLowerCase().includes('mesa') && (
                 <div className="space-y-1">
@@ -579,6 +683,8 @@ export default function SalonLayoutPage() {
                 onConfigChange={handleConfigChange}
                 onInputChange={(key, val) => handleInputChange(key, val as string)}
                 disabled={isSaving}
+                onSaveTemplate={() => setIsSaveTemplateModalOpen(true)}
+                onLoadTemplate={handleOpenLoadTemplateModal}
             />
              <Card className="shadow-lg">
                 <CardHeader><CardTitle className="font-headline">Añadir Elementos</CardTitle></CardHeader>
