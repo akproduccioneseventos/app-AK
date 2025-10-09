@@ -34,28 +34,27 @@ export async function getCrmLeads(): Promise<CrmLead[]> {
     const allBudgets = await getPresupuestos();
     const allStages = await getCrmStages();
     const targetStage = allStages.find(stage => stage.name.toLowerCase() === 'con presupuesto');
-    const targetStageId = targetStage?.id || allStages[0]?.id;
-    
-    // Filter budgets that came from the simulator (more robust search)
-    const simulatorBudgets = allBudgets.filter(p => p.notas?.toLowerCase().includes('simulador'));
-    
-    if (targetStageId) {
+
+    if (targetStage) {
+        // Filter budgets that came from the simulator
+        const simulatorBudgets = allBudgets.filter(p => p.notas?.toLowerCase().includes('simulador'));
+        
         for (const budget of simulatorBudgets) {
-            const budgetIdInNotes = `Presupuesto ID: ${budget.id}`;
-            const leadExists = leads.some(lead => lead.notes?.includes(budgetIdInNotes));
+            // Check if a lead referencing this budget already exists
+            const leadExists = leads.some(lead => lead.notes?.includes(`Presupuesto ID: ${budget.id}`));
             
             if (!leadExists) {
-                let notes = `Generado desde el Simulador.\n- ${budgetIdInNotes}\n- Invitados: ${budget.invitadosAdultos || 0} Adultos, ${budget.invitadosNinos || 0} Niños/Adol.\n- Costo Estimado: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(budget.totalConDescuento ?? budget.costoTotalEstimado)}`;
+                let notes = `Generado desde el Simulador.\n- Presupuesto ID: ${budget.id}\n- Invitados: ${budget.invitadosAdultos || 0} Adultos, ${budget.invitadosNinos || 0} Niños/Adol.\n- Costo Estimado: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(budget.totalConDescuento ?? budget.costoTotalEstimado)}`;
                 
                 const newLead: CrmLead = {
                     id: `lead_recovered_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
                     name: budget.clienteNombre,
                     phone: budget.clienteContacto,
                     notes: notes,
-                    currentStageId: targetStageId,
+                    currentStageId: targetStage.id,
                     createdAt: budget.timestamp,
                     updatedAt: new Date().toISOString(),
-                    history: [{ stageId: targetStageId, stageName: targetStage.name, timestamp: new Date().toISOString() }],
+                    history: [{ stageId: targetStage.id, stageName: targetStage.name, timestamp: new Date().toISOString() }],
                 };
                 leads.push(newLead);
                 needsWrite = true;
@@ -223,9 +222,9 @@ export async function convertToClientAndMoveProspect(
   }
   
   const stages = await getCrmStages();
-  const firmStage = stages.find(s => s.name === 'Firmó contrato');
+  const firmStage = stages.find(s => s.isConversionStage);
   if (!firmStage) {
-      return { success: false, error: "La etapa 'Firmó contrato' no está configurada."};
+      return { success: false, error: "La etapa de conversión ('Firmó contrato') no está configurada."};
   }
 
   const customerFormData = new FormData();
@@ -282,3 +281,5 @@ export async function convertToClientAndMoveProspect(
     return { success: false, error: error.message || "Error desconocido durante la conversión." };
   }
 }
+
+    

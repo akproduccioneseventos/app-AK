@@ -2,6 +2,7 @@
 
 
 
+
 'use server';
 
 import { initialFiestaActualData } from '@/lib/fiesta-defaults';
@@ -9,7 +10,7 @@ import type { FiestaEnPlanificacion, ConfigEventoDataStorage } from '@/types/fie
 import { readData, writeData } from '@/lib/data-service';
 import { syncCustomerFromFiestaConfig } from '@/app/actions/customers';
 import path from 'path';
-import { getFiestaById } from './fiesta.actions';
+import { getFiestaById, saveFiesta } from './fiesta.actions';
 
 const FIESTAS_DIR = 'fiestas';
 
@@ -22,7 +23,10 @@ async function updateFiestaData(
   const FIESTA_FILE_PATH = path.join(FIESTAS_DIR, `${fiestaId}.json`);
 
   try {
-    const currentData = await readData<FiestaEnPlanificacion>(FIESTA_FILE_PATH, { ...initialFiestaActualData, id: fiestaId });
+    const currentData = await getFiestaById(fiestaId);
+    if (!currentData) {
+      throw new Error(`No se encontró la fiesta con ID ${fiestaId}`);
+    }
     const updatedData = updateFn(currentData);
     await writeData(FIESTA_FILE_PATH, updatedData);
 
@@ -38,10 +42,12 @@ async function updateFiestaData(
 }
 
 export async function getFiestaActual(fiestaId: string): Promise<FiestaEnPlanificacion> {
-  const FIESTA_FILE_PATH = path.join(FIESTAS_DIR, `${fiestaId}.json`);
-  return readData<FiestaEnPlanificacion>(FIESTA_FILE_PATH, {...initialFiestaActualData, id: fiestaId});
+  const fiesta = await getFiestaById(fiestaId);
+  return fiesta || { ...initialFiestaActualData, id: fiestaId };
 }
 
 export async function updateConfiguracion(fiestaId: string, config: ConfigEventoDataStorage) {
   return updateFiestaData(fiestaId, data => ({ ...data, configuracion: config }));
 }
+
+    

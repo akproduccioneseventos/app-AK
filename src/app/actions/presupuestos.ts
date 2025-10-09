@@ -139,6 +139,7 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
   presupuestos[index] = updatedPresupuesto;
   await writeData(PRESUPUESTOS_FILE, presupuestos);
 
+  // Sync with invoice if state is 'Facturado' and an invoice ID exists.
   if (updatedPresupuesto.estado === 'Facturado' && updatedPresupuesto.invoiceId) {
     try {
       const linkedInvoice = await getInvoiceById(updatedPresupuesto.invoiceId);
@@ -146,6 +147,7 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
         
         const budgetTotal = updatedPresupuesto.totalConDescuento ?? updatedPresupuesto.costoTotalEstimado;
         
+        // Overwrite items with a single summary line item from the budget
         const summaryItem: Omit<InvoiceItem, 'id'> = {
             description: `Servicios según presupuesto #${updatedPresupuesto.id.split('_').pop()?.substring(0,5)} (actualizado)`,
             quantity: 1,
@@ -158,6 +160,15 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
             items: [{ ...summaryItem, id: `item_summary_update_${Date.now()}` }],
             notes: updatedPresupuesto.notas || linkedInvoice.notes,
         };
+
+        // Recalculate totals on the invoice object itself before saving
+        const newSubtotal = invoiceDataToUpdate.items.reduce((sum, item) => sum + item.total, 0);
+        const newTaxAmount = (newSubtotal * (invoiceDataToUpdate.taxRate || 0)) / 100;
+        const newTotalAmount = newSubtotal + newTaxAmount;
+        
+        invoiceDataToUpdate.subtotal = newSubtotal;
+        invoiceDataToUpdate.taxAmount = newTaxAmount;
+        invoiceDataToUpdate.totalAmount = newTotalAmount;
 
         await saveInvoice(invoiceDataToUpdate);
       }
@@ -209,3 +220,5 @@ export async function activateAnnualAdjustmentForBudget(presupuestoId: string): 
   await writeData(PRESUPUESTOS_FILE, presupuestos);
   return { success: true };
 }
+
+    
