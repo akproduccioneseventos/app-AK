@@ -68,6 +68,24 @@ function PaginaWebPageContent() {
           if (!template) throw new Error("Plantilla no encontrada");
           finalData = template;
           finalTemplateName = template.name || `Plantilla ${template.id.substring(0,5)}`;
+          // Create a dummy fiesta object for template preview
+          const dummyFiesta = cloneDeep(fiesta); // Use existing fiesta if available, or create from scratch
+          finalFiesta = dummyFiesta || {
+              id: `template-preview-${Date.now()}`,
+              configuracion: {
+                  nombreEvento: "Evento de Muestra",
+                  tipoCelebracion: "Boda",
+                  fechaEvento: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
+                  horaInicio: '21:00',
+                  horaFin: '04:00',
+                  nombreLugar: "Salón de Fiestas 'Ensueño'",
+                  invitadosEstimados: 100
+              },
+              // Add other necessary properties with default values
+              personalAsignado: [],
+              invoiceIds: [],
+          } as FiestaEnPlanificacion;
+
       } else {
           if (!fiestaId) {
               toast({ title: "Error", description: "ID de fiesta no encontrado en la URL.", variant: "destructive" });
@@ -91,7 +109,8 @@ function PaginaWebPageContent() {
     } finally {
       setIsLoading(false);
     }
-  }, [fiestaId, templateId, isEditingTemplate, toast, router]);
+  }, [fiestaId, templateId, isEditingTemplate, toast, router, fiesta]);
+  
 
   useEffect(() => {
     loadData();
@@ -189,8 +208,7 @@ function PaginaWebPageContent() {
     toast({ title: "Plantilla aplicada", description: `Se ha cargado el diseño "${template.name}".`});
   };
 
-  const renderUploadInput = (section: keyof InvitacionDigitalData, field: string, currentUrl?: string) => {
-    return(
+  const renderUploadInput = (section: keyof InvitacionDigitalData, field: string, currentUrl?: string) => (
     <div key={`${section}-${field}`} className="space-y-2">
       <Label>Imagen/Video de Fondo</Label>
       <div className="flex items-center gap-2">
@@ -205,13 +223,12 @@ function PaginaWebPageContent() {
       </div>
       {currentUrl && <NextImage src={currentUrl} alt="Preview" width={100} height={60} className="rounded-md border object-cover"/>}
     </div>
-    )
-  };
+  );
   
   const backLink = isEditingTemplate ? "/settings/templates/invitaciones" : `/fiestas/nueva?fiestaId=${fiestaId}`;
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col h-[calc(100vh-10rem)] space-y-4">
       {/* Header */}
       <div className="flex-shrink-0 flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -232,94 +249,91 @@ function PaginaWebPageContent() {
       </div>
       
       {/* Main Content */}
-      <div className="flex-grow grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-15rem)] overflow-hidden">
+      <div className="flex-grow grid grid-cols-1 lg:grid-cols-3 gap-6 h-full min-h-0">
         {/* Controls Panel */}
-        <div className="lg:col-span-1 h-full">
-          <Card className="h-full flex flex-col">
-            <CardHeader><CardTitle>Panel de Control</CardTitle></CardHeader>
-            <CardContent className="flex-grow overflow-y-auto pr-2">
-              <Dialog onOpenChange={(open) => !open && setFileContext(null)}>
-                <Accordion type="multiple" className="w-full space-y-4" defaultValue={['general', 'cabecera', 'detallesEvento']}>
-                  {/* General Settings */}
-                  <AccordionItem value="general" className="border rounded-md px-3">
-                    <AccordionTrigger className="hover:no-underline py-2 text-md font-medium"><div className="flex items-center gap-2"><Sparkles className="w-4 h-4"/>Diseño General</div></AccordionTrigger>
-                    <AccordionContent className="pt-2 pb-4 space-y-4 border-t">
-                      {!isEditingTemplate && <Button type="button" onClick={handleLoadTemplate} variant="outline" className="w-full"><FolderUp className="w-4 h-4 mr-2" />Cargar desde Plantilla</Button>}
-                      {isEditingTemplate && (
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-1"><Label>Nombre Plantilla</Label><Input value={invitacionData.name || ''} onChange={(e) => setInvitacionData(p => ({...p, name: e.target.value}))}/></div>
-                          <div className="space-y-1"><Label>Categoría</Label><Select value={invitacionData.category || 'General'} onValueChange={(v) => setInvitacionData(p => ({...p, category: v as any}))}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Boda">Boda</SelectItem><SelectItem value="XV Años">XV Años</SelectItem><SelectItem value="Cumpleaños">Cumpleaños</SelectItem><SelectItem value="General">General</SelectItem></SelectContent></Select></div>
-                        </div>
-                      )}
-                      <div className="space-y-1"><Label>Estilo Visual</Label><Select value={invitacionData.plantilla} onValueChange={(v) => setInvitacionData(p => ({...p, plantilla: v as any}))}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Grazia">Grazia (Clásico y Elegante)</SelectItem></SelectContent></Select></div>
-                      <div className="space-y-1"><Label>URL Música de Fondo (MP3)</Label><Input value={invitacionData.musicaFondoUrl || ''} onChange={(e) => setInvitacionData(p => ({...p, musicaFondoUrl: e.target.value}))} placeholder="https://..." /></div>
-                    </AccordionContent>
-                  </AccordionItem>
+        <Card className="lg:col-span-1 h-full flex flex-col">
+          <CardHeader><CardTitle>Panel de Control</CardTitle></CardHeader>
+          <CardContent className="flex-grow overflow-y-auto pr-2">
+            <Dialog onOpenChange={(open) => !open && setFileContext(null)}>
+              <Accordion type="multiple" className="w-full space-y-4" defaultValue={['general', 'cabecera', 'detallesEvento']}>
+                {/* General Settings */}
+                <AccordionItem value="general" className="border rounded-md px-3">
+                  <AccordionTrigger className="hover:no-underline py-2 text-md font-medium"><div className="flex items-center gap-2"><Sparkles className="w-4 h-4"/>Diseño General</div></AccordionTrigger>
+                  <AccordionContent className="pt-2 pb-4 space-y-4 border-t">
+                    {!isEditingTemplate && <Button type="button" onClick={handleLoadTemplate} variant="outline" className="w-full"><FolderUp className="w-4 h-4 mr-2" />Cargar desde Plantilla</Button>}
+                    {isEditingTemplate && (
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1"><Label>Nombre Plantilla</Label><Input value={invitacionData.name || ''} onChange={(e) => setInvitacionData(p => ({...p, name: e.target.value}))}/></div>
+                        <div className="space-y-1"><Label>Categoría</Label><Select value={invitacionData.category || 'General'} onValueChange={(v) => setInvitacionData(p => ({...p, category: v as any}))}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Boda">Boda</SelectItem><SelectItem value="XV Años">XV Años</SelectItem><SelectItem value="Cumpleaños">Cumpleaños</SelectItem><SelectItem value="General">General</SelectItem></SelectContent></Select></div>
+                      </div>
+                    )}
+                    <div className="space-y-1"><Label>Estilo Visual</Label><Select value={invitacionData.plantilla} onValueChange={(v) => setInvitacionData(p => ({...p, plantilla: v as any}))}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Grazia">Grazia (Clásico y Elegante)</SelectItem></SelectContent></Select></div>
+                    <div className="space-y-1"><Label>URL Música de Fondo (MP3)</Label><Input value={invitacionData.musicaFondoUrl || ''} onChange={(e) => setInvitacionData(p => ({...p, musicaFondoUrl: e.target.value}))} placeholder="https://..." /></div>
+                  </AccordionContent>
+                </AccordionItem>
 
-                  {/* Content Sections */}
-                  {Object.keys(defaultInvitacionDigitalData).filter(k => k !== 'plantilla' && k !== 'name' && k !== 'category' && k !== 'musicaFondoUrl').map(key => {
-                      const sectionKey = key as keyof Omit<InvitacionDigitalData, 'plantilla' | 'name' | 'category' | 'musicaFondoUrl'>;
-                      const sectionData = invitacionData[sectionKey];
-                      const defaultSectionData = defaultInvitacionDigitalData[sectionKey];
-                      if(typeof sectionData !== 'object' || sectionData === null) return null;
+                {/* Content Sections */}
+                {Object.keys(defaultInvitacionDigitalData).filter(k => k !== 'plantilla' && k !== 'name' && k !== 'category' && k !== 'musicaFondoUrl').map(key => {
+                    const sectionKey = key as keyof Omit<InvitacionDigitalData, 'plantilla' | 'name' | 'category' | 'musicaFondoUrl'>;
+                    const sectionData = invitacionData[sectionKey];
+                    const defaultSectionData = defaultInvitacionDigitalData[sectionKey];
+                    if(typeof sectionData !== 'object' || sectionData === null) return null;
 
-                      const Icon = sectionKey === 'cabecera' ? ImageIcon : sectionKey === 'bienvenida' ? Heart : sectionKey === 'detallesEvento' ? Church : sectionKey === 'itinerario' ? Clock : sectionKey === 'regalos' ? Gift : sectionKey === 'confirmacion' ? CheckCircle : MessageSquare;
-                      
-                      return (
-                      <AccordionItem key={sectionKey} value={sectionKey} className="border rounded-md px-3">
-                          <AccordionTrigger className="hover:no-underline py-2 text-md font-medium"><div className="flex items-center gap-2"><Icon className="w-4 h-4"/>{(defaultSectionData as any).titulo || key.charAt(0).toUpperCase() + key.slice(1)}</div></AccordionTrigger>
-                          <AccordionContent className="pt-2 pb-4 space-y-4 border-t">
-                              <div className="flex items-center justify-between"><Label htmlFor={`show-${sectionKey}`}>Mostrar sección</Label><Switch id={`show-${sectionKey}`} checked={sectionData.visible} onCheckedChange={(v) => handleDataChange(sectionKey, 'visible', v)}/></div>
-                              {Object.keys(defaultSectionData).map(field => {
-                                  if (field === 'visible' || field === 'items' || typeof (sectionData as any)[field] === 'boolean') return null;
-                                  if (field.toLowerCase().includes('url') || field.toLowerCase().includes('video') || field.toLowerCase().includes('imagen')) {
-                                      return renderUploadInput(sectionKey, field, (sectionData as any)[field]);
-                                  }
-                                  const inputType = typeof (sectionData as any)[field] === 'number' ? 'number' : 'text';
-                                  return (
-                                      <div key={field} className="space-y-1">
-                                          <Label htmlFor={`${sectionKey}-${field}`} className="capitalize">{field.replace(/([A-Z])/g, ' $1')}</Label>
-                                          <Input id={`${sectionKey}-${field}`} type={inputType} value={(sectionData as any)[field] || ''} onChange={e => handleDataChange(sectionKey, field as any, e.target.value)} />
-                                      </div>
-                                  )
-                              })}
-                          </AccordionContent>
-                      </AccordionItem>
-                      )
-                  })}
-                </Accordion>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Subir Archivo de Fondo</DialogTitle>
-                        <DialogDescription>Selecciona una imagen o video para la sección "{fileContext?.section}".</DialogDescription>
-                    </DialogHeader>
-                    <div className="py-4 space-y-4">
-                        <Input type="file" accept="image/*,video/*" onChange={handleFileChange} />
-                        {previewUrl && (
-                            <div className="relative aspect-video w-full max-w-sm mx-auto">
-                                {previewUrl.startsWith('blob:') && fileToUpload?.type.startsWith('video') ?
-                                    <video src={previewUrl} controls className="w-full h-full rounded-md object-contain"/> :
-                                    <NextImage src={previewUrl} alt="Vista previa" layout="fill" objectFit="contain" className="rounded-md" />
+                    const Icon = sectionKey === 'cabecera' ? ImageIcon : sectionKey === 'bienvenida' ? Heart : sectionKey === 'detallesEvento' ? Church : sectionKey === 'itinerario' ? Clock : sectionKey === 'regalos' ? Gift : sectionKey === 'confirmacion' ? CheckCircle : MessageSquare;
+                    
+                    return (
+                    <AccordionItem key={sectionKey} value={sectionKey} className="border rounded-md px-3">
+                        <AccordionTrigger className="hover:no-underline py-2 text-md font-medium"><div className="flex items-center gap-2"><Icon className="w-4 h-4"/>{(defaultSectionData as any).titulo || key.charAt(0).toUpperCase() + key.slice(1)}</div></AccordionTrigger>
+                        <AccordionContent className="pt-2 pb-4 space-y-4 border-t">
+                            <div className="flex items-center justify-between"><Label htmlFor={`show-${sectionKey}`}>Mostrar sección</Label><Switch id={`show-${sectionKey}`} checked={sectionData.visible} onCheckedChange={(v) => handleDataChange(sectionKey, 'visible', v)}/></div>
+                            {Object.keys(defaultSectionData).map(field => {
+                                if (field === 'visible' || field === 'items' || typeof (sectionData as any)[field] === 'boolean') return null;
+                                if (field.toLowerCase().includes('url') || field.toLowerCase().includes('video') || field.toLowerCase().includes('imagen')) {
+                                    return renderUploadInput(sectionKey, field, (sectionData as any)[field]);
                                 }
-                            </div>
-                        )}
-                    </div>
-                    <DialogFooter>
-                        <DialogClose asChild><Button type="button" variant="outline">Cancelar</Button></DialogClose>
-                        <Button onClick={handleUploadAndSetUrl} disabled={!fileToUpload || isUploading}>{isUploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : null} Subir y Aplicar</Button>
-                    </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </CardContent>
-          </Card>
-        </div>
-        
+                                const inputType = typeof (sectionData as any)[field] === 'number' ? 'number' : 'text';
+                                return (
+                                    <div key={field} className="space-y-1">
+                                        <Label htmlFor={`${sectionKey}-${field}`} className="capitalize">{field.replace(/([A-Z])/g, ' $1')}</Label>
+                                        <Input id={`${sectionKey}-${field}`} type={inputType} value={(sectionData as any)[field] || ''} onChange={e => handleDataChange(sectionKey, field as any, e.target.value)} />
+                                    </div>
+                                )
+                            })}
+                        </AccordionContent>
+                    </AccordionItem>
+                    )
+                })}
+              </Accordion>
+              <DialogContent>
+                  <DialogHeader>
+                      <DialogTitle>Subir Archivo de Fondo</DialogTitle>
+                      <DialogDescription>Selecciona una imagen o video para la sección "{fileContext?.section}".</DialogDescription>
+                  </DialogHeader>
+                  <div className="py-4 space-y-4">
+                      <Input type="file" accept="image/*,video/*" onChange={handleFileChange} />
+                      {previewUrl && (
+                          <div className="relative aspect-video w-full max-w-sm mx-auto">
+                              {previewUrl.startsWith('blob:') && fileToUpload?.type.startsWith('video') ?
+                                  <video src={previewUrl} controls className="w-full h-full rounded-md object-contain"/> :
+                                  <NextImage src={previewUrl} alt="Vista previa" layout="fill" objectFit="contain" className="rounded-md" />
+                              }
+                          </div>
+                      )}
+                  </div>
+                  <DialogFooter>
+                      <DialogClose asChild><Button type="button" variant="outline">Cancelar</Button></DialogClose>
+                      <Button onClick={handleUploadAndSetUrl} disabled={!fileToUpload || isUploading}>{isUploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : null} Subir y Aplicar</Button>
+                  </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </CardContent>
+        </Card>
         {/* Preview Panel */}
         <div className="lg:col-span-2 h-full rounded-lg border shadow-inner bg-white overflow-hidden">
           {isLoading ? (
             <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin"/></div>
           ) : fiesta ? (
-             <div className="w-full h-full scale-[0.9] origin-top-left overflow-y-auto">
+             <div className="w-full h-full scale-[0.9] origin-top-left overflow-y-auto bg-white">
                 <GraziaTemplate 
                     fiesta={fiesta} 
                     invitacionData={invitacionData}
@@ -327,16 +341,6 @@ function PaginaWebPageContent() {
                     isPreview={true}
                 />
              </div>
-          ) : isEditingTemplate && fiesta ? (
-            // Render a dummy preview for template editing
-            <div className="w-full h-full scale-[0.9] origin-top-left overflow-y-auto">
-                <GraziaTemplate
-                  fiesta={{...fiesta, configuracion: {...fiesta.configuracion, nombreEvento: "Evento de Muestra"}}}
-                  invitacionData={invitacionData}
-                  socialConnections={socialConnections}
-                  isPreview={true}
-                />
-            </div>
           ) : (
              <div className="flex items-center justify-center h-full"><AlertTriangle className="w-8 h-8 text-destructive"/></div>
           )}
@@ -353,3 +357,5 @@ export default function PaginaWebYPortalPage() {
         </Suspense>
     );
 }
+
+    
