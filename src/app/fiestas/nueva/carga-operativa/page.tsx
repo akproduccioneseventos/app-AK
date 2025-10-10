@@ -16,7 +16,7 @@ import type { ListaDeCargaOperativa, CargaOperativaCategoria, CargaOperativaItem
 import type { ServicioEmpresa } from '@/types/empresa';
 import { getFiestaActual, updateListaDeCargaOperativaFiestaActual } from '@/app/actions/fiesta-actual';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogDescription } from "@/components/ui/dialog";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
