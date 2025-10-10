@@ -8,8 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Save, Loader2, AlertTriangle, ImageIcon, Palette, Type, UploadCloud, Eye } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, ImageIcon, Palette, Type, UploadCloud, Eye, Calendar } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, EventWebPageSettings } from '@/types/fiesta';
 import { getFiestaActual, updatePortalSettingsFiestaActual as updatePortalSettings } from '@/app/actions/fiesta-actual';
@@ -27,6 +26,13 @@ const InvitationPreview: React.FC<{ fiesta: FiestaEnPlanificacion, webSettings: 
     const titleText = webSettings.pageTitle || configuracion.nombreEvento;
     const subtitleText = webSettings.heroSubtitle || configuracion.tipoCelebracion;
 
+    const formatDate = (dateString?: string) => {
+        if (!dateString) return "Fecha por confirmar";
+        try {
+            return new Date(dateString).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+        } catch (e) { return "Fecha inválida"; }
+    };
+
     return (
         <div className="w-full max-w-[320px] mx-auto aspect-[9/16] bg-gray-100 rounded-2xl shadow-xl p-2 border-4 border-black flex flex-col">
             <div className="w-full h-full bg-gray-800 rounded-lg overflow-hidden relative text-white flex flex-col justify-end p-6 text-center">
@@ -43,7 +49,10 @@ const InvitationPreview: React.FC<{ fiesta: FiestaEnPlanificacion, webSettings: 
                     <h2 className="text-4xl font-serif leading-tight">{titleText}</h2>
                     <Separator className="my-3 bg-white/50" />
                     <div className="space-y-1">
-                        <p className="text-lg font-semibold">{new Date(configuracion.fechaEvento || '').toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                        <p className="text-lg font-semibold flex items-center justify-center gap-1.5">
+                            <Calendar className="w-4 h-4"/>
+                            {formatDate(configuracion.fechaEvento)}
+                        </p>
                         <p className="text-md">a las {configuracion.horaInicio} hs.</p>
                         <p className="text-sm font-light mt-1">{configuracion.nombreLugar}</p>
                     </div>
@@ -59,7 +68,7 @@ const InvitationPreview: React.FC<{ fiesta: FiestaEnPlanificacion, webSettings: 
 };
 
 
-export default function DisenoInvitacionPage() {
+export default function InvitacionDigitalPage() {
     const { toast } = useToast();
     const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
     const [webSettings, setWebSettings] = useState<EventWebPageSettings>(defaultWebPageSettings);
@@ -121,7 +130,7 @@ export default function DisenoInvitacionPage() {
             }
 
             const currentClientPortalSettings = fiesta.clientPortalSettings || {};
-            const result = await updatePortalSettings(currentClientPortalSettings, finalSettings);
+            const result = await updatePortalSettings(fiesta.id, currentClientPortalSettings, finalSettings);
 
             if (result.success) {
                 toast({ title: "¡Diseño Guardado!" });
