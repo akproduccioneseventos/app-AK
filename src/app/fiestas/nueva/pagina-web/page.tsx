@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, type FormEvent, useEffect, useCallback, ChangeEvent } from 'react';
@@ -9,12 +10,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Save, Loader2, Globe, Sparkles, Image as ImageIcon, Users, Clock, Gift, MapPin, Camera, Wand2, PlusCircle, Trash2, ChevronDown, Edit, Link as LinkIcon, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, Globe, Sparkles, Image as ImageIcon, Users, Clock, Gift, MapPin, Camera, Wand2, PlusCircle, Trash2, ChevronDown, Edit, Link as LinkIcon, ExternalLink, Heart, Church, Handshake, Mail, Music2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, EventWebPageSettings, ClientPortalSettings, GiftItem } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, InvitacionDigitalData, GiftItem } from '@/types/fiesta';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
-import { updatePortalSettings } from '@/app/actions/fiesta/portal.actions';
-import { defaultWebPageSettings, defaultClientPortalSettings } from '@/lib/fiesta-defaults';
+import { updateInvitacionDigital } from '@/app/actions/fiesta-actual';
+import { defaultInvitacionDigitalData } from '@/lib/fiesta-defaults';
 import { merge, cloneDeep } from 'lodash';
 import { Separator } from '@/components/ui/separator';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
@@ -31,6 +32,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
 
 const GiftListManagement: React.FC<{
   initialItems: GiftItem[];
@@ -106,14 +108,13 @@ const GiftListManagement: React.FC<{
   );
 };
 
-
 function PaginaWebPageContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const fiestaId = searchParams.get('fiestaId');
   
-  const [webSettings, setWebSettings] = useState<EventWebPageSettings>(defaultWebPageSettings);
+  const [invitacionData, setInvitacionData] = useState<InvitacionDigitalData>(defaultInvitacionDigitalData);
   
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -122,6 +123,8 @@ function PaginaWebPageContent() {
   const [coverImagePreview, setCoverImagePreview] = useState<string | null>(null);
   const [storyImageFile, setStoryImageFile] = useState<File | null>(null);
   const [storyImagePreview, setStoryImagePreview] = useState<string | null>(null);
+  const [welcomeImageFile, setWelcomeImageFile] = useState<File | null>(null);
+  const [welcomeImagePreview, setWelcomeImagePreview] = useState<string | null>(null);
 
 
   const loadData = useCallback(async () => {
@@ -137,11 +140,12 @@ function PaginaWebPageContent() {
 
       setFiesta(data);
       
-      const mergedWebSettings = merge(cloneDeep(defaultWebPageSettings), data.webPageSettings || {});
-      setWebSettings(mergedWebSettings);
+      const mergedInvitacionData = merge(cloneDeep(defaultInvitacionDigitalData), data.invitacionDigital || {});
+      setInvitacionData(mergedInvitacionData);
       
-      setCoverImagePreview(mergedWebSettings.coverImageUrl || null);
-      setStoryImagePreview(mergedWebSettings.ourStoryImageUrl || null);
+      setCoverImagePreview(mergedInvitacionData.cabecera?.videoFondoUrl || null);
+      setWelcomeImagePreview(mergedInvitacionData.bienvenida?.imagenFondoUrl || null);
+      setStoryImagePreview(mergedInvitacionData.historia?.imagenFondoUrl || null);
       
     } catch (e: any) {
       toast({ title: "Error", description: `No se pudieron cargar los datos: ${e.message}`, variant: "destructive"});
@@ -154,11 +158,14 @@ function PaginaWebPageContent() {
     loadData();
   }, [loadData]);
   
-  const handleWebSettingsChange = (field: keyof EventWebPageSettings, value: string | boolean | string[] | GiftItem[]) => {
-    setWebSettings(prev => ({...prev, [field]: value}));
+  const handleDataChange = <T extends keyof InvitacionDigitalData>(section: T, field: keyof InvitacionDigitalData[T], value: any) => {
+    setInvitacionData(prev => {
+        const newSectionData = { ...prev[section], [field]: value };
+        return { ...prev, [section]: newSectionData };
+    });
   };
 
-  const handleFileUpload = async (file: File | null, assetType: 'cover' | 'story'): Promise<string | undefined> => {
+  const handleFileUpload = async (file: File | null): Promise<string | undefined> => {
     if (!file || !fiesta) return undefined;
 
     try {
@@ -166,7 +173,7 @@ function PaginaWebPageContent() {
         if (result.success && result.url) {
             return result.url;
         } else {
-            throw new Error(result.error || `No se pudo subir la imagen de ${assetType}.`);
+            throw new Error(result.error || `No se pudo subir la imagen.`);
         }
     } catch(e: any) {
         toast({title: "Error de Subida", description: e.message, variant: "destructive"});
@@ -179,20 +186,19 @@ function PaginaWebPageContent() {
     if (!fiesta) return;
     
     setIsSaving(true);
-    let finalSettings = { ...webSettings };
+    let finalData = { ...invitacionData };
 
     try {
         if (coverImageFile) {
-            const uploadedUrl = await handleFileUpload(coverImageFile, 'cover');
-            if(uploadedUrl) finalSettings.coverImageUrl = uploadedUrl;
+            const uploadedUrl = await handleFileUpload(coverImageFile);
+            if(uploadedUrl) finalData = {...finalData, cabecera: {...finalData.cabecera, videoFondoUrl: uploadedUrl}};
         }
-        if (storyImageFile) {
-            const uploadedUrl = await handleFileUpload(storyImageFile, 'story');
-            if(uploadedUrl) finalSettings.ourStoryImageUrl = uploadedUrl;
+        if (welcomeImageFile) {
+            const uploadedUrl = await handleFileUpload(welcomeImageFile);
+            if(uploadedUrl) finalData = {...finalData, bienvenida: {...finalData.bienvenida, imagenFondoUrl: uploadedUrl}};
         }
 
-        const currentPortalSettings = fiesta.clientPortalSettings || defaultClientPortalSettings;
-        const result = await updatePortalSettings(fiesta.id, currentPortalSettings, finalSettings);
+        const result = await updateInvitacionDigital(fiesta.id, finalData);
         if (result.success) {
             toast({ title: "¡Configuración Guardada!", description: "La página pública del evento ha sido actualizada." });
             await loadData();
@@ -206,16 +212,13 @@ function PaginaWebPageContent() {
     }
   }
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>, type: 'cover' | 'story') => {
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>, type: 'cover' | 'welcome' | 'story') => {
     const file = e.target.files?.[0];
     if (file) {
-      if (type === 'cover') {
-        setCoverImageFile(file);
-        setCoverImagePreview(URL.createObjectURL(file));
-      } else {
-        setStoryImageFile(file);
-        setStoryImagePreview(URL.createObjectURL(file));
-      }
+      const setFile = type === 'cover' ? setCoverImageFile : (type === 'welcome' ? setWelcomeImageFile : setStoryImageFile);
+      const setPreview = type === 'cover' ? setCoverImagePreview : (type === 'welcome' ? setWelcomeImagePreview : setStoryImagePreview);
+      setFile(file);
+      setPreview(URL.createObjectURL(file));
     }
   };
 
@@ -229,9 +232,7 @@ function PaginaWebPageContent() {
        <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Globe className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Página Pública del Evento
-          </h1>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">Página Pública del Evento</h1>
         </div>
         <div className="flex gap-2">
             <Link href={`/evento/actual?fiestaId=${fiesta.id}`} passHref target="_blank">
@@ -248,98 +249,75 @@ function PaginaWebPageContent() {
           {/* Columna de Configuración */}
           <div className="lg:col-span-2 space-y-6">
              <Card>
-                <CardHeader><CardTitle>Diseño y Contenido Principal</CardTitle></CardHeader>
+                <CardHeader>
+                  <CardTitle>Configuración General y Diseño</CardTitle>
+                  <CardDescription>Ajusta el diseño y los elementos principales de tu invitación digital.</CardDescription>
+                </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="templateName">Seleccionar Plantilla de Diseño</Label>
-                    <Select value={webSettings.templateName || 'Obsidiana'} onValueChange={(v) => handleWebSettingsChange('templateName', v)}>
-                      <SelectTrigger id="templateName"><SelectValue/></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Obsidiana">Obsidiana (Moderno)</SelectItem>
-                        <SelectItem value="Grazia">Grazia (Clásico y Elegante)</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Select value={invitacionData.plantilla} onValueChange={(v) => handleDataChange('plantilla', 'plantilla', v)}><SelectTrigger id="templateName"><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Grazia">Grazia (Clásico y Elegante)</SelectItem></SelectContent></Select>
                   </div>
                   <Separator/>
-                  <div className="space-y-2">
-                    <Label htmlFor="pageTitle">Título Principal de la Página</Label>
-                    <Input id="pageTitle" value={webSettings.pageTitle} onChange={(e) => handleWebSettingsChange('pageTitle', e.target.value)} placeholder={fiesta.configuracion.nombreEvento} />
-                  </div>
                    <div className="space-y-2">
-                    <Label htmlFor="heroSubtitle">Subtítulo (opcional)</Label>
-                    <Input id="heroSubtitle" value={webSettings.heroSubtitle} onChange={(e) => handleWebSettingsChange('heroSubtitle', e.target.value)} placeholder="Ej: ¡Una noche inolvidable!" />
-                  </div>
-                  <div className="space-y-2">
-                     <Label htmlFor="cover-image">Imagen de Portada (Video MP4 o Imagen)</Label>
-                     <Input id="cover-image" type="file" accept="image/*,video/mp4" onChange={(e) => handleFileChange(e, 'cover')} />
-                     {coverImagePreview && (
-                        <div className="relative aspect-video max-w-sm">
-                            {coverImagePreview.endsWith('.mp4') ? (
-                                <video src={coverImagePreview} autoPlay loop muted playsInline className="rounded-md border object-cover w-full h-full" />
-                            ) : (
-                                <NextImage src={coverImagePreview} alt="Preview" layout="fill" objectFit="cover" className="rounded-md border"/>
-                            )}
-                        </div>
-                     )}
+                    <Label htmlFor="musicaFondoUrl" className="flex items-center gap-2"><Music2 className="w-4 h-4"/>URL de Canción de Fondo (MP3)</Label>
+                    <Input id="musicaFondoUrl" value={invitacionData.musicaFondoUrl || ''} onChange={(e) => handleDataChange('musicaFondoUrl', 'musicaFondoUrl', e.target.value)} placeholder="https://ejemplo.com/cancion.mp3" />
                   </div>
                 </CardContent>
              </Card>
-
              <Card>
-                <CardHeader>
-                    <CardTitle>Secciones de la Página</CardTitle>
-                    <CardDescription>Activa y personaliza las secciones que tus invitados verán.</CardDescription>
-                </CardHeader>
+                <CardHeader><CardTitle>Módulos de Contenido</CardTitle><CardDescription>Activa y personaliza las secciones que tus invitados verán.</CardDescription></CardHeader>
                 <CardContent>
-                   <Accordion type="multiple" className="w-full space-y-2" defaultValue={['countdown', 'eventDetails']}>
-                      <AccordionItem value="countdown" className="border rounded-md px-3">
-                          <div className="flex items-center justify-between py-2">
-                            <Label htmlFor="showCountdown" className="flex items-center gap-2 font-medium"><Clock className="w-4 h-4"/>Cuenta Regresiva</Label>
-                            <Switch id="showCountdown" checked={webSettings.showCountdown} onCheckedChange={(v) => handleWebSettingsChange('showCountdown', v)}/>
-                          </div>
+                   <Accordion type="multiple" className="w-full space-y-2" defaultValue={['cabecera', 'detallesEvento', 'confirmacion']}>
+                      {/* CABECERA */}
+                      <AccordionItem value="cabecera" className="border rounded-md px-3">
+                          <AccordionTrigger className="hover:no-underline py-2 [&[data-state=open]>svg]:rotate-180"><div className="flex items-center gap-2 font-medium"><Sparkles className="w-4 h-4"/>Cabecera</div></AccordionTrigger>
+                           <AccordionContent className="pt-2 pb-4 space-y-4 border-t">
+                               <div className="flex items-center justify-between"><Label htmlFor="showCabecera">Mostrar esta sección</Label><Switch id="showCabecera" checked={invitacionData.cabecera.visible} onCheckedChange={(v) => handleDataChange('cabecera', 'visible', v)}/></div>
+                               <div className="space-y-1"><Label htmlFor="cover-image">Imagen/Video de Fondo</Label><Input id="cover-image" type="file" accept="image/*,video/mp4" onChange={(e) => handleFileChange(e, 'cover')} /></div>
+                                {coverImagePreview && (
+                                    <div className="relative aspect-video max-w-sm">
+                                        {coverImagePreview.endsWith('.mp4') ? (<video src={coverImagePreview} autoPlay loop muted playsInline className="rounded-md border object-cover w-full h-full" />) : (<NextImage src={coverImagePreview} alt="Preview" layout="fill" objectFit="cover" className="rounded-md border"/>)}
+                                    </div>
+                                 )}
+                           </AccordionContent>
+                       </AccordionItem>
+                      {/* DETALLES */}
+                      <AccordionItem value="detallesEvento" className="border rounded-md px-3">
+                          <AccordionTrigger className="hover:no-underline py-2 [&[data-state=open]>svg]:rotate-180"><div className="flex items-center gap-2 font-medium"><MapPin className="w-4 h-4"/>Detalles del Evento</div></AccordionTrigger>
+                           <AccordionContent className="pt-2 pb-4 space-y-4 border-t">
+                               <div className="flex items-center justify-between"><Label htmlFor="showEventDetails">Mostrar esta sección</Label><Switch id="showEventDetails" checked={invitacionData.detallesEvento.visible} onCheckedChange={(v) => handleDataChange('detallesEvento', 'visible', v)}/></div>
+                               <div className="flex items-center justify-between"><Label htmlFor="showPadres">Mostrar Nombres de Padres</Label><Switch id="showPadres" checked={invitacionData.detallesEvento.infoPadresVisible} onCheckedChange={(v) => handleDataChange('detallesEvento', 'infoPadresVisible', v)}/></div>
+                               {invitacionData.detallesEvento.infoPadresVisible && (
+                                   <div className="grid grid-cols-2 gap-2"><div className="space-y-1"><Label htmlFor="padre1">Padre/Madre 1</Label><Input id="padre1" value={invitacionData.detallesEvento.nombrePadre1} onChange={e => handleDataChange('detallesEvento', 'nombrePadre1', e.target.value)}/></div><div className="space-y-1"><Label htmlFor="madre1">Padre/Madre 2</Label><Input id="madre1" value={invitacionData.detallesEvento.nombreMadre1} onChange={e => handleDataChange('detallesEvento', 'nombreMadre1', e.target.value)}/></div><div className="space-y-1"><Label htmlFor="padre2">Padre/Madre 3</Label><Input id="padre2" value={invitacionData.detallesEvento.nombrePadre2} onChange={e => handleDataChange('detallesEvento', 'nombrePadre2', e.target.value)}/></div><div className="space-y-1"><Label htmlFor="madre2">Padre/Madre 4</Label><Input id="madre2" value={invitacionData.detallesEvento.nombreMadre2} onChange={e => handleDataChange('detallesEvento', 'nombreMadre2', e.target.value)}/></div></div>
+                               )}
+                           </AccordionContent>
                       </AccordionItem>
-
-                       <AccordionItem value="ourStory" className="border rounded-md px-3">
-                           <AccordionTrigger className="hover:no-underline py-2 [&[data-state=open]>svg]:rotate-180">
-                                <div className="flex items-center gap-2 font-medium"><Sparkles className="w-4 h-4"/>Nuestra Historia</div>
-                           </AccordionTrigger>
+                      {/* ITINERARIO */}
+                      <AccordionItem value="itinerario" className="border rounded-md px-3">
+                          <AccordionTrigger className="hover:no-underline py-2 [&[data-state=open]>svg]:rotate-180"><div className="flex items-center gap-2 font-medium"><Clock className="w-4 h-4"/>Itinerario</div></AccordionTrigger>
                            <AccordionContent className="pt-2 pb-4 space-y-4 border-t">
-                               <div className="flex items-center justify-between"><Label htmlFor="showOurStory">Mostrar esta sección</Label><Switch id="showOurStory" checked={webSettings.showOurStory} onCheckedChange={(v) => handleWebSettingsChange('showOurStory', v)}/></div>
-                               <div className="space-y-1"><Label htmlFor="ourStoryTitle">Título de la Sección</Label><Input id="ourStoryTitle" value={webSettings.ourStoryTitle} onChange={e => handleWebSettingsChange('ourStoryTitle', e.target.value)}/></div>
-                               <div className="space-y-1"><Label htmlFor="ourStoryText">Texto</Label><Textarea id="ourStoryText" value={webSettings.ourStoryText} onChange={e => handleWebSettingsChange('ourStoryText', e.target.value)} rows={4}/></div>
-                               <div className="space-y-1"><Label htmlFor="ourStoryImage">Imagen</Label><Input id="ourStoryImage" type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'story')}/></div>
-                               {storyImagePreview && <div className="relative aspect-video max-w-xs"><NextImage src={storyImagePreview} alt="Story Preview" layout="fill" objectFit="cover" className="rounded-md border"/></div>}
+                               <div className="flex items-center justify-between"><Label htmlFor="showItinerario">Mostrar esta sección</Label><Switch id="showItinerario" checked={invitacionData.itinerario.visible} onCheckedChange={(v) => handleDataChange('itinerario', 'visible', v)}/></div>
+                               <p className="text-xs text-muted-foreground">El itinerario se toma automáticamente del módulo "Itinerario del Evento".</p>
                            </AccordionContent>
-                       </AccordionItem>
-                       
-                       <AccordionItem value="eventDetails" className="border rounded-md px-3">
-                           <AccordionTrigger className="hover:no-underline py-2 [&[data-state=open]>svg]:rotate-180"><div className="flex items-center gap-2 font-medium"><MapPin className="w-4 h-4"/>Detalles del Evento</div></AccordionTrigger>
-                           <AccordionContent className="pt-2 pb-4 space-y-4 border-t">
-                               <div className="flex items-center justify-between"><Label htmlFor="showEventDetails">Mostrar esta sección</Label><Switch id="showEventDetails" checked={webSettings.showEventDetails} onCheckedChange={(v) => handleWebSettingsChange('showEventDetails', v)}/></div>
-                               <div className="space-y-1"><Label htmlFor="eventDetailsTitle">Título de la Sección</Label><Input id="eventDetailsTitle" value={webSettings.eventDetailsTitle} onChange={e => handleWebSettingsChange('eventDetailsTitle', e.target.value)}/></div>
-                               <div className="space-y-1"><Label htmlFor="eventDetailsText">Texto Adicional (Dress code, etc.)</Label><Textarea id="eventDetailsText" value={webSettings.eventDetailsText} onChange={e => handleWebSettingsChange('eventDetailsText', e.target.value)} placeholder="Ej: Estacionamiento disponible, código de vestimenta..." rows={3}/></div>
-                           </AccordionContent>
-                       </AccordionItem>
-
-                        <AccordionItem value="giftRegistry" className="border rounded-md px-3">
+                      </AccordionItem>
+                       {/* REGALOS */}
+                       <AccordionItem value="regalos" className="border rounded-md px-3">
                            <AccordionTrigger className="hover:no-underline py-2 [&[data-state=open]>svg]:rotate-180"><div className="flex items-center gap-2 font-medium"><Gift className="w-4 h-4"/>Lista de Regalos</div></AccordionTrigger>
                            <AccordionContent className="pt-2 pb-4 space-y-4 border-t">
-                               <div className="flex items-center justify-between"><Label htmlFor="showGiftRegistry">Mostrar esta sección</Label><Switch id="showGiftRegistry" checked={webSettings.showGiftRegistry} onCheckedChange={(v) => handleWebSettingsChange('showGiftRegistry', v)}/></div>
-                               <div className="space-y-1"><Label htmlFor="giftRegistryTitle">Título de la Sección</Label><Input id="giftRegistryTitle" value={webSettings.giftRegistryTitle} onChange={e => handleWebSettingsChange('giftRegistryTitle', e.target.value)}/></div>
-                               <div className="space-y-1"><Label htmlFor="giftRegistryText">Texto Introductorio</Label><Textarea id="giftRegistryText" value={webSettings.giftRegistryText} onChange={e => handleWebSettingsChange('giftRegistryText', e.target.value)} rows={2}/></div>
-                               <GiftListManagement 
-                                   initialItems={webSettings.giftRegistry || []} 
-                                   onItemsChange={(newItems) => handleWebSettingsChange('giftRegistry', newItems)}
-                               />
+                               <div className="flex items-center justify-between"><Label htmlFor="showRegalos">Mostrar esta sección</Label><Switch id="showRegalos" checked={invitacionData.regalos.visible} onCheckedChange={(v) => handleDataChange('regalos', 'visible', v)}/></div>
+                               <div className="space-y-1"><Label htmlFor="regalosTitulo">Título</Label><Input id="regalosTitulo" value={invitacionData.regalos.titulo} onChange={e => handleDataChange('regalos', 'titulo', e.target.value)}/></div>
+                               <div className="space-y-1"><Label htmlFor="regalosTexto">Texto</Label><Textarea id="regalosTexto" value={invitacionData.regalos.texto} onChange={e => handleDataChange('regalos', 'texto', e.target.value)} rows={2}/></div>
+                               <div className="space-y-1"><Label htmlFor="regalosBanco">Datos Bancarios</Label><Textarea id="regalosBanco" value={invitacionData.regalos.datosBancarios} onChange={e => handleDataChange('regalos', 'datosBancarios', e.target.value)} rows={2} placeholder="Banco, Nombre, Nro de Cuenta"/></div>
+                               <Separator/>
+                               <GiftListManagement initialItems={invitacionData.regalos.items || []} onItemsChange={(items) => handleDataChange('regalos', 'items', items)} />
                            </AccordionContent>
                        </AccordionItem>
-
-                       <AccordionItem value="gallery" className="border rounded-md px-3">
-                           <AccordionTrigger className="hover:no-underline py-2 [&[data-state=open]>svg]:rotate-180"><div className="flex items-center gap-2 font-medium"><Camera className="w-4 h-4"/>Galería de Fotos</div></AccordionTrigger>
+                       {/* CONFIRMACION */}
+                       <AccordionItem value="confirmacion" className="border rounded-md px-3">
+                          <AccordionTrigger className="hover:no-underline py-2 [&[data-state=open]>svg]:rotate-180"><div className="flex items-center gap-2 font-medium"><CheckCircle className="w-4 h-4"/>Confirmación de Asistencia</div></AccordionTrigger>
                            <AccordionContent className="pt-2 pb-4 space-y-4 border-t">
-                               <div className="flex items-center justify-between"><Label htmlFor="showGallery">Mostrar esta sección</Label><Switch id="showGallery" checked={webSettings.showGallery} onCheckedChange={(v) => handleWebSettingsChange('showGallery', v)}/></div>
-                               <p className="text-xs text-muted-foreground">La galería se poblará con las fotos que subas aquí. Es diferente a la Galería Social del evento.</p>
-                               {/* Future: Add multi-image uploader here */}
+                               <div className="flex items-center justify-between"><Label htmlFor="showRsvp">Mostrar esta sección</Label><Switch id="showRsvp" checked={invitacionData.confirmacion.visible} onCheckedChange={(v) => handleDataChange('confirmacion', 'visible', v)}/></div>
                            </AccordionContent>
                        </AccordionItem>
                    </Accordion>
@@ -347,19 +325,11 @@ function PaginaWebPageContent() {
              </Card>
           </div>
           
-          {/* Columna de Guardado */}
           <div className="lg:col-span-1">
              <Card className="sticky top-20">
                 <CardHeader><CardTitle>Guardar</CardTitle></CardHeader>
-                <CardContent>
-                    <p className="text-sm text-muted-foreground">Guarda los cambios para que se reflejen en la página pública del evento.</p>
-                </CardContent>
-                <CardFooter>
-                    <Button type="submit" size="lg" className="w-full" disabled={isSaving}>
-                        {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin"/> : <Save className="w-5 h-5 mr-2"/>}
-                        Guardar Cambios
-                    </Button>
-                </CardFooter>
+                <CardContent><p className="text-sm text-muted-foreground">Guarda los cambios para que se reflejen en la página pública del evento.</p></CardContent>
+                <CardFooter><Button type="submit" size="lg" className="w-full" disabled={isSaving}>{isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin"/> : <Save className="w-5 h-5 mr-2"/>} Guardar Cambios</Button></CardFooter>
             </Card>
           </div>
         </div>
@@ -370,12 +340,9 @@ function PaginaWebPageContent() {
 
 export default function PaginaWebYPortalPage() {
     return (
-        <Suspense fallback={
-            <div className="flex justify-center items-center h-screen">
-                <Loader2 className="w-12 h-12 animate-spin text-primary" />
-            </div>
-        }>
+        <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>}>
             <PaginaWebPageContent />
         </Suspense>
     );
 }
+

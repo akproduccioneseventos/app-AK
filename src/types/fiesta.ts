@@ -1,4 +1,5 @@
 
+
 import type { TipoEvento } from './presupuesto';
 import type { Invitado } from './invitado'; 
 import type { UnidadServicio } from './empresa';
@@ -67,6 +68,7 @@ export interface Reunion {
   titulo: string;
   fecha?: string; // ISO string, opcional
   notas: string;
+  fiestaId?: string;
 }
 
 export interface LayoutElement {
@@ -163,30 +165,66 @@ export interface ItineraryTemplate {
   items: ProgramaEventoItem[];
 }
 
-export interface EventWebPageSettings {
-  pageTitle?: string;
-  heroSubtitle?: string;
-  welcomeMessage?: string;
-  coverImageUrl?: string; // Data URI or URL
-  galleryImageUrls?: string[]; // Array of Data URIs or URLs
-  showCountdown?: boolean;
-  ourStoryTitle?: string;
-  ourStoryText?: string;
-  ourStoryImageUrl?: string; // Data URI or URL
-  showOurStory?: boolean;
-  eventDetailsTitle?: string;
-  eventDetailsText?: string; 
-  showEventDetails?: boolean;
-  dressCodeText?: string;
-  showDressCode?: boolean;
-  giftRegistryTitle?: string;
-  giftRegistryText?: string;
-  showGiftRegistry?: boolean;
-  giftRegistry?: GiftItem[];
-  showRsvp?: boolean;
-  showPrograma?: boolean;
-  musicaEspecialText?: string;
-  showGallery?: boolean; 
+export interface InvitacionDigitalData {
+  plantilla: 'Grazia' | 'Obsidiana';
+  musicaFondoUrl?: string;
+  cabecera: {
+    visible: boolean;
+    videoFondoUrl?: string;
+    protagonista1: string;
+    protagonista2: string;
+  };
+  bienvenida: {
+    visible: boolean;
+    imagenFondoUrl?: string;
+    titulo: string;
+    texto: string;
+  };
+  detallesEvento: {
+    visible: boolean;
+    infoPadresVisible: boolean;
+    nombrePadre1?: string;
+    nombrePadre2?: string;
+    nombreMadre1?: string;
+    nombreMadre2?: string;
+  };
+  itinerario: {
+    visible: boolean;
+    imagenFondoUrl?: string;
+  };
+  galeria: {
+    visible: boolean;
+    fotos: string[];
+  };
+  historia?: {
+    visible: boolean;
+    titulo: string;
+    texto: string;
+    imagenFondoUrl?: string;
+  };
+  regalos: {
+    visible: boolean;
+    titulo: string;
+    texto: string;
+    datosBancarios: string;
+    items: GiftItem[];
+  };
+  dressCode: {
+    visible: boolean;
+    texto: string;
+  };
+  instagram: {
+    visible: boolean;
+    hashtag: string;
+    texto: string;
+  };
+  confirmacion: {
+    visible: boolean;
+  };
+  despedida: {
+    visible: boolean;
+    texto: string;
+  };
 }
 
 interface PortalModuleSettings {
@@ -242,6 +280,7 @@ export interface ReposteriaItem {
   imagenReferenciaUrl?: string;
   dataAiHint?: string;
   notas?: string;
+  origenId?: string; // Link to Insumo if applicable
 }
 
 export type ReposteriaCategoriaId =
@@ -263,6 +302,8 @@ export interface ReposteriaCategoria {
   imagenReferenciaUrl?: string;
   dataAiHint?: string;
 }
+
+export type TipoAsistente = 'adulto' | 'adolescente' | 'nino';
 
 export type ReposteriaConsumoConfig = {
   [key in ReposteriaCategoriaId]: Record<TipoAsistente, number>;
@@ -325,7 +366,6 @@ export type BebidaCategoriaId =
   | 'barra_tragos'
   | 'cafeteria';
   
-export type TipoAsistente = 'adulto' | 'adolescente' | 'nino';
 
 export type BebidasConsumoConfig = {
   [key in BebidaCategoriaId]: Record<TipoAsistente, number>;
@@ -388,6 +428,8 @@ export interface CargaOperativaCategoria {
 }
 
 export interface ListaDeCargaOperativa {
+  id?: string;
+  name?: string;
   categorias: CargaOperativaCategoria[];
   notasGenerales?: string;
 }
@@ -472,7 +514,13 @@ export interface FiestaEnPlanificacion {
   invitados?: Invitado[];
   clientChecklist?: ClientTarea[];
   clientNotes?: string; 
-  webPageSettings?: EventWebPageSettings;
+  
+  // New unified object for digital presence
+  invitacionDigital?: InvitacionDigitalData;
+
+  // Deprecated - will be migrated to invitacionDigital
+  webPageSettings?: EventWebPageSettings; 
+
   clientPortalSettings?: ClientPortalSettings;
   socialGallerySettings?: SocialGallerySettings;
   musica?: MusicaFiesta;

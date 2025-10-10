@@ -1,12 +1,13 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent, use } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import NextImage from 'next/image';
-import { Loader2, AlertTriangle, PartyPopper, CalendarDays, MapPin, Music2 as MusicIcon, Check, Users, MessageSquare, Send, CheckCircle, Gift, Clock, QrCode, Facebook, Instagram, Music, Utensils, GlassWater, Diamond, Sparkles, CakeSlice, Camera, Link as LinkIcon, ExternalLink, Heart, Church, Handshake, Mail } from 'lucide-react';
+import { Loader2, AlertTriangle, PartyPopper, CalendarDays, MapPin, Check, Users, MessageSquare, Send, CheckCircle, Gift, Clock, QrCode, Facebook, Instagram, Music, Utensils, GlassWater, Diamond, Sparkles, CakeSlice, Camera, Link as LinkIcon, ExternalLink, Heart, Church, Handshake, Mail, Music2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, EventWebPageSettings, ColorPalette, Invitado, GiftItem, ProgramaEventoItem } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, InvitacionDigitalData, ColorPalette, Invitado, GiftItem, ProgramaEventoItem } from '@/types/fiesta';
 import { getFiestaById, handleRsvpSubmissionFiestaActual, claimGiftFiestaActual } from '@/app/actions/fiesta-actual';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import type { SocialConnection } from '@/types/settings';
@@ -20,7 +21,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import QRCodeStylized from 'qrcode.react';
-import { defaultWebPageSettings } from '@/lib/fiesta-defaults';
+import { defaultInvitacionDigitalData } from '@/lib/fiesta-defaults';
 import { merge, cloneDeep } from 'lodash';
 import { WatermarkedImage } from '@/components/watermarked-image';
 import Link from 'next/link';
@@ -30,10 +31,10 @@ import { Suspense } from 'react';
 // --- PLANTILLA GRAZIA ---
 const GraziaTemplate: React.FC<{
   fiesta: FiestaEnPlanificacion;
-  webSettings: EventWebPageSettings;
-  paletaColores: ColorPalette | null;
+  invitacionData: InvitacionDigitalData;
   children: React.ReactNode;
-}> = ({ fiesta, webSettings, paletaColores, children }) => {
+}> = ({ fiesta, invitacionData, children }) => {
+  const paletaColores = fiesta.decoracion?.paletaColores;
   const primaryColor = paletaColores?.primary || '#D9B8FF';
   const secondaryColor = paletaColores?.secondary || '#FCD3DE';
   const textColor = paletaColores?.accent || '#333';
@@ -61,13 +62,14 @@ const GraziaTemplate: React.FC<{
     <div className="min-h-screen bg-background font-body" style={{'--theme-primary': primaryColor, '--theme-secondary': secondaryColor, '--theme-text': textColor} as React.CSSProperties}>
        <header 
         className="relative py-16 md:py-24 text-center bg-cover bg-center min-h-[400px] flex items-center justify-center"
-        style={{ backgroundImage: `url(${webSettings.coverImageUrl || 'https://picsum.photos/seed/wedding-hero/1200/800'})` }}
+        style={{ backgroundImage: `url(${invitacionData.cabecera?.videoFondoUrl || 'https://picsum.photos/seed/wedding-hero/1200/800'})` }}
       >
         <div className="absolute inset-0 bg-white/70 backdrop-blur-sm"></div>
         <div className="relative z-10 p-6 max-w-2xl mx-auto text-center">
             <h2 className="font-headline text-2xl" style={{color: textColor}}>Nuestra Boda</h2>
             <h1 className="font-headline text-5xl md:text-7xl my-3" style={{color: primaryColor}}>
-               {webSettings.pageTitle || fiesta.configuracion.nombreEvento}
+               {invitacionData.cabecera?.protagonista1 || fiesta.configuracion.nombreEvento}
+               {invitacionData.cabecera?.protagonista2 && ` & ${invitacionData.cabecera.protagonista2}`}
             </h1>
             <p className="text-xl font-headline" style={{color: textColor}}>
                 {formatDate(fiesta.configuracion.fechaEvento)}
@@ -75,7 +77,7 @@ const GraziaTemplate: React.FC<{
         </div>
       </header>
        <main className="max-w-3xl mx-auto p-4 md:p-8 space-y-12">
-        {webSettings.showCountdown && fiesta.configuracion.fechaEvento && (
+        {invitacionData.cabecera?.visible && fiesta.configuracion.fechaEvento && (
           <section id="countdown" className="text-center">
             <h3 className="font-headline text-2xl mb-4" style={{color: primaryColor}}>Faltan</h3>
             <CountdownTimer targetDate={fiesta.configuracion.fechaEvento} />
@@ -84,40 +86,49 @@ const GraziaTemplate: React.FC<{
         
         <FloralSeparator />
 
-        <section id="ceremonia" className="text-center">
-            <Church className="w-12 h-12 mx-auto mb-3" style={{color: primaryColor}}/>
-            <h3 className="font-headline text-3xl mb-3" style={{color: textColor}}>Ceremonia</h3>
-            <p className="text-lg text-muted-foreground">{fiesta.configuracion.horaInicio} hs.</p>
-            <p className="text-lg font-semibold" style={{color: textColor}}>{fiesta.configuracion.nombreLugar}</p>
-        </section>
-
-        <FloralSeparator />
+        {invitacionData.detallesEvento?.visible && (
+          <>
+            <section id="ceremonia" className="text-center">
+                <Church className="w-12 h-12 mx-auto mb-3" style={{color: primaryColor}}/>
+                <h3 className="font-headline text-3xl mb-3" style={{color: textColor}}>Ceremonia</h3>
+                <p className="text-lg text-muted-foreground">{fiesta.configuracion.horaInicio} hs.</p>
+                <p className="text-lg font-semibold" style={{color: textColor}}>{fiesta.configuracion.nombreLugar}</p>
+            </section>
+            <FloralSeparator />
+          </>
+        )}
         
-        <section id="celebracion" className="text-center">
-             <Handshake className="w-12 h-12 mx-auto mb-3" style={{color: primaryColor}}/>
-            <h3 className="font-headline text-3xl mb-3" style={{color: textColor}}>Celebración</h3>
-            <p className="text-lg text-muted-foreground">{fiesta.configuracion.horaFin ? `A partir de las ${fiesta.configuracion.horaFin} hs.` : 'Luego de la ceremonia'}</p>
-            <p className="text-lg font-semibold" style={{color: textColor}}>{fiesta.configuracion.nombreLugar}</p>
-            <a href={mapUrl} target="_blank" rel="noopener noreferrer">
-              <Button variant="outline" className="mt-4"><MapPin className="w-4 h-4 mr-2"/> Ver en Mapa</Button>
-            </a>
-        </section>
-
-        <FloralSeparator />
+        {invitacionData.detallesEvento?.visible && (
+          <>
+            <section id="celebracion" className="text-center">
+                <Handshake className="w-12 h-12 mx-auto mb-3" style={{color: primaryColor}}/>
+                <h3 className="font-headline text-3xl mb-3" style={{color: textColor}}>Celebración</h3>
+                <p className="text-lg text-muted-foreground">{fiesta.configuracion.horaFin ? `A partir de las ${fiesta.configuracion.horaFin} hs.` : 'Luego de la ceremonia'}</p>
+                <p className="text-lg font-semibold" style={{color: textColor}}>{fiesta.configuracion.nombreLugar}</p>
+                <a href={mapUrl} target="_blank" rel="noopener noreferrer">
+                  <Button variant="outline" className="mt-4"><MapPin className="w-4 h-4 mr-2"/> Ver en Mapa</Button>
+                </a>
+            </section>
+            <FloralSeparator />
+          </>
+        )}
         
-        {webSettings.showGiftRegistry && (
+        {invitacionData.regalos?.visible && (
             <section id="regalos" className="text-center">
                  <Gift className="w-12 h-12 mx-auto mb-3" style={{color: primaryColor}}/>
-                <h3 className="font-headline text-3xl mb-3" style={{color: textColor}}>Lista de Regalos</h3>
-                <p className="text-muted-foreground max-w-md mx-auto">{webSettings.giftRegistryText}</p>
+                <h3 className="font-headline text-3xl mb-3" style={{color: textColor}}>{invitacionData.regalos.titulo}</h3>
+                <p className="text-muted-foreground max-w-md mx-auto">{invitacionData.regalos.texto}</p>
             </section>
         )}
 
         <FloralSeparator />
 
-        {webSettings.showRsvp && <div id="rsvp">{children}</div>}
+        {invitacionData.confirmacion?.visible && <div id="rsvp">{children}</div>}
 
        </main>
+        {invitacionData.musicaFondoUrl && (
+            <audio src={invitacionData.musicaFondoUrl} autoPlay loop />
+        )}
        <footer className="text-center py-6 mt-8 border-t">
           <p className="text-sm font-headline" style={{color: primaryColor}}>AK Producciones</p>
        </footer>
@@ -133,22 +144,15 @@ function EventoPublicoPageContent() {
   const fiestaId = searchParams.get('fiestaId');
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
-  const [webSettings, setWebSettings] = useState<EventWebPageSettings>(defaultWebPageSettings);
-  const [paletaColores, setPaletaColores] = useState<ColorPalette | null>(null);
+  const [invitacionData, setInvitacionData] = useState<InvitacionDigitalData>(defaultInvitacionDigitalData);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [socialLinks, setSocialLinks] = useState<SocialConnection[]>([]);
-  const [isClient, setIsClient] = useState(false);
   
   // State for claim gift dialog
   const [isClaimModalOpen, setIsClaimModalOpen] = useState(false);
   const [selectedGift, setSelectedGift] = useState<GiftItem | null>(null);
   const [guestName, setGuestName] = useState('');
   const [isClaiming, setIsClaiming] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   const loadEventData = useCallback(async () => {
     if (!fiestaId) {
@@ -159,13 +163,11 @@ function EventoPublicoPageContent() {
     setIsLoading(true);
     setError(null);
     try {
-      const [data, connections] = await Promise.all([ getFiestaById(fiestaId), getSocialConnections() ]);
+      const data = await getFiestaById(fiestaId);
       if (!data) throw new Error("Evento no encontrado.");
       setFiesta(data);
-      const mergedWebSettings = merge(cloneDeep(defaultWebPageSettings), data.webPageSettings || {});
-      setWebSettings(mergedWebSettings);
-      setPaletaColores(data.decoracion?.paletaColores || null);
-      setSocialLinks(connections.filter(c => c.isConnected && c.profileUrl));
+      const mergedInvitacionData = merge(cloneDeep(defaultInvitacionDigitalData), data.invitacionDigital || {});
+      setInvitacionData(mergedInvitacionData);
     } catch (err: any) {
       console.error("Error loading event data for public page:", err);
       setError("No se pudo cargar la información del evento. Por favor, intenta más tarde.");
@@ -186,18 +188,18 @@ function EventoPublicoPageContent() {
     return <div className="flex flex-col items-center justify-center min-h-screen text-center"><AlertTriangle className="w-16 h-16 mb-4 text-destructive" /><h2 className="text-2xl font-semibold mb-2">Error al Cargar</h2><p>{error || "No se pudo encontrar el evento."}</p></div>;
   }
   
-  const templateName = webSettings.templateName || 'Grazia';
+  const templateName = invitacionData.plantilla || 'Grazia';
   
   const RsvpComponent = <RsvpForm fiesta={fiesta} />;
 
   return (
     <>
       {templateName === 'Grazia' ? (
-        <GraziaTemplate fiesta={fiesta} webSettings={webSettings} paletaColores={paletaColores}>
+        <GraziaTemplate fiesta={fiesta} invitacionData={invitacionData}>
            {RsvpComponent}
         </GraziaTemplate>
       ) : (
-        // ObsidianaTemplate u otras como fallback
+        // Placeholder for other templates
         <div className="text-center p-8"> Plantilla "{templateName}" no encontrada. </div>
       )}
     </>

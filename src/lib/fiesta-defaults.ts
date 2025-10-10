@@ -94,6 +94,7 @@ export const defaultDecoracion: DecoracionData = {
 
 export const defaultInvitacionDigitalData: InvitacionDigitalData = {
   plantilla: 'Grazia',
+  musicaFondoUrl: '',
   cabecera: {
     visible: true,
     videoFondoUrl: '',
@@ -121,6 +122,12 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
   galeria: {
     visible: false,
     fotos: [],
+  },
+  historia: {
+    visible: false,
+    titulo: 'Nuestra Historia',
+    texto: '',
+    imagenFondoUrl: ''
   },
   regalos: {
     visible: true,
