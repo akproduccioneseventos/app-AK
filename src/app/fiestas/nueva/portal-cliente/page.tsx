@@ -7,15 +7,20 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 // This page is obsolete. Its functionality has been moved to a central module.
-export default function DeprecatedPortalClientePage() {
+function RedirectComponent() {
     const router = useRouter();
-
+    const searchParams = useSearchParams();
+    const fiestaId = searchParams.get('fiestaId');
+    
     useEffect(() => {
-        // Redirect to the new central hub for client collaboration
-        router.replace('/fiestas/nueva/reuniones');
-    }, [router]);
+        // Redirect to the new central hub for client collaboration, preserving the fiestaId
+        const destination = `/fiestas/nueva/reuniones${fiestaId ? `?fiestaId=${fiestaId}` : ''}`;
+        router.replace(destination);
+    }, [router, fiestaId]);
 
     return (
         <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4">
@@ -38,5 +43,13 @@ export default function DeprecatedPortalClientePage() {
                 </CardFooter>
             </Card>
         </div>
+    );
+}
+
+export default function DeprecatedPortalClientePage() {
+    return (
+        <Suspense fallback={<div>Cargando...</div>}>
+            <RedirectComponent />
+        </Suspense>
     );
 }

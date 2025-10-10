@@ -1,45 +1,259 @@
 
 'use client';
 
-import { useEffect, useState, useCallback, Suspense } from 'react';
+import { useState, type FormEvent, useEffect, useCallback, ChangeEvent } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
-import type { FiestaEnPlanificacion, EventWebPageSettings, ClientPortalSettings } from '@/types/fiesta';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
+import { ArrowLeft, Save, Loader2, Globe, Sparkles, Image as ImageIcon, Users, Clock, Gift, MapPin, Camera, Wand2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import type { FiestaEnPlanificacion, EventWebPageSettings, ClientPortalSettings, GiftItem } from '@/types/fiesta';
 import { getFiestaActual, updatePortalSettingsFiestaActual as updatePortalSettings } from '@/app/actions/fiesta-actual';
 import { defaultWebPageSettings, defaultClientPortalSettings } from '@/lib/fiesta-defaults';
 import { merge, cloneDeep } from 'lodash';
+import { Separator } from '@/components/ui/separator';
+import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
-// This is a temporary redirect. Eventually this page will house the settings for the public-facing event page.
-function PageRedirect() {
-    const router = useRouter();
-    const searchParams = useSearchParams();
+// Re-importar el componente de regalos para usarlo aquí
+import { GiftListManagement } from '@/components/fiesta/GiftListManagement';
+import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { useSearchParams } from 'next/navigation';
+
+export default function PaginaWebYPortalPage() {
+  const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
+  
+  const [webSettings, setWebSettings] = useState<EventWebPageSettings>(defaultWebPageSettings);
+  
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  
+  const [coverImageFile, setCoverImageFile] = useState<File | null>(null);
+  const [coverImagePreview, setCoverImagePreview] = useState<string | null>(null);
+  const [storyImageFile, setStoryImageFile] = useState<File | null>(null);
+  const [storyImagePreview, setStoryImagePreview] = useState<string | null>(null);
+
+
+  const loadData = useCallback(async () => {
+    setIsLoading(true);
     const fiestaId = searchParams.get('fiestaId');
+    if (!fiestaId) {
+      toast({ title: "Error", description: "ID de fiesta no encontrado en la URL.", variant: "destructive"});
+      setIsLoading(false);
+      return;
+    }
+    try {
+      const data = await getFiestaById(fiestaId);
+      if (!data) throw new Error("Fiesta no encontrada");
 
-    useEffect(() => {
-        // Redirect to the new, consolidated page
-        const destination = `/fiestas/nueva/reuniones${fiestaId ? `?fiestaId=${fiestaId}` : ''}`;
-        router.replace(destination);
-    }, [router, fiestaId]);
+      setFiesta(data);
+      
+      const mergedWebSettings = merge(cloneDeep(defaultWebPageSettings), data.webPageSettings || {});
+      setWebSettings(mergedWebSettings);
+      
+      setCoverImagePreview(mergedWebSettings.coverImageUrl || null);
+      setStoryImagePreview(mergedWebSettings.ourStoryImageUrl || null);
+      
+    } catch (e: any) {
+      toast({ title: "Error", description: `No se pudieron cargar los datos: ${e.message}`, variant: "destructive"});
+    } finally {
+      setIsLoading(false);
+    }
+  }, [searchParams, toast]);
 
-    return (
-        <div className="flex flex-col items-center justify-center h-screen text-center">
-            <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
-            <p className="text-lg text-muted-foreground">Redirigiendo a la sección de Colaboración...</p>
-             <Link href="/fiestas/nueva/reuniones" passHref className="mt-4">
-              <Button variant="link">Si no eres redirigido, haz clic aquí.</Button>
-            </Link>
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+  
+  const handleWebSettingsChange = (field: keyof EventWebPageSettings, value: string | boolean | string[]) => {
+    setWebSettings(prev => ({...prev, [field]: value}));
+  };
+
+  const handleFileUpload = async (file: File | null, assetType: 'cover' | 'story'): Promise<string | undefined> => {
+    if (!file || !fiesta) return undefined;
+
+    try {
+        const result = await uploadPublicPageAsset(fiesta.id, file);
+        if (result.success && result.url) {
+            return result.url;
+        } else {
+            throw new Error(result.error || `No se pudo subir la imagen de ${assetType}.`);
+        }
+    } catch(e: any) {
+        toast({title: "Error de Subida", description: e.message, variant: "destructive"});
+        return undefined;
+    }
+  };
+  
+  const handleSave = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!fiesta) return;
+    
+    setIsSaving(true);
+    let finalSettings = { ...webSettings };
+
+    try {
+        if (coverImageFile) {
+            const uploadedUrl = await handleFileUpload(coverImageFile, 'cover');
+            if(uploadedUrl) finalSettings.coverImageUrl = uploadedUrl;
+        }
+        if (storyImageFile) {
+            const uploadedUrl = await handleFileUpload(storyImageFile, 'story');
+            if(uploadedUrl) finalSettings.ourStoryImageUrl = uploadedUrl;
+        }
+
+        const currentPortalSettings = fiesta.clientPortalSettings || defaultClientPortalSettings;
+        const result = await updatePortalSettings(fiesta.id, currentPortalSettings, finalSettings);
+        if (result.success) {
+            toast({ title: "¡Configuración Guardada!", description: "La página pública del evento ha sido actualizada." });
+            await loadData();
+        } else {
+            throw new Error(result.error);
+        }
+    } catch (err: any) {
+        toast({ title: "Error al Guardar", description: err.message, variant: "destructive"});
+    } finally {
+        setIsSaving(false);
+    }
+  }
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>, type: 'cover' | 'story') => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (type === 'cover') {
+        setCoverImageFile(file);
+        setCoverImagePreview(URL.createObjectURL(file));
+      } else {
+        setStoryImageFile(file);
+        setStoryImagePreview(URL.createObjectURL(file));
+      }
+    }
+  };
+
+
+  if (isLoading || !fiesta) {
+    return <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>;
+  }
+
+  return (
+    <div className="space-y-6">
+       <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Globe className="w-8 h-8 text-primary" />
+          <h1 className="text-3xl font-bold tracking-tight font-headline">
+            Página Pública del Evento
+          </h1>
         </div>
-    );
-}
+        <Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`} passHref>
+          <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver al Planificador</Button>
+        </Link>
+      </div>
+      
+      <form onSubmit={handleSave}>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Columna de Configuración */}
+          <div className="lg:col-span-2 space-y-6">
+             <Card>
+                <CardHeader><CardTitle>Diseño y Contenido Principal</CardTitle></CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="pageTitle">Título Principal de la Página</Label>
+                    <Input id="pageTitle" value={webSettings.pageTitle} onChange={(e) => handleWebSettingsChange('pageTitle', e.target.value)} placeholder={fiesta.configuracion.nombreEvento} />
+                  </div>
+                   <div className="space-y-2">
+                    <Label htmlFor="heroSubtitle">Subtítulo (opcional)</Label>
+                    <Input id="heroSubtitle" value={webSettings.heroSubtitle} onChange={(e) => handleWebSettingsChange('heroSubtitle', e.target.value)} placeholder="Ej: ¡Una noche inolvidable!" />
+                  </div>
+                  <div className="space-y-2">
+                     <Label htmlFor="cover-image">Imagen de Portada / Fondo</Label>
+                     <Input id="cover-image" type="file" accept="image/*,video/*" onChange={(e) => handleFileChange(e, 'cover')} />
+                     <p className="text-xs text-muted-foreground">Sube la foto principal o el video corto (MP4) de tu invitación.</p>
+                     {coverImagePreview && <div className="relative aspect-video max-w-sm"><NextImage src={coverImagePreview} alt="Preview" layout="fill" objectFit="cover" className="rounded-md border"/></div>}
+                  </div>
+                </CardContent>
+             </Card>
 
+             <Card>
+                <CardHeader>
+                    <CardTitle>Secciones de la Página</CardTitle>
+                    <CardDescription>Activa y personaliza las secciones que tus invitados verán en la página pública.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                   <Accordion type="multiple" className="w-full space-y-2" defaultValue={['countdown', 'eventDetails']}>
+                      <AccordionItem value="countdown" className="border rounded-md px-3">
+                          <div className="flex items-center justify-between py-2">
+                            <Label htmlFor="showCountdown" className="flex items-center gap-2 font-medium"><Clock className="w-4 h-4"/>Cuenta Regresiva</Label>
+                            <Switch id="showCountdown" checked={webSettings.showCountdown} onCheckedChange={(v) => handleWebSettingsChange('showCountdown', v)}/>
+                          </div>
+                      </AccordionItem>
 
-export default function PaginaWebPage() {
-    return (
-        <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>}>
-            <PageRedirect />
-        </Suspense>
-    )
+                       <AccordionItem value="ourStory" className="border rounded-md px-3">
+                           <AccordionTrigger className="hover:no-underline py-2 [&[data-state=open]>svg]:rotate-180">
+                                <div className="flex items-center gap-2 font-medium"><Sparkles className="w-4 h-4"/>Nuestra Historia</div>
+                           </AccordionTrigger>
+                           <AccordionContent className="pt-2 pb-4 space-y-4 border-t">
+                               <div className="flex items-center justify-between"><Label htmlFor="showOurStory">Mostrar esta sección</Label><Switch id="showOurStory" checked={webSettings.showOurStory} onCheckedChange={(v) => handleWebSettingsChange('showOurStory', v)}/></div>
+                               <div className="space-y-1"><Label htmlFor="ourStoryTitle">Título de la Sección</Label><Input id="ourStoryTitle" value={webSettings.ourStoryTitle} onChange={e => handleWebSettingsChange('ourStoryTitle', e.target.value)}/></div>
+                               <div className="space-y-1"><Label htmlFor="ourStoryText">Texto</Label><Textarea id="ourStoryText" value={webSettings.ourStoryText} onChange={e => handleWebSettingsChange('ourStoryText', e.target.value)} rows={4}/></div>
+                               <div className="space-y-1"><Label htmlFor="ourStoryImage">Imagen</Label><Input id="ourStoryImage" type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'story')}/></div>
+                               {storyImagePreview && <div className="relative aspect-video max-w-xs"><NextImage src={storyImagePreview} alt="Story Preview" layout="fill" objectFit="cover" className="rounded-md border"/></div>}
+                           </AccordionContent>
+                       </AccordionItem>
+                       
+                       <AccordionItem value="eventDetails" className="border rounded-md px-3">
+                           <AccordionTrigger className="hover:no-underline py-2 [&[data-state=open]>svg]:rotate-180"><div className="flex items-center gap-2 font-medium"><MapPin className="w-4 h-4"/>Detalles del Evento</div></AccordionTrigger>
+                           <AccordionContent className="pt-2 pb-4 space-y-4 border-t">
+                               <div className="flex items-center justify-between"><Label htmlFor="showEventDetails">Mostrar esta sección</Label><Switch id="showEventDetails" checked={webSettings.showEventDetails} onCheckedChange={(v) => handleWebSettingsChange('showEventDetails', v)}/></div>
+                               <div className="space-y-1"><Label htmlFor="eventDetailsTitle">Título de la Sección</Label><Input id="eventDetailsTitle" value={webSettings.eventDetailsTitle} onChange={e => handleWebSettingsChange('eventDetailsTitle', e.target.value)}/></div>
+                               <div className="space-y-1"><Label htmlFor="eventDetailsText">Texto Adicional</Label><Textarea id="eventDetailsText" value={webSettings.eventDetailsText} onChange={e => handleWebSettingsChange('eventDetailsText', e.target.value)} placeholder="Ej: Estacionamiento disponible, código de vestimenta..." rows={3}/></div>
+                           </AccordionContent>
+                       </AccordionItem>
+
+                        <AccordionItem value="giftRegistry" className="border rounded-md px-3">
+                           <AccordionTrigger className="hover:no-underline py-2 [&[data-state=open]>svg]:rotate-180"><div className="flex items-center gap-2 font-medium"><Gift className="w-4 h-4"/>Lista de Regalos</div></AccordionTrigger>
+                           <AccordionContent className="pt-2 pb-4 space-y-4 border-t">
+                               <div className="flex items-center justify-between"><Label htmlFor="showGiftRegistry">Mostrar esta sección</Label><Switch id="showGiftRegistry" checked={webSettings.showGiftRegistry} onCheckedChange={(v) => handleWebSettingsChange('showGiftRegistry', v)}/></div>
+                               <div className="space-y-1"><Label htmlFor="giftRegistryTitle">Título de la Sección</Label><Input id="giftRegistryTitle" value={webSettings.giftRegistryTitle} onChange={e => handleWebSettingsChange('giftRegistryTitle', e.target.value)}/></div>
+                               <div className="space-y-1"><Label htmlFor="giftRegistryText">Texto Introductorio</Label><Textarea id="giftRegistryText" value={webSettings.giftRegistryText} onChange={e => handleWebSettingsChange('giftRegistryText', e.target.value)} rows={2}/></div>
+                           </AccordionContent>
+                       </AccordionItem>
+
+                       <AccordionItem value="gallery" className="border rounded-md px-3">
+                           <AccordionTrigger className="hover:no-underline py-2 [&[data-state=open]>svg]:rotate-180"><div className="flex items-center gap-2 font-medium"><Camera className="w-4 h-4"/>Galería de Fotos</div></AccordionTrigger>
+                           <AccordionContent className="pt-2 pb-4 space-y-4 border-t">
+                               <div className="flex items-center justify-between"><Label htmlFor="showGallery">Mostrar esta sección</Label><Switch id="showGallery" checked={webSettings.showGallery} onCheckedChange={(v) => handleWebSettingsChange('showGallery', v)}/></div>
+                               <p className="text-xs text-muted-foreground">La galería se poblará con las fotos que subas aquí. Es diferente a la Galería Social del evento.</p>
+                                {/* Future: Add multi-image uploader here */}
+                           </AccordionContent>
+                       </AccordionItem>
+                   </Accordion>
+                </CardContent>
+             </Card>
+          </div>
+          
+          {/* Columna de Guardado */}
+          <div className="lg:col-span-1">
+             <Card className="sticky top-20">
+                <CardHeader><CardTitle>Guardar</CardTitle></CardHeader>
+                <CardContent>
+                    <p className="text-sm text-muted-foreground">Una vez que estés conforme con la configuración, guarda los cambios para que se reflejen en la página pública del evento.</p>
+                </CardContent>
+                <CardFooter>
+                    <Button type="submit" size="lg" className="w-full" disabled={isSaving}>
+                        {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin"/> : <Save className="w-5 h-5 mr-2"/>}
+                        Guardar Cambios
+                    </Button>
+                </CardFooter>
+            </Card>
+          </div>
+        </div>
+      </form>
+    </div>
+  );
 }
