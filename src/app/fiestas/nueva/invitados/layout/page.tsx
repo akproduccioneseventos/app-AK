@@ -329,14 +329,6 @@ export default function SalonLayoutPage() {
         </DialogContent>
       </Dialog>
       
-      <Dialog open={isSaveTemplateModalOpen} onOpenChange={setIsSaveTemplateModalOpen}>
-        <DialogContent>
-            <DialogHeader><DialogTitle>Guardar Diseño como Plantilla</DialogTitle></DialogHeader>
-            <div className="space-y-2 py-2"><Label htmlFor="template-name">Nombre de la Plantilla</Label><Input id="template-name" value={templateName} onChange={e=>setTemplateName(e.target.value)} placeholder="Ej: Club Uruguay - 80 invitados"/></div>
-            <DialogFooter><DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose><Button onClick={handleSaveAsTemplate} disabled={isSaving}>Guardar</Button></DialogFooter>
-        </DialogContent>
-      </Dialog>
-
       <Dialog open={isLoadTemplateModalOpen} onOpenChange={setIsLoadTemplateModalOpen}>
           <DialogContent>
               <DialogHeader><DialogTitle>Cargar Diseño desde Plantilla</DialogTitle></DialogHeader>
@@ -436,7 +428,7 @@ export default function SalonLayoutPage() {
                            <div className="space-y-1"><Label htmlFor="gen-guests">Total de Invitados</Label><Input id="gen-guests" type="number" value={generatorGuestCount} onChange={e => setGeneratorGuestCount(Number(e.target.value) || 0)}/></div>
                            <div className="space-y-1"><Label htmlFor="gen-seats">Asientos por Mesa</Label><Input id="gen-seats" type="number" value={generatorSeatsPerTable} onChange={e => setGeneratorSeatsPerTable(Number(e.target.value) || 0)}/></div>
                       </div>
-                       <AlertDialogTrigger asChild><Button type="button" className="w-full mt-3">Generar Mesas</Button></AlertDialogTrigger>
+                     <AlertDialogTrigger asChild><Button type="button" className="w-full mt-3">Generar Mesas</Button></AlertDialogTrigger>
                  </div>
                </AlertDialog>
 
