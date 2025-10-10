@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Music, Beer, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Music, Beer, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Image as ImageIcon, Maximize, Minimize, FolderDown, FolderUp } from 'lucide-react';
 import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData } from '@/types/fiesta';
@@ -23,6 +23,10 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import NextImage from 'next/image';
 import { Separator } from '@/components/ui/separator';
+import { assignGuestsToTables, type AssignGuestsInput } from '@/ai/flows/assign-guests-flow';
+import { getSalonLayoutTemplates, saveSalonLayoutTemplate, type SalonLayoutTemplate } from '@/app/actions/salon-layout-templates';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 
 const grid = 20;
 
@@ -33,14 +37,23 @@ export default function SalonLayoutPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const [editingElement, setEditingElement] = useState<LayoutElement | null>(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
   
+  const [isAssigningWithAI, setIsAssigningWithAI] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingElement, setEditingElement] = useState<LayoutElement | null>(null);
+  const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
 
-  const loadData = useCallback(async () => {
-    setIsLoading(true);
+  const [isSaveTemplateModalOpen, setIsSaveTemplateModalOpen] = useState(false);
+  const [templateName, setTemplateName] = useState('');
+  const [isLoadTemplateModalOpen, setIsLoadTemplateModalOpen] = useState(false);
+  const [savedTemplates, setSavedTemplates] = useState<SalonLayoutTemplate[]>([]);
+  
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const canvasRef = useRef<HTMLDivElement>(null);
+
+
+  const loadData = useCallback(async (showLoading = true) => {
+    if(showLoading) setIsLoading(true);
     try {
       const fiesta = await getFiestaActual();
       setDecoracion(fiesta.decoracion || { salonElements: [], salonWidth: 800, salonHeight: 600 });
@@ -49,13 +62,23 @@ export default function SalonLayoutPage() {
       setError("No se pudo cargar la información del evento.");
       toast({ title: "Error", description: e.message, variant: "destructive" });
     } finally {
-      setIsLoading(false);
+      if(showLoading) setIsLoading(false);
     }
   }, [toast]);
-
+  
   useEffect(() => {
     loadData();
   }, [loadData]);
+  
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement) {
+        setIsFullscreen(false);
+      }
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
 
   const handleDragStop = (e: DraggableEvent, data: DraggableData, elementId: string) => {
     if (!decoracion) return;
@@ -129,19 +152,16 @@ export default function SalonLayoutPage() {
 
     setInvitados(prev => prev.map(inv => inv.id === guestId ? { ...inv, tableNumber: table?.name || undefined } : inv));
   };
-
-  const handleUnassignGuest = (guestId: string) => {
-    setInvitados(prev => prev.map(inv => inv.id === guestId ? { ...inv, tableNumber: undefined } : inv));
-  };
   
   const handleSave = async () => {
     if (!decoracion) return;
     setIsSaving(true);
     try {
-        const result = await updateDecoracionFiestaActual(decoracion);
+        const decoracionToSave = { ...decoracion, items: decoracion.items || [] }; // Ensure items is not undefined
+        const result = await updateDecoracionFiestaActual(decoracionToSave);
         if (result.success) {
             toast({ title: "¡Guardado!", description: "La distribución del salón ha sido guardada." });
-            await loadData();
+            await loadData(false);
         } else {
             throw new Error(result.error || "No se pudo guardar la distribución.");
         }
@@ -150,7 +170,45 @@ export default function SalonLayoutPage() {
     } finally {
         setIsSaving(false);
     }
-};
+  };
+
+  const handleSaveAsTemplate = async () => {
+    if(!templateName.trim() || !decoracion) return;
+    setIsSaving(true);
+    const result = await saveSalonLayoutTemplate(templateName, decoracion);
+    if (result.success) {
+        toast({ title: "Plantilla Guardada", description: `El diseño "${templateName}" ha sido guardado.`});
+        setIsSaveTemplateModalOpen(false);
+    } else {
+        toast({ title: "Error", description: result.error, variant: "destructive" });
+    }
+    setIsSaving(false);
+  };
+  
+  const handleLoadTemplate = async () => {
+    setIsLoadTemplateModalOpen(true);
+    const templates = await getSalonLayoutTemplates();
+    setSavedTemplates(templates);
+  };
+  
+  const applyTemplate = (templateData: SalonLayoutTemplate['layoutData']) => {
+    setDecoracion(prev => ({
+        ...(prev || {}),
+        ...templateData,
+    }) as DecoracionData);
+    toast({ description: `Plantilla "${templateData.layoutTemplateName}" cargada.`});
+    setIsLoadTemplateModalOpen(false);
+  };
+
+  const handleFullscreenToggle = () => {
+    if (!canvasRef.current) return;
+    if (isFullscreen) {
+      document.exitFullscreen();
+    } else {
+      canvasRef.current.requestFullscreen();
+    }
+    setIsFullscreen(!isFullscreen);
+  };
 
   const invitadosConfirmados = useMemo(() => invitados.filter(i => i.rsvp === 'Confirmado'), [invitados]);
   const invitadosSinMesa = useMemo(() => invitadosConfirmados.filter(i => !i.tableNumber), [invitadosConfirmados]);
@@ -178,16 +236,35 @@ export default function SalonLayoutPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <Dialog open={isSaveTemplateModalOpen} onOpenChange={setIsSaveTemplateModalOpen}>
+          <DialogContent>
+            <DialogHeader><DialogTitle>Guardar Diseño como Plantilla</DialogTitle></DialogHeader>
+            <div className="space-y-2 py-2"><Label htmlFor="template-name">Nombre de la Plantilla</Label><Input id="template-name" value={templateName} onChange={e=>setTemplateName(e.target.value)} placeholder="Ej: Club Uruguay - 80 invitados"/></div>
+            <DialogFooter><DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose><Button onClick={handleSaveAsTemplate} disabled={isSaving}>Guardar</Button></DialogFooter>
+          </DialogContent>
+      </Dialog>
+      <Dialog open={isLoadTemplateModalOpen} onOpenChange={setIsLoadTemplateModalOpen}>
+          <DialogContent>
+            <DialogHeader><DialogTitle>Cargar Diseño desde Plantilla</DialogTitle></DialogHeader>
+            <ScrollArea className="max-h-80"><div className="space-y-2 p-1">{savedTemplates.map(t=>(<Button key={t.id} variant="ghost" className="w-full justify-start" onClick={()=>applyTemplate(t.layoutData)}>{t.name}</Button>))}</div></ScrollArea>
+          </DialogContent>
+      </Dialog>
+
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight font-headline flex items-center gap-2"><LayoutDashboard className="w-8 h-8 text-primary"/>Diseño de Mesas y Salón</h1>
         <Link href="/fiestas/nueva/invitados" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver a Invitados</Button></Link>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader><CardTitle>Lienzo del Salón</CardTitle></CardHeader>
-            <CardContent>
-              <div className="relative border rounded-lg bg-muted/30 overflow-auto canvas-grid-background">
+        <div ref={canvasRef} className={cn("lg:col-span-2 bg-white transition-all duration-300", isFullscreen && "fixed inset-0 z-50 p-4")}>
+          <Card className="h-full flex flex-col">
+            <CardHeader className="flex-row items-center justify-between">
+                <CardTitle>Lienzo del Salón</CardTitle>
+                <Button variant="ghost" size="icon" onClick={handleFullscreenToggle}>
+                  {isFullscreen ? <Minimize className="w-5 h-5"/> : <Maximize className="w-5 h-5"/>}
+                </Button>
+            </CardHeader>
+            <CardContent className="flex-grow">
+              <div className="relative border rounded-lg bg-muted/30 overflow-auto canvas-grid-background h-full">
                 <div style={{ width: `${decoracion.salonWidth || 800}px`, height: `${decoracion.salonHeight || 600}px`}} className="relative">
                   {decoracion.salonPlanBackgroundImageUrl && (
                       <NextImage src={decoracion.salonPlanBackgroundImageUrl} alt="Plano del Salón" layout="fill" objectFit="contain" className="opacity-50" />
@@ -249,19 +326,14 @@ export default function SalonLayoutPage() {
                 <Button variant="outline" onClick={() => addElement('Barra')}><Beer className="w-4 h-4 mr-2"/>Barra</Button>
               </div>
                <Separator className="my-4"/>
-               <div className="space-y-2">
-                 <Label htmlFor="salon-width">Ancho del Salón (px)</Label>
-                 <Input id="salon-width" type="number" value={decoracion.salonWidth || 800} onChange={e => setDecoracion(d => d ? {...d, salonWidth: Number(e.target.value)}: null)} />
-               </div>
-               <div className="space-y-2">
-                 <Label htmlFor="salon-height">Alto del Salón (px)</Label>
-                 <Input id="salon-height" type="number" value={decoracion.salonHeight || 600} onChange={e => setDecoracion(d => d ? {...d, salonHeight: Number(e.target.value)}: null)} />
-               </div>
-               <div className="space-y-2">
-                 <Label htmlFor="salon-bg">URL Imagen de Fondo</Label>
-                 <Input id="salon-bg" type="url" value={decoracion.salonPlanBackgroundImageUrl || ''} onChange={e => setDecoracion(d => d ? {...d, salonPlanBackgroundImageUrl: e.target.value}: null)} placeholder="https://ejemplo.com/plano.png"/>
-               </div>
+               <div className="space-y-2"><Label htmlFor="salon-width">Ancho (px)</Label><Input id="salon-width" type="number" value={decoracion.salonWidth || 800} onChange={e => setDecoracion(d => d ? {...d, salonWidth: Number(e.target.value)}: null)} /></div>
+               <div className="space-y-2"><Label htmlFor="salon-height">Alto (px)</Label><Input id="salon-height" type="number" value={decoracion.salonHeight || 600} onChange={e => setDecoracion(d => d ? {...d, salonHeight: Number(e.target.value)}: null)} /></div>
+               <div className="space-y-2"><Label htmlFor="salon-bg">URL Imagen de Fondo</Label><Input id="salon-bg" type="url" value={decoracion.salonPlanBackgroundImageUrl || ''} onChange={e => setDecoracion(d => d ? {...d, salonPlanBackgroundImageUrl: e.target.value}: null)} placeholder="https://ejemplo.com/plano.png"/></div>
             </CardContent>
+             <CardFooter className="flex-col gap-2">
+                <Button type="button" onClick={handleLoadTemplate} variant="outline" className="w-full"><FolderDown className="w-4 h-4 mr-2"/>Cargar Plantilla</Button>
+                <DialogTrigger asChild><Button type="button" onClick={() => setIsSaveTemplateModalOpen(true)} className="w-full"><FolderUp className="w-4 h-4 mr-2"/>Guardar como Plantilla</Button></DialogTrigger>
+            </CardFooter>
           </Card>
           <Card>
             <CardHeader><CardTitle>Invitados Confirmados</CardTitle></CardHeader>
@@ -296,3 +368,4 @@ export default function SalonLayoutPage() {
     </div>
   );
 }
+
