@@ -189,7 +189,8 @@ function PaginaWebPageContent() {
     toast({ title: "Plantilla aplicada", description: `Se ha cargado el diseño "${template.name}".`});
   };
 
-  const renderUploadInput = (section: keyof InvitacionDigitalData, field: string, currentUrl?: string) => (
+  const renderUploadInput = (section: keyof InvitacionDigitalData, field: string, currentUrl?: string) => {
+    return(
     <div key={`${section}-${field}`} className="space-y-2">
       <Label>Imagen/Video de Fondo</Label>
       <div className="flex items-center gap-2">
@@ -204,7 +205,8 @@ function PaginaWebPageContent() {
       </div>
       {currentUrl && <NextImage src={currentUrl} alt="Preview" width={100} height={60} className="rounded-md border object-cover"/>}
     </div>
-  );
+    )
+  };
   
   const backLink = isEditingTemplate ? "/settings/templates/invitaciones" : `/fiestas/nueva?fiestaId=${fiestaId}`;
 
@@ -344,11 +346,6 @@ function PaginaWebPageContent() {
   );
 }
 
-const defaultConfiguracion = {
-  nombreEvento: 'Tu Evento Soñado',
-  fechaEvento: new Date().toISOString(),
-};
-
 export default function PaginaWebYPortalPage() {
     return (
         <Suspense fallback={<div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando constructor...</p></div>}>
@@ -356,5 +353,3 @@ export default function PaginaWebYPortalPage() {
         </Suspense>
     );
 }
-
-    
