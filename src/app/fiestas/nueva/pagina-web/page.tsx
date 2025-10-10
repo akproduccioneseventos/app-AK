@@ -1,6 +1,8 @@
+
 'use client';
 
 import React, { useState, type FormEvent, useEffect, useCallback, ChangeEvent, Suspense, use } from 'react';
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -207,29 +209,28 @@ function PaginaWebPageContent() {
   const backLink = isEditingTemplate ? "/settings/templates/invitaciones" : `/fiestas/nueva?fiestaId=${fiestaId}`;
 
   return (
-    <div className="h-[calc(100vh-10rem)] flex flex-col gap-4">
-      {/* Dialogs */}
-      <Dialog open={fileContext !== null} onOpenChange={(open) => !open && setFileContext(null)}>
+    <div className="space-y-6">
+       <Dialog onOpenChange={(open) => !open && setFileContext(null)}>
         <DialogContent>
-          <DialogHeader>
-              <DialogTitle>Subir Archivo de Fondo</DialogTitle>
-              <DialogDescription>Selecciona una imagen o video para la sección "{fileContext?.section}".</DialogDescription>
-          </DialogHeader>
-          <div className="py-4 space-y-4">
-              <Input type="file" accept="image/*,video/*" onChange={handleFileChange} />
-              {previewUrl && (
-                  <div className="relative aspect-video w-full max-w-sm mx-auto">
-                      {previewUrl.startsWith('blob:') && fileToUpload?.type.startsWith('video') ?
-                          <video src={previewUrl} controls className="w-full h-full rounded-md object-contain"/> :
-                          <NextImage src={previewUrl} alt="Vista previa" layout="fill" objectFit="contain" className="rounded-md" />
-                      }
-                  </div>
-              )}
-          </div>
-          <DialogFooter>
-              <DialogClose asChild><Button type="button" variant="outline">Cancelar</Button></DialogClose>
-              <Button onClick={handleUploadAndSetUrl} disabled={!fileToUpload || isUploading}>{isUploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : null} Subir y Aplicar</Button>
-          </DialogFooter>
+            <DialogHeader>
+                <DialogTitle>Subir Archivo de Fondo</DialogTitle>
+                <DialogDescription>Selecciona una imagen o video para la sección "{fileContext?.section}".</DialogDescription>
+            </DialogHeader>
+            <div className="py-4 space-y-4">
+                <Input type="file" accept="image/*,video/*" onChange={handleFileChange} />
+                {previewUrl && (
+                    <div className="relative aspect-video w-full max-w-sm mx-auto">
+                        {previewUrl.startsWith('blob:') && fileToUpload?.type.startsWith('video') ?
+                            <video src={previewUrl} controls className="w-full h-full rounded-md object-contain"/> :
+                            <NextImage src={previewUrl} alt="Vista previa" layout="fill" objectFit="contain" className="rounded-md" />
+                        }
+                    </div>
+                )}
+            </div>
+            <DialogFooter>
+                <DialogClose asChild><Button type="button" variant="outline">Cancelar</Button></DialogClose>
+                <Button onClick={handleUploadAndSetUrl} disabled={!fileToUpload || isUploading}>{isUploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : null} Subir y Aplicar</Button>
+            </DialogFooter>
         </DialogContent>
       </Dialog>
       <Dialog open={isTemplateModalOpen} onOpenChange={setIsTemplateModalOpen}>
@@ -273,7 +274,7 @@ function PaginaWebPageContent() {
       </div>
       
       {/* Main Content */}
-      <div className="flex-grow grid grid-cols-1 lg:grid-cols-3 gap-6 h-full overflow-hidden">
+      <div className="flex-grow grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-15rem)] overflow-hidden">
         {/* Controls Panel */}
         <div className="lg:col-span-1 h-full">
           <Card className="h-full flex flex-col">
@@ -291,7 +292,7 @@ function PaginaWebPageContent() {
                         <div className="space-y-1"><Label>Categoría</Label><Select value={invitacionData.category || 'General'} onValueChange={(v) => setInvitacionData(p => ({...p, category: v as any}))}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Boda">Boda</SelectItem><SelectItem value="XV Años">XV Años</SelectItem><SelectItem value="Cumpleaños">Cumpleaños</SelectItem><SelectItem value="General">General</SelectItem></SelectContent></Select></div>
                       </div>
                     )}
-                    <div className="space-y-1"><Label>Estilo Visual</Label><Select value={invitacionData.plantilla} onValueChange={(v) => setInvitacionData(p => ({...p, plantilla: v as any}))}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Grazia">Grazia (Clásico)</SelectItem></SelectContent></Select></div>
+                    <div className="space-y-1"><Label>Estilo Visual</Label><Select value={invitacionData.plantilla} onValueChange={(v) => setInvitacionData(p => ({...p, plantilla: v as any}))}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Grazia">Grazia (Clásico y Elegante)</SelectItem></SelectContent></Select></div>
                     <div className="space-y-1"><Label>URL Música de Fondo (MP3)</Label><Input value={invitacionData.musicaFondoUrl || ''} onChange={(e) => setInvitacionData(p => ({...p, musicaFondoUrl: e.target.value}))} placeholder="https://..." /></div>
                   </AccordionContent>
                 </AccordionItem>
@@ -333,24 +334,28 @@ function PaginaWebPageContent() {
         </div>
         
         {/* Preview Panel */}
-        <div className="lg:col-span-2 h-full rounded-lg border shadow-inner bg-white">
+        <div className="lg:col-span-2 h-full rounded-lg border shadow-inner bg-white overflow-hidden">
           {isLoading ? (
             <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin"/></div>
           ) : fiesta ? (
-             <GraziaTemplate 
-                fiesta={fiesta} 
-                invitacionData={invitacionData}
-                socialConnections={socialConnections}
-                isPreview={true}
-              />
-          ) : isEditingTemplate ? (
+             <div className="w-full h-full scale-[0.9] origin-top-left overflow-y-auto">
+                <GraziaTemplate 
+                    fiesta={fiesta} 
+                    invitacionData={invitacionData}
+                    socialConnections={socialConnections}
+                    isPreview={true}
+                />
+             </div>
+          ) : isEditingTemplate && fiesta ? (
             // Render a dummy preview for template editing
-            <GraziaTemplate
-              fiesta={{...fiesta!, configuracion: {...defaultConfiguracion, nombreEvento: "Evento de Muestra"}}}
-              invitacionData={invitacionData}
-              socialConnections={socialConnections}
-              isPreview={true}
-            />
+            <div className="w-full h-full scale-[0.9] origin-top-left overflow-y-auto">
+                <GraziaTemplate
+                  fiesta={{...fiesta, configuracion: {...fiesta.configuracion, nombreEvento: "Evento de Muestra"}}}
+                  invitacionData={invitacionData}
+                  socialConnections={socialConnections}
+                  isPreview={true}
+                />
+            </div>
           ) : (
              <div className="flex items-center justify-center h-full"><AlertTriangle className="w-8 h-8 text-destructive"/></div>
           )}
@@ -359,6 +364,11 @@ function PaginaWebPageContent() {
     </div>
   );
 }
+
+const defaultConfiguracion = {
+  nombreEvento: 'Tu Evento Soñado',
+  fechaEvento: new Date().toISOString(),
+};
 
 export default function PaginaWebYPortalPage() {
     return (
