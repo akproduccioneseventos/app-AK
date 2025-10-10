@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, type FormEvent, useEffect, useCallback, ChangeEvent, Suspense, use } from 'react';
@@ -32,7 +33,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { getInvitationTemplates, saveInvitationTemplate, type InvitacionDigitalTemplate } from '@/app/actions/invitacion-digital-templates';
+import { getInvitationTemplates, saveInvitationTemplate, duplicateInvitationTemplate, type InvitacionDigitalTemplate } from '@/app/actions/invitacion-digital-templates';
 
 const GiftListManagement: React.FC<{
   initialItems: GiftItem[];
@@ -265,7 +266,7 @@ function PaginaWebPageContent() {
   };
 
   const renderUploadInput = (section: keyof InvitacionDigitalData, field: string, currentUrl?: string) => (
-    <div className="space-y-2">
+    <div className="space-y-2" key={`${section}-${field}`}>
       <Label>Imagen/Video de Fondo</Label>
       <div className="flex items-center gap-2">
         <Input value={currentUrl || ''} onChange={e => handleDataChange(section, field as any, e.target.value)} placeholder="https://... o sube un archivo"/>
