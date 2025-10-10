@@ -201,6 +201,7 @@ export default function SalonLayoutPage() {
     if (!decoracion) return;
     setIsSaving(true);
     try {
+        // Save guest assignments
         const updateGuestPromises = invitados.map(invitado => updateInvitadoFiestaActual(invitado));
         await Promise.all(updateGuestPromises);
         
@@ -328,12 +329,32 @@ export default function SalonLayoutPage() {
         </DialogContent>
       </Dialog>
       
-      <AlertDialog open={isGenerateConfirmOpen} onOpenChange={setIsGenerateConfirmOpen}>
-        <AlertDialogContent>
-            <AlertDialogHeader><AlertDialogTitle>Confirmar Generación de Mesas</AlertDialogTitle><AlertDialogDescription>Esta acción reemplazará todos los elementos actuales del salón con una nueva distribución automática. ¿Deseas continuar?</AlertDialogDescription></AlertDialogHeader>
-            <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={handleGenerateTables}>Sí, generar</AlertDialogAction></AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <Dialog open={isSaveTemplateModalOpen} onOpenChange={setIsSaveTemplateModalOpen}>
+        <DialogContent>
+            <DialogHeader><DialogTitle>Guardar Diseño como Plantilla</DialogTitle></DialogHeader>
+            <div className="space-y-2 py-2"><Label htmlFor="template-name">Nombre de la Plantilla</Label><Input id="template-name" value={templateName} onChange={e=>setTemplateName(e.target.value)} placeholder="Ej: Club Uruguay - 80 invitados"/></div>
+            <DialogFooter><DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose><Button onClick={handleSaveAsTemplate} disabled={isSaving}>Guardar</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isLoadTemplateModalOpen} onOpenChange={setIsLoadTemplateModalOpen}>
+          <DialogContent>
+              <DialogHeader><DialogTitle>Cargar Diseño desde Plantilla</DialogTitle></DialogHeader>
+              {isLoadingTemplates ? <div className="p-4 text-center"><Loader2 className="w-6 h-6 animate-spin"/></div> : (
+                  <ScrollArea className="h-72">
+                      <ul className="space-y-2 pr-3">
+                          {templates.map(t => (
+                              <li key={t.id} className="flex justify-between items-center p-2 border rounded-md">
+                                  <span>{t.name}</span>
+                                  <Button size="sm" onClick={() => applyTemplate(t)}>Cargar</Button>
+                              </li>
+                          ))}
+                      </ul>
+                  </ScrollArea>
+              )}
+          </DialogContent>
+      </Dialog>
+
 
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight font-headline flex items-center gap-2"><LayoutDashboard className="w-8 h-8 text-primary"/>Diseño de Mesas y Salón</h1>
@@ -403,16 +424,23 @@ export default function SalonLayoutPage() {
         <div className="space-y-4">
           <Card>
             <CardHeader><CardTitle>Controles</CardTitle></CardHeader>
-            <CardContent className="space-y-4">
-               <div className="p-3 border rounded-md bg-muted/20">
-                    <h4 className="font-medium text-sm mb-3">Asistente de Configuración Rápida</h4>
-                    <div className="grid grid-cols-2 gap-3">
-                         <div className="space-y-1"><Label htmlFor="gen-guests">Total de Invitados</Label><Input id="gen-guests" type="number" value={generatorGuestCount} onChange={e => setGeneratorGuestCount(Number(e.target.value) || 0)}/></div>
-                         <div className="space-y-1"><Label htmlFor="gen-seats">Asientos por Mesa</Label><Input id="gen-seats" type="number" value={generatorSeatsPerTable} onChange={e => setGeneratorSeatsPerTable(Number(e.target.value) || 0)}/></div>
-                    </div>
-                     <AlertDialogTrigger asChild><Button type="button" className="w-full mt-3">Generar Mesas</Button></AlertDialogTrigger>
-               </div>
-               <Separator/>
+            <CardContent>
+               <AlertDialog open={isGenerateConfirmOpen} onOpenChange={setIsGenerateConfirmOpen}>
+                 <AlertDialogContent>
+                   <AlertDialogHeader><AlertDialogTitle>Confirmar Generación de Mesas</AlertDialogTitle><AlertDialogDescription>Esta acción reemplazará todos los elementos actuales del salón con una nueva distribución automática. ¿Deseas continuar?</AlertDialogDescription></AlertDialogHeader>
+                   <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={handleGenerateTables}>Sí, generar</AlertDialogAction></AlertDialogFooter>
+                 </AlertDialogContent>
+                 <div className="p-3 border rounded-md bg-muted/20">
+                      <h4 className="font-medium text-sm mb-3">Asistente de Configuración Rápida</h4>
+                      <div className="grid grid-cols-2 gap-3">
+                           <div className="space-y-1"><Label htmlFor="gen-guests">Total de Invitados</Label><Input id="gen-guests" type="number" value={generatorGuestCount} onChange={e => setGeneratorGuestCount(Number(e.target.value) || 0)}/></div>
+                           <div className="space-y-1"><Label htmlFor="gen-seats">Asientos por Mesa</Label><Input id="gen-seats" type="number" value={generatorSeatsPerTable} onChange={e => setGeneratorSeatsPerTable(Number(e.target.value) || 0)}/></div>
+                      </div>
+                       <AlertDialogTrigger asChild><Button type="button" className="w-full mt-3">Generar Mesas</Button></AlertDialogTrigger>
+                 </div>
+               </AlertDialog>
+
+               <Separator className="my-4"/>
               <h4 className="font-medium text-sm">Añadir Elementos Manualmente</h4>
               <div className="grid grid-cols-2 gap-2">
                 <Button variant="outline" onClick={() => addElement('Mesa Redonda')}><Circle className="w-4 h-4 mr-2"/>Mesa Redonda</Button>
@@ -420,13 +448,13 @@ export default function SalonLayoutPage() {
                 <Button variant="outline" onClick={() => addElement('Pista de Baile')}><Music className="w-4 h-4 mr-2"/>Pista</Button>
                 <Button variant="outline" onClick={() => addElement('Barra')}><Beer className="w-4 h-4 mr-2"/>Barra</Button>
               </div>
-               <Separator />
+               <Separator className="my-4"/>
                <div className="space-y-2"><Label htmlFor="salon-width">Ancho del Salón (px)</Label><Input id="salon-width" type="number" value={decoracion.salonWidth || 800} onChange={e => setDecoracion(d => d ? {...d, salonWidth: Number(e.target.value)}: null)} /></div>
                <div className="space-y-2"><Label htmlFor="salon-height">Alto del Salón (px)</Label><Input id="salon-height" type="number" value={decoracion.salonHeight || 600} onChange={e => setDecoracion(d => d ? {...d, salonHeight: Number(e.target.value)}: null)} /></div>
                <div className="space-y-2"><Label htmlFor="salon-bg">URL Imagen de Fondo</Label><Input id="salon-bg" type="url" value={decoracion.salonPlanBackgroundImageUrl || ''} onChange={e => setDecoracion(d => d ? {...d, salonPlanBackgroundImageUrl: e.target.value}: null)} placeholder="https://ejemplo.com/plano.png"/></div>
             </CardContent>
             <CardFooter className="flex-col gap-2">
-                <Link href="/settings/templates/layouts" passHref><Button variant="outline" className="w-full">Gestionar Plantillas Guardadas</Button></Link>
+                <Button type="button" onClick={handleLoadTemplate} variant="outline" className="w-full"><FolderDown className="w-4 h-4 mr-2"/>Cargar Plantilla</Button>
                 <Dialog open={isSaveTemplateModalOpen} onOpenChange={setIsSaveTemplateModalOpen}>
                     <DialogTrigger asChild><Button type="button" className="w-full"><FolderUp className="w-4 h-4 mr-2"/>Guardar Diseño como Plantilla</Button></DialogTrigger>
                     <DialogContent>
@@ -435,6 +463,7 @@ export default function SalonLayoutPage() {
                         <DialogFooter><DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose><Button onClick={handleSaveAsTemplate} disabled={isSaving}>Guardar</Button></DialogFooter>
                     </DialogContent>
                 </Dialog>
+                <Link href="/settings/templates/layouts" passHref><Button variant="link" size="sm">Gestionar Plantillas</Button></Link>
             </CardFooter>
           </Card>
           
@@ -487,5 +516,3 @@ export default function SalonLayoutPage() {
     </div>
   );
 }
-
-    
