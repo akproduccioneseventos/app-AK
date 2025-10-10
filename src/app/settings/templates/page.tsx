@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText, BrainCircuit, Link as LinkIcon, Star, HardDriveDownload, PartyPopper, Sparkles as SparklesIcon, Wand2, UserCog, ListChecks, PackageSearch } from 'lucide-react';
+import { Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText, BrainCircuit, Link as LinkIcon, Star, HardDriveDownload, PartyPopper, Sparkles as SparklesIcon, Wand2, UserCog, ListChecks, PackageSearch, Palette, Image as ImageIcon } from 'lucide-react';
 
 const settingsCards = [
   {
@@ -12,6 +12,12 @@ const settingsCards = [
     description: "Personaliza el logo y los colores de tus facturas y presupuestos.",
     href: "/settings/templates/documentos",
     icon: FileText
+  },
+  {
+    title: "Plantillas de Invitación Digital",
+    description: "Gestiona los diseños base para las invitaciones web de tus eventos.",
+    href: "/settings/templates/invitaciones",
+    icon: ImageIcon,
   },
   {
     title: "Plantillas de Tareas",
