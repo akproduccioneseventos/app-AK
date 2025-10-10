@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent, useRef, use } from 'react';
@@ -9,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, InvitacionDigitalData, ColorPalette, Invitado, GiftItem, ProgramaEventoItem } from '@/types/fiesta';
 import { getFiestaById, handleRsvpSubmissionFiestaActual, claimGiftFiestaActual } from '@/app/actions/fiesta-actual';
 import { getSocialConnections } from '@/app/actions/social-connections';
-import type { SocialConnection } from '@/types/settings';
+import type { SocialConnection, SocialPlatformName } from '@/types/settings';
 import { CountdownTimer } from '@/components/countdown-timer';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -98,7 +99,7 @@ export const GraziaTemplate: React.FC<{
     </motion.div>
   );
   
-  const socialIcons: { [key: string]: React.ElementType } = {
+  const socialIcons: Record<SocialPlatformName, React.ElementType> = {
     Facebook,
     Instagram,
     TikTok: Music,
@@ -226,7 +227,7 @@ export const GraziaTemplate: React.FC<{
             {socialConnections.filter(c => c.isConnected).map(conn => {
                 const Icon = socialIcons[conn.platform];
                 return Icon ? (
-                    <a key={conn.platform} href={conn.profileUrl || '#'} target="_blank" rel="noopener noreferrer">
+                    <a key={conn.platform} href={conn.profileUrl || '#'} target="_blank" rel="noopener noreferrer" aria-label={`Perfil de ${conn.platform}`}>
                         <Button variant="ghost" size="icon">
                             <Icon className="w-6 h-6" />
                         </Button>
