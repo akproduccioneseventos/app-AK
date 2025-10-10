@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Loader2, AlertTriangle, PartyPopper, Calendar, Users, Palette, ChefHat, Music2, ListChecks, DollarSign, Camera, Gift, FileText, UserCheck, Clock, Archive, PackageSearch, Video, Globe, MessageSquare, LayoutDashboard, Link as LinkIcon, Image as ImageIcon } from 'lucide-react';
@@ -44,6 +44,7 @@ const modules = [
 
 function PlannerDashboardContent() {
   const { toast } = useToast();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const fiestaId = searchParams.get('fiestaId');
   
@@ -53,8 +54,12 @@ function PlannerDashboardContent() {
 
   useEffect(() => {
     if (!fiestaId) {
-      setError("No se especificó un ID de evento.");
-      setIsLoading(false);
+      toast({
+        title: "Selecciona un Evento",
+        description: "Serás redirigido para que elijas un evento con el cual trabajar.",
+        variant: "default"
+      });
+      router.replace('/eventos');
       return;
     }
 
@@ -76,7 +81,7 @@ function PlannerDashboardContent() {
     };
 
     loadFiesta();
-  }, [fiestaId, toast]);
+  }, [fiestaId, toast, router]);
 
   if (isLoading) {
     return <div className="flex justify-center items-center h-[calc(100vh-200px)]"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;

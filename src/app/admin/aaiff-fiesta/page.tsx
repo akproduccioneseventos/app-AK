@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useCallback, type FormEvent } from 'react';
+import { useState, useCallback, type FormEvent, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getFiestaActual } from '@/app/actions/fiesta/fiesta.actions';
 import { analyzeEventPlan, type AnalyzeEventPlanOutput } from '@/ai/flows/analyze-event-plan-flow';
 import { Separator } from '@/components/ui/separator';
+import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
 const getStatusIcon = (status: 'Completo' | 'Parcial' | 'Faltante' | 'Atención Requerida') => {
     switch (status) {
@@ -23,9 +24,22 @@ const getStatusIcon = (status: 'Completo' | 'Parcial' | 'Faltante' | 'Atención 
 
 export default function AnalisisFiestaPage() {
     const { toast } = useToast();
+    const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
     const [analysisResult, setAnalysisResult] = useState<AnalyzeEventPlanOutput | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchFiesta = async () => {
+            try {
+                const fiesta = await getFiestaActual();
+                setFiestaActual(fiesta);
+            } catch (e) {
+                console.warn("No se pudo precargar la fiesta para el análisis.");
+            }
+        };
+        fetchFiesta();
+    }, []);
 
     const handleAnalyze = async (e: FormEvent) => {
         e.preventDefault();
@@ -34,7 +48,10 @@ export default function AnalisisFiestaPage() {
         setAnalysisResult(null);
 
         try {
-            const planData = await getFiestaActual();
+            if (!fiestaActual) {
+                throw new Error("No hay un evento activo seleccionado para analizar.");
+            }
+            const planData = fiestaActual;
             const result = await analyzeEventPlan({ planData });
             setAnalysisResult(result);
             toast({ title: "Análisis Completado", description: "La IA ha finalizado el análisis del plan de evento." });
@@ -62,7 +79,7 @@ export default function AnalisisFiestaPage() {
               </div>
               <p className="text-sm text-muted-foreground pl-8">{item.details}</p>
               {item.suggestion && (
-                <div className="mt-2 pl-8 flex items-start gap-2 text-sm text-blue-600">
+                <div className="mt-2 pl-8 flex items-start gap-2 text-sm text-blue-600 dark:text-blue-400">
                     <Wand2 className="w-4 h-4 mt-0.5 flex-shrink-0"/>
                     <p><strong>Sugerencia:</strong> {item.suggestion}</p>
                 </div>
@@ -85,7 +102,7 @@ export default function AnalisisFiestaPage() {
         <Link href="/settings" passHref> 
           <Button variant="outline">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver
+            Volver a Configuración
           </Button>
         </Link>
       </div>
@@ -95,16 +112,16 @@ export default function AnalisisFiestaPage() {
         <CardHeader>
           <CardTitle className="font-headline text-xl flex items-center gap-2">Asistente de Planificación</CardTitle>
           <CardDescription>
-            Haz clic en el botón para que la IA analice el estado de tu evento actual, identifique áreas incompletas y te dé sugerencias para mejorar.
+            Haz clic en el botón para que la IA analice el estado de tu evento activo actual ({fiestaActual?.configuracion.nombreEvento || 'ningún evento seleccionado'}), identifique áreas incompletas y te dé sugerencias para mejorar.
           </CardDescription>
         </CardHeader>
         <CardContent>
             <p className="text-sm text-muted-foreground">La IA revisará la configuración, invitados, decoración, menús y más, para darte un informe completo del estado de la planificación.</p>
         </CardContent>
         <CardFooter>
-            <Button type="submit" className="w-full sm:w-auto" disabled={isLoading}>
+            <Button type="submit" className="w-full sm:w-auto" disabled={isLoading || !fiestaActual}>
               {isLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin"/> : <Wand2 className="w-5 h-5 mr-2"/>}
-              {isLoading ? "Analizando Fiesta..." : "Analizar Fiesta Actual"}
+              {isLoading ? "Analizando..." : "Analizar Evento Actual"}
             </Button>
         </CardFooter>
         </form>
@@ -143,7 +160,7 @@ export default function AnalisisFiestaPage() {
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2 text-sm text-muted-foreground">
-                    <p>Usa este informe para decidir las próximas acciones. Puedes pedirme en el chat que complete las tareas:</p>
+                    <p>Usa este informe para decidir las próximas acciones. Puedes pedirle en el chat que complete las tareas:</p>
                     <ul className="list-disc pl-5 space-y-1 font-mono text-xs bg-muted p-3 rounded-md">
                        <li>"Asigna un menú de catering a la fiesta."</li>
                        <li>"Sugiere una paleta de colores para una boda rústica y aplícala."</li>
