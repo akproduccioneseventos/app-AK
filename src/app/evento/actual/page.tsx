@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -25,292 +24,10 @@ import { merge, cloneDeep } from 'lodash';
 import { WatermarkedImage } from '@/components/watermarked-image';
 import Link from 'next/link';
 
-const platformIcons: Record<string, React.ElementType> = {
-    Facebook: Facebook,
-    Instagram: Instagram,
-    TikTok: Music,
-    WhatsApp: MessageSquare,
-};
+// --- PLANTILLAS DE DISEÑO ---
 
-const iconMap: Record<string, React.ElementType> = {
-    Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper, Clock, Sparkles
-};
-
-const formatDate = (dateString?: string, includeTime: boolean = true, timeString?: string) => {
-  if (!dateString) return "Fecha por confirmar";
-  try {
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return "Fecha inválida";
-    const options: Intl.DateTimeFormatOptions = {
-      year: 'numeric', month: 'long', day: 'numeric'
-    };
-    let formattedDate = date.toLocaleDateString('es-ES', options);
-    if (includeTime && timeString) {
-      const [hours, minutes] = timeString.split(':');
-      if (hours && minutes) {
-        let hourNum = parseInt(hours, 10);
-        const ampm = hourNum >= 12 ? 'PM' : 'AM';
-        hourNum = hourNum % 12 || 12; 
-        formattedDate += ` a las ${hourNum}:${minutes} ${ampm}`;
-      }
-    } else if (includeTime && (date.getUTCHours() !== 0 || date.getUTCMinutes() !== 0)) {
-        formattedDate += ` a las ${date.toLocaleTimeString('es-ES', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'UTC' })}`;
-    }
-    return formattedDate;
-  } catch (e) { return "Fecha inválida"; }
-};
-
-function RsvpForm({ fiesta }: { fiesta: FiestaEnPlanificacion }) {
-  const [nombreCompleto, setNombreCompleto] = useState('');
-  const [confirmacion, setConfirmacion] = useState<'si' | 'no' | 'tal-vez' | null>(null);
-  const [numeroAsistentes, setNumeroAsistentes] = useState(1);
-  const [companionNames, setCompanionNames] = useState<string[]>([]);
-  const [mensaje, setMensaje] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formMessage, setFormMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const { toast } = useToast();
-
-  const handlePartySizeChange = (newSize: number) => {
-    const size = isNaN(newSize) || newSize < 1 ? 1 : newSize;
-    setNumeroAsistentes(size);
-
-    const companionCount = size > 1 ? size - 1 : 0;
-    setCompanionNames(currentNames => {
-      const newNames = [...currentNames];
-      while (newNames.length < companionCount) {
-        newNames.push('');
-      }
-      return newNames.slice(0, companionCount);
-    });
-  };
-
-  const handleCompanionNameChange = (index: number, name: string) => {
-    setCompanionNames(currentNames => {
-      const newNames = [...currentNames];
-      newNames[index] = name;
-      return newNames;
-    });
-  };
-  
-  const handleConfirmacionChange = (value: 'si' | 'no' | 'tal-vez') => {
-      setConfirmacion(value);
-      if (value === 'no') {
-          handlePartySizeChange(1); // Reset to 1 person (the main guest)
-      }
-  };
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!nombreCompleto.trim()) {
-      toast({ title: "Nombre requerido", description: "Por favor, ingresa tu nombre completo.", variant: "destructive" });
-      return;
-    }
-    if (!confirmacion) {
-      toast({ title: "Confirmación requerida", description: "Por favor, selecciona si asistirás o no.", variant: "destructive" });
-      return;
-    }
-
-    setIsSubmitting(true);
-    setFormMessage(null);
-
-    const submissionData = {
-      nombreCompleto: nombreCompleto.trim(),
-      confirmacion,
-      numeroAsistentes: numeroAsistentes,
-      mensaje: mensaje.trim(),
-      companionNames: companionNames.map(name => name.trim()).filter(name => name !== ''),
-    };
-
-    try {
-      const result = await handleRsvpSubmissionFiestaActual(submissionData);
-      if (result.success) {
-        setFormMessage({ type: 'success', text: '¡Gracias por confirmar! Tu respuesta ha sido enviada.' });
-        // Reset form
-        setNombreCompleto('');
-        setConfirmacion(null);
-        handlePartySizeChange(1);
-        setMensaje('');
-      } else {
-        throw new Error(result.error || "No se pudo procesar tu respuesta.");
-      }
-    } catch (error: any) {
-      setFormMessage({ type: 'error', text: error.message || 'Ocurrió un error. Por favor, intenta de nuevo.' });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const primaryColor = fiesta.decoracion?.paletaColores?.primary || 'hsl(var(--primary))';
-
-  return (
-    <section id="rsvp" className="py-8">
-      <h2 className="text-2xl md:text-3xl font-semibold font-headline text-center mb-8" style={{ color: primaryColor }}>
-        Confirmar Asistencia
-      </h2>
-      <Card className="max-w-xl mx-auto shadow-lg">
-        <CardHeader>
-          <CardTitle>Formulario de RSVP</CardTitle>
-          <CardDescription>Por favor, confirma tu asistencia antes de la fecha límite.</CardDescription>
-        </CardHeader>
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="nombre-completo">Tu Nombre Completo *</Label>
-              <Input id="nombre-completo" placeholder="Ej: Maria García" value={nombreCompleto} onChange={(e) => setNombreCompleto(e.target.value)} required disabled={isSubmitting} />
-            </div>
-
-            <div className="space-y-3">
-              <Label>¿Asistirás a la fiesta? *</Label>
-              <RadioGroup value={confirmacion || ''} onValueChange={handleConfirmacionChange} className="flex flex-col sm:flex-row gap-4">
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="si" id="rsvp-si" />
-                  <Label htmlFor="rsvp-si" className="font-normal text-base">Sí, ¡allí estaré!</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="tal-vez" id="rsvp-tal-vez" />
-                  <Label htmlFor="rsvp-tal-vez" className="font-normal text-base">Tal vez asista</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="no" id="rsvp-no" />
-                  <Label htmlFor="rsvp-no" className="font-normal text-base">No podré asistir</Label>
-                </div>
-              </RadioGroup>
-            </div>
-            
-            {(confirmacion === 'si' || confirmacion === 'tal-vez') && (
-              <div className="p-4 border-l-4 rounded-r-md space-y-4 bg-muted/50" style={{borderColor: primaryColor}}>
-                 <div className="space-y-2">
-                    <Label htmlFor="numero-asistentes">¿Cuántas personas asistirán en total (incluyéndote)?</Label>
-                    <Input id="numero-asistentes" type="number" min="1" value={numeroAsistentes} onChange={(e) => handlePartySizeChange(parseInt(e.target.value, 10))} disabled={isSubmitting} />
-                 </div>
-
-                {numeroAsistentes > 1 && (
-                     <div className="space-y-3">
-                        <Label>Nombres de tus acompañantes:</Label>
-                        {Array.from({ length: numeroAsistentes - 1 }).map((_, index) => (
-                             <div key={index} className="space-y-1">
-                                <Input
-                                    id={`companion-name-${index}`}
-                                    placeholder={`Nombre del acompañante ${index + 1}`}
-                                    value={companionNames[index] || ''}
-                                    onChange={(e) => handleCompanionNameChange(index, e.target.value)}
-                                    disabled={isSubmitting}
-                                />
-                             </div>
-                        ))}
-                    </div>
-                )}
-              </div>
-            )}
-
-            <div className="space-y-2">
-              <Label htmlFor="mensaje">Mensaje para los anfitriones (opcional)</Label>
-              <Textarea id="mensaje" placeholder="Puedes dejar un mensaje, canción favorita, o detalles de alergias aquí." value={mensaje} onChange={(e) => setMensaje(e.target.value)} disabled={isSubmitting} rows={3} />
-            </div>
-
-          </CardContent>
-          <CardFooter className="flex flex-col items-stretch gap-4">
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
-              Enviar Confirmación
-            </Button>
-             {formMessage && (
-              <div className={`text-sm text-center p-2 rounded-md ${formMessage.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-destructive/10 text-destructive'}`}>
-                {formMessage.text}
-              </div>
-            )}
-          </CardFooter>
-        </form>
-      </Card>
-    </section>
-  );
-}
-
-
-export default function EventoPublicoPage() {
-  const { toast } = useToast();
-  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
-  const [webSettings, setWebSettings] = useState<EventWebPageSettings>(defaultWebPageSettings);
-  const [paletaColores, setPaletaColores] = useState<ColorPalette | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [isClaimModalOpen, setIsClaimModalOpen] = useState(false);
-  const [selectedGift, setSelectedGift] = useState<GiftItem | null>(null);
-  const [guestName, setGuestName] = useState('');
-  const [isClaiming, setIsClaiming] = useState(false);
-  const [socialLinks, setSocialLinks] = useState<SocialConnection[]>([]);
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  const loadEventData = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const [data, connections] = await Promise.all([
-        getFiestaActual(),
-        getSocialConnections(),
-      ]);
-      setFiesta(data);
-      // Correctly merge settings with defaults
-      const mergedWebSettings = merge(cloneDeep(defaultWebPageSettings), data.webPageSettings || {});
-      setWebSettings(mergedWebSettings);
-      setPaletaColores(data.decoracion?.paletaColores || null);
-      setSocialLinks(connections.filter(c => c.isConnected && c.profileUrl));
-    } catch (err: any) {
-      console.error("Error loading event data for public page:", err);
-      setError("No se pudo cargar la información del evento. Por favor, intenta más tarde.");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  const handleClaimGift = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!selectedGift || !guestName.trim()) {
-      toast({ title: "Nombre requerido", variant: "destructive" });
-      return;
-    }
-    setIsClaiming(true);
-    const result = await claimGiftFiestaActual(selectedGift.id, guestName);
-    if (result.success) {
-      toast({ title: "¡Regalo Elegido!", description: "Gracias por tu generosidad." });
-      setIsClaimModalOpen(false);
-      setSelectedGift(null);
-      setGuestName('');
-      loadEventData(); // Refresh data
-    } else {
-      toast({ title: "Error", description: result.error, variant: "destructive" });
-    }
-    setIsClaiming(false);
-  };
-
-  useEffect(() => {
-    loadEventData();
-  }, [loadEventData]);
-
-
-  if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground p-6">
-        <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
-        <p className="text-lg">Cargando detalles del evento...</p>
-      </div>
-    );
-  }
-
-  if (error || !fiesta) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-background text-destructive p-6 text-center">
-        <AlertTriangle className="w-16 h-16 mb-4" />
-        <h2 className="text-2xl font-semibold mb-2">Error al Cargar el Evento</h2>
-        <p>{error || "No se pudo encontrar la información del evento."}</p>
-      </div>
-    );
-  }
-  
+const ObsidianaTemplate: React.FC<{ fiesta: FiestaEnPlanificacion; webSettings: EventWebPageSettings; paletaColores: ColorPalette | null; socialLinks: SocialConnection[]; qrCodeUrl: string; isClient: boolean; onClaimGift: (gift: GiftItem) => void; children: React.ReactNode; }> = 
+({ fiesta, webSettings, paletaColores, socialLinks, qrCodeUrl, isClient, onClaimGift, children }) => {
   const primaryColor = paletaColores?.primary || 'hsl(var(--primary))';
   const secondaryColor = paletaColores?.secondary || 'hsl(var(--secondary))';
   const accentColor = paletaColores?.accent || 'hsl(var(--accent))';
@@ -318,11 +35,33 @@ export default function EventoPublicoPage() {
   const mapQuery = fiesta.configuracion.nombreLugar ? encodeURIComponent(fiesta.configuracion.nombreLugar) : '';
   const mapUrl = `https://www.google.com/maps?q=${mapQuery}`;
   const mapEmbedUrl = mapQuery ? `https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY_HERE&q=${mapQuery}` : '';
-  const qrCodeUrl = isClient ? `${window.location.origin}/evento/actual` : 'placeholder';
 
+  const iconMap: Record<string, React.ElementType> = { Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper, Clock, Sparkles };
+  const platformIcons: Record<string, React.ElementType> = { Facebook, Instagram, TikTok: Music, WhatsApp: MessageSquare };
+
+  const formatDate = (dateString?: string, includeTime: boolean = true, timeString?: string) => {
+    if (!dateString) return "Fecha por confirmar";
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return "Fecha inválida";
+      let formattedDate = date.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+      if (includeTime && timeString) {
+        const [hours, minutes] = timeString.split(':');
+        if (hours && minutes) {
+          let hourNum = parseInt(hours, 10);
+          const ampm = hourNum >= 12 ? 'PM' : 'AM';
+          hourNum = hourNum % 12 || 12; 
+          formattedDate += ` a las ${hourNum}:${minutes} ${ampm}`;
+        }
+      } else if (includeTime && (date.getUTCHours() !== 0 || date.getUTCMinutes() !== 0)) {
+          formattedDate += ` a las ${date.toLocaleTimeString('es-ES', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'UTC' })}`;
+      }
+      return formattedDate;
+    } catch (e) { return "Fecha inválida"; }
+  };
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-body">
+      <div className="min-h-screen bg-background text-foreground font-body">
       <header 
         className="relative py-20 md:py-32 text-center bg-cover bg-center"
         style={{ backgroundImage: webSettings.coverImageUrl ? `url(${webSettings.coverImageUrl})` : 'none', backgroundColor: !webSettings.coverImageUrl ? primaryColor : 'transparent' }}
@@ -342,7 +81,6 @@ export default function EventoPublicoPage() {
       </header>
 
       <main className="max-w-4xl mx-auto p-4 md:p-8 space-y-12 md:space-y-16">
-        
         {webSettings.showCountdown && fiesta.configuracion.fechaEvento && (
           <section id="countdown" className="text-center">
             <h2 className="text-2xl md:text-3xl font-semibold font-headline mb-6" style={{color: primaryColor}}>Cuenta Regresiva</h2>
@@ -350,22 +88,9 @@ export default function EventoPublicoPage() {
           </section>
         )}
 
-        {webSettings.welcomeMessage && (
-             <section id="welcome" className="text-center">
-                <p className="text-lg md:text-xl text-muted-foreground whitespace-pre-line">{webSettings.welcomeMessage}</p>
-            </section>
-        )}
+        {webSettings.welcomeMessage && ( <section id="welcome" className="text-center"><p className="text-lg md:text-xl text-muted-foreground whitespace-pre-line">{webSettings.welcomeMessage}</p></section> )}
         
-        {fiesta.socialGallerySettings?.enabled && (
-             <section id="social-gallery-link" className="text-center">
-                <Button asChild size="lg">
-                    <Link href={`/evento/social/${fiesta.id}`}>
-                        <Camera className="w-5 h-5 mr-2"/>
-                        Ver y Subir Fotos a la Galería Social
-                    </Link>
-                </Button>
-            </section>
-        )}
+        {fiesta.socialGallerySettings?.enabled && ( <section id="social-gallery-link" className="text-center"><Button asChild size="lg"><Link href={`/evento/social/${fiesta.id}`}><Camera className="w-5 h-5 mr-2"/>Ver y Subir Fotos a la Galería Social</Link></Button></section> )}
 
         {webSettings.showOurStory && (webSettings.ourStoryText || webSettings.ourStoryImageUrl) && (
             <section id="our-story" className="py-8" style={{ backgroundColor: `${secondaryColor}1A` }}>
@@ -373,15 +98,9 @@ export default function EventoPublicoPage() {
                     <h2 className="text-2xl md:text-3xl font-semibold font-headline text-center mb-8" style={{color: primaryColor}}>{webSettings.ourStoryTitle || "Nuestra Historia"}</h2>
                     <div className="md:flex md:items-center md:gap-8">
                         {webSettings.ourStoryImageUrl && (
-                            <div className="md:w-1/2 mb-6 md:mb-0">
-                                <WatermarkedImage src={webSettings.ourStoryImageUrl} alt="Nuestra Historia" width={600} height={400} className="rounded-lg shadow-lg object-cover mx-auto" data-ai-hint="couple story photo" />
-                            </div>
+                            <div className="md:w-1/2 mb-6 md:mb-0"><WatermarkedImage src={webSettings.ourStoryImageUrl} alt="Nuestra Historia" width={600} height={400} className="rounded-lg shadow-lg object-cover mx-auto" data-ai-hint="couple story photo" /></div>
                         )}
-                        {webSettings.ourStoryText && (
-                            <div className={cn("md:w-1/2 prose prose-lg dark:prose-invert max-w-none", !webSettings.ourStoryImageUrl && 'mx-auto text-center')}>
-                                <p className="whitespace-pre-line text-muted-foreground">{webSettings.ourStoryText}</p>
-                            </div>
-                        )}
+                        {webSettings.ourStoryText && (<div className={cn("md:w-1/2 prose prose-lg dark:prose-invert max-w-none", !webSettings.ourStoryImageUrl && 'mx-auto text-center')}><p className="whitespace-pre-line text-muted-foreground">{webSettings.ourStoryText}</p></div>)}
                     </div>
                 </div>
             </section>
@@ -392,36 +111,9 @@ export default function EventoPublicoPage() {
                  <h2 className="text-2xl md:text-3xl font-semibold font-headline text-center mb-8" style={{color: primaryColor}}>{webSettings.eventDetailsTitle || "Detalles del Evento"}</h2>
                  <Card className="shadow-lg">
                     <CardContent className="p-6 space-y-4">
-                        <div className="flex items-start gap-3">
-                            <CalendarDays className="w-6 h-6 mt-1" style={{color: accentColor}}/>
-                            <div>
-                                <h3 className="font-semibold">Fecha y Hora</h3>
-                                <p className="text-muted-foreground">{formatDate(fiesta.configuracion.fechaEvento, true, fiesta.configuracion.horaInicio)}</p>
-                            </div>
-                        </div>
-                        {fiesta.configuracion.nombreLugar && (
-                            <div className="flex items-start gap-3">
-                                <MapPin className="w-6 h-6 mt-1" style={{color: accentColor}}/>
-                                <div>
-                                    <h3 className="font-semibold">Lugar</h3>
-                                    <p className="text-muted-foreground">{fiesta.configuracion.nombreLugar}</p>
-                                    <div className="flex gap-2 mt-2">
-                                        <a href={mapUrl} target="_blank" rel="noopener noreferrer"><Button variant="outline" size="sm" className="gap-1.5"><MapPin className="w-4 h-4"/> Ver en Mapa</Button></a>
-                                        <a href={`https://www.google.com/maps/dir/?api=1&destination=${mapQuery}`} target="_blank" rel="noopener noreferrer"><Button variant="outline" size="sm" className="gap-1.5"><ExternalLink className="w-4 h-4"/> Cómo llegar</Button></a>
-                                    </div>
-                                    {mapEmbedUrl && (
-                                        <div className="mt-4 aspect-video w-full rounded-md overflow-hidden border">
-                                            <iframe width="100%" height="100%" frameBorder="0" style={{border:0}} src={mapEmbedUrl} allowFullScreen loading="lazy"></iframe>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        )}
-                        {webSettings.eventDetailsText && (
-                            <div className="pt-3 prose prose-sm dark:prose-invert max-w-none whitespace-pre-line text-muted-foreground">
-                                {webSettings.eventDetailsText}
-                            </div>
-                        )}
+                        <div className="flex items-start gap-3"><CalendarDays className="w-6 h-6 mt-1" style={{color: accentColor}}/><div><h3 className="font-semibold">Fecha y Hora</h3><p className="text-muted-foreground">{formatDate(fiesta.configuracion.fechaEvento, true, fiesta.configuracion.horaInicio)}</p></div></div>
+                        {fiesta.configuracion.nombreLugar && (<div className="flex items-start gap-3"><MapPin className="w-6 h-6 mt-1" style={{color: accentColor}}/><div><h3 className="font-semibold">Lugar</h3><p className="text-muted-foreground">{fiesta.configuracion.nombreLugar}</p><div className="flex gap-2 mt-2"><a href={mapUrl} target="_blank" rel="noopener noreferrer"><Button variant="outline" size="sm" className="gap-1.5"><MapPin className="w-4 h-4"/> Ver en Mapa</Button></a><a href={`https://www.google.com/maps/dir/?api=1&destination=${mapQuery}`} target="_blank" rel="noopener noreferrer"><Button variant="outline" size="sm" className="gap-1.5"><ExternalLink className="w-4 h-4"/> Cómo llegar</Button></a></div>{mapEmbedUrl && (<div className="mt-4 aspect-video w-full rounded-md overflow-hidden border"><iframe width="100%" height="100%" frameBorder="0" style={{border:0}} src={mapEmbedUrl} allowFullScreen loading="lazy"></iframe></div>)}</div></div>)}
+                        {webSettings.eventDetailsText && (<div className="pt-3 prose prose-sm dark:prose-invert max-w-none whitespace-pre-line text-muted-foreground">{webSettings.eventDetailsText}</div>)}
                     </CardContent>
                  </Card>
             </section>
@@ -432,104 +124,31 @@ export default function EventoPublicoPage() {
             <h2 className="text-2xl md:text-3xl font-semibold font-headline text-center mb-8" style={{color: primaryColor}}>Cronograma del Evento</h2>
             <div className="relative max-w-2xl mx-auto pl-6">
               <div className="absolute left-6 h-full w-0.5 bg-border -z-10" style={{left: '28px'}}></div>
-              {fiesta.programa.map((item, index) => {
+              {fiesta.programa.map((item) => {
                   const Icon = item.icono && iconMap[item.icono] ? iconMap[item.icono] : Clock;
-                  return (
-                      <div key={item.id} className="relative flex items-start gap-6 pb-8">
-                          <div className="relative z-10 flex flex-col items-center">
-                              <div className="grid h-14 w-14 place-items-center rounded-full bg-primary/10 border-2 border-primary">
-                                  <Icon className="h-6 w-6 text-primary" />
-                              </div>
-                              <span className="mt-2 text-sm font-bold text-primary">{item.hora}</span>
-                          </div>
-                          <div className="pt-3">
-                              <p className="font-semibold text-lg">{item.titulo}</p>
-                              <p className="text-sm text-muted-foreground">{item.descripcion}</p>
-                          </div>
-                      </div>
-                  )
+                  return (<div key={item.id} className="relative flex items-start gap-6 pb-8"><div className="relative z-10 flex flex-col items-center"><div className="grid h-14 w-14 place-items-center rounded-full bg-primary/10 border-2 border-primary"><Icon className="h-6 w-6 text-primary" /></div><span className="mt-2 text-sm font-bold text-primary">{item.hora}</span></div><div className="pt-3"><p className="font-semibold text-lg">{item.titulo}</p><p className="text-sm text-muted-foreground">{item.descripcion}</p></div></div>)
               })}
             </div>
           </section>
         )}
 
-         {webSettings.musicaEspecialText && (
-             <section id="musica-especial" className="text-center py-8" style={{ backgroundColor: `${secondaryColor}1A` }}>
-                 <h2 className="text-2xl md:text-3xl font-semibold font-headline mb-4" style={{color: primaryColor}}>Música Especial</h2>
-                 <div className="flex items-center justify-center gap-2 text-lg text-muted-foreground">
-                    <MusicIcon className="w-6 h-6" style={{color: accentColor}}/>
-                    <p>{webSettings.musicaEspecialText}</p>
-                 </div>
-            </section>
-        )}
+         {webSettings.musicaEspecialText && (<section id="musica-especial" className="text-center py-8" style={{ backgroundColor: `${secondaryColor}1A` }}><h2 className="text-2xl md:text-3xl font-semibold font-headline mb-4" style={{color: primaryColor}}>Música Especial</h2><div className="flex items-center justify-center gap-2 text-lg text-muted-foreground"><MusicIcon className="w-6 h-6" style={{color: accentColor}}/><p>{webSettings.musicaEspecialText}</p></div></section>)}
 
-        {webSettings.showDressCode && webSettings.dressCodeText && (
-            <section id="dress-code" className="text-center py-8" style={{ backgroundColor: `${secondaryColor}1A`}}>
-                 <h2 className="text-2xl md:text-3xl font-semibold font-headline mb-4" style={{color: primaryColor}}>Código de Vestimenta</h2>
-                 <p className="text-lg text-muted-foreground">{webSettings.dressCodeText}</p>
-            </section>
-        )}
+        {webSettings.showDressCode && webSettings.dressCodeText && (<section id="dress-code" className="text-center py-8" style={{ backgroundColor: `${secondaryColor}1A`}}><h2 className="text-2xl md:text-3xl font-semibold font-headline mb-4" style={{color: primaryColor}}>Código de Vestimenta</h2><p className="text-lg text-muted-foreground">{webSettings.dressCodeText}</p></section>)}
         
         {webSettings.showGiftRegistry && (
           <section id="gift-registry" className="py-8">
             <h2 className="text-2xl md:text-3xl font-semibold font-headline text-center mb-6" style={{color: primaryColor}}>{webSettings.giftRegistryTitle || "Lista de Regalos"}</h2>
             {webSettings.giftRegistryText && <p className="text-center text-muted-foreground mb-8 max-w-xl mx-auto">{webSettings.giftRegistryText}</p>}
-            
-            <Dialog open={isClaimModalOpen} onOpenChange={setIsClaimModalOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Confirmar Regalo</DialogTitle>
-                        <DialogDescription>Estás a punto de elegir: <span className="font-semibold">{selectedGift?.name}</span>. Por favor, ingresa tu nombre para que los anfitriones sepan quién hizo el regalo.</DialogDescription>
-                    </DialogHeader>
-                    <form onSubmit={handleClaimGift} className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="guest-name">Tu Nombre</Label>
-                            <Input id="guest-name" value={guestName} onChange={(e) => setGuestName(e.target.value)} required />
-                        </div>
-                         <DialogFooter>
-                            <Button type="button" variant="outline" onClick={() => setIsClaimModalOpen(false)}>Cancelar</Button>
-                            <Button type="submit" disabled={isClaiming}>
-                                {isClaiming && <Loader2 className="w-4 h-4 mr-2 animate-spin"/>}
-                                Confirmar
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </DialogContent>
-            </Dialog>
-
-            {fiesta.webPageSettings?.giftRegistry && fiesta.webPageSettings.giftRegistry.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {fiesta.webPageSettings.giftRegistry.map(gift => (
-                  <Card key={gift.id} className={`flex flex-col ${gift.isClaimed ? 'bg-muted/50' : ''}`}>
-                    {gift.imageUrl && <WatermarkedImage src={gift.imageUrl} alt={gift.name} width={600} height={400} className="rounded-t-lg object-cover" data-ai-hint="gift idea"/>}
-                    <CardHeader><CardTitle>{gift.name}</CardTitle></CardHeader>
-                    <CardContent className="flex-grow"><p className="text-sm text-muted-foreground">{gift.description}</p></CardContent>
-                    <CardFooter>
-                      {gift.isClaimed ? (
-                        <div className="text-sm font-semibold text-green-600 flex items-center gap-2 w-full"><CheckCircle className="w-5 h-5"/>Elegido por: {gift.claimedBy}</div>
-                      ) : (
-                        <Button className="w-full" onClick={() => { setSelectedGift(gift); setIsClaimModalOpen(true); }}>Elegir este regalo</Button>
-                      )}
-                    </CardFooter>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <p className="text-center text-muted-foreground">La lista de regalos aún no ha sido creada.</p>
-            )}
+            {children /* Aca se renderiza el dialog de confirmacion de regalo */}
+            {fiesta.webPageSettings?.giftRegistry && fiesta.webPageSettings.giftRegistry.length > 0 ? (<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{fiesta.webPageSettings.giftRegistry.map(gift => (<Card key={gift.id} className={`flex flex-col ${gift.isClaimed ? 'bg-muted/50' : ''}`}>{gift.imageUrl && <WatermarkedImage src={gift.imageUrl} alt={gift.name} width={600} height={400} className="rounded-t-lg object-cover" data-ai-hint="gift idea"/>}<CardHeader><CardTitle>{gift.name}</CardTitle></CardHeader><CardContent className="flex-grow"><p className="text-sm text-muted-foreground">{gift.description}</p></CardContent><CardFooter>{gift.isClaimed ? (<div className="text-sm font-semibold text-green-600 flex items-center gap-2 w-full"><CheckCircle className="w-5 h-5"/>Elegido por: {gift.claimedBy}</div>) : (<Button className="w-full" onClick={() => onClaimGift(gift)}>Elegir este regalo</Button>)}</CardFooter></Card>))}</div>) : (<p className="text-center text-muted-foreground">La lista de regalos aún no ha sido creada.</p>)}
           </section>
         )}
 
         {webSettings.showGallery && webSettings.galleryImageUrls && webSettings.galleryImageUrls.length > 0 && (
           <section id="gallery" className="py-8" style={{ backgroundColor: `${secondaryColor}1A`}}>
             <h2 className="text-2xl md:text-3xl font-semibold font-headline text-center mb-8" style={{color: primaryColor}}>Galería de Fotos</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
-              {webSettings.galleryImageUrls.map((url, index) => (
-                <div key={index} className="aspect-square relative rounded-lg overflow-hidden border shadow-sm hover:shadow-xl transition-shadow">
-                  <WatermarkedImage src={url} alt={`Foto de galería ${index + 1}`} fill objectFit="cover" data-ai-hint="event photo gallery"/>
-                </div>
-              ))}
-            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">{webSettings.galleryImageUrls.map((url, index) => (<div key={index} className="aspect-square relative rounded-lg overflow-hidden border shadow-sm hover:shadow-xl transition-shadow"><WatermarkedImage src={url} alt={`Foto de galería ${index + 1}`} fill objectFit="cover" data-ai-hint="event photo gallery"/></div>))}</div>
           </section>
         )}
         
@@ -539,11 +158,7 @@ export default function EventoPublicoPage() {
             <h2 className="text-2xl md:text-3xl font-semibold font-headline text-center mb-8" style={{color: primaryColor}}>Acceso Rápido al Evento</h2>
              <div className="flex flex-col items-center p-6 bg-muted/50 rounded-lg">
                 <div className={cn("w-[160px] h-[160px] flex items-center justify-center bg-gray-200 rounded-lg", isClient ? 'bg-transparent' : '')}>
-                  {isClient ? (
-                      <QRCodeStylized value={qrCodeUrl} size={160} fgColor="hsl(var(--foreground))" bgColor="transparent" />
-                  ) : (
-                      <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-                  )}
+                  {isClient ? (<QRCodeStylized value={qrCodeUrl} size={160} fgColor="hsl(var(--foreground))" bgColor="transparent" />) : (<Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />)}
                 </div>
                 <p className="mt-4 text-muted-foreground">Escanea este código para acceder fácilmente a esta página en cualquier momento.</p>
              </div>
@@ -555,17 +170,210 @@ export default function EventoPublicoPage() {
             <div className="flex justify-center items-center gap-4 mb-4">
                 {socialLinks.map(link => {
                     const Icon = platformIcons[link.platform];
-                    return (
-                        <a key={link.platform} href={link.profileUrl} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
-                            <Icon className="w-6 h-6" />
-                            <span className="sr-only">{link.platform}</span>
-                        </a>
-                    );
+                    return (<a key={link.platform} href={link.profileUrl} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors"><Icon className="w-6 h-6" /><span className="sr-only">{link.platform}</span></a>);
                 })}
             </div>
         )}
         <p className="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} AK Producciones. Creado con cariño.</p>
       </footer>
     </div>
+  );
+};
+
+
+// Componente principal de la página
+export default function EventoPublicoPage() {
+  const { toast } = useToast();
+  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
+  const [webSettings, setWebSettings] = useState<EventWebPageSettings>(defaultWebPageSettings);
+  const [paletaColores, setPaletaColores] = useState<ColorPalette | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [socialLinks, setSocialLinks] = useState<SocialConnection[]>([]);
+  const [isClient, setIsClient] = useState(false);
+  
+  // State for claim gift dialog
+  const [isClaimModalOpen, setIsClaimModalOpen] = useState(false);
+  const [selectedGift, setSelectedGift] = useState<GiftItem | null>(null);
+  const [guestName, setGuestName] = useState('');
+  const [isClaiming, setIsClaiming] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  const loadEventData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const [data, connections] = await Promise.all([ getFiestaActual(), getSocialConnections() ]);
+      setFiesta(data);
+      const mergedWebSettings = merge(cloneDeep(defaultWebPageSettings), data.webPageSettings || {});
+      setWebSettings(mergedWebSettings);
+      setPaletaColores(data.decoracion?.paletaColores || null);
+      setSocialLinks(connections.filter(c => c.isConnected && c.profileUrl));
+    } catch (err: any) {
+      console.error("Error loading event data for public page:", err);
+      setError("No se pudo cargar la información del evento. Por favor, intenta más tarde.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadEventData();
+  }, [loadEventData]);
+
+  const handleOpenClaimDialog = (gift: GiftItem) => {
+    setSelectedGift(gift);
+    setIsClaimModalOpen(true);
+  };
+  
+  const handleClaimGiftSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!selectedGift || !guestName.trim() || !fiesta) return;
+    setIsClaiming(true);
+    const result = await claimGiftFiestaActual(fiesta.id, selectedGift.id, guestName);
+    if (result.success) {
+      toast({ title: "¡Regalo Elegido!", description: "Gracias por tu generosidad." });
+      setIsClaimModalOpen(false);
+      setSelectedGift(null);
+      setGuestName('');
+      await loadEventData(); // Refresh data
+    } else {
+      toast({ title: "Error", description: result.error, variant: "destructive" });
+    }
+    setIsClaiming(false);
+  };
+
+  if (isLoading || !fiesta) {
+    return <div className="flex flex-col items-center justify-center min-h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="text-lg mt-4">Cargando detalles del evento...</p></div>;
+  }
+
+  if (error) {
+    return <div className="flex flex-col items-center justify-center min-h-screen text-center"><AlertTriangle className="w-16 h-16 mb-4 text-destructive" /><h2 className="text-2xl font-semibold mb-2">Error al Cargar</h2><p>{error}</p></div>;
+  }
+  
+  // Por ahora, solo tenemos una plantilla, pero esto se puede expandir.
+  const templateName = 'Obsidiana'; // En el futuro, esto vendría de fiesta.configuracion.templateName
+  const qrCodeUrl = isClient ? window.location.href : 'placeholder';
+
+
+  return (
+    <>
+      {/* Dialog para reclamar regalo */}
+      <Dialog open={isClaimModalOpen} onOpenChange={setIsClaimModalOpen}>
+        <DialogContent>
+            <DialogHeader><DialogTitle>Confirmar Regalo</DialogTitle><DialogDescription>Estás a punto de elegir: <span className="font-semibold">{selectedGift?.name}</span>. Por favor, ingresa tu nombre para que los anfitriones sepan quién hizo el regalo.</DialogDescription></DialogHeader>
+            <form onSubmit={handleClaimGiftSubmit} className="space-y-4">
+                <div className="space-y-2"><Label htmlFor="guest-name">Tu Nombre</Label><Input id="guest-name" value={guestName} onChange={(e) => setGuestName(e.target.value)} required /></div>
+                <DialogFooter><Button type="button" variant="outline" onClick={() => setIsClaimModalOpen(false)}>Cancelar</Button><Button type="submit" disabled={isClaiming}>{isClaiming && <Loader2 className="w-4 h-4 mr-2 animate-spin"/>}Confirmar</Button></DialogFooter>
+            </form>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Renderizado de la plantilla seleccionada */}
+      {templateName === 'Obsidiana' && (
+        <ObsidianaTemplate 
+          fiesta={fiesta} 
+          webSettings={webSettings} 
+          paletaColores={paletaColores} 
+          socialLinks={socialLinks} 
+          qrCodeUrl={qrCodeUrl}
+          isClient={isClient}
+          onClaimGift={handleOpenClaimDialog}
+        >
+         {/* El formulario de RSVP se pasa como children */}
+         {webSettings.showRsvp && <RsvpForm fiesta={fiesta} />}
+        </ObsidianaTemplate>
+      )}
+      {/* Aquí podrías añadir: else if (templateName === 'Floral') { <FloralTemplate ... /> } */}
+    </>
+  );
+}
+
+
+function RsvpForm({ fiesta }: { fiesta: FiestaEnPlanificacion }) {
+  const [nombreCompleto, setNombreCompleto] = useState('');
+  const [confirmacion, setConfirmacion] = useState<'si' | 'no' | 'tal-vez' | null>(null);
+  const [numeroAsistentes, setNumeroAsistentes] = useState(1);
+  const [companionNames, setCompanionNames] = useState<string[]>([]);
+  const [mensaje, setMensaje] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formMessage, setFormMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const { toast } = useToast();
+
+  const handlePartySizeChange = (newSize: number) => {
+    const size = isNaN(newSize) || newSize < 1 ? 1 : newSize;
+    setNumeroAsistentes(size);
+    const companionCount = size > 1 ? size - 1 : 0;
+    setCompanionNames(currentNames => {
+      const newNames = [...currentNames];
+      while (newNames.length < companionCount) { newNames.push(''); }
+      return newNames.slice(0, companionCount);
+    });
+  };
+
+  const handleCompanionNameChange = (index: number, name: string) => {
+    setCompanionNames(currentNames => {
+      const newNames = [...currentNames];
+      newNames[index] = name;
+      return newNames;
+    });
+  };
+  
+  const handleConfirmacionChange = (value: 'si' | 'no' | 'tal-vez') => {
+      setConfirmacion(value);
+      if (value === 'no') { handlePartySizeChange(1); }
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!nombreCompleto.trim()) { toast({ title: "Nombre requerido", variant: "destructive" }); return; }
+    if (!confirmacion) { toast({ title: "Confirmación requerida", variant: "destructive" }); return; }
+
+    setIsSubmitting(true);
+    setFormMessage(null);
+
+    const submissionData = {
+      nombreCompleto: nombreCompleto.trim(),
+      confirmacion, numeroAsistentes, mensaje: mensaje.trim(),
+      companionNames: companionNames.map(name => name.trim()).filter(name => name !== ''),
+    };
+
+    try {
+      const result = await handleRsvpSubmissionFiestaActual(submissionData);
+      if (result.success) {
+        setFormMessage({ type: 'success', text: '¡Gracias! Tu respuesta ha sido enviada.' });
+        setNombreCompleto(''); setConfirmacion(null); handlePartySizeChange(1); setMensaje('');
+      } else { throw new Error(result.error || "No se pudo procesar tu respuesta."); }
+    } catch (error: any) {
+      setFormMessage({ type: 'error', text: error.message || 'Ocurrió un error.' });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const primaryColor = fiesta.decoracion?.paletaColores?.primary || 'hsl(var(--primary))';
+
+  return (
+    <section id="rsvp" className="py-8">
+      <h2 className="text-2xl md:text-3xl font-semibold font-headline text-center mb-8" style={{ color: primaryColor }}>Confirmar Asistencia</h2>
+      <Card className="max-w-xl mx-auto shadow-lg">
+        <CardHeader><CardTitle>Formulario de RSVP</CardTitle><CardDescription>Por favor, confirma tu asistencia.</CardDescription></CardHeader>
+        <form onSubmit={handleSubmit}>
+          <CardContent className="space-y-6">
+            <div className="space-y-2"><Label htmlFor="nombre-completo">Tu Nombre Completo *</Label><Input id="nombre-completo" value={nombreCompleto} onChange={(e) => setNombreCompleto(e.target.value)} required disabled={isSubmitting} /></div>
+            <div className="space-y-3"><Label>¿Asistirás? *</Label><RadioGroup value={confirmacion || ''} onValueChange={handleConfirmacionChange} className="flex flex-col sm:flex-row gap-4"><div className="flex items-center space-x-2"><RadioGroupItem value="si" id="rsvp-si" /><Label htmlFor="rsvp-si">Sí, ¡allí estaré!</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="tal-vez" id="rsvp-tal-vez" /><Label htmlFor="rsvp-tal-vez">Tal vez</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="no" id="rsvp-no" /><Label htmlFor="rsvp-no">No podré asistir</Label></div></RadioGroup></div>
+            {(confirmacion === 'si' || confirmacion === 'tal-vez') && (<div className="p-4 border-l-4 rounded-r-md space-y-4 bg-muted/50" style={{borderColor: primaryColor}}><div className="space-y-2"><Label htmlFor="numero-asistentes">Nº de Asistentes (contándote)</Label><Input id="numero-asistentes" type="number" min="1" value={numeroAsistentes} onChange={(e) => handlePartySizeChange(parseInt(e.target.value, 10))} disabled={isSubmitting} /></div>{numeroAsistentes > 1 && (<div className="space-y-3"><Label>Nombres de tus acompañantes:</Label>{Array.from({ length: numeroAsistentes - 1 }).map((_, index) => (<div key={index} className="space-y-1"><Input id={`companion-name-${index}`} value={companionNames[index] || ''} onChange={(e) => handleCompanionNameChange(index, e.target.value)} disabled={isSubmitting} placeholder={`Acompañante ${index + 1}`}/></div>))}</div>)}</div>)}
+            <div className="space-y-2"><Label htmlFor="mensaje">Mensaje (opcional)</Label><Textarea id="mensaje" value={mensaje} onChange={(e) => setMensaje(e.target.value)} disabled={isSubmitting} rows={3} placeholder="Alergias, canción favorita, etc." /></div>
+          </CardContent>
+          <CardFooter className="flex flex-col items-stretch gap-4">
+            <Button type="submit" disabled={isSubmitting}>{isSubmitting ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Enviando...</> : <><Send className="w-4 h-4 mr-2" /> Enviar Confirmación</>}</Button>
+            {formMessage && (<div className={`text-sm text-center p-2 rounded-md ${formMessage.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-destructive/10 text-destructive'}`}>{formMessage.text}</div>)}
+          </CardFooter>
+        </form>
+      </Card>
+    </section>
   );
 }
