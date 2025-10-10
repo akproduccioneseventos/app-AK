@@ -19,7 +19,7 @@ import { merge, cloneDeep } from 'lodash';
 import { Separator } from '@/components/ui/separator';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import NextImage from 'next/image';
 import { Suspense } from 'react';
 import {
