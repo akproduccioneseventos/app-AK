@@ -165,11 +165,22 @@ export interface ItineraryTemplate {
   items: ProgramaEventoItem[];
 }
 
+export interface SeccionInvitacion {
+  id: string;
+  tipo: 'cabecera' | 'bienvenida' | 'cuentaRegresiva' | 'detallesEvento' | 'itinerario' | 'dressCode' | 'galeria' | 'historia' | 'regalos' | 'instagram' | 'confirmacion' | 'despedida';
+  data: any; // El contenido específico de cada sección
+}
+
 export interface InvitacionDigitalData {
   name?: string; // Only for templates
   category?: 'Boda' | 'XV Años' | 'Cumpleaños' | 'General';
   plantilla: 'Grazia' | 'Obsidiana';
   musicaFondoUrl?: string;
+  
+  // New modular structure
+  secciones: SeccionInvitacion[];
+  
+  // Flat structure for easy access in editor - can be deprecated later if fully modular
   cabecera: {
     visible: boolean;
     videoFondoUrl?: string;
@@ -181,6 +192,9 @@ export interface InvitacionDigitalData {
     imagenFondoUrl?: string;
     titulo: string;
     texto: string;
+  };
+   cuentaRegresiva: {
+    visible: boolean;
   };
   detallesEvento: {
     visible: boolean;
@@ -229,7 +243,7 @@ export interface InvitacionDigitalData {
   despedida: {
     visible: boolean;
     texto: string;
-  };
+  }
 }
 
 

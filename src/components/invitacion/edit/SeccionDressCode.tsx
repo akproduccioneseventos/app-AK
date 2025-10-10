@@ -13,7 +13,7 @@ interface Props {
   update: (newData: Partial<InvitacionDigitalData>) => void;
 }
 
-export const SeccionDressCode: React.FC<Props> = ({ data, update }) => {
+export const SeccionDressCodeEditor: React.FC<Props> = ({ data, update }) => {
   const handleFieldChange = (field: keyof typeof data, value: string | boolean) => {
     update({ dressCode: { ...data, [field]: value } });
   };

@@ -11,7 +11,7 @@ interface Props {
   update: (newData: Partial<InvitacionDigitalData>) => void;
 }
 
-export const SeccionCuentaRegresiva: React.FC<Props> = ({ data, update }) => {
+export const SeccionCuentaRegresivaEditor: React.FC<Props> = ({ data, update }) => {
   const handleFieldChange = (field: keyof typeof data, value: boolean) => {
     update({ cuentaRegresiva: { ...data, [field]: value } });
   };

@@ -26,12 +26,14 @@ interface UploadButtonProps {
     currentUrl?: string | null;
     onUrlChange: (url: string) => void;
     accept?: string;
+    fiestaId?: string; // Make fiestaId optional
 }
 
-export const UploadButton: React.FC<UploadButtonProps> = ({ currentUrl, onUrlChange, accept="image/*" }) => {
+export const UploadButton: React.FC<UploadButtonProps> = ({ currentUrl, onUrlChange, accept="image/*", fiestaId: propFiestaId }) => {
     const { toast } = useToast();
     const searchParams = useSearchParams();
-    const fiestaId = searchParams.get('fiestaId');
+    // Get fiestaId from props first, then from searchParams as a fallback
+    const fiestaId = propFiestaId || searchParams.get('fiestaId');
 
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
     const [fileToUpload, setFileToUpload] = useState<File | null>(null);
@@ -53,7 +55,11 @@ export const UploadButton: React.FC<UploadButtonProps> = ({ currentUrl, onUrlCha
         }
         setIsUploading(true);
         try {
+            const formData = new FormData();
+            formData.append('fiestaId', fiestaId);
+            formData.append('file', fileToUpload);
             const result = await uploadPublicPageAsset(fiestaId, fileToUpload);
+
             if (result.success && result.url) {
                 onUrlChange(result.url);
                 toast({title: "Archivo Subido"});
@@ -91,7 +97,7 @@ export const UploadButton: React.FC<UploadButtonProps> = ({ currentUrl, onUrlCha
                     <Input id="upload-file-input" type="file" accept={accept} onChange={handleFileChange} />
                     {previewUrl && (
                         <div className="mt-2 relative h-48 w-full">
-                            <NextImage src={previewUrl} alt="Vista previa" layout="fill" objectFit="contain" className="rounded-md" />
+                            <NextImage src={previewUrl} alt="Vista previa" fill style={{objectFit: 'contain'}} className="rounded-md" />
                         </div>
                     )}
                 </div>

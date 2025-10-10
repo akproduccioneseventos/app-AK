@@ -12,7 +12,7 @@ interface Props {
   update: (newData: Partial<InvitacionDigitalData>) => void;
 }
 
-export const SeccionItinerario: React.FC<Props> = ({ data, update }) => {
+export const SeccionItinerarioEditor: React.FC<Props> = ({ data, update }) => {
   const handleFieldChange = (field: keyof typeof data, value: string | boolean) => {
     update({ itinerario: { ...data, [field]: value } });
   };

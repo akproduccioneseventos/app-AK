@@ -5,6 +5,7 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
   plantilla: 'Grazia',
   musicaFondoUrl: '',
   secciones: [
+    { id: 'cabecera', tipo: 'cabecera', data: { visible: true, protagonista1: 'Novio/a 1', protagonista2: 'Novio/a 2' } },
     { id: 'bienvenida', tipo: 'bienvenida', data: { visible: true, titulo: '¡Nos Casamos!', texto: 'Y queremos que seas parte de este día tan especial...' } },
     { id: 'cuentaRegresiva', tipo: 'cuentaRegresiva', data: { visible: true } },
     { id: 'detallesEvento', tipo: 'detallesEvento', data: { visible: true, infoPadresVisible: false } },
@@ -15,7 +16,7 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
     { id: 'instagram', tipo: 'instagram', data: { visible: true, hashtag: '#NuestraBoda', texto: '¡Comparte tus fotos!' } },
     { id: 'despedida', tipo: 'despedida', data: { visible: true, texto: '¡Te esperamos!' } },
   ],
-  // Keep flat structure for easy access in editor
+  // Flat structure for easy access in editor
   cabecera: {
     visible: true,
     protagonista1: '',

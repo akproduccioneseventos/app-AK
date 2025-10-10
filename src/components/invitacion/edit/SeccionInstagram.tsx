@@ -12,7 +12,7 @@ interface Props {
   update: (newData: Partial<InvitacionDigitalData>) => void;
 }
 
-export const SeccionInstagram: React.FC<Props> = ({ data, update }) => {
+export const SeccionInstagramEditor: React.FC<Props> = ({ data, update }) => {
   const handleFieldChange = (field: keyof typeof data, value: string | boolean) => {
     update({ instagram: { ...data, [field]: value } });
   };

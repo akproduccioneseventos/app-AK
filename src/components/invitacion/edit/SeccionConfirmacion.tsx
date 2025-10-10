@@ -11,7 +11,7 @@ interface Props {
   update: (newData: Partial<InvitacionDigitalData>) => void;
 }
 
-export const SeccionConfirmacion: React.FC<Props> = ({ data, update }) => {
+export const SeccionConfirmacionEditor: React.FC<Props> = ({ data, update }) => {
   const handleFieldChange = (field: keyof typeof data, value: boolean) => {
     update({ confirmacion: { ...data, [field]: value } });
   };
