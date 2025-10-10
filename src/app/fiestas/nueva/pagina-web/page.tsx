@@ -255,7 +255,7 @@ function PaginaWebPageContent() {
                     <Select value={webSettings.templateName || 'Obsidiana'} onValueChange={(v) => handleWebSettingsChange('templateName', v)}>
                       <SelectTrigger id="templateName"><SelectValue/></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Obsidiana">Obsidiana (Moderno y Oscuro)</SelectItem>
+                        <SelectItem value="Obsidiana">Obsidiana (Moderno)</SelectItem>
                         <SelectItem value="Grazia">Grazia (Clásico y Elegante)</SelectItem>
                       </SelectContent>
                     </Select>
@@ -270,10 +270,17 @@ function PaginaWebPageContent() {
                     <Input id="heroSubtitle" value={webSettings.heroSubtitle} onChange={(e) => handleWebSettingsChange('heroSubtitle', e.target.value)} placeholder="Ej: ¡Una noche inolvidable!" />
                   </div>
                   <div className="space-y-2">
-                     <Label htmlFor="cover-image">Imagen/Video de Portada</Label>
-                     <Input id="cover-image" type="file" accept="image/*,video/*" onChange={(e) => handleFileChange(e, 'cover')} />
-                     <p className="text-xs text-muted-foreground">Sube la foto principal o el video corto (MP4) de tu invitación.</p>
-                     {coverImagePreview && <div className="relative aspect-video max-w-sm"><NextImage src={coverImagePreview} alt="Preview" layout="fill" objectFit="cover" className="rounded-md border"/></div>}
+                     <Label htmlFor="cover-image">Imagen de Portada (Video MP4 o Imagen)</Label>
+                     <Input id="cover-image" type="file" accept="image/*,video/mp4" onChange={(e) => handleFileChange(e, 'cover')} />
+                     {coverImagePreview && (
+                        <div className="relative aspect-video max-w-sm">
+                            {coverImagePreview.endsWith('.mp4') ? (
+                                <video src={coverImagePreview} autoPlay loop muted playsInline className="rounded-md border object-cover w-full h-full" />
+                            ) : (
+                                <NextImage src={coverImagePreview} alt="Preview" layout="fill" objectFit="cover" className="rounded-md border"/>
+                            )}
+                        </div>
+                     )}
                   </div>
                 </CardContent>
              </Card>
@@ -281,7 +288,7 @@ function PaginaWebPageContent() {
              <Card>
                 <CardHeader>
                     <CardTitle>Secciones de la Página</CardTitle>
-                    <CardDescription>Activa y personaliza las secciones que tus invitados verán en la página pública.</CardDescription>
+                    <CardDescription>Activa y personaliza las secciones que tus invitados verán.</CardDescription>
                 </CardHeader>
                 <CardContent>
                    <Accordion type="multiple" className="w-full space-y-2" defaultValue={['countdown', 'eventDetails']}>
@@ -310,7 +317,7 @@ function PaginaWebPageContent() {
                            <AccordionContent className="pt-2 pb-4 space-y-4 border-t">
                                <div className="flex items-center justify-between"><Label htmlFor="showEventDetails">Mostrar esta sección</Label><Switch id="showEventDetails" checked={webSettings.showEventDetails} onCheckedChange={(v) => handleWebSettingsChange('showEventDetails', v)}/></div>
                                <div className="space-y-1"><Label htmlFor="eventDetailsTitle">Título de la Sección</Label><Input id="eventDetailsTitle" value={webSettings.eventDetailsTitle} onChange={e => handleWebSettingsChange('eventDetailsTitle', e.target.value)}/></div>
-                               <div className="space-y-1"><Label htmlFor="eventDetailsText">Texto Adicional</Label><Textarea id="eventDetailsText" value={webSettings.eventDetailsText} onChange={e => handleWebSettingsChange('eventDetailsText', e.target.value)} placeholder="Ej: Estacionamiento disponible, código de vestimenta..." rows={3}/></div>
+                               <div className="space-y-1"><Label htmlFor="eventDetailsText">Texto Adicional (Dress code, etc.)</Label><Textarea id="eventDetailsText" value={webSettings.eventDetailsText} onChange={e => handleWebSettingsChange('eventDetailsText', e.target.value)} placeholder="Ej: Estacionamiento disponible, código de vestimenta..." rows={3}/></div>
                            </AccordionContent>
                        </AccordionItem>
 
@@ -332,7 +339,7 @@ function PaginaWebPageContent() {
                            <AccordionContent className="pt-2 pb-4 space-y-4 border-t">
                                <div className="flex items-center justify-between"><Label htmlFor="showGallery">Mostrar esta sección</Label><Switch id="showGallery" checked={webSettings.showGallery} onCheckedChange={(v) => handleWebSettingsChange('showGallery', v)}/></div>
                                <p className="text-xs text-muted-foreground">La galería se poblará con las fotos que subas aquí. Es diferente a la Galería Social del evento.</p>
-                                {/* Future: Add multi-image uploader here */}
+                               {/* Future: Add multi-image uploader here */}
                            </AccordionContent>
                        </AccordionItem>
                    </Accordion>
@@ -345,7 +352,7 @@ function PaginaWebPageContent() {
              <Card className="sticky top-20">
                 <CardHeader><CardTitle>Guardar</CardTitle></CardHeader>
                 <CardContent>
-                    <p className="text-sm text-muted-foreground">Una vez que estés conforme con la configuración, guarda los cambios para que se reflejen en la página pública del evento.</p>
+                    <p className="text-sm text-muted-foreground">Guarda los cambios para que se reflejen en la página pública del evento.</p>
                 </CardContent>
                 <CardFooter>
                     <Button type="submit" size="lg" className="w-full" disabled={isSaving}>
@@ -363,7 +370,11 @@ function PaginaWebPageContent() {
 
 export default function PaginaWebYPortalPage() {
     return (
-        <Suspense fallback={<div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>}>
+        <Suspense fallback={
+            <div className="flex justify-center items-center h-screen">
+                <Loader2 className="w-12 h-12 animate-spin text-primary" />
+            </div>
+        }>
             <PaginaWebPageContent />
         </Suspense>
     );
