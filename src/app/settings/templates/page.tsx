@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, FileText, Sparkles as SparklesIcon, Wand2, UserCog, ListChecks, PackageSearch, Palette, Image as ImageIcon, LayoutDashboard } from 'lucide-react';
 
 const settingsCards = [
-  {
+   {
     title: "Apariencia de Documentos",
     description: "Personaliza el logo y los colores de tus facturas y presupuestos.",
     href: "/settings/templates/documentos",

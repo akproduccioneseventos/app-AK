@@ -1,9 +1,10 @@
+
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent, useRef, use } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import NextImage from 'next/image';
-import { Loader2, AlertTriangle, PartyPopper, CalendarDays, MapPin, Check, Users, MessageSquare, Send, CheckCircle, Gift, Clock, QrCode, Facebook, Instagram, Music, Utensils, GlassWater, Diamond, Sparkles, CakeSlice, Camera, Link as LinkIcon, ExternalLink, Heart, Church, Handshake, Mail, Music2 } from 'lucide-react';
+import { Loader2, AlertTriangle, PartyPopper, CalendarDays, MapPin, Check, Users, MessageSquare, Send, CheckCircle, Gift, Clock, QrCode, Facebook, Instagram, Music, Utensils, GlassWater, Diamond, Sparkles, CakeSlice, Camera, Link as LinkIcon, ExternalLink, Heart, Church, Handshake, Mail, Music2, Play, Pause } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, InvitacionDigitalData, ColorPalette, Invitado, GiftItem, ProgramaEventoItem } from '@/types/fiesta';
 import { getFiestaById, handleRsvpSubmissionFiestaActual, claimGiftFiestaActual } from '@/app/actions/fiesta-actual';
@@ -30,12 +31,27 @@ import { Suspense } from 'react';
 const GraziaTemplate: React.FC<{
   fiesta: FiestaEnPlanificacion;
   invitacionData: InvitacionDigitalData;
+  socialConnections: SocialConnection[];
   children: React.ReactNode;
-}> = ({ fiesta, invitacionData, children }) => {
+}> = ({ fiesta, invitacionData, socialConnections, children }) => {
   const paletaColores = fiesta.decoracion?.paletaColores;
   const primaryColor = paletaColores?.primary || '#D9B8FF';
   const secondaryColor = paletaColores?.secondary || '#FCD3DE';
   const textColor = paletaColores?.accent || '#333';
+  
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const togglePlayPause = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (isPlaying) {
+      audio.pause();
+    } else {
+      audio.play();
+    }
+    setIsPlaying(!isPlaying);
+  };
   
   const formatDate = (dateString?: string) => {
     if (!dateString) return "Fecha a confirmar";
@@ -55,6 +71,13 @@ const GraziaTemplate: React.FC<{
       </svg>
     </div>
   );
+  
+  const socialIcons: { [key: string]: React.ElementType } = {
+    Facebook,
+    Instagram,
+    TikTok: Music,
+    WhatsApp: MessageSquare
+  };
 
   return (
     <div className="min-h-screen bg-background font-body" style={{'--theme-primary': primaryColor, '--theme-secondary': secondaryColor, '--theme-text': textColor} as React.CSSProperties}>
@@ -128,11 +151,33 @@ const GraziaTemplate: React.FC<{
         {invitacionData.confirmacion?.visible && <div id="rsvp">{children}</div>}
 
        </main>
-        {invitacionData.musicaFondoUrl && (
-            <audio src={invitacionData.musicaFondoUrl} autoPlay loop />
-        )}
-       <footer className="text-center py-6 mt-8 border-t">
-          <p className="text-sm font-headline" style={{color: primaryColor}}>AK Producciones</p>
+       {invitacionData.musicaFondoUrl && (
+            <>
+              <audio ref={audioRef} src={invitacionData.musicaFondoUrl} loop />
+              <Button
+                onClick={togglePlayPause}
+                variant="outline"
+                size="icon"
+                className="fixed bottom-4 right-4 z-50 rounded-full shadow-lg"
+              >
+                {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+              </Button>
+            </>
+       )}
+       <footer className="text-center py-8 mt-8 border-t bg-muted/20">
+          <p className="text-sm font-headline mb-4" style={{color: primaryColor}}>AK Producciones</p>
+          <div className="flex justify-center items-center gap-4">
+            {socialConnections.filter(c => c.isConnected).map(conn => {
+                const Icon = socialIcons[conn.platform];
+                return Icon ? (
+                    <a key={conn.platform} href={conn.profileUrl || '#'} target="_blank" rel="noopener noreferrer">
+                        <Button variant="ghost" size="icon">
+                            <Icon className="w-6 h-6" />
+                        </Button>
+                    </a>
+                ) : null;
+            })}
+          </div>
        </footer>
     </div>
   );
@@ -147,6 +192,7 @@ function EventoPublicoPageContent() {
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [invitacionData, setInvitacionData] = useState<InvitacionDigitalData>(defaultInvitacionDigitalData);
+  const [socialConnections, setSocialConnections] = useState<SocialConnection[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -165,11 +211,18 @@ function EventoPublicoPageContent() {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await getFiestaById(fiestaId);
+      const [data, socialData] = await Promise.all([
+          getFiestaById(fiestaId),
+          getSocialConnections()
+      ]);
+
       if (!data) throw new Error("Evento no encontrado.");
+      
       setFiesta(data);
       const mergedInvitacionData = merge(cloneDeep(defaultInvitacionDigitalData), data.invitacionDigital || {});
       setInvitacionData(mergedInvitacionData);
+      setSocialConnections(socialData);
+
     } catch (err: any) {
       console.error("Error loading event data for public page:", err);
       setError("No se pudo cargar la información del evento. Por favor, intenta más tarde.");
@@ -197,7 +250,7 @@ function EventoPublicoPageContent() {
   return (
     <>
       {templateName === 'Grazia' ? (
-        <GraziaTemplate fiesta={fiesta} invitacionData={invitacionData}>
+        <GraziaTemplate fiesta={fiesta} invitacionData={invitacionData} socialConnections={socialConnections}>
            {RsvpComponent}
         </GraziaTemplate>
       ) : (
