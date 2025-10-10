@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText, BrainCircuit, Link as LinkIcon, Star, HardDriveDownload, PartyPopper, Sparkles as SparklesIcon, Wand2, UserCog, ListChecks, PackageSearch, Palette, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, FileText, Sparkles as SparklesIcon, Wand2, UserCog, ListChecks, PackageSearch, Palette, Image as ImageIcon, LayoutDashboard } from 'lucide-react';
 
 const settingsCards = [
   {
@@ -29,7 +29,7 @@ const settingsCards = [
     title: "Plantillas de Diseño de Salón",
     description: "Guarda y gestiona tus distribuciones de salón más utilizadas.",
     href: "/settings/templates/layouts",
-    icon: PartyPopper
+    icon: LayoutDashboard
   },
    {
     title: "Plantilla de Carga Operativa",
@@ -62,6 +62,7 @@ export default function TemplatesPage() {
         </div>
          <Link href="/settings" passHref>
           <Button variant="outline">
+            <ArrowLeft className="w-4 h-4 mr-2"/>
             Volver a Configuración
           </Button>
         </Link>
