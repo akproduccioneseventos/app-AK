@@ -15,7 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import type { ListaDeCargaOperativa, CargaOperativaCategoria, CargaOperativaItem } from '@/types/fiesta';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { getFiestaActual, updateListaDeCargaOperativaFiestaActual } from '@/app/actions/fiesta-actual';
-import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
+import { getActivosFijos } from '@/app/actions/activos-fijos';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogDescription } from "@/components/ui/dialog";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -89,7 +89,7 @@ export default function ListaDeCargaOperativaPage() {
     try {
       const [fiestaData, catalogoData, masterTemplate] = await Promise.all([
         getFiestaActual(),
-        getServiciosEmpresa(),
+        getActivosFijos(),
         getCargaOperativaMasterTemplate()
       ]);
       
@@ -113,7 +113,7 @@ export default function ListaDeCargaOperativaPage() {
         items: cat.items || [] 
       }));
       setListaDeCarga({ ...(loadedLista || { categorias: [], notasGenerales: '' }), categorias: categoriasConItems });
-      setActivosCatalogo(catalogoData.filter(s => s.tipoItem === 'Activo Fijo'));
+      setActivosCatalogo(catalogoData);
 
     } catch (err: any) {
       setError("No se pudo cargar la lista de carga operativa o el catálogo.");
@@ -144,6 +144,7 @@ export default function ListaDeCargaOperativaPage() {
   }
 
   const handleSaveListaDeCarga = async () => {
+    if(!fiestaId) return;
     setIsSaving(true);
     try {
       const result = await updateListaDeCargaOperativaFiestaActual(fiestaId, listaDeCarga);
@@ -314,12 +315,12 @@ export default function ListaDeCargaOperativaPage() {
           <h1 className="text-3xl font-bold tracking-tight font-headline">Lista de Carga Operativa</h1>
         </div>
         <div className="flex gap-2">
-           <Link href="/fiestas/nueva/carga-operativa/pdf" passHref>
+           <Link href={`/fiestas/nueva/carga-operativa/pdf?fiestaId=${fiestaId}`} passHref>
               <Button variant="outline" disabled={isSaving}>
                 <FileText className="w-4 h-4 mr-2"/>Ver PDF
               </Button>
             </Link>
-            <Link href="/fiestas/nueva" passHref>
+            <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref>
               <Button variant="outline" disabled={isSaving}>
                 <ArrowLeft className="w-4 h-4 mr-2" /> Volver al Planificador
               </Button>
