@@ -91,7 +91,7 @@ export default function ListaDeCargaOperativaPage() {
       ]);
       
       const loadedLista = fiestaData.listaDeCargaOperativa || { categorias: [], notasGenerales: '' };
-      const categoriasConItems = loadedLista.categorias.map(cat => ({
+      const categoriasConItems = (loadedLista.categorias || []).map(cat => ({
         ...cat,
         items: cat.items || [] 
       }));
@@ -145,7 +145,7 @@ export default function ListaDeCargaOperativaPage() {
     };
     setListaDeCarga(prev => ({
       ...prev,
-      categorias: [...prev.categorias, newCategory],
+      categorias: [...(prev.categorias || []), newCategory],
     }));
     setNewCategoryName('');
   };
@@ -153,7 +153,7 @@ export default function ListaDeCargaOperativaPage() {
   const handleDeleteCategory = (categoryId: string) => {
     setListaDeCarga(prev => ({
       ...prev,
-      categorias: prev.categorias.filter(cat => cat.id !== categoryId),
+      categorias: (prev.categorias || []).filter(cat => cat.id !== categoryId),
     }));
   };
   
@@ -171,9 +171,9 @@ export default function ListaDeCargaOperativaPage() {
     
     setListaDeCarga(prev => ({
       ...prev,
-      categorias: prev.categorias.map(cat =>
+      categorias: (prev.categorias || []).map(cat =>
         cat.id === categoryForCatalogSelect.id
-          ? { ...cat, items: [...cat.items, newItem] }
+          ? { ...cat, items: [...(cat.items || []), newItem] }
           : cat
       ),
     }));
@@ -190,9 +190,9 @@ export default function ListaDeCargaOperativaPage() {
   const toggleItemCargado = (categoryId: string, itemId: string) => {
     setListaDeCarga(prev => ({
       ...prev,
-      categorias: prev.categorias.map(cat =>
+      categorias: (prev.categorias || []).map(cat =>
         cat.id === categoryId
-          ? { ...cat, items: cat.items.map(item => item.id === itemId ? { ...item, cargado: !item.cargado } : item) }
+          ? { ...cat, items: (cat.items || []).map(item => item.id === itemId ? { ...item, cargado: !item.cargado } : item) }
           : cat
       ),
     }));
@@ -201,9 +201,9 @@ export default function ListaDeCargaOperativaPage() {
   const handleItemQuantityChange = (categoryId: string, itemId: string, newQuantity: string) => {
     setListaDeCarga(prev => ({
       ...prev,
-      categorias: prev.categorias.map(cat =>
+      categorias: (prev.categorias || []).map(cat =>
         cat.id === categoryId
-          ? { ...cat, items: cat.items.map(item => item.id === itemId ? { ...item, cantidad: newQuantity } : item) }
+          ? { ...cat, items: (cat.items || []).map(item => item.id === itemId ? { ...item, cantidad: newQuantity } : item) }
           : cat
       ),
     }));
@@ -212,9 +212,9 @@ export default function ListaDeCargaOperativaPage() {
   const handleDeleteItem = (categoryId: string, itemId: string) => {
     setListaDeCarga(prev => ({
       ...prev,
-      categorias: prev.categorias.map(cat =>
+      categorias: (prev.categorias || []).map(cat =>
         cat.id === categoryId
-          ? { ...cat, items: cat.items.filter(item => item.id !== itemId) }
+          ? { ...cat, items: (cat.items || []).filter(item => item.id !== itemId) }
           : cat
       ),
     }));
@@ -230,11 +230,11 @@ export default function ListaDeCargaOperativaPage() {
 
     if (categoryId && over && active.id !== over.id) {
         setListaDeCarga(prev => {
-            const newCategorias = prev.categorias.map(cat => {
+            const newCategorias = (prev.categorias || []).map(cat => {
                 if (cat.id === categoryId) {
-                    const oldIndex = cat.items.findIndex(item => item.id === active.id);
-                    const newIndex = cat.items.findIndex(item => item.id === over.id);
-                    return { ...cat, items: arrayMove(cat.items, oldIndex, newIndex) };
+                    const oldIndex = (cat.items || []).findIndex(item => item.id === active.id);
+                    const newIndex = (cat.items || []).findIndex(item => item.id === over.id);
+                    return { ...cat, items: arrayMove(cat.items || [], oldIndex, newIndex) };
                 }
                 return cat;
             });
@@ -273,7 +273,7 @@ export default function ListaDeCargaOperativaPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <Dialog open={isSelectCatalogModalOpen} onOpenChange={setIsSelectCatalogModalOpen}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle className="font-headline">Seleccionar Activo del Catálogo</DialogTitle><DialogDescription>Para la categoría "{categoryForCatalogSelect?.nombre}"</DialogDescription></DialogHeader><div className="py-2 space-y-3"><div className="relative"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input type="text" placeholder="Buscar activo..." value={catalogSearchTerm} onChange={(e) => setCatalogSearchTerm(e.target.value)} className="w-full pl-10"/></div><ScrollArea className="h-[300px] border rounded-md">{isLoading ? <div className="p-4 text-center"><Loader2 className="w-6 h-6 animate-spin"/></div> : filteredCatalogItems.length > 0 ? (<ul className="p-2 space-y-1">{filteredCatalogItems.map(item => (<li key={item.id}><Button variant="ghost" className="w-full justify-start text-left h-auto py-1.5 px-2" onClick={() => handleCatalogItemSelected(item)}><div><p className="font-medium text-sm">{item.nombre}</p><p className="text-xs text-muted-foreground">Stock: {item.cantidadDisponible || 0} {item.unidad}</p></div></Button></li>))}</ul>) : (<p className="p-4 text-center text-sm text-muted-foreground">{catalogSearchTerm ? "No hay ítems que coincidan con tu búsqueda." : "El catálogo de activos está vacío."}</p>)}</ScrollArea></div><DialogFooter><DialogClose asChild><Button type="button" variant="outline">Cerrar</Button></DialogClose></DialogFooter></DialogContent></Dialog>
+       <Dialog open={isSelectCatalogModalOpen} onOpenChange={setIsSelectCatalogModalOpen}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle className="font-headline">Seleccionar Activo del Catálogo</DialogTitle><DialogDescription>Para la categoría "{categoryForCatalogSelect?.nombre}"</DialogDescription></DialogHeader><div className="py-2 space-y-3"><div className="relative"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input type="text" placeholder="Buscar activo..." value={catalogSearchTerm} onChange={(e) => setCatalogSearchTerm(e.target.value)} className="w-full pl-10"/></div><ScrollArea className="h-[300px] border rounded-md">{isLoading ? <div className="p-4 text-center"><Loader2 className="w-6 h-6 animate-spin"/></div> : filteredCatalogItems.length > 0 ? (<ul className="p-2 space-y-1">{filteredCatalogItems.map(item => (<li key={item.id}><Button variant="ghost" className="w-full justify-start text-left h-auto py-1.5 px-2" onClick={() => handleCatalogItemSelected(item)}><div><p className="font-medium text-sm">{item.nombre}</p><p className="text-xs text-muted-foreground">Stock: {item.cantidadDisponible || 0} {item.unidad}</p></div></Button></li>))}</ul>) : (<p className="p-4 text-center text-sm text-muted-foreground">{catalogSearchTerm ? "No hay ítems que coincidan con tu búsqueda." : "El catálogo de activos está vacío."}</p>)}</ScrollArea></div><DialogFooter><DialogClose asChild><Button type="button" variant="outline">Cerrar</Button></DialogClose></DialogFooter></DialogContent></Dialog>
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
@@ -364,3 +364,5 @@ export default function ListaDeCargaOperativaPage() {
     </div>
   );
 }
+
+    
