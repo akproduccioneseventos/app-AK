@@ -1,25 +1,22 @@
 
+
 'use client';
 
 import React, { useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { Suspense } from 'react';
 
 // This page is obsolete. Its functionality has been moved to a central module.
-function RedirectComponent() {
+export default function InvitacionDigitalRedirectPage() {
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const fiestaId = searchParams.get('fiestaId');
-    
+
     useEffect(() => {
-        // Redirect to the new central hub for public-facing event settings, preserving the fiestaId
-        const destination = `/fiestas/nueva/pagina-web${fiestaId ? `?fiestaId=${fiestaId}` : ''}`;
-        router.replace(destination);
-    }, [router, fiestaId]);
+        // Redirect to the new central hub for public-facing event settings
+        router.replace('/fiestas/nueva/pagina-web');
+    }, [router]);
 
     return (
         <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4">
@@ -42,13 +39,5 @@ function RedirectComponent() {
                 </CardFooter>
             </Card>
         </div>
-    );
-}
-
-export default function InvitacionDigitalRedirectPage() {
-     return (
-        <Suspense fallback={<div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>}>
-            <RedirectComponent />
-        </Suspense>
     );
 }

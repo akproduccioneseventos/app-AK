@@ -1,7 +1,8 @@
 
+
 'use server';
 
-import type { FiestaEnPlanificacion, Tarea, Invitado, DecoracionData, ProgramaEventoItem, PersonalAsignadoDetalleStorage, ClientTarea, ClientPortalSettings, EventWebPageSettings, MusicaFiesta, GiftItem, ReposteriaData, BebidasData, ListaDeCargaOperativa, GestionCostosData, FotografiaYFilmacionData, OtroDocumento, DocumentoTipo, PagoProveedor, VideoVidaData } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, Tarea, Invitado, DecoracionData, ProgramaEventoItem, PersonalAsignadoDetalleStorage, ClientTarea, ClientPortalSettings, EventWebPageSettings, MusicaFiesta, GiftItem, ReposteriaData, BebidasData, ListaDeCargaOperativa, GestionCostosData, FotografiaYFilmacionData, OtroDocumento, DocumentoTipo, PagoProveedor, VideoVidaData, InvitacionDigitalData } from '@/types/fiesta';
 import { 
     getFiestas as getFiestasFromModule,
     getAllFiestas as getAllFiestasFromModule,
@@ -26,9 +27,8 @@ import { addInvitado, deleteInvitado, updateInvitado, handleRsvpSubmission, chec
 import { updateDecoracion } from './fiesta/decoracion.actions';
 import { updatePrograma } from './fiesta/itinerario.actions';
 import { updatePersonal } from './fiesta/personal.actions';
-import { updateClientChecklist, updateClientNotes, updatePortalSettings } from './fiesta/portal.actions';
+import { updateClientChecklist, updateClientNotes, updatePortalSettings as updatePortalAndWebSettings } from './fiesta/portal.actions';
 import { updateMusica } from './fiesta/musica.actions';
-import { updateGiftRegistry, claimGift } from './fiesta/regalos.actions';
 import { updateReposteria as updateReposteriaForFiesta } from './reposteria.actions';
 import { updateBebidas as updateBebidasForFiesta } from './bebidas.actions';
 import { updateListaDeCargaOperativa } from './fiesta/carga-operativa.actions';
@@ -39,7 +39,6 @@ import { updatePagosProveedores } from './fiesta/pagos.actions';
 import { addReunion, deleteReunion, updateReunion } from './fiesta/reuniones.actions';
 import { updateMenuAsignado } from './fiesta/catering.actions';
 import { updateVideoVidaSettings as updateVideoVidaSettingsFromModule } from './fiesta/video-vida.actions';
-
 
 // --- General Fiesta Actions ---
 export const getFiestaActual = getFiestaData; // Legacy, use getFiestaById
@@ -81,17 +80,20 @@ export const updateProgramaFiestaActual = updatePrograma;
 // --- Personal Actions ---
 export const updatePersonalFiestaActual = updatePersonal;
 
-// --- Portal Actions ---
+// --- Portal & Digital Invitation Actions ---
 export const updateClientChecklistFiestaActual = updateClientChecklist;
 export const updateClientNotesFiestaActual = updateClientNotes;
-export const updatePortalSettingsFiestaActual = updatePortalSettings;
+export const updatePortalSettings = updatePortalAndWebSettings; // Renamed to reflect it does both
+export const updateInvitacionDigital = async (fiestaId: string, invitacionData: InvitacionDigitalData) => {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) throw new Error("Fiesta no encontrada");
+    const updatedFiesta = { ...fiesta, invitacionDigital: invitacionData };
+    return saveFiesta(updatedFiesta);
+}
+
 
 // --- Musica Actions ---
 export const updateMusicaFiestaActual = updateMusica;
-
-// --- Regalos Actions ---
-export const updateGiftRegistryFiestaActual = updateGiftRegistry;
-export const claimGiftFiestaActual = claimGift;
 
 // --- Reposteria Actions ---
 export const updateReposteriaFiestaActual = updateReposteriaForFiesta;
@@ -125,3 +127,36 @@ export const updateMenuAsignadoFiestaActual = updateMenuAsignado;
 
 // --- Video de Vida Actions ---
 export const updateVideoVidaSettingsFiestaActual = updateVideoVidaSettingsFromModule;
+
+// Deprecated Actions (will be removed eventually)
+export const updateWebSettingsFiestaActual = async (fiestaId: string, webSettings: EventWebPageSettings) => {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) throw new Error("Fiesta no encontrada");
+    const updatedFiesta = { ...fiesta, webPageSettings: webSettings };
+    return saveFiesta(updatedFiesta);
+}
+
+export const claimGiftFiestaActual = async (fiestaId: string, giftId: string, guestName: string): Promise<{ success: boolean; error?: string }> => {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta || !fiesta.invitacionDigital) return { success: false, error: 'Fiesta o datos de invitación no encontrados.' };
+    
+    const giftList = fiesta.invitacionDigital.regalos?.items || [];
+    const updatedList = giftList.map(gift => {
+        if (gift.id === giftId && !gift.isClaimed) {
+            return { ...gift, isClaimed: true, claimedBy: guestName };
+        }
+        return gift;
+    });
+
+    const updatedInvitacionData = { 
+        ...fiesta.invitacionDigital, 
+        regalos: {
+            ...(fiesta.invitacionDigital.regalos || {}),
+            items: updatedList
+        }
+    };
+    
+    const updatedFiesta = { ...fiesta, invitacionDigital: updatedInvitacionData };
+    const result = await saveFiesta(updatedFiesta);
+    return { success: result.success, error: result.error };
+};

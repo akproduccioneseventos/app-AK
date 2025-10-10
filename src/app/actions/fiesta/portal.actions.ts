@@ -1,10 +1,8 @@
 
+
 'use server';
 
-import { initialFiestaActualData, defaultWebPageSettings } from '@/lib/fiesta-defaults';
-import type { FiestaEnPlanificacion, ClientTarea, ClientPortalSettings, EventWebPageSettings } from '@/types/fiesta';
-import { readData, writeData } from '@/lib/data-service';
-import path from 'path';
+import type { FiestaEnPlanificacion, ClientTarea, ClientPortalSettings } from '@/types/fiesta';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 
 async function updateFiestaData(
@@ -37,8 +35,7 @@ export async function updateClientNotes(fiestaId: string, notes: string) {
 
 export async function updatePortalSettings(
   fiestaId: string, 
-  clientSettings: ClientPortalSettings, 
-  webSettings: EventWebPageSettings
+  clientSettings: ClientPortalSettings
 ) {
   return updateFiestaData(fiestaId, async (currentData) => {
     // Overwrite the settings properties with the complete new objects from the client form.
@@ -46,7 +43,6 @@ export async function updatePortalSettings(
     const updatedData = {
       ...currentData,
       clientPortalSettings: clientSettings,
-      webPageSettings: webSettings,
     };
     return updatedData;
   });

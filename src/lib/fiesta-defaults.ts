@@ -1,5 +1,6 @@
 
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, GiftItem, LayoutElement, ClientTarea, ProgramaEventoItem, TareaAsignadaA, FotografiaYFilmacionData, BebidasConsumoConfig, TipoAsistente, ReposteriaConsumoConfig, OtroDocumento, VideoVidaData, BebidaReceta, IngredienteReceta, CargaOperativaCategoria } from '@/types/fiesta';
+
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, GiftItem, LayoutElement, ClientTarea, ProgramaEventoItem, TareaAsignadaA, FotografiaYFilmacionData, BebidasConsumoConfig, TipoAsistente, ReposteriaConsumoConfig, OtroDocumento, VideoVidaData, BebidaReceta, IngredienteReceta, CargaOperativaCategoria, InvitacionDigitalData } from '@/types/fiesta';
 
 export const defaultConfiguracion: ConfigEventoDataStorage = {
   nombreEvento: 'Mi Próximo Evento Increíble',
@@ -91,30 +92,59 @@ export const defaultDecoracion: DecoracionData = {
   layoutTemplateName: '',
 };
 
-export const defaultWebPageSettings: EventWebPageSettings = {
-  pageTitle: 'Mi Evento Especial',
-  heroSubtitle: '¡Una celebración inolvidable!',
-  welcomeMessage: '¡Bienvenidos a la celebración de nuestro evento!',
-  coverImageUrl: '', // Data URI or URL
-  galleryImageUrls: [], // Array of Data URIs or URLs
-  showCountdown: true,
-  ourStoryTitle: 'Nuestra Historia',
-  ourStoryText: 'Un breve relato de cómo llegamos hasta aquí...',
-  ourStoryImageUrl: '', // Data URI or URL
-  showOurStory: false, // Default OFF
-  eventDetailsTitle: 'Detalles del Evento',
-  eventDetailsText: 'Fecha, hora, lugar y más información importante.',
-  showEventDetails: true,
-  dressCodeText: 'Elegante Sport',
-  showDressCode: false, // Default OFF
-  giftRegistryTitle: 'Lista de Regalos',
-  giftRegistryText: 'Tu presencia es nuestro mejor regalo. Si deseas obsequiarnos algo, aquí algunas ideas...',
-  showGiftRegistry: false, // Default OFF
-  giftRegistry: [],
-  showRsvp: true,
-  showPrograma: false, // Default OFF
-  musicaEspecialText: '',
-  showGallery: false, // Default OFF
+export const defaultInvitacionDigitalData: InvitacionDigitalData = {
+  plantilla: 'Grazia',
+  cabecera: {
+    visible: true,
+    videoFondoUrl: '',
+    protagonista1: '',
+    protagonista2: '',
+  },
+  bienvenida: {
+    visible: true,
+    imagenFondoUrl: '',
+    titulo: '¡Nos Casamos!',
+    texto: 'Y queremos que seas parte de este día tan especial para nosotros. Prepárate para una noche llena de alegría, música y buenos momentos.',
+  },
+  detallesEvento: {
+    visible: true,
+    infoPadresVisible: false,
+    nombrePadre1: '',
+    nombrePadre2: '',
+    nombreMadre1: '',
+    nombreMadre2: '',
+  },
+  itinerario: {
+    visible: true,
+    imagenFondoUrl: '',
+  },
+  galeria: {
+    visible: false,
+    fotos: [],
+  },
+  regalos: {
+    visible: true,
+    titulo: 'Lista de Regalos',
+    texto: 'Tu presencia es nuestro mejor regalo. Si aún así deseas obsequiarnos algo, puedes elegir una de estas opciones o ayudarnos con nuestra luna de miel.',
+    datosBancarios: '',
+    items: [],
+  },
+  dressCode: {
+    visible: true,
+    texto: 'Elegante Sport',
+  },
+  instagram: {
+    visible: true,
+    hashtag: '#BodaAnaYJuan',
+    texto: '¡Comparte tus fotos y momentos con nuestro hashtag!',
+  },
+  confirmacion: {
+    visible: true,
+  },
+  despedida: {
+    visible: true,
+    texto: '¡Te esperamos para celebrar juntos!',
+  }
 };
 
 export const defaultClientPortalSettings: ClientPortalSettings = {
@@ -277,7 +307,7 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
     zonasContratadas: JSON.parse(JSON.stringify(defaultZonasContratadas)),
   },
   invitados: [],
-  webPageSettings: { ...defaultWebPageSettings, galleryImageUrls: [], giftRegistry: [] },
+  invitacionDigital: { ...defaultInvitacionDigitalData }, // Changed this line
   clientPortalSettings: { ...defaultClientPortalSettings },
   socialGallerySettings: { ...defaultSocialGallerySettings },
   musica: { ...defaultMusicaFiesta, cancionesTortaBrindis: [] },
@@ -293,4 +323,32 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
   otrosDocumentos: [],
   // New provider payment tracking
   pagosProveedores: [],
+};
+
+// Deprecated, keep for data migration if necessary
+export const defaultWebPageSettings: EventWebPageSettings = {
+  pageTitle: 'Mi Evento Especial',
+  heroSubtitle: '¡Una celebración inolvidable!',
+  welcomeMessage: '¡Bienvenidos a la celebración de nuestro evento!',
+  coverImageUrl: '', 
+  galleryImageUrls: [], 
+  showCountdown: true,
+  ourStoryTitle: 'Nuestra Historia',
+  ourStoryText: 'Un breve relato de cómo llegamos hasta aquí...',
+  ourStoryImageUrl: '', 
+  showOurStory: false, 
+  eventDetailsTitle: 'Detalles del Evento',
+  eventDetailsText: 'Fecha, hora, lugar y más información importante.',
+  showEventDetails: true,
+  dressCodeText: 'Elegante Sport',
+  showDressCode: false,
+  giftRegistryTitle: 'Lista de Regalos',
+  giftRegistryText: 'Tu presencia es nuestro mejor regalo. Si deseas obsequiarnos algo, aquí algunas ideas...',
+  showGiftRegistry: false,
+  giftRegistry: [],
+  showRsvp: true,
+  showPrograma: false,
+  musicaEspecialText: '',
+  showGallery: false, 
+  templateName: 'Obsidiana'
 };
