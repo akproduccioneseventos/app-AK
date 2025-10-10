@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
@@ -6,11 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Music, Beer, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Image as ImageIcon, Maximize, Minimize, FolderDown, FolderUp } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Music, Beer, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Image as ImageIcon, Maximize, Minimize, FolderDown, FolderUp, Wand2 } from 'lucide-react';
 import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData } from '@/types/fiesta';
-import { getFiestaActual, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaActual, updateDecoracionFiestaActual, updateInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
 import {
   Dialog,
   DialogContent,
@@ -157,18 +158,56 @@ export default function SalonLayoutPage() {
     if (!decoracion) return;
     setIsSaving(true);
     try {
-        const decoracionToSave = { ...decoracion, items: decoracion.items || [] }; // Ensure items is not undefined
-        const result = await updateDecoracionFiestaActual(decoracionToSave);
-        if (result.success) {
-            toast({ title: "¡Guardado!", description: "La distribución del salón ha sido guardada." });
-            await loadData(false);
-        } else {
-            throw new Error(result.error || "No se pudo guardar la distribución.");
-        }
+        // Save decoration layout changes
+        const decoracionToSave = { ...decoracion, items: decoracion.items || [] };
+        await updateDecoracionFiestaActual(decoracionToSave);
+        
+        // Save guest table assignments
+        const updateGuestPromises = invitados.map(invitado => updateInvitadoFiestaActual(invitado));
+        await Promise.all(updateGuestPromises);
+        
+        toast({ title: "¡Guardado!", description: "La distribución del salón y la asignación de invitados han sido guardadas." });
+        await loadData(false);
     } catch(err: any) {
         toast({ title: "Error al Guardar", description: err.message, variant: "destructive" });
     } finally {
         setIsSaving(false);
+    }
+  };
+  
+   const handleAIAssign = async () => {
+    if (!decoracion?.salonElements || decoracion.salonElements.length === 0) {
+      toast({ title: "No hay mesas", description: "Añade mesas al salón antes de usar la asignación automática.", variant: "destructive"});
+      return;
+    }
+    const guestsToAssign = invitados.filter(i => i.rsvp === 'Confirmado');
+    if (guestsToAssign.length === 0) {
+      toast({ title: "No hay invitados", description: "No hay invitados confirmados para asignar a las mesas.", variant: "destructive"});
+      return;
+    }
+
+    setIsAssigningWithAI(true);
+    try {
+      const input: AssignGuestsInput = {
+        guests: guestsToAssign,
+        tables: decoracion.salonElements
+          .filter(el => el.category?.includes('Mesa') && el.seats)
+          .map(el => ({ id: el.id, name: el.name, seats: el.seats || 0 })),
+      };
+      const result = await assignGuestsToTable(input);
+      
+      if(result.assignments) {
+        const updatedGuestMap = new Map(result.assignments.map(g => [g.id, g.tableNumber]));
+        setInvitados(prev => prev.map(inv => updatedGuestMap.has(inv.id) ? { ...inv, tableNumber: updatedGuestMap.get(inv.id) || undefined } : inv ));
+        toast({title: "¡Asignación completa!", description: "Los invitados han sido asignados a las mesas por la IA. Revisa y ajusta si es necesario."});
+      } else {
+        throw new Error("La IA no devolvió ninguna asignación.");
+      }
+
+    } catch(e: any) {
+      toast({ title: "Error de IA", description: e.message, variant: "destructive" });
+    } finally {
+      setIsAssigningWithAI(false);
     }
   };
 
@@ -359,13 +398,19 @@ export default function SalonLayoutPage() {
                 </ul>
                </ScrollArea>
             </CardContent>
+            <CardFooter>
+                <Button className="w-full" onClick={handleAIAssign} disabled={isAssigningWithAI}>
+                    {isAssigningWithAI ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Wand2 className="w-4 h-4 mr-2"/>}
+                    {isAssigningWithAI ? 'Asignando...' : 'Asignar Invitados con IA'}
+                </Button>
+            </CardFooter>
           </Card>
         </div>
       </div>
        <div className="flex justify-end mt-6">
             <Button size="lg" onClick={handleSave} disabled={isSaving}>
               {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin"/> : <Save className="w-5 h-5 mr-2" />}
-              Guardar Distribución
+              Guardar Distribución y Asignaciones
             </Button>
         </div>
     </div>
