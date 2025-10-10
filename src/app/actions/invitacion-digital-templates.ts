@@ -68,3 +68,22 @@ export async function deleteInvitationTemplate(id: string): Promise<{ success: b
   await writeData(TEMPLATES_FILE, templates);
   return { success: true };
 }
+
+export async function duplicateInvitationTemplate(templateId: string): Promise<{ success: boolean; newTemplate?: InvitacionDigitalTemplate, error?: string }> {
+  const templates = await getInvitationTemplates();
+  const templateToDuplicate = templates.find(t => t.id === templateId);
+
+  if (!templateToDuplicate) {
+    return { success: false, error: "Plantilla a duplicar no encontrada." };
+  }
+
+  const newTemplate: InvitacionDigitalTemplate = {
+    ...templateToDuplicate,
+    id: `tpl_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+    name: `[COPIA] ${templateToDuplicate.name}`,
+  };
+
+  templates.push(newTemplate);
+  await writeData(TEMPLATES_FILE, templates);
+  return { success: true, newTemplate };
+}

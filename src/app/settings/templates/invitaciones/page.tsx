@@ -5,8 +5,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, PlusCircle, Trash2, Loader2, Image as ImageIcon, Edit } from 'lucide-react';
-import { getInvitationTemplates, deleteInvitationTemplate, saveInvitationTemplate, type InvitacionDigitalTemplate } from '@/app/actions/invitacion-digital-templates';
+import { ArrowLeft, PlusCircle, Trash2, Loader2, Image as ImageIcon, Edit, Copy } from 'lucide-react';
+import { getInvitationTemplates, deleteInvitationTemplate, saveInvitationTemplate, duplicateInvitationTemplate, type InvitacionDigitalTemplate } from '@/app/actions/invitacion-digital-templates';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -28,7 +28,7 @@ export default function InvitationTemplatesPage() {
   const [templates, setTemplates] = useState<InvitacionDigitalTemplate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [processingId, setProcessingId] = useState<string | null>(null);
 
   const fetchTemplates = useCallback(async () => {
     setIsLoading(true);
@@ -70,7 +70,7 @@ export default function InvitationTemplatesPage() {
   }
 
   const handleDeleteTemplate = async (id: string, name: string) => {
-    setDeletingId(id);
+    setProcessingId(id);
     try {
       const result = await deleteInvitationTemplate(id);
       if (result.success) {
@@ -80,9 +80,26 @@ export default function InvitationTemplatesPage() {
         throw new Error(result.error);
       }
     } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive"});
+    } finally {
+      setProcessingId(null);
+    }
+  };
+  
+  const handleDuplicateTemplate = async (id: string, name: string) => {
+    setProcessingId(id);
+    try {
+      const result = await duplicateInvitationTemplate(id);
+      if (result.success) {
+        toast({ title: "Plantilla Duplicada", description: `Se creó una copia de "${name}".` });
+        await fetchTemplates();
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (e: any) {
       toast({ title: "Error", description: e.message, variant: "destructive" });
     } finally {
-      setDeletingId(null);
+      setProcessingId(null);
     }
   };
 
@@ -106,7 +123,7 @@ export default function InvitationTemplatesPage() {
         </CardHeader>
         <CardContent>
             <Button onClick={handleCreateNewTemplate} disabled={isProcessing}>
-                {isProcessing && !deletingId ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <PlusCircle className="w-4 h-4 mr-2" />}
+                {isProcessing && !processingId ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <PlusCircle className="w-4 h-4 mr-2" />}
                 Crear Nueva Plantilla
             </Button>
         </CardContent>
@@ -129,13 +146,16 @@ export default function InvitationTemplatesPage() {
                      </div>
                   </div>
                    <div className="flex gap-2">
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDuplicateTemplate(template.id, template.name)} disabled={!!processingId} title="Duplicar">
+                            {processingId === template.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Copy className="w-4 h-4" />}
+                        </Button>
                         <Link href={`/fiestas/nueva/pagina-web?templateId=${template.id}`} passHref>
                             <Button variant="outline" size="icon" className="h-8 w-8"><Edit className="w-4 h-4"/></Button>
                         </Link>
                         <AlertDialog>
                         <AlertDialogTrigger asChild>
-                            <Button variant="destructive" size="icon" className="h-8 w-8" disabled={!!deletingId}>
-                                {deletingId === template.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}
+                            <Button variant="destructive" size="icon" className="h-8 w-8" disabled={!!processingId}>
+                                {processingId === template.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}
                             </Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
