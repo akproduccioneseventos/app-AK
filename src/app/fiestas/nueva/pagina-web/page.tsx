@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, type FormEvent, useEffect, useCallback, ChangeEvent } from 'react';
@@ -13,7 +12,7 @@ import { Switch } from '@/components/ui/switch';
 import { ArrowLeft, Save, Loader2, Globe, Sparkles, Image as ImageIcon, Users, Clock, Gift, MapPin, Camera, Wand2, PlusCircle, Trash2, ChevronDown, Edit, Link as LinkIcon, ExternalLink, Heart, Church, Handshake, Mail, Music2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, InvitacionDigitalData, GiftItem } from '@/types/fiesta';
-import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import { updateInvitacionDigital } from '@/app/actions/fiesta-actual';
 import { defaultInvitacionDigitalData } from '@/lib/fiesta-defaults';
 import { merge, cloneDeep } from 'lodash';
@@ -32,7 +31,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-
+import { getInvitationTemplates, saveInvitationTemplate } from '@/app/actions/invitacion-digital-templates';
 
 const GiftListManagement: React.FC<{
   initialItems: GiftItem[];
@@ -111,9 +110,13 @@ const GiftListManagement: React.FC<{
 function PaginaWebPageContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
-  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
+  const router = useRouter();
+
   const fiestaId = searchParams.get('fiestaId');
-  
+  const templateId = searchParams.get('templateId');
+  const isEditingTemplate = !!templateId;
+
+  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [invitacionData, setInvitacionData] = useState<InvitacionDigitalData>(defaultInvitacionDigitalData);
   
   const [isLoading, setIsLoading] = useState(true);
@@ -121,38 +124,49 @@ function PaginaWebPageContent() {
   
   const [coverImageFile, setCoverImageFile] = useState<File | null>(null);
   const [coverImagePreview, setCoverImagePreview] = useState<string | null>(null);
-  const [storyImageFile, setStoryImageFile] = useState<File | null>(null);
-  const [storyImagePreview, setStoryImagePreview] = useState<string | null>(null);
   const [welcomeImageFile, setWelcomeImageFile] = useState<File | null>(null);
   const [welcomeImagePreview, setWelcomeImagePreview] = useState<string | null>(null);
 
-
   const loadData = useCallback(async () => {
     setIsLoading(true);
-    if (!fiestaId) {
-      toast({ title: "Error", description: "ID de fiesta no encontrado en la URL.", variant: "destructive"});
-      setIsLoading(false);
-      return;
-    }
-    try {
-      const data = await getFiestaById(fiestaId);
-      if (!data) throw new Error("Fiesta no encontrada");
+    let finalData;
+    let finalFiesta: FiestaEnPlanificacion | null = null;
+    let finalTemplateName = '';
 
-      setFiesta(data);
+    try {
+        if (isEditingTemplate) {
+            const templates = await getInvitationTemplates();
+            const template = templates.find(t => t.id === templateId);
+            if (!template) throw new Error("Plantilla no encontrada");
+            finalData = template;
+            finalTemplateName = template.name;
+        } else {
+            if (!fiestaId) {
+                toast({ title: "Error", description: "ID de fiesta no encontrado en la URL.", variant: "destructive" });
+                router.replace('/eventos');
+                return;
+            }
+            const data = await getFiestaById(fiestaId);
+            if (!data) throw new Error("Fiesta no encontrada");
+            finalFiesta = data;
+            finalData = data.invitacionDigital || {};
+        }
+
+      setFiesta(finalFiesta);
       
-      const mergedInvitacionData = merge(cloneDeep(defaultInvitacionDigitalData), data.invitacionDigital || {});
+      const mergedInvitacionData = merge(cloneDeep(defaultInvitacionDigitalData), finalData);
+      if(isEditingTemplate) mergedInvitacionData.name = finalTemplateName; // Preserve template name
       setInvitacionData(mergedInvitacionData);
       
       setCoverImagePreview(mergedInvitacionData.cabecera?.videoFondoUrl || null);
       setWelcomeImagePreview(mergedInvitacionData.bienvenida?.imagenFondoUrl || null);
-      setStoryImagePreview(mergedInvitacionData.historia?.imagenFondoUrl || null);
       
     } catch (e: any) {
       toast({ title: "Error", description: `No se pudieron cargar los datos: ${e.message}`, variant: "destructive"});
     } finally {
       setIsLoading(false);
     }
-  }, [fiestaId, toast]);
+  }, [fiestaId, templateId, isEditingTemplate, toast, router]);
 
   useEffect(() => {
     loadData();
@@ -165,16 +179,13 @@ function PaginaWebPageContent() {
     });
   };
 
-  const handleFileUpload = async (file: File | null): Promise<string | undefined> => {
-    if (!file || !fiesta) return undefined;
+  const handleFileUpload = async (file: File | null, ownerId: string): Promise<string | undefined> => {
+    if (!file) return undefined;
 
     try {
-        const result = await uploadPublicPageAsset(fiesta.id, file);
-        if (result.success && result.url) {
-            return result.url;
-        } else {
-            throw new Error(result.error || `No se pudo subir la imagen.`);
-        }
+        const result = await uploadPublicPageAsset(ownerId, file);
+        if (result.success && result.url) return result.url;
+        else throw new Error(result.error || `No se pudo subir la imagen.`);
     } catch(e: any) {
         toast({title: "Error de Subida", description: e.message, variant: "destructive"});
         return undefined;
@@ -183,27 +194,39 @@ function PaginaWebPageContent() {
   
   const handleSave = async (e: FormEvent) => {
     e.preventDefault();
-    if (!fiesta) return;
+    if (!invitacionData) return;
     
     setIsSaving(true);
     let finalData = { ...invitacionData };
 
     try {
+        const ownerId = isEditingTemplate ? templateId! : fiesta!.id;
+
         if (coverImageFile) {
-            const uploadedUrl = await handleFileUpload(coverImageFile);
+            const uploadedUrl = await handleFileUpload(coverImageFile, ownerId);
             if(uploadedUrl) finalData = {...finalData, cabecera: {...finalData.cabecera, videoFondoUrl: uploadedUrl}};
         }
         if (welcomeImageFile) {
-            const uploadedUrl = await handleFileUpload(welcomeImageFile);
+            const uploadedUrl = await handleFileUpload(welcomeImageFile, ownerId);
             if(uploadedUrl) finalData = {...finalData, bienvenida: {...finalData.bienvenida, imagenFondoUrl: uploadedUrl}};
         }
-
-        const result = await updateInvitacionDigital(fiesta.id, finalData);
-        if (result.success) {
-            toast({ title: "¡Configuración Guardada!", description: "La página pública del evento ha sido actualizada." });
-            await loadData();
+        
+        let result;
+        if (isEditingTemplate) {
+            result = await saveInvitationTemplate(finalData);
         } else {
-            throw new Error(result.error);
+            result = await updateInvitacionDigital(fiesta!.id, finalData);
+        }
+
+        if (result.success) {
+            toast({ title: "¡Configuración Guardada!" });
+            if (!isEditingTemplate) {
+                router.push(`/fiestas/nueva?fiestaId=${fiestaId}`);
+            } else {
+                router.push('/settings/templates/invitaciones');
+            }
+        } else {
+            throw new Error((result as any).error);
         }
     } catch (err: any) {
         toast({ title: "Error al Guardar", description: err.message, variant: "destructive"});
@@ -215,38 +238,43 @@ function PaginaWebPageContent() {
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>, type: 'cover' | 'welcome' | 'story') => {
     const file = e.target.files?.[0];
     if (file) {
-      const setFile = type === 'cover' ? setCoverImageFile : (type === 'welcome' ? setWelcomeImageFile : setStoryImageFile);
-      const setPreview = type === 'cover' ? setCoverImagePreview : (type === 'welcome' ? setWelcomeImagePreview : setStoryImagePreview);
+      const setFile = type === 'cover' ? setCoverImageFile : setWelcomeImageFile;
+      const setPreview = type === 'cover' ? setCoverImagePreview : setWelcomeImagePreview;
       setFile(file);
       setPreview(URL.createObjectURL(file));
     }
   };
 
 
-  if (isLoading || !fiesta) {
+  if (isLoading || (!fiesta && !isEditingTemplate)) {
     return <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>;
   }
+  
+  const backLink = isEditingTemplate ? "/settings/templates/invitaciones" : `/fiestas/nueva?fiestaId=${fiestaId}`;
 
   return (
     <div className="space-y-6">
        <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Globe className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline">Página Pública del Evento</h1>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">
+             {isEditingTemplate ? `Editando Plantilla: ${invitacionData.name}` : "Página Pública del Evento"}
+          </h1>
         </div>
         <div className="flex gap-2">
-            <Link href={`/evento/actual?fiestaId=${fiesta.id}`} passHref target="_blank">
-                <Button variant="secondary"><ExternalLink className="w-4 h-4 mr-2"/>Ver Página</Button>
-            </Link>
-            <Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`} passHref>
-              <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver al Planificador</Button>
+            {!isEditingTemplate && (
+                <Link href={`/evento/actual?fiestaId=${fiesta!.id}`} passHref target="_blank">
+                    <Button variant="secondary"><ExternalLink className="w-4 h-4 mr-2"/>Ver Página</Button>
+                </Link>
+            )}
+            <Link href={backLink} passHref>
+              <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
             </Link>
         </div>
       </div>
       
       <form onSubmit={handleSave}>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Columna de Configuración */}
           <div className="lg:col-span-2 space-y-6">
              <Card>
                 <CardHeader>
@@ -254,9 +282,15 @@ function PaginaWebPageContent() {
                   <CardDescription>Ajusta el diseño y los elementos principales de tu invitación digital.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  {isEditingTemplate && (
+                    <div className="space-y-2">
+                        <Label htmlFor="templateName">Nombre de la Plantilla</Label>
+                        <Input id="templateName" value={invitacionData.name || ''} onChange={(e) => setInvitacionData(p => ({...p, name: e.target.value}))}/>
+                    </div>
+                  )}
                   <div className="space-y-2">
-                    <Label htmlFor="templateName">Seleccionar Plantilla de Diseño</Label>
-                    <Select value={invitacionData.plantilla} onValueChange={(v) => handleDataChange('plantilla', 'plantilla', v)}><SelectTrigger id="templateName"><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Grazia">Grazia (Clásico y Elegante)</SelectItem></SelectContent></Select>
+                    <Label htmlFor="templateStyle">Seleccionar Estilo Visual</Label>
+                    <Select value={invitacionData.plantilla} onValueChange={(v) => handleDataChange('plantilla', 'plantilla', v)}><SelectTrigger id="templateStyle"><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Grazia">Grazia (Clásico y Elegante)</SelectItem></SelectContent></Select>
                   </div>
                   <Separator/>
                    <div className="space-y-2">
@@ -269,7 +303,6 @@ function PaginaWebPageContent() {
                 <CardHeader><CardTitle>Módulos de Contenido</CardTitle><CardDescription>Activa y personaliza las secciones que tus invitados verán.</CardDescription></CardHeader>
                 <CardContent>
                    <Accordion type="multiple" className="w-full space-y-2" defaultValue={['cabecera', 'detallesEvento', 'confirmacion']}>
-                      {/* CABECERA */}
                       <AccordionItem value="cabecera" className="border rounded-md px-3">
                           <AccordionTrigger className="hover:no-underline py-2 [&[data-state=open]>svg]:rotate-180"><div className="flex items-center gap-2 font-medium"><Sparkles className="w-4 h-4"/>Cabecera</div></AccordionTrigger>
                            <AccordionContent className="pt-2 pb-4 space-y-4 border-t">
@@ -282,7 +315,6 @@ function PaginaWebPageContent() {
                                  )}
                            </AccordionContent>
                        </AccordionItem>
-                      {/* BIENVENIDA */}
                        <AccordionItem value="bienvenida" className="border rounded-md px-3">
                           <AccordionTrigger className="hover:no-underline py-2 [&[data-state=open]>svg]:rotate-180"><div className="flex items-center gap-2 font-medium"><Heart className="w-4 h-4"/>Bienvenida</div></AccordionTrigger>
                            <AccordionContent className="pt-2 pb-4 space-y-4 border-t">
@@ -293,7 +325,6 @@ function PaginaWebPageContent() {
                                {welcomeImagePreview && <NextImage src={welcomeImagePreview} alt="Preview Bienvenida" width={150} height={100} className="rounded-md border object-cover"/>}
                            </AccordionContent>
                        </AccordionItem>
-                      {/* DETALLES */}
                       <AccordionItem value="detallesEvento" className="border rounded-md px-3">
                           <AccordionTrigger className="hover:no-underline py-2 [&[data-state=open]>svg]:rotate-180"><div className="flex items-center gap-2 font-medium"><MapPin className="w-4 h-4"/>Detalles del Evento</div></AccordionTrigger>
                            <AccordionContent className="pt-2 pb-4 space-y-4 border-t">
@@ -304,7 +335,6 @@ function PaginaWebPageContent() {
                                )}
                            </AccordionContent>
                       </AccordionItem>
-                      {/* ITINERARIO */}
                       <AccordionItem value="itinerario" className="border rounded-md px-3">
                           <AccordionTrigger className="hover:no-underline py-2 [&[data-state=open]>svg]:rotate-180"><div className="flex items-center gap-2 font-medium"><Clock className="w-4 h-4"/>Itinerario</div></AccordionTrigger>
                            <AccordionContent className="pt-2 pb-4 space-y-4 border-t">
@@ -312,7 +342,6 @@ function PaginaWebPageContent() {
                                <p className="text-xs text-muted-foreground">El itinerario se toma automáticamente del módulo "Itinerario del Evento".</p>
                            </AccordionContent>
                       </AccordionItem>
-                       {/* REGALOS */}
                        <AccordionItem value="regalos" className="border rounded-md px-3">
                            <AccordionTrigger className="hover:no-underline py-2 [&[data-state=open]>svg]:rotate-180"><div className="flex items-center gap-2 font-medium"><Gift className="w-4 h-4"/>Lista de Regalos</div></AccordionTrigger>
                            <AccordionContent className="pt-2 pb-4 space-y-4 border-t">
@@ -324,7 +353,6 @@ function PaginaWebPageContent() {
                                <GiftListManagement initialItems={invitacionData.regalos.items || []} onItemsChange={(items) => handleDataChange('regalos', 'items', items)} />
                            </AccordionContent>
                        </AccordionItem>
-                       {/* CONFIRMACION */}
                        <AccordionItem value="confirmacion" className="border rounded-md px-3">
                           <AccordionTrigger className="hover:no-underline py-2 [&[data-state=open]>svg]:rotate-180"><div className="flex items-center gap-2 font-medium"><CheckCircle className="w-4 h-4"/>Confirmación de Asistencia</div></AccordionTrigger>
                            <AccordionContent className="pt-2 pb-4 space-y-4 border-t">

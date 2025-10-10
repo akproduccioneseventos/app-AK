@@ -5,7 +5,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, PlusCircle, Trash2, Loader2, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Trash2, Loader2, Image as ImageIcon, Edit } from 'lucide-react';
 import { getInvitationTemplates, deleteInvitationTemplate, saveInvitationTemplate, type InvitacionDigitalTemplate } from '@/app/actions/invitacion-digital-templates';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -102,7 +102,7 @@ export default function InvitationTemplatesPage() {
       <Card>
         <CardHeader>
           <CardTitle>Gestionar Plantillas de Invitación</CardTitle>
-          <CardDescription>Crea y elimina tus diseños base. Para editar una plantilla, cárgala en un evento de prueba, haz tus cambios y luego vuelve a guardarla desde allí como una nueva plantilla.</CardDescription>
+          <CardDescription>Crea y edita tus diseños base. Estos diseños se podrán cargar en cualquier evento para personalizarlos para ese cliente.</CardDescription>
         </CardHeader>
         <CardContent>
             <Button onClick={handleCreateNewTemplate} disabled={isProcessing}>
@@ -128,17 +128,22 @@ export default function InvitationTemplatesPage() {
                         <p className="text-xs text-muted-foreground">{template.category} - Estilo: {template.plantilla}</p>
                      </div>
                   </div>
-                   <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                        <Button variant="destructive" size="icon" className="h-8 w-8" disabled={!!deletingId}>
-                            {deletingId === template.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}
-                        </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader><AlertDialogTitle>¿Confirmar eliminación?</AlertDialogTitle><AlertDialogDescription>La plantilla "{template.name}" será eliminada permanentemente.</AlertDialogDescription></AlertDialogHeader>
-                        <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteTemplate(template.id, template.name)} className="bg-destructive hover:bg-destructive/90">Eliminar</AlertDialogAction></AlertDialogFooter>
-                    </AlertDialogContent>
-                   </AlertDialog>
+                   <div className="flex gap-2">
+                        <Link href={`/fiestas/nueva/pagina-web?templateId=${template.id}`} passHref>
+                            <Button variant="outline" size="icon" className="h-8 w-8"><Edit className="w-4 h-4"/></Button>
+                        </Link>
+                        <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button variant="destructive" size="icon" className="h-8 w-8" disabled={!!deletingId}>
+                                {deletingId === template.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader><AlertDialogTitle>¿Confirmar eliminación?</AlertDialogTitle><AlertDialogDescription>La plantilla "{template.name}" será eliminada permanentemente.</AlertDialogDescription></AlertDialogHeader>
+                            <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteTemplate(template.id, template.name)} className="bg-destructive hover:bg-destructive/90">Eliminar</AlertDialogAction></AlertDialogFooter>
+                        </AlertDialogContent>
+                       </AlertDialog>
+                   </div>
                 </div>
               ))
             ) : <p className="text-center text-muted-foreground p-4">No hay plantillas de invitación guardadas.</p>}
