@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, PlusCircle, Trash2, Loader2, AlertTriangle, ListChecks, Clock, Bell, FolderOpen, Save, FileSignature, MessageSquare, Globe, CalendarDays, Users, Palette, ChefHat, Music2, PackageSearch, Video, Gift, Camera, Link as LinkIcon, Edit, Eye, Share2, Printer, QrCode } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Trash2, Loader2, AlertTriangle, ListChecks, Clock, Bell, FolderOpen, Save, FileSignature, MessageSquare, Globe, CalendarDays, Users, Palette, ChefHat, Music2, PackageSearch, Video, Gift, Camera, Link as LinkIcon, Edit, Eye, Share2, Printer, QrCode, Type, ImageIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { getFiestaActual, updateTareasFiestaActual } from '@/app/actions/fiesta-actual';

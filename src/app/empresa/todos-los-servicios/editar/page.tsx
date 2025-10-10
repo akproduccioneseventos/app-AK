@@ -9,23 +9,14 @@ import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 // This page is obsolete and has been replaced by specific edit pages for each module.
-export default function DeprecatedGeneralEditPage({ params: paramsProp }: { params: { id: string } }) {
-    const params = use(paramsProp);
+export default function DeprecatedGeneralEditPage() {
     const router = useRouter();
-    const { id } = params;
 
     useEffect(() => {
-        // A simple redirect logic. A more robust solution might check the item type first.
-        // For now, we assume it's either a service or an asset.
-        // A better approach would be a server-side redirect or a more intelligent client-side one.
-        if (id.startsWith('serv_')) {
-            router.replace(`/empresa/servicios/${id}/editar`);
-        } else if (id.startsWith('insumo_')) {
-            router.replace(`/empresa/insumos/${id}/editar`);
-        } else {
-            router.replace(`/empresa/activos-fijos/${id}/editar`);
-        }
-    }, [router, id]);
+        // Fallback redirection for a deprecated route
+        router.replace('/empresa');
+
+    }, [router]);
 
     return (
         <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4">
@@ -36,7 +27,7 @@ export default function DeprecatedGeneralEditPage({ params: paramsProp }: { para
                 </CardHeader>
                 <CardContent>
                      <p className="text-muted-foreground">
-                        La edición de ítems ha sido reestructurada. Serás redirigido a la página de edición correcta.
+                        La edición de ítems ha sido reestructurada. Serás redirigido.
                     </p>
                 </CardContent>
                  <CardFooter className="justify-center">
