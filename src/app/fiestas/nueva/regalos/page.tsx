@@ -46,7 +46,7 @@ function RedirectContent() {
 
 export default function ListaRegalosRedirectPage() {
      return (
-        <Suspense fallback={<div>Cargando...</div>}>
+        <Suspense fallback={<div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>}>
             <RedirectContent />
         </Suspense>
     );

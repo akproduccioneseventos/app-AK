@@ -12,7 +12,7 @@ import { Switch } from '@/components/ui/switch';
 import { ArrowLeft, Save, Loader2, Globe, Sparkles, Image as ImageIcon, Users, Clock, Gift, MapPin, Camera, Wand2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, EventWebPageSettings, ClientPortalSettings, GiftItem } from '@/types/fiesta';
-import { getFiestaActual, updatePortalSettingsFiestaActual as updatePortalSettings } from '@/app/actions/fiesta-actual';
+import { getFiestaById, updatePortalSettingsFiestaActual as updatePortalSettings } from '@/app/actions/fiesta/fiesta.actions';
 import { defaultWebPageSettings, defaultClientPortalSettings } from '@/lib/fiesta-defaults';
 import { merge, cloneDeep } from 'lodash';
 import { Separator } from '@/components/ui/separator';
@@ -21,13 +21,15 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 
 // Re-importar el componente de regalos para usarlo aquí
 import { GiftListManagement } from '@/components/fiesta/GiftListManagement';
-import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { useSearchParams } from 'next/navigation';
+import NextImage from 'next/image';
+import { Suspense } from 'react';
 
-export default function PaginaWebYPortalPage() {
+function PaginaWebPageContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
+  const fiestaId = searchParams.get('fiestaId');
   
   const [webSettings, setWebSettings] = useState<EventWebPageSettings>(defaultWebPageSettings);
   
@@ -42,7 +44,6 @@ export default function PaginaWebYPortalPage() {
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
-    const fiestaId = searchParams.get('fiestaId');
     if (!fiestaId) {
       toast({ title: "Error", description: "ID de fiesta no encontrado en la URL.", variant: "destructive"});
       setIsLoading(false);
@@ -65,7 +66,7 @@ export default function PaginaWebYPortalPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [searchParams, toast]);
+  }, [fiestaId, toast]);
 
   useEffect(() => {
     loadData();
@@ -221,6 +222,10 @@ export default function PaginaWebYPortalPage() {
                                <div className="flex items-center justify-between"><Label htmlFor="showGiftRegistry">Mostrar esta sección</Label><Switch id="showGiftRegistry" checked={webSettings.showGiftRegistry} onCheckedChange={(v) => handleWebSettingsChange('showGiftRegistry', v)}/></div>
                                <div className="space-y-1"><Label htmlFor="giftRegistryTitle">Título de la Sección</Label><Input id="giftRegistryTitle" value={webSettings.giftRegistryTitle} onChange={e => handleWebSettingsChange('giftRegistryTitle', e.target.value)}/></div>
                                <div className="space-y-1"><Label htmlFor="giftRegistryText">Texto Introductorio</Label><Textarea id="giftRegistryText" value={webSettings.giftRegistryText} onChange={e => handleWebSettingsChange('giftRegistryText', e.target.value)} rows={2}/></div>
+                               <GiftListManagement 
+                                   initialItems={webSettings.giftRegistry || []} 
+                                   onItemsChange={(newItems) => handleWebSettingsChange('giftRegistry', newItems)}
+                               />
                            </AccordionContent>
                        </AccordionItem>
 
@@ -256,4 +261,12 @@ export default function PaginaWebYPortalPage() {
       </form>
     </div>
   );
+}
+
+export default function PaginaWebYPortalPage() {
+    return (
+        <Suspense fallback={<div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>}>
+            <PaginaWebPageContent />
+        </Suspense>
+    );
 }

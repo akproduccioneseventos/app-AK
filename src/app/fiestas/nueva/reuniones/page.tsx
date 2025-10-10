@@ -188,6 +188,7 @@ export default function GestionReunionesPage() {
         };
         result = await updateReunionInFiestaActual(updatedReunionData);
       } else {
+        if (!fiesta) throw new Error("No hay una fiesta activa para añadir la reunión.");
         const newReunionData: Omit<Reunion, 'id'> = {
           fiestaId: fiesta!.id, // Add fiestaId
           titulo: formTitulo.trim(),
@@ -253,12 +254,13 @@ export default function GestionReunionesPage() {
 
   if (isLoading) return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /> <p className="ml-2">Cargando reuniones...</p></div>;
   if (error) return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>{error}</div>;
+  if (!fiesta) return <div className="text-center text-muted-foreground p-4">No se encontró información del evento.</div>;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3"><MessageSquareText className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Colaboración con el Cliente</h1></div>
-        <Link href="/fiestas/nueva" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
+        <div className="flex items-center gap-3"><MessageSquareText className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Reuniones y Colaboración</h1></div>
+        <Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`} passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
       </div>
       
       <Card>
@@ -292,7 +294,10 @@ export default function GestionReunionesPage() {
             </div>
             {conflictWarning && <p className="text-sm text-yellow-600 flex items-center gap-2"><AlertTriangle className="w-4 h-4"/>{conflictWarning}</p>}
             <div className="space-y-2"><Label htmlFor="reunion-notas">Notas / Acuerdos</Label><Textarea id="reunion-notas" value={formNotas} onChange={(e) => setFormNotas(e.target.value)} placeholder="Detalles, decisiones, próximos pasos..." rows={5}/></div>
-            <DialogFooter><DialogClose asChild><Button type="button" variant="outline" disabled={isSaving}>Cancelar</Button></DialogClose><Button type="submit" disabled={isSaving}>{isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}Guardar</Button></DialogFooter>
+            <DialogFooter className="pt-3">
+              <DialogClose asChild><Button type="button" variant="outline" disabled={isSaving}>Cancelar</Button></DialogClose>
+              <Button type="submit" disabled={isSaving}>{isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}Guardar</Button>
+            </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
@@ -306,4 +311,38 @@ export default function GestionReunionesPage() {
       </div>
     </div>
   );
+  
+  function renderReunionCard(reunion: Reunion) {
+    const isDeleting = deletingReunionId === reunion.id;
+    return (
+        <Card key={reunion.id} className="shadow-sm hover:shadow-md transition-shadow">
+          <CardHeader className="pb-3">
+            <div className="flex justify-between items-start">
+              <div>
+                <CardTitle className="text-lg">{reunion.titulo}</CardTitle>
+                {reunion.fecha && (
+                  <CardDescription className="flex items-center gap-2">
+                    <CalendarIcon className="w-4 h-4"/>
+                    {formatDate(reunion.fecha)} - {new Date(reunion.fecha).toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'})}
+                  </CardDescription>
+                )}
+              </div>
+              <div className="flex gap-1">
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openFormModal(reunion)}><Edit3 className="w-4 h-4" /></Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8 text-destructive"><Trash2 className="w-4 h-4" /></Button></AlertDialogTrigger>
+                  <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>¿Confirmas la eliminación?</AlertDialogTitle><AlertDialogDescription>La reunión "{reunion.titulo}" será eliminada.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteReunion(reunion.id)} disabled={isDeleting} className="bg-destructive hover:bg-destructive/80">{isDeleting && <Loader2 className="w-4 h-4 mr-2 animate-spin"/>}Eliminar</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
+                </AlertDialog>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground whitespace-pre-wrap">{reunion.notas}</p>
+          </CardContent>
+          <CardFooter className="pt-2">
+            {reunion.fecha && <Button variant="outline" size="sm" onClick={() => handleAddToCalendar(reunion)}><CalendarPlus className="w-4 h-4 mr-2"/>Añadir a Calendario</Button>}
+          </CardFooter>
+        </Card>
+    );
+  }
 }

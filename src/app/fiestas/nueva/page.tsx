@@ -25,7 +25,6 @@ const modules = [
   { title: "Configuración", href: "configuracion", icon: Users, description: "Datos generales del evento." },
   { title: "Tareas", href: "tareas", icon: ListChecks, description: "Checklist de pendientes." },
   { title: "Invitados", href: "invitados", icon: Users, description: "Gestiona tu lista de invitados." },
-  { title: "Diseño de Invitación", href: "invitados/invitacion", icon: ImageIcon, description: "Crea la tarjeta de invitación digital para enviar." },
   { title: "Página del Evento", href: "pagina-web", icon: Globe, description: "Personaliza la web que verán tus invitados." },
   { title: "Diseño del Salón", href: "invitados/layout", icon: LayoutDashboard, description: "Organiza las mesas y asientos." },
   { title: "Diseño y Decoración", href: "decoracion", icon: Palette, description: "Define el estilo y la ambientación." },
@@ -38,7 +37,6 @@ const modules = [
   { title: "Carga Operativa", href: "carga-operativa", icon: PackageSearch, description: "Checklist de carga de materiales." },
   { title: "Fotografía y Video", href: "fotografia", icon: Camera, description: "Seguimiento de entregas." },
   { title: "Video de Vida", href: "video-vida", icon: Video, description: "Gestiona las fotos del cliente." },
-  { title: "Lista de Regalos", href: "regalos", icon: Gift, description: "Administra la lista de regalos." },
   { title: "Reuniones", href: "reuniones", icon: MessageSquare, description: "Agenda y minutas de reuniones." }
 ];
 
