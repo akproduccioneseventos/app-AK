@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -9,10 +9,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Edit3, Save, Loader2, AlertTriangle, Trash2 } from 'lucide-react';
+import { ArrowLeft, Edit3, Save, Loader2, AlertTriangle, Trash2, PlusCircle, Percent } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getActivoFijoById, saveActivoFijo, deleteActivoFijo } from '@/app/actions/activos-fijos';
-import type { ServicioEmpresa, AnyCategoria, UnidadServicio } from '@/types/empresa';
+import type { ServicioEmpresa, AnyCategoria, UnidadServicio, TramoDePrecio } from '@/types/empresa';
 import { ALL_CATEGORIAS_ACTIVO, ALL_UNIDADES_SERVICIO } from '@/types/empresa';
 import {
   AlertDialog,
@@ -25,9 +25,10 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Separator } from '@/components/ui/separator';
 
 export default function EditarActivoFijoPage({ params: paramsProp }: { params: { id: string } }) {
-  const params = React.use(paramsProp);
+  const params = use(paramsProp);
   const router = useRouter();
   const { toast } = useToast();
   
@@ -70,8 +71,8 @@ export default function EditarActivoFijoPage({ params: paramsProp }: { params: {
     }
   }, [itemIdFromParams, loadItem]);
 
-  const handleFormChange = (field: keyof ServicioEmpresa, value: string | number | undefined) => {
-    const isNumericField = ['cantidadDisponible', 'valorUnitarioEstimado'].includes(field as string);
+  const handleFormChange = (field: keyof ServicioEmpresa, value: any) => {
+    const isNumericField = ['cantidadDisponible', 'valorUnitarioEstimado', 'precioVenta', 'precioPorPersona', 'precioBase', 'invitadosPorUnidad'].includes(field as string);
     
     if (isNumericField && typeof value === 'string') {
       const numValue = value === '' ? undefined : Number(value);
@@ -79,6 +80,22 @@ export default function EditarActivoFijoPage({ params: paramsProp }: { params: {
     } else {
       setFormData(prev => ({ ...prev, [field]: value }));
     }
+  };
+
+  const handleTramoChange = (index: number, field: keyof TramoDePrecio, value: string) => {
+    setFormData(prev => {
+        const nuevosTramos = [...(prev.tramosDePrecio || [])];
+        nuevosTramos[index] = {...nuevosTramos[index], [field]: Number(value) || 0 };
+        return {...prev, tramosDePrecio: nuevosTramos};
+    });
+  };
+
+  const addTramo = () => {
+    setFormData(prev => ({...prev, tramosDePrecio: [...(prev.tramosDePrecio || []), {id: `tramo_${Date.now()}`, desde: 0, hasta: 0, precio: 0}]}));
+  };
+
+  const removeTramo = (index: number) => {
+    setFormData(prev => ({...prev, tramosDePrecio: (prev.tramosDePrecio || []).filter((_, i) => i !== index)}));
   };
 
   const backUrl = '/empresa/activos-fijos';
@@ -107,10 +124,10 @@ export default function EditarActivoFijoPage({ params: paramsProp }: { params: {
     try {
       const result = await saveActivoFijo(itemDataToSave);
       if (result.success && result.servicio) {
-        toast({ title: "¡Ítem Actualizado!", description: `El ítem "${result.servicio.nombre}" ha sido actualizado.` });
+        toast({ title: "¡Activo Actualizado!", description: `El activo "${result.servicio.nombre}" ha sido actualizado.` });
         router.push(backUrl);
       } else {
-        throw new Error(result.error || "Error desconocido al actualizar el ítem.");
+        throw new Error(result.error || "Error desconocido al actualizar el activo.");
       }
     } catch (error: any) {
       toast({ title: "Error al Guardar", description: error.message, variant: "destructive" });
@@ -125,10 +142,10 @@ export default function EditarActivoFijoPage({ params: paramsProp }: { params: {
     try {
       const result = await deleteActivoFijo(item.id);
       if (result.success) {
-        toast({ title: "Ítem Eliminado", variant: "destructive" });
+        toast({ title: "Activo Eliminado", variant: "destructive" });
         router.push(backUrl);
       } else {
-        throw new Error(result.error || "No se pudo eliminar el ítem.");
+        throw new Error(result.error || "No se pudo eliminar el activo.");
       }
     } catch (error: any) {
       toast({ title: "Error al Eliminar", description: error.message, variant: "destructive" });
@@ -137,8 +154,9 @@ export default function EditarActivoFijoPage({ params: paramsProp }: { params: {
     }
   };
 
+
   if (isLoading) return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
-  if (notFound) return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>Ítem no encontrado. <Link href={backUrl} className="underline">Volver al catálogo</Link>.</div>;
+  if (notFound) return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>Activo no encontrado. <Link href={backUrl} className="underline">Volver al catálogo</Link>.</div>;
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -161,10 +179,6 @@ export default function EditarActivoFijoPage({ params: paramsProp }: { params: {
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-6">
             <div className="space-y-2">
-                <Label htmlFor="item-tipo" className="text-base">Tipo de Ítem *</Label>
-                 <Input id="item-tipo-fijo" value={formData.tipoItem || ''} readOnly disabled className="bg-muted/70 font-semibold"/>
-            </div>
-            <div className="space-y-2">
               <Label htmlFor="item-nombre" className="text-base">Nombre del Ítem *</Label>
               <Input id="item-nombre" value={formData.nombre || ''} onChange={(e) => handleFormChange('nombre', e.target.value)} required disabled={isSaving}/>
             </div>
@@ -180,10 +194,51 @@ export default function EditarActivoFijoPage({ params: paramsProp }: { params: {
              
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2"><Label htmlFor="item-cantidad">Cantidad Disponible (Stock)</Label><Input id="item-cantidad" type="number" value={formData.cantidadDisponible ?? ''} onChange={(e) => handleFormChange('cantidadDisponible', e.target.value)} disabled={isSaving}/></div>
-                    <div className="space-y-2"><Label htmlFor="item-costo">Costo (UYU)</Label><Input id="item-costo" type="number" value={formData.valorUnitarioEstimado ?? ''} onChange={(e) => handleFormChange('valorUnitarioEstimado', e.target.value)} disabled={isSaving}/></div>
+                    <div className="space-y-2"><Label htmlFor="item-costo">Costo Interno (UYU)</Label><Input id="item-costo" type="number" value={formData.valorUnitarioEstimado ?? ''} onChange={(e) => handleFormChange('valorUnitarioEstimado', e.target.value)} disabled={isSaving}/></div>
                      <div className="space-y-2"><Label htmlFor="item-unidad" className="text-base">Unidad *</Label><Select value={formData.unidad || ''} onValueChange={(value) => handleFormChange('unidad', value as UnidadServicio)} disabled={isSaving} required><SelectTrigger id="item-unidad"><SelectValue /></SelectTrigger><SelectContent>{ALL_UNIDADES_SERVICIO.map(u => (<SelectItem key={u} value={u}>{u}</SelectItem>))}</SelectContent></Select></div>
                      <div className="space-y-2"><Label htmlFor="item-proveedor">Proveedor</Label><Input id="item-proveedor" value={formData.proveedor || ''} onChange={(e) => handleFormChange('proveedor', e.target.value)} disabled={isSaving}/></div>
+             </div>
+
+             <Separator/>
+             
+             <div className="space-y-3">
+                 <Label className="text-base font-medium">Cálculo de Precio de Venta (para presupuestos)</Label>
+                 <Select value={formData.calculationMethod} onValueChange={(v) => handleFormChange('calculationMethod', v)} disabled={isSaving}>
+                    <SelectTrigger><SelectValue/></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="fijo">Precio Fijo</SelectItem>
+                        <SelectItem value="porPersona">Por Persona</SelectItem>
+                        <SelectItem value="ratio">Por Ratio de Invitados</SelectItem>
+                        <SelectItem value="tramos">Por Tramos de Invitados</SelectItem>
+                    </SelectContent>
+                 </Select>
+             </div>
+             
+            {formData.calculationMethod === 'fijo' && (
+                <div className="space-y-2"><Label htmlFor="precio-venta">Precio de Venta (Fijo)</Label><Input id="precio-venta" type="number" value={formData.precioVenta ?? ''} onChange={(e) => handleFormChange('precioVenta', e.target.value)} disabled={isSaving} min="0" step="any"/></div>
+            )}
+             {formData.calculationMethod === 'porPersona' && (
+                <div className="space-y-2"><Label htmlFor="precio-persona">Precio Por Persona</Label><Input id="precio-persona" type="number" value={formData.precioPorPersona ?? ''} onChange={(e) => handleFormChange('precioPorPersona', e.target.value)} disabled={isSaving} min="0" step="any"/></div>
+            )}
+            {formData.calculationMethod === 'ratio' && (
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2"><Label htmlFor="ratio-base">Precio Base (por unidad)</Label><Input id="ratio-base" type="number" value={formData.precioBase ?? ''} onChange={(e) => handleFormChange('precioBase', e.target.value)} disabled={isSaving} min="0" step="any"/></div>
+                    <div className="space-y-2"><Label htmlFor="ratio-invitados">Invitados por Unidad</Label><Input id="ratio-invitados" type="number" value={formData.invitadosPorUnidad ?? ''} onChange={(e) => handleFormChange('invitadosPorUnidad', e.target.value)} disabled={isSaving} min="1"/></div>
                 </div>
+            )}
+             {formData.calculationMethod === 'tramos' && (
+                <div className="space-y-3">
+                    {formData.tramosDePrecio?.map((tramo, index) => (
+                        <div key={tramo.id} className="flex items-end gap-2 p-2 border rounded-md">
+                            <div className="space-y-1"><Label htmlFor={`tramo-desde-${index}`}>Desde</Label><Input id={`tramo-desde-${index}`} type="number" value={tramo.desde} onChange={e => handleTramoChange(index, 'desde', e.target.value)} className="w-20"/></div>
+                            <div className="space-y-1"><Label htmlFor={`tramo-hasta-${index}`}>Hasta</Label><Input id={`tramo-hasta-${index}`} type="number" value={tramo.hasta} onChange={e => handleTramoChange(index, 'hasta', e.target.value)} className="w-20"/></div>
+                            <div className="space-y-1 flex-grow"><Label htmlFor={`tramo-precio-${index}`}>Precio</Label><Input id={`tramo-precio-${index}`} type="number" value={tramo.precio} onChange={e => handleTramoChange(index, 'precio', e.target.value)}/></div>
+                            <Button type="button" variant="ghost" size="icon" className="text-destructive h-8 w-8" onClick={() => removeTramo(index)} disabled={(formData.tramosDePrecio?.length || 0) <= 1}><Trash2 className="w-4 h-4"/></Button>
+                        </div>
+                    ))}
+                    <Button type="button" variant="outline" size="sm" onClick={addTramo}>Añadir Tramo</Button>
+                </div>
+            )}
             
           </CardContent>
           <CardFooter className="border-t pt-6 flex justify-between items-center">
@@ -195,14 +250,14 @@ export default function EditarActivoFijoPage({ params: paramsProp }: { params: {
               <AlertDialogTrigger asChild>
                 <Button variant="destructive" type="button" className="w-auto" disabled={isSaving || isDeleting}>
                   {isDeleting ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Trash2 className="w-5 h-5 mr-2" />}
-                  Eliminar Ítem
+                  Eliminar Activo
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>¿Confirmas la eliminación?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Esta acción no se puede deshacer. El ítem "{item?.nombre}" será eliminado permanentemente del catálogo.
+                    Esta acción no se puede deshacer. El activo "{item?.nombre}" será eliminado permanentemente del catálogo.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
