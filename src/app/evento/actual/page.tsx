@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useCallback, type FormEvent, useRef, use } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import NextImage from 'next/image';
-import { Loader2, AlertTriangle, PartyPopper, CalendarDays, MapPin, Check, Users, MessageSquare, Send, CheckCircle, Gift, Clock, QrCode, Facebook, Instagram, Music, Utensils, GlassWater, Diamond, Sparkles, CakeSlice, Camera, Link as LinkIcon, ExternalLink, Heart, Church, Handshake, Mail, Music2, Play, Pause } from 'lucide-react';
+import { Loader2, AlertTriangle, PartyPopper, CalendarDays, MapPin, Check, Users, MessageSquare, Send, CheckCircle, Gift, Clock, QrCode, Facebook, Instagram, Music, Utensils, GlassWater, Diamond, Sparkles, CakeSlice, Camera, Link as LinkIcon, ExternalLink, Heart, Church, Mail, Music2, Play, Pause } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, InvitacionDigitalData, ColorPalette, Invitado, GiftItem, ProgramaEventoItem } from '@/types/fiesta';
 import { getFiestaById, handleRsvpSubmissionFiestaActual, claimGiftFiestaActual } from '@/app/actions/fiesta-actual';
@@ -110,12 +110,12 @@ const GraziaTemplate: React.FC<{
       >
         {invitacionData.cabecera?.videoFondoUrl && invitacionData.cabecera.videoFondoUrl.endsWith('.mp4') ? (
             <video src={invitacionData.cabecera.videoFondoUrl} autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover -z-10"/>
-        ) : (
+        ) : invitacionData.cabecera?.videoFondoUrl ? (
              <NextImage src={invitacionData.cabecera?.videoFondoUrl || 'https://picsum.photos/seed/wedding-hero/1200/800'} alt="Fondo de cabecera" layout="fill" objectFit="cover" className="absolute inset-0 -z-10" />
-        )}
+        ) : null}
         <div className="absolute inset-0 bg-white/70 backdrop-blur-sm"></div>
         <div className="relative z-10 p-6 max-w-2xl mx-auto text-center">
-            <h2 className="font-headline text-2xl" style={{color: textColor}}>Nuestra Boda</h2>
+            <h2 className="font-headline text-2xl" style={{color: textColor}}>{invitacionData.bienvenida?.titulo}</h2>
             <h1 className="font-headline text-5xl md:text-7xl my-3" style={{color: primaryColor}}>
                {invitacionData.cabecera?.protagonista1 || fiesta.configuracion.nombreEvento}
                {invitacionData.cabecera?.protagonista2 && ` & ${invitacionData.cabecera.protagonista2}`}
@@ -143,55 +143,57 @@ const GraziaTemplate: React.FC<{
         <FloralSeparator />
 
         {invitacionData.detallesEvento?.visible && (
-          <>
-            <motion.section 
-                id="ceremonia" 
-                className="text-center"
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.8 }}
-                variants={sectionVariants}
-            >
-                <IconWrapper><Church className="w-12 h-12 mx-auto mb-3" style={{color: primaryColor}}/></IconWrapper>
-                <h3 className="font-headline text-3xl mb-3" style={{color: textColor}}>Ceremonia</h3>
-                <p className="text-lg text-muted-foreground">{fiesta.configuracion.horaInicio} hs.</p>
-                <p className="text-lg font-semibold" style={{color: textColor}}>{fiesta.configuracion.nombreLugar}</p>
-            </motion.section>
-            <FloralSeparator />
-          </>
+          <motion.section 
+            id="detalles"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.5 }}
+            variants={sectionVariants}
+            className="relative text-center py-10"
+          >
+            {invitacionData.detallesEvento.imagenFondoUrl && (
+              <>
+                <NextImage src={invitacionData.detallesEvento.imagenFondoUrl} alt="Detalles del evento" layout="fill" objectFit="cover" className="absolute inset-0 -z-10 rounded-lg"/>
+                <div className="absolute inset-0 bg-white/80 dark:bg-black/70 -z-10 rounded-lg"></div>
+              </>
+            )}
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-8'>
+                <div id="ceremonia">
+                    <IconWrapper><Church className="w-12 h-12 mx-auto mb-3" style={{color: primaryColor}}/></IconWrapper>
+                    <h3 className="font-headline text-3xl mb-3" style={{color: textColor}}>Ceremonia</h3>
+                    <p className="text-lg text-muted-foreground">{fiesta.configuracion.horaInicio} hs.</p>
+                    <p className="text-lg font-semibold" style={{color: textColor}}>{fiesta.configuracion.nombreLugar}</p>
+                </div>
+                <div id="celebracion">
+                    <IconWrapper><Handshake className="w-12 h-12 mx-auto mb-3" style={{color: primaryColor}}/></IconWrapper>
+                    <h3 className="font-headline text-3xl mb-3" style={{color: textColor}}>Celebración</h3>
+                    <p className="text-lg text-muted-foreground">{fiesta.configuracion.horaFin ? `A partir de las ${fiesta.configuracion.horaFin} hs.` : 'Luego de la ceremonia'}</p>
+                    <p className="text-lg font-semibold" style={{color: textColor}}>{fiesta.configuracion.nombreLugar}</p>
+                </div>
+            </div>
+             <a href={mapUrl} target="_blank" rel="noopener noreferrer">
+              <Button variant="outline" className="mt-8"><MapPin className="w-4 h-4 mr-2"/> Ver en Mapa</Button>
+            </a>
+          </motion.section>
         )}
         
-        {invitacionData.detallesEvento?.visible && (
-          <>
-            <motion.section 
-                id="celebracion" 
-                className="text-center"
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.8 }}
-                variants={sectionVariants}
-            >
-                <IconWrapper><Handshake className="w-12 h-12 mx-auto mb-3" style={{color: primaryColor}}/></IconWrapper>
-                <h3 className="font-headline text-3xl mb-3" style={{color: textColor}}>Celebración</h3>
-                <p className="text-lg text-muted-foreground">{fiesta.configuracion.horaFin ? `A partir de las ${fiesta.configuracion.horaFin} hs.` : 'Luego de la ceremonia'}</p>
-                <p className="text-lg font-semibold" style={{color: textColor}}>{fiesta.configuracion.nombreLugar}</p>
-                <a href={mapUrl} target="_blank" rel="noopener noreferrer">
-                  <Button variant="outline" className="mt-4"><MapPin className="w-4 h-4 mr-2"/> Ver en Mapa</Button>
-                </a>
-            </motion.section>
-            <FloralSeparator />
-          </>
-        )}
+        <FloralSeparator />
         
         {invitacionData.regalos?.visible && (
             <motion.section 
                 id="regalos" 
-                className="text-center"
+                className="text-center relative py-10"
                 initial="hidden"
                 whileInView="visible"
-                viewport={{ once: true, amount: 0.8 }}
+                viewport={{ once: true, amount: 0.5 }}
                 variants={sectionVariants}
             >
+                {invitacionData.regalos.imagenFondoUrl && (
+                  <>
+                    <NextImage src={invitacionData.regalos.imagenFondoUrl} alt="Sección de regalos" layout="fill" objectFit="cover" className="absolute inset-0 -z-10 rounded-lg"/>
+                    <div className="absolute inset-0 bg-white/80 dark:bg-black/70 -z-10 rounded-lg"></div>
+                  </>
+                )}
                  <IconWrapper><Gift className="w-12 h-12 mx-auto mb-3" style={{color: primaryColor}}/></IconWrapper>
                 <h3 className="font-headline text-3xl mb-3" style={{color: textColor}}>{invitacionData.regalos.titulo}</h3>
                 <p className="text-muted-foreground max-w-md mx-auto">{invitacionData.regalos.texto}</p>
