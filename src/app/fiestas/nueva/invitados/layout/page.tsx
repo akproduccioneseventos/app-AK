@@ -21,6 +21,16 @@ import {
   DialogClose,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import NextImage from 'next/image';
 import { Separator } from '@/components/ui/separator';
@@ -51,6 +61,11 @@ export default function SalonLayoutPage() {
   
   const [isFullscreen, setIsFullscreen] = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
+  
+  // State for auto-layout generator
+  const [generatorGuestCount, setGeneratorGuestCount] = useState<number>(100);
+  const [generatorSeatsPerTable, setGeneratorSeatsPerTable] = useState<number>(8);
+  const [isGenerateConfirmOpen, setIsGenerateConfirmOpen] = useState(false);
 
 
   const loadData = useCallback(async (showLoading = true) => {
@@ -59,6 +74,7 @@ export default function SalonLayoutPage() {
       const fiesta = await getFiestaActual();
       setDecoracion(fiesta.decoracion || { salonElements: [], salonWidth: 800, salonHeight: 600 });
       setInvitados(fiesta.invitados || []);
+      setGeneratorGuestCount(fiesta.configuracion?.invitadosEstimados ? Number(fiesta.configuracion.invitadosEstimados) : 100);
     } catch (e: any) {
       setError("No se pudo cargar la información del evento.");
       toast({ title: "Error", description: e.message, variant: "destructive" });
@@ -73,12 +89,14 @@ export default function SalonLayoutPage() {
   
   useEffect(() => {
     const handleFullscreenChange = () => {
-      if (!document.fullscreenElement) {
+      if (typeof document !== 'undefined' && !document.fullscreenElement) {
         setIsFullscreen(false);
       }
     };
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    if (typeof document !== 'undefined') {
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    }
   }, []);
 
   const handleDragStop = (e: DraggableEvent, data: DraggableData, elementId: string) => {
@@ -105,6 +123,45 @@ export default function SalonLayoutPage() {
     };
     setDecoracion({ ...decoracion, salonElements: [...(decoracion.salonElements || []), newElement] });
   };
+  
+  const handleGenerateTables = () => {
+      if(!decoracion || generatorGuestCount <= 0 || generatorSeatsPerTable <= 0) return;
+      const tablesNeeded = Math.ceil(generatorGuestCount / generatorSeatsPerTable);
+      const newTables: LayoutElement[] = [];
+      
+      const canvasWidth = decoracion.salonWidth || 800;
+      const padding = 40;
+      const tableSize = 100;
+      const tableSpacing = 40;
+      let x = padding;
+      let y = padding;
+
+      for (let i = 0; i < tablesNeeded; i++) {
+        newTables.push({
+            id: `auto_table_${Date.now()}_${i}`,
+            name: `Mesa ${i + 1}`,
+            x: x, y: y,
+            width: tableSize, height: tableSize,
+            rotation: 0,
+            quantity: 1,
+            type: 'predefined',
+            category: 'Mesa Redonda',
+            seats: generatorSeatsPerTable
+        });
+        
+        x += tableSize + tableSpacing;
+        if(x + tableSize > canvasWidth - padding) {
+            x = padding;
+            y += tableSize + tableSpacing;
+        }
+      }
+
+      setDecoracion({
+          ...decoracion,
+          salonElements: newTables,
+      });
+      setIsGenerateConfirmOpen(false);
+  }
 
   const handleOpenEditModal = (element: LayoutElement) => {
     setEditingElement(element);
@@ -158,14 +215,10 @@ export default function SalonLayoutPage() {
     if (!decoracion) return;
     setIsSaving(true);
     try {
-        // Save decoration layout changes
         const decoracionToSave = { ...decoracion, items: decoracion.items || [] };
         await updateDecoracionFiestaActual(decoracionToSave);
-        
-        // Save guest table assignments
         const updateGuestPromises = invitados.map(invitado => updateInvitadoFiestaActual(invitado));
         await Promise.all(updateGuestPromises);
-        
         toast({ title: "¡Guardado!", description: "La distribución del salón y la asignación de invitados han sido guardadas." });
         await loadData(false);
     } catch(err: any) {
@@ -194,7 +247,7 @@ export default function SalonLayoutPage() {
           .filter(el => el.category?.includes('Mesa') && el.seats)
           .map(el => ({ id: el.id, name: el.name, seats: el.seats || 0 })),
       };
-      const result = await assignGuestsToTable(input);
+      const result = await assignGuestsToTables(input);
       
       if(result.assignments) {
         const updatedGuestMap = new Map(result.assignments.map(g => [g.id, g.tableNumber]));
@@ -242,7 +295,7 @@ export default function SalonLayoutPage() {
   const handleFullscreenToggle = () => {
     if (!canvasRef.current) return;
     if (isFullscreen) {
-      document.exitFullscreen();
+      if (typeof document !== 'undefined') document.exitFullscreen();
     } else {
       canvasRef.current.requestFullscreen();
     }
@@ -282,6 +335,13 @@ export default function SalonLayoutPage() {
             <ScrollArea className="max-h-80"><div className="space-y-2 p-1">{savedTemplates.map(t=>(<Button key={t.id} variant="ghost" className="w-full justify-start" onClick={()=>applyTemplate(t.layoutData)}>{t.name}</Button>))}</div></ScrollArea>
           </DialogContent>
       </Dialog>
+      
+      <AlertDialog open={isGenerateConfirmOpen} onOpenChange={setIsGenerateConfirmOpen}>
+        <AlertDialogContent>
+            <AlertDialogHeader><AlertDialogTitle>Confirmar Generación de Mesas</AlertDialogTitle><AlertDialogDescription>Esta acción reemplazará todos los elementos actuales del salón con una nueva distribución automática. ¿Deseas continuar?</AlertDialogDescription></AlertDialogHeader>
+            <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={handleGenerateTables}>Sí, generar</AlertDialogAction></AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight font-headline flex items-center gap-2"><LayoutDashboard className="w-8 h-8 text-primary"/>Diseño de Mesas y Salón</h1>
@@ -351,21 +411,31 @@ export default function SalonLayoutPage() {
         <div className="space-y-4">
           <Card>
             <CardHeader><CardTitle>Controles</CardTitle></CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
+               <div className="p-3 border rounded-md bg-muted/20">
+                    <h4 className="font-medium text-sm mb-3">Asistente de Configuración Rápida</h4>
+                    <div className="grid grid-cols-2 gap-3">
+                         <div className="space-y-1"><Label htmlFor="gen-guests">Total de Invitados</Label><Input id="gen-guests" type="number" value={generatorGuestCount} onChange={e => setGeneratorGuestCount(Number(e.target.value) || 0)}/></div>
+                         <div className="space-y-1"><Label htmlFor="gen-seats">Asientos por Mesa</Label><Input id="gen-seats" type="number" value={generatorSeatsPerTable} onChange={e => setGeneratorSeatsPerTable(Number(e.target.value) || 0)}/></div>
+                    </div>
+                     <Button type="button" onClick={() => setIsGenerateConfirmOpen(true)} className="w-full mt-3">Generar Mesas</Button>
+               </div>
+               <Separator/>
+              <h4 className="font-medium text-sm">Añadir Elementos Manualmente</h4>
               <div className="grid grid-cols-2 gap-2">
                 <Button variant="outline" onClick={() => addElement('Mesa Redonda')}><Circle className="w-4 h-4 mr-2"/>Mesa Redonda</Button>
                 <Button variant="outline" onClick={() => addElement('Mesa Rectangular')}><Square className="w-4 h-4 mr-2"/>Mesa Rectangular</Button>
                 <Button variant="outline" onClick={() => addElement('Pista de Baile')}><Music className="w-4 h-4 mr-2"/>Pista</Button>
                 <Button variant="outline" onClick={() => addElement('Barra')}><Beer className="w-4 h-4 mr-2"/>Barra</Button>
               </div>
-               <Separator className="my-4"/>
+               <Separator />
                <div className="space-y-2"><Label htmlFor="salon-width">Ancho del Salón (px)</Label><Input id="salon-width" type="number" value={decoracion.salonWidth || 800} onChange={e => setDecoracion(d => d ? {...d, salonWidth: Number(e.target.value)}: null)} /></div>
                <div className="space-y-2"><Label htmlFor="salon-height">Alto del Salón (px)</Label><Input id="salon-height" type="number" value={decoracion.salonHeight || 600} onChange={e => setDecoracion(d => d ? {...d, salonHeight: Number(e.target.value)}: null)} /></div>
                <div className="space-y-2"><Label htmlFor="salon-bg">URL Imagen de Fondo</Label><Input id="salon-bg" type="url" value={decoracion.salonPlanBackgroundImageUrl || ''} onChange={e => setDecoracion(d => d ? {...d, salonPlanBackgroundImageUrl: e.target.value}: null)} placeholder="https://ejemplo.com/plano.png"/></div>
             </CardContent>
             <CardFooter className="flex-col gap-2">
                 <Button type="button" onClick={handleLoadTemplate} variant="outline" className="w-full"><FolderDown className="w-4 h-4 mr-2"/>Cargar Plantilla</Button>
-                 <Dialog open={isSaveTemplateModalOpen} onOpenChange={setIsSaveTemplateModalOpen}>
+                <Dialog open={isSaveTemplateModalOpen} onOpenChange={setIsSaveTemplateModalOpen}>
                     <DialogTrigger asChild>
                         <Button type="button" className="w-full"><FolderUp className="w-4 h-4 mr-2"/>Guardar como Plantilla</Button>
                     </DialogTrigger>
@@ -416,3 +486,5 @@ export default function SalonLayoutPage() {
     </div>
   );
 }
+
+    
