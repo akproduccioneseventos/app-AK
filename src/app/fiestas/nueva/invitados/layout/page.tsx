@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Music, Beer, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Image as ImageIcon, Maximize, Minimize, FolderDown, FolderUp, Wand2, Settings2 } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Music, Beer, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Image as ImageIcon, Maximize, Minimize, FolderUp, Wand2, Settings2 } from 'lucide-react';
 import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData } from '@/types/fiesta';
@@ -194,14 +194,17 @@ export default function SalonLayoutPage() {
     setInvitados(prev => prev.map(inv => inv.id === guestId ? { ...inv, tableNumber: table?.name || undefined } : inv));
   };
   
-  const handleSave = async () => {
+  const handleSaveAssignments = async () => {
     if (!decoracion) return;
     setIsSaving(true);
     try {
-        const decoracionToSave = { ...decoracion, items: decoracion.items || [] };
-        await updateDecoracionFiestaActual(decoracionToSave);
         const updateGuestPromises = invitados.map(invitado => updateInvitadoFiestaActual(invitado));
         await Promise.all(updateGuestPromises);
+        
+        // Also save the salon layout itself as it might have changed
+        const decoracionToSave = { ...decoracion, items: decoracion.items || [] };
+        await updateDecoracionFiestaActual(decoracionToSave);
+
         toast({ title: "¡Guardado!", description: "La distribución del salón y la asignación de invitados han sido guardadas." });
         await loadData(false);
     } catch(err: any) {
@@ -250,14 +253,19 @@ export default function SalonLayoutPage() {
   const handleSaveAsTemplate = async () => {
     if(!templateName.trim() || !decoracion) return;
     setIsSaving(true);
-    const result = await saveSalonLayoutTemplate(templateName, decoracion);
-    if (result.success) {
-        toast({ title: "Plantilla Guardada", description: `El diseño "${templateName}" ha sido guardado.`});
-        setIsSaveTemplateModalOpen(false);
-    } else {
-        toast({ title: "Error", description: result.error, variant: "destructive" });
+    try {
+        const result = await saveSalonLayoutTemplate(templateName, decoracion);
+        if (result.success) {
+            toast({ title: "Plantilla Guardada", description: `El diseño "${templateName}" ha sido guardado.`});
+            setIsSaveTemplateModalOpen(false);
+        } else {
+            throw new Error(result.error || "No se pudo guardar la plantilla.");
+        }
+    } catch (err: any) {
+        toast({ title: "Error", description: (err as Error).message, variant: "destructive" });
+    } finally {
+        setIsSaving(false);
     }
-    setIsSaving(false);
   };
   
   const handleFullscreenToggle = () => {
@@ -286,8 +294,8 @@ export default function SalonLayoutPage() {
           </DialogHeader>
           {editingElement && (
             <div className="space-y-4">
-              <div className="space-y-1"><Label htmlFor="el-name">Nombre</Label><Input id="el-name" value={editingElement.name} onChange={e => setEditingElement({...editingElement, name: e.target.value})}/></div>
-              {editingElement.category?.includes('Mesa') && <div className="space-y-1"><Label htmlFor="el-seats">Asientos</Label><Input id="el-seats" type="number" value={editingElement.seats || 0} onChange={e => setEditingElement({...editingElement, seats: Number(e.target.value) || 0})}/></div>}
+              <div className="space-y-1"><Label htmlFor="el-name">Nombre</Label><Input id="el-name" value={editingElement.name} onChange={e => setEditingElement(prev => prev ? {...prev, name: e.target.value} : null)}/></div>
+              {editingElement.category?.includes('Mesa') && <div className="space-y-1"><Label htmlFor="el-seats">Asientos</Label><Input id="el-seats" type="number" value={editingElement.seats || 0} onChange={e => setEditingElement(prev => prev ? {...prev, seats: Number(e.target.value) || 0} : null)}/></div>}
             </div>
           )}
           <DialogFooter>
@@ -379,7 +387,7 @@ export default function SalonLayoutPage() {
                          <div className="space-y-1"><Label htmlFor="gen-guests">Total de Invitados</Label><Input id="gen-guests" type="number" value={generatorGuestCount} onChange={e => setGeneratorGuestCount(Number(e.target.value) || 0)}/></div>
                          <div className="space-y-1"><Label htmlFor="gen-seats">Asientos por Mesa</Label><Input id="gen-seats" type="number" value={generatorSeatsPerTable} onChange={e => setGeneratorSeatsPerTable(Number(e.target.value) || 0)}/></div>
                     </div>
-                     <Button type="button" onClick={() => setIsGenerateConfirmOpen(true)} className="w-full mt-3">Generar Mesas</Button>
+                     <AlertDialogTrigger asChild><Button type="button" className="w-full mt-3">Generar Mesas</Button></AlertDialogTrigger>
                </div>
                <Separator/>
               <h4 className="font-medium text-sm">Añadir Elementos Manualmente</h4>
@@ -396,10 +404,10 @@ export default function SalonLayoutPage() {
             </CardContent>
             <CardFooter className="flex-col gap-2">
                 <Link href="/settings/templates/layouts" passHref>
-                    <Button variant="outline" className="w-full"><Settings2 className="w-4 h-4 mr-2"/>Gestionar Plantillas Guardadas</Button>
+                    <Button variant="outline" className="w-full">Gestionar Plantillas Guardadas</Button>
                 </Link>
                 <Dialog open={isSaveTemplateModalOpen} onOpenChange={setIsSaveTemplateModalOpen}>
-                    <DialogTrigger asChild><Button type="button" className="w-full"><FolderUp className="w-4 h-4 mr-2"/>Guardar como Plantilla</Button></DialogTrigger>
+                    <DialogTrigger asChild><Button type="button" className="w-full"><FolderUp className="w-4 h-4 mr-2"/>Guardar Diseño como Plantilla</Button></DialogTrigger>
                     <DialogContent>
                         <DialogHeader><DialogTitle>Guardar Diseño como Plantilla</DialogTitle></DialogHeader>
                         <div className="space-y-2 py-2"><Label htmlFor="template-name">Nombre de la Plantilla</Label><Input id="template-name" value={templateName} onChange={e=>setTemplateName(e.target.value)} placeholder="Ej: Club Uruguay - 80 invitados"/></div>
@@ -450,9 +458,9 @@ export default function SalonLayoutPage() {
         </div>
       </div>
        <div className="flex justify-end mt-6">
-            <Button size="lg" onClick={handleSave} disabled={isSaving}>
+            <Button size="lg" onClick={handleSaveAssignments} disabled={isSaving}>
               {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin"/> : <Save className="w-5 h-5 mr-2" />}
-              Guardar Distribución y Asignaciones
+              {isSaving ? 'Guardando...' : 'Guardar Asignaciones de Invitados'}
             </Button>
         </div>
     </div>
