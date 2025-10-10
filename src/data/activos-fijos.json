@@ -1,14 +1,4 @@
-
 [
-  {
-    "id": "lc_bt_1",
-    "nombre": "Estructura de Arriba de la Barra",
-    "cantidadDisponible": 1,
-    "tipoItem": "Activo Fijo",
-    "categoria": "Barra de Tragos",
-    "valorUnitarioEstimado": 2500,
-    "unidad": "Unidad"
-  },
   {
     "id": "lc_bt_2",
     "nombre": "Caja de Herramientas Barman",

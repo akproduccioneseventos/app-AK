@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
-import { QrScanner } from 'react-qr-scanner';
+import QrScanner from 'react-qr-scanner';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, AlertTriangle, CheckCircle, Ticket, User, UserCheck, Users, Link, ArrowLeft, CameraOff } from 'lucide-react';
