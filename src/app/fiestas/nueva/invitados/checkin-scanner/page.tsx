@@ -5,7 +5,7 @@ import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import QrScanner from 'react-qr-scanner';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, AlertTriangle, CheckCircle, Ticket, User, UserCheck, Users, Link, ArrowLeft, CameraOff } from 'lucide-react';
+import { Loader2, AlertTriangle, CheckCircle, Ticket, User, UserCheck, Users, Link as LinkIcon, ArrowLeft, CameraOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { checkInGuestFiestaActual } from '@/app/actions/fiesta-actual';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
@@ -13,6 +13,7 @@ import type { Invitado } from '@/types/invitado';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import Link from 'next/link';
 
 function CheckinScannerContent() {
   const { toast } = useToast();
@@ -95,7 +96,7 @@ function CheckinScannerContent() {
           <UserCheck className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">Escáner de Check-in</h1>
         </div>
-        <Link href="/fiestas/nueva/invitados" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver a Invitados</Button></Link>
+        <Link href="/fiestas/nueva/invitados"><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver a Invitados</Button></Link>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
