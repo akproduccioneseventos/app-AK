@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
@@ -12,7 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData } from '@/types/fiesta';
 import { getFiestaActual, updateDecoracionFiestaActual, updateInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogTrigger } from "@/components/ui/dialog";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import NextImage from 'next/image';
 import { Separator } from '@/components/ui/separator';
@@ -384,12 +385,16 @@ export default function SalonLayoutPage() {
                           id={el.id}
                           onDragOver={e => e.preventDefault()}
                           onDrop={e => handleGuestDrop(e, el.id)}
-                          className={`absolute border-2 flex flex-col items-center justify-center p-1 cursor-grab active:cursor-grabbing ${el.category?.includes('Mesa Redonda') ? 'rounded-full' : 'rounded-md'} ${selectedElementId === el.id ? 'border-primary shadow-lg z-10' : 'border-gray-500 bg-white/80'}`}
+                          className={cn(
+                            'absolute border-2 flex flex-col items-center justify-center p-1 cursor-grab active:cursor-grabbing',
+                            el.category?.includes('Mesa Redonda') ? 'rounded-full' : 'rounded-md',
+                            selectedElementId === el.id ? 'border-primary shadow-lg z-10' : 'border-gray-500 bg-white/80'
+                          )}
                           style={{ width: el.width, height: el.height, transform: `rotate(${el.rotation}deg)`}}
                           onClick={() => setSelectedElementId(el.id)}
                         >
                           <p className="text-xs font-bold text-center truncate px-1">{el.name}</p>
-                          {el.seats !== undefined && <p className={`text-[10px] ${isFull ? 'font-bold text-destructive' : 'text-muted-foreground'}`}>{seatsTaken} / {el.seats}</p>}
+                          {el.seats !== undefined && <p className={`text-xs ${isFull ? 'font-bold text-destructive' : 'text-muted-foreground'}`}>{seatsTaken} / {el.seats}</p>}
                           {guestsAtTable.length > 0 && (
                               <ul className="text-[8px] list-disc list-inside mt-1 overflow-y-auto max-h-12">
                                 {guestsAtTable.map(g => <li key={g.id} className="truncate">{g.nombre} ({g.partySize || 1})</li>)}
@@ -415,7 +420,7 @@ export default function SalonLayoutPage() {
           <Card>
             <CardHeader><CardTitle>Controles</CardTitle></CardHeader>
             <CardContent>
-                <AlertDialog open={isGenerateConfirmOpen} onOpenChange={setIsGenerateConfirmOpen}>
+                 <AlertDialog open={isGenerateConfirmOpen} onOpenChange={setIsGenerateConfirmOpen}>
                  <div className="p-3 border rounded-md bg-muted/20">
                       <h4 className="font-medium text-sm mb-3">Asistente de Configuración Rápida</h4>
                       <div className="grid grid-cols-2 gap-3">
@@ -446,7 +451,11 @@ export default function SalonLayoutPage() {
             <CardFooter className="flex-col gap-2">
                 <Button type="button" onClick={handleLoadTemplate} variant="outline" className="w-full"><FolderDown className="w-4 h-4 mr-2"/>Cargar Plantilla</Button>
                 <Dialog open={isSaveTemplateModalOpen} onOpenChange={setIsSaveTemplateModalOpen}>
-                    <DialogTrigger asChild><Button type="button" className="w-full"><FolderUp className="w-4 h-4 mr-2"/>Guardar Diseño como Plantilla</Button></DialogTrigger>
+                    <DialogTrigger asChild>
+                        <Button type="button" className="w-full">
+                            <FolderUp className="w-4 h-4 mr-2"/>Guardar Diseño como Plantilla
+                        </Button>
+                    </DialogTrigger>
                     <DialogContent>
                         <DialogHeader><DialogTitle>Guardar Diseño como Plantilla</DialogTitle></DialogHeader>
                         <div className="space-y-2 py-2"><Label htmlFor="template-name">Nombre de la Plantilla</Label><Input id="template-name" value={templateName} onChange={e=>setTemplateName(e.target.value)} placeholder="Ej: Club Uruguay - 80 invitados"/></div>
