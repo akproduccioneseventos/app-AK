@@ -3,9 +3,9 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, AlertTriangle, Image as ImageIcon, Palette, Type, Share2 } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, Image as ImageIcon, Palette, Type, Share2, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
@@ -138,4 +138,3 @@ export default function DisenoInvitacionPage() {
         </div>
     );
 }
-
