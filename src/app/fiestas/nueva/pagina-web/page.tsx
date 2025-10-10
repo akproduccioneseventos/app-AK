@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, type FormEvent, useEffect, useCallback, ChangeEvent } from 'react';
+import React, { useState, type FormEvent, useEffect, useCallback, ChangeEvent } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,21 +9,101 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Save, Loader2, Globe, Sparkles, Image as ImageIcon, Users, Clock, Gift, MapPin, Camera, Wand2 } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, Globe, Sparkles, Image as ImageIcon, Users, Clock, Gift, MapPin, Camera, Wand2, PlusCircle, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, EventWebPageSettings, ClientPortalSettings, GiftItem } from '@/types/fiesta';
-import { getFiestaById, updatePortalSettingsFiestaActual as updatePortalSettings } from '@/app/actions/fiesta/fiesta.actions';
+import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { updatePortalSettings } from '@/app/actions/fiesta/portal.actions';
 import { defaultWebPageSettings, defaultClientPortalSettings } from '@/lib/fiesta-defaults';
 import { merge, cloneDeep } from 'lodash';
 import { Separator } from '@/components/ui/separator';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-
-// Re-importar el componente de regalos para usarlo aquí
-import { GiftListManagement } from '@/components/fiesta/GiftListManagement';
 import { useSearchParams } from 'next/navigation';
 import NextImage from 'next/image';
 import { Suspense } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+
+const GiftListManagement: React.FC<{
+  initialItems: GiftItem[];
+  onItemsChange: (items: GiftItem[]) => void;
+}> = ({ initialItems, onItemsChange }) => {
+  const [items, setItems] = useState(initialItems);
+  const [isItemModalOpen, setIsItemModalOpen] = useState(false);
+  const [currentItem, setCurrentItem] = useState<Partial<GiftItem> | null>(null);
+
+  useEffect(() => {
+    onItemsChange(items);
+  }, [items, onItemsChange]);
+
+  const openItemModal = (item?: GiftItem) => {
+    setCurrentItem(item || { name: '', description: '', imageUrl: '' });
+    setIsItemModalOpen(true);
+  };
+
+  const handleSaveItem = () => {
+    if (!currentItem || !currentItem.name?.trim()) return;
+    const finalItem: GiftItem = {
+      ...currentItem,
+      id: currentItem.id || `gift_${Date.now()}`,
+      name: currentItem.name.trim(),
+      isClaimed: currentItem.isClaimed || false,
+    } as GiftItem;
+
+    setItems(prev => {
+      const existingIndex = prev.findIndex(i => i.id === finalItem.id);
+      if (existingIndex > -1) {
+        const newItems = [...prev];
+        newItems[existingIndex] = finalItem;
+        return newItems;
+      }
+      return [...prev, finalItem];
+    });
+    setIsItemModalOpen(false);
+  };
+
+  const handleDeleteItem = (itemId: string) => {
+    setItems(prev => prev.filter(i => i.id !== itemId));
+  };
+
+  return (
+    <div className="space-y-3">
+        <Dialog open={isItemModalOpen} onOpenChange={setIsItemModalOpen}>
+            <DialogContent>
+                <DialogHeader><DialogTitle>{currentItem?.id ? 'Editar' : 'Añadir'} Regalo</DialogTitle></DialogHeader>
+                <div className="space-y-3 py-2">
+                    <div className="space-y-1"><Label htmlFor="gift-name">Nombre del Regalo</Label><Input id="gift-name" value={currentItem?.name || ''} onChange={e => setCurrentItem(p => p ? {...p, name: e.target.value} : null)} /></div>
+                    <div className="space-y-1"><Label htmlFor="gift-desc">Descripción</Label><Textarea id="gift-desc" value={currentItem?.description || ''} onChange={e => setCurrentItem(p => p ? {...p, description: e.target.value} : null)} rows={2}/></div>
+                    <div className="space-y-1"><Label htmlFor="gift-img">URL de Imagen</Label><Input id="gift-img" type="url" value={currentItem?.imageUrl || ''} onChange={e => setCurrentItem(p => p ? {...p, imageUrl: e.target.value} : null)} /></div>
+                </div>
+                <DialogFooter><Button variant="outline" onClick={() => setIsItemModalOpen(false)}>Cancelar</Button><Button onClick={handleSaveItem}>Guardar</Button></DialogFooter>
+            </DialogContent>
+        </Dialog>
+      <div className="flex justify-between items-center">
+        <h4 className="text-sm font-medium">Ítems de la Lista</h4>
+        <Button size="sm" variant="outline" type="button" onClick={() => openItemModal()}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Regalo</Button>
+      </div>
+      <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
+        {items.map(item => (
+          <div key={item.id} className="flex items-center justify-between p-2 border rounded-md text-sm">
+            <span>{item.name} {item.isClaimed && <span className="text-xs text-green-600">(Elegido)</span>}</span>
+            <div className="flex gap-1">
+                <Button size="icon" variant="ghost" type="button" className="h-7 w-7"><Edit className="w-3.5 h-3.5"/></Button>
+                <Button size="icon" variant="ghost" type="button" className="h-7 w-7 text-destructive" onClick={() => handleDeleteItem(item.id)}><Trash2 className="w-3.5 h-3.5"/></Button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 function PaginaWebPageContent() {
   const { toast } = useToast();
@@ -72,7 +152,7 @@ function PaginaWebPageContent() {
     loadData();
   }, [loadData]);
   
-  const handleWebSettingsChange = (field: keyof EventWebPageSettings, value: string | boolean | string[]) => {
+  const handleWebSettingsChange = (field: keyof EventWebPageSettings, value: string | boolean | string[] | GiftItem[]) => {
     setWebSettings(prev => ({...prev, [field]: value}));
   };
 
