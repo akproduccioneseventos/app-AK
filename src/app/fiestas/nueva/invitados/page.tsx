@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, type FormEvent, useEffect, useCallback } from 'react';
@@ -7,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Plus, Trash2, Users, Mail, Phone, Edit3, Save, Loader2, AlertTriangle, NotebookTextIcon, UserMinus, UserPlus2, QrCode, UserCheck, Ticket, LayoutDashboard, ArrowRight, Printer, Globe } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Users, Mail, Phone, Edit3, Save, Loader2, AlertTriangle, NotebookTextIcon, UserMinus, UserPlus2, QrCode, UserCheck, Ticket, LayoutDashboard, ArrowRight, Printer, Globe, Camera } from 'lucide-react';
 import Link from 'next/link';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
@@ -250,6 +251,9 @@ export default function InvitadosEventoPage() {
           Gestión de Invitados
         </h1>
         <div className="flex flex-wrap gap-2">
+            <Link href="/fiestas/nueva/invitados/checkin-scanner" passHref>
+                <Button variant="secondary"><Camera className="w-4 h-4 mr-2"/>Escanear QR</Button>
+            </Link>
             <Button variant="secondary" onClick={handlePrint}><Printer className="w-4 h-4 mr-2"/>Imprimir Lista</Button>
             <Link href="/fiestas/nueva" passHref>
               <Button variant="outline">
