@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useState, type FormEvent, useEffect, useCallback } from 'react';
+import React, { useState, type FormEvent, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,7 +12,7 @@ import Link from 'next/link';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import type { Invitado, RsvpStatus, NuevoInvitadoData } from '@/types/invitado';
-import { getFiestaActual, addInvitadoFiestaActual, updateInvitadoFiestaActual, deleteInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaActual, addInvitadoFiestaActual, updateInvitadoFiestaActual, deleteInvitadoFiestaActual, checkInGuestFiestaActual } from '@/app/actions/fiesta-actual';
 import {
   Dialog,
   DialogContent,
@@ -24,6 +23,17 @@ import {
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Badge } from '@/components/ui/badge';
 import QRCodeStylized from 'qrcode.react';
 
@@ -120,6 +130,16 @@ export default function InvitadosEventoPage() {
       toast({ title: "Error al Añadir", description: result.error || "No se pudo añadir el invitado.", variant: "destructive" });
     }
     setIsSaving(false);
+  };
+  
+  const handleCheckIn = async (invitadoId: string) => {
+    const result = await checkInGuestFiestaActual(invitadoId);
+    if(result.success && result.invitado) {
+        setInvitados(prev => prev.map(inv => inv.id === invitadoId ? result.invitado! : inv));
+        toast({ title: `Check-in de ${result.invitado.nombre} registrado.` });
+    } else {
+        toast({ title: "Error en Check-in", description: result.error, variant: "destructive" });
+    }
   };
 
   const handleFieldChange = async (invitadoId: string, field: keyof Invitado, value: any) => {
@@ -335,6 +355,7 @@ export default function InvitadosEventoPage() {
                         </div>
                         <div className="flex gap-1 print:hidden">
                             <Button variant="ghost" size="icon" onClick={() => setQrCodeData({ id: invitado.id, name: invitado.nombre })} className="h-8 w-8 text-primary" title="Mostrar QR"><QrCode className="w-4 h-4" /></Button>
+                            <Button variant="outline" size="sm" className="h-8 text-xs" onClick={() => handleCheckIn(invitado.id)} disabled={invitado.checkedIn}><UserCheck className="w-3.5 h-3.5 mr-1"/>Check-in</Button>
                             <Button variant="ghost" size="icon" onClick={() => openEditModal(invitado)} className="h-8 w-8"><Edit3 className="w-4 h-4" /></Button>
                             <Button variant="ghost" size="icon" onClick={() => handleDeleteInvitado(invitado.id)} className="text-destructive hover:text-destructive/80 h-8 w-8"><UserMinus className="w-4 h-4" /></Button>
                         </div>
