@@ -30,6 +30,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogTrigger,
+  DialogClose,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { getInvitationTemplates, saveInvitationTemplate, type InvitacionDigitalTemplate } from '@/app/actions/invitacion-digital-templates';
@@ -271,25 +272,25 @@ function PaginaWebPageContent() {
   const backLink = isEditingTemplate ? "/settings/templates/invitaciones" : `/fiestas/nueva?fiestaId=${fiestaId}`;
 
   const renderUploadInput = (section: keyof InvitacionDigitalData, field: string, currentUrl?: string) => (
-    <DialogTrigger asChild>
-      <div className="space-y-2">
-        <Label>Imagen/Video de Fondo</Label>
-        <div className="flex items-center gap-2">
-          <Input value={currentUrl || ''} onChange={e => handleDataChange(section, field as any, e.target.value)} placeholder="https://... o sube un archivo"/>
-          <Button type="button" variant="outline" size="sm" onClick={() => {
-              setFileToUpload(null);
-              setPreviewUrl(null);
-              setFileContext({section, field})
-          }}>Subir</Button>
-        </div>
-        {currentUrl && <NextImage src={currentUrl} alt="Preview" width={100} height={60} className="rounded-md border object-cover"/>}
+    <div className="space-y-2">
+      <Label>Imagen/Video de Fondo</Label>
+      <div className="flex items-center gap-2">
+        <Input value={currentUrl || ''} onChange={e => handleDataChange(section, field as any, e.target.value)} placeholder="https://... o sube un archivo"/>
+        <DialogTrigger asChild>
+            <Button type="button" variant="outline" size="sm" onClick={() => {
+                setFileToUpload(null);
+                setPreviewUrl(null);
+                setFileContext({section, field})
+            }}>Subir</Button>
+        </DialogTrigger>
       </div>
-    </DialogTrigger>
+      {currentUrl && <NextImage src={currentUrl} alt="Preview" width={100} height={60} className="rounded-md border object-cover"/>}
+    </div>
   );
 
   return (
     <div className="space-y-6">
-      <Dialog onOpenChange={(open) => !open && setFileContext(null)}>
+       <Dialog onOpenChange={(open) => !open && setFileContext(null)}>
         <DialogContent>
             <DialogHeader>
                 <DialogTitle>Subir Archivo de Fondo</DialogTitle>
@@ -333,24 +334,24 @@ function PaginaWebPageContent() {
             </DialogContent>
         </Dialog>
 
-        <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-            <Globe className="w-8 h-8 text-primary" />
-            <h1 className="text-3xl font-bold tracking-tight font-headline">
-                {isEditingTemplate ? `Editando Plantilla: ${invitacionData.name}` : "Página Pública del Evento"}
-            </h1>
-            </div>
-            <div className="flex gap-2">
-                {!isEditingTemplate && (
-                    <Link href={`/evento/actual?fiestaId=${fiesta!.id}`} passHref target="_blank">
-                        <Button variant="secondary"><ExternalLink className="w-4 h-4 mr-2"/>Ver Página</Button>
-                    </Link>
-                )}
-                <Link href={backLink} passHref>
-                <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
-                </Link>
-            </div>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Globe className="w-8 h-8 text-primary" />
+          <h1 className="text-3xl font-bold tracking-tight font-headline">
+            {isEditingTemplate ? `Editando Plantilla: ${invitacionData.name}` : "Página Pública del Evento"}
+          </h1>
         </div>
+        <div className="flex gap-2">
+            {!isEditingTemplate && (
+                <Link href={`/evento/actual?fiestaId=${fiesta!.id}`} passHref target="_blank">
+                    <Button variant="secondary"><ExternalLink className="w-4 h-4 mr-2"/>Ver Página</Button>
+                </Link>
+            )}
+            <Link href={backLink} passHref>
+              <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
+            </Link>
+        </div>
+      </div>
       
         <form onSubmit={handleSave}>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -422,7 +423,6 @@ function PaginaWebPageContent() {
             </div>
             </div>
         </form>
-      </Dialog>
     </div>
   );
 }
@@ -434,3 +434,4 @@ export default function PaginaWebYPortalPage() {
         </Suspense>
     );
 }
+
