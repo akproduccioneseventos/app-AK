@@ -7,30 +7,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Music, Beer, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Image as ImageIcon, Maximize, Minimize, FolderDown, FolderUp, Wand2 } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Music, Beer, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Image as ImageIcon, Maximize, Minimize, FolderDown, FolderUp, Wand2, Settings2 } from 'lucide-react';
 import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData } from '@/types/fiesta';
 import { getFiestaActual, updateDecoracionFiestaActual, updateInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogClose,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import NextImage from 'next/image';
 import { Separator } from '@/components/ui/separator';
@@ -38,6 +21,7 @@ import { assignGuestsToTables, type AssignGuestsInput } from '@/ai/flows/assign-
 import { getSalonLayoutTemplates, saveSalonLayoutTemplate, type SalonLayoutTemplate } from '@/app/actions/salon-layout-templates';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from "@/lib/utils";
+import { Switch } from '@/components/ui/switch';
 
 const grid = 20;
 
@@ -56,13 +40,10 @@ export default function SalonLayoutPage() {
 
   const [isSaveTemplateModalOpen, setIsSaveTemplateModalOpen] = useState(false);
   const [templateName, setTemplateName] = useState('');
-  const [isLoadTemplateModalOpen, setIsLoadTemplateModalOpen] = useState(false);
-  const [savedTemplates, setSavedTemplates] = useState<SalonLayoutTemplate[]>([]);
   
   const [isFullscreen, setIsFullscreen] = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
   
-  // State for auto-layout generator
   const [generatorGuestCount, setGeneratorGuestCount] = useState<number>(100);
   const [generatorSeatsPerTable, setGeneratorSeatsPerTable] = useState<number>(8);
   const [isGenerateConfirmOpen, setIsGenerateConfirmOpen] = useState(false);
@@ -72,7 +53,7 @@ export default function SalonLayoutPage() {
     if(showLoading) setIsLoading(true);
     try {
       const fiesta = await getFiestaActual();
-      setDecoracion(fiesta.decoracion || { salonElements: [], salonWidth: 800, salonHeight: 600 });
+      setDecoracion(fiesta.decoracion || { salonElements: [], salonWidth: 800, salonHeight: 600, layoutMode: 'asignado' });
       setInvitados(fiesta.invitados || []);
       setGeneratorGuestCount(fiesta.configuracion?.invitadosEstimados ? Number(fiesta.configuracion.invitadosEstimados) : 100);
     } catch (e: any) {
@@ -197,6 +178,8 @@ export default function SalonLayoutPage() {
   
   const handleGuestDrop = (e: React.DragEvent, tableId: string) => {
     e.preventDefault();
+    if(decoracion?.layoutMode === 'libre') return;
+
     const guestId = e.dataTransfer.getData('guestId');
     const table = decoracion?.salonElements?.find(el => el.id === tableId);
     const guestsAtTable = invitados.filter(i => i.tableNumber === table?.name).reduce((acc, g) => acc + (g.partySize || 1), 0);
@@ -277,21 +260,6 @@ export default function SalonLayoutPage() {
     setIsSaving(false);
   };
   
-  const handleLoadTemplate = async () => {
-    setIsLoadTemplateModalOpen(true);
-    const templates = await getSalonLayoutTemplates();
-    setSavedTemplates(templates);
-  };
-  
-  const applyTemplate = (templateData: SalonLayoutTemplate['layoutData']) => {
-    setDecoracion(prev => ({
-        ...(prev || {}),
-        ...templateData,
-    }) as DecoracionData);
-    toast({ description: `Plantilla "${templateData.layoutTemplateName}" cargada.`});
-    setIsLoadTemplateModalOpen(false);
-  };
-
   const handleFullscreenToggle = () => {
     if (!canvasRef.current) return;
     if (isFullscreen) {
@@ -327,13 +295,6 @@ export default function SalonLayoutPage() {
             <Button onClick={handleUpdateElement}>Guardar</Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
-      
-      <Dialog open={isLoadTemplateModalOpen} onOpenChange={setIsLoadTemplateModalOpen}>
-          <DialogContent>
-            <DialogHeader><DialogTitle>Cargar Diseño desde Plantilla</DialogTitle></DialogHeader>
-            <ScrollArea className="max-h-80"><div className="space-y-2 p-1">{savedTemplates.map(t=>(<Button key={t.id} variant="ghost" className="w-full justify-start" onClick={()=>applyTemplate(t.layoutData)}>{t.name}</Button>))}</div></ScrollArea>
-          </DialogContent>
       </Dialog>
       
       <AlertDialog open={isGenerateConfirmOpen} onOpenChange={setIsGenerateConfirmOpen}>
@@ -434,11 +395,11 @@ export default function SalonLayoutPage() {
                <div className="space-y-2"><Label htmlFor="salon-bg">URL Imagen de Fondo</Label><Input id="salon-bg" type="url" value={decoracion.salonPlanBackgroundImageUrl || ''} onChange={e => setDecoracion(d => d ? {...d, salonPlanBackgroundImageUrl: e.target.value}: null)} placeholder="https://ejemplo.com/plano.png"/></div>
             </CardContent>
             <CardFooter className="flex-col gap-2">
-                <Button type="button" onClick={handleLoadTemplate} variant="outline" className="w-full"><FolderDown className="w-4 h-4 mr-2"/>Cargar Plantilla</Button>
+                <Link href="/settings/templates/layouts" passHref>
+                    <Button variant="outline" className="w-full"><Settings2 className="w-4 h-4 mr-2"/>Gestionar Plantillas Guardadas</Button>
+                </Link>
                 <Dialog open={isSaveTemplateModalOpen} onOpenChange={setIsSaveTemplateModalOpen}>
-                    <DialogTrigger asChild>
-                        <Button type="button" className="w-full"><FolderUp className="w-4 h-4 mr-2"/>Guardar como Plantilla</Button>
-                    </DialogTrigger>
+                    <DialogTrigger asChild><Button type="button" className="w-full"><FolderUp className="w-4 h-4 mr-2"/>Guardar como Plantilla</Button></DialogTrigger>
                     <DialogContent>
                         <DialogHeader><DialogTitle>Guardar Diseño como Plantilla</DialogTitle></DialogHeader>
                         <div className="space-y-2 py-2"><Label htmlFor="template-name">Nombre de la Plantilla</Label><Input id="template-name" value={templateName} onChange={e=>setTemplateName(e.target.value)} placeholder="Ej: Club Uruguay - 80 invitados"/></div>
@@ -447,33 +408,44 @@ export default function SalonLayoutPage() {
                 </Dialog>
             </CardFooter>
           </Card>
+          
           <Card>
-            <CardHeader><CardTitle>Invitados Confirmados</CardTitle></CardHeader>
+            <CardHeader>
+                <div className="flex justify-between items-center">
+                    <CardTitle>Asignación de Invitados</CardTitle>
+                    <div className="flex items-center space-x-2">
+                        <Label htmlFor="layout-mode" className="text-sm">Asignación Libre</Label>
+                        <Switch id="layout-mode" checked={decoracion.layoutMode === 'libre'} onCheckedChange={(checked) => setDecoracion(d => d ? {...d, layoutMode: checked ? 'libre' : 'asignado'} : null)} />
+                    </div>
+                </div>
+            </CardHeader>
             <CardContent>
-               <p className="text-sm text-muted-foreground mb-2">Arrastra un invitado a una mesa para asignarlo.</p>
-               <ScrollArea className="h-96 border rounded-md p-2">
-                <ul className="space-y-2">
-                  {invitadosSinMesa.map(inv => (
-                    <li 
-                      key={inv.id} 
-                      draggable 
-                      onDragStart={e => e.dataTransfer.setData('guestId', inv.id)}
-                      className="p-2 border rounded bg-background cursor-grab"
-                    >
-                      <p className="font-medium text-sm">{inv.nombre}</p>
-                      <p className="text-xs text-muted-foreground">{inv.partySize || 1} persona(s)</p>
-                    </li>
-                  ))}
-                  {invitadosSinMesa.length === 0 && <p className="text-sm text-center text-muted-foreground p-4">Todos los invitados confirmados tienen una mesa.</p>}
-                </ul>
-               </ScrollArea>
+               {decoracion.layoutMode === 'asignado' ? (
+                <>
+                 <p className="text-sm text-muted-foreground mb-2">Arrastra un invitado a una mesa para asignarlo.</p>
+                 <ScrollArea className="h-96 border rounded-md p-2">
+                    <ul className="space-y-2">
+                    {invitadosSinMesa.map(inv => (
+                        <li key={inv.id} draggable onDragStart={e => e.dataTransfer.setData('guestId', inv.id)} className="p-2 border rounded bg-background cursor-grab"><p className="font-medium text-sm">{inv.nombre}</p><p className="text-xs text-muted-foreground">{inv.partySize || 1} persona(s)</p></li>
+                    ))}
+                    {invitadosSinMesa.length === 0 && <p className="text-sm text-center text-muted-foreground p-4">Todos los invitados confirmados tienen una mesa.</p>}
+                    </ul>
+                 </ScrollArea>
+                </>
+               ) : (
+                <div className="text-center text-muted-foreground p-4 bg-muted/40 rounded-md">
+                    <p className="text-sm">El modo de Asignación Libre está activado. Los invitados no se asignan a mesas específicas.</p>
+                </div>
+               )}
             </CardContent>
-            <CardFooter>
-                <Button className="w-full" onClick={handleAIAssign} disabled={isAssigningWithAI}>
-                    {isAssigningWithAI ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Wand2 className="w-4 h-4 mr-2"/>}
-                    {isAssigningWithAI ? 'Asignando...' : 'Asignar Invitados con IA'}
-                </Button>
-            </CardFooter>
+            {decoracion.layoutMode === 'asignado' && (
+                <CardFooter>
+                    <Button className="w-full" onClick={handleAIAssign} disabled={isAssigningWithAI}>
+                        {isAssigningWithAI ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Wand2 className="w-4 h-4 mr-2"/>}
+                        {isAssigningWithAI ? 'Asignando...' : 'Asignar Invitados con IA'}
+                    </Button>
+                </CardFooter>
+            )}
           </Card>
         </div>
       </div>
