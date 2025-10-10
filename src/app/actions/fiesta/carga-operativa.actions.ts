@@ -28,8 +28,9 @@ export async function saveCargaOperativaMasterTemplate(
   data: ListaDeCargaOperativa
 ): Promise<{ success: boolean; data?: ListaDeCargaOperativa; error?: string }> {
   try {
-    await writeData(MASTER_TEMPLATE_FILE, { ...data, id: 'master', name: 'Plantilla Maestra de Carga Operativa' });
-    return { success: true, data };
+    const dataToSave = { ...data, id: 'master', name: 'Plantilla Maestra de Carga Operativa' };
+    await writeData(MASTER_TEMPLATE_FILE, dataToSave);
+    return { success: true, data: dataToSave };
   } catch (e: any) {
     return { success: false, error: e.message };
   }
