@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Save, Loader2, Globe, Sparkles, Image as ImageIcon, Users, Clock, Gift, MapPin, Camera, Wand2, PlusCircle, Trash2, ChevronDown, Edit, Link as LinkIcon, ExternalLink, Heart, Church, Handshake, Mail, Music2, CheckCircle, FolderUp, FolderDown } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, Globe, Sparkles, Image as ImageIcon, Users, Clock, Gift, MapPin, Camera, Wand2, PlusCircle, Trash2, ChevronDown, Edit, Link as LinkIcon, ExternalLink, Heart, Church, Mail, Music2, CheckCircle, FolderUp, FolderDown, MessageSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, InvitacionDigitalData, GiftItem } from '@/types/fiesta';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
@@ -333,24 +333,24 @@ function PaginaWebPageContent() {
             </DialogContent>
         </Dialog>
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Globe className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline">
-            {isEditingTemplate ? `Editando Plantilla: ${invitacionData.name}` : "Página Pública del Evento"}
-          </h1>
-        </div>
-        <div className="flex gap-2">
-            {!isEditingTemplate && fiesta && (
-                <Link href={`/evento/actual?fiestaId=${fiesta.id}`} passHref target="_blank">
-                    <Button variant="secondary"><ExternalLink className="w-4 h-4 mr-2"/>Ver Página</Button>
+        <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+            <Globe className="w-8 h-8 text-primary" />
+            <h1 className="text-3xl font-bold tracking-tight font-headline">
+                {isEditingTemplate ? `Editando Plantilla: ${invitacionData.name}` : "Página Pública del Evento"}
+            </h1>
+            </div>
+            <div className="flex gap-2">
+                {!isEditingTemplate && fiesta && (
+                    <Link href={`/evento/actual?fiestaId=${fiesta.id}`} passHref target="_blank">
+                        <Button variant="secondary"><ExternalLink className="w-4 h-4 mr-2"/>Ver Página</Button>
+                    </Link>
+                )}
+                <Link href={backLink} passHref>
+                <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
                 </Link>
-            )}
-            <Link href={backLink} passHref>
-              <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
-            </Link>
+            </div>
         </div>
-      </div>
       
         <form onSubmit={handleSave}>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -422,7 +422,7 @@ function PaginaWebPageContent() {
             </div>
             </div>
         </form>
-      </Dialog>
+       </Dialog>
     </div>
   );
 }
@@ -434,4 +434,3 @@ export default function PaginaWebYPortalPage() {
         </Suspense>
     );
 }
-
