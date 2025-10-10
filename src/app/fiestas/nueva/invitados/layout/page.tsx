@@ -13,7 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData } from '@/types/fiesta';
 import { getFiestaActual, updateDecoracionFiestaActual, updateInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogTrigger } from "@/components/ui/dialog";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import NextImage from 'next/image';
 import { Separator } from '@/components/ui/separator';
@@ -420,7 +420,7 @@ export default function SalonLayoutPage() {
           <Card>
             <CardHeader><CardTitle>Controles</CardTitle></CardHeader>
             <CardContent>
-                 <AlertDialog open={isGenerateConfirmOpen} onOpenChange={setIsGenerateConfirmOpen}>
+               <AlertDialog open={isGenerateConfirmOpen} onOpenChange={setIsGenerateConfirmOpen}>
                  <div className="p-3 border rounded-md bg-muted/20">
                       <h4 className="font-medium text-sm mb-3">Asistente de Configuración Rápida</h4>
                       <div className="grid grid-cols-2 gap-3">
@@ -452,9 +452,7 @@ export default function SalonLayoutPage() {
                 <Button type="button" onClick={handleLoadTemplate} variant="outline" className="w-full"><FolderDown className="w-4 h-4 mr-2"/>Cargar Plantilla</Button>
                 <Dialog open={isSaveTemplateModalOpen} onOpenChange={setIsSaveTemplateModalOpen}>
                     <DialogTrigger asChild>
-                        <Button type="button" className="w-full">
-                            <FolderUp className="w-4 h-4 mr-2"/>Guardar Diseño como Plantilla
-                        </Button>
+                        <Button type="button" className="w-full"><FolderUp className="w-4 h-4 mr-2"/>Guardar Diseño como Plantilla</Button>
                     </DialogTrigger>
                     <DialogContent>
                         <DialogHeader><DialogTitle>Guardar Diseño como Plantilla</DialogTitle></DialogHeader>
