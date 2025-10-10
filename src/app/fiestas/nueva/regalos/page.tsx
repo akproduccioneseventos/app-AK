@@ -12,13 +12,14 @@ import { ArrowLeft, Gift, PlusCircle, Trash2, Loader2, Save, Edit3, CheckCircle 
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import type { GiftItem } from '@/types/fiesta';
-import { getFiestaActual, updateGiftRegistry } from '@/app/actions/fiesta-actual';
+import { getFiestaActual, updateGiftRegistryFiestaActual as updateGiftRegistry } from '@/app/actions/fiesta-actual';
 import NextImage from 'next/image';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { defaultGiftItems } from '@/lib/fiesta-defaults';
 
 export default function ListaRegalosPage() {
   const { toast } = useToast();
+  const [fiestaId, setFiestaId] = useState('');
   const [giftList, setGiftList] = useState<GiftItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -31,6 +32,7 @@ export default function ListaRegalosPage() {
     setIsLoading(true);
     try {
       const fiestaData = await getFiestaActual();
+      setFiestaId(fiestaData.id);
       setGiftList(fiestaData.webPageSettings?.giftRegistry || []);
     } catch (err: any) {
       toast({ title: "Error", description: "No se pudo cargar la lista de regalos.", variant: "destructive" });
@@ -95,8 +97,12 @@ export default function ListaRegalosPage() {
 
 
   const handleSaveList = async () => {
+    if (!fiestaId) {
+        toast({ title: "Error", description: "No se ha podido identificar el evento actual.", variant: "destructive" });
+        return;
+    }
     setIsSaving(true);
-    const result = await updateGiftRegistry(giftList);
+    const result = await updateGiftRegistry(fiestaId, giftList);
     if (result.success) {
       toast({ title: "¡Lista Guardada!", description: "La lista de regalos se ha actualizado." });
     } else {
@@ -172,5 +178,3 @@ export default function ListaRegalosPage() {
     </div>
   );
 }
-
-    
