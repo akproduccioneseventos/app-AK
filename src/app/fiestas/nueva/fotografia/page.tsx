@@ -158,11 +158,13 @@ export default function FotografiaPage() {
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <Film className="w-8 h-8 text-primary" />
-                    <h1 className="text-3xl font-bold tracking-tight font-headline">Fotografía y Filmación</h1>
+                    <h1 className="text-3xl font-bold tracking-tight font-headline">Proceso de Edición y Entrega</h1>
                 </div>
                 <Link href="/fiestas/nueva" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
             </div>
             
+            <p className="text-muted-foreground">Aquí es donde se sigue el proceso de edición y entrega de las fotos o videos contratados. Mantén un registro del estado de cada entregable para una comunicación clara con el cliente.</p>
+
             <Card>
                 <CardHeader>
                     <CardTitle>Servicios Contratados</CardTitle>
