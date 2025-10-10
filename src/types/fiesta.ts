@@ -166,6 +166,7 @@ export interface ItineraryTemplate {
 }
 
 export interface InvitacionDigitalData {
+  name?: string; // Only for templates
   plantilla: 'Grazia' | 'Obsidiana';
   musicaFondoUrl?: string;
   cabecera: {

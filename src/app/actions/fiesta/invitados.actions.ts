@@ -1,34 +1,40 @@
 
+
 'use server';
 
 import { initialFiestaActualData } from '@/lib/fiesta-defaults';
 import type { FiestaEnPlanificacion, Invitado, RsvpStatus } from '@/types/fiesta';
 import { readData, writeData } from '@/lib/data-service';
 import path from 'path';
+import { getFiestaById, saveFiesta } from './fiesta.actions';
 
 const FIESTAS_DIR = 'fiestas';
-const FIESTA_ACTUAL_ID = "fiesta_1762181514757";
-const FIESTA_ACTUAL_FILE_PATH = path.join(FIESTAS_DIR, `${FIESTA_ACTUAL_ID}.json`);
 
-async function updateFiestaData(updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion): Promise<{ success: boolean; updatedFiesta?: FiestaEnPlanificacion; error?: string }> {
+async function updateFiestaData(
+  fiestaId: string, 
+  updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion
+): Promise<{ success: boolean; updatedFiesta?: FiestaEnPlanificacion; error?: string }> {
   try {
-    const currentData = await readData<FiestaEnPlanificacion>(FIESTA_ACTUAL_FILE_PATH, initialFiestaActualData);
+    const currentData = await getFiestaById(fiestaId);
+    if (!currentData) {
+      throw new Error(`Fiesta con ID ${fiestaId} no encontrada.`);
+    }
     const updatedData = updateFn(currentData);
-    await writeData(FIESTA_ACTUAL_FILE_PATH, updatedData);
+    await saveFiesta(updatedData);
     return { success: true, updatedFiesta: updatedData };
   } catch (e: any) {
     return { success: false, error: e.message };
   }
 }
 
-export async function getInvitados(): Promise<Invitado[]> {
-    const fiesta = await readData<FiestaEnPlanificacion>(FIESTA_ACTUAL_FILE_PATH, initialFiestaActualData);
-    return fiesta.invitados || [];
+export async function getInvitados(fiestaId: string): Promise<Invitado[]> {
+    const fiesta = await getFiestaById(fiestaId);
+    return fiesta?.invitados || [];
 }
 
-export async function addInvitado(nuevoInvitadoData: Omit<Invitado, 'id'>) {
+export async function addInvitado(fiestaId: string, nuevoInvitadoData: Omit<Invitado, 'id'>) {
     let nuevoInvitado: Invitado | null = null;
-    const result = await updateFiestaData(data => {
+    const result = await updateFiestaData(fiestaId, data => {
         nuevoInvitado = { ...nuevoInvitadoData, id: `inv_${Date.now()}` };
         const invitados = [...(data.invitados || []), nuevoInvitado];
         return { ...data, invitados };
@@ -36,8 +42,8 @@ export async function addInvitado(nuevoInvitadoData: Omit<Invitado, 'id'>) {
     return { ...result, invitado: nuevoInvitado };
 }
 
-export async function updateInvitado(invitadoActualizado: Invitado) {
-    const result = await updateFiestaData(data => {
+export async function updateInvitado(fiestaId: string, invitadoActualizado: Invitado) {
+    const result = await updateFiestaData(fiestaId, data => {
         const invitados = (data.invitados || []).map(inv => 
             inv.id === invitadoActualizado.id ? invitadoActualizado : inv
         );
@@ -46,16 +52,16 @@ export async function updateInvitado(invitadoActualizado: Invitado) {
     return {...result, invitado: invitadoActualizado};
 }
 
-export async function deleteInvitado(invitadoId: string) {
-    return updateFiestaData(data => {
+export async function deleteInvitado(fiestaId: string, invitadoId: string) {
+    return updateFiestaData(fiestaId, data => {
         const invitados = (data.invitados || []).filter(inv => inv.id !== invitadoId);
         return { ...data, invitados };
     });
 }
 
-export async function handleRsvpSubmission(submission: {nombreCompleto: string, confirmacion: string, numeroAsistentes: number, mensaje: string, companionNames: string[] }): Promise<{ success: boolean, invitado?: Invitado, error?: string}> {
+export async function handleRsvpSubmission(fiestaId: string, submission: {nombreCompleto: string, confirmacion: string, numeroAsistentes: number, mensaje: string, companionNames: string[] }): Promise<{ success: boolean, invitado?: Invitado, error?: string}> {
    let updatedInvitado: Invitado | undefined;
-   const result = await updateFiestaData(data => {
+   const result = await updateFiestaData(fiestaId, data => {
      const invitadoExistenteIndex = (data.invitados || []).findIndex(
         inv => inv.nombre.trim().toLowerCase() === submission.nombreCompleto.toLowerCase()
       );
@@ -85,10 +91,10 @@ export async function handleRsvpSubmission(submission: {nombreCompleto: string, 
    return {...result, invitado: updatedInvitado};
 }
 
-export async function checkInGuest(guestId: string): Promise<{ success: boolean; invitado?: Invitado; error?: string }> {
+export async function checkInGuest(fiestaId: string, guestId: string): Promise<{ success: boolean; invitado?: Invitado; error?: string }> {
     let invitadoActualizado: Invitado | undefined;
     let found = false;
-    const result = await updateFiestaData(data => {
+    const result = await updateFiestaData(fiestaId, data => {
         const invitados = (data.invitados || []).map(inv => {
             if (inv.id === guestId) {
                 found = true;

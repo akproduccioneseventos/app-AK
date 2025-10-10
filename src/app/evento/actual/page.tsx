@@ -1,8 +1,6 @@
-
-
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent, use } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import NextImage from 'next/image';
 import { Loader2, AlertTriangle, PartyPopper, CalendarDays, MapPin, Check, Users, MessageSquare, Send, CheckCircle, Gift, Clock, QrCode, Facebook, Instagram, Music, Utensils, GlassWater, Diamond, Sparkles, CakeSlice, Camera, Link as LinkIcon, ExternalLink, Heart, Church, Handshake, Mail, Music2 } from 'lucide-react';
@@ -62,8 +60,12 @@ const GraziaTemplate: React.FC<{
     <div className="min-h-screen bg-background font-body" style={{'--theme-primary': primaryColor, '--theme-secondary': secondaryColor, '--theme-text': textColor} as React.CSSProperties}>
        <header 
         className="relative py-16 md:py-24 text-center bg-cover bg-center min-h-[400px] flex items-center justify-center"
-        style={{ backgroundImage: `url(${invitacionData.cabecera?.videoFondoUrl || 'https://picsum.photos/seed/wedding-hero/1200/800'})` }}
       >
+        {invitacionData.cabecera?.videoFondoUrl && invitacionData.cabecera.videoFondoUrl.endsWith('.mp4') ? (
+            <video src={invitacionData.cabecera.videoFondoUrl} autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover -z-10"/>
+        ) : (
+             <NextImage src={invitacionData.cabecera?.videoFondoUrl || 'https://picsum.photos/seed/wedding-hero/1200/800'} alt="Fondo de cabecera" layout="fill" objectFit="cover" className="absolute inset-0 -z-10" />
+        )}
         <div className="absolute inset-0 bg-white/70 backdrop-blur-sm"></div>
         <div className="relative z-10 p-6 max-w-2xl mx-auto text-center">
             <h2 className="font-headline text-2xl" style={{color: textColor}}>Nuestra Boda</h2>
@@ -268,7 +270,7 @@ function RsvpForm({ fiesta }: { fiesta: FiestaEnPlanificacion }) {
     };
 
     try {
-      const result = await handleRsvpSubmissionFiestaActual(submissionData);
+      const result = await handleRsvpSubmissionFiestaActual(fiesta.id, submissionData);
       if (result.success) {
         setFormMessage({ type: 'success', text: '¡Gracias! Tu respuesta ha sido enviada.' });
         setNombreCompleto(''); setConfirmacion(null); handlePartySizeChange(1); setMensaje('');
@@ -302,4 +304,3 @@ function RsvpForm({ fiesta }: { fiesta: FiestaEnPlanificacion }) {
     </section>
   );
 }
-
