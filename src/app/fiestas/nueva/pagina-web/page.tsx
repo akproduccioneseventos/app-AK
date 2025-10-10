@@ -4,17 +4,15 @@
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Loader2, ArrowLeft, Save, Sparkles, PlusCircle } from 'lucide-react';
+import { Loader2, ArrowLeft, Save, Sparkles, PlusCircle, AlertTriangle, GripVertical, Handshake } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
-import type { FiestaEnPlanificacion, InvitacionDigitalData, SeccionInvitacion } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, InvitacionDigitalData, SeccionInvitacion, ColorPalette } from '@/types/fiesta';
 import { defaultInvitacionDigitalData } from '@/lib/invitacion-digital-defaults';
-import { getInvitationTemplates, saveInvitationTemplate, type InvitacionDigitalTemplate } from '@/app/actions/invitacion-digital-templates';
 import { merge, cloneDeep } from 'lodash';
 import { DndContext, closestCenter, type DragEndEvent } from '@dnd-kit/core';
-import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { SortableContext, arrayMove, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical } from 'lucide-react';
 import { SeccionBienvenida } from '@/components/invitacion/edit/SeccionBienvenida';
 import { SeccionCabecera } from '@/components/invitacion/edit/SeccionCabecera';
 import { SeccionConfirmacion } from '@/components/invitacion/edit/SeccionConfirmacion';
@@ -28,6 +26,11 @@ import { SeccionItinerario } from '@/components/invitacion/edit/SeccionItinerari
 import { SeccionRegalos } from '@/components/invitacion/edit/SeccionRegalos';
 import { SeccionDespedida } from '@/components/invitacion/edit/SeccionDespedida';
 import { ControlPanel } from '@/components/invitacion/edit/ControlPanel';
+import Link from 'next/link';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { GraziaTemplate } from '@/app/evento/actual/page';
+import { getSocialConnections } from '@/app/actions/social-connections';
+import type { SocialConnection } from '@/types/settings';
 
 
 function SortableSection({ id, children }: { id: string, children: React.ReactNode }) {
@@ -53,6 +56,7 @@ function PaginaWebPageContent() {
   
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [invitacionData, setInvitacionData] = useState<InvitacionDigitalData>(defaultInvitacionDigitalData);
+  const [socialConnections, setSocialConnections] = useState<SocialConnection[]>([]);
   
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -65,11 +69,17 @@ function PaginaWebPageContent() {
       return;
     }
     try {
-      const data = await getFiestaById(fiestaId);
+      const [data, socialData] = await Promise.all([
+        getFiestaById(fiestaId),
+        getSocialConnections(),
+      ]);
+
       if (!data) throw new Error("Fiesta no encontrada");
+
       setFiesta(data);
       const mergedData = merge(cloneDeep(defaultInvitacionDigitalData), data.invitacionDigital);
       setInvitacionData(mergedData);
+      setSocialConnections(socialData);
     } catch (e: any) {
       toast({ title: "Error", description: `No se pudieron cargar los datos: ${e.message}`, variant: "destructive"});
     } finally {
@@ -113,64 +123,75 @@ function PaginaWebPageContent() {
     }
   };
   
-  if (isLoading) {
-    return <div className="flex items-center justify-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
-  }
-  
-  if (!fiesta) {
-    return <div className="text-center p-8">No se pudo cargar la información del evento.</div>;
-  }
-  
-  const renderSection = (seccion: SeccionInvitacion) => {
+  const renderSectionEditor = (seccion: SeccionInvitacion) => {
     const props = { data: seccion.data, update: handleUpdate, fiesta: fiesta };
     switch (seccion.tipo) {
-        case 'cabecera': return <SeccionCabecera {...props} />;
-        case 'bienvenida': return <SeccionBienvenida {...props} />;
-        case 'cuentaRegresiva': return <SeccionCuentaRegresiva {...props} />;
-        case 'detallesEvento': return <SeccionDetallesEvento {...props} />;
-        case 'itinerario': return <SeccionItinerario {...props} />;
-        case 'dressCode': return <SeccionDressCode {...props} />;
-        case 'galeria': return <SeccionGaleria {...props} />;
-        case 'historia': return <SeccionHistoria {...props} />;
-        case 'regalos': return <SeccionRegalos {...props} />;
-        case 'instagram': return <SeccionInstagram {...props} />;
-        case 'confirmacion': return <SeccionConfirmacion {...props} />;
-        case 'despedida': return <SeccionDespedida {...props} />;
+        case 'cabecera': return <SeccionCabecera {...props as any} />;
+        case 'bienvenida': return <SeccionBienvenida {...props as any} />;
+        case 'cuentaRegresiva': return <SeccionCuentaRegresiva {...props as any} />;
+        case 'detallesEvento': return <SeccionDetallesEvento {...props as any} />;
+        case 'itinerario': return <SeccionItinerario {...props as any} />;
+        case 'dressCode': return <SeccionDressCode {...props as any} />;
+        case 'galeria': return <SeccionGaleria {...props as any} />;
+        case 'historia': return <SeccionHistoria {...props as any} />;
+        case 'regalos': return <SeccionRegalos {...props as any} />;
+        case 'instagram': return <SeccionInstagram {...props as any} />;
+        case 'confirmacion': return <SeccionConfirmacion {...props as any} />;
+        case 'despedida': return <SeccionDespedida {...props as any} />;
         default: return null;
     }
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-[calc(100vh-100px)] flex flex-col bg-muted">
       <header className="flex-shrink-0 flex items-center justify-between p-3 border-b bg-background">
-        <h1 className="text-xl font-bold">Constructor de Invitación</h1>
+        <h1 className="text-lg font-semibold">Constructor Visual de Invitación</h1>
         <div className="flex items-center gap-2">
-           <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm">Volver</Button></Link>
-           <Button onClick={handleSave} disabled={isSaving} size="sm">{isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>}Guardar</Button>
+            <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref>
+                <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
+            </Link>
+           <Button onClick={handleSave} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>}Guardar</Button>
         </div>
       </header>
       <main className="flex-grow flex min-h-0">
-        <div className="w-1/4 min-w-[300px] border-r overflow-y-auto">
-          <ControlPanel data={invitacionData} update={handleUpdate} />
-        </div>
-        <div className="flex-1 overflow-y-auto p-4 bg-muted/30">
-           <div className="max-w-2xl mx-auto bg-background p-4 shadow-lg rounded-md">
+        <div className="w-1/3 min-w-[350px] border-r">
+          <ScrollArea className="h-full">
+            <ControlPanel data={invitacionData} update={handleUpdate} />
+             <div className="p-4 space-y-2">
                 <DndContext sensors={[]} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
                     <SortableContext items={invitacionData.secciones.map(s => s.id)} strategy={verticalListSortingStrategy}>
                         {invitacionData.secciones.map(seccion => (
                             <SortableSection key={seccion.id} id={seccion.id}>
-                                {renderSection(seccion)}
+                                {renderSectionEditor(seccion)}
                             </SortableSection>
                         ))}
                     </SortableContext>
                 </DndContext>
-           </div>
+             </div>
+          </ScrollArea>
+        </div>
+        <div className="flex-1 overflow-y-auto p-4">
+          {isLoading ? (
+            <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin"/></div>
+          ) : fiesta ? (
+             <ScrollArea className="h-full w-full bg-background rounded-md shadow-inner">
+                <div className="w-full h-full">
+                    <GraziaTemplate 
+                        fiesta={fiesta} 
+                        invitacionData={invitacionData} 
+                        socialConnections={socialConnections}
+                        isPreview={true} // Important: tells template to behave as preview
+                    />
+                </div>
+              </ScrollArea>
+          ) : (
+             <div className="flex items-center justify-center h-full"><AlertTriangle className="w-8 h-8 text-destructive"/></div>
+          )}
         </div>
       </main>
     </div>
   );
 }
-
 
 export default function PaginaWebYPortalPage() {
     return (
@@ -184,4 +205,3 @@ export default function PaginaWebYPortalPage() {
         </Suspense>
     );
 }
-
