@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent, useRef, use } from 'react';
@@ -36,7 +37,7 @@ export const GraziaTemplate: React.FC<{
   isPreview?: boolean;
 }> = ({ fiesta, invitacionData, socialConnections, children, isPreview = false }) => {
   const paletaColores = fiesta.decoracion?.paletaColores;
-  const primaryColor = paletaColores?.primary || '#D9B8FF';
+  const primaryColor = paletaColores?.primary || 'hsl(var(--primary))';
   const secondaryColor = paletaColores?.secondary || '#FCD3DE';
   const textColor = paletaColores?.accent || '#333';
   

@@ -59,7 +59,7 @@ function PaginaWebPageContent() {
     let finalTemplateName = '';
 
     try {
-      const [socialData] = await Promise.all([getSocialConnections()]);
+      const socialData = await getSocialConnections();
       setSocialConnections(socialData);
 
       if (isEditingTemplate) {
@@ -69,8 +69,7 @@ function PaginaWebPageContent() {
           finalData = template;
           finalTemplateName = template.name || `Plantilla ${template.id.substring(0,5)}`;
           // Create a dummy fiesta object for template preview
-          const dummyFiesta = cloneDeep(fiesta); // Use existing fiesta if available, or create from scratch
-          finalFiesta = dummyFiesta || {
+          const dummyFiesta = {
               id: `template-preview-${Date.now()}`,
               configuracion: {
                   nombreEvento: "Evento de Muestra",
@@ -81,11 +80,10 @@ function PaginaWebPageContent() {
                   nombreLugar: "Salón de Fiestas 'Ensueño'",
                   invitadosEstimados: 100
               },
-              // Add other necessary properties with default values
               personalAsignado: [],
               invoiceIds: [],
           } as FiestaEnPlanificacion;
-
+          finalFiesta = dummyFiesta;
       } else {
           if (!fiestaId) {
               toast({ title: "Error", description: "ID de fiesta no encontrado en la URL.", variant: "destructive" });
@@ -99,7 +97,6 @@ function PaginaWebPageContent() {
       }
 
       setFiesta(finalFiesta);
-      
       const mergedInvitacionData = merge(cloneDeep(defaultInvitacionDigitalData), finalData);
       if(isEditingTemplate) mergedInvitacionData.name = finalTemplateName;
       setInvitacionData(mergedInvitacionData);
@@ -109,7 +106,7 @@ function PaginaWebPageContent() {
     } finally {
       setIsLoading(false);
     }
-  }, [fiestaId, templateId, isEditingTemplate, toast, router, fiesta]);
+  }, [fiestaId, templateId, isEditingTemplate, toast, router]);
   
 
   useEffect(() => {
@@ -249,7 +246,7 @@ function PaginaWebPageContent() {
       </div>
       
       {/* Main Content */}
-      <div className="flex-grow grid grid-cols-1 lg:grid-cols-3 gap-6 h-full min-h-0">
+      <div className="flex-grow grid grid-cols-1 lg:grid-cols-3 gap-6 min-h-0">
         {/* Controls Panel */}
         <Card className="lg:col-span-1 h-full flex flex-col">
           <CardHeader><CardTitle>Panel de Control</CardTitle></CardHeader>
@@ -329,18 +326,20 @@ function PaginaWebPageContent() {
           </CardContent>
         </Card>
         {/* Preview Panel */}
-        <div className="lg:col-span-2 h-full rounded-lg border shadow-inner bg-white overflow-hidden">
+        <div className="lg:col-span-2 h-full rounded-lg border shadow-inner bg-muted/30 overflow-hidden">
           {isLoading ? (
             <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin"/></div>
           ) : fiesta ? (
-             <div className="w-full h-full scale-[0.9] origin-top-left overflow-y-auto bg-white">
-                <GraziaTemplate 
-                    fiesta={fiesta} 
-                    invitacionData={invitacionData}
-                    socialConnections={socialConnections}
-                    isPreview={true}
-                />
-             </div>
+             <ScrollArea className="h-full w-full bg-background">
+                <div className="w-full h-full">
+                    <GraziaTemplate 
+                        fiesta={fiesta} 
+                        invitacionData={invitacionData}
+                        socialConnections={socialConnections}
+                        isPreview={true}
+                    />
+                </div>
+             </ScrollArea>
           ) : (
              <div className="flex items-center justify-center h-full"><AlertTriangle className="w-8 h-8 text-destructive"/></div>
           )}
@@ -357,5 +356,3 @@ export default function PaginaWebYPortalPage() {
         </Suspense>
     );
 }
-
-    
