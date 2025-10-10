@@ -147,7 +147,7 @@ export default function InvitacionDigitalPage() {
     };
     
     if (isLoading) return <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>;
-    if (error || !fiesta) return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-8 h-8 mb-2"/>{error}</div>;
+    if (error || !fiesta) return <div className="text-center text-destructive p-4">{error}</div>;
 
     return (
         <div className="space-y-6">
