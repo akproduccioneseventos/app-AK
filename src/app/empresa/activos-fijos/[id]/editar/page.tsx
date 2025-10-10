@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, Edit3, Save, Loader2, AlertTriangle, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getActivoFijoById, saveActivoFijo, deleteActivoFijo } from '@/app/actions/activos-fijos';
-import type { ServicioEmpresa, AnyCategoria, UnidadServicio, TramoDePrecio } from '@/types/empresa';
+import type { ServicioEmpresa, AnyCategoria, UnidadServicio } from '@/types/empresa';
 import { ALL_CATEGORIAS_ACTIVO, ALL_UNIDADES_SERVICIO } from '@/types/empresa';
 import {
   AlertDialog,
@@ -52,6 +52,7 @@ export default function EditarActivoFijoPage({ params: paramsProp }: { params: {
         setItem(loadedItem);
         setFormData({
           ...loadedItem,
+          calculationMethod: loadedItem.calculationMethod || 'fijo',
         });
       } else {
         setNotFound(true);
@@ -72,7 +73,7 @@ export default function EditarActivoFijoPage({ params: paramsProp }: { params: {
   }, [itemIdFromParams, loadItem]);
 
   const handleFormChange = (field: keyof ServicioEmpresa, value: any) => {
-    const isNumericField = ['cantidadDisponible', 'valorUnitarioEstimado', 'precioVenta', 'precioPorPersona', 'precioBase', 'invitadosPorUnidad'].includes(field as string);
+    const isNumericField = ['cantidadDisponible', 'valorUnitarioEstimado', 'invitadosPorUnidad'].includes(field as string);
     
     if (isNumericField && typeof value === 'string') {
       const numValue = value === '' ? undefined : Number(value);
@@ -81,23 +82,6 @@ export default function EditarActivoFijoPage({ params: paramsProp }: { params: {
       setFormData(prev => ({ ...prev, [field]: value }));
     }
   };
-  
-  const handleTramoChange = (index: number, field: keyof TramoDePrecio, value: string) => {
-    setFormData(prev => {
-        const nuevosTramos = [...(prev.tramosDePrecio || [])];
-        nuevosTramos[index] = {...nuevosTramos[index], [field]: Number(value) || 0 };
-        return {...prev, tramosDePrecio: nuevosTramos};
-    });
-  };
-
-  const addTramo = () => {
-    setFormData(prev => ({...prev, tramosDePrecio: [...(prev.tramosDePrecio || []), {id: `tramo_${Date.now()}`, desde: 0, hasta: 0, precio: 0}]}));
-  };
-
-  const removeTramo = (index: number) => {
-    setFormData(prev => ({...prev, tramosDePrecio: (prev.tramosDePrecio || []).filter((_, i) => i !== index)}));
-  };
-
 
   const backUrl = '/empresa/activos-fijos';
 
@@ -202,41 +186,24 @@ export default function EditarActivoFijoPage({ params: paramsProp }: { params: {
              <Separator/>
              
              <div className="space-y-3">
-                 <Label className="text-base font-medium">Cálculo de Precio de Venta (para presupuestos)</Label>
+                 <Label className="text-base font-medium">Método de Cálculo de Cantidad (para Lista de Carga)</Label>
                  <Select value={formData.calculationMethod} onValueChange={(v) => handleFormChange('calculationMethod', v)} disabled={isSaving}>
                     <SelectTrigger><SelectValue/></SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="fijo">Precio Fijo</SelectItem>
+                        <SelectItem value="fijo">Cantidad Fija</SelectItem>
                         <SelectItem value="porPersona">Por Persona</SelectItem>
                         <SelectItem value="ratio">Por Ratio de Invitados</SelectItem>
-                        <SelectItem value="tramos">Por Tramos de Invitados</SelectItem>
                     </SelectContent>
                  </Select>
              </div>
              
-            {formData.calculationMethod === 'fijo' && (
-                <div className="space-y-2"><Label htmlFor="precio-venta">Precio de Venta (Fijo)</Label><Input id="precio-venta" type="number" value={formData.precioVenta ?? ''} onChange={(e) => handleFormChange('precioVenta', e.target.value)} disabled={isSaving} min="0" step="any"/></div>
-            )}
-             {formData.calculationMethod === 'porPersona' && (
-                <div className="space-y-2"><Label htmlFor="precio-persona">Precio Por Persona</Label><Input id="precio-persona" type="number" value={formData.precioPorPersona ?? ''} onChange={(e) => handleFormChange('precioPorPersona', e.target.value)} disabled={isSaving} min="0" step="any"/></div>
+            {(formData.calculationMethod === 'fijo' || formData.calculationMethod === 'porPersona') && (
+                <div className="space-y-2"><Label htmlFor="cantidad-fija">Cantidad a Cargar</Label><Input id="cantidad-fija" type="number" value={formData.cantidad ?? 1} onChange={(e) => handleFormChange('cantidad', e.target.value)} disabled={isSaving} min="1"/><p className="text-xs text-muted-foreground">{formData.calculationMethod === 'fijo' ? "Cantidad fija a cargar siempre." : "Se multiplicará por el nº de invitados."}</p></div>
             )}
             {formData.calculationMethod === 'ratio' && (
                 <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2"><Label htmlFor="ratio-base">Precio Base (por unidad)</Label><Input id="ratio-base" type="number" value={formData.precioBase ?? ''} onChange={(e) => handleFormChange('precioBase', e.target.value)} disabled={isSaving} min="0" step="any"/></div>
+                    <div className="space-y-2"><Label htmlFor="ratio-base">Cantidad por Ratio</Label><Input id="ratio-base" type="number" value={formData.cantidad ?? 1} onChange={(e) => handleFormChange('cantidad', e.target.value)} disabled={isSaving} min="1"/></div>
                     <div className="space-y-2"><Label htmlFor="ratio-invitados">Invitados por Unidad</Label><Input id="ratio-invitados" type="number" value={formData.invitadosPorUnidad ?? ''} onChange={(e) => handleFormChange('invitadosPorUnidad', e.target.value)} disabled={isSaving} min="1"/></div>
-                </div>
-            )}
-             {formData.calculationMethod === 'tramos' && (
-                <div className="space-y-3">
-                    {formData.tramosDePrecio?.map((tramo, index) => (
-                        <div key={tramo.id} className="flex items-end gap-2 p-2 border rounded-md">
-                            <div className="space-y-1"><Label htmlFor={`tramo-desde-${index}`}>Desde</Label><Input id={`tramo-desde-${index}`} type="number" value={tramo.desde} onChange={e => handleTramoChange(index, 'desde', e.target.value)} className="w-20"/></div>
-                            <div className="space-y-1"><Label htmlFor={`tramo-hasta-${index}`}>Hasta</Label><Input id={`tramo-hasta-${index}`} type="number" value={tramo.hasta} onChange={e => handleTramoChange(index, 'hasta', e.target.value)} className="w-20"/></div>
-                            <div className="space-y-1 flex-grow"><Label htmlFor={`tramo-precio-${index}`}>Precio</Label><Input id={`tramo-precio-${index}`} type="number" value={tramo.precio} onChange={e => handleTramoChange(index, 'precio', e.target.value)}/></div>
-                            <Button type="button" variant="ghost" size="icon" className="text-destructive h-8 w-8" onClick={() => removeTramo(index)} disabled={(formData.tramosDePrecio?.length || 0) <= 1}><Trash2 className="w-4 h-4"/></Button>
-                        </div>
-                    ))}
-                    <Button type="button" variant="outline" size="sm" onClick={addTramo}>Añadir Tramo</Button>
                 </div>
             )}
             
