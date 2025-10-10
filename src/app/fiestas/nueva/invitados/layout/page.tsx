@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
@@ -27,7 +26,7 @@ import { Separator } from '@/components/ui/separator';
 import { assignGuestsToTables, type AssignGuestsInput } from '@/ai/flows/assign-guests-flow';
 import { getSalonLayoutTemplates, saveSalonLayoutTemplate, type SalonLayoutTemplate } from '@/app/actions/salon-layout-templates';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
 const grid = 20;
 
@@ -372,4 +371,3 @@ export default function SalonLayoutPage() {
     </div>
   );
 }
-
