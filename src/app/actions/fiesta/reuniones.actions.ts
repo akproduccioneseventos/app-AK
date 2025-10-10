@@ -44,3 +44,4 @@ export async function deleteReunion(reunionId: string) {
         reuniones: (data.reuniones || []).filter(r => r.id !== reunionId)
     }));
 }
+

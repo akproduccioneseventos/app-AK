@@ -282,6 +282,17 @@ function PaginaWebPageContent() {
                                  )}
                            </AccordionContent>
                        </AccordionItem>
+                      {/* BIENVENIDA */}
+                       <AccordionItem value="bienvenida" className="border rounded-md px-3">
+                          <AccordionTrigger className="hover:no-underline py-2 [&[data-state=open]>svg]:rotate-180"><div className="flex items-center gap-2 font-medium"><Heart className="w-4 h-4"/>Bienvenida</div></AccordionTrigger>
+                           <AccordionContent className="pt-2 pb-4 space-y-4 border-t">
+                               <div className="flex items-center justify-between"><Label htmlFor="showBienvenida">Mostrar esta sección</Label><Switch id="showBienvenida" checked={invitacionData.bienvenida.visible} onCheckedChange={(v) => handleDataChange('bienvenida', 'visible', v)}/></div>
+                               <div className="space-y-1"><Label htmlFor="welcome-title">Título de Bienvenida</Label><Input id="welcome-title" value={invitacionData.bienvenida.titulo} onChange={e => handleDataChange('bienvenida', 'titulo', e.target.value)}/></div>
+                               <div className="space-y-1"><Label htmlFor="welcome-text">Texto de Bienvenida</Label><Textarea id="welcome-text" value={invitacionData.bienvenida.texto} onChange={e => handleDataChange('bienvenida', 'texto', e.target.value)} rows={3}/></div>
+                               <div className="space-y-1"><Label htmlFor="welcome-image">Imagen de Fondo</Label><Input id="welcome-image" type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'welcome')} /></div>
+                               {welcomeImagePreview && <NextImage src={welcomeImagePreview} alt="Preview Bienvenida" width={150} height={100} className="rounded-md border object-cover"/>}
+                           </AccordionContent>
+                       </AccordionItem>
                       {/* DETALLES */}
                       <AccordionItem value="detallesEvento" className="border rounded-md px-3">
                           <AccordionTrigger className="hover:no-underline py-2 [&[data-state=open]>svg]:rotate-180"><div className="flex items-center gap-2 font-medium"><MapPin className="w-4 h-4"/>Detalles del Evento</div></AccordionTrigger>
@@ -345,4 +356,3 @@ export default function PaginaWebYPortalPage() {
         </Suspense>
     );
 }
-

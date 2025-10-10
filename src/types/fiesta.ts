@@ -543,3 +543,31 @@ export interface RestorePoint {
   timestamp: string;
   displayDate: string;
 }
+
+// Deprecated, keep for data migration if necessary
+export interface EventWebPageSettings {
+  pageTitle: string;
+  heroSubtitle?: string;
+  welcomeMessage: string;
+  coverImageUrl: string;
+  galleryImageUrls: string[];
+  showCountdown: boolean;
+  ourStoryTitle?: string;
+  ourStoryText?: string;
+  ourStoryImageUrl?: string;
+  showOurStory: boolean;
+  eventDetailsTitle?: string;
+  eventDetailsText?: string;
+  showEventDetails: boolean;
+  dressCodeText?: string;
+  showDressCode: boolean;
+  giftRegistryTitle?: string;
+  giftRegistryText?: string;
+  showGiftRegistry: boolean;
+  giftRegistry?: GiftItem[];
+  showRsvp: boolean;
+  showPrograma: boolean;
+  musicaEspecialText?: string;
+  showGallery: boolean;
+  templateName: 'Obsidiana' | 'Grazia';
+}
