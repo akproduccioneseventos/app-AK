@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, type ReactNode } from 'react';
@@ -29,6 +30,11 @@ export function AuthGuard({ children }: AuthGuardProps) {
   const [isVerified, setIsVerified] = useState(false);
 
   useEffect(() => {
+    // This check ensures sessionStorage is only accessed on the client-side.
+    if (typeof window === 'undefined') {
+      return;
+    }
+
     const isAuthenticated = sessionStorage.getItem(SESSION_KEY) === 'true';
     
     // Define public paths that don't require authentication
