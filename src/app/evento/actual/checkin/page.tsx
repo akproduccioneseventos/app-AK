@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, AlertTriangle, CheckCircle, Ticket } from 'lucide-react';
 import type { Invitado } from '@/types/invitado';
-import { checkInGuest } from '@/app/actions/fiesta-actual';
+import { checkInGuestFiestaActual as checkInGuest } from '@/app/actions/fiesta-actual';
 
 function CheckInContent() {
   const searchParams = useSearchParams();

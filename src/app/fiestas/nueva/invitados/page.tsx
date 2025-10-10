@@ -277,7 +277,7 @@ export default function InvitadosEventoPage() {
             <Users className="w-6 h-6 text-primary" /> Lista de Invitados ({rsvpCounts.TotalInvitaciones || 0} invitaciones / {rsvpCounts.TotalPersonas || 0} personas)
           </CardTitle>
           <CardDescription className="print:hidden">
-            Confirmados: {rsvpCounts.Confirmado || 0}. Presentes: {rsvpCounts.checkedIn || 0}. Asigna una mesa a cada invitado confirmado.
+            Confirmados: {rsvpCounts.Confirmado || 0}. Presentes: {rsvpCounts.checkedIn || 0}. Asigna un número de mesa a cada invitado confirmado.
           </CardDescription>
         </CardHeader>
         <CardContent>
