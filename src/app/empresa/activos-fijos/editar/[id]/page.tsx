@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Edit3, Save, Loader2, AlertTriangle, StickyNote, DollarSign, PlusCircle, Trash2, Percent, Briefcase, Building } from 'lucide-react';
+import { ArrowLeft, Edit3, Save, Loader2, AlertTriangle, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getActivoFijoById, saveActivoFijo, deleteActivoFijo } from '@/app/actions/activos-fijos';
 import type { ServicioEmpresa, AnyCategoria, UnidadServicio } from '@/types/empresa';
@@ -25,7 +25,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-
 
 export default function EditarActivoFijoPage({ params: paramsProp }: { params: { id: string } }) {
   const params = React.use(paramsProp);
@@ -52,9 +51,6 @@ export default function EditarActivoFijoPage({ params: paramsProp }: { params: {
         setItem(loadedItem);
         setFormData({
           ...loadedItem,
-          cantidadDisponible: loadedItem.cantidadDisponible,
-          valorUnitarioEstimado: loadedItem.valorUnitarioEstimado,
-          proveedor: loadedItem.proveedor || '',
         });
       } else {
         setNotFound(true);
@@ -84,10 +80,6 @@ export default function EditarActivoFijoPage({ params: paramsProp }: { params: {
       setFormData(prev => ({ ...prev, [field]: value }));
     }
   };
-  
-  const handleCategoryChange = (value: AnyCategoria | '') => {
-    setFormData(prev => ({...prev, categoria: value as AnyCategoria }));
-  }
 
   const backUrl = '/empresa/activos-fijos';
 
@@ -95,8 +87,8 @@ export default function EditarActivoFijoPage({ params: paramsProp }: { params: {
     e.preventDefault();
     if (!item) return;
 
-    if (!formData.nombre?.trim() || !formData.tipoItem || !formData.categoria) {
-      toast({ title: "Campos Requeridos", description: "Nombre, Tipo y Categoría son obligatorios.", variant: "destructive" });
+    if (!formData.nombre?.trim() || !formData.categoria) {
+      toast({ title: "Campos Requeridos", description: "Nombre y Categoría son obligatorios.", variant: "destructive" });
       return;
     }
 
@@ -145,7 +137,6 @@ export default function EditarActivoFijoPage({ params: paramsProp }: { params: {
     }
   };
 
-
   if (isLoading) return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (notFound) return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>Ítem no encontrado. <Link href={backUrl} className="underline">Volver al catálogo</Link>.</div>;
 
@@ -180,7 +171,7 @@ export default function EditarActivoFijoPage({ params: paramsProp }: { params: {
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="item-categoria" className="text-base">Categoría *</Label>
-                <Select value={formData.categoria || ''} onValueChange={(value) => handleCategoryChange(value as AnyCategoria)} required disabled={isSaving}>
+                <Select value={formData.categoria || ''} onValueChange={(value) => handleFormChange('categoria', value as AnyCategoria)} required disabled={isSaving}>
                   <SelectTrigger id="item-categoria"><SelectValue placeholder="Seleccionar categoría..."/></SelectTrigger>
                   <SelectContent className="max-h-60">{ALL_CATEGORIAS_ACTIVO.map(cat => (<SelectItem key={cat} value={cat}>{cat}</SelectItem>))}</SelectContent>
                 </Select>
@@ -229,4 +220,3 @@ export default function EditarActivoFijoPage({ params: paramsProp }: { params: {
     </div>
   );
 }
-

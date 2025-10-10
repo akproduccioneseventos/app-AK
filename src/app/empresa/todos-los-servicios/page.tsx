@@ -14,7 +14,7 @@ export default function DeprecatedTodosServiciosPage() {
     const router = useRouter();
 
     useEffect(() => {
-        router.replace('/empresa/activos-fijos');
+        router.replace('/empresa');
     }, [router]);
 
     return (
@@ -26,11 +26,11 @@ export default function DeprecatedTodosServiciosPage() {
                 </CardHeader>
                 <CardContent>
                      <p className="text-muted-foreground">
-                        Esta página ha sido reemplazada. Serás redirigido al nuevo gestor de Activos Fijos.
+                        Esta página ha sido reemplazada. Serás redirigido al nuevo gestor de empresa.
                     </p>
                 </CardContent>
                  <CardFooter className="justify-center">
-                    <Link href="/empresa/activos-fijos" passHref>
+                    <Link href="/empresa" passHref>
                         <Button variant="link">
                             Si no eres redirigido, haz clic aquí.
                         </Button>
