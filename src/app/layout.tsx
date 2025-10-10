@@ -3,14 +3,13 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { AppShell } from '@/components/app-shell';
 import { Toaster } from "@/components/ui/toaster";
-import { Poppins, Belleza } from 'next/font/google';
+import { Inter, Belleza } from 'next/font/google';
 import { AuthGuard } from '@/components/auth-guard';
 
-const poppins = Poppins({
+const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
-  weight: ['300', '400', '500', '600', '700'],
-  variable: '--font-poppins',
+  variable: '--font-inter',
 });
 
 const belleza = Belleza({
@@ -32,7 +31,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" suppressHydrationWarning className={`${poppins.variable} ${belleza.variable}`}>
+    <html lang="es" suppressHydrationWarning className={`${inter.variable} ${belleza.variable}`}>
       <head>
       </head>
       <body className={`font-body antialiased`}>
