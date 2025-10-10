@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef, type ChangeEvent } from 'react';
+import React, { useState, useEffect, useCallback, useRef, type ChangeEvent, use } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Camera, Loader2, AlertTriangle, Upload, CheckCircle, PartyPopper } from 'lucide-react';
@@ -197,13 +197,14 @@ function VideoVidaClientPageContent({ params }: { params: { fiestaId: string } }
 
 
 // --- Página principal que se asegura de renderizar el contenido solo en el cliente ---
-export default function VideoVidaClientPage({ params }: { params: { fiestaId: string } }) {
+export default function VideoVidaPage({ params }: { params: { fiestaId: string } }) {
     const [isClient, setIsClient] = useState(false);
+    const unwrappedParams = use(params);
 
     useEffect(() => {
         setIsClient(true);
     }, []);
 
     // Renderiza el contenido solo cuando isClient es true
-    return isClient ? <VideoVidaClientPageContent params={params} /> : <div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
+    return isClient ? <VideoVidaClientPageContent params={unwrappedParams} /> : <div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
 }

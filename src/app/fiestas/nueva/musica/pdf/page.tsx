@@ -1,17 +1,16 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer as PrinterIcon, Music, Ban, PartyPopper, Share2 } from 'lucide-react';
+import React, { useState, useEffect, useCallback, use } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { ArrowLeft, Printer as PrinterIcon, Music, Ban, PartyPopper, Share2, AlertTriangle } from 'lucide-react';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
-import { Skeleton } from '@/components/ui/skeleton';
-import { AlertTriangle } from 'lucide-react';
 import { WatermarkedImage } from '@/components/watermarked-image';
 
 const formatDate = (dateString?: string) => {
@@ -20,7 +19,9 @@ const formatDate = (dateString?: string) => {
     return new Date(dateString).toLocaleDateString('es-ES', {
       day: 'numeric', month: 'long', year: 'numeric'
     });
-  } catch (e) { return "Fecha inválida"; }
+  } catch (e) {
+    return "Fecha inválida";
+  }
 };
 
 const companyName = "AK Producciones";

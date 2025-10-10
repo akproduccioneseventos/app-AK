@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -48,7 +48,7 @@ interface EventPaymentDetails {
 }
 
 export default function CustomerDetailsPage({ params: paramsProp }: { params: { id: string } }) {
-  const params = React.use(paramsProp);
+  const params = use(paramsProp);
   const customerId = params.id;
   const router = useRouter();
   const { toast } = useToast();

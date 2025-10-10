@@ -1,18 +1,18 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, use } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, AlertTriangle, Image as ImageIcon, Palette, Type, Share2, Save } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { ArrowLeft, PlusCircle, Trash2, Loader2, AlertTriangle, ListChecks, Clock, Bell, FolderOpen, Save, FileSignature, MessageSquare, Globe, CalendarDays, Users, Palette, ChefHat, Music2, PackageSearch, Video, Gift, Camera, Link as LinkIcon, Edit, Eye, Share2, Printer, QrCode } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
-import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaActual, updateTareasFiestaActual } from '@/app/actions/fiesta-actual';
 import { Separator } from '@/components/ui/separator';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 
 // TODO: En el futuro, esto podría venir de una plantilla o de la base de datos.
 const InvitationPreview: React.FC<{ fiesta?: FiestaEnPlanificacion | null }> = ({ fiesta }) => {
@@ -77,8 +77,8 @@ export default function DisenoInvitacionPage() {
                         Diseño de Invitación Digital
                     </h1>
                 </div>
-                <Link href={`/fiestas/nueva?fiestaId=${fiesta?.id}`} passHref>
-                  <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver al Planificador</Button>
+                <Link href={`/fiestas/nueva/invitados?fiestaId=${fiesta?.id}`} passHref>
+                  <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver a Invitados</Button>
                 </Link>
             </div>
 

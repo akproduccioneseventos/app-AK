@@ -1,13 +1,11 @@
 
 'use client';
 
-import React from 'react';
+import React, { use } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Users, LayoutDashboard, Send, ScanLine } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { useSearchParams } from 'next/navigation';
 
 export default function InvitadosLayout({
   children,
