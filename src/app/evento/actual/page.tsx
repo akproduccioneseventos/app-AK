@@ -1,10 +1,9 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent, useRef, use } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import NextImage from 'next/image';
-import { Loader2, AlertTriangle, PartyPopper, CalendarDays, MapPin, Check, Users, MessageSquare, Send, CheckCircle, Gift, Clock, QrCode, Facebook, Instagram, Music, Utensils, GlassWater, Diamond, Sparkles, CakeSlice, Camera, Link as LinkIcon, ExternalLink, Heart, Church, Mail, Music2, Play, Pause } from 'lucide-react';
+import { Loader2, AlertTriangle, PartyPopper, CalendarDays, MapPin, Check, Users, MessageSquare, Send, CheckCircle, Gift, Clock, QrCode, Facebook, Instagram, Music, Utensils, GlassWater, Diamond, Sparkles, CakeSlice, Camera, Link as LinkIcon, ExternalLink, Heart, Church, Mail, Music2, Play, Pause, Handshake } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, InvitacionDigitalData, ColorPalette, Invitado, GiftItem, ProgramaEventoItem } from '@/types/fiesta';
 import { getFiestaById, handleRsvpSubmissionFiestaActual, claimGiftFiestaActual } from '@/app/actions/fiesta-actual';
@@ -29,12 +28,13 @@ import { Suspense } from 'react';
 import { motion } from "framer-motion";
 
 // --- PLANTILLA GRAZIA ---
-const GraziaTemplate: React.FC<{
+export const GraziaTemplate: React.FC<{
   fiesta: FiestaEnPlanificacion;
   invitacionData: InvitacionDigitalData;
   socialConnections: SocialConnection[];
-  children: React.ReactNode;
-}> = ({ fiesta, invitacionData, socialConnections, children }) => {
+  children?: React.ReactNode; // Make children optional for preview
+  isPreview?: boolean;
+}> = ({ fiesta, invitacionData, socialConnections, children, isPreview = false }) => {
   const paletaColores = fiesta.decoracion?.paletaColores;
   const primaryColor = paletaColores?.primary || '#D9B8FF';
   const secondaryColor = paletaColores?.secondary || '#FCD3DE';
@@ -44,6 +44,7 @@ const GraziaTemplate: React.FC<{
   const [isPlaying, setIsPlaying] = useState(false);
 
   const togglePlayPause = () => {
+    if (isPreview) return; // Disable audio in preview
     const audio = audioRef.current;
     if (!audio) return;
     if (isPlaying) {
@@ -104,7 +105,7 @@ const GraziaTemplate: React.FC<{
   };
 
   return (
-    <div className="min-h-screen bg-background font-body" style={{'--theme-primary': primaryColor, '--theme-secondary': secondaryColor, '--theme-text': textColor} as React.CSSProperties}>
+    <div className={cn("min-h-screen bg-background font-body", isPreview && "overflow-y-auto h-full")} style={{'--theme-primary': primaryColor, '--theme-secondary': secondaryColor, '--theme-text': textColor} as React.CSSProperties}>
        <header 
         className="relative py-16 md:py-24 text-center bg-cover bg-center min-h-[400px] flex items-center justify-center"
       >
@@ -205,7 +206,7 @@ const GraziaTemplate: React.FC<{
         {invitacionData.confirmacion?.visible && <motion.div id="rsvp" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={sectionVariants}>{children}</motion.div>}
 
        </main>
-       {invitacionData.musicaFondoUrl && (
+       {invitacionData.musicaFondoUrl && !isPreview && (
             <>
               <audio ref={audioRef} src={invitacionData.musicaFondoUrl} loop />
               <Button
