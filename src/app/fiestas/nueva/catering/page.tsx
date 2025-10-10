@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ShoppingCart, Save, Loader2, Calculator, ChefHat } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
