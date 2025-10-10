@@ -7,13 +7,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Music, Beer, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Image as ImageIcon, Maximize, Minimize, FolderUp, Wand2, Settings2 } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Music, Beer, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Image as ImageIcon, Maximize, Minimize, FolderUp, Wand2, Settings2, FolderDown } from 'lucide-react';
 import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData } from '@/types/fiesta';
 import { getFiestaActual, updateDecoracionFiestaActual, updateInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogTrigger } from "@/components/ui/dialog";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import NextImage from 'next/image';
 import { Separator } from '@/components/ui/separator';
@@ -39,8 +39,11 @@ export default function SalonLayoutPage() {
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
 
   const [isSaveTemplateModalOpen, setIsSaveTemplateModalOpen] = useState(false);
+  const [isLoadTemplateModalOpen, setIsLoadTemplateModalOpen] = useState(false);
+  const [templates, setTemplates] = useState<SalonLayoutTemplate[]>([]);
   const [templateName, setTemplateName] = useState('');
-  
+  const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
+
   const [isFullscreen, setIsFullscreen] = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
   
@@ -267,6 +270,26 @@ export default function SalonLayoutPage() {
         setIsSaving(false);
     }
   };
+
+  const handleLoadTemplate = async () => {
+    setIsLoadingTemplates(true);
+    setIsLoadTemplateModalOpen(true);
+    try {
+        const data = await getSalonLayoutTemplates();
+        setTemplates(data);
+    } catch (e) {
+        toast({ title: "Error", description: "No se pudieron cargar las plantillas." });
+    } finally {
+        setIsLoadingTemplates(false);
+    }
+  }
+
+  const applyTemplate = (template: SalonLayoutTemplate) => {
+    if(!template.layoutData) return;
+    setDecoracion(prev => prev ? ({...prev, ...template.layoutData}) : null);
+    setIsLoadTemplateModalOpen(false);
+    toast({ title: `Plantilla "${template.name}" aplicada.` });
+  }
   
   const handleFullscreenToggle = () => {
     if (!canvasRef.current) return;
@@ -403,9 +426,7 @@ export default function SalonLayoutPage() {
                <div className="space-y-2"><Label htmlFor="salon-bg">URL Imagen de Fondo</Label><Input id="salon-bg" type="url" value={decoracion.salonPlanBackgroundImageUrl || ''} onChange={e => setDecoracion(d => d ? {...d, salonPlanBackgroundImageUrl: e.target.value}: null)} placeholder="https://ejemplo.com/plano.png"/></div>
             </CardContent>
             <CardFooter className="flex-col gap-2">
-                <Link href="/settings/templates/layouts" passHref>
-                    <Button variant="outline" className="w-full">Gestionar Plantillas Guardadas</Button>
-                </Link>
+                <Link href="/settings/templates/layouts" passHref><Button variant="outline" className="w-full">Gestionar Plantillas Guardadas</Button></Link>
                 <Dialog open={isSaveTemplateModalOpen} onOpenChange={setIsSaveTemplateModalOpen}>
                     <DialogTrigger asChild><Button type="button" className="w-full"><FolderUp className="w-4 h-4 mr-2"/>Guardar Diseño como Plantilla</Button></DialogTrigger>
                     <DialogContent>
