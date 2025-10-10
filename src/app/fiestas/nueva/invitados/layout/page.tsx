@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
@@ -13,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData } from '@/types/fiesta';
 import { getFiestaActual, updateDecoracionFiestaActual, updateInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogTrigger } from "@/components/ui/dialog";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import NextImage from 'next/image';
 import { Separator } from '@/components/ui/separator';
@@ -416,11 +415,7 @@ export default function SalonLayoutPage() {
           <Card>
             <CardHeader><CardTitle>Controles</CardTitle></CardHeader>
             <CardContent>
-               <AlertDialog open={isGenerateConfirmOpen} onOpenChange={setIsGenerateConfirmOpen}>
-                 <AlertDialogContent>
-                   <AlertDialogHeader><AlertDialogTitle>Confirmar Generación de Mesas</AlertDialogTitle><AlertDialogDescription>Esta acción reemplazará todos los elementos actuales del salón con una nueva distribución automática. ¿Deseas continuar?</AlertDialogDescription></AlertDialogHeader>
-                   <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={handleGenerateTables}>Sí, generar</AlertDialogAction></AlertDialogFooter>
-                 </AlertDialogContent>
+                <AlertDialog open={isGenerateConfirmOpen} onOpenChange={setIsGenerateConfirmOpen}>
                  <div className="p-3 border rounded-md bg-muted/20">
                       <h4 className="font-medium text-sm mb-3">Asistente de Configuración Rápida</h4>
                       <div className="grid grid-cols-2 gap-3">
@@ -429,6 +424,10 @@ export default function SalonLayoutPage() {
                       </div>
                      <AlertDialogTrigger asChild><Button type="button" className="w-full mt-3">Generar Mesas</Button></AlertDialogTrigger>
                 </div>
+                 <AlertDialogContent>
+                   <AlertDialogHeader><AlertDialogTitle>Confirmar Generación de Mesas</AlertDialogTitle><AlertDialogDescription>Esta acción reemplazará todos los elementos actuales del salón con una nueva distribución automática. ¿Deseas continuar?</AlertDialogDescription></AlertDialogHeader>
+                   <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={handleGenerateTables}>Sí, generar</AlertDialogAction></AlertDialogFooter>
+                 </AlertDialogContent>
                </AlertDialog>
 
                <Separator className="my-4"/>
@@ -454,7 +453,7 @@ export default function SalonLayoutPage() {
                         <DialogFooter><DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose><Button onClick={handleSaveAsTemplate} disabled={isSaving}>Guardar</Button></DialogFooter>
                     </DialogContent>
                 </Dialog>
-                <Link href="/settings/templates/layouts" passHref><Button variant="link" size="sm">Gestionar Plantillas</Button></Link>
+                <Link href="/settings/templates/layouts" passHref><Button variant="link" size="sm">Gestionar Plantillas Guardadas</Button></Link>
             </CardFooter>
           </Card>
           
@@ -507,4 +506,3 @@ export default function SalonLayoutPage() {
     </div>
   );
 }
-
