@@ -1,26 +1,53 @@
 
 'use server';
 
-import { initialFiestaActualData } from '@/lib/fiesta-defaults';
-import type { FiestaEnPlanificacion, ListaDeCargaOperativa } from '@/types/fiesta';
+import type { ListaDeCargaOperativa } from '@/types/fiesta';
 import { readData, writeData } from '@/lib/data-service';
-import path from 'path';
 
-const FIESTAS_DIR = 'fiestas';
-const FIESTA_ACTUAL_ID = "fiesta_1762181514757";
-const FIESTA_ACTUAL_FILE_PATH = path.join(FIESTAS_DIR, `${FIESTA_ACTUAL_ID}.json`);
+const MASTER_TEMPLATE_FILE = 'carga-operativa-master-template.json';
+const defaultMasterTemplate: ListaDeCargaOperativa = {
+  id: "master",
+  name: "Plantilla Maestra de Carga Operativa",
+  categorias: [],
+};
 
-async function updateFiestaData(updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion): Promise<{ success: boolean; updatedData?: ListaDeCargaOperativa; error?: string }> {
+// --- ACCIONES PARA LA PLANTILLA MAESTRA ---
+
+/**
+ * Obtiene la plantilla maestra de Carga Operativa.
+ */
+export async function getCargaOperativaMasterTemplate(): Promise<ListaDeCargaOperativa> {
+  return readData<ListaDeCargaOperativa>(MASTER_TEMPLATE_FILE, defaultMasterTemplate);
+}
+
+/**
+ * Guarda la plantilla maestra de Carga Operativa.
+ * @param data Los nuevos datos de la plantilla.
+ */
+export async function saveCargaOperativaMasterTemplate(
+  data: ListaDeCargaOperativa
+): Promise<{ success: boolean; data?: ListaDeCargaOperativa; error?: string }> {
   try {
-    const currentData = await readData<FiestaEnPlanificacion>(FIESTA_ACTUAL_FILE_PATH, initialFiestaActualData);
-    const updatedData = updateFn(currentData);
-    await writeData(FIESTA_ACTUAL_FILE_PATH, updatedData);
-    return { success: true, updatedData: updatedData.listaDeCargaOperativa };
+    await writeData(MASTER_TEMPLATE_FILE, { ...data, id: 'master', name: 'Plantilla Maestra de Carga Operativa' });
+    return { success: true, data };
   } catch (e: any) {
     return { success: false, error: e.message };
   }
 }
 
-export async function updateListaDeCargaOperativa(lista: ListaDeCargaOperativa) {
-  return updateFiestaData(data => ({ ...data, listaDeCargaOperativa: lista }));
+
+// --- ACCIONES PARA LA FIESTA ESPECÍFICA (A TRAVÉS DE FIESTA-ACTUAL) ---
+import { getFiestaById, saveFiesta } from './fiesta.actions';
+
+export async function updateListaDeCargaOperativa(fiestaId: string, lista: ListaDeCargaOperativa): Promise<{ success: boolean; updatedData?: ListaDeCargaOperativa; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) throw new Error("Fiesta no encontrada");
+    const updatedFiesta = { ...fiesta, listaDeCargaOperativa: lista };
+    const result = await saveFiesta(updatedFiesta);
+    if (!result.success) throw new Error(result.error);
+    return { success: true, updatedData: result.fiesta?.listaDeCargaOperativa };
+  } catch (e: any) {
+    return { success: false, error: e.message };
+  }
 }

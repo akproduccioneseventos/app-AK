@@ -125,4 +125,3 @@ export const updateMenuAsignadoFiestaActual = updateMenuAsignado;
 
 // --- Video de Vida Actions ---
 export const updateVideoVidaSettingsFiestaActual = updateVideoVidaSettingsFromModule;
-    

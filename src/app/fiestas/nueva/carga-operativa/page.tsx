@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft, PackageSearch, PlusCircle, Trash2, Loader2, AlertTriangle, Save, FileText, Info, Search, BookOpen, GripVertical } from 'lucide-react';
+import { ArrowLeft, PackageSearch, PlusCircle, Trash2, Loader2, AlertTriangle, Save, FileText, Info, Search, BookOpen, GripVertical, RotateCw } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
@@ -20,6 +20,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogC
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { getCargaOperativaMasterTemplate } from '@/app/actions/fiesta/carga-operativa.actions';
 
 function SortableCargaItem({ item, categoryId, onToggle, onQuantityChange, onDelete }: {
     item: CargaOperativaItem;
@@ -66,6 +67,7 @@ function SortableCargaItem({ item, categoryId, onToggle, onQuantityChange, onDel
 
 export default function ListaDeCargaOperativaPage() {
   const { toast } = useToast();
+  const [fiestaId, setFiestaId] = useState<string>('');
   const [listaDeCarga, setListaDeCarga] = useState<ListaDeCargaOperativa>({ categorias: [], notasGenerales: '' });
   const [activosCatalogo, setActivosCatalogo] = useState<ServicioEmpresa[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -85,17 +87,32 @@ export default function ListaDeCargaOperativaPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const [fiestaData, catalogoData] = await Promise.all([
+      const [fiestaData, catalogoData, masterTemplate] = await Promise.all([
         getFiestaActual(),
-        getServiciosEmpresa()
+        getServiciosEmpresa(),
+        getCargaOperativaMasterTemplate()
       ]);
       
-      const loadedLista = fiestaData.listaDeCargaOperativa || { categorias: [], notasGenerales: '' };
-      const categoriasConItems = (loadedLista.categorias || []).map(cat => ({
+      setFiestaId(fiestaData.id);
+      
+      let loadedLista = fiestaData.listaDeCargaOperativa;
+      // If the event list is empty, but the master template is not, initialize from master
+      if ((!loadedLista || !loadedLista.categorias || loadedLista.categorias.length === 0) && masterTemplate.categorias.length > 0) {
+        loadedLista = {
+          ...masterTemplate,
+          categorias: masterTemplate.categorias.map(cat => ({
+            ...cat,
+            items: cat.items.map(item => ({ ...item, cargado: false })) // Ensure cargado is reset to false
+          }))
+        };
+        toast({ title: "Plantilla Cargada", description: "Se cargó la lista de carga operativa desde la plantilla maestra." });
+      }
+
+      const categoriasConItems = (loadedLista?.categorias || []).map(cat => ({
         ...cat,
         items: cat.items || [] 
       }));
-      setListaDeCarga({ ...loadedLista, categorias: categoriasConItems });
+      setListaDeCarga({ ...(loadedLista || { categorias: [], notasGenerales: '' }), categorias: categoriasConItems });
       setActivosCatalogo(catalogoData.filter(s => s.tipoItem === 'Activo Fijo'));
 
     } catch (err: any) {
@@ -109,11 +126,27 @@ export default function ListaDeCargaOperativaPage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+  
+  const handleRestoreFromTemplate = async () => {
+    try {
+      const masterTemplate = await getCargaOperativaMasterTemplate();
+       setListaDeCarga({
+          ...masterTemplate,
+          categorias: masterTemplate.categorias.map(cat => ({
+            ...cat,
+            items: cat.items.map(item => ({ ...item, cargado: false }))
+          }))
+        });
+        toast({ title: "Plantilla Restaurada"});
+    } catch(e) {
+      toast({ title: "Error", description: "No se pudo cargar la plantilla maestra.", variant: "destructive" });
+    }
+  }
 
   const handleSaveListaDeCarga = async () => {
     setIsSaving(true);
     try {
-      const result = await updateListaDeCargaOperativaFiestaActual(listaDeCarga);
+      const result = await updateListaDeCargaOperativaFiestaActual(fiestaId, listaDeCarga);
       if (result.success) {
         toast({ title: "¡Lista Guardada!", description: "La lista de carga operativa ha sido actualizada." });
         if (result.updatedData) {
@@ -309,6 +342,7 @@ export default function ListaDeCargaOperativaPage() {
                     <PlusCircle className="w-4 h-4 mr-2"/> Añadir Categoría
                 </Button>
             </div>
+            <Button onClick={handleRestoreFromTemplate} variant="link" className="mt-2 text-xs h-auto p-0"><RotateCw className="w-3 h-3 mr-1"/>Restaurar desde Plantilla Maestra</Button>
         </CardContent>
       </Card>
 
@@ -364,5 +398,3 @@ export default function ListaDeCargaOperativaPage() {
     </div>
   );
 }
-
-    
