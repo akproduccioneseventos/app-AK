@@ -183,6 +183,7 @@ export interface InvitacionDigitalData {
   };
   detallesEvento: {
     visible: boolean;
+    imagenFondoUrl?: string; // Added background
     infoPadresVisible: boolean;
     nombrePadre1?: string;
     nombrePadre2?: string;
@@ -205,6 +206,7 @@ export interface InvitacionDigitalData {
   };
   regalos: {
     visible: boolean;
+    imagenFondoUrl?: string; // Added background
     titulo: string;
     texto: string;
     datosBancarios: string;
@@ -212,6 +214,7 @@ export interface InvitacionDigitalData {
   };
   dressCode: {
     visible: boolean;
+    imagenFondoUrl?: string; // Added background
     texto: string;
   };
   instagram: {
