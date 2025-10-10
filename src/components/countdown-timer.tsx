@@ -82,39 +82,24 @@ export function CountdownTimer({ targetDate }: CountdownTimerProps) {
     );
   }
 
-  // Determine which time units to display
-  const displayDays = timeLeft.days !== undefined && timeLeft.days > 0;
-  const displayHours = timeLeft.hours !== undefined && (displayDays || timeLeft.hours > 0);
-  const displayMinutes = timeLeft.minutes !== undefined && (displayHours || timeLeft.minutes > 0);
-  // Only show seconds as the smallest unit if other larger units are zero or not present
-  const displaySeconds = timeLeft.seconds !== undefined && !displayDays && !displayHours && !displayMinutes;
-
   return (
     <div className="flex flex-wrap justify-center items-center gap-2 md:gap-4 text-center">
-      {displayDays && (
         <div className="p-2 rounded-md bg-primary/10 min-w-[60px] md:min-w-[80px]">
-          <div className="text-2xl md:text-3xl font-bold text-primary">{String(timeLeft.days).padStart(2, '0')}</div>
+          <div className="text-2xl md:text-3xl font-bold text-primary">{String(timeLeft.days || 0).padStart(2, '0')}</div>
           <div className="text-xs text-muted-foreground">Días</div>
         </div>
-      )}
-      {displayHours && (
         <div className="p-2 rounded-md bg-primary/10 min-w-[60px] md:min-w-[80px]">
-          <div className="text-2xl md:text-3xl font-bold text-primary">{String(timeLeft.hours).padStart(2, '0')}</div>
+          <div className="text-2xl md:text-3xl font-bold text-primary">{String(timeLeft.hours || 0).padStart(2, '0')}</div>
           <div className="text-xs text-muted-foreground">Horas</div>
         </div>
-      )}
-      {displayMinutes && (
         <div className="p-2 rounded-md bg-primary/10 min-w-[60px] md:min-w-[80px]">
-          <div className="text-2xl md:text-3xl font-bold text-primary">{String(timeLeft.minutes).padStart(2, '0')}</div>
+          <div className="text-2xl md:text-3xl font-bold text-primary">{String(timeLeft.minutes || 0).padStart(2, '0')}</div>
           <div className="text-xs text-muted-foreground">Minutos</div>
         </div>
-      )}
-       {displaySeconds && (
-         <div className="p-2 rounded-md bg-primary/10 min-w-[60px] md:min-w-[80px]">
-          <div className="text-2xl md:text-3xl font-bold text-primary">{String(timeLeft.seconds).padStart(2, '0')}</div>
+        <div className="p-2 rounded-md bg-primary/10 min-w-[60px] md:min-w-[80px]">
+          <div className="text-2xl md:text-3xl font-bold text-primary">{String(timeLeft.seconds || 0).padStart(2, '0')}</div>
           <div className="text-xs text-muted-foreground">Segundos</div>
         </div>
-       )}
     </div>
   );
 }

@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent, use } from 'react';
@@ -6,7 +7,7 @@ import NextImage from 'next/image';
 import { Loader2, AlertTriangle, PartyPopper, CalendarDays, MapPin, Music2 as MusicIcon, Check, Users, MessageSquare, Send, CheckCircle, Gift, Clock, QrCode, Facebook, Instagram, Music, Utensils, GlassWater, Diamond, Sparkles, CakeSlice, Camera, Link as LinkIcon, ExternalLink, Heart, Church, Handshake, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, EventWebPageSettings, ColorPalette, Invitado, GiftItem, ProgramaEventoItem } from '@/types/fiesta';
-import { getFiestaActual, handleRsvpSubmissionFiestaActual, claimGiftFiestaActual, getFiestaById } from '@/app/actions/fiesta-actual';
+import { getFiestaById, handleRsvpSubmissionFiestaActual, claimGiftFiestaActual } from '@/app/actions/fiesta-actual';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import type { SocialConnection } from '@/types/settings';
 import { CountdownTimer } from '@/components/countdown-timer';
@@ -299,3 +300,4 @@ function RsvpForm({ fiesta }: { fiesta: FiestaEnPlanificacion }) {
     </section>
   );
 }
+

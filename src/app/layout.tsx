@@ -1,6 +1,7 @@
+
 import type { Metadata } from 'next';
 import './globals.css';
-import { AppShell } from '@/app/app-shell';
+import { AppShell } from '@/components/app-shell';
 import { Toaster } from "@/components/ui/toaster";
 import { Poppins, Belleza } from 'next/font/google';
 import { AuthGuard } from '@/components/auth-guard';
