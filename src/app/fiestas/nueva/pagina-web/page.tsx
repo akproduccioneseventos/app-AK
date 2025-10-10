@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Save, Loader2, Globe, Sparkles, Image as ImageIcon, Users, Clock, Gift, MapPin, Camera, Wand2, PlusCircle, Trash2, ChevronDown, Edit, Link as LinkIcon, ExternalLink, Heart, Church, Mail, Music2, CheckCircle, FolderUp, FolderDown, MessageSquare, Handshake } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, Globe, Sparkles, Image as ImageIcon, Users, Clock, Gift, MapPin, Camera, Wand2, PlusCircle, Trash2, ChevronDown, Edit, Link as LinkIcon, ExternalLink, Heart, Church, Mail, Music2, CheckCircle, FolderUp, FolderDown, MessageSquare, Handshake, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, InvitacionDigitalData, GiftItem } from '@/types/fiesta';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
@@ -210,27 +210,6 @@ function PaginaWebPageContent() {
 
   return (
     <div className="space-y-6">
-      <Dialog open={isTemplateModalOpen} onOpenChange={setIsTemplateModalOpen}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Cargar Diseño desde Plantilla Maestra</DialogTitle></DialogHeader>
-          <div className="max-h-96 overflow-y-auto space-y-2 p-1">
-            {templates.map(t => (
-              <Button key={t.id} variant="secondary" className="w-full justify-start h-auto" onClick={() => applyTemplate(t)}>
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-12 bg-gray-200 border rounded-sm relative overflow-hidden">
-                    {t.cabecera?.videoFondoUrl && <NextImage src={t.cabecera.videoFondoUrl} alt={`Preview de ${t.name}`} layout="fill" objectFit="cover" />}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-left">{t.name}</p>
-                    <p className="text-xs text-muted-foreground text-left">{t.category} - Estilo: {t.plantilla}</p>
-                  </div>
-                </div>
-              </Button>
-            ))}
-          </div>
-        </DialogContent>
-      </Dialog>
-      
       {/* Header */}
       <div className="flex-shrink-0 flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -257,7 +236,7 @@ function PaginaWebPageContent() {
           <Card className="h-full flex flex-col">
             <CardHeader><CardTitle>Panel de Control</CardTitle></CardHeader>
             <CardContent className="flex-grow overflow-y-auto pr-2">
-              <Dialog>
+              <Dialog onOpenChange={(open) => !open && setFileContext(null)}>
                 <Accordion type="multiple" className="w-full space-y-4" defaultValue={['general', 'cabecera', 'detallesEvento']}>
                   {/* General Settings */}
                   <AccordionItem value="general" className="border rounded-md px-3">
