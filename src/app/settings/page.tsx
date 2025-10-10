@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText, BrainCircuit, Link as LinkIcon, Star, HardDriveDownload, PartyPopper, Sparkles as SparklesIcon, Wand2, UserCog, ListChecks, PackageSearch } from 'lucide-react';
+import { Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText, BrainCircuit, Link as LinkIcon, Star, HardDriveDownload, PartyPopper, Sparkles as SparklesIcon, Wand2, UserCog, ListChecks, PackageSearch, Palette } from 'lucide-react';
 
 const settingsCards = [
    {
@@ -13,6 +13,13 @@ const settingsCards = [
     href: "/settings/company", 
     icon: Building,
     buttonLabel: "Gestionar Datos"
+  },
+  {
+    title: "Personalizar Plantillas",
+    description: "Gestiona las plantillas de tareas, documentos y diseños de la aplicación.",
+    href: "/settings/templates",
+    icon: Palette,
+    buttonLabel: "Gestionar Plantillas"
   },
    {
     title: "Cuentas Sociales Vinculadas",
