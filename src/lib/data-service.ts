@@ -39,11 +39,12 @@ export async function readData<T>(filePath: string, defaultValue: T): Promise<T>
   await ensureFile(absolutePath, JSON.stringify(defaultValue, null, 2));
   try {
     const fileContent = await fs.readFile(absolutePath, 'utf-8');
-    // If the file is empty, return the default value to prevent JSON.parse error
-    if (fileContent.trim() === '') {
-      return defaultValue;
+    // Ensure fileContent is a non-empty string before parsing
+    if (fileContent && fileContent.trim()) {
+      return JSON.parse(fileContent) as T;
     }
-    return JSON.parse(fileContent) as T;
+    // If file is empty or just whitespace, return default
+    return defaultValue;
   } catch (error) {
     console.error(`Error reading or parsing ${absolutePath}, returning default value.`, error);
     // Attempt to fix the file by writing the default value back.
