@@ -1,7 +1,6 @@
-
 'use client';
 
-import React, { useState, useEffect, useCallback, Suspense, useRef } from 'react';
+import React, { useState, useEffect, useCallback, Suspense, useRef, useMemo } from 'react';
 import QrScanner from 'react-qr-scanner';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -26,6 +25,7 @@ function CheckinScannerContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessingCheckin, setIsProcessingCheckin] = useState(false);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const loadInitialData = useCallback(async (showLoading = true) => {
     if(showLoading) setIsLoading(true);
@@ -49,18 +49,25 @@ function CheckinScannerContent() {
         try {
           const stream = await navigator.mediaDevices.getUserMedia({ video: true });
           setHasCameraPermission(true);
-          // It's good practice to stop the stream immediately if not used right away
-          stream.getTracks().forEach(track => track.stop());
+           if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+          }
         } catch (error) {
           console.error('Error accessing camera:', error);
           setHasCameraPermission(false);
+          toast({
+            variant: 'destructive',
+            title: 'Acceso a Cámara Denegado',
+            description: 'Por favor, habilita el permiso de cámara en los ajustes de tu navegador.',
+          });
         }
       } else {
         setHasCameraPermission(false);
       }
     };
     getCameraPermission();
-  }, []);
+  }, [toast]);
+
 
   const processCheckIn = useCallback(async (guestId: string) => {
     if (isProcessingCheckin) return;
@@ -208,7 +215,7 @@ function CheckinScannerContent() {
               </CardHeader>
               <CardContent>
                 <div className="relative w-full aspect-square max-w-sm mx-auto bg-black rounded-lg overflow-hidden">
-                    {hasCameraPermission ? (
+                    {hasCameraPermission === true && (
                          <Suspense fallback={<Loader2 className="w-8 h-8 animate-spin" />}>
                            <QrScanner
                             onScan={handleScan}
@@ -217,7 +224,8 @@ function CheckinScannerContent() {
                             className="w-full h-full object-cover"
                           />
                         </Suspense>
-                    ) : (
+                    )}
+                    {hasCameraPermission === false && (
                          <div className="flex flex-col items-center justify-center h-full text-white bg-gray-800 p-4">
                             <CameraOff className="w-10 h-10 mb-4" />
                             <p className="text-center">No se pudo acceder a la cámara. Por favor, revisa los permisos en tu navegador.</p>
@@ -240,5 +248,3 @@ export default function CheckinScannerPage() {
         </Suspense>
     )
 }
-
-    
