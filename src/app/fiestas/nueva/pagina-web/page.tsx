@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, type FormEvent, useEffect, useCallback, ChangeEvent, Suspense, use } from 'react';
@@ -217,7 +216,7 @@ function PaginaWebPageContent() {
                 setFileToUpload(null);
                 setPreviewUrl(null);
                 setFileContext({section, field});
-                setIsUploadModalOpen(true); // This should be handled by the DialogTrigger
+                setIsUploadModalOpen(true);
             }}>Subir</Button>
         </DialogTrigger>
       </div>
@@ -248,7 +247,7 @@ function PaginaWebPageContent() {
       </div>
       
       <div className="flex-grow grid grid-cols-1 lg:grid-cols-3 gap-6 min-h-0">
-        <Dialog>
+        <Dialog open={isUploadModalOpen} onOpenChange={setIsUploadModalOpen}>
             <Card className="lg:col-span-1 h-full flex flex-col">
               <CardHeader><CardTitle>Panel de Control</CardTitle></CardHeader>
               <CardContent className="flex-grow overflow-y-auto pr-2">
