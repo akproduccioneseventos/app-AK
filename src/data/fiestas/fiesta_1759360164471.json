@@ -177,7 +177,8 @@
     "showRsvp": true,
     "showPrograma": false,
     "musicaEspecialText": "",
-    "showGallery": false
+    "showGallery": false,
+    "templateName": "Grazia"
   },
   "clientPortalSettings": {
     "enabled": false,

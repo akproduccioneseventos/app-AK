@@ -1,13 +1,12 @@
-
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent, use } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import NextImage from 'next/image';
 import { Loader2, AlertTriangle, PartyPopper, CalendarDays, MapPin, Music2 as MusicIcon, Check, Users, MessageSquare, Send, CheckCircle, Gift, Clock, QrCode, Facebook, Instagram, Music, Utensils, GlassWater, Diamond, Sparkles, CakeSlice, Camera, Link as LinkIcon, ExternalLink, Heart, Church, Handshake, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, EventWebPageSettings, ColorPalette, Invitado, GiftItem, ProgramaEventoItem } from '@/types/fiesta';
-import { getFiestaActual, handleRsvpSubmissionFiestaActual, claimGiftFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaActual, handleRsvpSubmissionFiestaActual, claimGiftFiestaActual, getFiestaById } from '@/app/actions/fiesta-actual';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import type { SocialConnection } from '@/types/settings';
 import { CountdownTimer } from '@/components/countdown-timer';
@@ -34,8 +33,8 @@ const GraziaTemplate: React.FC<{
   paletaColores: ColorPalette | null;
   children: React.ReactNode;
 }> = ({ fiesta, webSettings, paletaColores, children }) => {
-  const primaryColor = paletaColores?.primary || '#EF4444'; 
-  const secondaryColor = paletaColores?.secondary || '#FBCFE8';
+  const primaryColor = paletaColores?.primary || '#D9B8FF';
+  const secondaryColor = paletaColores?.secondary || '#FCD3DE';
   const textColor = paletaColores?.accent || '#333';
   
   const formatDate = (dateString?: string) => {
@@ -47,7 +46,6 @@ const GraziaTemplate: React.FC<{
   
   const mapQuery = fiesta.configuracion.nombreLugar ? encodeURIComponent(fiesta.configuracion.nombreLugar) : '';
   const mapUrl = `https://www.google.com/maps?q=${mapQuery}`;
-  const mapEmbedUrl = mapQuery ? `https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY_HERE&q=${mapQuery}` : '';
 
   const FloralSeparator = () => (
     <div className="text-center my-8" aria-hidden="true">
@@ -194,7 +192,7 @@ function EventoPublicoPageContent() {
   return (
     <>
       {templateName === 'Grazia' ? (
-        <GraziaTemplate fiesta={fiesta} webSettings={webSettings} paletaColores={paletaColores} socialLinks={socialLinks} >
+        <GraziaTemplate fiesta={fiesta} webSettings={webSettings} paletaColores={paletaColores}>
            {RsvpComponent}
         </GraziaTemplate>
       ) : (
