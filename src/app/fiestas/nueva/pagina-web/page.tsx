@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Save, Loader2, Globe, Sparkles, Image as ImageIcon, Users, Clock, Gift, MapPin, Camera, Wand2, PlusCircle, Trash2 } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, Globe, Sparkles, Image as ImageIcon, Users, Clock, Gift, MapPin, Camera, Wand2, PlusCircle, Trash2, ChevronDown, Edit, Link as LinkIcon, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, EventWebPageSettings, ClientPortalSettings, GiftItem } from '@/types/fiesta';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
@@ -30,6 +30,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const GiftListManagement: React.FC<{
   initialItems: GiftItem[];
@@ -95,7 +96,7 @@ const GiftListManagement: React.FC<{
           <div key={item.id} className="flex items-center justify-between p-2 border rounded-md text-sm">
             <span>{item.name} {item.isClaimed && <span className="text-xs text-green-600">(Elegido)</span>}</span>
             <div className="flex gap-1">
-                <Button size="icon" variant="ghost" type="button" className="h-7 w-7"><Edit className="w-3.5 h-3.5"/></Button>
+                <Button size="icon" variant="ghost" type="button" className="h-7 w-7" onClick={() => openItemModal(item)}><Edit className="w-3.5 h-3.5"/></Button>
                 <Button size="icon" variant="ghost" type="button" className="h-7 w-7 text-destructive" onClick={() => handleDeleteItem(item.id)}><Trash2 className="w-3.5 h-3.5"/></Button>
             </div>
           </div>
@@ -104,6 +105,7 @@ const GiftListManagement: React.FC<{
     </div>
   );
 };
+
 
 function PaginaWebPageContent() {
   const { toast } = useToast();
@@ -231,9 +233,14 @@ function PaginaWebPageContent() {
             Página Pública del Evento
           </h1>
         </div>
-        <Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`} passHref>
-          <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver al Planificador</Button>
-        </Link>
+        <div className="flex gap-2">
+            <Link href={`/evento/actual?fiestaId=${fiesta.id}`} passHref target="_blank">
+                <Button variant="secondary"><ExternalLink className="w-4 h-4 mr-2"/>Ver Página</Button>
+            </Link>
+            <Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`} passHref>
+              <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver al Planificador</Button>
+            </Link>
+        </div>
       </div>
       
       <form onSubmit={handleSave}>
@@ -244,6 +251,17 @@ function PaginaWebPageContent() {
                 <CardHeader><CardTitle>Diseño y Contenido Principal</CardTitle></CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
+                    <Label htmlFor="templateName">Seleccionar Plantilla de Diseño</Label>
+                    <Select value={webSettings.templateName || 'Obsidiana'} onValueChange={(v) => handleWebSettingsChange('templateName', v)}>
+                      <SelectTrigger id="templateName"><SelectValue/></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Obsidiana">Obsidiana (Moderno y Oscuro)</SelectItem>
+                        <SelectItem value="Grazia">Grazia (Clásico y Elegante)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Separator/>
+                  <div className="space-y-2">
                     <Label htmlFor="pageTitle">Título Principal de la Página</Label>
                     <Input id="pageTitle" value={webSettings.pageTitle} onChange={(e) => handleWebSettingsChange('pageTitle', e.target.value)} placeholder={fiesta.configuracion.nombreEvento} />
                   </div>
@@ -252,7 +270,7 @@ function PaginaWebPageContent() {
                     <Input id="heroSubtitle" value={webSettings.heroSubtitle} onChange={(e) => handleWebSettingsChange('heroSubtitle', e.target.value)} placeholder="Ej: ¡Una noche inolvidable!" />
                   </div>
                   <div className="space-y-2">
-                     <Label htmlFor="cover-image">Imagen de Portada / Fondo</Label>
+                     <Label htmlFor="cover-image">Imagen/Video de Portada</Label>
                      <Input id="cover-image" type="file" accept="image/*,video/*" onChange={(e) => handleFileChange(e, 'cover')} />
                      <p className="text-xs text-muted-foreground">Sube la foto principal o el video corto (MP4) de tu invitación.</p>
                      {coverImagePreview && <div className="relative aspect-video max-w-sm"><NextImage src={coverImagePreview} alt="Preview" layout="fill" objectFit="cover" className="rounded-md border"/></div>}
