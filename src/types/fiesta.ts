@@ -167,6 +167,7 @@ export interface ItineraryTemplate {
 
 export interface InvitacionDigitalData {
   name?: string; // Only for templates
+  category?: 'Boda' | 'XV Años' | 'Cumpleaños' | 'General';
   plantilla: 'Grazia' | 'Obsidiana';
   musicaFondoUrl?: string;
   cabecera: {
@@ -183,7 +184,7 @@ export interface InvitacionDigitalData {
   };
   detallesEvento: {
     visible: boolean;
-    imagenFondoUrl?: string; // Added background
+    imagenFondoUrl?: string;
     infoPadresVisible: boolean;
     nombrePadre1?: string;
     nombrePadre2?: string;
@@ -206,7 +207,7 @@ export interface InvitacionDigitalData {
   };
   regalos: {
     visible: boolean;
-    imagenFondoUrl?: string; // Added background
+    imagenFondoUrl?: string;
     titulo: string;
     texto: string;
     datosBancarios: string;
@@ -214,7 +215,7 @@ export interface InvitacionDigitalData {
   };
   dressCode: {
     visible: boolean;
-    imagenFondoUrl?: string; // Added background
+    imagenFondoUrl?: string;
     texto: string;
   };
   instagram: {
@@ -230,6 +231,7 @@ export interface InvitacionDigitalData {
     texto: string;
   };
 }
+
 
 interface PortalModuleSettings {
   visible: boolean;
