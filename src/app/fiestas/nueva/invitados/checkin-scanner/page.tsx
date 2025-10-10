@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, Suspense, useRef } from 'react';
 import QrScanner from 'react-qr-scanner';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,8 @@ import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import Link from 'next/link';
+import { Alert, AlertTitle } from '@/components/ui/alert';
+
 
 function CheckinScannerContent() {
   const { toast } = useToast();
@@ -22,6 +24,8 @@ function CheckinScannerContent() {
   const [totalConfirmados, setTotalConfirmados] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
 
   const loadInitialData = useCallback(async () => {
     try {
@@ -37,6 +41,21 @@ function CheckinScannerContent() {
   useEffect(() => {
     loadInitialData();
   }, [loadInitialData]);
+
+  useEffect(() => {
+    const getCameraPermission = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        setHasCameraPermission(true);
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+        setHasCameraPermission(false);
+      }
+    };
+
+    getCameraPermission();
+  }, []);
+
 
   const handleScan = async (data: { text: string } | null) => {
     if (data && !isLoading) {
@@ -105,26 +124,35 @@ function CheckinScannerContent() {
             <CardTitle>Escanear Código QR</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="relative w-full aspect-square max-w-sm mx-auto bg-black rounded-lg overflow-hidden">
-              {hasCameraPermission === false ? (
-                <div className="flex flex-col items-center justify-center h-full text-white bg-destructive/80 p-4">
-                  <CameraOff className="w-12 h-12 mb-4" />
-                  <h3 className="font-semibold">Acceso a Cámara Denegado</h3>
-                  <p className="text-sm text-center">Por favor, habilita el permiso de cámara en los ajustes de tu navegador para usar el escáner.</p>
+            {hasCameraPermission === null && (
+                 <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-4">
+                  <Loader2 className="w-8 h-8 animate-spin mb-4" />
+                  <p>Solicitando acceso a la cámara...</p>
                 </div>
-              ) : (
-                <Suspense fallback={<Loader2 className="w-8 h-8 animate-spin" />}>
-                   <QrScanner
-                    onScan={handleScan}
-                    onError={handleError}
-                    constraints={{ video: { facingMode: "environment" } }}
-                    style={previewStyle}
-                    className="w-full h-full object-cover"
-                  />
-                </Suspense>
-              )}
-               {isLoading && <div className="absolute inset-0 bg-black/60 flex items-center justify-center"><Loader2 className="w-10 h-10 text-white animate-spin"/></div>}
-            </div>
+            )}
+            {hasCameraPermission === false && (
+               <Alert variant="destructive">
+                  <CameraOff className="h-4 w-4" />
+                  <AlertTitle>Acceso a Cámara Denegado</AlertTitle>
+                  <p className="text-sm">
+                    Por favor, habilita el permiso de cámara en los ajustes de tu navegador para usar el escáner.
+                  </p>
+                </Alert>
+            )}
+            {hasCameraPermission === true && (
+                <div className="relative w-full aspect-square max-w-sm mx-auto bg-black rounded-lg overflow-hidden">
+                    <Suspense fallback={<Loader2 className="w-8 h-8 animate-spin" />}>
+                       <QrScanner
+                        onScan={handleScan}
+                        onError={handleError}
+                        constraints={{ video: { facingMode: "environment" } }}
+                        style={previewStyle}
+                        className="w-full h-full object-cover"
+                      />
+                    </Suspense>
+                   {isLoading && <div className="absolute inset-0 bg-black/60 flex items-center justify-center"><Loader2 className="w-10 h-10 text-white animate-spin"/></div>}
+                </div>
+            )}
           </CardContent>
         </Card>
 
