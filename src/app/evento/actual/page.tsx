@@ -26,6 +26,7 @@ import { WatermarkedImage } from '@/components/watermarked-image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
+import { motion } from "framer-motion";
 
 // --- PLANTILLA GRAZIA ---
 const GraziaTemplate: React.FC<{
@@ -63,13 +64,36 @@ const GraziaTemplate: React.FC<{
   const mapQuery = fiesta.configuracion.nombreLugar ? encodeURIComponent(fiesta.configuracion.nombreLugar) : '';
   const mapUrl = `https://www.google.com/maps?q=${mapQuery}`;
 
+  const sectionVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+  };
+
+  const IconWrapper = ({ children }: { children: React.ReactNode }) => (
+    <motion.div
+        initial={{ scale: 0.5, opacity: 0 }}
+        whileInView={{ scale: 1, opacity: 1 }}
+        viewport={{ once: true, amount: 0.8 }}
+        transition={{ type: "spring", stiffness: 260, damping: 20 }}
+    >
+        {children}
+    </motion.div>
+  );
+
   const FloralSeparator = () => (
-    <div className="text-center my-8" aria-hidden="true">
+     <motion.div
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.8 }}
+        variants={sectionVariants}
+        className="text-center my-8" 
+        aria-hidden="true"
+     >
       <svg width="100" height="20" viewBox="0 0 100 20" className="inline-block" fill={primaryColor}>
         <path d="M50 10 L10 10 Q5 10, 5 15 M50 10 L90 10 Q95 10, 95 15 M50 10 Q45 10, 45 5 M50 10 Q55 10, 55 5" stroke={primaryColor} strokeWidth="1" fill="none" />
         <circle cx="50" cy="10" r="3" />
       </svg>
-    </div>
+    </motion.div>
   );
   
   const socialIcons: { [key: string]: React.ElementType } = {
@@ -103,52 +127,80 @@ const GraziaTemplate: React.FC<{
       </header>
        <main className="max-w-3xl mx-auto p-4 md:p-8 space-y-12">
         {invitacionData.cabecera?.visible && fiesta.configuracion.fechaEvento && (
-          <section id="countdown" className="text-center">
+          <motion.section 
+            id="countdown" 
+            className="text-center"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.5 }}
+            variants={sectionVariants}
+          >
             <h3 className="font-headline text-2xl mb-4" style={{color: primaryColor}}>Faltan</h3>
             <CountdownTimer targetDate={fiesta.configuracion.fechaEvento} />
-          </section>
+          </motion.section>
         )}
         
         <FloralSeparator />
 
         {invitacionData.detallesEvento?.visible && (
           <>
-            <section id="ceremonia" className="text-center">
-                <Church className="w-12 h-12 mx-auto mb-3" style={{color: primaryColor}}/>
+            <motion.section 
+                id="ceremonia" 
+                className="text-center"
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.8 }}
+                variants={sectionVariants}
+            >
+                <IconWrapper><Church className="w-12 h-12 mx-auto mb-3" style={{color: primaryColor}}/></IconWrapper>
                 <h3 className="font-headline text-3xl mb-3" style={{color: textColor}}>Ceremonia</h3>
                 <p className="text-lg text-muted-foreground">{fiesta.configuracion.horaInicio} hs.</p>
                 <p className="text-lg font-semibold" style={{color: textColor}}>{fiesta.configuracion.nombreLugar}</p>
-            </section>
+            </motion.section>
             <FloralSeparator />
           </>
         )}
         
         {invitacionData.detallesEvento?.visible && (
           <>
-            <section id="celebracion" className="text-center">
-                <Handshake className="w-12 h-12 mx-auto mb-3" style={{color: primaryColor}}/>
+            <motion.section 
+                id="celebracion" 
+                className="text-center"
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.8 }}
+                variants={sectionVariants}
+            >
+                <IconWrapper><Handshake className="w-12 h-12 mx-auto mb-3" style={{color: primaryColor}}/></IconWrapper>
                 <h3 className="font-headline text-3xl mb-3" style={{color: textColor}}>Celebración</h3>
                 <p className="text-lg text-muted-foreground">{fiesta.configuracion.horaFin ? `A partir de las ${fiesta.configuracion.horaFin} hs.` : 'Luego de la ceremonia'}</p>
                 <p className="text-lg font-semibold" style={{color: textColor}}>{fiesta.configuracion.nombreLugar}</p>
                 <a href={mapUrl} target="_blank" rel="noopener noreferrer">
                   <Button variant="outline" className="mt-4"><MapPin className="w-4 h-4 mr-2"/> Ver en Mapa</Button>
                 </a>
-            </section>
+            </motion.section>
             <FloralSeparator />
           </>
         )}
         
         {invitacionData.regalos?.visible && (
-            <section id="regalos" className="text-center">
-                 <Gift className="w-12 h-12 mx-auto mb-3" style={{color: primaryColor}}/>
+            <motion.section 
+                id="regalos" 
+                className="text-center"
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.8 }}
+                variants={sectionVariants}
+            >
+                 <IconWrapper><Gift className="w-12 h-12 mx-auto mb-3" style={{color: primaryColor}}/></IconWrapper>
                 <h3 className="font-headline text-3xl mb-3" style={{color: textColor}}>{invitacionData.regalos.titulo}</h3>
                 <p className="text-muted-foreground max-w-md mx-auto">{invitacionData.regalos.texto}</p>
-            </section>
+            </motion.section>
         )}
 
         <FloralSeparator />
 
-        {invitacionData.confirmacion?.visible && <div id="rsvp">{children}</div>}
+        {invitacionData.confirmacion?.visible && <motion.div id="rsvp" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={sectionVariants}>{children}</motion.div>}
 
        </main>
        {invitacionData.musicaFondoUrl && (
