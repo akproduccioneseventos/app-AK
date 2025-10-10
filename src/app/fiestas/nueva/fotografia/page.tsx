@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -92,11 +93,12 @@ export default function FotografiaPage() {
 
         setFormData(prev => {
             if (!prev) return null;
-            const existing = prev.servicios.find(s => s.id === itemToSave.id);
+            const servicios = prev.servicios || [];
+            const existing = servicios.find(s => s.id === itemToSave.id);
             if (existing) {
-                return { ...prev, servicios: prev.servicios.map(s => s.id === itemToSave.id ? itemToSave : s) };
+                return { ...prev, servicios: servicios.map(s => s.id === itemToSave.id ? itemToSave : s) };
             } else {
-                return { ...prev, servicios: [...prev.servicios, itemToSave] };
+                return { ...prev, servicios: [...servicios, itemToSave] };
             }
         });
 
@@ -105,7 +107,10 @@ export default function FotografiaPage() {
     };
     
     const handleDeleteItem = (itemId: string) => {
-        setFormData(prev => prev ? { ...prev, servicios: prev.servicios.filter(s => s.id !== itemId) } : null);
+        setFormData(prev => {
+            if (!prev) return null;
+            return { ...prev, servicios: (prev.servicios || []).filter(s => s.id !== itemId) }
+        });
     };
 
 
@@ -166,7 +171,7 @@ export default function FotografiaPage() {
                 <CardContent className="space-y-4">
                      <Button onClick={() => openItemModal()}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Servicio</Button>
                      <div className="space-y-3">
-                        {formData.servicios.map(servicio => (
+                        {(formData.servicios || []).map(servicio => (
                             <Card key={servicio.id} className="p-3 bg-muted/30">
                                <div className="flex justify-between items-start gap-2">
                                   <div>
@@ -181,7 +186,7 @@ export default function FotografiaPage() {
                                </div>
                             </Card>
                         ))}
-                         {formData.servicios.length === 0 && <p className="text-sm text-center text-muted-foreground py-4">No hay servicios de fotografía/video añadidos.</p>}
+                         {(!formData.servicios || formData.servicios.length === 0) && <p className="text-sm text-center text-muted-foreground py-4">No hay servicios de fotografía/video añadidos.</p>}
                      </div>
                 </CardContent>
             </Card>
