@@ -5,7 +5,7 @@ import React, { useState, useEffect, useCallback, use } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, AlertTriangle, KeyRound, ArrowRight, Music2, Clock, PackageSearch, Palette, KanbanSquare } from 'lucide-react';
+import { Loader2, AlertTriangle, KeyRound, ArrowRight, Music2, Clock, PackageSearch, Palette, KanbanSquare, UserCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getAccesoById, type AccesoPersonal, type ModuloPermiso } from '@/app/actions/accesos-personal';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
@@ -17,6 +17,7 @@ const MODULO_DETAILS: Record<ModuloPermiso, { label: string; href: string; icon:
   'carga-operativa': { label: 'Lista de Carga Operativa', href: '/fiestas/nueva/carga-operativa', icon: PackageSearch },
   'decoracion': { label: 'Plan de Decoración', href: '/fiestas/nueva/decoracion/pdf', icon: Palette },
   'crm': { label: 'Gestión de Prospectos (CRM)', href: '/contabilidad/crm', icon: KanbanSquare },
+  'check-in': { label: 'Check-in de Invitados', href: '/fiestas/nueva/invitados/checkin-scanner', icon: UserCheck },
 };
 
 export default function PortalPersonalPage({ params: paramsProp }: { params: { tokenId: string } }) {
@@ -103,7 +104,7 @@ export default function PortalPersonalPage({ params: paramsProp }: { params: { t
                         const modulo = MODULO_DETAILS[permisoId];
                         if (!modulo) return null;
                         const Icon = modulo.icon;
-                        const isEventSpecific = ['musica', 'itinerario', 'carga-operativa', 'decoracion'].includes(permisoId);
+                        const isEventSpecific = ['musica', 'itinerario', 'carga-operativa', 'decoracion', 'check-in'].includes(permisoId);
                         
                         // If it's an event-specific module but this link is general (no fiesta), don't show it.
                         if (isEventSpecific && !fiesta) return null;

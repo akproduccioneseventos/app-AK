@@ -1,14 +1,14 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft, PlusCircle, Trash2, Loader2, AlertTriangle, KeyRound, ClipboardCopy, Share2, KanbanSquare, Music2, Clock, PackageSearch, Palette } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Trash2, Loader2, AlertTriangle, KeyRound, ClipboardCopy, Share2, KanbanSquare, Music2, Clock, PackageSearch, Palette, UserCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { createAccesoPersonal, getAccesosGenerales, deleteAccesoPersonal, type AccesoPersonal, type ModuloPermiso } from '@/app/actions/accesos-personal';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
@@ -27,6 +27,7 @@ import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
 const MODULOS_PERMITIDOS: { id: ModuloPermiso, label: string, icon: React.ElementType, type: 'general' | 'evento' }[] = [
     { id: 'crm', label: 'Gestión de Prospectos (CRM)', icon: KanbanSquare, type: 'general' },
+    { id: 'check-in', label: 'Check-in de Invitados', icon: UserCheck, type: 'evento' },
     { id: 'musica', label: 'Música de la Fiesta', icon: Music2, type: 'evento' },
     { id: 'itinerario', label: 'Itinerario del Evento', icon: Clock, type: 'evento' },
     { id: 'carga-operativa', label: 'Lista de Carga Operativa', icon: PackageSearch, type: 'evento' },
@@ -44,7 +45,7 @@ export default function AccesosPersonalPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [nombreAcceso, setNombreAcceso] = useState('');
   const [permisos, setPermisos] = useState<Set<ModuloPermiso>>(new Set());
-  const [tipoAcceso, setTipoAcceso] = useState<'general' | 'evento'>('general');
+  const [tipoAcceso, setTipoAcceso] = useState<'general' | 'evento'>('evento');
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -120,7 +121,7 @@ export default function AccesosPersonalPage() {
         <DialogContent>
           <DialogHeader><DialogTitle>Crear Nuevo Acceso para Colaborador</DialogTitle><DialogDescription>Define un nombre y selecciona los módulos a los que tendrá acceso.</DialogDescription></DialogHeader>
           <form onSubmit={handleCreateAcceso} className="space-y-4 py-2">
-            <div className="space-y-1"><Label htmlFor="nombre-acceso">Nombre del Acceso *</Label><Input id="nombre-acceso" value={nombreAcceso} onChange={e => setNombreAcceso(e.target.value)} placeholder="Ej: Acceso Secretaria, Acceso DJ" required /></div>
+            <div className="space-y-1"><Label htmlFor="nombre-acceso">Nombre del Acceso *</Label><Input id="nombre-acceso" value={nombreAcceso} onChange={e => setNombreAcceso(e.target.value)} placeholder="Ej: Acceso Portero, Acceso DJ" required /></div>
             <div className="space-y-1"><Label htmlFor="tipo-acceso">Tipo de Acceso</Label>
                 <Select value={tipoAcceso} onValueChange={(v) => {setTipoAcceso(v as 'general' | 'evento'); setPermisos(new Set())}}>
                     <SelectTrigger><SelectValue/></SelectTrigger>
@@ -170,7 +171,7 @@ export default function AccesosPersonalPage() {
       <Card>
         <CardHeader>
           <CardTitle>Gestionar Accesos</CardTitle>
-          <CardDescription>Crea enlaces únicos y seguros para que tu personal (secretaria, DJ, etc.) pueda ver solo la información relevante, sin necesidad de una contraseña.</CardDescription>
+          <CardDescription>Crea enlaces únicos y seguros para que tu personal (portero, DJ, etc.) pueda ver solo la información relevante, sin necesidad de una contraseña.</CardDescription>
         </CardHeader>
         <CardContent>
           <Button onClick={() => setIsModalOpen(true)}><PlusCircle className="w-4 h-4 mr-2"/>Crear Nuevo Enlace de Acceso</Button>
