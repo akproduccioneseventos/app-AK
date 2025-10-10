@@ -29,15 +29,12 @@ function NuevoActivoFijoContent() {
     categoria: 'Mobiliario',
     cantidadDisponible: 1,
     valorUnitarioEstimado: 0,
-    proveedor: '',
     unidad: 'Unidad',
     notas: '',
-    calculationMethod: 'fijo',
-    tramosDePrecio: [{ id: `tramo_${Date.now()}`, desde: 0, hasta: 50, precio: 0 }],
   });
 
   const handleFormChange = (field: keyof ServicioEmpresa, value: any) => {
-     if (typeof value === 'string' && ['cantidadDisponible', 'valorUnitarioEstimado', 'precioVenta', 'precioPorPersona', 'precioBase', 'invitadosPorUnidad'].includes(field)) {
+     if (typeof value === 'string' && ['cantidadDisponible', 'valorUnitarioEstimado'].includes(field)) {
       const numValue = value === '' ? undefined : Number(value);
       setFormData(prev => ({ ...prev, [field]: numValue }));
     } else {
@@ -45,40 +42,6 @@ function NuevoActivoFijoContent() {
     }
   };
 
-  const handleTramoChange = (index: number, field: keyof TramoDePrecio, value: string) => {
-    setFormData(prev => {
-        const nuevosTramos = [...(prev.tramosDePrecio || [])];
-        const numValue = Number(value);
-        if(!isNaN(numValue)) {
-            nuevosTramos[index] = {...nuevosTramos[index], [field]: numValue };
-            return {...prev, tramosDePrecio: nuevosTramos};
-        }
-        return prev;
-    })
-  }
-
-  const addTramo = () => {
-    setFormData(prev => {
-        const lastTramo = prev.tramosDePrecio?.[prev.tramosDePrecio.length - 1];
-        const newDesde = lastTramo ? lastTramo.hasta + 1 : 0;
-        const newTramo: TramoDePrecio = {
-            id: `tramo_${Date.now()}`,
-            desde: newDesde,
-            hasta: newDesde + 49,
-            precio: 0
-        };
-        return {...prev, tramosDePrecio: [...(prev.tramosDePrecio || []), newTramo]};
-    });
-  }
-
-  const removeTramo = (indexToRemove: number) => {
-    setFormData(prev => {
-        if(!prev.tramosDePrecio || prev.tramosDePrecio.length <= 1) return prev;
-        const nuevosTramos = prev.tramosDePrecio.filter((_, index) => index !== indexToRemove);
-        return {...prev, tramosDePrecio: nuevosTramos};
-    });
-  }
-  
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!formData.nombre?.trim() || !formData.categoria) {
@@ -152,55 +115,13 @@ function NuevoActivoFijoContent() {
                   <SelectContent className="max-h-60">{ALL_CATEGORIAS_ACTIVO.map(cat => (<SelectItem key={cat} value={cat} className="text-base">{cat}</SelectItem>))}</SelectContent>
                 </Select>
               </div>
+               <div className="space-y-2"><Label htmlFor="item-unidad" className="text-base">Unidad *</Label><Select value={formData.unidad || ''} onValueChange={(value) => handleFormChange('unidad', value as UnidadServicio)} disabled={isSaving} required><SelectTrigger id="item-unidad" className="text-base p-3 h-auto"><SelectValue placeholder="Seleccionar unidad..."/></SelectTrigger><SelectContent>{ALL_UNIDADES_SERVICIO.map(u => (<SelectItem key={u} value={u} className="text-base">{u}</SelectItem>))}</SelectContent></Select></div>
             </div>
              
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2"><Label htmlFor="item-cantidad">Cantidad Disponible (Stock)</Label><Input id="item-cantidad" type="number" value={formData.cantidadDisponible ?? ''} onChange={(e) => handleFormChange('cantidadDisponible', e.target.value)} placeholder="Ej: 150" min="0" className="text-base p-3" disabled={isSaving}/></div>
                 <div className="space-y-2"><Label htmlFor="item-valor-unitario">Costo Interno (UYU)</Label><Input id="item-valor-unitario" type="number" value={formData.valorUnitarioEstimado ?? ''} onChange={(e) => handleFormChange('valorUnitarioEstimado', e.target.value)} placeholder="0.00" min="0" step="any" className="text-base p-3" disabled={isSaving}/></div>
-                 <div className="space-y-2"><Label htmlFor="item-unidad" className="text-base">Unidad *</Label><Select value={formData.unidad || ''} onValueChange={(value) => handleFormChange('unidad', value as UnidadServicio)} disabled={isSaving} required><SelectTrigger id="item-unidad" className="text-base p-3 h-auto"><SelectValue placeholder="Seleccionar unidad..."/></SelectTrigger><SelectContent>{ALL_UNIDADES_SERVICIO.map(u => (<SelectItem key={u} value={u} className="text-base">{u}</SelectItem>))}</SelectContent></Select></div>
-                 <div className="space-y-2"><Label htmlFor="item-proveedor">Proveedor</Label><Input id="item-proveedor" value={formData.proveedor || ''} onChange={(e) => handleFormChange('proveedor', e.target.value)} placeholder="Ej: Importadora del Este" className="text-base p-3" disabled={isSaving}/></div>
             </div>
-
-            <Separator/>
-             
-             <div className="space-y-3">
-                 <Label className="text-base font-medium">Cálculo de Precio de Venta (para presupuestos)</Label>
-                 <Select value={formData.calculationMethod} onValueChange={(v) => handleFormChange('calculationMethod', v)} disabled={isSaving}>
-                    <SelectTrigger><SelectValue/></SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="fijo">Precio Fijo</SelectItem>
-                        <SelectItem value="porPersona">Por Persona</SelectItem>
-                        <SelectItem value="ratio">Por Ratio de Invitados</SelectItem>
-                        <SelectItem value="tramos">Por Tramos de Invitados</SelectItem>
-                    </SelectContent>
-                 </Select>
-             </div>
-             
-            {formData.calculationMethod === 'fijo' && (
-                <div className="space-y-2"><Label htmlFor="precio-venta">Precio de Venta (Fijo)</Label><Input id="precio-venta" type="number" value={formData.precioVenta ?? ''} onChange={(e) => handleFormChange('precioVenta', e.target.value)} disabled={isSaving} min="0" step="any"/></div>
-            )}
-             {formData.calculationMethod === 'porPersona' && (
-                <div className="space-y-2"><Label htmlFor="precio-persona">Precio Por Persona</Label><Input id="precio-persona" type="number" value={formData.precioPorPersona ?? ''} onChange={(e) => handleFormChange('precioPorPersona', e.target.value)} disabled={isSaving} min="0" step="any"/></div>
-            )}
-            {formData.calculationMethod === 'ratio' && (
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2"><Label htmlFor="ratio-base">Precio Base (por unidad)</Label><Input id="ratio-base" type="number" value={formData.precioBase ?? ''} onChange={(e) => handleFormChange('precioBase', e.target.value)} disabled={isSaving} min="0" step="any"/></div>
-                    <div className="space-y-2"><Label htmlFor="ratio-invitados">Invitados por Unidad</Label><Input id="ratio-invitados" type="number" value={formData.invitadosPorUnidad ?? ''} onChange={(e) => handleFormChange('invitadosPorUnidad', e.target.value)} disabled={isSaving} min="1"/></div>
-                </div>
-            )}
-             {formData.calculationMethod === 'tramos' && (
-                <div className="space-y-3">
-                    {formData.tramosDePrecio?.map((tramo, index) => (
-                        <div key={tramo.id} className="flex items-end gap-2 p-2 border rounded-md">
-                            <div className="space-y-1"><Label htmlFor={`tramo-desde-${index}`}>Desde</Label><Input id={`tramo-desde-${index}`} type="number" value={tramo.desde} onChange={e => handleTramoChange(index, 'desde', e.target.value)} className="w-20"/></div>
-                            <div className="space-y-1"><Label htmlFor={`tramo-hasta-${index}`}>Hasta</Label><Input id={`tramo-hasta-${index}`} type="number" value={tramo.hasta} onChange={e => handleTramoChange(index, 'hasta', e.target.value)} className="w-20"/></div>
-                            <div className="space-y-1 flex-grow"><Label htmlFor={`tramo-precio-${index}`}>Precio</Label><Input id={`tramo-precio-${index}`} type="number" value={tramo.precio} onChange={e => handleTramoChange(index, 'precio', e.target.value)}/></div>
-                            <Button type="button" variant="ghost" size="icon" className="text-destructive h-8 w-8" onClick={() => removeTramo(index)} disabled={(formData.tramosDePrecio?.length || 0) <= 1}><Trash2 className="w-4 h-4"/></Button>
-                        </div>
-                    ))}
-                    <Button type="button" variant="outline" size="sm" onClick={addTramo}>Añadir Tramo</Button>
-                </div>
-            )}
           </CardContent>
           <CardFooter className="border-t pt-6">
             <Button type="submit" className="w-full sm:w-auto" disabled={isSaving}>

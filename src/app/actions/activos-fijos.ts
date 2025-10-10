@@ -13,11 +13,6 @@ export async function getActivosFijos(): Promise<ServicioEmpresa[]> {
       tipoItem: 'Activo Fijo',
       valorUnitarioEstimado: item.valorUnitarioEstimado !== undefined && !isNaN(Number(item.valorUnitarioEstimado)) ? Number(item.valorUnitarioEstimado) : 0,
       cantidadDisponible: item.cantidadDisponible !== undefined && !isNaN(Number(item.cantidadDisponible)) ? Number(item.cantidadDisponible) : undefined,
-      precioVenta: item.precioVenta !== undefined && !isNaN(Number(item.precioVenta)) ? Number(item.precioVenta) : undefined,
-      precioBase: item.precioBase !== undefined && !isNaN(Number(item.precioBase)) ? Number(item.precioBase) : undefined,
-      precioPorPersona: item.precioPorPersona !== undefined && !isNaN(Number(item.precioPorPersona)) ? Number(item.precioPorPersona) : undefined,
-      invitadosPorUnidad: item.invitadosPorUnidad !== undefined && !isNaN(Number(item.invitadosPorUnidad)) ? Number(item.invitadosPorUnidad) : undefined,
-      tramosDePrecio: item.tramosDePrecio || undefined,
     }));
 }
 
@@ -38,11 +33,6 @@ export async function saveActivoFijo(
     tipoItem: 'Activo Fijo',
     cantidadDisponible: itemData.cantidadDisponible !== undefined && !isNaN(Number(itemData.cantidadDisponible)) ? Number(itemData.cantidadDisponible) : undefined,
     valorUnitarioEstimado: itemData.valorUnitarioEstimado !== undefined && !isNaN(Number(itemData.valorUnitarioEstimado)) ? Number(itemData.valorUnitarioEstimado) : 0,
-    precioVenta: itemData.precioVenta === undefined || itemData.precioVenta === null || isNaN(Number(itemData.precioVenta)) ? undefined : Number(itemData.precioVenta),
-    precioBase: itemData.precioBase === undefined || itemData.precioBase === null || isNaN(Number(itemData.precioBase)) ? undefined : Number(itemData.precioBase),
-    precioPorPersona: itemData.precioPorPersona === undefined || itemData.precioPorPersona === null || isNaN(Number(itemData.precioPorPersona)) ? undefined : Number(itemData.precioPorPersona),
-    invitadosPorUnidad: itemData.invitadosPorUnidad === undefined || itemData.invitadosPorUnidad === null || isNaN(Number(itemData.invitadosPorUnidad)) ? undefined : Number(itemData.invitadosPorUnidad),
-    tramosDePrecio: itemData.tramosDePrecio || undefined,
     subcategoria: itemData.subcategoria?.trim() || undefined,
     notas: (itemData as any).notas?.trim() || undefined,
   };
