@@ -422,14 +422,16 @@ function PaginaWebPageContent() {
             </div>
             </div>
         </form>
+      </Dialog>
     </div>
   );
 }
 
-export default function PaginaWebPage() {
+export default function PaginaWebYPortalPage() {
     return (
         <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>}>
             <PaginaWebPageContent />
         </Suspense>
     );
 }
+
