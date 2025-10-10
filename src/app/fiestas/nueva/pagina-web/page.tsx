@@ -1,15 +1,16 @@
 
 'use client';
 
-import React, { useState, type FormEvent, useEffect, useCallback, ChangeEvent } from 'react';
+import React, { useState, type FormEvent, useEffect, useCallback, ChangeEvent, Suspense, use } from 'react';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Save, Loader2, Globe, Sparkles, Image as ImageIcon, Users, Clock, Gift, MapPin, Camera, Wand2, PlusCircle, Trash2, ChevronDown, Edit, Link as LinkIcon, ExternalLink, Heart, Church, Handshake, Mail, Music2, CheckCircle, FolderUp } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, Globe, Sparkles, Image as ImageIcon, Users, Clock, Gift, MapPin, Camera, Wand2, PlusCircle, Trash2, ChevronDown, Edit, Link as LinkIcon, ExternalLink, Heart, Church, Handshake, Mail, Music2, CheckCircle, FolderUp, FolderDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, InvitacionDigitalData, GiftItem } from '@/types/fiesta';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
@@ -19,9 +20,7 @@ import { merge, cloneDeep } from 'lodash';
 import { Separator } from '@/components/ui/separator';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { useRouter, useSearchParams } from 'next/navigation';
 import NextImage from 'next/image';
-import { Suspense } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -189,7 +188,7 @@ function PaginaWebPageContent() {
   };
 
   const handleUploadAndSetUrl = async () => {
-    if (!fileToUpload || !fileContext) return;
+    if (!fileToUpload || !fileContext || (!fiesta && !isEditingTemplate)) return;
     setIsUploading(true);
     try {
       const ownerId = isEditingTemplate ? templateId! : fiesta!.id;
@@ -222,7 +221,8 @@ function PaginaWebPageContent() {
         if (isEditingTemplate) {
             result = await saveInvitationTemplate(finalData as InvitacionDigitalTemplate);
         } else {
-            result = await updateInvitacionDigital(fiesta!.id, finalData);
+            if (!fiesta) throw new Error("Fiesta no encontrada para guardar");
+            result = await updateInvitacionDigital(fiesta.id, finalData);
         }
 
         if (result.success) {
@@ -257,19 +257,12 @@ function PaginaWebPageContent() {
 
   const applyTemplate = (template: InvitacionDigitalTemplate) => {
     const mergedData = merge(cloneDeep(defaultInvitacionDigitalData), template);
-    // Remove name and id to not overwrite event data
     delete (mergedData as Partial<InvitacionDigitalTemplate>).name;
     delete (mergedData as Partial<InvitacionDigitalTemplate>).id;
     setInvitacionData(mergedData);
     setIsTemplateModalOpen(false);
     toast({ title: "Plantilla aplicada", description: `Se ha cargado el diseño "${template.name}".`});
   };
-
-  if (isLoading || (!fiesta && !isEditingTemplate)) {
-    return <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>;
-  }
-  
-  const backLink = isEditingTemplate ? "/settings/templates/invitaciones" : `/fiestas/nueva?fiestaId=${fiestaId}`;
 
   const renderUploadInput = (section: keyof InvitacionDigitalData, field: string, currentUrl?: string) => (
     <div className="space-y-2">
@@ -287,6 +280,12 @@ function PaginaWebPageContent() {
       {currentUrl && <NextImage src={currentUrl} alt="Preview" width={100} height={60} className="rounded-md border object-cover"/>}
     </div>
   );
+
+  if (isLoading || (!fiesta && !isEditingTemplate)) {
+    return <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>;
+  }
+  
+  const backLink = isEditingTemplate ? "/settings/templates/invitaciones" : `/fiestas/nueva?fiestaId=${fiestaId}`;
 
   return (
     <div className="space-y-6">
@@ -325,7 +324,7 @@ function PaginaWebPageContent() {
                                 </div>
                                 <div>
                                     <p className="font-semibold text-left">{t.name}</p>
-                                    <p className="text-xs text-muted-foreground text-left">{t.category} - {t.plantilla}</p>
+                                    <p className="text-xs text-muted-foreground text-left">{t.category} - Estilo: {t.plantilla}</p>
                                 </div>
                             </div>
                         </Button>
@@ -342,8 +341,8 @@ function PaginaWebPageContent() {
           </h1>
         </div>
         <div className="flex gap-2">
-            {!isEditingTemplate && (
-                <Link href={`/evento/actual?fiestaId=${fiesta!.id}`} passHref target="_blank">
+            {!isEditingTemplate && fiesta && (
+                <Link href={`/evento/actual?fiestaId=${fiesta.id}`} passHref target="_blank">
                     <Button variant="secondary"><ExternalLink className="w-4 h-4 mr-2"/>Ver Página</Button>
                 </Link>
             )}
@@ -388,7 +387,7 @@ function PaginaWebPageContent() {
                             
                             return (
                             <AccordionItem key={sectionKey} value={sectionKey} className="border rounded-md px-3">
-                                <AccordionTrigger className="hover:no-underline py-2 [&[data-state=open]>svg]:rotate-180"><div className="flex items-center gap-2 font-medium"><Icon className="w-4 h-4"/>{defaultSectionData.titulo || sectionKey.charAt(0).toUpperCase() + sectionKey.slice(1)}</div></AccordionTrigger>
+                                <AccordionTrigger className="hover:no-underline py-2 [&[data-state=open]>svg]:rotate-180"><div className="flex items-center gap-2 font-medium"><Icon className="w-4 h-4"/>{(defaultSectionData as any).titulo || sectionKey.charAt(0).toUpperCase() + sectionKey.slice(1)}</div></AccordionTrigger>
                                 <AccordionContent className="pt-2 pb-4 space-y-4 border-t">
                                     <div className="flex items-center justify-between"><Label htmlFor={`show-${sectionKey}`}>Mostrar esta sección</Label><Switch id={`show-${sectionKey}`} checked={sectionData.visible} onCheckedChange={(v) => handleDataChange(sectionKey, 'visible', v)}/></div>
                                     {Object.keys(defaultSectionData).map(field => {
@@ -404,7 +403,7 @@ function PaginaWebPageContent() {
                                             </div>
                                         )
                                     })}
-                                    {sectionKey === 'regalos' && <GiftListManagement initialItems={sectionData.items || []} onItemsChange={(items) => handleDataChange('regalos', 'items', items)} />}
+                                    {sectionKey === 'regalos' && <GiftListManagement initialItems={(sectionData as any).items || []} onItemsChange={(items) => handleDataChange('regalos', 'items', items)} />}
                                 </AccordionContent>
                             </AccordionItem>
                             )
@@ -427,11 +426,10 @@ function PaginaWebPageContent() {
   );
 }
 
-export default function PaginaWebYPortalPage() {
+export default function PaginaWebPage() {
     return (
         <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>}>
             <PaginaWebPageContent />
         </Suspense>
     );
 }
-
