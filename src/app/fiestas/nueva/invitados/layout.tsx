@@ -19,7 +19,6 @@ export default function InvitadosLayout({
   const navItems = [
     { href: `/fiestas/nueva/invitados?fiestaId=${fiestaId}`, label: 'Lista de Invitados', icon: Users, pathSegment: '/invitados' },
     { href: `/fiestas/nueva/invitados/layout?fiestaId=${fiestaId}`, label: 'Diseño de Salón', icon: LayoutDashboard, pathSegment: '/layout' },
-    { href: `/fiestas/nueva/invitados/invitacion?fiestaId=${fiestaId}`, label: 'Invitación Digital', icon: Send, pathSegment: '/invitacion' },
     { href: `/fiestas/nueva/invitados/checkin-scanner?fiestaId=${fiestaId}`, label: 'Escáner Check-in', icon: ScanLine, pathSegment: '/checkin-scanner' }
   ];
 
