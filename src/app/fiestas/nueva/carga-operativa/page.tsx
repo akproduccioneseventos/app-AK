@@ -21,6 +21,7 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { getCargaOperativaMasterTemplate } from '@/app/actions/fiesta/carga-operativa.actions';
+import { Alert, AlertTitle } from '@/components/ui/alert';
 
 function SortableCargaItem({ item, categoryId, onToggle, onQuantityChange, onDelete }: {
     item: CargaOperativaItem;
@@ -328,6 +329,19 @@ export default function ListaDeCargaOperativaPage() {
         </div>
       </div>
       
+       <Alert className="border-blue-500/50 bg-blue-50 dark:bg-blue-900/30">
+        <Info className="h-4 w-4 text-blue-500" />
+        <AlertTitle className="font-semibold text-blue-700 dark:text-blue-300">¿Cómo funciona?</AlertTitle>
+        <div className="text-blue-600 dark:text-blue-400 text-sm">
+          <ol className="list-decimal pl-5 space-y-1">
+            <li>Crea una categoría para agrupar ítems (ej: Sonido, Vajilla).</li>
+            <li>Dentro de cada categoría, haz clic en <strong>"Seleccionar del Catálogo"</strong> para añadir activos fijos desde tu inventario.</li>
+            <li>Si un ítem no está en tu inventario, usa "Añadir Ítem Manual".</li>
+            <li>Puedes definir una <strong><Link href="/settings/templates/carga-operativa" className="underline font-medium">Plantilla Maestra</Link></strong> para que cada evento nuevo comience con una lista pre-cargada.</li>
+          </ol>
+        </div>
+      </Alert>
+
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline text-xl">Añadir Nueva Categoría de Carga</CardTitle>
