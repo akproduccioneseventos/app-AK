@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft, PackageSearch, PlusCircle, Trash2, Loader2, AlertTriangle, Save, FileText, Info, Search, BookOpen, GripVertical, RotateCw } from 'lucide-react';
+import { ArrowLeft, PackageSearch, PlusCircle, Trash2, Loader2, AlertTriangle, Save, FileText, Info, Search, BookOpen, GripVertical, RotateCw, FolderPlus } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
@@ -78,6 +78,7 @@ export default function ListaDeCargaOperativaPage() {
   const [newCategoryName, setNewCategoryName] = useState('');
   
   const [isSelectCatalogModalOpen, setIsSelectCatalogModalOpen] = useState(false);
+  const [isLoadCategoryModalOpen, setIsLoadCategoryModalOpen] = useState(false);
   const [catalogSearchTerm, setCatalogSearchTerm] = useState('');
   const [categoryForCatalogSelect, setCategoryForCatalogSelect] = useState<CargaOperativaCategoria | null>(null);
 
@@ -97,13 +98,12 @@ export default function ListaDeCargaOperativaPage() {
       setFiestaId(fiestaData.id);
       
       let loadedLista = fiestaData.listaDeCargaOperativa;
-      // If the event list is empty, but the master template is not, initialize from master
       if ((!loadedLista || !loadedLista.categorias || loadedLista.categorias.length === 0) && masterTemplate.categorias.length > 0) {
         loadedLista = {
           ...masterTemplate,
           categorias: masterTemplate.categorias.map(cat => ({
             ...cat,
-            items: cat.items.map(item => ({ ...item, cargado: false })) // Ensure cargado is reset to false
+            items: cat.items.map(item => ({ ...item, cargado: false }))
           }))
         };
         toast({ title: "Plantilla Cargada", description: "Se cargó la lista de carga operativa desde la plantilla maestra." });
@@ -145,10 +145,11 @@ export default function ListaDeCargaOperativaPage() {
   }
 
   const handleSaveListaDeCarga = async () => {
-    if(!fiestaId) return;
+    const fiesta = await getFiestaActual();
+    if(!fiesta) return;
     setIsSaving(true);
     try {
-      const result = await updateListaDeCargaOperativaFiestaActual(fiestaId, listaDeCarga);
+      const result = await updateListaDeCargaOperativaFiestaActual(fiesta.id, listaDeCarga);
       if (result.success) {
         toast({ title: "¡Lista Guardada!", description: "La lista de carga operativa ha sido actualizada." });
         if (result.updatedData) {
@@ -221,6 +222,36 @@ export default function ListaDeCargaOperativaPage() {
     setCatalogSearchTerm('');
     setIsSelectCatalogModalOpen(true);
   };
+  
+  const openLoadCategoryModal = (category: CargaOperativaCategoria) => {
+    setCategoryForCatalogSelect(category);
+    setIsLoadCategoryModalOpen(true);
+  };
+
+  const handleLoadFullCategory = (categoriaActivo: string) => {
+    if(!categoryForCatalogSelect) return;
+    const activosDeCategoria = activosCatalogo.filter(a => a.categoria === categoriaActivo);
+    const nuevosItems: CargaOperativaItem[] = activosDeCategoria.map(asset => ({
+        id: `item_cat_${asset.id}_${Date.now()}`,
+        nombre: asset.nombre,
+        cantidad: String(asset.cantidadDisponible || 1),
+        unidad: asset.unidad,
+        cargado: false,
+        origenId: asset.id,
+    }));
+
+    setListaDeCarga(prev => ({
+      ...prev,
+      categorias: (prev.categorias || []).map(cat =>
+        cat.id === categoryForCatalogSelect.id
+          ? { ...cat, items: [...(cat.items || []), ...nuevosItems] }
+          : cat
+      ),
+    }));
+
+    toast({description: `Se añadieron ${nuevosItems.length} ítems de la categoría "${categoriaActivo}".`});
+    setIsLoadCategoryModalOpen(false);
+  }
 
   const toggleItemCargado = (categoryId: string, itemId: string) => {
     setListaDeCarga(prev => ({
@@ -255,10 +286,6 @@ export default function ListaDeCargaOperativaPage() {
     }));
   };
   
-  const handleNotasGeneralesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setListaDeCarga(prev => ({ ...prev, notasGenerales: e.target.value }));
-  };
-  
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over, activatorEvent } = event;
     const categoryId = (activatorEvent.target as HTMLElement).closest('[data-category-id]')?.getAttribute('data-category-id');
@@ -287,6 +314,8 @@ export default function ListaDeCargaOperativaPage() {
     );
   }, [activosCatalogo, catalogSearchTerm]);
 
+  const categoriasDeActivos = useMemo(() => Array.from(new Set(activosCatalogo.map(a => a.categoria).filter(Boolean))), [activosCatalogo]);
+
 
   if (isLoading) {
     return (
@@ -309,7 +338,8 @@ export default function ListaDeCargaOperativaPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
        <Dialog open={isSelectCatalogModalOpen} onOpenChange={setIsSelectCatalogModalOpen}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle className="font-headline">Seleccionar Activo del Catálogo</DialogTitle><DialogDescription>Para la categoría "{categoryForCatalogSelect?.nombre}"</DialogDescription></DialogHeader><div className="py-2 space-y-3"><div className="relative"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input type="text" placeholder="Buscar activo..." value={catalogSearchTerm} onChange={(e) => setCatalogSearchTerm(e.target.value)} className="w-full pl-10"/></div><ScrollArea className="h-[300px] border rounded-md">{isLoading ? <div className="p-4 text-center"><Loader2 className="w-6 h-6 animate-spin"/></div> : filteredCatalogItems.length > 0 ? (<ul className="p-2 space-y-1">{filteredCatalogItems.map(item => (<li key={item.id}><Button variant="ghost" className="w-full justify-start text-left h-auto py-1.5 px-2" onClick={() => handleCatalogItemSelected(item)}><div><p className="font-medium text-sm">{item.nombre}</p><p className="text-xs text-muted-foreground">Stock: {item.cantidadDisponible || 0} {item.unidad}</p></div></Button></li>))}</ul>) : (<p className="p-4 text-center text-sm text-muted-foreground">{catalogSearchTerm ? "No hay ítems que coincidan con tu búsqueda." : "El catálogo de activos está vacío."}</p>)}</ScrollArea></div><DialogFooter><DialogClose asChild><Button type="button" variant="outline">Cerrar</Button></DialogClose></DialogFooter></DialogContent></Dialog>
-
+       <Dialog open={isLoadCategoryModalOpen} onOpenChange={setIsLoadCategoryModalOpen}><DialogContent className="sm:max-w-md"><DialogHeader><DialogTitle className="font-headline">Cargar Categoría Completa</DialogTitle><DialogDescription>Selecciona una categoría de tu catálogo de Activos Fijos para añadir todos sus ítems a "{categoryForCatalogSelect?.nombre}".</DialogDescription></DialogHeader><div className="py-4 space-y-2">{categoriasDeActivos.map(cat => (<Button key={cat} variant="secondary" className="w-full justify-start" onClick={() => handleLoadFullCategory(cat!)}>{cat}</Button>))}</div></DialogContent></Dialog>
+       
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <PackageSearch className="w-8 h-8 text-primary" />
@@ -330,17 +360,16 @@ export default function ListaDeCargaOperativaPage() {
       </div>
       
        <Alert className="border-blue-500/50 bg-blue-50 dark:bg-blue-900/30">
-        <Info className="h-4 w-4 text-blue-500" />
-        <AlertTitle className="font-semibold text-blue-700 dark:text-blue-300">¿Cómo funciona?</AlertTitle>
-        <div className="text-blue-600 dark:text-blue-400 text-sm">
-          <ol className="list-decimal pl-5 space-y-1">
-            <li>Crea una categoría para agrupar ítems (ej: Sonido, Vajilla).</li>
-            <li>Dentro de cada categoría, haz clic en <strong>"Seleccionar del Catálogo"</strong> para añadir activos fijos desde tu inventario.</li>
-            <li>Si un ítem no está en tu inventario, usa "Añadir Ítem Manual".</li>
-            <li>Puedes definir una <strong><Link href="/settings/templates/carga-operativa" className="underline font-medium">Plantilla Maestra</Link></strong> para que cada evento nuevo comience con una lista pre-cargada.</li>
-          </ol>
-        </div>
-      </Alert>
+          <Info className="h-4 w-4 text-blue-500" />
+          <AlertTitle className="font-semibold text-blue-700 dark:text-blue-300">¿Cómo funciona?</AlertTitle>
+          <div className="text-blue-600 dark:text-blue-400 text-sm">
+            <ol className="list-decimal pl-5 space-y-1">
+              <li>Crea una categoría para agrupar ítems (ej: Sonido, Vajilla).</li>
+              <li>Dentro de cada categoría, usa **"Cargar Categoría Completa"** para añadir todos los ítems de una categoría de tu inventario (ej: todos los de "Discoteca"), o **"Seleccionar del Catálogo"** para añadirlos uno a uno.</li>
+              <li>Puedes definir una **<Link href="/settings/templates/carga-operativa" className="underline font-medium">Plantilla Maestra</Link>** para que cada evento nuevo comience con una lista pre-cargada.</li>
+            </ol>
+          </div>
+       </Alert>
 
       <Card className="shadow-lg">
         <CardHeader>
@@ -370,7 +399,10 @@ export default function ListaDeCargaOperativaPage() {
                   </AccordionTrigger>
               </div>
             <AccordionContent className="px-4 pt-2 pb-4 border-t" data-category-id={category.id}>
-              <div className="flex justify-end gap-2 mb-3">
+              <div className="flex flex-wrap justify-end gap-2 mb-3">
+                <Button variant="secondary" size="sm" onClick={() => openLoadCategoryModal(category)} disabled={activosCatalogo.length === 0}>
+                   <FolderPlus className="w-4 h-4 mr-1.5"/> Cargar Categoría Completa
+                </Button>
                 <Button variant="default" size="sm" onClick={() => openSelectFromCatalogModal(category)} disabled={activosCatalogo.length === 0}>
                    <BookOpen className="w-4 h-4 mr-1.5"/> Seleccionar del Catálogo
                 </Button>
@@ -413,3 +445,4 @@ export default function ListaDeCargaOperativaPage() {
     </div>
   );
 }
+    
