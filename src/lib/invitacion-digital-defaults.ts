@@ -1,18 +1,46 @@
 
 
-import type { InvitacionDigitalData, SeccionInvitacion, TextStyle } from '@/types/fiesta';
+import type { InvitacionDigitalData, SeccionInvitacion, TextStyle, ColorPalette } from '@/types/fiesta';
 
 export const defaultInvitacionDigitalData: InvitacionDigitalData = {
   plantilla: 'Grazia',
   musicaFondoUrl: '',
   secciones: [
-    { id: 'cabecera', tipo: 'cabecera', data: { visible: true, protagonista1: 'Novio/a 1', protagonista2: 'Novio/a 2' } },
-    { id: 'bienvenida', tipo: 'bienvenida', data: { visible: true, titulo: { text: '¡Nos Casamos!' }, texto: { text: 'Y queremos que seas parte de este día tan especial...' } } },
+    {
+      id: 'cabecera',
+      tipo: 'cabecera',
+      data: {
+        visible: true,
+        protagonista1: 'Novio/a 1',
+        protagonista2: 'Novio/a 2',
+        subtitulo: { text: 'Nuestra Boda', style: { fontFamily: 'Inter', fontSize: '1.5rem', color: '#333' } },
+        paletaColores: { primary: '#EF4444', secondary: '#F97316', accent: '#FBBF24' }
+      }
+    },
+    {
+      id: 'bienvenida',
+      tipo: 'bienvenida',
+      data: {
+        visible: true,
+        titulo: { text: '¡Nos Casamos!', style: { fontFamily: 'Belleza', fontSize: '2rem', color: '#000' } },
+        texto: { text: 'Y queremos que seas parte de este día tan especial...', style: { fontFamily: 'Inter', fontSize: '1rem', color: '#6b7280' } }
+      }
+    },
     { id: 'cuentaRegresiva', tipo: 'cuentaRegresiva', data: { visible: true } },
     { id: 'detallesEvento', tipo: 'detallesEvento', data: { visible: true, infoPadresVisible: false } },
     { id: 'itinerario', tipo: 'itinerario', data: { visible: true } },
     { id: 'dressCode', tipo: 'dressCode', data: { visible: true, texto: 'Elegante Sport' } },
-    { id: 'regalos', tipo: 'regalos', data: { visible: true, titulo: { text: 'Lista de Regalos' }, texto: { text: 'Tu presencia es nuestro mejor regalo...' }, datosBancarios: '', items: [] } },
+    {
+      id: 'regalos',
+      tipo: 'regalos',
+      data: {
+        visible: true,
+        titulo: { text: 'Lista de Regalos', style: { fontFamily: 'Belleza', fontSize: '2rem', color: '#000' } },
+        texto: { text: 'Tu presencia es nuestro mejor regalo...', style: { fontFamily: 'Inter', fontSize: '1rem', color: '#6b7280' } },
+        datosBancarios: '',
+        items: []
+      }
+    },
     { id: 'confirmacion', tipo: 'confirmacion', data: { visible: true } },
     { id: 'despedida', tipo: 'despedida', data: { visible: true, texto: '¡Te esperamos!' } },
   ],
