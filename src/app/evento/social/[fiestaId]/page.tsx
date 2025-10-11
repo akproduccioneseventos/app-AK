@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent, useRef, type ChangeEvent, use } from 'react';
@@ -50,8 +51,7 @@ const PostCard: React.FC<{
   isAdminView: boolean;
 }> = ({ post, onLike, onComment, currentAuthor, onDelete, isAdminView }) => {
   const [commentText, setCommentText] = useState('');
-  const [showComments, setShowComments] = useState(false);
-
+  
   const handleCommentSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!commentText.trim()) return;
@@ -98,27 +98,25 @@ const PostCard: React.FC<{
                     <Heart className={`w-5 h-5 ${post.likes > 0 ? 'text-red-500 fill-current' : ''}`} />
                     <span className="text-sm font-medium">{post.likes}</span>
                 </Button>
-                 <Button variant="ghost" size="sm" onClick={() => setShowComments(!showComments)} className="flex items-center gap-1.5 px-2 h-8 text-muted-foreground hover:text-primary">
+                 <div className="flex items-center gap-1.5 px-2 h-8 text-muted-foreground">
                     <MessageCircle className="w-5 h-5" />
                     <span className="text-sm font-medium">{post.comments.length}</span>
-                </Button>
+                </div>
             </div>
         </div>
-        {showComments && (
-            <div className="w-full pt-3 border-t space-y-2">
-                <div className="max-h-32 overflow-y-auto space-y-2 pr-2 text-sm">
-                    {post.comments.length > 0 ? post.comments.map(c => (
-                        <div key={c.id} className="bg-muted p-2 rounded-md">
-                            <span className="font-semibold">{c.authorName}:</span> {c.text}
-                        </div>
-                    )) : <p className="text-xs text-muted-foreground text-center py-2">Sin comentarios. ¡Sé el primero!</p>}
-                </div>
-                 <form onSubmit={handleCommentSubmit} className="flex gap-2 items-center">
-                    <Input value={commentText} onChange={e => setCommentText(e.target.value)} placeholder={`Añadir comentario como ${currentAuthor}...`} className="h-9 text-sm"/>
-                    <Button type="submit" size="icon" className="h-9 w-9 flex-shrink-0" disabled={!commentText.trim() || !currentAuthor.trim()}><Send className="w-4 h-4"/></Button>
-                 </form>
+        <div className="w-full pt-3 border-t space-y-2">
+            <div className="max-h-32 overflow-y-auto space-y-2 pr-2 text-sm">
+                {post.comments.length > 0 ? post.comments.map(c => (
+                    <div key={c.id} className="bg-muted p-2 rounded-md">
+                        <span className="font-semibold">{c.authorName}:</span> {c.text}
+                    </div>
+                )) : <p className="text-xs text-muted-foreground text-center py-2">Sin comentarios. ¡Sé el primero!</p>}
             </div>
-        )}
+             <form onSubmit={handleCommentSubmit} className="flex gap-2 items-center">
+                <Input value={commentText} onChange={e => setCommentText(e.target.value)} placeholder={`Añadir comentario como ${currentAuthor}...`} className="h-9 text-sm" disabled={!currentAuthor.trim()}/>
+                <Button type="submit" size="icon" className="h-9 w-9 flex-shrink-0" disabled={!commentText.trim() || !currentAuthor.trim()}><Send className="w-4 h-4"/></Button>
+             </form>
+        </div>
       </CardFooter>
     </Card>
   );
