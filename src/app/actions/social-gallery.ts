@@ -1,20 +1,23 @@
 
 'use server';
 
-import type { SocialGalleryPost, SocialComment } from '@/types/social-gallery';
+import type { SocialGalleryPost, SocialComment, ChatMessage } from '@/types/social-gallery';
 import { readData, writeData } from '@/lib/data-service';
 import fs from 'fs/promises';
 import path from 'path';
 
 const SOCIAL_GALLERY_DIR_NAME = 'social-gallery';
+const SOCIAL_CHAT_DIR_NAME = 'social-chat';
 const SOCIAL_GALLERY_DIR = path.join(process.cwd(), 'src', 'data', SOCIAL_GALLERY_DIR_NAME);
+const SOCIAL_CHAT_DIR = path.join(process.cwd(), 'src', 'data', SOCIAL_CHAT_DIR_NAME);
 const METADATA_FILE = path.join(SOCIAL_GALLERY_DIR_NAME, 'metadata.json');
 const MAX_PHOTOS_PER_EVENT = 200;
 
-async function ensureDataDirectoryExists() {
-  try { await fs.access(SOCIAL_GALLERY_DIR); } catch { await fs.mkdir(SOCIAL_GALLERY_DIR, { recursive: true }); }
+async function ensureDataDirectoryExists(dirPath: string) {
+  try { await fs.access(dirPath); } catch { await fs.mkdir(dirPath, { recursive: true }); }
 }
 
+// Photo Gallery Functions
 async function getMetadata(): Promise<SocialGalleryPost[]> {
   return readData<SocialGalleryPost[]>(METADATA_FILE, []);
 }
@@ -42,8 +45,7 @@ export async function uploadSocialPost(formData: FormData): Promise<{ success: b
 
   const eventPhotoDirPath = path.join(SOCIAL_GALLERY_DIR, fiestaId);
   try {
-    await ensureDataDirectoryExists();
-    await fs.mkdir(eventPhotoDirPath, { recursive: true });
+    await ensureDataDirectoryExists(eventPhotoDirPath);
 
     const fileExtension = path.extname(file.name);
     const postId = `post_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
@@ -81,7 +83,7 @@ export async function addLikeToPost(postId: string): Promise<{ success: boolean;
     return { success: true };
 }
 
-export async function addCommentToPost(postId: string, commentText: string, authorName: string): Promise<{ success: boolean; error?: string }> {
+export async function addCommentToPost(postId: string, commentText: string, authorName: string): Promise<{ success: boolean; comment?: SocialComment, error?: string }> {
     const allPosts = await getMetadata();
     const postIndex = allPosts.findIndex(p => p.id === postId);
     if (postIndex === -1) return { success: false, error: "Publicación no encontrada." };
@@ -97,7 +99,7 @@ export async function addCommentToPost(postId: string, commentText: string, auth
     }
     allPosts[postIndex].comments.push(newComment);
     await writeMetadata(allPosts);
-    return { success: true };
+    return { success: true, comment: newComment };
 }
 
 export async function deleteSocialPost(postId: string): Promise<{ success: boolean; error?: string }> {
@@ -122,12 +124,20 @@ export async function clearGallery(fiestaId: string): Promise<{ success: boolean
     try {
         const eventPhotoDirPath = path.join(SOCIAL_GALLERY_DIR, fiestaId);
         await fs.rm(eventPhotoDirPath, { recursive: true, force: true });
+        
+        // Also clear chat history for the event
+        const eventChatFilePath = path.join(SOCIAL_CHAT_DIR, `${fiestaId}.json`);
+        await fs.rm(eventChatFilePath, { force: true });
+
     } catch (dirError: any) {
-        console.warn(`Could not delete directory for fiesta ${fiestaId}: ${dirError.message}`);
+        if ((dirError as NodeJS.ErrnoException).code !== 'ENOENT') {
+          console.warn(`Could not delete directories for fiesta ${fiestaId}: ${dirError.message}`);
+        }
     }
 
     const allPosts = await getMetadata();
     await writeMetadata(allPosts.filter(p => p.fiestaId !== fiestaId));
+    
     return { success: true };
 }
 
@@ -142,5 +152,34 @@ export async function getPhotoFilePathsForZip(fiestaId: string): Promise<{ path:
         }));
     } catch {
         return [];
+    }
+}
+
+// --- Live Chat Functions ---
+
+const getChatFilePath = (fiestaId: string) => path.join(SOCIAL_CHAT_DIR_NAME, `${fiestaId}.json`);
+
+export async function getChatMessages(fiestaId: string): Promise<ChatMessage[]> {
+    return readData<ChatMessage[]>(getChatFilePath(fiestaId), []);
+}
+
+export async function addChatMessage(fiestaId: string, authorName: string, text: string): Promise<{ success: boolean; message?: ChatMessage; error?: string }> {
+    if (!fiestaId || !authorName.trim() || !text.trim()) {
+        return { success: false, error: "Datos del mensaje incompletos." };
+    }
+    try {
+        const messages = await getChatMessages(fiestaId);
+        const newMessage: ChatMessage = {
+            id: `chat_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+            fiestaId,
+            authorName,
+            text,
+            timestamp: new Date().toISOString(),
+        };
+        messages.push(newMessage);
+        await writeData(getChatFilePath(fiestaId), messages);
+        return { success: true, message: newMessage };
+    } catch (error: any) {
+        return { success: false, error: "No se pudo guardar el mensaje en el chat." };
     }
 }

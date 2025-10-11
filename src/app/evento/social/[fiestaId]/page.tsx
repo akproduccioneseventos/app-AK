@@ -3,9 +3,9 @@
 
 import React, { useState, useEffect, useCallback, type FormEvent, useRef, type ChangeEvent, use } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { getSocialPosts, uploadSocialPost, addLikeToPost, addCommentToPost, deleteSocialPost, clearGallery } from '@/app/actions/social-gallery';
-import type { SocialGalleryPost, SocialComment } from '@/types/social-gallery';
-import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions'; // Corrected import
+import { getSocialPosts, uploadSocialPost, addLikeToPost, addCommentToPost, deleteSocialPost, clearGallery, getChatMessages, addChatMessage } from '@/app/actions/social-gallery';
+import type { SocialGalleryPost, SocialComment, ChatMessage } from '@/types/social-gallery';
+import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -41,6 +41,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { ShareLinkDialog } from '@/components/dashboard/ShareLinkDialog';
+import QRCodeStylized from 'qrcode.react';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const PostCard: React.FC<{ 
   post: SocialGalleryPost; 
@@ -129,8 +131,13 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
   
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [posts, setPosts] = useState<SocialGalleryPost[]>([]);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [newChatMessage, setNewChatMessage] = useState('');
+
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
+  const [isSendingChat, setIsSendingChat] = useState(false);
+
   const [authorName, setAuthorName] = useState('');
   const [isAdminView, setIsAdminView] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
@@ -143,16 +150,20 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
   // Projection mode state
   const [projectionMode, setProjectionMode] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
 
   const fetchData = useCallback(async (showLoadingIndicator = true) => {
     if(showLoadingIndicator) setIsLoading(true);
     try {
-      const [fetchedPosts, fiestaData] = await Promise.all([
+      const [fetchedPosts, fiestaData, fetchedChat] = await Promise.all([
           getSocialPosts(params.fiestaId),
-          getFiestaById(params.fiestaId) 
+          getFiestaById(params.fiestaId),
+          getChatMessages(params.fiestaId),
       ]);
       setPosts(fetchedPosts);
       setFiesta(fiestaData);
+      setChatMessages(fetchedChat);
     } catch (e) {
       toast({ title: "Error al cargar galería", variant: "destructive" });
     } finally {
@@ -172,11 +183,15 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
     if (projectionMode && posts.length > 0) {
         const timer = setInterval(() => {
             setCurrentSlide(prev => (prev + 1) % posts.length);
-        }, 7000); // Change slide every 7 seconds
+        }, 7000);
         return () => clearInterval(timer);
     }
   }, [projectionMode, posts.length]);
   
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMessages]);
+
   useEffect(() => {
     if(typeof window !== 'undefined') {
         const savedName = localStorage.getItem('socialGalleryAuthorName');
@@ -201,10 +216,7 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
 
   const handleUploadSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!fileToUpload || !authorName) {
-        toast({ title: "Faltan datos", description: "Por favor, ingresa tu nombre y selecciona un archivo.", variant: "destructive" });
-        return;
-    }
+    if (!fileToUpload) return;
     setIsUploading(true);
     const formData = new FormData();
     formData.append('fiestaId', params.fiestaId);
@@ -225,8 +237,13 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
   };
   
   const handleLike = async (postId: string) => {
-    setPosts(prev => prev.map(p => p.id === postId ? {...p, likes: p.likes + 1} : p));
-    await addLikeToPost(postId);
+    // Optimistic update
+    setPosts(prev => prev.map(p => p.id === postId ? {...p, likes: (p.likes || 0) + 1} : p));
+    const result = await addLikeToPost(postId);
+    if (!result.success) {
+      toast({title: "Error", description: "No se pudo registrar el 'Me Gusta'."});
+      await fetchData(false); // Revert on error
+    }
   };
   
   const handleComment = async (postId: string, text: string) => {
@@ -234,9 +251,38 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
         toast({description: "Por favor ingresa tu nombre para comentar."});
         return;
     }
-    await addCommentToPost(postId, text, authorName);
+    const result = await addCommentToPost(postId, text, authorName);
+    if (!result.success) {
+        toast({title: "Error", description: "No se pudo añadir el comentario."});
+    }
     await fetchData(false);
   };
+
+   const handleChatSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!newChatMessage.trim() || !authorName.trim()) return;
+
+    setIsSendingChat(true);
+    const optimisticMessage: ChatMessage = {
+      id: `temp-${Date.now()}`,
+      authorName: authorName,
+      text: newChatMessage,
+      timestamp: new Date().toISOString(),
+      fiestaId: params.fiestaId
+    };
+    setChatMessages(prev => [...prev, optimisticMessage]);
+    setNewChatMessage('');
+    
+    const result = await addChatMessage(params.fiestaId, authorName, newChatMessage);
+    if (!result.success) {
+      toast({ title: "Error", description: "No se pudo enviar tu mensaje.", variant: "destructive" });
+      setChatMessages(prev => prev.filter(m => m.id !== optimisticMessage.id)); // Revert
+    } else {
+        await fetchData(false); // Sync with server state
+    }
+    setIsSendingChat(false);
+  };
+
 
   const handleDelete = async (postId: string) => {
     await deleteSocialPost(postId);
@@ -250,6 +296,22 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
     toast({ title: "Galería Limpiada", variant: "destructive" });
     await fetchData();
     setIsClearing(false);
+  };
+  
+  const handleDownloadChat = async () => {
+    let content = `Historial del Chat - ${fiesta?.configuracion.nombreEvento || 'Evento'}\n`;
+    content += `Generado el: ${new Date().toLocaleString('es-ES')}\n\n`;
+    chatMessages.forEach(msg => {
+      const timestamp = new Date(msg.timestamp).toLocaleTimeString('es-ES');
+      content += `[${timestamp}] ${msg.authorName}: ${msg.text}\n`;
+    });
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `chat-${params.fiestaId}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
   
   const handleAuthorNameChange = (name: string) => {
@@ -273,9 +335,9 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
                 <Input value={authorName} onChange={e => handleAuthorNameChange(e.target.value)} placeholder="Tu nombre..." className="h-10 text-base" />
                 <p className="text-xs text-muted-foreground mt-1">Escribe tu nombre para identificar tus fotos y comentarios.</p>
              </div>
-            <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+             <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button disabled={!authorName.trim()} className="h-10"><Upload className="w-5 h-5"/><span className="ml-2 hidden sm:inline">Subir Foto</span></Button>
+                    <Button disabled={!authorName.trim()} className="h-10"><Upload className="w-5 h-5"/><span className="ml-2 hidden sm:inline">Subir Foto</span></Button>
                 </DialogTrigger>
                 <DialogContent>
                     <DialogHeader><DialogTitle>Sube tu Momento</DialogTitle><DialogDescription>Comparte una foto con todos los invitados.</DialogDescription></DialogHeader>
@@ -301,8 +363,9 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
           <div className="bg-yellow-100 dark:bg-yellow-900/50 p-2 text-center text-xs text-yellow-800 dark:text-yellow-300 flex justify-center items-center gap-4">
             <span>Estás viendo como administrador.</span>
             <div className="flex gap-2">
+                <Button size="sm" variant="outline" className="h-7" onClick={handleDownloadChat}><Download className="w-4 h-4 mr-1.5"/>Descargar Chat</Button>
                 <a href={`/api/social-gallery/${params.fiestaId}/download`} download>
-                    <Button size="sm" variant="outline" className="h-7"><Download className="w-4 h-4 mr-1.5"/>Descargar Todo</Button>
+                    <Button size="sm" variant="outline" className="h-7"><Download className="w-4 h-4 mr-1.5"/>Descargar Fotos</Button>
                 </a>
                 <AlertDialog>
                     <AlertDialogTrigger asChild><Button size="sm" variant="destructive" className="h-7" disabled={isClearing}><Trash2 className="w-4 h-4 mr-1.5"/>Vaciar Galería</Button></AlertDialogTrigger>
@@ -316,33 +379,61 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
         )}
       </header>
 
-      <main className="max-w-5xl mx-auto p-4">
-        {isLoading && posts.length === 0 ? <div className="text-center py-20 flex flex-col items-center gap-3"><Loader2 className="w-10 h-10 animate-spin text-primary"/><p className="text-muted-foreground">Cargando galería...</p></div>
-        : posts.length === 0 ? <div className="text-center py-20 text-muted-foreground bg-card p-8 rounded-lg shadow-inner"><h2 className="text-2xl font-semibold text-foreground mb-2">¡Sé el primero en compartir!</h2><p>La galería está vacía. Sube la primera foto para empezar a crear recuerdos.</p></div>
-        : <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">{posts.map(post => <PostCard key={post.id} post={post} onLike={handleLike} onComment={handleComment} currentAuthor={authorName} isAdminView={isAdminView} onDelete={handleDelete}/>)}</div>}
+      <main className="max-w-5xl mx-auto p-4 space-y-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{posts.length === 0 && isLoading ? Array.from({length:3}).map((_, i) => <Card key={i}><CardHeader><div className="flex items-center gap-2"><Loader2 className="w-5 h-5 animate-spin"/></div></CardHeader><CardContent className="aspect-square bg-muted rounded-md"></CardContent></Card>) : posts.map(post => <PostCard key={post.id} post={post} onLike={handleLike} onComment={handleComment} currentAuthor={authorName} isAdminView={isAdminView} onDelete={handleDelete}/>)}</div>
+        {posts.length === 0 && !isLoading && <div className="text-center py-20 text-muted-foreground bg-card p-8 rounded-lg shadow-inner"><h2 className="text-2xl font-semibold text-foreground mb-2">¡Sé el primero en compartir!</h2><p>La galería está vacía. Sube la primera foto para empezar a crear recuerdos.</p></div>}
+        
+        <Card>
+            <CardHeader><CardTitle>Chat del Evento</CardTitle></CardHeader>
+            <CardContent>
+                <ScrollArea className="h-64 border rounded-md p-3 space-y-3">
+                    {chatMessages.map(msg => (
+                        <div key={msg.id} className="text-sm">
+                            <span className="font-semibold text-primary">{msg.authorName}: </span>
+                            <span className="text-foreground">{msg.text}</span>
+                        </div>
+                    ))}
+                    <div ref={chatEndRef}/>
+                </ScrollArea>
+                 <form onSubmit={handleChatSubmit} className="flex gap-2 items-center mt-3">
+                    <Input value={newChatMessage} onChange={e => setNewChatMessage(e.target.value)} placeholder="Escribe un mensaje..." disabled={!authorName.trim() || isSendingChat} />
+                    <Button type="submit" disabled={!authorName.trim() || !newChatMessage.trim() || isSendingChat}>
+                       {isSendingChat ? <Loader2 className="w-4 h-4 animate-spin"/> : <Send className="w-4 h-4"/>}
+                    </Button>
+                </form>
+            </CardContent>
+        </Card>
       </main>
       
       {projectionMode && (
-        <div className="fixed inset-0 bg-black z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black z-50 flex flex-col md:flex-row p-4 gap-4">
             <Button onClick={() => setProjectionMode(false)} variant="ghost" size="icon" className="absolute top-4 right-4 z-50 bg-black/50 hover:bg-black/80 text-white hover:text-white h-10 w-10"><X className="w-6 h-6"/></Button>
-            <div className="relative w-full h-full">
+            <div className="relative flex-grow h-full w-full md:w-3/4">
                 {posts.map((post, index) => (
                     <div key={post.id} className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}>
                         <WatermarkedImage src={post.imageUrl} layout="fill" objectFit="contain" alt={`Foto de ${post.authorName}`} />
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 text-white flex justify-between items-end">
-                            <div>
-                                <p className="font-bold text-lg">@{post.authorName}</p>
-                                {post.comments.slice(-2).map((c, i) => (
-                                    <p key={i} className="text-sm opacity-90"><span className="font-semibold">{c.authorName}:</span> {c.text}</p>
-                                ))}
-                            </div>
-                            <div className="flex items-center gap-4 text-xl">
-                                <div className="flex items-center gap-2"><Heart className={`w-6 h-6 ${post.likes > 0 ? 'text-red-400 fill-current' : ''}`} /> {post.likes}</div>
-                                <div className="flex items-center gap-2"><MessageCircle className="w-6 h-6" /> {post.comments.length}</div>
-                            </div>
-                        </div>
                     </div>
                 ))}
+            </div>
+            <div className="flex-shrink-0 w-full md:w-1/4 h-1/3 md:h-full bg-gray-900/80 rounded-lg p-4 flex flex-col text-white">
+                <h2 className="text-xl font-bold text-center mb-4">Chat en Vivo</h2>
+                 <ScrollArea className="flex-grow mb-4">
+                     <div className="space-y-3">
+                        {chatMessages.map(msg => (
+                            <div key={msg.id}>
+                                <span className="font-semibold text-primary">{msg.authorName}: </span>
+                                <span>{msg.text}</span>
+                            </div>
+                        ))}
+                        <div ref={chatEndRef}/>
+                    </div>
+                 </ScrollArea>
+                 <div className="flex-shrink-0 text-center space-y-2 p-3 bg-black/50 rounded-md">
+                     <p className="font-semibold">¡Únete a la conversación!</p>
+                     <div className="bg-white p-2 rounded-md inline-block">
+                         <QRCodeStylized value={`${window.location.origin}/evento/social/${params.fiestaId}`} size={80} />
+                     </div>
+                 </div>
             </div>
         </div>
       )}
