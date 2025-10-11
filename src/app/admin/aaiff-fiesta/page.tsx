@@ -1,16 +1,14 @@
 
 'use client';
 
-import { useState, useCallback, type FormEvent, useEffect } from 'react';
+import { useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { ArrowLeft, PartyPopper, Wand2, ClipboardList, AlertTriangle, CheckCircle, Loader2, Info, FileCode } from "lucide-react";
+import { Label } from '@/components/ui/label';
+import { ArrowLeft, AlertTriangle, CheckCircle, Loader2, Info, FileCode, BrainCircuit } from "lucide-react";
 import { useToast } from '@/hooks/use-toast';
-import { getFiestaActual } from '@/app/actions/fiesta/fiesta.actions';
 import { analyzeCodebase, type AnalyzeCodebaseOutput } from '@/ai/flows/analyze-codebase-flow';
-import { Separator } from '@/components/ui/separator';
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { Textarea } from '@/components/ui/textarea';
 
 const getStatusIcon = (status: string) => {
@@ -24,7 +22,7 @@ const getStatusIcon = (status: string) => {
 
 export default function AnalisisCodebasePage() {
     const { toast } = useToast();
-    const [specification, setSpecification] = useState<string>('Quiero una app completa para gestionar mi empresa de fiestas y eventos.');
+    const [specification, setSpecification] = useState<string>('Quiero saber si todos los módulos de la aplicación funcionan bien y están completos.');
     const [analysisResult, setAnalysisResult] = useState<AnalyzeCodebaseOutput | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -77,15 +75,15 @@ export default function AnalisisCodebasePage() {
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Wand2 className="w-10 h-10 text-primary" />
+          <BrainCircuit className="w-10 h-10 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Análisis de Capacidades con IA
+            Análisis de Aplicación con IA
           </h1>
         </div>
-        <Link href="/settings" passHref> 
+        <Link href="/" passHref> 
           <Button variant="outline">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver a Configuración
+            Volver al Dashboard
           </Button>
         </Link>
       </div>
@@ -111,7 +109,7 @@ export default function AnalisisCodebasePage() {
         </CardContent>
         <CardFooter>
             <Button type="submit" className="w-full sm:w-auto" disabled={isLoading}>
-              {isLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin"/> : <Wand2 className="w-5 h-5 mr-2"/>}
+              {isLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin"/> : <BrainCircuit className="w-5 h-5 mr-2"/>}
               {isLoading ? "Analizando..." : "Analizar Aplicación"}
             </Button>
         </CardFooter>
@@ -147,3 +145,5 @@ export default function AnalisisCodebasePage() {
     </div>
   );
 }
+
+    
