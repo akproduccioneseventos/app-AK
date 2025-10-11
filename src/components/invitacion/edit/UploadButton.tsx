@@ -11,7 +11,6 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
 import { Loader2, UploadCloud } from "lucide-react";
@@ -29,11 +28,8 @@ interface UploadButtonProps {
     fiestaId?: string; // Make fiestaId optional
 }
 
-export const UploadButton: React.FC<UploadButtonProps> = ({ currentUrl, onUrlChange, accept="image/*", fiestaId: propFiestaId }) => {
+export const UploadButton: React.FC<UploadButtonProps> = ({ currentUrl, onUrlChange, accept="image/*", fiestaId }) => {
     const { toast } = useToast();
-    const searchParams = useSearchParams();
-    // Get fiestaId from props first, then from searchParams as a fallback
-    const fiestaId = propFiestaId || searchParams.get('fiestaId');
 
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
     const [fileToUpload, setFileToUpload] = useState<File | null>(null);
@@ -55,9 +51,6 @@ export const UploadButton: React.FC<UploadButtonProps> = ({ currentUrl, onUrlCha
         }
         setIsUploading(true);
         try {
-            const formData = new FormData();
-            formData.append('fiestaId', fiestaId);
-            formData.append('file', fileToUpload);
             const result = await uploadPublicPageAsset(fiestaId, fileToUpload);
 
             if (result.success && result.url) {

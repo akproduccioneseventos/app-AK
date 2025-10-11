@@ -6,10 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { defaultInvitacionDigitalData } from "@/lib/invitacion-digital-defaults";
 import type { InvitacionDigitalData, SeccionInvitacion } from "@/types/fiesta";
-import { ImageIcon, PlusCircle, Sparkles, Trash2 } from "lucide-react";
+import { Sparkles, PlusCircle, Trash2 } from "lucide-react";
 import React from 'react';
 import {
   DropdownMenu,
@@ -30,12 +29,11 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ data, update, addSec
     const allPossibleSections = defaultInvitacionDigitalData.secciones.map(s => s.tipo);
 
     return (
-        <div className="p-4 space-y-4">
-            <h2 className="text-lg font-semibold">Panel de Control</h2>
-            <Accordion type="multiple" defaultValue={['general']} className="w-full">
+        <div className="space-y-4">
+            <Accordion type="multiple" defaultValue={['general', 'secciones']} className="w-full">
                 <AccordionItem value="general">
                     <AccordionTrigger><Sparkles className="w-4 h-4 mr-2"/>Diseño General</AccordionTrigger>
-                    <AccordionContent className="space-y-4">
+                    <AccordionContent className="space-y-4 pt-2">
                         <div className="space-y-1">
                             <Label htmlFor="plantilla-nombre">Nombre Plantilla</Label>
                             <Input id="plantilla-nombre" value={data.name || ''} onChange={e => update({name: e.target.value})} />
@@ -69,9 +67,9 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ data, update, addSec
                 </AccordionItem>
                 <AccordionItem value="secciones">
                     <AccordionTrigger>Secciones de la Invitación</AccordionTrigger>
-                    <AccordionContent className="space-y-2">
+                    <AccordionContent className="space-y-2 pt-2">
                         {data.secciones.map(seccion => (
-                            <div key={seccion.id} className="flex items-center justify-between p-2 border rounded-md">
+                            <div key={seccion.id} className="flex items-center justify-between p-2 border rounded-md bg-background">
                                 <span className="text-sm">{seccion.tipo}</span>
                                 <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => removeSection(seccion.id)}>
                                     <Trash2 className="w-4 h-4"/>
