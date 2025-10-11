@@ -67,7 +67,6 @@ export const updateTareasFiestaActual = updateTareas;
 export const getInvitadosFiestaActual = getInvitados;
 export const addInvitadoFiestaActual = addInvitado;
 export const updateInvitadoFiestaActual = updateInvitado;
-export const deleteInvitadoFiestaActual = deleteInvitado;
 export const handleRsvpSubmissionFiestaActual = handleRsvpSubmission;
 export const checkInGuestFiestaActual = checkInGuest;
 
@@ -160,3 +159,6 @@ export const claimGiftFiestaActual = async (fiestaId: string, giftId: string, gu
     const result = await saveFiesta(updatedFiesta);
     return { success: result.success, error: result.error };
 };
+
+// This action is now obsolete as guests are deleted via a dedicated action in invitados.actions
+export const deleteInvitadoFiestaActual = deleteInvitado;

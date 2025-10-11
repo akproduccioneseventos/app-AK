@@ -7,31 +7,34 @@ import { Input } from '@/components/ui/input';
 import { UploadButton } from './UploadButton';
 import { Separator } from '@/components/ui/separator';
 import { TextStyleEditor } from './TextStyleEditor';
+import React from 'react';
 
 interface Props {
   data: InvitacionDigitalData['cabecera'];
-  update: (newData: Partial<InvitacionDigitalData['cabecera']>) => void;
+  update: (newData: Partial<InvitacionDigitalData>) => void;
   fiestaId?: string;
 }
 
 export const SeccionCabeceraEditor: React.FC<Props> = ({ data, update, fiestaId }) => {
   
-  const handleFieldChange = (field: keyof typeof data, value: string | boolean) => {
-    update({ ...data, [field]: value });
+  const handleFieldChange = (field: keyof typeof data, value: any) => {
+    update({ cabecera: { ...data, [field]: value } });
   };
   
   const handleColorChange = (colorType: keyof ColorPalette, value: string) => {
     update({
-      ...data,
-      paletaColores: {
-        ...(data.paletaColores || { primary: '', secondary: '', accent: '' }),
-        [colorType]: value,
-      },
+      cabecera: {
+        ...data,
+        paletaColores: {
+          ...(data.paletaColores || { primary: '', secondary: '', accent: '' }),
+          [colorType]: value,
+        },
+      }
     });
   };
 
   const handleTextStyleChange = (field: 'subtitulo', style: Partial<TextWithStyle>) => {
-    handleFieldChange(field, { ...(data[field] as TextWithStyle), ...style });
+    handleFieldChange(field, { ...data[field], ...style });
   }
 
   return (
@@ -39,10 +42,10 @@ export const SeccionCabeceraEditor: React.FC<Props> = ({ data, update, fiestaId 
         <div className="space-y-1">
             <Label>Imagen/Video de Fondo</Label>
             <UploadButton
-            currentUrl={data.videoFondoUrl}
-            onUrlChange={(url) => handleFieldChange('videoFondoUrl', url)}
-            accept="image/*,video/*"
-            fiestaId={fiestaId}
+                currentUrl={data.videoFondoUrl}
+                onUrlChange={(url) => handleFieldChange('videoFondoUrl', url)}
+                accept="image/*,video/*"
+                fiestaId={fiestaId}
             />
         </div>
         <Separator />
@@ -65,8 +68,8 @@ export const SeccionCabeceraEditor: React.FC<Props> = ({ data, update, fiestaId 
                 <div key={key} className="space-y-1">
                 <Label htmlFor={`color-${key}`} className="text-xs capitalize">{key}</Label>
                 <div className="flex items-center gap-1">
-                    <Input type="color" id={`color-${key}`} value={data.paletaColores?.[key] || '#000000'} onChange={e => handleColorChange(key, e.target.value)} className="w-8 h-8 p-0.5 aspect-square"/>
-                    <Input type="text" value={data.paletaColores?.[key] || '#000000'} onChange={e => handleColorChange(key, e.target.value)} className="h-8 text-xs" placeholder="#RRGGBB"/>
+                    <Input type="color" id={`color-picker-${key}`} value={data.paletaColores?.[key] || '#000000'} onChange={e => handleColorChange(key, e.target.value)} className="w-8 h-8 p-0.5 aspect-square"/>
+                    <Input type="text" id={`color-hex-${key}`} value={data.paletaColores?.[key] || '#000000'} onChange={e => handleColorChange(key, e.target.value)} className="h-8 text-xs" placeholder="#RRGGBB"/>
                 </div>
                 </div>
             ))}

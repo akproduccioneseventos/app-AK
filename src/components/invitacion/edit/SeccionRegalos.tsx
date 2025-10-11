@@ -10,17 +10,18 @@ import { PlusCircle, Trash2 } from 'lucide-react';
 import { UploadButton } from './UploadButton';
 import { TextStyleEditor } from './TextStyleEditor';
 import { Separator } from '@/components/ui/separator';
+import React from 'react';
 
 
 interface Props {
   data: InvitacionDigitalData['regalos'];
-  update: (newData: Partial<InvitacionDigitalData['regalos']>) => void;
+  update: (newData: Partial<InvitacionDigitalData>) => void;
   fiestaId?: string;
 }
 
 export const SeccionRegalos: React.FC<Props> = ({ data, update, fiestaId }) => {
   const handleFieldChange = (field: keyof typeof data, value: any) => {
-    update({ ...data, [field]: value });
+    update({ regalos: { ...data, [field]: value } });
   };
   
   const handleItemChange = (itemId: string, field: keyof GiftItem, value: string) => {
