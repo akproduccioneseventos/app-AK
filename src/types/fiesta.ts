@@ -178,7 +178,7 @@ export interface TextWithStyle {
 
 export interface SeccionInvitacion {
   id: string;
-  tipo: 'cabecera' | 'bienvenida' | 'cuentaRegresiva' | 'detallesEvento' | 'itinerario' | 'dressCode' | 'galeria' | 'historia' | 'regalos' | 'confirmacion' | 'despedida' | 'footer';
+  tipo: 'cabecera' | 'bienvenida' | 'cuentaRegresiva' | 'detallesEvento' | 'itinerario' | 'dressCode' | 'galeria' | 'historia' | 'regalos' | 'confirmacion' | 'despedida' | 'footer' | 'instagram';
   data: any; // El contenido específico de cada sección
 }
 
@@ -245,6 +245,11 @@ export interface InvitacionDigitalData {
     imagenFondoUrl?: string;
     texto: TextWithStyle;
   };
+  instagram: {
+    visible: boolean;
+    hashtag: string;
+    texto: string;
+  },
   confirmacion: {
     visible: boolean;
   };

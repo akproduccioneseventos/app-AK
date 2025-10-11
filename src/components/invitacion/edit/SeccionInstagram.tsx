@@ -1,20 +1,31 @@
 
 'use client';
 
-import type { InvitacionDigitalData } from '@/types/fiesta';
+import type { InvitacionDigitalData, TextWithStyle, TextStyle } from '@/types/fiesta';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
+import { TextStyleEditor } from './TextStyleEditor';
 
 interface Props {
   data: InvitacionDigitalData['instagram'];
-  update: (newData: Partial<InvitacionDigitalData>) => void;
+  update: (newData: Partial<InvitacionDigitalData['instagram']>) => void;
 }
 
 export const SeccionInstagramEditor: React.FC<Props> = ({ data, update }) => {
   const handleFieldChange = (field: keyof typeof data, value: string | boolean) => {
-    update({ instagram: { ...data, [field]: value } });
+    update({ ...data, [field]: value });
   };
+  
+  const handleTextStyleChange = (style: Partial<TextStyle>) => {
+    const newTextData = { ...data.texto, style: { ...(data.texto?.style || {}), ...style }};
+    update({ ...data, texto: newTextData });
+  }
+  
+  const handleTextChange = (text: string) => {
+    const newTextData = { ...data.texto, text };
+    update({ ...data, texto: newTextData });
+  }
 
   return (
     <div className="space-y-3 pt-2">
@@ -37,12 +48,15 @@ export const SeccionInstagramEditor: React.FC<Props> = ({ data, update }) => {
                 placeholder="#BodaAnaYJuan"
                 />
             </div>
-            <div className="space-y-1">
-                <Label htmlFor="instagram-texto">Texto de Invitación a Publicar</Label>
+            <div className="space-y-2 p-2 border rounded-md">
+                <Label>Texto de la Sección</Label>
                 <Input
-                id="instagram-texto"
-                value={data.texto || ''}
-                onChange={(e) => handleFieldChange('texto', e.target.value)}
+                value={data.texto?.text || ''}
+                onChange={(e) => handleTextChange(e.target.value)}
+                />
+                <TextStyleEditor 
+                style={data.texto?.style || {}}
+                onStyleChange={handleTextStyleChange}
                 />
             </div>
         </>

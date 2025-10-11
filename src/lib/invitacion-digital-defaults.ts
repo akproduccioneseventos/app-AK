@@ -29,7 +29,7 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
     { id: 'cuentaRegresiva', tipo: 'cuentaRegresiva', data: { visible: true } },
     { id: 'detallesEvento', tipo: 'detallesEvento', data: { visible: true, infoPadresVisible: false } },
     { id: 'itinerario', tipo: 'itinerario', data: { visible: true } },
-    { id: 'dressCode', tipo: 'dressCode', data: { visible: true, texto: 'Elegante Sport' } },
+    { id: 'dressCode', tipo: 'dressCode', data: { visible: true, texto: { text: 'Elegante Sport' } } },
     {
       id: 'regalos',
       tipo: 'regalos',
@@ -42,7 +42,17 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
       }
     },
     { id: 'confirmacion', tipo: 'confirmacion', data: { visible: true } },
-    { id: 'despedida', tipo: 'despedida', data: { visible: true, texto: '¡Te esperamos!' } },
+    {
+      id: 'instagram',
+      tipo: 'instagram',
+      data: {
+        visible: true,
+        hashtag: '#NuestraBoda',
+        texto: '¡Comparte tus fotos y momentos con nuestro hashtag!',
+      },
+    },
+    { id: 'despedida', tipo: 'despedida', data: { visible: true, texto: { text: '¡Te esperamos!' } } },
+    { id: 'footer', tipo: 'footer', data: { visible: true } },
   ],
   // Flat structure for easy access in editor - can be deprecated later if fully modular
   cabecera: {
@@ -94,6 +104,11 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
   dressCode: {
     visible: true,
     texto: { text: 'Elegante Sport', style: { fontFamily: 'Inter', fontSize: '1rem', color: '#6b7280' } }
+  },
+  instagram: {
+    visible: true,
+    hashtag: '#BodaJ&M',
+    texto: '¡Usa nuestro hashtag para compartir tus momentos!'
   },
   confirmacion: {
     visible: true,

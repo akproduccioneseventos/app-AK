@@ -14,6 +14,7 @@ import { SeccionItinerarioEditor } from './SeccionItinerario';
 import { SeccionRegalos } from './SeccionRegalos';
 import { SeccionDespedidaEditor } from './SeccionDespedida';
 import { SeccionFooterEditor } from './SeccionFooter';
+import { SeccionInstagramEditor } from './SeccionInstagram';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -82,6 +83,12 @@ export const SectionEditorPanel: React.FC<Props> = ({ data, update, selectedSect
             props = { data: data.footer, update: (newData: any) => update({ footer: { ...data.footer, ...newData } }) };
             return <SeccionFooterEditor {...props} />;
         }
+        
+        if (selectedSection.tipo === 'instagram') {
+            props = { data: data.instagram, update: (newData: any) => update({ instagram: { ...data.instagram, ...newData } }) };
+            return <SeccionInstagramEditor {...props} />;
+        }
+
 
         props = { data: selectedSection.data, update: handleSectionDataChange, fiestaId: fiestaId || undefined };
         
