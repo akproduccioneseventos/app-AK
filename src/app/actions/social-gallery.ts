@@ -34,7 +34,7 @@ export async function getSocialPosts(fiestaId: string): Promise<SocialGalleryPos
 export async function uploadSocialPost(formData: FormData): Promise<{ success: boolean; post?: SocialGalleryPost; error?: string }> {
   const fiestaId = formData.get('fiestaId') as string;
   const file = formData.get('file') as File;
-  const authorName = formData.get('authorName') as string || 'Anónimo';
+  const authorName = (formData.get('authorName') as string) || 'Anónimo';
 
   if (!fiestaId || !file) return { success: false, error: "Faltan datos (ID de fiesta o archivo)." };
   
@@ -83,14 +83,14 @@ export async function addLikeToPost(postId: string): Promise<{ success: boolean;
     return { success: true };
 }
 
-export async function addCommentToPost(postId: string, commentText: string, authorName: string): Promise<{ success: boolean; comment?: SocialComment, error?: string }> {
+export async function addCommentToPost(postId: string, commentText: string): Promise<{ success: boolean; comment?: SocialComment, error?: string }> {
     const allPosts = await getMetadata();
     const postIndex = allPosts.findIndex(p => p.id === postId);
     if (postIndex === -1) return { success: false, error: "Publicación no encontrada." };
 
     const newComment: SocialComment = {
         id: `comment_${Date.now()}`,
-        authorName: authorName || 'Anónimo',
+        authorName: 'Anónimo',
         text: commentText,
         timestamp: new Date().toISOString(),
     };
@@ -163,8 +163,8 @@ export async function getChatMessages(fiestaId: string): Promise<ChatMessage[]> 
     return readData<ChatMessage[]>(getChatFilePath(fiestaId), []);
 }
 
-export async function addChatMessage(fiestaId: string, authorName: string, text: string): Promise<{ success: boolean; message?: ChatMessage; error?: string }> {
-    if (!fiestaId || !authorName.trim() || !text.trim()) {
+export async function addChatMessage(fiestaId: string, text: string): Promise<{ success: boolean; message?: ChatMessage; error?: string }> {
+    if (!fiestaId || !text.trim()) {
         return { success: false, error: "Datos del mensaje incompletos." };
     }
     try {
@@ -172,7 +172,7 @@ export async function addChatMessage(fiestaId: string, authorName: string, text:
         const newMessage: ChatMessage = {
             id: `chat_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
             fiestaId,
-            authorName,
+            authorName: 'Anónimo',
             text,
             timestamp: new Date().toISOString(),
         };

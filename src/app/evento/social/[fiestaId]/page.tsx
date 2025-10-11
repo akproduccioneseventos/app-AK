@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent, useRef, type ChangeEvent, use } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent, useRef, type ChangeEvent } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { getSocialPosts, uploadSocialPost, addLikeToPost, addCommentToPost, deleteSocialPost, clearGallery, getChatMessages, addChatMessage } from '@/app/actions/social-gallery';
 import type { SocialGalleryPost, SocialComment, ChatMessage } from '@/types/social-gallery';
@@ -48,10 +48,9 @@ const PostCard: React.FC<{
   post: SocialGalleryPost; 
   onLike: (postId: string) => void; 
   onComment: (postId: string, text: string) => Promise<void>; 
-  currentAuthor: string;
   onDelete?: (postId: string) => void;
   isAdminView: boolean;
-}> = ({ post, onLike, onComment, currentAuthor, onDelete, isAdminView }) => {
+}> = ({ post, onLike, onComment, onDelete, isAdminView }) => {
   const [commentText, setCommentText] = useState('');
   
   const handleCommentSubmit = async (e: FormEvent) => {
@@ -115,8 +114,8 @@ const PostCard: React.FC<{
                 )) : <p className="text-xs text-muted-foreground text-center py-2">Sin comentarios. ¡Sé el primero!</p>}
             </div>
              <form onSubmit={handleCommentSubmit} className="flex gap-2 items-center">
-                <Input value={commentText} onChange={e => setCommentText(e.target.value)} placeholder={`Añadir comentario como ${currentAuthor}...`} className="h-9 text-sm" disabled={!currentAuthor.trim()}/>
-                <Button type="submit" size="icon" className="h-9 w-9 flex-shrink-0" disabled={!commentText.trim() || !currentAuthor.trim()}><Send className="w-4 h-4"/></Button>
+                <Input value={commentText} onChange={e => setCommentText(e.target.value)} placeholder="Añadir un comentario..." className="h-9 text-sm"/>
+                <Button type="submit" size="icon" className="h-9 w-9 flex-shrink-0" disabled={!commentText.trim()}><Send className="w-4 h-4"/></Button>
              </form>
         </div>
       </CardFooter>
@@ -126,7 +125,7 @@ const PostCard: React.FC<{
 
 
 export default function SocialGalleryPage({ params: paramsProp }: { params: { fiestaId: string } }) {
-  const params = use(paramsProp);
+  const params = paramsProp;
   const { toast } = useToast();
   
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
@@ -138,7 +137,6 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
   const [isUploading, setIsUploading] = useState(false);
   const [isSendingChat, setIsSendingChat] = useState(false);
 
-  const [authorName, setAuthorName] = useState('');
   const [isAdminView, setIsAdminView] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
 
@@ -194,9 +192,6 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
 
   useEffect(() => {
     if(typeof window !== 'undefined') {
-        const savedName = localStorage.getItem('socialGalleryAuthorName');
-        if (savedName) setAuthorName(savedName);
-
         const sessionAuth = sessionStorage.getItem('ak_producciones_auth_session');
         setIsAdminView(sessionAuth === 'true');
     }
@@ -221,7 +216,6 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
     const formData = new FormData();
     formData.append('fiestaId', params.fiestaId);
     formData.append('file', fileToUpload);
-    formData.append('authorName', authorName);
 
     const result = await uploadSocialPost(formData);
     if (result.success) {
@@ -247,11 +241,7 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
   };
   
   const handleComment = async (postId: string, text: string) => {
-    if (!authorName) {
-        toast({description: "Por favor ingresa tu nombre para comentar."});
-        return;
-    }
-    const result = await addCommentToPost(postId, text, authorName);
+    const result = await addCommentToPost(postId, text);
     if (!result.success) {
         toast({title: "Error", description: "No se pudo añadir el comentario."});
     }
@@ -260,12 +250,12 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
 
    const handleChatSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!newChatMessage.trim() || !authorName.trim()) return;
+    if (!newChatMessage.trim()) return;
 
     setIsSendingChat(true);
     const optimisticMessage: ChatMessage = {
       id: `temp-${Date.now()}`,
-      authorName: authorName,
+      authorName: 'Anónimo',
       text: newChatMessage,
       timestamp: new Date().toISOString(),
       fiestaId: params.fiestaId
@@ -273,7 +263,7 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
     setChatMessages(prev => [...prev, optimisticMessage]);
     setNewChatMessage('');
     
-    const result = await addChatMessage(params.fiestaId, authorName, newChatMessage);
+    const result = await addChatMessage(params.fiestaId, newChatMessage);
     if (!result.success) {
       toast({ title: "Error", description: "No se pudo enviar tu mensaje.", variant: "destructive" });
       setChatMessages(prev => prev.filter(m => m.id !== optimisticMessage.id)); // Revert
@@ -313,11 +303,6 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
     a.click();
     URL.revokeObjectURL(url);
   };
-  
-  const handleAuthorNameChange = (name: string) => {
-      setAuthorName(name);
-      localStorage.setItem('socialGalleryAuthorName', name);
-  };
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -331,13 +316,9 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
             <p className="text-sm text-muted-foreground">¡Comparte tus momentos del evento!</p>
           </div>
           <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
-             <div className="flex-grow">
-                <Input value={authorName} onChange={e => handleAuthorNameChange(e.target.value)} placeholder="Tu nombre..." className="h-10 text-base" />
-                <p className="text-xs text-muted-foreground mt-1">Escribe tu nombre para identificar tus fotos y comentarios.</p>
-             </div>
              <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
                 <DialogTrigger asChild>
-                    <Button disabled={!authorName.trim()} className="h-10"><Upload className="w-5 h-5"/><span className="ml-2 hidden sm:inline">Subir Foto</span></Button>
+                    <Button className="h-10"><Upload className="w-5 h-5"/><span className="ml-2 hidden sm:inline">Subir Foto</span></Button>
                 </DialogTrigger>
                 <DialogContent>
                     <DialogHeader><DialogTitle>Sube tu Momento</DialogTitle><DialogDescription>Comparte una foto con todos los invitados.</DialogDescription></DialogHeader>
@@ -380,7 +361,7 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
       </header>
 
       <main className="max-w-5xl mx-auto p-4 space-y-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{posts.length === 0 && isLoading ? Array.from({length:3}).map((_, i) => <Card key={i}><CardHeader><div className="flex items-center gap-2"><Loader2 className="w-5 h-5 animate-spin"/></div></CardHeader><CardContent className="aspect-square bg-muted rounded-md"></CardContent></Card>) : posts.map(post => <PostCard key={post.id} post={post} onLike={handleLike} onComment={handleComment} currentAuthor={authorName} isAdminView={isAdminView} onDelete={handleDelete}/>)}</div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{posts.length === 0 && isLoading ? Array.from({length:3}).map((_, i) => <Card key={i}><CardHeader><div className="flex items-center gap-2"><Loader2 className="w-5 h-5 animate-spin"/></div></CardHeader><CardContent className="aspect-square bg-muted rounded-md"></CardContent></Card>) : posts.map(post => <PostCard key={post.id} post={post} onLike={handleLike} onComment={handleComment} isAdminView={isAdminView} onDelete={handleDelete}/>)}</div>
         {posts.length === 0 && !isLoading && <div className="text-center py-20 text-muted-foreground bg-card p-8 rounded-lg shadow-inner"><h2 className="text-2xl font-semibold text-foreground mb-2">¡Sé el primero en compartir!</h2><p>La galería está vacía. Sube la primera foto para empezar a crear recuerdos.</p></div>}
         
         <Card>
@@ -396,8 +377,8 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
                     <div ref={chatEndRef}/>
                 </ScrollArea>
                  <form onSubmit={handleChatSubmit} className="flex gap-2 items-center mt-3">
-                    <Input value={newChatMessage} onChange={e => setNewChatMessage(e.target.value)} placeholder="Escribe un mensaje..." disabled={!authorName.trim() || isSendingChat} />
-                    <Button type="submit" disabled={!authorName.trim() || !newChatMessage.trim() || isSendingChat}>
+                    <Input value={newChatMessage} onChange={e => setNewChatMessage(e.target.value)} placeholder="Escribe un mensaje..." disabled={isSendingChat} />
+                    <Button type="submit" disabled={!newChatMessage.trim() || isSendingChat}>
                        {isSendingChat ? <Loader2 className="w-4 h-4 animate-spin"/> : <Send className="w-4 h-4"/>}
                     </Button>
                 </form>
