@@ -87,7 +87,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/catering/lista-compras') return 'Lista de Compras (Catering)';
   if (pathname === '/fiestas/nueva/personal') return 'Asignar Personal al Evento';
   if (pathname === '/fiestas/nueva/personal/recibos') return 'Recibos de Pago de Personal';
-  if (pathname === '/fiestas/nueva/reuniones') return 'Reuniones y Portal Cliente';
+  if (pathname === '/fiestas/nueva/reuniones') return 'Reuniones y Colaboración';
   if (pathname === '/fiestas/nueva/musica') return 'Música de la Fiesta';
   if (pathname === '/fiestas/nueva/musica/pdf') return 'PDF de Música';
   if (pathname === '/fiestas/nueva/fotografia') return 'Fotografía y Filmación';
@@ -103,7 +103,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/contabilidad/crm') return 'Gestión de Prospectos (CRM)';
 
   if (pathname === '/settings') return 'Configuración General';
-  if (pathname === '/settings/templates') return 'Personalizar Plantillas';
+  if (pathname === '/settings/templates') return 'Gestión de Plantillas';
   if (pathname === '/settings/budget-display') return 'Configuración del Simulador';
   if (pathname === '/settings/company') return 'Información de la Empresa';
   if (pathname === '/settings/social-connections') return 'Cuentas Sociales Vinculadas';
@@ -248,6 +248,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   // Define special pages that might have their own layout
   const isBudgetViewPage = /^\/presupuestos\/[^/]+\/ver$/.test(pathname);
   const isInvoiceViewPage = /^\/invoices\/[^/]+$/.test(pathname) && !pathname.endsWith('/edit');
+  
+  // This is a special layout for the invitation builder
+  const isInvitationBuilder = pathname.startsWith('/fiestas/nueva/pagina-web') || pathname.startsWith('/settings/templates/invitaciones/edit');
 
   const isSpecialRender = 
     isAuthPage || 
@@ -255,7 +258,8 @@ export function AppShell({ children }: { children: ReactNode }) {
     isClientFacingTool ||
     isPdfPage ||
     isBudgetViewPage ||
-    isInvoiceViewPage;
+    isInvoiceViewPage ||
+    isInvitationBuilder;
 
   // Simplified logic for when to render the shell
   if (isSpecialRender) {
