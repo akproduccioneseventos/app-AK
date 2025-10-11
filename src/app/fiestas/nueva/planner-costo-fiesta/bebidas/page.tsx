@@ -14,7 +14,7 @@ export default function DeprecatedBebidasPage() {
     const router = useRouter();
 
     useEffect(() => {
-        router.replace('/planner-costo-fiesta');
+        router.replace('/fiestas/nueva/catering');
     }, [router]);
 
     return (
@@ -26,11 +26,11 @@ export default function DeprecatedBebidasPage() {
                 </CardHeader>
                 <CardContent>
                      <p className="text-muted-foreground">
-                        La gestión de Bebidas ahora es parte del Planificador Gastronómico Integral. Serás redirigido.
+                        La gestión de Bebidas ahora es parte del Planificador Gastronómico. Serás redirigido.
                     </p>
                 </CardContent>
                  <CardFooter className="justify-center">
-                    <Link href="/planner-costo-fiesta" passHref>
+                    <Link href="/fiestas/nueva/catering" passHref>
                         <Button variant="link">
                             Si no eres redirigido, haz clic aquí.
                         </Button>

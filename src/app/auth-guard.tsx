@@ -30,7 +30,10 @@ export function AuthGuard({ children }: AuthGuardProps) {
   const [isVerified, setIsVerified] = useState(false);
 
   useEffect(() => {
-    const isAuthenticated = sessionStorage.getItem(SESSION_KEY) === 'true';
+    // This check ensures sessionStorage is only accessed on the client-side.
+    if (typeof window === 'undefined') {
+      return;
+    }
     
     // Define public paths that don't require authentication
     const publicPaths = [
@@ -46,11 +49,21 @@ export function AuthGuard({ children }: AuthGuardProps) {
     
     const isPublic = publicPaths.some(publicPath => pathname.startsWith(publicPath));
 
-    if (!isAuthenticated && !isPublic) {
+    // If the path is public, we can verify immediately and let the user through.
+    if (isPublic) {
+      setIsVerified(true);
+      return;
+    }
+    
+    // If the path is not public, then check for authentication.
+    const isAuthenticated = sessionStorage.getItem(SESSION_KEY) === 'true';
+    
+    if (!isAuthenticated) {
       router.push('/login');
     } else {
       setIsVerified(true);
     }
+
   }, [pathname, router]);
 
   if (!isVerified) {

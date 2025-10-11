@@ -48,22 +48,19 @@ export function CountdownTimer({ targetDate }: CountdownTimerProps) {
   }, [targetDate]);
 
   useEffect(() => {
+    // This effect runs only on the client, ensuring `new Date()` matches the user's clock
     // Calculate and set initial time left on client mount
     setTimeLeft(calculateTimeLeft());
 
     // Set up interval to update time left every second
     const timerId = setInterval(() => {
-      const newTimeLeftCalculated = calculateTimeLeft();
-      setTimeLeft(newTimeLeftCalculated);
-      // Stop interval if countdown has ended
-      if (newTimeLeftCalculated.ended) {
-        clearInterval(timerId);
-      }
+      setTimeLeft(calculateTimeLeft());
     }, 1000);
 
-    // Cleanup interval on component unmount or if targetDate changes (triggering calculateTimeLeft recreation)
+    // Cleanup interval on component unmount
     return () => clearInterval(timerId);
-  }, [calculateTimeLeft]); // calculateTimeLeft dependency ensures effect reruns if targetDate changes
+  }, [calculateTimeLeft]);
+
 
   // Loading state or initial message before first client-side calculation
   if (timeLeft === null) {
@@ -74,7 +71,7 @@ export function CountdownTimer({ targetDate }: CountdownTimerProps) {
     );
   }
 
-  if (timeLeft.message) {
+  if (timeLeft.ended || timeLeft.message) {
     return (
         <div className="text-center py-2">
             <p className={timeLeft.ended ? "font-semibold text-primary" : "text-sm text-muted-foreground"}>{timeLeft.message}</p>
