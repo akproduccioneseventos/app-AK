@@ -25,6 +25,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogClose,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Loader2, AlertTriangle, Heart, MessageCircle, Send, Upload, RefreshCw, PartyPopper, MonitorPlay, X, Trash2, Download, Share2 } from 'lucide-react';
 import { WatermarkedImage } from '@/components/watermarked-image';
@@ -283,7 +284,9 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
           </div>
           <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
              <Input value={authorName} onChange={e => handleAuthorNameChange(e.target.value)} placeholder="Tu nombre..." className="h-10 text-base flex-grow"/>
-             <Button onClick={() => setIsUploadDialogOpen(true)} disabled={!authorName} className="h-10"><Upload className="w-5 h-5"/><span className="ml-2 hidden sm:inline">Subir Foto</span></Button>
+             <DialogTrigger asChild>
+                <Button onClick={() => setIsUploadDialogOpen(true)} disabled={!authorName} className="h-10"><Upload className="w-5 h-5"/><span className="ml-2 hidden sm:inline">Subir Foto</span></Button>
+             </DialogTrigger>
              <ShareLinkDialog
                 relativePath={`/evento/social/${params.fiestaId}`}
                 title="Compartir Galería Social"

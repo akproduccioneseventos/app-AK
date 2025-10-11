@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ClipboardCopy, Send, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import QRCodeStylized from 'qrcode.react';
 
 interface ShareLinkDialogProps {
   children: React.ReactNode;
@@ -27,14 +28,14 @@ interface ShareLinkDialogProps {
 export function ShareLinkDialog({ children, relativePath, title, description }: ShareLinkDialogProps) {
   const { toast } = useToast();
   const [fullLink, setFullLink] = useState('');
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    // This effect runs only on the client side, ensuring window is available.
-    if (typeof window !== 'undefined') {
+    if (isOpen && typeof window !== 'undefined') {
       const origin = window.location.origin;
       setFullLink(`${origin}${relativePath}`);
     }
-  }, [relativePath]);
+  }, [isOpen, relativePath]);
 
   const handleCopyToClipboard = () => {
     if (!fullLink) return;
@@ -44,32 +45,30 @@ export function ShareLinkDialog({ children, relativePath, title, description }: 
 
   const handleWhatsAppSend = () => {
     if (!fullLink) return;
-    const message = `¡Hola! Te comparto este enlace para que puedas armar un presupuesto para tu evento:\n\n${fullLink}`;
+    const message = `¡Hola! Te comparto este enlace: ${fullLink}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
   };
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
-        <div className="flex items-center space-x-2">
-          <div className="grid flex-1 gap-2">
-            <Label htmlFor="link" className="sr-only">Enlace</Label>
+        <div className="flex flex-col items-center justify-center space-y-4">
             {fullLink ? (
-               <Input id="link" value={fullLink} readOnly />
-            ) : (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground h-10 px-3">
-                    <Loader2 className="w-4 h-4 animate-spin"/>Cargando enlace...
+                <div className="p-4 bg-white rounded-lg border">
+                    <QRCodeStylized value={fullLink} size={160} />
                 </div>
-            )}
-          </div>
-          <Button type="button" size="icon" className="px-3" onClick={handleCopyToClipboard} disabled={!fullLink}>
-            <ClipboardCopy className="h-4 w-4" />
-          </Button>
+            ) : <Loader2 className="w-8 h-8 animate-spin"/>}
+            <div className="flex items-center space-x-2 w-full">
+              <Input id="link" value={fullLink} readOnly />
+              <Button type="button" size="icon" className="px-3" onClick={handleCopyToClipboard} disabled={!fullLink}>
+                <ClipboardCopy className="h-4 w-4" />
+              </Button>
+            </div>
         </div>
         <DialogFooter className="sm:justify-start">
           <Button type="button" onClick={handleWhatsAppSend} className="w-full sm:w-auto bg-green-500 hover:bg-green-600" disabled={!fullLink}>
