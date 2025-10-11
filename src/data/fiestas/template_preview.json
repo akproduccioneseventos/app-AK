@@ -247,11 +247,11 @@
   "configuracion": {
     "nombreEvento": "Grazia Base",
     "tipoCelebracion": "Boda",
-    "fechaEvento": "2025-10-11T14:31:56.842Z"
+    "fechaEvento": "2025-10-11T14:34:22.177Z"
   },
   "invitacionDigital": {
     "plantilla": "Grazia",
-    "musicaFondoUrl": "https://drive.google.com/file/d/1dkaeGG_abmDps4Kcsfh7lxobuc7Iz4tU/view?usp=sharing",
+    "musicaFondoUrl": "",
     "secciones": [
       {
         "id": "cabecera",
@@ -371,8 +371,8 @@
     ],
     "cabecera": {
       "visible": true,
-      "protagonista1": "Brenda",
-      "protagonista2": "Julio",
+      "protagonista1": "Novio/a 1",
+      "protagonista2": "Novio/a 2",
       "subtitulo": {
         "text": "Nuestra Boda",
         "style": {

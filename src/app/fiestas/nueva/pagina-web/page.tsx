@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, useEffect, useCallback, Suspense, use } from 'react';
@@ -202,4 +201,3 @@ export default function PaginaWebYPortalPage() {
         </Suspense>
     );
 }
-
