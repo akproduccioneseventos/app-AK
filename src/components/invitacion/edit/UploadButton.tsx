@@ -12,12 +12,12 @@ import {
   DialogDescription,
   DialogFooter,
   DialogClose,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Loader2, UploadCloud } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState, type ChangeEvent } from "react";
 import NextImage from 'next/image';
 import { useToast } from "@/hooks/use-toast";
-import { useSearchParams } from "next/navigation";
 import { uploadPublicPageAsset } from "@/app/actions/fiesta/assets.actions";
 
 
