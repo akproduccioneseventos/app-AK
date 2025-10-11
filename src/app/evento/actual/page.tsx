@@ -101,18 +101,24 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
   const primaryColor = paleta.primary || 'hsl(var(--primary))';
   
   return (
-    <header className="relative py-16 md:py-24 text-center bg-cover bg-center min-h-[400px] flex items-center justify-center">
+    <header 
+        className="relative py-16 md:py-24 text-center bg-cover bg-center min-h-[400px] flex items-center justify-center"
+        style={{
+            backgroundImage: `url(${data.videoFondoUrl ? '' : (data.imagenFondoUrl || '')})`,
+            backgroundAttachment: 'fixed',
+        }}
+    >
         {data.videoFondoUrl && (
             <video src={data.videoFondoUrl} autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover -z-10"/>
         )}
         <div className="absolute inset-0 bg-white/70 backdrop-blur-sm -z-10"></div>
         <div className="relative z-10 p-6 max-w-2xl mx-auto text-center">
-            <EditableText 
+             <EditableText 
                 initialValue={data.subtitulo?.text || "Nuestra Boda"}
                 style={data.subtitulo?.style}
                 onSave={(val) => onUpdate?.({ cabecera: { ...data, subtitulo: { ...data.subtitulo, text: val } } })}
                 className="font-headline text-2xl"
-                textarea={false} // Force single line
+                textarea={false} 
             />
             <h1 className="font-headline text-5xl md:text-7xl my-3" style={{color: primaryColor}}>
                <EditableText 
@@ -166,6 +172,12 @@ const GraziaDetalles: React.FC<{ data: InvitacionDigitalData['detallesEvento'], 
 };
 
 const GraziaRegalos: React.FC<{ data: InvitacionDigitalData['regalos'], paleta: ColorPalette, onUpdate?: (newData: Partial<InvitacionDigitalData>) => void }> = ({ data, paleta, onUpdate }) => {
+    const handleUpdate = (updates: Partial<typeof data>) => {
+        if(onUpdate) {
+            onUpdate({ regalos: { ...data, ...updates } });
+        }
+    };
+    
     return (
         <>
             <SectionIcon><Gift className="w-12 h-12 mx-auto mb-3" style={{color: paleta.primary}}/></SectionIcon>
@@ -173,7 +185,7 @@ const GraziaRegalos: React.FC<{ data: InvitacionDigitalData['regalos'], paleta: 
               <EditableText 
                 initialValue={data.titulo.text || "Lista de Regalos"} 
                 style={data.titulo.style} 
-                onSave={v => onUpdate?.({ regalos: {...data, titulo: {...data.titulo, text: v}}})} 
+                onSave={v => handleUpdate({ titulo: { ...data.titulo, text: v }})} 
                 textarea={false}
               />
             </h3>
@@ -181,7 +193,7 @@ const GraziaRegalos: React.FC<{ data: InvitacionDigitalData['regalos'], paleta: 
               <EditableText 
                 initialValue={data.texto.text || "Tu presencia es nuestro mejor regalo..."} 
                 style={data.texto.style} 
-                onSave={v => onUpdate?.({ regalos: {...data, texto: {...data.texto, text: v}}})}
+                onSave={v => handleUpdate({ texto: { ...data.texto, text: v }})}
                 textarea
               />
             </div>
@@ -219,6 +231,7 @@ export const GraziaTemplate: React.FC<{
   const socialIcons: Record<SocialPlatformName, React.ElementType> = { Facebook, Instagram, TikTok: Music, WhatsApp: MessageSquare };
 
   const renderSectionComponent = (seccion: SeccionInvitacion) => {
+    if (!seccion.data) return null; // Safety check
     const props = { data: seccion.data, fiesta, paleta: paletaColores!, onUpdate };
     
     const wrapperProps = onSectionClick ? {

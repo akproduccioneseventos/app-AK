@@ -42,8 +42,13 @@ export const SeccionCabeceraEditor: React.FC<Props> = ({ data, update, fiestaId 
         <div className="space-y-1">
             <Label>Imagen/Video de Fondo</Label>
             <UploadButton
-                currentUrl={data.videoFondoUrl}
-                onUrlChange={(url) => handleFieldChange('videoFondoUrl', url)}
+                currentUrl={data.videoFondoUrl || data.imagenFondoUrl}
+                onUrlChange={(url) => {
+                    const isVideo = url.endsWith('.mp4') || url.endsWith('.webm');
+                    handleFieldChange(isVideo ? 'videoFondoUrl' : 'imagenFondoUrl', url);
+                    if(isVideo) handleFieldChange('imagenFondoUrl', undefined);
+                    else handleFieldChange('videoFondoUrl', undefined);
+                }}
                 accept="image/*,video/*"
                 fiestaId={fiestaId}
             />

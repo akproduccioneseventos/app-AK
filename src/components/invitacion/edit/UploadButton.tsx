@@ -28,7 +28,7 @@ interface UploadButtonProps {
     fiestaId?: string; // Make fiestaId optional
 }
 
-export const UploadButton: React.FC<UploadButtonProps> = ({ currentUrl, onUrlChange, accept="image/*", fiestaId }) => {
+export const UploadButton: React.FC<UploadButtonProps> = ({ currentUrl, onUrlChange, accept="image/*,video/mp4", fiestaId }) => {
     const { toast } = useToast();
 
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);

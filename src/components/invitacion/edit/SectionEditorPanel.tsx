@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import type { InvitacionDigitalData, SeccionInvitacion } from '@/types/fiesta';
@@ -43,33 +42,37 @@ export const SectionEditorPanel: React.FC<Props> = ({ data, update, selectedSect
             update({ secciones: newSecciones });
         }
     };
-
-    const handleUpdateCabecera = (newData: Partial<InvitacionDigitalData>) => {
+    
+    const handleUpdate = (newData: Partial<InvitacionDigitalData>) => {
         update(newData);
     };
 
     const renderEditor = () => {
         if (!selectedSection) return null;
         
+        // This is a bit of a workaround because some sections edit the root `data` object
+        // and others edit the nested `seccion.data` object. This normalizes it.
         const props = { data: selectedSection.data, update: handleSectionDataChange, fiestaId: fiestaId || undefined };
 
         switch (selectedSection.tipo) {
-            case 'cabecera': return <SeccionCabeceraEditor data={data.cabecera} update={handleUpdateCabecera} fiestaId={fiestaId || undefined} />;
-            case 'bienvenida': return <SeccionBienvenidaEditor {...props} />;
-            case 'confirmacion': return <SeccionConfirmacionEditor {...props} />;
-            case 'cuentaRegresiva': return <SeccionCuentaRegresivaEditor {...props} />;
-            case 'detallesEvento': return <SeccionDetallesEventoEditor {...props} />;
-            case 'dressCode': return <SeccionDressCodeEditor {...props} />;
-            case 'galeria': return <SeccionGaleriaEditor {...props} />;
-            case 'historia': return <SeccionHistoriaEditor {...props} />;
-            case 'itinerario': return <SeccionItinerarioEditor {...props} />;
-            case 'regalos': return <SeccionRegalos {...props} />;
-            case 'despedida': return <SeccionDespedidaEditor {...props} />;
+            case 'cabecera': return <SeccionCabeceraEditor data={data.cabecera} update={handleUpdate} fiestaId={fiestaId || undefined} />;
+            case 'bienvenida': return <SeccionBienvenidaEditor data={data.bienvenida} update={(newData) => update({ bienvenida: newData })} fiestaId={fiestaId || undefined} />;
+            case 'confirmacion': return <SeccionConfirmacionEditor data={data.confirmacion} update={(newData) => update({ confirmacion: newData })} />;
+            case 'cuentaRegresiva': return <SeccionCuentaRegresivaEditor data={data.cuentaRegresiva} update={(newData) => update({ cuentaRegresiva: newData })} />;
+            case 'detallesEvento': return <SeccionDetallesEventoEditor data={data.detallesEvento} update={(newData) => update({ detallesEvento: newData })} />;
+            case 'dressCode': return <SeccionDressCodeEditor data={data.dressCode} update={(newData) => update({ dressCode: newData })} fiestaId={fiestaId || undefined} />;
+            case 'galeria': return <SeccionGaleriaEditor data={data.galeria} update={(newData) => update({ galeria: newData })} />;
+            case 'historia': return <SeccionHistoriaEditor data={data.historia} update={(newData) => update({ historia: newData })} fiestaId={fiestaId || undefined}/>;
+            case 'itinerario': return <SeccionItinerarioEditor data={data.itinerario} update={(newData) => update({ itinerario: newData })} fiestaId={fiestaId || undefined}/>;
+            case 'regalos': return <SeccionRegalos data={data.regalos} update={(newData) => update({ regalos: newData })} fiestaId={fiestaId || undefined}/>;
+            case 'despedida': return <SeccionDespedidaEditor data={data.despedida} update={(newData) => update({ despedida: newData })} />;
             case 'footer': return <SeccionFooterEditor data={data.footer} update={(newData) => update({footer: newData}) } />;
             default: return <div>Editor no implementado para "{selectedSection.tipo}"</div>;
         }
     }
     
+    const currentDataForVisibility = selectedSection?.tipo === 'cabecera' ? data.cabecera : selectedSection?.data;
+
     return (
         <ScrollArea className="h-full">
             <div className="p-4">
@@ -86,12 +89,12 @@ export const SectionEditorPanel: React.FC<Props> = ({ data, update, selectedSect
                                 <Label htmlFor={`visible-${selectedSectionId}`} className="font-normal">Mostrar esta sección</Label>
                                 <Switch 
                                     id={`visible-${selectedSectionId}`}
-                                    checked={selectedSection?.data.visible} 
+                                    checked={currentDataForVisibility?.visible} 
                                     onCheckedChange={(checked) => handleSectionDataChange({...selectedSection?.data, visible: checked})}
                                 />
                             </div>
                         )}
-                        {selectedSection?.data.visible && renderEditor()}
+                        {currentDataForVisibility?.visible && renderEditor()}
                     </CardContent>
                 </Card>
             </div>
