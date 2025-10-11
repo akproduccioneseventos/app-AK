@@ -116,7 +116,7 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
              <EditableText 
                 initialValue={data.subtitulo?.text || "Nuestra Boda"}
                 style={data.subtitulo?.style}
-                onSave={(val) => onUpdate?.({ cabecera: { ...data, subtitulo: { ...data.subtitulo, text: val } } })}
+                onSave={(val) => onUpdate?.({ cabecera: { ...data, subtitulo: { ...(data.subtitulo || {style:{}}), text: val } } })}
                 className="font-headline text-2xl"
                 textarea={false} 
             />
@@ -174,7 +174,7 @@ const GraziaDetalles: React.FC<{ data: InvitacionDigitalData['detallesEvento'], 
 const GraziaRegalos: React.FC<{ data: InvitacionDigitalData['regalos'], paleta: ColorPalette, onUpdate?: (newData: Partial<InvitacionDigitalData>) => void }> = ({ data, paleta, onUpdate }) => {
     const handleUpdate = (updates: Partial<typeof data>) => {
         if(onUpdate) {
-            onUpdate({ regalos: { ...data, ...updates } });
+            update({ regalos: { ...data, ...updates } });
         }
     };
     
@@ -183,17 +183,17 @@ const GraziaRegalos: React.FC<{ data: InvitacionDigitalData['regalos'], paleta: 
             <SectionIcon><Gift className="w-12 h-12 mx-auto mb-3" style={{color: paleta.primary}}/></SectionIcon>
             <h3 className="font-headline text-3xl mb-3" style={{color: paleta.accent}}>
               <EditableText 
-                initialValue={data.titulo.text || "Lista de Regalos"} 
-                style={data.titulo.style} 
-                onSave={v => handleUpdate({ titulo: { ...data.titulo, text: v }})} 
+                initialValue={data.titulo?.text || "Lista de Regalos"} 
+                style={data.titulo?.style} 
+                onSave={v => handleUpdate({ titulo: { ...(data.titulo || {style:{}}), text: v }})} 
                 textarea={false}
               />
             </h3>
             <div className="text-muted-foreground max-w-md mx-auto">
               <EditableText 
-                initialValue={data.texto.text || "Tu presencia es nuestro mejor regalo..."} 
-                style={data.texto.style} 
-                onSave={v => handleUpdate({ texto: { ...data.texto, text: v }})}
+                initialValue={data.texto?.text || "Tu presencia es nuestro mejor regalo..."} 
+                style={data.texto?.style} 
+                onSave={v => handleUpdate({ texto: { ...(data.texto || {style:{}}), text: v }})}
                 textarea
               />
             </div>
@@ -241,7 +241,7 @@ export const GraziaTemplate: React.FC<{
     } : { seccion };
     
     switch (seccion.tipo) {
-      case 'bienvenida': return <SectionWrapper {...wrapperProps}><SectionIcon><Heart className="w-12 h-12 mx-auto mb-3" style={{color: primaryColor}} /></SectionIcon><h2 className="font-headline text-2xl mb-4"><EditableText initialValue={seccion.data.titulo?.text || ""} style={seccion.data.titulo?.style} onSave={v => onUpdate?.({ bienvenida: {...seccion.data, titulo: {...seccion.data.titulo, text: v}}})} textarea={false} /></h2><div className="max-w-xl mx-auto text-muted-foreground"><EditableText initialValue={seccion.data.texto?.text || ""} style={seccion.data.texto?.style} onSave={v => onUpdate?.({ bienvenida: {...seccion.data, texto: {...seccion.data.texto, text: v}}})} textarea/></div></SectionWrapper>;
+      case 'bienvenida': return <SectionWrapper {...wrapperProps}><SectionIcon><Heart className="w-12 h-12 mx-auto mb-3" style={{color: primaryColor}} /></SectionIcon><h2 className="font-headline text-2xl mb-4"><EditableText initialValue={seccion.data.titulo?.text || ""} style={seccion.data.titulo?.style} onSave={v => onUpdate?.({ bienvenida: {...seccion.data, titulo: {...(seccion.data.titulo || {style: {}}), text: v}}})} textarea={false} /></h2><div className="max-w-xl mx-auto text-muted-foreground"><EditableText initialValue={seccion.data.texto?.text || ""} style={seccion.data.texto?.style} onSave={v => onUpdate?.({ bienvenida: {...seccion.data, texto: {...(seccion.data.texto || {style: {}}), text: v}}})} textarea/></div></SectionWrapper>;
       case 'cuentaRegresiva': return <SectionWrapper {...wrapperProps}><h3 className="font-headline text-2xl mb-4" style={{color: primaryColor}}>Faltan</h3><CountdownTimer targetDate={fiesta.configuracion.fechaEvento} /></SectionWrapper>;
       case 'detallesEvento': return <SectionWrapper {...wrapperProps}><GraziaDetalles {...props} /></SectionWrapper>;
       case 'regalos': return <SectionWrapper {...wrapperProps}><GraziaRegalos {...props} /></SectionWrapper>;

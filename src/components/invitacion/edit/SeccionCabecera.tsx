@@ -11,37 +11,34 @@ import React from 'react';
 
 interface Props {
   data: InvitacionDigitalData['cabecera'];
-  update: (newData: Partial<InvitacionDigitalData>) => void;
+  update: (newData: Partial<InvitacionDigitalData['cabecera']>) => void;
   fiestaId?: string;
 }
 
 export const SeccionCabeceraEditor: React.FC<Props> = ({ data, update, fiestaId }) => {
   
   const handleFieldChange = (field: keyof typeof data, value: any) => {
-    update({ cabecera: { ...data, [field]: value } });
+    update({ [field]: value });
   };
   
   const handleColorChange = (colorType: keyof ColorPalette, value: string) => {
     update({
-      cabecera: {
-        ...data,
-        paletaColores: {
-          ...(data.paletaColores || { primary: '', secondary: '', accent: '' }),
-          [colorType]: value,
-        },
-      }
+      paletaColores: {
+        ...(data.paletaColores || { primary: '', secondary: '', accent: '' }),
+        [colorType]: value,
+      },
     });
   };
 
   const handleTextStyleChange = (field: 'subtitulo', style: Partial<TextWithStyle['style']>) => {
-    const currentStyle = data[field]?.style || {};
-    const newStyle = { ...currentStyle, ...style };
-    handleFieldChange(field, { ...(data[field] as TextWithStyle), style: newStyle });
+    const currentStyleData = data[field] || { text: '', style: {} };
+    const newStyle = { ...currentStyleData.style, ...style };
+    handleFieldChange(field, { ...currentStyleData, style: newStyle });
   };
 
   const handleSubtituloTextChange = (text: string) => {
      const currentStyleData = data.subtitulo || { text: '', style: {} };
-     update({ cabecera: { ...data, subtitulo: { ...currentStyleData, text: text } } });
+     update({ subtitulo: { ...currentStyleData, text: text } });
   };
 
   return (

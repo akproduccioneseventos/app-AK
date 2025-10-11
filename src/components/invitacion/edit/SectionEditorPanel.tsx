@@ -53,9 +53,9 @@ export const SectionEditorPanel: React.FC<Props> = ({ data, update, selectedSect
         // This is a bit of a workaround because some sections edit the root `data` object
         // and others edit the nested `seccion.data` object. This normalizes it.
         const props = { data: selectedSection.data, update: handleSectionDataChange, fiestaId: fiestaId || undefined };
-
+        
         switch (selectedSection.tipo) {
-            case 'cabecera': return <SeccionCabeceraEditor data={data.cabecera} update={handleUpdate} fiestaId={fiestaId || undefined} />;
+            case 'cabecera': return <SeccionCabeceraEditor data={data.cabecera} update={(newData) => update({ cabecera: { ...data.cabecera, ...newData } })} fiestaId={fiestaId || undefined} />;
             case 'bienvenida': return <SeccionBienvenidaEditor data={data.bienvenida} update={(newData) => update({ bienvenida: newData })} fiestaId={fiestaId || undefined} />;
             case 'confirmacion': return <SeccionConfirmacionEditor data={data.confirmacion} update={(newData) => update({ confirmacion: newData })} />;
             case 'cuentaRegresiva': return <SeccionCuentaRegresivaEditor data={data.cuentaRegresiva} update={(newData) => update({ cuentaRegresiva: newData })} />;
