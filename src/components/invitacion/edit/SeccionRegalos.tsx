@@ -1,23 +1,26 @@
 
 'use client';
 
-import type { InvitacionDigitalData, GiftItem } from '@/types/fiesta';
+import type { InvitacionDigitalData, GiftItem, TextWithStyle } from '@/types/fiesta';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Trash2 } from 'lucide-react';
 import { UploadButton } from './UploadButton';
+import { TextStyleEditor } from './TextStyleEditor';
+import { Separator } from '@/components/ui/separator';
+
 
 interface Props {
   data: InvitacionDigitalData['regalos'];
-  update: (newData: Partial<InvitacionDigitalData>) => void;
+  update: (newData: Partial<InvitacionDigitalData['regalos']>) => void;
   fiestaId?: string;
 }
 
 export const SeccionRegalos: React.FC<Props> = ({ data, update, fiestaId }) => {
   const handleFieldChange = (field: keyof typeof data, value: any) => {
-    update({ regalos: { ...data, [field]: value } });
+    update({ ...data, [field]: value });
   };
   
   const handleItemChange = (itemId: string, field: keyof GiftItem, value: string) => {
@@ -39,6 +42,10 @@ export const SeccionRegalos: React.FC<Props> = ({ data, update, fiestaId }) => {
   const deleteItem = (itemId: string) => {
      handleFieldChange('items', (data.items || []).filter(i => i.id !== itemId));
   };
+  
+  const handleTextStyleChange = (field: 'titulo' | 'texto', style: Partial<TextWithStyle>) => {
+    handleFieldChange(field, { ...(data[field] as TextWithStyle), ...style });
+  }
 
   return (
     <div className="space-y-4">
@@ -50,13 +57,22 @@ export const SeccionRegalos: React.FC<Props> = ({ data, update, fiestaId }) => {
             fiestaId={fiestaId}
             />
         </div>
-        <div className="space-y-1">
-            <Label htmlFor="regalos-titulo">Título</Label>
-            <Input id="regalos-titulo" value={data.titulo || ''} onChange={(e) => handleFieldChange('titulo', e.target.value)} />
+        <Separator />
+        <div className="space-y-2 p-2 border rounded-md">
+            <Label>Título</Label>
+            <Input value={data.titulo.text || ''} onChange={(e) => handleTextStyleChange('titulo', { text: e.target.value })} />
+             <TextStyleEditor 
+                style={data.titulo.style || {}}
+                onStyleChange={(newStyle) => handleTextStyleChange('titulo', { style: newStyle })}
+            />
         </div>
-        <div className="space-y-1">
-            <Label htmlFor="regalos-texto">Texto introductorio</Label>
-            <Textarea id="regalos-texto" value={data.texto || ''} onChange={(e) => handleFieldChange('texto', e.target.value)} rows={3}/>
+        <div className="space-y-2 p-2 border rounded-md">
+            <Label>Texto introductorio</Label>
+            <Textarea value={data.texto.text || ''} onChange={(e) => handleTextStyleChange('texto', { text: e.target.value })} rows={3}/>
+             <TextStyleEditor 
+                style={data.texto.style || {}}
+                onStyleChange={(newStyle) => handleTextStyleChange('texto', { style: newStyle })}
+            />
         </div>
         <div className="space-y-1">
             <Label htmlFor="regalos-banco">Datos Bancarios (o link)</Label>

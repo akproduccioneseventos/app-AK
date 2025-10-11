@@ -1,8 +1,7 @@
 
-
 'use client';
 
-import type { InvitacionDigitalData } from '@/types/fiesta';
+import type { InvitacionDigitalData, SeccionInvitacion } from '@/types/fiesta';
 import { SeccionBienvenidaEditor } from './SeccionBienvenida';
 import { SeccionCabeceraEditor } from './SeccionCabecera';
 import { SeccionConfirmacionEditor } from './SeccionConfirmacion';
@@ -14,7 +13,7 @@ import { SeccionHistoriaEditor } from './SeccionHistoria';
 import { SeccionItinerarioEditor } from './SeccionItinerario';
 import { SeccionRegalos } from './SeccionRegalos';
 import { SeccionDespedidaEditor } from './SeccionDespedida';
-import { SeccionFooterEditor } from './SeccionFooter'; // Importar el nuevo editor
+import { SeccionFooterEditor } from './SeccionFooter';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -28,16 +27,15 @@ interface Props {
     update: (newData: Partial<InvitacionDigitalData>) => void;
     selectedSectionId: string | null;
     fiestaId?: string;
+    onClose: () => void;
 }
 
-export const SectionEditorPanel: React.FC<Props> = ({ data, update, selectedSectionId, fiestaId }) => {
-    const isFooterSelected = selectedSectionId === 'footer';
-    const selectedSection = isFooterSelected ? { tipo: 'footer', data: data.footer } : data.secciones.find(s => s.id === selectedSectionId);
+export const SectionEditorPanel: React.FC<Props> = ({ data, update, selectedSectionId, fiestaId, onClose }) => {
+    
+    const selectedSection = data.secciones.find(s => s.id === selectedSectionId);
 
     const handleSectionDataChange = (newData: any) => {
-        if (selectedSection?.tipo === 'footer') {
-            update({ footer: newData });
-        } else if (selectedSection) {
+        if (selectedSection) {
             const newSecciones = data.secciones.map(s => 
                 s.id === selectedSection.id ? { ...s, data: newData } : s
             );
@@ -62,7 +60,7 @@ export const SectionEditorPanel: React.FC<Props> = ({ data, update, selectedSect
             case 'itinerario': return <SeccionItinerarioEditor {...props} />;
             case 'regalos': return <SeccionRegalos {...props} />;
             case 'despedida': return <SeccionDespedidaEditor {...props} />;
-            case 'footer': return <SeccionFooterEditor {...props} />; // Renderizar el editor del footer
+            // The footer is handled by the general design tab now.
             default: return <div>Editor no implementado para "{selectedSection.tipo}"</div>;
         }
     }
@@ -80,7 +78,10 @@ export const SectionEditorPanel: React.FC<Props> = ({ data, update, selectedSect
             <div className="p-4">
                  <Card>
                     <CardHeader>
-                        <CardTitle className="capitalize">{selectedSection.tipo}</CardTitle>
+                        <div className="flex justify-between items-center">
+                            <CardTitle className="capitalize">{selectedSection.tipo}</CardTitle>
+                            <Button variant="ghost" size="icon" onClick={onClose}><X className="w-4 h-4"/></Button>
+                        </div>
                     </CardHeader>
                     <CardContent>
                         {selectedSection.tipo !== 'cabecera' && (

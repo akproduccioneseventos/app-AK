@@ -1,35 +1,38 @@
 
 'use client';
 
-import type { InvitacionDigitalData, ColorPalette } from '@/types/fiesta';
+import type { InvitacionDigitalData, ColorPalette, TextWithStyle } from '@/types/fiesta';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { UploadButton } from './UploadButton';
 import { Separator } from '@/components/ui/separator';
+import { TextStyleEditor } from './TextStyleEditor';
 
 interface Props {
   data: InvitacionDigitalData['cabecera'];
-  update: (newData: Partial<InvitacionDigitalData>) => void;
+  update: (newData: Partial<InvitacionDigitalData['cabecera']>) => void;
   fiestaId?: string;
 }
 
 export const SeccionCabeceraEditor: React.FC<Props> = ({ data, update, fiestaId }) => {
   
   const handleFieldChange = (field: keyof typeof data, value: string | boolean) => {
-    update({ cabecera: { ...data, [field]: value } });
+    update({ ...data, [field]: value });
   };
   
   const handleColorChange = (colorType: keyof ColorPalette, value: string) => {
     update({
-      cabecera: {
-        ...data,
-        paletaColores: {
-          ...(data.paletaColores || { primary: '', secondary: '', accent: '' }),
-          [colorType]: value,
-        },
+      ...data,
+      paletaColores: {
+        ...(data.paletaColores || { primary: '', secondary: '', accent: '' }),
+        [colorType]: value,
       },
     });
   };
+
+  const handleTextStyleChange = (field: 'subtitulo', style: Partial<TextWithStyle>) => {
+    handleFieldChange(field, { ...(data[field] as TextWithStyle), ...style });
+  }
 
   return (
     <div className="space-y-4">
@@ -42,23 +45,17 @@ export const SeccionCabeceraEditor: React.FC<Props> = ({ data, update, fiestaId 
             fiestaId={fiestaId}
             />
         </div>
-        <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-            <Label htmlFor="cabecera-p1">Protagonista 1</Label>
-            <Input
-                id="cabecera-p1"
-                value={data.protagonista1 || ''}
-                onChange={(e) => handleFieldChange('protagonista1', e.target.value)}
+        <Separator />
+        <div className="space-y-2 p-2 border rounded-md">
+            <Label>Subtítulo (Ej: "Nuestra Boda")</Label>
+             <Input
+                value={data.subtitulo?.text || ''}
+                onChange={(e) => handleTextStyleChange('subtitulo', { text: e.target.value })}
             />
-            </div>
-            <div className="space-y-1">
-            <Label htmlFor="cabecera-p2">Protagonista 2 (opcional)</Label>
-            <Input
-                id="cabecera-p2"
-                value={data.protagonista2 || ''}
-                onChange={(e) => handleFieldChange('protagonista2', e.target.value)}
+            <TextStyleEditor 
+                style={data.subtitulo?.style || {}}
+                onStyleChange={(newStyle) => handleTextStyleChange('subtitulo', { style: newStyle })}
             />
-            </div>
         </div>
         <Separator />
         <div className="space-y-2">
