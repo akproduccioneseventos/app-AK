@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { InvitacionDigitalData, ColorPalette, TextWithStyle } from '@/types/fiesta';
@@ -35,7 +34,11 @@ export const SeccionCabeceraEditor: React.FC<Props> = ({ data, update, fiestaId 
 
   const handleTextStyleChange = (field: 'subtitulo', style: Partial<TextWithStyle>) => {
     handleFieldChange(field, { ...data[field], ...style });
-  }
+  };
+
+  const handleSubtituloTextChange = (text: string) => {
+    handleTextStyleChange('subtitulo', { text });
+  };
 
   return (
     <div className="space-y-4">
@@ -58,7 +61,7 @@ export const SeccionCabeceraEditor: React.FC<Props> = ({ data, update, fiestaId 
             <Label>Subtítulo (Ej: "Nuestra Boda")</Label>
              <Input
                 value={data.subtitulo?.text || ''}
-                onChange={(e) => handleTextStyleChange('subtitulo', { text: e.target.value })}
+                onChange={(e) => handleSubtituloTextChange(e.target.value)}
             />
             <TextStyleEditor 
                 style={data.subtitulo?.style || {}}
