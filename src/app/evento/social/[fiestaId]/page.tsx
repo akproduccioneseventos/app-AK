@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent, useRef, type ChangeEvent, use } from 'react';
@@ -175,14 +174,22 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
   
   useEffect(() => {
     if (typeof window !== 'undefined') {
-        const savedName = sessionStorage.getItem(`socialWallAuthor_${params.fiestaId}`);
-        if (savedName) {
-            setAuthorName(savedName);
+        const sessionAuth = sessionStorage.getItem('ak_producciones_auth_session') === 'true';
+        setIsAdminView(sessionAuth);
+        
+        if (sessionAuth) {
+            setAuthorName("AK Producciones");
         } else {
-            setIsNameModalOpen(true);
+            const savedName = sessionStorage.getItem(`socialWallAuthor_${params.fiestaId}`);
+            if (savedName) {
+                setAuthorName(savedName);
+            } else {
+                setIsNameModalOpen(true);
+            }
         }
     }
   }, [params.fiestaId]);
+
 
   useEffect(() => {
     fetchData();
@@ -205,12 +212,6 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages]);
 
-  useEffect(() => {
-    if(typeof window !== 'undefined') {
-        const sessionAuth = sessionStorage.getItem('ak_producciones_auth_session');
-        setIsAdminView(sessionAuth === 'true');
-    }
-  }, []);
 
   const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -256,12 +257,12 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
   };
   
   const handleLike = async (postId: string) => {
-    // Optimistic update
+    const originalPosts = [...posts];
     setPosts(prev => prev.map(p => p.id === postId ? {...p, likes: (p.likes || 0) + 1} : p));
     const result = await addLikeToPost(postId);
     if (!result.success) {
       toast({title: "Error", description: "No se pudo registrar el 'Me Gusta'."});
-      await fetchData(false); // Revert on error
+      setPosts(originalPosts); // Revert on error
     }
   };
   
@@ -288,7 +289,7 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
     setChatMessages(prev => [...prev, optimisticMessage]);
     setNewChatMessage('');
     
-    const result = await addChatMessage(params.fiestaId, newChatMessage);
+    const result = await addChatMessage(params.fiestaId, newChatMessage, authorName);
     if (!result.success) {
       toast({ title: "Error", description: "No se pudo enviar tu mensaje.", variant: "destructive" });
       setChatMessages(prev => prev.filter(m => m.id !== optimisticMessage.id)); // Revert
@@ -363,14 +364,18 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
                     </form>
                 </DialogContent>
             </Dialog>
-            <ShareLinkDialog
-                relativePath={`/evento/social/${params.fiestaId}`}
-                title="Compartir Galería Social"
-                description="Usa este QR o enlace para que los invitados puedan subir sus fotos y ver la galería en tiempo real."
-            >
-                <Button variant="outline" className="h-10"><Share2 className="w-5 h-5"/><span className="ml-2 hidden sm:inline">Compartir</span></Button>
-            </ShareLinkDialog>
-             <Button variant="outline" onClick={() => setProjectionMode(true)} className="h-10"><MonitorPlay className="w-5 h-5"/><span className="ml-2 hidden sm:inline">Proyección</span></Button>
+            {isAdminView && (
+              <>
+                 <ShareLinkDialog
+                    relativePath={`/evento/social/${params.fiestaId}`}
+                    title="Compartir Galería Social"
+                    description="Usa este QR o enlace para que los invitados puedan subir sus fotos y ver la galería en tiempo real."
+                >
+                    <Button variant="outline" className="h-10"><Share2 className="w-5 h-5"/><span className="ml-2 hidden sm:inline">Compartir</span></Button>
+                </ShareLinkDialog>
+                 <Button variant="outline" onClick={() => setProjectionMode(true)} className="h-10"><MonitorPlay className="w-5 h-5"/><span className="ml-2 hidden sm:inline">Proyección</span></Button>
+              </>
+            )}
              <Button variant="ghost" size="icon" onClick={() => fetchData(true)} disabled={isLoading} className="h-10 w-10"><RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`}/></Button>
           </div>
         </div>

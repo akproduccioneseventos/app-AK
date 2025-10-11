@@ -75,17 +75,17 @@ export async function uploadSocialPost(formData: FormData): Promise<{ success: b
   }
 }
 
-export async function addLikeToPost(postId: string): Promise<{ success: boolean; error?: string }> {
+export async function addLikeToPost(postId: string): Promise<{ success: boolean; post?: SocialGalleryPost; error?: string }> {
     const allPosts = await getMetadata();
     const postIndex = allPosts.findIndex(p => p.id === postId);
     if (postIndex === -1) return { success: false, error: "Publicación no encontrada." };
     
     allPosts[postIndex].likes = (allPosts[postIndex].likes || 0) + 1;
     await writeMetadata(allPosts);
-    return { success: true };
+    return { success: true, post: allPosts[postIndex] };
 }
 
-export async function addCommentToPost(postId: string, commentText: string): Promise<{ success: boolean; comment?: SocialComment, error?: string }> {
+export async function addCommentToPost(postId: string, text: string): Promise<{ success: boolean; comment?: SocialComment, error?: string }> {
     const allPosts = await getMetadata();
     const postIndex = allPosts.findIndex(p => p.id === postId);
     if (postIndex === -1) return { success: false, error: "Publicación no encontrada." };
@@ -93,7 +93,7 @@ export async function addCommentToPost(postId: string, commentText: string): Pro
     const newComment: SocialComment = {
         id: `comment_${Date.now()}`,
         authorName: 'Anónimo',
-        text: commentText,
+        text: text,
         timestamp: new Date().toISOString(),
     };
     if (!allPosts[postIndex].comments) {
