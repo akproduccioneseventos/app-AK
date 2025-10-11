@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useCallback, type FormEvent, useRef, type ChangeEvent, use } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { getSocialPosts, uploadSocialPost, addLikeToPost, addCommentToPost } from '@/app/actions/social-gallery';
+import { getSocialPosts, uploadSocialPost, addLikeToPost, addCommentToPost, deleteSocialPost, clearGallery } from '@/app/actions/social-gallery';
 import type { SocialGalleryPost, SocialComment } from '@/types/social-gallery';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions'; // Corrected import
 import { formatDistanceToNow } from 'date-fns';
@@ -26,15 +26,28 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
-import { Loader2, AlertTriangle, Heart, MessageCircle, Send, Upload, RefreshCw, PartyPopper, MonitorPlay, X } from 'lucide-react';
+import { Loader2, AlertTriangle, Heart, MessageCircle, Send, Upload, RefreshCw, PartyPopper, MonitorPlay, X, Trash2, Download } from 'lucide-react';
 import { WatermarkedImage } from '@/components/watermarked-image';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const PostCard: React.FC<{ 
   post: SocialGalleryPost; 
   onLike: (postId: string) => void; 
   onComment: (postId: string, text: string) => Promise<void>; 
   currentAuthor: string;
-}> = ({ post, onLike, onComment, currentAuthor }) => {
+  onDelete?: (postId: string) => void;
+  isAdminView: boolean;
+}> = ({ post, onLike, onComment, currentAuthor, onDelete, isAdminView }) => {
   const [commentText, setCommentText] = useState('');
   const [showComments, setShowComments] = useState(false);
 
@@ -52,14 +65,27 @@ const PostCard: React.FC<{
 
   return (
     <Card className="shadow-lg overflow-hidden flex flex-col bg-card">
-      <CardHeader className="flex flex-row items-center gap-3 p-3">
-        <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-primary font-bold">
-            {post.authorName.charAt(0).toUpperCase()}
+       <CardHeader className="flex flex-row items-center justify-between gap-3 p-3">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-primary font-bold">
+              {post.authorName.charAt(0).toUpperCase()}
+          </div>
+          <div>
+              <p className="font-semibold text-sm">{post.authorName}</p>
+              <p className="text-xs text-muted-foreground">{formattedTimestamp}</p>
+          </div>
         </div>
-        <div>
-            <p className="font-semibold text-sm">{post.authorName}</p>
-            <p className="text-xs text-muted-foreground">{formattedTimestamp}</p>
-        </div>
+        {isAdminView && onDelete && (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive"><Trash2 className="w-4 h-4"/></Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+                <AlertDialogHeader><AlertDialogTitle>Confirmar Eliminación</AlertDialogTitle><AlertDialogDescription>Se eliminará esta foto. Esta acción no se puede deshacer.</AlertDialogDescription></AlertDialogHeader>
+                <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => onDelete(post.id)} className="bg-destructive hover:bg-destructive/90">Eliminar</AlertDialogAction></AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
       </CardHeader>
       <CardContent className="p-0 flex-grow">
         <WatermarkedImage containerClassName="aspect-square relative bg-muted" src={post.imageUrl} alt={`Foto de ${post.authorName}`} layout="fill" objectFit="cover" />
@@ -107,6 +133,8 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   const [authorName, setAuthorName] = useState('');
+  const [isAdminView, setIsAdminView] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
 
   // Dialog state
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
@@ -122,7 +150,7 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
     try {
       const [fetchedPosts, fiestaData] = await Promise.all([
           getSocialPosts(params.fiestaId),
-          getFiestaById(params.fiestaId) // Corrected function call
+          getFiestaById(params.fiestaId) 
       ]);
       setPosts(fetchedPosts);
       setFiesta(fiestaData);
@@ -133,16 +161,14 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
     }
   }, [params.fiestaId, toast]);
 
-  // Initial load and periodic refresh for real-time feel
   useEffect(() => {
     fetchData();
     const interval = setInterval(() => {
         fetchData(false);
-    }, 5000); // Check for new content every 5 seconds
+    }, 5000); 
     return () => clearInterval(interval);
   }, [fetchData]);
   
-  // Slideshow timer effect
   useEffect(() => {
     if (projectionMode && posts.length > 0) {
         const timer = setInterval(() => {
@@ -153,8 +179,13 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
   }, [projectionMode, posts.length]);
   
   useEffect(() => {
-    const savedName = localStorage.getItem('socialGalleryAuthorName');
-    if (savedName) setAuthorName(savedName);
+    if(typeof window !== 'undefined') {
+        const savedName = localStorage.getItem('socialGalleryAuthorName');
+        if (savedName) setAuthorName(savedName);
+
+        const sessionAuth = sessionStorage.getItem('ak_producciones_auth_session');
+        setIsAdminView(sessionAuth === 'true');
+    }
   }, []);
 
   const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
@@ -207,6 +238,20 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
     await addCommentToPost(postId, text, authorName);
     await fetchData(false);
   };
+
+  const handleDelete = async (postId: string) => {
+    await deleteSocialPost(postId);
+    toast({ title: "Foto eliminada" });
+    await fetchData(false);
+  };
+
+  const handleClearGallery = async () => {
+    setIsClearing(true);
+    await clearGallery(params.fiestaId);
+    toast({ title: "Galería Limpiada", variant: "destructive" });
+    await fetchData();
+    setIsClearing(false);
+  };
   
   const handleAuthorNameChange = (name: string) => {
       setAuthorName(name);
@@ -242,12 +287,29 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
              <Button variant="ghost" size="icon" onClick={() => fetchData(true)} disabled={isLoading} className="h-10 w-10"><RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`}/></Button>
           </div>
         </div>
+        {isAdminView && (
+          <div className="bg-yellow-100 dark:bg-yellow-900/50 p-2 text-center text-xs text-yellow-800 dark:text-yellow-300 flex justify-center items-center gap-4">
+            <span>Estás viendo como administrador.</span>
+            <div className="flex gap-2">
+                <a href={`/api/social-gallery/${params.fiestaId}/download`} download>
+                    <Button size="sm" variant="outline" className="h-7"><Download className="w-4 h-4 mr-1.5"/>Descargar Todo</Button>
+                </a>
+                <AlertDialog>
+                    <AlertDialogTrigger asChild><Button size="sm" variant="destructive" className="h-7" disabled={isClearing}><Trash2 className="w-4 h-4 mr-1.5"/>Vaciar Galería</Button></AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader><AlertDialogTitle>¿Vaciar la galería?</AlertDialogTitle><AlertDialogDescription>Esta acción eliminará permanentemente todas las fotos y comentarios. Es irreversible.</AlertDialogDescription></AlertDialogHeader>
+                        <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={handleClearGallery} className="bg-destructive hover:bg-destructive/90">Sí, Vaciar Galería</AlertDialogAction></AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            </div>
+          </div>
+        )}
       </header>
 
       <main className="max-w-5xl mx-auto p-4">
         {isLoading && posts.length === 0 ? <div className="text-center py-20 flex flex-col items-center gap-3"><Loader2 className="w-10 h-10 animate-spin text-primary"/><p className="text-muted-foreground">Cargando galería...</p></div>
         : posts.length === 0 ? <div className="text-center py-20 text-muted-foreground bg-card p-8 rounded-lg shadow-inner"><h2 className="text-2xl font-semibold text-foreground mb-2">¡Sé el primero en compartir!</h2><p>La galería está vacía. Sube la primera foto para empezar a crear recuerdos.</p></div>
-        : <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">{posts.map(post => <PostCard key={post.id} post={post} onLike={handleLike} onComment={handleComment} currentAuthor={authorName}/>)}</div>}
+        : <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">{posts.map(post => <PostCard key={post.id} post={post} onLike={handleLike} onComment={handleComment} currentAuthor={authorName} isAdminView={isAdminView} onDelete={handleDelete}/>)}</div>}
       </main>
       
       {projectionMode && (
