@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent, useRef, type ChangeEvent, use } from 'react';
@@ -268,7 +267,7 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
   };
   
   const handleComment = async (postId: string, text: string) => {
-    const result = await addCommentToPost(postId, text);
+    const result = await addCommentToPost(postId, text, authorName || 'Anónimo');
     if (!result.success) {
         toast({title: "Error", description: "No se pudo añadir el comentario."});
     }
