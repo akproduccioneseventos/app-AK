@@ -13,6 +13,8 @@ export default {
       fontFamily: {
         body: ['var(--font-inter)', 'sans-serif'],
         headline: ['var(--font-belleza)', 'serif'], 
+        playfair: ['var(--font-playfair_display)', 'serif'],
+        dancing: ['var(--font-dancing_script)', 'cursive'],
         code: ['monospace'],
       },
       colors: {

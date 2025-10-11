@@ -247,7 +247,7 @@
   "configuracion": {
     "nombreEvento": "Grazia Base",
     "tipoCelebracion": "Boda",
-    "fechaEvento": "2025-10-11T14:27:02.848Z"
+    "fechaEvento": "2025-10-11T14:31:56.842Z"
   },
   "invitacionDigital": {
     "plantilla": "Grazia",
@@ -274,12 +274,105 @@
             "accent": "#FBBF24"
           }
         }
+      },
+      {
+        "id": "bienvenida",
+        "tipo": "bienvenida",
+        "data": {
+          "visible": true,
+          "titulo": {
+            "text": "¡Nos Casamos!",
+            "style": {
+              "fontFamily": "Belleza",
+              "fontSize": "2rem",
+              "color": "#000"
+            }
+          },
+          "texto": {
+            "text": "Y queremos que seas parte de este día tan especial...",
+            "style": {
+              "fontFamily": "Inter",
+              "fontSize": "1rem",
+              "color": "#6b7280"
+            }
+          }
+        }
+      },
+      {
+        "id": "cuentaRegresiva",
+        "tipo": "cuentaRegresiva",
+        "data": {
+          "visible": true
+        }
+      },
+      {
+        "id": "detallesEvento",
+        "tipo": "detallesEvento",
+        "data": {
+          "visible": true,
+          "infoPadresVisible": false
+        }
+      },
+      {
+        "id": "itinerario",
+        "tipo": "itinerario",
+        "data": {
+          "visible": true
+        }
+      },
+      {
+        "id": "dressCode",
+        "tipo": "dressCode",
+        "data": {
+          "visible": true,
+          "texto": "Elegante Sport"
+        }
+      },
+      {
+        "id": "regalos",
+        "tipo": "regalos",
+        "data": {
+          "visible": true,
+          "titulo": {
+            "text": "Lista de Regalos",
+            "style": {
+              "fontFamily": "Belleza",
+              "fontSize": "2rem",
+              "color": "#000"
+            }
+          },
+          "texto": {
+            "text": "Tu presencia es nuestro mejor regalo...",
+            "style": {
+              "fontFamily": "Inter",
+              "fontSize": "1rem",
+              "color": "#6b7280"
+            }
+          },
+          "datosBancarios": "",
+          "items": []
+        }
+      },
+      {
+        "id": "confirmacion",
+        "tipo": "confirmacion",
+        "data": {
+          "visible": true
+        }
+      },
+      {
+        "id": "despedida",
+        "tipo": "despedida",
+        "data": {
+          "visible": true,
+          "texto": "¡Te esperamos!"
+        }
       }
     ],
     "cabecera": {
       "visible": true,
-      "protagonista1": "Novio/a 1",
-      "protagonista2": "Novio/a 2",
+      "protagonista1": "Brenda",
+      "protagonista2": "Julio",
       "subtitulo": {
         "text": "Nuestra Boda",
         "style": {

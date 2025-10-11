@@ -166,7 +166,7 @@ export interface ItineraryTemplate {
 }
 
 export interface TextStyle {
-    fontFamily?: 'Belleza' | 'Inter';
+    fontFamily?: 'Belleza' | 'Inter' | 'Playfair_Display' | 'Dancing_Script';
     fontSize?: string; // '16px', '2rem', etc.
     color?: string; // hex, rgb, etc.
 }
