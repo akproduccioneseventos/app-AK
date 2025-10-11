@@ -9,6 +9,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,12 +23,11 @@ interface ShareLinkDialogProps {
   relativePath: string;
   title: string;
   description: string;
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
 }
 
-export function ShareLinkDialog({ children, relativePath, title, description, isOpen, onOpenChange }: ShareLinkDialogProps) {
+export function ShareLinkDialog({ children, relativePath, title, description }: ShareLinkDialogProps) {
   const { toast } = useToast();
+  const [isOpen, setIsOpen] = useState(false);
   const [fullLink, setFullLink] = useState('');
 
   useEffect(() => {
@@ -50,8 +50,10 @@ export function ShareLinkDialog({ children, relativePath, title, description, is
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      {children}
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        {children}
+      </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>

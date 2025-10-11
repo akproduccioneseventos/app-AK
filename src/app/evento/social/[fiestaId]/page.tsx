@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent, useRef, type ChangeEvent, use } from 'react';
@@ -24,7 +23,8 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogClose
+  DialogClose,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Loader2, AlertTriangle, Heart, MessageCircle, Send, Upload, RefreshCw, PartyPopper, MonitorPlay, X, Trash2, Download, Share2 } from 'lucide-react';
 import { WatermarkedImage } from '@/components/watermarked-image';
@@ -141,7 +141,6 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [fileToUpload, setFileToUpload] = useState<File | null>(null);
   const [uploadPreview, setUploadPreview] = useState<string | null>(null);
-  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   
   // Projection mode state
   const [projectionMode, setProjectionMode] = useState(false);
@@ -277,7 +276,9 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
                 <p className="text-xs text-muted-foreground mt-1">Escribe tu nombre para identificar tus fotos y comentarios.</p>
              </div>
             <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
-                 <Button onClick={() => setIsUploadDialogOpen(true)} disabled={!authorName.trim()} className="h-10"><Upload className="w-5 h-5"/><span className="ml-2 hidden sm:inline">Subir Foto</span></Button>
+                <DialogTrigger asChild>
+                  <Button disabled={!authorName.trim()} className="h-10"><Upload className="w-5 h-5"/><span className="ml-2 hidden sm:inline">Subir Foto</span></Button>
+                </DialogTrigger>
                 <DialogContent>
                     <DialogHeader><DialogTitle>Sube tu Momento</DialogTitle><DialogDescription>Comparte una foto con todos los invitados.</DialogDescription></DialogHeader>
                     <form onSubmit={handleUploadSubmit} className="space-y-4">
@@ -287,15 +288,13 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
                     </form>
                 </DialogContent>
             </Dialog>
-             <ShareLinkDialog
-                isOpen={isShareDialogOpen}
-                onOpenChange={setIsShareDialogOpen}
+            <ShareLinkDialog
                 relativePath={`/evento/social/${params.fiestaId}`}
                 title="Compartir Galería Social"
                 description="Usa este QR o enlace para que los invitados puedan subir sus fotos y ver la galería en tiempo real."
-             >
-                <Button onClick={() => setIsShareDialogOpen(true)} variant="outline" className="h-10"><Share2 className="w-5 h-5"/><span className="ml-2 hidden sm:inline">Compartir</span></Button>
-             </ShareLinkDialog>
+            >
+                <Button variant="outline" className="h-10"><Share2 className="w-5 h-5"/><span className="ml-2 hidden sm:inline">Compartir</span></Button>
+            </ShareLinkDialog>
              <Button variant="outline" onClick={() => setProjectionMode(true)} className="h-10"><MonitorPlay className="w-5 h-5"/><span className="ml-2 hidden sm:inline">Proyección</span></Button>
              <Button variant="ghost" size="icon" onClick={() => fetchData(true)} disabled={isLoading} className="h-10 w-10"><RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`}/></Button>
           </div>
