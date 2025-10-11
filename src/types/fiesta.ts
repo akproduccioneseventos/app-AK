@@ -166,9 +166,9 @@ export interface ItineraryTemplate {
 }
 
 export interface TextStyle {
-    fontFamily: 'Belleza' | 'Inter';
-    fontSize: string; // '16px', '2rem', etc.
-    color: string; // hex, rgb, etc.
+    fontFamily?: 'Belleza' | 'Inter';
+    fontSize?: string; // '16px', '2rem', etc.
+    color?: string; // hex, rgb, etc.
 }
 
 export interface TextWithStyle {
@@ -178,7 +178,7 @@ export interface TextWithStyle {
 
 export interface SeccionInvitacion {
   id: string;
-  tipo: 'cabecera' | 'bienvenida' | 'cuentaRegresiva' | 'detallesEvento' | 'itinerario' | 'dressCode' | 'galeria' | 'historia' | 'regalos' | 'instagram' | 'confirmacion' | 'despedida';
+  tipo: 'cabecera' | 'bienvenida' | 'cuentaRegresiva' | 'detallesEvento' | 'itinerario' | 'dressCode' | 'galeria' | 'historia' | 'regalos' | 'confirmacion' | 'despedida';
   data: any; // El contenido específico de cada sección
 }
 
@@ -188,7 +188,6 @@ export interface InvitacionDigitalData {
   plantilla: 'Grazia' | 'Obsidiana';
   musicaFondoUrl?: string;
   
-  // New modular structure
   secciones: SeccionInvitacion[];
   
   // Flat structure for easy access in editor - can be deprecated later if fully modular
@@ -197,8 +196,8 @@ export interface InvitacionDigitalData {
     videoFondoUrl?: string;
     protagonista1: string;
     protagonista2: string;
-    subtitulo?: TextWithStyle;
-    paletaColores?: ColorPalette;
+    subtitulo: TextWithStyle;
+    paletaColores: ColorPalette;
   };
   bienvenida: {
     visible: boolean;
@@ -245,17 +244,17 @@ export interface InvitacionDigitalData {
     imagenFondoUrl?: string;
     texto: string;
   };
-  instagram: {
-    visible: boolean;
-    hashtag: string;
-    texto: string;
-  };
   confirmacion: {
     visible: boolean;
   };
   despedida: {
     visible: boolean;
     texto: string;
+  },
+  footer: {
+    visible: boolean;
+    titulo: TextWithStyle;
+    nombreEmpresa: TextWithStyle;
   }
 }
 

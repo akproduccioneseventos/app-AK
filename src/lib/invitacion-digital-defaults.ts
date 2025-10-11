@@ -1,6 +1,6 @@
 
 
-import type { InvitacionDigitalData, SeccionInvitacion } from '@/types/fiesta';
+import type { InvitacionDigitalData, SeccionInvitacion, TextStyle } from '@/types/fiesta';
 
 export const defaultInvitacionDigitalData: InvitacionDigitalData = {
   plantilla: 'Grazia',
@@ -14,10 +14,9 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
     { id: 'dressCode', tipo: 'dressCode', data: { visible: true, texto: 'Elegante Sport' } },
     { id: 'regalos', tipo: 'regalos', data: { visible: true, titulo: { text: 'Lista de Regalos' }, texto: { text: 'Tu presencia es nuestro mejor regalo...' }, datosBancarios: '', items: [] } },
     { id: 'confirmacion', tipo: 'confirmacion', data: { visible: true } },
-    { id: 'instagram', tipo: 'instagram', data: { visible: true, hashtag: '#NuestraBoda', texto: '¡Comparte tus fotos!' } },
     { id: 'despedida', tipo: 'despedida', data: { visible: true, texto: '¡Te esperamos!' } },
   ],
-  // Flat structure for easy access in editor
+  // Flat structure for easy access in editor - can be deprecated later if fully modular
   cabecera: {
     visible: true,
     protagonista1: '',
@@ -68,16 +67,16 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
     visible: true,
     texto: 'Elegante Sport',
   },
-  instagram: {
-    visible: true,
-    hashtag: '#BodaAnaYJuan',
-    texto: '¡Comparte tus fotos y momentos con nuestro hashtag!',
-  },
   confirmacion: {
     visible: true,
   },
   despedida: {
     visible: true,
     texto: '¡Te esperamos para celebrar juntos!',
+  },
+  footer: {
+    visible: true,
+    titulo: { text: 'Visita nuestras redes sociales', style: { fontFamily: 'Inter', fontSize: '1rem', color: '#6b7280' } },
+    nombreEmpresa: { text: 'AK Producciones', style: { fontFamily: 'Belleza', fontSize: '1.25rem', color: '#EF4444' } },
   }
 };

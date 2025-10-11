@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import type { InvitacionDigitalData } from '@/types/fiesta';
@@ -10,10 +11,10 @@ import { SeccionDetallesEventoEditor } from './SeccionDetallesEvento';
 import { SeccionDressCodeEditor } from './SeccionDressCode';
 import { SeccionGaleriaEditor } from './SeccionGaleria';
 import { SeccionHistoriaEditor } from './SeccionHistoria';
-import { SeccionInstagramEditor } from './SeccionInstagram';
 import { SeccionItinerarioEditor } from './SeccionItinerario';
 import { SeccionRegalos } from './SeccionRegalos';
 import { SeccionDespedidaEditor } from './SeccionDespedida';
+import { SeccionFooterEditor } from './SeccionFooter'; // Importar el nuevo editor
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -30,10 +31,13 @@ interface Props {
 }
 
 export const SectionEditorPanel: React.FC<Props> = ({ data, update, selectedSectionId, fiestaId }) => {
-    const selectedSection = data.secciones.find(s => s.id === selectedSectionId);
+    const isFooterSelected = selectedSectionId === 'footer';
+    const selectedSection = isFooterSelected ? { tipo: 'footer', data: data.footer } : data.secciones.find(s => s.id === selectedSectionId);
 
     const handleSectionDataChange = (newData: any) => {
-        if (selectedSection) {
+        if (selectedSection?.tipo === 'footer') {
+            update({ footer: newData });
+        } else if (selectedSection) {
             const newSecciones = data.secciones.map(s => 
                 s.id === selectedSection.id ? { ...s, data: newData } : s
             );
@@ -55,10 +59,10 @@ export const SectionEditorPanel: React.FC<Props> = ({ data, update, selectedSect
             case 'dressCode': return <SeccionDressCodeEditor {...props} />;
             case 'galeria': return <SeccionGaleriaEditor {...props} />;
             case 'historia': return <SeccionHistoriaEditor {...props} />;
-            case 'instagram': return <SeccionInstagramEditor {...props} />;
             case 'itinerario': return <SeccionItinerarioEditor {...props} />;
             case 'regalos': return <SeccionRegalos {...props} />;
             case 'despedida': return <SeccionDespedidaEditor {...props} />;
+            case 'footer': return <SeccionFooterEditor {...props} />; // Renderizar el editor del footer
             default: return <div>Editor no implementado para "{selectedSection.tipo}"</div>;
         }
     }
@@ -79,14 +83,16 @@ export const SectionEditorPanel: React.FC<Props> = ({ data, update, selectedSect
                         <CardTitle className="capitalize">{selectedSection.tipo}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="flex items-center justify-between space-x-2 border p-3 rounded-md mb-4">
-                            <Label htmlFor={`visible-${selectedSection.id}`} className="font-normal">Mostrar esta sección</Label>
-                            <Switch 
-                                id={`visible-${selectedSection.id}`}
-                                checked={selectedSection.data.visible} 
-                                onCheckedChange={(checked) => handleSectionDataChange({...selectedSection.data, visible: checked})}
-                            />
-                        </div>
+                        {selectedSection.tipo !== 'cabecera' && (
+                            <div className="flex items-center justify-between space-x-2 border p-3 rounded-md mb-4">
+                                <Label htmlFor={`visible-${selectedSectionId}`} className="font-normal">Mostrar esta sección</Label>
+                                <Switch 
+                                    id={`visible-${selectedSectionId}`}
+                                    checked={selectedSection.data.visible} 
+                                    onCheckedChange={(checked) => handleSectionDataChange({...selectedSection.data, visible: checked})}
+                                />
+                            </div>
+                        )}
                         {selectedSection.data.visible && renderEditor()}
                     </CardContent>
                 </Card>
