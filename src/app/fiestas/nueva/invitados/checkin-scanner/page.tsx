@@ -2,10 +2,9 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, Suspense, useRef } from 'react';
-import { Html5Qrcode, Html5QrcodeScannerState } from 'html5-qrcode';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, AlertTriangle, CheckCircle, Ticket, User, UserCheck, Users, Link as LinkIcon, ArrowLeft, CameraOff, Search } from 'lucide-react';
+import { Loader2, AlertTriangle, UserCheck, Users, Link as LinkIcon, ArrowLeft, CameraOff, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { checkInGuestFiestaActual, getFiestaActual } from '@/app/actions/fiesta-actual';
 import type { Invitado } from '@/types/invitado';
@@ -15,17 +14,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
+// QR SCANNER IS TEMPORARILY DISABLED DUE TO PACKAGE CONFLICTS
+// This component will be replaced with a functional scanner once a compatible library is ensured.
+
 function CheckinScannerContent() {
   const { toast } = useToast();
   const [allGuests, setAllGuests] = useState<Invitado[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   
   const [isLoading, setIsLoading] = useState(true);
-  const [isProcessingCheckin, setIsProcessingCheckin] = useState(false);
-  const [cameraError, setCameraError] = useState<string | null>(null);
-  
-  const scannerRef = useRef<Html5Qrcode | null>(null);
-  const scannerContainerId = "qr-reader";
+  const [isProcessingCheckin, setIsProcessingCheckin] = useState<string | null>(null);
 
   const loadInitialData = useCallback(async (showLoading = true) => {
     if(showLoading) setIsLoading(true);
@@ -46,24 +44,23 @@ function CheckinScannerContent() {
   const processCheckIn = useCallback(async (guestId: string) => {
     if (isProcessingCheckin) return;
     
-    setIsProcessingCheckin(true);
+    setIsProcessingCheckin(guestId);
 
     const guestToCheck = allGuests.find(g => g.id === guestId);
     if (!guestToCheck) {
         toast({ title: "Error", description: "Invitado no encontrado en la lista.", variant: "destructive" });
-        setIsProcessingCheckin(false);
+        setIsProcessingCheckin(null);
         return;
     }
     
-    const wasAlreadyCheckedIn = guestToCheck.checkedIn;
-    if (wasAlreadyCheckedIn) {
+    if (guestToCheck.checkedIn) {
          toast({
             title: "Ya Registrado",
             description: `${guestToCheck.nombre} ya había hecho check-in.`,
             variant: "default",
             duration: 5000,
         });
-        setIsProcessingCheckin(false);
+        setIsProcessingCheckin(null);
         return;
     }
 
@@ -84,83 +81,14 @@ function CheckinScannerContent() {
     } catch (e: any) {
       toast({ title: "Error en Check-in", description: e.message, variant: "destructive" });
     } finally {
-      setTimeout(() => setIsProcessingCheckin(false), 2000); // 2-second cooldown
+      setIsProcessingCheckin(null);
     }
   }, [isProcessingCheckin, allGuests, toast]);
 
-
-  const onScanSuccess = async (decodedText: string, decodedResult: any) => {
-    if (scannerRef.current?.isScanning) {
-        scannerRef.current.pause(true);
-    }
-
-    try {
-      const url = new URL(decodedText);
-      const guestId = url.searchParams.get('guestId');
-      if (guestId) {
-        await processCheckIn(guestId);
-      }
-    } catch (e) {
-      if (decodedText.startsWith('inv_')) {
-        await processCheckIn(decodedText);
-      } else {
-        toast({ title: "Código QR Inválido", variant: "destructive" });
-      }
-    }
-    
-    setTimeout(() => {
-        if (scannerRef.current && !scannerRef.current.isScanning) {
-            scannerRef.current.resume();
-        }
-    }, 2000); // Resume scanning after 2 seconds
+  const handleTabChange = (value: string) => {
+    // Placeholder for future scanner logic
   };
   
-  const onScanFailure = (error: any) => {
-    // This is called frequently, so we only log if it's a significant error
-  };
-
-  const startScanner = useCallback(() => {
-    if (scannerRef.current && scannerRef.current.isScanning) {
-      return;
-    }
-    setCameraError(null);
-    const html5QrCode = new Html5Qrcode(scannerContainerId);
-    scannerRef.current = html5QrCode;
-
-    const config = { fps: 10, qrbox: { width: 250, height: 250 } };
-
-    html5QrCode.start(
-      { facingMode: "environment" },
-      config,
-      onScanSuccess,
-      onScanFailure
-    ).catch(err => {
-      console.error("Camera start error:", err);
-      setCameraError("No se pudo acceder a la cámara. Revisa los permisos en tu navegador.");
-    });
-  }, [onScanSuccess]);
-
-  const stopScanner = useCallback(() => {
-    if (scannerRef.current && scannerRef.current.isScanning) {
-      scannerRef.current.stop().catch(err => console.error("Failed to stop scanner:", err));
-      scannerRef.current = null;
-    }
-  }, []);
-
-  const handleTabChange = (value: string) => {
-    if (value === 'scanner') {
-      startScanner();
-    } else {
-      stopScanner();
-    }
-  };
-
-  useEffect(() => {
-    return () => {
-      stopScanner();
-    };
-  }, [stopScanner]);
-
   const checkedInGuests = useMemo(() => allGuests.filter(g => g.checkedIn), [allGuests]);
   const pendingGuests = useMemo(() => {
     const confirmed = allGuests.filter(g => g.rsvp === 'Confirmado' && !g.checkedIn);
@@ -192,7 +120,7 @@ function CheckinScannerContent() {
       <Tabs defaultValue="list" className="w-full" onValueChange={handleTabChange}>
         <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="list">Lista de Invitados</TabsTrigger>
-            <TabsTrigger value="scanner">Escanear QR</TabsTrigger>
+            <TabsTrigger value="scanner" disabled>Escanear QR (Deshabilitado)</TabsTrigger>
         </TabsList>
         <TabsContent value="list">
             <Card className="shadow-lg">
@@ -220,8 +148,8 @@ function CheckinScannerContent() {
                                     <p className="font-medium">{guest.nombre}</p>
                                     <p className="text-sm text-muted-foreground">{guest.partySize || 1} persona(s)</p>
                                 </div>
-                                <Button onClick={() => processCheckIn(guest.id)} disabled={isProcessingCheckin} size="sm">
-                                    {isProcessingCheckin ? <Loader2 className="w-4 h-4 animate-spin"/> : 'Check-in'}
+                                <Button onClick={() => processCheckIn(guest.id)} disabled={!!isProcessingCheckin} size="sm">
+                                    {isProcessingCheckin === guest.id ? <Loader2 className="w-4 h-4 animate-spin"/> : 'Check-in'}
                                 </Button>
                             </div>
                          )) : <p className="text-sm text-muted-foreground text-center py-4">No hay invitados pendientes o que coincidan con la búsqueda.</p>
@@ -234,18 +162,15 @@ function CheckinScannerContent() {
         <TabsContent value="scanner">
              <Card className="shadow-lg">
               <CardHeader>
-                <CardTitle>Escáner QR</CardTitle>
-                 <CardDescription>Apunta la cámara al código QR del invitado para registrar su entrada.</CardDescription>
+                <CardTitle>Escáner QR (Temporalmente Deshabilitado)</CardTitle>
+                 <CardDescription>Esta función está en mantenimiento para asegurar su estabilidad.</CardDescription>
               </CardHeader>
               <CardContent>
-                <div id={scannerContainerId} className="relative w-full max-w-sm mx-auto bg-black rounded-lg overflow-hidden aspect-square">
-                   {isProcessingCheckin && <div className="absolute inset-0 bg-black/60 flex items-center justify-center"><Loader2 className="w-10 h-10 text-white animate-spin"/></div>}
-                   {cameraError && (
+                <div className="relative w-full max-w-sm mx-auto bg-black rounded-lg overflow-hidden aspect-square">
                     <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center text-white p-4">
                       <CameraOff className="w-10 h-10 mb-2"/>
-                      <p className="text-center text-sm">{cameraError}</p>
+                      <p className="text-center text-sm">El escáner QR no está disponible. Utiliza la pestaña "Lista de Invitados" para el check-in manual.</p>
                     </div>
-                   )}
                 </div>
               </CardContent>
             </Card>

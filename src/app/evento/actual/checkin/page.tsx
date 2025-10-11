@@ -6,11 +6,13 @@ import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, AlertTriangle, CheckCircle, Ticket } from 'lucide-react';
 import type { Invitado } from '@/types/invitado';
-import { checkInGuestFiestaActual as checkInGuest } from '@/app/actions/fiesta-actual';
+import { checkInGuest } from '@/app/actions/fiesta/invitados.actions';
+import { getFiestaActual } from '@/app/actions/fiesta-actual';
 
 function CheckInContent() {
   const searchParams = useSearchParams();
   const guestId = searchParams.get('guestId');
+  const fiestaId = searchParams.get('fiestaId');
 
   const [invitado, setInvitado] = useState<Invitado | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -19,13 +21,13 @@ function CheckInContent() {
 
   useEffect(() => {
     async function performCheckIn() {
-      if (!guestId) {
-        setError("No se proporcionó ID de invitado.");
+      if (!guestId || !fiestaId) {
+        setError("Faltan datos para el check-in (ID de fiesta o invitado).");
         setIsLoading(false);
         return;
       }
       try {
-        const result = await checkInGuest(guestId);
+        const result = await checkInGuest(fiestaId, guestId);
         if (result.success && result.invitado) {
           if (result.invitado.checkedIn && result.invitado.checkInTimestamp && new Date(result.invitado.checkInTimestamp).getTime() < Date.now() - 2000) {
             setWasAlreadyCheckedIn(true);
@@ -41,7 +43,7 @@ function CheckInContent() {
       }
     }
     performCheckIn();
-  }, [guestId]);
+  }, [guestId, fiestaId]);
 
   if (isLoading) {
     return <div className="text-center p-8"><Loader2 className="w-16 h-16 animate-spin text-primary mx-auto" /><p className="mt-4 text-lg">Registrando entrada...</p></div>;
