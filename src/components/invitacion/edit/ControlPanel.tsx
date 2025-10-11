@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { defaultInvitacionDigitalData } from "@/lib/invitacion-digital-defaults";
-import type { InvitacionDigitalData, SeccionInvitacion } from "@/types/fiesta";
+import type { InvitacionDigitalData, SeccionInvitacion } from '@/types/fiesta';
 import { Sparkles, PlusCircle, Trash2 } from "lucide-react";
 import React from 'react';
 import {
@@ -29,7 +29,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ data, update, addSec
     const allPossibleSections = defaultInvitacionDigitalData.secciones.map(s => s.tipo);
 
     return (
-        <div className="space-y-4">
+        <div className="p-4 space-y-4">
             <Accordion type="multiple" defaultValue={['general', 'secciones']} className="w-full">
                 <AccordionItem value="general">
                     <AccordionTrigger><Sparkles className="w-4 h-4 mr-2"/>Diseño General</AccordionTrigger>
@@ -56,6 +56,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ data, update, addSec
                                 <SelectTrigger><SelectValue /></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="Grazia">Grazia (Clásico y Elegante)</SelectItem>
+                                    <SelectItem value="Allegria">Allegria (Moderno y Fotográfico)</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>

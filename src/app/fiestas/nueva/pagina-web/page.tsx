@@ -13,7 +13,8 @@ import { merge, cloneDeep } from 'lodash';
 import { DndContext, closestCenter, type DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GraziaTemplate } from '@/app/evento/actual/page';
+import { GraziaTemplate } from '@/components/invitacion/templates/GraziaTemplate';
+import { AllegriaTemplate } from '@/components/invitacion/templates/AllegriaTemplate';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import type { SocialConnection } from '@/types/settings';
 import { getInvitationTemplates, type InvitacionDigitalTemplate } from '@/app/actions/invitacion-digital-templates';
@@ -127,6 +128,29 @@ function PaginaWebPageContent() {
     handleUpdate({ secciones: invitacionData.secciones.filter(s => s.id !== idToRemove) });
     if(selectedSectionId === idToRemove) setSelectedSectionId(null);
   };
+
+  const renderTemplate = () => {
+    if(!fiesta) return null;
+
+    const props = {
+      fiesta,
+      invitacionData,
+      socialConnections,
+      isPreview: true,
+      onSectionClick: setSelectedSectionId,
+      onUpdate: handleUpdate,
+      selectedSectionId,
+    };
+    
+    switch(invitacionData.plantilla) {
+      case 'Grazia':
+        return <GraziaTemplate {...props} />;
+      case 'Allegria':
+        return <AllegriaTemplate {...props} />;
+      default:
+        return <GraziaTemplate {...props} />; // Fallback a Grazia
+    }
+  };
   
   return (
     <div className="h-[calc(100vh-64px)] flex flex-col bg-muted">
@@ -136,7 +160,7 @@ function PaginaWebPageContent() {
             <Link href={fiestaId ? `/evento/actual?fiestaId=${fiestaId}` : '#'} target="_blank" passHref>
               <Button variant="outline" size="sm"><Eye className="w-4 h-4 mr-2"/>Vista Previa</Button>
             </Link>
-            <Link href={fiestaId ? `/fiestas/nueva?fiestaId=${fiestaId}` : '/settings/templates'} passHref>
+            <Link href={fiestaId ? `/fiestas/nueva?fiestaId=${fiestaId}` : '/settings/templates/invitaciones'} passHref>
                 <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
             </Link>
            <Button onClick={handleSave} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>}Guardar</Button>
@@ -170,18 +194,8 @@ function PaginaWebPageContent() {
               <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin"/></div>
             ) : fiesta ? (
               <DndContext sensors={sensors} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
-                  <SortableContext items={invitacionData.secciones.map(s => s.id)}>
-                      <GraziaTemplate 
-                          fiesta={fiesta} 
-                          invitacionData={invitacionData} 
-                          socialConnections={socialConnections}
-                          isPreview={true}
-                          onSectionClick={setSelectedSectionId}
-                          onUpdate={handleUpdate}
-                          selectedSectionId={selectedSectionId}
-                      >
-                         {/* RSVP form or other interactive elements will be handled inside GraziaTemplate */}
-                      </GraziaTemplate>
+                  <SortableContext items={invitacionData.secciones.map(s => s.id)} strategy={verticalListSortingStrategy}>
+                      {renderTemplate()}
                   </SortableContext>
               </DndContext>
             ) : (

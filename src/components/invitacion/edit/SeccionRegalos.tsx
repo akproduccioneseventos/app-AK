@@ -10,18 +10,19 @@ import { PlusCircle, Trash2 } from 'lucide-react';
 import { UploadButton } from './UploadButton';
 import { TextStyleEditor } from './TextStyleEditor';
 import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
 import React from 'react';
 
 
 interface Props {
   data: InvitacionDigitalData['regalos'];
-  update: (newData: Partial<InvitacionDigitalData>) => void;
+  update: (newData: Partial<InvitacionDigitalData['regalos']>) => void;
   fiestaId?: string;
 }
 
 export const SeccionRegalos: React.FC<Props> = ({ data, update, fiestaId }) => {
   const handleFieldChange = (field: keyof typeof data, value: any) => {
-    update({ regalos: { ...data, [field]: value } });
+    update({ ...data, [field]: value });
   };
   
   const handleItemChange = (itemId: string, field: keyof GiftItem, value: string) => {
@@ -45,54 +46,70 @@ export const SeccionRegalos: React.FC<Props> = ({ data, update, fiestaId }) => {
   };
   
   const handleTextStyleChange = (field: 'titulo' | 'texto', style: Partial<TextWithStyle>) => {
-    handleFieldChange(field, { ...(data[field] as TextWithStyle), ...style });
-  }
+    handleFieldChange(field, { ...(data[field] as TextWithStyle), style: {...((data[field] as TextWithStyle)?.style || {}), ...style } });
+  };
+
+  const handleTextChange = (field: 'titulo' | 'texto', text: string) => {
+    handleFieldChange(field, { ...(data[field] as TextWithStyle), text });
+  };
 
   return (
     <div className="space-y-4">
-        <div className="space-y-1">
-            <Label>Imagen de Fondo</Label>
-            <UploadButton
-            currentUrl={data.imagenFondoUrl}
-            onUrlChange={(url) => handleFieldChange('imagenFondoUrl', url)}
-            fiestaId={fiestaId}
-            />
+        <div className="flex items-center justify-between">
+          <Label htmlFor="regalos-visible">Mostrar esta sección</Label>
+          <Switch
+            id="regalos-visible"
+            checked={data.visible}
+            onCheckedChange={(checked) => handleFieldChange('visible', checked)}
+          />
         </div>
-        <Separator />
-        <div className="space-y-2 p-2 border rounded-md">
-            <Label>Título</Label>
-            <Input value={data.titulo.text || ''} onChange={(e) => handleTextStyleChange('titulo', { text: e.target.value })} />
-             <TextStyleEditor 
-                style={data.titulo.style || {}}
-                onStyleChange={(newStyle) => handleTextStyleChange('titulo', { style: newStyle })}
-            />
-        </div>
-        <div className="space-y-2 p-2 border rounded-md">
-            <Label>Texto introductorio</Label>
-            <Textarea value={data.texto.text || ''} onChange={(e) => handleTextStyleChange('texto', { text: e.target.value })} rows={3}/>
-             <TextStyleEditor 
-                style={data.texto.style || {}}
-                onStyleChange={(newStyle) => handleTextStyleChange('texto', { style: newStyle })}
-            />
-        </div>
-        <div className="space-y-1">
-            <Label htmlFor="regalos-banco">Datos Bancarios (o link)</Label>
-            <Textarea id="regalos-banco" value={data.datosBancarios || ''} onChange={(e) => handleFieldChange('datosBancarios', e.target.value)} rows={2} placeholder="Ej: Banco Itaú, C.A. $ 12345678"/>
-        </div>
-        <div className="space-y-2">
-            <Label>Ítems de Regalo</Label>
-            <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
-                {(data.items || []).map(item => (
-                    <div key={item.id} className="p-2 border rounded-md space-y-2 bg-background">
-                        <Input value={item.name} onChange={e => handleItemChange(item.id, 'name', e.target.value)} placeholder="Nombre del regalo"/>
-                        <div className="flex gap-2">
-                            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteItem(item.id)}><Trash2 className="w-4 h-4"/></Button>
-                        </div>
-                    </div>
-                ))}
+        {data.visible && (
+        <>
+            <div className="space-y-1">
+                <Label>Imagen de Fondo</Label>
+                <UploadButton
+                currentUrl={data.imagenFondoUrl}
+                onUrlChange={(url) => handleFieldChange('imagenFondoUrl', url)}
+                fiestaId={fiestaId}
+                />
             </div>
-            <Button variant="outline" size="sm" type="button" onClick={addItem}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Ítem</Button>
-        </div>
+            <Separator />
+            <div className="space-y-2 p-2 border rounded-md">
+                <Label>Título</Label>
+                <Input value={data.titulo.text || ''} onChange={(e) => handleTextChange('titulo', e.target.value)} />
+                 <TextStyleEditor 
+                    style={data.titulo.style || {}}
+                    onStyleChange={(newStyle) => handleTextStyleChange('titulo', newStyle)}
+                />
+            </div>
+            <div className="space-y-2 p-2 border rounded-md">
+                <Label>Texto introductorio</Label>
+                <Textarea value={data.texto.text || ''} onChange={(e) => handleTextChange('texto', e.target.value)} rows={3}/>
+                 <TextStyleEditor 
+                    style={data.texto.style || {}}
+                    onStyleChange={(newStyle) => handleTextStyleChange('texto', newStyle)}
+                />
+            </div>
+            <div className="space-y-1">
+                <Label htmlFor="regalos-banco">Datos Bancarios (o link)</Label>
+                <Textarea id="regalos-banco" value={data.datosBancarios || ''} onChange={(e) => handleFieldChange('datosBancarios', e.target.value)} rows={2} placeholder="Ej: Banco Itaú, C.A. $ 12345678"/>
+            </div>
+            <div className="space-y-2">
+                <Label>Ítems de Regalo</Label>
+                <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
+                    {(data.items || []).map(item => (
+                        <div key={item.id} className="p-2 border rounded-md space-y-2 bg-background">
+                            <Input value={item.name} onChange={e => handleItemChange(item.id, 'name', e.target.value)} placeholder="Nombre del regalo"/>
+                            <div className="flex gap-2">
+                                <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteItem(item.id)}><Trash2 className="w-4 h-4"/></Button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+                <Button variant="outline" size="sm" type="button" onClick={addItem}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Ítem</Button>
+            </div>
+        </>
+        )}
     </div>
   );
 };

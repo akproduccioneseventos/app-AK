@@ -30,10 +30,10 @@ export const SeccionCabeceraEditor: React.FC<Props> = ({ data, update, fiestaId 
     });
   };
 
-  const handleTextStyleChange = (field: 'subtitulo', style: Partial<TextStyle>) => {
-    const currentStyleData = data[field] || { text: '', style: {} };
+  const handleTextStyleChange = (style: Partial<TextStyle>) => {
+    const currentStyleData = data.subtitulo || { text: '', style: {} };
     const newStyle = { ...currentStyleData.style, ...style };
-    handleFieldChange(field, { ...currentStyleData, style: newStyle });
+    handleFieldChange('subtitulo', { ...currentStyleData, style: newStyle });
   };
 
   const handleSubtituloTextChange = (text: string) => {
@@ -67,7 +67,7 @@ export const SeccionCabeceraEditor: React.FC<Props> = ({ data, update, fiestaId 
             />
             <TextStyleEditor 
                 style={data.subtitulo?.style || {}}
-                onStyleChange={(newStyle) => handleTextStyleChange('subtitulo', newStyle)}
+                onStyleChange={handleTextStyleChange}
             />
         </div>
         <Separator />
