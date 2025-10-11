@@ -7,7 +7,7 @@ import { EditableText } from '../edit/EditableText';
 import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
 import { CountdownTimer } from '@/components/countdown-timer';
-import { Church, GlassWater, Gift, Heart, MapPin, Play, Pause, Facebook, Instagram, Music } from 'lucide-react';
+import { Church, GlassWater, Gift, Heart, MapPin, Play, Pause, Facebook, Instagram, Music, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { SocialPlatformName } from '@/types/settings';
 import { motion } from "framer-motion";
