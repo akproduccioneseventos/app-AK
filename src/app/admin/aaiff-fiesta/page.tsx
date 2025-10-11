@@ -5,41 +5,29 @@ import { useState, useCallback, type FormEvent, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { ArrowLeft, PartyPopper, Wand2, ClipboardList, AlertTriangle, CheckCircle, Loader2, Info } from "lucide-react";
+import { ArrowLeft, PartyPopper, Wand2, ClipboardList, AlertTriangle, CheckCircle, Loader2, Info, FileCode } from "lucide-react";
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaActual } from '@/app/actions/fiesta/fiesta.actions';
-import { analyzeEventPlan, type AnalyzeEventPlanOutput } from '@/ai/flows/analyze-event-plan-flow';
+import { analyzeCodebase, type AnalyzeCodebaseOutput } from '@/ai/flows/analyze-codebase-flow';
 import { Separator } from '@/components/ui/separator';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import { Textarea } from '@/components/ui/textarea';
 
-const getStatusIcon = (status: 'Completo' | 'Parcial' | 'Faltante' | 'Atención Requerida') => {
-    switch (status) {
-        case 'Completo': return <CheckCircle className="w-5 h-5 text-green-500"/>;
-        case 'Parcial': return <Loader2 className="w-5 h-5 text-yellow-500 animate-spin"/>;
-        case 'Atención Requerida': return <AlertTriangle className="w-5 h-5 text-orange-500"/>;
-        case 'Faltante':
-        default: return <Info className="w-5 h-5 text-red-500"/>;
-    }
+const getStatusIcon = (status: string) => {
+    const lowerStatus = status.toLowerCase();
+    if (lowerStatus.includes('completo')) return <CheckCircle className="w-5 h-5 text-green-500"/>;
+    if (lowerStatus.includes('mejora')) return <AlertTriangle className="w-5 h-5 text-yellow-500"/>;
+    if (lowerStatus.includes('faltante')) return <Info className="w-5 h-5 text-orange-500"/>;
+    if (lowerStatus.includes('bug') || lowerStatus.includes('error')) return <AlertTriangle className="w-5 h-5 text-red-500"/>;
+    return <FileCode className="w-5 h-5 text-muted-foreground"/>;
 }
 
-export default function AnalisisFiestaPage() {
+export default function AnalisisCodebasePage() {
     const { toast } = useToast();
-    const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
-    const [analysisResult, setAnalysisResult] = useState<AnalyzeEventPlanOutput | null>(null);
+    const [specification, setSpecification] = useState<string>('Quiero una app completa para gestionar mi empresa de fiestas y eventos.');
+    const [analysisResult, setAnalysisResult] = useState<AnalyzeCodebaseOutput | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        const fetchFiesta = async () => {
-            try {
-                const fiesta = await getFiestaActual();
-                setFiestaActual(fiesta);
-            } catch (e) {
-                console.warn("No se pudo precargar la fiesta para el análisis.");
-            }
-        };
-        fetchFiesta();
-    }, []);
 
     const handleAnalyze = async (e: FormEvent) => {
         e.preventDefault();
@@ -48,15 +36,11 @@ export default function AnalisisFiestaPage() {
         setAnalysisResult(null);
 
         try {
-            if (!fiestaActual) {
-                throw new Error("No hay un evento activo seleccionado para analizar.");
-            }
-            const planData = fiestaActual;
-            const result = await analyzeEventPlan({ planData });
+            const result = await analyzeCodebase({ specification });
             setAnalysisResult(result);
-            toast({ title: "Análisis Completado", description: "La IA ha finalizado el análisis del plan de evento." });
+            toast({ title: "Análisis Completado", description: "La IA ha finalizado el análisis del código base." });
         } catch (err: any) {
-            console.error("Error analyzing event plan:", err);
+            console.error("Error analyzing codebase:", err);
             setError(err.message || "Ocurrió un error inesperado durante el análisis.");
             toast({ title: "Error en el Análisis", description: err.message, variant: "destructive" });
         } finally {
@@ -64,29 +48,28 @@ export default function AnalisisFiestaPage() {
         }
     };
 
-    const renderAnalysisItems = (items: AnalyzeEventPlanOutput['analysisItems']) => {
+    const renderAnalysisItems = (items: AnalyzeCodebaseOutput['completedModules'], title: string) => {
       if (!items || items.length === 0) {
-        return <p className="text-sm text-muted-foreground">No se encontraron elementos de análisis.</p>;
+        return null;
       }
       return (
-        <ul className="space-y-4">
-          {items.map((item, index) => (
-            <li key={`${item.module}-${index}`} className="p-4 border rounded-lg bg-muted/30">
-              <div className="flex items-center gap-3 mb-2">
-                {getStatusIcon(item.status)}
-                <h4 className="font-semibold text-foreground">{item.module}</h4>
-                <span className="text-xs font-medium text-muted-foreground">({item.status})</span>
-              </div>
-              <p className="text-sm text-muted-foreground pl-8">{item.details}</p>
-              {item.suggestion && (
-                <div className="mt-2 pl-8 flex items-start gap-2 text-sm text-blue-600 dark:text-blue-400">
-                    <Wand2 className="w-4 h-4 mt-0.5 flex-shrink-0"/>
-                    <p><strong>Sugerencia:</strong> {item.suggestion}</p>
-                </div>
-              )}
-            </li>
-          ))}
-        </ul>
+        <Card>
+            <CardHeader><CardTitle className="font-headline text-lg">{title}</CardTitle></CardHeader>
+            <CardContent>
+                <ul className="space-y-4">
+                {items.map((item, index) => (
+                    <li key={`${title}-${index}`} className="p-4 border rounded-lg bg-muted/30">
+                    <div className="flex items-center gap-3 mb-2">
+                        {getStatusIcon(item.status)}
+                        <h4 className="font-semibold text-foreground">{item.module}</h4>
+                        <span className="text-xs font-medium text-muted-foreground">({item.status})</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground pl-8">{item.details}</p>
+                    </li>
+                ))}
+                </ul>
+            </CardContent>
+        </Card>
       );
     }
 
@@ -94,9 +77,9 @@ export default function AnalisisFiestaPage() {
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <PartyPopper className="w-10 h-10 text-primary" />
+          <Wand2 className="w-10 h-10 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Análisis de Plan de Evento con IA
+            Análisis de Capacidades con IA
           </h1>
         </div>
         <Link href="/settings" passHref> 
@@ -110,18 +93,26 @@ export default function AnalisisFiestaPage() {
       <Card className="shadow-lg">
         <form onSubmit={handleAnalyze}>
         <CardHeader>
-          <CardTitle className="font-headline text-xl flex items-center gap-2">Asistente de Planificación</CardTitle>
+          <CardTitle className="font-headline text-xl flex items-center gap-2">Asistente de Arquitectura</CardTitle>
           <CardDescription>
-            Haz clic en el botón para que la IA analice el estado de tu evento activo actual ({fiestaActual?.configuracion.nombreEvento || 'ningún evento seleccionado'}), identifique áreas incompletas y te dé sugerencias para mejorar.
+            Describe tu especificación funcional o lo que necesitas de la aplicación. La IA analizará el código base actual y te dará un informe sobre qué tan alineada está la aplicación con tus requerimientos, identificando módulos completos, faltantes, errores y sugerencias.
           </CardDescription>
         </CardHeader>
         <CardContent>
-            <p className="text-sm text-muted-foreground">La IA revisará la configuración, invitados, decoración, menús y más, para darte un informe completo del estado de la planificación.</p>
+            <Label htmlFor="specification">Tu especificación funcional:</Label>
+            <Textarea
+                id="specification"
+                value={specification}
+                onChange={(e) => setSpecification(e.target.value)}
+                rows={4}
+                className="mt-1"
+                placeholder="Ej: Necesito un sistema CRM para gestionar clientes, un módulo para crear presupuestos y un planificador de eventos..."
+            />
         </CardContent>
         <CardFooter>
-            <Button type="submit" className="w-full sm:w-auto" disabled={isLoading || !fiestaActual}>
+            <Button type="submit" className="w-full sm:w-auto" disabled={isLoading}>
               {isLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin"/> : <Wand2 className="w-5 h-5 mr-2"/>}
-              {isLoading ? "Analizando..." : "Analizar Evento Actual"}
+              {isLoading ? "Analizando..." : "Analizar Aplicación"}
             </Button>
         </CardFooter>
         </form>
@@ -130,7 +121,7 @@ export default function AnalisisFiestaPage() {
       {isLoading && (
         <div className="text-center py-10">
             <Loader2 className="w-12 h-12 mx-auto animate-spin text-primary"/>
-            <p className="mt-4 text-muted-foreground">La IA está revisando tu plan... Esto puede tardar un momento.</p>
+            <p className="mt-4 text-muted-foreground">La IA está revisando la aplicación... Esto puede tardar un momento.</p>
         </div>
       )}
 
@@ -147,27 +138,10 @@ export default function AnalisisFiestaPage() {
                 <CardHeader><CardTitle className="font-headline text-xl">Resumen General de la IA</CardTitle></CardHeader>
                 <CardContent><p className="text-muted-foreground">{analysisResult.overallSummary}</p></CardContent>
             </Card>
-            <Card>
-                <CardHeader><CardTitle className="font-headline">Análisis Detallado por Módulo</CardTitle></CardHeader>
-                <CardContent>{renderAnalysisItems(analysisResult.analysisItems)}</CardContent>
-            </Card>
-            
-            <Card className="mt-8 bg-amber-50 dark:bg-amber-900/30 border-amber-500/50">
-                <CardHeader>
-                    <CardTitle className="font-headline text-xl flex items-center gap-2">
-                        <ClipboardList className="w-6 h-6 text-amber-700 dark:text-amber-300"/>
-                        Próximos Pasos
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2 text-sm text-muted-foreground">
-                    <p>Usa este informe para decidir las próximas acciones. Puedes pedirle en el chat que complete las tareas:</p>
-                    <ul className="list-disc pl-5 space-y-1 font-mono text-xs bg-muted p-3 rounded-md">
-                       <li>"Asigna un menú de catering a la fiesta."</li>
-                       <li>"Sugiere una paleta de colores para una boda rústica y aplícala."</li>
-                       <li>"Crea 3 tareas nuevas en el planificador."</li>
-                    </ul>
-                </CardContent>
-            </Card>
+            {renderAnalysisItems(analysisResult.completedModules, 'Módulos Completos')}
+            {renderAnalysisItems(analysisResult.missingModules, 'Módulos Faltantes o Incompletos')}
+            {renderAnalysisItems(analysisResult.errorsAndBugs, 'Errores y Bugs Detectados')}
+            {renderAnalysisItems(analysisResult.suggestions, 'Sugerencias de Mejora')}
         </div>
       )}
     </div>

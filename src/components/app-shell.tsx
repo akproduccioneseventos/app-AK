@@ -26,8 +26,9 @@ const getPageTitle = (pathname: string): string => {
   const pathSegments = pathname.split('/').filter(Boolean);
   const idSegment = pathSegments[pathSegments.length -1];
 
-  if (pathname === '/') return 'Dashboard Principal';
-
+  if (pathname === '/') return 'Menú Principal';
+  if (pathname === '/admin/aaiff') return 'Dashboard Principal';
+  
   if (pathname === '/presupuestos/nuevo') return 'Central de Presupuestos';
   if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'editar' && pathSegments.length === 3) return `Editar Presupuesto #${idSegment?.substring(0,5)}`;
   if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'ver' && pathSegments.length === 3) return `Ver Presupuesto #${idSegment?.substring(0,5)}`;
@@ -67,6 +68,12 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/empresa/insumos/reporte') return 'Reporte de Stock de Insumos';
   if (pathSegments[0] === 'empresa' && pathSegments[1] === 'insumos' && pathSegments[2] === 'editar') return `Editar Insumo`;
 
+  if (pathname === '/empleados') return 'Gestión de Personal';
+  if (pathname === '/empleados/nuevo') return 'Añadir Nuevo Empleado';
+  if (pathSegments[0] === 'empleados' && pathSegments[2] === 'editar' && pathSegments.length === 3) return `Editar Empleado`;
+  if (pathname === '/empleados/roles') return 'Configuración de Roles';
+  if (pathname === '/empleados/reporte') return 'Reporte de Personal';
+
   if (pathname === '/fiestas/nueva') return 'Planificador de Fiestas General';
   if (pathname === '/fiestas/nueva/tareas') return 'Tareas del Evento';
   if (pathname === '/fiestas/nueva/invitados') return 'Gestión de Invitados';
@@ -103,7 +110,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/settings/notifications') return 'Configurar Notificaciones';
   if (pathname === '/settings/account') return 'Cuenta y Seguridad';
   if (pathname === '/settings/feedback') return 'Feedback y Testimonios';
-  if (pathname === '/admin/aaiff-fiesta') return 'Análisis de Evento con IA';
+  if (pathname === '/admin/aaiff-fiesta') return 'Análisis de Aplicación con IA';
   if (pathname === '/admin/asistente-ak') return 'Asistente de Marketing IA';
   if (pathname === '/settings/backup') return 'Backup y Restauración';
   
@@ -127,6 +134,7 @@ const getPageTitle = (pathname: string): string => {
 
 const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/') return LayoutDashboard;
+  if (pathname === '/admin/aaiff') return LayoutDashboard;
   
   if (pathname.startsWith('/fiestas/nueva')) {
     if (pathname === '/fiestas/nueva/personal') return UserCheck;
@@ -189,7 +197,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/settings/notifications') return BellRing;
   if (pathname === '/settings/account') return UserCog;
   if (pathname === '/settings/feedback') return Star;
-  if (pathname === '/admin/aaiff-fiesta') return PartyPopper;
+  if (pathname === '/admin/aaiff-fiesta') return BrainCircuit;
   if (pathname === '/admin/asistente-ak') return Bot;
   if (pathname === '/settings/backup') return HardDriveDownload;
   if (pathname === '/settings/task-templates') return ListChecks;
