@@ -98,11 +98,11 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
         <div className="absolute inset-0 bg-white/70 backdrop-blur-sm -z-10"></div>
         <div className="relative z-10 p-6 max-w-2xl mx-auto text-center">
             {children}
-            <h1 className="font-headline text-5xl md:text-7xl my-3" style={{color: paleta?.primary}}>
+            <h1 className="font-headline text-5xl md:text-7xl my-3" style={{color: paleta.primary}}>
                {data.protagonista1 || fiesta.configuracion.nombreEvento}
                {data.protagonista2 && ` & ${data.protagonista2}`}
             </h1>
-            <p className="text-xl font-headline" style={{color: paleta?.accent}}>
+            <p className="text-xl font-headline" style={{color: paleta.accent}}>
                 {formatDate(fiesta.configuracion.fechaEvento)}
             </p>
         </div>

@@ -1,6 +1,7 @@
 
 
 import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, GiftItem, LayoutElement, ClientTarea, ProgramaEventoItem, TareaAsignadaA, FotografiaYFilmacionData, BebidasConsumoConfig, TipoAsistente, ReposteriaConsumoConfig, OtroDocumento, VideoVidaData, BebidaReceta, IngredienteReceta, CargaOperativaCategoria, InvitacionDigitalData, SeccionInvitacion } from '@/types/fiesta';
+import { defaultInvitacionDigitalData } from './invitacion-digital-defaults';
 
 export const defaultConfiguracion: ConfigEventoDataStorage = {
   nombreEvento: 'Mi Próximo Evento Increíble',
@@ -293,20 +294,5 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
   webPageSettings: { ...defaultWebPageSettings },
 
   // NEW UNIFIED OBJECT
-  invitacionDigital: {
-    plantilla: 'Grazia',
-    musicaFondoUrl: '',
-    cabecera: { visible: true, protagonista1: 'Novio/a 1', protagonista2: 'Novio/a 2', paletaColores: {...defaultColorPalette} },
-    secciones: [
-      { id: 'bienvenida', tipo: 'bienvenida', data: { visible: true, titulo: '¡Nos Casamos!', texto: 'Y queremos que seas parte de este día tan especial para nosotros. Prepárate para una noche llena de alegría, música y buenos momentos.' } },
-      { id: 'cuentaRegresiva', tipo: 'cuentaRegresiva', data: { visible: true } },
-      { id: 'detallesEvento', tipo: 'detallesEvento', data: { visible: true, infoPadresVisible: false } },
-      { id: 'itinerario', tipo: 'itinerario', data: { visible: true } },
-      { id: 'dressCode', tipo: 'dressCode', data: { visible: true, texto: 'Elegante Sport' } },
-      { id: 'regalos', tipo: 'regalos', data: { visible: true, titulo: 'Lista de Regalos', texto: 'Tu presencia es nuestro mejor regalo. Si aún así deseas obsequiarnos algo, puedes elegir una de estas opciones o ayudarnos con nuestra luna de miel.', datosBancarios: '', items: [] } },
-      { id: 'confirmacion', tipo: 'confirmacion', data: { visible: true } },
-      { id: 'instagram', tipo: 'instagram', data: { visible: true, hashtag: '#NuestraBoda', texto: '¡Comparte tus fotos y momentos con nuestro hashtag!' } },
-      { id: 'despedida', tipo: 'despedida', data: { visible: true, texto: '¡Te esperamos para celebrar juntos!' } },
-    ]
-  }
+  invitacionDigital: { ...defaultInvitacionDigitalData }
 };

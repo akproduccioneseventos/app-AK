@@ -10,8 +10,8 @@ import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion, InvitacionDigitalData, SeccionInvitacion } from '@/types/fiesta';
 import { defaultInvitacionDigitalData } from '@/lib/invitacion-digital-defaults';
 import { merge, cloneDeep } from 'lodash';
-import { DndContext, closestCenter, type DragEndEvent } from '@dnd-kit/core';
-import { SortableContext, arrayMove, useSortable } from '@dnd-kit/sortable';
+import { DndContext, closestCenter, type DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { SeccionBienvenidaEditor } from '@/components/invitacion/edit/SeccionBienvenida';
 import { SeccionCabeceraEditor } from '@/components/invitacion/edit/SeccionCabecera';
@@ -32,12 +32,6 @@ import { GraziaTemplate } from '@/app/evento/actual/page';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import type { SocialConnection } from '@/types/settings';
 import { getInvitationTemplates, type InvitacionDigitalTemplate } from '@/app/actions/invitacion-digital-templates';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 function SortableSection({ id, children, onClick, isSelected }: { id: string, children: React.ReactNode, onClick: () => void, isSelected: boolean }) {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
@@ -70,6 +64,7 @@ function PaginaWebPageContent() {
   const [isSaving, setIsSaving] = useState(false);
   
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
+  const sensors = useSensors(useSensor(PointerSensor));
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -94,7 +89,6 @@ function PaginaWebPageContent() {
         const templates = await getInvitationTemplates();
         data = templates.find(t => t.id === templateId);
         if(!data) throw new Error("Plantilla no encontrada");
-        // Create a mock fiesta for template editing preview
         setFiesta({ ...defaultInvitacionDigitalData, id: 'template_preview', configuracion: { nombreEvento: data.name, tipoCelebracion: 'Boda', fechaEvento: new Date().toISOString() } } as FiestaEnPlanificacion);
       } else {
         throw new Error("ID no proporcionado");
@@ -224,7 +218,7 @@ function PaginaWebPageContent() {
             ) : fiesta ? (
                <ScrollArea className="h-full w-full bg-background rounded-lg">
                   <div className="relative">
-                    <DndContext sensors={[]} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
+                    <DndContext sensors={sensors} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
                         <SortableContext items={invitacionData.secciones.map(s => s.id)}>
                             <GraziaTemplate 
                                 fiesta={fiesta} 
