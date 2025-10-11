@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useCallback, Suspense, use } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Loader2, ArrowLeft, Save, Sparkles, PlusCircle, AlertTriangle, GripVertical, Settings2, Eye } from 'lucide-react';
+import { Loader2, ArrowLeft, Save, Sparkles, PlusCircle, AlertTriangle, GripVertical, Settings2, Eye, LayoutGrid, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion, InvitacionDigitalData, SeccionInvitacion } from '@/types/fiesta';
@@ -13,25 +13,15 @@ import { merge, cloneDeep } from 'lodash';
 import { DndContext, closestCenter, type DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { SeccionBienvenidaEditor } from '@/components/invitacion/edit/SeccionBienvenida';
-import { SeccionCabeceraEditor } from '@/components/invitacion/edit/SeccionCabecera';
-import { SeccionConfirmacionEditor } from '@/components/invitacion/edit/SeccionConfirmacion';
-import { SeccionCuentaRegresivaEditor } from '@/components/invitacion/edit/SeccionCuentaRegresiva';
-import { SeccionDetallesEventoEditor } from '@/components/invitacion/edit/SeccionDetallesEvento';
-import { SeccionDressCodeEditor } from '@/components/invitacion/edit/SeccionDressCode';
-import { SeccionGaleriaEditor } from '@/components/invitacion/edit/SeccionGaleria';
-import { SeccionHistoriaEditor } from '@/components/invitacion/edit/SeccionHistoria';
-import { SeccionInstagramEditor } from '@/components/invitacion/edit/SeccionInstagram';
-import { SeccionItinerarioEditor } from '@/components/invitacion/edit/SeccionItinerario';
-import { SeccionRegalos } from '@/components/invitacion/edit/SeccionRegalos';
-import { SeccionDespedidaEditor } from '@/components/invitacion/edit/SeccionDespedida';
-import { ControlPanel } from '@/components/invitacion/edit/ControlPanel';
-import Link from 'next/link';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { GraziaTemplate } from '@/app/evento/actual/page';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import type { SocialConnection } from '@/types/settings';
 import { getInvitationTemplates, type InvitacionDigitalTemplate } from '@/app/actions/invitacion-digital-templates';
+import { ControlPanel } from '@/components/invitacion/edit/ControlPanel';
+import { SectionEditorPanel } from '@/components/invitacion/edit/SectionEditorPanel';
+import Link from 'next/link';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 
 function SortableSection({ id, children, onClick, isSelected }: { id: string, children: React.ReactNode, onClick: () => void, isSelected: boolean }) {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
@@ -63,7 +53,7 @@ function PaginaWebPageContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   
-  const [selectedSection, setSelectedSection] = useState<string | null>(null);
+  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const sensors = useSensors(useSensor(PointerSensor));
 
   const loadData = useCallback(async () => {
@@ -109,9 +99,9 @@ function PaginaWebPageContent() {
     loadData();
   }, [loadData]);
 
-  const handleUpdate = (newData: Partial<InvitacionDigitalData>) => {
+  const handleUpdate = useCallback((newData: Partial<InvitacionDigitalData>) => {
     setInvitacionData(prev => ({...prev, ...newData}));
-  };
+  }, []);
   
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -144,53 +134,16 @@ function PaginaWebPageContent() {
   const addSection = (tipo: SeccionInvitacion['tipo']) => {
     const defaultSeccion = defaultInvitacionDigitalData.secciones.find(s => s.tipo === tipo);
     if (defaultSeccion) {
-      const newSeccion = { ...defaultSeccion, id: `${tipo}_${Date.now()}` };
+      const newSeccion = { ...cloneDeep(defaultSeccion), id: `${tipo}_${Date.now()}` };
       handleUpdate({ secciones: [...invitacionData.secciones, newSeccion] });
     }
   };
 
   const removeSection = (idToRemove: string) => {
     handleUpdate({ secciones: invitacionData.secciones.filter(s => s.id !== idToRemove) });
-    if(selectedSection === idToRemove) setSelectedSection(null);
+    if(selectedSectionId === idToRemove) setSelectedSectionId(null);
   };
   
-  const renderSectionEditor = (seccion: SeccionInvitacion) => {
-    const props = { data: seccion.data, update: handleUpdate, fiesta: fiesta };
-    switch (seccion.tipo) {
-        case 'cabecera': return <SeccionCabeceraEditor {...props as any} />;
-        case 'bienvenida': return <SeccionBienvenidaEditor {...props as any} />;
-        case 'cuentaRegresiva': return <SeccionCuentaRegresivaEditor {...props as any} />;
-        case 'detallesEvento': return <SeccionDetallesEventoEditor {...props as any} />;
-        case 'itinerario': return <SeccionItinerarioEditor {...props as any} />;
-        case 'dressCode': return <SeccionDressCodeEditor {...props as any} />;
-        case 'galeria': return <SeccionGaleriaEditor {...props as any} />;
-        case 'historia': return <SeccionHistoriaEditor {...props as any} />;
-        case 'regalos': return <SeccionRegalos {...props as any} />;
-        case 'instagram': return <SeccionInstagramEditor {...props as any} />;
-        case 'confirmacion': return <SeccionConfirmacionEditor {...props as any} />;
-        case 'despedida': return <SeccionDespedidaEditor {...props as any} />;
-        default: return null;
-    }
-  };
-
-  const renderActiveEditorPanel = () => {
-    if (!selectedSection) {
-      return (
-        <div className="p-4">
-          <ControlPanel data={invitacionData} update={handleUpdate} addSection={addSection} removeSection={removeSection} />
-        </div>
-      );
-    }
-    const sectionData = invitacionData.secciones.find(s => s.id === selectedSection);
-    if (!sectionData) return <div className="p-4"><p>Sección no encontrada.</p></div>;
-    return (
-        <div className="p-4">
-            <Button variant="ghost" size="sm" onClick={() => setSelectedSection(null)} className="mb-2"><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Panel General</Button>
-            {renderSectionEditor(sectionData)}
-        </div>
-    );
-  }
-
   return (
     <div className="h-[calc(100vh-100px)] flex flex-col bg-muted">
       <header className="flex-shrink-0 flex items-center justify-between p-3 border-b bg-background">
@@ -206,44 +159,51 @@ function PaginaWebPageContent() {
         </div>
       </header>
       <main className="flex-grow flex min-h-0">
+        {/* Left Panel */}
         <div className="w-1/3 min-w-[380px] border-r bg-background">
-          <ScrollArea className="h-full">
-            {renderActiveEditorPanel()}
-          </ScrollArea>
+           <ControlPanel 
+              data={invitacionData}
+              update={handleUpdate}
+              addSection={addSection}
+              removeSection={removeSection}
+              selectedSectionId={selectedSectionId}
+              setSelectedSectionId={setSelectedSectionId}
+           />
         </div>
+        {/* Center Panel (Preview) */}
         <div className="flex-1 overflow-y-auto p-4 flex justify-center">
-          <div className="w-[450px] shadow-2xl rounded-lg overflow-hidden">
+          <div className="w-[450px] shadow-2xl rounded-lg overflow-hidden bg-white">
             {isLoading ? (
               <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin"/></div>
             ) : fiesta ? (
-               <ScrollArea className="h-full w-full bg-background rounded-lg">
-                  <div className="relative">
-                    <DndContext sensors={sensors} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
-                        <SortableContext items={invitacionData.secciones.map(s => s.id)}>
-                            <GraziaTemplate 
-                                fiesta={fiesta} 
-                                invitacionData={invitacionData} 
-                                socialConnections={socialConnections}
-                                isPreview={true}
-                            >
-                               {/* Render sections within the template in sortable order */}
-                                {invitacionData.secciones.map(seccion => (
-                                  <SortableSection key={seccion.id} id={seccion.id} onClick={() => setSelectedSection(seccion.id)} isSelected={selectedSection === seccion.id}>
-                                      {/* Placeholder content for visualization in builder */}
-                                      <div className="min-h-24 flex items-center justify-center text-muted-foreground text-xs italic bg-slate-100/50">
-                                          {seccion.tipo}
-                                      </div>
-                                  </SortableSection>
-                                ))}
-                            </GraziaTemplate>
-                        </SortableContext>
-                    </DndContext>
-                  </div>
-                </ScrollArea>
+              <DndContext sensors={sensors} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
+                  <SortableContext items={invitacionData.secciones.map(s => s.id)}>
+                      <GraziaTemplate 
+                          fiesta={fiesta} 
+                          invitacionData={invitacionData} 
+                          socialConnections={socialConnections}
+                          isPreview={true}
+                          onSectionClick={setSelectedSectionId}
+                          onUpdate={handleUpdate}
+                          selectedSectionId={selectedSectionId}
+                      >
+                         {/* This child is now just for placeholder/structure, the real sections are inside GraziaTemplate */}
+                      </GraziaTemplate>
+                  </SortableContext>
+              </DndContext>
             ) : (
                <div className="flex items-center justify-center h-full"><AlertTriangle className="w-8 h-8 text-destructive"/></div>
             )}
           </div>
+        </div>
+        {/* Right Panel */}
+        <div className="w-1/3 min-w-[380px] border-l bg-background">
+          <SectionEditorPanel 
+            data={invitacionData}
+            update={handleUpdate}
+            selectedSectionId={selectedSectionId}
+            fiestaId={fiestaId}
+          />
         </div>
       </main>
     </div>
@@ -257,3 +217,4 @@ export default function PaginaWebYPortalPage() {
         </Suspense>
     );
 }
+

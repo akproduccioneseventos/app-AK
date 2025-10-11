@@ -3,6 +3,8 @@
 
 import React, { useState, useRef, useEffect, type KeyboardEvent, type FocusEvent } from 'react';
 import { cn } from '@/lib/utils';
+import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 
 interface EditableTextProps {
   initialValue: string;
@@ -31,13 +33,15 @@ export const EditableText: React.FC<EditableTextProps> = ({
 
   const handleBlur = (e: FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setIsEditing(false);
-    if (value.trim() !== initialValue.trim()) {
+    if (value && value.trim() !== initialValue.trim()) {
       onSave(value);
+    } else {
+        setValue(initialValue); // Revert if empty or unchanged
     }
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !textarea) {
+    if (e.key === 'Enter' && !textarea && !e.shiftKey) {
       e.preventDefault();
       inputRef.current?.blur();
     }
@@ -56,7 +60,8 @@ export const EditableText: React.FC<EditableTextProps> = ({
     onKeyDown: handleKeyDown,
     className: cn(
       "w-full bg-transparent p-0 m-0 border-none ring-2 ring-primary ring-offset-2 ring-offset-background rounded-sm focus:outline-none",
-      className
+      "text-inherit font-inherit text-center", // Inherit text styles
+      className,
     ),
   };
 
@@ -69,9 +74,9 @@ export const EditableText: React.FC<EditableTextProps> = ({
 
   if (isEditing) {
     return textarea ? (
-      <textarea {...commonProps} rows={3} />
+      <Textarea {...commonProps} rows={3} />
     ) : (
-      <input type="text" {...commonProps} />
+      <Input type="text" {...commonProps} />
     );
   }
 
