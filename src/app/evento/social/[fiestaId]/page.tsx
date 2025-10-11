@@ -26,7 +26,7 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
-import { Loader2, AlertTriangle, Heart, MessageCircle, Send, Upload, RefreshCw, PartyPopper, MonitorPlay, X, Trash2, Download } from 'lucide-react';
+import { Loader2, AlertTriangle, Heart, MessageCircle, Send, Upload, RefreshCw, PartyPopper, MonitorPlay, X, Trash2, Download, Share2 } from 'lucide-react';
 import { WatermarkedImage } from '@/components/watermarked-image';
 import {
   AlertDialog,
@@ -39,6 +39,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { ShareLinkDialog } from '@/components/dashboard/ShareLinkDialog';
 
 const PostCard: React.FC<{ 
   post: SocialGalleryPost; 
@@ -283,6 +284,13 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
           <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
              <Input value={authorName} onChange={e => handleAuthorNameChange(e.target.value)} placeholder="Tu nombre..." className="h-10 text-base flex-grow"/>
              <Button onClick={() => setIsUploadDialogOpen(true)} disabled={!authorName} className="h-10"><Upload className="w-5 h-5"/><span className="ml-2 hidden sm:inline">Subir Foto</span></Button>
+             <ShareLinkDialog
+                relativePath={`/evento/social/${params.fiestaId}`}
+                title="Compartir Galería Social"
+                description="Usa este QR o enlace para que los invitados puedan subir sus fotos y ver la galería en tiempo real."
+             >
+                <Button variant="outline" className="h-10"><Share2 className="w-5 h-5"/><span className="ml-2 hidden sm:inline">Compartir</span></Button>
+             </ShareLinkDialog>
              <Button variant="outline" onClick={() => setProjectionMode(true)} className="h-10"><MonitorPlay className="w-5 h-5"/><span className="ml-2 hidden sm:inline">Proyección</span></Button>
              <Button variant="ghost" size="icon" onClick={() => fetchData(true)} disabled={isLoading} className="h-10 w-10"><RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`}/></Button>
           </div>
