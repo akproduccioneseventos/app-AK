@@ -21,6 +21,11 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
     visible: true,
     protagonista1: '',
     protagonista2: '',
+    paletaColores: {
+        primary: '#EF4444',
+        secondary: '#F97316',
+        accent: '#FBBF24'
+    }
   },
   bienvenida: {
     visible: true,

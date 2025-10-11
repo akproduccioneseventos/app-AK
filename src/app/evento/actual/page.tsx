@@ -80,7 +80,7 @@ const FloralSeparator: React.FC<{ color: string }> = ({ color }) => (
 
 // --- SECTIONS FOR GRAZIA TEMPLATE ---
 
-const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta: FiestaEnPlanificacion, paleta: ColorPalette, children: React.ReactNode }> = ({ data, fiesta, paleta, children }) => {
+const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta: FiestaEnPlanificacion, paleta?: ColorPalette, children: React.ReactNode }> = ({ data, fiesta, paleta, children }) => {
   if (!data.visible) return null;
   
   const formatDate = (dateString?: string) => {
@@ -90,6 +90,8 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
     return date.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
   };
   
+  const primaryColor = paleta?.primary || 'hsl(var(--primary))';
+  
   return (
     <header className="relative py-16 md:py-24 text-center bg-cover bg-center min-h-[400px] flex items-center justify-center">
         {data.videoFondoUrl && (
@@ -98,11 +100,11 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
         <div className="absolute inset-0 bg-white/70 backdrop-blur-sm -z-10"></div>
         <div className="relative z-10 p-6 max-w-2xl mx-auto text-center">
             {children}
-            <h1 className="font-headline text-5xl md:text-7xl my-3" style={{color: paleta.primary}}>
+            <h1 className="font-headline text-5xl md:text-7xl my-3" style={{color: primaryColor}}>
                {data.protagonista1 || fiesta.configuracion.nombreEvento}
                {data.protagonista2 && ` & ${data.protagonista2}`}
             </h1>
-            <p className="text-xl font-headline" style={{color: paleta.accent}}>
+            <p className="text-xl font-headline" style={{color: paleta?.accent || '#333'}}>
                 {formatDate(fiesta.configuracion.fechaEvento)}
             </p>
         </div>
@@ -187,7 +189,7 @@ export const GraziaTemplate: React.FC<{
 
   return (
     <div className={cn("min-h-screen bg-background font-body", isPreview && "overflow-y-auto h-full")} style={{'--theme-primary': primaryColor, '--theme-text': textColor} as React.CSSProperties}>
-       <GraziaCabecera data={invitacionData.cabecera} fiesta={fiesta} paleta={paletaColores!}>
+       <GraziaCabecera data={invitacionData.cabecera} fiesta={fiesta} paleta={paletaColores}>
          <h2 className="font-headline text-2xl" style={{color: textColor}}>{invitacionData.bienvenida.titulo}</h2>
        </GraziaCabecera>
        
