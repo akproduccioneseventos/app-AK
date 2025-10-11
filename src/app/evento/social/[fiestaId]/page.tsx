@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent, useRef, type ChangeEvent } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent, useRef, type ChangeEvent, use } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { getSocialPosts, uploadSocialPost, addLikeToPost, addCommentToPost, deleteSocialPost, clearGallery, getChatMessages, addChatMessage } from '@/app/actions/social-gallery';
 import type { SocialGalleryPost, SocialComment, ChatMessage } from '@/types/social-gallery';
@@ -125,7 +125,7 @@ const PostCard: React.FC<{
 
 
 export default function SocialGalleryPage({ params: paramsProp }: { params: { fiestaId: string } }) {
-  const params = paramsProp;
+  const params = use(paramsProp);
   const { toast } = useToast();
   
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
@@ -216,6 +216,7 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
     const formData = new FormData();
     formData.append('fiestaId', params.fiestaId);
     formData.append('file', fileToUpload);
+    formData.append('authorName', 'Anónimo');
 
     const result = await uploadSocialPost(formData);
     if (result.success) {
