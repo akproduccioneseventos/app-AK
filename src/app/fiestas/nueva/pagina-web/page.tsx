@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, Suspense, use } from 'react';
@@ -105,7 +104,7 @@ function PaginaWebPageContent() {
     try {
       const result = await saveFiesta({ ...fiesta, invitacionDigital: invitacionData });
       if (result.success) {
-        toast({ title: "¡Guardado!", description: "Los cambios en la invitación han sido guardados." });
+        toast({ title: "¡Guardado!", description: "Los cambios en la página del evento han sido guardados." });
       } else {
         throw new Error(result.error);
       }

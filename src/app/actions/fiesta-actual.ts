@@ -127,25 +127,23 @@ export const updateMenuAsignadoFiestaActual = updateMenuAsignado;
 // --- Video de Vida Actions ---
 export const updateVideoVidaSettingsFiestaActual = updateVideoVidaSettingsFromModule;
 
-// Deprecated Actions (will be removed eventually)
-export const updateWebSettingsFiestaActual = async (fiestaId: string, webSettings: EventWebPageSettings) => {
-    const fiesta = await getFiestaById(fiestaId);
-    if (!fiesta) throw new Error("Fiesta no encontrada");
-    const updatedFiesta = { ...fiesta, webPageSettings: webSettings };
-    return saveFiesta(updatedFiesta);
-}
-
 export const claimGiftFiestaActual = async (fiestaId: string, giftId: string, guestName: string): Promise<{ success: boolean; error?: string }> => {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta || !fiesta.invitacionDigital) return { success: false, error: 'Fiesta o datos de invitación no encontrados.' };
     
     const giftList = fiesta.invitacionDigital.regalos?.items || [];
+    let giftFoundAndUpdated = false;
     const updatedList = giftList.map(gift => {
         if (gift.id === giftId && !gift.isClaimed) {
+            giftFoundAndUpdated = true;
             return { ...gift, isClaimed: true, claimedBy: guestName };
         }
         return gift;
     });
+
+    if (!giftFoundAndUpdated) {
+        return { success: false, error: "El regalo no se encontró o ya fue reclamado." };
+    }
 
     const updatedInvitacionData = { 
         ...fiesta.invitacionDigital, 

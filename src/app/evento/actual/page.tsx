@@ -1,21 +1,18 @@
 
 'use client';
 
-import { Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
-import React, { useState, useEffect, useCallback, use } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, InvitacionDigitalData, SocialConnection } from '@/types/fiesta';
-import { getFiestaById, handleRsvpSubmissionFiestaActual, claimGiftFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import { defaultInvitacionDigitalData } from '@/lib/invitacion-digital-defaults';
 import { merge, cloneDeep } from 'lodash';
 import { GraziaTemplate } from '@/components/invitacion/templates/GraziaTemplate';
 import { AllegriaTemplate } from '@/components/invitacion/templates/AllegriaTemplate';
 
-
-// --- PÁGINA PÚBLICA REAL ---
 
 function EventoPublicoPageContent() {
   const { toast } = useToast();
@@ -68,7 +65,7 @@ function EventoPublicoPageContent() {
       fiesta,
       invitacionData,
       socialConnections,
-      isPreview: false
+      isPreview: false, // This is the public, non-editing view
     };
 
     switch(invitacionData.plantilla) {
@@ -77,7 +74,7 @@ function EventoPublicoPageContent() {
       case 'Allegria':
          return <AllegriaTemplate {...props} />;
       default:
-        return <GraziaTemplate {...props} />; // Fallback a Grazia
+        return <GraziaTemplate {...props} />; // Fallback
     }
   }
 
