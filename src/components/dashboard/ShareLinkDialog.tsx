@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -18,7 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import QRCodeStylized from 'qrcode.react';
 
 interface ShareLinkDialogProps {
-  children: React.ReactNode;
+  children: ReactNode;
   relativePath: string;
   title: string;
   description: string;

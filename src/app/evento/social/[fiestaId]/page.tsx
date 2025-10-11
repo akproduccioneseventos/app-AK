@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent, useRef, type ChangeEvent, use } from 'react';
@@ -23,8 +24,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogClose,
-  DialogTrigger,
+  DialogClose
 } from "@/components/ui/dialog";
 import { Loader2, AlertTriangle, Heart, MessageCircle, Send, Upload, RefreshCw, PartyPopper, MonitorPlay, X, Trash2, Download, Share2 } from 'lucide-react';
 import { WatermarkedImage } from '@/components/watermarked-image';
@@ -89,7 +89,7 @@ const PostCard: React.FC<{
         )}
       </CardHeader>
       <CardContent className="p-0 flex-grow">
-        <WatermarkedImage containerClassName="aspect-square relative bg-muted" src={post.imageUrl} alt={`Foto de ${post.authorName}`} layout="fill" objectFit="cover" />
+        <WatermarkedImage containerClassName="aspect-square relative bg-muted" src={post.imageUrl} alt={`Foto de ${post.authorName}`} layout="fill" objectFit="cover" data-ai-hint="event photo" />
       </CardContent>
       <CardFooter className="p-3 flex flex-col items-start gap-2">
         <div className="w-full flex justify-between items-center">
@@ -115,7 +115,7 @@ const PostCard: React.FC<{
                 </div>
                  <form onSubmit={handleCommentSubmit} className="flex gap-2 items-center">
                     <Input value={commentText} onChange={e => setCommentText(e.target.value)} placeholder={`Añadir comentario como ${currentAuthor}...`} className="h-9 text-sm"/>
-                    <Button type="submit" size="icon" className="h-9 w-9 flex-shrink-0" disabled={!commentText.trim()}><Send className="w-4 h-4"/></Button>
+                    <Button type="submit" size="icon" className="h-9 w-9 flex-shrink-0" disabled={!commentText.trim() || !currentAuthor.trim()}><Send className="w-4 h-4"/></Button>
                  </form>
             </div>
         )}
@@ -141,6 +141,7 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [fileToUpload, setFileToUpload] = useState<File | null>(null);
   const [uploadPreview, setUploadPreview] = useState<string | null>(null);
+  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   
   // Projection mode state
   const [projectionMode, setProjectionMode] = useState(false);
@@ -271,11 +272,12 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
             <p className="text-sm text-muted-foreground">¡Comparte tus momentos del evento!</p>
           </div>
           <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
-             <Input value={authorName} onChange={e => handleAuthorNameChange(e.target.value)} placeholder="Tu nombre..." className="h-10 text-base flex-grow"/>
+             <div className="flex-grow">
+                <Input value={authorName} onChange={e => handleAuthorNameChange(e.target.value)} placeholder="Tu nombre..." className="h-10 text-base" />
+                <p className="text-xs text-muted-foreground mt-1">Escribe tu nombre para identificar tus fotos y comentarios.</p>
+             </div>
             <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
-                <DialogTrigger asChild>
-                    <Button disabled={!authorName} className="h-10"><Upload className="w-5 h-5"/><span className="ml-2 hidden sm:inline">Subir Foto</span></Button>
-                </DialogTrigger>
+                 <Button onClick={() => setIsUploadDialogOpen(true)} disabled={!authorName.trim()} className="h-10"><Upload className="w-5 h-5"/><span className="ml-2 hidden sm:inline">Subir Foto</span></Button>
                 <DialogContent>
                     <DialogHeader><DialogTitle>Sube tu Momento</DialogTitle><DialogDescription>Comparte una foto con todos los invitados.</DialogDescription></DialogHeader>
                     <form onSubmit={handleUploadSubmit} className="space-y-4">
@@ -286,11 +288,13 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
                 </DialogContent>
             </Dialog>
              <ShareLinkDialog
+                isOpen={isShareDialogOpen}
+                onOpenChange={setIsShareDialogOpen}
                 relativePath={`/evento/social/${params.fiestaId}`}
                 title="Compartir Galería Social"
                 description="Usa este QR o enlace para que los invitados puedan subir sus fotos y ver la galería en tiempo real."
              >
-                <Button variant="outline" className="h-10"><Share2 className="w-5 h-5"/><span className="ml-2 hidden sm:inline">Compartir</span></Button>
+                <Button onClick={() => setIsShareDialogOpen(true)} variant="outline" className="h-10"><Share2 className="w-5 h-5"/><span className="ml-2 hidden sm:inline">Compartir</span></Button>
              </ShareLinkDialog>
              <Button variant="outline" onClick={() => setProjectionMode(true)} className="h-10"><MonitorPlay className="w-5 h-5"/><span className="ml-2 hidden sm:inline">Proyección</span></Button>
              <Button variant="ghost" size="icon" onClick={() => fetchData(true)} disabled={isLoading} className="h-10 w-10"><RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`}/></Button>
