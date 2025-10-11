@@ -1,5 +1,4 @@
 
-
 import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, GiftItem, LayoutElement, ClientTarea, ProgramaEventoItem, TareaAsignadaA, FotografiaYFilmacionData, BebidasConsumoConfig, TipoAsistente, ReposteriaConsumoConfig, OtroDocumento, VideoVidaData, BebidaReceta, IngredienteReceta, CargaOperativaCategoria, InvitacionDigitalData, SeccionInvitacion } from '@/types/fiesta';
 import { defaultInvitacionDigitalData } from './invitacion-digital-defaults';
 
@@ -110,6 +109,8 @@ export const defaultClientPortalSettings: ClientPortalSettings = {
 
 export const defaultSocialGallerySettings: SocialGallerySettings = {
   enabled: false,
+  title: 'Muro Social del Evento',
+  subtitle: '¡Comparte tus momentos!',
   allowLikes: true,
   allowComments: true,
   uploadsActive: true,

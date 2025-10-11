@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent, useRef, type ChangeEvent, use } from 'react';
@@ -346,9 +347,9 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
           <div className="text-center sm:text-left">
             <h1 className="text-2xl font-bold font-headline text-primary flex items-center gap-2">
                 <PartyPopper/>
-                {fiesta?.webPageSettings?.pageTitle || fiesta?.configuracion.nombreEvento || 'Galería Social'}
+                {fiesta?.socialGallerySettings?.title || fiesta?.configuracion.nombreEvento || 'Galería Social'}
             </h1>
-            <p className="text-sm text-muted-foreground">¡Comparte tus momentos del evento!</p>
+            <p className="text-sm text-muted-foreground">{fiesta?.socialGallerySettings?.subtitle || '¡Comparte tus momentos del evento!'}</p>
           </div>
           <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
              <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>

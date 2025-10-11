@@ -1,5 +1,4 @@
 
-
 import type { TipoEvento } from './presupuesto';
 import type { Invitado } from './invitado'; 
 import type { UnidadServicio } from './empresa';
@@ -292,6 +291,8 @@ export interface ClientPortalSettings {
 
 export interface SocialGallerySettings {
   enabled: boolean;
+  title?: string;
+  subtitle?: string;
   allowLikes: boolean;
   allowComments: boolean;
   uploadsActive: boolean;
