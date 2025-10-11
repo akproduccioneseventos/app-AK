@@ -1,1 +1,16 @@
-[]
+[
+  {
+    "id": "chat_1760211532965_6yhnyvj",
+    "fiestaId": "fiesta_1759360164471",
+    "authorName": "Anónimo",
+    "text": "HOLA",
+    "timestamp": "2025-10-11T19:38:52.965Z"
+  },
+  {
+    "id": "chat_1760211538071_monkklk",
+    "fiestaId": "fiesta_1759360164471",
+    "authorName": "Anónimo",
+    "text": "COMO ESTAS",
+    "timestamp": "2025-10-11T19:38:58.071Z"
+  }
+]

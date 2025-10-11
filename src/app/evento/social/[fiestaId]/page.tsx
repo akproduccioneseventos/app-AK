@@ -27,7 +27,7 @@ import {
   DialogClose,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Loader2, AlertTriangle, Heart, MessageCircle, Send, Upload, RefreshCw, PartyPopper, MonitorPlay, X, Trash2, Download, Share2 } from 'lucide-react';
+import { Loader2, AlertTriangle, Heart, MessageCircle, Send, Upload, RefreshCw, PartyPopper, MonitorPlay, X, Trash2, Download, Share2, User as UserIcon } from 'lucide-react';
 import { WatermarkedImage } from '@/components/watermarked-image';
 import {
   AlertDialog,
@@ -132,6 +132,10 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
   const [posts, setPosts] = useState<SocialGalleryPost[]>([]);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [newChatMessage, setNewChatMessage] = useState('');
+  
+  const [authorName, setAuthorName] = useState('');
+  const [tempAuthorName, setTempAuthorName] = useState('');
+  const [isNameModalOpen, setIsNameModalOpen] = useState(false);
 
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
@@ -168,6 +172,17 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
       if(showLoadingIndicator) setIsLoading(false);
     }
   }, [params.fiestaId, toast]);
+  
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+        const savedName = sessionStorage.getItem(`socialWallAuthor_${params.fiestaId}`);
+        if (savedName) {
+            setAuthorName(savedName);
+        } else {
+            setIsNameModalOpen(true);
+        }
+    }
+  }, [params.fiestaId]);
 
   useEffect(() => {
     fetchData();
@@ -208,6 +223,15 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
       setUploadPreview(URL.createObjectURL(file));
     }
   };
+  
+  const handleSetAuthorName = (e: FormEvent) => {
+    e.preventDefault();
+    if(tempAuthorName.trim()) {
+        setAuthorName(tempAuthorName);
+        sessionStorage.setItem(`socialWallAuthor_${params.fiestaId}`, tempAuthorName);
+        setIsNameModalOpen(false);
+    }
+  };
 
   const handleUploadSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -216,7 +240,7 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
     const formData = new FormData();
     formData.append('fiestaId', params.fiestaId);
     formData.append('file', fileToUpload);
-    formData.append('authorName', 'Anónimo');
+    formData.append('authorName', authorName || 'Anónimo');
 
     const result = await uploadSocialPost(formData);
     if (result.success) {
@@ -256,7 +280,7 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
     setIsSendingChat(true);
     const optimisticMessage: ChatMessage = {
       id: `temp-${Date.now()}`,
-      authorName: 'Anónimo',
+      authorName: authorName || 'Anónimo',
       text: newChatMessage,
       timestamp: new Date().toISOString(),
       fiestaId: params.fiestaId
@@ -307,6 +331,15 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
 
   return (
     <div className="min-h-screen bg-muted/30">
+      <Dialog open={isNameModalOpen} onOpenChange={setIsNameModalOpen}>
+        <DialogContent onInteractOutside={(e) => e.preventDefault()} hideCloseButton>
+            <DialogHeader><DialogTitle>¡Bienvenido/a al Muro Social!</DialogTitle><DialogDescription>Para participar, por favor dinos tu nombre. Se usará para identificar tus fotos y mensajes.</DialogDescription></DialogHeader>
+            <form onSubmit={handleSetAuthorName} className="space-y-4">
+                <div className="space-y-1"><Label htmlFor="author-name-input">Tu Nombre</Label><Input id="author-name-input" value={tempAuthorName} onChange={e => setTempAuthorName(e.target.value)} placeholder="Ej: Juan Pérez" required/></div>
+                <DialogFooter><Button type="submit" disabled={!tempAuthorName.trim()}>Continuar</Button></DialogFooter>
+            </form>
+        </DialogContent>
+      </Dialog>
       <header className="sticky top-0 z-20 bg-background/80 backdrop-blur-sm shadow-sm">
         <div className="max-w-5xl mx-auto p-3 flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="text-center sm:text-left">
@@ -319,7 +352,7 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
           <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
              <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
                 <DialogTrigger asChild>
-                    <Button className="h-10"><Upload className="w-5 h-5"/><span className="ml-2 hidden sm:inline">Subir Foto</span></Button>
+                    <Button className="h-10" disabled={!authorName}><Upload className="w-5 h-5"/><span className="ml-2 hidden sm:inline">Subir Foto</span></Button>
                 </DialogTrigger>
                 <DialogContent>
                     <DialogHeader><DialogTitle>Sube tu Momento</DialogTitle><DialogDescription>Comparte una foto con todos los invitados.</DialogDescription></DialogHeader>
@@ -378,8 +411,8 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
                     <div ref={chatEndRef}/>
                 </ScrollArea>
                  <form onSubmit={handleChatSubmit} className="flex gap-2 items-center mt-3">
-                    <Input value={newChatMessage} onChange={e => setNewChatMessage(e.target.value)} placeholder="Escribe un mensaje..." disabled={isSendingChat} />
-                    <Button type="submit" disabled={!newChatMessage.trim() || isSendingChat}>
+                    <Input value={newChatMessage} onChange={e => setNewChatMessage(e.target.value)} placeholder="Escribe un mensaje..." disabled={isSendingChat || !authorName} />
+                    <Button type="submit" disabled={!newChatMessage.trim() || isSendingChat || !authorName}>
                        {isSendingChat ? <Loader2 className="w-4 h-4 animate-spin"/> : <Send className="w-4 h-4"/>}
                     </Button>
                 </form>

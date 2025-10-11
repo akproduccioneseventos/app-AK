@@ -16,6 +16,8 @@ const MAX_PHOTOS_PER_EVENT = 200;
 async function ensureDataDirectoryExists(dirPath: string) {
   try { await fs.access(dirPath); } catch { await fs.mkdir(dirPath, { recursive: true }); }
 }
+ensureDataDirectoryExists(SOCIAL_GALLERY_DIR);
+ensureDataDirectoryExists(SOCIAL_CHAT_DIR);
 
 // Photo Gallery Functions
 async function getMetadata(): Promise<SocialGalleryPost[]> {
@@ -163,7 +165,7 @@ export async function getChatMessages(fiestaId: string): Promise<ChatMessage[]> 
     return readData<ChatMessage[]>(getChatFilePath(fiestaId), []);
 }
 
-export async function addChatMessage(fiestaId: string, text: string): Promise<{ success: boolean; message?: ChatMessage; error?: string }> {
+export async function addChatMessage(fiestaId: string, text: string, authorName: string = 'Anónimo'): Promise<{ success: boolean; message?: ChatMessage; error?: string }> {
     if (!fiestaId || !text.trim()) {
         return { success: false, error: "Datos del mensaje incompletos." };
     }
@@ -172,7 +174,7 @@ export async function addChatMessage(fiestaId: string, text: string): Promise<{ 
         const newMessage: ChatMessage = {
             id: `chat_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
             fiestaId,
-            authorName: 'Anónimo',
+            authorName,
             text,
             timestamp: new Date().toISOString(),
         };
