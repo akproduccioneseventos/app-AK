@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,8 @@ import Link from 'next/link';
 
 // This page is obsolete. Its functionality has been moved.
 // We redirect to the new central hub for enterprise management.
-export default function DeprecatedGeneralEditIdPage({ params }: { params: { id: string } }) {
+export default function DeprecatedGeneralEditIdPage({ params: paramsProp }: { params: { id: string } }) {
+    const params = use(paramsProp);
     const router = useRouter();
 
     useEffect(() => {

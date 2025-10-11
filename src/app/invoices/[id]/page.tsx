@@ -1,6 +1,7 @@
+
 'use client';
 
-import React, { useState, useEffect, type FormEvent, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, type FormEvent, useCallback, useMemo, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -42,7 +43,7 @@ type NewPaymentFormState = Omit<Payment, 'id' | 'transactionProofUrl'>;
 
 
 export default function ViewInvoicePage({ params: paramsProp }: { params: { id: string } }) {
-  const params = React.use(paramsProp);
+  const params = use(paramsProp);
   const router = useRouter();
   const invoiceId = params.id as string;
   const { toast } = useToast();
