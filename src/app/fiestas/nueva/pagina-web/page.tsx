@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useCallback, Suspense, use } from 'react';
@@ -20,23 +21,6 @@ import { getInvitationTemplates, type InvitacionDigitalTemplate } from '@/app/ac
 import { ControlPanel } from '@/components/invitacion/edit/ControlPanel';
 import { SectionEditorPanel } from '@/components/invitacion/edit/SectionEditorPanel';
 import Link from 'next/link';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
-
-function SortableSection({ id, children, onClick, isSelected }: { id: string, children: React.ReactNode, onClick: () => void, isSelected: boolean }) {
-    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
-    const style = { transform: CSS.Transform.toString(transform), transition };
-
-    return (
-        <div ref={setNodeRef} style={style} className="relative group/section" onClick={onClick}>
-            <div className={`absolute inset-0 border-2 transition-all pointer-events-none ${isSelected ? 'border-primary' : 'border-transparent group-hover/section:border-primary/50'}`}></div>
-            <div {...attributes} {...listeners} className="absolute -left-8 top-1/2 -translate-y-1/2 z-10 cursor-grab p-2 opacity-0 group-hover/section:opacity-100 transition-opacity bg-background rounded-l-full">
-                <GripVertical className="w-5 h-5" />
-            </div>
-            {children}
-        </div>
-    );
-}
 
 function PaginaWebPageContent() {
   const { toast } = useToast();
@@ -79,6 +63,7 @@ function PaginaWebPageContent() {
         const templates = await getInvitationTemplates();
         data = templates.find(t => t.id === templateId);
         if(!data) throw new Error("Plantilla no encontrada");
+        // Create a dummy fiesta object for previewing templates
         setFiesta({ ...defaultInvitacionDigitalData, id: 'template_preview', configuracion: { nombreEvento: data.name, tipoCelebracion: 'Boda', fechaEvento: new Date().toISOString() } } as FiestaEnPlanificacion);
       } else {
         throw new Error("ID no proporcionado");
@@ -145,8 +130,8 @@ function PaginaWebPageContent() {
   };
   
   return (
-    <div className="h-[calc(100vh-100px)] flex flex-col bg-muted">
-      <header className="flex-shrink-0 flex items-center justify-between p-3 border-b bg-background">
+    <div className="h-[calc(100vh-64px)] flex flex-col bg-muted">
+      <header className="flex-shrink-0 flex items-center justify-between p-3 border-b bg-background shadow-sm">
         <h1 className="text-lg font-semibold">{fiesta ? `Editando: ${fiesta.configuracion.nombreEvento}` : 'Editando Plantilla'}</h1>
         <div className="flex items-center gap-2">
             <Link href={fiestaId ? `/evento/actual?fiestaId=${fiestaId}` : '#'} target="_blank" passHref>
@@ -160,19 +145,28 @@ function PaginaWebPageContent() {
       </header>
       <main className="flex-grow flex min-h-0">
         {/* Left Panel */}
-        <div className="w-1/3 min-w-[380px] border-r bg-background">
-           <ControlPanel 
-              data={invitacionData}
-              update={handleUpdate}
-              addSection={addSection}
-              removeSection={removeSection}
-              selectedSectionId={selectedSectionId}
-              setSelectedSectionId={setSelectedSectionId}
-           />
+        <div className="w-[380px] flex-shrink-0 border-r bg-background overflow-y-auto">
+            {!selectedSectionId ? (
+                <ControlPanel
+                    data={invitacionData}
+                    update={handleUpdate}
+                    addSection={addSection}
+                    removeSection={removeSection}
+                />
+            ) : (
+                <SectionEditorPanel
+                    data={invitacionData}
+                    update={handleUpdate}
+                    selectedSectionId={selectedSectionId}
+                    fiestaId={fiestaId}
+                    onClose={() => setSelectedSectionId(null)}
+                />
+            )}
         </div>
+        
         {/* Center Panel (Preview) */}
-        <div className="flex-1 overflow-y-auto p-4 flex justify-center">
-          <div className="w-[450px] shadow-2xl rounded-lg overflow-hidden bg-white">
+        <div className="flex-1 overflow-y-auto p-4 flex justify-center bg-gray-200">
+          <div className="w-full max-w-[500px] min-w-[380px] shadow-2xl rounded-lg overflow-hidden bg-white">
             {isLoading ? (
               <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin"/></div>
             ) : fiesta ? (
@@ -187,7 +181,7 @@ function PaginaWebPageContent() {
                           onUpdate={handleUpdate}
                           selectedSectionId={selectedSectionId}
                       >
-                         {/* This child is now just for placeholder/structure, the real sections are inside GraziaTemplate */}
+                         {/* RSVP form or other interactive elements will be handled inside GraziaTemplate */}
                       </GraziaTemplate>
                   </SortableContext>
               </DndContext>
@@ -195,15 +189,6 @@ function PaginaWebPageContent() {
                <div className="flex items-center justify-center h-full"><AlertTriangle className="w-8 h-8 text-destructive"/></div>
             )}
           </div>
-        </div>
-        {/* Right Panel */}
-        <div className="w-1/3 min-w-[380px] border-l bg-background">
-          <SectionEditorPanel 
-            data={invitacionData}
-            update={handleUpdate}
-            selectedSectionId={selectedSectionId}
-            fiestaId={fiestaId}
-          />
         </div>
       </main>
     </div>

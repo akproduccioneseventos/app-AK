@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import type { InvitacionDigitalData, SeccionInvitacion } from '@/types/fiesta';
@@ -19,14 +20,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
-import { X } from 'lucide-react';
+import { X, ArrowLeft } from 'lucide-react';
 import { FiestaEnPlanificacion } from '@/types/fiesta';
 
 interface Props {
     data: InvitacionDigitalData;
     update: (newData: Partial<InvitacionDigitalData>) => void;
     selectedSectionId: string | null;
-    fiestaId?: string;
+    fiestaId?: string | null;
     onClose: () => void;
 }
 
@@ -42,15 +43,19 @@ export const SectionEditorPanel: React.FC<Props> = ({ data, update, selectedSect
             update({ secciones: newSecciones });
         }
     };
-    
+
+    const handleUpdateCabecera = (newData: Partial<InvitacionDigitalData>) => {
+        update(newData);
+    };
+
     const renderEditor = () => {
         if (!selectedSection) return null;
         
-        const props = { data: selectedSection.data, update: handleSectionDataChange, fiestaId };
+        const props = { data: selectedSection.data, update: handleSectionDataChange, fiestaId: fiestaId || undefined };
 
         switch (selectedSection.tipo) {
+            case 'cabecera': return <SeccionCabeceraEditor data={data.cabecera} update={handleUpdateCabecera} fiestaId={fiestaId || undefined} />;
             case 'bienvenida': return <SeccionBienvenidaEditor {...props} />;
-            case 'cabecera': return <SeccionCabeceraEditor {...props} />;
             case 'confirmacion': return <SeccionConfirmacionEditor {...props} />;
             case 'cuentaRegresiva': return <SeccionCuentaRegresivaEditor {...props} />;
             case 'detallesEvento': return <SeccionDetallesEventoEditor {...props} />;
@@ -60,17 +65,9 @@ export const SectionEditorPanel: React.FC<Props> = ({ data, update, selectedSect
             case 'itinerario': return <SeccionItinerarioEditor {...props} />;
             case 'regalos': return <SeccionRegalos {...props} />;
             case 'despedida': return <SeccionDespedidaEditor {...props} />;
-            // The footer is handled by the general design tab now.
+            case 'footer': return <SeccionFooterEditor data={data.footer} update={(newData) => update({footer: newData}) } />;
             default: return <div>Editor no implementado para "{selectedSection.tipo}"</div>;
         }
-    }
-    
-    if (!selectedSection) {
-        return (
-            <div className="p-4 h-full flex flex-col items-center justify-center text-center">
-                 <p className="text-sm text-muted-foreground">Selecciona una sección de la invitación para ver sus opciones de configuración aquí.</p>
-            </div>
-        );
     }
     
     return (
@@ -79,22 +76,22 @@ export const SectionEditorPanel: React.FC<Props> = ({ data, update, selectedSect
                  <Card>
                     <CardHeader>
                         <div className="flex justify-between items-center">
-                            <CardTitle className="capitalize">{selectedSection.tipo}</CardTitle>
-                            <Button variant="ghost" size="icon" onClick={onClose}><X className="w-4 h-4"/></Button>
+                            <Button variant="ghost" size="sm" onClick={onClose}><ArrowLeft className="w-4 h-4 mr-2"/>Panel General</Button>
                         </div>
+                         <CardTitle className="capitalize pt-2">{selectedSection?.tipo}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        {selectedSection.tipo !== 'cabecera' && (
+                        {selectedSection?.tipo !== 'cabecera' && (
                             <div className="flex items-center justify-between space-x-2 border p-3 rounded-md mb-4">
                                 <Label htmlFor={`visible-${selectedSectionId}`} className="font-normal">Mostrar esta sección</Label>
                                 <Switch 
                                     id={`visible-${selectedSectionId}`}
-                                    checked={selectedSection.data.visible} 
-                                    onCheckedChange={(checked) => handleSectionDataChange({...selectedSection.data, visible: checked})}
+                                    checked={selectedSection?.data.visible} 
+                                    onCheckedChange={(checked) => handleSectionDataChange({...selectedSection?.data, visible: checked})}
                                 />
                             </div>
                         )}
-                        {selectedSection.data.visible && renderEditor()}
+                        {selectedSection?.data.visible && renderEditor()}
                     </CardContent>
                 </Card>
             </div>
