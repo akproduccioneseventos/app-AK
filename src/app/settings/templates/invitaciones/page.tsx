@@ -20,7 +20,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import NextImage from 'next/image';
-import { defaultInvitacionDigitalData } from '@/lib/fiesta-defaults';
+import { defaultInvitacionDigitalData } from '@/lib/invitacion-digital-defaults';
 
 
 export default function InvitationTemplatesPage() {

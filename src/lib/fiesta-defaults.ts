@@ -1,6 +1,6 @@
 
 
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, GiftItem, LayoutElement, ClientTarea, ProgramaEventoItem, TareaAsignadaA, FotografiaYFilmacionData, BebidasConsumoConfig, TipoAsistente, ReposteriaConsumoConfig, OtroDocumento, VideoVidaData, BebidaReceta, IngredienteReceta, CargaOperativaCategoria, InvitacionDigitalData } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, GiftItem, LayoutElement, ClientTarea, ProgramaEventoItem, TareaAsignadaA, FotografiaYFilmacionData, BebidasConsumoConfig, TipoAsistente, ReposteriaConsumoConfig, OtroDocumento, VideoVidaData, BebidaReceta, IngredienteReceta, CargaOperativaCategoria, InvitacionDigitalData, SeccionInvitacion } from '@/types/fiesta';
 
 export const defaultConfiguracion: ConfigEventoDataStorage = {
   nombreEvento: 'Mi Próximo Evento Increíble',
@@ -90,68 +90,6 @@ export const defaultDecoracion: DecoracionData = {
   guestNameStyle: 'full',
   guestIconStyle: 'color',
   layoutTemplateName: '',
-};
-
-export const defaultInvitacionDigitalData: InvitacionDigitalData = {
-  plantilla: 'Grazia',
-  musicaFondoUrl: '',
-  cabecera: {
-    visible: true,
-    videoFondoUrl: '',
-    protagonista1: '',
-    protagonista2: '',
-  },
-  bienvenida: {
-    visible: true,
-    imagenFondoUrl: '',
-    titulo: '¡Nos Casamos!',
-    texto: 'Y queremos que seas parte de este día tan especial para nosotros. Prepárate para una noche llena de alegría, música y buenos momentos.',
-  },
-  detallesEvento: {
-    visible: true,
-    infoPadresVisible: false,
-    nombrePadre1: '',
-    nombrePadre2: '',
-    nombreMadre1: '',
-    nombreMadre2: '',
-  },
-  itinerario: {
-    visible: true,
-    imagenFondoUrl: '',
-  },
-  galeria: {
-    visible: false,
-    fotos: [],
-  },
-  historia: {
-    visible: false,
-    titulo: 'Nuestra Historia',
-    texto: '',
-    imagenFondoUrl: ''
-  },
-  regalos: {
-    visible: true,
-    titulo: 'Lista de Regalos',
-    texto: 'Tu presencia es nuestro mejor regalo. Si aún así deseas obsequiarnos algo, puedes elegir una de estas opciones o ayudarnos con nuestra luna de miel.',
-    datosBancarios: '',
-    items: [],
-  },
-  dressCode: {
-    visible: true,
-    texto: 'Elegante Sport',
-  },
-  instagram: {
-    visible: true,
-    hashtag: '#BodaAnaYJuan',
-    texto: '¡Comparte tus fotos y momentos con nuestro hashtag!',
-  },
-  confirmacion: {
-    visible: true,
-  },
-  despedida: {
-    visible: true,
-    texto: '¡Te esperamos para celebrar juntos!',
-  }
 };
 
 export const defaultClientPortalSettings: ClientPortalSettings = {
@@ -287,51 +225,6 @@ export const defaultFotografiaYFilmacionData: FotografiaYFilmacionData = {
     notasGenerales: '',
 };
 
-
-export const initialFiestaActualData: FiestaEnPlanificacion = {
-  id: `fiesta_${Date.now()}`,
-  configuracion: { ...defaultConfiguracion },
-  personalAsignado: [],
-  menuAsignadoId: undefined,
-  presupuestoId: undefined,
-  invoiceIds: [],
-  reuniones: [],
-  tareas: [...baseDefaultTareas.map(t => ({
-    ...t,
-    id: `task_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
-    descripcion: t.descripcion || undefined,
-    horaVencimiento: t.horaVencimiento || undefined,
-    recordatorio: t.recordatorio || undefined,
-    esPredeterminada: t.esPredeterminada || false,
-    asignadaA: t.asignadaA || 'Organizador',
-   }))],
-  clientChecklist: [...defaultClientChecklist.map(t => ({ ...t, id: `client_task_${Date.now()}_${Math.random().toString(36).substring(2,9)}` }))],
-  clientNotes: '',
-  decoracion: {
-    ...defaultDecoracion,
-    items: [],
-    paletaColores: { ...defaultColorPalette },
-    zonasContratadas: JSON.parse(JSON.stringify(defaultZonasContratadas)),
-  },
-  invitados: [],
-  invitacionDigital: { ...defaultInvitacionDigitalData }, // Changed this line
-  clientPortalSettings: { ...defaultClientPortalSettings },
-  socialGallerySettings: { ...defaultSocialGallerySettings },
-  musica: { ...defaultMusicaFiesta, cancionesTortaBrindis: [] },
-  reposteria: { ...defaultReposteriaData, categorias: JSON.parse(JSON.stringify(defaultReposteriaCategorias)) },
-  bebidas: { ...defaultBebidasData, categorias: JSON.parse(JSON.stringify(defaultBebidasCategorias)) },
-  listaDeCargaOperativa: { ...defaultListaDeCargaOperativa },
-  gestionCostos: { ...initialGestionCostosData },
-  videoVida: { ...defaultVideoVidaData },
-  programa: [...defaultPrograma.map(p => ({ ...p, id: `prog_${Date.now()}_${Math.random().toString(36).substring(2,9)}` }))],
-  fotografiaYFilmacion: { ...defaultFotografiaYFilmacionData },
-  
-  // New flexible document storage
-  otrosDocumentos: [],
-  // New provider payment tracking
-  pagosProveedores: [],
-};
-
 // Deprecated, keep for data migration if necessary
 export const defaultWebPageSettings: EventWebPageSettings = {
   pageTitle: 'Mi Evento Especial',
@@ -358,4 +251,62 @@ export const defaultWebPageSettings: EventWebPageSettings = {
   musicaEspecialText: '',
   showGallery: false, 
   templateName: 'Obsidiana'
+};
+
+
+// Main default object for a new event
+export const initialFiestaActualData: FiestaEnPlanificacion = {
+  id: `fiesta_${Date.now()}`,
+  configuracion: { ...defaultConfiguracion },
+  personalAsignado: [],
+  menuAsignadoId: undefined,
+  presupuestoId: undefined,
+  invoiceIds: [],
+  reuniones: [],
+  tareas: [...baseDefaultTareas.map(t => ({
+    ...t,
+    id: `task_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
+    descripcion: t.descripcion || undefined,
+    horaVencimiento: t.horaVencimiento || undefined,
+    recordatorio: t.recordatorio || undefined,
+    esPredeterminada: t.esPredeterminada || false,
+    asignadaA: t.asignadaA || 'Organizador',
+   }))],
+  clientChecklist: [...defaultClientChecklist.map(t => ({ ...t, id: `client_task_${Date.now()}_${Math.random().toString(36).substring(2,9)}` }))],
+  clientNotes: '',
+  decoracion: { ...defaultDecoracion },
+  invitados: [],
+  clientPortalSettings: { ...defaultClientPortalSettings },
+  socialGallerySettings: { ...defaultSocialGallerySettings },
+  musica: { ...defaultMusicaFiesta, cancionesTortaBrindis: [] },
+  reposteria: { ...defaultReposteriaData },
+  bebidas: { ...defaultBebidasData },
+  listaDeCargaOperativa: { ...defaultListaDeCargaOperativa },
+  gestionCostos: { ...initialGestionCostosData },
+  videoVida: { ...defaultVideoVidaData },
+  programa: [...defaultPrograma.map(p => ({ ...p, id: `prog_${Date.now()}_${Math.random().toString(36).substring(2,9)}` }))],
+  fotografiaYFilmacion: { ...defaultFotografiaYFilmacionData },
+  otrosDocumentos: [],
+  pagosProveedores: [],
+
+  // DEPRECATED - will be migrated/removed
+  webPageSettings: { ...defaultWebPageSettings },
+
+  // NEW UNIFIED OBJECT
+  invitacionDigital: {
+    plantilla: 'Grazia',
+    musicaFondoUrl: '',
+    cabecera: { visible: true, protagonista1: 'Novio/a 1', protagonista2: 'Novio/a 2', paletaColores: {...defaultColorPalette} },
+    secciones: [
+      { id: 'bienvenida', tipo: 'bienvenida', data: { visible: true, titulo: '¡Nos Casamos!', texto: 'Y queremos que seas parte de este día tan especial para nosotros. Prepárate para una noche llena de alegría, música y buenos momentos.' } },
+      { id: 'cuentaRegresiva', tipo: 'cuentaRegresiva', data: { visible: true } },
+      { id: 'detallesEvento', tipo: 'detallesEvento', data: { visible: true, infoPadresVisible: false } },
+      { id: 'itinerario', tipo: 'itinerario', data: { visible: true } },
+      { id: 'dressCode', tipo: 'dressCode', data: { visible: true, texto: 'Elegante Sport' } },
+      { id: 'regalos', tipo: 'regalos', data: { visible: true, titulo: 'Lista de Regalos', texto: 'Tu presencia es nuestro mejor regalo. Si aún así deseas obsequiarnos algo, puedes elegir una de estas opciones o ayudarnos con nuestra luna de miel.', datosBancarios: '', items: [] } },
+      { id: 'confirmacion', tipo: 'confirmacion', data: { visible: true } },
+      { id: 'instagram', tipo: 'instagram', data: { visible: true, hashtag: '#NuestraBoda', texto: '¡Comparte tus fotos y momentos con nuestro hashtag!' } },
+      { id: 'despedida', tipo: 'despedida', data: { visible: true, texto: '¡Te esperamos para celebrar juntos!' } },
+    ]
+  }
 };

@@ -98,11 +98,11 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
         <div className="absolute inset-0 bg-white/70 backdrop-blur-sm -z-10"></div>
         <div className="relative z-10 p-6 max-w-2xl mx-auto text-center">
             {children}
-            <h1 className="font-headline text-5xl md:text-7xl my-3" style={{color: paleta.primary}}>
+            <h1 className="font-headline text-5xl md:text-7xl my-3" style={{color: paleta?.primary}}>
                {data.protagonista1 || fiesta.configuracion.nombreEvento}
                {data.protagonista2 && ` & ${data.protagonista2}`}
             </h1>
-            <p className="text-xl font-headline" style={{color: paleta.accent}}>
+            <p className="text-xl font-headline" style={{color: paleta?.accent}}>
                 {formatDate(fiesta.configuracion.fechaEvento)}
             </p>
         </div>
@@ -116,16 +116,16 @@ const GraziaDetalles: React.FC<{ data: InvitacionDigitalData['detallesEvento'], 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
-                <SectionIcon><Church className="w-12 h-12 mx-auto mb-3" style={{color: paleta.primary}}/></SectionIcon>
-                <h3 className="font-headline text-3xl mb-3" style={{color: paleta.accent}}>Ceremonia</h3>
+                <SectionIcon><Church className="w-12 h-12 mx-auto mb-3" style={{color: paleta?.primary}}/></SectionIcon>
+                <h3 className="font-headline text-3xl mb-3" style={{color: paleta?.accent}}>Ceremonia</h3>
                 <p className="text-lg text-muted-foreground">{fiesta.configuracion.horaInicio} hs.</p>
-                <p className="text-lg font-semibold" style={{color: paleta.accent}}>{fiesta.configuracion.nombreLugar}</p>
+                <p className="text-lg font-semibold" style={{color: paleta?.accent}}>{fiesta.configuracion.nombreLugar}</p>
             </div>
             <div>
-                <SectionIcon><Handshake className="w-12 h-12 mx-auto mb-3" style={{color: paleta.primary}}/></SectionIcon>
-                <h3 className="font-headline text-3xl mb-3" style={{color: paleta.accent}}>Celebración</h3>
+                <SectionIcon><Handshake className="w-12 h-12 mx-auto mb-3" style={{color: paleta?.primary}}/></SectionIcon>
+                <h3 className="font-headline text-3xl mb-3" style={{color: paleta?.accent}}>Celebración</h3>
                 <p className="text-lg text-muted-foreground">{fiesta.configuracion.horaFin ? `A partir de las ${fiesta.configuracion.horaFin} hs.` : 'Luego de la ceremonia'}</p>
-                <p className="text-lg font-semibold" style={{color: paleta.accent}}>{fiesta.configuracion.nombreLugar}</p>
+                <p className="text-lg font-semibold" style={{color: paleta?.accent}}>{fiesta.configuracion.nombreLugar}</p>
             </div>
             <div className="md:col-span-2">
                 <a href={mapUrl} target="_blank" rel="noopener noreferrer">
@@ -139,8 +139,8 @@ const GraziaDetalles: React.FC<{ data: InvitacionDigitalData['detallesEvento'], 
 const GraziaRegalos: React.FC<{ data: InvitacionDigitalData['regalos'], paleta: ColorPalette }> = ({ data, paleta }) => {
     return (
         <>
-            <SectionIcon><Gift className="w-12 h-12 mx-auto mb-3" style={{color: paleta.primary}}/></SectionIcon>
-            <h3 className="font-headline text-3xl mb-3" style={{color: paleta.accent}}>{data.titulo}</h3>
+            <SectionIcon><Gift className="w-12 h-12 mx-auto mb-3" style={{color: paleta?.primary}}/></SectionIcon>
+            <h3 className="font-headline text-3xl mb-3" style={{color: paleta?.accent}}>{data.titulo}</h3>
             <p className="text-muted-foreground max-w-md mx-auto">{data.texto}</p>
         </>
     );
@@ -156,7 +156,7 @@ export const GraziaTemplate: React.FC<{
   isPreview?: boolean;
 }> = ({ fiesta, invitacionData, socialConnections, children, isPreview = false }) => {
   
-  const paletaColores = fiesta.decoracion?.paletaColores || defaultInvitacionDigitalData.cabecera.paletaColores;
+  const paletaColores = invitacionData?.cabecera?.paletaColores || defaultInvitacionDigitalData.cabecera.paletaColores;
   const primaryColor = paletaColores?.primary || 'hsl(var(--primary))';
   const textColor = paletaColores?.accent || '#333';
   

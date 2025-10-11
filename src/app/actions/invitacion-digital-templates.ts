@@ -3,7 +3,7 @@
 
 import { readData, writeData } from '@/lib/data-service';
 import type { InvitacionDigitalData } from '@/types/fiesta';
-import { defaultInvitacionDigitalData } from '@/lib/fiesta-defaults';
+import { defaultInvitacionDigitalData } from '@/lib/invitacion-digital-defaults';
 
 export interface InvitacionDigitalTemplate extends InvitacionDigitalData {
   id: string;
