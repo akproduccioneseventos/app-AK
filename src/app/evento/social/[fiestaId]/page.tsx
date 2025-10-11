@@ -262,17 +262,6 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
 
   return (
     <div className="min-h-screen bg-muted/30">
-        <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
-            <DialogContent>
-                <DialogHeader><DialogTitle>Sube tu Momento</DialogTitle><DialogDescription>Comparte una foto con todos los invitados.</DialogDescription></DialogHeader>
-                 <form onSubmit={handleUploadSubmit} className="space-y-4">
-                    {uploadPreview ? <div className="relative aspect-video"><NextImage src={uploadPreview} alt="Vista previa" layout="fill" objectFit="contain" className="rounded-md"/></div>
-                    : <div className="h-48 border-2 border-dashed rounded-md flex flex-col items-center justify-center bg-background"><Label htmlFor="file-upload-dialog" className="cursor-pointer text-center text-muted-foreground p-4"><Upload className="w-8 h-8 mx-auto mb-2"/>Selecciona o arrastra una foto aquí</Label><Input id="file-upload-dialog" type="file" onChange={handleFileSelect} className="hidden" accept="image/jpeg,image/png,image/gif" /></div>}
-                    <DialogFooter><Button type="submit" disabled={isUploading || !fileToUpload}>{isUploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Upload className="w-4 h-4 mr-2"/>}{isUploading ? "Subiendo..." : "Publicar Foto"}</Button></DialogFooter>
-                </form>
-            </DialogContent>
-        </Dialog>
-
       <header className="sticky top-0 z-20 bg-background/80 backdrop-blur-sm shadow-sm">
         <div className="max-w-5xl mx-auto p-3 flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="text-center sm:text-left">
@@ -284,9 +273,19 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
           </div>
           <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
              <Input value={authorName} onChange={e => handleAuthorNameChange(e.target.value)} placeholder="Tu nombre..." className="h-10 text-base flex-grow"/>
-             <DialogTrigger asChild>
-                <Button onClick={() => setIsUploadDialogOpen(true)} disabled={!authorName} className="h-10"><Upload className="w-5 h-5"/><span className="ml-2 hidden sm:inline">Subir Foto</span></Button>
-             </DialogTrigger>
+            <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+                <DialogTrigger asChild>
+                    <Button onClick={() => setIsUploadDialogOpen(true)} disabled={!authorName} className="h-10"><Upload className="w-5 h-5"/><span className="ml-2 hidden sm:inline">Subir Foto</span></Button>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader><DialogTitle>Sube tu Momento</DialogTitle><DialogDescription>Comparte una foto con todos los invitados.</DialogDescription></DialogHeader>
+                    <form onSubmit={handleUploadSubmit} className="space-y-4">
+                        {uploadPreview ? <div className="relative aspect-video"><NextImage src={uploadPreview} alt="Vista previa" layout="fill" objectFit="contain" className="rounded-md"/></div>
+                        : <div className="h-48 border-2 border-dashed rounded-md flex flex-col items-center justify-center bg-background"><Label htmlFor="file-upload-dialog" className="cursor-pointer text-center text-muted-foreground p-4"><Upload className="w-8 h-8 mx-auto mb-2"/>Selecciona o arrastra una foto aquí</Label><Input id="file-upload-dialog" type="file" onChange={handleFileSelect} className="hidden" accept="image/jpeg,image/png,image/gif" /></div>}
+                        <DialogFooter><Button type="submit" disabled={isUploading || !fileToUpload}>{isUploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Upload className="w-4 h-4 mr-2"/>}{isUploading ? "Subiendo..." : "Publicar Foto"}</Button></DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
              <ShareLinkDialog
                 relativePath={`/evento/social/${params.fiestaId}`}
                 title="Compartir Galería Social"
