@@ -5,12 +5,14 @@ import React, { useState, useRef, useEffect, type KeyboardEvent, type FocusEvent
 import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
+import type { TextStyle } from '@/types/fiesta';
 
 interface EditableTextProps {
   initialValue: string;
   onSave: (newValue: string) => void;
   className?: string;
   textarea?: boolean;
+  style?: TextStyle;
 }
 
 export const EditableText: React.FC<EditableTextProps> = ({
@@ -18,10 +20,17 @@ export const EditableText: React.FC<EditableTextProps> = ({
   onSave,
   className,
   textarea = false,
+  style = {},
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState(initialValue);
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+
+  const dynamicStyle = {
+    fontFamily: style.fontFamily ? `var(--font-${style.fontFamily.toLowerCase()})` : 'inherit',
+    fontSize: style.fontSize || 'inherit',
+    color: style.color || 'inherit',
+  };
 
   useEffect(() => {
     setValue(initialValue);
@@ -63,6 +72,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
       "text-inherit font-inherit text-center", // Inherit text styles
       className,
     ),
+    style: dynamicStyle,
   };
 
   useEffect(() => {
@@ -81,15 +91,16 @@ export const EditableText: React.FC<EditableTextProps> = ({
   }
 
   return (
-    <div
+    <span
       onDoubleClick={handleDoubleClick}
       className={cn(
         "cursor-pointer hover:bg-primary/10 transition-colors p-1 -m-1 rounded-sm",
         className
       )}
       title="Doble clic para editar"
+      style={dynamicStyle}
     >
       {value || <span className="text-muted-foreground italic">[Vacío]</span>}
-    </div>
+    </span>
   );
 };
