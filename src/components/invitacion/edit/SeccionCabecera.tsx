@@ -30,7 +30,7 @@ export const SeccionCabeceraEditor: React.FC<Props> = ({ data, update, fiestaId 
     });
   };
 
-  const handleTextStyleChange = (field: 'subtitulo', style: Partial<TextWithStyle['style']>) => {
+  const handleTextStyleChange = (field: 'subtitulo', style: Partial<TextStyle>) => {
     const currentStyleData = data[field] || { text: '', style: {} };
     const newStyle = { ...currentStyleData.style, ...style };
     handleFieldChange(field, { ...currentStyleData, style: newStyle });
@@ -49,9 +49,10 @@ export const SeccionCabeceraEditor: React.FC<Props> = ({ data, update, fiestaId 
                 currentUrl={data.videoFondoUrl || data.imagenFondoUrl}
                 onUrlChange={(url) => {
                     const isVideo = url.endsWith('.mp4') || url.endsWith('.webm');
-                    handleFieldChange(isVideo ? 'videoFondoUrl' : 'imagenFondoUrl', url);
-                    if(isVideo) handleFieldChange('imagenFondoUrl', undefined);
-                    else handleFieldChange('videoFondoUrl', undefined);
+                    update({
+                        videoFondoUrl: isVideo ? url : undefined,
+                        imagenFondoUrl: !isVideo ? url : undefined,
+                    });
                 }}
                 accept="image/*,video/*"
                 fiestaId={fiestaId}
