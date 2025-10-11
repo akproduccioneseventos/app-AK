@@ -1,0 +1,17 @@
+diff --git a/node_modules/react-qr-reader/package.json b/node_modules/react-qr-reader/package.json
+index 3274291..2547a11 100644
+--- a/node_modules/react-qr-reader/package.json
++++ b/node_modules/react-qr-reader/package.json
+@@ -51,7 +51,7 @@
+     "react": ">=16.8.0",
+     "react-dom": ">=16.8.0"
+   },
+-  "peerDependenciesMeta": {},
++  "peerDependenciesMeta": {
++    "react": ">=16.8.0",
++    "react-dom": ">=16.8.0"
++  },
+   "dependencies": {
+     "@zxing/browser": "^0.1.4",
+     "@zxing/library": "^0.20.0"
+

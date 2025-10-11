@@ -5,13 +5,19 @@ import { Suspense, useEffect, useState, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, InvitacionDigitalData, SocialConnection } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, InvitacionDigitalData, SocialConnection, Invitado } from '@/types/fiesta';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import { defaultInvitacionDigitalData } from '@/lib/invitacion-digital-defaults';
 import { merge, cloneDeep } from 'lodash';
 import { GraziaTemplate } from '@/components/invitacion/templates/GraziaTemplate';
 import { AllegriaTemplate } from '@/components/invitacion/templates/AllegriaTemplate';
+import { handleRsvpSubmission } from '@/app/actions/fiesta/invitados.actions';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import QRCodeStylized from 'qrcode.react';
+import { CheckCircle, Ticket, PartyPopper } from 'lucide-react';
+import Link from 'next/link';
 
 
 function EventoPublicoPageContent() {
@@ -24,6 +30,10 @@ function EventoPublicoPageContent() {
   const [socialConnections, setSocialConnections] = useState<SocialConnection[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // New state for RSVP success
+  const [rsvpSuccess, setRsvpSuccess] = useState(false);
+  const [confirmedGuest, setConfirmedGuest] = useState<Invitado | null>(null);
   
   const loadEventData = useCallback(async () => {
     if (!fiestaId) {
@@ -58,6 +68,23 @@ function EventoPublicoPageContent() {
     loadEventData();
   }, [loadEventData]);
   
+  const onRsvpSubmit = async (submission: {nombreCompleto: string, confirmacion: string, numeroAsistentes: number, mensaje: string, companionNames: string[]}): Promise<boolean> => {
+    if(!fiestaId) return false;
+    try {
+      const result = await handleRsvpSubmission(fiestaId, submission);
+      if(result.success && result.invitado) {
+        setConfirmedGuest(result.invitado);
+        setRsvpSuccess(true);
+        return true;
+      } else {
+        throw new Error(result.error || "No se pudo enviar la confirmación.")
+      }
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+      return false;
+    }
+  }
+
   const renderTemplate = () => {
     if(!fiesta) return null;
 
@@ -65,7 +92,8 @@ function EventoPublicoPageContent() {
       fiesta,
       invitacionData,
       socialConnections,
-      isPreview: false, // This is the public, non-editing view
+      onRsvpSubmit,
+      isPreview: false,
     };
 
     switch(invitacionData.plantilla) {
@@ -84,6 +112,39 @@ function EventoPublicoPageContent() {
 
   if (error || !fiesta) {
     return <div className="flex flex-col items-center justify-center min-h-screen text-center"><p>{error || "No se pudo encontrar el evento."}</p></div>;
+  }
+  
+  if (rsvpSuccess && confirmedGuest && fiesta) {
+    const qrCodeUrl = `${window.location.origin}/evento/actual/checkin?fiestaId=${fiesta.id}&guestId=${confirmedGuest.id}`;
+    return (
+       <div className="min-h-screen bg-gradient-to-br from-green-50 to-background flex flex-col items-center justify-center p-4">
+        <Card className="w-full max-w-md shadow-2xl border-t-4 border-green-500 animate-in fade-in-50 zoom-in-95">
+          <CardHeader className="text-center pb-4">
+            <CheckCircle className="w-20 h-20 mx-auto text-green-500 mb-4" />
+            <CardTitle className="text-3xl font-bold font-headline text-green-600">
+              ¡Confirmación Recibida!
+            </CardTitle>
+            <CardDescription className="text-md">¡Gracias por confirmar, {confirmedGuest.nombre}!</CardDescription>
+          </CardHeader>
+          <CardContent className="text-center space-y-6 py-8">
+            <p className="text-lg text-muted-foreground">Este es tu pase de entrada digital.</p>
+            <div className="bg-white p-4 rounded-lg border inline-block">
+              <QRCodeStylized value={qrCodeUrl} size={160} />
+            </div>
+            {confirmedGuest.tableNumber && (
+              <div className="pt-4 flex items-center justify-center gap-2">
+                <Ticket className="w-6 h-6 text-primary" />
+                <p className="text-xl">Tu mesa asignada es la Nº: <span className="font-bold text-2xl">{confirmedGuest.tableNumber}</span></p>
+              </div>
+            )}
+            <p className="text-sm text-muted-foreground pt-2">Guarda una captura de pantalla de este código para un check-in más rápido.</p>
+          </CardContent>
+          <CardFooter className="justify-center py-4">
+            <p className="text-xs text-muted-foreground flex items-center gap-2"><PartyPopper className="w-4 h-4"/> ¡Nos vemos en la fiesta!</p>
+          </CardFooter>
+        </Card>
+      </div>
+    )
   }
 
   return renderTemplate();

@@ -1,18 +1,17 @@
+
 'use client';
 
-import React, { useState, useEffect, useCallback, Suspense, useRef, useMemo } from 'react';
-import QrScanner from 'react-qr-scanner';
+import React, { useState, useEffect, useCallback, Suspense, useRef } from 'react';
+import { Html5QrcodeScanner, Html5QrcodeScannerState } from 'html5-qrcode';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, AlertTriangle, CheckCircle, Ticket, User, UserCheck, Users, Link as LinkIcon, ArrowLeft, CameraOff, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { checkInGuestFiestaActual } from '@/app/actions/fiesta-actual';
-import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import { checkInGuestFiestaActual, getFiestaActual } from '@/app/actions/fiesta-actual';
 import type { Invitado } from '@/types/invitado';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { Alert, AlertTitle } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -24,8 +23,8 @@ function CheckinScannerContent() {
   
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessingCheckin, setIsProcessingCheckin] = useState(false);
-  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  
+  const scannerRef = useRef<Html5QrcodeScanner | null>(null);
 
   const loadInitialData = useCallback(async (showLoading = true) => {
     if(showLoading) setIsLoading(true);
@@ -38,36 +37,10 @@ function CheckinScannerContent() {
       if(showLoading) setIsLoading(false);
     }
   }, [toast]);
-
+  
   useEffect(() => {
     loadInitialData();
   }, [loadInitialData]);
-
-  useEffect(() => {
-    const getCameraPermission = async () => {
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-          setHasCameraPermission(true);
-           if (videoRef.current) {
-            videoRef.current.srcObject = stream;
-          }
-        } catch (error) {
-          console.error('Error accessing camera:', error);
-          setHasCameraPermission(false);
-          toast({
-            variant: 'destructive',
-            title: 'Acceso a Cámara Denegado',
-            description: 'Por favor, habilita el permiso de cámara en los ajustes de tu navegador.',
-          });
-        }
-      } else {
-        setHasCameraPermission(false);
-      }
-    };
-    getCameraPermission();
-  }, [toast]);
-
 
   const processCheckIn = useCallback(async (guestId: string) => {
     if (isProcessingCheckin) return;
@@ -115,28 +88,56 @@ function CheckinScannerContent() {
   }, [isProcessingCheckin, allGuests, toast]);
 
 
-  const handleScan = async (data: { text: string } | null) => {
-    if (data) {
-      try {
-        const url = new URL(data.text);
-        const guestId = url.searchParams.get('guestId');
-        if (guestId) {
-          await processCheckIn(guestId);
-        }
-      } catch (e) {
+  const onScanSuccess = async (decodedText: string, decodedResult: any) => {
+    if (scannerRef.current && scannerRef.current.getState() === Html5QrcodeScannerState.SCANNING) {
+      scannerRef.current.pause(true);
+    }
+
+    try {
+      const url = new URL(decodedText);
+      const guestId = url.searchParams.get('guestId');
+      if (guestId) {
+        await processCheckIn(guestId);
+      }
+    } catch (e) {
+      if (decodedText.startsWith('inv_')) {
+        await processCheckIn(decodedText);
+      } else {
         toast({ title: "Código QR Inválido", variant: "destructive" });
       }
     }
-  };
-
-  const handleError = (err: any) => {
-    console.error(err);
-    if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-      setHasCameraPermission(false);
-    }
-    toast({ title: "Error de Cámara", description: "No se pudo acceder a la cámara.", variant: "destructive"});
+    
+    setTimeout(() => {
+        if (scannerRef.current && scannerRef.current.getState() === Html5QrcodeScannerState.PAUSED) {
+            scannerRef.current.resume();
+        }
+    }, 2000); // Resume scanning after 2 seconds
   };
   
+  const onScanFailure = (error: any) => {
+    // This is called frequently, so we only log if it's a significant error
+    if (!error.toString().includes("No QR code found")) {
+        console.warn(`QR scan error: ${error}`);
+    }
+  };
+
+  useEffect(() => {
+    const scanner = new Html5QrcodeScanner(
+      "qr-reader",
+      { fps: 10, qrbox: { width: 250, height: 250 } },
+      /* verbose= */ false
+    );
+    scannerRef.current = scanner;
+    scanner.render(onScanSuccess, onScanFailure);
+
+    return () => {
+      if (scannerRef.current && scannerRef.current.getState() !== Html5QrcodeScannerState.NOT_STARTED) {
+          scannerRef.current.clear().catch(err => console.error("Failed to clear scanner", err));
+      }
+    };
+  }, [onScanSuccess]);
+
+
   const checkedInGuests = useMemo(() => allGuests.filter(g => g.checkedIn), [allGuests]);
   const pendingGuests = useMemo(() => {
     const confirmed = allGuests.filter(g => g.rsvp === 'Confirmado' && !g.checkedIn);
@@ -214,23 +215,8 @@ function CheckinScannerContent() {
                  <CardDescription>Apunta la cámara al código QR del invitado para registrar su entrada.</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="relative w-full aspect-square max-w-sm mx-auto bg-black rounded-lg overflow-hidden">
-                    {hasCameraPermission === true && (
-                         <Suspense fallback={<Loader2 className="w-8 h-8 animate-spin" />}>
-                           <QrScanner
-                            onScan={handleScan}
-                            onError={handleError}
-                            constraints={{ video: { facingMode: "environment" } }}
-                            className="w-full h-full object-cover"
-                          />
-                        </Suspense>
-                    )}
-                    {hasCameraPermission === false && (
-                         <div className="flex flex-col items-center justify-center h-full text-white bg-gray-800 p-4">
-                            <CameraOff className="w-10 h-10 mb-4" />
-                            <p className="text-center">No se pudo acceder a la cámara. Por favor, revisa los permisos en tu navegador.</p>
-                        </div>
-                    )}
+                <div className="relative w-full max-w-sm mx-auto bg-black rounded-lg overflow-hidden">
+                    <div id="qr-reader" className="w-full"></div>
                    {isProcessingCheckin && <div className="absolute inset-0 bg-black/60 flex items-center justify-center"><Loader2 className="w-10 h-10 text-white animate-spin"/></div>}
                 </div>
               </CardContent>
