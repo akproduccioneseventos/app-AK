@@ -5,7 +5,7 @@ import React, { use } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Users, LayoutDashboard, Send, ScanLine } from 'lucide-react';
+import { Users, LayoutDashboard, Send } from 'lucide-react';
 
 export default function InvitadosLayout({
   children,
@@ -19,7 +19,6 @@ export default function InvitadosLayout({
   const navItems = [
     { href: `/fiestas/nueva/invitados?fiestaId=${fiestaId}`, label: 'Lista de Invitados', icon: Users, pathSegment: '/invitados' },
     { href: `/fiestas/nueva/invitados/layout?fiestaId=${fiestaId}`, label: 'Diseño de Salón', icon: LayoutDashboard, pathSegment: '/layout' },
-    { href: `/fiestas/nueva/invitados/checkin-scanner?fiestaId=${fiestaId}`, label: 'Escáner Check-in', icon: ScanLine, pathSegment: '/checkin-scanner' }
   ];
 
   return (

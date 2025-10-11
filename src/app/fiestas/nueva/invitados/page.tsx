@@ -8,12 +8,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Plus, Trash2, Users, Mail, Phone, Edit3, Save, Loader2, AlertTriangle, NotebookTextIcon, UserMinus, UserPlus2, QrCode, UserCheck, Ticket, LayoutDashboard, ArrowRight, Printer, Globe, Camera } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Users, Mail, Phone, Edit3, Save, Loader2, AlertTriangle, NotebookTextIcon, UserMinus, UserPlus2, UserCheck, Ticket, LayoutDashboard, ArrowRight, Printer } from 'lucide-react';
 import Link from 'next/link';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import type { Invitado, RsvpStatus, NuevoInvitadoData } from '@/types/invitado';
-import { getFiestaActual, addInvitadoFiestaActual, updateInvitadoFiestaActual, deleteInvitadoFiestaActual, checkInGuestFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaActual, addInvitadoFiestaActual, updateInvitadoFiestaActual, deleteInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
 import {
   Dialog,
   DialogContent,
@@ -36,8 +36,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Badge } from '@/components/ui/badge';
-import QRCodeStylized from 'qrcode.react';
-
 
 export default function InvitadosEventoPage() {
   const { toast } = useToast();
@@ -56,8 +54,6 @@ export default function InvitadosEventoPage() {
   const [editingInvitado, setEditingInvitado] = useState<Invitado | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   
-  const [qrCodeData, setQrCodeData] = useState<{ id: string, name: string } | null>(null);
-
   const fetchInvitados = useCallback(async () => {
     setIsLoading(true);
     setError(null);
@@ -133,15 +129,6 @@ export default function InvitadosEventoPage() {
     setIsSaving(false);
   };
   
-  const handleCheckIn = async (invitadoId: string) => {
-    const result = await checkInGuestFiestaActual(invitadoId);
-    if(result.success && result.invitado) {
-        setInvitados(prev => prev.map(inv => inv.id === invitadoId ? result.invitado! : inv));
-        toast({ title: `Check-in de ${result.invitado.nombre} registrado.` });
-    } else {
-        toast({ title: "Error en Check-in", description: result.error, variant: "destructive" });
-    }
-  };
 
   const handleFieldChange = async (invitadoId: string, field: keyof Invitado, value: any) => {
     const invitadoOriginal = invitados.find(inv => inv.id === invitadoId);
@@ -230,30 +217,11 @@ export default function InvitadosEventoPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6" id="guest-management-page">
-      <Dialog open={!!qrCodeData} onOpenChange={(open) => !open && setQrCodeData(null)}>
-        <DialogContent>
-            <DialogHeader>
-                <DialogTitle>Enlace y QR para {qrCodeData?.name}</DialogTitle>
-                <DialogDescription>Comparte este enlace único o el QR con tu invitado para que pueda acceder a la página de su invitación y confirmar su asistencia.</DialogDescription>
-            </DialogHeader>
-            {qrCodeData && (
-                <div className="flex flex-col items-center justify-center p-4 gap-4">
-                    <div className="bg-white p-4 rounded-lg border">
-                        <QRCodeStylized value={`${window.location.origin}/evento/actual/mesa?guestId=${qrCodeData.id}`} size={200} />
-                    </div>
-                    <Input value={`${window.location.origin}/evento/actual/mesa?guestId=${qrCodeData.id}`} readOnly/>
-                </div>
-            )}
-        </DialogContent>
-      </Dialog>
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 print:hidden">
         <h1 className="text-3xl font-bold tracking-tight font-headline">
           Gestión de Invitados
         </h1>
         <div className="flex flex-wrap gap-2">
-            <Link href="/fiestas/nueva/invitados/checkin-scanner" passHref>
-                <Button variant="secondary"><Camera className="w-4 h-4 mr-2"/>Escanear QR</Button>
-            </Link>
             <Button variant="secondary" onClick={handlePrint}><Printer className="w-4 h-4 mr-2"/>Imprimir Lista</Button>
             <Link href="/fiestas/nueva" passHref>
               <Button variant="outline">
@@ -358,8 +326,6 @@ export default function InvitadosEventoPage() {
                            </div>
                         </div>
                         <div className="flex gap-1 print:hidden">
-                            <Button variant="ghost" size="icon" onClick={() => setQrCodeData({ id: invitado.id, name: invitado.nombre })} className="h-8 w-8 text-primary" title="Mostrar QR"><QrCode className="w-4 h-4" /></Button>
-                            <Button variant="outline" size="sm" className="h-8 text-xs" onClick={() => handleCheckIn(invitado.id)} disabled={invitado.checkedIn}><UserCheck className="w-3.5 h-3.5 mr-1"/>Check-in</Button>
                             <Button variant="ghost" size="icon" onClick={() => openEditModal(invitado)} className="h-8 w-8"><Edit3 className="w-4 h-4" /></Button>
                             <Button variant="ghost" size="icon" onClick={() => handleDeleteInvitado(invitado.id)} className="text-destructive hover:text-destructive/80 h-8 w-8"><UserMinus className="w-4 h-4" /></Button>
                         </div>
@@ -379,7 +345,7 @@ export default function InvitadosEventoPage() {
         </CardContent>
          {invitados.length > 0 && (
             <CardFooter className="text-xs text-muted-foreground border-t pt-3 print:hidden">
-                <Ticket className="w-4 h-4 mr-2 shrink-0"/> Asigna un número de mesa a los invitados confirmados. Este número se mostrará cuando el invitado escanee su código QR.
+                <Ticket className="w-4 h-4 mr-2 shrink-0"/> Asigna un número de mesa a los invitados confirmados.
             </CardFooter>
         )}
       </Card>

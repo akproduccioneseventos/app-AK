@@ -9,7 +9,6 @@ import { Loader2, AlertTriangle, Home, User, Ticket, PartyPopper } from 'lucide-
 import Link from 'next/link';
 import type { FiestaEnPlanificacion, Invitado } from '@/types/fiesta';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
-import QRCodeStylized from 'qrcode.react';
 
 
 function MesaLookupContent() {
@@ -20,7 +19,6 @@ function MesaLookupContent() {
   const [invitado, setInvitado] = useState<Invitado | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [qrCodeUrl, setQrCodeUrl] = useState('');
 
   useEffect(() => {
     async function fetchData() {
@@ -29,7 +27,6 @@ function MesaLookupContent() {
         setIsLoading(false);
         return;
       }
-      setQrCodeUrl(`${window.location.origin}/evento/actual/checkin?guestId=${guestId}`);
       setIsLoading(true);
       setError(null);
       try {
@@ -122,12 +119,6 @@ function MesaLookupContent() {
             <p className="text-muted-foreground">Por favor, consulta con el personal del evento al llegar o revisa esta pantalla más tarde.</p>
           </>
         )}
-        <div className="mt-6 pt-6 border-t border-dashed">
-            <p className="text-xs text-muted-foreground">Este es tu código QR personal para el check-in.</p>
-            <div className="flex justify-center p-3 mt-2 bg-white rounded-lg">
-                 {qrCodeUrl ? <QRCodeStylized value={qrCodeUrl} size={128} fgColor="hsl(var(--foreground))" bgColor="transparent" /> : <Loader2 className="w-8 h-8 animate-spin"/>}
-            </div>
-        </div>
       </CardContent>
       <CardFooter className="justify-center py-4">
          <Link href={`/evento/actual`} passHref>

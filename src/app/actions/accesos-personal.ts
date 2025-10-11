@@ -4,7 +4,7 @@
 import { readData, writeData } from '@/lib/data-service';
 import { randomUUID } from 'crypto';
 
-export type ModuloPermiso = 'musica' | 'itinerario' | 'carga-operativa' | 'decoracion' | 'crm' | 'check-in';
+export type ModuloPermiso = 'musica' | 'itinerario' | 'carga-operativa' | 'decoracion' | 'crm';
 
 export interface AccesoPersonal {
   id: string; // Token único y secreto

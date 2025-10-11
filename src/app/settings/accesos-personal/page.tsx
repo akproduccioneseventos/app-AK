@@ -3,12 +3,12 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft, PlusCircle, Trash2, Loader2, AlertTriangle, KeyRound, ClipboardCopy, Share2, KanbanSquare, Music2, Clock, PackageSearch, Palette, UserCheck } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Trash2, Loader2, AlertTriangle, KeyRound, ClipboardCopy, Share2, KanbanSquare, Music2, Clock, PackageSearch, Palette } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { createAccesoPersonal, getAccesosGenerales, deleteAccesoPersonal, type AccesoPersonal, type ModuloPermiso } from '@/app/actions/accesos-personal';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
@@ -27,7 +27,6 @@ import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
 const MODULOS_PERMITIDOS: { id: ModuloPermiso, label: string, icon: React.ElementType, type: 'general' | 'evento' }[] = [
     { id: 'crm', label: 'Gestión de Prospectos (CRM)', icon: KanbanSquare, type: 'general' },
-    { id: 'check-in', label: 'Check-in de Invitados', icon: UserCheck, type: 'evento' },
     { id: 'musica', label: 'Música de la Fiesta', icon: Music2, type: 'evento' },
     { id: 'itinerario', label: 'Itinerario del Evento', icon: Clock, type: 'evento' },
     { id: 'carga-operativa', label: 'Lista de Carga Operativa', icon: PackageSearch, type: 'evento' },

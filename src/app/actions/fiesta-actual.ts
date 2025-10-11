@@ -23,7 +23,7 @@ import {
 
 import { updateConfiguracion } from './fiesta/configuracion.actions';
 import { updateTareas } from './fiesta/tareas.actions';
-import { addInvitado, deleteInvitado, updateInvitado, handleRsvpSubmission, checkInGuest, getInvitados } from './fiesta/invitados.actions';
+import { addInvitado, deleteInvitado, updateInvitado, handleRsvpSubmission, getInvitados } from './fiesta/invitados.actions';
 import { updateDecoracion } from './fiesta/decoracion.actions';
 import { updatePrograma } from './fiesta/itinerario.actions';
 import { updatePersonal } from './fiesta/personal.actions';
@@ -68,7 +68,7 @@ export const getInvitadosFiestaActual = getInvitados;
 export const addInvitadoFiestaActual = addInvitado;
 export const updateInvitadoFiestaActual = updateInvitado;
 export const handleRsvpSubmissionFiestaActual = handleRsvpSubmission;
-export const checkInGuestFiestaActual = checkInGuest;
+
 
 // --- Decoracion Actions ---
 export const updateDecoracionFiestaActual = updateDecoracion;

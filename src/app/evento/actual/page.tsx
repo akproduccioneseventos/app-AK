@@ -15,10 +15,8 @@ import { AllegriaTemplate } from '@/components/invitacion/templates/AllegriaTemp
 import { handleRsvpSubmission } from '@/app/actions/fiesta/invitados.actions';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import QRCodeStylized from 'qrcode.react';
-import { CheckCircle, Ticket, PartyPopper } from 'lucide-react';
+import { CheckCircle, PartyPopper, Ticket } from 'lucide-react';
 import Link from 'next/link';
-
 
 function EventoPublicoPageContent() {
   const { toast } = useToast();
@@ -92,8 +90,11 @@ function EventoPublicoPageContent() {
       fiesta,
       invitacionData,
       socialConnections,
-      onRsvpSubmit,
       isPreview: false,
+      onRsvpSubmit,
+      onSectionClick: () => {}, // No-op for public view
+      onUpdate: () => {}, // No-op for public view
+      selectedSectionId: null,
     };
 
     switch(invitacionData.plantilla) {
@@ -115,7 +116,6 @@ function EventoPublicoPageContent() {
   }
   
   if (rsvpSuccess && confirmedGuest && fiesta) {
-    const qrCodeUrl = `${window.location.origin}/evento/actual/checkin?fiestaId=${fiesta.id}&guestId=${confirmedGuest.id}`;
     return (
        <div className="min-h-screen bg-gradient-to-br from-green-50 to-background flex flex-col items-center justify-center p-4">
         <Card className="w-full max-w-md shadow-2xl border-t-4 border-green-500 animate-in fade-in-50 zoom-in-95">
@@ -126,21 +126,17 @@ function EventoPublicoPageContent() {
             </CardTitle>
             <CardDescription className="text-md">¡Gracias por confirmar, {confirmedGuest.nombre}!</CardDescription>
           </CardHeader>
-          <CardContent className="text-center space-y-6 py-8">
-            <p className="text-lg text-muted-foreground">Este es tu pase de entrada digital.</p>
-            <div className="bg-white p-4 rounded-lg border inline-block">
-              <QRCodeStylized value={qrCodeUrl} size={160} />
-            </div>
+          <CardContent className="text-center space-y-4 py-8">
+            <p className="text-lg text-muted-foreground">Pronto te asignaremos una mesa. ¡Nos vemos en la fiesta!</p>
             {confirmedGuest.tableNumber && (
               <div className="pt-4 flex items-center justify-center gap-2">
                 <Ticket className="w-6 h-6 text-primary" />
                 <p className="text-xl">Tu mesa asignada es la Nº: <span className="font-bold text-2xl">{confirmedGuest.tableNumber}</span></p>
               </div>
             )}
-            <p className="text-sm text-muted-foreground pt-2">Guarda una captura de pantalla de este código para un check-in más rápido.</p>
           </CardContent>
           <CardFooter className="justify-center py-4">
-            <p className="text-xs text-muted-foreground flex items-center gap-2"><PartyPopper className="w-4 h-4"/> ¡Nos vemos en la fiesta!</p>
+            <p className="text-xs text-muted-foreground flex items-center gap-2"><PartyPopper className="w-4 h-4"/> ¡Te esperamos!</p>
           </CardFooter>
         </Card>
       </div>
