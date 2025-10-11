@@ -93,14 +93,14 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
   },
   dressCode: {
     visible: true,
-    texto: 'Elegante Sport',
+    texto: { text: 'Elegante Sport', style: { fontFamily: 'Inter', fontSize: '1rem', color: '#6b7280' } }
   },
   confirmacion: {
     visible: true,
   },
   despedida: {
     visible: true,
-    texto: '¡Te esperamos para celebrar juntos!',
+    texto: { text: '¡Te esperamos para celebrar juntos!', style: { fontFamily: 'Inter', fontSize: '1.25rem', color: '#333' } },
   },
   footer: {
     visible: true,

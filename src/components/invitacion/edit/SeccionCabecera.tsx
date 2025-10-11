@@ -1,7 +1,7 @@
 
 'use client';
 
-import type { InvitacionDigitalData, ColorPalette, TextWithStyle } from '@/types/fiesta';
+import type { InvitacionDigitalData, ColorPalette, TextWithStyle, TextStyle } from '@/types/fiesta';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { UploadButton } from './UploadButton';

@@ -251,7 +251,7 @@ export const defaultWebPageSettings: EventWebPageSettings = {
   showPrograma: false,
   musicaEspecialText: '',
   showGallery: false, 
-  templateName: 'Obsidiana'
+  templateName: 'Allegria'
 };
 
 

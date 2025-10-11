@@ -46,26 +46,68 @@ export const SectionEditorPanel: React.FC<Props> = ({ data, update, selectedSect
     const renderEditor = () => {
         if (!selectedSection) return null;
         
-        const props = { data: selectedSection.data, update: handleSectionDataChange, fiestaId: fiestaId || undefined };
+        let props: any;
+
+        if (selectedSection.tipo === 'cabecera') {
+            props = { data: data.cabecera, update: (newData: any) => update({ cabecera: { ...data.cabecera, ...newData } }), fiestaId: fiestaId || undefined };
+            return <SeccionCabeceraEditor {...props} />;
+        }
+        
+        if (selectedSection.tipo === 'despedida') {
+            props = { data: data.despedida, update: (newData: any) => update({ despedida: { ...data.despedida, ...newData } }) };
+            return <SeccionDespedidaEditor {...props} />;
+        }
+        
+         if (selectedSection.tipo === 'dressCode') {
+            props = { data: data.dressCode, update: (newData: any) => update({ dressCode: { ...data.dressCode, ...newData } }), fiestaId: fiestaId || undefined };
+            return <SeccionDressCodeEditor {...props} />;
+        }
+        
+        if (selectedSection.tipo === 'historia') {
+            props = { data: data.historia, update: (newData: any) => update({ historia: { ...data.historia, ...newData } }), fiestaId: fiestaId || undefined };
+            return <SeccionHistoriaEditor {...props} />;
+        }
+        
+        if (selectedSection.tipo === 'itinerario') {
+            props = { data: data.itinerario, update: (newData: any) => update({ itinerario: { ...data.itinerario, ...newData } }), fiestaId: fiestaId || undefined };
+            return <SeccionItinerarioEditor {...props} />;
+        }
+
+        if (selectedSection.tipo === 'regalos') {
+            props = { data: data.regalos, update: (newData: any) => update({ regalos: { ...data.regalos, ...newData } }), fiestaId: fiestaId || undefined };
+            return <SeccionRegalos {...props} />;
+        }
+        
+        if (selectedSection.tipo === 'footer') {
+            props = { data: data.footer, update: (newData: any) => update({ footer: { ...data.footer, ...newData } }) };
+            return <SeccionFooterEditor {...props} />;
+        }
+
+        props = { data: selectedSection.data, update: handleSectionDataChange, fiestaId: fiestaId || undefined };
         
         switch (selectedSection.tipo) {
-            case 'cabecera': return <SeccionCabeceraEditor data={data.cabecera} update={(newData) => update({ cabecera: { ...data.cabecera, ...newData } })} fiestaId={fiestaId || undefined} />;
             case 'bienvenida': return <SeccionBienvenidaEditor data={data.bienvenida} update={(newData) => update({ bienvenida: {...data.bienvenida, ...newData} })} fiestaId={fiestaId || undefined} />;
             case 'confirmacion': return <SeccionConfirmacionEditor data={data.confirmacion} update={(newData) => update({ confirmacion: {...data.confirmacion, ...newData} })} />;
             case 'cuentaRegresiva': return <SeccionCuentaRegresivaEditor data={data.cuentaRegresiva} update={(newData) => update({ cuentaRegresiva: {...data.cuentaRegresiva, ...newData} })} />;
             case 'detallesEvento': return <SeccionDetallesEventoEditor data={data.detallesEvento} update={(newData) => update({ detallesEvento: {...data.detallesEvento, ...newData} })} />;
-            case 'dressCode': return <SeccionDressCodeEditor data={data.dressCode} update={(newData) => update({ dressCode: {...data.dressCode, ...newData} })} fiestaId={fiestaId || undefined} />;
             case 'galeria': return <SeccionGaleriaEditor data={data.galeria} update={(newData) => update({ galeria: {...data.galeria, ...newData} })} />;
-            case 'historia': return <SeccionHistoriaEditor data={data.historia} update={(newData) => update({ historia: {...data.historia, ...newData} })} fiestaId={fiestaId || undefined}/>;
-            case 'itinerario': return <SeccionItinerarioEditor data={data.itinerario} update={(newData) => update({ itinerario: {...data.itinerario, ...newData} })} fiestaId={fiestaId || undefined}/>;
-            case 'regalos': return <SeccionRegalos data={data.regalos} update={(newData) => update({ regalos: {...data.regalos, ...newData} })} fiestaId={fiestaId || undefined}/>;
-            case 'despedida': return <SeccionDespedidaEditor data={data.despedida} update={(newData) => update({ despedida: {...data.despedida, ...newData} })} />;
-            case 'footer': return <SeccionFooterEditor data={data.footer} update={(newData) => update({footer: {...data.footer, ...newData}}) } />;
             default: return <div>Editor no implementado para "{selectedSection.tipo}"</div>;
         }
     }
     
-    const currentDataForVisibility = selectedSection?.tipo === 'cabecera' ? data.cabecera : selectedSection?.data;
+    const currentDataForVisibility = selectedSection?.tipo === 'cabecera' 
+        ? data.cabecera 
+        : data[selectedSection?.tipo as keyof Omit<InvitacionDigitalData, 'secciones'>] || selectedSection?.data;
+
+    const handleVisibilityChange = (checked: boolean) => {
+        if (!selectedSection) return;
+        if (selectedSection.tipo === 'cabecera') {
+            update({ cabecera: { ...data.cabecera, visible: checked } });
+        } else {
+            handleSectionDataChange({ visible: checked });
+        }
+    };
+
 
     return (
         <ScrollArea className="h-full">
@@ -78,13 +120,13 @@ export const SectionEditorPanel: React.FC<Props> = ({ data, update, selectedSect
                          <CardTitle className="capitalize pt-2">{selectedSection?.tipo}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        {selectedSection?.tipo !== 'cabecera' && (
-                            <div className="flex items-center justify-between space-x-2 border p-3 rounded-md mb-4">
+                        {selectedSection && (
+                             <div className="flex items-center justify-between space-x-2 border p-3 rounded-md mb-4">
                                 <Label htmlFor={`visible-${selectedSectionId}`} className="font-normal">Mostrar esta sección</Label>
                                 <Switch 
                                     id={`visible-${selectedSectionId}`}
                                     checked={currentDataForVisibility?.visible} 
-                                    onCheckedChange={(checked) => handleSectionDataChange({ visible: checked })}
+                                    onCheckedChange={handleVisibilityChange}
                                 />
                             </div>
                         )}

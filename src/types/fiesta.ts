@@ -178,14 +178,14 @@ export interface TextWithStyle {
 
 export interface SeccionInvitacion {
   id: string;
-  tipo: 'cabecera' | 'bienvenida' | 'cuentaRegresiva' | 'detallesEvento' | 'itinerario' | 'dressCode' | 'galeria' | 'historia' | 'regalos' | 'confirmacion' | 'despedida';
+  tipo: 'cabecera' | 'bienvenida' | 'cuentaRegresiva' | 'detallesEvento' | 'itinerario' | 'dressCode' | 'galeria' | 'historia' | 'regalos' | 'confirmacion' | 'despedida' | 'footer';
   data: any; // El contenido específico de cada sección
 }
 
 export interface InvitacionDigitalData {
   name?: string; // Only for templates
   category?: 'Boda' | 'XV Años' | 'Cumpleaños' | 'General';
-  plantilla: 'Grazia' | 'Obsidiana';
+  plantilla: 'Grazia' | 'Allegria';
   musicaFondoUrl?: string;
   
   secciones: SeccionInvitacion[];
@@ -194,6 +194,7 @@ export interface InvitacionDigitalData {
   cabecera: {
     visible: boolean;
     videoFondoUrl?: string;
+    imagenFondoUrl?: string;
     protagonista1: string;
     protagonista2: string;
     subtitulo: TextWithStyle;
@@ -225,7 +226,7 @@ export interface InvitacionDigitalData {
     visible: boolean;
     fotos: string[];
   };
-  historia?: {
+  historia: {
     visible: boolean;
     titulo: TextWithStyle;
     texto: TextWithStyle;
@@ -242,20 +243,20 @@ export interface InvitacionDigitalData {
   dressCode: {
     visible: boolean;
     imagenFondoUrl?: string;
-    texto: string;
+    texto: TextWithStyle;
   };
   confirmacion: {
     visible: boolean;
   };
   despedida: {
     visible: boolean;
-    texto: string;
-  },
+    texto: TextWithStyle;
+  };
   footer: {
     visible: boolean;
     titulo: TextWithStyle;
     nombreEmpresa: TextWithStyle;
-  }
+  };
 }
 
 
@@ -601,5 +602,5 @@ export interface EventWebPageSettings {
   showPrograma: boolean;
   musicaEspecialText?: string;
   showGallery: boolean;
-  templateName: 'Obsidiana' | 'Grazia';
+  templateName: 'Obsidiana' | 'Grazia' | 'Allegria';
 }
