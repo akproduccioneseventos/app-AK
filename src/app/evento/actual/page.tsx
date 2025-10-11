@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent, useRef, use } from 'react';
@@ -6,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import NextImage from 'next/image';
 import { Loader2, AlertTriangle, PartyPopper, CalendarDays, MapPin, Check, Users, MessageSquare, Send, CheckCircle, Gift, Clock, QrCode, Facebook, Instagram, Music, Utensils, GlassWater, Diamond, Sparkles, CakeSlice, Camera, Link as LinkIcon, ExternalLink, Heart, Church, Mail, Music2, Play, Pause, Handshake } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, InvitacionDigitalData, ColorPalette, Invitado, GiftItem, ProgramaEventoItem, SeccionInvitacion } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, InvitacionDigitalData, ColorPalette, Invitado, GiftItem, ProgramaEventoItem, SeccionInvitacion, TextStyle } from '@/types/fiesta';
 import { getFiestaById, handleRsvpSubmissionFiestaActual, claimGiftFiestaActual } from '@/app/actions/fiesta-actual';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import type { SocialConnection, SocialPlatformName } from '@/types/settings';
@@ -107,13 +108,24 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
         )}
         <div className="absolute inset-0 bg-white/70 backdrop-blur-sm -z-10"></div>
         <div className="relative z-10 p-6 max-w-2xl mx-auto text-center">
-             <div className="font-headline text-2xl" style={{color: paleta?.accent || '#333'}}>
-                <EditableText initialValue={data.subtitulo || "Nuestra Boda"} onSave={(val) => onUpdate?.({ cabecera: { ...data, subtitulo: val } })} />
-            </div>
+            <EditableText 
+                initialValue={data.subtitulo?.text || "Nuestra Boda"}
+                style={data.subtitulo?.style}
+                onSave={(val) => onUpdate?.({ cabecera: { ...data, subtitulo: { ...data.subtitulo, text: val } } })}
+                className="font-headline text-2xl"
+            />
             <h1 className="font-headline text-5xl md:text-7xl my-3" style={{color: primaryColor}}>
-               <EditableText initialValue={data.protagonista1 || "Novio/a 1"} onSave={(val) => onUpdate?.({ cabecera: { ...data, protagonista1: val } })} />
+               <EditableText 
+                    initialValue={data.protagonista1 || "Novio/a 1"} 
+                    onSave={(val) => onUpdate?.({ cabecera: { ...data, protagonista1: val } })}
+                />
                {data.protagonista2 && ` & `}
-               {data.protagonista2 && <EditableText initialValue={data.protagonista2} onSave={(val) => onUpdate?.({ cabecera: { ...data, protagonista2: val } })} />}
+               {data.protagonista2 && 
+                <EditableText 
+                    initialValue={data.protagonista2} 
+                    onSave={(val) => onUpdate?.({ cabecera: { ...data, protagonista2: val } })}
+                />
+               }
             </h1>
             <p className="text-xl font-headline" style={{color: paleta?.accent || '#333'}}>
                 {formatDate(fiesta.configuracion.fechaEvento)}
@@ -153,8 +165,21 @@ const GraziaRegalos: React.FC<{ data: InvitacionDigitalData['regalos'], paleta: 
     return (
         <>
             <SectionIcon><Gift className="w-12 h-12 mx-auto mb-3" style={{color: paleta?.primary}}/></SectionIcon>
-            <h3 className="font-headline text-3xl mb-3" style={{color: paleta?.accent}}><EditableText initialValue={data.titulo} onSave={v => onUpdate?.({ regalos: {...data, titulo: v}})} /></h3>
-            <p className="text-muted-foreground max-w-md mx-auto"><EditableText initialValue={data.texto} onSave={v => onUpdate?.({ regalos: {...data, texto: v}})} textarea/></p>
+            <h3 className="font-headline text-3xl mb-3" style={{color: paleta?.accent}}>
+              <EditableText 
+                initialValue={data.titulo?.text || "Lista de Regalos"} 
+                style={data.titulo?.style} 
+                onSave={v => onUpdate?.({ regalos: {...data, titulo: {...data.titulo, text: v}}})} 
+              />
+            </h3>
+            <p className="text-muted-foreground max-w-md mx-auto">
+              <EditableText 
+                initialValue={data.texto?.text || "Tu presencia es nuestro mejor regalo..."} 
+                style={data.texto?.style} 
+                onSave={v => onUpdate?.({ regalos: {...data, texto: {...data.texto, text: v}}})}
+                textarea
+              />
+            </p>
         </>
     );
 };
@@ -198,7 +223,7 @@ export const GraziaTemplate: React.FC<{
     } : { seccion };
     
     switch (seccion.tipo) {
-      case 'bienvenida': return <SectionWrapper {...wrapperProps}><SectionIcon><Heart className="w-12 h-12 mx-auto mb-3" style={{color: primaryColor}} /></SectionIcon><h2 className="font-headline text-2xl mb-4"><EditableText initialValue={seccion.data.titulo} onSave={v => onUpdate?.({ bienvenida: {...seccion.data, titulo: v} })}/></h2><p className="max-w-xl mx-auto text-muted-foreground"><EditableText initialValue={seccion.data.texto} onSave={v => onUpdate?.({ bienvenida: {...seccion.data, texto: v} })} textarea/></p></SectionWrapper>;
+      case 'bienvenida': return <SectionWrapper {...wrapperProps}><SectionIcon><Heart className="w-12 h-12 mx-auto mb-3" style={{color: primaryColor}} /></SectionIcon><h2 className="font-headline text-2xl mb-4"><EditableText initialValue={seccion.data.titulo?.text || ""} style={seccion.data.titulo?.style} onSave={v => onUpdate?.({ bienvenida: {...seccion.data, titulo: {...seccion.data.titulo, text: v}}})}/></h2><p className="max-w-xl mx-auto text-muted-foreground"><EditableText initialValue={seccion.data.texto?.text || ""} style={seccion.data.texto?.style} onSave={v => onUpdate?.({ bienvenida: {...seccion.data, texto: {...seccion.data.texto, text: v}}})} textarea/></p></SectionWrapper>;
       case 'cuentaRegresiva': return <SectionWrapper {...wrapperProps}><h3 className="font-headline text-2xl mb-4" style={{color: primaryColor}}>Faltan</h3><CountdownTimer targetDate={fiesta.configuracion.fechaEvento} /></SectionWrapper>;
       case 'detallesEvento': return <SectionWrapper {...wrapperProps}><GraziaDetalles {...props} /></SectionWrapper>;
       case 'regalos': return <SectionWrapper {...wrapperProps}><GraziaRegalos {...props} /></SectionWrapper>;

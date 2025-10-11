@@ -1,4 +1,5 @@
 
+
 import type { InvitacionDigitalData, SeccionInvitacion } from '@/types/fiesta';
 
 export const defaultInvitacionDigitalData: InvitacionDigitalData = {
@@ -6,12 +7,12 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
   musicaFondoUrl: '',
   secciones: [
     { id: 'cabecera', tipo: 'cabecera', data: { visible: true, protagonista1: 'Novio/a 1', protagonista2: 'Novio/a 2' } },
-    { id: 'bienvenida', tipo: 'bienvenida', data: { visible: true, titulo: '¡Nos Casamos!', texto: 'Y queremos que seas parte de este día tan especial...' } },
+    { id: 'bienvenida', tipo: 'bienvenida', data: { visible: true, titulo: { text: '¡Nos Casamos!' }, texto: { text: 'Y queremos que seas parte de este día tan especial...' } } },
     { id: 'cuentaRegresiva', tipo: 'cuentaRegresiva', data: { visible: true } },
     { id: 'detallesEvento', tipo: 'detallesEvento', data: { visible: true, infoPadresVisible: false } },
     { id: 'itinerario', tipo: 'itinerario', data: { visible: true } },
     { id: 'dressCode', tipo: 'dressCode', data: { visible: true, texto: 'Elegante Sport' } },
-    { id: 'regalos', tipo: 'regalos', data: { visible: true, titulo: 'Lista de Regalos', texto: 'Tu presencia es nuestro mejor regalo...', datosBancarios: '', items: [] } },
+    { id: 'regalos', tipo: 'regalos', data: { visible: true, titulo: { text: 'Lista de Regalos' }, texto: { text: 'Tu presencia es nuestro mejor regalo...' }, datosBancarios: '', items: [] } },
     { id: 'confirmacion', tipo: 'confirmacion', data: { visible: true } },
     { id: 'instagram', tipo: 'instagram', data: { visible: true, hashtag: '#NuestraBoda', texto: '¡Comparte tus fotos!' } },
     { id: 'despedida', tipo: 'despedida', data: { visible: true, texto: '¡Te esperamos!' } },
@@ -21,6 +22,7 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
     visible: true,
     protagonista1: '',
     protagonista2: '',
+    subtitulo: { text: 'Nuestra Boda', style: { fontFamily: 'Inter', fontSize: '1.5rem', color: '#333' } },
     paletaColores: {
         primary: '#EF4444',
         secondary: '#F97316',
@@ -29,8 +31,8 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
   },
   bienvenida: {
     visible: true,
-    titulo: '¡Nos Casamos!',
-    texto: 'Y queremos que seas parte de este día tan especial para nosotros. Prepárate para una noche llena de alegría, música y buenos momentos.',
+    titulo: { text: '¡Nos Casamos!', style: { fontFamily: 'Belleza', fontSize: '2rem', color: '#000' } },
+    texto: { text: 'Y queremos que seas parte de este día tan especial para nosotros. Prepárate para una noche llena de alegría, música y buenos momentos.', style: { fontFamily: 'Inter', fontSize: '1rem', color: '#6b7280' } },
   },
   cuentaRegresiva: {
       visible: true
@@ -52,13 +54,13 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
   },
   historia: {
     visible: false,
-    titulo: 'Nuestra Historia',
-    texto: '',
+    titulo: { text: 'Nuestra Historia', style: { fontFamily: 'Belleza', fontSize: '2rem', color: '#000' } },
+    texto: { text: 'Un breve relato de cómo llegamos hasta aquí...', style: { fontFamily: 'Inter', fontSize: '1rem', color: '#6b7280' } },
   },
   regalos: {
     visible: true,
-    titulo: 'Lista de Regalos',
-    texto: 'Tu presencia es nuestro mejor regalo. Si aún así deseas obsequiarnos algo, puedes elegir una de estas opciones o ayudarnos con nuestra luna de miel.',
+    titulo: { text: 'Lista de Regalos', style: { fontFamily: 'Belleza', fontSize: '2rem', color: '#000' } },
+    texto: { text: 'Tu presencia es nuestro mejor regalo. Si aún así deseas obsequiarnos algo, puedes elegir una de estas opciones o ayudarnos con nuestra luna de miel.', style: { fontFamily: 'Inter', fontSize: '1rem', color: '#6b7280' } },
     datosBancarios: '',
     items: [],
   },

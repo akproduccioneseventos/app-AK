@@ -165,6 +165,17 @@ export interface ItineraryTemplate {
   items: ProgramaEventoItem[];
 }
 
+export interface TextStyle {
+    fontFamily: 'Belleza' | 'Inter';
+    fontSize: string; // '16px', '2rem', etc.
+    color: string; // hex, rgb, etc.
+}
+
+export interface TextWithStyle {
+    text: string;
+    style?: TextStyle;
+}
+
 export interface SeccionInvitacion {
   id: string;
   tipo: 'cabecera' | 'bienvenida' | 'cuentaRegresiva' | 'detallesEvento' | 'itinerario' | 'dressCode' | 'galeria' | 'historia' | 'regalos' | 'instagram' | 'confirmacion' | 'despedida';
@@ -186,12 +197,14 @@ export interface InvitacionDigitalData {
     videoFondoUrl?: string;
     protagonista1: string;
     protagonista2: string;
+    subtitulo?: TextWithStyle;
+    paletaColores?: ColorPalette;
   };
   bienvenida: {
     visible: boolean;
     imagenFondoUrl?: string;
-    titulo: string;
-    texto: string;
+    titulo: TextWithStyle;
+    texto: TextWithStyle;
   };
    cuentaRegresiva: {
     visible: boolean;
@@ -215,15 +228,15 @@ export interface InvitacionDigitalData {
   };
   historia?: {
     visible: boolean;
-    titulo: string;
-    texto: string;
+    titulo: TextWithStyle;
+    texto: TextWithStyle;
     imagenFondoUrl?: string;
   };
   regalos: {
     visible: boolean;
     imagenFondoUrl?: string;
-    titulo: string;
-    texto: string;
+    titulo: TextWithStyle;
+    texto: TextWithStyle;
     datosBancarios: string;
     items: GiftItem[];
   };
