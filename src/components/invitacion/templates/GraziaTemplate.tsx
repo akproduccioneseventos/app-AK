@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -7,7 +8,7 @@ import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
 import { CountdownTimer } from '@/components/countdown-timer';
 import { Separator } from '@/components/ui/separator';
-import { Church, Building, PartyPopper, Gift, Heart, MapPin, Play, Pause, Facebook, Instagram, Music, MessageSquare, Sparkles, Check, ArrowRight, X, Calendar, User, Mail, Grid, Code, Palette as PaletteIcon, Share2, Camera as CameraIcon, ArrowLeft, ArrowRight, Clock, Users as UsersIcon, Link as LinkIcon, QrCode, Download } from 'lucide-react';
+import { Church, Building, PartyPopper, Gift, Heart, MapPin, Play, Pause, Facebook, Instagram, Music, MessageSquare, Sparkles, Check, ArrowRight, X, Calendar, User, Mail, Grid, Code, Palette as PaletteIcon, Share2, Camera as CameraIcon, ArrowLeft, Clock, Users as UsersIcon, Link as LinkIcon, QrCode, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import type { SocialPlatformName } from '@/types/settings';
@@ -22,7 +23,7 @@ import { claimGiftFiestaActual } from '@/app/actions/fiesta-actual';
 import { Loader2 } from 'lucide-react';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Textarea } from '@/components/ui/textarea';
-import QRCodeStylized from '@/components/qr-code-stylized';
+import QRCodeStylized from 'qrcode.react';
 
 
 interface TemplateProps {
@@ -35,6 +36,11 @@ interface TemplateProps {
   onRsvpSubmit?: (data: any) => Promise<boolean>;
   selectedSectionId?: string | null;
 }
+
+const formatDate = (dateString?: string) => {
+    if (!dateString) return "Fecha a confirmar";
+    return new Date(dateString).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+};
 
 const SectionWrapper: React.FC<{ 
     seccion: SeccionInvitacion, 
@@ -94,10 +100,6 @@ const FloralSeparator: React.FC<{ color: string }> = ({ color }) => (
     </motion.div>
 );
 
-const formatDate = (dateString?: string) => {
-    if (!dateString) return "Fecha a confirmar";
-    return new Date(dateString).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
-};
 
 
 const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta: FiestaEnPlanificacion, paleta: ColorPalette, onUpdate?: (newData: Partial<InvitacionDigitalData>) => void, isPreview?: boolean }> = ({ data, fiesta, paleta, onUpdate, isPreview }) => {
@@ -178,7 +180,7 @@ const GraziaDetalles: React.FC<{ data: InvitacionDigitalData['detallesEvento'], 
     {...data.celebracion, icon: PartyPopper}
   ].filter(d => d && d.visible);
 
-  const formatDate = (dateString?: string) => {
+  const formatDateDetalle = (dateString?: string) => {
     if (!dateString) return null;
     try {
         const date = new Date(dateString);
@@ -243,7 +245,7 @@ const GraziaDetalles: React.FC<{ data: InvitacionDigitalData['detallesEvento'], 
           </div>
         )}
         <div className="text-lg space-y-1">
-          {detalle.fecha && <p className="font-semibold">{formatDate(detalle.fecha)}</p>}
+          {detalle.fecha && <p className="font-semibold">{formatDateDetalle(detalle.fecha)}</p>}
           {detalle.hora && <p className="text-muted-foreground">{detalle.hora} hs.</p>}
           {detalle.nombreLugar && <p className="text-xl font-semibold mt-1">{detalle.nombreLugar}</p>}
           {detalle.direccionLugar && <p className="text-sm text-muted-foreground">{detalle.direccionLugar}</p>}
@@ -540,19 +542,17 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
       case 'historia': 
         return <SectionWrapper {...wrapperProps}>
             <SectionIcon><Heart className="w-12 h-12 mx-auto mb-3" style={{color: paletaColores.primary}} /></SectionIcon>
-            <h3 className="font-headline text-3xl mb-4" style={{color: paletaColores.accent}}>{seccion.data.titulo?.text}</h3>
-            <p className="max-w-prose mx-auto text-muted-foreground">{seccion.data.texto?.text}</p>
-        </SectionWrapper>;
+            <h3 className="font-headline text-3xl mb-4" style={{color: paletaColores.accent}}><EditableText initialValue={seccion.data.titulo?.text || 'Nuestra Historia'} style={seccion.data.titulo?.style} onSave={(v) => onUpdate?.({ historia: { ...seccion.data, titulo: { ...(seccion.data.titulo || {style:{}}), text: v } } })} textarea={false}/></h3>
+            <p className="max-w-prose mx-auto text-muted-foreground"><EditableText initialValue={seccion.data.texto?.text || 'Un breve relato de nuestro camino juntos...'} style={seccion.data.texto?.style} onSave={(v) => onUpdate?.({ historia: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } } })} textarea /></p></SectionWrapper>;
       case 'regalos': 
         return <SectionWrapper {...wrapperProps}><GraziaRegalos {...props} fiestaId={fiesta.id}/></SectionWrapper>;
       case 'dressCode': 
         return <SectionWrapper {...wrapperProps}>
             <SectionIcon><Sparkles className="w-12 h-12 mx-auto mb-3" style={{color: paletaColores.primary}} /></SectionIcon>
             <h3 className="font-headline text-3xl mb-2" style={{color: paletaColores.accent}}>Código de Vestimenta</h3>
-            <p className="text-xl font-semibold">{seccion.data.texto?.text}</p>
+            <p className="text-xl font-semibold"><EditableText initialValue={seccion.data.texto?.text || 'Elegante'} style={seccion.data.texto?.style} onSave={v => onUpdate?.({ dressCode: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } } })} textarea={false} /></p>
             {seccion.data.sugeridos?.length > 0 && <div className="mt-4"><p className="text-sm font-medium">Colores Sugeridos:</p><div className="flex justify-center gap-2 mt-2">{seccion.data.sugeridos.map((c:string, i:number) => <div key={i} className="w-6 h-6 rounded-full border" style={{backgroundColor: c}}></div>)}</div></div>}
-            {seccion.data.evitar?.length > 0 && <div className="mt-4"><p className="text-sm font-medium">Colores a Evitar:</p><div className="flex justify-center gap-2 mt-2">{seccion.data.evitar.map((c:string, i:number) => <div key={i} className="w-6 h-6 rounded-full border" style={{backgroundColor: c}}></div>)}</div></div>}
-        </SectionWrapper>;
+            {seccion.data.evitar?.length > 0 && <div className="mt-4"><p className="text-sm font-medium">Colores a Evitar:</p><div className="flex justify-center gap-2 mt-2">{seccion.data.evitar.map((c:string, i:number) => <div key={i} className="w-6 h-6 rounded-full border" style={{backgroundColor: c}}></div>)}</div></div></SectionWrapper>;
       case 'confirmacion': 
         return <SectionWrapper {...wrapperProps}><Button size="lg" style={{backgroundColor: paletaColores.primary}} onClick={() => !isPreview && setIsRsvpModalOpen(true)}>Confirmar Asistencia</Button></SectionWrapper>;
       case 'redesSociales': 
@@ -560,7 +560,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
           <SectionWrapper {...wrapperProps}>
             <SectionIcon><Share2 className="w-12 h-12 mx-auto mb-3" style={{ color: primaryColor }} /></SectionIcon>
             <h3 className="font-headline text-3xl mb-3" style={{ color: paletaColores.accent }}>
-              <EditableText initialValue={seccion.data.texto?.text || "¡Comparte tus momentos!"} style={seccion.data.texto?.style} onSave={v => onUpdate?.({ redesSociales: { ...seccion.data, texto: { ...(seccion.data.texto || { style: {} }), text: v } }})} textarea={false} />
+                <EditableText initialValue={seccion.data.texto.text} style={seccion.data.texto.style} onSave={v => onUpdate?.({ redesSociales: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } }})} textarea={false} />
             </h3>
             {seccion.data.hashtag && (
               <p className="text-xl font-bold" style={{ color: primaryColor }}>
@@ -619,7 +619,9 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
        )}
        {invitacionData.footer.visible && (
         <footer className="text-center py-8 mt-8 border-t bg-muted/20">
-            <h4 className="font-headline text-lg mb-2" style={{color: primaryColor}}>Síguenos en las redes</h4>
+            <h4 className="font-headline text-lg mb-2" style={{color: primaryColor}}>
+                 <EditableText initialValue={invitacionData.footer.titulo.text} style={invitacionData.footer.titulo.style} onSave={(v) => onUpdate?.({ footer: { ...invitacionData.footer, titulo: { ...invitacionData.footer.titulo, text: v } } })} textarea={false}/>
+            </h4>
             <div className="flex justify-center items-center gap-4 mb-4">
                 {socialConnections.filter(c => c.isConnected).map(conn => {
                     const Icon = socialIcons[conn.platform as keyof typeof socialIcons] || LinkIcon;
@@ -636,7 +638,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
                 })}
             </div>
             <p className="text-sm font-headline" style={{color: primaryColor}}>
-                <EditableText initialValue={invitacionData.footer.nombreEmpresa?.text || 'AK Producciones'} style={invitacionData.footer.nombreEmpresa?.style} onSave={v => onUpdate?.({ footer: { ...invitacionData.footer, nombreEmpresa: { text: v } } })} textarea={false}/>
+                <EditableText initialValue={invitacionData.footer.nombreEmpresa?.text || 'AK Producciones'} style={invitacionData.footer.nombreEmpresa?.style} onSave={v => onUpdate?.({ footer: { ...invitacionData.footer, nombreEmpresa: { ...invitacionData.footer.nombreEmpresa, text: v } } })} textarea={false}/>
             </p>
        </footer>
        )}
@@ -655,3 +657,5 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
     </div>
   );
 };
+
+    
