@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, Suspense, use } from 'react';
@@ -24,6 +23,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import QRCodeStylized from 'qrcode.react';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { ClipboardCopy } from 'lucide-react';
 
 
