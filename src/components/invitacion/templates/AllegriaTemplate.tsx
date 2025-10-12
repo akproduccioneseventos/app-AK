@@ -11,6 +11,8 @@ import { Separator } from '@/components/ui/separator';
 import { Church, GlassWater, Gift, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import type { DetalleEventoEspecifico } from '@/types/fiesta';
+
 
 interface TemplateProps {
   fiesta: FiestaEnPlanificacion;
@@ -33,29 +35,60 @@ const Section: React.FC<{ id: string, onClick?: () => void, isSelected?: boolean
 
 
 const AllegriaDetalles: React.FC<{ data: InvitacionDigitalData['detallesEvento'], fiesta: FiestaEnPlanificacion, paleta: ColorPalette, onUpdate?: (newData: Partial<InvitacionDigitalData>) => void }> = ({ data, fiesta, paleta, onUpdate }) => {
-    const mapQuery = fiesta.configuracion.nombreLugar ? encodeURIComponent(fiesta.configuracion.nombreLugar) : '';
-    const mapUrl = `https://www.google.com/maps?q=${mapQuery}`;
+  
+  const detallesAMostrar = [
+    data.ceremoniaReligiosa,
+    data.ceremoniaCivil,
+    data.celebracion
+  ].filter(d => d && d.visible);
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return null;
+    try {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+    } catch(e) { return "Fecha inválida"; }
+  };
+  
+  const renderDetalle = (detalle: DetalleEventoEspecifico) => {
+    if (!detalle || !detalle.visible) return null;
+    
+    const mapUrl = detalle.mapaUrl || (detalle.nombreLugar ? `https://www.google.com/maps?q=${encodeURIComponent(detalle.nombreLugar)}` : '#');
+
     return (
-        <div className="max-w-md mx-auto text-center">
-            <div className="relative aspect-video w-full rounded-lg overflow-hidden shadow-lg mb-6">
-                {data.imagenFondoUrl ? (
-                    <NextImage src={data.imagenFondoUrl} alt={`Foto de ${fiesta.configuracion.nombreLugar}`} layout="fill" objectFit="cover" />
-                ) : (
-                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                        <span className="text-muted-foreground text-sm">Foto del Salón</span>
-                    </div>
-                )}
-            </div>
-            <h3 className="font-headline text-3xl mb-2" style={{color: paleta.primary}}>La Celebración</h3>
-            <p className="text-lg text-muted-foreground">{fiesta.configuracion.horaInicio} hs.</p>
-            <p className="text-xl font-semibold mt-1" style={{color: paleta.accent}}>{fiesta.configuracion.nombreLugar}</p>
-            <Button asChild variant="link" className="mt-4 text-lg" style={{color: paleta.primary}}>
-                <a href={mapUrl} target="_blank" rel="noopener noreferrer">
-                    <MapPin className="w-5 h-5 mr-2"/> Cómo Llegar
-                </a>
-            </Button>
+      <div key={detalle.titulo} className="max-w-md mx-auto text-center mb-12 last:mb-0">
+        <h3 className="font-headline text-3xl mb-4" style={{color: paleta.primary}}>{detalle.titulo}</h3>
+        {detalle.imagenUrl && (
+          <div className="relative aspect-video w-full rounded-lg overflow-hidden shadow-lg mb-6">
+            <NextImage src={detalle.imagenUrl} alt={`Foto de ${detalle.nombreLugar}`} layout="fill" objectFit="cover" />
+          </div>
+        )}
+        <div className="text-lg space-y-1">
+          {detalle.fecha && <p className="font-semibold">{formatDate(detalle.fecha)}</p>}
+          {detalle.hora && <p className="text-muted-foreground">{detalle.hora} hs.</p>}
+          {detalle.nombreLugar && <p className="text-xl font-semibold mt-1" style={{color: paleta.accent}}>{detalle.nombreLugar}</p>}
+          {detalle.direccionLugar && <p className="text-sm text-muted-foreground">{detalle.direccionLugar}</p>}
         </div>
+        {(detalle.mapaUrl || detalle.nombreLugar) && (
+          <Button asChild variant="link" className="mt-4 text-lg" style={{color: paleta.primary}}>
+            <a href={mapUrl} target="_blank" rel="noopener noreferrer">
+              <MapPin className="w-5 h-5 mr-2"/> Ver en Mapa
+            </a>
+          </Button>
+        )}
+      </div>
     );
+  };
+
+  return (
+    <div>
+        {detallesAMostrar.length > 0 ? (
+          detallesAMostrar.map(renderDetalle)
+        ) : (
+          <p className="text-muted-foreground italic">Los detalles del evento no están configurados.</p>
+        )}
+    </div>
+  );
 };
 
 export const AllegriaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData, onUpdate, onSectionClick, selectedSectionId, isPreview }) => {
