@@ -1,10 +1,9 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, Suspense, use } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Loader2, ArrowLeft, Save, Sparkles, PlusCircle, AlertTriangle, GripVertical, Settings2, Eye, LayoutGrid, X, Link as LinkIcon, QrCode } from 'lucide-react';
+import { Loader2, ArrowLeft, Save, Sparkles, PlusCircle, AlertTriangle, GripVertical, Settings2, Eye, LayoutGrid, X, Link as LinkIcon, QrCode, Music, Camera } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion, InvitacionDigitalData, SeccionInvitacion } from '@/types/fiesta';
@@ -25,7 +24,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import QRCodeStylized from 'qrcode.react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ClipboardCopy } from 'lucide-react';
+import { ClipboardCopy, Gift } from 'lucide-react';
 
 
 function PaginaWebPageContent() {
@@ -230,7 +229,7 @@ function PaginaWebPageContent() {
                       <div className="space-y-3">
                           {invitacionData.regalos.visible && (
                             <Card className="bg-muted/40 p-3">
-                                <Label className="text-sm font-medium">Lista de Regalos</Label>
+                                <Label className="text-sm font-medium flex items-center gap-1.5"><Gift className="w-4 h-4"/>Lista de Regalos</Label>
                                 <div className="flex items-center space-x-2 mt-2">
                                     <Input value={getFullLink('/evento/actual', 'regalos')} readOnly />
                                     <Button size="icon" variant="outline" onClick={() => handleCopyToClipboard(getFullLink('/evento/actual', 'regalos'))}><ClipboardCopy className="h-4 w-4" /></Button>
@@ -243,16 +242,16 @@ function PaginaWebPageContent() {
                           )}
                           {invitacionData.confirmacion.visible && (
                             <Card className="bg-muted/40 p-3">
-                                 <Label className="text-sm font-medium">Confirmar Asistencia (RSVP)</Label>
+                                 <Label className="text-sm font-medium flex items-center gap-1.5"><Check className="w-4 h-4"/>Confirmar Asistencia (RSVP)</Label>
                                 <div className="flex items-center space-x-2 mt-2">
                                     <Input value={getFullLink('/evento/actual', 'confirmacion')} readOnly />
                                     <Button size="icon" variant="outline" onClick={() => handleCopyToClipboard(getFullLink('/evento/actual', 'confirmacion'))}><ClipboardCopy className="h-4 w-4" /></Button>
                                 </div>
                             </Card>
                           )}
-                          {fiesta.socialGallerySettings?.enabled && (
+                          {invitacionData.redesSociales.visible && fiesta.socialGallerySettings?.enabled && (
                               <Card className="bg-muted/40 p-3">
-                                  <Label className="text-sm font-medium">Muro Social</Label>
+                                  <Label className="text-sm font-medium flex items-center gap-1.5"><Camera className="w-4 h-4"/>Muro Social</Label>
                                   <div className="flex items-center space-x-2 mt-2">
                                       <Input value={getFullLink('/evento/social/[fiestaId]')} readOnly />
                                       <Button size="icon" variant="outline" onClick={() => handleCopyToClipboard(getFullLink('/evento/social/[fiestaId]'))}><ClipboardCopy className="h-4 w-4" /></Button>
@@ -262,6 +261,16 @@ function PaginaWebPageContent() {
                                       <Button size="sm" variant="link" onClick={() => downloadQR('qr-social', 'qr-muro-social')}>Descargar QR</Button>
                                   </div>
                               </Card>
+                          )}
+                           {invitacionData.musica?.visible && (
+                            <Card className="bg-muted/40 p-3">
+                                 <Label className="text-sm font-medium flex items-center gap-1.5"><Music className="w-4 h-4"/>Sugerencias Musicales</Label>
+                                <div className="flex items-center space-x-2 mt-2">
+                                    <Input value={getFullLink('/evento/actual', 'confirmacion')} readOnly />
+                                    <Button size="icon" variant="outline" onClick={() => handleCopyToClipboard(getFullLink('/evento/actual', 'confirmacion'))}><ClipboardCopy className="h-4 h-4" /></Button>
+                                </div>
+                                <p className="text-xs text-muted-foreground mt-1">El formulario de música está junto al de RSVP.</p>
+                            </Card>
                           )}
                       </div>
                   </div>
@@ -299,4 +308,3 @@ export default function PaginaWebYPortalPage() {
     );
 }
 
-    
