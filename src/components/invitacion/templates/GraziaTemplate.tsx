@@ -8,10 +8,14 @@ import { EditableText } from '../edit/EditableText';
 import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
 import { CountdownTimer } from '@/components/countdown-timer';
+import { Separator } from '@/components/ui/separator';
 import { Church, GlassWater, Gift, Heart, MapPin, Play, Pause, Facebook, Instagram, Music, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 import type { SocialPlatformName } from '@/types/settings';
 import { motion } from "framer-motion";
+import type { DetalleEventoEspecifico } from '@/types/fiesta';
+
 
 interface TemplateProps {
   fiesta: FiestaEnPlanificacion;
@@ -108,6 +112,11 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
         )}
         <div className="absolute inset-0 bg-white/70 backdrop-blur-sm -z-10"></div>
         <div className="relative z-10 p-6 max-w-2xl mx-auto text-center">
+            {data.logoUrl && (
+                <div className="relative h-24 w-full mb-4">
+                    <NextImage src={data.logoUrl} alt="Logo del evento" layout="fill" objectFit="contain" />
+                </div>
+            )}
              <EditableText 
                 initialValue={data.subtitulo?.text || "Nuestra Boda"}
                 style={data.subtitulo?.style}
@@ -142,29 +151,60 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
 
 
 const GraziaDetalles: React.FC<{ data: InvitacionDigitalData['detallesEvento'], fiesta: FiestaEnPlanificacion, paleta: ColorPalette, onUpdate?: (newData: Partial<InvitacionDigitalData>) => void }> = ({ data, fiesta, paleta, onUpdate }) => {
-    const mapQuery = fiesta.configuracion.nombreLugar ? encodeURIComponent(fiesta.configuracion.nombreLugar) : '';
-    const mapUrl = `https://www.google.com/maps?q=${mapQuery}`;
+  
+  const detallesAMostrar = [
+    data.ceremoniaReligiosa,
+    data.ceremoniaCivil,
+    data.celebracion
+  ].filter(d => d && d.visible);
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return null;
+    try {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+    } catch(e) { return "Fecha inválida"; }
+  };
+  
+  const renderDetalle = (detalle: DetalleEventoEspecifico) => {
+    if (!detalle || !detalle.visible) return null;
+    
+    const mapUrl = detalle.mapaUrl || (detalle.nombreLugar ? `https://www.google.com/maps?q=${encodeURIComponent(detalle.nombreLugar)}` : '#');
+
     return (
-        <div className="grid md:grid-cols-2 gap-8 max-w-2xl mx-auto">
-            <div className="text-center">
-                <SectionIcon><Church className="w-12 h-12 mx-auto mb-3" style={{color: paleta.primary}}/></SectionIcon>
-                <h3 className="font-headline text-3xl mb-2">Ceremonia</h3>
-                <p className="text-lg text-muted-foreground">{fiesta.configuracion.horaInicio} hs.</p>
-                <p className="text-lg font-semibold" style={{color: paleta.accent}}>{fiesta.configuracion.nombreLugar}</p>
-            </div>
-             <div className="text-center">
-                <SectionIcon><GlassWater className="w-12 h-12 mx-auto mb-3" style={{color: paleta.primary}}/></SectionIcon>
-                <h3 className="font-headline text-3xl mb-2">Celebración</h3>
-                <p className="text-lg text-muted-foreground">{fiesta.configuracion.horaFin ? `${fiesta.configuracion.horaFin} hs.` : 'A continuación'}</p>
-                <p className="text-lg font-semibold" style={{color: paleta.accent}}>{fiesta.configuracion.nombreLugar}</p>
-            </div>
-            <div className="md:col-span-2">
-                <a href={mapUrl} target="_blank" rel="noopener noreferrer">
-                  <Button variant="outline" className="mt-4"><MapPin className="w-4 h-4 mr-2"/> Ver en Mapa</Button>
-                </a>
-            </div>
+      <div key={detalle.titulo} className="max-w-md mx-auto text-center mb-12 last:mb-0">
+        <h3 className="font-headline text-3xl mb-4" style={{color: paleta.primary}}>{detalle.titulo}</h3>
+        {detalle.imagenUrl && (
+          <div className="relative aspect-video w-full rounded-lg overflow-hidden shadow-lg mb-6">
+            <NextImage src={detalle.imagenUrl} alt={`Foto de ${detalle.nombreLugar}`} layout="fill" objectFit="cover" />
+          </div>
+        )}
+        <div className="text-lg space-y-1">
+          {detalle.fecha && <p className="font-semibold">{formatDate(detalle.fecha)}</p>}
+          {detalle.hora && <p className="text-muted-foreground">{detalle.hora} hs.</p>}
+          {detalle.nombreLugar && <p className="text-xl font-semibold mt-1" style={{color: paleta.accent}}>{detalle.nombreLugar}</p>}
+          {detalle.direccionLugar && <p className="text-sm text-muted-foreground">{detalle.direccionLugar}</p>}
         </div>
+        {(detalle.mapaUrl || detalle.nombreLugar) && (
+          <Button asChild variant="link" className="mt-4 text-lg" style={{color: paleta.primary}}>
+            <a href={mapUrl} target="_blank" rel="noopener noreferrer">
+              <MapPin className="w-5 h-5 mr-2"/> Ver en Mapa
+            </a>
+          </Button>
+        )}
+      </div>
     );
+  };
+
+  return (
+    <div>
+        {detallesAMostrar.length > 0 ? (
+          detallesAMostrar.map(renderDetalle)
+        ) : (
+          <p className="text-muted-foreground italic">Los detalles del evento no están configurados.</p>
+        )}
+    </div>
+  );
 };
 
 const GraziaRegalos: React.FC<{ data: InvitacionDigitalData['regalos'], paleta: ColorPalette, onUpdate?: (newData: Partial<InvitacionDigitalData>) => void }> = ({ data, paleta, onUpdate }) => {

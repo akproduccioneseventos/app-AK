@@ -203,6 +203,7 @@ export interface InvitacionDigitalData {
   
   cabecera: {
     visible: boolean;
+    logoUrl?: string;
     videoFondoUrl?: string;
     imagenFondoUrl?: string;
     protagonista1: string;
@@ -224,11 +225,6 @@ export interface InvitacionDigitalData {
     ceremoniaReligiosa: DetalleEventoEspecifico;
     ceremoniaCivil: DetalleEventoEspecifico;
     celebracion: DetalleEventoEspecifico;
-    infoPadresVisible: boolean; // Deprecating
-    nombrePadre1?: string; // Deprecating
-    nombrePadre2?: string; // Deprecating
-    nombreMadre1?: string; // Deprecating
-    nombreMadre2?: string; // Deprecating
   };
   itinerario: {
     visible: boolean;

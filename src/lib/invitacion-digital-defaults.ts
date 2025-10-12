@@ -22,6 +22,7 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
       tipo: 'cabecera',
       data: {
         visible: true,
+        logoUrl: '',
         protagonista1: 'Novio/a 1',
         protagonista2: 'Novio/a 2',
         subtitulo: { text: 'Nuestra Boda', style: { fontFamily: 'Inter', fontSize: '1.5rem', color: '#333' } },
@@ -73,6 +74,7 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
   // Flat structure for easy access in editor - can be deprecated later if fully modular
   cabecera: {
     visible: true,
+    logoUrl: '',
     protagonista1: '',
     protagonista2: '',
     subtitulo: { text: 'Nuestra Boda', style: { fontFamily: 'Inter', fontSize: '1.5rem', color: '#333' } },
@@ -95,12 +97,6 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
     ceremoniaReligiosa: { ...defaultDetalleEvento, titulo: 'Ceremonia Religiosa' },
     ceremoniaCivil: { ...defaultDetalleEvento, titulo: 'Ceremonia Civil' },
     celebracion: { ...defaultDetalleEvento, titulo: 'Celebración' },
-    // Deprecated
-    infoPadresVisible: false,
-    nombrePadre1: '',
-    nombrePadre2: '',
-    nombreMadre1: '',
-    nombreMadre2: '',
   },
   itinerario: {
     visible: true,

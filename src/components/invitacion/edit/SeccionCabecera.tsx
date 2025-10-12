@@ -44,6 +44,15 @@ export const SeccionCabeceraEditor: React.FC<Props> = ({ data, update, fiestaId 
   return (
     <div className="space-y-4">
         <div className="space-y-1">
+            <Label>Logo / Imagen Principal</Label>
+             <UploadButton
+                currentUrl={data.logoUrl}
+                onUrlChange={(url) => handleFieldChange('logoUrl', url)}
+                accept="image/*"
+                fiestaId={fiestaId}
+            />
+        </div>
+        <div className="space-y-1">
             <Label>Imagen/Video de Fondo</Label>
             <UploadButton
                 currentUrl={data.videoFondoUrl || data.imagenFondoUrl}
