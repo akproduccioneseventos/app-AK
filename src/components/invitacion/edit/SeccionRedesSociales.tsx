@@ -6,13 +6,15 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { TextStyleEditor } from './TextStyleEditor';
+import Link from 'next/link';
 
 interface Props {
   data: InvitacionDigitalData['redesSociales'];
   update: (newData: Partial<InvitacionDigitalData['redesSociales']>) => void;
+  fiestaId?: string;
 }
 
-export const SeccionRedesSocialesEditor: React.FC<Props> = ({ data, update }) => {
+export const SeccionRedesSocialesEditor: React.FC<Props> = ({ data, update, fiestaId }) => {
   const handleFieldChange = (field: keyof typeof data, value: string | boolean) => {
     update({ ...data, [field]: value });
   };
@@ -29,29 +31,35 @@ export const SeccionRedesSocialesEditor: React.FC<Props> = ({ data, update }) =>
 
   return (
     <div className="space-y-3 pt-2">
-        {/* The visibility switch is now in the parent SectionEditorPanel */}
-        <>
-            <div className="space-y-1">
-                <Label htmlFor="redessociales-hashtag">Hashtag del Evento</Label>
-                <Input
-                id="redessociales-hashtag"
-                value={data.hashtag || ''}
-                onChange={(e) => handleFieldChange('hashtag', e.target.value)}
-                placeholder="#BodaAnaYJuan"
-                />
+        <div className="space-y-1">
+            <Label htmlFor="redessociales-hashtag">Hashtag del Evento</Label>
+            <Input
+            id="redessociales-hashtag"
+            value={data.hashtag || ''}
+            onChange={(e) => handleFieldChange('hashtag', e.target.value)}
+            placeholder="#BodaAnaYJuan"
+            />
+        </div>
+        <div className="space-y-2 p-2 border rounded-md">
+            <Label>Texto de la Sección</Label>
+            <Input
+            value={(data.texto as any)?.text || ''}
+            onChange={(e) => handleTextChange(e.target.value)}
+            />
+            <TextStyleEditor 
+            style={(data.texto as any)?.style || {}}
+            onStyleChange={handleTextStyleChange}
+            />
+        </div>
+        {fiestaId && (
+            <div className="text-center pt-2">
+                <Button variant="outline" asChild>
+                    <Link href={`/evento/social/${fiestaId}`} target="_blank">
+                        Ir al Muro Social en vivo
+                    </Link>
+                </Button>
             </div>
-            <div className="space-y-2 p-2 border rounded-md">
-                <Label>Texto de la Sección</Label>
-                <Input
-                value={(data.texto as any)?.text || ''}
-                onChange={(e) => handleTextChange(e.target.value)}
-                />
-                <TextStyleEditor 
-                style={(data.texto as any)?.style || {}}
-                onStyleChange={handleTextStyleChange}
-                />
-            </div>
-        </>
+        )}
     </div>
   );
 };

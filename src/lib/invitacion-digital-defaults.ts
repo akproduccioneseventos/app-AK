@@ -35,7 +35,7 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
       data: {
         visible: true,
         titulo: { text: '¡Nos Casamos!', style: { fontFamily: 'Belleza', fontSize: '2rem', color: '#000' } },
-        texto: { text: 'Y queremos que seas parte de este día tan especial...', style: { fontFamily: 'Inter', fontSize: '1rem', color: '#6b7280' } }
+        texto: { text: 'Y queremos que seas parte de este día tan especial para nosotros. Prepárate para una noche llena de alegría, música y buenos momentos.', style: { fontFamily: 'Inter', fontSize: '1rem', color: '#6b7280' } }
       }
     },
     { id: 'cuentaRegresiva', tipo: 'cuentaRegresiva', data: { visible: true } },
@@ -58,6 +58,7 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
         items: []
       }
     },
+     { id: 'galeria', tipo: 'galeria', data: { visible: true } },
     { id: 'confirmacion', tipo: 'confirmacion', data: { visible: true } },
     {
       id: 'redesSociales',
@@ -65,7 +66,7 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
       data: {
         visible: true,
         hashtag: '#NuestraBoda',
-        texto: '¡Comparte tus fotos y momentos con nuestro hashtag!',
+        texto: { text: '¡Comparte tus fotos y momentos con nuestro hashtag!', style: { fontFamily: 'Inter', fontSize: '1.25rem', color: '#333' } },
       },
     },
     { id: 'despedida', tipo: 'despedida', data: { visible: true, texto: { text: '¡Te esperamos!' } } },
@@ -124,7 +125,7 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
   redesSociales: {
     visible: true,
     hashtag: '#BodaJ&M',
-    texto: '¡Usa nuestro hashtag para compartir tus momentos!'
+    texto: { text: '¡Usa nuestro hashtag para compartir tus momentos!', style: { fontFamily: 'Inter', fontSize: '1.25rem', color: '#333' } }
   },
   confirmacion: {
     visible: true,
