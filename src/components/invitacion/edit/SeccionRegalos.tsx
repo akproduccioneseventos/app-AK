@@ -20,7 +20,7 @@ interface Props {
   fiestaId?: string;
 }
 
-export const SeccionRegalos: React.FC<Props> = ({ data, update, fiestaId }) => {
+export const SeccionRegalosEditor: React.FC<Props> = ({ data, update, fiestaId }) => {
   const handleFieldChange = (field: keyof typeof data, value: any) => {
     update({ ...data, [field]: value });
   };
@@ -46,24 +46,18 @@ export const SeccionRegalos: React.FC<Props> = ({ data, update, fiestaId }) => {
   };
   
   const handleTextStyleChange = (field: 'titulo' | 'texto', style: Partial<TextWithStyle>) => {
-    handleFieldChange(field, { ...(data[field] as TextWithStyle), style: {...((data[field] as TextWithStyle)?.style || {}), ...style } });
+    const textData = data[field] || { text: '', style: {} };
+    handleFieldChange(field, { ...textData, style: {...(textData.style || {}), ...style } });
   };
 
   const handleTextChange = (field: 'titulo' | 'texto', text: string) => {
-    handleFieldChange(field, { ...(data[field] as TextWithStyle), text });
+    const textData = data[field] || { text: '', style: {} };
+    handleFieldChange(field, { ...textData, text });
   };
 
   return (
     <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <Label htmlFor="regalos-visible">Mostrar esta sección</Label>
-          <Switch
-            id="regalos-visible"
-            checked={data.visible}
-            onCheckedChange={(checked) => handleFieldChange('visible', checked)}
-          />
-        </div>
-        {data.visible && (
+        {/* The visibility switch is now in the parent SectionEditorPanel */}
         <>
             <div className="space-y-1">
                 <Label>Imagen de Fondo</Label>
@@ -79,7 +73,7 @@ export const SeccionRegalos: React.FC<Props> = ({ data, update, fiestaId }) => {
                 <Input value={data.titulo.text || ''} onChange={(e) => handleTextChange('titulo', e.target.value)} />
                  <TextStyleEditor 
                     style={data.titulo.style || {}}
-                    onStyleChange={(newStyle) => handleTextStyleChange('titulo', newStyle)}
+                    onStyleChange={(newStyle) => handleTextStyleChange('titulo', {style: newStyle})}
                 />
             </div>
             <div className="space-y-2 p-2 border rounded-md">
@@ -87,7 +81,7 @@ export const SeccionRegalos: React.FC<Props> = ({ data, update, fiestaId }) => {
                 <Textarea value={data.texto.text || ''} onChange={(e) => handleTextChange('texto', e.target.value)} rows={3}/>
                  <TextStyleEditor 
                     style={data.texto.style || {}}
-                    onStyleChange={(newStyle) => handleTextStyleChange('texto', newStyle)}
+                    onStyleChange={(newStyle) => handleTextStyleChange('texto', {style: newStyle})}
                 />
             </div>
             <div className="space-y-1">
@@ -109,7 +103,6 @@ export const SeccionRegalos: React.FC<Props> = ({ data, update, fiestaId }) => {
                 <Button variant="outline" size="sm" type="button" onClick={addItem}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Ítem</Button>
             </div>
         </>
-        )}
     </div>
   );
 };

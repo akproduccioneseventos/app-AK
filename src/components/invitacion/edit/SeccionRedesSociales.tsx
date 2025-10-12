@@ -29,15 +29,7 @@ export const SeccionRedesSocialesEditor: React.FC<Props> = ({ data, update }) =>
 
   return (
     <div className="space-y-3 pt-2">
-        <div className="flex items-center justify-between">
-          <Label htmlFor="redessociales-visible">Mostrar esta sección</Label>
-          <Switch
-            id="redessociales-visible"
-            checked={data.visible}
-            onCheckedChange={(checked) => handleFieldChange('visible', checked)}
-          />
-        </div>
-        {data.visible && (
+        {/* The visibility switch is now in the parent SectionEditorPanel */}
         <>
             <div className="space-y-1">
                 <Label htmlFor="redessociales-hashtag">Hashtag del Evento</Label>
@@ -60,7 +52,6 @@ export const SeccionRedesSocialesEditor: React.FC<Props> = ({ data, update }) =>
                 />
             </div>
         </>
-        )}
     </div>
   );
 };

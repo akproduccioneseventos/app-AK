@@ -11,7 +11,7 @@ import { SeccionDressCodeEditor } from './SeccionDressCode';
 import { SeccionGaleriaEditor } from './SeccionGaleria';
 import { SeccionHistoriaEditor } from './SeccionHistoria';
 import { SeccionItinerarioEditor } from './SeccionItinerario';
-import { SeccionRegalos } from './SeccionRegalos';
+import { SeccionRegalosEditor } from './SeccionRegalos';
 import { SeccionDespedidaEditor } from './SeccionDespedida';
 import { SeccionFooterEditor } from './SeccionFooter';
 import { SeccionRedesSocialesEditor } from './SeccionRedesSociales';
@@ -46,72 +46,42 @@ export const SectionEditorPanel: React.FC<Props> = ({ data, update, selectedSect
     
     const renderEditor = () => {
         if (!selectedSection) return null;
-        
-        let props: any;
 
-        if (selectedSection.tipo === 'cabecera') {
-            props = { data: data.cabecera, update: (newData: any) => update({ cabecera: { ...data.cabecera, ...newData } }), fiestaId: fiestaId || undefined };
-            return <SeccionCabeceraEditor {...props} />;
-        }
-        
-        if (selectedSection.tipo === 'despedida') {
-            props = { data: data.despedida, update: (newData: any) => update({ despedida: { ...data.despedida, ...newData } }) };
-            return <SeccionDespedidaEditor {...props} />;
-        }
-        
-         if (selectedSection.tipo === 'dressCode') {
-            props = { data: data.dressCode, update: (newData: any) => update({ dressCode: { ...data.dressCode, ...newData } }), fiestaId: fiestaId || undefined };
-            return <SeccionDressCodeEditor {...props} />;
-        }
-        
-        if (selectedSection.tipo === 'historia') {
-            props = { data: data.historia, update: (newData: any) => update({ historia: { ...data.historia, ...newData } }), fiestaId: fiestaId || undefined };
-            return <SeccionHistoriaEditor {...props} />;
-        }
-        
-        if (selectedSection.tipo === 'itinerario') {
-            props = { data: data.itinerario, update: (newData: any) => update({ itinerario: { ...data.itinerario, ...newData } }), fiestaId: fiestaId || undefined };
-            return <SeccionItinerarioEditor {...props} />;
-        }
+        const commonProps = { 
+            data: selectedSection.data, 
+            update: handleSectionDataChange, 
+            fiestaId: fiestaId || undefined 
+        };
 
-        if (selectedSection.tipo === 'regalos') {
-            props = { data: data.regalos, update: (newData: any) => update({ regalos: { ...data.regalos, ...newData } }), fiestaId: fiestaId || undefined };
-            return <SeccionRegalos {...props} />;
-        }
-        
-        if (selectedSection.tipo === 'footer') {
-            props = { data: data.footer, update: (newData: any) => update({ footer: { ...data.footer, ...newData } }) };
-            return <SeccionFooterEditor {...props} />;
-        }
-        
-        if (selectedSection.tipo === 'redesSociales') {
-            props = { data: data.redesSociales, update: (newData: any) => update({ redesSociales: { ...data.redesSociales, ...newData } }) };
-            return <SeccionRedesSocialesEditor {...props} />;
-        }
-
-
-        props = { data: selectedSection.data, update: handleSectionDataChange, fiestaId: fiestaId || undefined };
-        
         switch (selectedSection.tipo) {
+            case 'cabecera': return <SeccionCabeceraEditor data={data.cabecera} update={(newData) => update({ cabecera: { ...data.cabecera, ...newData } })} fiestaId={fiestaId || undefined} />;
             case 'bienvenida': return <SeccionBienvenidaEditor data={data.bienvenida} update={(newData) => update({ bienvenida: {...data.bienvenida, ...newData} })} fiestaId={fiestaId || undefined} />;
-            case 'confirmacion': return <SeccionConfirmacionEditor data={data.confirmacion} update={(newData) => update({ confirmacion: {...data.confirmacion, ...newData} })} />;
             case 'cuentaRegresiva': return <SeccionCuentaRegresivaEditor data={data.cuentaRegresiva} update={(newData) => update({ cuentaRegresiva: {...data.cuentaRegresiva, ...newData} })} />;
-            case 'detallesEvento': return <SeccionDetallesEventoEditor data={data.detallesEvento} update={(newData) => update({ detallesEvento: {...data.detallesEvento, ...newData} })} />;
-            case 'galeria': return <SeccionGaleriaEditor data={data.galeria} update={(newData) => update({ galeria: {...data.galeria, ...newData} })} />;
+            case 'detallesEvento': return <SeccionDetallesEventoEditor data={data.detallesEvento} update={(newData) => update({ detallesEvento: {...data.detallesEvento, ...newData} })} fiestaId={fiestaId || undefined} />;
+            case 'itinerario': return <SeccionItinerarioEditor data={data.itinerario} update={(newData) => update({ itinerario: {...data.itinerario, ...newData} })} fiestaId={fiestaId || undefined} />;
+            case 'galeria': return <SeccionGaleriaEditor data={data.galeria} update={(newData) => update({ galeria: {...data.galeria, ...newData} })} fiestaId={fiestaId || undefined} />;
+            case 'historia': return <SeccionHistoriaEditor data={data.historia} update={(newData) => update({ historia: {...data.historia, ...newData} })} fiestaId={fiestaId || undefined} />;
+            case 'regalos': return <SeccionRegalosEditor data={data.regalos} update={(newData) => update({ regalos: {...data.regalos, ...newData} })} fiestaId={fiestaId || undefined} />;
+            case 'dressCode': return <SeccionDressCodeEditor data={data.dressCode} update={(newData) => update({ dressCode: {...data.dressCode, ...newData} })} />;
+            case 'confirmacion': return <SeccionConfirmacionEditor data={data.confirmacion} update={(newData) => update({ confirmacion: {...data.confirmacion, ...newData} })} />;
+            case 'redesSociales': return <SeccionRedesSocialesEditor data={data.redesSociales} update={(newData) => update({ redesSociales: {...data.redesSociales, ...newData} })} />;
+            case 'despedida': return <SeccionDespedidaEditor data={data.despedida} update={(newData) => update({ despedida: {...data.despedida, ...newData} })} />;
+            case 'footer': return <SeccionFooterEditor data={data.footer} update={(newData) => update({ footer: {...data.footer, ...newData} })} />;
             default: return <div>Editor no implementado para "{selectedSection.tipo}"</div>;
         }
     }
     
     const currentDataForVisibility = selectedSection?.tipo === 'cabecera' 
         ? data.cabecera 
-        : data[selectedSection?.tipo as keyof Omit<InvitacionDigitalData, 'secciones'>] || selectedSection?.data;
+        : data[selectedSection?.tipo as keyof Omit<InvitacionDigitalData, 'secciones'>];
 
     const handleVisibilityChange = (checked: boolean) => {
         if (!selectedSection) return;
-        if (selectedSection.tipo === 'cabecera') {
-            update({ cabecera: { ...data.cabecera, visible: checked } });
-        } else {
-            handleSectionDataChange({ visible: checked });
+        const sectionKey = selectedSection.tipo as keyof Omit<InvitacionDigitalData, 'secciones' | 'plantilla' | 'name' | 'category' | 'musicaFondoUrl'>;
+        
+        if (data[sectionKey]) {
+            const updatedSection = { ...data[sectionKey], visible: checked };
+            update({ [sectionKey]: updatedSection });
         }
     };
 
