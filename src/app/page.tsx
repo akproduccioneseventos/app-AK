@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, FileText, ListChecks, KanbanSquare, BarChart3, TrendingUp, Wand2, Calculator, ArrowRight, PartyPopper } from 'lucide-react';
+import { ArrowLeft, FileText, ListChecks, KanbanSquare, BarChart3, TrendingUp, Wand2, Calculator, ArrowRight, PartyPopper, Users } from 'lucide-react';
 import { getDashboardKpiData } from '@/app/actions/dashboard';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -15,6 +15,7 @@ import { subMonths, format, startOfMonth } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 interface KpiData {
+  fiestasFuturas: number;
   ventasTotales: number;
   montoPagado: number;
   totalPendiente: number;
@@ -124,7 +125,7 @@ export default function ContabilidadDashboardPage() {
         <div className="flex items-center gap-3">
             <BarChart3 className="w-8 h-8 text-primary" />
             <h1 className="text-3xl font-bold tracking-tight font-headline">
-              Panel Contable y Financiero
+              Panel Principal
             </h1>
         </div>
         <Link href="/eventos" passHref>
@@ -135,20 +136,14 @@ export default function ContabilidadDashboardPage() {
         </Link>
       </div>
       <CardDescription className="text-lg">
-        Aquí encontrarás las herramientas clave para la gestión comercial y financiera de tu negocio.
+        Bienvenido/a a AK Producciones. Aquí tienes un resumen de tu negocio.
       </CardDescription>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <KpiCard title="Eventos Futuros" value={kpiData?.fiestasFuturas || 0} icon={PartyPopper} isLoading={isLoading} description="Eventos activos en planificación."/>
         <KpiCard title="Prospectos Activos" value={kpiData?.prospectosActivos || 0} icon={Users} isLoading={isLoading} description="Presupuestos enviados o en borrador."/>
         <KpiCard title="Ventas Totales" value={formatCurrency(kpiData?.ventasTotales || 0)} icon={TrendingUp} isLoading={isLoading} description="Suma de todas las facturas generadas."/>
         <KpiCard title="Saldo Pendiente" value={formatCurrency(kpiData?.totalPendiente || 0)} icon={Calculator} isLoading={isLoading} description="De todas las facturas no saldadas."/>
-         <Link href="/empresa/contabilidad/reportes" passHref>
-             <Card className="shadow-md hover:shadow-lg transition-shadow h-full flex flex-col justify-center items-center text-center bg-primary/10">
-                <CardHeader className="p-4">
-                    <CardTitle className="font-headline text-lg text-primary flex items-center gap-2"><ArrowRight/>Ver Reporte Financiero</CardTitle>
-                </CardHeader>
-             </Card>
-        </Link>
       </div>
 
        <div className="grid gap-4 md:grid-cols-2">
