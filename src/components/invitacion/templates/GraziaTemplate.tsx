@@ -8,7 +8,7 @@ import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
 import { CountdownTimer } from '@/components/countdown-timer';
 import { Separator } from '@/components/ui/separator';
-import { Church, Building, PartyPopper, Gift, Heart, MapPin, Play, Pause, Facebook, Instagram, Music, MessageSquare, Sparkles, Check, ArrowRight, X, Calendar, User, Mail, Grid, Code, Palette as PaletteIcon, Share2, Camera as CameraIcon, ArrowLeft, ArrowRight as ArrowRightIcon, Clock } from 'lucide-react';
+import { Church, Building, PartyPopper, Gift, Heart, MapPin, Play, Pause, Facebook, Instagram, Music, MessageSquare, Sparkles, Check, ArrowRight, X, Calendar, User, Mail, Grid, Code, Palette as PaletteIcon, Share2, Camera as CameraIcon, ArrowLeft as ArrowLeftIcon, ArrowRight as ArrowRightIcon, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import type { SocialPlatformName } from '@/types/settings';
@@ -92,6 +92,11 @@ const FloralSeparator: React.FC<{ color: string }> = ({ color }) => (
     </motion.div>
 );
 
+const formatDate = (dateString?: string) => {
+    if (!dateString) return "Fecha a confirmar";
+    return new Date(dateString).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+};
+
 const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta: FiestaEnPlanificacion, paleta: ColorPalette, onUpdate?: (newData: Partial<InvitacionDigitalData>) => void, isPreview?: boolean }> = ({ data, fiesta, paleta, onUpdate, isPreview }) => {
   const [companyLogo, setCompanyLogo] = useState<string | null>(null);
 
@@ -133,7 +138,7 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
                 <EditableText 
                     initialValue={data.subtitulo?.text || "Nuestra Boda"}
                     style={data.subtitulo?.style}
-                    onSave={(val) => onUpdate?.({ cabecera: { ...data, subtitulo: { ...(data.subtitulo || {style:{}}), text: val } } })}
+                    onSave={v => onUpdate?.({ cabecera: { ...data, subtitulo: { ...(data.subtitulo || {style:{}}), text: v } } })}
                     className="font-headline text-2xl"
                     textarea={false} 
                 />
@@ -231,7 +236,7 @@ const GraziaDetalles: React.FC<{ data: InvitacionDigitalData['detallesEvento'], 
         <h3 className="font-headline text-3xl mb-4" style={{color: paleta.accent}}>{detalle.titulo}</h3>
         {detalle.imagenUrl && (
           <div className="relative aspect-video w-full rounded-lg overflow-hidden shadow-lg mb-6">
-            <NextImage src={detalle.imagenUrl} alt={`Foto de ${detalle.nombreLugar}`} layout="fill" objectFit="cover" data-ai-hint="event venue"/>
+            <NextImage src={detalle.imagenUrl} alt={`Foto de ${detalle.nombreLugar}`} layout="fill" objectFit="cover" />
           </div>
         )}
         <div className="text-lg space-y-1">
@@ -422,7 +427,7 @@ const GraziaGaleria: React.FC<{ data: InvitacionDigitalData['galeria'], paleta: 
                 </AnimatePresence>
                 {data.fotos.length > 1 && (
                     <>
-                        <Button variant="ghost" size="icon" onClick={prevSlide} className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/30 hover:bg-black/50 text-white h-8 w-8"><ArrowLeft className="w-5 h-5"/></Button>
+                        <Button variant="ghost" size="icon" onClick={prevSlide} className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/30 hover:bg-black/50 text-white h-8 w-8"><ArrowLeftIcon className="w-5 h-5"/></Button>
                         <Button variant="ghost" size="icon" onClick={nextSlide} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/30 hover:bg-black/50 text-white h-8 w-8"><ArrowRightIcon className="w-5 h-5"/></Button>
                         <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
                             {data.fotos.map((_, index) => (
@@ -510,7 +515,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
               <EditableText 
                 initialValue={seccion.data.texto?.text || "¡Comparte tus momentos!"} 
                 style={seccion.data.texto?.style} 
-                onSave={v => onUpdate?.({ redesSociales: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } }})}
+                onSave={v => onUpdate?.({ redesSociales: { ...seccion.data, texto: { text: v } }})}
                 textarea={false}
               />
             </h3>
