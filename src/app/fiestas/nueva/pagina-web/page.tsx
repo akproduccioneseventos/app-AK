@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, Suspense, use } from 'react';
@@ -174,6 +175,7 @@ function PaginaWebPageContent() {
                     update={handleUpdate}
                     addSection={addSection}
                     removeSection={removeSection}
+                    onSectionClick={setSelectedSectionId}
                 />
             ) : (
                 <SectionEditorPanel

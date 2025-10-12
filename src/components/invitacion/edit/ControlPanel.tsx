@@ -74,7 +74,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ data, update, addSec
                             <div key={seccion.id} className="flex items-center justify-between p-2 border rounded-md bg-background">
                                 <span className="text-sm capitalize">{seccion.tipo}</span>
                                 <div className="flex items-center gap-1">
-                                    <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => onSectionClick(seccion.id)}>
+                                    <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => onSectionClick?.(seccion.id)}>
                                         <Edit className="w-4 h-4"/>
                                     </Button>
                                     <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => removeSection(seccion.id)}>
