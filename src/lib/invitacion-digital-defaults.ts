@@ -81,7 +81,7 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
         ] 
       } 
     },
-    { id: 'dressCode', tipo: 'dressCode', data: { visible: true, texto: { text: 'Elegante' }, imagenFondoUrl: "https://picsum.photos/seed/dresscode/1200/800" } },
+    { id: 'dressCode', tipo: 'dressCode', data: { visible: true, texto: { text: 'Elegante' }, imagenFondoUrl: "https://picsum.photos/seed/dresscode/1200/800", sugeridos: ["#000000", "#556B2F", "#4682B4"], evitar: ["#FFFFFF"] } },
     { 
       id: 'regalos', 
       tipo: 'regalos', 
@@ -165,7 +165,9 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
   dressCode: {
     visible: true,
     texto: { text: 'Elegante', style: { fontFamily: 'Inter', fontSize: '1.25rem', color: '#363636' } },
-    imagenFondoUrl: "https://picsum.photos/seed/dresscode/1200/800"
+    imagenFondoUrl: "https://picsum.photos/seed/dresscode/1200/800",
+    sugeridos: ["#000000", "#556B2F", "#4682B4"], 
+    evitar: ["#FFFFFF"]
   },
    musica: {
     visible: true,

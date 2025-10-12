@@ -76,14 +76,19 @@ export const SectionEditorPanel: React.FC<Props> = ({ data, update, selectedSect
 
     const handleVisibilityChange = (checked: boolean) => {
         if (!selectedSection) return;
-        const sectionKey = selectedSection.tipo as keyof Omit<InvitacionDigitalData, 'secciones' | 'plantilla' | 'name' | 'category' | 'musicaFondoUrl'>;
         
-        if (data[sectionKey]) {
-            const updatedSection = { ...data[sectionKey], visible: checked };
-            update({ [sectionKey]: updatedSection });
-        }
-    };
+        const updatedSecciones = data.secciones.map(sec => {
+            if (sec.id === selectedSectionId) {
+                return {
+                    ...sec,
+                    data: { ...sec.data, visible: checked }
+                };
+            }
+            return sec;
+        });
 
+        update({ secciones: updatedSecciones });
+    };
 
     return (
         <ScrollArea className="h-full">
