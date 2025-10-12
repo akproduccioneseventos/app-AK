@@ -8,7 +8,7 @@ import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
 import { CountdownTimer } from '@/components/countdown-timer';
 import { Separator } from '@/components/ui/separator';
-import { Church, Building, PartyPopper, Gift, Heart, MapPin, Play, Pause, Facebook, Instagram, Music, MessageSquare, Sparkles, Check, ArrowRight, X, Calendar, User, Mail, Grid, Code, Palette as PaletteIcon, Share2, Camera as CameraIcon, ArrowLeft, Clock, Users as UsersIcon, Link as LinkIcon, QrCode, Download } from 'lucide-react';
+import { Church, Building, PartyPopper, Gift, Heart, MapPin, Play, Pause, Facebook, Instagram, Music, MessageSquare, Sparkles, Check, ArrowRight, X, Calendar, User, Mail, Grid, Code, Palette as PaletteIcon, Share2, Camera as CameraIcon, ArrowLeft, Clock, Users as UsersIcon, Link as LinkIcon, QrCode, Download, Utensils, GlassWater, CakeSlice, Diamond } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import type { SocialPlatformName } from '@/types/settings';
@@ -88,6 +88,7 @@ const SectionIcon: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 );
 
 
+
 const FloralSeparator: React.FC<{ color: string }> = ({ color }) => (
     <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.2 }} className="text-center my-8" aria-hidden="true">
         <svg width="100" height="20" viewBox="0 0 100 20" className="inline-block" fill={color}>
@@ -97,6 +98,17 @@ const FloralSeparator: React.FC<{ color: string }> = ({ color }) => (
     </motion.div>
 );
 
+interface TemplateProps {
+  fiesta: FiestaEnPlanificacion;
+  invitacionData: InvitacionDigitalData;
+  socialConnections: SocialConnection[];
+  isPreview?: boolean;
+  onSectionClick?: (sectionId: string) => void;
+  onUpdate?: (newData: Partial<InvitacionDigitalData>) => void;
+  selectedSectionId?: string | null;
+  children?: React.ReactNode; 
+  onRsvpSubmit?: (submission: {nombreCompleto: string, confirmacion: string, numeroAsistentes: number, mensaje: string, companionNames: string[]}) => Promise<boolean>;
+}
 
 
 const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta: FiestaEnPlanificacion, paleta: ColorPalette, onUpdate?: (newData: Partial<InvitacionDigitalData>) => void, isPreview?: boolean }> = ({ data, fiesta, paleta, onUpdate, isPreview }) => {
@@ -130,7 +142,7 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
         <div className="absolute inset-0 bg-white/70 dark:bg-black/50 backdrop-blur-sm -z-10"></div>
         
         {companyLogo && (
-          <div className="absolute top-4 left-4 z-20 h-16 w-32">
+          <div className="absolute top-4 left-4 z-20 h-12 w-28 md:h-16 md:w-36">
             <NextImage src={companyLogo} alt="Logo de la Empresa" layout="fill" className="object-contain" data-ai-hint="company logo"/>
           </div>
         )}
@@ -323,7 +335,7 @@ const GraziaRegalos: React.FC<{ data: InvitacionDigitalData['regalos'], fiestaId
             downloadLink.download = `datos-bancarios-regalo.png`;
             document.body.appendChild(downloadLink);
             downloadLink.click();
-            document.body.removeChild(downloadLink);
+            document.body.removeChild(link);
         }
     };
 
@@ -539,12 +551,11 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
         </SectionWrapper>;
       case 'galeria':
         return <SectionWrapper {...wrapperProps}><GraziaGaleria {...props} /></SectionWrapper>;
-      case 'historia':
+      case 'historia': 
         return <SectionWrapper {...wrapperProps}>
             <SectionIcon><Heart className="w-12 h-12 mx-auto mb-3" style={{color: paletaColores.primary}} /></SectionIcon>
             <h3 className="font-headline text-3xl mb-4" style={{color: paletaColores.accent}}><EditableText initialValue={seccion.data.titulo?.text || 'Nuestra Historia'} style={seccion.data.titulo?.style} onSave={(v) => onUpdate?.({ historia: { ...seccion.data, titulo: { ...(seccion.data.titulo || {style:{}}), text: v } } })} textarea={false}/></h3>
-            <p className="max-w-prose mx-auto text-muted-foreground"><EditableText initialValue={seccion.data.texto?.text || 'Un breve relato de nuestro camino juntos...'} style={seccion.data.texto?.style} onSave={(v) => onUpdate?.({ historia: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } } })} textarea /></p>
-        </SectionWrapper>;
+            <p className="max-w-prose mx-auto text-muted-foreground"><EditableText initialValue={seccion.data.texto?.text || 'Un breve relato de nuestro camino juntos...'} style={seccion.data.texto?.style} onSave={(v) => onUpdate?.({ historia: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } } })} textarea /></p></SectionWrapper>;
       case 'regalos':
         return <SectionWrapper {...wrapperProps}><GraziaRegalos {...props} fiestaId={fiesta.id}/></SectionWrapper>;
       case 'dressCode':
@@ -562,7 +573,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
           <SectionWrapper {...wrapperProps}>
             <SectionIcon><Share2 className="w-12 h-12 mx-auto mb-3" style={{ color: primaryColor }} /></SectionIcon>
             <h3 className="font-headline text-3xl mb-3" style={{ color: paletaColores.accent }}>
-                <EditableText initialValue={seccion.data.texto?.text || "¡Comparte tus momentos!"} style={seccion.data.texto?.style} onSave={v => onUpdate?.({ redesSociales: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } } })} textarea={false} />
+                <EditableText initialValue={seccion.data.texto?.text || "¡Comparte tus momentos!"} style={seccion.data.texto?.style || {}} onSave={v => onUpdate?.({ redesSociales: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } } })} textarea={false} />
             </h3>
             {seccion.data.hashtag && (
               <p className="text-xl font-bold" style={{ color: primaryColor }}>
@@ -602,10 +613,11 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
            if(seccion.tipo === 'cabecera' || !seccion.data?.visible) return null;
            const component = renderSectionComponent(seccion);
            if (!component) return null;
+            const nextVisibleSection = invitacionData.secciones.slice(index + 1).find(s => s.data?.visible);
             return (
                 <React.Fragment key={seccion.id}>
                     {component}
-                    {index < invitacionData.secciones.length - 2 && <FloralSeparator color={primaryColor}/>}
+                    {nextVisibleSection && nextVisibleSection.tipo !== 'footer' && <FloralSeparator color={primaryColor}/>}
                 </React.Fragment>
             )
         })}
