@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -8,7 +7,7 @@ import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
 import { CountdownTimer } from '@/components/countdown-timer';
 import { Separator } from '@/components/ui/separator';
-import { Church, Building, PartyPopper, Gift, Heart, MapPin, Play, Pause, Facebook, Instagram, Music, MessageSquare, Sparkles, Check, ArrowRight, X, Calendar, User, Mail, Grid, Code, Palette as PaletteIcon, Share2, Camera as CameraIcon, ArrowLeft as ArrowLeftIcon, ArrowRight as ArrowRightIcon, Clock } from 'lucide-react';
+import { Church, Building, PartyPopper, Gift, Heart, MapPin, Play, Pause, Facebook, Instagram, Music, MessageSquare, Sparkles, Check, ArrowRight, X, Calendar, User, Mail, Grid, Code, Palette as PaletteIcon, Share2, Camera as CameraIcon, ArrowLeft, ArrowRight, Clock, Users as UsersIcon, Link as LinkIcon, QrCode, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import type { SocialPlatformName } from '@/types/settings';
@@ -22,6 +21,8 @@ import { useToast } from '@/hooks/use-toast';
 import { claimGiftFiestaActual } from '@/app/actions/fiesta-actual';
 import { Loader2 } from 'lucide-react';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
+import { Textarea } from '@/components/ui/textarea';
+import QRCodeStylized from '@/components/qr-code-stylized';
 
 
 interface TemplateProps {
@@ -33,7 +34,6 @@ interface TemplateProps {
   onUpdate?: (newData: Partial<InvitacionDigitalData>) => void;
   onRsvpSubmit?: (data: any) => Promise<boolean>;
   selectedSectionId?: string | null;
-  children?: React.ReactNode; 
 }
 
 const SectionWrapper: React.FC<{ 
@@ -42,7 +42,8 @@ const SectionWrapper: React.FC<{
     onClick?: () => void,
     isSelected?: boolean,
     className?: string,
-}> = ({ seccion, children, onClick, isSelected, className }) => {
+    backgroundColor?: string,
+}> = ({ seccion, children, onClick, isSelected, className, backgroundColor }) => {
     if (!seccion.data?.visible) return null;
 
     const sectionVariants = {
@@ -59,6 +60,7 @@ const SectionWrapper: React.FC<{
             id={seccion.tipo}
             className={cn("py-16 px-6 text-center relative", className, onClick && "cursor-pointer group/section")}
             onClick={onClick}
+            style={{ backgroundColor }}
         >
             {onClick && <div className={cn("absolute inset-0 border-2 transition-all pointer-events-none", isSelected ? 'border-primary' : 'border-transparent group-hover/section:border-primary/50')}></div>}
             {seccion.data.imagenFondoUrl && (
@@ -97,6 +99,7 @@ const formatDate = (dateString?: string) => {
     return new Date(dateString).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
 };
 
+
 const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta: FiestaEnPlanificacion, paleta: ColorPalette, onUpdate?: (newData: Partial<InvitacionDigitalData>) => void, isPreview?: boolean }> = ({ data, fiesta, paleta, onUpdate, isPreview }) => {
   const [companyLogo, setCompanyLogo] = useState<string | null>(null);
 
@@ -129,7 +132,7 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
         
         {companyLogo && (
           <div className="absolute top-4 left-4 z-20">
-            <NextImage src={companyLogo} alt="Logo de la Empresa" width={80} height={40} className="object-contain" />
+            <NextImage src={companyLogo} alt="Logo de la Empresa" width={100} height={50} className="object-contain" data-ai-hint="company logo"/>
           </div>
         )}
 
@@ -280,6 +283,7 @@ const GraziaRegalos: React.FC<{ data: InvitacionDigitalData['regalos'], fiestaId
     const [selectedGift, setSelectedGift] = useState<GiftItem | null>(null);
     const [guestName, setGuestName] = useState('');
     const [isClaiming, setIsClaiming] = useState(false);
+    const [isDatosBancariosOpen, setIsDatosBancariosOpen] = useState(false);
 
     const handleOpenClaimModal = (gift: GiftItem) => {
         setSelectedGift(gift);
@@ -307,49 +311,57 @@ const GraziaRegalos: React.FC<{ data: InvitacionDigitalData['regalos'], fiestaId
             setIsClaiming(false);
         }
     };
+    
+     const downloadQrBancario = () => {
+        const canvas = document.getElementById('qr-datos-bancarios') as HTMLCanvasElement;
+        if (canvas) {
+            const pngUrl = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+            let downloadLink = document.createElement("a");
+            downloadLink.href = pngUrl;
+            downloadLink.download = `datos-bancarios-regalo.png`;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }
+    };
+
 
     return (
         <>
             <Dialog open={isClaimModalOpen} onOpenChange={setIsClaimModalOpen}>
                 <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Confirmar Regalo: {selectedGift?.name}</DialogTitle>
-                        <DialogDescription>¡Gracias por tu generosidad! Por favor, ingresa tu nombre para que sepamos que este regalo ya fue elegido.</DialogDescription>
-                    </DialogHeader>
-                    <div className="py-4 space-y-2">
-                        <Label htmlFor="guest-name">Tu nombre</Label>
-                        <Input id="guest-name" value={guestName} onChange={e => setGuestName(e.target.value)} placeholder="Nombre y Apellido"/>
-                    </div>
+                    <DialogHeader><DialogTitle>Confirmar Regalo: {selectedGift?.name}</DialogTitle><DialogDescription>¡Gracias por tu generosidad! Por favor, ingresa tu nombre para que sepamos que este regalo ya fue elegido.</DialogDescription></DialogHeader>
+                    <div className="py-4 space-y-2"><Label htmlFor="guest-name">Tu nombre</Label><Input id="guest-name" value={guestName} onChange={e => setGuestName(e.target.value)} placeholder="Nombre y Apellido"/></div>
+                    <DialogFooter><DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose><Button onClick={handleClaimGift} disabled={!guestName.trim() || isClaiming}>{isClaiming && <Loader2 className="w-4 h-4 mr-2 animate-spin"/>} Confirmar Regalo</Button></DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+             <Dialog open={isDatosBancariosOpen} onOpenChange={setIsDatosBancariosOpen}>
+                <DialogContent>
+                    <DialogHeader><DialogTitle>Datos para Regalo Monetario</DialogTitle></DialogHeader>
+                     <div className="py-4 space-y-4 text-center">
+                        <p className="whitespace-pre-wrap font-mono text-sm">{data.datosBancarios}</p>
+                        <div className="inline-block p-2 bg-white border rounded-lg">
+                           <QRCodeStylized id="qr-datos-bancarios" value={data.datosBancarios || ''} size={128}/>
+                        </div>
+                     </div>
                     <DialogFooter>
-                        <DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose>
-                        <Button onClick={handleClaimGift} disabled={!guestName.trim() || isClaiming}>
-                            {isClaiming && <Loader2 className="w-4 h-4 mr-2 animate-spin"/>} Confirmar Regalo
-                        </Button>
+                        <Button variant="outline" onClick={downloadQrBancario}><Download className="w-4 h-4 mr-2"/>Descargar QR</Button>
+                        <DialogClose asChild><Button>Cerrar</Button></DialogClose>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
 
             <SectionIcon><Gift className="w-12 h-12 mx-auto mb-3" style={{color: paleta.primary}}/></SectionIcon>
             <h3 className="font-headline text-3xl mb-3" style={{color: paleta.accent}}>
-              <EditableText 
-                initialValue={data.titulo?.text || "Lista de Regalos"} 
-                style={data.titulo?.style} 
-                onSave={v => onUpdate?.({ regalos: { ...data, titulo: { ...(data.titulo || {style:{}}), text: v } }})}
-                textarea={false}
-              />
+              <EditableText initialValue={data.titulo?.text || "Lista de Regalos"} style={data.titulo?.style} onSave={v => onUpdate?.({ regalos: { ...data, titulo: { ...(data.titulo || {style:{}}), text: v } }})} textarea={false}/>
             </h3>
             <div className="text-muted-foreground max-w-md mx-auto mb-6">
-              <EditableText 
-                initialValue={data.texto?.text || "Tu presencia es nuestro mejor regalo. Si aún así deseas obsequiarnos algo, puedes ayudarnos con nuestra luna de miel o elegir una de estas opciones."} 
-                style={data.texto?.style} 
-                onSave={v => onUpdate?.({ regalos: { ...data, texto: { ...(data.texto || {style:{}}), text: v } }})}
-                textarea
-              />
+              <EditableText initialValue={data.texto?.text || "Tu presencia es nuestro mejor regalo. Si aún así deseas obsequiarnos algo, puedes ayudarnos con nuestra luna de miel o elegir una de estas opciones."} style={data.texto?.style} onSave={v => onUpdate?.({ regalos: { ...data, texto: { ...(data.texto || {style:{}}), text: v } }})} textarea/>
             </div>
             {data.datosBancarios && (
-                <div className="p-4 bg-muted/50 rounded-md inline-block mb-8">
-                    <p className="font-semibold text-sm mb-1">Si prefieres, puedes hacernos un regalo monetario:</p>
-                    <p className="font-mono text-sm whitespace-pre-wrap">{data.datosBancarios}</p>
+                <div className="mb-8">
+                     <Button onClick={() => setIsDatosBancariosOpen(true)}><QrCode className="w-4 h-4 mr-2"/> Ver Datos Bancarios</Button>
                 </div>
             )}
              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
@@ -359,21 +371,14 @@ const GraziaRegalos: React.FC<{ data: InvitacionDigitalData['regalos'], fiestaId
                     {item.imageUrl && <NextImage src={item.imageUrl} alt={item.name} layout="fill" objectFit="cover" data-ai-hint="wedding gift"/>}
                     {item.isClaimed && (
                       <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-white p-2">
-                        <Check className="w-8 h-8 mb-2"/>
-                        <p className="text-sm font-semibold">¡Ya regalado!</p>
-                        <p className="text-xs">por {item.claimedBy}</p>
+                        <Check className="w-8 h-8 mb-2"/><p className="text-sm font-semibold">¡Ya regalado!</p><p className="text-xs">por {item.claimedBy}</p>
                       </div>
                     )}
                   </div>
                   <div className="p-4 flex-grow flex flex-col">
                     <h4 className="font-semibold">{item.name}</h4>
                     {item.description && <p className="text-xs text-muted-foreground mt-1 flex-grow">{item.description}</p>}
-                    <Button 
-                      className="w-full mt-4" 
-                      style={item.isClaimed ? {} : {backgroundColor: paleta.primary}}
-                      disabled={item.isClaimed || isPreview}
-                      onClick={() => handleOpenClaimModal(item)}
-                    >
+                    <Button className="w-full mt-4" style={item.isClaimed ? {} : {backgroundColor: paleta.primary}} disabled={item.isClaimed || isPreview} onClick={() => handleOpenClaimModal(item)}>
                       {item.isClaimed ? "Ya Regalado" : "¡Lo quiero regalar!"}
                     </Button>
                   </div>
@@ -427,8 +432,8 @@ const GraziaGaleria: React.FC<{ data: InvitacionDigitalData['galeria'], paleta: 
                 </AnimatePresence>
                 {data.fotos.length > 1 && (
                     <>
-                        <Button variant="ghost" size="icon" onClick={prevSlide} className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/30 hover:bg-black/50 text-white h-8 w-8"><ArrowLeftIcon className="w-5 h-5"/></Button>
-                        <Button variant="ghost" size="icon" onClick={nextSlide} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/30 hover:bg-black/50 text-white h-8 w-8"><ArrowRightIcon className="w-5 h-5"/></Button>
+                        <Button variant="ghost" size="icon" onClick={prevSlide} className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/30 hover:bg-black/50 text-white h-8 w-8"><ArrowLeft className="w-5 h-5"/></Button>
+                        <Button variant="ghost" size="icon" onClick={nextSlide} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/30 hover:bg-black/50 text-white h-8 w-8"><ArrowRight className="w-5 h-5"/></Button>
                         <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
                             {data.fotos.map((_, index) => (
                                 <div key={index} onClick={() => setCurrentIndex(index)} className={cn("h-2 w-2 rounded-full cursor-pointer transition-all", index === currentIndex ? 'bg-white scale-125' : 'bg-white/50')}/>
@@ -441,13 +446,20 @@ const GraziaGaleria: React.FC<{ data: InvitacionDigitalData['galeria'], paleta: 
     );
 };
 
-export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData, socialConnections, isPreview = false, onSectionClick, onUpdate, onRsvpSubmit, selectedSectionId, children }) => {
-  
+export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData, socialConnections, isPreview = false, onSectionClick, onUpdate, onRsvpSubmit, selectedSectionId }) => {
+  const { toast } = useToast();
   const paletaColores = invitacionData.cabecera.paletaColores;
   const primaryColor = paletaColores.primary || 'hsl(var(--primary))';
   
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+
+  // RSVP Form State
+  const [isRsvpModalOpen, setIsRsvpModalOpen] = useState(false);
+  const [rsvpName, setRsvpName] = useState('');
+  const [rsvpGuests, setRsvpGuests] = useState(1);
+  const [rsvpMusic, setRsvpMusic] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const togglePlayPause = () => {
     if (isPreview) return; // Disable audio in preview
@@ -457,18 +469,43 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
     setIsPlaying(!isPlaying);
   };
   
+  const handleRsvpFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!rsvpName.trim() || !onRsvpSubmit) return;
+    setIsSubmitting(true);
+    const success = await onRsvpSubmit({
+      nombreCompleto: rsvpName,
+      confirmacion: 'Confirmado',
+      numeroAsistentes: rsvpGuests,
+      mensaje: `Sugerencia musical: ${rsvpMusic}`,
+      companionNames: []
+    });
+    if (success) {
+      setIsRsvpModalOpen(false);
+    }
+    setIsSubmitting(false);
+  };
+
   const socialIcons: Record<SocialPlatformName, React.ElementType> = { Facebook, Instagram, Music, WhatsApp: MessageSquare };
 
   const renderSectionComponent = (seccion: SeccionInvitacion) => {
-    if (!seccion.data) return null;
+    if (!seccion.data?.visible) return null;
     const props = { data: seccion.data, fiesta, paleta: paletaColores, onUpdate };
     
     const wrapperProps = onSectionClick ? {
       seccion: seccion,
       onClick: () => onSectionClick(seccion.id),
       isSelected: selectedSectionId === seccion.id,
-    } : { seccion };
+      backgroundColor: 'transparent',
+    } : { seccion, backgroundColor: 'transparent' };
     
+    // Asignar colores de fondo alternados
+    const sectionIndex = invitacionData.secciones.findIndex(s => s.id === seccion.id);
+    if(sectionIndex % 2 !== 0){
+        wrapperProps.backgroundColor = 'rgba(0,0,0,0.02)';
+    }
+
+
     switch (seccion.tipo) {
       case 'bienvenida': 
         return <SectionWrapper {...wrapperProps}><SectionIcon><Heart className="w-12 h-12 mx-auto mb-3" style={{color: primaryColor}} /></SectionIcon><h2 className="font-headline text-2xl mb-4"><EditableText initialValue={seccion.data.titulo?.text || ""} style={seccion.data.titulo?.style} onSave={v => onUpdate?.({ bienvenida: { ...seccion.data, titulo: { ...(seccion.data.titulo || {style:{}}), text: v } }})} textarea={false} /></h2><div className="max-w-xl mx-auto text-muted-foreground"><EditableText initialValue={seccion.data.texto?.text || ""} style={seccion.data.texto?.style} onSave={v => onUpdate?.({ bienvenida: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } }})} textarea/></div></SectionWrapper>;
@@ -481,12 +518,21 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
             <SectionIcon><Clock className="w-12 h-12 mx-auto mb-3" style={{color: paletaColores.primary}} /></SectionIcon>
             <h3 className="font-headline text-3xl mb-6" style={{color: paletaColores.accent}}>Cronograma</h3>
             <ul className="max-w-sm mx-auto space-y-4 text-left">
-              {(fiesta.programa || []).map(item => (
-                <li key={item.id} className="flex items-center gap-4">
-                  <span className="font-bold text-lg" style={{color: paletaColores.primary}}>{item.hora}</span>
-                  <p className="font-semibold">{item.titulo}</p>
-                </li>
-              ))}
+              {(fiesta.programa || []).map(item => {
+                const Icon = iconMap[item.icono as string] || Clock;
+                return (
+                  <li key={item.id} className="flex items-center gap-4">
+                    <div className="flex flex-col items-center">
+                        <Icon className="w-6 h-6 text-primary mb-1"/>
+                        <span className="font-bold text-sm" style={{color: paletaColores.primary}}>{item.hora}</span>
+                    </div>
+                    <div>
+                        <p className="font-semibold">{item.titulo}</p>
+                        {item.descripcion && <p className="text-sm text-muted-foreground">{item.descripcion}</p>}
+                    </div>
+                  </li>
+                )
+              })}
             </ul>
         </SectionWrapper>;
       case 'galeria': 
@@ -504,29 +550,21 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
             <SectionIcon><Sparkles className="w-12 h-12 mx-auto mb-3" style={{color: paletaColores.primary}} /></SectionIcon>
             <h3 className="font-headline text-3xl mb-2" style={{color: paletaColores.accent}}>Código de Vestimenta</h3>
             <p className="text-xl font-semibold">{seccion.data.texto?.text}</p>
+            {seccion.data.sugeridos?.length > 0 && <div className="mt-4"><p className="text-sm font-medium">Colores Sugeridos:</p><div className="flex justify-center gap-2 mt-2">{seccion.data.sugeridos.map((c:string, i:number) => <div key={i} className="w-6 h-6 rounded-full border" style={{backgroundColor: c}}></div>)}</div></div>}
+            {seccion.data.evitar?.length > 0 && <div className="mt-4"><p className="text-sm font-medium">Colores a Evitar:</p><div className="flex justify-center gap-2 mt-2">{seccion.data.evitar.map((c:string, i:number) => <div key={i} className="w-6 h-6 rounded-full border" style={{backgroundColor: c}}></div>)}</div></div>}
         </SectionWrapper>;
       case 'confirmacion': 
-        return <div id="confirmacion" onClick={() => onSectionClick?.(seccion.id)}><div className={cn("relative", selectedSectionId === seccion.id && "border-2 border-primary")}>{children}</div></div>;
+        return <SectionWrapper {...wrapperProps}><Button size="lg" style={{backgroundColor: paletaColores.primary}} onClick={() => !isPreview && setIsRsvpModalOpen(true)}>Confirmar Asistencia</Button></SectionWrapper>;
       case 'redesSociales': 
         return (
           <SectionWrapper {...wrapperProps}>
             <SectionIcon><Share2 className="w-12 h-12 mx-auto mb-3" style={{ color: primaryColor }} /></SectionIcon>
             <h3 className="font-headline text-3xl mb-3" style={{ color: paletaColores.accent }}>
-              <EditableText 
-                initialValue={seccion.data.texto?.text || "¡Comparte tus momentos!"} 
-                style={seccion.data.texto?.style} 
-                onSave={v => onUpdate?.({ redesSociales: { ...seccion.data, texto: { text: v } }})}
-                textarea={false}
-              />
+              <EditableText initialValue={seccion.data.texto?.text || "¡Comparte tus momentos!"} style={seccion.data.texto?.style} onSave={v => onUpdate?.({ redesSociales: { ...seccion.data, texto: { ...(seccion.data.texto || { style: {} }), text: v } }})} textarea={false} />
             </h3>
             {seccion.data.hashtag && (
               <p className="text-xl font-bold" style={{ color: primaryColor }}>
-                 <EditableText 
-                    initialValue={seccion.data.hashtag} 
-                    style={{fontFamily: 'Inter', fontSize: '1.25rem', color: primaryColor}}
-                    onSave={v => onUpdate?.({ redesSociales: { ...seccion.data, hashtag: v}})}
-                    textarea={false}
-                  />
+                 <EditableText initialValue={seccion.data.hashtag} style={{fontFamily: 'Inter', fontSize: '1.25rem', color: primaryColor}} onSave={v => onUpdate?.({ redesSociales: { ...seccion.data, hashtag: v}})} textarea={false} />
               </p>
             )}
              {fiesta.socialGallerySettings?.enabled && (
@@ -542,12 +580,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
       case 'despedida': 
         return <SectionWrapper {...wrapperProps}>
             <h3 className="font-headline text-4xl" style={{fontFamily: 'Dancing_Script', color: paletaColores.accent}}>
-              <EditableText 
-                initialValue={seccion.data.texto?.text || "¡Te esperamos!"} 
-                style={seccion.data.texto?.style} 
-                onSave={v => onUpdate?.({ despedida: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } }})}
-                textarea={false}
-              />
+              <EditableText initialValue={seccion.data.texto?.text || "¡Te esperamos!"} style={seccion.data.texto?.style} onSave={v => onUpdate?.({ despedida: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } }})} textarea={false}/>
             </h3>
         </SectionWrapper>;
       case 'footer': return null; // Footer is handled separately
@@ -586,24 +619,39 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
        )}
        {invitacionData.footer.visible && (
         <footer className="text-center py-8 mt-8 border-t bg-muted/20">
-          <p className="text-sm font-headline mb-4" style={{color: primaryColor}}>AK Producciones</p>
-          <div className="flex justify-center items-center gap-4">
-            {socialConnections.filter(c => c.isConnected).map(conn => {
-                const Icon = socialIcons[conn.platform as keyof typeof socialIcons];
-                return (
-                    <a key={conn.platform} href={conn.profileUrl || '#'} target="_blank" rel="noopener noreferrer" aria-label={`Perfil de ${conn.platform}`}>
-                        <Button variant="ghost" size="icon">
-                            {conn.logoUrl ? 
-                                <img src={conn.logoUrl} alt={`${conn.platform} logo`} className="w-6 h-6 object-contain" /> :
-                                (Icon ? <Icon className="w-6 h-6" /> : null)
-                            }
-                        </Button>
-                    </a>
-                );
-            })}
-          </div>
+            <h4 className="font-headline text-lg mb-2" style={{color: primaryColor}}>Síguenos en las redes</h4>
+            <div className="flex justify-center items-center gap-4 mb-4">
+                {socialConnections.filter(c => c.isConnected).map(conn => {
+                    const Icon = socialIcons[conn.platform as keyof typeof socialIcons] || LinkIcon;
+                    return (
+                        <a key={conn.platform} href={conn.profileUrl || '#'} target="_blank" rel="noopener noreferrer" aria-label={`Perfil de ${conn.platform}`}>
+                            <Button variant="ghost" size="icon">
+                                {conn.logoUrl ? 
+                                    <img src={conn.logoUrl} alt={`${conn.platform} logo`} className="w-6 h-6 object-contain" /> :
+                                    <Icon className="w-6 h-6" />
+                                }
+                            </Button>
+                        </a>
+                    );
+                })}
+            </div>
+            <p className="text-sm font-headline" style={{color: primaryColor}}>
+                <EditableText initialValue={invitacionData.footer.nombreEmpresa?.text || 'AK Producciones'} style={invitacionData.footer.nombreEmpresa?.style} onSave={v => onUpdate?.({ footer: { ...invitacionData.footer, nombreEmpresa: { text: v } } })} textarea={false}/>
+            </p>
        </footer>
        )}
+       {/* RSVP Modal */}
+        <Dialog open={isRsvpModalOpen} onOpenChange={setIsRsvpModalOpen}>
+            <DialogContent>
+                <DialogHeader><DialogTitle>Confirmar Asistencia</DialogTitle></DialogHeader>
+                <form onSubmit={handleRsvpFormSubmit} className="space-y-4">
+                    <div className="space-y-1"><Label htmlFor="rsvp-name">Tu nombre completo</Label><Input id="rsvp-name" value={rsvpName} onChange={e => setRsvpName(e.target.value)} required/></div>
+                    <div className="space-y-1"><Label htmlFor="rsvp-guests">Total de asistentes (contándote)</Label><Input id="rsvp-guests" type="number" value={rsvpGuests} onChange={e => setRsvpGuests(Number(e.target.value))} min={1} required/></div>
+                    {invitacionData.musica?.visible && <div className="space-y-1"><Label htmlFor="rsvp-music">¿Qué canción no puede faltar en la fiesta?</Label><Input id="rsvp-music" value={rsvpMusic} onChange={e => setRsvpMusic(e.target.value)} placeholder={invitacionData.musica?.placeholder || ''}/></div>}
+                    <DialogFooter><DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose><Button type="submit" disabled={isSubmitting}>{isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : null}Confirmar</Button></DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
     </div>
   );
 };

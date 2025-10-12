@@ -72,22 +72,23 @@ export const SectionEditorPanel: React.FC<Props> = ({ data, update, selectedSect
     
     const currentDataForVisibility = selectedSection?.tipo === 'cabecera' 
         ? data.cabecera 
-        : data[selectedSection?.tipo as keyof Omit<InvitacionDigitalData, 'secciones'>];
+        : data[selectedSection?.tipo as keyof Omit<InvitacionDigitalData, 'secciones' | 'plantilla' | 'name' | 'category' | 'musicaFondoUrl'>];
 
     const handleVisibilityChange = (checked: boolean) => {
         if (!selectedSection) return;
         
         const updatedSecciones = data.secciones.map(sec => {
             if (sec.id === selectedSectionId) {
-                return {
-                    ...sec,
-                    data: { ...sec.data, visible: checked }
-                };
+                // This is not correct. `data` is a flat object, we should update the specific section property
+                const sectionKey = sec.tipo as keyof Omit<InvitacionDigitalData, 'secciones'>;
+                 update({
+                    [sectionKey]: { ...(data[sectionKey] as any), visible: checked }
+                });
+                return { ...sec, data: { ...sec.data, visible: checked }}; // Update the section in the array too for UI consistency
             }
             return sec;
         });
-
-        update({ secciones: updatedSecciones });
+        update({secciones: updatedSecciones});
     };
 
     return (

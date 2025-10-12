@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { InvitacionDigitalData } from '@/types/fiesta';
@@ -18,30 +17,25 @@ export const SeccionMusicaEditor: React.FC<Props> = ({ data, update }) => {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Sección: Sugerencias Musicales</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center justify-between">
-          <Label htmlFor="musica-visible">Mostrar en el formulario RSVP</Label>
-          <Switch
-            id="musica-visible"
-            checked={data.visible}
-            onCheckedChange={(checked) => handleFieldChange('visible', checked)}
-          />
-        </div>
-        {data.visible && (
-            <div className="space-y-1 pt-2">
-                <Label htmlFor="musica-placeholder">Texto de ejemplo en el campo</Label>
-                <Input 
-                    id="musica-placeholder"
-                    value={data.placeholder || 'Ej: Bohemian Rhapsody - Queen'}
-                    onChange={(e) => handleFieldChange('placeholder', e.target.value)}
-                />
-            </div>
-        )}
-      </CardContent>
-    </Card>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <Label htmlFor="musica-visible" className="font-normal">Mostrar opción de sugerencia musical en el formulario RSVP</Label>
+        <Switch
+          id="musica-visible"
+          checked={data.visible}
+          onCheckedChange={(checked) => handleFieldChange('visible', checked)}
+        />
+      </div>
+      {data.visible && (
+          <div className="space-y-1 pt-2">
+              <Label htmlFor="musica-placeholder">Texto de ejemplo en el campo</Label>
+              <Input 
+                  id="musica-placeholder"
+                  value={data.placeholder || 'Ej: Bohemian Rhapsody - Queen'}
+                  onChange={(e) => handleFieldChange('placeholder', e.target.value)}
+              />
+          </div>
+      )}
+    </div>
   );
 };

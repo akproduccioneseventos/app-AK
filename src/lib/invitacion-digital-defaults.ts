@@ -1,5 +1,4 @@
 
-
 import type { InvitacionDigitalData, SeccionInvitacion, TextStyle, ColorPalette, DetalleEventoEspecifico } from '@/types/fiesta';
 
 const defaultDetalleEvento: DetalleEventoEspecifico = {
@@ -29,7 +28,7 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
       tipo: 'cabecera',
       data: {
         visible: true,
-        logoUrl: 'https://placehold.co/150x60/F3F4F6/333333?text=Logo',
+        logoUrl: '',
         protagonista1: 'Novio/a 1',
         protagonista2: 'Novio/a 2',
         subtitulo: { text: 'Nuestra Boda', style: { fontFamily: 'Inter', fontSize: '1.25rem', color: '#654321' } },
@@ -115,17 +114,17 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
   // Flat structure for direct access
   cabecera: {
     visible: true,
-    logoUrl: 'https://placehold.co/150x60/F3F4F6/333333?text=Logo',
+    logoUrl: '',
     protagonista1: 'María',
     protagonista2: 'Juan',
     subtitulo: { text: 'Nuestra Boda', style: { fontFamily: 'Inter', fontSize: '1.25rem', color: '#654321' } },
-    paletaColores: { primary: '#A2D2B0', secondary: '#363636', accent: '#F0E6CC' }
+    paletaColores: { primary: '#6d8b74', secondary: '#e6d5b8', accent: '#a47e63' },
+    videoFondoUrl: 'https://cdn.coverr.co/videos/coverr-a-man-and-a-woman-get-married-at-a-wedding-ceremony-2508/1080p.mp4'
   },
   bienvenida: {
     visible: true,
     titulo: { text: '¡Nos Casamos!', style: defaultTitleStyle },
     texto: { text: 'Después de un hermoso camino juntos, damos el siguiente paso. Queremos que seas parte de este día tan especial para nosotros, en una noche que promete ser inolvidable, llena de alegría, música y buenos momentos.', style: defaultTextStyle },
-    imagenFondoUrl: 'https://picsum.photos/seed/welcomebg/1200/800'
   },
   cuentaRegresiva: {
       visible: true
@@ -164,10 +163,10 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
   },
   dressCode: {
     visible: true,
-    texto: { text: 'Elegante', style: { fontFamily: 'Inter', fontSize: '1.25rem', color: '#363636' } },
+    texto: { text: 'Elegante Sport', style: { fontFamily: 'Inter', fontSize: '1.25rem', color: '#363636' } },
     imagenFondoUrl: "https://picsum.photos/seed/dresscode/1200/800",
-    sugeridos: ["#000000", "#556B2F", "#4682B4"], 
-    evitar: ["#FFFFFF"]
+    sugeridos: ["#2c3e50", "#8e44ad", "#2980b9"], 
+    evitar: ["#ffffff", "#ecf0f1"]
   },
    musica: {
     visible: true,

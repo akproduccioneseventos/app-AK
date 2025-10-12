@@ -31,34 +31,46 @@ export const SeccionRedesSocialesEditor: React.FC<Props> = ({ data, update, fies
 
   return (
     <div className="space-y-3 pt-2">
-        <div className="space-y-1">
-            <Label htmlFor="redessociales-hashtag">Hashtag del Evento</Label>
-            <Input
-            id="redessociales-hashtag"
-            value={data.hashtag || ''}
-            onChange={(e) => handleFieldChange('hashtag', e.target.value)}
-            placeholder="#BodaAnaYJuan"
-            />
+        <div className="flex items-center justify-between">
+          <Label htmlFor="redes-visible">Mostrar esta sección</Label>
+          <Switch
+            id="redes-visible"
+            checked={data.visible}
+            onCheckedChange={(checked) => handleFieldChange('visible', checked)}
+          />
         </div>
-        <div className="space-y-2 p-2 border rounded-md">
-            <Label>Texto de la Sección</Label>
-            <Input
-            value={data.texto?.text || ''}
-            onChange={(e) => handleTextChange(e.target.value)}
-            />
-            <TextStyleEditor 
-            style={data.texto?.style || {}}
-            onStyleChange={handleTextStyleChange}
-            />
-        </div>
-        {fiestaId && (
-            <div className="text-center pt-2">
-                <Button variant="outline" asChild>
-                    <Link href={`/evento/social/${fiestaId}`} target="_blank">
-                        Ir al Muro Social en vivo
-                    </Link>
-                </Button>
+        {data.visible && (
+        <>
+            <div className="space-y-1">
+                <Label htmlFor="redessociales-hashtag">Hashtag del Evento</Label>
+                <Input
+                id="redessociales-hashtag"
+                value={data.hashtag || ''}
+                onChange={(e) => handleFieldChange('hashtag', e.target.value)}
+                placeholder="#BodaAnaYJuan"
+                />
             </div>
+            <div className="space-y-2 p-2 border rounded-md">
+                <Label>Texto de la Sección</Label>
+                <Input
+                value={data.texto?.text || ''}
+                onChange={(e) => handleTextChange(e.target.value)}
+                />
+                <TextStyleEditor 
+                style={data.texto?.style || {}}
+                onStyleChange={handleTextStyleChange}
+                />
+            </div>
+            {fiestaId && (
+                <div className="text-center pt-2">
+                    <Button variant="outline" asChild>
+                        <Link href={`/evento/social/${fiestaId}`} target="_blank">
+                            Ir al Muro Social en vivo
+                        </Link>
+                    </Button>
+                </div>
+            )}
+        </>
         )}
     </div>
   );

@@ -17,7 +17,7 @@ interface Props {
 }
 
 export const SeccionDressCodeEditor: React.FC<Props> = ({ data, update, fiestaId }) => {
-  const handleFieldChange = (field: keyof typeof data, value: string | boolean) => {
+  const handleFieldChange = (field: keyof typeof data, value: string | boolean | string[] | undefined) => {
     update({ ...data, [field]: value });
   };
   
@@ -69,7 +69,7 @@ export const SeccionDressCodeEditor: React.FC<Props> = ({ data, update, fiestaId
                 />
             </div>
             <div className="space-y-2 p-2 border rounded-md">
-                <Label>Título del Código de Vestimenta (Ej: Formal, Elegante)</Label>
+                <Label>Título del Código de Vestimenta (Ej: Formal, Elegante Sport)</Label>
                 <Input
                   value={data.texto?.text || ''}
                   onChange={(e) => handleTextChange(e.target.value)}
