@@ -27,8 +27,8 @@ const getPageTitle = (pathname: string): string => {
   const idSegment = pathSegments[pathSegments.length -1];
 
   if (pathname === '/') return 'Menú Principal';
-  if (pathname === '/admin/aaiff') return 'Dashboard Principal';
   
+  if (pathname === '/presupuestos/nuevo/crear') return 'Creador de Presupuestos';
   if (pathname === '/presupuestos/nuevo') return 'Central de Presupuestos';
   if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'editar' && pathSegments.length === 3) return `Editar Presupuesto #${idSegment?.substring(0,5)}`;
   if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'ver' && pathSegments.length === 3) return `Ver Presupuesto #${idSegment?.substring(0,5)}`;
@@ -50,8 +50,8 @@ const getPageTitle = (pathname: string): string => {
   if (pathSegments[0] === 'empresa' && pathSegments[1] === 'servicios' && pathSegments[2] === 'editar') return `Editar Servicio`;
   if (pathname === '/empresa/contabilidad') return 'Panel Contable y Financiero';
   if (pathname === '/empresa/contabilidad/reportes') return 'Reporte de Ganancias y Pérdidas';
-  if (pathname === '/proveedores') return 'Proveedores';
-  if (pathname === '/proveedores/new') return 'Añadir Nuevo Proveedor';
+  if (pathname === '/proveedores') return 'Proveedores y Servicios';
+  if (pathname === '/proveedores/new') return 'Añadir Nuevo Registro';
   if (pathname === '/proveedores/reporte') return 'Reporte de Proveedores';
   if (pathname === '/empresa/activos-fijos') return 'Gestión de Activos Fijos';
   if (pathname === '/empresa/activos-fijos/nuevo') return 'Añadir Nuevo Activo Fijo';
@@ -126,6 +126,7 @@ const getPageTitle = (pathname: string): string => {
 
   if (pathname === '/eventos') return 'Gestor de Eventos';
   if (pathname === '/calendario') return 'Calendario General';
+  if (pathname === '/compras') return 'Compras y Checklist';
   
   if (pathname === '/login') return 'Login';
 
@@ -134,7 +135,6 @@ const getPageTitle = (pathname: string): string => {
 
 const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/') return LayoutDashboard;
-  if (pathname === '/admin/aaiff') return LayoutDashboard;
   
   if (pathname.startsWith('/fiestas/nueva')) {
     if (pathname === '/fiestas/nueva/personal') return UserCheck;
@@ -181,10 +181,11 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
 
   if (pathname === '/eventos') return CalendarClock;
   if (pathname === '/calendario') return CalendarDaysIcon;
+  if (pathname === '/compras') return ShoppingCart;
   
   if (pathname === '/login') return LogInIcon;
 
-  if (pathname === '/presupuestos/nuevo') return ListChecks;
+  if (pathname.startsWith('/presupuestos/nuevo')) return ListChecks;
   if (pathname.startsWith('/presupuestos')) return ListChecks;
   if (pathname === '/invoices') return FileText;
   if (pathname === '/contabilidad/crm') return KanbanSquare;
