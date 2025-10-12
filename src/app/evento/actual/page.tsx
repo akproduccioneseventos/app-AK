@@ -15,7 +15,8 @@ import { AllegriaTemplate } from '@/components/invitacion/templates/AllegriaTemp
 import { handleRsvpSubmission } from '@/app/actions/fiesta/invitados.actions';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, PartyPopper } from 'lucide-react';
+import { CheckCircle, PartyPopper, Download, Ticket } from 'lucide-react';
+import QRCodeStylized from 'qrcode.react';
 
 function EventoPublicoPageContent() {
   const { toast } = useToast();
@@ -82,6 +83,19 @@ function EventoPublicoPageContent() {
     }
   }
 
+  const downloadQR = () => {
+    const canvas = document.getElementById('qr-code-invitado') as HTMLCanvasElement;
+    if (canvas) {
+      const pngUrl = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+      let downloadLink = document.createElement("a");
+      downloadLink.href = pngUrl;
+      downloadLink.download = `QR-Entrada-${confirmedGuest?.nombre}.png`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    }
+  };
+
   const renderTemplate = () => {
     if(!fiesta) return null;
 
@@ -115,21 +129,33 @@ function EventoPublicoPageContent() {
   }
   
   if (rsvpSuccess && confirmedGuest) {
+    const qrValue = `${window.location.origin}/evento/actual/checkin?fiestaId=${fiesta.id}&guestId=${confirmedGuest.id}`;
     return (
        <div className="min-h-screen bg-gradient-to-br from-green-50 to-background flex flex-col items-center justify-center p-4">
         <Card className="w-full max-w-md shadow-2xl border-t-4 border-green-500 animate-in fade-in-50 zoom-in-95">
           <CardHeader className="text-center pb-4">
             <CheckCircle className="w-20 h-20 mx-auto text-green-500 mb-4" />
-            <CardTitle className="text-3xl font-bold font-headline text-green-600">
+            <CardTitle className="text-3xl font-bold font-headline text-green-700">
               ¡Confirmación Recibida!
             </CardTitle>
-            <CardDescription className="text-md">¡Gracias por confirmar, {confirmedGuest.nombre}!</CardDescription>
+            <CardDescription className="text-lg text-muted-foreground">¡Gracias por confirmar, {confirmedGuest.nombre}!</CardDescription>
           </CardHeader>
           <CardContent className="text-center space-y-4 py-8">
-            <p className="text-lg text-muted-foreground">Pronto te asignaremos una mesa. ¡Nos vemos en la fiesta!</p>
+             <h3 className="font-semibold text-lg">Tu Entrada Digital</h3>
+             <p className="text-sm text-muted-foreground">Presenta este código QR en la entrada del evento para el check-in.</p>
+             <div className="p-4 bg-white rounded-lg border inline-block">
+                <QRCodeStylized id="qr-code-invitado" value={qrValue} size={180} level="M" />
+             </div>
+             <p className="text-lg font-bold flex items-center justify-center gap-2">
+                <Ticket className="w-5 h-5 text-primary"/>
+                Válido para {confirmedGuest.partySize || 1} persona(s)
+             </p>
           </CardContent>
-          <CardFooter className="justify-center py-4">
-            <p className="text-xs text-muted-foreground flex items-center gap-2"><PartyPopper className="w-4 h-4"/> ¡Te esperamos!</p>
+          <CardFooter className="flex-col gap-3 py-4">
+             <Button onClick={downloadQR} className="w-full">
+                <Download className="w-4 h-4 mr-2"/>Descargar Código QR
+            </Button>
+            <p className="text-xs text-muted-foreground pt-2">¡Te esperamos para celebrar juntos!</p>
           </CardFooter>
         </Card>
       </div>

@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, AlertTriangle, CheckCircle, Ticket } from 'lucide-react';
 import type { Invitado } from '@/types/invitado';
-import { checkInGuest } from '@/app/actions/fiesta/invitados.actions';
+import { checkInGuestFiestaActual } from '@/app/actions/fiesta-actual';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 
 function CheckInContent() {
@@ -27,14 +27,23 @@ function CheckInContent() {
         return;
       }
       try {
-        const result = await checkInGuest(fiestaId, guestId);
-        if (result.success && result.invitado) {
-          if (result.invitado.checkedIn && result.invitado.checkInTimestamp && new Date(result.invitado.checkInTimestamp).getTime() < Date.now() - 2000) {
-            setWasAlreadyCheckedIn(true);
-          }
-          setInvitado(result.invitado);
+        const fiesta = await getFiestaActual();
+        if (fiesta.id !== fiestaId) {
+          throw new Error("El QR no corresponde a este evento.");
+        }
+        
+        const invitadoOriginal = fiesta.invitados?.find(i => i.id === guestId);
+        
+        if (invitadoOriginal?.checkedIn) {
+             setWasAlreadyCheckedIn(true);
+             setInvitado(invitadoOriginal);
         } else {
-          throw new Error(result.error || "Error al registrar la entrada.");
+            const result = await checkInGuestFiestaActual(fiestaId, guestId);
+            if (result.success && result.invitado) {
+                setInvitado(result.invitado);
+            } else {
+                throw new Error(result.error || "Error al registrar la entrada.");
+            }
         }
       } catch (err: any) {
         setError(err.message);
