@@ -461,4 +461,3 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
     </div>
   );
 }
-
