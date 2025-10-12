@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { InvitacionDigitalData, TextWithStyle, TextStyle } from '@/types/fiesta';
@@ -50,14 +51,6 @@ export const SeccionDressCodeEditor: React.FC<Props> = ({ data, update, fiestaId
 
   return (
     <div className="space-y-3 pt-2">
-        <div className="flex items-center justify-between">
-          <Label htmlFor="dresscode-visible">Mostrar esta sección</Label>
-          <Switch
-            id="dresscode-visible"
-            checked={data.visible}
-            onCheckedChange={(checked) => handleFieldChange('visible', checked)}
-          />
-        </div>
         {data.visible && (
         <>
             <div className="space-y-1">

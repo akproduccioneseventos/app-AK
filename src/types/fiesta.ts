@@ -189,7 +189,7 @@ export interface DetalleEventoEspecifico {
 
 export interface SeccionInvitacion {
   id: string;
-  tipo: 'cabecera' | 'bienvenida' | 'cuentaRegresiva' | 'detallesEvento' | 'itinerario' | 'dressCode' | 'galeria' | 'historia' | 'regalos' | 'confirmacion' | 'despedida' | 'footer' | 'redesSociales';
+  tipo: 'cabecera' | 'bienvenida' | 'cuentaRegresiva' | 'detallesEvento' | 'itinerario' | 'dressCode' | 'galeria' | 'historia' | 'regalos' | 'confirmacion' | 'despedida' | 'footer' | 'redesSociales' | 'musica';
   data: any; // El contenido específico de cada sección
 }
 
@@ -252,11 +252,13 @@ export interface InvitacionDigitalData {
     visible: boolean;
     imagenFondoUrl?: string;
     texto: TextWithStyle;
+    sugeridos?: string[];
+    evitar?: string[];
   };
   redesSociales: {
     visible: boolean;
     hashtag: string;
-    texto: string;
+    texto: TextWithStyle;
   },
   confirmacion: {
     visible: boolean;
@@ -264,6 +266,10 @@ export interface InvitacionDigitalData {
   despedida: {
     visible: boolean;
     texto: TextWithStyle;
+  };
+  musica: {
+    visible: boolean;
+    placeholder?: string;
   };
   footer: {
     visible: boolean;

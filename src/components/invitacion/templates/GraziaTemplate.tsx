@@ -45,6 +45,7 @@ const formatDate = (dateString?: string, shortMonth = false) => {
   }
 };
 
+
 const SectionWrapper: React.FC<{
     seccion: SeccionInvitacion,
     children: React.ReactNode,
@@ -558,10 +559,11 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
         </SectionWrapper>;
       case 'galeria':
         return <SectionWrapper {...wrapperProps}><GraziaGaleria {...props} /></SectionWrapper>;
-      case 'historia':
-        return <SectionWrapper {...wrapperProps}><SectionIcon><Heart className="w-12 h-12 mx-auto mb-3" style={{color: paletaColores.primary}} /></SectionIcon><h3 className="font-headline text-3xl mb-4" style={{color: paletaColores.accent}}><EditableText initialValue={seccion.data.titulo?.text || 'Nuestra Historia'} style={seccion.data.titulo?.style} onSave={(v) => onUpdate?.({ historia: { ...seccion.data, titulo: { ...(seccion.data.titulo || {style:{}}), text: v } } })} textarea={false}/></h3><p className="max-w-prose mx-auto text-muted-foreground"><EditableText initialValue={seccion.data.texto?.text || 'Un breve relato de nuestro camino juntos...'} style={seccion.data.texto?.style} onSave={(v) => onUpdate?.({ historia: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } } })} textarea /></p></SectionWrapper>;
-      case 'regalos':
-        return <SectionWrapper {...wrapperProps}><GraziaRegalos {...props} fiestaId={fiesta.id}/></SectionWrapper>;
+      case 'historia': 
+        return <SectionWrapper {...wrapperProps}>
+            <SectionIcon><Heart className="w-12 h-12 mx-auto mb-3" style={{color: paletaColores.primary}} /></SectionIcon>
+            <h3 className="font-headline text-3xl mb-4" style={{color: paletaColores.accent}}><EditableText initialValue={seccion.data.titulo?.text || 'Nuestra Historia'} style={seccion.data.titulo?.style} onSave={(v) => onUpdate?.({ historia: { ...seccion.data, titulo: { ...(seccion.data.titulo || {style:{}}), text: v } } })} textarea={false}/></h3>
+            <p className="max-w-prose mx-auto text-muted-foreground"><EditableText initialValue={seccion.data.texto?.text || 'Un breve relato de nuestro camino juntos...'} style={seccion.data.texto?.style} onSave={(v) => onUpdate?.({ historia: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } } })} textarea/></p></SectionWrapper>;
       case 'dressCode':
         return <SectionWrapper {...wrapperProps}>
             <SectionIcon><Sparkles className="w-12 h-12 mx-auto mb-3" style={{color: paletaColores.primary}} /></SectionIcon>
@@ -570,6 +572,8 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
             {seccion.data.sugeridos?.length > 0 && <div className="mt-4"><p className="text-sm font-medium">Colores Sugeridos:</p><div className="flex justify-center gap-2 mt-2">{seccion.data.sugeridos.map((c:string, i:number) => <div key={i} className="w-6 h-6 rounded-full border" style={{backgroundColor: c}}></div>)}</div></div>}
             {seccion.data.evitar?.length > 0 && <div className="mt-4"><p className="text-sm font-medium">Colores a Evitar:</p><div className="flex justify-center gap-2 mt-2">{seccion.data.evitar.map((c:string, i:number) => <div key={i} className="w-6 h-6 rounded-full border" style={{backgroundColor: c}}></div>)}</div></div>}
         </SectionWrapper>;
+      case 'regalos':
+        return <SectionWrapper {...wrapperProps}><GraziaRegalos {...props} fiestaId={fiesta.id}/></SectionWrapper>;
       case 'confirmacion':
         return <SectionWrapper {...wrapperProps}><Button size="lg" style={{backgroundColor: paletaColores.primary}} onClick={() => !isPreview && setIsRsvpModalOpen(true)}>Confirmar Asistencia</Button></SectionWrapper>;
       case 'redesSociales':
