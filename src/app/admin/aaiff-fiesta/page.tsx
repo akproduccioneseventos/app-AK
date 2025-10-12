@@ -83,7 +83,7 @@ export default function AnalisisCodebasePage() {
         <Link href="/" passHref> 
           <Button variant="outline">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver al Dashboard
+            Volver al Menú Principal
           </Button>
         </Link>
       </div>
@@ -145,5 +145,4 @@ export default function AnalisisCodebasePage() {
     </div>
   );
 }
-
     

@@ -20,7 +20,7 @@ export default function ComprasPage() {
         <Link href="/" passHref>
           <Button variant="outline">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver
+            Volver al Menú Principal
           </Button>
         </Link>
       </div>
