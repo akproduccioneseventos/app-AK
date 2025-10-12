@@ -5,12 +5,12 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 
-export default function RedirectToAdminPage() {
+// This page is now a redirect to the new central dashboard.
+export default function RedirectToDashboardPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Redirect to the new admin dashboard
-    router.replace('/admin/aaiff');
+    router.replace('/dashboard');
   }, [router]);
 
   return (
@@ -19,5 +19,3 @@ export default function RedirectToAdminPage() {
     </div>
   );
 }
-
-    
