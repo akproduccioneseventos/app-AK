@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, Suspense, use } from 'react';
@@ -168,6 +169,7 @@ function PaginaWebPageContent() {
       isPreview: true,
       onSectionClick: setSelectedSectionId,
       onUpdate: handleUpdate,
+      onRsvpSubmit: undefined, // RSVP submission logic is not part of the editor
       selectedSectionId,
     };
     
@@ -217,7 +219,7 @@ function PaginaWebPageContent() {
             )}
             
              {/* Link & QR Center */}
-            {!selectedSectionId && fiestaId && (
+            {!selectedSectionId && fiestaId && fiesta && (
                 <div className="p-4 space-y-4 border-t">
                     <h3 className="font-semibold text-lg flex items-center gap-2">
                         <LinkIcon className="w-5 h-5 text-primary"/> Centro de Enlaces y QR
@@ -294,3 +296,5 @@ export default function PaginaWebYPortalPage() {
         </Suspense>
     );
 }
+
+    
