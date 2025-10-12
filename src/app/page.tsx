@@ -18,6 +18,7 @@ import {
   ShoppingCart,
   BarChart3,
   Building2,
+  Users,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
@@ -142,5 +143,3 @@ export default function Home() {
     </div>
   );
 }
-
-    
