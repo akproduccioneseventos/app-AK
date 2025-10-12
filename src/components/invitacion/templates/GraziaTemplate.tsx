@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -34,12 +33,13 @@ const SectionWrapper: React.FC<{
     children: React.ReactNode,
     onClick?: () => void,
     isSelected?: boolean,
-}> = ({ seccion, children, onClick, isSelected }) => {
+    className?: string,
+}> = ({ seccion, children, onClick, isSelected, className }) => {
     if (!seccion.data.visible) return null;
 
     const sectionVariants = {
-        hidden: { opacity: 0, y: 20 },
-        visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+        hidden: { opacity: 0, y: 50 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } },
     };
 
     return (
@@ -49,7 +49,7 @@ const SectionWrapper: React.FC<{
             viewport={{ once: true, amount: 0.2 }}
             variants={sectionVariants}
             id={seccion.tipo}
-            className={cn("py-12 px-4 text-center relative", onClick && "cursor-pointer group/section")}
+            className={cn("py-16 px-6 text-center relative", className, onClick && "cursor-pointer group/section")}
             onClick={onClick}
         >
             {onClick && <div className={cn("absolute inset-0 border-2 transition-all pointer-events-none", isSelected ? 'border-primary' : 'border-transparent group-hover/section:border-primary/50')}></div>}
@@ -87,7 +87,7 @@ const FloralSeparator: React.FC<{ color: string }> = ({ color }) => (
 const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta: FiestaEnPlanificacion, paleta: ColorPalette, onUpdate?: (newData: Partial<InvitacionDigitalData>) => void, isPreview?: boolean }> = ({ data, fiesta, paleta, onUpdate, isPreview }) => {
   if (!data.visible) return null;
   
-  const handleUpdate = (field: keyof typeof data, value: string) => {
+  const handleUpdateProtagonista = (field: 'protagonista1' | 'protagonista2', value: string) => {
     onUpdate?.({ cabecera: { ...data, [field]: value } });
   };
   
@@ -95,7 +95,7 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
   
   return (
     <header 
-        className="relative py-16 md:py-24 text-center bg-cover bg-center min-h-[400px] flex items-center justify-center"
+        className="relative py-24 md:py-32 text-center bg-cover bg-center min-h-[70vh] flex items-center justify-center"
         style={{
             backgroundImage: `url(${data.videoFondoUrl ? '' : (data.imagenFondoUrl || '')})`,
             backgroundAttachment: 'fixed',
@@ -104,37 +104,41 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
         {data.videoFondoUrl && (
             <video src={data.videoFondoUrl} autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover -z-10"/>
         )}
-        <div className="absolute inset-0 bg-white/70 backdrop-blur-sm -z-10"></div>
+        <div className="absolute inset-0 bg-white/70 dark:bg-black/50 backdrop-blur-sm -z-10"></div>
         <div className="relative z-10 p-6 max-w-2xl mx-auto text-center">
             {data.logoUrl && (
-                <div className="relative h-24 w-full mb-4">
-                    <WatermarkedImage src={data.logoUrl} alt="Logo del evento" containerClassName="h-full w-full"/>
-                </div>
+                <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
+                    <div className="relative h-28 w-full mb-6">
+                        <WatermarkedImage src={data.logoUrl} alt="Logo del evento" containerClassName="h-full w-full"/>
+                    </div>
+                </motion.div>
             )}
-             <EditableText 
-                initialValue={data.subtitulo?.text || "Nuestra Boda"}
-                style={data.subtitulo?.style}
-                onSave={(val) => onUpdate?.({ cabecera: { ...data, subtitulo: { ...(data.subtitulo || {style:{}}), text: val } } })}
-                className="font-headline text-2xl"
-                textarea={false} 
-            />
-            <h1 className="font-headline text-5xl md:text-7xl my-3" style={{color: primaryColor}}>
+             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3, duration: 0.8 }}>
+                <EditableText 
+                    initialValue={data.subtitulo?.text || "Nuestra Boda"}
+                    style={data.subtitulo?.style}
+                    onSave={(val) => onUpdate?.({ cabecera: { ...data, subtitulo: { ...(data.subtitulo || {style:{}}), text: val } } })}
+                    className="font-headline text-2xl"
+                    textarea={false} 
+                />
+            </motion.div>
+            <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.8 }} className="font-headline text-6xl md:text-8xl my-4" style={{color: primaryColor}}>
                <EditableText 
                     initialValue={data.protagonista1 || "Protagonista 1"} 
                     style={{ fontFamily: 'Belleza', fontSize: 'inherit', color: 'inherit' }}
-                    onSave={(val) => handleUpdate('protagonista1', val)}
+                    onSave={(val) => handleUpdateProtagonista('protagonista1', val)}
                     textarea={false}
                 />
-               {data.protagonista2 && ` & `}
+               {data.protagonista2 && <span className="mx-2">&</span>}
                {data.protagonista2 && 
                 <EditableText 
                     initialValue={data.protagonista2} 
                     style={{ fontFamily: 'Belleza', fontSize: 'inherit', color: 'inherit' }}
-                    onSave={(val) => handleUpdate('protagonista2', val)}
+                    onSave={(val) => handleUpdateProtagonista('protagonista2', val)}
                     textarea={false}
                 />
                }
-            </h1>
+            </motion.h1>
         </div>
     </header>
   );
@@ -144,9 +148,9 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
 const GraziaDetalles: React.FC<{ data: InvitacionDigitalData['detallesEvento'], fiesta: FiestaEnPlanificacion, paleta: ColorPalette, onUpdate?: (newData: Partial<InvitacionDigitalData>) => void }> = ({ data, fiesta, paleta, onUpdate }) => {
   
   const detallesAMostrar = [
-    data.ceremoniaReligiosa,
-    data.ceremoniaCivil,
-    data.celebracion
+    {...data.ceremoniaReligiosa, icon: Church},
+    {...data.ceremoniaCivil, icon: Building},
+    {...data.celebracion, icon: GlassWater}
   ].filter(d => d && d.visible);
 
   const formatDate = (dateString?: string) => {
@@ -157,14 +161,16 @@ const GraziaDetalles: React.FC<{ data: InvitacionDigitalData['detallesEvento'], 
     } catch(e) { return "Fecha inválida"; }
   };
   
-  const renderDetalle = (detalle: DetalleEventoEspecifico) => {
+  const renderDetalle = (detalle: DetalleEventoEspecifico & {icon: React.ElementType}) => {
     if (!detalle || !detalle.visible) return null;
     
     const mapUrl = detalle.mapaUrl || (detalle.nombreLugar ? `https://www.google.com/maps?q=${encodeURIComponent(detalle.nombreLugar)}` : '#');
+    const Icon = detalle.icon;
 
     return (
       <div key={detalle.titulo} className="max-w-md mx-auto text-center mb-12 last:mb-0">
-        <h3 className="font-headline text-3xl mb-4" style={{color: paleta.primary}}>{detalle.titulo}</h3>
+        <SectionIcon><Icon className="w-12 h-12 mx-auto mb-4" style={{color: paleta.primary}} /></SectionIcon>
+        <h3 className="font-headline text-3xl mb-4" style={{color: paleta.accent}}>{detalle.titulo}</h3>
         {detalle.imagenUrl && (
           <div className="relative aspect-video w-full rounded-lg overflow-hidden shadow-lg mb-6">
             <NextImage src={detalle.imagenUrl} alt={`Foto de ${detalle.nombreLugar}`} layout="fill" objectFit="cover" />
@@ -173,7 +179,7 @@ const GraziaDetalles: React.FC<{ data: InvitacionDigitalData['detallesEvento'], 
         <div className="text-lg space-y-1">
           {detalle.fecha && <p className="font-semibold">{formatDate(detalle.fecha)}</p>}
           {detalle.hora && <p className="text-muted-foreground">{detalle.hora} hs.</p>}
-          {detalle.nombreLugar && <p className="text-xl font-semibold mt-1" style={{color: paleta.accent}}>{detalle.nombreLugar}</p>}
+          {detalle.nombreLugar && <p className="text-xl font-semibold mt-1">{detalle.nombreLugar}</p>}
           {detalle.direccionLugar && <p className="text-sm text-muted-foreground">{detalle.direccionLugar}</p>}
         </div>
         {(detalle.mapaUrl || detalle.nombreLugar) && (
@@ -267,7 +273,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
   }
 
   return (
-    <div className={cn("min-h-screen bg-background font-body", isPreview && "overflow-y-auto h-full")} style={{'--theme-primary': primaryColor} as React.CSSProperties}>
+    <div className={cn("min-h-screen bg-gradient-to-br from-background to-muted/30 font-body", isPreview && "overflow-y-auto h-full")} style={{'--theme-primary': primaryColor} as React.CSSProperties}>
        <div onClick={() => onSectionClick?.('cabecera')} className={cn("relative", isPreview && "cursor-pointer")}>
         {isPreview && <div className={cn("absolute inset-0 border-2 transition-all pointer-events-none", selectedSectionId === 'cabecera' ? 'border-primary' : 'border-transparent')}></div>}
         <GraziaCabecera data={invitacionData.cabecera} fiesta={fiesta} paleta={paletaColores} onUpdate={onUpdate} isPreview={isPreview} />
