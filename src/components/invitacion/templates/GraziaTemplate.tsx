@@ -21,6 +21,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { claimGiftFiestaActual } from '@/app/actions/fiesta-actual';
 import { Loader2 } from 'lucide-react';
+import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 
 
 interface TemplateProps {
@@ -92,6 +93,14 @@ const FloralSeparator: React.FC<{ color: string }> = ({ color }) => (
 );
 
 const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta: FiestaEnPlanificacion, paleta: ColorPalette, onUpdate?: (newData: Partial<InvitacionDigitalData>) => void, isPreview?: boolean }> = ({ data, fiesta, paleta, onUpdate, isPreview }) => {
+  const [companyLogo, setCompanyLogo] = useState<string | null>(null);
+
+  useEffect(() => {
+    getInvoiceTemplateSettings().then(settings => {
+      setCompanyLogo(settings.logoUrl || null);
+    });
+  }, []);
+
   if (!data.visible) return null;
   
   const handleUpdateProtagonista = (field: 'protagonista1' | 'protagonista2', value: string) => {
@@ -112,14 +121,14 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
             <video src={data.videoFondoUrl} autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover -z-10"/>
         )}
         <div className="absolute inset-0 bg-white/70 dark:bg-black/50 backdrop-blur-sm -z-10"></div>
+        
+        {companyLogo && (
+          <div className="absolute top-4 left-4 z-20">
+            <NextImage src={companyLogo} alt="Logo de la Empresa" width={80} height={40} className="object-contain" />
+          </div>
+        )}
+
         <div className="relative z-10 p-6 max-w-2xl mx-auto text-center">
-            {data.logoUrl && (
-                <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
-                    <div className="relative h-28 w-full">
-                        <WatermarkedImage src={data.logoUrl} alt="Logo del evento" containerClassName="h-full w-full"/>
-                    </div>
-                </motion.div>
-            )}
              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3, duration: 0.8 }}>
                 <EditableText 
                     initialValue={data.subtitulo?.text || "Nuestra Boda"}
@@ -146,6 +155,7 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
                 />
                }
             </motion.h1>
+             <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7, duration: 0.8 }} className="mt-4 text-lg" style={{color: 'var(--allegria-text)'}}>{formatDate(fiesta.configuracion.fechaEvento)}</motion.p>
         </div>
     </header>
   );
@@ -221,7 +231,7 @@ const GraziaDetalles: React.FC<{ data: InvitacionDigitalData['detallesEvento'], 
         <h3 className="font-headline text-3xl mb-4" style={{color: paleta.accent}}>{detalle.titulo}</h3>
         {detalle.imagenUrl && (
           <div className="relative aspect-video w-full rounded-lg overflow-hidden shadow-lg mb-6">
-            <NextImage src={detalle.imagenUrl} alt={`Foto de ${detalle.nombreLugar}`} layout="fill" objectFit="cover" />
+            <NextImage src={detalle.imagenUrl} alt={`Foto de ${detalle.nombreLugar}`} layout="fill" objectFit="cover" data-ai-hint="event venue"/>
           </div>
         )}
         <div className="text-lg space-y-1">
@@ -341,7 +351,7 @@ const GraziaRegalos: React.FC<{ data: InvitacionDigitalData['regalos'], fiestaId
               {(data.items || []).map(item => (
                 <div key={item.id} className="border rounded-lg shadow-sm overflow-hidden flex flex-col bg-card">
                   <div className="relative aspect-square bg-muted">
-                    {item.imageUrl && <NextImage src={item.imageUrl} alt={item.name} layout="fill" objectFit="cover" />}
+                    {item.imageUrl && <NextImage src={item.imageUrl} alt={item.name} layout="fill" objectFit="cover" data-ai-hint="wedding gift"/>}
                     {item.isClaimed && (
                       <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-white p-2">
                         <Check className="w-8 h-8 mb-2"/>
@@ -356,7 +366,7 @@ const GraziaRegalos: React.FC<{ data: InvitacionDigitalData['regalos'], fiestaId
                     <Button 
                       className="w-full mt-4" 
                       style={item.isClaimed ? {} : {backgroundColor: paleta.primary}}
-                      disabled={item.isClaimed}
+                      disabled={item.isClaimed || isPreview}
                       onClick={() => handleOpenClaimModal(item)}
                     >
                       {item.isClaimed ? "Ya Regalado" : "¡Lo quiero regalar!"}
@@ -407,7 +417,7 @@ const GraziaGaleria: React.FC<{ data: InvitacionDigitalData['galeria'], paleta: 
                         transition={{ duration: 1 }}
                         className="absolute inset-0"
                     >
-                        <NextImage src={data.fotos[currentIndex]} alt={`Foto de la galería ${currentIndex + 1}`} layout="fill" objectFit="cover" />
+                        <NextImage src={data.fotos[currentIndex]} alt={`Foto de la galería ${currentIndex + 1}`} layout="fill" objectFit="cover" data-ai-hint="wedding couple photo"/>
                     </motion.div>
                 </AnimatePresence>
                 {data.fotos.length > 1 && (
@@ -500,7 +510,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
               <EditableText 
                 initialValue={seccion.data.texto?.text || "¡Comparte tus momentos!"} 
                 style={seccion.data.texto?.style} 
-                onSave={v => onUpdate?.({ redesSociales: { ...seccion.data, texto: {...(seccion.data.texto || {style:{}}), text: v }} })}
+                onSave={v => onUpdate?.({ redesSociales: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } }})}
                 textarea={false}
               />
             </h3>
