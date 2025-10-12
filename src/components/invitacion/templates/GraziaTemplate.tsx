@@ -15,6 +15,7 @@ import Link from 'next/link';
 import type { SocialPlatformName } from '@/types/settings';
 import { motion } from "framer-motion";
 import type { DetalleEventoEspecifico } from '@/types/fiesta';
+import { WatermarkedImage } from '@/components/watermarked-image';
 
 
 interface TemplateProps {
@@ -90,13 +91,6 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
     onUpdate?.({ cabecera: { ...data, [field]: value } });
   };
   
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return "Fecha a confirmar";
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return "Fecha inválida";
-    return date.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-  };
-  
   const primaryColor = paleta.primary || 'hsl(var(--primary))';
   
   return (
@@ -114,7 +108,7 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
         <div className="relative z-10 p-6 max-w-2xl mx-auto text-center">
             {data.logoUrl && (
                 <div className="relative h-24 w-full mb-4">
-                    <NextImage src={data.logoUrl} alt="Logo del evento" layout="fill" objectFit="contain" />
+                    <WatermarkedImage src={data.logoUrl} alt="Logo del evento" containerClassName="h-full w-full"/>
                 </div>
             )}
              <EditableText 
@@ -126,7 +120,7 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
             />
             <h1 className="font-headline text-5xl md:text-7xl my-3" style={{color: primaryColor}}>
                <EditableText 
-                    initialValue={data.protagonista1 || "Novio/a 1"} 
+                    initialValue={data.protagonista1 || "Protagonista 1"} 
                     style={{ fontFamily: 'Belleza', fontSize: 'inherit', color: 'inherit' }}
                     onSave={(val) => handleUpdate('protagonista1', val)}
                     textarea={false}
@@ -141,9 +135,6 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
                 />
                }
             </h1>
-            <p className="text-xl font-headline" style={{color: paleta.accent || '#333'}}>
-                {formatDate(fiesta.configuracion.fechaEvento)}
-            </p>
         </div>
     </header>
   );

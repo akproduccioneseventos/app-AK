@@ -67,7 +67,22 @@ export const SeccionCabeceraEditor: React.FC<Props> = ({ data, update, fiestaId 
                 fiestaId={fiestaId}
             />
         </div>
+        
         <Separator />
+        
+        <div className="space-y-3">
+          <div className="space-y-1">
+              <Label htmlFor="protagonista1">Protagonista 1</Label>
+              <Input id="protagonista1" value={data.protagonista1 || ''} onChange={(e) => handleFieldChange('protagonista1', e.target.value)} />
+          </div>
+          <div className="space-y-1">
+              <Label htmlFor="protagonista2">Protagonista 2 (opcional, para bodas)</Label>
+              <Input id="protagonista2" value={data.protagonista2 || ''} onChange={(e) => handleFieldChange('protagonista2', e.target.value)} />
+          </div>
+        </div>
+
+        <Separator />
+
         <div className="space-y-2 p-2 border rounded-md">
             <Label>Subtítulo (Ej: "Nuestra Boda")</Label>
              <Input
