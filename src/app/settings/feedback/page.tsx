@@ -66,25 +66,6 @@ export default function FeedbackPage() {
     toast({ title: "Enlace Copiado" });
   };
 
-  const openAIGenerator = async (feedback: FeedbackSubmission) => {
-    setCurrentFeedback(feedback);
-    setIsGenerating(true);
-    setIsGeneratorOpen(true);
-    try {
-      const result = await generateTestimonial({
-        clientName: feedback.clientName,
-        enjoyedMost: feedback.enjoyedMost,
-        toImprove: feedback.toImprove,
-        generalComments: feedback.generalComments || '',
-      });
-      setGeneratedText(result.testimonialText);
-    } catch (e: any) {
-      toast({ title: "Error de IA", description: e.message, variant: "destructive" });
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-  
   const handleSaveTestimonial = async () => {
     if (!currentFeedback || !generatedText.trim()) return;
     setIsSavingTestimonial(true);
@@ -157,8 +138,8 @@ export default function FeedbackPage() {
           <Star className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">Feedback y Testimonios</h1>
         </div>
-        <Link href="/fiestas/nueva" passHref>
-          <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver al Planificador</Button>
+        <Link href="/settings" passHref>
+          <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver a Configuración</Button>
         </Link>
       </div>
       
@@ -175,7 +156,7 @@ export default function FeedbackPage() {
                 </Button>
             </div>
             <p>2. El feedback del cliente aparecerá automáticamente en la sección "Feedback Recibido".</p>
-            <p>3. Usa el botón "Generar Testimonio" para que la IA cree un texto de marketing que podrás aprobar y usar en tus redes sociales.</p>
+            <p>3. El botón "Generar Testimonio" está desactivado temporalmente.</p>
         </CardContent>
       </Card>
 
@@ -198,7 +179,7 @@ export default function FeedbackPage() {
                 {fb.generalComments && <div><p className="font-semibold">Comentarios generales:</p><p className="text-muted-foreground">{fb.generalComments}</p></div>}
               </CardContent>
               <CardFooter>
-                <Button size="sm" onClick={() => openAIGenerator(fb)}><Wand2 className="w-4 h-4 mr-2"/>Generar Testimonio</Button>
+                <Button size="sm" disabled><Wand2 className="w-4 h-4 mr-2"/>Generar Testimonio (Desactivado)</Button>
               </CardFooter>
             </Card>
            )) : <p className="text-center text-muted-foreground p-4">No hay feedback nuevo para procesar.</p>

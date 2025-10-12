@@ -124,26 +124,6 @@ function SocialMediaPageContent() {
             )}
             <CardDescription>Planifica, redacta con IA y organiza tu contenido para redes sociales. Luego copia y pega para publicar.</CardDescription>
             
-            <Card className="shadow-lg border-primary/20">
-                <CardHeader>
-                    <CardTitle className="font-headline text-xl flex items-center gap-2">
-                        <Bot className="w-6 h-6 text-primary" />
-                        Asistente de Marketing con IA
-                    </CardTitle>
-                    <CardDescription>
-                        ¿Necesitas inspiración? Utiliza nuestro asistente de IA para generar ideas, textos e imágenes para tus publicaciones.
-                    </CardDescription>
-                </CardHeader>
-                <CardFooter>
-                     <Link href="/admin/asistente-ak" passHref>
-                        <Button variant="secondary">
-                            <Wand2 className="w-4 h-4 mr-2" />
-                            Abrir Asistente de IA
-                        </Button>
-                    </Link>
-                </CardFooter>
-            </Card>
-
             <Card className="shadow-lg">
                 <CardHeader>
                     <CardTitle className="font-headline text-xl">Gestor de Contenido</CardTitle>

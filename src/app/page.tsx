@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -44,13 +45,6 @@ const mainHubItems = [
       href: '/compras',
       icon: ShoppingCart,
       actionLabel: 'Ir a Compras'
-    },
-     {
-      title: 'Asistente IA',
-      description: 'Analiza el estado de tu aplicación y obtén ayuda de la inteligencia artificial.',
-      href: '/admin/aaiff-fiesta',
-      icon: BrainCircuit,
-      actionLabel: 'Consultar a la IA'
     },
     {
       title: 'Configuración General',

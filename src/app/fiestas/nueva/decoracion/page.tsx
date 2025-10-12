@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent, type ChangeEvent } from 'react';
@@ -323,7 +322,7 @@ export default function DecoracionYDisenoEventoPage() {
                   <div key={key} className="space-y-1">
                     <Label htmlFor={`color-${key}`} className="text-xs capitalize">{key}</Label>
                     <div className="flex items-center gap-2">
-                        <Input type="color" id={`color-${key}`} value={decoracionData.paletaColores?.[key] || defaultDecoracion.paletaColores![key]} onChange={e => handleColorChange(key, e.target.value)} className="w-10 h-10 p-0.5 aspect-square"/>
+                        <Input type="color" id={`color-picker-${key}`} value={decoracionData.paletaColores?.[key] || defaultDecoracion.paletaColores![key]} onChange={e => handleColorChange(key, e.target.value)} className="w-10 h-10 p-0.5 aspect-square"/>
                         <Input type="text" value={decoracionData.paletaColores?.[key] || defaultDecoracion.paletaColores![key]} onChange={e => handleColorChange(key, e.target.value)} className="h-9 text-sm" placeholder="#RRGGBB"/>
                     </div>
                   </div>
@@ -356,58 +355,6 @@ export default function DecoracionYDisenoEventoPage() {
              {decoracionData.moodboardImageUrl && !failedImageUrls['moodboardImageUrl'] && <NextImage src={decoracionData.moodboardImageUrl} alt="Moodboard Preview" width={200} height={120} className="mt-1 rounded border object-contain max-h-[120px]" data-ai-hint="event moodboard inspiration" onError={()=>setFailedImageUrls(p=>({...p, moodboardImageUrl:true}))}/>}
             </div>
             <div className="space-y-2"><Label htmlFor="general-notes-decoracion">Notas Generales de Decoración</Label><Textarea id="general-notes-decoracion" value={decoracionData.generalNotesDecoracion || ''} onChange={e => handleInputChange('generalNotesDecoracion', e.target.value)} rows={3} placeholder="Ideas, conceptos, elementos clave..."/></div>
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-md">
-          <CardHeader><CardTitle className="font-headline text-xl flex items-center gap-2"><Wand2 className="text-primary"/>Consejos de IA</CardTitle></CardHeader>
-          <CardContent className="text-center text-muted-foreground space-y-3">
-              <p className="text-sm">Obtén sugerencias de combinaciones de colores y estilos basadas en el tema de tu evento.</p>
-              <Dialog open={isAiModalOpen} onOpenChange={(open) => {
-                  setIsAiModalOpen(open);
-                  if (!open) {
-                      setAiError(null);
-                      setSuggestedPalette(null);
-                  }
-              }}>
-                <DialogTrigger asChild>
-                  <Button variant="secondary"><Wand2 className="w-4 h-4 mr-2"/>Generar Paleta de Colores con IA</Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Generador de Paleta de Colores</DialogTitle>
-                    <DialogDescription>Describe el tema o la atmósfera de tu evento y la IA sugerirá una paleta de colores armoniosa.</DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4 py-2">
-                    <div className="space-y-1">
-                      <Label htmlFor="ai-theme-input">Tema o Descripción del Evento</Label>
-                      <Input id="ai-theme-input" value={aiThemeInput} onChange={(e) => setAiThemeInput(e.target.value)} placeholder="Ej: Boda rústica en el bosque, fiesta de los 80 neón"/>
-                    </div>
-                    {isGenerating && (
-                      <div className="flex items-center justify-center p-4"><Loader2 className="w-6 h-6 animate-spin text-primary mr-2" /> <p>Generando...</p></div>
-                    )}
-                    {aiError && (
-                      <p className="text-sm text-destructive">{aiError}</p>
-                    )}
-                    {suggestedPalette && (
-                      <div className="space-y-3 pt-2">
-                        <h4 className="text-sm font-medium">Sugerencia de la IA:</h4>
-                        <div className="flex justify-around items-center p-3 border rounded-md">
-                          <div className="text-center"><div className="w-12 h-12 rounded-full mx-auto border" style={{backgroundColor: suggestedPalette.primary}}></div><p className="text-xs mt-1">Principal</p><p className="text-xs font-mono">{suggestedPalette.primary}</p></div>
-                          <div className="text-center"><div className="w-12 h-12 rounded-full mx-auto border" style={{backgroundColor: suggestedPalette.secondary}}></div><p className="text-xs mt-1">Secundario</p><p className="text-xs font-mono">{suggestedPalette.secondary}</p></div>
-                          <div className="text-center"><div className="w-12 h-12 rounded-full mx-auto border" style={{backgroundColor: suggestedPalette.accent}}></div><p className="text-xs mt-1">Acento</p><p className="text-xs font-mono">{suggestedPalette.accent}</p></div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  <DialogFooter className="gap-2 sm:gap-0">
-                    <Button type="button" variant="outline" onClick={handleGeneratePalette} disabled={isGenerating || !aiThemeInput.trim()}>
-                      {isGenerating ? <Loader2 className="w-4 h-4 animate-spin"/> : 'Generar'}
-                    </Button>
-                    <Button type="button" onClick={handleApplySuggestedPalette} disabled={isGenerating || !suggestedPalette}>Aplicar Paleta</Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
           </CardContent>
         </Card>
 
