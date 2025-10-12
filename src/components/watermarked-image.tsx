@@ -22,15 +22,20 @@ export function WatermarkedImage({
 }: WatermarkedImageProps) {
   
   // For standard print media (which might not render watermarks well on top of images)
-  const PrintWatermark = () => (
-    <div className="hidden print:block fixed inset-0 flex items-center justify-center -z-10">
-      <img
-        src={watermarkSrc || ''}
-        alt="Marca de agua"
-        className="w-3/4 h-3/4 object-contain opacity-10 pointer-events-none"
-      />
-    </div>
-  );
+  const PrintWatermark = () => {
+    if (!watermarkSrc) {
+      return null;
+    }
+    return (
+      <div className="hidden print:block fixed inset-0 flex items-center justify-center -z-10">
+        <img
+          src={watermarkSrc}
+          alt="Marca de agua"
+          className="w-3/4 h-3/4 object-contain opacity-10 pointer-events-none"
+        />
+      </div>
+    );
+  };
   
   if (!src) {
     return (
