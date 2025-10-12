@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useRef, type FormEvent } from 'react';
@@ -9,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Bot, User, Loader2, Send, Wand2 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
-import { assistant, type AssistantOutput } from '@/ai/flows/assistant-flow';
+import { invokeAssistant, type AssistantOutput, type AssistantInput } from '@/ai/flows/assistant-flow';
 import ReactMarkdown from 'react-markdown';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
@@ -43,7 +42,7 @@ export function AkAssistant() {
     setIsLoading(true);
 
     try {
-      const result = await assistant({ query: input });
+      const result = await invokeAssistant({ query: input });
       const assistantMessage: Message = { 
         role: 'assistant', 
         content: result.response,

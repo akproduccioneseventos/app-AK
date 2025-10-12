@@ -1,4 +1,3 @@
-
 'use server';
 
 /**
@@ -18,12 +17,20 @@ import { getFiestas, getFiestaActual } from '@/app/actions/fiesta/fiesta.actions
 const AssistantInputSchema = z.object({
   query: z.string().describe('The user\'s request to the assistant.'),
 });
+export type AssistantInput = z.infer<typeof AssistantInputSchema>;
 
-export const AssistantOutputSchema = z.object({
+
+const AssistantOutputSchema = z.object({
   response: z.string().describe("The assistant's main text response."),
   imageUrl: z.string().optional().describe("A URL to a relevant generated image, if requested."),
 });
 export type AssistantOutput = z.infer<typeof AssistantOutputSchema>;
+
+// Wrapper function to be called from the client
+export async function invokeAssistant(input: AssistantInput): Promise<AssistantOutput> {
+  return assistantFlow(input);
+}
+
 
 // Tool: Generate Image
 const generateImageTool = ai.defineTool(
@@ -42,9 +49,9 @@ const generateImageTool = ai.defineTool(
 );
 
 
-export const assistant = ai.defineFlow(
+const assistantFlow = ai.defineFlow(
   {
-    name: 'assistant',
+    name: 'assistantFlow',
     inputSchema: AssistantInputSchema,
     outputSchema: AssistantOutputSchema,
   },
