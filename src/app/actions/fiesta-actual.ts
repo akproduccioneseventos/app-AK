@@ -130,16 +130,17 @@ export const updateVideoVidaSettingsFiestaActual = updateVideoVidaSettingsFromMo
 
 export const claimGiftFiestaActual = async (fiestaId: string, giftId: string, guestName: string): Promise<{ success: boolean; error?: string }> => {
     const fiesta = await getFiestaById(fiestaId);
-    if (!fiesta || !fiesta.invitacionDigital) return { success: false, error: 'Fiesta o datos de invitación no encontrados.' };
+    if (!fiesta || !fiesta.invitacionDigital || !fiesta.invitacionDigital.regalos) {
+        return { success: false, error: 'Fiesta o datos de regalos no encontrados.' };
+    }
     
-    const giftList = fiesta.invitacionDigital.regalos?.items || [];
     let giftFoundAndUpdated = false;
-    const updatedList = giftList.map(gift => {
-        if (gift.id === giftId && !gift.isClaimed) {
+    const updatedItems = (fiesta.invitacionDigital.regalos.items || []).map(item => {
+        if (item.id === giftId && !item.isClaimed) {
             giftFoundAndUpdated = true;
-            return { ...gift, isClaimed: true, claimedBy: guestName };
+            return { ...item, isClaimed: true, claimedBy: guestName };
         }
-        return gift;
+        return item;
     });
 
     if (!giftFoundAndUpdated) {
@@ -150,7 +151,7 @@ export const claimGiftFiestaActual = async (fiestaId: string, giftId: string, gu
         ...fiesta.invitacionDigital, 
         regalos: {
             ...(fiesta.invitacionDigital.regalos || {}),
-            items: updatedList
+            items: updatedItems
         }
     };
     

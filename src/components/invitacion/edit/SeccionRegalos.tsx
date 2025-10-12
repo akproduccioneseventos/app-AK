@@ -12,6 +12,7 @@ import { TextStyleEditor } from './TextStyleEditor';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import React from 'react';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 
 interface Props {
@@ -89,18 +90,26 @@ export const SeccionRegalosEditor: React.FC<Props> = ({ data, update, fiestaId }
                 <Textarea id="regalos-banco" value={data.datosBancarios || ''} onChange={(e) => handleFieldChange('datosBancarios', e.target.value)} rows={2} placeholder="Ej: Banco Itaú, C.A. $ 12345678"/>
             </div>
             <div className="space-y-2">
-                <Label>Ítems de Regalo</Label>
-                <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
+                <Label>Ítems de Regalo (Opcional)</Label>
+                <ScrollArea className="h-48 border rounded-md p-2">
+                  <div className="space-y-2">
                     {(data.items || []).map(item => (
                         <div key={item.id} className="p-2 border rounded-md space-y-2 bg-background">
                             <Input value={item.name} onChange={e => handleItemChange(item.id, 'name', e.target.value)} placeholder="Nombre del regalo"/>
-                            <div className="flex gap-2">
-                                <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteItem(item.id)}><Trash2 className="w-4 h-4"/></Button>
+                            <Textarea value={item.description || ''} onChange={e => handleItemChange(item.id, 'description', e.target.value)} placeholder="Breve descripción (opcional)" rows={1} className="text-xs"/>
+                            <UploadButton
+                              currentUrl={item.imageUrl}
+                              onUrlChange={(url) => handleItemChange(item.id, 'imageUrl', url)}
+                              fiestaId={fiestaId}
+                            />
+                            <div className="flex justify-end">
+                              <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteItem(item.id)}><Trash2 className="w-4 h-4"/></Button>
                             </div>
                         </div>
                     ))}
-                </div>
-                <Button variant="outline" size="sm" type="button" onClick={addItem}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Ítem</Button>
+                  </div>
+                </ScrollArea>
+                <Button variant="outline" size="sm" type="button" onClick={addItem}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Ítem de Regalo</Button>
             </div>
         </>
     </div>
