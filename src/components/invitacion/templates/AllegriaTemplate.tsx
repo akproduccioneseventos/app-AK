@@ -8,7 +8,7 @@ import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
 import { CountdownTimer } from '@/components/countdown-timer';
 import { Separator } from '@/components/ui/separator';
-import { Church, GlassWater, Gift } from 'lucide-react';
+import { Church, GlassWater, Gift, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -31,6 +31,32 @@ const Section: React.FC<{ id: string, onClick?: () => void, isSelected?: boolean
     </section>
 );
 
+
+const AllegriaDetalles: React.FC<{ data: InvitacionDigitalData['detallesEvento'], fiesta: FiestaEnPlanificacion, paleta: ColorPalette, onUpdate?: (newData: Partial<InvitacionDigitalData>) => void }> = ({ data, fiesta, paleta, onUpdate }) => {
+    const mapQuery = fiesta.configuracion.nombreLugar ? encodeURIComponent(fiesta.configuracion.nombreLugar) : '';
+    const mapUrl = `https://www.google.com/maps?q=${mapQuery}`;
+    return (
+        <div className="max-w-md mx-auto text-center">
+            <div className="relative aspect-video w-full rounded-lg overflow-hidden shadow-lg mb-6">
+                {data.imagenFondoUrl ? (
+                    <NextImage src={data.imagenFondoUrl} alt={`Foto de ${fiesta.configuracion.nombreLugar}`} layout="fill" objectFit="cover" />
+                ) : (
+                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                        <span className="text-muted-foreground text-sm">Foto del Salón</span>
+                    </div>
+                )}
+            </div>
+            <h3 className="font-headline text-3xl mb-2" style={{color: paleta.primary}}>La Celebración</h3>
+            <p className="text-lg text-muted-foreground">{fiesta.configuracion.horaInicio} hs.</p>
+            <p className="text-xl font-semibold mt-1" style={{color: paleta.accent}}>{fiesta.configuracion.nombreLugar}</p>
+            <Button asChild variant="link" className="mt-4 text-lg" style={{color: paleta.primary}}>
+                <a href={mapUrl} target="_blank" rel="noopener noreferrer">
+                    <MapPin className="w-5 h-5 mr-2"/> Cómo Llegar
+                </a>
+            </Button>
+        </div>
+    );
+};
 
 export const AllegriaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData, onUpdate, onSectionClick, selectedSectionId, isPreview }) => {
     
@@ -83,23 +109,7 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionDa
 
             {/* Detalles Evento */}
             <Section id="detallesEvento" onClick={() => onSectionClick?.('detallesEvento')} isSelected={selectedSectionId === 'detallesEvento'}>
-                 <div className="grid md:grid-cols-2 gap-8 max-w-2xl mx-auto">
-                    <div className="text-center">
-                        <Church className="mx-auto w-12 h-12 mb-3" style={{color: 'var(--allegria-primary)'}}/>
-                        <h3 className="font-headline text-2xl mb-2">Ceremonia</h3>
-                        <p className="text-muted-foreground">{fiesta.configuracion.horaInicio} hs.</p>
-                        <p className="font-semibold" style={{color: 'var(--allegria-text)'}}>{fiesta.configuracion.nombreLugar}</p>
-                    </div>
-                     <div className="text-center">
-                        <GlassWater className="mx-auto w-12 h-12 mb-3" style={{color: 'var(--allegria-primary)'}}/>
-                        <h3 className="font-headline text-2xl mb-2">Celebración</h3>
-                        <p className="text-muted-foreground">{fiesta.configuracion.horaFin ? `${fiesta.configuracion.horaFin} hs.` : 'A continuación'}</p>
-                        <p className="font-semibold" style={{color: 'var(--allegria-text)'}}>{fiesta.configuracion.nombreLugar}</p>
-                    </div>
-                 </div>
-                  <Button asChild variant="link" className="mt-6" style={{color: 'var(--allegria-primary)'}}>
-                    <a href={`https://www.google.com/maps?q=${encodeURIComponent(fiesta.configuracion.nombreLugar)}`} target="_blank" rel="noopener noreferrer">Ver Ubicación</a>
-                 </Button>
+                 <AllegriaDetalles data={invitacionData.detallesEvento} fiesta={fiesta} paleta={paleta} onUpdate={onUpdate} />
             </Section>
 
             <Separator />

@@ -11,9 +11,10 @@ import { UploadButton } from './UploadButton';
 interface Props {
   data: InvitacionDigitalData['detallesEvento'];
   update: (newData: Partial<InvitacionDigitalData>) => void;
+  fiestaId?: string;
 }
 
-export const SeccionDetallesEventoEditor: React.FC<Props> = ({ data, update }) => {
+export const SeccionDetallesEventoEditor: React.FC<Props> = ({ data, update, fiestaId }) => {
   const handleFieldChange = (field: keyof typeof data, value: string | boolean) => {
     update({ detallesEvento: { ...data, [field]: value } });
   };
@@ -35,10 +36,11 @@ export const SeccionDetallesEventoEditor: React.FC<Props> = ({ data, update }) =
         {data.visible && (
           <div className="space-y-3 pt-2 border-t">
             <div className="space-y-1">
-              <Label>Imagen de Fondo</Label>
+              <Label>Foto del Salón</Label>
               <UploadButton
                 currentUrl={data.imagenFondoUrl}
                 onUrlChange={(url) => handleFieldChange('imagenFondoUrl', url)}
+                fiestaId={fiestaId}
               />
             </div>
             <div className="flex items-center justify-between">
