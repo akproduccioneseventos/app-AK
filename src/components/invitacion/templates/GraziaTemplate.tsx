@@ -467,9 +467,9 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
             <SectionIcon><Share2 className="w-12 h-12 mx-auto mb-3" style={{ color: primaryColor }} /></SectionIcon>
             <h3 className="font-headline text-3xl mb-3" style={{ color: paletaColores?.accent }}>
               <EditableText 
-                initialValue={(seccion.data.texto as any).text || "¡Comparte tus momentos!"} 
-                style={(seccion.data.texto as any)?.style} 
-                onSave={v => onUpdate?.({ redesSociales: { ...seccion.data, texto: { ...((seccion.data.texto as any) || {style:{}}), text: v } }})}
+                initialValue={seccion.data.texto?.text || "¡Comparte tus momentos!"} 
+                style={seccion.data.texto?.style} 
+                onSave={v => onUpdate?.({ redesSociales: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } }})}
                 textarea={false}
               />
             </h3>

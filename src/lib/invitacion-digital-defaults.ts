@@ -1,5 +1,4 @@
 
-
 import type { InvitacionDigitalData, SeccionInvitacion, TextStyle, ColorPalette, DetalleEventoEspecifico } from '@/types/fiesta';
 
 const defaultDetalleEvento: DetalleEventoEspecifico = {
@@ -58,8 +57,16 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
         items: []
       }
     },
-     { id: 'galeria', tipo: 'galeria', data: { visible: true } },
+     { id: 'galeria', tipo: 'galeria', data: { visible: true, fotos: [] } },
     { id: 'confirmacion', tipo: 'confirmacion', data: { visible: true } },
+    {
+      id: 'musica',
+      tipo: 'musica',
+      data: {
+        visible: true,
+        placeholder: 'Ej: Bohemian Rhapsody - Queen'
+      }
+    },
     {
       id: 'redesSociales',
       tipo: 'redesSociales',
@@ -121,6 +128,10 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
   dressCode: {
     visible: true,
     texto: { text: 'Elegante Sport', style: { fontFamily: 'Inter', fontSize: '1rem', color: '#6b7280' } }
+  },
+   musica: {
+    visible: true,
+    placeholder: 'Ej: Bohemian Rhapsody - Queen'
   },
   redesSociales: {
     visible: true,

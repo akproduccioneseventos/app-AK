@@ -15,6 +15,7 @@ import { SeccionRegalosEditor } from './SeccionRegalos';
 import { SeccionDespedidaEditor } from './SeccionDespedida';
 import { SeccionFooterEditor } from './SeccionFooter';
 import { SeccionRedesSocialesEditor } from './SeccionRedesSociales';
+import { SeccionMusicaEditor } from './SeccionMusica';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -64,6 +65,7 @@ export const SectionEditorPanel: React.FC<Props> = ({ data, update, selectedSect
             case 'regalos': return <SeccionRegalosEditor data={data.regalos} update={(newData) => update({ regalos: {...data.regalos, ...newData} })} fiestaId={fiestaId || undefined} />;
             case 'dressCode': return <SeccionDressCodeEditor data={data.dressCode} update={(newData) => update({ dressCode: {...data.dressCode, ...newData} })} />;
             case 'confirmacion': return <SeccionConfirmacionEditor data={data.confirmacion} update={(newData) => update({ confirmacion: {...data.confirmacion, ...newData} })} />;
+            case 'musica': return <SeccionMusicaEditor data={data.musica} update={(newData) => update({ musica: {...data.musica, ...newData} })} />;
             case 'redesSociales': return <SeccionRedesSocialesEditor data={data.redesSociales} update={(newData) => update({ redesSociales: {...data.redesSociales, ...newData} })} />;
             case 'despedida': return <SeccionDespedidaEditor data={data.despedida} update={(newData) => update({ despedida: {...data.despedida, ...newData} })} />;
             case 'footer': return <SeccionFooterEditor data={data.footer} update={(newData) => update({ footer: {...data.footer, ...newData} })} />;

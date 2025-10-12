@@ -105,7 +105,10 @@ function PaginaWebPageContent() {
   };
 
   const handleSave = async () => {
-    if (!fiesta) return;
+    if (!fiesta || fiestaId === 'template_preview') {
+      toast({ title: 'Guardado no disponible', description: 'No se puede guardar una vista previa de plantilla. Personaliza el evento directamente.' });
+      return;
+    };
     setIsSaving(true);
     try {
       const result = await saveFiesta({ ...fiesta, invitacionDigital: invitacionData });
@@ -193,7 +196,7 @@ function PaginaWebPageContent() {
             <Link href={fiestaId ? `/fiestas/nueva?fiestaId=${fiestaId}` : '/settings/templates/invitaciones'} passHref>
                 <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
             </Link>
-           <Button onClick={handleSave} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>}Guardar</Button>
+           <Button onClick={handleSave} disabled={isSaving || fiestaId === 'template_preview'}>{isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>}Guardar</Button>
         </div>
       </header>
       <main className="flex-grow flex min-h-0">
@@ -267,7 +270,7 @@ function PaginaWebPageContent() {
                                      <Label className="text-sm font-medium flex items-center gap-1.5"><Music className="w-4 h-4"/>Sugerencias Musicales</Label>
                                     <div className="flex items-center space-x-2 mt-2">
                                         <Input value={getFullLink('/evento/actual', 'confirmacion')} readOnly />
-                                        <Button size="icon" variant="outline" onClick={() => handleCopyToClipboard(getFullLink('/evento/actual', 'confirmacion'))}><ClipboardCopy className="h-4 h-4" /></Button>
+                                        <Button size="icon" variant="outline" onClick={() => handleCopyToClipboard(getFullLink('/evento/actual', 'confirmacion'))}><ClipboardCopy className="h-4 w-4" /></Button>
                                     </div>
                                     <p className="text-xs text-muted-foreground mt-1">El formulario de música está junto al de RSVP.</p>
                                 </Card>
@@ -307,4 +310,3 @@ export default function PaginaWebYPortalPage() {
         </Suspense>
     );
 }
-

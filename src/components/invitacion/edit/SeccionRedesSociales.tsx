@@ -20,12 +20,12 @@ export const SeccionRedesSocialesEditor: React.FC<Props> = ({ data, update, fies
   };
   
   const handleTextStyleChange = (style: Partial<TextStyle>) => {
-    const newTextData = { ...(data.texto as any), style: { ...((data.texto as any)?.style || {}), ...style }};
+    const newTextData = { ...(data.texto as TextWithStyle), style: { ...((data.texto as TextWithStyle)?.style || {}), ...style }};
     update({ ...data, texto: newTextData });
   }
   
   const handleTextChange = (text: string) => {
-    const newTextData = { ...(data.texto as any), text };
+    const newTextData = { ...(data.texto as TextWithStyle), text };
     update({ ...data, texto: newTextData });
   }
 
@@ -43,11 +43,11 @@ export const SeccionRedesSocialesEditor: React.FC<Props> = ({ data, update, fies
         <div className="space-y-2 p-2 border rounded-md">
             <Label>Texto de la Sección</Label>
             <Input
-            value={(data.texto as any)?.text || ''}
+            value={data.texto?.text || ''}
             onChange={(e) => handleTextChange(e.target.value)}
             />
             <TextStyleEditor 
-            style={(data.texto as any)?.style || {}}
+            style={data.texto?.style || {}}
             onStyleChange={handleTextStyleChange}
             />
         </div>
