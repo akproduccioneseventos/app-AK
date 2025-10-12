@@ -11,9 +11,6 @@ import {
     Building2, 
     BarChart3, 
     Settings as SettingsIcon, 
-    CalendarDays, 
-    BrainCircuit,
-    ShoppingCart
 } from 'lucide-react';
 import React from 'react';
 
@@ -40,26 +37,12 @@ const mainHubItems = [
       actionLabel: 'Ver Contabilidad'
     },
     {
-      title: 'Compras y Checklist',
-      description: 'Accede a las listas de compras y checklists operativos.',
-      href: '/compras',
-      icon: ShoppingCart,
-      actionLabel: 'Ir a Compras'
-    },
-    {
       title: 'Configuración General',
       description: 'Ajusta las preferencias de la aplicación, plantillas y detalles de tu cuenta.',
       href: '/settings',
       icon: SettingsIcon,
       actionLabel: 'Ajustar Configuración'
     },
-     {
-      title: 'Calendario de Eventos',
-      description: 'Visualiza rápidamente todas las fechas ocupadas por tus eventos confirmados.',
-      href: '/calendario',
-      icon: CalendarDays,
-      actionLabel: 'Ver Calendario'
-    }
 ]
 
 export default function MainDashboardPage() {
@@ -89,7 +72,7 @@ export default function MainDashboardPage() {
         </Link>
       </div>
 
-       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
         {mainHubItems.map((item) => (
           <Card key={item.title} className="flex flex-col shadow-lg hover:shadow-xl transition-shadow duration-300">
             <CardHeader className="flex-row items-start gap-4 space-y-0 pb-3">
