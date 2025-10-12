@@ -42,7 +42,7 @@ const SectionWrapper: React.FC<{
     isSelected?: boolean,
     className?: string,
 }> = ({ seccion, children, onClick, isSelected, className }) => {
-    if (!seccion.data.visible) return null;
+    if (!seccion.data?.visible) return null;
 
     const sectionVariants = {
         hidden: { opacity: 0, y: 50 },
