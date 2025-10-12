@@ -8,11 +8,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
-import { getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
-import { getMenus } from '@/app/actions/menus-catering';
 import { generateImage as generateImageFlow } from './generate-image-flow';
-import { getFiestas, getFiestaActual } from '@/app/actions/fiesta/fiesta.actions';
 
 const AssistantInputSchema = z.object({
   query: z.string().describe('The user\'s request to the assistant.'),
@@ -56,35 +52,21 @@ const assistantFlow = ai.defineFlow(
     outputSchema: AssistantOutputSchema,
   },
   async (input) => {
-    // 1. Fetch all relevant business context
-    const [servicios, paquetes, menus, fiestas] = await Promise.all([
-      getServiciosEmpresa(),
-      getArmadoRapidoConfig().then(config => config.paquetes),
-      getMenus(),
-      getFiestas(),
-    ]);
-
     // 2. Define the main prompt with context and tools
     const llmResponse = await ai.generate({
       prompt: `Eres "Asistente AK", un asistente de IA especializado en marketing y redes sociales para "AK Producciones", una empresa de planificación de eventos. Tu personalidad es creativa, proactiva y servicial.
 
-      **Contexto de la Empresa (AK Producciones):**
-      - **Servicios Principales:** ${servicios.map(s => s.nombre).join(', ')}.
-      - **Paquetes Ofrecidos:** ${paquetes.map(p => p.nombre).join(', ')}.
-      - **Menús de Catering:** ${menus.map(m => m.name).join(', ')}.
-      - **Eventos Recientes/Próximos:** ${fiestas.map(f => f.configuracion.nombreEvento).join(', ')}.
-
       **Tu Tarea:**
-      Responde a la consulta del usuario de manera útil y creativa, utilizando el contexto de la empresa.
+      Responde a la consulta del usuario de manera útil y creativa.
       - Si el usuario pide generar una imagen, USA la herramienta \`generateImage\`.
       - Si el usuario pide ideas o texto para una publicación, genera contenido atractivo y relevante. Incluye hashtags apropiados.
-      - Si el usuario hace una pregunta general, responde basándote en el contexto proporcionado.
+      - Si el usuario hace una pregunta general sobre marketing, responde de forma creativa.
       - Responde siempre en español.
 
       **Consulta del Usuario:**
       ${input.query}`,
       tools: [generateImageTool],
-      model: 'gemini-1.5-flash-preview',
+      model: 'gemini-pro', // Use the correct and available model
     });
 
     // 3. Process the response and tool output

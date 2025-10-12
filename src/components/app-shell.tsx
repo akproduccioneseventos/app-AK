@@ -42,12 +42,13 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/customers/new') return 'Añadir Nuevo Cliente';
   if (pathSegments[0] === 'customers' && pathSegments[2] === 'edit' && pathSegments.length === 3) return `Editar Cliente #${idSegment}`;
   if (pathSegments[0] === 'customers' && pathSegments[1] && pathSegments.length === 2 && !pathname.endsWith('/edit')) return `Detalle de Cliente`;
+  if (pathname === '/customers/reporte') return 'Reporte de Clientes';
   
   if (pathname === '/empresa') return 'Gestión de la Empresa';
   if (pathname === '/empresa/servicios') return 'Catálogo de Servicios';
   if (pathname === '/empresa/servicios/nuevo') return 'Añadir Nuevo Servicio';
-  if (pathname === '/empresa/servicios/reporte') return 'Reporte de Servicios';
   if (pathSegments[0] === 'empresa' && pathSegments[1] === 'servicios' && pathSegments[2] === 'editar') return `Editar Servicio`;
+  if (pathname === '/empresa/servicios/reporte') return 'Reporte de Servicios';
   if (pathname === '/empresa/contabilidad') return 'Panel Contable y Financiero';
   if (pathname === '/empresa/contabilidad/reportes') return 'Reporte de Ganancias y Pérdidas';
   if (pathname === '/proveedores') return 'Proveedores y Servicios';
@@ -61,6 +62,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/empresa/redes-sociales/ia-marketing') return 'Asesor de Marketing IA';
   if (pathname === '/empresa/menus') return 'Planificador Gastronómico Maestro';
   if (pathname === '/empresa/menus/catalogo') return 'Catálogo de Platos';
+  if (pathname === '/empresa/menus/reporte') return 'Reporte Gastronómico Maestro';
   if (pathname === '/empresa/menus/nuevo') return 'Crear Nuevo Menú';
   if (pathSegments[0] === 'empresa' && pathSegments[1] === 'menus' && pathSegments[3] === 'editar') return `Editando Menú`;
   if (pathname === '/empresa/insumos') return 'Gestión de Insumos';
@@ -251,7 +253,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const isInvoiceViewPage = /^\/invoices\/[^/]+$/.test(pathname) && !pathname.endsWith('/edit');
   
   // This is a special layout for the invitation builder
-  const isInvitationBuilder = pathname.startsWith('/fiestas/nueva/pagina-web') || pathname.startsWith('/settings/templates/invitaciones/edit');
+  const isInvitationBuilder = pathname.startsWith('/fiestas/nueva/pagina-web') || pathname.startsWith('/settings/templates/invitaciones');
+
 
   const isSpecialRender = 
     isAuthPage || 

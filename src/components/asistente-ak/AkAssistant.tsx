@@ -79,7 +79,7 @@ export function AkAssistant() {
                 <Bot className="h-4 w-4" />
                 <AlertTitle>¡Hola! Soy tu asistente de marketing.</AlertTitle>
                 <AlertDescription>
-                    Tengo conocimiento de tus servicios, menús y paquetes. Puedes pedirme ideas como:
+                    Puedes pedirme ideas como:
                     <ul className="list-disc pl-5 mt-2 text-xs">
                         <li>"Crea un post para Instagram promocionando el Paquete Premium."</li>
                         <li>"Dame 3 ideas para hacerme viral en TikTok mostrando nuestro servicio de catering."</li>
