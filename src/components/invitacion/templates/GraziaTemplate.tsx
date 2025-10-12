@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import type { FiestaEnPlanificacion, InvitacionDigitalData, ColorPalette, SocialConnection, SeccionInvitacion, GiftItem } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, InvitacionDigitalData, ColorPalette, SocialConnection, SeccionInvitacion, GiftItem, DetalleEventoEspecifico, TextWithStyle } from '@/types/fiesta';
 import { EditableText } from '../edit/EditableText';
 import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
@@ -13,7 +13,6 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import type { SocialPlatformName } from '@/types/settings';
 import { motion, AnimatePresence } from "framer-motion";
-import type { DetalleEventoEspecifico } from '@/types/fiesta';
 import { WatermarkedImage } from '@/components/watermarked-image';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -25,25 +24,22 @@ import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Textarea } from '@/components/ui/textarea';
 import QRCodeStylized from 'qrcode.react';
 
-
-interface TemplateProps {
-  fiesta: FiestaEnPlanificacion;
-  invitacionData: InvitacionDigitalData;
-  socialConnections: SocialConnection[];
-  isPreview?: boolean;
-  onSectionClick?: (sectionId: string) => void;
-  onUpdate?: (newData: Partial<InvitacionDigitalData>) => void;
-  onRsvpSubmit?: (data: any) => Promise<boolean>;
-  selectedSectionId?: string | null;
-}
-
 const formatDate = (dateString?: string) => {
     if (!dateString) return "Fecha a confirmar";
-    return new Date(dateString).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+    try {
+        const date = new Date(dateString);
+        // This handles both UTC and local dates better
+        const year = dateString.includes('T') ? date.getUTCFullYear() : date.getFullYear();
+        const month = dateString.includes('T') ? date.getUTCMonth() : date.getMonth();
+        const day = dateString.includes('T') ? date.getUTCDate() : date.getDate();
+        return new Date(year, month, day).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+    } catch (e) {
+        return 'Fecha inválida';
+    }
 };
 
-const SectionWrapper: React.FC<{ 
-    seccion: SeccionInvitacion, 
+const SectionWrapper: React.FC<{
+    seccion: SeccionInvitacion,
     children: React.ReactNode,
     onClick?: () => void,
     isSelected?: boolean,
@@ -91,6 +87,7 @@ const SectionIcon: React.FC<{ children: React.ReactNode }> = ({ children }) => (
     </motion.div>
 );
 
+
 const FloralSeparator: React.FC<{ color: string }> = ({ color }) => (
     <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.2 }} className="text-center my-8" aria-hidden="true">
         <svg width="100" height="20" viewBox="0 0 100 20" className="inline-block" fill={color}>
@@ -112,7 +109,7 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
   }, []);
 
   if (!data.visible) return null;
-  
+
   const handleUpdateProtagonista = (field: 'protagonista1' | 'protagonista2', value: string) => {
     onUpdate?.({ cabecera: { ...data, [field]: value } });
   };
@@ -120,7 +117,7 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
   const primaryColor = paleta.primary || 'hsl(var(--primary))';
   
   return (
-    <header 
+    <header
         className="relative py-24 md:py-32 text-center bg-cover bg-center min-h-[70vh] flex items-center justify-center"
         style={{
             backgroundImage: `url(${data.videoFondoUrl ? '' : (data.imagenFondoUrl || '')})`,
@@ -133,32 +130,32 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
         <div className="absolute inset-0 bg-white/70 dark:bg-black/50 backdrop-blur-sm -z-10"></div>
         
         {companyLogo && (
-          <div className="absolute top-4 left-4 z-20">
-            <NextImage src={companyLogo} alt="Logo de la Empresa" width={100} height={50} className="object-contain" data-ai-hint="company logo"/>
+          <div className="absolute top-4 left-4 z-20 h-16 w-32">
+            <NextImage src={companyLogo} alt="Logo de la Empresa" layout="fill" className="object-contain" data-ai-hint="company logo"/>
           </div>
         )}
 
         <div className="relative z-10 p-6 max-w-2xl mx-auto text-center">
              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3, duration: 0.8 }}>
-                <EditableText 
+                <EditableText
                     initialValue={data.subtitulo?.text || "Nuestra Boda"}
                     style={data.subtitulo?.style}
                     onSave={v => onUpdate?.({ cabecera: { ...data, subtitulo: { ...(data.subtitulo || {style:{}}), text: v } } })}
                     className="font-headline text-2xl"
-                    textarea={false} 
+                    textarea={false}
                 />
             </motion.div>
             <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.8 }} className="font-headline text-6xl md:text-8xl my-4" style={{color: primaryColor}}>
-               <EditableText 
-                    initialValue={data.protagonista1 || "Protagonista 1"} 
+               <EditableText
+                    initialValue={data.protagonista1 || "Protagonista 1"}
                     style={{ fontFamily: 'Belleza', fontSize: 'inherit', color: 'inherit' }}
                     onSave={(val) => handleUpdateProtagonista('protagonista1', val)}
                     textarea={false}
                 />
                {data.protagonista2 && <span className="mx-2">&</span>}
-               {data.protagonista2 && 
-                <EditableText 
-                    initialValue={data.protagonista2} 
+               {data.protagonista2 &&
+                <EditableText
+                    initialValue={data.protagonista2}
                     style={{ fontFamily: 'Belleza', fontSize: 'inherit', color: 'inherit' }}
                     onSave={(val) => handleUpdateProtagonista('protagonista2', val)}
                     textarea={false}
@@ -171,13 +168,16 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
   );
 };
 
+const iconMap: Record<string, React.ElementType> = {
+  Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper, Clock,
+};
 
 const GraziaDetalles: React.FC<{ data: InvitacionDigitalData['detallesEvento'], fiesta: FiestaEnPlanificacion, paleta: ColorPalette, onUpdate?: (newData: Partial<InvitacionDigitalData>) => void }> = ({ data, fiesta, paleta, onUpdate }) => {
-  
+
   const detallesAMostrar = [
-    {...data.ceremoniaReligiosa, icon: Church},
-    {...data.ceremoniaCivil, icon: Building},
-    {...data.celebracion, icon: PartyPopper}
+    {...data.ceremoniaReligiosa, icon: Church, key: 'ceremoniaReligiosa'},
+    {...data.ceremoniaCivil, icon: Building, key: 'ceremoniaCivil'},
+    {...data.celebracion, icon: PartyPopper, key: 'celebracion'}
   ].filter(d => d && d.visible);
 
   const formatDateDetalle = (dateString?: string) => {
@@ -228,15 +228,15 @@ const GraziaDetalles: React.FC<{ data: InvitacionDigitalData['detallesEvento'], 
         document.body.removeChild(link);
     }
   };
-  
-  const renderDetalle = (detalle: DetalleEventoEspecifico, icon: React.ElementType) => {
+
+  const renderDetalle = (detalle: DetalleEventoEspecifico, icon: React.ElementType, key: string) => {
     if (!detalle || !detalle.visible) return null;
-    
+
     const mapUrl = detalle.mapaUrl || (detalle.nombreLugar ? `https://www.google.com/maps?q=${encodeURIComponent(detalle.nombreLugar)}` : '#');
     const Icon = icon;
 
     return (
-      <div key={detalle.titulo} className="max-w-md mx-auto text-center mb-12 last:mb-0">
+      <div key={key} className="max-w-md mx-auto text-center mb-12 last:mb-0">
         <SectionIcon><Icon className="w-12 h-12 mx-auto mb-4" style={{color: paleta.primary}} /></SectionIcon>
         <h3 className="font-headline text-3xl mb-4" style={{color: paleta.accent}}>{detalle.titulo}</h3>
         {detalle.imagenUrl && (
@@ -271,7 +271,7 @@ const GraziaDetalles: React.FC<{ data: InvitacionDigitalData['detallesEvento'], 
   return (
     <div>
         {detallesAMostrar.length > 0 ? (
-          detallesAMostrar.map(d => renderDetalle(d, d.icon))
+          detallesAMostrar.map(d => renderDetalle(d, d.icon, d.key))
         ) : (
           <p className="text-muted-foreground italic">Los detalles del evento no están configurados.</p>
         )}
@@ -292,7 +292,7 @@ const GraziaRegalos: React.FC<{ data: InvitacionDigitalData['regalos'], fiestaId
         setIsClaimModalOpen(true);
         setGuestName('');
     };
-    
+
     const handleClaimGift = async () => {
         if (!selectedGift || !guestName.trim() || !fiestaId) return;
         setIsClaiming(true);
@@ -402,7 +402,7 @@ const GraziaGaleria: React.FC<{ data: InvitacionDigitalData['galeria'], paleta: 
         if (!data.fotos || data.fotos.length === 0) return;
         setCurrentIndex(prev => (prev === data.fotos.length - 1 ? 0 : prev + 1));
     }, [data.fotos]);
-    
+
     useEffect(() => {
         if (data.fotos && data.fotos.length > 1) {
             const timer = setTimeout(() => nextSlide(), 5000);
@@ -414,7 +414,7 @@ const GraziaGaleria: React.FC<{ data: InvitacionDigitalData['galeria'], paleta: 
     if (!data.fotos || data.fotos.length === 0) {
         return <p className="text-muted-foreground italic">La galería de fotos está vacía.</p>;
     }
-    
+
     return (
         <div className="max-w-2xl mx-auto">
             <SectionIcon><CameraIcon className="w-12 h-12 mx-auto mb-3" style={{color: paleta.primary}}/></SectionIcon>
@@ -452,7 +452,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
   const { toast } = useToast();
   const paletaColores = invitacionData.cabecera.paletaColores;
   const primaryColor = paletaColores.primary || 'hsl(var(--primary))';
-  
+
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -470,7 +470,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
     if (isPlaying) { audio.pause(); } else { audio.play(); }
     setIsPlaying(!isPlaying);
   };
-  
+
   const handleRsvpFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!rsvpName.trim() || !onRsvpSubmit) return;
@@ -488,19 +488,19 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
     setIsSubmitting(false);
   };
 
-  const socialIcons: Record<SocialPlatformName, React.ElementType> = { Facebook, Instagram, Music, WhatsApp: MessageSquare };
+  const socialIcons: Record<SocialPlatformName, React.ElementType> = { Facebook, Instagram, Music, TikTok: Music, WhatsApp: MessageSquare };
 
   const renderSectionComponent = (seccion: SeccionInvitacion) => {
     if (!seccion.data?.visible) return null;
     const props = { data: seccion.data, fiesta, paleta: paletaColores, onUpdate };
-    
+
     const wrapperProps = onSectionClick ? {
       seccion: seccion,
       onClick: () => onSectionClick(seccion.id),
       isSelected: selectedSectionId === seccion.id,
       backgroundColor: 'transparent',
     } : { seccion, backgroundColor: 'transparent' };
-    
+
     // Asignar colores de fondo alternados
     const sectionIndex = invitacionData.secciones.findIndex(s => s.id === seccion.id);
     if(sectionIndex % 2 !== 0){
@@ -509,19 +509,19 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
 
 
     switch (seccion.tipo) {
-      case 'bienvenida': 
+      case 'bienvenida':
         return <SectionWrapper {...wrapperProps}><SectionIcon><Heart className="w-12 h-12 mx-auto mb-3" style={{color: primaryColor}} /></SectionIcon><h2 className="font-headline text-2xl mb-4"><EditableText initialValue={seccion.data.titulo?.text || ""} style={seccion.data.titulo?.style} onSave={v => onUpdate?.({ bienvenida: { ...seccion.data, titulo: { ...(seccion.data.titulo || {style:{}}), text: v } }})} textarea={false} /></h2><div className="max-w-xl mx-auto text-muted-foreground"><EditableText initialValue={seccion.data.texto?.text || ""} style={seccion.data.texto?.style} onSave={v => onUpdate?.({ bienvenida: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } }})} textarea/></div></SectionWrapper>;
-      case 'cuentaRegresiva': 
+      case 'cuentaRegresiva':
         return <SectionWrapper {...wrapperProps}><h3 className="font-headline text-2xl mb-4" style={{color: primaryColor}}>Faltan</h3><CountdownTimer targetDate={fiesta.configuracion.fechaEvento} /></SectionWrapper>;
-      case 'detallesEvento': 
+      case 'detallesEvento':
         return <SectionWrapper {...wrapperProps}><GraziaDetalles {...props} /></SectionWrapper>;
-      case 'itinerario': 
+      case 'itinerario':
         return <SectionWrapper {...wrapperProps}>
             <SectionIcon><Clock className="w-12 h-12 mx-auto mb-3" style={{color: paletaColores.primary}} /></SectionIcon>
             <h3 className="font-headline text-3xl mb-6" style={{color: paletaColores.accent}}>Cronograma</h3>
             <ul className="max-w-sm mx-auto space-y-4 text-left">
               {(fiesta.programa || []).map(item => {
-                const Icon = iconMap[item.icono as string] || Clock;
+                const Icon = item.icono && iconMap[item.icono] ? iconMap[item.icono] : Clock;
                 return (
                   <li key={item.id} className="flex items-center gap-4">
                     <div className="flex flex-col items-center">
@@ -537,30 +537,32 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
               })}
             </ul>
         </SectionWrapper>;
-      case 'galeria': 
+      case 'galeria':
         return <SectionWrapper {...wrapperProps}><GraziaGaleria {...props} /></SectionWrapper>;
-      case 'historia': 
+      case 'historia':
         return <SectionWrapper {...wrapperProps}>
             <SectionIcon><Heart className="w-12 h-12 mx-auto mb-3" style={{color: paletaColores.primary}} /></SectionIcon>
             <h3 className="font-headline text-3xl mb-4" style={{color: paletaColores.accent}}><EditableText initialValue={seccion.data.titulo?.text || 'Nuestra Historia'} style={seccion.data.titulo?.style} onSave={(v) => onUpdate?.({ historia: { ...seccion.data, titulo: { ...(seccion.data.titulo || {style:{}}), text: v } } })} textarea={false}/></h3>
-            <p className="max-w-prose mx-auto text-muted-foreground"><EditableText initialValue={seccion.data.texto?.text || 'Un breve relato de nuestro camino juntos...'} style={seccion.data.texto?.style} onSave={(v) => onUpdate?.({ historia: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } } })} textarea /></p></SectionWrapper>;
-      case 'regalos': 
+            <p className="max-w-prose mx-auto text-muted-foreground"><EditableText initialValue={seccion.data.texto?.text || 'Un breve relato de nuestro camino juntos...'} style={seccion.data.texto?.style} onSave={(v) => onUpdate?.({ historia: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } } })} textarea /></p>
+        </SectionWrapper>;
+      case 'regalos':
         return <SectionWrapper {...wrapperProps}><GraziaRegalos {...props} fiestaId={fiesta.id}/></SectionWrapper>;
-      case 'dressCode': 
+      case 'dressCode':
         return <SectionWrapper {...wrapperProps}>
             <SectionIcon><Sparkles className="w-12 h-12 mx-auto mb-3" style={{color: paletaColores.primary}} /></SectionIcon>
             <h3 className="font-headline text-3xl mb-2" style={{color: paletaColores.accent}}>Código de Vestimenta</h3>
             <p className="text-xl font-semibold"><EditableText initialValue={seccion.data.texto?.text || 'Elegante'} style={seccion.data.texto?.style} onSave={v => onUpdate?.({ dressCode: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } } })} textarea={false} /></p>
             {seccion.data.sugeridos?.length > 0 && <div className="mt-4"><p className="text-sm font-medium">Colores Sugeridos:</p><div className="flex justify-center gap-2 mt-2">{seccion.data.sugeridos.map((c:string, i:number) => <div key={i} className="w-6 h-6 rounded-full border" style={{backgroundColor: c}}></div>)}</div></div>}
-            {seccion.data.evitar?.length > 0 && <div className="mt-4"><p className="text-sm font-medium">Colores a Evitar:</p><div className="flex justify-center gap-2 mt-2">{seccion.data.evitar.map((c:string, i:number) => <div key={i} className="w-6 h-6 rounded-full border" style={{backgroundColor: c}}></div>)}</div></div></SectionWrapper>;
-      case 'confirmacion': 
+            {seccion.data.evitar?.length > 0 && <div className="mt-4"><p className="text-sm font-medium">Colores a Evitar:</p><div className="flex justify-center gap-2 mt-2">{seccion.data.evitar.map((c:string, i:number) => <div key={i} className="w-6 h-6 rounded-full border" style={{backgroundColor: c}}></div>)}</div></div>}
+        </SectionWrapper>;
+      case 'confirmacion':
         return <SectionWrapper {...wrapperProps}><Button size="lg" style={{backgroundColor: paletaColores.primary}} onClick={() => !isPreview && setIsRsvpModalOpen(true)}>Confirmar Asistencia</Button></SectionWrapper>;
-      case 'redesSociales': 
+      case 'redesSociales':
         return (
           <SectionWrapper {...wrapperProps}>
             <SectionIcon><Share2 className="w-12 h-12 mx-auto mb-3" style={{ color: primaryColor }} /></SectionIcon>
             <h3 className="font-headline text-3xl mb-3" style={{ color: paletaColores.accent }}>
-                <EditableText initialValue={seccion.data.texto.text} style={seccion.data.texto.style} onSave={v => onUpdate?.({ redesSociales: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } }})} textarea={false} />
+                <EditableText initialValue={seccion.data.texto?.text || "¡Comparte tus momentos!"} style={seccion.data.texto?.style} onSave={v => onUpdate?.({ redesSociales: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } } })} textarea={false} />
             </h3>
             {seccion.data.hashtag && (
               <p className="text-xl font-bold" style={{ color: primaryColor }}>
@@ -577,7 +579,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
              )}
           </SectionWrapper>
         );
-      case 'despedida': 
+      case 'despedida':
         return <SectionWrapper {...wrapperProps}>
             <h3 className="font-headline text-4xl" style={{fontFamily: 'Dancing_Script', color: paletaColores.accent}}>
               <EditableText initialValue={seccion.data.texto?.text || "¡Te esperamos!"} style={seccion.data.texto?.style} onSave={v => onUpdate?.({ despedida: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } }})} textarea={false}/>
@@ -594,7 +596,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
         {isPreview && <div className={cn("absolute inset-0 border-2 transition-all pointer-events-none", selectedSectionId === 'cabecera' ? 'border-primary' : 'border-transparent')}></div>}
         <GraziaCabecera data={invitacionData.cabecera} fiesta={fiesta} paleta={paletaColores} onUpdate={onUpdate} isPreview={isPreview} />
        </div>
-       
+
        <main className={!isPreview ? 'max-w-3xl mx-auto p-4 md:p-8' : ''}>
         {invitacionData.secciones.map((seccion, index) => {
            if(seccion.tipo === 'cabecera' || !seccion.data?.visible) return null;
@@ -628,7 +630,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
                     return (
                         <a key={conn.platform} href={conn.profileUrl || '#'} target="_blank" rel="noopener noreferrer" aria-label={`Perfil de ${conn.platform}`}>
                             <Button variant="ghost" size="icon">
-                                {conn.logoUrl ? 
+                                {conn.logoUrl ?
                                     <img src={conn.logoUrl} alt={`${conn.platform} logo`} className="w-6 h-6 object-contain" /> :
                                     <Icon className="w-6 h-6" />
                                 }
@@ -657,5 +659,3 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
     </div>
   );
 };
-
-    
