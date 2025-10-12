@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -7,7 +8,7 @@ import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
 import { CountdownTimer } from '@/components/countdown-timer';
 import { Separator } from '@/components/ui/separator';
-import { Church, Building, PartyPopper, Gift, Heart, MapPin, Play, Pause, Facebook, Instagram, Music, MessageSquare, Sparkles, Check, ArrowRight, X, Calendar, User, Mail, Grid, Code, Palette as PaletteIcon, Share2, Camera as CameraIcon, ArrowLeft, ArrowRight as ArrowRightIcon } from 'lucide-react';
+import { Church, Building, PartyPopper, Gift, Heart, MapPin, Play, Pause, Facebook, Instagram, Music, MessageSquare, Sparkles, Check, ArrowRight, X, Calendar, User, Mail, Grid, Code, Palette as PaletteIcon, Share2, Camera as CameraIcon, ArrowLeft, ArrowRight as ArrowRightIcon, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import type { SocialPlatformName } from '@/types/settings';
@@ -497,9 +498,9 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
             <SectionIcon><Share2 className="w-12 h-12 mx-auto mb-3" style={{ color: primaryColor }} /></SectionIcon>
             <h3 className="font-headline text-3xl mb-3" style={{ color: paletaColores.accent }}>
               <EditableText 
-                initialValue={seccion.data.texto?.text || "¡Comparte tus momentos!"} 
-                style={seccion.data.texto?.style} 
-                onSave={v => onUpdate?.({ redesSociales: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } }})}
+                initialValue={seccion.data.texto || "¡Comparte tus momentos!"} 
+                style={seccion.data.style} 
+                onSave={v => onUpdate?.({ redesSociales: { ...seccion.data, texto: v }})}
                 textarea={false}
               />
             </h3>
