@@ -45,7 +45,7 @@ export default function ComprasPage() {
                     <CardContent><p className="text-sm text-muted-foreground">Gestionar y adquirir los elementos decorativos.</p></CardContent>
                 </Card>
             </Link>
-             <Link href="/empresa/todos-los-servicios" passHref>
+             <Link href="/empresa/activos-fijos" passHref>
                 <Card className="hover:shadow-xl transition-shadow cursor-pointer h-full">
                     <CardHeader><CardTitle className="flex items-center gap-2"><HardHat className="text-primary"/>Adquisición de Activos</CardTitle></CardHeader>
                     <CardContent><p className="text-sm text-muted-foreground">Gestionar la compra de activos fijos para la empresa.</p></CardContent>

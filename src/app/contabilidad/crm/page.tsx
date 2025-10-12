@@ -267,7 +267,7 @@ export default function CrmPage() {
                 <Button variant="secondary"><UserCog className="w-4 h-4 mr-2"/>Gestionar Accesos</Button>
             </Link>
             {stages.length > 0 && <AddLeadDialog stages={stages} onLeadAdded={fetchData} defaultStageId={stages[0].id} />}
-            <Link href="/empresa/contabilidad" passHref>
+            <Link href="/" passHref>
               <Button variant="outline">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Volver
