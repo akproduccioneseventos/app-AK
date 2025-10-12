@@ -3,7 +3,7 @@
 import type { InvitacionDigitalData, SeccionInvitacion, TextStyle, ColorPalette, DetalleEventoEspecifico } from '@/types/fiesta';
 
 const defaultDetalleEvento: DetalleEventoEspecifico = {
-  visible: false,
+  visible: true,
   titulo: '',
   fecha: undefined,
   hora: '',
@@ -15,7 +15,7 @@ const defaultDetalleEvento: DetalleEventoEspecifico = {
 
 const defaultTextStyle: TextStyle = { fontFamily: 'Inter', fontSize: '1rem', color: '#6b7280' };
 const defaultTitleStyle: TextStyle = { fontFamily: 'Belleza', fontSize: '2.5rem', color: '#363636' };
-const defaultAccentTitleStyle: TextStyle = { ...defaultTitleStyle, color: '#b9936c' };
+const defaultAccentTitleStyle: TextStyle = { ...defaultTitleStyle, color: '#A2D2B0' };
 
 
 export const defaultInvitacionDigitalData: InvitacionDigitalData = {
@@ -29,11 +29,11 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
       tipo: 'cabecera',
       data: {
         visible: true,
-        logoUrl: '',
-        protagonista1: 'María',
-        protagonista2: 'Juan',
+        logoUrl: 'https://placehold.co/150x60/F3F4F6/333333?text=Logo',
+        protagonista1: 'Novio/a 1',
+        protagonista2: 'Novio/a 2',
         subtitulo: { text: 'Nuestra Boda', style: { fontFamily: 'Inter', fontSize: '1.25rem', color: '#654321' } },
-        paletaColores: { primary: '#b9936c', secondary: '#363636', accent: '#506A61' }
+        paletaColores: { primary: '#A2D2B0', secondary: '#363636', accent: '#F0E6CC' }
       }
     },
     {
@@ -42,7 +42,8 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
       data: {
         visible: true,
         titulo: { text: '¡Nos Casamos!', style: defaultTitleStyle },
-        texto: { text: 'Después de un hermoso camino juntos, damos el siguiente paso. Queremos que seas parte de este día tan especial para nosotros, en una noche que promete ser inolvidable, llena de alegría, música y buenos momentos.', style: defaultTextStyle }
+        texto: { text: 'Después de un hermoso camino juntos, damos el siguiente paso. Queremos que seas parte de este día tan especial para nosotros, en una noche que promete ser inolvidable, llena de alegría, música y buenos momentos.', style: defaultTextStyle },
+        imagenFondoUrl: 'https://picsum.photos/seed/welcomebg/1200/800'
       }
     },
     { id: 'cuentaRegresiva', tipo: 'cuentaRegresiva', data: { visible: true } },
@@ -52,11 +53,11 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
       data: { 
         visible: true,
         ceremoniaReligiosa: { ...defaultDetalleEvento, visible: true, titulo: 'Ceremonia', fecha: '2025-11-15T20:00:00.000Z', hora: '20:00', nombreLugar: 'Catedral de San Juan', direccionLugar: 'Calle Falsa 123, Ciudad', mapaUrl: '', imagenUrl: 'https://picsum.photos/seed/ceremony/600/400' },
-        ceremoniaCivil: { ...defaultDetalleEvento },
+        ceremoniaCivil: { ...defaultDetalleEvento, visible: false },
         celebracion: { ...defaultDetalleEvento, visible: true, titulo: 'Fiesta', fecha: '2025-11-15T21:30:00.000Z', hora: '21:30', nombreLugar: 'Salón El Paraíso', direccionLugar: 'Ruta 1, Km 10', mapaUrl: '', imagenUrl: 'https://picsum.photos/seed/reception/600/400' },
       }
     },
-    { id: 'itinerario', tipo: 'itinerario', data: { visible: true } },
+    { id: 'itinerario', tipo: 'itinerario', data: { visible: true, imagenFondoUrl: "https://picsum.photos/seed/itinerarybg/1200/800" } },
     { 
       id: 'historia', 
       tipo: 'historia', 
@@ -80,7 +81,7 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
         ] 
       } 
     },
-    { id: 'dressCode', tipo: 'dressCode', data: { visible: true, texto: { text: 'Elegante' } } },
+    { id: 'dressCode', tipo: 'dressCode', data: { visible: true, texto: { text: 'Elegante' }, imagenFondoUrl: "https://picsum.photos/seed/dresscode/1200/800" } },
     { 
       id: 'regalos', 
       tipo: 'regalos', 
@@ -103,28 +104,28 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
         texto: { text: '¡Comparte tus momentos!', style: { ...defaultTitleStyle, fontSize: '2rem' } },
       } 
     },
-    { id: 'despedida', tipo: 'despedida', data: { visible: true, texto: { text: '¡Te esperamos!', style: { fontFamily: 'Dancing_Script', fontSize: '3rem', color: '#b9936c'} } } },
+    { id: 'despedida', tipo: 'despedida', data: { visible: true, texto: { text: '¡Te esperamos!', style: { fontFamily: 'Dancing_Script', fontSize: '3rem', color: '#A2D2B0'} } } },
     { id: 'footer', tipo: 'footer', data: { 
         visible: true,
         titulo: { text: 'Con cariño, María y Juan', style: defaultTextStyle },
-        nombreEmpresa: { text: 'AK Producciones', style: { fontFamily: 'Belleza', fontSize: '1.25rem', color: '#b9936c' } }
+        nombreEmpresa: { text: 'AK Producciones', style: { fontFamily: 'Belleza', fontSize: '1.25rem', color: '#A2D2B0' } }
       }
     },
   ],
-  // Flat structure for direct access - this maintains consistency with existing code
-  // and serves as the single source of truth that the 'secciones' array above references.
+  // Flat structure for direct access
   cabecera: {
     visible: true,
-    logoUrl: '',
+    logoUrl: 'https://placehold.co/150x60/F3F4F6/333333?text=Logo',
     protagonista1: 'María',
     protagonista2: 'Juan',
     subtitulo: { text: 'Nuestra Boda', style: { fontFamily: 'Inter', fontSize: '1.25rem', color: '#654321' } },
-    paletaColores: { primary: '#b9936c', secondary: '#363636', accent: '#506A61' }
+    paletaColores: { primary: '#A2D2B0', secondary: '#363636', accent: '#F0E6CC' }
   },
   bienvenida: {
     visible: true,
     titulo: { text: '¡Nos Casamos!', style: defaultTitleStyle },
     texto: { text: 'Después de un hermoso camino juntos, damos el siguiente paso. Queremos que seas parte de este día tan especial para nosotros, en una noche que promete ser inolvidable, llena de alegría, música y buenos momentos.', style: defaultTextStyle },
+    imagenFondoUrl: 'https://picsum.photos/seed/welcomebg/1200/800'
   },
   cuentaRegresiva: {
       visible: true
@@ -132,11 +133,12 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
   detallesEvento: {
     visible: true,
     ceremoniaReligiosa: { ...defaultDetalleEvento, visible: true, titulo: 'Ceremonia', fecha: '2025-11-15T20:00:00.000Z', hora: '20:00', nombreLugar: 'Catedral de San Juan', direccionLugar: 'Calle Falsa 123, Ciudad', mapaUrl: '', imagenUrl: 'https://picsum.photos/seed/ceremony/600/400' },
-    ceremoniaCivil: { ...defaultDetalleEvento },
+    ceremoniaCivil: { ...defaultDetalleEvento, visible: false },
     celebracion: { ...defaultDetalleEvento, visible: true, titulo: 'Fiesta', fecha: '2025-11-15T21:30:00.000Z', hora: '21:30', nombreLugar: 'Salón El Paraíso', direccionLugar: 'Ruta 1, Km 10', mapaUrl: '', imagenUrl: 'https://picsum.photos/seed/reception/600/400' },
   },
   itinerario: {
     visible: true,
+    imagenFondoUrl: "https://picsum.photos/seed/itinerarybg/1200/800"
   },
   galeria: {
     visible: true,
@@ -162,7 +164,8 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
   },
   dressCode: {
     visible: true,
-    texto: { text: 'Elegante', style: { fontFamily: 'Inter', fontSize: '1.25rem', color: '#363636' } }
+    texto: { text: 'Elegante', style: { fontFamily: 'Inter', fontSize: '1.25rem', color: '#363636' } },
+    imagenFondoUrl: "https://picsum.photos/seed/dresscode/1200/800"
   },
    musica: {
     visible: true,
@@ -178,11 +181,11 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
   },
   despedida: {
     visible: true,
-    texto: { text: '¡Te esperamos!', style: { fontFamily: 'Dancing_Script', fontSize: '3rem', color: '#b9936c' } },
+    texto: { text: '¡Te esperamos!', style: { fontFamily: 'Dancing_Script', fontSize: '3rem', color: '#A2D2B0'} },
   },
   footer: {
     visible: true,
     titulo: { text: 'Con cariño, María y Juan', style: defaultTextStyle },
-    nombreEmpresa: { text: 'AK Producciones', style: { fontFamily: 'Belleza', fontSize: '1.25rem', color: '#b9936c' } },
+    nombreEmpresa: { text: 'AK Producciones', style: { fontFamily: 'Belleza', fontSize: '1.25rem', color: '#A2D2B0' } },
   }
 };

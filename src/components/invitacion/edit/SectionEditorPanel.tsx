@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { InvitacionDigitalData, SeccionInvitacion } from '@/types/fiesta';
@@ -37,38 +36,36 @@ export const SectionEditorPanel: React.FC<Props> = ({ data, update, selectedSect
     const selectedSection = data.secciones.find(s => s.id === selectedSectionId);
 
     const handleSectionDataChange = (newData: any) => {
-        if (selectedSection) {
-            const newSecciones = data.secciones.map(s => 
-                s.id === selectedSection.id ? { ...s, data: {...s.data, ...newData} } : s
-            );
-            update({ secciones: newSecciones });
-        }
+        if (!selectedSection) return;
+        const sectionKey = selectedSection.tipo as keyof Omit<InvitacionDigitalData, 'secciones' | 'plantilla' | 'name' | 'category' | 'musicaFondoUrl'>;
+        update({ [sectionKey]: { ...data[sectionKey], ...newData } });
     };
     
     const renderEditor = () => {
         if (!selectedSection) return null;
-
-        const commonProps = { 
-            data: selectedSection.data, 
+        
+        const sectionKey = selectedSection.tipo as keyof Omit<InvitacionDigitalData, 'secciones' | 'plantilla' | 'name' | 'category' | 'musicaFondoUrl'>;
+        const props = { 
+            data: data[sectionKey], 
             update: handleSectionDataChange, 
             fiestaId: fiestaId || undefined 
         };
 
         switch (selectedSection.tipo) {
             case 'cabecera': return <SeccionCabeceraEditor data={data.cabecera} update={(newData) => update({ cabecera: { ...data.cabecera, ...newData } })} fiestaId={fiestaId || undefined} />;
-            case 'bienvenida': return <SeccionBienvenidaEditor data={data.bienvenida} update={(newData) => update({ bienvenida: {...data.bienvenida, ...newData} })} fiestaId={fiestaId || undefined} />;
-            case 'cuentaRegresiva': return <SeccionCuentaRegresivaEditor data={data.cuentaRegresiva} update={(newData) => update({ cuentaRegresiva: {...data.cuentaRegresiva, ...newData} })} />;
-            case 'detallesEvento': return <SeccionDetallesEventoEditor data={data.detallesEvento} update={(newData) => update({ detallesEvento: {...data.detallesEvento, ...newData} })} fiestaId={fiestaId || undefined} />;
-            case 'itinerario': return <SeccionItinerarioEditor data={data.itinerario} update={(newData) => update({ itinerario: {...data.itinerario, ...newData} })} fiestaId={fiestaId || undefined} />;
-            case 'galeria': return <SeccionGaleriaEditor data={data.galeria} update={(newData) => update({ galeria: {...data.galeria, ...newData} })} fiestaId={fiestaId || undefined} />;
-            case 'historia': return <SeccionHistoriaEditor data={data.historia} update={(newData) => update({ historia: {...data.historia, ...newData} })} fiestaId={fiestaId || undefined} />;
-            case 'regalos': return <SeccionRegalosEditor data={data.regalos} update={(newData) => update({ regalos: {...data.regalos, ...newData} })} fiestaId={fiestaId || undefined} />;
-            case 'dressCode': return <SeccionDressCodeEditor data={data.dressCode} update={(newData) => update({ dressCode: {...data.dressCode, ...newData} })} />;
-            case 'confirmacion': return <SeccionConfirmacionEditor data={data.confirmacion} update={(newData) => update({ confirmacion: {...data.confirmacion, ...newData} })} />;
-            case 'musica': return <SeccionMusicaEditor data={data.musica} update={(newData) => update({ musica: {...data.musica, ...newData} })} />;
-            case 'redesSociales': return <SeccionRedesSocialesEditor data={data.redesSociales} update={(newData) => update({ redesSociales: {...data.redesSociales, ...newData} })} />;
-            case 'despedida': return <SeccionDespedidaEditor data={data.despedida} update={(newData) => update({ despedida: {...data.despedida, ...newData} })} />;
-            case 'footer': return <SeccionFooterEditor data={data.footer} update={(newData) => update({ footer: {...data.footer, ...newData} })} />;
+            case 'bienvenida': return <SeccionBienvenidaEditor {...props} />;
+            case 'cuentaRegresiva': return <SeccionCuentaRegresivaEditor {...props} />;
+            case 'detallesEvento': return <SeccionDetallesEventoEditor {...props} />;
+            case 'itinerario': return <SeccionItinerarioEditor {...props} />;
+            case 'galeria': return <SeccionGaleriaEditor {...props} />;
+            case 'historia': return <SeccionHistoriaEditor {...props} />;
+            case 'regalos': return <SeccionRegalosEditor {...props} />;
+            case 'dressCode': return <SeccionDressCodeEditor {...props} />;
+            case 'confirmacion': return <SeccionConfirmacionEditor {...props} />;
+            case 'musica': return <SeccionMusicaEditor {...props} />;
+            case 'redesSociales': return <SeccionRedesSocialesEditor {...props} />;
+            case 'despedida': return <SeccionDespedidaEditor {...props} />;
+            case 'footer': return <SeccionFooterEditor {...props} />;
             default: return <div>Editor no implementado para "{selectedSection.tipo}"</div>;
         }
     }
