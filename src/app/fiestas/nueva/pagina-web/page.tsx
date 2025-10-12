@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useCallback, Suspense, use } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Loader2, ArrowLeft, Save, Sparkles, PlusCircle, AlertTriangle, GripVertical, Settings2, Eye, LayoutGrid, X } from 'lucide-react';
+import { Loader2, ArrowLeft, Save, Sparkles, PlusCircle, AlertTriangle, GripVertical, Settings2, Eye, LayoutGrid, X, Link as LinkIcon, QrCode } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion, InvitacionDigitalData, SeccionInvitacion } from '@/types/fiesta';
@@ -21,6 +21,11 @@ import { getInvitationTemplates, type InvitacionDigitalTemplate } from '@/app/ac
 import { ControlPanel } from '@/components/invitacion/edit/ControlPanel';
 import { SectionEditorPanel } from '@/components/invitacion/edit/SectionEditorPanel';
 import Link from 'next/link';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import QRCodeStylized from 'qrcode.react';
+import { Input } from '@/components/ui/input';
+import { ClipboardCopy } from 'lucide-react';
+
 
 function PaginaWebPageContent() {
   const { toast } = useToast();
@@ -128,6 +133,30 @@ function PaginaWebPageContent() {
     handleUpdate({ secciones: invitacionData.secciones.filter(s => s.id !== idToRemove) });
     if(selectedSectionId === idToRemove) setSelectedSectionId(null);
   };
+  
+  const getFullLink = (path: string, hash?: string) => {
+    if (typeof window === 'undefined' || !fiestaId) return '';
+    return `${window.location.origin}${path.replace('[fiestaId]', fiestaId)}${hash ? `#${hash}` : ''}`;
+  }
+
+  const handleCopyToClipboard = (url: string) => {
+    navigator.clipboard.writeText(url);
+    toast({ title: "Enlace Copiado" });
+  };
+  
+  const downloadQR = (id: string, name: string) => {
+    const canvas = document.getElementById(id) as HTMLCanvasElement;
+    if (canvas) {
+      const pngUrl = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+      let downloadLink = document.createElement("a");
+      downloadLink.href = pngUrl;
+      downloadLink.download = `${name}.png`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    }
+  };
+
 
   const renderTemplate = () => {
     if(!fiesta) return null;
@@ -185,6 +214,55 @@ function PaginaWebPageContent() {
                     fiestaId={fiestaId}
                     onClose={() => setSelectedSectionId(null)}
                 />
+            )}
+            
+             {/* Link & QR Center */}
+            {!selectedSectionId && fiestaId && (
+                <div className="p-4 space-y-4 border-t">
+                    <h3 className="font-semibold text-lg flex items-center gap-2">
+                        <LinkIcon className="w-5 h-5 text-primary"/> Centro de Enlaces y QR
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                        Usa estos enlaces y códigos QR para integrar partes de tu invitación en diseños externos (ej. Canva).
+                    </p>
+                    <div className="space-y-3">
+                        {invitacionData.regalos.visible && (
+                        <Card className="bg-muted/40 p-3">
+                            <Label className="text-sm font-medium">Lista de Regalos</Label>
+                            <div className="flex items-center space-x-2 mt-2">
+                                <Input value={getFullLink('/evento/actual', 'regalos')} readOnly />
+                                <Button size="icon" variant="outline" onClick={() => handleCopyToClipboard(getFullLink('/evento/actual', 'regalos'))}><ClipboardCopy className="h-4 w-4" /></Button>
+                            </div>
+                            <div className="text-center mt-3">
+                                <QRCodeStylized id="qr-regalos" value={getFullLink('/evento/actual', 'regalos')} size={80} level="M" />
+                                <Button size="sm" variant="link" onClick={() => downloadQR('qr-regalos', 'qr-regalos')}>Descargar QR</Button>
+                            </div>
+                        </Card>
+                        )}
+                        {invitacionData.confirmacion.visible && (
+                        <Card className="bg-muted/40 p-3">
+                             <Label className="text-sm font-medium">Confirmar Asistencia (RSVP)</Label>
+                            <div className="flex items-center space-x-2 mt-2">
+                                <Input value={getFullLink('/evento/actual', 'confirmacion')} readOnly />
+                                <Button size="icon" variant="outline" onClick={() => handleCopyToClipboard(getFullLink('/evento/actual', 'confirmacion'))}><ClipboardCopy className="h-4 w-4" /></Button>
+                            </div>
+                        </Card>
+                        )}
+                         {fiesta.socialGallerySettings?.enabled && (
+                            <Card className="bg-muted/40 p-3">
+                                <Label className="text-sm font-medium">Muro Social</Label>
+                                <div className="flex items-center space-x-2 mt-2">
+                                    <Input value={getFullLink('/evento/social/[fiestaId]')} readOnly />
+                                    <Button size="icon" variant="outline" onClick={() => handleCopyToClipboard(getFullLink('/evento/social/[fiestaId]'))}><ClipboardCopy className="h-4 w-4" /></Button>
+                                </div>
+                                <div className="text-center mt-3">
+                                    <QRCodeStylized id="qr-social" value={getFullLink('/evento/social/[fiestaId]')} size={80} level="M" />
+                                    <Button size="sm" variant="link" onClick={() => downloadQR('qr-social', 'qr-muro-social')}>Descargar QR</Button>
+                                </div>
+                            </Card>
+                        )}
+                    </div>
+                </div>
             )}
         </div>
         

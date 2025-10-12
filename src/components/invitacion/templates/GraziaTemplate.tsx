@@ -8,7 +8,7 @@ import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
 import { CountdownTimer } from '@/components/countdown-timer';
 import { Separator } from '@/components/ui/separator';
-import { Church, GlassWater, Gift, Heart, MapPin, Play, Pause, Facebook, Instagram, Music, MessageSquare, Building, PartyPopper, Sparkles, Check, ArrowRight, X } from 'lucide-react';
+import { Church, GlassWater, Gift, Heart, MapPin, Play, Pause, Facebook, Instagram, Music, MessageSquare, Building, PartyPopper, Sparkles, Check, ArrowRight, X, Calendar, User, Mail, Grid, Code, Palette as PaletteIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import type { SocialPlatformName } from '@/types/settings';
@@ -167,11 +167,51 @@ const GraziaDetalles: React.FC<{ data: InvitacionDigitalData['detallesEvento'], 
     } catch(e) { return "Fecha inválida"; }
   };
   
+  const generateICSContent = (detalle: DetalleEventoEspecifico): string => {
+    if (!detalle.fecha) return '';
+    const startDate = new Date(detalle.fecha);
+    if(detalle.hora) {
+        const [hours, minutes] = detalle.hora.split(':').map(Number);
+        startDate.setHours(hours, minutes);
+    }
+    const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000); // Assume 2 hour duration
+
+    const toUTC = (date: Date) => date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+
+    const icsContent = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//AKProducciones//App//EN',
+        'BEGIN:VEVENT',
+        `UID:${detalle.titulo.replace(/\s+/g, '')}@akproducciones.app`,
+        `DTSTAMP:${toUTC(new Date())}`,
+        `DTSTART:${toUTC(startDate)}`,
+        `DTEND:${toUTC(endDate)}`,
+        `SUMMARY:${detalle.titulo} - ${fiesta.configuracion.nombreEvento}`,
+        `LOCATION:${detalle.nombreLugar}, ${detalle.direccionLugar}`,
+        'END:VEVENT',
+        'END:VCALENDAR'
+    ].join('\n');
+    return icsContent;
+  };
+
+  const handleAddToCalendar = (detalle: DetalleEventoEspecifico) => {
+    const icsContent = generateICSContent(detalle);
+    if (icsContent) {
+        const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `${detalle.titulo}.ics`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+  };
+  
   const renderDetalle = (detalle: DetalleEventoEspecifico) => {
     if (!detalle || !detalle.visible) return null;
     
     const mapUrl = detalle.mapaUrl || (detalle.nombreLugar ? `https://www.google.com/maps?q=${encodeURIComponent(detalle.nombreLugar)}` : '#');
-
     const Icon = detalle.titulo.toLowerCase().includes('civil') ? Building : detalle.titulo.toLowerCase().includes('religios') ? Church : PartyPopper;
 
     return (
@@ -189,13 +229,20 @@ const GraziaDetalles: React.FC<{ data: InvitacionDigitalData['detallesEvento'], 
           {detalle.nombreLugar && <p className="text-xl font-semibold mt-1">{detalle.nombreLugar}</p>}
           {detalle.direccionLugar && <p className="text-sm text-muted-foreground">{detalle.direccionLugar}</p>}
         </div>
-        {(detalle.mapaUrl || detalle.nombreLugar) && (
-          <Button asChild variant="link" className="mt-4 text-lg" style={{color: paleta.primary}}>
-            <a href={mapUrl} target="_blank" rel="noopener noreferrer">
-              <MapPin className="w-5 h-5 mr-2"/> Ver en Mapa
-            </a>
-          </Button>
-        )}
+        <div className="flex flex-wrap gap-2 justify-center mt-4">
+            {(detalle.mapaUrl || detalle.nombreLugar) && (
+              <Button asChild variant="link" className="text-lg" style={{color: paleta.primary}}>
+                <a href={mapUrl} target="_blank" rel="noopener noreferrer">
+                  <MapPin className="w-5 h-5 mr-2"/> Ver en Mapa
+                </a>
+              </Button>
+            )}
+            {detalle.fecha && (
+                 <Button variant="link" className="text-lg" style={{color: paleta.primary}} onClick={() => handleAddToCalendar(detalle)}>
+                    <Calendar className="w-5 h-5 mr-2"/> Agendar
+                 </Button>
+            )}
+        </div>
       </div>
     );
   };
@@ -354,7 +401,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
       case 'cuentaRegresiva': return <SectionWrapper {...wrapperProps}><h3 className="font-headline text-2xl mb-4" style={{color: primaryColor}}>Faltan</h3><CountdownTimer targetDate={fiesta.configuracion.fechaEvento} /></SectionWrapper>;
       case 'detallesEvento': return <SectionWrapper {...wrapperProps}><GraziaDetalles {...props} /></SectionWrapper>;
       case 'regalos': return <SectionWrapper {...wrapperProps}><GraziaRegalos {...props} fiestaId={fiesta.id}/></SectionWrapper>;
-      case 'confirmacion': return <div id="rsvp" onClick={() => onSectionClick?.(seccion.id)}><div className={cn("relative", selectedSectionId === seccion.id && "border-2 border-primary")}>{children}</div></div>;
+      case 'confirmacion': return <div id="confirmacion" onClick={() => onSectionClick?.(seccion.id)}><div className={cn("relative", selectedSectionId === seccion.id && "border-2 border-primary")}>{children}</div></div>;
       default: return null;
     }
   }
