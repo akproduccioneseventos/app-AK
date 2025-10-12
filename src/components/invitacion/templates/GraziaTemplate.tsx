@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -9,7 +8,7 @@ import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
 import { CountdownTimer } from '@/components/countdown-timer';
 import { Separator } from '@/components/ui/separator';
-import { Church, Building, PartyPopper, Gift, Heart, MapPin, Play, Pause, Facebook, Instagram, Music, MessageSquare, Sparkles, Check, ArrowRight, X, Calendar, User, Mail, Grid, Code, Palette as PaletteIcon, Share2, Camera as CameraIcon } from 'lucide-react';
+import { Church, Building, PartyPopper, Gift, Heart, MapPin, Play, Pause, Facebook, Instagram, Music, MessageSquare, Sparkles, Check, ArrowRight, X, Calendar, User, Mail, Grid, Code, Palette as PaletteIcon, Share2, Camera as CameraIcon, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import type { SocialPlatformName } from '@/types/settings';
@@ -326,7 +325,7 @@ const GraziaRegalos: React.FC<{ data: InvitacionDigitalData['regalos'], fiestaId
             </h3>
             <div className="text-muted-foreground max-w-md mx-auto mb-6">
               <EditableText 
-                initialValue={data.texto?.text || "Tu presencia es nuestro mejor regalo..."} 
+                initialValue={data.texto?.text || "Tu presencia es nuestro mejor regalo. Si aún así deseas obsequiarnos algo, puedes ayudarnos con nuestra luna de miel o elegir una de estas opciones."} 
                 style={data.texto?.style} 
                 onSave={v => onUpdate?.({ regalos: { ...data, texto: { ...(data.texto || {style:{}}), text: v } }})}
                 textarea
@@ -377,7 +376,6 @@ const GraziaGaleria: React.FC<{ data: InvitacionDigitalData['galeria'], paleta: 
         if (!data.fotos || data.fotos.length === 0) return;
         setCurrentIndex(prev => (prev === 0 ? data.fotos.length - 1 : prev - 1));
     };
-    
     const nextSlide = useCallback(() => {
         if (!data.fotos || data.fotos.length === 0) return;
         setCurrentIndex(prev => (prev === data.fotos.length - 1 ? 0 : prev + 1));
@@ -479,7 +477,14 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
               />
             </h3>
             {seccion.data.hashtag && (
-              <p className="text-xl font-bold" style={{ color: primaryColor }}>{seccion.data.hashtag}</p>
+              <p className="text-xl font-bold" style={{ color: primaryColor }}>
+                 <EditableText 
+                    initialValue={seccion.data.hashtag} 
+                    style={{fontFamily: 'Inter', fontSize: '1.25rem', color: primaryColor}}
+                    onSave={v => onUpdate?.({ redesSociales: { ...seccion.data, hashtag: v}})}
+                    textarea={false}
+                  />
+              </p>
             )}
              {fiesta.socialGallerySettings?.enabled && (
                 <Button asChild variant="default" className="mt-6" style={{backgroundColor: primaryColor}}>
