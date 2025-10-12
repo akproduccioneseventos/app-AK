@@ -115,7 +115,7 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
         <div className="relative z-10 p-6 max-w-2xl mx-auto text-center">
             {data.logoUrl && (
                 <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
-                    <div className="relative h-28 w-full mb-6">
+                    <div className="relative h-28 w-full">
                         <WatermarkedImage src={data.logoUrl} alt="Logo del evento" containerClassName="h-full w-full"/>
                     </div>
                 </motion.div>
@@ -456,7 +456,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
     
     switch (seccion.tipo) {
       case 'bienvenida': 
-        return <SectionWrapper {...wrapperProps}><SectionIcon><Heart className="w-12 h-12 mx-auto mb-3" style={{color: primaryColor}} /></SectionIcon><h2 className="font-headline text-2xl mb-4"><EditableText initialValue={seccion.data.titulo?.text || ""} style={seccion.data.titulo?.style} onSave={v => onUpdate?.({ bienvenida: {...seccion.data, titulo: {...(seccion.data.titulo || {style:{}}), text: v}}})} textarea={false} /></h2><div className="max-w-xl mx-auto text-muted-foreground"><EditableText initialValue={seccion.data.texto?.text || ""} style={seccion.data.texto?.style} onSave={v => onUpdate?.({ bienvenida: {...seccion.data, texto: {...(seccion.data.texto || {style:{}}), text: v}}})} textarea/></div></SectionWrapper>;
+        return <SectionWrapper {...wrapperProps}><SectionIcon><Heart className="w-12 h-12 mx-auto mb-3" style={{color: primaryColor}} /></SectionIcon><h2 className="font-headline text-2xl mb-4"><EditableText initialValue={seccion.data.titulo?.text || ""} style={seccion.data.titulo?.style} onSave={v => onUpdate?.({ bienvenida: { ...seccion.data, titulo: { ...(seccion.data.titulo || {style:{}}), text: v } }})} textarea={false} /></h2><div className="max-w-xl mx-auto text-muted-foreground"><EditableText initialValue={seccion.data.texto?.text || ""} style={seccion.data.texto?.style} onSave={v => onUpdate?.({ bienvenida: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } }})} textarea/></div></SectionWrapper>;
       case 'cuentaRegresiva': 
         return <SectionWrapper {...wrapperProps}><h3 className="font-headline text-2xl mb-4" style={{color: primaryColor}}>Faltan</h3><CountdownTimer targetDate={fiesta.configuracion.fechaEvento} /></SectionWrapper>;
       case 'detallesEvento': 
@@ -498,9 +498,9 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
             <SectionIcon><Share2 className="w-12 h-12 mx-auto mb-3" style={{ color: primaryColor }} /></SectionIcon>
             <h3 className="font-headline text-3xl mb-3" style={{ color: paletaColores.accent }}>
               <EditableText 
-                initialValue={seccion.data.texto || "¡Comparte tus momentos!"} 
-                style={seccion.data.style} 
-                onSave={v => onUpdate?.({ redesSociales: { ...seccion.data, texto: v }})}
+                initialValue={seccion.data.texto?.text || "¡Comparte tus momentos!"} 
+                style={seccion.data.texto?.style} 
+                onSave={v => onUpdate?.({ redesSociales: { ...seccion.data, texto: {...(seccion.data.texto || {style:{}}), text: v }} })}
                 textarea={false}
               />
             </h3>
