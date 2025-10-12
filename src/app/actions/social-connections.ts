@@ -10,7 +10,10 @@ export async function getSocialConnections(): Promise<SocialConnection[]> {
   return readData<SocialConnection[]>(CONNECTIONS_FILE, []);
 }
 
-export async function saveWhatsAppNumber(phoneNumber: string): Promise<{ success: boolean; connection?: SocialConnection; error?: string }> {
+export async function saveWhatsAppNumber(
+  phoneNumber: string,
+  logoUrl?: string
+): Promise<{ success: boolean; connection?: SocialConnection; error?: string }> {
   if (!phoneNumber || !/^\d+$/.test(phoneNumber.replace(/\s/g, ''))) {
     return { success: false, error: "Por favor, ingresa un número de teléfono válido (solo dígitos)." };
   }
@@ -24,12 +27,13 @@ export async function saveWhatsAppNumber(phoneNumber: string): Promise<{ success
     username: `WhatsApp (${cleanPhoneNumber})`,
     phoneNumber: cleanPhoneNumber,
     profileUrl: `https://wa.me/${cleanPhoneNumber}`,
+    logoUrl: logoUrl,
     connectedAt: new Date().toISOString(),
   };
 
   const existingIndex = connections.findIndex(c => c.platform === 'WhatsApp');
   if (existingIndex > -1) {
-    connections[existingIndex] = newConnection;
+    connections[existingIndex] = { ...connections[existingIndex], ...newConnection };
   } else {
     connections.push(newConnection);
   }
@@ -38,7 +42,11 @@ export async function saveWhatsAppNumber(phoneNumber: string): Promise<{ success
   return { success: true, connection: newConnection };
 }
 
-export async function saveSocialLink(platform: SocialPlatformName, url: string): Promise<{ success: boolean; connection?: SocialConnection; error?: string }> {
+export async function saveSocialLink(
+  platform: SocialPlatformName,
+  url: string,
+  logoUrl?: string
+): Promise<{ success: boolean; connection?: SocialConnection; error?: string }> {
   if (platform === 'WhatsApp') {
     return { success: false, error: 'Usa la función de guardar número para WhatsApp.' };
   }
@@ -52,12 +60,13 @@ export async function saveSocialLink(platform: SocialPlatformName, url: string):
     isConnected: true,
     username: `${platform} Perfil`,
     profileUrl: url,
+    logoUrl: logoUrl,
     connectedAt: new Date().toISOString(),
   };
 
   const existingIndex = connections.findIndex(c => c.platform === platform);
   if (existingIndex > -1) {
-    connections[existingIndex] = newConnection;
+    connections[existingIndex] = { ...connections[existingIndex], ...newConnection };
   } else {
     connections.push(newConnection);
   }

@@ -1,4 +1,5 @@
 
+
 export interface BudgetDisplaySettings {
   showClientData: boolean;
   showEventTypeAndDate: boolean;
@@ -46,6 +47,7 @@ export interface SocialConnection {
   isConnected: boolean;
   username?: string; // e.g. @yourhandle, or phone number
   profileUrl?: string; // The actual URL to the profile
+  logoUrl?: string; // URL for the custom uploaded logo
   connectedAt?: string; // ISO Date String of when the connection was established
   phoneNumber?: string; // Specifically for WhatsApp
 }

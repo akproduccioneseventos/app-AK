@@ -212,7 +212,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
     setIsPlaying(!isPlaying);
   };
   
-  const socialIcons: Record<SocialPlatformName, React.ElementType> = { Facebook, Instagram, TikTok: Music, WhatsApp: MessageSquare };
+  const socialIcons: Record<SocialPlatformName, React.ElementType> = { Facebook, Instagram, Music, MessageSquare };
 
   const renderSectionComponent = (seccion: SeccionInvitacion) => {
     if (!seccion.data) return null; // Safety check
@@ -265,11 +265,16 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
           <div className="flex justify-center items-center gap-4">
             {socialConnections.filter(c => c.isConnected).map(conn => {
                 const Icon = socialIcons[conn.platform];
-                return Icon ? (
+                return (
                     <a key={conn.platform} href={conn.profileUrl || '#'} target="_blank" rel="noopener noreferrer" aria-label={`Perfil de ${conn.platform}`}>
-                        <Button variant="ghost" size="icon"><Icon className="w-6 h-6" /></Button>
+                        <Button variant="ghost" size="icon">
+                            {conn.logoUrl ? 
+                                <img src={conn.logoUrl} alt={`${conn.platform} logo`} className="w-6 h-6 object-contain" /> :
+                                (Icon ? <Icon className="w-6 h-6" /> : null)
+                            }
+                        </Button>
                     </a>
-                ) : null;
+                );
             })}
           </div>
        </footer>
