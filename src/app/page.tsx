@@ -5,7 +5,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, ListChecks, FileText as FileTextIcon, Users, KanbanSquare, Loader2, AlertTriangle, TrendingUp, Briefcase, Settings as SettingsIcon, BarChart3, ArrowLeft, Info, Wand2, Eye, Share2 } from 'lucide-react';
+import { ArrowRight, ListChecks, FileText as FileTextIcon, Users, KanbanSquare, Loader2, AlertTriangle, TrendingUp, Briefcase, Settings as SettingsIcon, BarChart3, ArrowLeft, Info, Wand2, Eye, Share2, PartyPopper } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription as AlertDescriptionShadcn } from '@/components/ui/alert';
@@ -275,3 +275,5 @@ export default function ContabilidadDashboardPage() {
     </div>
   );
 }
+
+    
