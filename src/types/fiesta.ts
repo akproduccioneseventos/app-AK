@@ -176,6 +176,17 @@ export interface TextWithStyle {
     style?: TextStyle;
 }
 
+export interface DetalleEventoEspecifico {
+  visible: boolean;
+  titulo: string;
+  fecha?: string;
+  hora?: string;
+  nombreLugar?: string;
+  direccionLugar?: string;
+  mapaUrl?: string;
+  imagenUrl?: string;
+}
+
 export interface SeccionInvitacion {
   id: string;
   tipo: 'cabecera' | 'bienvenida' | 'cuentaRegresiva' | 'detallesEvento' | 'itinerario' | 'dressCode' | 'galeria' | 'historia' | 'regalos' | 'confirmacion' | 'despedida' | 'footer' | 'redesSociales';
@@ -190,7 +201,6 @@ export interface InvitacionDigitalData {
   
   secciones: SeccionInvitacion[];
   
-  // Flat structure for easy access in editor - can be deprecated later if fully modular
   cabecera: {
     visible: boolean;
     videoFondoUrl?: string;
@@ -211,12 +221,14 @@ export interface InvitacionDigitalData {
   };
   detallesEvento: {
     visible: boolean;
-    imagenFondoUrl?: string;
-    infoPadresVisible: boolean;
-    nombrePadre1?: string;
-    nombrePadre2?: string;
-    nombreMadre1?: string;
-    nombreMadre2?: string;
+    ceremoniaReligiosa: DetalleEventoEspecifico;
+    ceremoniaCivil: DetalleEventoEspecifico;
+    celebracion: DetalleEventoEspecifico;
+    infoPadresVisible: boolean; // Deprecating
+    nombrePadre1?: string; // Deprecating
+    nombrePadre2?: string; // Deprecating
+    nombreMadre1?: string; // Deprecating
+    nombreMadre2?: string; // Deprecating
   };
   itinerario: {
     visible: boolean;

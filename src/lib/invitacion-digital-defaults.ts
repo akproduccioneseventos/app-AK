@@ -1,6 +1,17 @@
 
 
-import type { InvitacionDigitalData, SeccionInvitacion, TextStyle, ColorPalette } from '@/types/fiesta';
+import type { InvitacionDigitalData, SeccionInvitacion, TextStyle, ColorPalette, DetalleEventoEspecifico } from '@/types/fiesta';
+
+const defaultDetalleEvento: DetalleEventoEspecifico = {
+  visible: false,
+  titulo: '',
+  fecha: undefined,
+  hora: '',
+  nombreLugar: '',
+  direccionLugar: '',
+  mapaUrl: '',
+  imagenUrl: '',
+};
 
 export const defaultInvitacionDigitalData: InvitacionDigitalData = {
   plantilla: 'Grazia',
@@ -27,7 +38,12 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
       }
     },
     { id: 'cuentaRegresiva', tipo: 'cuentaRegresiva', data: { visible: true } },
-    { id: 'detallesEvento', tipo: 'detallesEvento', data: { visible: true, infoPadresVisible: false } },
+    { id: 'detallesEvento', tipo: 'detallesEvento', data: { 
+        visible: true,
+        ceremoniaReligiosa: { ...defaultDetalleEvento, titulo: 'Ceremonia Religiosa' },
+        ceremoniaCivil: { ...defaultDetalleEvento, titulo: 'Ceremonia Civil' },
+        celebracion: { ...defaultDetalleEvento, titulo: 'Celebración' },
+    }},
     { id: 'itinerario', tipo: 'itinerario', data: { visible: true } },
     { id: 'dressCode', tipo: 'dressCode', data: { visible: true, texto: { text: 'Elegante Sport' } } },
     {
@@ -76,6 +92,10 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
   },
   detallesEvento: {
     visible: true,
+    ceremoniaReligiosa: { ...defaultDetalleEvento, titulo: 'Ceremonia Religiosa' },
+    ceremoniaCivil: { ...defaultDetalleEvento, titulo: 'Ceremonia Civil' },
+    celebracion: { ...defaultDetalleEvento, titulo: 'Celebración' },
+    // Deprecated
     infoPadresVisible: false,
     nombrePadre1: '',
     nombrePadre2: '',
