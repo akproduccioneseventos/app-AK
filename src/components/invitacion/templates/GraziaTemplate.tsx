@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -144,16 +145,16 @@ const GraziaDetalles: React.FC<{ data: InvitacionDigitalData['detallesEvento'], 
     const mapQuery = fiesta.configuracion.nombreLugar ? encodeURIComponent(fiesta.configuracion.nombreLugar) : '';
     const mapUrl = `https://www.google.com/maps?q=${mapQuery}`;
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
+        <div className="grid md:grid-cols-2 gap-8 max-w-2xl mx-auto">
+            <div className="text-center">
                 <SectionIcon><Church className="w-12 h-12 mx-auto mb-3" style={{color: paleta.primary}}/></SectionIcon>
-                <h3 className="font-headline text-3xl mb-3" style={{color: paleta.accent}}>Ceremonia</h3>
+                <h3 className="font-headline text-3xl mb-2">Ceremonia</h3>
                 <p className="text-lg text-muted-foreground">{fiesta.configuracion.horaInicio} hs.</p>
                 <p className="text-lg font-semibold" style={{color: paleta.accent}}>{fiesta.configuracion.nombreLugar}</p>
             </div>
-            <div>
+             <div className="text-center">
                 <SectionIcon><GlassWater className="w-12 h-12 mx-auto mb-3" style={{color: paleta.primary}}/></SectionIcon>
-                <h3 className="font-headline text-3xl mb-3" style={{color: paleta.accent}}>Celebración</h3>
+                <h3 className="font-headline text-3xl mb-2">Celebración</h3>
                 <p className="text-lg text-muted-foreground">{fiesta.configuracion.horaFin ? `${fiesta.configuracion.horaFin} hs.` : 'A continuación'}</p>
                 <p className="text-lg font-semibold" style={{color: paleta.accent}}>{fiesta.configuracion.nombreLugar}</p>
             </div>

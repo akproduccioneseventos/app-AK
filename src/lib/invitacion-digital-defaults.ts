@@ -43,8 +43,8 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
     },
     { id: 'confirmacion', tipo: 'confirmacion', data: { visible: true } },
     {
-      id: 'instagram',
-      tipo: 'instagram',
+      id: 'redesSociales',
+      tipo: 'redesSociales',
       data: {
         visible: true,
         hashtag: '#NuestraBoda',
@@ -105,7 +105,7 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
     visible: true,
     texto: { text: 'Elegante Sport', style: { fontFamily: 'Inter', fontSize: '1rem', color: '#6b7280' } }
   },
-  instagram: {
+  redesSociales: {
     visible: true,
     hashtag: '#BodaJ&M',
     texto: '¡Usa nuestro hashtag para compartir tus momentos!'

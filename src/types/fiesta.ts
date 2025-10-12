@@ -1,4 +1,5 @@
 
+
 import type { TipoEvento } from './presupuesto';
 import type { Invitado } from './invitado'; 
 import type { UnidadServicio } from './empresa';
@@ -177,7 +178,7 @@ export interface TextWithStyle {
 
 export interface SeccionInvitacion {
   id: string;
-  tipo: 'cabecera' | 'bienvenida' | 'cuentaRegresiva' | 'detallesEvento' | 'itinerario' | 'dressCode' | 'galeria' | 'historia' | 'regalos' | 'confirmacion' | 'despedida' | 'footer' | 'instagram';
+  tipo: 'cabecera' | 'bienvenida' | 'cuentaRegresiva' | 'detallesEvento' | 'itinerario' | 'dressCode' | 'galeria' | 'historia' | 'regalos' | 'confirmacion' | 'despedida' | 'footer' | 'redesSociales';
   data: any; // El contenido específico de cada sección
 }
 
@@ -244,7 +245,7 @@ export interface InvitacionDigitalData {
     imagenFondoUrl?: string;
     texto: TextWithStyle;
   };
-  instagram: {
+  redesSociales: {
     visible: boolean;
     hashtag: string;
     texto: string;
