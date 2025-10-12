@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { TextStyleEditor } from './TextStyleEditor';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 interface Props {
   data: InvitacionDigitalData['redesSociales'];
@@ -20,13 +21,13 @@ export const SeccionRedesSocialesEditor: React.FC<Props> = ({ data, update, fies
   };
   
   const handleTextStyleChange = (style: Partial<TextStyle>) => {
-    const newTextData = { ...(data.texto as TextWithStyle), style: { ...((data.texto as TextWithStyle)?.style || {}), ...style }};
-    update({ ...data, texto: newTextData });
+    const textData = data.texto || { text: '', style: {} };
+    handleFieldChange('texto', { ...textData, style: { ...(textData.style || {}), ...style } });
   }
   
   const handleTextChange = (text: string) => {
-    const newTextData = { ...(data.texto as TextWithStyle), text };
-    update({ ...data, texto: newTextData });
+    const textData = data.texto || { style: {} };
+    handleFieldChange('texto', { ...textData, text });
   }
 
   return (

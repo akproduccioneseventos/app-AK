@@ -13,8 +13,15 @@ const defaultDetalleEvento: DetalleEventoEspecifico = {
   imagenUrl: '',
 };
 
+const defaultTextStyle: TextStyle = { fontFamily: 'Inter', fontSize: '1rem', color: '#6b7280' };
+const defaultTitleStyle: TextStyle = { fontFamily: 'Belleza', fontSize: '2.5rem', color: '#363636' };
+const defaultAccentTitleStyle: TextStyle = { ...defaultTitleStyle, color: '#b9936c' };
+
+
 export const defaultInvitacionDigitalData: InvitacionDigitalData = {
   plantilla: 'Grazia',
+  name: 'Plantilla Grazia por Defecto',
+  category: 'Boda',
   musicaFondoUrl: '',
   secciones: [
     {
@@ -23,10 +30,10 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
       data: {
         visible: true,
         logoUrl: '',
-        protagonista1: 'Novio/a 1',
-        protagonista2: 'Novio/a 2',
-        subtitulo: { text: 'Nuestra Boda', style: { fontFamily: 'Inter', fontSize: '1.5rem', color: '#333' } },
-        paletaColores: { primary: '#EF4444', secondary: '#F97316', accent: '#FBBF24' }
+        protagonista1: 'María',
+        protagonista2: 'Juan',
+        subtitulo: { text: 'Nuestra Boda', style: { fontFamily: 'Inter', fontSize: '1.25rem', color: '#654321' } },
+        paletaColores: { primary: '#b9936c', secondary: '#363636', accent: '#506A61' }
       }
     },
     {
@@ -34,69 +41,90 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
       tipo: 'bienvenida',
       data: {
         visible: true,
-        titulo: { text: '¡Nos Casamos!', style: { fontFamily: 'Belleza', fontSize: '2rem', color: '#000' } },
-        texto: { text: 'Y queremos que seas parte de este día tan especial para nosotros. Prepárate para una noche llena de alegría, música y buenos momentos.', style: { fontFamily: 'Inter', fontSize: '1rem', color: '#6b7280' } }
+        titulo: { text: '¡Nos Casamos!', style: defaultTitleStyle },
+        texto: { text: 'Después de un hermoso camino juntos, damos el siguiente paso. Queremos que seas parte de este día tan especial para nosotros, en una noche que promete ser inolvidable, llena de alegría, música y buenos momentos.', style: defaultTextStyle }
       }
     },
     { id: 'cuentaRegresiva', tipo: 'cuentaRegresiva', data: { visible: true } },
-    { id: 'detallesEvento', tipo: 'detallesEvento', data: { 
+    { 
+      id: 'detallesEvento', 
+      tipo: 'detallesEvento', 
+      data: { 
         visible: true,
-        ceremoniaReligiosa: { ...defaultDetalleEvento, titulo: 'Ceremonia Religiosa' },
-        ceremoniaCivil: { ...defaultDetalleEvento, titulo: 'Ceremonia Civil' },
-        celebracion: { ...defaultDetalleEvento, titulo: 'Celebración' },
-    }},
+        ceremoniaReligiosa: { ...defaultDetalleEvento, visible: true, titulo: 'Ceremonia', fecha: '2025-11-15T20:00:00.000Z', hora: '20:00', nombreLugar: 'Catedral de San Juan', direccionLugar: 'Calle Falsa 123, Ciudad', mapaUrl: '', imagenUrl: 'https://picsum.photos/seed/ceremony/600/400' },
+        ceremoniaCivil: { ...defaultDetalleEvento },
+        celebracion: { ...defaultDetalleEvento, visible: true, titulo: 'Fiesta', fecha: '2025-11-15T21:30:00.000Z', hora: '21:30', nombreLugar: 'Salón El Paraíso', direccionLugar: 'Ruta 1, Km 10', mapaUrl: '', imagenUrl: 'https://picsum.photos/seed/reception/600/400' },
+      }
+    },
     { id: 'itinerario', tipo: 'itinerario', data: { visible: true } },
-    { id: 'dressCode', tipo: 'dressCode', data: { visible: true, texto: { text: 'Elegante Sport' } } },
-    {
-      id: 'regalos',
-      tipo: 'regalos',
-      data: {
-        visible: true,
-        titulo: { text: 'Lista de Regalos', style: { fontFamily: 'Belleza', fontSize: '2rem', color: '#000' } },
-        texto: { text: 'Tu presencia es nuestro mejor regalo...', style: { fontFamily: 'Inter', fontSize: '1rem', color: '#6b7280' } },
-        datosBancarios: '',
-        items: []
-      }
+    { 
+      id: 'historia', 
+      tipo: 'historia', 
+      data: { 
+        visible: true, 
+        titulo: { text: 'Nuestra Historia', style: defaultAccentTitleStyle },
+        texto: { text: 'Desde el día que nos conocimos, supimos que nuestro camino era para recorrerlo juntos. Cada paso nos ha traído hasta aquí, y estamos emocionados por empezar este nuevo capítulo con ustedes como testigos.', style: defaultTextStyle },
+        imagenFondoUrl: "https://picsum.photos/seed/storybg/1200/800"
+      } 
     },
-     { id: 'galeria', tipo: 'galeria', data: { visible: true, fotos: [] } },
+    { 
+      id: 'galeria', 
+      tipo: 'galeria', 
+      data: { 
+        visible: true, 
+        fotos: [
+            "https://picsum.photos/seed/gallery1/800/600",
+            "https://picsum.photos/seed/gallery2/800/600",
+            "https://picsum.photos/seed/gallery3/800/600",
+            "https://picsum.photos/seed/gallery4/800/600"
+        ] 
+      } 
+    },
+    { id: 'dressCode', tipo: 'dressCode', data: { visible: true, texto: { text: 'Elegante' } } },
+    { 
+      id: 'regalos', 
+      tipo: 'regalos', 
+      data: { 
+        visible: true,
+        titulo: { text: 'Lista de Regalos', style: defaultTitleStyle },
+        texto: { text: 'Tu presencia es nuestro mejor regalo. Si aún así deseas obsequiarnos algo, puedes ayudarnos con nuestra luna de miel o elegir una de estas opciones.', style: defaultTextStyle },
+        datosBancarios: 'Banco Itaú\nC.A. Pesos: 1234567\nTitular: Juan Pérez',
+        items: [] 
+      } 
+    },
     { id: 'confirmacion', tipo: 'confirmacion', data: { visible: true } },
-    {
-      id: 'musica',
-      tipo: 'musica',
-      data: {
+    { id: 'musica', tipo: 'musica', data: { visible: true, placeholder: 'Ej: Bohemian Rhapsody - Queen' } },
+    { 
+      id: 'redesSociales', 
+      tipo: 'redesSociales', 
+      data: { 
+        visible: true, 
+        hashtag: '#BodaJuanYMaria',
+        texto: { text: '¡Comparte tus momentos!', style: { ...defaultTitleStyle, fontSize: '2rem' } },
+      } 
+    },
+    { id: 'despedida', tipo: 'despedida', data: { visible: true, texto: { text: '¡Te esperamos!', style: { fontFamily: 'Dancing_Script', fontSize: '3rem', color: '#b9936c'} } } },
+    { id: 'footer', tipo: 'footer', data: { 
         visible: true,
-        placeholder: 'Ej: Bohemian Rhapsody - Queen'
+        titulo: { text: 'Con cariño, María y Juan', style: defaultTextStyle },
+        nombreEmpresa: { text: 'AK Producciones', style: { fontFamily: 'Belleza', fontSize: '1.25rem', color: '#b9936c' } }
       }
     },
-    {
-      id: 'redesSociales',
-      tipo: 'redesSociales',
-      data: {
-        visible: true,
-        hashtag: '#NuestraBoda',
-        texto: { text: '¡Comparte tus fotos y momentos con nuestro hashtag!', style: { fontFamily: 'Inter', fontSize: '1.25rem', color: '#333' } },
-      },
-    },
-    { id: 'despedida', tipo: 'despedida', data: { visible: true, texto: { text: '¡Te esperamos!' } } },
-    { id: 'footer', tipo: 'footer', data: { visible: true } },
   ],
-  // Flat structure for easy access in editor - can be deprecated later if fully modular
+  // Flat structure for direct access - this maintains consistency with existing code
+  // and serves as the single source of truth that the 'secciones' array above references.
   cabecera: {
     visible: true,
     logoUrl: '',
     protagonista1: 'María',
     protagonista2: 'Juan',
     subtitulo: { text: 'Nuestra Boda', style: { fontFamily: 'Inter', fontSize: '1.25rem', color: '#654321' } },
-    paletaColores: {
-        primary: '#b9936c', // Soft Gold
-        secondary: '#363636', // Charcoal
-        accent: '#506A61' // Emerald Green
-    }
+    paletaColores: { primary: '#b9936c', secondary: '#363636', accent: '#506A61' }
   },
   bienvenida: {
     visible: true,
-    titulo: { text: '¡Nos Casamos!', style: { fontFamily: 'Belleza', fontSize: '2.5rem', color: '#363636' } },
-    texto: { text: 'Después de un hermoso camino juntos, damos el siguiente paso. Queremos que seas parte de este día tan especial para nosotros, en una noche que promete ser inolvidable, llena de alegría, música y buenos momentos.', style: { fontFamily: 'Inter', fontSize: '1rem', color: '#555' } },
+    titulo: { text: '¡Nos Casamos!', style: defaultTitleStyle },
+    texto: { text: 'Después de un hermoso camino juntos, damos el siguiente paso. Queremos que seas parte de este día tan especial para nosotros, en una noche que promete ser inolvidable, llena de alegría, música y buenos momentos.', style: defaultTextStyle },
   },
   cuentaRegresiva: {
       visible: true
@@ -113,21 +141,22 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
   galeria: {
     visible: true,
     fotos: [
-        "https://picsum.photos/seed/gallery1/600/400",
-        "https://picsum.photos/seed/gallery2/600/400",
-        "https://picsum.photos/seed/gallery3/600/400",
-        "https://picsum.photos/seed/gallery4/600/400"
+        "https://picsum.photos/seed/gallery1/800/600",
+        "https://picsum.photos/seed/gallery2/800/600",
+        "https://picsum.photos/seed/gallery3/800/600",
+        "https://picsum.photos/seed/gallery4/800/600"
     ],
   },
   historia: {
     visible: true,
-    titulo: { text: 'Nuestra Historia', style: { fontFamily: 'Belleza', fontSize: '2rem', color: '#b9936c' } },
-    texto: { text: 'Desde el día que nos conocimos, supimos que nuestro camino era para recorrerlo juntos. Cada paso nos ha traído hasta aquí, y estamos emocionados por empezar este nuevo capítulo con ustedes como testigos.', style: { fontFamily: 'Inter', fontSize: '1rem', color: '#6b7280' } },
+    titulo: { text: 'Nuestra Historia', style: defaultAccentTitleStyle },
+    texto: { text: 'Desde el día que nos conocimos, supimos que nuestro camino era para recorrerlo juntos. Cada paso nos ha traído hasta aquí, y estamos emocionados por empezar este nuevo capítulo con ustedes como testigos.', style: defaultTextStyle },
+    imagenFondoUrl: "https://picsum.photos/seed/storybg/1200/800"
   },
   regalos: {
     visible: true,
-    titulo: { text: 'Lista de Regalos', style: { fontFamily: 'Belleza', fontSize: '2rem', color: '#363636' } },
-    texto: { text: 'Tu presencia es nuestro mejor regalo. Si aún así deseas obsequiarnos algo, puedes ayudarnos con nuestra luna de miel o elegir una de estas opciones.', style: { fontFamily: 'Inter', fontSize: '1rem', color: '#6b7280' } },
+    titulo: { text: 'Lista de Regalos', style: defaultTitleStyle },
+    texto: { text: 'Tu presencia es nuestro mejor regalo. Si aún así deseas obsequiarnos algo, puedes ayudarnos con nuestra luna de miel o elegir una de estas opciones.', style: defaultTextStyle },
     datosBancarios: 'Banco Itaú\nC.A. Pesos: 1234567\nTitular: Juan Pérez',
     items: [],
   },
@@ -141,19 +170,19 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
   },
   redesSociales: {
     visible: true,
-    hashtag: '#BodaJyM',
-    texto: { text: '¡Usa nuestro hashtag para compartir tus momentos!', style: { fontFamily: 'Inter', fontSize: '1.25rem', color: '#333' } }
+    hashtag: '#BodaJuanYMaria',
+    texto: { text: '¡Comparte tus momentos!', style: { ...defaultTitleStyle, fontSize: '2rem' } },
   },
   confirmacion: {
     visible: true,
   },
   despedida: {
     visible: true,
-    texto: { text: '¡Te esperamos para celebrar juntos!', style: { fontFamily: 'Dancing_Script', fontSize: '2.5rem', color: '#b9936c' } },
+    texto: { text: '¡Te esperamos!', style: { fontFamily: 'Dancing_Script', fontSize: '3rem', color: '#b9936c' } },
   },
   footer: {
     visible: true,
-    titulo: { text: 'Con cariño, María y Juan', style: { fontFamily: 'Inter', fontSize: '1rem', color: '#6b7280' } },
+    titulo: { text: 'Con cariño, María y Juan', style: defaultTextStyle },
     nombreEmpresa: { text: 'AK Producciones', style: { fontFamily: 'Belleza', fontSize: '1.25rem', color: '#b9936c' } },
   }
 };
