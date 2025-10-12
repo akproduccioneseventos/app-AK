@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -24,18 +23,26 @@ import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Textarea } from '@/components/ui/textarea';
 import QRCodeStylized from 'qrcode.react';
 
-const formatDate = (dateString?: string) => {
-    if (!dateString) return "Fecha a confirmar";
-    try {
-        const date = new Date(dateString);
-        // This handles both UTC and local dates better
-        const year = dateString.includes('T') ? date.getUTCFullYear() : date.getFullYear();
-        const month = dateString.includes('T') ? date.getUTCMonth() : date.getMonth();
-        const day = dateString.includes('T') ? date.getUTCDate() : date.getDate();
-        return new Date(year, month, day).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
-    } catch (e) {
-        return 'Fecha inválida';
+
+const formatDate = (dateString?: string, shortMonth = false) => {
+  if (!dateString) return "Fecha no especificada";
+  try {
+    const date = new Date(dateString);
+    // This handles both UTC and local dates better
+    const year = dateString.includes('T') ? date.getUTCFullYear() : date.getFullYear();
+    const month = dateString.includes('T') ? date.getUTCMonth() : date.getMonth();
+    const day = dateString.includes('T') ? date.getUTCDate() : date.getDate();
+
+    if (shortMonth) {
+      return `${String(day).padStart(2, '0')}/${String(month + 1).padStart(2, '0')}/${year}`;
     }
+    return new Date(year, month, day).toLocaleDateString('es-ES', {
+      day: 'numeric', month: 'long', year: 'numeric'
+    });
+  } catch (e) {
+    console.error("Error formatting date:", dateString, e);
+    return 'Fecha inválida';
+  }
 };
 
 const SectionWrapper: React.FC<{
@@ -110,7 +117,6 @@ interface TemplateProps {
   onRsvpSubmit?: (submission: {nombreCompleto: string, confirmacion: string, numeroAsistentes: number, mensaje: string, companionNames: string[]}) => Promise<boolean>;
 }
 
-
 const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta: FiestaEnPlanificacion, paleta: ColorPalette, onUpdate?: (newData: Partial<InvitacionDigitalData>) => void, isPreview?: boolean }> = ({ data, fiesta, paleta, onUpdate, isPreview }) => {
   const [companyLogo, setCompanyLogo] = useState<string | null>(null);
 
@@ -179,6 +185,7 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
     </header>
   );
 };
+
 
 const iconMap: Record<string, React.ElementType> = {
   Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper, Clock,
@@ -335,7 +342,7 @@ const GraziaRegalos: React.FC<{ data: InvitacionDigitalData['regalos'], fiestaId
             downloadLink.download = `datos-bancarios-regalo.png`;
             document.body.appendChild(downloadLink);
             downloadLink.click();
-            document.body.removeChild(link);
+            document.body.removeChild(downloadLink);
         }
     };
 
@@ -551,11 +558,12 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
         </SectionWrapper>;
       case 'galeria':
         return <SectionWrapper {...wrapperProps}><GraziaGaleria {...props} /></SectionWrapper>;
-      case 'historia': 
+      case 'historia':
         return <SectionWrapper {...wrapperProps}>
             <SectionIcon><Heart className="w-12 h-12 mx-auto mb-3" style={{color: paletaColores.primary}} /></SectionIcon>
             <h3 className="font-headline text-3xl mb-4" style={{color: paletaColores.accent}}><EditableText initialValue={seccion.data.titulo?.text || 'Nuestra Historia'} style={seccion.data.titulo?.style} onSave={(v) => onUpdate?.({ historia: { ...seccion.data, titulo: { ...(seccion.data.titulo || {style:{}}), text: v } } })} textarea={false}/></h3>
-            <p className="max-w-prose mx-auto text-muted-foreground"><EditableText initialValue={seccion.data.texto?.text || 'Un breve relato de nuestro camino juntos...'} style={seccion.data.texto?.style} onSave={(v) => onUpdate?.({ historia: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } } })} textarea /></p></SectionWrapper>;
+            <p className="max-w-prose mx-auto text-muted-foreground"><EditableText initialValue={seccion.data.texto?.text || 'Un breve relato de nuestro camino juntos...'} style={seccion.data.texto?.style} onSave={(v) => onUpdate?.({ historia: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } } })} textarea /></p>
+        </SectionWrapper>;
       case 'regalos':
         return <SectionWrapper {...wrapperProps}><GraziaRegalos {...props} fiestaId={fiesta.id}/></SectionWrapper>;
       case 'dressCode':
@@ -573,7 +581,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
           <SectionWrapper {...wrapperProps}>
             <SectionIcon><Share2 className="w-12 h-12 mx-auto mb-3" style={{ color: primaryColor }} /></SectionIcon>
             <h3 className="font-headline text-3xl mb-3" style={{ color: paletaColores.accent }}>
-                <EditableText initialValue={seccion.data.texto?.text || "¡Comparte tus momentos!"} style={seccion.data.texto?.style || {}} onSave={v => onUpdate?.({ redesSociales: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } } })} textarea={false} />
+                <EditableText initialValue={seccion.data.texto.text} style={seccion.data.texto.style} onSave={v => onUpdate?.({ redesSociales: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } } })} textarea={false} />
             </h3>
             {seccion.data.hashtag && (
               <p className="text-xl font-bold" style={{ color: primaryColor }}>
@@ -638,7 +646,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
             </h4>
             <div className="flex justify-center items-center gap-4 mb-4">
                 {socialConnections.filter(c => c.isConnected).map(conn => {
-                    const Icon = socialIcons[conn.platform as keyof typeof socialIcons] || LinkIcon;
+                    const Icon = socialIcons[conn.platform as keyof socialIcons] || LinkIcon;
                     return (
                         <a key={conn.platform} href={conn.profileUrl || '#'} target="_blank" rel="noopener noreferrer" aria-label={`Perfil de ${conn.platform}`}>
                             <Button variant="ghost" size="icon">
