@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { defaultInvitacionDigitalData } from "@/lib/invitacion-digital-defaults";
 import type { InvitacionDigitalData, SeccionInvitacion } from '@/types/fiesta';
-import { Sparkles, PlusCircle, Trash2 } from "lucide-react";
+import { Sparkles, PlusCircle, Trash2, Edit } from "lucide-react";
 import React from 'react';
 import {
   DropdownMenu,
@@ -22,9 +22,10 @@ interface ControlPanelProps {
     update: (newData: Partial<InvitacionDigitalData>) => void;
     addSection: (type: SeccionInvitacion['tipo']) => void;
     removeSection: (id: string) => void;
+    onSectionClick: (sectionId: string) => void;
 }
 
-export const ControlPanel: React.FC<ControlPanelProps> = ({ data, update, addSection, removeSection }) => {
+export const ControlPanel: React.FC<ControlPanelProps> = ({ data, update, addSection, removeSection, onSectionClick }) => {
     
     const allPossibleSections = defaultInvitacionDigitalData.secciones.map(s => s.tipo);
 
@@ -71,10 +72,15 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ data, update, addSec
                     <AccordionContent className="space-y-2 pt-2">
                         {data.secciones.map(seccion => (
                             <div key={seccion.id} className="flex items-center justify-between p-2 border rounded-md bg-background">
-                                <span className="text-sm">{seccion.tipo}</span>
-                                <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => removeSection(seccion.id)}>
-                                    <Trash2 className="w-4 h-4"/>
-                                </Button>
+                                <span className="text-sm capitalize">{seccion.tipo}</span>
+                                <div className="flex items-center gap-1">
+                                    <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => onSectionClick(seccion.id)}>
+                                        <Edit className="w-4 h-4"/>
+                                    </Button>
+                                    <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => removeSection(seccion.id)}>
+                                        <Trash2 className="w-4 h-4"/>
+                                    </Button>
+                                </div>
                             </div>
                         ))}
                         <DropdownMenu>

@@ -51,7 +51,7 @@ const SectionWrapper: React.FC<{
             className={cn("py-12 px-4 text-center relative", onClick && "cursor-pointer group/section")}
             onClick={onClick}
         >
-            {onClick && <div className={`absolute inset-0 border-2 transition-all pointer-events-none ${isSelected ? 'border-primary' : 'border-transparent group-hover/section:border-primary/50'}`}></div>}
+            {onClick && <div className={cn("absolute inset-0 border-2 transition-all pointer-events-none", isSelected ? 'border-primary' : 'border-transparent group-hover/section:border-primary/50')}></div>}
             {seccion.data.imagenFondoUrl && (
                 <>
                     <NextImage src={seccion.data.imagenFondoUrl} alt="" layout="fill" objectFit="cover" className="absolute inset-0 -z-10" />
@@ -270,14 +270,17 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
       case 'cuentaRegresiva': return <SectionWrapper {...wrapperProps}><h3 className="font-headline text-2xl mb-4" style={{color: primaryColor}}>Faltan</h3><CountdownTimer targetDate={fiesta.configuracion.fechaEvento} /></SectionWrapper>;
       case 'detallesEvento': return <SectionWrapper {...wrapperProps}><GraziaDetalles {...props} /></SectionWrapper>;
       case 'regalos': return <SectionWrapper {...wrapperProps}><GraziaRegalos {...props} /></SectionWrapper>;
-      case 'confirmacion': return <div id="rsvp" onClick={() => onSectionClick?.(seccion.id)}><div className={`relative ${selectedSectionId === seccion.id ? 'border-2 border-primary' : ''}`}>{children}</div></div>;
+      case 'confirmacion': return <div id="rsvp" onClick={() => onSectionClick?.(seccion.id)}><div className={cn("relative", selectedSectionId === seccion.id && "border-2 border-primary")}>{children}</div></div>;
       default: return null;
     }
   }
 
   return (
     <div className={cn("min-h-screen bg-background font-body", isPreview && "overflow-y-auto h-full")} style={{'--theme-primary': primaryColor} as React.CSSProperties}>
-       <GraziaCabecera data={invitacionData.cabecera} fiesta={fiesta} paleta={paletaColores} onUpdate={onUpdate} isPreview={isPreview} />
+       <div onClick={() => onSectionClick?.('cabecera')} className={cn("relative", isPreview && "cursor-pointer")}>
+        {isPreview && <div className={cn("absolute inset-0 border-2 transition-all pointer-events-none", selectedSectionId === 'cabecera' ? 'border-primary' : 'border-transparent')}></div>}
+        <GraziaCabecera data={invitacionData.cabecera} fiesta={fiesta} paleta={paletaColores} onUpdate={onUpdate} isPreview={isPreview} />
+       </div>
        
        <main className={!isPreview ? 'max-w-3xl mx-auto p-4 md:p-8' : ''}>
         {invitacionData.secciones.map((seccion, index) => {
