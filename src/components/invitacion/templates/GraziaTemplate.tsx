@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { FiestaEnPlanificacion, InvitacionDigitalData, ColorPalette, SocialConnection, SeccionInvitacion, GiftItem } from '@/types/fiesta';
 import { EditableText } from '../edit/EditableText';
 import NextImage from 'next/image';
@@ -20,6 +20,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { claimGiftFiestaActual } from '@/app/actions/fiesta-actual';
+import { Loader2 } from 'lucide-react';
 
 
 interface TemplateProps {
@@ -466,7 +467,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
             <SectionIcon><Share2 className="w-12 h-12 mx-auto mb-3" style={{ color: primaryColor }} /></SectionIcon>
             <h3 className="font-headline text-3xl mb-3" style={{ color: paletaColores?.accent }}>
               <EditableText 
-                initialValue={(seccion.data.texto as any)?.text || "¡Comparte tus momentos!"} 
+                initialValue={(seccion.data.texto as any).text || "¡Comparte tus momentos!"} 
                 style={(seccion.data.texto as any)?.style} 
                 onSave={v => onUpdate?.({ redesSociales: { ...seccion.data, texto: { ...((seccion.data.texto as any) || {style:{}}), text: v } }})}
                 textarea={false}
