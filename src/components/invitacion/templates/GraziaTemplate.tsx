@@ -8,7 +8,7 @@ import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
 import { CountdownTimer } from '@/components/countdown-timer';
 import { Separator } from '@/components/ui/separator';
-import { Church, GlassWater, Gift, Heart, MapPin, Play, Pause, Facebook, Instagram, Music, MessageSquare, Building, PartyPopper, Sparkles, Check, ArrowRight, X, Calendar, User, Mail, Grid, Code, Palette as PaletteIcon } from 'lucide-react';
+import { Church, GlassWater, Gift, Heart, MapPin, Play, Pause, Facebook, Instagram, Music, MessageSquare, Building, PartyPopper, Sparkles, Check, ArrowRight, X, Calendar, User, Mail, Grid, Code, Palette as PaletteIcon, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import type { SocialPlatformName } from '@/types/settings';
@@ -154,9 +154,9 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
 const GraziaDetalles: React.FC<{ data: InvitacionDigitalData['detallesEvento'], fiesta: FiestaEnPlanificacion, paleta: ColorPalette, onUpdate?: (newData: Partial<InvitacionDigitalData>) => void }> = ({ data, fiesta, paleta, onUpdate }) => {
   
   const detallesAMostrar = [
-    data.ceremoniaReligiosa,
-    data.ceremoniaCivil,
-    data.celebracion
+    {...data.ceremoniaReligiosa, icon: Church},
+    {...data.ceremoniaCivil, icon: Building},
+    {...data.celebracion, icon: PartyPopper}
   ].filter(d => d && d.visible);
 
   const formatDate = (dateString?: string) => {
@@ -208,11 +208,11 @@ const GraziaDetalles: React.FC<{ data: InvitacionDigitalData['detallesEvento'], 
     }
   };
   
-  const renderDetalle = (detalle: DetalleEventoEspecifico) => {
+  const renderDetalle = (detalle: DetalleEventoEspecifico, icon: React.ElementType) => {
     if (!detalle || !detalle.visible) return null;
     
     const mapUrl = detalle.mapaUrl || (detalle.nombreLugar ? `https://www.google.com/maps?q=${encodeURIComponent(detalle.nombreLugar)}` : '#');
-    const Icon = detalle.titulo.toLowerCase().includes('civil') ? Building : detalle.titulo.toLowerCase().includes('religios') ? Church : PartyPopper;
+    const Icon = icon;
 
     return (
       <div key={detalle.titulo} className="max-w-md mx-auto text-center mb-12 last:mb-0">
@@ -250,7 +250,7 @@ const GraziaDetalles: React.FC<{ data: InvitacionDigitalData['detallesEvento'], 
   return (
     <div>
         {detallesAMostrar.length > 0 ? (
-          detallesAMostrar.map(renderDetalle)
+          detallesAMostrar.map(d => renderDetalle(d, d.icon))
         ) : (
           <p className="text-muted-foreground italic">Los detalles del evento no están configurados.</p>
         )}
@@ -397,11 +397,36 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
     } : { seccion };
     
     switch (seccion.tipo) {
-      case 'bienvenida': return <SectionWrapper {...wrapperProps}><SectionIcon><Heart className="w-12 h-12 mx-auto mb-3" style={{color: primaryColor}} /></SectionIcon><h2 className="font-headline text-2xl mb-4"><EditableText initialValue={seccion.data.titulo?.text || ""} style={seccion.data.titulo?.style} onSave={v => onUpdate?.({ bienvenida: {...seccion.data, titulo: {...(seccion.data.titulo || {style: {}}), text: v}}})} textarea={false} /></h2><div className="max-w-xl mx-auto text-muted-foreground"><EditableText initialValue={seccion.data.texto?.text || ""} style={seccion.data.texto?.style} onSave={v => onUpdate?.({ bienvenida: {...seccion.data, texto: {...(seccion.data.texto || {style: {}}), text: v}}})} textarea/></div></SectionWrapper>;
+      case 'bienvenida': return <SectionWrapper {...wrapperProps}><SectionIcon><Heart className="w-12 h-12 mx-auto mb-3" style={{color: primaryColor}} /></SectionIcon><h2 className="font-headline text-2xl mb-4"><EditableText initialValue={seccion.data.titulo?.text || ""} style={seccion.data.titulo?.style} onSave={v => onUpdate?.({ bienvenida: {...seccion.data, titulo: {...(seccion.data.titulo || {style:{}}), text: v}}})} textarea={false} /></h2><div className="max-w-xl mx-auto text-muted-foreground"><EditableText initialValue={seccion.data.texto?.text || ""} style={seccion.data.texto?.style} onSave={v => onUpdate?.({ bienvenida: {...seccion.data, texto: {...(seccion.data.texto || {style:{}}), text: v}}})} textarea/></div></SectionWrapper>;
       case 'cuentaRegresiva': return <SectionWrapper {...wrapperProps}><h3 className="font-headline text-2xl mb-4" style={{color: primaryColor}}>Faltan</h3><CountdownTimer targetDate={fiesta.configuracion.fechaEvento} /></SectionWrapper>;
       case 'detallesEvento': return <SectionWrapper {...wrapperProps}><GraziaDetalles {...props} /></SectionWrapper>;
       case 'regalos': return <SectionWrapper {...wrapperProps}><GraziaRegalos {...props} fiestaId={fiesta.id}/></SectionWrapper>;
       case 'confirmacion': return <div id="confirmacion" onClick={() => onSectionClick?.(seccion.id)}><div className={cn("relative", selectedSectionId === seccion.id && "border-2 border-primary")}>{children}</div></div>;
+      case 'redesSociales': 
+        return (
+          <SectionWrapper {...wrapperProps}>
+            <SectionIcon><Share2 className="w-12 h-12 mx-auto mb-3" style={{ color: primaryColor }} /></SectionIcon>
+            <h3 className="font-headline text-3xl mb-3" style={{ color: paletaColores?.accent }}>
+              <EditableText 
+                initialValue={seccion.data.texto || "¡Comparte tus momentos!"} 
+                style={seccion.data.texto?.style} 
+                onSave={v => onUpdate?.({ redesSociales: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } }})}
+                textarea={false}
+              />
+            </h3>
+            {seccion.data.hashtag && (
+              <p className="text-xl font-bold" style={{ color: primaryColor }}>{seccion.data.hashtag}</p>
+            )}
+             {fiesta.socialGallerySettings?.enabled && (
+                <Button asChild variant="default" className="mt-6" style={{backgroundColor: primaryColor}}>
+                    <Link href={`/evento/social/${fiesta.id}`}>
+                        <Camera className="w-5 h-5 mr-2" />
+                        Ir al Muro Social
+                    </Link>
+                </Button>
+             )}
+          </SectionWrapper>
+        );
       default: return null;
     }
   }
