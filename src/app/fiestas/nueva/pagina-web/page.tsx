@@ -200,15 +200,7 @@ function PaginaWebPageContent() {
       <main className="flex-grow flex min-h-0">
         {/* Left Panel */}
         <div className="w-[380px] flex-shrink-0 border-r bg-background overflow-y-auto">
-            {!selectedSectionId ? (
-                <ControlPanel
-                    data={invitacionData}
-                    update={handleUpdate}
-                    addSection={addSection}
-                    removeSection={removeSection}
-                    onSectionClick={setSelectedSectionId}
-                />
-            ) : (
+            {selectedSectionId ? (
                 <SectionEditorPanel
                     data={invitacionData}
                     update={handleUpdate}
@@ -216,55 +208,65 @@ function PaginaWebPageContent() {
                     fiestaId={fiestaId}
                     onClose={() => setSelectedSectionId(null)}
                 />
-            )}
-            
-             {/* Link & QR Center */}
-            {!selectedSectionId && fiestaId && fiesta && (
-                <div className="p-4 space-y-4 border-t">
-                    <h3 className="font-semibold text-lg flex items-center gap-2">
-                        <LinkIcon className="w-5 h-5 text-primary"/> Centro de Enlaces y QR
-                    </h3>
-                    <p className="text-xs text-muted-foreground">
-                        Usa estos enlaces y códigos QR para integrar partes de tu invitación en diseños externos (ej. Canva).
-                    </p>
-                    <div className="space-y-3">
-                        {invitacionData.regalos.visible && (
-                        <Card className="bg-muted/40 p-3">
-                            <Label className="text-sm font-medium">Lista de Regalos</Label>
-                            <div className="flex items-center space-x-2 mt-2">
-                                <Input value={getFullLink('/evento/actual', 'regalos')} readOnly />
-                                <Button size="icon" variant="outline" onClick={() => handleCopyToClipboard(getFullLink('/evento/actual', 'regalos'))}><ClipboardCopy className="h-4 w-4" /></Button>
-                            </div>
-                            <div className="text-center mt-3">
-                                <QRCodeStylized id="qr-regalos" value={getFullLink('/evento/actual', 'regalos')} size={80} level="M" />
-                                <Button size="sm" variant="link" onClick={() => downloadQR('qr-regalos', 'qr-regalos')}>Descargar QR</Button>
-                            </div>
-                        </Card>
-                        )}
-                        {invitacionData.confirmacion.visible && (
-                        <Card className="bg-muted/40 p-3">
-                             <Label className="text-sm font-medium">Confirmar Asistencia (RSVP)</Label>
-                            <div className="flex items-center space-x-2 mt-2">
-                                <Input value={getFullLink('/evento/actual', 'confirmacion')} readOnly />
-                                <Button size="icon" variant="outline" onClick={() => handleCopyToClipboard(getFullLink('/evento/actual', 'confirmacion'))}><ClipboardCopy className="h-4 w-4" /></Button>
-                            </div>
-                        </Card>
-                        )}
-                         {fiesta.socialGallerySettings?.enabled && (
+            ) : (
+                <>
+                <ControlPanel
+                    data={invitacionData}
+                    update={handleUpdate}
+                    addSection={addSection}
+                    removeSection={removeSection}
+                    onSectionClick={setSelectedSectionId}
+                />
+                
+                {/* Link & QR Center */}
+                {fiestaId && fiesta && (
+                  <div className="p-4 space-y-4 border-t">
+                      <h3 className="font-semibold text-lg flex items-center gap-2">
+                          <LinkIcon className="w-5 h-5 text-primary"/> Centro de Enlaces y QR
+                      </h3>
+                      <p className="text-xs text-muted-foreground">
+                          Usa estos enlaces y códigos QR para integrar partes de tu invitación en diseños externos (ej. Canva).
+                      </p>
+                      <div className="space-y-3">
+                          {invitacionData.regalos.visible && (
                             <Card className="bg-muted/40 p-3">
-                                <Label className="text-sm font-medium">Muro Social</Label>
+                                <Label className="text-sm font-medium">Lista de Regalos</Label>
                                 <div className="flex items-center space-x-2 mt-2">
-                                    <Input value={getFullLink('/evento/social/[fiestaId]')} readOnly />
-                                    <Button size="icon" variant="outline" onClick={() => handleCopyToClipboard(getFullLink('/evento/social/[fiestaId]'))}><ClipboardCopy className="h-4 w-4" /></Button>
+                                    <Input value={getFullLink('/evento/actual', 'regalos')} readOnly />
+                                    <Button size="icon" variant="outline" onClick={() => handleCopyToClipboard(getFullLink('/evento/actual', 'regalos'))}><ClipboardCopy className="h-4 w-4" /></Button>
                                 </div>
                                 <div className="text-center mt-3">
-                                    <QRCodeStylized id="qr-social" value={getFullLink('/evento/social/[fiestaId]')} size={80} level="M" />
-                                    <Button size="sm" variant="link" onClick={() => downloadQR('qr-social', 'qr-muro-social')}>Descargar QR</Button>
+                                    <QRCodeStylized id="qr-regalos" value={getFullLink('/evento/actual', 'regalos')} size={80} level="M" />
+                                    <Button size="sm" variant="link" onClick={() => downloadQR('qr-regalos', 'qr-regalos')}>Descargar QR</Button>
                                 </div>
                             </Card>
-                        )}
-                    </div>
-                </div>
+                          )}
+                          {invitacionData.confirmacion.visible && (
+                            <Card className="bg-muted/40 p-3">
+                                 <Label className="text-sm font-medium">Confirmar Asistencia (RSVP)</Label>
+                                <div className="flex items-center space-x-2 mt-2">
+                                    <Input value={getFullLink('/evento/actual', 'confirmacion')} readOnly />
+                                    <Button size="icon" variant="outline" onClick={() => handleCopyToClipboard(getFullLink('/evento/actual', 'confirmacion'))}><ClipboardCopy className="h-4 w-4" /></Button>
+                                </div>
+                            </Card>
+                          )}
+                          {fiesta.socialGallerySettings?.enabled && (
+                              <Card className="bg-muted/40 p-3">
+                                  <Label className="text-sm font-medium">Muro Social</Label>
+                                  <div className="flex items-center space-x-2 mt-2">
+                                      <Input value={getFullLink('/evento/social/[fiestaId]')} readOnly />
+                                      <Button size="icon" variant="outline" onClick={() => handleCopyToClipboard(getFullLink('/evento/social/[fiestaId]'))}><ClipboardCopy className="h-4 w-4" /></Button>
+                                  </div>
+                                  <div className="text-center mt-3">
+                                      <QRCodeStylized id="qr-social" value={getFullLink('/evento/social/[fiestaId]')} size={80} level="M" />
+                                      <Button size="sm" variant="link" onClick={() => downloadQR('qr-social', 'qr-muro-social')}>Descargar QR</Button>
+                                  </div>
+                              </Card>
+                          )}
+                      </div>
+                  </div>
+              )}
+              </>
             )}
         </div>
         
