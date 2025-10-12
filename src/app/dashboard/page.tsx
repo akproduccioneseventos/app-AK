@@ -15,3 +15,5 @@ export default function DeprecatedDashboard() {
 
     return null; // Render nothing while redirecting
 }
+
+    
