@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import type { FiestaEnPlanificacion, InvitacionDigitalData, ColorPalette, SocialConnection, SeccionInvitacion, GiftItem, DetalleEventoEspecifico, TextWithStyle } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, InvitacionDigitalData, ColorPalette, SocialConnection, SeccionInvitacion, GiftItem, DetalleEventoEspecifico, TextWithStyle, TextStyle } from '@/types/fiesta';
 import { EditableText } from '../edit/EditableText';
 import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
@@ -480,8 +480,17 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
   const [isRsvpModalOpen, setIsRsvpModalOpen] = useState(false);
   const [rsvpName, setRsvpName] = useState('');
   const [rsvpGuests, setRsvpGuests] = useState(1);
+  const [companionNames, setCompanionNames] = useState<string[]>([]);
   const [rsvpMusic, setRsvpMusic] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    const numCompanions = rsvpGuests > 1 ? rsvpGuests - 1 : 0;
+    const currentNames = [...companionNames];
+    const newCompanionNames = Array(numCompanions).fill('').map((_, i) => currentNames[i] || '');
+    setCompanionNames(newCompanionNames);
+  }, [rsvpGuests]);
+
 
   const togglePlayPause = () => {
     if (isPreview) return; // Disable audio in preview
@@ -500,7 +509,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
       confirmacion: 'Confirmado',
       numeroAsistentes: rsvpGuests,
       mensaje: `Sugerencia musical: ${rsvpMusic}`,
-      companionNames: []
+      companionNames: companionNames
     });
     if (success) {
       setIsRsvpModalOpen(false);
@@ -671,6 +680,21 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
                 <form onSubmit={handleRsvpFormSubmit} className="space-y-4">
                     <div className="space-y-1"><Label htmlFor="rsvp-name">Tu nombre completo</Label><Input id="rsvp-name" value={rsvpName} onChange={e => setRsvpName(e.target.value)} required/></div>
                     <div className="space-y-1"><Label htmlFor="rsvp-guests">Total de asistentes (contándote)</Label><Input id="rsvp-guests" type="number" value={rsvpGuests} onChange={e => setRsvpGuests(Number(e.target.value))} min={1} required/></div>
+                    {Array.from({ length: rsvpGuests > 1 ? rsvpGuests - 1 : 0 }).map((_, index) => (
+                      <div key={index} className="space-y-1 pl-4 border-l-2">
+                        <Label htmlFor={`companion-name-${index}`}>Nombre Acompañante {index + 1}</Label>
+                        <Input
+                          id={`companion-name-${index}`}
+                          value={companionNames[index] || ''}
+                          onChange={(e) => {
+                            const newNames = [...companionNames];
+                            newNames[index] = e.target.value;
+                            setCompanionNames(newNames);
+                          }}
+                          placeholder={`Nombre del acompañante ${index + 1}`}
+                        />
+                      </div>
+                    ))}
                     {invitacionData.musica?.visible && <div className="space-y-1"><Label htmlFor="rsvp-music">¿Qué canción no puede faltar en la fiesta?</Label><Input id="rsvp-music" value={rsvpMusic} onChange={e => setRsvpMusic(e.target.value)} placeholder={invitacionData.musica?.placeholder || ''}/></div>}
                     <DialogFooter><DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose><Button type="submit" disabled={isSubmitting}>{isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : null}Confirmar</Button></DialogFooter>
                 </form>
