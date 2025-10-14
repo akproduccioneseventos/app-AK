@@ -249,7 +249,10 @@ export interface InvitacionDigitalData {
   };
   dressCode: {
     visible: boolean;
-    tipo: 'Formal' | 'Informal';
+    texto: TextWithStyle;
+    sugeridos?: string[];
+    evitar?: string[];
+    imagenFondoUrl?: string;
   };
   redesSociales: {
     visible: boolean;

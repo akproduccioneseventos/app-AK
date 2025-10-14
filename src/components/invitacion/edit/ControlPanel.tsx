@@ -29,6 +29,11 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ data, update, addSec
     
     const allPossibleSections = defaultInvitacionDigitalData.secciones.map(s => s.tipo);
 
+    const handleColorChange = (colorType: 'primary' | 'secondary' | 'accent', value: string) => {
+        const newPalette = { ...data.cabecera.paletaColores, [colorType]: value };
+        update({ cabecera: { ...data.cabecera, paletaColores: newPalette } });
+    };
+
     return (
         <div className="p-4 space-y-4">
             <Accordion type="multiple" defaultValue={['general', 'secciones']} className="w-full">
@@ -60,6 +65,20 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ data, update, addSec
                                     <SelectItem value="Allegria">Allegria (Moderno y Fotográfico)</SelectItem>
                                 </SelectContent>
                             </Select>
+                        </div>
+                         <div className="space-y-2">
+                            <Label className="font-medium">Paleta de Colores</Label>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            {(['primary', 'secondary', 'accent'] as const).map(key => (
+                                <div key={key} className="space-y-1">
+                                    <Label htmlFor={`color-${key}`} className="text-xs capitalize">{key}</Label>
+                                    <div className="flex items-center gap-1">
+                                        <Input type="color" id={`color-picker-${key}`} value={data.cabecera.paletaColores?.[key] || '#000000'} onChange={e => handleColorChange(key, e.target.value)} className="w-8 h-8 p-0.5 aspect-square"/>
+                                        <Input type="text" id={`color-hex-${key}`} value={data.cabecera.paletaColores?.[key] || '#000000'} onChange={e => handleColorChange(key, e.target.value)} className="h-8 text-xs" placeholder="#RRGGBB"/>
+                                    </div>
+                                </div>
+                            ))}
+                            </div>
                         </div>
                         <div className="space-y-1">
                             <Label htmlFor="plantilla-musica">URL Música de Fondo (MP3)</Label>
