@@ -1,5 +1,4 @@
 
-
 import type { TipoEvento } from './presupuesto';
 import type { Invitado } from './invitado'; 
 import type { UnidadServicio } from './empresa';
@@ -250,16 +249,13 @@ export interface InvitacionDigitalData {
   };
   dressCode: {
     visible: boolean;
-    imagenFondoUrl?: string;
-    texto: TextWithStyle;
-    sugeridos?: string[];
-    evitar?: string[];
+    tipo: 'Formal' | 'Informal';
   };
   redesSociales: {
     visible: boolean;
     hashtag: string;
     texto: TextWithStyle;
-  },
+  };
   confirmacion: {
     visible: boolean;
   };

@@ -979,7 +979,8 @@
         "primary": "#A2D2B0",
         "secondary": "#363636",
         "accent": "#F0E6CC"
-      }
+      },
+      "videoFondoUrl": "https://cdn.coverr.co/videos/coverr-a-man-and-a-woman-get-married-at-a-wedding-ceremony-2508/1080p.mp4"
     },
     "bienvenida": {
       "visible": true,
@@ -1093,7 +1094,7 @@
     "dressCode": {
       "visible": true,
       "texto": {
-        "text": "Elegante",
+        "text": "formal",
         "style": {
           "fontFamily": "Inter",
           "fontSize": "1.25rem",
@@ -1107,7 +1108,8 @@
         "#4682B4"
       ],
       "evitar": [
-        "#FFFFFF"
+        "#FFFFFF",
+        "#ecf0f1"
       ]
     },
     "musica": {

@@ -1,4 +1,3 @@
-
 import type { InvitacionDigitalData, SeccionInvitacion, TextStyle, ColorPalette, DetalleEventoEspecifico } from '@/types/fiesta';
 
 const defaultDetalleEvento: DetalleEventoEspecifico = {
@@ -80,7 +79,7 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
         ] 
       } 
     },
-    { id: 'dressCode', tipo: 'dressCode', data: { visible: true, texto: { text: 'Elegante' }, imagenFondoUrl: "https://picsum.photos/seed/dresscode/1200/800", sugeridos: ["#000000", "#556B2F", "#4682B4"], evitar: ["#FFFFFF"] } },
+    { id: 'dressCode', tipo: 'dressCode', data: { visible: true, tipo: 'Formal' } },
     { 
       id: 'regalos', 
       tipo: 'regalos', 
@@ -163,10 +162,7 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
   },
   dressCode: {
     visible: true,
-    texto: { text: 'Elegante Sport', style: { fontFamily: 'Inter', fontSize: '1.25rem', color: '#363636' } },
-    imagenFondoUrl: "https://picsum.photos/seed/dresscode/1200/800",
-    sugeridos: ["#2c3e50", "#8e44ad", "#2980b9"], 
-    evitar: ["#ffffff", "#ecf0f1"]
+    tipo: 'Formal',
   },
    musica: {
     visible: true,
