@@ -140,7 +140,7 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
     <header
         className="relative py-24 md:py-32 text-center bg-cover bg-center min-h-[70vh] flex items-center justify-center"
         style={{
-            backgroundImage: `url(${data.videoFondoUrl ? '' : (data.imagenFondoUrl || '')})`,
+            backgroundImage: `url(${data.videoFondoUrl ? '' : (data.imagenFondoUrl || 'https://picsum.photos/seed/bridegroom/1200/800')})`,
             backgroundAttachment: 'fixed',
         }}
     >
@@ -401,7 +401,7 @@ const GraziaRegalos: React.FC<{ data: InvitacionDigitalData['regalos'], fiestaId
                   <div className="p-4 flex-grow flex flex-col">
                     <h4 className="font-semibold">{item.name}</h4>
                     {item.description && <p className="text-xs text-muted-foreground mt-1 flex-grow">{item.description}</p>}
-                    <Button className="w-full mt-4" style={item.isClaimed ? {} : {backgroundColor: paleta.primary}} disabled={item.isClaimed || !onUpdate} onClick={() => handleOpenClaimModal(item)}>
+                    <Button className="w-full mt-4" style={item.isClaimed ? {} : {backgroundColor: paleta.primary}} disabled={item.isClaimed || isPreview} onClick={() => handleOpenClaimModal(item)}>
                       {item.isClaimed ? "Ya Regalado" : "¡Lo quiero regalar!"}
                     </Button>
                   </div>
@@ -483,6 +483,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
   const [rsvpGuests, setRsvpGuests] = useState(1);
   const [companionNames, setCompanionNames] = useState<string[]>([]);
   const [isSubmittingRsvp, setIsSubmittingRsvp] = useState(false);
+  const [rsvpMusicSuggestion, setRsvpMusicSuggestion] = useState('');
   
   // Music Suggestion State
   const [isMusicModalOpen, setIsMusicModalOpen] = useState(false);
@@ -511,15 +512,20 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
     e.preventDefault();
     if (!rsvpName.trim() || !onRsvpSubmit) return;
     setIsSubmittingRsvp(true);
+    let fullMessage = rsvpMusicSuggestion.trim() ? `Sugerencia musical: ${rsvpMusicSuggestion.trim()}` : '';
     const success = await onRsvpSubmit({
       nombreCompleto: rsvpName,
       confirmacion: 'Confirmado',
       numeroAsistentes: rsvpGuests,
-      mensaje: '',
+      mensaje: fullMessage,
       companionNames: companionNames
     });
     if (success) {
       setIsRsvpModalOpen(false);
+      setRsvpName('');
+      setRsvpGuests(1);
+      setCompanionNames([]);
+      setRsvpMusicSuggestion('');
     }
     setIsSubmittingRsvp(false);
   };
@@ -560,12 +566,10 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
       backgroundColor: 'transparent',
     } : { seccion, backgroundColor: 'transparent' };
 
-    // Asignar colores de fondo alternados
     const sectionIndex = invitacionData.secciones.findIndex(s => s.id === seccion.id);
     if(sectionIndex % 2 !== 0){
         wrapperProps.backgroundColor = 'rgba(0,0,0,0.02)';
     }
-
 
     switch (seccion.tipo) {
       case 'bienvenida':
@@ -607,7 +611,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
         return <SectionWrapper {...wrapperProps}>
             <SectionIcon><Sparkles className="w-12 h-12 mx-auto mb-3" style={{color: paletaColores.primary}} /></SectionIcon>
             <h3 className="font-headline text-3xl mb-2" style={{color: paletaColores.accent}}>Código de Vestimenta</h3>
-            <div className="text-xl font-semibold"><EditableText initialValue={seccion.data.texto?.text || "Formal"} onSave={(v) => onUpdate?.({ dressCode: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } } })} textarea={false}/></div>
+            <div className="text-xl font-semibold"><EditableText initialValue={seccion.data.tipo || "Formal"} onSave={(v) => onUpdate?.({ dressCode: { ...seccion.data, tipo: v } })} textarea={false}/></div>
         </SectionWrapper>;
       case 'regalos':
         return <SectionWrapper {...wrapperProps}><GraziaRegalos {...props} fiestaId={fiesta.id}/></SectionWrapper>;
@@ -725,6 +729,12 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
                         />
                       </div>
                     ))}
+                    {invitacionData.musica?.visible && (
+                        <div className="space-y-1 pt-2 border-t">
+                            <Label htmlFor="rsvp-music-suggestion">¿Qué canción no puede faltar en la fiesta?</Label>
+                            <Input id="rsvp-music-suggestion" value={rsvpMusicSuggestion} onChange={e => setRsvpMusicSuggestion(e.target.value)} placeholder={invitacionData.musica.placeholder}/>
+                        </div>
+                    )}
                     <DialogFooter><DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose><Button type="submit" disabled={isSubmittingRsvp}>{isSubmittingRsvp ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : null}Confirmar</Button></DialogFooter>
                 </form>
             </DialogContent>
