@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { defaultInvitacionDigitalData } from "@/lib/invitacion-digital-defaults";
-import type { InvitacionDigitalData, SeccionInvitacion } from '@/types/fiesta';
+import type { InvitacionDigitalData, SeccionInvitacion, ColorPalette } from '@/types/fiesta';
 import { Sparkles, PlusCircle, Trash2, Edit } from "lucide-react";
 import React from 'react';
 import {
@@ -29,7 +29,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ data, update, addSec
     
     const allPossibleSections = defaultInvitacionDigitalData.secciones.map(s => s.tipo);
 
-    const handleColorChange = (colorType: 'primary' | 'secondary' | 'accent', value: string) => {
+    const handleColorChange = (colorType: keyof ColorPalette, value: string) => {
         const newPalette = { ...data.cabecera.paletaColores, [colorType]: value };
         update({ cabecera: { ...data.cabecera, paletaColores: newPalette } });
     };
@@ -69,7 +69,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ data, update, addSec
                          <div className="space-y-2">
                             <Label className="font-medium">Paleta de Colores</Label>
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                            {(['primary', 'secondary', 'accent'] as const).map(key => (
+                            {(['primary', 'secondary', 'accent'] as Array<keyof ColorPalette>).map(key => (
                                 <div key={key} className="space-y-1">
                                     <Label htmlFor={`color-${key}`} className="text-xs capitalize">{key}</Label>
                                     <div className="flex items-center gap-1">

@@ -135,12 +135,13 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
   };
   
   const primaryColor = paleta.primary || 'hsl(var(--primary))';
+  const backgroundImage = data.videoFondoUrl ? '' : (data.imagenFondoUrl || 'https://picsum.photos/seed/weddingcouple/1200/800');
   
   return (
     <header
         className="relative py-24 md:py-32 text-center bg-cover bg-center min-h-[70vh] flex items-center justify-center"
         style={{
-            backgroundImage: `url(${data.videoFondoUrl ? '' : (data.imagenFondoUrl || 'https://picsum.photos/seed/bridegroom/1200/800')})`,
+            backgroundImage: `url(${backgroundImage})`,
             backgroundAttachment: 'fixed',
         }}
     >
@@ -182,8 +183,7 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
                 />
                }
             </motion.h1>
-             <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7, duration: 0.8 }} className="mt-4 text-lg" style={{color: 'var(--allegria-text)'}}>{formatDate(fiesta.configuracion.fechaEvento)}</motion.p>
-        </div>
+         </div>
     </header>
   );
 };
@@ -687,6 +687,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
             <h4 className="font-headline text-lg mb-2" style={{color: primaryColor}}>
                  <EditableText initialValue={invitacionData.footer.titulo.text} style={invitacionData.footer.titulo.style} onSave={(v) => onUpdate?.({ footer: { ...invitacionData.footer, titulo: { ...invitacionData.footer.titulo, text: v } } })} textarea={false}/>
             </h4>
+             <p className="text-sm text-muted-foreground mb-4">Síguenos en nuestras redes sociales</p>
             <div className="flex justify-center items-center gap-4 mb-4">
                 {socialConnections.filter(c => c.isConnected).map(conn => {
                     const Icon = socialIcons[conn.platform as keyof socialIcons] || LinkIcon;
@@ -716,7 +717,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
                     <div className="space-y-1"><Label htmlFor="rsvp-guests">Total de asistentes (contándote)</Label><Input id="rsvp-guests" type="number" value={rsvpGuests} onChange={e => setRsvpGuests(Number(e.target.value))} min={1} required/></div>
                     {Array.from({ length: rsvpGuests > 1 ? rsvpGuests - 1 : 0 }).map((_, index) => (
                       <div key={index} className="space-y-1 pl-4 border-l-2">
-                        <Label htmlFor={`companion-name-${index}`}>Nombre Acompañante {index + 1}</Label>
+                        <Label htmlFor={`companion-name-${index}`} className="text-sm">Nombre Acompañante {index + 1}</Label>
                         <Input
                           id={`companion-name-${index}`}
                           value={companionNames[index] || ''}

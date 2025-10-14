@@ -1,14 +1,13 @@
 
 'use client';
 
-import type { InvitacionDigitalData } from '@/types/fiesta';
+import type { InvitacionDigitalData, TextStyle, TextWithStyle } from '@/types/fiesta';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
-import { EditableText } from './EditableText';
 import { TextStyleEditor } from './TextStyleEditor';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 interface Props {
   data: InvitacionDigitalData['dressCode'];
@@ -16,13 +15,20 @@ interface Props {
 }
 
 export const SeccionDressCodeEditor: React.FC<Props> = ({ data, update }) => {
-
   const handleTextChange = (text: string) => {
-    update({ texto: { ...(data.texto || {style:{}}), text } });
+    const textData: TextWithStyle = {
+      ...(data.texto || { style: {} }),
+      text: text,
+    };
+    update({ texto: textData });
   };
-  
-  const handleStyleChange = (style: Partial<InvitacionDigitalData['dressCode']['texto']['style']>) => {
-    update({ texto: { ...(data.texto || {style:{}}), style: { ...(data.texto?.style || {}), ...style} } });
+
+  const handleStyleChange = (style: Partial<TextStyle>) => {
+    const textData: TextWithStyle = {
+      ...(data.texto || { text: 'Formal' }),
+      style: { ...(data.texto?.style || {}), ...style },
+    };
+    update({ texto: textData });
   };
 
   const handleColorChange = (type: 'sugeridos' | 'evitar', index: number, color: string) => {
@@ -36,25 +42,30 @@ export const SeccionDressCodeEditor: React.FC<Props> = ({ data, update }) => {
     const currentColors = data[type] || [];
     update({ [type]: [...currentColors, '#000000'] });
   };
-  
+
   const removeColor = (type: 'sugeridos' | 'evitar', index: number) => {
     const currentColors = data[type] || [];
     update({ [type]: currentColors.filter((_, i) => i !== index) });
   };
-  
+
   return (
     <div className="space-y-4 pt-2">
       <div className="p-3 border rounded-md">
-        <Label>Texto del Código de Vestimenta</Label>
-        <Input 
-            value={data.texto.text || ''}
-            onChange={(e) => handleTextChange(e.target.value)}
-            placeholder="Ej: Elegante Sport"
-        />
-         <TextStyleEditor 
-            style={data.texto.style || {}}
-            onStyleChange={handleStyleChange}
-        />
+        <Label>Tipo de Vestimenta</Label>
+        <RadioGroup
+          value={data.texto?.text || 'Formal'}
+          onValueChange={(value) => handleTextChange(value)}
+          className="mt-2"
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="Formal" id="dress-formal" />
+            <Label htmlFor="dress-formal">Formal</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="Informal" id="dress-informal" />
+            <Label htmlFor="dress-informal">Informal</Label>
+          </div>
+        </RadioGroup>
       </div>
 
       <div className="p-3 border rounded-md space-y-2">
