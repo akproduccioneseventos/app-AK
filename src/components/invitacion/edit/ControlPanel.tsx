@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { defaultInvitacionDigitalData } from "@/lib/invitacion-digital-defaults";
 import type { InvitacionDigitalData, SeccionInvitacion, ColorPalette } from '@/types/fiesta';
-import { Sparkles, PlusCircle, Trash2, Edit, Link as LinkIcon, QrCode } from "lucide-react";
+import { Sparkles, PlusCircle, Trash2, Edit, Link as LinkIcon, QrCode, ClipboardCopy } from "lucide-react";
 import React from 'react';
 import {
   DropdownMenu,
