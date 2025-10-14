@@ -189,7 +189,7 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
 
 
 const iconMap: Record<string, React.ElementType> = {
-  Utensils, GlassWater, Music, CakeSlice, Camera: CameraIcon, Diamond, PartyPopper, Clock,
+  Utensils: Utensils, GlassWater: GlassWater, Music: Music, CakeSlice: CakeSlice, Camera: CameraIcon, Diamond: Diamond, PartyPopper: PartyPopper, Clock: Clock,
 };
 
 const GraziaDetalles: React.FC<{ data: InvitacionDigitalData['detallesEvento'], fiesta: FiestaEnPlanificacion, paleta: ColorPalette, onUpdate?: (newData: Partial<InvitacionDigitalData>) => void }> = ({ data, fiesta, paleta, onUpdate }) => {
@@ -577,9 +577,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
         return <SectionWrapper {...wrapperProps}>
             <SectionIcon><Sparkles className="w-12 h-12 mx-auto mb-3" style={{color: paletaColores.primary}} /></SectionIcon>
             <h3 className="font-headline text-3xl mb-2" style={{color: paletaColores.accent}}>Código de Vestimenta</h3>
-            <p className="text-xl font-semibold"><EditableText initialValue={seccion.data.texto?.text || 'Elegante'} style={seccion.data.texto?.style} onSave={v => onUpdate?.({ dressCode: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } } })} textarea={false} /></p>
-            {seccion.data.sugeridos?.length > 0 && <div className="mt-4"><p className="text-sm font-medium">Colores Sugeridos:</p><div className="flex justify-center gap-2 mt-2">{seccion.data.sugeridos.map((c:string, i:number) => <div key={i} className="w-6 h-6 rounded-full border" style={{backgroundColor: c}}></div>)}</div></div>}
-            {seccion.data.evitar?.length > 0 && <div className="mt-4"><p className="text-sm font-medium">Colores a Evitar:</p><div className="flex justify-center gap-2 mt-2">{seccion.data.evitar.map((c:string, i:number) => <div key={i} className="w-6 h-6 rounded-full border" style={{backgroundColor: c}}></div>)}</div></div>}
+            <p className="text-xl font-semibold"><EditableText initialValue={seccion.data.tipo || 'Formal'} onSave={v => onUpdate?.({ dressCode: { ...seccion.data, tipo: v } })} textarea={false} /></p>
         </SectionWrapper>;
       case 'regalos':
         return <SectionWrapper {...wrapperProps}><GraziaRegalos {...props} fiestaId={fiesta.id}/></SectionWrapper>;
