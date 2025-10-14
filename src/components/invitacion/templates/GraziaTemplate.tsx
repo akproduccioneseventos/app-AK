@@ -494,10 +494,10 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
 
   useEffect(() => {
     const numCompanions = rsvpGuests > 1 ? rsvpGuests - 1 : 0;
-    const currentNames = [...companionNames];
+    const currentNames = companionNames; // Use the state directly
     const newCompanionNames = Array(numCompanions).fill('').map((_, i) => currentNames[i] || '');
     setCompanionNames(newCompanionNames);
-  }, [rsvpGuests, companionNames]);
+  }, [rsvpGuests]);
 
 
   const togglePlayPause = () => {
@@ -611,7 +611,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
         return <SectionWrapper {...wrapperProps}>
             <SectionIcon><Sparkles className="w-12 h-12 mx-auto mb-3" style={{color: paletaColores.primary}} /></SectionIcon>
             <h3 className="font-headline text-3xl mb-2" style={{color: paletaColores.accent}}>Código de Vestimenta</h3>
-            <div className="text-xl font-semibold"><EditableText initialValue={seccion.data.tipo || "Formal"} style={{}} onSave={(v) => onUpdate?.({ dressCode: { ...seccion.data, tipo: v} })} textarea={false}/></div>
+            <div className="text-xl font-semibold"><EditableText initialValue={seccion.data.texto?.text || "Formal"} style={{}} onSave={(v) => onUpdate?.({ dressCode: { ...seccion.data, texto: { ...seccion.data.texto, text: v }} })} textarea={false}/></div>
              {(seccion.data.sugeridos?.length > 0 || seccion.data.evitar?.length > 0) && (
               <div className="mt-6 flex flex-col md:flex-row justify-center items-start gap-8">
                 {seccion.data.sugeridos?.length > 0 && (
