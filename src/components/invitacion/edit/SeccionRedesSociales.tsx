@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { InvitacionDigitalData, TextWithStyle, TextStyle } from '@/types/fiesta';
@@ -7,6 +8,8 @@ import { Switch } from '@/components/ui/switch';
 import { TextStyleEditor } from './TextStyleEditor';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { CameraIcon } from 'lucide-react';
+import QRCodeStylized from 'qrcode.react';
 
 interface Props {
   data: InvitacionDigitalData['redesSociales'];
@@ -28,6 +31,13 @@ export const SeccionRedesSocialesEditor: React.FC<Props> = ({ data, update, fies
     const textData = data.texto || { style: {} };
     handleFieldChange('texto', { ...textData, text });
   }
+  
+  const getFullLink = (path: string) => {
+    if (typeof window === 'undefined' || !fiestaId) return '';
+    return `${window.location.origin}${path.replace('[fiestaId]', fiestaId)}`;
+  }
+  
+  const socialWallUrl = getFullLink('/evento/social/[fiestaId]');
 
   return (
     <div className="space-y-3 pt-2">
@@ -62,12 +72,19 @@ export const SeccionRedesSocialesEditor: React.FC<Props> = ({ data, update, fies
                 />
             </div>
             {fiestaId && (
-                <div className="text-center pt-2">
+                <div className="text-center pt-2 space-y-4">
                     <Button variant="outline" asChild>
                         <Link href={`/evento/social/${fiestaId}`} target="_blank">
+                            <CameraIcon className="w-4 h-4 mr-2" />
                             Ir al Muro Social en vivo
                         </Link>
                     </Button>
+                    <div className="p-2 border rounded-md bg-muted/40">
+                      <Label className="text-xs text-muted-foreground">Código QR para el Muro Social</Label>
+                      <div className="flex justify-center mt-2">
+                         <QRCodeStylized value={socialWallUrl} size={80} />
+                      </div>
+                    </div>
                 </div>
             )}
         </>

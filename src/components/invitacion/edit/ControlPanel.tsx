@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { defaultInvitacionDigitalData } from "@/lib/invitacion-digital-defaults";
 import type { InvitacionDigitalData, SeccionInvitacion, ColorPalette } from '@/types/fiesta';
-import { Sparkles, PlusCircle, Trash2, Edit } from "lucide-react";
+import { Sparkles, PlusCircle, Trash2, Edit, Link as LinkIcon, QrCode } from "lucide-react";
 import React from 'react';
 import {
   DropdownMenu,
@@ -16,6 +16,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import QRCodeStylized from 'qrcode.react';
+import { useToast } from "@/hooks/use-toast";
 
 interface ControlPanelProps {
     data: InvitacionDigitalData;
@@ -27,12 +30,26 @@ interface ControlPanelProps {
 
 export const ControlPanel: React.FC<ControlPanelProps> = ({ data, update, addSection, removeSection, onSectionClick }) => {
     
+    const { toast } = useToast();
+
     const allPossibleSections = defaultInvitacionDigitalData.secciones.map(s => s.tipo);
 
     const handleColorChange = (colorType: keyof ColorPalette, value: string) => {
         const newPalette = { ...data.cabecera.paletaColores, [colorType]: value };
         update({ cabecera: { ...data.cabecera, paletaColores: newPalette } });
     };
+
+    const handleCopyToClipboard = (url: string) => {
+        navigator.clipboard.writeText(url);
+        toast({ title: "Enlace Copiado" });
+    };
+
+    const getFullLink = (path: string, hash?: string) => {
+        if (typeof window === 'undefined') return '';
+        const fiestaId = new URLSearchParams(window.location.search).get('fiestaId');
+        if (!fiestaId) return '';
+        return `${window.location.origin}${path.replace('[fiestaId]', fiestaId)}${hash ? `#${hash}` : ''}`;
+    }
 
     return (
         <div className="p-4 space-y-4">
@@ -71,11 +88,11 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ data, update, addSec
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                             {(['primary', 'secondary', 'accent'] as Array<keyof ColorPalette>).map(key => (
                                 <div key={key} className="space-y-1">
-                                    <Label htmlFor={`color-${key}`} className="text-xs capitalize">{key}</Label>
-                                    <div className="flex items-center gap-1">
-                                        <Input type="color" id={`color-picker-${key}`} value={data.cabecera.paletaColores?.[key] || '#000000'} onChange={e => handleColorChange(key, e.target.value)} className="w-8 h-8 p-0.5 aspect-square"/>
-                                        <Input type="text" id={`color-hex-${key}`} value={data.cabecera.paletaColores?.[key] || '#000000'} onChange={e => handleColorChange(key, e.target.value)} className="h-8 text-xs" placeholder="#RRGGBB"/>
-                                    </div>
+                                <Label htmlFor={`color-${key}`} className="text-xs capitalize">{key}</Label>
+                                <div className="flex items-center gap-1">
+                                    <Input type="color" id={`color-picker-${key}`} value={data.cabecera.paletaColores?.[key] || '#000000'} onChange={e => handleColorChange(key, e.target.value)} className="w-8 h-8 p-0.5 aspect-square"/>
+                                    <Input type="text" id={`color-hex-${key}`} value={data.cabecera.paletaColores?.[key] || '#000000'} onChange={e => handleColorChange(key, e.target.value)} className="h-8 text-xs" placeholder="#RRGGBB"/>
+                                </div>
                                 </div>
                             ))}
                             </div>
@@ -114,6 +131,21 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ data, update, addSec
                                 ))}
                             </DropdownMenuContent>
                         </DropdownMenu>
+                    </AccordionContent>
+                </AccordionItem>
+                 <AccordionItem value="links">
+                    <AccordionTrigger><LinkIcon className="w-4 h-4 mr-2"/>Enlaces y QR</AccordionTrigger>
+                    <AccordionContent>
+                        <Card className="bg-muted/40 p-3 mt-2">
+                            <CardDescription className="text-xs mb-2">Usa estos enlaces y QR para integrar partes de tu invitación en diseños externos.</CardDescription>
+                            <div className="space-y-2">
+                                <Label className="text-sm font-medium">Enlace RSVP (Confirmar Asistencia)</Label>
+                                <div className="flex items-center space-x-2">
+                                    <Input value={getFullLink('/evento/actual', 'confirmacion')} readOnly />
+                                    <Button size="icon" variant="outline" onClick={() => handleCopyToClipboard(getFullLink('/evento/actual', 'confirmacion'))}><ClipboardCopy className="h-4 w-4" /></Button>
+                                </div>
+                            </div>
+                        </Card>
                     </AccordionContent>
                 </AccordionItem>
             </Accordion>

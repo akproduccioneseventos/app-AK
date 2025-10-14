@@ -47,14 +47,20 @@ export const SeccionDressCodeEditor: React.FC<Props> = ({ data, update }) => {
     const currentColors = data[type] || [];
     update({ [type]: currentColors.filter((_, i) => i !== index) });
   };
+  
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    handleTextChange(event.target.value);
+  };
+  
+  const isPredefined = data.texto?.text === 'Formal' || data.texto?.text === 'Informal';
 
   return (
     <div className="space-y-4 pt-2">
       <div className="p-3 border rounded-md">
         <Label>Tipo de Vestimenta</Label>
         <RadioGroup
-          value={data.texto?.text || 'Formal'}
-          onValueChange={(value) => handleTextChange(value)}
+          value={isPredefined ? data.texto.text : 'Otro'}
+          onValueChange={(value) => handleTextChange(value === 'Otro' ? '' : value)}
           className="mt-2"
         >
           <div className="flex items-center space-x-2">
@@ -65,7 +71,20 @@ export const SeccionDressCodeEditor: React.FC<Props> = ({ data, update }) => {
             <RadioGroupItem value="Informal" id="dress-informal" />
             <Label htmlFor="dress-informal">Informal</Label>
           </div>
+           <div className="flex items-center space-x-2">
+            <RadioGroupItem value="Otro" id="dress-otro" />
+            <Label htmlFor="dress-otro">Otro (especificar)</Label>
+          </div>
         </RadioGroup>
+        {!isPredefined && (
+             <Input
+                type="text"
+                value={data.texto?.text || ''}
+                onChange={handleInputChange}
+                className="mt-2"
+                placeholder="Ej: Elegante Sport"
+             />
+        )}
       </div>
 
       <div className="p-3 border rounded-md space-y-2">

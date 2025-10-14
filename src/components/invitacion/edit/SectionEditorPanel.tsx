@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { InvitacionDigitalData, SeccionInvitacion } from '@/types/fiesta';
@@ -22,31 +23,44 @@ import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { X, ArrowLeft } from 'lucide-react';
 import { FiestaEnPlanificacion } from '@/types/fiesta';
+import { ControlPanel } from './ControlPanel';
 
 interface Props {
     data: InvitacionDigitalData;
     update: (newData: Partial<InvitacionDigitalData>) => void;
+    addSection: (type: SeccionInvitacion['tipo']) => void;
+    removeSection: (id: string) => void;
     selectedSectionId: string | null;
     fiestaId?: string | null;
     onClose: () => void;
 }
 
-export const SectionEditorPanel: React.FC<Props> = ({ data, update, selectedSectionId, fiestaId, onClose }) => {
+export const SectionEditorPanel: React.FC<Props> = ({ data, update, addSection, removeSection, selectedSectionId, fiestaId, onClose }) => {
     
     const selectedSection = data.secciones.find(s => s.id === selectedSectionId);
 
     const handleSectionDataChange = (newData: any) => {
         if (!selectedSection) return;
         const sectionKey = selectedSection.tipo as keyof Omit<InvitacionDigitalData, 'secciones' | 'plantilla' | 'name' | 'category' | 'musicaFondoUrl'>;
-        update({ [sectionKey]: { ...data[sectionKey], ...newData } });
+        update({ [sectionKey]: { ...(data[sectionKey] as any), ...newData } });
     };
     
+    const handleVisibilityChange = (checked: boolean) => {
+        if (!selectedSection) return;
+        const sectionKey = selectedSection.tipo as keyof Omit<InvitacionDigitalData, 'secciones' | 'plantilla' | 'name' | 'category' | 'musicaFondoUrl'>;
+        update({
+            [sectionKey]: { ...(data[sectionKey] as any), visible: checked }
+        });
+    };
+
     const renderEditor = () => {
         if (!selectedSection) return null;
         
         const sectionKey = selectedSection.tipo as keyof Omit<InvitacionDigitalData, 'secciones' | 'plantilla' | 'name' | 'category' | 'musicaFondoUrl'>;
+        const sectionData = data[sectionKey];
+
         const props = { 
-            data: data[sectionKey], 
+            data: sectionData, 
             update: handleSectionDataChange, 
             fiestaId: fiestaId || undefined 
         };
@@ -74,48 +88,46 @@ export const SectionEditorPanel: React.FC<Props> = ({ data, update, selectedSect
         ? data.cabecera 
         : data[selectedSection?.tipo as keyof Omit<InvitacionDigitalData, 'secciones' | 'plantilla' | 'name' | 'category' | 'musicaFondoUrl'>];
 
-    const handleVisibilityChange = (checked: boolean) => {
-        if (!selectedSection) return;
-        
-        const updatedSecciones = data.secciones.map(sec => {
-            if (sec.id === selectedSectionId) {
-                // This is not correct. `data` is a flat object, we should update the specific section property
-                const sectionKey = sec.tipo as keyof Omit<InvitacionDigitalData, 'secciones'>;
-                 update({
-                    [sectionKey]: { ...(data[sectionKey] as any), visible: checked }
-                });
-                return { ...sec, data: { ...sec.data, visible: checked }}; // Update the section in the array too for UI consistency
-            }
-            return sec;
-        });
-        update({secciones: updatedSecciones});
-    };
+
+    if (selectedSectionId) {
+        return (
+            <ScrollArea className="h-full">
+                <div className="p-4">
+                     <Card>
+                        <CardHeader>
+                            <div className="flex justify-between items-center">
+                                <Button variant="ghost" size="sm" onClick={onClose}><ArrowLeft className="w-4 h-4 mr-2"/>Panel General</Button>
+                            </div>
+                             <CardTitle className="capitalize pt-2">{selectedSection?.tipo}</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            {selectedSection && (
+                                 <div className="flex items-center justify-between space-x-2 border p-3 rounded-md mb-4">
+                                    <Label htmlFor={`visible-${selectedSectionId}`} className="font-normal">Mostrar esta sección</Label>
+                                    <Switch 
+                                        id={`visible-${selectedSectionId}`}
+                                        checked={currentDataForVisibility?.visible} 
+                                        onCheckedChange={handleVisibilityChange}
+                                    />
+                                </div>
+                            )}
+                            {currentDataForVisibility?.visible && renderEditor()}
+                        </CardContent>
+                    </Card>
+                </div>
+            </ScrollArea>
+        )
+    }
 
     return (
         <ScrollArea className="h-full">
-            <div className="p-4">
-                 <Card>
-                    <CardHeader>
-                        <div className="flex justify-between items-center">
-                            <Button variant="ghost" size="sm" onClick={onClose}><ArrowLeft className="w-4 h-4 mr-2"/>Panel General</Button>
-                        </div>
-                         <CardTitle className="capitalize pt-2">{selectedSection?.tipo}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        {selectedSection && (
-                             <div className="flex items-center justify-between space-x-2 border p-3 rounded-md mb-4">
-                                <Label htmlFor={`visible-${selectedSectionId}`} className="font-normal">Mostrar esta sección</Label>
-                                <Switch 
-                                    id={`visible-${selectedSectionId}`}
-                                    checked={currentDataForVisibility?.visible} 
-                                    onCheckedChange={handleVisibilityChange}
-                                />
-                            </div>
-                        )}
-                        {currentDataForVisibility?.visible && renderEditor()}
-                    </CardContent>
-                </Card>
-            </div>
+            <ControlPanel
+                data={data}
+                update={update}
+                addSection={addSection}
+                removeSection={removeSection}
+                onSectionClick={onSectionClick}
+            />
         </ScrollArea>
     );
 };

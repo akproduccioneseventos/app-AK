@@ -611,7 +611,27 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
         return <SectionWrapper {...wrapperProps}>
             <SectionIcon><Sparkles className="w-12 h-12 mx-auto mb-3" style={{color: paletaColores.primary}} /></SectionIcon>
             <h3 className="font-headline text-3xl mb-2" style={{color: paletaColores.accent}}>Código de Vestimenta</h3>
-            <div className="text-xl font-semibold"><EditableText initialValue={seccion.data.tipo || "Formal"} onSave={(v) => onUpdate?.({ dressCode: { ...seccion.data, tipo: v } })} textarea={false}/></div>
+            <div className="text-xl font-semibold"><EditableText initialValue={seccion.data.texto?.text || "Formal"} style={seccion.data.texto?.style} onSave={(v) => onUpdate?.({ dressCode: { ...seccion.data, texto: { ...seccion.data.texto, text: v} } })} textarea={false}/></div>
+             {(seccion.data.sugeridos?.length > 0 || seccion.data.evitar?.length > 0) && (
+              <div className="mt-6 flex flex-col md:flex-row justify-center items-start gap-8">
+                {seccion.data.sugeridos?.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-semibold mb-2">Colores Sugeridos:</h4>
+                    <div className="flex justify-center gap-2">
+                      {seccion.data.sugeridos.map((color: string, i: number) => <div key={`sug-${i}`} className="w-8 h-8 rounded-full border" style={{backgroundColor: color}}></div>)}
+                    </div>
+                  </div>
+                )}
+                 {seccion.data.evitar?.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-semibold mb-2">Colores a Evitar:</h4>
+                    <div className="flex justify-center gap-2">
+                      {seccion.data.evitar.map((color: string, i: number) => <div key={`evt-${i}`} className="w-8 h-8 rounded-full border" style={{backgroundColor: color}}></div>)}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
         </SectionWrapper>;
       case 'regalos':
         return <SectionWrapper {...wrapperProps}><GraziaRegalos {...props} fiestaId={fiesta.id}/></SectionWrapper>;
@@ -624,7 +644,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
           <SectionWrapper {...wrapperProps}>
             <SectionIcon><Share2 className="w-12 h-12 mx-auto mb-3" style={{ color: primaryColor }} /></SectionIcon>
             <h3 className="font-headline text-3xl mb-3" style={{ color: paletaColores.accent }}>
-                <EditableText initialValue={seccion.data.texto.text} style={seccion.data.texto.style} onSave={v => onUpdate?.({ redesSociales: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } } })} textarea={false} />
+                <EditableText initialValue={seccion.data.texto?.text || '¡Comparte tus momentos!'} style={seccion.data.texto?.style} onSave={v => onUpdate?.({ redesSociales: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } } })} textarea={false} />
             </h3>
             {seccion.data.hashtag && (
               <p className="text-xl font-bold" style={{ color: primaryColor }}>
