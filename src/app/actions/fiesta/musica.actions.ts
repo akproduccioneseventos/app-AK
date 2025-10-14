@@ -23,3 +23,32 @@ async function updateFiestaData(updateFn: (data: FiestaEnPlanificacion) => Fiest
 export async function updateMusica(musica: MusicaFiesta) {
   return updateFiestaData(data => ({ ...data, musica }));
 }
+
+export async function saveSugerenciaMusical(fiestaId: string, sugerencia: string): Promise<{success: boolean; error?: string}> {
+    try {
+        const fiesta = await readData<FiestaEnPlanificacion>(path.join(FIESTAS_DIR, `${fiestaId}.json`), initialFiestaActualData);
+        if (!fiesta) {
+            throw new Error("Fiesta no encontrada.");
+        }
+
+        const musicaData = fiesta.musica || {};
+        const sugerenciasAnteriores = musicaData.sugerenciasInvitados || '';
+        const nuevasSugerencias = sugerenciasAnteriores 
+            ? `${sugerenciasAnteriores}\n- ${sugerencia}`
+            : `- ${sugerencia}`;
+        
+        const updatedFiesta = {
+            ...fiesta,
+            musica: {
+                ...musicaData,
+                sugerenciasInvitados: nuevasSugerencias
+            }
+        };
+
+        await writeData(path.join(FIESTAS_DIR, `${fiestaId}.json`), updatedFiesta);
+        return { success: true };
+
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}

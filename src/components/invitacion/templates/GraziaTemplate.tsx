@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -23,6 +24,7 @@ import { Loader2 } from 'lucide-react';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Textarea } from '@/components/ui/textarea';
 import QRCodeStylized from 'qrcode.react';
+import { saveSugerenciaMusical } from '@/app/actions/fiesta/musica.actions';
 
 const formatDate = (dateString?: string, shortMonth = false) => {
   if (!dateString) return "Fecha no especificada";
@@ -481,8 +483,14 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
   const [rsvpName, setRsvpName] = useState('');
   const [rsvpGuests, setRsvpGuests] = useState(1);
   const [companionNames, setCompanionNames] = useState<string[]>([]);
-  const [rsvpMusic, setRsvpMusic] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmittingRsvp, setIsSubmittingRsvp] = useState(false);
+  
+  // Music Suggestion State
+  const [isMusicModalOpen, setIsMusicModalOpen] = useState(false);
+  const [musicSuggestion, setMusicSuggestion] = useState('');
+  const [suggesterName, setSuggesterName] = useState('');
+  const [isSubmittingMusic, setIsSubmittingMusic] = useState(false);
+
 
   useEffect(() => {
     const numCompanions = rsvpGuests > 1 ? rsvpGuests - 1 : 0;
@@ -503,19 +511,42 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
   const handleRsvpFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!rsvpName.trim() || !onRsvpSubmit) return;
-    setIsSubmitting(true);
+    setIsSubmittingRsvp(true);
     const success = await onRsvpSubmit({
       nombreCompleto: rsvpName,
       confirmacion: 'Confirmado',
       numeroAsistentes: rsvpGuests,
-      mensaje: `Sugerencia musical: ${rsvpMusic}`,
+      mensaje: '',
       companionNames: companionNames
     });
     if (success) {
       setIsRsvpModalOpen(false);
     }
-    setIsSubmitting(false);
+    setIsSubmittingRsvp(false);
   };
+
+  const handleMusicFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!musicSuggestion.trim() || !fiesta.id) return;
+    setIsSubmittingMusic(true);
+    try {
+        const fullSuggestion = `${suggesterName.trim() || 'Anónimo'}: ${musicSuggestion.trim()}`;
+        const result = await saveSugerenciaMusical(fiesta.id, fullSuggestion);
+        if (result.success) {
+            toast({ title: "¡Sugerencia Enviada!", description: "Gracias por tu aporte a la fiesta." });
+            setIsMusicModalOpen(false);
+            setMusicSuggestion('');
+            setSuggesterName('');
+        } else {
+            throw new Error(result.error);
+        }
+    } catch (err: any) {
+        toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+        setIsSubmittingMusic(false);
+    }
+  };
+
 
   const socialIcons: Record<SocialPlatformName, React.ElementType> = { Facebook, Instagram, Music, TikTok: Music, WhatsApp: MessageSquare };
 
@@ -577,12 +608,14 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
         return <SectionWrapper {...wrapperProps}>
             <SectionIcon><Sparkles className="w-12 h-12 mx-auto mb-3" style={{color: paletaColores.primary}} /></SectionIcon>
             <h3 className="font-headline text-3xl mb-2" style={{color: paletaColores.accent}}>Código de Vestimenta</h3>
-            <p className="text-xl font-semibold"><EditableText initialValue={seccion.data.tipo || 'Formal'} onSave={v => onUpdate?.({ dressCode: { ...seccion.data, tipo: v } })} textarea={false} /></p>
+            <p className="text-xl font-semibold">{seccion.data.tipo}</p>
         </SectionWrapper>;
       case 'regalos':
         return <SectionWrapper {...wrapperProps}><GraziaRegalos {...props} fiestaId={fiesta.id}/></SectionWrapper>;
       case 'confirmacion':
         return <SectionWrapper {...wrapperProps}><Button size="lg" style={{backgroundColor: paletaColores.primary}} onClick={() => !isPreview && setIsRsvpModalOpen(true)}>Confirmar Asistencia</Button></SectionWrapper>;
+      case 'musica':
+        return <SectionWrapper {...wrapperProps}><Button size="lg" variant="outline" style={{borderColor: primaryColor, color: primaryColor}} onClick={() => !isPreview && setIsMusicModalOpen(true)}><Music className="w-5 h-5 mr-2"/>Sugerir una Canción</Button></SectionWrapper>;
       case 'redesSociales':
         return (
           <SectionWrapper {...wrapperProps}>
@@ -693,8 +726,18 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
                         />
                       </div>
                     ))}
-                    {invitacionData.musica?.visible && <div className="space-y-1"><Label htmlFor="rsvp-music">¿Qué canción no puede faltar en la fiesta?</Label><Input id="rsvp-music" value={rsvpMusic} onChange={e => setRsvpMusic(e.target.value)} placeholder={invitacionData.musica?.placeholder || ''}/></div>}
-                    <DialogFooter><DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose><Button type="submit" disabled={isSubmitting}>{isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : null}Confirmar</Button></DialogFooter>
+                    <DialogFooter><DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose><Button type="submit" disabled={isSubmittingRsvp}>{isSubmittingRsvp ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : null}Confirmar</Button></DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
+        {/* Music Suggestion Modal */}
+        <Dialog open={isMusicModalOpen} onOpenChange={setIsMusicModalOpen}>
+            <DialogContent>
+                <DialogHeader><DialogTitle>Sugerir una Canción</DialogTitle><DialogDescription>¿Qué canción no puede faltar para que la fiesta sea inolvidable?</DialogDescription></DialogHeader>
+                <form onSubmit={handleMusicFormSubmit} className="space-y-4">
+                    <div className="space-y-1"><Label htmlFor="suggester-name">Tu nombre (Opcional)</Label><Input id="suggester-name" value={suggesterName} onChange={e => setSuggesterName(e.target.value)} /></div>
+                    <div className="space-y-1"><Label htmlFor="music-suggestion">Canción y Artista</Label><Input id="music-suggestion" value={musicSuggestion} onChange={e => setMusicSuggestion(e.target.value)} placeholder="Ej: Bohemian Rhapsody - Queen" required/></div>
+                    <DialogFooter><DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose><Button type="submit" disabled={isSubmittingMusic}>{isSubmittingMusic ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : null}Enviar Sugerencia</Button></DialogFooter>
                 </form>
             </DialogContent>
         </Dialog>
