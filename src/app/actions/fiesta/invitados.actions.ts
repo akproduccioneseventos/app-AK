@@ -66,12 +66,17 @@ export async function handleRsvpSubmission(fiestaId: string, submission: {nombre
         inv => inv.nombre.trim().toLowerCase() === submission.nombreCompleto.toLowerCase()
       );
       
+      const combinedNotes = [
+        (invitadoExistenteIndex > -1 ? data.invitados![invitadoExistenteIndex].notes : ''),
+        submission.mensaje
+      ].filter(Boolean).join('\n---\n');
+
       if (invitadoExistenteIndex > -1) {
          updatedInvitado = {
            ...(data.invitados![invitadoExistenteIndex]),
            rsvp: submission.confirmacion as RsvpStatus,
            partySize: submission.numeroAsistentes,
-           notes: [data.invitados![invitadoExistenteIndex].notes, submission.mensaje].filter(Boolean).join('\\n---\\n'),
+           notes: combinedNotes,
            companionNames: submission.companionNames,
          };
          data.invitados![invitadoExistenteIndex] = updatedInvitado;
@@ -81,7 +86,7 @@ export async function handleRsvpSubmission(fiestaId: string, submission: {nombre
            nombre: submission.nombreCompleto,
            rsvp: submission.confirmacion as RsvpStatus,
            partySize: submission.numeroAsistentes,
-           notes: submission.mensaje,
+           notes: combinedNotes,
            companionNames: submission.companionNames,
          };
          data.invitados = [...(data.invitados || []), updatedInvitado];

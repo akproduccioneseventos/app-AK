@@ -376,10 +376,10 @@ const GraziaRegalos: React.FC<{ data: InvitacionDigitalData['regalos'], fiestaId
 
             <SectionIcon><Gift className="w-12 h-12 mx-auto mb-3" style={{color: paleta.primary}}/></SectionIcon>
             <h3 className="font-headline text-3xl mb-3" style={{color: paleta.accent}}>
-              <EditableText initialValue={data.titulo?.text || "Lista de Regalos"} style={data.titulo?.style} onSave={v => onUpdate?.({ regalos: { ...data, titulo: { ...(data.titulo || {style:{}}), text: v } }})} textarea={false}/>
+              <EditableText initialValue={data.titulo.text || "Lista de Regalos"} style={data.titulo.style} onSave={v => onUpdate?.({ regalos: { ...data, titulo: { ...(data.titulo || {style:{}}), text: v } }})} textarea={false}/>
             </h3>
             <div className="text-muted-foreground max-w-md mx-auto mb-6">
-              <EditableText initialValue={data.texto?.text || "Tu presencia es nuestro mejor regalo. Si aún así deseas obsequiarnos algo, puedes ayudarnos con nuestra luna de miel o elegir una de estas opciones."} style={data.texto?.style} onSave={v => onUpdate?.({ regalos: { ...data, texto: { ...(data.texto || {style:{}}), text: v } }})} textarea/>
+              <EditableText initialValue={data.texto.text || "Tu presencia es nuestro mejor regalo. Si aún así deseas obsequiarnos algo, puedes ayudarnos con nuestra luna de miel o elegir una de estas opciones."} style={data.texto.style} onSave={v => onUpdate?.({ regalos: { ...data, texto: { ...(data.texto || {style:{}}), text: v } }})} textarea/>
             </div>
             {data.datosBancarios && (
                 <div className="mb-8">
@@ -400,7 +400,7 @@ const GraziaRegalos: React.FC<{ data: InvitacionDigitalData['regalos'], fiestaId
                   <div className="p-4 flex-grow flex flex-col">
                     <h4 className="font-semibold">{item.name}</h4>
                     {item.description && <p className="text-xs text-muted-foreground mt-1 flex-grow">{item.description}</p>}
-                    <Button className="w-full mt-4" style={item.isClaimed ? {} : {backgroundColor: paleta.primary}} disabled={item.isClaimed || isPreview} onClick={() => handleOpenClaimModal(item)}>
+                    <Button className="w-full mt-4" style={item.isClaimed ? {} : {backgroundColor: paleta.primary}} disabled={item.isClaimed || !onUpdate} onClick={() => handleOpenClaimModal(item)}>
                       {item.isClaimed ? "Ya Regalado" : "¡Lo quiero regalar!"}
                     </Button>
                   </div>
