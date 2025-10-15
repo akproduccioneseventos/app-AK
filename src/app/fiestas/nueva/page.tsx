@@ -155,9 +155,7 @@ export default function PlannerDashboardPage() {
     return (
         <Suspense fallback={
             <div className="flex flex-col items-center justify-center h-screen">
-                <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
-                <p className="text-muted-foreground">Cargando planificador...</p>
-            </div>
+                <Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando planificador...</p></div>
         }>
             <PlannerDashboardContent />
         </Suspense>
