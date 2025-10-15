@@ -1,14 +1,13 @@
 
 'use client';
 
-import React, { useEffect, use } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import { Suspense } from 'react';
+
 
 // This page is obsolete. Its functionality has been moved to a central module.
 function RedirectComponent() {
@@ -31,7 +30,7 @@ function RedirectComponent() {
                 </CardHeader>
                 <CardContent>
                      <p className="text-muted-foreground">
-                        El Portal del Cliente ahora está integrado en la sección de Colaboración. Serás redirigido.
+                        El Portal del Cliente ahora está integrado en la sección de Reuniones. Serás redirigido.
                     </p>
                 </CardContent>
                  <CardFooter className="justify-center">

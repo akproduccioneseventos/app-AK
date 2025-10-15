@@ -186,10 +186,10 @@ export default function InvitadosEventoPage() {
       return;
     }
     setIsSaving(true);
-    const dataToSave = {
+    const dataToSave: Invitado = {
       ...editingInvitado,
       tableNumber: editingInvitado.tableNumber === 'sin-mesa' ? undefined : editingInvitado.tableNumber,
-      companionNames: (editingInvitado.companionNames || []).filter(name => name.trim() !== '')
+      companionNames: (editingInvitado.companionNames || []).filter(name => name && name.trim() !== '')
     };
     const result = await updateInvitadoFiestaActual(dataToSave);
     if (result.success && result.invitado) {
@@ -378,7 +378,7 @@ export default function InvitadosEventoPage() {
                           id={`companion-name-edit-${index}`}
                           value={editingInvitado.companionNames?.[index] || ''}
                           onChange={(e) => handleCompanionNameChangeInModal(index, e.target.value)}
-                          placeholder={`Nombre completo del acompañante ${index + 1}`}
+                          placeholder={`Nombre del acompañante ${index + 1}`}
                           disabled={isSaving}
                       />
                   </div>

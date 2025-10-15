@@ -3,7 +3,7 @@
 'use server';
 
 import type { FiestaEnPlanificacion, Invitado, RsvpStatus } from '@/types/fiesta';
-import { getFiestaById, saveFiesta } from './fiesta.actions';
+import { getFiestaById, saveFiesta } from './fiesta/fiesta.actions';
 
 
 async function updateFiestaData(
@@ -62,12 +62,17 @@ export async function handleRsvpSubmission(fiestaId: string, submission: {nombre
         inv => inv.nombre.trim().toLowerCase() === submission.nombreCompleto.toLowerCase()
       );
       
+      const combinedNotes = [
+        (invitadoExistenteIndex > -1 ? data.invitados![invitadoExistenteIndex].notes : ''),
+        submission.mensaje
+      ].filter(Boolean).join('\n---\n');
+
       if (invitadoExistenteIndex > -1) {
          updatedInvitado = {
            ...(data.invitados![invitadoExistenteIndex]),
            rsvp: submission.confirmacion as RsvpStatus,
            partySize: submission.numeroAsistentes,
-           notes: [data.invitados![invitadoExistenteIndex].notes, submission.mensaje].filter(Boolean).join('\\n---\\n'),
+           notes: combinedNotes,
            companionNames: submission.companionNames,
          };
          data.invitados![invitadoExistenteIndex] = updatedInvitado;
@@ -77,7 +82,7 @@ export async function handleRsvpSubmission(fiestaId: string, submission: {nombre
            nombre: submission.nombreCompleto,
            rsvp: submission.confirmacion as RsvpStatus,
            partySize: submission.numeroAsistentes,
-           notes: submission.mensaje,
+           notes: combinedNotes,
            companionNames: submission.companionNames,
          };
          data.invitados = [...(data.invitados || []), updatedInvitado];
@@ -87,3 +92,29 @@ export async function handleRsvpSubmission(fiestaId: string, submission: {nombre
    return {...result, invitado: updatedInvitado};
 }
 
+export async function checkInGuest(fiestaId: string, guestId: string): Promise<{ success: boolean; invitado?: Invitado; error?: string }> {
+    let invitadoActualizado: Invitado | undefined;
+    let found = false;
+    const result = await updateFiestaData(fiestaId, data => {
+        const invitados = (data.invitados || []).map(inv => {
+            if (inv.id === guestId) {
+                found = true;
+                if(inv.checkedIn) { 
+                   invitadoActualizado = inv;
+                   return inv;
+                }
+                invitadoActualizado = { ...inv, checkedIn: true, checkInTimestamp: new Date().toISOString() };
+                return invitadoActualizado;
+            }
+            return inv;
+        });
+        if (!found) {
+            // This won't throw error to the caller directly, but we can check the returned object
+            return data; 
+        }
+        return { ...data, invitados };
+    });
+
+    if (!found) return { success: false, error: 'Invitado no encontrado.' };
+    return { ...result, invitado: invitadoActualizado };
+}

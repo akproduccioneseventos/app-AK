@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent, Suspense } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,7 @@ import { DatePickerDemo } from '@/components/date-picker-demo';
 import { ArrowLeft, PlusCircle, Edit3, Trash2, Loader2, AlertTriangle, MessageSquareText, CalendarIcon, NotebookTextIcon, CalendarPlus, Palette, Music2, ChefHat, PackageSearch, Globe } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, Reunion } from '@/types/fiesta';
-import { getFiestaActual, addReunionToFiestaActual, updateReunionInFiestaActual, deleteReunionFromFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaById, addReunionToFiestaActual, updateReunionInFiestaActual, deleteReunionFromFiestaActual } from '@/app/actions/fiesta-actual';
 import {
   Dialog,
   DialogContent,
@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { isToday, isWithinInterval, addDays, startOfDay, endOfDay } from 'date-fns';
 import { Separator } from '@/components/ui/separator';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no especificada";
@@ -81,9 +82,12 @@ const generateICSContent = (reunion: Reunion, fiestaNombre: string): string => {
   return icsContent;
 };
 
-
-export default function GestionReunionesPage() {
+function GestionReunionesContent() {
   const { toast } = useToast();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const fiestaId = searchParams.get('fiestaId');
+
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [reuniones, setReuniones] = useState<Reunion[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -100,10 +104,16 @@ export default function GestionReunionesPage() {
   const [conflictWarning, setConflictWarning] = useState<string | null>(null);
 
   const loadReuniones = useCallback(async () => {
+    if (!fiestaId) {
+      setError("No se ha especificado un evento. Serás redirigido.");
+      setTimeout(() => router.push('/eventos'), 2000);
+      return;
+    }
     setIsLoading(true);
     setError(null);
     try {
-      const fiestaData = await getFiestaActual();
+      const fiestaData = await getFiestaById(fiestaId);
+      if (!fiestaData) throw new Error("No se encontró el evento.");
       setFiesta(fiestaData);
       setReuniones((fiestaData.reuniones || []).sort((a,b) => new Date(a.fecha || 0).getTime() - new Date(b.fecha || 0).getTime()));
     } catch (err: any) {
@@ -113,7 +123,7 @@ export default function GestionReunionesPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, [toast, fiestaId, router]);
 
   useEffect(() => {
     loadReuniones();
@@ -178,6 +188,7 @@ export default function GestionReunionesPage() {
     }
 
     try {
+      if (!fiestaId) throw new Error("ID de fiesta no encontrado.");
       let result;
       if (currentReunion) {
         const updatedReunionData: Reunion = {
@@ -188,9 +199,8 @@ export default function GestionReunionesPage() {
         };
         result = await updateReunionInFiestaActual(updatedReunionData);
       } else {
-        if (!fiesta) throw new Error("No hay una fiesta activa para añadir la reunión.");
         const newReunionData: Omit<Reunion, 'id'> = {
-          fiestaId: fiesta!.id, // Add fiestaId
+          fiestaId: fiestaId, // Add fiestaId
           titulo: formTitulo.trim(),
           fecha: finalDate ? finalDate.toISOString() : undefined,
           notas: formNotas.trim(),
@@ -252,12 +262,31 @@ export default function GestionReunionesPage() {
   const undatedReuniones = reuniones.filter(r => !r.fecha);
 
 
-  if (isLoading) return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /> <p className="ml-2">Cargando reuniones...</p></div>;
+  if (isLoading || !fiestaId) return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /> <p className="ml-2">Cargando reuniones...</p></div>;
   if (error) return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>{error}</div>;
   if (!fiesta) return <div className="text-center text-muted-foreground p-4">No se encontró información del evento.</div>;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
+      <Dialog open={isFormModalOpen} onOpenChange={setIsFormModalOpen}>
+        <DialogTrigger asChild><Button onClick={() => openFormModal()}><PlusCircle className="w-5 h-5 mr-2" />Añadir Nueva Reunión</Button></DialogTrigger>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader><DialogTitle className="font-headline text-xl">{currentReunion ? 'Editar' : 'Añadir'} Reunión</DialogTitle></DialogHeader>
+          <form onSubmit={handleFormSubmit} className="space-y-4 py-2 max-h-[70vh] overflow-y-auto pr-4">
+            <div className="space-y-2"><Label htmlFor="reunion-titulo">Título</Label><Input id="reunion-titulo" value={formTitulo} onChange={(e) => setFormTitulo(e.target.value)} placeholder="Ej: 1ra Reunión - Definición de Alcance" required/></div>
+            <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2"><Label htmlFor="reunion-fecha">Fecha</Label><DatePickerDemo selectedDate={formFecha} onDateChange={setFormFecha} /></div>
+                <div className="space-y-2"><Label htmlFor="reunion-hora">Hora</Label><Input id="reunion-hora" type="time" value={formHora} onChange={(e) => setFormHora(e.target.value)} /></div>
+            </div>
+            {conflictWarning && <p className="text-sm text-yellow-600 flex items-center gap-2"><AlertTriangle className="w-4 h-4"/>{conflictWarning}</p>}
+            <div className="space-y-2"><Label htmlFor="reunion-notas">Notas / Acuerdos</Label><Textarea id="reunion-notas" value={formNotas} onChange={(e) => setFormNotas(e.target.value)} placeholder="Detalles, decisiones, próximos pasos..." rows={5}/></div>
+            <DialogFooter className="pt-3">
+              <DialogClose asChild><Button type="button" variant="outline" disabled={isSaving}>Cancelar</Button></DialogClose>
+              <Button type="submit" disabled={isSaving}>{isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}Guardar</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3"><MessageSquareText className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Reuniones y Colaboración</h1></div>
         <Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`} passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
@@ -281,26 +310,6 @@ export default function GestionReunionesPage() {
       </Card>
       
       <Separator />
-
-      <Dialog open={isFormModalOpen} onOpenChange={setIsFormModalOpen}>
-        <DialogTrigger asChild><Button onClick={() => openFormModal()}><PlusCircle className="w-5 h-5 mr-2" />Añadir Nueva Reunión</Button></DialogTrigger>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader><DialogTitle className="font-headline text-xl">{currentReunion ? 'Editar' : 'Añadir'} Reunión</DialogTitle></DialogHeader>
-          <form onSubmit={handleFormSubmit} className="space-y-4 py-4">
-            <div className="space-y-2"><Label htmlFor="reunion-titulo">Título</Label><Input id="reunion-titulo" value={formTitulo} onChange={(e) => setFormTitulo(e.target.value)} placeholder="Ej: 1ra Reunión - Definición de Alcance" required/></div>
-            <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2"><Label htmlFor="reunion-fecha">Fecha</Label><DatePickerDemo selectedDate={formFecha} onDateChange={setFormFecha} /></div>
-                <div className="space-y-2"><Label htmlFor="reunion-hora">Hora</Label><Input id="reunion-hora" type="time" value={formHora} onChange={(e) => setFormHora(e.target.value)} /></div>
-            </div>
-            {conflictWarning && <p className="text-sm text-yellow-600 flex items-center gap-2"><AlertTriangle className="w-4 h-4"/>{conflictWarning}</p>}
-            <div className="space-y-2"><Label htmlFor="reunion-notas">Notas / Acuerdos</Label><Textarea id="reunion-notas" value={formNotas} onChange={(e) => setFormNotas(e.target.value)} placeholder="Detalles, decisiones, próximos pasos..." rows={5}/></div>
-            <DialogFooter className="pt-3">
-              <DialogClose asChild><Button type="button" variant="outline" disabled={isSaving}>Cancelar</Button></DialogClose>
-              <Button type="submit" disabled={isSaving}>{isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}Guardar</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
 
       <div className="space-y-6">
         {todayReuniones.length > 0 && <div><h2 className="text-xl font-semibold font-headline mb-3 text-primary">Hoy</h2><div className="space-y-3">{todayReuniones.map(renderReunionCard)}</div></div>}
@@ -345,4 +354,12 @@ export default function GestionReunionesPage() {
         </Card>
     );
   }
+}
+
+export default function GestionReunionesPageWrapper() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+      <GestionReunionesContent />
+    </Suspense>
+  )
 }

@@ -18,13 +18,11 @@ import { ALL_UNIDADES_SERVICIO, type UnidadServicio, type ServicioEmpresa } from
 import { getInsumos } from '@/app/actions/insumos';
 import { ScrollArea } from '../ui/scroll-area';
 import Link from 'next/link';
-import { saveReposteriaMasterTemplate } from '@/app/actions/reposteria.actions';
-
 
 interface GestionReposteriaProps {
   initialData: ReposteriaData | null;
   onDataChange: (data: ReposteriaData) => void;
-  onSave: (data: ReposteriaData) => Promise<any>;
+  onSave?: (data: ReposteriaData) => Promise<any>;
   invitados: { adultos: number; ninos: number; adolescentes: number };
   isTemplateMode?: boolean;
 }
@@ -179,7 +177,7 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
             <div className="grid grid-cols-3 gap-2">
               <div className="space-y-1"><Label htmlFor="item-qty-manual">Cantidad</Label><Input id="item-qty-manual" type="number" value={currentItem.cantidad || 1} onChange={e => handleItemChange('cantidad', e.target.value)} /></div>
               <div className="space-y-1"><Label htmlFor="item-unit-manual">Unidad</Label><Select value={currentItem.unidad || 'unidad'} onValueChange={(v) => handleItemChange('unidad', v)}><SelectTrigger id="item-unit-manual"><SelectValue /></SelectTrigger><SelectContent>{ALL_UNIDADES_SERVICIO.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent></Select></div>
-              <div className="space-y-1"><Label htmlFor="item-cost-manual">Costo Est.</Label><Input id="item-cost-manual" type="number" value={currentItem.costoEstimado || 0} onChange={e => handleItemChange('costoEstimado', e.target.value)} /></div>
+              <div className="space-y-1 relative"><Label htmlFor="item-cost-manual">Costo Est.</Label><Input id="item-cost-manual" type="number" value={currentItem.costoEstimado || 0} onChange={e => handleItemChange('costoEstimado', e.target.value)} className="pl-6"/><span className="absolute left-2 top-1/2 mt-1 text-muted-foreground">$</span></div>
             </div>
             <div className="space-y-1"><Label htmlFor="item-notes-manual">Notas</Label><Input id="item-notes-manual" value={currentItem.notas || ''} onChange={e => handleItemChange('notas', e.target.value)} /></div>
           </div>
@@ -192,7 +190,10 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
             <DialogHeader><DialogTitle>Seleccionar del Catálogo de Insumos</DialogTitle><DialogDescription>Añadiendo a: {editingCategory?.nombreDisplay}</DialogDescription></DialogHeader>
             <div className="py-2 space-y-2">
                 <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"/><Input placeholder="Buscar insumo..." value={catalogSearchTerm} onChange={e => setCatalogSearchTerm(e.target.value)} className="pl-9"/></div>
-                <ScrollArea className="h-64 border rounded-md p-1"><ul className="space-y-1">{filteredInsumos.map(insumo => (<li key={insumo.id}><Button type="button" variant="ghost" className="w-full justify-start text-left h-auto" onClick={() => handleAddFromCatalog(insumo)}><div><p className="font-medium text-sm">{insumo.nombre}</p><p className="text-xs text-muted-foreground">{formatCurrency(insumo.valorUnitarioEstimado)} / {insumo.unidad}</p></div></Button></li>))}</ul></ScrollArea>
+                <ScrollArea className="h-64 border rounded-md p-1"><ul className="space-y-1">
+                    {filteredInsumos.length > 0 ? filteredInsumos.map(insumo => (<li key={insumo.id}><Button type="button" variant="ghost" className="w-full justify-start text-left h-auto" onClick={() => { handleAddFromCatalog(insumo); setIsCatalogModalOpen(false); }}><div><p className="font-medium text-sm">{insumo.nombre}</p><p className="text-xs text-muted-foreground">{formatCurrency(insumo.valorUnitarioEstimado)} / {insumo.unidad}</p></div></Button></li>))
+                    : <li className="p-4 text-sm text-center text-muted-foreground">No hay insumos que coincidan. <Link href="/empresa/insumos/nuevo" className="text-primary underline">Añadir al catálogo</Link>.</li>}
+                </ul></ScrollArea>
             </div>
              <DialogFooter><DialogClose asChild><Button variant="outline">Cerrar</Button></DialogClose></DialogFooter>
         </DialogContent>

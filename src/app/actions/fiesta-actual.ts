@@ -23,12 +23,12 @@ import {
 
 import { updateConfiguracion } from './fiesta/configuracion.actions';
 import { updateTareas } from './fiesta/tareas.actions';
-import { addInvitado, deleteInvitado, updateInvitado, handleRsvpSubmission, getInvitados, checkInGuest } from './fiesta/invitados.actions';
+import { addInvitado, deleteInvitado, updateInvitado, handleRsvpSubmission, getInvitados, checkInGuest } from './invitados.actions';
 import { updateDecoracion } from './fiesta/decoracion.actions';
 import { updatePrograma } from './fiesta/itinerario.actions';
 import { updatePersonal } from './fiesta/personal.actions';
 import { updateClientChecklist, updateClientNotes, updatePortalSettings as updatePortalAndWebSettings } from './fiesta/portal.actions';
-import { updateMusica } from './fiesta/musica.actions';
+import { updateMusica, saveSugerenciaMusical } from './fiesta/musica.actions';
 import { updateReposteria as updateReposteriaForFiesta } from './reposteria.actions';
 import { updateBebidas as updateBebidasForFiesta } from './bebidas.actions';
 import { updateListaDeCargaOperativa } from './fiesta/carga-operativa.actions';
@@ -39,6 +39,7 @@ import { updatePagosProveedores } from './fiesta/pagos.actions';
 import { addReunion, deleteReunion, updateReunion } from './fiesta/reuniones.actions';
 import { updateMenuAsignado } from './fiesta/catering.actions';
 import { updateVideoVidaSettings as updateVideoVidaSettingsFromModule } from './fiesta/video-vida.actions';
+import { claimGift } from './fiesta/regalos.actions';
 
 // --- General Fiesta Actions ---
 export const getFiestaActual = getFiestaData; // Legacy, use getFiestaById
@@ -69,7 +70,7 @@ export const addInvitadoFiestaActual = addInvitado;
 export const updateInvitadoFiestaActual = updateInvitado;
 export const handleRsvpSubmissionFiestaActual = handleRsvpSubmission;
 export const checkInGuestFiestaActual = checkInGuest;
-
+export const deleteInvitadoFiestaActual = deleteInvitado;
 
 // --- Decoracion Actions ---
 export const updateDecoracionFiestaActual = updateDecoracion;
@@ -94,6 +95,8 @@ export const updateInvitacionDigital = async (fiestaId: string, invitacionData: 
 
 // --- Musica Actions ---
 export const updateMusicaFiestaActual = updateMusica;
+export const saveSugerenciaMusicalFiestaActual = saveSugerenciaMusical;
+
 
 // --- Reposteria Actions ---
 export const updateReposteriaFiestaActual = updateReposteriaForFiesta;
@@ -128,37 +131,6 @@ export const updateMenuAsignadoFiestaActual = updateMenuAsignado;
 // --- Video de Vida Actions ---
 export const updateVideoVidaSettingsFiestaActual = updateVideoVidaSettingsFromModule;
 
-export const claimGiftFiestaActual = async (fiestaId: string, giftId: string, guestName: string): Promise<{ success: boolean; error?: string }> => {
-    const fiesta = await getFiestaById(fiestaId);
-    if (!fiesta || !fiesta.invitacionDigital || !fiesta.invitacionDigital.regalos) {
-        return { success: false, error: 'Fiesta o datos de regalos no encontrados.' };
-    }
-    
-    let giftFoundAndUpdated = false;
-    const updatedItems = (fiesta.invitacionDigital.regalos.items || []).map(item => {
-        if (item.id === giftId && !item.isClaimed) {
-            giftFoundAndUpdated = true;
-            return { ...item, isClaimed: true, claimedBy: guestName };
-        }
-        return item;
-    });
+// --- Regalos Actions ---
+export const claimGiftFiestaActual = claimGift;
 
-    if (!giftFoundAndUpdated) {
-        return { success: false, error: "El regalo no se encontró o ya fue reclamado." };
-    }
-
-    const updatedInvitacionData = { 
-        ...fiesta.invitacionDigital, 
-        regalos: {
-            ...(fiesta.invitacionDigital.regalos || {}),
-            items: updatedItems
-        }
-    };
-    
-    const updatedFiesta = { ...fiesta, invitacionDigital: updatedInvitacionData };
-    const result = await saveFiesta(updatedFiesta);
-    return { success: result.success, error: result.error };
-};
-
-// This action is now obsolete as guests are deleted via a dedicated action in invitados.actions
-export const deleteInvitadoFiestaActual = deleteInvitado;
