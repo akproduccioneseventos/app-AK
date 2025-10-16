@@ -6,16 +6,15 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Printer as PrinterIcon, Share2, Edit, Upload, PlusCircle, Trash2, Camera, Loader2, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, CartaTragosData, Trago } from '@/types/fiesta';
-import { getFiestaActual, updateCartaTragosFiestaActual as updateCartaTragos } from '@/app/actions/fiesta-actual';
+import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Loader2 as LoaderIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose, DialogTrigger } from '@/components/ui/dialog';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import { cn } from '@/lib/utils';
-import { defaultCartaTragosData } from '@/lib/fiesta-defaults';
 import NextImage from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -36,6 +35,48 @@ interface TableNumberData {
   backgroundImageUrl: string;
   logoUrl: string;
 }
+
+const UploadButton: React.FC<{
+  currentUrl?: string | null;
+  onUrlChange: (url: string) => void;
+  fiestaId?: string;
+}> = ({ currentUrl, onUrlChange, fiestaId }) => {
+  const { toast } = useToast();
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !fiestaId) return;
+
+    setIsUploading(true);
+    try {
+      const result = await uploadPublicPageAsset(fiestaId, file);
+      if (result.success && result.url) {
+        onUrlChange(result.url);
+        toast({ title: 'Imagen subida' });
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-2">
+      <Input value={currentUrl || ''} onChange={e => onUrlChange(e.target.value)} placeholder="https://..." />
+      <Button asChild variant="outline" size="sm">
+        <Label htmlFor={`upload-btn-${fiestaId}`} className="cursor-pointer">
+          {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Subir'}
+        </Label>
+      </Button>
+      <Input id={`upload-btn-${fiestaId}`} type="file" className="hidden" onChange={handleFileChange} accept="image/*" />
+    </div>
+  );
+};
+
 
 function NumerosDeMesaContent() {
   const { toast } = useToast();
