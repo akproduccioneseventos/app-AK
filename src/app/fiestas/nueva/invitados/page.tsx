@@ -2,6 +2,8 @@
 'use client';
 
 import React, { useState, type FormEvent, useEffect, useCallback } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,11 +11,10 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, Plus, Trash2, Users, Mail, Phone, Edit3, Save, Loader2, AlertTriangle, NotebookTextIcon, UserMinus, UserPlus2, UserCheck, Ticket, LayoutDashboard, ArrowRight, Printer } from 'lucide-react';
-import Link from 'next/link';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import type { Invitado, RsvpStatus, NuevoInvitadoData } from '@/types/invitado';
-import { getFiestaActual, addInvitadoFiestaActual, updateInvitadoFiestaActual, deleteInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaActual, addInvitado, updateInvitado, deleteInvitado } from '@/app/actions/invitados.actions';
 import {
   Dialog,
   DialogContent,
@@ -39,12 +40,14 @@ import { Badge } from '@/components/ui/badge';
 
 export default function InvitadosEventoPage() {
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const fiestaId = searchParams.get('fiestaId');
   const [invitados, setInvitados] = useState<Invitado[]>([]);
   const [tableNames, setTableNames] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false); 
   const [error, setError] = useState<string |null>(null);
-  const [fiestaId, setFiestaId] = useState<string>('');
+  
 
 
   const [nuevoNombre, setNuevoNombre] = useState('');
@@ -55,16 +58,25 @@ export default function InvitadosEventoPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   
   const fetchInvitados = useCallback(async () => {
+    if (!fiestaId) return;
     setIsLoading(true);
     setError(null);
     try {
-      const fiestaData = await getFiestaActual();
-      setFiestaId(fiestaData.id);
+      const fiestaData = await getFiestaById(fiestaId);
+      if (!fiestaData) throw new Error("Fiesta no encontrada");
+      
       setInvitados((fiestaData.invitados || []).sort((a,b) => a.nombre.localeCompare(b.nombre)));
       const tables = (fiestaData.decoracion?.salonElements || [])
         .filter(el => el.category?.toLowerCase().includes('mesa'))
         .map(el => el.name)
-        .sort();
+        .sort((a, b) => {
+          const numA = parseInt(a.replace(/[^0-9]/g, ''), 10);
+          const numB = parseInt(b.replace(/[^0-9]/g, ''), 10);
+          if (!isNaN(numA) && !isNaN(numB)) {
+            return numA - numB;
+          }
+          return a.localeCompare(b);
+        });
       setTableNames(tables);
     } catch (e: any) {
       setError("No se pudieron cargar los invitados.");
@@ -72,7 +84,7 @@ export default function InvitadosEventoPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, [toast, fiestaId]);
 
   useEffect(() => {
     fetchInvitados();
@@ -103,8 +115,8 @@ export default function InvitadosEventoPage() {
 
   const handleAddInvitado = async (e: FormEvent) => {
     e.preventDefault();
-    if (!nuevoNombre.trim()) {
-      toast({ title: "Nombre Requerido", description: "Por favor, ingresa el nombre del invitado.", variant: "destructive" });
+    if (!nuevoNombre.trim() || !fiestaId) {
+      toast({ title: "Datos incompletos", description: "El nombre del invitado es requerido.", variant: "destructive" });
       return;
     }
     setIsSaving(true);
@@ -116,7 +128,7 @@ export default function InvitadosEventoPage() {
       notes: undefined, 
       companionNames: [],
     };
-    const result = await addInvitadoFiestaActual(nuevoInvitadoData);
+    const result = await addInvitado(fiestaId, nuevoInvitadoData);
     if (result.success && result.invitado) {
       await fetchInvitados(); 
       setNuevoNombre('');
@@ -132,7 +144,7 @@ export default function InvitadosEventoPage() {
 
   const handleFieldChange = async (invitadoId: string, field: keyof Invitado, value: any) => {
     const invitadoOriginal = invitados.find(inv => inv.id === invitadoId);
-    if(!invitadoOriginal) return;
+    if(!invitadoOriginal || !fiestaId) return;
 
     setInvitados(prev =>
       prev.map(inv => (inv.id === invitadoId ? { ...inv, [field]: value } : inv))
@@ -145,7 +157,7 @@ export default function InvitadosEventoPage() {
        invitadoActualizado[field] = undefined;
      }
     
-    const result = await updateInvitadoFiestaActual(invitadoActualizado);
+    const result = await updateInvitado(fiestaId, invitadoActualizado);
     if (!result.success) {
       toast({ title: "Error al Actualizar", description: result.error || `No se pudo actualizar ${field}.`, variant: "destructive" });
       setInvitados(prev => prev.map(inv => (inv.id === invitadoId ? invitadoOriginal : inv))); 
@@ -154,9 +166,9 @@ export default function InvitadosEventoPage() {
 
   const handleDeleteInvitado = async (invitadoId: string) => {
     const invitadoAEliminar = invitados.find(inv => inv.id === invitadoId);
-    if (!invitadoAEliminar) return;
+    if (!invitadoAEliminar || !fiestaId) return;
 
-    const result = await deleteInvitadoFiestaActual(invitadoId);
+    const result = await deleteInvitado(fiestaId, invitadoId);
     if (result.success) {
       await fetchInvitados();
       toast({ title: "Invitado Eliminado", description: `${invitadoAEliminar.nombre} ha sido eliminado.`, variant: "destructive" });
@@ -180,7 +192,7 @@ export default function InvitadosEventoPage() {
 
   const handleSaveEditModal = async (e: FormEvent) => {
     e.preventDefault();
-    if (!editingInvitado) return;
+    if (!editingInvitado || !fiestaId) return;
     if (!editingInvitado.nombre.trim()) {
       toast({ title: "Nombre Requerido", description: "El nombre no puede estar vacío.", variant: "destructive" });
       return;
@@ -191,7 +203,7 @@ export default function InvitadosEventoPage() {
       tableNumber: editingInvitado.tableNumber === 'sin-mesa' ? undefined : editingInvitado.tableNumber,
       companionNames: (editingInvitado.companionNames || []).filter(name => name && name.trim() !== '')
     };
-    const result = await updateInvitadoFiestaActual(dataToSave);
+    const result = await updateInvitado(fiestaId, dataToSave);
     if (result.success && result.invitado) {
       await fetchInvitados(); 
       setIsEditModalOpen(false);
@@ -222,8 +234,11 @@ export default function InvitadosEventoPage() {
           Gestión de Invitados
         </h1>
         <div className="flex flex-wrap gap-2">
+            <Link href={`/fiestas/nueva/invitados/numeros-mesa?fiestaId=${fiestaId}`} passHref>
+                <Button variant="secondary"><Printer className="w-4 h-4 mr-2"/>Imprimir Números de Mesa</Button>
+            </Link>
             <Button variant="secondary" onClick={handlePrint}><Printer className="w-4 h-4 mr-2"/>Imprimir Lista</Button>
-            <Link href="/fiestas/nueva" passHref>
+            <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref>
               <Button variant="outline">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Volver al Planificador
@@ -327,7 +342,15 @@ export default function InvitadosEventoPage() {
                         </div>
                         <div className="flex gap-1 print:hidden">
                             <Button variant="ghost" size="icon" onClick={() => openEditModal(invitado)} className="h-8 w-8"><Edit3 className="w-4 h-4" /></Button>
-                            <Button variant="ghost" size="icon" onClick={() => handleDeleteInvitado(invitado.id)} className="text-destructive hover:text-destructive/80 h-8 w-8"><UserMinus className="w-4 h-4" /></Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive/80 h-8 w-8"><UserMinus className="w-4 h-4" /></Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader><AlertDialogTitle>¿Eliminar Invitado?</AlertDialogTitle><AlertDialogDescription>Se eliminará a "{invitado.nombre}" de la lista.</AlertDialogDescription></AlertDialogHeader>
+                                <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteInvitado(invitado.id)} className="bg-destructive hover:bg-destructive/90">Eliminar</AlertDialogAction></AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
                         </div>
                         <div className="hidden print:inline-block border-2 border-gray-400 w-8 h-8 ml-4"></div>
                       </div>

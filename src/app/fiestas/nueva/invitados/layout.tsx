@@ -5,7 +5,7 @@ import React, { use } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Users, LayoutDashboard, Send } from 'lucide-react';
+import { Users, LayoutDashboard, Send, Printer } from 'lucide-react';
 
 export default function InvitadosLayout({
   children,
@@ -19,7 +19,20 @@ export default function InvitadosLayout({
   const navItems = [
     { href: `/fiestas/nueva/invitados?fiestaId=${fiestaId}`, label: 'Lista de Invitados', icon: Users, pathSegment: '/invitados' },
     { href: `/fiestas/nueva/invitados/layout?fiestaId=${fiestaId}`, label: 'Diseño de Salón', icon: LayoutDashboard, pathSegment: '/layout' },
+    { href: `/fiestas/nueva/invitados/numeros-mesa?fiestaId=${fiestaId}`, label: 'Números de Mesa', icon: Printer, pathSegment: '/numeros-mesa' },
   ];
+
+  const getIsActive = (itemPathSegment: string) => {
+    // Exact match or if it's the base and the path is just the base
+    if (pathname.endsWith(itemPathSegment)) {
+      return true;
+    }
+    // Special case for the base '/invitados' path
+    if (itemPathSegment === '/invitados' && !pathname.includes('/layout') && !pathname.includes('/numeros-mesa')) {
+      return true;
+    }
+    return false;
+  }
 
   return (
     <div className="space-y-6">
@@ -28,7 +41,7 @@ export default function InvitadosLayout({
           {navItems.map(item => (
             <Link key={item.label} href={item.href} passHref>
               <Button 
-                variant={pathname.endsWith(item.pathSegment) || (item.pathSegment === '/invitados' && pathname.endsWith('/invitados')) ? 'default' : 'ghost'} 
+                variant={getIsActive(item.pathSegment) ? 'default' : 'ghost'} 
                 className="h-auto py-2 px-3 flex-shrink-0"
               >
                 <item.icon className="w-4 h-4 mr-2" />
