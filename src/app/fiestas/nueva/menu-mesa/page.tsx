@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -5,20 +6,15 @@ import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Printer as PrinterIcon, Share2, AlertTriangle, ChefHat, GlassWater, CakeSlice, Utensils, Star, QrCode, Phone } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, Share2, ChefHat, Phone, QrCode } from 'lucide-react';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { getMenuById } from '@/app/actions/menus-catering';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { FullMenu, MenuItem } from '@/types/catering';
 import QRCodeStylized from 'qrcode.react';
 import NextImage from 'next/image';
-import { getInvoiceTemplateSettings } from '@/app/actions/settings'; // Import settings
+import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { cn } from '@/lib/utils';
-
-const formatCurrency = (amount?: number) => {
-  if (amount === undefined || isNaN(amount)) return 'N/A';
-  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
-};
 
 const companyInfo = {
   name: "AK PRODUCCIONES",
@@ -30,16 +26,15 @@ const companyInfo = {
 interface MenuSectionProps {
   title: string;
   items: string[];
-  color?: string;
   titleClassName?: string;
   itemClassName?: string;
 }
 
-const MenuSection: React.FC<MenuSectionProps> = ({ title, items, color, titleClassName, itemClassName }) => {
+const MenuSection: React.FC<MenuSectionProps> = ({ title, items, titleClassName, itemClassName }) => {
   if (!items || items.length === 0) return null;
   return (
     <div className="text-center">
-      <h3 className={`font-headline text-3xl font-bold tracking-wider mb-2 ${titleClassName}`} style={{ color }}>
+      <h3 className={cn("font-headline text-3xl font-bold tracking-wider mb-2", titleClassName)} style={{ color: '#9333ea' }}>
         {title}
       </h3>
       <div className="relative inline-block px-4">
@@ -49,7 +44,7 @@ const MenuSection: React.FC<MenuSectionProps> = ({ title, items, color, titleCla
         </svg>
         <div className="absolute right-0 top-1/2 w-4 h-px bg-purple-400"></div>
       </div>
-      <div className={`mt-2 ${itemClassName}`}>
+      <div className={cn("mt-2 text-gray-700", itemClassName)}>
         {items.map((item, index) => <p key={index} className="text-lg">{item}</p>)}
       </div>
     </div>
@@ -73,7 +68,7 @@ export default function MenuMesaPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [socialWallUrl, setSocialWallUrl] = useState('');
-  const [logoUrl, setLogoUrl] = useState<string | null>(null); // State for logo
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -106,8 +101,8 @@ export default function MenuMesaPage() {
 
   const { menuEntradas, menuPrincipal, menuAdolescente, mesaPostres, bebidas, tortaPrincipal, fuenteChocolate } = useMemo(() => {
     const allItems = menu?.items || [];
-    const reposteriaItems = fiesta?.reposteria?.categorias.flatMap(c => c.items.map(i => i.nombre)) || [];
-    const bebidasItems = fiesta?.bebidas?.categorias.flatMap(c => c.items.map(i => i.nombre)) || [];
+    const reposteriaItems = fiesta?.reposteria?.categorias.flatMap(c => c.activada ? c.items.map(i => i.nombre) : []) || [];
+    const bebidasItems = fiesta?.bebidas?.categorias.flatMap(c => c.activada ? c.items.map(i => i.nombre) : []) || [];
     const torta = fiesta?.decoracion?.decoracionTorta?.descripcion ? [fiesta.decoracion.decoracionTorta.descripcion] : [];
     const fuente = fiesta?.reposteria?.categorias.find(c => c.id === 'fuente_chocolate' && c.activada) ? ['Fuente de Chocolate con frutas de estación'] : [];
 
@@ -131,17 +126,14 @@ export default function MenuMesaPage() {
   };
 
   const protagonistName = useMemo(() => {
-    if (!fiesta) return 'Luciana';
-    const { protagonista1Nombre, protagonista2Nombre } = fiesta.configuracion;
-    if (protagonista1Nombre && protagonista2Nombre) {
-      return `${protagonista1Nombre} & ${protagonista2Nombre}`;
-    }
-    return protagonista1Nombre || 'Evento Especial';
+    if (!fiesta) return 'El Agasajado';
+    return fiesta.configuracion.protagonista1Nombre || 'Evento Especial';
   }, [fiesta]);
   
   const protagonistPhoto = useMemo(() => {
-    return fiesta?.decoracion?.moodboardImageUrl || 'https://picsum.photos/seed/quinceanera/300/300';
-  }, [fiesta]);
+    // A specific logic to find a protagonist photo could be implemented here
+    return 'https://picsum.photos/seed/quinceanera/300/300';
+  }, []);
 
 
   if (isLoading) {
@@ -149,7 +141,7 @@ export default function MenuMesaPage() {
   }
   
   if (error) {
-    return <div className="p-8 max-w-lg mx-auto text-center"><AlertTriangle className="w-12 h-12 mx-auto text-destructive"/><p className="mt-2 text-destructive">{error}</p></div>;
+    return <div className="p-8 max-w-lg mx-auto text-center"><p className="mt-2 text-destructive">{error}</p></div>;
   }
 
   return (
@@ -178,22 +170,22 @@ export default function MenuMesaPage() {
                 />
            </div>
            <div className="pt-20">
-             <h1 className="text-7xl font-bold" style={{fontFamily: "'Belleza', serif", color: '#9333ea', textShadow: '2px 2px 4px rgba(0,0,0,0.1)'}}>MENÚ</h1>
+             <h1 className="text-7xl font-bold" style={{fontFamily: "'Belleza', serif", color: '#9333ea', textShadow: '2px 2px 4px rgba(0,0,0,0.1)'}}>{protagonistName}</h1>
              <div className="relative mt-2 inline-block">
                 <div className="absolute inset-x-0 top-1/2 h-8 bg-purple-400 transform -translate-y-1/2"></div>
                 <h2 className="font-['Dancing_Script',_cursive] text-4xl relative px-4" style={{color: '#fff'}}>
-                    {protagonistName}
+                    {fiesta?.configuracion.eventoTipo}
                 </h2>
              </div>
            </div>
         </header>
 
         <main className="flex-grow space-y-6 font-['Belleza',_serif]">
-          <MenuSection title="ENTRADA" items={[...menuEntradas]} color="#9333ea" itemClassName="text-gray-700"/>
-          <MenuSection title="PLATO PRINCIPAL" items={[...menuPrincipal]} color="#9333ea" itemClassName="text-gray-700"/>
-          {menuAdolescente.length > 0 && <MenuSection title="ADOLESCENTES Y NIÑOS" items={menuAdolescente} color="#9333ea" itemClassName="text-gray-700"/>}
-          <MenuSection title="POSTRES" items={[...mesaPostres, ...tortaPrincipal, ...fuenteChocolate]} color="#9333ea" itemClassName="text-gray-700"/>
-          <MenuSection title="BEBIDAS" items={[...bebidas]} color="#9333ea" itemClassName="text-gray-700"/>
+          <MenuSection title="Entrada" items={[...menuEntradas]} />
+          <MenuSection title="Plato Principal" items={[...menuPrincipal]} />
+          {menuAdolescente.length > 0 && <MenuSection title="Menú Adolescente" items={menuAdolescente} />}
+          <MenuSection title="Mesa de Postres" items={[...mesaPostres, ...tortaPrincipal, ...fuenteChocolate]} />
+          <MenuSection title="Bebidas" items={[...bebidas]} />
         </main>
         
         <footer className="mt-auto pt-8 text-center relative -mb-4">
@@ -213,6 +205,11 @@ export default function MenuMesaPage() {
                     </div>
                     <span className="font-bold text-lg">{companyInfo.contact}</span>
                 </div>
+                 {socialWallUrl && (
+                    <div className="absolute -left-4 -bottom-4 w-20 h-20 bg-white rounded-full p-1 shadow-md">
+                        <QRCodeStylized id="qr-social-wall" value={socialWallUrl} size={72} />
+                    </div>
+                 )}
                  {logoUrl && (
                     <div className="absolute -right-4 -bottom-4 w-20 h-20 bg-white rounded-full p-1 shadow-md">
                         <NextImage src={logoUrl} alt="Logo" width={72} height={72} className="rounded-full object-contain"/>
