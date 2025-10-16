@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, AlertTriangle, PartyPopper, Calendar, Users, Palette, ChefHat, Music2, ListChecks, DollarSign, Camera, Gift, FileText, UserCheck, Clock, Archive, PackageSearch, Video, Globe, MessageSquare, LayoutDashboard, Link as LinkIcon, Image as ImageIcon, Menu } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, PartyPopper, Calendar, Users, Palette, ChefHat, Music2, ListChecks, DollarSign, Camera, Gift, FileText, UserCheck, Clock, Archive, PackageSearch, Video, Globe, MessageSquare, LayoutDashboard, Link as LinkIcon, Image as ImageIcon, GlassWater } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -29,7 +29,8 @@ const modules = [
   { title: "Diseño de Salón", href: "invitados/layout", icon: LayoutDashboard, description: "Organiza las mesas y asientos." },
   { title: "Diseño y Decoración", href: "decoracion", icon: Palette, description: "Define el estilo y la ambientación." },
   { title: "Catering", href: "catering", icon: ChefHat, description: "Planifica el menú gastronómico." },
-  { title: "Menú para Mesas", href: "menu-mesa", icon: Menu, description: "Imprime el menú para cada mesa." },
+  { title: "Carta de Tragos", href: "carta-tragos", icon: GlassWater, description: "Diseña el menú de la barra de tragos." },
+  { title: "Menú para Mesas", href: "menu-mesa", icon: FileText, description: "Imprime el menú para cada mesa." },
   { title: "Música", href: "musica", icon: Music2, description: "Define las preferencias musicales." },
   { title: "Personal", href: "personal", icon: UserCheck, description: "Asigna personal al evento." },
   { title: "Itinerario", href: "itinerario", icon: Clock, description: "Organiza el cronograma." },
