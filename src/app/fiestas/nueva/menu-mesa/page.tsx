@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -13,6 +12,8 @@ import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { FullMenu, MenuItem } from '@/types/catering';
 import QRCodeStylized from 'qrcode.react';
 import NextImage from 'next/image';
+import { getInvoiceTemplateSettings } from '@/app/actions/settings'; // Import settings
+import { cn } from '@/lib/utils';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -42,11 +43,11 @@ const MenuSection: React.FC<MenuSectionProps> = ({ title, items, color, titleCla
         {title}
       </h3>
       <div className="relative inline-block px-4">
-        <div className="absolute left-0 top-1/2 w-4 h-px bg-blue-400"></div>
-        <svg width="10" height="10" viewBox="0 0 10 10" className="inline-block fill-current text-blue-400">
+        <div className="absolute left-0 top-1/2 w-4 h-px bg-purple-400"></div>
+        <svg width="10" height="10" viewBox="0 0 10 10" className="inline-block fill-current text-purple-400">
             <polygon points="5,0 6.5,3.5 10,5 6.5,6.5 5,10 3.5,6.5 0,5 3.5,3.5" />
         </svg>
-        <div className="absolute right-0 top-1/2 w-4 h-px bg-blue-400"></div>
+        <div className="absolute right-0 top-1/2 w-4 h-px bg-purple-400"></div>
       </div>
       <div className={`mt-2 ${itemClassName}`}>
         {items.map((item, index) => <p key={index} className="text-lg">{item}</p>)}
@@ -72,6 +73,7 @@ export default function MenuMesaPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [socialWallUrl, setSocialWallUrl] = useState('');
+  const [logoUrl, setLogoUrl] = useState<string | null>(null); // State for logo
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -80,10 +82,13 @@ export default function MenuMesaPage() {
       const fiestaData = await getFiestaActual();
       setFiesta(fiestaData);
       
-      if (fiestaData.menuAsignadoId) {
-        const menuData = await getMenuById(fiestaData.menuAsignadoId);
-        setMenu(menuData);
-      }
+      const [templateSettings, menuData] = await Promise.all([
+          getInvoiceTemplateSettings(),
+          fiestaData.menuAsignadoId ? getMenuById(fiestaData.menuAsignadoId) : Promise.resolve(null),
+      ]);
+      setLogoUrl(templateSettings.logoUrl);
+      setMenu(menuData);
+      
     } catch (err: any) {
       setError("No se pudieron cargar los datos para el menú.");
       toast({ title: "Error", description: err.message, variant: "destructive" });
