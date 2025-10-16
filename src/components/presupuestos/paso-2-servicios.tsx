@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { PresupuestoFormData, ItemPresupuestado } from '@/types/presupuesto';
@@ -75,14 +74,14 @@ function calcularCostoItem(item: ItemPresupuestado, invitados: number): number {
 
 const menuItemToServicioSeleccionado = (item: MenuItem, invitados: number): ServicioSeleccionadoValue => ({
   cantidad: invitados, // For per-person calculation
-  precioUnitarioOriginal: item.totalDishCost,
-  precioUnitarioPresupuesto: item.totalDishCost,
+  precioUnitarioOriginal: item.suggestedSellingPrice || item.totalDishCost, // Prefer selling price
+  precioUnitarioPresupuesto: item.suggestedSellingPrice || item.totalDishCost,
   nombreServicio: item.name,
   unidad: 'Por Persona',
   categoriaServicio: 'Servicio de catering',
   esRegalo: false,
   calculationMethod: 'porPersona',
-  precioPorPersona: item.totalDishCost,
+  precioPorPersona: item.suggestedSellingPrice || item.totalDishCost,
 });
 
 
@@ -175,7 +174,6 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
       setFormData(prev => {
         const newSelected = new Map(prev.serviciosSeleccionados);
         
-        // 1. Clear previous gastronomic selections of the same type
         const itemsToClear = type === 'entradas' ? entradas : type === 'principal' ? platosPrincipales : menusInfantiles;
         itemsToClear.forEach(item => {
             if (newSelected.has(item.id)) {
@@ -183,7 +181,6 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
             }
         });
 
-        // 2. Add new selections
         const idsToAdd = Array.isArray(selectedIds) ? selectedIds : [selectedIds];
         idsToAdd.forEach(id => {
             const allDishes = [...entradas, ...platosPrincipales, ...menusInfantiles];
@@ -274,7 +271,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                 <div className='space-y-2'>
                   <Label>Entradas (Selección múltiple)</Label>
                   <MultiSelect
-                    options={entradas.map(e => ({ value: e.id, label: `${e.name} (${formatCurrency(e.suggestedSellingPrice)})` }))}
+                    options={entradas.map(e => ({ value: e.id, label: `${e.name} (${formatCurrency(e.suggestedSellingPrice ?? e.totalDishCost)})` }))}
                     selected={Array.from(formData.serviciosSeleccionados.keys()).filter(id => entradas.some(e => e.id === id))}
                     onValueChange={(selected) => handleGastronomicSelectionChange('entradas', selected)}
                     placeholder="Selecciona las entradas..."
@@ -291,7 +288,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                     <SelectContent>
                       {platosPrincipales.map(p => (
                         <SelectItem key={p.id} value={p.id}>
-                          {p.name} ({formatCurrency(p.suggestedSellingPrice)})
+                          {p.name} ({formatCurrency(p.suggestedSellingPrice ?? p.totalDishCost)})
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -308,7 +305,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                     <SelectContent>
                       {menusInfantiles.map(m => (
                         <SelectItem key={m.id} value={m.id}>
-                           {m.name} ({formatCurrency(m.suggestedSellingPrice)})
+                           {m.name} ({formatCurrency(m.suggestedSellingPrice ?? m.totalDishCost)})
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -324,7 +321,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
       <div>
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-medium font-headline text-primary">Servicios Adicionales</h3>
-          <Sheet>
+           <Sheet>
             <SheetTrigger asChild>
               <Button type="button" variant="secondary"><Sparkles className="w-4 h-4 mr-2"/>Editar Catálogo</Button>
             </SheetTrigger>
@@ -375,5 +372,3 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
     </div>
   );
 }
-
-    
