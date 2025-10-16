@@ -15,7 +15,7 @@ import type { PaqueteArmadoRapido, MenuArmadoRapido } from '@/types/armado-rapid
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '../ui/sheet';
 import EditServicioForm from '@/components/presupuestos/EditServicioForm';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogDescription } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -76,7 +76,7 @@ function calcularCostoItem(item: ItemPresupuestado, invitados: number): number {
 
 const menuItemToServicioSeleccionado = (item: MenuItem, invitados: number): ServicioSeleccionadoValue => {
     // PVP es prioritario, si no, el costo con margen por defecto.
-    const precioVenta = item.suggestedSellingPrice ?? item.totalDishCost;
+    const precioVenta = item.suggestedSellingPrice ?? (item.totalDishCost || 0);
     return {
         cantidad: invitados, // Para cálculo por persona
         precioUnitarioOriginal: precioVenta,
@@ -396,4 +396,3 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
   );
 }
 
-    
