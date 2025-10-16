@@ -3,27 +3,31 @@
 
 import React, { useState, useEffect, useCallback, use, Suspense } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer as PrinterIcon } from 'lucide-react';
-import Link from 'next/link';
+import { ArrowLeft, Printer as PrinterIcon, Share2, Edit, Upload, PlusCircle, Trash2, Camera, Loader2, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import type { FiestaEnPlanificacion, CartaTragosData, Trago } from '@/types/fiesta';
+import { getFiestaActual, updateCartaTragosFiestaActual as updateCartaTragos } from '@/app/actions/fiesta-actual';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
-import { Loader2, AlertTriangle, Edit } from 'lucide-react';
-import NextImage from 'next/image';
-import { EditableText } from '@/components/invitacion/edit/EditableText';
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Loader2 as LoaderIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { UploadButton } from '@/components/invitacion/edit/UploadButton';
+import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
+import { cn } from '@/lib/utils';
+import { defaultCartaTragosData } from '@/lib/fiesta-defaults';
+import NextImage from 'next/image';
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import QRCodeStylized from 'qrcode.react';
 
 const formatDate = (dateString?: string) => {
-  if (!dateString) return "Fecha no definida";
+  if (!dateString) return "____________";
   try {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' });
-  } catch (e) { return "Fecha inválida"; }
+    return new Date(dateString).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  } catch (e) {
+    return "Fecha inválida";
+  }
 };
 
 interface TableNumberData {
@@ -53,7 +57,7 @@ function NumerosDeMesaContent() {
     if (!fiestaId) return;
     setIsLoading(true);
     try {
-      const [fiestaData, settings] = await Promise.all([getFiestaById(fiestaId), getInvoiceTemplateSettings()]);
+      const [fiestaData, settings] = await Promise.all([getFiestaActual(), getInvoiceTemplateSettings()]);
       if (!fiestaData) throw new Error("Fiesta no encontrada");
 
       setData({
@@ -75,7 +79,7 @@ function NumerosDeMesaContent() {
 
   useEffect(() => {
     loadData();
-  }, [fiestaId]); // Depend on fiestaId, loadData is stable
+  }, [fiestaId]);
 
   const handleUpdate = (field: keyof TableNumberData, value: string) => {
     setData(prev => ({ ...prev, [field]: value }));
@@ -87,12 +91,12 @@ function NumerosDeMesaContent() {
     return <div className="p-8 max-w-4xl mx-auto flex justify-center"><Loader2 className="w-8 h-8 animate-spin" /></div>;
   }
   if (error) {
-    return <div className="p-8 max-w-4xl mx-auto text-center"><AlertTriangle className="mx-auto w-10" /> {error}</div>;
+    return <div className="p-8 max-w-4xl mx-auto text-center">{error}</div>;
   }
   
   const TableNumberCard: React.FC<{ tableNumber: number }> = ({ tableNumber }) => (
     <div className="border border-black relative bg-gray-100 overflow-hidden">
-        <NextImage src={data.backgroundImageUrl} layout="fill" objectFit="cover" className="opacity-40" alt="" data-ai-hint="floral background"/>
+        {data.backgroundImageUrl && <NextImage src={data.backgroundImageUrl} layout="fill" objectFit="cover" className="opacity-40" alt="" data-ai-hint="floral background"/>}
         {data.logoUrl && <NextImage src={data.logoUrl} width={50} height={20} alt="logo" className="absolute bottom-2 right-2 object-contain" data-ai-hint="company logo"/>}
          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
             <h2 className="font-['Dancing_Script',_cursive] text-6xl text-purple-600">Mesa {tableNumber}</h2>
