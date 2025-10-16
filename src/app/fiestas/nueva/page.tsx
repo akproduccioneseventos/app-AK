@@ -24,9 +24,8 @@ const formatDate = (dateString?: string) => {
 const modules = [
   { title: "Configuración", href: "configuracion", icon: Users, description: "Datos generales del evento." },
   { title: "Tareas", href: "tareas", icon: ListChecks, description: "Checklist de pendientes." },
-  { title: "Invitados", href: "invitados", icon: Users, description: "Gestiona tu lista de invitados." },
+  { title: "Invitados", href: "invitados", icon: Users, description: "Gestiona tu lista, asigna mesas e imprime los números." },
   { title: "Página del Evento", href: "pagina-web", icon: Globe, description: "Personaliza la web que verán tus invitados." },
-  { title: "Diseño de Salón", href: "invitados/layout", icon: LayoutDashboard, description: "Organiza las mesas y asientos." },
   { title: "Diseño y Decoración", href: "decoracion", icon: Palette, description: "Define el estilo y la ambientación." },
   { title: "Catering", href: "catering", icon: ChefHat, description: "Planifica el menú gastronómico." },
   { title: "Carta de Tragos", href: "carta-tragos", icon: GlassWater, description: "Diseña el menú de la barra de tragos." },
