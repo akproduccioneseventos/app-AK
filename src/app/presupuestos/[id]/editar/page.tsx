@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -18,7 +18,7 @@ import { getPresupuestoById, updatePresupuesto } from '@/app/actions/presupuesto
 import { ALL_TIPOS_EVENTO } from '@/types/presupuesto';
 
 export default function EditarPresupuestoPage({ params: paramsProp }: { params: { id: string } }) {
-  const params = React.use(paramsProp);
+  const params = use(paramsProp);
   const router = useRouter();
   const presupuestoId = params.id as string;
   const { toast } = useToast();

@@ -1,6 +1,7 @@
+
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -28,7 +29,7 @@ import {
 import { MultiSelect } from '@/components/ui/multi-select';
 
 export default function EditarEmpleadoPage({ params: paramsProp }: { params: { id: string } }) {
-  const params = React.use(paramsProp);
+  const params = use(paramsProp);
   const router = useRouter();
   const { toast } = useToast();
   
