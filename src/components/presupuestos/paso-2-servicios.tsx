@@ -10,7 +10,7 @@ import { Sparkles, PackageSearch, PlusCircle, Search, Trash2, ChefHat } from 'lu
 import type { Dispatch, SetStateAction } from 'react';
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Separator } from '@/components/ui/separator';
-import type { PaqueteArmadoRapido, MenuArmadoRapido } from '@/types/armado-rapido';
+import type { PaqueteArmadoRapido } from '@/types/armado-rapido';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '../ui/sheet';
 import EditServicioForm from '@/components/presupuestos/EditServicioForm';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -19,7 +19,6 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Checkbox } from '@/components/ui/checkbox';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import type { FullMenu, MenuItem } from '@/types/catering';
 import { MultiSelect } from '@/components/ui/multi-select'; 
 import { useToast } from '@/hooks/use-toast';
@@ -102,6 +101,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
     
     const enhanceWithPrice = (item: MenuItem) => ({
       ...item,
+      // Use suggestedSellingPrice as the final price, fallback to cost
       precioVenta: item.suggestedSellingPrice ?? item.totalDishCost ?? 0,
       nombre: item.name,
     });
