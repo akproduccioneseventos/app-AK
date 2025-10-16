@@ -73,19 +73,17 @@ function calcularCostoItem(item: ItemPresupuestado, invitados: number): number {
   return itemTotal;
 }
 
-const menuItemToServicioSeleccionado = (item: MenuItem, invitados: number): ServicioSeleccionadoValue => {
-    // PVP es prioritario, si no, el costo con margen por defecto.
-    const precioVenta = item.suggestedSellingPrice ?? (item.totalDishCost || 0);
+const menuItemToServicioSeleccionado = (item: MenuItem & { precioVenta: number }, invitados: number): ServicioSeleccionadoValue => {
     return {
         cantidad: invitados, // Para cálculo por persona
-        precioUnitarioOriginal: precioVenta,
-        precioUnitarioPresupuesto: precioVenta,
+        precioUnitarioOriginal: item.precioVenta,
+        precioUnitarioPresupuesto: item.precioVenta,
         nombreServicio: item.name,
         unidad: 'Por Persona',
         categoriaServicio: 'Servicio de catering',
         esRegalo: false,
         calculationMethod: 'porPersona',
-        precioPorPersona: precioVenta,
+        precioPorPersona: item.precioVenta,
     };
 };
 
@@ -105,7 +103,9 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
     
     const enhanceWithPrice = (item: MenuItem) => ({
       ...item,
-      precioVenta: item.suggestedSellingPrice ?? (item.totalDishCost || 0) * 2.2, // Asegura PVP
+      // Asegura que precioVenta sea el PVP (costo + margen) o el costo si el PVP no está definido
+      precioVenta: item.suggestedSellingPrice ?? item.totalDishCost ?? 0,
+      nombre: item.name, // Make sure name is explicitly included
     });
     
     return {
@@ -323,7 +323,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                     <SelectContent>
                       {platosPrincipales.map(p => (
                         <SelectItem key={p.id} value={p.id}>
-                          {p.name} ({formatCurrency(p.precioVenta)})
+                          {p.nombre} ({formatCurrency(p.precioVenta)})
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -340,7 +340,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                     <SelectContent>
                       {menusInfantiles.map(m => (
                         <SelectItem key={m.id} value={m.id}>
-                           {m.name} ({formatCurrency(m.precioVenta)})
+                           {m.nombre} ({formatCurrency(m.precioVenta)})
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -397,3 +397,4 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
     </div>
   );
 }
+
