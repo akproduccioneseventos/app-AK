@@ -47,18 +47,22 @@ export default function GestionMenusPage() {
       setReposteriaTemplate(reposteriaData);
       setBebidasTemplate(bebidasData);
 
-      // Flatten all items and apply default profit margin
+      // Recalculate costs for all items and apply default margin
       const allItems = menusData.flatMap(menu => 
         menu.items.map(item => {
+          // 1. Recalculate totalDishCost from ingredients
+          const cost = (item.ingredients || []).reduce((sum, ing) => sum + (Number(ing.cost) || 0), 0);
+          
+          // 2. Determine the profit margin (use 120% if not defined)
           const profitMargin = item.profitMargin === undefined ? 120 : item.profitMargin;
-          const cost = item.totalDishCost || 0;
-          const suggestedSellingPrice = item.suggestedSellingPrice === undefined 
-            ? cost * (1 + profitMargin / 100) 
-            : item.suggestedSellingPrice;
+          
+          // 3. Calculate suggestedSellingPrice based on the *new* cost and margin
+          const suggestedSellingPrice = cost * (1 + profitMargin / 100);
 
           return {
             ...item,
             menuId: menu.id, // Add menuId for context
+            totalDishCost: cost, // Use the newly calculated cost
             profitMargin,
             suggestedSellingPrice
           };
