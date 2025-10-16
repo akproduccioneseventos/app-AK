@@ -78,7 +78,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
           if (field === 'suggestedSellingPrice') {
             const price = Number(value) || 0;
             const cost = item.totalDishCost || 0;
-            const newMargin = cost > 0 ? ((price / cost) - 1) * 100 : 0;
+            const newMargin = cost > 0 ? ((price / cost) - 1) * 100 : item.profitMargin; // Keep margin if cost is 0
             return { ...updatedItem, profitMargin: newMargin };
           }
           return calculatePrices(updatedItem);
@@ -110,10 +110,10 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
       type: 'Entrada',
       ingredients: [],
       totalDishCost: 0,
-      profitMargin: 100, // Default profit margin
+      profitMargin: 120, // Default profit margin
       suggestedSellingPrice: 0,
     };
-    setMenu(prev => ({ ...prev, items: [...(prev.items || []), newItem] }));
+    setMenu(prev => ({ ...prev, items: [...(prev.items || []), calculatePrices(newItem)] }));
   };
   
   const addIngredient = (itemId: string) => {
@@ -242,7 +242,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                                         }}
                                     >
                                         <div>
-                                            <p className="font-medium">{insumo.nombre}</p>
+                                            <p className="font-medium text-sm">{insumo.nombre}</p>
                                             <p className="text-xs text-muted-foreground">{formatCurrency(insumo.valorUnitarioEstimado || 0)} / {insumo.unidad}</p>
                                         </div>
                                     </Button>
@@ -308,11 +308,14 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                         <Button type="button" size="sm" variant="outline" onClick={() => openCatalogModal(item.id)}><BookOpen className="w-4 h-4 mr-1.5"/>Seleccionar del Catálogo</Button>
                      </div>
                  </CardContent>
-                 <CardFooter className="p-0 pt-4 flex flex-col items-end gap-2">
-                    <p className="text-sm font-semibold w-full text-right">Costo Plato p/Persona: {formatCurrency(item.totalDishCost || 0)}</p>
-                    <div className="grid grid-cols-2 gap-4 w-full max-w-sm ml-auto">
+                 <CardFooter className="p-0 pt-4">
+                    <div className="grid grid-cols-3 gap-4 w-full">
                         <div className="space-y-1">
-                            <Label htmlFor={`profit-${item.id}`} className="text-sm flex items-center gap-1"><Percent className="w-3 h-3"/>Margen Ganancia</Label>
+                            <Label className="text-sm font-medium">Costo p/Persona</Label>
+                            <p className="font-semibold text-lg">{formatCurrency(item.totalDishCost || 0)}</p>
+                        </div>
+                        <div className="space-y-1">
+                            <Label htmlFor={`profit-${item.id}`} className="text-sm flex items-center gap-1"><Percent className="w-3 h-3"/>Margen (%)</Label>
                             <Input id={`profit-${item.id}`} type="number" value={item.profitMargin?.toFixed(0) ?? ''} onChange={e => handleItemChange(item.id, 'profitMargin', e.target.value)} />
                         </div>
                         <div className="space-y-1">
