@@ -57,22 +57,22 @@ export default function MainDashboardPage() {
         </p>
       </div>
 
-      <div className="flex justify-center flex-wrap gap-3">
+      <div className="flex flex-col sm:flex-row justify-center flex-wrap gap-3">
         <Link href="/simulador-de-presupuesto" passHref>
-          <Button size="lg" variant="outline">
+          <Button size="lg" variant="outline" className="w-full sm:w-auto">
             <Wand2 className="w-5 h-5 mr-2" />
             Simulador de Presupuesto
           </Button>
         </Link>
         <Link href="/presupuestos/nuevo/crear" passHref>
-          <Button size="lg">
+          <Button size="lg" className="w-full sm:w-auto">
             <ListChecks className="w-5 h-5 mr-2" />
             Crear Presupuesto Manual
           </Button>
         </Link>
       </div>
 
-       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
+       <div className="grid gap-6 md:grid-cols-2">
         {mainHubItems.map((item) => (
           <Card key={item.title} className="flex flex-col shadow-lg hover:shadow-xl transition-shadow duration-300">
             <CardHeader className="flex-row items-start gap-4 space-y-0 pb-3">

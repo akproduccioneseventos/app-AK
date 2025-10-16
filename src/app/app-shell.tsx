@@ -248,6 +248,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   // Define special pages that might have their own layout
   const isBudgetViewPage = /^\/presupuestos\/[^/]+\/ver$/.test(pathname);
   const isInvoiceViewPage = /^\/invoices\/[^/]+$/.test(pathname) && !pathname.endsWith('/edit');
+  const isTableNumberPage = pathname.endsWith('/numeros-mesa');
+  const isDrinksMenuPage = pathname.endsWith('/carta-tragos');
+
 
   const isSpecialRender = 
     isAuthPage || 
@@ -255,7 +258,9 @@ export function AppShell({ children }: { children: ReactNode }) {
     isClientFacingTool ||
     isPdfPage ||
     isBudgetViewPage ||
-    isInvoiceViewPage;
+    isInvoiceViewPage ||
+    isTableNumberPage ||
+    isDrinksMenuPage;
 
   // Simplified logic for when to render the shell
   if (isSpecialRender) {

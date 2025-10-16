@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Printer as PrinterIcon, Share2, Edit, Upload, PlusCircle, Trash2, Camera, Loader2, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, CartaTragosData, Trago } from '@/types/fiesta';
-import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaActual, updateCartaTragosFiestaActual as updateCartaTragos } from '@/app/actions/fiesta-actual';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Loader2 as LoaderIcon } from 'lucide-react';
@@ -169,8 +169,8 @@ function NumerosDeMesaContent() {
                 </Dialog>
             </div>
             <div className="flex gap-2">
-                <Link href={`/fiestas/nueva/invitados/layout?fiestaId=${fiestaId}`} passHref>
-                    <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Diseño</Button>
+                <Link href={`/fiestas/nueva/invitados?fiestaId=${fiestaId}`} passHref>
+                    <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button>
                 </Link>
                 <Button onClick={handlePrint}><PrinterIcon className="w-4 h-4 mr-2"/>Imprimir</Button>
             </div>

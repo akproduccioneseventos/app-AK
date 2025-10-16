@@ -10,7 +10,7 @@ import { ArrowLeft, ShoppingCart, ChefHat, Palette, HardHat } from 'lucide-react
 export default function ComprasPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
             <ShoppingCart className="w-8 h-8 text-primary" />
             <h1 className="text-3xl font-bold tracking-tight font-headline">
