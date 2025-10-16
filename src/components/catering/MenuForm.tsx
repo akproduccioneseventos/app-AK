@@ -51,7 +51,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     }
     const fetchInsumos = async () => {
       try {
-        const insumos = await getServiciosEmpresa();
+        const insumos = await getInsumos();
         setCatalogoInsumos(insumos.filter(i => i.tipoItem === 'Insumo/Ingrediente' || i.tipoItem === 'Bebida (Insumo)'));
       } catch (e) {
         toast({ title: "Error", description: "No se pudo cargar el catálogo de insumos."});
@@ -316,7 +316,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                             <Input id={`profit-${item.id}`} type="number" value={item.profitMargin?.toFixed(0) ?? ''} onChange={e => handleItemChange(item.id, 'profitMargin', e.target.value)} />
                         </div>
                         <div className="space-y-1">
-                             <Label htmlFor={`price-${item.id}`} className="text-sm flex items-center gap-1"><DollarSign className="w-3 h-3"/>PVP Sugerido</Label>
+                             <Label htmlFor={`price-${item.id}`} className="text-sm flex items-center gap-1"><DollarSign className="w-3 h-3"/>Precio ($)</Label>
                              <Input id={`price-${item.id}`} type="number" value={item.suggestedSellingPrice?.toFixed(0) ?? ''} onChange={e => handleItemChange(item.id, 'suggestedSellingPrice', e.target.value)} />
                         </div>
                     </div>
