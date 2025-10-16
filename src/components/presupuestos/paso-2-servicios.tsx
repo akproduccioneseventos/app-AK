@@ -73,20 +73,21 @@ function calcularCostoItem(item: ItemPresupuestado, invitados: number): number {
   return itemTotal;
 }
 
-const menuItemToServicioSeleccionado = (item: MenuItem & { precioVenta: number }, invitados: number): ServicioSeleccionadoValue => {
+// Ensure PVP is used for display and selection
+const menuItemToServicioSeleccionado = (item: MenuItem, invitados: number): ServicioSeleccionadoValue => {
+    const precioVenta = item.suggestedSellingPrice ?? item.totalDishCost ?? 0;
     return {
-        cantidad: invitados, // Para cálculo por persona
-        precioUnitarioOriginal: item.precioVenta,
-        precioUnitarioPresupuesto: item.precioVenta,
+        cantidad: invitados,
+        precioUnitarioOriginal: precioVenta,
+        precioUnitarioPresupuesto: precioVenta,
         nombreServicio: item.name,
         unidad: 'Por Persona',
         categoriaServicio: 'Servicio de catering',
         esRegalo: false,
         calculationMethod: 'porPersona',
-        precioPorPersona: item.precioVenta,
+        precioPorPersona: precioVenta,
     };
 };
-
 
 export default function Paso2Servicios({ formData, setFormData, serviciosCatalogo, paquetesBase, allMenus, onCatalogUpdate, totalInvitados }: Paso2ServiciosProps) {
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
@@ -99,14 +100,13 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
     }
     const allItems = allMenus.flatMap(m => m.items);
     
-    const sortByPrice = (a: MenuItem & { precioVenta: number }, b: MenuItem & { precioVenta: number }) => a.precioVenta - b.precioVenta;
-    
     const enhanceWithPrice = (item: MenuItem) => ({
       ...item,
-      // Asegura que precioVenta sea el PVP (costo + margen) o el costo si el PVP no está definido
       precioVenta: item.suggestedSellingPrice ?? item.totalDishCost ?? 0,
-      nombre: item.name, // Make sure name is explicitly included
+      nombre: item.name,
     });
+    
+    const sortByPrice = (a: { precioVenta: number }, b: { precioVenta: number }) => a.precioVenta - b.precioVenta;
     
     return {
       entradas: allItems.filter(item => item.type === 'Entrada').map(enhanceWithPrice).sort(sortByPrice),
@@ -241,7 +241,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
         <DialogContent className="sm:max-w-xl">
           <DialogHeader>
             <DialogTitle>Añadir Servicio desde Catálogo</DialogTitle>
-             <DialogDescription>
+            <DialogDescription>
                 Selecciona los servicios que deseas añadir a este presupuesto.
             </DialogDescription>
           </DialogHeader>
@@ -357,7 +357,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-medium font-headline text-primary">Servicios Adicionales</h3>
           <Button type="button" variant="outline" size="sm" onClick={() => setIsCatalogModalOpen(true)}>
-            <PlusCircle className="w-4 h-4 mr-2"/>Añadir desde Catálogo
+            <PlusCircle className="w-4 h-4 mr-2"/>Añadir Servicio desde Catálogo
           </Button>
         </div>
         <Card>
@@ -397,4 +397,3 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
     </div>
   );
 }
-

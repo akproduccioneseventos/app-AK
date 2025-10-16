@@ -33,7 +33,14 @@ export default function GestionMenusPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   // State for individual dish editing
-  const [editableItems, setEditableItems] = useState<MenuItem[]>([]);
+  const [editableItems, setEditableItems] = useState<(MenuItem & { menuId: string })[]>([]);
+
+  const calculatePrices = useCallback((item: MenuItem): MenuItem => {
+    const totalDishCost = (item.ingredients || []).reduce((sum, ing) => sum + (Number(ing.cost) || 0), 0);
+    const profitMargin = item.profitMargin === undefined || isNaN(item.profitMargin) ? 120 : item.profitMargin;
+    const suggestedSellingPrice = totalDishCost * (1 + profitMargin / 100);
+    return { ...item, totalDishCost, suggestedSellingPrice, profitMargin };
+  }, []);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -50,21 +57,10 @@ export default function GestionMenusPage() {
       // Recalculate costs for all items and apply default margin
       const allItems = menusData.flatMap(menu => 
         menu.items.map(item => {
-          // 1. Recalculate totalDishCost from ingredients
-          const cost = (item.ingredients || []).reduce((sum, ing) => sum + (Number(ing.cost) || 0), 0);
-          
-          // 2. Determine the profit margin (use 120% if not defined)
-          const profitMargin = item.profitMargin === undefined ? 120 : item.profitMargin;
-          
-          // 3. Calculate suggestedSellingPrice based on the *new* cost and margin
-          const suggestedSellingPrice = cost * (1 + profitMargin / 100);
-
+          const calculatedItem = calculatePrices(item);
           return {
-            ...item,
+            ...calculatedItem,
             menuId: menu.id, // Add menuId for context
-            totalDishCost: cost, // Use the newly calculated cost
-            profitMargin,
-            suggestedSellingPrice
           };
         })
       );
@@ -75,7 +71,7 @@ export default function GestionMenusPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, [toast, calculatePrices]);
 
   useEffect(() => {
     loadData();
@@ -88,7 +84,7 @@ export default function GestionMenusPage() {
           const cost = item.totalDishCost || 0;
           if (field === 'suggestedSellingPrice') {
             const newPrice = value;
-            const newMargin = cost > 0 ? ((newPrice / cost) - 1) * 100 : 0;
+            const newMargin = cost > 0 ? ((newPrice / cost) - 1) * 100 : item.profitMargin;
             return { ...item, suggestedSellingPrice: newPrice, profitMargin: newMargin };
           }
           if (field === 'profitMargin') {
@@ -109,7 +105,7 @@ export default function GestionMenusPage() {
 
       // Group edited items by their original menu
       editableItems.forEach(editedItem => {
-        const menuId = (editedItem as any).menuId;
+        const menuId = editedItem.menuId;
         if (!menuId) return;
 
         if (!updatedMenusMap.has(menuId)) {
@@ -121,8 +117,9 @@ export default function GestionMenusPage() {
         if (menuToUpdate) {
             const itemIndex = menuToUpdate.items.findIndex(i => i.id === editedItem.id);
             if (itemIndex > -1) {
-                // Create a new object for the item without the temporary menuId
-                const { menuId: _, ...itemToSave } = editedItem as any;
+                // Ensure the item being saved is fully calculated
+                const finalItemData = calculatePrices(editedItem);
+                const { menuId: _, ...itemToSave } = finalItemData as any;
                 menuToUpdate.items[itemIndex] = itemToSave;
             }
         }
