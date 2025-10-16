@@ -93,10 +93,15 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
 
   const { entradas, platosPrincipales, menusInfantiles } = useMemo(() => {
     const allItems = allMenus.flatMap(m => m.items);
+    const sortByPrice = (a: MenuItem, b: MenuItem) => {
+        const priceA = a.suggestedSellingPrice ?? a.totalDishCost ?? 0;
+        const priceB = b.suggestedSellingPrice ?? b.totalDishCost ?? 0;
+        return priceA - priceB;
+    };
     return {
-      entradas: allItems.filter(item => item.type === 'Entrada'),
-      platosPrincipales: allItems.filter(item => item.type === 'Plato Principal'),
-      menusInfantiles: allItems.filter(item => item.type === 'Menú Infantil'),
+      entradas: allItems.filter(item => item.type === 'Entrada').sort(sortByPrice),
+      platosPrincipales: allItems.filter(item => item.type === 'Plato Principal').sort(sortByPrice),
+      menusInfantiles: allItems.filter(item => item.type === 'Menú Infantil/Adolescente').sort(sortByPrice),
     }
   }, [allMenus]);
 
@@ -269,7 +274,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                 <div className='space-y-2'>
                   <Label>Entradas (Selección múltiple)</Label>
                   <MultiSelect
-                    options={entradas.map(e => ({ value: e.id, label: `${e.name} (${formatCurrency(e.totalDishCost * totalInvitados)})` }))}
+                    options={entradas.map(e => ({ value: e.id, label: `${e.name} (${formatCurrency(e.suggestedSellingPrice)})` }))}
                     selected={Array.from(formData.serviciosSeleccionados.keys()).filter(id => entradas.some(e => e.id === id))}
                     onValueChange={(selected) => handleGastronomicSelectionChange('entradas', selected)}
                     placeholder="Selecciona las entradas..."
@@ -286,7 +291,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                     <SelectContent>
                       {platosPrincipales.map(p => (
                         <SelectItem key={p.id} value={p.id}>
-                          {p.name} ({formatCurrency(p.totalDishCost * totalInvitados)})
+                          {p.name} ({formatCurrency(p.suggestedSellingPrice)})
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -303,7 +308,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                     <SelectContent>
                       {menusInfantiles.map(m => (
                         <SelectItem key={m.id} value={m.id}>
-                           {m.name} ({formatCurrency(m.totalDishCost * (formData.invitadosNinos || 0))})
+                           {m.name} ({formatCurrency(m.suggestedSellingPrice)})
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -370,3 +375,5 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
     </div>
   );
 }
+
+    
