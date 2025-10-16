@@ -12,6 +12,7 @@ import fs from 'fs/promises';
 const FIESTAS_DIR = 'fiestas';
 const ARCHIVE_DIR = 'archive';
 const ARCHIVE_FILE_PATH_PREFIX = 'archive';
+const EXAMPLE_FIESTA_FILE = 'fiestas/fiesta_actual_ejemplo.json';
 
 
 async function ensureDirectoryExists(dirPath: string) {
@@ -78,17 +79,35 @@ async function getActivas(): Promise<FiestaEnPlanificacion[]> {
 export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
     const activas = await getActivas();
     if (activas.length > 0) {
-        // Return the first active event found. This simplifies logic for single-event components.
-        return activas[0];
+        // Find the most recently updated active event.
+        const sortedByUpdate = activas.sort((a,b) => 
+            new Date(b.configuracion.fechaEvento || 0).getTime() - new Date(a.configuracion.fechaEvento || 0).getTime()
+        );
+        return sortedByUpdate[0];
     }
-    // If no active events, return a default placeholder.
-    return { ...initialFiestaActualData, id: `fiesta_placeholder_${Date.now()}`};
+    // If no active events, load the example one.
+    try {
+        const exampleFiesta = await readData<FiestaEnPlanificacion>(EXAMPLE_FIESTA_FILE, initialFiestaActualData);
+        return exampleFiesta;
+    } catch {
+         return { ...initialFiestaActualData, id: `fiesta_placeholder_${Date.now()}`};
+    }
 }
 
 
 export async function getAllFiestas(): Promise<FiestaEnPlanificacion[]> {
   const [activas, archivadas] = await Promise.all([getActivas(), getHistorialFiestas()]);
-  return [...activas, ...archivadas];
+  const allFiestas = [...activas, ...archivadas];
+
+   // Check if any active event is the example one, to avoid duplicates
+  if (activas.length === 0) {
+    try {
+        const exampleFiesta = await readData<FiestaEnPlanificacion>(EXAMPLE_FIESTA_FILE, null as any);
+        if(exampleFiesta) allFiestas.push(exampleFiesta);
+    } catch {}
+  }
+  
+  return allFiestas;
 }
 
 export async function deleteFiesta(fiestaId: string): Promise<{ success: boolean; error?: string }> {
