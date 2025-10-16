@@ -93,7 +93,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
 
-  const { entradas, platosPrincipales, menusInfantiles } = useMemo(() => {
+ const { entradasDisponibles, principalesDisponibles, menusNinoDisponibles } = useMemo(() => {
     if (!allMenus || allMenus.length === 0) {
       return { entradas: [], platosPrincipales: [], menusInfantiles: [] };
     }
@@ -101,17 +101,17 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
     
     const enhanceWithPrice = (item: MenuItem) => ({
       ...item,
-      // Use suggestedSellingPrice as the final price, fallback to cost
-      precioVenta: item.suggestedSellingPrice ?? item.totalDishCost ?? 0,
+      // Ensure this uses the final sale price, with fallbacks
+      precioVenta: item.suggestedSellingPrice ?? (item.totalDishCost ? item.totalDishCost * (1 + (item.profitMargin ?? 120) / 100) : 0),
       nombre: item.name,
     });
     
     const sortByPrice = (a: { precioVenta: number }, b: { precioVenta: number }) => a.precioVenta - b.precioVenta;
     
     return {
-      entradas: allItems.filter(item => item.type === 'Entrada').map(enhanceWithPrice).sort(sortByPrice),
+      entradasDisponibles: allItems.filter(item => item.type === 'Entrada').map(enhanceWithPrice).sort(sortByPrice),
       platosPrincipales: allItems.filter(item => item.type === 'Plato Principal').map(enhanceWithPrice).sort(sortByPrice),
-      menusInfantiles: allItems.filter(item => item.type === 'Menú Infantil/Adolescente').map(enhanceWithPrice).sort(sortByPrice),
+      menusNinoDisponibles: allItems.filter(item => item.type === 'Menú Infantil/Adolescente').map(enhanceWithPrice).sort(sortByPrice),
     }
   }, [allMenus]);
 
@@ -185,7 +185,9 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
       setFormData(prev => {
         const newSelected = new Map(prev.serviciosSeleccionados);
         
-        const itemsToClear = type === 'entradas' ? entradas : type === 'principal' ? platosPrincipales : menusInfantiles;
+        const allDishes = [...entradasDisponibles, ...principalesDisponibles, ...menusNinoDisponibles];
+        const itemsToClear = type === 'entradas' ? entradasDisponibles : type === 'principal' ? principalesDisponibles : menusNinoDisponibles;
+
         itemsToClear.forEach(item => {
             if (newSelected.has(item.id)) {
                 newSelected.delete(item.id);
@@ -194,7 +196,6 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
 
         const idsToAdd = Array.isArray(selectedIds) ? selectedIds : [selectedIds];
         idsToAdd.forEach(id => {
-            const allDishes = [...entradas, ...platosPrincipales, ...menusInfantiles];
             const dishToAdd = allDishes.find(d => d.id === id);
             if (dishToAdd) {
                 newSelected.set(dishToAdd.id, menuItemToServicioSeleccionado(dishToAdd, totalInvitados));
@@ -306,8 +307,8 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                 <div className='space-y-2'>
                   <Label>Entradas (Selección múltiple)</Label>
                   <MultiSelect
-                    options={entradas.map(e => ({ value: e.id, label: `${e.nombre} (${formatCurrency(e.precioVenta)})` }))}
-                    selected={Array.from(formData.serviciosSeleccionados.keys()).filter(id => entradas.some(e => e.id === id))}
+                    options={entradasDisponibles.map(e => ({ value: e.id, label: `${e.nombre} (${formatCurrency(e.precioVenta)})` }))}
+                    selected={Array.from(formData.serviciosSeleccionados.keys()).filter(id => entradasDisponibles.some(e => e.id === id))}
                     onValueChange={(selected) => handleGastronomicSelectionChange('entradas', selected)}
                     placeholder="Selecciona las entradas..."
                     className="w-full"
@@ -317,11 +318,11 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                   <Label>Plato Principal (Selección única)</Label>
                   <Select
                     onValueChange={(value) => handleGastronomicSelectionChange('principal', value)}
-                    value={Array.from(formData.serviciosSeleccionados.keys()).find(id => platosPrincipales.some(p => p.id === id)) || ''}
+                    value={Array.from(formData.serviciosSeleccionados.keys()).find(id => principalesDisponibles.some(p => p.id === id)) || ''}
                   >
                     <SelectTrigger><SelectValue placeholder="Selecciona un plato principal..."/></SelectTrigger>
                     <SelectContent>
-                      {platosPrincipales.map(p => (
+                      {principalesDisponibles.map(p => (
                         <SelectItem key={p.id} value={p.id}>
                           {p.nombre} ({formatCurrency(p.precioVenta)})
                         </SelectItem>
@@ -333,12 +334,12 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                   <Label>Menú Infantil/Adolescente</Label>
                    <Select
                     onValueChange={(value) => handleGastronomicSelectionChange('infantil', value)}
-                    value={Array.from(formData.serviciosSeleccionados.keys()).find(id => menusInfantiles.some(m => m.id === id)) || ''}
+                    value={Array.from(formData.serviciosSeleccionados.keys()).find(id => menusNinoDisponibles.some(m => m.id === id)) || ''}
                     disabled={(formData.invitadosNinos || 0) === 0}
                   >
                     <SelectTrigger><SelectValue placeholder={(formData.invitadosNinos || 0) > 0 ? "Selecciona un menú..." : "Añade niños/adolescentes en Paso 1"}/></SelectTrigger>
                     <SelectContent>
-                      {menusInfantiles.map(m => (
+                      {menusNinoDisponibles.map(m => (
                         <SelectItem key={m.id} value={m.id}>
                            {m.nombre} ({formatCurrency(m.precioVenta)})
                         </SelectItem>
