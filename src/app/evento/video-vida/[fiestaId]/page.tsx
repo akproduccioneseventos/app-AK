@@ -95,7 +95,8 @@ const PhotoUploadSlot: React.FC<{
 
 
 // --- Componente Principal que se renderiza solo en el cliente ---
-function VideoVidaClientPageContent({ params }: { params: { fiestaId: string } }) {
+function VideoVidaClientPageContent({ params: paramsProp }: { params: { fiestaId: string } }) {
+  const params = use(paramsProp);
   const { toast } = useToast();
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [photoSlots, setPhotoSlots] = useState<PhotoSlot[]>([]);
