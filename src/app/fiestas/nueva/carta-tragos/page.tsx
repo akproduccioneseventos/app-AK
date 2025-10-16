@@ -1,11 +1,11 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, type ChangeEvent } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent, type ChangeEvent } from 'react';
 import Link from 'next/link';
 import NextImage from 'next/image';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer as PrinterIcon, Share2, GlassWater, Edit, Upload, PlusCircle, Trash2, Camera, Loader2 } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, Share2, GlassWater, Edit, Upload, PlusCircle, Trash2, Camera, Loader2, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, CartaTragosData, Trago } from '@/types/fiesta';
 import { getFiestaActual, updateCartaTragosFiestaActual as updateCartaTragos } from '@/app/actions/fiesta-actual';
@@ -44,7 +44,7 @@ const MenuComponent: React.FC<{
 
       <header className="relative z-10 grid grid-cols-2 gap-2 items-center px-4 mt-12">
         <div className="w-24 h-24 rounded-full border-4 border-white bg-gray-200 shadow-lg overflow-hidden justify-self-center">
-            <NextImage src={carta.protagonistaFotoUrl || "https://picsum.photos/seed/quinceanera/300/300"} alt={`Foto de ${protagonistaNombre}`} width={96} height={96} className="object-cover w-full h-full" data-ai-hint="protagonist photo"/>
+            <NextImage src={carta.protagonistaFotoUrl || "https://picsum.photos/seed/quinceanera-main/300/300"} alt={`Foto de ${protagonistaNombre}`} width={96} height={96} className="object-cover w-full h-full" data-ai-hint="protagonist photo"/>
         </div>
         <div className="text-center">
             <h1 className="font-bold text-xl text-white uppercase tracking-wider" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>Carta de Tragos</h1>
@@ -116,9 +116,10 @@ export default function CartaTragosPage() {
   }, [loadData]);
   
   const handleSaveChanges = async () => {
+    if (!fiesta) return;
     setIsSaving(true);
     try {
-      const result = await updateCartaTragos(cartaTragos);
+      const result = await updateCartaTragos(fiesta.id, cartaTragos);
       if (result.success) {
         toast({ title: "Guardado", description: "La carta de tragos ha sido actualizada." });
       } else {
@@ -239,13 +240,13 @@ export default function CartaTragosPage() {
         <div className="flex gap-4 items-center">
             <h1 className="font-headline text-xl">Carta de Tragos Personalizable</h1>
             <Button size="sm" onClick={handleSaveChanges} disabled={isSaving}>
-                {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2"/> : <Save className="w-4 h-4 mr-2"/>}
+                {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>}
                 Guardar Cambios
             </Button>
         </div>
         <div className="flex gap-2">
             <Button size="sm" variant="outline" onClick={handleAddItem}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Trago</Button>
-            <Link href={`/fiestas/nueva/catering?fiestaId=${fiesta.id}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
+            <Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
             <Button onClick={handlePrint} size="sm"><PrinterIcon className="w-4 h-4 mr-2"/>Imprimir</Button>
         </div>
       </div>
@@ -269,4 +270,3 @@ export default function CartaTragosPage() {
     </div>
   );
 }
-

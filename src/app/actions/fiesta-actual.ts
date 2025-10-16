@@ -2,7 +2,7 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, Tarea, Invitado, DecoracionData, ProgramaEventoItem, PersonalAsignadoDetalleStorage, ClientTarea, ClientPortalSettings, EventWebPageSettings, MusicaFiesta, GiftItem, ReposteriaData, BebidasData, ListaDeCargaOperativa, GestionCostosData, FotografiaYFilmacionData, OtroDocumento, DocumentoTipo, PagoProveedor, VideoVidaData, InvitacionDigitalData } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, Tarea, Invitado, DecoracionData, ProgramaEventoItem, PersonalAsignadoDetalleStorage, ClientTarea, ClientPortalSettings, EventWebPageSettings, MusicaFiesta, GiftItem, ReposteriaData, BebidasData, ListaDeCargaOperativa, GestionCostosData, FotografiaYFilmacionData, OtroDocumento, DocumentoTipo, PagoProveedor, VideoVidaData, InvitacionDigitalData, CartaTragosData } from '@/types/fiesta';
 import { 
     getFiestas as getFiestasFromModule,
     getAllFiestas as getAllFiestasFromModule,
@@ -17,7 +17,8 @@ import {
     deleteFiesta as deleteFiestaFromModule,
     duplicateFiesta as duplicateFiestaFromModule,
     getHistorialFiestas as getHistorialFiestasFromModule,
-    getFiestaActual as getFiestaData // Keep this for now for legacy components that don't pass an ID
+    getFiestaActual as getFiestaData, // Keep this for now for legacy components that don't pass an ID
+    updateCartaTragos as updateCartaTragosFromModule
 } from './fiesta/fiesta.actions';
 
 
@@ -134,3 +135,5 @@ export const updateVideoVidaSettingsFiestaActual = updateVideoVidaSettingsFromMo
 // --- Regalos Actions ---
 export const claimGiftFiestaActual = claimGift;
 
+// --- Carta Tragos Actions ---
+export const updateCartaTragosFiestaActual = updateCartaTragosFromModule;
