@@ -47,9 +47,22 @@ export default function GestionMenusPage() {
       setReposteriaTemplate(reposteriaData);
       setBebidasTemplate(bebidasData);
 
-      // Flatten all items for the new editor
+      // Flatten all items and apply default profit margin
       const allItems = menusData.flatMap(menu => 
-        menu.items.map(item => ({ ...item, menuId: menu.id })) // Add menuId for context
+        menu.items.map(item => {
+          const profitMargin = item.profitMargin === undefined ? 120 : item.profitMargin;
+          const cost = item.totalDishCost || 0;
+          const suggestedSellingPrice = item.suggestedSellingPrice === undefined 
+            ? cost * (1 + profitMargin / 100) 
+            : item.suggestedSellingPrice;
+
+          return {
+            ...item,
+            menuId: menu.id, // Add menuId for context
+            profitMargin,
+            suggestedSellingPrice
+          };
+        })
       );
       setEditableItems(allItems);
       
@@ -250,7 +263,7 @@ export default function GestionMenusPage() {
                   </CardContent>
                   <CardFooter>
                     <Button onClick={handleSaveAllItemChanges} disabled={isSaving}>
-                      {isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : null} Guardar Cambios en Platos
+                      {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : null} Guardar Cambios en Platos
                     </Button>
                   </CardFooter>
                 </Card>
