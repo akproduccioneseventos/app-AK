@@ -1,8 +1,7 @@
 
-
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -134,12 +133,26 @@ export default function ServiciosContratadosPage() {
           modalidad: 'Incluido en menú'
         }));
       }
-      personalConRol.forEach(p => allServices.catering.push({
-        id: `personal-${p.empleado.id}`,
-        nombre: `Personal: ${p.empleado.nombre} (${p.rol?.nombre || 'Sin rol'})`,
-        estado: 'Confirmado',
-        modalidad: 'Por evento'
-      }));
+      personalConRol.forEach(p => {
+        const item: SubServicioItem = {
+          id: `personal-${p.empleado.id}`,
+          nombre: `Personal: ${p.empleado.nombre} (${p.rol?.nombre || 'Sin rol'})`,
+          estado: 'Confirmado',
+          modalidad: 'Por evento'
+        };
+        // Asignar a una categoría más específica si es posible
+        if (p.rol?.categoriaServicio?.toLowerCase().includes('catering') || p.rol?.categoriaServicio?.toLowerCase().includes('personal')) {
+          allServices.catering.push(item);
+        } else if (p.rol?.categoriaServicio?.toLowerCase().includes('discoteca')) {
+          allServices.musica.push(item);
+        } else if (p.rol?.categoriaServicio?.toLowerCase().includes('seguridad')) {
+          allServices.seguridad.push(item);
+        } else if (p.rol?.categoriaServicio?.toLowerCase().includes('foto') || p.rol?.categoriaServicio?.toLowerCase().includes('video')) {
+          allServices.fotografia.push(item);
+        } else {
+            allServices.catering.push(item); // Fallback to catering
+        }
+      });
       presupuesto?.itemsPresupuestados?.forEach(s => {
         const item: SubServicioItem = { id: `sa-${s.idServicioCatalogo}`, nombre: s.nombreServicio, estado: 'Confirmado', modalidad: 'Según presupuesto' };
         if (s.categoriaServicio?.toLowerCase().includes('catering') || s.categoriaServicio?.toLowerCase().includes('vajilla') || s.categoriaServicio?.toLowerCase().includes('mantelería') || s.categoriaServicio?.toLowerCase().includes('mobiliario')) {
@@ -273,3 +286,6 @@ export default function ServiciosContratadosPage() {
     </div>
   );
 }
+
+
+    
