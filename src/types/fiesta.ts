@@ -40,6 +40,19 @@ export interface AsistenteAkConfig {
   }
 }
 
+// --- CARTA DE TRAGOS ---
+export interface Trago {
+  id: string;
+  nombre: string;
+  imageUrl: string;
+  aiHint?: string;
+}
+
+export interface CartaTragosData {
+  items: Trago[];
+  protagonistaFotoUrl?: string; // Foto principal de la carta
+}
+
 
 // --- RESTO DE TIPOS ---
 
@@ -54,6 +67,7 @@ export interface ConfigEventoDataStorage {
   presupuestoEstimado: number | string;
   notasAdicionales: string;
   clienteId?: string; // ID del cliente principal vinculado a esta fiesta
+  protagonista1Nombre?: string; // Nuevo campo para el nombre del agasajado/a
 }
 
 export interface PersonalAsignadoDetalleStorage {
@@ -251,6 +265,9 @@ export interface InvitacionDigitalData {
   dressCode: {
     visible: boolean;
     tipo: 'Formal' | 'Informal';
+    texto?: TextWithStyle; // Para "Otro"
+    sugeridos?: string[];
+    evitar?: string[];
   };
   redesSociales: {
     visible: boolean;
@@ -568,6 +585,9 @@ export interface FiestaEnPlanificacion {
   
   // New unified object for digital presence
   invitacionDigital?: InvitacionDigitalData;
+
+  // New object for drink menu
+  cartaTragos?: CartaTragosData;
 
   // Deprecated - will be migrated to invitacionDigital
   webPageSettings?: EventWebPageSettings; 

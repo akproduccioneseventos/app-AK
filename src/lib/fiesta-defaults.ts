@@ -1,7 +1,23 @@
 
 
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, GiftItem, LayoutElement, ClientTarea, ProgramaEventoItem, TareaAsignadaA, FotografiaYFilmacionData, BebidasConsumoConfig, TipoAsistente, ReposteriaConsumoConfig, OtroDocumento, VideoVidaData, BebidaReceta, IngredienteReceta, CargaOperativaCategoria, InvitacionDigitalData, SeccionInvitacion } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, GiftItem, LayoutElement, ClientTarea, ProgramaEventoItem, TareaAsignadaA, FotografiaYFilmacionData, BebidasConsumoConfig, TipoAsistente, ReposteriaConsumoConfig, OtroDocumento, VideoVidaData, BebidaReceta, IngredienteReceta, CargaOperativaCategoria, InvitacionDigitalData, SeccionInvitacion, CartaTragosData } from '@/types/fiesta';
 import { defaultInvitacionDigitalData } from './invitacion-digital-defaults';
+
+export const defaultCartaTragosData: CartaTragosData = {
+    protagonistaFotoUrl: "https://picsum.photos/seed/quinceanera-main/300/300",
+    items: [
+        { id: 'trago_1', nombre: 'DAIQUIRI DE DURAZNO', imageUrl: 'https://picsum.photos/seed/peach-daiquiri/400/600', aiHint: 'peach daiquiri' },
+        { id: 'trago_2', nombre: 'CAIPIRINHA', imageUrl: 'https://picsum.photos/seed/caipirinha/400/600', aiHint: 'caipirinha cocktail' },
+        { id: 'trago_3', nombre: 'ARIZONA', imageUrl: 'https://picsum.photos/seed/arizona-cocktail/400/600', aiHint: 'arizona cocktail' },
+        { id: 'trago_4', nombre: 'DAIQUIRI DE ANANA', imageUrl: 'https://picsum.photos/seed/pineapple-daiquiri/400/600', aiHint: 'pineapple daiquiri' },
+        { id: 'trago_5', nombre: 'DAIQUIRI DE FRUTILLA', imageUrl: 'https://picsum.photos/seed/strawberry-daiquiri/400/600', aiHint: 'strawberry daiquiri' },
+        { id: 'trago_6', nombre: 'ATOMIC GREEN', imageUrl: 'https://picsum.photos/seed/atomic-green/400/600', aiHint: 'atomic green cocktail' },
+        { id: 'trago_7', nombre: 'DAIQUIRI PRIMAVERA', imageUrl: 'https://picsum.photos/seed/spring-daiquiri/400/600', aiHint: 'spring daiquiri' },
+        { id: 'trago_8', nombre: 'FERNET CON COCA', imageUrl: 'https://picsum.photos/seed/fernet-coke/400/600', aiHint: 'fernet with coke' },
+        { id: 'trago_9', nombre: 'ATARDECER', imageUrl: 'https://picsum.photos/seed/sunset-cocktail/400/600', aiHint: 'sunset cocktail' },
+        { id: 'trago_10', nombre: 'DESTORNILLADOR', imageUrl: 'https://picsum.photos/seed/screwdriver/400/600', aiHint: 'screwdriver cocktail' },
+    ]
+};
 
 export const defaultConfiguracion: ConfigEventoDataStorage = {
   nombreEvento: 'Mi Próximo Evento Increíble',
@@ -14,6 +30,7 @@ export const defaultConfiguracion: ConfigEventoDataStorage = {
   presupuestoEstimado: 100000,
   notasAdicionales: 'Planificación inicial.',
   clienteId: undefined,
+  protagonista1Nombre: 'La Agasajada',
 };
 
 export const baseDefaultTareas: Omit<Tarea, 'id'>[] = [
@@ -291,6 +308,7 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
   fotografiaYFilmacion: { ...defaultFotografiaYFilmacionData },
   otrosDocumentos: [],
   pagosProveedores: [],
+  cartaTragos: { ...defaultCartaTragosData },
 
   // DEPRECATED - will be migrated/removed
   webPageSettings: { ...defaultWebPageSettings },
