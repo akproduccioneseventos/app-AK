@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import type { PresupuestoFormData, ItemPresupuestado } from '@/types/presupuesto';
@@ -73,17 +74,21 @@ function calcularCostoItem(item: ItemPresupuestado, invitados: number): number {
   return itemTotal;
 }
 
-const menuItemToServicioSeleccionado = (item: MenuItem, invitados: number): ServicioSeleccionadoValue => ({
-  cantidad: invitados, // For per-person calculation
-  precioUnitarioOriginal: item.suggestedSellingPrice || item.totalDishCost, // Prefer selling price
-  precioUnitarioPresupuesto: item.suggestedSellingPrice || item.totalDishCost,
-  nombreServicio: item.name,
-  unidad: 'Por Persona',
-  categoriaServicio: 'Servicio de catering',
-  esRegalo: false,
-  calculationMethod: 'porPersona',
-  precioPorPersona: item.suggestedSellingPrice || item.totalDishCost,
-});
+const menuItemToServicioSeleccionado = (item: MenuItem, invitados: number): ServicioSeleccionadoValue => {
+    // PVP es prioritario, si no, el costo con margen por defecto.
+    const precioVenta = item.suggestedSellingPrice ?? item.totalDishCost;
+    return {
+        cantidad: invitados, // Para cálculo por persona
+        precioUnitarioOriginal: precioVenta,
+        precioUnitarioPresupuesto: precioVenta,
+        nombreServicio: item.name,
+        unidad: 'Por Persona',
+        categoriaServicio: 'Servicio de catering',
+        esRegalo: false,
+        calculationMethod: 'porPersona',
+        precioPorPersona: precioVenta,
+    };
+};
 
 
 export default function Paso2Servicios({ formData, setFormData, serviciosCatalogo, paquetesBase, allMenus, onCatalogUpdate, totalInvitados }: Paso2ServiciosProps) {
@@ -92,6 +97,9 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
   const { toast } = useToast();
 
   const { entradas, platosPrincipales, menusInfantiles } = useMemo(() => {
+    if (!allMenus || allMenus.length === 0) {
+      return { entradas: [], platosPrincipales: [], menusInfantiles: [] };
+    }
     const allItems = allMenus.flatMap(m => m.items);
     const sortByPrice = (a: MenuItem, b: MenuItem) => {
         const priceA = a.suggestedSellingPrice ?? a.totalDishCost ?? 0;
@@ -229,9 +237,17 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
     <div className="space-y-6">
        <Dialog open={isCatalogModalOpen} onOpenChange={setIsCatalogModalOpen}>
         <DialogContent className="sm:max-w-xl">
-          <DialogHeader><DialogTitle>Añadir Servicio desde Catálogo</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>Añadir Servicio desde Catálogo</DialogTitle>
+            <DialogDescription>
+                Selecciona los servicios que deseas añadir a este presupuesto.
+            </DialogDescription>
+          </DialogHeader>
           <div className="py-2 space-y-3">
-            <Input placeholder="Buscar servicio..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+            <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"/>
+                <Input placeholder="Buscar servicios..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-9"/>
+            </div>
             <ScrollArea className="h-72 border rounded-md">
               <Accordion type="multiple" className="w-full" defaultValue={Object.keys(serviciosAgrupados)}>
                 {Object.keys(serviciosAgrupados).sort().map(categoria => (
@@ -254,7 +270,23 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
               </Accordion>
             </ScrollArea>
           </div>
-          <DialogFooter><DialogClose asChild><Button variant="outline">Cerrar</Button></DialogClose></DialogFooter>
+          <DialogFooter>
+            <Sheet>
+                <SheetTrigger asChild>
+                    <Button variant="secondary" className="mr-auto">Editar Catálogo</Button>
+                </SheetTrigger>
+                <SheetContent>
+                    <SheetHeader>
+                        <SheetTitle>Gestionar Catálogo de Servicios</SheetTitle>
+                        <SheetDescription>Añade o edita servicios. Los cambios se reflejarán en todos los presupuestos.</SheetDescription>
+                    </SheetHeader>
+                    <EditServicioForm onCatalogUpdate={onCatalogUpdate} />
+                </SheetContent>
+            </Sheet>
+            <DialogClose asChild>
+              <Button variant="outline">Cerrar</Button>
+            </DialogClose>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
       <div className="space-y-2">
@@ -323,7 +355,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-medium font-headline text-primary">Servicios Adicionales</h3>
           <Button type="button" variant="outline" size="sm" onClick={() => setIsCatalogModalOpen(true)}>
-            <Search className="w-4 h-4 mr-2"/>Añadir desde Catálogo
+            <PlusCircle className="w-4 h-4 mr-2"/>Añadir desde Catálogo
           </Button>
         </div>
         <Card>
@@ -363,3 +395,5 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
     </div>
   );
 }
+
+    
