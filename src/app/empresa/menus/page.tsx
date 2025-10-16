@@ -276,7 +276,7 @@ export default function GestionMenusPage() {
                             setReposteriaTemplate(newData);
                         }}
                         onSave={async (dataToSave) => {
-                            await saveReposteriaMasterTemplate(dataToSave);
+                            await saveBebidasMasterTemplate(dataToSave as any);
                             toast({ title: "Plantilla de Repostería Actualizada" });
                         }}
                         invitados={{adultos: 100, ninos: 0, adolescentes: 0}} // Placeholder for calculations
