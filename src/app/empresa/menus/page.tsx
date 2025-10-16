@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ChefHat, PlusCircle, Edit, List, Loader2, Info, Package, Cake, GlassWater, Printer, Percent, DollarSign } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -235,8 +235,8 @@ export default function GestionMenusPage() {
                                                 <Input id={`item-profit-${item.id}`} type="number" value={item.profitMargin?.toFixed(0) ?? ''} onChange={e => handleItemPriceChange(item.id, 'profitMargin', Number(e.target.value) || 0)} className="h-8"/>
                                             </div>
                                             <div className="space-y-1">
-                                                <Label htmlFor={`item-price-${item.id}`} className="text-xs flex items-center gap-1"><DollarSign className="w-3 h-3"/>PVP Sugerido ($)</Label>
-                                                <Input id={`item-price-${item.id}`} type="number" value={item.suggestedSellingPrice?.toFixed(0) ?? ''} onChange={e => handleItemPriceChange(item.id, 'suggestedSellingPrice', Number(e.target.value) || 0)} className="h-8"/>
+                                                 <Label htmlFor={`item-price-${item.id}`} className="text-xs flex items-center gap-1"><DollarSign className="w-3 h-3"/>PVP Sugerido ($)</Label>
+                                                 <Input id={`item-price-${item.id}`} type="number" value={item.suggestedSellingPrice?.toFixed(0) ?? ''} onChange={e => handleItemPriceChange(item.id, 'suggestedSellingPrice', Number(e.target.value) || 0)} className="h-8"/>
                                             </div>
                                           </div>
                                       </div>
