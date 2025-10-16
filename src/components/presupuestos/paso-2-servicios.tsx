@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { PresupuestoFormData, ItemPresupuestado } from '@/types/presupuesto';
@@ -321,18 +322,9 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
       <div>
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-medium font-headline text-primary">Servicios Adicionales</h3>
-           <Sheet>
-            <SheetTrigger asChild>
-              <Button type="button" variant="secondary"><Sparkles className="w-4 h-4 mr-2"/>Editar Catálogo</Button>
-            </SheetTrigger>
-            <SheetContent className="w-full max-w-none sm:max-w-lg">
-                <SheetHeader>
-                    <SheetTitle>Catálogo Maestro de Servicios</SheetTitle>
-                    <SheetDescription>Añade o edita los servicios que ofreces. Los cambios se reflejarán aquí al recargar.</SheetDescription>
-                </SheetHeader>
-                <EditServicioForm onCatalogUpdate={onCatalogUpdate} />
-            </SheetContent>
-          </Sheet>
+          <Button type="button" variant="outline" size="sm" onClick={() => setIsCatalogModalOpen(true)}>
+            <Search className="w-4 h-4 mr-2"/>Añadir desde Catálogo
+          </Button>
         </div>
         <Card>
           <CardContent className="p-4 space-y-2">
@@ -361,7 +353,6 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                     <p className="text-muted-foreground">No hay servicios adicionales seleccionados.</p>
                 </div>
             )}
-            <Button type="button" variant="outline" size="sm" className="mt-3 w-full" onClick={() => setIsCatalogModalOpen(true)}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Servicio Manualmente</Button>
           </CardContent>
         </Card>
       </div>
