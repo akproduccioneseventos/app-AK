@@ -14,7 +14,8 @@ import { ArrowLeft, Plus, Trash2, Users, Mail, Phone, Edit3, Save, Loader2, Aler
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import type { Invitado, RsvpStatus, NuevoInvitadoData } from '@/types/invitado';
-import { getFiestaActual, addInvitado, updateInvitado, deleteInvitado } from '@/app/actions/invitados.actions';
+import { getFiestaById } from '@/app/actions/fiesta-actual';
+import { addInvitado, updateInvitado, deleteInvitado } from '@/app/actions/invitados.actions';
 import {
   Dialog,
   DialogContent,
