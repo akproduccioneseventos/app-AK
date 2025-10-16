@@ -17,7 +17,7 @@ import {
     deleteFiesta as deleteFiestaFromModule,
     duplicateFiesta as duplicateFiestaFromModule,
     getHistorialFiestas as getHistorialFiestasFromModule,
-    getFiestaActual as getFiestaData, // Keep this for now for legacy components that don't pass an ID
+    getFiestaActual as getFiestaData,
     updateCartaTragos as updateCartaTragosFromModule
 } from './fiesta/fiesta.actions';
 
@@ -43,7 +43,7 @@ import { updateVideoVidaSettings as updateVideoVidaSettingsFromModule } from './
 import { claimGift } from './fiesta/regalos.actions';
 
 // --- General Fiesta Actions ---
-export const getFiestaActual = getFiestaData; // Legacy, use getFiestaById
+export const getFiestaActual = getFiestaData;
 export const getHistorialFiestas = getHistorialFiestasFromModule;
 export const getFiestas = getFiestasFromModule;
 export const getAllFiestas = getAllFiestasFromModule;
@@ -51,7 +51,7 @@ export const archiveFiesta = archiveFiestaFromModule;
 export const deleteFiestaArchivada = deleteFiestaArchivadaFromModule;
 export const deleteFiesta = deleteFiestaFromModule;
 export const resetFiestaActual = resetFiestaActualFromModule;
-export const getFiestaById = getFiestaByIdFromModule;
+export const getFiestaById = getFiestaByIdFromModule; // This was the fix. Use the correct function.
 export const saveFiesta = saveFiestaFromModule;
 export const createNewFiestaForCustomer = createNewFiestaForCustomerFromModule;
 export const addInvoiceIdToFiestaActual = addInvoiceIdToFiesta;
