@@ -53,42 +53,20 @@
     "zonasContratadas": [],
     "salonElements": []
   },
-  "invitados": [],
-  "webPageSettings": {
-    "showCountdown": true,
-    "showRsvp": true
-  },
-  "clientPortalSettings": {
-    "enabled": false,
-    "checklist": { "visible": false, "editable": false },
-    "itinerario": { "visible": false },
-    "musica": { "visible": false, "editable": false },
-    "videoVida": { "visible": false, "editable": false },
-    "listaRegalos": { "visible": false },
-    "documentos": { "visible": false },
-    "notasCliente": { "visible": false, "editable": false },
-    "invitados": { "visible": false },
-    "paginaPublica": { "visible": false },
-    "fotografiaYFilmacion": { "visible": false }
-  },
-  "socialGallerySettings": {},
-  "musica": {},
-  "reposteria": {
-    "categorias": []
-  },
-  "bebidas": {
-    "categorias": []
-  },
-  "listaDeCargaOperativa": {
-    "categorias": []
-  },
-  "gestionCostos": {
-    "costosItems": [],
-    "ingresosTotalesEstimados": 0
-  },
-  "videoVida": {},
-  "programa": [],
-  "fotografiaYFilmacion": {},
-  "otrosDocumentos": [],
-  "pagosProveedores": []
-}
+  "invitados": [
+    { "id": "inv_1", "nombre": "Juan Pérez", "rsvp": "Pendiente", "partySize": 1 },
+    { "id": "inv_2", "nombre": "María García", "rsvp": "Pendiente", "partySize": 1 },
+    { "id": "inv_3", "nombre": "José Rodríguez", "rsvp": "Pendiente", "partySize": 2 },
+    { "id": "inv_4", "nombre": "Ana Martínez", "rsvp": "Pendiente", "partySize": 1 },
+    { "id": "inv_5", "nombre": "Carlos Sánchez", "rsvp": "Pendiente", "partySize": 1 },
+    { "id": "inv_6", "nombre": "Laura Gómez", "rsvp": "Pendiente", "partySize": 2 },
+    { "id": "inv_7", "nombre": "Pedro López", "rsvp": "Pendiente", "partySize": 1 },
+    { "id": "inv_8", "nombre": "Sofía Fernández", "rsvp": "Pendiente", "partySize": 1 },
+    { "id": "inv_9", "nombre": "Miguel González", "rsvp": "Pendiente", "partySize": 3 },
+    { "id": "inv_10", "nombre": "Isabel Díaz", "rsvp": "Pendiente", "partySize": 1 },
+    { "id": "inv_11", "nombre": "Javier Moreno", "rsvp": "Pendiente", "partySize": 1 },
+    { "id": "inv_12", "nombre": "Carmen Jiménez", "rsvp": "Pendiente", "partySize": 2 },
+    { "id": "inv_13", "nombre": "David Muñoz", "rsvp": "Pendiente", "partySize": 1 },
+    { "id": "inv_14", "nombre": "Elena Romero", "rsvp": "Pendiente", "partySize": 1 },
+    { "id": "inv_15", "nombre": "Francisco Alonso", "rsvp": "Pendiente", "partySize": 4 },
+    { "id": "inv_16",
