@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, use } from 'react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -94,16 +94,29 @@ export default function MenuMesaPage() {
 
   useEffect(() => {
     loadData();
+  }, [loadData]);
+  
+  useEffect(() => {
     if(typeof window !== 'undefined' && fiesta?.id) {
         setSocialWallUrl(`${window.location.origin}/evento/social/${fiesta.id}`);
     }
-  }, [loadData, fiesta?.id]);
+  }, [fiesta?.id]);
 
   const { menuEntradas, menuPrincipal, menuAdolescente, mesaPostres, bebidas, tortaPrincipal, fuenteChocolate } = useMemo(() => {
+    if (!fiesta) return { menuEntradas: [], menuPrincipal: [], menuAdolescente: [], mesaPostres: [], bebidas: [], tortaPrincipal: [], fuenteChocolate: [] };
+    
     const allItems = menu?.items || [];
-    const reposteriaItems = fiesta?.reposteria?.categorias.flatMap(c => c.activada ? c.items.map(i => i.nombre) : []) || [];
-    const bebidasItems = fiesta?.bebidas?.categorias.flatMap(c => c.activada ? c.items.map(i => i.nombre) : []) || [];
+    
+    const reposteriaItems = fiesta?.reposteria?.categorias
+      .filter(c => c.activada)
+      .flatMap(c => c.items.map(i => i.nombre)) || [];
+      
+    const bebidasItems = fiesta?.bebidas?.categorias
+      .filter(c => c.activada)
+      .flatMap(c => c.items.map(i => i.nombre)) || [];
+
     const torta = fiesta?.decoracion?.decoracionTorta?.descripcion ? [fiesta.decoracion.decoracionTorta.descripcion] : [];
+    
     const fuente = fiesta?.reposteria?.categorias.find(c => c.id === 'fuente_chocolate' && c.activada) ? ['Fuente de Chocolate con frutas de estación'] : [];
 
     return {
@@ -131,10 +144,8 @@ export default function MenuMesaPage() {
   }, [fiesta]);
   
   const protagonistPhoto = useMemo(() => {
-    // A specific logic to find a protagonist photo could be implemented here
     return 'https://picsum.photos/seed/quinceanera/300/300';
   }, []);
-
 
   if (isLoading) {
     return <div className="p-8 max-w-lg mx-auto bg-white"><Skeleton className="h-[80vh] w-full" /></div>;
@@ -142,6 +153,10 @@ export default function MenuMesaPage() {
   
   if (error) {
     return <div className="p-8 max-w-lg mx-auto text-center"><p className="mt-2 text-destructive">{error}</p></div>;
+  }
+  
+  if (!fiesta) {
+    return <div className="p-8 max-w-lg mx-auto text-center"><p className="mt-2 text-muted-foreground">No se encontró información del evento.</p></div>;
   }
 
   return (
@@ -174,18 +189,18 @@ export default function MenuMesaPage() {
              <div className="relative mt-2 inline-block">
                 <div className="absolute inset-x-0 top-1/2 h-8 bg-purple-400 transform -translate-y-1/2"></div>
                 <h2 className="font-['Dancing_Script',_cursive] text-4xl relative px-4" style={{color: '#fff'}}>
-                    {fiesta?.configuracion.eventoTipo}
+                    {fiesta?.configuracion.tipoCelebracion}
                 </h2>
              </div>
            </div>
         </header>
 
         <main className="flex-grow space-y-6 font-['Belleza',_serif]">
-          <MenuSection title="Entrada" items={[...menuEntradas]} />
-          <MenuSection title="Plato Principal" items={[...menuPrincipal]} />
+          <MenuSection title="Entrada" items={menuEntradas} />
+          <MenuSection title="Plato Principal" items={menuPrincipal} />
           {menuAdolescente.length > 0 && <MenuSection title="Menú Adolescente" items={menuAdolescente} />}
           <MenuSection title="Mesa de Postres" items={[...mesaPostres, ...tortaPrincipal, ...fuenteChocolate]} />
-          <MenuSection title="Bebidas" items={[...bebidas]} />
+          <MenuSection title="Bebidas" items={bebidas} />
         </main>
         
         <footer className="mt-auto pt-8 text-center relative -mb-4">
