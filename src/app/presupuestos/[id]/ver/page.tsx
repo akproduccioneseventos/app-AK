@@ -110,7 +110,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
   
   const generarTextoWhatsApp = () => {
     if (!presupuesto) return '';
-    const pageUrl = `${window.location.origin}/presupuestos/${presupuesto.id}/ver`;
+    const pageUrl = window.location.href;
     let texto = `🎉 *¡Hola ${presupuesto.clienteNombre}!* 🎉\n\n`;
     texto += `Gracias por considerar a *${COMPANY_NAME_BRAND}*.`;
     texto += ` Hemos preparado un presupuesto para tu *${presupuesto.eventoTipo}*.\n\n`;

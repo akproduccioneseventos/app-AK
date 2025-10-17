@@ -87,8 +87,7 @@ const menuItemToServicioEmpresa = (item: MenuItem): ServicioEmpresa => ({
     categoria: 'Servicio de catering',
     subcategoria: item.type,
     calculationMethod: 'porPersona',
-    // CRITICAL FIX: Use the final sale price, not the cost.
-    precioPorPersona: item.suggestedSellingPrice || (item.totalDishCost ? item.totalDishCost * (1 + (item.profitMargin ?? 120) / 100) : 0),
+    precioPorPersona: item.suggestedSellingPrice || 0,
     valorUnitarioEstimado: item.totalDishCost,
 });
 
@@ -277,38 +276,12 @@ export default function ArmadoRapidoPage() {
     }, [serviciosDetallados]);
 
      const generateWhatsAppMessage = useCallback(() => {
-        let message = `🎉 *¡Presupuesto Estimado - AK Producciones!* 🎉\n\n`;
-        message += `Estimado/a *${clienteNombre || 'Cliente'}*,\n\n`;
-        message += `Gracias por tu interés. Aquí tienes un resumen de tu simulación:\n\n`;
-        message += `*Invitados:* ${adultos} Adultos, ${ninos} Niños/Adolescentes\n\n`;
-        
-        Object.entries(serviciosAgrupados).forEach(([categoria, items]) => {
-            message += `*${categoria}*\n`;
-            items.forEach(s => {
-                if (s.esRegalo) {
-                    message += `  🎁 • ${s.nombre} (REGALO)\n`;
-                } else {
-                    message += `  • ${s.nombre}\n`;
-                }
-            });
-            message += `\n`;
-        });
-        
-        message += `------------------------------------\n`;
-        if (descuento > 0) {
-          message += `SUBTOTAL: ${formatCurrency(subtotal, true)}\n`;
-          message += `DESCUENTO (${config?.descuentoGeneral}%): -${formatCurrency(descuento, true)}\n`;
-        }
-        if (totalRegalos > 0) {
-            message += `AHORRO EN REGALOS: ${formatCurrency(totalRegalos, true)}\n`;
-        }
-        message += `💰 *COSTO TOTAL ESTIMADO: ${formatCurrency(costoTotal, true)}*\n`;
-        message += `------------------------------------\n\n`;
-        message += `Para confirmar la promoción y reservar todos los servicios, se requiere una seña de $5.000. El presupuesto es válido por 30 días.\n\n`;
-        message += `¡Nos pondremos en contacto contigo para afinar los detalles!\n\n`;
-        message += `*El equipo de AK Producciones*`;
+        let message = `🎉 *¡Hola ${clienteNombre || 'Cliente'}!* 🎉\n\n`;
+        message += `Gracias por tu interés en *AK Producciones*. Aquí tienes el enlace a tu presupuesto estimado:\n\n`;
+        message += window.location.href; // Share the URL of the current page
+        message += `\n\n¡Revísalo y contáctanos para afinar los detalles!\n\n*El equipo de AK Producciones*`;
         return message;
-    }, [clienteNombre, adultos, ninos, serviciosAgrupados, subtotal, descuento, costoTotal, config?.descuentoGeneral, totalRegalos]);
+    }, [clienteNombre]);
 
     const handleShareWhatsApp = () => {
         if (typeof window === 'undefined') return;
