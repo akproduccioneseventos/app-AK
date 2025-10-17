@@ -90,7 +90,8 @@ const menuItemToServicioEmpresa = (item: MenuItem): ServicioEmpresa => {
         subcategoria: item.type,
         calculationMethod: 'porPersona',
         precioPorPersona: precioVenta,
-        precioVenta: precioVenta, // Ensure precioVenta is also set for other contexts
+        precioVenta: precioVenta,
+        precioBase: precioVenta, // Ensure precioBase is also set
         valorUnitarioEstimado: item.totalDishCost,
     };
 };
@@ -548,7 +549,7 @@ export default function ArmadoRapidoPage() {
                                 {descuento > 0 && <div className="flex justify-between text-destructive"><span>Descuento ({config?.descuentoGeneral}%):</span><span>-${formatCurrency(descuento)}</span></div>}
                                 <div className="flex justify-between font-bold text-lg pt-2 border-t"><span className="text-primary">Importe total</span><span className="text-primary">{formatCurrency(costoTotal)}</span></div>
                             </div>
-                            <footer className="mt-6 pt-4 text-xs text-gray-600 print:text-black">
+                            <footer className="mt-6 pt-3 border-t border-gray-300 print:mt-2 print:pt-1.5 print:border-gray-400 text-xs print:text-[8pt] text-gray-600 print:text-black">
                               <p className="text-red-600 font-bold text-lg">{BUDGET_DEPOSIT_NOTE_PDF}</p>
                             </footer>
                         </div>
