@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { KpiCard } from '@/components/dashboard/kpi-card';
 import { getDashboardKpiData, type MonthlyChartData } from '@/app/actions/dashboard';
 import { MonthlySalesChart } from '@/components/charts/MonthlySalesChart';
 import { PaymentStatusPieChart } from '@/components/charts/PaymentStatusPieChart';
+import { Separator } from '@/components/ui/separator';
 
 const formatCurrency = (value?: number) => {
     if (value === undefined) return 'N/A';
@@ -40,18 +41,6 @@ const financialHubItems = [
         description: "Registra los costos operativos de tu empresa (compras, reparaciones, etc.).",
         href: "/empresa/contabilidad/gastos",
         icon: Calculator
-    },
-    {
-        title: "Simulador de Presupuesto",
-        description: "Accede a la herramienta pública para generar presupuestos rápidos.",
-        href: "/simulador-de-presupuesto",
-        icon: Wand2
-    },
-    {
-        title: "Configuración del Simulador",
-        description: "Ajusta los paquetes, menús y precios del simulador de clientes.",
-        href: "/settings/budget-display",
-        icon: Settings
     },
     {
         title: "Reporte de Ganancias y Pérdidas",
@@ -119,7 +108,9 @@ export default function ContabilidadHubPage() {
             </div>
         </div>
 
-       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-6 border-t">
+      <Separator />
+
+       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
         {financialHubItems.map((item) => (
           <Card key={item.title} className="flex flex-col shadow-md hover:shadow-lg transition-shadow">
             <CardHeader className="flex-row items-center gap-4 space-y-0 pb-3">
@@ -140,6 +131,29 @@ export default function ContabilidadHubPage() {
             </CardFooter>
           </Card>
         ))}
+         <Card className="flex flex-col shadow-md hover:shadow-lg transition-shadow">
+            <CardHeader className="flex-row items-center gap-4 space-y-0 pb-3">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <Wand2 className="w-6 h-6 text-primary" />
+              </div>
+              <CardTitle className="font-headline text-lg">Simulador y Paquetes</CardTitle>
+            </CardHeader>
+            <CardContent className="flex-grow">
+              <p className="text-sm text-muted-foreground line-clamp-2">Accede a la herramienta pública o configura los paquetes y precios que se ofrecen.</p>
+            </CardContent>
+            <CardFooter className="pt-3 flex flex-col sm:flex-row gap-2">
+              <Link href="/simulador-de-presupuesto" passHref className="w-full">
+                <Button variant="secondary" className="w-full">
+                  Ir al Simulador
+                </Button>
+              </Link>
+              <Link href="/settings/budget-display" passHref className="w-full">
+                <Button variant="outline" className="w-full">
+                  Configurar Paquetes
+                </Button>
+              </Link>
+            </CardFooter>
+          </Card>
       </div>
     </div>
   );
