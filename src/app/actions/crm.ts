@@ -36,15 +36,11 @@ export async function getCrmLeads(): Promise<CrmLead[]> {
     const targetStage = allStages.find(stage => stage.name.toLowerCase() === 'con presupuesto');
 
     if (targetStage) {
-        // Filter budgets that came from the simulator
-        const simulatorBudgets = allBudgets.filter(p => p.notas?.toLowerCase().includes('simulador'));
-        
-        for (const budget of simulatorBudgets) {
-            // Check if a lead referencing this budget already exists
+        for (const budget of allBudgets) {
             const leadExists = leads.some(lead => lead.notes?.includes(`Presupuesto ID: ${budget.id}`));
             
             if (!leadExists) {
-                let notes = `Generado desde el Simulador.\n- Presupuesto ID: ${budget.id}\n- Invitados: ${budget.invitadosAdultos || 0} Adultos, ${budget.invitadosNinos || 0} Niños/Adol.\n- Costo Estimado: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(budget.totalConDescuento ?? budget.costoTotalEstimado)}`;
+                 let notes = `Presupuesto ID: ${budget.id}\n- Invitados: ${budget.invitadosCantidad}\n- Costo: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(budget.totalConDescuento ?? budget.costoTotalEstimado)}`;
                 
                 const newLead: CrmLead = {
                     id: `lead_recovered_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
@@ -58,7 +54,6 @@ export async function getCrmLeads(): Promise<CrmLead[]> {
                 };
                 leads.push(newLead);
                 needsWrite = true;
-                console.log(`Recuperando prospecto para el presupuesto ${budget.id}`);
             }
         }
     }
@@ -94,13 +89,8 @@ export async function addCrmLead(
   const stageId = leadData.currentStageId || stages[0]?.id || 's1';
   const stageName = stages.find(s => s.id === stageId)?.name || 'Etapa desconocida';
 
-  // Construct notes from optional fields
   let combinedNotes = leadData.notes?.trim() || '';
-  if (leadData.partyType) combinedNotes += `\n- Tipo de Fiesta: ${leadData.partyType}`;
-  if (leadData.venueName) combinedNotes += `\n- Salón: ${leadData.venueName}`;
-  if (leadData.guestCount) combinedNotes += `\n- Invitados: ${leadData.guestCount}`;
-  if (leadData.followUpDate) combinedNotes += `\n- Fecha Evento: ${new Date(leadData.followUpDate).toLocaleDateString('es-ES')}`;
-
+  
   const newLead: CrmLead = {
     id: `lead_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
     name: leadData.name.trim(),
@@ -119,7 +109,6 @@ export async function addCrmLead(
   leads.push(newLead);
   await writeData(LEADS_FILE, leads);
   
-  // Create a notification for the new lead
   await createNotification({
     mensaje: `Nuevo prospecto añadido: ${newLead.name}`,
     href: '/contabilidad/crm',
@@ -128,6 +117,32 @@ export async function addCrmLead(
 
   return { success: true, lead: newLead };
 }
+
+// Nueva función para encontrar o crear un lead basado en el presupuesto
+export async function findLeadByBudgetOrCreate(
+  presupuestoData: { clienteNombre: string, clienteContacto?: string, id: string; costoTotalEstimado: number; totalConDescuento?: number }
+): Promise<{lead: CrmLead; isNew: boolean}> {
+  const leads = await getCrmLeads();
+  let existingLead = leads.find(lead => lead.notes?.includes(`Presupuesto ID: ${presupuestoData.id}`));
+  
+  if (existingLead) {
+    return { lead: existingLead, isNew: false };
+  }
+
+  // If not found, create a new one
+  const newLeadData: NewCrmLeadData = {
+    name: presupuestoData.clienteNombre,
+    phone: presupuestoData.clienteContacto,
+    notes: `Presupuesto ID: ${presupuestoData.id}\n- Costo: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(presupuestoData.totalConDescuento ?? presupuestoData.costoTotalEstimado)}`,
+    currentStageId: 's1' // Will be moved later
+  };
+  const result = await addCrmLead(newLeadData);
+  if (!result.success || !result.lead) {
+    throw new Error('Failed to create a new lead for the budget.');
+  }
+  return { lead: result.lead, isNew: true };
+}
+
 
 export async function moveCrmLead(
   leadId: string,
@@ -244,27 +259,22 @@ export async function convertToClientAndMoveProspect(
       return { success: false, error: customerResult.error || "No se pudo crear el cliente." };
     }
     
-    // Create or retrieve the fiesta for the new customer
     const newFiestaResult = await createNewFiestaForCustomer(customerResult.customer);
     if (!newFiestaResult.success || !newFiestaResult.fiesta) {
         console.error(`Cliente y prospecto actualizados, pero falló la creación automática de la nueva fiesta para el cliente ${customerResult.id}: ${newFiestaResult.error}`);
-        // Continue but warn about it
     } else if (meetingDate) {
-        // If a meeting was scheduled, add it to the newly created Fiesta's reunions
         await addReunion({
-            fiestaId: newFiestaResult.fiesta.id, // Associate reunion with the new fiesta
+            fiestaId: newFiestaResult.fiesta.id,
             titulo: `Reunión de Firma de Contrato`,
             fecha: new Date(meetingDate).toISOString(),
             notas: `Reunión agendada desde el CRM al convertirse en cliente.`,
         });
     }
 
-    // Now, activate adjustment on the associated budget
     if (newFiestaResult.fiesta?.presupuestoId) {
       const budgetActivationResult = await activateAnnualAdjustmentForBudget(newFiestaResult.fiesta.presupuestoId);
       if (!budgetActivationResult.success) {
         console.warn(`Ajuste anual no activado para presupuesto ${newFiestaResult.fiesta.presupuestoId}. Error: ${budgetActivationResult.error}`);
-        // Don't fail the whole operation, just log a warning
       }
     }
 

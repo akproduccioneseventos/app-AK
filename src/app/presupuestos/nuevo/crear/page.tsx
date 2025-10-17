@@ -11,16 +11,13 @@ import { useToast } from '@/hooks/use-toast';
 import type { Presupuesto, PresupuestoFormData, ItemPresupuestado } from '@/types/presupuesto';
 import type { ServicioEmpresa } from '@/types/empresa';
 import type { PaqueteArmadoRapido, MenuArmadoRapido } from '@/types/armado-rapido';
-import { savePresupuesto, deletePresupuesto } from '@/app/actions/presupuestos';
+import { savePresupuesto } from '@/app/actions/presupuestos';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
-import { getCrmStages, moveCrmLead, addCrmLead } from '@/app/actions/crm';
 import { Paso1DatosEvento } from '@/components/presupuestos/paso-1-datos-evento';
 import Paso2Servicios from '@/components/presupuestos/paso-2-servicios';
 import Paso3Resumen from '@/components/presupuestos/paso-3-resumen';
 import { Progress } from '@/components/ui/progress';
-import { getPresupuestos } from '@/app/actions/presupuestos';
-import { Separator } from '@/components/ui/separator';
 import { getMenus } from '@/app/actions/menus-catering';
 import type { FullMenu } from '@/types/catering';
 
@@ -39,7 +36,7 @@ const initialFormData: PresupuestoFormData = {
   protagonista2Nombre: '',
   nombreEmpresa: '',
   serviciosSeleccionados: new Map(),
-  selectedMenuId: '', // Changed from gastronomic selections
+  selectedMenuId: '',
   nombrePromocion: '',
   descuentoTipo: undefined,
   descuentoValor: '',
@@ -63,32 +60,22 @@ function formStateInitializer(initialState: PresupuestoFormData): PresupuestoFor
 
 function calcularCostoItem(item: ItemPresupuestado, invitados: number): number {
   if (item.esRegalo) return 0;
-  
   let itemTotal = 0;
   const precioUnitario = item.precioUnitarioPresupuesto ?? item.precioUnitario;
-
   switch (item.calculationMethod) {
-    case 'fijo':
-      itemTotal = item.precioBase ?? precioUnitario;
-      break;
-    case 'porPersona':
-      itemTotal = (item.precioPorPersona ?? precioUnitario) * invitados;
-      break;
+    case 'fijo': itemTotal = item.precioBase ?? precioUnitario; break;
+    case 'porPersona': itemTotal = (item.precioPorPersona ?? precioUnitario) * invitados; break;
     case 'ratio':
       const invitadosPorUnidadNum = Number(item.invitadosPorUnidad);
       if (invitadosPorUnidadNum > 0) {
-        const basePrice = item.precioBase ?? precioUnitario;
-        itemTotal = Math.ceil(invitados / invitadosPorUnidadNum) * basePrice;
-      } else {
-        itemTotal = item.precioBase ?? precioUnitario; // Fallback
-      }
+        itemTotal = Math.ceil(invitados / invitadosPorUnidadNum) * (item.precioBase ?? precioUnitario);
+      } else { itemTotal = item.precioBase ?? precioUnitario; }
       break;
     case 'tramos':
       const tramo = item.tramosDePrecio?.find(t => invitados >= t.desde && invitados <= t.hasta);
       itemTotal = tramo?.precio || 0;
       break;
-    default: // Fallback to simple calculation
-      itemTotal = item.cantidad * precioUnitario;
+    default: itemTotal = item.cantidad * precioUnitario;
   }
   return itemTotal;
 }
@@ -126,7 +113,6 @@ function CrearPresupuestoContent() {
         } catch (error) { console.warn("Could not save form state", error); }
     }, [formData]);
 
-
     useEffect(() => {
         const fetchInitialData = async () => {
             setIsLoadingInitialData(true);
@@ -156,42 +142,24 @@ function CrearPresupuestoContent() {
                  return;
              }
         }
-        if (paso < 3) {
-            setPaso(p => p + 1);
-        }
+        if (paso < 3) setPaso(p => p + 1);
     };
     
-    const handlePrev = () => {
-        if (paso > 1) {
-            setPaso(p => p - 1);
-        }
-    };
+    const handlePrev = () => { if (paso > 1) setPaso(p => p - 1); };
 
     const totalInvitados = (formData.invitadosAdultos || 0) + (formData.invitadosNinos || 0);
 
     const totalCalculado = useMemo(() => {
-      let total = 0;
-      formData.serviciosSeleccionados.forEach((item, id) => {
+      return Array.from(formData.serviciosSeleccionados.values()).reduce((sum, item) => {
         const itemDataForCalc: ItemPresupuestado = {
-          idServicioCatalogo: id,
-          ...item,
-          precioUnitario: item.precioUnitarioOriginal,
-          costoTotalItem: 0 // dummy for calc
+          idServicioCatalogo: '', ...item, precioUnitario: item.precioUnitarioOriginal, costoTotalItem: 0
         };
-        total += calcularCostoItem(itemDataForCalc, totalInvitados);
-      });
-      return total;
+        return sum + calcularCostoItem(itemDataForCalc, totalInvitados);
+      }, 0);
     }, [formData.serviciosSeleccionados, totalInvitados]);
 
     const handleSave = async () => {
-        const descuentoValorNum = parseFloat(formData.descuentoValor || '0') || 0;
-        let descuentoAplicado = 0;
-        if (formData.descuentoTipo && descuentoValorNum > 0) {
-            descuentoAplicado = formData.descuentoTipo === 'porcentaje' ? (totalCalculado * descuentoValorNum) / 100 : descuentoValorNum;
-        }
-        const totalFinalConDescuento = totalCalculado - descuentoAplicado;
-
-        const presupuestoAGuardar: Omit<Presupuesto, 'id'> = {
+        const presupuestoAGuardar: Omit<Presupuesto, 'id' | 'estado' | 'invoiceId'> = {
             clienteNombre: formData.clienteNombre,
             clienteContacto: formData.clienteContacto,
             eventoTipo: formData.eventoTipo,
@@ -210,12 +178,7 @@ function CrearPresupuestoContent() {
               unidad: serv.unidad,
               precioUnitario: serv.precioUnitarioOriginal,
               precioUnitarioPresupuesto: serv.precioUnitarioPresupuesto,
-              costoTotalItem: calcularCostoItem({
-                  ...serv,
-                  idServicioCatalogo: id,
-                  precioUnitario: serv.precioUnitarioOriginal,
-                  costoTotalItem: 0
-              }, totalInvitados),
+              costoTotalItem: 0, // Será recalculado en el servidor
               esRegalo: serv.esRegalo,
               categoriaServicio: serv.categoriaServicio,
               calculationMethod: serv.calculationMethod,
@@ -224,38 +187,18 @@ function CrearPresupuestoContent() {
               invitadosPorUnidad: serv.invitadosPorUnidad,
               tramosDePrecio: serv.tramosDePrecio,
             })),
-            costoTotalEstimado: totalCalculado,
+            costoTotalEstimado: 0, // Será recalculado
             nombrePromocion: formData.nombrePromocion,
             descuentoTipo: formData.descuentoTipo,
-            descuentoValor: descuentoValorNum > 0 ? descuentoValorNum : undefined,
-            totalConDescuento: descuentoAplicado > 0 ? totalFinalConDescuento : undefined,
+            descuentoValor: parseFloat(formData.descuentoValor || '0') || undefined,
             vigenciaPromocion: formData.vigenciaPromocion,
-            estado: 'Borrador',
-            timestamp: new Date().toISOString(),
-            notas: formData.notas
+            notas: formData.notas,
         };
         
         setIsSaving(true);
         try {
-          const result = await savePresupuesto(presupuestoAGuardar);
-          if (result.success && result.id && result.presupuesto) {
-             if (leadIdFromParams) {
-                const stages = await getCrmStages();
-                const targetStage = stages.find(s => s.name.toLowerCase() === 'con presupuesto');
-                if (targetStage) {
-                    await moveCrmLead(leadIdFromParams, targetStage.id);
-                    toast({ title: "Prospecto Actualizado", description: `Se movió a "${formData.clienteNombre}" a la etapa "Con presupuesto".` });
-                }
-            } else {
-                const leadNotes = `Generado desde el Creador de Presupuestos Manual.\n- Presupuesto ID: ${result.id}\n- Invitados: ${totalInvitados}\n- Costo Estimado: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(result.presupuesto.totalConDescuento ?? result.presupuesto.costoTotalEstimado)}`;
-                await addCrmLead({
-                    name: formData.clienteNombre,
-                    phone: formData.clienteContacto,
-                    notes: leadNotes
-                });
-                toast({ title: "Prospecto Creado", description: `Se creó un nuevo prospecto en el CRM para "${formData.clienteNombre}".` });
-            }
-
+          const result = await savePresupuesto(presupuestoAGuardar, { source: 'manual', leadId: leadIdFromParams || undefined });
+          if (result.success && result.id) {
             toast({ title: "Presupuesto Guardado" });
             sessionStorage.removeItem(SESSION_STORAGE_KEY);
             router.push(`/presupuestos/${result.id}/ver`);

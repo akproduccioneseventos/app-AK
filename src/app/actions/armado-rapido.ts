@@ -3,7 +3,6 @@
 
 import type { ArmadoRapidoConfig, LeadFromQuickBudget } from '@/types/armado-rapido';
 import { readData, writeData } from '@/lib/data-service';
-import { addCrmLead, getCrmStages } from './crm';
 import { savePresupuesto } from './presupuestos';
 import type { ItemPresupuestado, Presupuesto } from '@/types/presupuesto';
 import { createNotification } from './notifications';
@@ -13,7 +12,7 @@ const defaultConfig: ArmadoRapidoConfig = {
   descuentoGeneral: 0,
   paquetes: [],
   menus: [],
-  platosVisibles: [], // Initialize with an empty array
+  platosVisibles: [],
 };
 
 export async function getArmadoRapidoConfig(): Promise<ArmadoRapidoConfig> {
@@ -39,7 +38,7 @@ export async function saveArmadoRapidoConfig(
         descripcion: menu.descripcion,
         serviciosIncluidos: menu.serviciosIncluidos.map(serv => ({ id: serv.id, esRegalo: serv.esRegalo || false })),
       })),
-      platosVisibles: newConfigData.platosVisibles || [], // Ensure this is saved
+      platosVisibles: newConfigData.platosVisibles || [],
     };
     await writeData(CONFIG_FILE, sanitizedConfig);
     return { success: true };
@@ -52,63 +51,43 @@ export async function generateBudgetAndLeadFromSimulator(
   data: LeadFromQuickBudget & { items: Omit<ItemPresupuestado, 'costoTotalItem'>[] }
 ): Promise<{ success: boolean; leadId?: string; presupuestoId?: string; error?: string }> {
   try {
-    // 1. Create and save the Presupuesto
+    // La lógica de creación de prospecto ahora está dentro de savePresupuesto
     const presupuestoData: Omit<Presupuesto, 'id' | 'estado' | 'invoiceId' | 'costoTotalEstimado' | 'totalConDescuento' | 'ajusteAnualActivo'> = {
       clienteNombre: data.clienteNombre,
       clienteContacto: data.clienteContacto,
       eventoTipo: 'Evento (desde Simulador)',
-      eventoFecha: new Date().toISOString(), // Use current date as placeholder
-      invitadosCantidad: data.adultos + data.ninos,
+      eventoFecha: new Date().toISOString(), // Placeholder
+      invitadosCantidad: (data.adultos || 0) + (data.ninos || 0),
       invitadosAdultos: data.adultos,
       invitadosNinos: data.ninos,
       salonFiestas: 'A definir',
-      itemsPresupuestados: data.items.map(item => ({...item, costoTotalItem: 0})), // cost will be recalculated
+      itemsPresupuestados: data.items.map(item => ({...item, costoTotalItem: 0})),
       timestamp: new Date().toISOString(),
-      notas: `Presupuesto generado automáticamente desde el Simulador de Presupuestos. Paquete seleccionado: ${data.paqueteNombre || 'N/A'}.`,
+      notas: `Presupuesto generado desde el Simulador. Paquete: ${data.paqueteNombre || 'N/A'}. Costo estimado: ${formatCurrency(data.costoEstimado)}`,
     };
 
-    const budgetResult = await savePresupuesto(presupuestoData);
-    if (!budgetResult.success || !budgetResult.presupuesto) {
-      return { success: false, error: budgetResult.error || "No se pudo crear el presupuesto." };
-    }
-    
-    // 2. Create the CRM Lead, linking it to the new budget
-    const allStages = await getCrmStages();
-    const targetStage = allStages.find(stage => stage.name.toLowerCase() === 'con presupuesto');
-    
-    // If "Con presupuesto" stage is not found, fallback to the first stage.
-    const targetStageId = targetStage?.id || allStages[0]?.id;
-
-    if (!targetStageId) {
-        return { success: false, error: "No hay etapas configuradas en el CRM." };
-    }
-    
-    let notes = `Generado desde el Simulador de Presupuestos.\n- Presupuesto ID: ${budgetResult.id}\n- Invitados: ${data.adultos} Adultos, ${data.ninos} Niños/Adol.\n- Costo Estimado: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(data.costoEstimado)}`;
-    if (data.paqueteNombre) {
-      notes += `\n- Paquete de Servicios: "${data.paqueteNombre}"`;
-    }
-    
-    const leadResult = await addCrmLead({
-      name: data.clienteNombre,
-      phone: data.clienteContacto,
-      notes: notes,
-      currentStageId: targetStageId,
+    const budgetResult = await savePresupuesto(presupuestoData, {
+      source: 'simulator',
+      costoEstimado: data.costoEstimado
     });
-    
-    if (leadResult.success && leadResult.lead) {
-      // Create a notification for the new lead from the simulator
-      await createNotification({
-        mensaje: `Nuevo prospecto desde Simulador: ${leadResult.lead.name}`,
+
+    if (budgetResult.success && budgetResult.presupuesto) {
+       await createNotification({
+        mensaje: `Nuevo prospecto desde Simulador: ${data.clienteNombre}`,
         href: '/contabilidad/crm',
         icono: 'Wand2',
       });
-      return { success: true, leadId: leadResult.lead.id, presupuestoId: budgetResult.id };
+      return { success: true, presupuestoId: budgetResult.id };
     } else {
-      // Budget was created but lead failed. This is a partial success state.
-      // For simplicity, we'll return an error, but in a real-world scenario, this might need compensation logic.
-      return { success: false, error: leadResult.error || "Presupuesto creado, pero no se pudo crear el prospecto en el CRM." };
+      return { success: false, error: budgetResult.error || "No se pudo procesar la solicitud." };
     }
   } catch (error: any) {
+    console.error("Error in generateBudgetAndLeadFromSimulator:", error);
     return { success: false, error: error.message || "Error al generar el prospecto y presupuesto." };
   }
 }
+
+const formatCurrency = (amount?: number) => {
+  if (amount === undefined) return 'N/A';
+  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
+};
