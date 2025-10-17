@@ -1,1 +1,203 @@
-[]
+[
+  {
+    "clienteNombre": "Ana García",
+    "clienteContacto": "0999588945",
+    "eventoTipo": "Cumpleaños",
+    "eventoFecha": "2025-10-24T03:00:00.000Z",
+    "invitadosCantidad": 51,
+    "invitadosAdultos": 50,
+    "invitadosNinos": 1,
+    "salonFiestas": "CLUB URUGUAY",
+    "protagonista1Nombre": "NICO",
+    "protagonista2Nombre": "",
+    "nombreEmpresa": "",
+    "itemsPresupuestados": [
+      {
+        "idServicioCatalogo": "item_1756940568854_u5m4prf",
+        "nombreServicio": "Servicio de discoteca",
+        "cantidad": 1,
+        "precioUnitario": 20000,
+        "precioUnitarioPresupuesto": 20000,
+        "costoTotalItem": 9990,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de discoteca",
+        "calculationMethod": "tramos",
+        "tramosDePrecio": [
+          {
+            "id": "tramo_1759920281582",
+            "desde": 1,
+            "hasta": 80,
+            "precio": 9990
+          },
+          {
+            "id": "tramo_1759920301189",
+            "desde": 81,
+            "hasta": 140,
+            "precio": 18990
+          },
+          {
+            "id": "tramo_1759920323087",
+            "desde": 141,
+            "hasta": 250,
+            "precio": 29900
+          }
+        ]
+      },
+      {
+        "idServicioCatalogo": "item_1757282105396_39i6zkn",
+        "nombreServicio": "Decoración",
+        "cantidad": 1,
+        "precioUnitario": 14500,
+        "precioUnitarioPresupuesto": 14500,
+        "costoTotalItem": 14500,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de decoración",
+        "calculationMethod": "fijo"
+      },
+      {
+        "idServicioCatalogo": "serv_invitaciones_digitales",
+        "nombreServicio": "Invitaciones Digitales",
+        "cantidad": 1,
+        "precioUnitario": 2500,
+        "precioUnitarioPresupuesto": 0,
+        "costoTotalItem": 0,
+        "esRegalo": true,
+        "categoriaServicio": "Regalo exclusivo",
+        "calculationMethod": "fijo"
+      },
+      {
+        "idServicioCatalogo": "serv_mozos",
+        "nombreServicio": "Mozo",
+        "cantidad": 1,
+        "precioUnitario": 2900,
+        "precioUnitarioPresupuesto": 2900,
+        "costoTotalItem": 8700,
+        "esRegalo": false,
+        "categoriaServicio": "Personal",
+        "calculationMethod": "ratio",
+        "precioBase": 2900,
+        "invitadosPorUnidad": 25
+      },
+      {
+        "idServicioCatalogo": "serv_mozo_cocina",
+        "nombreServicio": "Mozo de Cocina",
+        "cantidad": 1,
+        "precioUnitario": 2900,
+        "precioUnitarioPresupuesto": 2900,
+        "costoTotalItem": 8700,
+        "esRegalo": false,
+        "categoriaServicio": "Personal",
+        "calculationMethod": "ratio",
+        "precioBase": 2900,
+        "invitadosPorUnidad": 25
+      },
+      {
+        "idServicioCatalogo": "item_1757281980225_3x3nbzo",
+        "nombreServicio": "Organizador de la Fiesta",
+        "cantidad": 1,
+        "precioUnitario": 10000,
+        "precioUnitarioPresupuesto": 0,
+        "costoTotalItem": 0,
+        "esRegalo": true,
+        "categoriaServicio": "Regalo exclusivo",
+        "calculationMethod": "fijo"
+      },
+      {
+        "idServicioCatalogo": "item_1758319656786_6sjl431",
+        "nombreServicio": "Vajilla Completa",
+        "cantidad": 1,
+        "precioUnitario": 75,
+        "precioUnitarioPresupuesto": 75,
+        "costoTotalItem": 3825,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de catering",
+        "calculationMethod": "porPersona",
+        "precioPorPersona": 75
+      },
+      {
+        "idServicioCatalogo": "serv_manteleria_completa",
+        "nombreServicio": "Mantelería Completa",
+        "cantidad": 1,
+        "precioUnitario": 75,
+        "precioUnitarioPresupuesto": 75,
+        "costoTotalItem": 3825,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de catering",
+        "calculationMethod": "porPersona",
+        "precioPorPersona": 75
+      },
+      {
+        "idServicioCatalogo": "item_1757539236109_vtqfjaz",
+        "nombreServicio": "Torta Principal",
+        "cantidad": 1,
+        "precioUnitario": 6000,
+        "precioUnitarioPresupuesto": 6000,
+        "costoTotalItem": 5100,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de repostería",
+        "calculationMethod": "porPersona",
+        "precioPorPersona": 100
+      },
+      {
+        "idServicioCatalogo": "dish_entrada_8",
+        "nombreServicio": "Kebabs",
+        "cantidad": 51,
+        "unidad": "Por Persona",
+        "precioUnitario": 167.20000000000002,
+        "precioUnitarioPresupuesto": 167.20000000000002,
+        "costoTotalItem": 8527.2,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de catering",
+        "calculationMethod": "porPersona",
+        "precioPorPersona": 167.20000000000002
+      },
+      {
+        "idServicioCatalogo": "dish_entrada_23",
+        "nombreServicio": "Sandwiches y Saladitos",
+        "cantidad": 51,
+        "unidad": "Por Persona",
+        "precioUnitario": 164.56,
+        "precioUnitarioPresupuesto": 164.56,
+        "costoTotalItem": 8392.56,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de catering",
+        "calculationMethod": "porPersona",
+        "precioPorPersona": 164.56
+      },
+      {
+        "idServicioCatalogo": "dish_main_5",
+        "nombreServicio": "Cerdo Braseado a la Barbacoa C/ Guarnición",
+        "cantidad": 51,
+        "unidad": "Por Persona",
+        "precioUnitario": 224.62,
+        "precioUnitarioPresupuesto": 224.62,
+        "costoTotalItem": 11455.62,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de catering",
+        "calculationMethod": "porPersona",
+        "precioPorPersona": 224.62
+      },
+      {
+        "idServicioCatalogo": "dish_child_3",
+        "nombreServicio": "Hamburguesa C/ Fritas",
+        "cantidad": 51,
+        "unidad": "Por Persona",
+        "precioUnitario": 295.46000000000004,
+        "precioUnitarioPresupuesto": 295.46000000000004,
+        "costoTotalItem": 15068.460000000003,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de catering",
+        "calculationMethod": "porPersona",
+        "precioPorPersona": 295.46000000000004
+      }
+    ],
+    "costoTotalEstimado": 98083.84,
+    "nombrePromocion": "",
+    "vigenciaPromocion": "",
+    "estado": "Borrador",
+    "timestamp": "2025-10-17T10:28:29.377Z",
+    "notas": "",
+    "id": "pres_1760696909377_e5f9ht3",
+    "ajusteAnualActivo": false
+  }
+]

@@ -54,6 +54,15 @@ const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos l
 function calcularCostoServicio(servicio: ServicioEmpresa, cantidadInvitados: number): number {
   if (!servicio || cantidadInvitados < 0) return 0;
   
+  // Use suggestedSellingPrice if available (for menu items), otherwise calculate based on method
+  if (servicio.precioVenta !== undefined && servicio.calculationMethod === 'fijo') {
+      return servicio.precioVenta;
+  }
+   if (servicio.precioPorPersona !== undefined && servicio.calculationMethod === 'porPersona') {
+      return servicio.precioPorPersona * cantidadInvitados;
+  }
+
+
   switch (servicio.calculationMethod) {
     case 'porPersona':
       return (servicio.precioPorPersona || 0) * cantidadInvitados;
@@ -78,8 +87,9 @@ const menuItemToServicioEmpresa = (item: MenuItem): ServicioEmpresa => ({
     categoria: 'Servicio de catering',
     subcategoria: item.type,
     calculationMethod: 'porPersona',
-    precioPorPersona: item.totalDishCost, // Use the base cost per person for display
-    precioVenta: item.suggestedSellingPrice,
+    // CRITICAL FIX: Use the final sale price, not the cost.
+    precioPorPersona: item.suggestedSellingPrice || (item.totalDishCost ? item.totalDishCost * (1 + (item.profitMargin ?? 120) / 100) : 0),
+    valorUnitarioEstimado: item.totalDishCost,
 });
 
 
@@ -131,21 +141,13 @@ export default function ArmadoRapidoPage() {
 
         const allDishes = allMenus.flatMap(m => m.items);
         const visibleDishes = allDishes.filter(d => isPlatoVisible(d.id));
-
-        const sortByPrice = (a: MenuItem, b: MenuItem) => {
-            const priceA = a.suggestedSellingPrice || a.totalDishCost || 0;
-            const priceB = b.suggestedSellingPrice || b.totalDishCost || 0;
-            return priceA - priceB;
-        };
-
-        const entradas = visibleDishes.filter(s => s.type === 'Entrada').sort(sortByPrice);
-        const principales = visibleDishes.filter(s => s.type === 'Plato Principal').sort(sortByPrice);
-        const menusNino = visibleDishes.filter(s => s.type === 'Menú Infantil/Adolescente').sort(sortByPrice);
         
+        const sortByPrice = (a: ServicioEmpresa, b: ServicioEmpresa) => (a.precioPorPersona || 0) - (b.precioPorPersona || 0);
+
         return { 
-            entradasDisponibles: entradas.map(menuItemToServicioEmpresa), 
-            principalesDisponibles: principales.map(menuItemToServicioEmpresa), 
-            menusNinoDisponibles: menusNino.map(menuItemToServicioEmpresa)
+            entradasDisponibles: visibleDishes.filter(s => s.type === 'Entrada').map(menuItemToServicioEmpresa).sort(sortByPrice), 
+            principalesDisponibles: visibleDishes.filter(s => s.type === 'Plato Principal').map(menuItemToServicioEmpresa).sort(sortByPrice), 
+            menusNinoDisponibles: visibleDishes.filter(s => s.type === 'Menú Infantil/Adolescente').map(menuItemToServicioEmpresa).sort(sortByPrice)
         };
     }, [config, allMenus]);
     
@@ -478,7 +480,7 @@ export default function ArmadoRapidoPage() {
                         </div>
                     )}
                     {step === 4 && (
-                        <div className="space-y-4 animate-in fade-in-20">
+                        <div className="space-y-4 animate-in fade-in-20" id="budget-summary-printable">
                             <header className="mb-6 print:mb-4 text-center border-b pb-3 print:pb-2">
                                 <h1 className="text-xl font-bold text-center mb-4 print:text-base leading-tight">{COMPANY_MAIN_TITLE}</h1>
                                 <div className="flex flex-col md:flex-row justify-between items-center text-xs print:text-[8pt] gap-2">
@@ -515,7 +517,7 @@ export default function ArmadoRapidoPage() {
                                     </tr>
                                 </tbody>
                              </table>
-                             
+
                              <div className="md:hidden space-y-3">
                                 {Object.entries(serviciosAgrupados).map(([categoria, items]) =>(
                                     <div key={categoria}>
@@ -525,9 +527,6 @@ export default function ArmadoRapidoPage() {
                                                 <div className={`flex justify-between font-medium ${item.esRegalo ? 'text-red-600' : ''}`}>
                                                     <span>{item.esRegalo && <Gift className="inline w-3 h-3 mr-1"/>}{item.nombre}{item.esRegalo && ' (REGALO)'}</span>
                                                     <span>{item.esRegalo ? formatCurrency(0) : formatCurrency(item.costo)}</span>
-                                                </div>
-                                                <div className="text-xs text-muted-foreground">
-                                                    {item.cantidad} {item.unidad} x {formatCurrency(item.precioUnitario)}
                                                 </div>
                                             </div>
                                         ))}
@@ -540,8 +539,6 @@ export default function ArmadoRapidoPage() {
                                     <TableHeader>
                                         <TableRow>
                                             <TableHead>Artículo</TableHead>
-                                            <TableHead className="text-center">Cantidad</TableHead>
-                                            <TableHead className="text-right">P. Unitario</TableHead>
                                             <TableHead className="text-right">Importe</TableHead>
                                         </TableRow>
                                     </TableHeader>
@@ -549,7 +546,7 @@ export default function ArmadoRapidoPage() {
                                         {Object.entries(serviciosAgrupados).map(([categoria, items]) => (
                                             <React.Fragment key={categoria}>
                                                 <TableRow className="bg-muted/30 print:bg-gray-50">
-                                                    <TableCell colSpan={4} className="font-bold text-primary">{categoria}</TableCell>
+                                                    <TableCell colSpan={2} className="font-bold text-primary">{categoria}</TableCell>
                                                 </TableRow>
                                                 {items.map((item) => (
                                                     <TableRow key={item.id}>
@@ -557,8 +554,6 @@ export default function ArmadoRapidoPage() {
                                                             {item.esRegalo && <Gift className="inline w-3 h-3 mr-1"/>}
                                                             {item.nombre}{item.esRegalo && ' (REGALO)'}
                                                         </TableCell>
-                                                        <TableCell className="text-center">{item.cantidad} {item.unidad}</TableCell>
-                                                        <TableCell className="text-right">{item.esRegalo ? <span className="line-through">{formatCurrency(item.precioUnitario)}</span> : formatCurrency(item.precioUnitario)}</TableCell>
                                                         <TableCell className="text-right font-semibold">{item.esRegalo ? formatCurrency(0) : formatCurrency(item.costo)}</TableCell>
                                                     </TableRow>
                                                 ))}
@@ -572,7 +567,7 @@ export default function ArmadoRapidoPage() {
                             <div className="w-full md:max-w-xs ml-auto space-y-1 text-sm">
                                 {descuento > 0 && <div className="flex justify-between"><span>Subtotal:</span><span>{formatCurrency(subtotal)}</span></div>}
                                 {totalRegalos > 0 && <div className="flex justify-between text-green-600"><span>Ahorro en Regalos:</span><span>{formatCurrency(totalRegalos)}</span></div>}
-                                {descuento > 0 && <div className="flex justify-between text-destructive"><span>Descuento (${config?.descuentoGeneral}%):</span><span>-${formatCurrency(descuento)}</span></div>}
+                                {descuento > 0 && <div className="flex justify-between text-destructive"><span>Descuento ({config?.descuentoGeneral}%):</span><span>-${formatCurrency(descuento)}</span></div>}
                                 <div className="flex justify-between font-bold text-lg pt-2 border-t"><span className="text-primary">Importe total</span><span className="text-primary">{formatCurrency(costoTotal)}</span></div>
                             </div>
                             <footer className="mt-6 pt-4 text-xs text-gray-600 print:text-black">
@@ -601,8 +596,3 @@ export default function ArmadoRapidoPage() {
         </div>
     );
 }
-
-
-    
-
-    
