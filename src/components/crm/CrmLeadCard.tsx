@@ -117,12 +117,12 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting, isMobile, onMove }
         </CardContent>
         <CardFooter className="p-2 border-t flex justify-end items-center gap-1 flex-shrink-0">
             {isMobile && onMove && (
-              <>
+              <div className="flex gap-1 mr-auto">
                 <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => onMove(-1)}><ChevronLeft className="w-4 h-4"/></Button>
                 <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => onMove(1)}><ChevronRight className="w-4 h-4"/></Button>
-              </>
+              </div>
             )}
-            <Link href={`/presupuestos/nuevo?leadId=${lead.id}&leadName=${encodeURIComponent(lead.name)}`} passHref className="flex-grow">
+            <Link href={`/presupuestos/nuevo/crear?leadId=${lead.id}&leadName=${encodeURIComponent(lead.name)}`} passHref className="flex-grow">
                 <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5 w-full">
                     <FilePlus2 className="w-4 h-4" />
                     Crear Presupuesto
