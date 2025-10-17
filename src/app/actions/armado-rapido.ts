@@ -6,6 +6,7 @@ import { readData, writeData } from '@/lib/data-service';
 import { addCrmLead, getCrmStages } from './crm';
 import { savePresupuesto } from './presupuestos';
 import type { ItemPresupuestado, Presupuesto } from '@/types/presupuesto';
+import { createNotification } from './notifications';
 
 const CONFIG_FILE = 'armado-rapido-config.json';
 const defaultConfig: ArmadoRapidoConfig = {
@@ -93,8 +94,14 @@ export async function generateBudgetAndLeadFromSimulator(
       notes: notes,
       currentStageId: targetStageId,
     });
-
+    
     if (leadResult.success && leadResult.lead) {
+      // Create a notification for the new lead from the simulator
+      await createNotification({
+        mensaje: `Nuevo prospecto desde Simulador: ${leadResult.lead.name}`,
+        href: '/contabilidad/crm',
+        icono: 'Wand2',
+      });
       return { success: true, leadId: leadResult.lead.id, presupuestoId: budgetResult.id };
     } else {
       // Budget was created but lead failed. This is a partial success state.
