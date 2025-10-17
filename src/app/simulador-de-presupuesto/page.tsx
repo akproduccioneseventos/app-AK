@@ -54,7 +54,6 @@ const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos l
 function calcularCostoServicio(servicio: ServicioEmpresa, cantidadInvitados: number): number {
   if (!servicio || cantidadInvitados < 0) return 0;
   
-  // Use suggestedSellingPrice if available (for menu items), otherwise calculate based on method
   if (servicio.precioVenta !== undefined && servicio.calculationMethod === 'fijo') {
       return servicio.precioVenta;
   }
@@ -91,7 +90,7 @@ const menuItemToServicioEmpresa = (item: MenuItem): ServicioEmpresa => {
         calculationMethod: 'porPersona',
         precioPorPersona: precioVenta,
         precioVenta: precioVenta,
-        precioBase: precioVenta, // Ensure precioBase is also set
+        precioBase: precioVenta, 
         valorUnitarioEstimado: item.totalDishCost,
     };
 };
@@ -268,7 +267,8 @@ export default function ArmadoRapidoPage() {
     }, [config, serviciosCatalogo, entradasDisponibles, principalesDisponibles, menusNinoDisponibles, adultos, ninos, selectedEntradas, selectedPrincipal, selectedMenuNino, selectedPaqueteId]);
 
     const serviciosAgrupados = useMemo(() => {
-        const agrupar = (servs: ServicioDetallado[]) => servs.reduce((acc, servicio) => {
+        const serviciosSinRegalo = serviciosDetallados.filter(s => !s.esRegalo);
+        return serviciosSinRegalo.reduce((acc, servicio) => {
             const categoria = servicio.categoria || 'Otros Servicios';
             if (!acc[categoria]) {
                 acc[categoria] = [];
@@ -276,8 +276,18 @@ export default function ArmadoRapidoPage() {
             acc[categoria].push(servicio);
             return acc;
         }, {} as Record<string, ServicioDetallado[]>);
+    }, [serviciosDetallados]);
 
-        return agrupar(serviciosDetallados);
+    const regalosAgrupados = useMemo(() => {
+        const serviciosDeRegalo = serviciosDetallados.filter(s => s.esRegalo);
+        return serviciosDeRegalo.reduce((acc, servicio) => {
+            const categoria = servicio.categoria || 'Otros Servicios';
+            if (!acc[categoria]) {
+                acc[categoria] = [];
+            }
+            acc[categoria].push(servicio);
+            return acc;
+        }, {} as Record<string, ServicioDetallado[]>);
     }, [serviciosDetallados]);
 
      const generateWhatsAppMessage = useCallback(() => {
@@ -503,14 +513,27 @@ export default function ArmadoRapidoPage() {
                                         <h4 className="font-bold text-primary border-b pb-1 mb-2">{categoria}</h4>
                                         {items.map(item => (
                                             <div key={item.id} className="p-2 border-b text-sm">
-                                                <div className={`flex justify-between font-medium ${item.esRegalo ? 'text-red-600' : ''}`}>
-                                                    <span>{item.esRegalo && <Gift className="inline w-3 h-3 mr-1"/>}{item.nombre}{item.esRegalo && ' (REGALO)'}</span>
-                                                    <span>{item.esRegalo ? formatCurrency(0) : formatCurrency(item.costo)}</span>
+                                                <div className={`flex justify-between font-medium`}>
+                                                    <span>{item.nombre}</span>
+                                                    <span>{formatCurrency(item.costo)}</span>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
                                 ))}
+                                {Object.keys(regalosAgrupados).length > 0 && (
+                                  <div>
+                                    <h4 className="font-bold text-red-600 border-b border-red-300 pb-1 mb-2 flex items-center gap-1.5"><Gift className="w-4 h-4"/> Regalos Incluidos</h4>
+                                    {Object.entries(regalosAgrupados).map(([categoria, items]) => items.map(item => (
+                                      <div key={item.id} className="p-2 border-b text-sm text-red-600">
+                                        <div className="flex justify-between font-medium">
+                                          <span>{item.nombre}</span>
+                                          <span className="line-through">{formatCurrency(item.costo)}</span>
+                                        </div>
+                                      </div>
+                                    )))}
+                                  </div>
+                                )}
                              </div>
 
                              <div className="hidden md:block">
@@ -529,15 +552,25 @@ export default function ArmadoRapidoPage() {
                                                 </TableRow>
                                                 {items.map((item) => (
                                                     <TableRow key={item.id}>
-                                                        <TableCell className={`font-medium ${item.esRegalo ? 'text-red-600' : ''}`}>
-                                                            {item.esRegalo && <Gift className="inline w-3 h-3 mr-1"/>}
-                                                            {item.nombre}{item.esRegalo && ' (REGALO)'}
-                                                        </TableCell>
-                                                        <TableCell className="text-right font-semibold">{item.esRegalo ? formatCurrency(0) : formatCurrency(item.costo)}</TableCell>
+                                                        <TableCell className="font-medium">{item.nombre}</TableCell>
+                                                        <TableCell className="text-right font-semibold">{formatCurrency(item.costo)}</TableCell>
                                                     </TableRow>
                                                 ))}
                                             </React.Fragment>
                                         ))}
+                                        {Object.keys(regalosAgrupados).length > 0 && (
+                                            <React.Fragment>
+                                                <TableRow className="bg-red-50 print:bg-red-100/50">
+                                                    <TableCell colSpan={2} className="font-bold text-red-600 flex items-center gap-1.5"><Gift className="w-4 h-4"/>Regalos Incluidos</TableCell>
+                                                </TableRow>
+                                                {Object.entries(regalosAgrupados).map(([_, items]) => items.map(item => (
+                                                    <TableRow key={item.id}>
+                                                        <TableCell className="font-medium text-red-600">{item.nombre}</TableCell>
+                                                        <TableCell className="text-right font-semibold text-red-600 line-through">{formatCurrency(item.costo)}</TableCell>
+                                                    </TableRow>
+                                                )))}
+                                            </React.Fragment>
+                                        )}
                                     </TableBody>
                                 </Table>
                              </div>
