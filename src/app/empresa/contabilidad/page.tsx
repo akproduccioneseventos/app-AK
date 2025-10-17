@@ -1,10 +1,11 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, BarChart3, FileText, KanbanSquare, ListChecks, TrendingUp, DollarSign, CreditCard, Banknote, Users, Loader2 } from 'lucide-react';
+import { ArrowLeft, BarChart3, FileText, KanbanSquare, ListChecks, TrendingUp, DollarSign, CreditCard, Banknote, Users, Loader2, Wand2, PlusCircle } from 'lucide-react';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { getDashboardKpiData, type MonthlyChartData } from '@/app/actions/dashboard';
 import { MonthlySalesChart } from '@/components/charts/MonthlySalesChart';
@@ -50,18 +51,28 @@ export default function ContabilidadHubPage() {
             Panel Contable y Financiero
           </h1>
         </div>
-        <div className="flex flex-wrap gap-2">
-            <Link href="/contabilidad/crm" passHref><Button variant="secondary"><KanbanSquare className="w-4 h-4 mr-2"/>Ir al CRM</Button></Link>
-            <Link href="/presupuestos/nuevo" passHref><Button variant="secondary"><ListChecks className="w-4 h-4 mr-2"/>Ir a Presupuestos</Button></Link>
-            <Link href="/invoices" passHref><Button variant="secondary"><FileText className="w-4 h-4 mr-2"/>Ir a Facturas</Button></Link>
-             <Link href="/empresa" passHref>
-                <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver a Empresa</Button>
-            </Link>
-        </div>
+        <Link href="/empresa" passHref>
+          <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver a Empresa</Button>
+        </Link>
       </div>
       <CardDescription className="text-lg">
         Tu centro de control para todas las operaciones financieras y de ventas.
       </CardDescription>
+
+      <Card>
+          <CardHeader>
+              <CardTitle>Acciones Rápidas</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-2">
+            <Link href="/contabilidad/crm" passHref><Button variant="secondary"><KanbanSquare className="w-4 h-4 mr-2"/>CRM de Prospectos</Button></Link>
+            <Link href="/presupuestos/nuevo" passHref><Button variant="secondary"><ListChecks className="w-4 h-4 mr-2"/>Central de Presupuestos</Button></Link>
+            <Link href="/presupuestos/nuevo/crear" passHref><Button variant="secondary"><PlusCircle className="w-4 h-4 mr-2"/>Crear Presupuesto Manual</Button></Link>
+            <Link href="/invoices" passHref><Button variant="secondary"><FileText className="w-4 h-4 mr-2"/>Gestión de Facturas</Button></Link>
+            <Link href="/simulador-de-presupuesto" target="_blank" passHref><Button variant="outline"><Wand2 className="w-4 h-4 mr-2"/>Abrir Simulador</Button></Link>
+            <Link href="/empresa/contabilidad/reportes" passHref><Button variant="outline"><TrendingUp className="w-4 h-4 mr-2"/>Reporte G&P</Button></Link>
+          </CardContent>
+      </Card>
+
 
        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <KpiCard title="Ventas Totales" value={formatCurrency(kpiData?.ventasTotales)} icon={DollarSign} isLoading={isLoading} description="Suma de todas las facturas generadas."/>
