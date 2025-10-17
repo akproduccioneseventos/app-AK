@@ -32,7 +32,7 @@ const mainHubItems = [
     {
       title: 'Panel Contable',
       description: 'Controla el CRM, presupuestos, facturas y la salud financiera de tu negocio.',
-      href: '/empresa/contabilidad',
+      href: '/empresa',
       icon: BarChart3,
       actionLabel: 'Ver Contabilidad'
     },
