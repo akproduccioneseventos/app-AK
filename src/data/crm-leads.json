@@ -1,17 +1,17 @@
 [
   {
-    "id": "lead_1760696909708_jj0h032",
+    "id": "lead_recovered_1760701975058_evqkm",
     "name": "Ana García",
     "phone": "0999588945",
-    "notes": "Generado desde el Creador de Presupuestos Manual.\n- Presupuesto ID: pres_1760696909377_e5f9ht3\n- Invitados: 51\n- Costo Estimado: $ 98.083,84",
-    "currentStageId": "s1",
-    "createdAt": "2025-10-17T10:28:29.707Z",
-    "updatedAt": "2025-10-17T10:28:29.707Z",
+    "notes": "Presupuesto ID: pres_1760696909377_e5f9ht3\n- Invitados: 51\n- Costo: $ 98.083,84",
+    "currentStageId": "s3",
+    "createdAt": "2025-10-17T10:28:29.377Z",
+    "updatedAt": "2025-10-17T11:52:55.058Z",
     "history": [
       {
-        "stageId": "s1",
-        "stageName": "Consultó",
-        "timestamp": "2025-10-17T10:28:29.707Z"
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2025-10-17T11:52:55.058Z"
       }
     ]
   }

@@ -80,16 +80,20 @@ function calcularCostoServicio(servicio: ServicioEmpresa, cantidadInvitados: num
   }
 }
 
-const menuItemToServicioEmpresa = (item: MenuItem): ServicioEmpresa => ({
-    id: item.id,
-    nombre: item.name,
-    tipoItem: 'Servicio',
-    categoria: 'Servicio de catering',
-    subcategoria: item.type,
-    calculationMethod: 'porPersona',
-    precioPorPersona: item.suggestedSellingPrice || 0,
-    valorUnitarioEstimado: item.totalDishCost,
-});
+const menuItemToServicioEmpresa = (item: MenuItem): ServicioEmpresa => {
+    const precioVenta = item.suggestedSellingPrice ?? ((item.totalDishCost || 0) * (1 + (item.profitMargin ?? 120) / 100));
+    return {
+        id: item.id,
+        nombre: item.name,
+        tipoItem: 'Servicio',
+        categoria: 'Servicio de catering',
+        subcategoria: item.type,
+        calculationMethod: 'porPersona',
+        precioPorPersona: precioVenta,
+        precioVenta: precioVenta, // Ensure precioVenta is also set for other contexts
+        valorUnitarioEstimado: item.totalDishCost,
+    };
+};
 
 
 interface ServicioDetallado {
@@ -276,10 +280,11 @@ export default function ArmadoRapidoPage() {
     }, [serviciosDetallados]);
 
      const generateWhatsAppMessage = useCallback(() => {
-        let message = `🎉 *¡Hola ${clienteNombre || 'Cliente'}!* 🎉\n\n`;
-        message += `Gracias por tu interés en *AK Producciones*. Aquí tienes el enlace a tu presupuesto estimado:\n\n`;
-        message += window.location.href; // Share the URL of the current page
-        message += `\n\n¡Revísalo y contáctanos para afinar los detalles!\n\n*El equipo de AK Producciones*`;
+        let message = `🎉 *¡Presupuesto Estimado - AK Producciones!* 🎉\n\n`;
+        message += `Estimado/a *${clienteNombre || 'Cliente'}*,\n\n`;
+        message += `Gracias por tu interés. Aquí tienes el enlace a tu simulación:\n\n`;
+        message += window.location.href;
+        message += `\n\nPara confirmar y obtener más detalles, ¡no dudes en contactarnos!\n*El equipo de AK Producciones*`;
         return message;
     }, [clienteNombre]);
 
