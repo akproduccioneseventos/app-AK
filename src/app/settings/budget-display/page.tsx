@@ -124,13 +124,30 @@ export default function BudgetDisplaySettingsPage() {
     if (!allMenus || allMenus.length === 0) {
       return { entradas: [], platosPrincipales: [], menusInfantiles: [] };
     }
-    const allItems = allMenus.flatMap(m => m.items);
-    return {
-      entradas: allItems.filter(item => item.type === 'Entrada'),
-      platosPrincipales: allItems.filter(item => item.type === 'Plato Principal'),
-      menusInfantiles: allItems.filter(item => item.type === 'Menú Infantil/Adolescente'),
+    
+    const isPlatoVisible = (platoId: string) => {
+      if (!config || !config.platosVisibles) return true; // Default to visible if config is not loaded
+      const setting = config.platosVisibles.find(p => p.id === platoId);
+      return setting !== undefined ? setting.visible : true;
     };
-  }, [allMenus]);
+
+    const allDishes = allMenus.flatMap(m => m.items);
+    const visibleDishes = allDishes.filter(d => isPlatoVisible(d.id));
+    
+    const enhanceWithPrice = (item: MenuItem): MenuItem & { precioVenta: number } => ({
+      ...item,
+      nombre: item.name,
+      precioVenta: item.suggestedSellingPrice ?? (item.totalDishCost ? item.totalDishCost * (1 + (item.profitMargin ?? 120) / 100) : 0),
+    });
+    
+    const sortByPrice = (a: { precioVenta: number }, b: { precioVenta: number }) => a.precioVenta - b.precioVenta;
+
+    return { 
+      entradas: visibleDishes.filter(s => s.type === 'Entrada').map(enhanceWithPrice).sort(sortByPrice), 
+      principales: visibleDishes.filter(s => s.type === 'Plato Principal').map(enhanceWithPrice).sort(sortByPrice), 
+      menusInfantiles: visibleDishes.filter(s => s.type === 'Menú Infantil/Adolescente').map(enhanceWithPrice).sort(sortByPrice)
+    };
+  }, [config, allMenus]);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -307,6 +324,7 @@ export default function BudgetDisplaySettingsPage() {
   };
 
   const getVisibleDishes = (dishList: MenuItem[]): MenuItem[] => {
+    if (!config?.platosVisibles) return dishList;
     return dishList.filter(d => isPlatoVisible(d.id));
   };
   
@@ -473,7 +491,7 @@ export default function BudgetDisplaySettingsPage() {
       </Dialog>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Configuración del Simulador</h1></div>
-        <Link href="/settings" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
+        <Link href="/empresa/contabilidad" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver al Panel Contable</Button></Link>
       </div>
 
       <Card>
