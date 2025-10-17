@@ -1,57 +1,47 @@
 
 'use client';
 
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, BarChart3, FileText, KanbanSquare, ListChecks, TrendingUp, Wand2, Settings as SettingsIcon } from 'lucide-react';
+import { ArrowLeft, BarChart3, FileText, KanbanSquare, ListChecks, TrendingUp, DollarSign, CreditCard, Banknote, Users, Loader2 } from 'lucide-react';
+import { KpiCard } from '@/components/dashboard/kpi-card';
+import { getDashboardKpiData, type MonthlyChartData } from '@/app/actions/dashboard';
+import { MonthlySalesChart } from '@/components/charts/MonthlySalesChart';
+import { PaymentStatusPieChart } from '@/components/charts/PaymentStatusPieChart';
 
-const hubItems = [
-  {
-    title: 'Gestión de Prospectos (CRM)',
-    description: 'Visualiza y gestiona tus prospectos en el tablero Kanban.',
-    href: '/contabilidad/crm',
-    icon: KanbanSquare,
-    actionLabel: 'Ir al CRM',
-  },
-  {
-    title: 'Central de Presupuestos',
-    description: 'Crea nuevos presupuestos y gestiona los existentes.',
-    href: '/presupuestos/nuevo',
-    icon: ListChecks,
-    actionLabel: 'Gestionar Presupuestos',
-  },
-  {
-    title: 'Gestión de Facturas',
-    description: 'Administra tus facturas, registra pagos y haz seguimiento.',
-    href: '/invoices',
-    icon: FileText,
-    actionLabel: 'Ir a Facturas',
-  },
-  {
-    title: 'Reporte de Ganancias y Pérdidas',
-    description: 'Analiza los resultados financieros de tus eventos.',
-    href: '/empresa/contabilidad/reportes',
-    icon: TrendingUp,
-    actionLabel: 'Ver Reporte',
-  },
-  {
-    title: 'Simulador de Presupuesto (Vista Cliente)',
-    description: 'Accede a la herramienta que usan tus clientes para obtener un presupuesto estimado.',
-    href: '/simulador-de-presupuesto',
-    icon: Wand2,
-    actionLabel: 'Abrir Simulador',
-  },
-  {
-    title: 'Configuración del Simulador',
-    description: 'Ajusta los paquetes, menús y descuentos disponibles para los clientes.',
-    href: '/settings/budget-display',
-    icon: SettingsIcon,
-    actionLabel: 'Configurar',
-  },
-];
+const formatCurrency = (value?: number) => {
+    if (value === undefined) return 'N/A';
+    return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(value);
+};
+
 
 export default function ContabilidadHubPage() {
+    const [kpiData, setKpiData] = useState<any>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const fetchData = useCallback(async () => {
+        setIsLoading(true);
+        const result = await getDashboardKpiData();
+        if (result.success) {
+            setKpiData(result.data);
+        }
+        setIsLoading(false);
+    }, []);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+
+    const pieChartData = useMemo(() => {
+        if (!kpiData) return [];
+        return [
+            { name: 'Pagado', value: kpiData.montoPagado || 0, fill: 'hsl(var(--chart-2))' },
+            { name: 'Pendiente', value: kpiData.totalPendiente || 0, fill: 'hsl(var(--chart-5))' },
+        ];
+    }, [kpiData]);
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -61,40 +51,33 @@ export default function ContabilidadHubPage() {
             Panel Contable y Financiero
           </h1>
         </div>
-        <Link href="/empresa" passHref>
-          <Button variant="outline">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver a Empresa
-          </Button>
-        </Link>
+        <div className="flex flex-wrap gap-2">
+            <Link href="/contabilidad/crm" passHref><Button variant="secondary"><KanbanSquare className="w-4 h-4 mr-2"/>Ir al CRM</Button></Link>
+            <Link href="/presupuestos/nuevo" passHref><Button variant="secondary"><ListChecks className="w-4 h-4 mr-2"/>Ir a Presupuestos</Button></Link>
+            <Link href="/invoices" passHref><Button variant="secondary"><FileText className="w-4 h-4 mr-2"/>Ir a Facturas</Button></Link>
+             <Link href="/empresa" passHref>
+                <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver a Empresa</Button>
+            </Link>
+        </div>
       </div>
       <CardDescription className="text-lg">
         Tu centro de control para todas las operaciones financieras y de ventas.
       </CardDescription>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {hubItems.map((item) => (
-          <Card key={item.title} className="flex flex-col shadow-lg hover:shadow-xl transition-shadow duration-300">
-            <CardHeader className="flex-row items-start gap-4 space-y-0 pb-3">
-              <div className="p-3 bg-primary/10 rounded-lg">
-                <item.icon className="w-7 h-7 text-primary" />
-              </div>
-              <div>
-                <CardTitle className="font-headline text-lg mb-1">{item.title}</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="flex-grow">
-              <p className="text-sm text-muted-foreground line-clamp-2">{item.description}</p>
-            </CardContent>
-            <CardFooter className="pt-3">
-              <Link href={item.href} passHref className="w-full">
-                <Button className="w-full">
-                  {item.actionLabel}
-                </Button>
-              </Link>
-            </CardFooter>
-          </Card>
-        ))}
+       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <KpiCard title="Ventas Totales" value={formatCurrency(kpiData?.ventasTotales)} icon={DollarSign} isLoading={isLoading} description="Suma de todas las facturas generadas."/>
+        <KpiCard title="Total Pagado" value={formatCurrency(kpiData?.montoPagado)} icon={CreditCard} isLoading={isLoading} description="Dinero recibido de los clientes."/>
+        <KpiCard title="Saldo Pendiente" value={formatCurrency(kpiData?.totalPendiente)} icon={Banknote} isLoading={isLoading} description="Monto por cobrar."/>
+        <KpiCard title="Prospectos Activos" value={kpiData?.prospectosActivos ?? '...'} icon={Users} isLoading={isLoading} description="Clientes potenciales en el embudo de ventas."/>
+      </div>
+
+       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        <div className="col-span-1 lg:col-span-4">
+            <MonthlySalesChart data={kpiData?.monthlyChartData || []} />
+        </div>
+        <div className="col-span-1 lg:col-span-3">
+            <PaymentStatusPieChart data={pieChartData} />
+        </div>
       </div>
     </div>
   );

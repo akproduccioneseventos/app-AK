@@ -6,6 +6,14 @@ import { getPresupuestos } from './presupuestos';
 import { getInvoices } from './invoices';
 import { getAllFiestas } from './fiesta/fiesta.actions';
 import { checkAndCreateTaskReminders } from './notifications';
+import { subMonths, format, startOfMonth } from 'date-fns';
+import { es } from 'date-fns/locale';
+
+export interface MonthlyChartData {
+  month: string;
+  ventas: number;
+  pagos: number;
+}
 
 export async function getDashboardKpiData() {
   try {
@@ -36,6 +44,33 @@ export async function getDashboardKpiData() {
     const fiestasPasadas = fiestasData.filter(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) < new Date()).length;
     const fiestasFuturas = clientesActivos;
 
+    // Data for Monthly Chart (last 12 months)
+    const monthlyData: MonthlyChartData[] = [];
+    for (let i = 11; i >= 0; i--) {
+        const date = subMonths(now, i);
+        const monthName = format(date, 'MMM yyyy', { locale: es });
+        monthlyData.push({ month: monthName, ventas: 0, pagos: 0 });
+    }
+
+    invoicesData.forEach(invoice => {
+        const issueDate = new Date(invoice.issueDate);
+        const monthKey = format(issueDate, 'MMM yyyy', { locale: es });
+        const monthEntry = monthlyData.find(d => d.month === monthKey);
+        if(monthEntry) {
+            monthEntry.ventas += invoice.totalAmount;
+        }
+
+        invoice.payments?.forEach(payment => {
+            const paymentDate = new Date(payment.paymentDate);
+            const paymentMonthKey = format(paymentDate, 'MMM yyyy', { locale: es });
+            const paymentMonthEntry = monthlyData.find(d => d.month === paymentMonthKey);
+             if(paymentMonthEntry) {
+                paymentMonthEntry.pagos += payment.amount;
+            }
+        });
+    });
+
+
     return {
       success: true,
       data: {
@@ -46,6 +81,7 @@ export async function getDashboardKpiData() {
         ventasTotales,
         montoPagado,
         totalPendiente,
+        monthlyChartData: monthlyData,
       },
     };
   } catch (error: any) {
@@ -56,5 +92,3 @@ export async function getDashboardKpiData() {
     };
   }
 }
-
-    
