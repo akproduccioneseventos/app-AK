@@ -1,11 +1,10 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, BarChart3, FileText, KanbanSquare, ListChecks, TrendingUp, DollarSign, CreditCard, Banknote, Users, Loader2, Wand2, PlusCircle } from 'lucide-react';
+import { ArrowLeft, BarChart3, FileText, KanbanSquare, ListChecks, TrendingUp, DollarSign, CreditCard, Banknote, Users, Loader2, Wand2, PlusCircle, Calculator } from 'lucide-react';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { getDashboardKpiData, type MonthlyChartData } from '@/app/actions/dashboard';
 import { MonthlySalesChart } from '@/components/charts/MonthlySalesChart';
@@ -68,6 +67,7 @@ export default function ContabilidadHubPage() {
             <Link href="/presupuestos/nuevo" passHref><Button variant="secondary"><ListChecks className="w-4 h-4 mr-2"/>Central de Presupuestos</Button></Link>
             <Link href="/presupuestos/nuevo/crear" passHref><Button variant="secondary"><PlusCircle className="w-4 h-4 mr-2"/>Crear Presupuesto Manual</Button></Link>
             <Link href="/invoices" passHref><Button variant="secondary"><FileText className="w-4 h-4 mr-2"/>Gestión de Facturas</Button></Link>
+            <Link href="/empresa/contabilidad/gastos" passHref><Button variant="secondary"><Calculator className="w-4 h-4 mr-2"/>Gastos Generales</Button></Link>
             <Link href="/simulador-de-presupuesto" target="_blank" passHref><Button variant="outline"><Wand2 className="w-4 h-4 mr-2"/>Abrir Simulador</Button></Link>
             <Link href="/empresa/contabilidad/reportes" passHref><Button variant="outline"><TrendingUp className="w-4 h-4 mr-2"/>Reporte G&P</Button></Link>
           </CardContent>

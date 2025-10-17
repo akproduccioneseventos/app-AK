@@ -2,10 +2,11 @@
 'use server';
 
 import { getInvoices } from './invoices';
-import { getAllFiestas, getFiestaActual } from './fiesta/fiesta.actions';
+import { getAllFiestas } from './fiesta/fiesta.actions';
 import { getMenuById } from './menus-catering';
 import { getEmpleados } from './empleados';
 import { getRoles } from './roles';
+import { getGastosGenerales } from './gastos'; // Importar gastos generales
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
 interface DateRange {
@@ -71,14 +72,31 @@ export async function getProfitAndLossData(range: DateRange): Promise<{ success:
     });
 
     // --- CÁLCULO DE COSTOS ---
-    const [fiestas, empleados, roles] = await Promise.all([
+    const [fiestas, empleados, roles, gastosGenerales] = await Promise.all([
       getAllFiestas(),
       getEmpleados(),
-      getRoles()
+      getRoles(),
+      getGastosGenerales() // Obtener gastos generales
     ]);
 
     const costosDetalle: CostoDetalle[] = [];
     let totalCostos = 0;
+    
+    // Costos de Gastos Generales
+    gastosGenerales.forEach(gasto => {
+        const gastoDate = new Date(gasto.fecha);
+        if (gastoDate >= from && gastoDate <= to) {
+            costosDetalle.push({
+                id: gasto.id,
+                fecha: gasto.fecha,
+                concepto: gasto.concepto,
+                categoria: gasto.categoria,
+                monto: gasto.monto,
+            });
+            totalCostos += gasto.monto;
+        }
+    });
+
 
     for (const fiesta of fiestas) {
       const fiestaDate = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : null;
@@ -150,100 +168,5 @@ export async function getProfitAndLossData(range: DateRange): Promise<{ success:
   } catch (error: any) {
     console.error("Error calculating P&L data:", error);
     return { success: false, error: 'Failed to calculate profit and loss data.' };
-  }
-}
-
-async function getEventData(fiesta: FiestaEnPlanificacion): Promise<{ costosDetalle: CostoDetalle[], ingresosDetalle: IngresoDetalle[] }> {
-    const costosDetalle: CostoDetalle[] = [];
-    const ingresosDetalle: IngresoDetalle[] = [];
-
-    if (!fiesta.configuracion.fechaEvento) return { costosDetalle, ingresosDetalle };
-    
-    const fechaEvento = fiesta.configuracion.fechaEvento;
-    const invitados = Number(fiesta.configuracion.invitadosEstimados) || 0;
-
-    // Ingresos
-    const ingresosTotales = fiesta.gestionCostos?.ingresosTotalesEstimados || 0;
-    if (ingresosTotales > 0) {
-        ingresosDetalle.push({ id: 'ingreso-total', fecha: fechaEvento, concepto: 'Ingreso Total Estimado/Facturado', monto: ingresosTotales });
-    }
-
-    // Costos
-    if (fiesta.menuAsignadoId) {
-        const menu = await getMenuById(fiesta.menuAsignadoId);
-        if (menu) {
-            const costoMenu = menu.items.reduce((sum, item) => sum + (item.totalDishCost || 0), 0) * invitados;
-            costosDetalle.push({ id: `catering`, fecha: fechaEvento, concepto: `Costo Catering: ${menu.name}`, categoria: 'Catering', monto: costoMenu });
-        }
-    }
-
-    const costoReposteria = fiesta.reposteria?.categorias?.reduce((sumCat, cat) => cat.activada ? sumCat + (cat.items.reduce((sumItem, item) => sumItem + ((item.costoEstimado || 0) * (item.cantidad || 1)), 0)) : sumCat, 0) || 0;
-    if (costoReposteria > 0) costosDetalle.push({ id: 'reposteria', fecha: fechaEvento, concepto: 'Costo total Repostería', categoria: 'Repostería', monto: costoReposteria });
-    
-    let costoBebidas = 0;
-    fiesta.bebidas?.categorias.forEach(cat => {
-        if(cat.activada) {
-            cat.items.forEach(item => costoBebidas += item.costoTotal || ((item.costoUnitario || 0) * (item.cantidadNecesaria || 0)));
-            cat.recetas?.forEach(receta => {
-                 const factorEscala = invitados / (receta.porcionesBase || 1);
-                 costoBebidas += (receta.costoTotalReceta || 0) * (isNaN(factorEscala) ? 0 : factorEscala);
-            });
-        }
-    });
-    if (costoBebidas > 0) costosDetalle.push({ id: `bebidas`, fecha: fechaEvento, concepto: 'Costo total Bebidas', categoria: 'Bebidas', monto: costoBebidas });
-    
-    if (fiesta.personalAsignado && fiesta.personalAsignado.length > 0) {
-      const [empleados, roles] = await Promise.all([getEmpleados(), getRoles()]);
-      const costoPersonal = fiesta.personalAsignado.reduce((total, p) => {
-        const rol = roles.find(r => r.id === empleados.find(e => e.id === p.empleadoId)?.rolId);
-        const aportes = (p.eventSalary * (rol?.porcentajeAportesPatronales || 0)) / 100;
-        return total + p.eventSalary + aportes;
-      }, 0);
-      costosDetalle.push({ id: `personal`, fecha: fechaEvento, concepto: 'Costo total Personal', categoria: 'Personal', monto: costoPersonal });
-    }
-
-    const costoDecoracion = fiesta.decoracion?.items?.reduce((sum, item) => sum + (item.estimatedCost || 0), 0) || 0;
-    if (costoDecoracion > 0) costosDetalle.push({ id: 'decoracion', fecha: fechaEvento, concepto: 'Costo total Decoración', categoria: 'Decoración', monto: costoDecoracion });
-
-    fiesta.gestionCostos?.costosItems?.forEach(costo => {
-        costosDetalle.push({ id: `manual-${costo.id}`, fecha: fechaEvento, concepto: costo.nombre, categoria: costo.categoria, monto: costo.montoEstimado });
-    });
-
-    return { costosDetalle, ingresosDetalle };
-}
-
-
-export async function getEventFinancialSummary(): Promise<{ success: boolean; data?: EventFinancialSummaryData; error?: string }> {
-  try {
-    const fiesta = await getFiestaActual();
-    if (!fiesta) {
-        return { success: false, error: 'No se encontró un evento activo.' };
-    }
-    if (!fiesta.configuracion.fechaEvento) {
-        return { success: false, error: 'El evento no tiene una fecha definida.' };
-    }
-    
-    const { costosDetalle, ingresosDetalle } = await getEventData(fiesta);
-
-    const totalIngresos = ingresosDetalle.reduce((sum, item) => sum + item.monto, 0);
-    const totalCostos = costosDetalle.reduce((sum, item) => sum + item.monto, 0);
-    const gananciaNeta = totalIngresos - totalCostos;
-    const margen = totalIngresos > 0 ? (gananciaNeta / totalIngresos) * 100 : 0;
-    
-    return {
-      success: true,
-      data: {
-        nombreEvento: fiesta.configuracion.nombreEvento,
-        fechaEvento: fiesta.configuracion.fechaEvento,
-        ingresos: { total: totalIngresos, detalle: ingresosDetalle },
-        costos: { total: totalCostos, detalle: costosDetalle },
-        gananciaNeta,
-        margen,
-      },
-    };
-
-  } catch (error: any) {
-    console.error("Error calculating event financial summary:", error);
-    return { success: false, error: 'Failed to calculate event financial summary.' };
   }
 }
