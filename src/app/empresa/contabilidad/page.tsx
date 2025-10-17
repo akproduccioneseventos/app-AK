@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, BarChart3, FileText, KanbanSquare, ListChecks, TrendingUp } from 'lucide-react';
+import { ArrowLeft, BarChart3, FileText, KanbanSquare, ListChecks, TrendingUp, Wand2, Settings as SettingsIcon } from 'lucide-react';
 
 const hubItems = [
   {
@@ -12,24 +12,42 @@ const hubItems = [
     description: 'Visualiza y gestiona tus prospectos en el tablero Kanban.',
     href: '/contabilidad/crm',
     icon: KanbanSquare,
+    actionLabel: 'Ir al CRM',
   },
   {
     title: 'Central de Presupuestos',
     description: 'Crea nuevos presupuestos y gestiona los existentes.',
     href: '/presupuestos/nuevo',
     icon: ListChecks,
+    actionLabel: 'Gestionar Presupuestos',
   },
   {
     title: 'Gestión de Facturas',
     description: 'Administra tus facturas, registra pagos y haz seguimiento.',
     href: '/invoices',
     icon: FileText,
+    actionLabel: 'Ir a Facturas',
   },
   {
     title: 'Reporte de Ganancias y Pérdidas',
     description: 'Analiza los resultados financieros de tus eventos.',
     href: '/empresa/contabilidad/reportes',
     icon: TrendingUp,
+    actionLabel: 'Ver Reporte',
+  },
+  {
+    title: 'Simulador de Presupuesto (Vista Cliente)',
+    description: 'Accede a la herramienta que usan tus clientes para obtener un presupuesto estimado.',
+    href: '/simulador-de-presupuesto',
+    icon: Wand2,
+    actionLabel: 'Abrir Simulador',
+  },
+  {
+    title: 'Configuración del Simulador',
+    description: 'Ajusta los paquetes, menús y descuentos disponibles para los clientes.',
+    href: '/settings/budget-display',
+    icon: SettingsIcon,
+    actionLabel: 'Configurar',
   },
 ];
 
@@ -71,7 +89,7 @@ export default function ContabilidadHubPage() {
             <CardFooter className="pt-3">
               <Link href={item.href} passHref className="w-full">
                 <Button className="w-full">
-                  Acceder
+                  {item.actionLabel}
                 </Button>
               </Link>
             </CardFooter>
