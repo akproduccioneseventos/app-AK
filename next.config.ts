@@ -27,4 +27,5 @@ const nextConfig: NextConfig = {
   },
 };
 
+// Triggering a rebuild to solve chunk loading issues.
 export default nextConfig;
