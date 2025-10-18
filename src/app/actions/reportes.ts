@@ -6,8 +6,9 @@ import { getAllFiestas } from './fiesta/fiesta.actions';
 import { getMenuById } from './menus-catering';
 import { getEmpleados } from './empleados';
 import { getRoles } from './roles';
-import { getGastosGenerales } from './gastos'; // Importar gastos generales
+import { getGastosGenerales } from './gastos'; 
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import type { CategoriaGasto } from '@/types/gastos';
 
 interface DateRange {
   from: Date;

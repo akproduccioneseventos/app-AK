@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -9,7 +10,9 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, PlusCircle, Trash2, Loader2, AlertTriangle, Calculator, DollarSign } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getGastosGenerales, saveGastoGeneral, deleteGastoGeneral, type GastoGeneral, type CategoriaGasto, ALL_CATEGORIAS_GASTO } from '@/app/actions/gastos';
+import { getGastosGenerales, saveGastoGeneral, deleteGastoGeneral } from '@/app/actions/gastos';
+import type { GastoGeneral, CategoriaGasto } from '@/types/gastos';
+import { ALL_CATEGORIAS_GASTO } from '@/types/gastos';
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
