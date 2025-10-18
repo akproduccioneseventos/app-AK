@@ -29,23 +29,27 @@ export async function getCrmStages(): Promise<CrmStage[]> {
 
 export async function getCrmLeads(): Promise<CrmLead[]> {
   const leads = await readData<CrmLead[]>(LEADS_FILE, []);
+  // Removed logic that auto-created leads from budgets here.
   return leads.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
 
 export async function addCrmLead(
-  leadData: NewCrmLeadData
+  leadData: NewCrmLeadData,
+  options: { preventDuplicateCheck?: boolean } = {}
 ): Promise<{ success: boolean; lead?: CrmLead; error?: string }> {
   if (!leadData.name.trim()) {
     return { success: false, error: 'El nombre del prospecto es obligatorio.' };
   }
   const leads = await getCrmLeads();
 
-  const isDuplicate = leads.some(lead => lead.name.trim().toLowerCase() === leadData.name.trim().toLowerCase() && lead.presupuestoId === leadData.presupuestoId);
-  if (isDuplicate) {
-    const existingLead = leads.find(lead => lead.name.trim().toLowerCase() === leadData.name.trim().toLowerCase());
-    if (existingLead) {
-        return { success: true, lead: existingLead };
+  if (!options.preventDuplicateCheck) {
+    const isDuplicate = leads.some(lead => lead.name.trim().toLowerCase() === leadData.name.trim().toLowerCase() && lead.presupuestoId === leadData.presupuestoId);
+    if (isDuplicate) {
+        const existingLead = leads.find(lead => lead.name.trim().toLowerCase() === leadData.name.trim().toLowerCase());
+        if (existingLead) {
+            return { success: true, lead: existingLead };
+        }
     }
   }
   
@@ -85,36 +89,36 @@ export async function addCrmLead(
   return { success: true, lead: newLead };
 }
 
-// Nueva función para encontrar o crear un lead basado en el presupuesto
 export async function findLeadByBudgetOrCreate(
   presupuestoData: { id: string; leadId?: string; clienteNombre: string; clienteContacto?: string; costoTotalEstimado: number; totalConDescuento?: number }
 ): Promise<{lead: CrmLead; isNew: boolean}> {
   const leads = await getCrmLeads();
   
-  // Try to find by leadId first, then by presupuestoId
   let existingLead = presupuestoData.leadId ? leads.find(lead => lead.id === presupuestoData.leadId) : null;
   if (!existingLead) {
     existingLead = leads.find(lead => lead.presupuestoId === presupuestoData.id);
   }
   
   if (existingLead) {
-    // If found, ensure the presupuestoId is linked and return
-    if (!existingLead.presupuestoId) {
-      existingLead.presupuestoId = presupuestoData.id;
-      await moveCrmLead(existingLead.id, existingLead.currentStageId); // This will save the lead with the new ID
+    if (existingLead.presupuestoId !== presupuestoData.id) {
+       const originalLeads = await readData<CrmLead[]>(LEADS_FILE, []);
+       const leadIndex = originalLeads.findIndex(l => l.id === existingLead!.id);
+       if (leadIndex !== -1) {
+           originalLeads[leadIndex].presupuestoId = presupuestoData.id;
+           await writeData(LEADS_FILE, originalLeads);
+       }
     }
     return { lead: existingLead, isNew: false };
   }
 
-  // If not found, create a new one
   const newLeadData: NewCrmLeadData = {
     name: presupuestoData.clienteNombre,
     phone: presupuestoData.clienteContacto,
     notes: `Presupuesto ID: ${presupuestoData.id}\nCosto: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(presupuestoData.totalConDescuento ?? presupuestoData.costoTotalEstimado)}`,
-    currentStageId: 's1', // Start at the first stage
+    currentStageId: 's1', 
     presupuestoId: presupuestoData.id,
   };
-  const result = await addCrmLead(newLeadData);
+  const result = await addCrmLead(newLeadData, { preventDuplicateCheck: true });
   if (!result.success || !result.lead) {
     throw new Error('Failed to create a new lead for the budget.');
   }
@@ -173,7 +177,7 @@ export async function deleteCrmLead(leadId: string): Promise<{ success: boolean;
     leads = leads.filter(lead => lead.id !== leadId);
 
     if (leads.length === initialLength) {
-        return { success: false, error: `Prospecto con ID ${leadId} no encontrado para eliminar.` };
+        return { success: false, error: `Prospecto con ID ${leadId} no encontrado.` };
     }
     await writeData(LEADS_FILE, leads);
     return { success: true };
@@ -269,3 +273,44 @@ export async function convertToClientAndMoveProspect(
     return { success: false, error: error.message || "Error desconocido durante la conversión." };
   }
 }
+
+export async function getCrmKpiData() {
+  try {
+    const [leads, stages, presupuestos] = await Promise.all([
+      getCrmLeads(),
+      getCrmStages(),
+      getPresupuestos(),
+    ]);
+
+    const conversionStageIds = stages.filter(s => s.isConversionStage).map(s => s.id);
+    const lostStageIds = stages.filter(s => s.name.toLowerCase().includes('no contrató')).map(s => s.id);
+    
+    const activeLeads = leads.filter(l => !conversionStageIds.includes(l.currentStageId) && !lostStageIds.includes(l.currentStageId));
+    const activeLeadsCount = activeLeads.length;
+
+    const wonLeads = leads.filter(l => conversionStageIds.includes(l.currentStageId)).length;
+    const lostLeads = leads.filter(l => lostStageIds.includes(l.currentStageId)).length;
+    const concludedLeads = wonLeads + lostLeads;
+
+    const conversionRate = concludedLeads > 0 ? (wonLeads / concludedLeads) * 100 : 0;
+    
+    const activePresupuestoIds = new Set(activeLeads.map(l => l.presupuestoId).filter(Boolean));
+    const pipelineValue = presupuestos
+      .filter(p => activePresupuestoIds.has(p.id) && p.estado !== 'Facturado' && p.estado !== 'Rechazado')
+      .reduce((sum, p) => sum + (p.totalConDescuento ?? p.costoTotalEstimado), 0);
+
+    return {
+      success: true,
+      data: {
+        activeLeads: activeLeadsCount,
+        pipelineValue: pipelineValue,
+        conversionRate: conversionRate,
+        wonLeads: wonLeads,
+        lostLeads: lostLeads,
+      },
+    };
+  } catch (error: any) {
+    return { success: false, error: 'Failed to calculate CRM KPIs.' };
+  }
+}
+

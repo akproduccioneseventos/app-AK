@@ -5,9 +5,10 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, BarChart3, FileText, KanbanSquare, ListChecks, TrendingUp, DollarSign, CreditCard, Banknote, Users, Loader2, Wand2, PlusCircle, Calculator, Settings } from 'lucide-react';
+import { ArrowLeft, BarChart3, FileText, KanbanSquare, ListChecks, TrendingUp, DollarSign, CreditCard, Banknote, Users, Loader2, Wand2, PlusCircle, Calculator, Settings, TrendingDown } from 'lucide-react';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { getDashboardKpiData, type MonthlyChartData } from '@/app/actions/dashboard';
+import { getCrmKpiData } from '@/app/actions/crm';
 import { MonthlySalesChart } from '@/components/charts/MonthlySalesChart';
 import { PaymentStatusPieChart } from '@/components/charts/PaymentStatusPieChart';
 import { Separator } from '@/components/ui/separator';
@@ -46,19 +47,26 @@ const financialHubItems = [
         title: "Reporte de Ganancias y Pérdidas",
         description: "Analiza la rentabilidad de tu negocio en un período determinado.",
         href: "/empresa/contabilidad/reportes",
-        icon: TrendingUp
+        icon: TrendingDown
     }
 ];
 
 export default function ContabilidadHubPage() {
     const [kpiData, setKpiData] = useState<any>(null);
+    const [crmKpiData, setCrmKpiData] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     const fetchData = useCallback(async () => {
         setIsLoading(true);
-        const result = await getDashboardKpiData();
-        if (result.success) {
-            setKpiData(result.data);
+        const [dashboardResult, crmResult] = await Promise.all([
+          getDashboardKpiData(),
+          getCrmKpiData()
+        ]);
+        if (dashboardResult.success) {
+            setKpiData(dashboardResult.data);
+        }
+        if(crmResult.success) {
+            setCrmKpiData(crmResult.data);
         }
         setIsLoading(false);
     }, []);
@@ -94,9 +102,9 @@ export default function ContabilidadHubPage() {
 
        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <KpiCard title="Ventas Totales" value={formatCurrency(kpiData?.ventasTotales)} icon={DollarSign} isLoading={isLoading} description="Suma de todas las facturas generadas."/>
-        <KpiCard title="Total Pagado" value={formatCurrency(kpiData?.montoPagado)} icon={CreditCard} isLoading={isLoading} description="Dinero recibido de los clientes."/>
-        <KpiCard title="Saldo Pendiente" value={formatCurrency(kpiData?.totalPendiente)} icon={Banknote} isLoading={isLoading} description="Monto por cobrar."/>
-        <KpiCard title="Prospectos Activos" value={kpiData?.prospectosActivos ?? '...'} icon={Users} isLoading={isLoading} description="Clientes potenciales en el embudo de ventas."/>
+        <KpiCard title="Valor del Pipeline" value={formatCurrency(crmKpiData?.pipelineValue)} icon={Users} isLoading={isLoading} description="Suma de presupuestos activos."/>
+        <KpiCard title="Tasa de Conversión CRM" value={`${(crmKpiData?.conversionRate ?? 0).toFixed(1)}%`} icon={TrendingUp} isLoading={isLoading} description="De prospectos a clientes."/>
+        <KpiCard title="Saldo Pendiente Total" value={formatCurrency(kpiData?.totalPendiente)} icon={Banknote} isLoading={isLoading} description="Monto total por cobrar."/>
       </div>
 
        <div className="grid grid-cols-1 lg:grid-cols-7 gap-4">

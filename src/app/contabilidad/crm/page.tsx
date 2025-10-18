@@ -6,10 +6,10 @@ import Link from 'next/link';
 import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, PlusCircle, Loader2, AlertTriangle, KanbanSquare, Users, CalendarDays, UserCog, Clock, ChevronLeft, ChevronRight, TrendingUp, UserRoundCheck, UserRoundX } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Loader2, AlertTriangle, KanbanSquare, Users, CalendarDays, UserCog, Clock, ChevronLeft, ChevronRight, TrendingUp, UserRoundCheck, UserRoundX, Wallet, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { CrmLead, CrmStage } from '@/types/crm';
-import { getCrmLeads, getCrmStages, moveCrmLead, deleteCrmLead, convertToClientAndMoveProspect } from '@/app/actions/crm';
+import { getCrmLeads, getCrmStages, moveCrmLead, deleteCrmLead, convertToClientAndMoveProspect, getCrmKpiData } from '@/app/actions/crm';
 import { CrmStageColumn } from '@/components/crm/CrmStageColumn';
 import { AddLeadDialog } from '@/components/crm/AddLeadDialog';
 import { ConvertToClientDialog } from '@/components/crm/ConvertToClientDialog';
@@ -38,9 +38,15 @@ import { CrmLeadCard } from '@/components/crm/CrmLeadCard';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { Separator } from '@/components/ui/separator';
 
+const formatCurrency = (value?: number) => {
+    if (value === undefined) return 'N/A';
+    return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(value);
+};
+
 export default function CrmPage() {
   const [stages, setStages] = useState<CrmStage[]>([]);
   const [leads, setLeads] = useState<CrmLead[]>([]);
+  const [kpiData, setKpiData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
@@ -62,16 +68,19 @@ export default function CrmPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const [stagesData, leadsData, occupiedDatesStrings] = await Promise.all([
+      const [stagesData, leadsData, occupiedDatesStrings, crmKpis] = await Promise.all([
         getCrmStages(),
         getCrmLeads(),
         getOcupiedDates(),
+        getCrmKpiData(),
       ]);
       const sortedStages = stagesData.sort((a,b) => a.order - b.order);
       setStages(sortedStages);
       const sortedLeads = leadsData.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       setLeads(sortedLeads);
-      
+      if (crmKpis.success) {
+        setKpiData(crmKpis.data);
+      }
       setOccupiedDates(occupiedDatesStrings.map(d => new Date(d)));
     } catch (err: any) {
       console.error("Error fetching CRM data:", err);
@@ -85,31 +94,6 @@ export default function CrmPage() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
-  
-  const kpiData = useMemo(() => {
-    if (!leads.length || !stages.length) {
-      return { total: 0, activos: 0, conversionRate: 0, conCita: 0 };
-    }
-    const conversionStageIds = stages.filter(s => s.isConversionStage).map(s => s.id);
-    const lostStageIds = stages.filter(s => s.name.toLowerCase().includes('no contrató')).map(s => s.id);
-
-    const convertidos = leads.filter(l => conversionStageIds.includes(l.currentStageId)).length;
-    const noConvertidos = leads.filter(l => lostStageIds.includes(l.currentStageId)).length;
-    
-    const totalConcluidos = convertidos + noConvertidos;
-    const conversionRate = totalConcluidos > 0 ? (convertidos / totalConcluidos) * 100 : 0;
-    
-    const activos = leads.filter(l => !conversionStageIds.includes(l.currentStageId) && !lostStageIds.includes(l.currentStageId)).length;
-    
-    const conCita = leads.filter(l => l.followUpDate).length;
-
-    return {
-      total: leads.length,
-      activos,
-      conversionRate,
-      conCita
-    };
-  }, [leads, stages]);
 
   const handleMeetingSubmit = async (meetingDate: string) => {
     if (!leadForMeeting) return;
@@ -303,10 +287,10 @@ export default function CrmPage() {
         </div>
         
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
-            <KpiCard title="Prospectos Totales" value={kpiData.total} icon={Users} isLoading={isLoading}/>
-            <KpiCard title="Prospectos Activos" value={kpiData.activos} icon={UserRoundCheck} isLoading={isLoading}/>
-            <KpiCard title="Tasa de Conversión" value={`${kpiData.conversionRate.toFixed(1)}%`} icon={TrendingUp} isLoading={isLoading}/>
-            <KpiCard title="Eventos Agendados" value={kpiData.conCita} icon={CalendarDays} isLoading={isLoading}/>
+            <KpiCard title="Valor del Pipeline" value={formatCurrency(kpiData?.pipelineValue)} icon={Wallet} isLoading={isLoading} description="Suma de presupuestos activos."/>
+            <KpiCard title="Prospectos Activos" value={kpiData?.activeLeads} icon={Users} isLoading={isLoading} description="Potenciales clientes en el embudo."/>
+            <KpiCard title="Tasa de Conversión" value={`${(kpiData?.conversionRate ?? 0).toFixed(1)}%`} icon={TrendingUp} isLoading={isLoading} description="De prospectos a clientes."/>
+            <KpiCard title="Ganados vs. Perdidos" value={`${kpiData?.wonLeads ?? 0} / ${kpiData?.lostLeads ?? 0}`} icon={CheckCircle} isLoading={isLoading} description="Clientes confirmados vs. no contratados."/>
         </div>
         <Separator className="mb-6"/>
 
