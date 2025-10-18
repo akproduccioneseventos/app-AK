@@ -16,14 +16,14 @@ interface KpiCardProps {
 }
 
 export const KpiCard: React.FC<KpiCardProps> = ({ title, value, description, icon: Icon, isLoading, className }) => (
-  <Card className={cn("shadow-md hover:shadow-lg transition-shadow", className)}>
+  <Card className={cn("shadow-sm", className)}>
     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
       <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
-      <Icon className="h-5 w-5 text-primary" />
+      <Icon className="h-4 w-4 text-muted-foreground" />
     </CardHeader>
     <CardContent>
       {isLoading ? (
-        <Loader2 className="h-7 w-7 animate-spin text-primary" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       ) : (
         <div className="text-2xl font-bold">{value}</div>
       )}
