@@ -67,15 +67,17 @@ export async function generateBudgetAndLeadFromSimulator(
       costoTotalEstimado: data.costoEstimado,
     };
 
-    // savePresupuesto now handles both budget creation and CRM lead creation/update.
+    // Al llamar a savePresupuesto desde aquí, SIEMPRE se debe crear un nuevo prospecto.
+    // Pasamos un leadId nulo o indefinido para forzar la creación.
     const budgetResult = await savePresupuesto(presupuestoData, {
-      source: 'simulator'
+      source: 'simulator',
+      leadId: undefined, // Explicitly undefined to ensure a new lead is created
     });
 
     if (budgetResult.success && budgetResult.presupuesto) {
        await createNotification({
         mensaje: `Nuevo prospecto desde Simulador: ${data.clienteNombre}`,
-        href: '/contabilidad/crm',
+        href: `/presupuestos/${budgetResult.id}/ver`,
         icono: 'Wand2',
       });
       return { success: true, presupuestoId: budgetResult.id };

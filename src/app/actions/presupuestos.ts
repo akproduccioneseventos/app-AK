@@ -87,7 +87,7 @@ export async function savePresupuesto(
 
   // Post-save CRM logic
   try {
-    const { lead } = await findLeadByBudgetOrCreate({
+    const { lead, isNew } = await findLeadByBudgetOrCreate({
       id: presupuestoId,
       leadId: options?.leadId,
       clienteNombre: nuevoPresupuesto.clienteNombre,
@@ -96,14 +96,19 @@ export async function savePresupuesto(
       totalConDescuento: nuevoPresupuesto.totalConDescuento,
     });
 
-    const stages = await getCrmStages();
-    const targetStage = stages.find(s => s.name.toLowerCase().includes('presupuesto'));
-    if (targetStage && lead.currentStageId !== targetStage.id) {
-      await moveCrmLead(lead.id, targetStage.id);
+    // Only move if it's newly created (from simulator or manual without leadId)
+    // or if it was manually created from a lead in a previous stage
+    if (isNew || options?.source === 'manual') {
+        const stages = await getCrmStages();
+        const targetStage = stages.find(s => s.name.toLowerCase().includes('presupuesto'));
+        if (targetStage && lead.currentStageId !== targetStage.id) {
+            await moveCrmLead(lead.id, targetStage.id);
+        }
     }
+    
   } catch (crmError: any) {
     console.warn(`Presupuesto ${presupuestoId} guardado, pero falló la sincronización con el CRM: ${crmError.message}`);
-    // No fallar la operación principal, solo registrar el problema.
+    // Do not fail the main operation, only log the issue.
   }
 
   return { success: true, id: nuevoPresupuesto.id, presupuesto: nuevoPresupuesto };
