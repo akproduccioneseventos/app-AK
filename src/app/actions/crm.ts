@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import type { CrmLead, CrmStage, NewCrmLeadData } from '@/types/crm';
@@ -40,9 +41,12 @@ export async function addCrmLead(
   }
   const leads = await getCrmLeads();
 
-  const isDuplicate = leads.some(lead => lead.name.trim().toLowerCase() === leadData.name.trim().toLowerCase());
+  const isDuplicate = leads.some(lead => lead.name.trim().toLowerCase() === leadData.name.trim().toLowerCase() && lead.presupuestoId === leadData.presupuestoId);
   if (isDuplicate) {
-    return { success: false, error: `Ya existe un prospecto con el nombre "${leadData.name.trim()}".` };
+    const existingLead = leads.find(lead => lead.name.trim().toLowerCase() === leadData.name.trim().toLowerCase());
+    if (existingLead) {
+        return { success: true, lead: existingLead };
+    }
   }
   
   const stages = await getCrmStages();
@@ -83,12 +87,22 @@ export async function addCrmLead(
 
 // Nueva función para encontrar o crear un lead basado en el presupuesto
 export async function findLeadByBudgetOrCreate(
-  presupuestoData: { clienteNombre: string, clienteContacto?: string, id: string; costoTotalEstimado: number; totalConDescuento?: number }
+  presupuestoData: { id: string; leadId?: string; clienteNombre: string; clienteContacto?: string; costoTotalEstimado: number; totalConDescuento?: number }
 ): Promise<{lead: CrmLead; isNew: boolean}> {
   const leads = await getCrmLeads();
-  let existingLead = leads.find(lead => lead.presupuestoId === presupuestoData.id);
+  
+  // Try to find by leadId first, then by presupuestoId
+  let existingLead = presupuestoData.leadId ? leads.find(lead => lead.id === presupuestoData.leadId) : null;
+  if (!existingLead) {
+    existingLead = leads.find(lead => lead.presupuestoId === presupuestoData.id);
+  }
   
   if (existingLead) {
+    // If found, ensure the presupuestoId is linked and return
+    if (!existingLead.presupuestoId) {
+      existingLead.presupuestoId = presupuestoData.id;
+      await moveCrmLead(existingLead.id, existingLead.currentStageId); // This will save the lead with the new ID
+    }
     return { lead: existingLead, isNew: false };
   }
 
@@ -96,8 +110,8 @@ export async function findLeadByBudgetOrCreate(
   const newLeadData: NewCrmLeadData = {
     name: presupuestoData.clienteNombre,
     phone: presupuestoData.clienteContacto,
-    notes: `Presupuesto ID: ${presupuestoData.id}\n- Costo: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(presupuestoData.totalConDescuento ?? presupuestoData.costoTotalEstimado)}`,
-    currentStageId: 's1', // Will be moved later
+    notes: `Presupuesto ID: ${presupuestoData.id}\nCosto: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(presupuestoData.totalConDescuento ?? presupuestoData.costoTotalEstimado)}`,
+    currentStageId: 's1', // Start at the first stage
     presupuestoId: presupuestoData.id,
   };
   const result = await addCrmLead(newLeadData);

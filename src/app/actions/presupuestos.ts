@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto'; 
@@ -45,7 +46,7 @@ export async function getPresupuestoById(id: string): Promise<Presupuesto | null
 
 export async function savePresupuesto(
   presupuestoData: Omit<Presupuesto, 'id' | 'estado' | 'invoiceId'>,
-  options?: { source?: 'manual' | 'simulator' }
+  options?: { source?: 'manual' | 'simulator', leadId?: string }
 ): Promise<{ success: boolean, id?: string, error?: string, presupuesto?: Presupuesto }> {
   let presupuestos = await getPresupuestos();
   
@@ -88,6 +89,7 @@ export async function savePresupuesto(
   try {
     const { lead } = await findLeadByBudgetOrCreate({
       id: presupuestoId,
+      leadId: options?.leadId,
       clienteNombre: nuevoPresupuesto.clienteNombre,
       clienteContacto: nuevoPresupuesto.clienteContacto,
       costoTotalEstimado: nuevoPresupuesto.costoTotalEstimado,
@@ -95,7 +97,7 @@ export async function savePresupuesto(
     });
 
     const stages = await getCrmStages();
-    const targetStage = stages.find(s => s.name.toLowerCase() === 'con presupuesto');
+    const targetStage = stages.find(s => s.name.toLowerCase().includes('presupuesto'));
     if (targetStage && lead.currentStageId !== targetStage.id) {
       await moveCrmLead(lead.id, targetStage.id);
     }
