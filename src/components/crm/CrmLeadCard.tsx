@@ -6,7 +6,7 @@ import { CSS } from '@dnd-kit/utilities';
 import type { CrmLead } from '@/types/crm';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Trash2, GripVertical, FilePlus2, Users, Building2, CalendarDays, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Loader2, Trash2, GripVertical, FilePlus2, Users, Building2, CalendarDays, Clock, ChevronLeft, ChevronRight, FileText } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -58,8 +58,8 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting, isMobile, onMove }
         return { type: 'text', content: meetingLine };
     }
     
-    if (notes.includes('Generado desde el Simulador/Creador de Presupuestos') || notes.includes('Generado desde SIMULADOR DE PRESUPUESTO')) {
-        return { type: 'badge', content: 'Presupuesto al Instante' };
+    if (notes.includes('Presupuesto ID:')) {
+        return { type: 'badge', content: 'Presupuesto Generado' };
     }
 
     const nonStructuralNotes = notes.split('\n---')[0].trim();
@@ -72,6 +72,7 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting, isMobile, onMove }
   };
 
   const displayNotes = getDisplayNotes(lead.notes);
+  const hasBudget = lead.presupuestoId || (lead.notes && lead.notes.includes('Presupuesto ID:'));
 
   return (
     <div ref={setNodeRef} style={style} className="mb-2 touch-none w-full">
@@ -122,12 +123,19 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting, isMobile, onMove }
                 <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => onMove(1)}><ChevronRight className="w-4 h-4"/></Button>
               </div>
             )}
-            <Link href={`/presupuestos/nuevo/crear?leadId=${lead.id}&leadName=${encodeURIComponent(lead.name)}`} passHref className="flex-grow">
-                <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5 w-full">
-                    <FilePlus2 className="w-4 h-4" />
-                    Crear Presupuesto
-                </Button>
-            </Link>
+            {hasBudget ? (
+                <Link href={`/presupuestos/${lead.presupuestoId}/ver`} passHref className="flex-grow">
+                    <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5 w-full">
+                        <FileText className="w-4 h-4"/> Ver Presupuesto
+                    </Button>
+                </Link>
+            ) : (
+                <Link href={`/presupuestos/nuevo/crear?leadId=${lead.id}&leadName=${encodeURIComponent(lead.name)}`} passHref className="flex-grow">
+                    <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5 w-full">
+                        <FilePlus2 className="w-4 h-4" /> Crear Presupuesto
+                    </Button>
+                </Link>
+            )}
              <AlertDialog>
                 <AlertDialogTrigger asChild>
                     <Button variant="destructive" size="icon" className="h-8 w-8 flex-shrink-0" title="Eliminar Prospecto" disabled={isDeleting}>

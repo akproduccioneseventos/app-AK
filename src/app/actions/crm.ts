@@ -33,26 +33,31 @@ export async function getCrmLeads(): Promise<CrmLead[]> {
   try {
     const allBudgets = await getPresupuestos();
     const allStages = await getCrmStages();
-    const targetStage = allStages.find(stage => stage.name.toLowerCase() === 'con presupuesto');
+    const budgetStage = allStages.find(stage => stage.name.toLowerCase() === 'con presupuesto');
+    const firstStage = allStages.find(s => s.order === 1);
 
-    if (targetStage) {
+    if (budgetStage) {
         for (const budget of allBudgets) {
-            const leadExists = leads.some(lead => lead.notes?.includes(`Presupuesto ID: ${budget.id}`));
+            let existingLead = leads.find(lead => lead.presupuestoId === budget.id || (lead.notes && lead.notes.includes(`Presupuesto ID: ${budget.id}`)));
             
-            if (!leadExists) {
-                 let notes = `Presupuesto ID: ${budget.id}\n- Invitados: ${budget.invitadosCantidad}\n- Costo: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(budget.totalConDescuento ?? budget.costoTotalEstimado)}`;
-                
+            if (!existingLead) {
+                const notes = `Presupuesto ID: ${budget.id}\n- Invitados: ${budget.invitadosCantidad}\n- Costo: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(budget.totalConDescuento ?? budget.costoTotalEstimado)}`;
                 const newLead: CrmLead = {
                     id: `lead_recovered_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
                     name: budget.clienteNombre,
                     phone: budget.clienteContacto,
                     notes: notes,
-                    currentStageId: targetStage.id,
+                    currentStageId: budgetStage.id,
+                    presupuestoId: budget.id, // Associate directly
                     createdAt: budget.timestamp,
                     updatedAt: new Date().toISOString(),
-                    history: [{ stageId: targetStage.id, stageName: targetStage.name, timestamp: new Date().toISOString() }],
+                    history: [{ stageId: budgetStage.id, stageName: budgetStage.name, timestamp: new Date().toISOString() }],
                 };
                 leads.push(newLead);
+                needsWrite = true;
+            } else if (!existingLead.presupuestoId) {
+                // If lead exists but isn't directly linked, update it
+                existingLead.presupuestoId = budget.id;
                 needsWrite = true;
             }
         }
@@ -123,7 +128,7 @@ export async function findLeadByBudgetOrCreate(
   presupuestoData: { clienteNombre: string, clienteContacto?: string, id: string; costoTotalEstimado: number; totalConDescuento?: number }
 ): Promise<{lead: CrmLead; isNew: boolean}> {
   const leads = await getCrmLeads();
-  let existingLead = leads.find(lead => lead.notes?.includes(`Presupuesto ID: ${presupuestoData.id}`));
+  let existingLead = leads.find(lead => lead.presupuestoId === presupuestoData.id);
   
   if (existingLead) {
     return { lead: existingLead, isNew: false };
@@ -134,7 +139,8 @@ export async function findLeadByBudgetOrCreate(
     name: presupuestoData.clienteNombre,
     phone: presupuestoData.clienteContacto,
     notes: `Presupuesto ID: ${presupuestoData.id}\n- Costo: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(presupuestoData.totalConDescuento ?? presupuestoData.costoTotalEstimado)}`,
-    currentStageId: 's1' // Will be moved later
+    currentStageId: 's1', // Will be moved later
+    presupuestoId: presupuestoData.id,
   };
   const result = await addCrmLead(newLeadData);
   if (!result.success || !result.lead) {
@@ -190,7 +196,7 @@ export async function moveCrmLead(
 }
 
 export async function deleteCrmLead(leadId: string): Promise<{ success: boolean; error?: string }> {
-    let leads = await getCrmLeads();
+    let leads = await readData<CrmLead[]>(LEADS_FILE, []); // Read fresh data
     const initialLength = leads.length;
     leads = leads.filter(lead => lead.id !== leadId);
 
