@@ -1,17 +1,17 @@
 [
   {
-    "id": "lead_recovered_1760701975058_evqkm",
+    "id": "lead_recovered_1760814388665_dus6d",
     "name": "Ana García",
     "phone": "0999588945",
     "notes": "Presupuesto ID: pres_1760696909377_e5f9ht3\n- Invitados: 51\n- Costo: $ 98.083,84",
     "currentStageId": "s3",
     "createdAt": "2025-10-17T10:28:29.377Z",
-    "updatedAt": "2025-10-17T11:52:55.058Z",
+    "updatedAt": "2025-10-18T19:06:28.665Z",
     "history": [
       {
         "stageId": "s3",
         "stageName": "Con presupuesto",
-        "timestamp": "2025-10-17T11:52:55.058Z"
+        "timestamp": "2025-10-18T19:06:28.665Z"
       }
     ]
   }

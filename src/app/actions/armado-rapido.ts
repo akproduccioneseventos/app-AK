@@ -51,8 +51,7 @@ export async function generateBudgetAndLeadFromSimulator(
   data: LeadFromQuickBudget & { items: Omit<ItemPresupuestado, 'costoTotalItem'>[] }
 ): Promise<{ success: boolean; leadId?: string; presupuestoId?: string; error?: string }> {
   try {
-    // La lógica de creación de prospecto ahora está dentro de savePresupuesto
-    const presupuestoData: Omit<Presupuesto, 'id' | 'estado' | 'invoiceId' | 'costoTotalEstimado' | 'totalConDescuento' | 'ajusteAnualActivo'> = {
+    const presupuestoData: Omit<Presupuesto, 'id' | 'estado' | 'invoiceId' > = {
       clienteNombre: data.clienteNombre,
       clienteContacto: data.clienteContacto,
       eventoTipo: 'Evento (desde Simulador)',
@@ -61,14 +60,15 @@ export async function generateBudgetAndLeadFromSimulator(
       invitadosAdultos: data.adultos,
       invitadosNinos: data.ninos,
       salonFiestas: 'A definir',
-      itemsPresupuestados: data.items.map(item => ({...item, costoTotalItem: 0})),
+      itemsPresupuestados: data.items.map(item => ({...item, costoTotalItem: 0})), // cost is recalculated server-side
       timestamp: new Date().toISOString(),
       notas: `Presupuesto generado desde el Simulador. Paquete: ${data.paqueteNombre || 'N/A'}. Costo estimado: ${formatCurrency(data.costoEstimado)}`,
+      costoTotalEstimado: data.costoEstimado,
     };
 
+    // savePresupuesto now handles both budget creation and CRM lead creation/update.
     const budgetResult = await savePresupuesto(presupuestoData, {
-      source: 'simulator',
-      costoEstimado: data.costoEstimado
+      source: 'simulator'
     });
 
     if (budgetResult.success && budgetResult.presupuesto) {

@@ -45,7 +45,7 @@ export async function getPresupuestoById(id: string): Promise<Presupuesto | null
 
 export async function savePresupuesto(
   presupuestoData: Omit<Presupuesto, 'id' | 'estado' | 'invoiceId'>,
-  options?: { source?: 'manual' | 'simulator', leadId?: string, costoEstimado?: number }
+  options?: { source?: 'manual' | 'simulator' }
 ): Promise<{ success: boolean, id?: string, error?: string, presupuesto?: Presupuesto }> {
   let presupuestos = await getPresupuestos();
   
@@ -182,7 +182,11 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
 
 export async function deletePresupuesto(id: string): Promise<{ success: boolean; error?: string }> {
   let presupuestos = await getPresupuestos();
+  const initialLength = presupuestos.length;
   presupuestos = presupuestos.filter(p => p.id !== id);
+   if (presupuestos.length === initialLength) {
+    return { success: false, error: `Presupuesto con ID ${id} no encontrado para eliminar.` };
+  }
   await writeData(PRESUPUESTOS_FILE, presupuestos);
   return { success: true };
 }
