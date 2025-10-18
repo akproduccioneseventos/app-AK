@@ -11,8 +11,24 @@ import {
     Building2, 
     BarChart3, 
     Settings as SettingsIcon, 
+    DollarSign,
+    CreditCard,
+    Banknote,
+    Users,
+    CalendarClock,
+    Archive
 } from 'lucide-react';
-import React from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { KpiCard } from '@/components/dashboard/kpi-card';
+import { getDashboardKpiData } from '@/app/actions/dashboard';
+import { MonthlySalesChart } from '@/components/charts/MonthlySalesChart';
+import { PaymentStatusPieChart } from '@/components/charts/PaymentStatusPieChart';
+import { Separator } from '@/components/ui/separator';
+
+const formatCurrency = (value?: number) => {
+    if (value === undefined) return 'N/A';
+    return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(value);
+};
 
 const mainHubItems = [
     {
@@ -46,31 +62,66 @@ const mainHubItems = [
 ]
 
 export default function MainDashboardPage() {
+    const [kpiData, setKpiData] = useState<any>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const fetchData = useCallback(async () => {
+        setIsLoading(true);
+        const result = await getDashboardKpiData();
+        if (result.success) {
+            setKpiData(result.data);
+        }
+        setIsLoading(false);
+    }, []);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+
+    const pieChartData = useMemo(() => {
+        if (!kpiData) return [];
+        return [
+            { name: 'Pagado', value: kpiData.montoPagado || 0, fill: 'hsl(var(--chart-2))' },
+            { name: 'Pendiente', value: kpiData.totalPendiente || 0, fill: 'hsl(var(--chart-5))' },
+        ];
+    }, [kpiData]);
+
+
   return (
     <div className="space-y-8">
       <div className="text-center">
         <h1 className="text-4xl font-bold tracking-tight font-headline text-primary">
-          Bienvenido/a a AK Producciones
+          Dashboard Principal
         </h1>
         <p className="text-lg text-muted-foreground mt-2">
-          Tu plataforma integral para la gestión de eventos.
+          Tu centro de mando para la gestión integral de eventos.
         </p>
       </div>
 
-      <div className="flex flex-col sm:flex-row justify-center flex-wrap gap-3">
-        <Link href="/simulador-de-presupuesto" passHref>
-          <Button size="lg" variant="outline" className="w-full sm:w-auto">
-            <Wand2 className="w-5 h-5 mr-2" />
-            Simulador de Presupuesto
-          </Button>
-        </Link>
-        <Link href="/presupuestos/nuevo/crear" passHref>
-          <Button size="lg" className="w-full sm:w-auto">
-            <ListChecks className="w-5 h-5 mr-2" />
-            Crear Presupuesto Manual
-          </Button>
-        </Link>
+       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <KpiCard title="Ventas Totales" value={formatCurrency(kpiData?.ventasTotales)} icon={DollarSign} isLoading={isLoading} description="Suma de todas las facturas generadas."/>
+        <KpiCard title="Total Pagado" value={formatCurrency(kpiData?.montoPagado)} icon={CreditCard} isLoading={isLoading} description="Dinero recibido de los clientes."/>
+        <KpiCard title="Saldo Pendiente" value={formatCurrency(kpiData?.totalPendiente)} icon={Banknote} isLoading={isLoading} description="Monto por cobrar."/>
+        <KpiCard title="Prospectos Activos" value={kpiData?.prospectosActivos ?? '...'} icon={Users} isLoading={isLoading} description="Clientes potenciales en el embudo de ventas."/>
       </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-7 gap-4">
+            <div className="lg:col-span-4">
+                <MonthlySalesChart data={kpiData?.monthlyChartData || []} />
+            </div>
+            <div className="lg:col-span-3">
+                <PaymentStatusPieChart data={pieChartData} />
+            </div>
+      </div>
+      
+       <div className="grid gap-4 md:grid-cols-2">
+        <KpiCard title="Eventos Pasados" value={kpiData?.fiestasPasadas ?? '...'} icon={Archive} isLoading={isLoading} description="Total de eventos archivados."/>
+        <KpiCard title="Eventos Futuros" value={kpiData?.fiestasFuturas ?? '...'} icon={CalendarClock} isLoading={isLoading} description="Eventos en planificación activa."/>
+      </div>
+
+
+      <Separator className="my-8"/>
+
 
        <div className="grid gap-6 md:grid-cols-2">
         {mainHubItems.map((item) => (

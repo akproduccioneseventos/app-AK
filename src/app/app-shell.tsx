@@ -26,8 +26,7 @@ const getPageTitle = (pathname: string): string => {
   const pathSegments = pathname.split('/').filter(Boolean);
   const idSegment = pathSegments[pathSegments.length -1];
 
-  if (pathname === '/') return 'Menú Principal';
-  if (pathname === '/admin/aaiff') return 'Dashboard Principal';
+  if (pathname === '/') return 'Dashboard Principal';
   
   if (pathname === '/presupuestos/nuevo') return 'Central de Presupuestos';
   if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'editar' && pathSegments.length === 3) return `Editar Presupuesto #${idSegment?.substring(0,5)}`;
@@ -42,6 +41,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/customers/new') return 'Añadir Nuevo Cliente';
   if (pathSegments[0] === 'customers' && pathSegments[2] === 'edit' && pathSegments.length === 3) return `Editar Cliente #${idSegment}`;
   if (pathSegments[0] === 'customers' && pathSegments[1] && pathSegments.length === 2 && !pathname.endsWith('/edit')) return `Detalle de Cliente`;
+  if (pathname === '/customers/reporte') return 'Reporte de Clientes';
   
   if (pathname === '/empresa') return 'Gestión de la Empresa';
   if (pathname === '/empresa/servicios') return 'Catálogo de Servicios';
@@ -61,6 +61,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/empresa/redes-sociales/ia-marketing') return 'Asesor de Marketing IA';
   if (pathname === '/empresa/menus') return 'Planificador Gastronómico Maestro';
   if (pathname === '/empresa/menus/catalogo') return 'Catálogo de Platos';
+  if (pathname === '/empresa/menus/reporte') return 'Reporte Gastronómico Maestro';
   if (pathname === '/empresa/menus/nuevo') return 'Crear Nuevo Menú';
   if (pathSegments[0] === 'empresa' && pathSegments[1] === 'menus' && pathSegments[3] === 'editar') return `Editando Menú`;
   if (pathname === '/empresa/insumos') return 'Gestión de Insumos';
@@ -248,9 +249,6 @@ export function AppShell({ children }: { children: ReactNode }) {
   // Define special pages that might have their own layout
   const isBudgetViewPage = /^\/presupuestos\/[^/]+\/ver$/.test(pathname);
   const isInvoiceViewPage = /^\/invoices\/[^/]+$/.test(pathname) && !pathname.endsWith('/edit');
-  const isTableNumberPage = pathname.endsWith('/numeros-mesa');
-  const isDrinksMenuPage = pathname.endsWith('/carta-tragos');
-
 
   const isSpecialRender = 
     isAuthPage || 
@@ -258,9 +256,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     isClientFacingTool ||
     isPdfPage ||
     isBudgetViewPage ||
-    isInvoiceViewPage ||
-    isTableNumberPage ||
-    isDrinksMenuPage;
+    isInvoiceViewPage;
 
   // Simplified logic for when to render the shell
   if (isSpecialRender) {
