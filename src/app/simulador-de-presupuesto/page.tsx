@@ -23,7 +23,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableCaption } from '@/components/ui/table';
 import Image from 'next/image';
-import { WatermarkedImage } from '@/components/watermarked-image';
 import type { ItemPresupuestado } from '@/types/presupuesto';
 import type { FullMenu, MenuItem } from '@/types/catering'; // Import MenuItem
 import { getMenus } from '@/app/actions/menus-catering'; // Import getMenus
@@ -426,7 +425,7 @@ export default function ArmadoRapidoPage() {
                     )}
                     {step === 2 && (
                         <div className="space-y-6 animate-in fade-in-20">
-                            <h3 className="font-semibold text-lg flex items-center gap-2"><ChefHat className="text-primary w-5 h-5"/>Elije tu menú gastronómico</h3>
+                            <h3 className="font-semibold text-lg flex items-center gap-2"><ChefHat className="text-primary w-5 h-5"/>Elige tu menú gastronómico</h3>
                             <div className="space-y-4">
                                 <Label>Elige {duracionHoras > 4 ? 'hasta 2 entradas' : '1 entrada'} ({duracionHoras > 4 ? 'Fiesta larga' : 'Fiesta corta'})</Label>
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">{entradasDisponibles.map(s => (<div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><Checkbox id={`e-${s.id}`} checked={selectedEntradas.includes(s.id)} onCheckedChange={(checked) => handleEntradaChange(s.id, !!checked)}/><Label htmlFor={`e-${s.id}`} className="text-sm font-normal">{s.nombre} <span className="text-xs text-muted-foreground">({formatCurrency(s.precioPorPersona || 0, true)})</span></Label></div>))}</div>
@@ -470,23 +469,23 @@ export default function ArmadoRapidoPage() {
                     )}
                     {step === 4 && (
                         <div className="space-y-4 animate-in fade-in-20" id="budget-summary-printable">
-                            <header className="mb-6 print:mb-4 text-center border-b pb-3 print:pb-2">
-                                <h1 className="text-xl font-bold text-center mb-4 print:text-base leading-tight">{COMPANY_MAIN_TITLE}</h1>
-                                <div className="flex flex-col md:flex-row justify-between items-center text-xs print:text-[8pt] gap-2">
-                                    <div className="space-y-px text-center md:text-left">
-                                        <p className="font-semibold">{COMPANY_CONTACT_PERSON}</p>
-                                        <p>{COMPANY_ADDRESS_LINE1_PDF}, {COMPANY_ADDRESS_LINE2_PDF}</p>
-                                        <p>{COMPANY_CONTACT_EMAIL_PDF} | {COMPANY_WEBSITE_PDF}</p>
-                                    </div>
+                            <header className="mb-6 print:mb-4">
+                                <div className="flex justify-between items-start">
+                                    <h1 className="text-xl font-bold text-left mb-4 print:text-base leading-tight">{COMPANY_MAIN_TITLE}</h1>
                                     {logoUrl && (
-                                        <div className="w-20 h-20 print:w-16 print:h-16 flex-shrink-0">
-                                            <WatermarkedImage src={logoUrl} alt={`${COMPANY_NAME_BRAND} Logo`} className="object-contain" data-ai-hint="company logo"/>
+                                        <div className="w-24 h-20 print:w-20 print:h-16 flex-shrink-0">
+                                            <Image src={logoUrl} alt={`${COMPANY_NAME_BRAND} Logo`} width={100} height={80} className="object-contain" data-ai-hint="company logo"/>
                                         </div>
                                     )}
                                 </div>
+                                <div className="text-xs print:text-[8pt] gap-2 text-left">
+                                    <p className="font-semibold">{COMPANY_CONTACT_PERSON}</p>
+                                    <p>{COMPANY_ADDRESS_LINE1_PDF}, {COMPANY_ADDRESS_LINE2_PDF}</p>
+                                    <p>{COMPANY_CONTACT_EMAIL_PDF} | {COMPANY_WEBSITE_PDF}</p>
+                                </div>
                                 <Separator className="my-3"/>
-                                <section className="mb-4 print:mb-2 text-sm print:text-[9pt] text-left">
-                                  <p className="font-semibold">{clienteNombre}</p>
+                                <section className="text-sm print:text-[9pt] text-left">
+                                <p><span className="font-semibold">Cliente:</span> {clienteNombre}</p>
                                 </section>
                             </header>
                             
@@ -513,7 +512,7 @@ export default function ArmadoRapidoPage() {
                                         <h4 className="font-bold text-primary border-b pb-1 mb-2">{categoria}</h4>
                                         {items.map(item => (
                                             <div key={item.id} className="p-2 border-b text-sm">
-                                                <div className={`flex justify-between font-medium`}>
+                                                <div className="flex justify-between font-medium">
                                                     <span>{item.nombre}</span>
                                                     <span>{formatCurrency(item.costo)}</span>
                                                 </div>

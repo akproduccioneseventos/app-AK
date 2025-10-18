@@ -236,18 +236,18 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
       </div>
       <div className="max-w-3xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2" id="invoice-to-print">
         <header className="mb-6 print:mb-4">
-          <h1 className="text-xl font-bold text-center mb-4 print:text-base leading-tight">{COMPANY_MAIN_TITLE}</h1>
-          <div className="flex flex-col md:flex-row justify-between items-start text-xs print:text-[8pt] gap-2">
-            <div className="space-y-px text-center md:text-left">
-              <p className="font-semibold">{COMPANY_CONTACT_PERSON}</p>
-              <p>{COMPANY_ADDRESS_LINE1_PDF}, {COMPANY_ADDRESS_LINE2_PDF}</p>
-              <p>{COMPANY_CONTACT_EMAIL_PDF} | {COMPANY_WEBSITE_PDF}</p>
-            </div>
-            {displaySettings.showCompanyLogo && logoUrl && (
-                <div className="w-20 h-20 print:w-16 print:h-16 flex-shrink-0 self-center md:self-start">
-                    <Image src={logoUrl} alt={`${COMPANY_NAME_BRAND} Logo`} width={80} height={80} className="object-contain" data-ai-hint="company logo"/>
+          <div className="flex justify-between items-start">
+             <h1 className="text-xl font-bold text-left mb-4 print:text-base leading-tight">{COMPANY_MAIN_TITLE}</h1>
+             {displaySettings.showCompanyLogo && logoUrl && (
+                <div className="w-24 h-20 print:w-20 print:h-16 flex-shrink-0">
+                    <Image src={logoUrl} alt={`${COMPANY_NAME_BRAND} Logo`} width={100} height={80} className="object-contain" data-ai-hint="company logo"/>
                 </div>
             )}
+          </div>
+          <div className="text-xs print:text-[8pt] gap-2 text-left">
+            <p className="font-semibold">{COMPANY_CONTACT_PERSON}</p>
+            <p>{COMPANY_ADDRESS_LINE1_PDF}, {COMPANY_ADDRESS_LINE2_PDF}</p>
+            <p>{COMPANY_CONTACT_EMAIL_PDF} | {COMPANY_WEBSITE_PDF}</p>
           </div>
         </header>
 
