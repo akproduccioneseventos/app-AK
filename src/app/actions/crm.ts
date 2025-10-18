@@ -27,50 +27,7 @@ export async function getCrmStages(): Promise<CrmStage[]> {
 }
 
 export async function getCrmLeads(): Promise<CrmLead[]> {
-  let leads = await readData<CrmLead[]>(LEADS_FILE, []);
-  let needsWrite = false;
-
-  try {
-    const allBudgets = await getPresupuestos();
-    const allStages = await getCrmStages();
-    const budgetStage = allStages.find(stage => stage.name.toLowerCase() === 'con presupuesto');
-    const firstStage = allStages.find(s => s.order === 1);
-
-    if (budgetStage) {
-        for (const budget of allBudgets) {
-            let existingLead = leads.find(lead => lead.presupuestoId === budget.id || (lead.notes && lead.notes.includes(`Presupuesto ID: ${budget.id}`)));
-            
-            if (!existingLead) {
-                const notes = `Presupuesto ID: ${budget.id}\n- Invitados: ${budget.invitadosCantidad}\n- Costo: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(budget.totalConDescuento ?? budget.costoTotalEstimado)}`;
-                const newLead: CrmLead = {
-                    id: `lead_recovered_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-                    name: budget.clienteNombre,
-                    phone: budget.clienteContacto,
-                    notes: notes,
-                    currentStageId: budgetStage.id,
-                    presupuestoId: budget.id, // Associate directly
-                    createdAt: budget.timestamp,
-                    updatedAt: new Date().toISOString(),
-                    history: [{ stageId: budgetStage.id, stageName: budgetStage.name, timestamp: new Date().toISOString() }],
-                };
-                leads.push(newLead);
-                needsWrite = true;
-            } else if (!existingLead.presupuestoId) {
-                // If lead exists but isn't directly linked, update it
-                existingLead.presupuestoId = budget.id;
-                needsWrite = true;
-            }
-        }
-    }
-
-    if (needsWrite) {
-      await writeData(LEADS_FILE, leads);
-    }
-
-  } catch (error) {
-    console.error("Error durante la recuperación de prospectos desde presupuestos:", error);
-  }
-  
+  const leads = await readData<CrmLead[]>(LEADS_FILE, []);
   return leads.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
@@ -106,6 +63,7 @@ export async function addCrmLead(
     venueName: leadData.venueName?.trim() || undefined,
     guestCount: leadData.guestCount,
     followUpDate: leadData.followUpDate,
+    presupuestoId: leadData.presupuestoId || undefined,
     currentStageId: stageId,
     createdAt: now,
     updatedAt: now,
