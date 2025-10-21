@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -78,7 +77,7 @@ function calcularCostoServicio(servicio: ServicioEmpresa, cantidadInvitados: num
   }
 }
 
-const menuItemToServicioEmpresa = (item: MenuItem): ServicioEmpresa => {
+const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): ServicioEmpresa => {
     const precioVenta = item.suggestedSellingPrice ?? ((item.totalDishCost || 0) * (1 + (item.profitMargin ?? 120) / 100));
     return {
         id: item.id,
@@ -292,7 +291,7 @@ export default function ArmadoRapidoPage() {
         }, {} as Record<string, ServicioDetallado[]>);
     }, [serviciosDetallados]);
 
-     const generateWhatsAppMessage = useCallback(() => {
+     const generarTextoWhatsApp = useCallback(() => {
         let message = `🎉 *¡Presupuesto Estimado - AK Producciones!* 🎉\n\n`;
         message += `Estimado/a *${clienteNombre || 'Cliente'}*,\n\n`;
         message += `Gracias por tu interés. Aquí tienes el enlace a tu simulación:\n\n`;
@@ -321,11 +320,11 @@ export default function ArmadoRapidoPage() {
         window.print();
     };
 
-    const handleGenerateLeadAndProceed = useCallback(async () => {
-        if (step !== 3) return; // Only trigger when moving from step 3
-        
+    const handleGenerateLead = useCallback(async () => {
         if (!clienteNombre.trim() || !clienteContacto.trim()) {
-            return; // Don't proceed if basic info is missing from step 1
+            toast({ title: "Datos de contacto requeridos", description: "Por favor, vuelve al Paso 1 y completa tu nombre y celular para continuar.", variant: "destructive" });
+            setStep(1);
+            return;
         }
         setIsGeneratingLead(true);
         const data = {
@@ -350,15 +349,15 @@ export default function ArmadoRapidoPage() {
         try {
             const result = await generateBudgetAndLeadFromSimulator(data);
             if(result.success) {
-                toast({ title: "Presupuesto registrado", description: "Tu estimación ha sido enviada al equipo de ventas."});
-                setStep(4); // Move to final summary/contact step
+                toast({ title: "¡Gracias!", description: "Tu presupuesto ha sido registrado. Un asesor se pondrá en contacto a la brevedad."});
+                setStep(5);
             } else { throw new Error(result.error); }
         } catch(e: any) {
              toast({ title: "Error al registrar", description: e.message, variant: "destructive" });
         } finally {
             setIsGeneratingLead(false);
         }
-    }, [clienteNombre, clienteContacto, adultos, ninos, costoTotal, config?.paquetes, selectedPaqueteId, serviciosDetallados, toast, step]);
+    }, [clienteNombre, clienteContacto, adultos, ninos, costoTotal, config?.paquetes, selectedPaqueteId, serviciosDetallados, toast]);
     
     const isStepTwoInvalid = useMemo(() => {
         const requiredEntradas = duracionHoras > 4 ? 2 : 1;
@@ -382,11 +381,6 @@ export default function ArmadoRapidoPage() {
         
         if (step < 4) {
             setStep(s => s + 1);
-            if(s + 1 === 4) { // Moving to step 4
-                handleGenerateLeadAndProceed();
-            }
-        } else if (step === 4) {
-            handleContactWhatsApp();
         }
     };
 
@@ -470,7 +464,7 @@ export default function ArmadoRapidoPage() {
                         <div className="space-y-6 animate-in fade-in-20">
                             <h3 className="font-semibold text-lg flex items-center gap-2"><ChefHat className="text-primary w-5 h-5"/>Elige tu menú gastronómico</h3>
                             <div className="space-y-4">
-                                <Label>Debes elegir {maxEntradas === 1 ? '1 entrada' : '2 entradas'} ({duracionHoras > 4 ? 'Fiesta larga' : 'Fiesta corta'})</Label>
+                                <Label>Debes elegir {maxEntradas} entrada{maxEntradas > 1 ? 's' : ''} ({duracionHoras > 4 ? 'Fiesta larga' : 'Fiesta corta'})</Label>
                                 {entradasFaltantes > 0 && <p className="text-sm text-amber-600">Selecciona {entradasFaltantes} entrada{entradasFaltantes > 1 ? 's' : ''}.</p>}
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">{entradasDisponibles.map(s => (<div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><Checkbox id={`e-${s.id}`} checked={selectedEntradas.includes(s.id)} onCheckedChange={(checked) => handleEntradaChange(s.id, !!checked)}/><Label htmlFor={`e-${s.id}`} className="text-sm font-normal">{s.nombre} <span className="text-xs text-muted-foreground">({formatCurrency(s.precioPorPersona || 0, true)})</span></Label></div>))}</div>
                             </div>
@@ -488,7 +482,7 @@ export default function ArmadoRapidoPage() {
                                     const servicios = p.serviciosIncluidos.filter(s => !s.esRegalo);
                                     const regalos = p.serviciosIncluidos.filter(s => s.esRegalo);
                                     return (
-                                    <Label key={p.id} htmlFor={`pkg-${p.id}`} className="p-4 border rounded-lg cursor-pointer hover:border-primary has-[:checked]:border-primary has-[:checked]:bg-primary/5 flex flex-col">
+                                    <Label key={p.id} htmlFor={`pkg-${p.id}`} className="p-4 border rounded-lg cursor-pointer hover:border-primary has-[:checked]:border-primary/5 flex flex-col">
                                         <div className="flex items-start gap-4">
                                             <RadioGroupItem value={p.id} id={`pkg-${p.id}`} className="mt-1"/>
                                             <div className="flex-grow">
@@ -512,7 +506,7 @@ export default function ArmadoRapidoPage() {
                         </div>
                     )}
                     {step === 4 && (
-                        <div className="space-y-4 animate-in fade-in-20" id="budget-summary-printable">
+                        <div className="animate-in fade-in-20" id="budget-summary-printable">
                             <header className="mb-6 print:mb-4 hidden print:block">
                                 <div className="flex justify-between items-start">
                                     <h1 className="text-xl font-bold text-left mb-4 print:text-base leading-tight">{COMPANY_MAIN_TITLE}</h1>
@@ -533,23 +527,9 @@ export default function ArmadoRapidoPage() {
                                 </section>
                             </header>
                             
-                             <table className="w-full text-xs print:text-[7pt] border-collapse mb-4 hidden print:table">
-                                <thead className="print:bg-gray-100">
-                                    <tr>
-                                        <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Número de presupuesto</th>
-                                        <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Fecha</th>
-                                        <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Válido hasta</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">N/A</td>
-                                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(today)}</td>
-                                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(validUntil)}</td>
-                                    </tr>
-                                </tbody>
-                             </table>
-
+                            <h3 className="font-headline text-2xl text-center mb-4">Resumen de tu Presupuesto</h3>
+                            <p className="text-center text-muted-foreground mb-6">Esta es una estimación basada en tus selecciones. Un asesor se pondrá en contacto para confirmar todos los detalles y ajustar el presupuesto a tus necesidades.</p>
+                            
                              <div className="md:hidden space-y-3">
                                 {Object.entries(serviciosAgrupados).map(([categoria, items]) =>(
                                     <div key={categoria}>
@@ -636,17 +616,17 @@ export default function ArmadoRapidoPage() {
                         <ArrowLeft className="w-4 h-4 mr-2"/>Anterior
                     </Button>
                     {step < 4 ? (
-                        <Button onClick={nextStep} disabled={ (step === 1 && (!clienteNombre.trim() || !/^\d{9}$/.test(clienteContacto.trim()) || adultos <= 0)) || (step === 2 && isStepTwoInvalid) || (step === 3 && !selectedPaqueteId) || isGeneratingLead}>
-                            {isGeneratingLead ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : (
-                                step === 3 ? "Generar Resumen" : "Siguiente"
-                            )}
+                        <Button onClick={nextStep} disabled={ (step === 1 && (!clienteNombre.trim() || !/^\d{9}$/.test(clienteContacto.trim()) || adultos <= 0)) || (step === 2 && isStepTwoInvalid) || (step === 3 && !selectedPaqueteId) }>
+                            {step === 3 ? "Generar Resumen" : "Siguiente"}
                             {step < 3 && <ArrowRight className="w-4 h-4 ml-2" />}
                         </Button>
                     ) : (
                         <div className="flex flex-col sm:flex-row gap-2">
-                             <Button type="button" onClick={handleContactWhatsApp} variant="secondary" className="bg-green-500 hover:bg-green-600 text-white"><MessageSquare className="w-4 h-4 mr-2"/>Contactar</Button>
-                             <Button type="button" onClick={handleShareWhatsApp} variant="secondary"><Share2 className="w-4 h-4 mr-2"/>Compartir</Button>
-                             <Button type="button" onClick={handleDownloadPdf} variant="outline"><Printer className="w-4 h-4 mr-2"/>Descargar PDF</Button>
+                             <Button type="button" onClick={handleGenerateLead} disabled={isGeneratingLead}>
+                                {isGeneratingLead ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Send className="w-4 h-4 mr-2"/>}
+                                {isGeneratingLead ? "Enviando..." : "Finalizar y Solicitar Presupuesto a un Asesor"}
+                             </Button>
+                             <Button type="button" onClick={handleDownloadPdf} variant="secondary"><Printer className="w-4 h-4 mr-2"/>Guardar o Imprimir</Button>
                         </div>
                     )}
                 </CardFooter>
@@ -654,3 +634,4 @@ export default function ArmadoRapidoPage() {
         </div>
     );
 }
+
