@@ -400,6 +400,32 @@ export default function ArmadoRapidoPage() {
 
     return (
         <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4 print:bg-white print:p-0 print:items-start">
+            <style jsx global>{`
+                @media print {
+                    body { background-color: white !important; }
+                    .print-hidden { display: none !important; }
+                    .print-visible { display: block !important; }
+                    .print-p-0 { padding: 0 !important; }
+                    .print-shadow-none { box-shadow: none !important; }
+                    .print-border-none { border: none !important; }
+                    .print-text-xs { font-size: 0.75rem; }
+                    .print-text-sm { font-size: 0.875rem; }
+                    .print-text-base { font-size: 1rem; }
+                    .print-p-2 { padding: 0.5rem; }
+                    .print-bg-transparent { background-color: transparent !important; }
+                    .print-mb-4 { margin-bottom: 1rem; }
+                    .print-border-b { border-bottom-width: 1px; }
+                    .print-pb-2 { padding-bottom: 0.5rem; }
+                    .print-max-w-none { max-width: none !important; }
+                    .print-space-y-3 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.75rem; }
+                    .print-mt-2 { margin-top: 0.5rem; }
+                    .print-py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+                    .print-px-1-5 { padding-left: 0.375rem; padding-right: 0.375rem; }
+                    .print-border-gray-400 { border-color: #9ca3af; }
+                    .print-bg-gray-50 { background-color: #f9fafb; }
+                    .print-text-black { color: #000; }
+                }
+            `}</style>
             <Card className="w-full max-w-3xl shadow-xl print:shadow-none print:border-none">
                 <CardHeader className="text-center print:hidden">
                     <Wand2 className="w-12 h-12 mx-auto text-primary mb-2"/>
@@ -472,7 +498,7 @@ export default function ArmadoRapidoPage() {
                     )}
                     {step === 4 && (
                         <div className="space-y-4 animate-in fade-in-20" id="budget-summary-printable">
-                            <header className="mb-6 print:mb-4">
+                            <header className="mb-6 print:mb-4 hidden print:block">
                                 <div className="flex justify-between items-start">
                                     <h1 className="text-xl font-bold text-left mb-4 print:text-base leading-tight">{COMPANY_MAIN_TITLE}</h1>
                                     {logoUrl && (
@@ -492,7 +518,7 @@ export default function ArmadoRapidoPage() {
                                 </section>
                             </header>
                             
-                             <table className="w-full text-xs print:text-[7pt] border-collapse mb-4">
+                             <table className="w-full text-xs print:text-[7pt] border-collapse mb-4 hidden print:table">
                                 <thead className="print:bg-gray-100">
                                     <tr>
                                         <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Número de presupuesto</th>
@@ -610,4 +636,3 @@ export default function ArmadoRapidoPage() {
         </div>
     );
 }
-
