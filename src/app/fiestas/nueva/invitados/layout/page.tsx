@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef, use } from 'react';
@@ -21,7 +22,7 @@ import { assignGuestsToTables, type AssignGuestsInput } from '@/ai/flows/assign-
 import { getSalonLayoutTemplates, saveSalonLayoutTemplate, type SalonLayoutTemplate } from '@/app/actions/salon-layout-templates';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from "@/lib/utils";
-import { Switch } from '@/components/ui/switch';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const grid = 20;
 
@@ -185,6 +186,10 @@ export default function SalonLayoutPage() {
 
     const guestId = e.dataTransfer.getData('guestId');
     const table = decoracion?.salonElements?.find(el => el.id === tableId);
+    
+    // Prevent dropping on non-table elements or tables without seat capacity
+    if (!table || table.seats === undefined) return;
+
     const guestsAtTable = invitados.filter(i => i.tableNumber === table?.name).reduce((acc, g) => acc + (g.partySize || 1), 0);
     const guestBeingDragged = invitados.find(i => i.id === guestId);
     const guestPartySize = guestBeingDragged?.partySize || 1;
@@ -466,34 +471,36 @@ export default function SalonLayoutPage() {
           
           <Card>
             <CardHeader>
-                <div className="flex justify-between items-center">
-                    <CardTitle>Asignación de Invitados</CardTitle>
-                    <div className="flex items-center space-x-2">
-                        <Label htmlFor="layout-mode" className="text-sm">Asignación Libre</Label>
-                        <Switch id="layout-mode" checked={decoracion.layoutMode === 'libre'} onCheckedChange={(checked) => setDecoracion(d => d ? {...d, layoutMode: checked ? 'libre' : 'asignado'} : null)} />
-                    </div>
-                </div>
+                <CardTitle>Asignación de Invitados</CardTitle>
+                <CardDescription>Selecciona el modo de asignación de mesas para el evento.</CardDescription>
             </CardHeader>
             <CardContent>
-               {decoracion.layoutMode === 'asignado' ? (
-                <>
-                 <p className="text-sm text-muted-foreground mb-2">Arrastra un invitado a una mesa para asignarlo.</p>
-                 <ScrollArea className="h-96 border rounded-md p-2">
-                    <ul className="space-y-2">
-                    {invitadosSinMesa.map(inv => (
-                        <li key={inv.id} draggable onDragStart={e => e.dataTransfer.setData('guestId', inv.id)} className="p-2 border rounded bg-background cursor-grab"><p className="font-medium text-sm">{inv.nombre}</p><p className="text-xs text-muted-foreground">{inv.partySize || 1} persona(s)</p></li>
-                    ))}
-                    {invitadosSinMesa.length === 0 && <p className="text-sm text-center text-muted-foreground p-4">Todos los invitados confirmados tienen una mesa.</p>}
-                    </ul>
-                 </ScrollArea>
-                </>
-               ) : (
-                <div className="text-center text-muted-foreground p-4 bg-muted/40 rounded-md">
-                    <p className="text-sm">El modo de Asignación Libre está activado. Los invitados no se asignan a mesas específicas.</p>
-                </div>
-               )}
+                <RadioGroup 
+                    value={decoracion.layoutMode || 'asignado'} 
+                    onValueChange={(value) => setDecoracion(d => d ? {...d, layoutMode: value as any}: null)}
+                    className="space-y-2"
+                >
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="asignado" id="mode-asignado"/><Label htmlFor="mode-asignado">Numerado</Label></div>
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="mixto" id="mode-mixto"/><Label htmlFor="mode-mixto">Mixto (Numerado y Libre)</Label></div>
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="libre" id="mode-libre"/><Label htmlFor="mode-libre">Libre</Label></div>
+                </RadioGroup>
+                
+                {decoracion.layoutMode !== 'libre' && (
+                    <>
+                        <Separator className="my-4"/>
+                        <p className="text-sm text-muted-foreground mb-2">Arrastra un invitado a una mesa para asignarlo.</p>
+                        <ScrollArea className="h-96 border rounded-md p-2">
+                            <ul className="space-y-2">
+                            {invitadosSinMesa.map(inv => (
+                                <li key={inv.id} draggable onDragStart={e => e.dataTransfer.setData('guestId', inv.id)} className="p-2 border rounded bg-background cursor-grab"><p className="font-medium text-sm">{inv.nombre}</p><p className="text-xs text-muted-foreground">{inv.partySize || 1} persona(s)</p></li>
+                            ))}
+                            {invitadosSinMesa.length === 0 && <p className="text-sm text-center text-muted-foreground p-4">Todos los invitados confirmados tienen una mesa.</p>}
+                            </ul>
+                        </ScrollArea>
+                    </>
+                )}
             </CardContent>
-            {decoracion.layoutMode === 'asignado' && (
+            {decoracion.layoutMode !== 'libre' && (
                 <CardFooter>
                     <Button className="w-full" onClick={handleAIAssign} disabled={isAssigningWithAI}>
                         {isAssigningWithAI ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Wand2 className="w-4 h-4 mr-2"/>}
@@ -507,7 +514,7 @@ export default function SalonLayoutPage() {
        <div className="flex justify-end mt-6">
             <Button size="lg" onClick={handleSaveAssignments} disabled={isSaving}>
               {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin"/> : <Save className="w-5 h-5 mr-2" />}
-              {isSaving ? 'Guardando...' : 'Guardar Asignaciones de Invitados'}
+              {isSaving ? 'Guardando...' : 'Guardar Asignaciones y Diseño'}
             </Button>
         </div>
     </div>

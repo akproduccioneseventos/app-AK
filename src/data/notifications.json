@@ -1,18 +1,1 @@
-[
-  {
-    "mensaje": "Nuevo prospecto y presupuesto de nico",
-    "href": "/contabilidad/crm?leadId=lead_1761074606260_e3rwh6r",
-    "icono": "KanbanSquare",
-    "id": "notif_1761074606263_t3pga33",
-    "fecha": "2025-10-21T19:23:26.263Z",
-    "leida": false
-  },
-  {
-    "mensaje": "Nuevo prospecto añadido: Ana García",
-    "href": "/contabilidad/crm",
-    "icono": "KanbanSquare",
-    "id": "notif_1760696909714_4uomri4",
-    "fecha": "2025-10-17T10:28:29.714Z",
-    "leida": true
-  }
-]
+[]

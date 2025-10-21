@@ -149,7 +149,7 @@ export interface DecoracionData {
   salonPlanBackgroundImageUrl?: string;
   salonElements?: LayoutElement[];
   generalNotesSalonLayout?: string;
-  layoutMode?: 'libre' | 'asignado';
+  layoutMode?: 'libre' | 'asignado' | 'mixto';
   guestNameStyle?: 'full' | 'initials' | 'none';
   guestIconStyle?: 'color' | 'bw';
   layoutTemplateName?: string;
@@ -367,8 +367,6 @@ export interface ReposteriaCategoria {
   descripcion?: string;
   cantidadEstimadaPersonas?: number;
   items: ReposteriaItem[];
-  imagenReferenciaUrl?: string;
-  dataAiHint?: string;
 }
 
 export type TipoAsistente = 'adulto' | 'adolescente' | 'nino';
