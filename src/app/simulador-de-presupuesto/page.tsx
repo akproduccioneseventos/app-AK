@@ -321,10 +321,9 @@ export default function ArmadoRapidoPage() {
         window.print();
     };
 
-    const handleGenerateLeadAndProceed = async () => {
+    const handleGenerateLeadAndProceed = useCallback(async () => {
         if (!clienteNombre.trim() || !clienteContacto.trim()) {
-            toast({ title: "Datos incompletos", description: "Por favor, ingresa tu nombre y celular para continuar.", variant: "destructive" });
-            return;
+            return; // Don't proceed if basic info is missing
         }
         setIsGeneratingLead(true);
         const data = {
@@ -350,14 +349,14 @@ export default function ArmadoRapidoPage() {
             const result = await generateBudgetAndLeadFromSimulator(data);
             if(result.success) {
                 toast({ title: "Presupuesto registrado", description: "Tu estimación ha sido enviada al equipo de ventas."});
-                setStep(5); // Change to a dedicated success step
+                setStep(5);
             } else { throw new Error(result.error); }
         } catch(e: any) {
              toast({ title: "Error al registrar", description: e.message, variant: "destructive" });
         } finally {
             setIsGeneratingLead(false);
         }
-    }
+    }, [clienteNombre, clienteContacto, adultos, ninos, costoTotal, config?.paquetes, selectedPaqueteId, serviciosDetallados, toast]);
     
     const nextStep = () => {
         if (step === 1 && (!clienteNombre.trim() || !/^\d{9}$/.test(clienteContacto.trim()) || adultos <= 0)) {
@@ -372,10 +371,12 @@ export default function ArmadoRapidoPage() {
             toast({ title: "Paquete Requerido", description: "Por favor, elige un paquete de servicios para continuar.", variant: "destructive" });
             return;
         }
-        if (step === 4) {
+        if (step === 3) { // When moving from step 3 to 4
+            setStep(s => s + 1);
+            // Trigger lead generation in the background
             handleGenerateLeadAndProceed();
-        } else {
-            setStep(s => s < 4 ? s + 1 : s);
+        } else if (step < 4) {
+            setStep(s => s + 1);
         }
     };
 

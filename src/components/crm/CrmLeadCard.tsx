@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useSortable } from '@dnd-kit/sortable';
@@ -59,12 +58,10 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting, isMobile, onMove }
         return { type: 'text', content: meetingLine };
     }
     
-    if (notes.includes('Presupuesto ID:')) {
-        return { type: 'badge', content: 'Presupuesto Generado' };
-    }
-
     const nonStructuralNotes = notes.split('\n---')[0].trim();
-    const structuralKeywords = ['tipo de fiesta:', 'salón:', 'invitados:', 'fecha seguimiento:'];
+    if (!nonStructuralNotes) return null;
+    
+    const structuralKeywords = ['invitados:', 'costo estimado:', 'servicios incluidos:', 'presupuesto id:'];
     if (structuralKeywords.some(kw => nonStructuralNotes.toLowerCase().includes(kw))) {
       return null;
     }
@@ -91,7 +88,7 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting, isMobile, onMove }
                <p className="font-semibold text-sm break-words line-clamp-2" title={lead.name}>{lead.name}</p>
             </div>
         </CardHeader>
-        <CardContent className="p-2 flex-grow min-h-0 text-xs text-muted-foreground space-y-1">
+        <CardContent className="p-2 flex-grow min-h-0 text-xs text-muted-foreground space-y-1.5">
           {lead.followUpDate && (
              <div className="flex items-center gap-1.5 font-medium text-amber-700">
                 <Clock className="w-3.5 h-3.5 flex-shrink-0"/>
@@ -112,11 +109,6 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting, isMobile, onMove }
           )}
           {displayNotes && displayNotes.type === 'text' && (
             <p className="break-words line-clamp-2 italic text-blue-600">"{displayNotes.content}"</p>
-          )}
-          {displayNotes && displayNotes.type === 'badge' && !hasBudget && (
-            <div className="pt-1">
-                <Badge variant="secondary" className="text-xs">{displayNotes.content}</Badge>
-            </div>
           )}
         </CardContent>
         <CardFooter className="p-2 border-t flex justify-end items-center gap-1 flex-shrink-0">
@@ -155,11 +147,10 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting, isMobile, onMove }
                     <AlertDialogHeader><AlertDialogTitle>¿Confirmas la eliminación?</AlertDialogTitle><AlertDialogDescription>El prospecto "{lead.name}" será eliminado permanentemente.</AlertDialogDescription></AlertDialogHeader>
                     <AlertDialogFooter><AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel><AlertDialogAction onClick={handleDelete} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90">{isDeleting ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : null}Eliminar</AlertDialogAction></AlertDialogFooter>
                 </AlertDialogContent>
-            </AlertDialog>
+              </AlertDialog>
         </CardFooter>
       </Card>
     </div>
   );
 }
 
-    
