@@ -189,18 +189,15 @@ export default function ArmadoRapidoPage() {
     
     const handleEntradaChange = (servicioId: string, checked: boolean) => {
         const maxEntradas = duracionHoras > 4 ? 2 : 1;
-        setSelectedEntradas(prev => {
-            if (checked) {
-                if (prev.length < maxEntradas) {
-                    return [...prev, servicioId];
-                } else {
-                    toast({ title: "Límite alcanzado", description: `Puedes seleccionar hasta ${maxEntradas} entrada(s).`, variant: "default" });
-                    return prev;
-                }
-            } else {
-                return prev.filter(id => id !== servicioId);
+        if (checked) {
+            if (selectedEntradas.length >= maxEntradas) {
+                toast({ title: "Límite alcanzado", description: `Puedes seleccionar hasta ${maxEntradas} entrada(s).`, variant: "default" });
+                return; // Do not update state
             }
-        });
+            setSelectedEntradas(prev => [...prev, servicioId]);
+        } else {
+            setSelectedEntradas(prev => prev.filter(id => id !== servicioId));
+        }
     };
     
     const { costoTotal, subtotal, descuento, serviciosDetallados, totalRegalos } = useMemo(() => {
@@ -498,7 +495,7 @@ export default function ArmadoRapidoPage() {
                              <table className="w-full text-xs print:text-[7pt] border-collapse mb-4">
                                 <thead className="print:bg-gray-100">
                                     <tr>
-                                        <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Número de cliente</th>
+                                        <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Número de presupuesto</th>
                                         <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Fecha</th>
                                         <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Válido hasta</th>
                                     </tr>
@@ -613,3 +610,4 @@ export default function ArmadoRapidoPage() {
         </div>
     );
 }
+
