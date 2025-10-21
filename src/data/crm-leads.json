@@ -1,1 +1,23 @@
-[]
+[
+  {
+    "id": "lead_manual_nicolas_1",
+    "name": "Nicolas",
+    "phone": "099000000",
+    "notes": "Prospecto generado manualmente para prueba. Creado desde el simulador.",
+    "currentStageId": "s3",
+    "createdAt": "2025-10-18T12:00:00.000Z",
+    "updatedAt": "2025-10-18T12:00:00.000Z",
+    "history": [
+      {
+        "stageId": "s1",
+        "stageName": "Consultó",
+        "timestamp": "2025-10-18T11:59:00.000Z"
+      },
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2025-10-18T12:00:00.000Z"
+      }
+    ]
+  }
+]
