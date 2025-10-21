@@ -47,7 +47,7 @@ export async function getPresupuestoById(id: string): Promise<Presupuesto | null
 export async function savePresupuesto(
   presupuestoData: Omit<Presupuesto, 'id' | 'estado' | 'invoiceId'>,
   options?: { source?: 'manual' | 'simulator', leadId?: string }
-): Promise<{ success: boolean, id?: string, error?: string, presupuesto?: Presupuesto }> {
+): Promise<{ success: boolean, id?: string, error?: string, presupuesto?: Presupuesto, leadId?: string }> {
   let presupuestos = await getPresupuestos();
   
   const validItems = presupuestoData.itemsPresupuestados.map(item => ({
@@ -85,6 +85,8 @@ export async function savePresupuesto(
   presupuestos.push(nuevoPresupuesto);
   await writeData(PRESUPUESTOS_FILE, presupuestos, (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
+  let finalLeadId = options?.leadId;
+
   // Post-save CRM logic
   try {
     const { lead, isNew } = await findLeadByBudgetOrCreate({
@@ -96,9 +98,11 @@ export async function savePresupuesto(
       totalConDescuento: nuevoPresupuesto.totalConDescuento,
     });
 
+    finalLeadId = lead.id;
+
     // Only move if it's newly created (from simulator or manual without leadId)
     // or if it was manually created from a lead in a previous stage
-    if (isNew || options?.source === 'manual') {
+    if (isNew || options?.source === 'manual' || options?.source === 'simulator') {
         const stages = await getCrmStages();
         const targetStage = stages.find(s => s.name.toLowerCase().includes('presupuesto'));
         if (targetStage && lead.currentStageId !== targetStage.id) {
@@ -111,7 +115,7 @@ export async function savePresupuesto(
     // Do not fail the main operation, only log the issue.
   }
 
-  return { success: true, id: nuevoPresupuesto.id, presupuesto: nuevoPresupuesto };
+  return { success: true, id: nuevoPresupuesto.id, presupuesto: nuevoPresupuesto, leadId: finalLeadId };
 }
 
 

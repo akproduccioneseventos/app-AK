@@ -67,20 +67,19 @@ export async function generateBudgetAndLeadFromSimulator(
       costoTotalEstimado: data.costoEstimado,
     };
 
-    // Al llamar a savePresupuesto desde aquí, SIEMPRE se debe crear un nuevo prospecto.
-    // Pasamos un leadId nulo o indefinido para forzar la creación.
+    // This call ALWAYS creates a new prospect because leadId is undefined.
     const budgetResult = await savePresupuesto(presupuestoData, {
       source: 'simulator',
       leadId: undefined, // Explicitly undefined to ensure a new lead is created
     });
 
-    if (budgetResult.success && budgetResult.presupuesto) {
+    if (budgetResult.success && budgetResult.id) {
        await createNotification({
         mensaje: `Nuevo prospecto desde Simulador: ${data.clienteNombre}`,
-        href: `/presupuestos/${budgetResult.id}/ver`,
+        href: `/contabilidad/crm`, // Direct link to CRM to see the new lead
         icono: 'Wand2',
       });
-      return { success: true, presupuestoId: budgetResult.id };
+      return { success: true, presupuestoId: budgetResult.id, leadId: budgetResult.leadId };
     } else {
       return { success: false, error: budgetResult.error || "No se pudo procesar la solicitud." };
     }

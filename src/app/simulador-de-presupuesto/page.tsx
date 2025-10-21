@@ -628,7 +628,7 @@ export default function ArmadoRapidoPage() {
                         <div className="flex flex-col sm:flex-row gap-2">
                              <Button type="button" onClick={handleContactWhatsApp} variant="secondary" className="bg-green-500 hover:bg-green-600 text-white"><MessageSquare className="w-4 h-4 mr-2"/>Contactar</Button>
                              <Button type="button" onClick={handleShareWhatsApp} variant="secondary"><Share2 className="w-4 h-4 mr-2"/>Compartir</Button>
-                             <Button type="button" onClick={handleDownloadPdf} variant="outline"><Printer className="w-4 h-4 mr-2"/>Descargar</Button>
+                             <Button type="button" onClick={handleDownloadPdf} variant="outline"><Printer className="w-4 h-4 mr-2"/>Descargar PDF</Button>
                         </div>
                     )}
                 </CardFooter>
