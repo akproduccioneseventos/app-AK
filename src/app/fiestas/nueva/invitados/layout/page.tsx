@@ -18,7 +18,6 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { ScrollArea } from '@/components/ui/scroll-area';
 import NextImage from 'next/image';
 import { Separator } from '@/components/ui/separator';
-import { assignGuestsToTables, type AssignGuestsInput } from '@/ai/flows/assign-guests-flow';
 import { getSalonLayoutTemplates, saveSalonLayoutTemplate, type SalonLayoutTemplate } from '@/app/actions/salon-layout-templates';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from "@/lib/utils";
@@ -223,42 +222,6 @@ export default function SalonLayoutPage() {
     }
   };
   
-   const handleAIAssign = async () => {
-    if (!decoracion?.salonElements || decoracion.salonElements.length === 0) {
-      toast({ title: "No hay mesas", description: "Añade mesas al salón antes de usar la asignación automática.", variant: "destructive"});
-      return;
-    }
-    const guestsToAssign = invitados.filter(i => i.rsvp === 'Confirmado');
-    if (guestsToAssign.length === 0) {
-      toast({ title: "No hay invitados", description: "No hay invitados confirmados para asignar a las mesas.", variant: "destructive"});
-      return;
-    }
-
-    setIsAssigningWithAI(true);
-    try {
-      const input: AssignGuestsInput = {
-        guests: guestsToAssign,
-        tables: decoracion.salonElements
-          .filter(el => el.category?.includes('Mesa') && el.seats)
-          .map(el => ({ id: el.id, name: el.name, seats: el.seats || 0 })),
-      };
-      const result = await assignGuestsToTables(input);
-      
-      if(result.assignments) {
-        const updatedGuestMap = new Map(result.assignments.map(g => [g.id, g.tableNumber]));
-        setInvitados(prev => prev.map(inv => updatedGuestMap.has(inv.id) ? { ...inv, tableNumber: updatedGuestMap.get(inv.id) || undefined } : inv ));
-        toast({title: "¡Asignación completa!", description: "Los invitados han sido asignados a las mesas por la IA. Revisa y ajusta si es necesario."});
-      } else {
-        throw new Error("La IA no devolvió ninguna asignación.");
-      }
-
-    } catch(e: any) {
-      toast({ title: "Error de IA", description: e.message, variant: "destructive" });
-    } finally {
-      setIsAssigningWithAI(false);
-    }
-  };
-
   const handleSaveAsTemplate = async () => {
     if(!templateName.trim() || !decoracion) return;
     setIsSaving(true);
@@ -502,10 +465,6 @@ export default function SalonLayoutPage() {
             </CardContent>
             {decoracion.layoutMode !== 'libre' && (
                 <CardFooter>
-                    <Button className="w-full" onClick={handleAIAssign} disabled={isAssigningWithAI}>
-                        {isAssigningWithAI ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Wand2 className="w-4 h-4 mr-2"/>}
-                        {isAssigningWithAI ? 'Asignando...' : 'Asignar Invitados con IA'}
-                    </Button>
                 </CardFooter>
             )}
           </Card>
