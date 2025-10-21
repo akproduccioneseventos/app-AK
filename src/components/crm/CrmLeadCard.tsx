@@ -72,7 +72,8 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting, isMobile, onMove }
   };
 
   const displayNotes = getDisplayNotes(lead.notes);
-  const hasBudget = lead.presupuestoId || (lead.notes && lead.notes.includes('Presupuesto ID:'));
+  // Corrected logic: `hasBudget` should primarily rely on the existence of `presupuestoId`.
+  const hasBudget = !!lead.presupuestoId;
 
   return (
     <div ref={setNodeRef} style={style} className="mb-2 touch-none w-full">
@@ -110,7 +111,7 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting, isMobile, onMove }
           {displayNotes && displayNotes.type === 'text' && (
             <p className="break-words line-clamp-2 italic text-blue-600">"{displayNotes.content}"</p>
           )}
-          {displayNotes && displayNotes.type === 'badge' && (
+          {displayNotes && displayNotes.type === 'badge' && !hasBudget && (
             <div className="pt-1">
                 <Badge variant="secondary" className="text-xs">{displayNotes.content}</Badge>
             </div>
