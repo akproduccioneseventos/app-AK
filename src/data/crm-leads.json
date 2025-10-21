@@ -1,6 +1,28 @@
 
 [
   {
+    "id": "lead_1759833959954_p8l4e",
+    "name": "nico",
+    "phone": "098355530",
+    "notes": "Presupuesto ID: pres_1762192131976_7wou46o\nCosto: $ 85.322,15",
+    "currentStageId": "s3",
+    "presupuestoId": "pres_1762192131976_7wou46o",
+    "createdAt": "2025-11-21T17:48:51.977Z",
+    "updatedAt": "2025-11-21T17:48:52.203Z",
+    "history": [
+      {
+        "stageId": "s1",
+        "stageName": "Consultó",
+        "timestamp": "2025-11-21T17:48:51.977Z"
+      },
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2025-11-21T17:48:52.203Z"
+      }
+    ]
+  },
+  {
     "id": "lead_manual_nicolas_1",
     "name": "Nicolas",
     "phone": "099000000",
