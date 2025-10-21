@@ -35,29 +35,37 @@ const mainHubItems = [
       title: 'Planificador de Eventos',
       description: 'Gestiona tus eventos activos y archivados. El centro de operaciones de cada fiesta.',
       href: '/eventos',
-      icon: LayoutDashboard,
-      actionLabel: 'Ir al Planificador'
+      icon: CalendarClock,
     },
     {
       title: 'Gestión de la Empresa',
       description: 'Administra tus servicios, personal, proveedores e inventario.',
       href: '/empresa',
       icon: Building2,
-      actionLabel: 'Gestionar Empresa'
     },
     {
       title: 'Panel Contable',
       description: 'Controla el CRM, presupuestos, facturas y la salud financiera de tu negocio.',
       href: '/empresa/contabilidad',
       icon: BarChart3,
-      actionLabel: 'Ver Contabilidad'
+    },
+     {
+      title: 'Crear Presupuesto Manual',
+      description: 'Genera un presupuesto detallado para un cliente seleccionando servicios del catálogo.',
+      href: '/presupuestos/nuevo/crear',
+      icon: ListChecks,
+    },
+    {
+      title: 'Simulador de Presupuestos',
+      description: 'Herramienta rápida para que los clientes armen su propio presupuesto estimado.',
+      href: '/simulador-de-presupuesto',
+      icon: Wand2,
     },
     {
       title: 'Configuración General',
       description: 'Ajusta las preferencias de la aplicación, plantillas y detalles de tu cuenta.',
       href: '/settings',
       icon: SettingsIcon,
-      actionLabel: 'Ajustar Configuración'
     },
 ]
 
@@ -91,7 +99,7 @@ export default function MainDashboardPage() {
     <div className="space-y-8">
       <div className="text-center">
         <h1 className="text-4xl font-bold tracking-tight font-headline text-primary">
-          Dashboard Principal
+          Menú Principal
         </h1>
         <p className="text-lg text-muted-foreground mt-2">
           Tu centro de mando para la gestión integral de eventos.
@@ -122,27 +130,26 @@ export default function MainDashboardPage() {
 
       <Separator className="my-8"/>
 
-
-       <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {mainHubItems.map((item) => (
-          <Card key={item.title} className="flex flex-col shadow-lg hover:shadow-xl transition-shadow duration-300">
-            <CardHeader className="flex-row items-start gap-4 space-y-0 pb-3">
-              <div className="p-3 bg-primary/10 rounded-lg">
-                <item.icon className="w-7 h-7 text-primary" />
-              </div>
-              <div>
-                <CardTitle className="font-headline text-xl mb-1">{item.title}</CardTitle>
-              </div>
+          <Card key={item.title} className="flex flex-col shadow-md hover:shadow-lg transition-shadow duration-300">
+            <CardHeader className="flex-row items-center justify-between pb-3 space-y-0">
+              <CardTitle className="font-headline text-lg flex items-center gap-3">
+                 <div className="p-2 bg-primary/10 rounded-md">
+                    <item.icon className="w-6 h-6 text-primary" />
+                 </div>
+                 {item.title}
+              </CardTitle>
             </CardHeader>
             <CardContent className="flex-grow">
-              <p className="text-sm text-muted-foreground line-clamp-3">{item.description}</p>
+              <p className="text-sm text-muted-foreground line-clamp-2">{item.description}</p>
             </CardContent>
             <CardFooter className="pt-3">
-              <Link href={item.href} passHref className="w-full">
-                <Button variant="default" className="w-full">
-                  {item.actionLabel}
-                </Button>
-              </Link>
+                 <Link href={item.href} passHref className="w-full">
+                    <Button variant="secondary" className="w-full">
+                        Acceder
+                    </Button>
+                </Link>
             </CardFooter>
           </Card>
         ))}
