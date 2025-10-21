@@ -3,6 +3,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo, useRef, use } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -48,10 +49,14 @@ export default function SalonLayoutPage() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
 
+  const searchParams = useSearchParams()
+
   const loadData = useCallback(async (showLoading = true) => {
+    const fiestaId = searchParams.get('fiestaId');
     if(showLoading) setIsLoading(true);
     try {
-      const fiesta = await getFiestaById(searchParams.get('fiestaId') || '');
+      if (!fiestaId) throw new Error("No se ha especificado un ID de fiesta.");
+      const fiesta = await getFiestaById(fiestaId);
       if (!fiesta) throw new Error("Fiesta no encontrada.");
       setDecoracion(fiesta.decoracion || { salonElements: [], salonWidth: 20, salonHeight: 30, pixelsPerMeter: 30, layoutMode: 'asignado' });
       setInvitados(fiesta.invitados || []);
@@ -61,9 +66,8 @@ export default function SalonLayoutPage() {
     } finally {
       if(showLoading) setIsLoading(false);
     }
-  }, [toast]);
+  }, [toast, searchParams]);
   
-  const searchParams = useSearchParams()
 
   useEffect(() => {
     loadData();
@@ -191,6 +195,7 @@ export default function SalonLayoutPage() {
   };
   
   const handleSaveAssignments = async () => {
+    const fiestaId = searchParams.get('fiestaId');
     if (!decoracion || !fiestaId) return;
     setIsSaving(true);
     try {
@@ -306,10 +311,10 @@ export default function SalonLayoutPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight font-headline flex items-center gap-2"><LayoutDashboard className="w-8 h-8 text-primary"/>Diseño de Mesas y Salón</h1>
         <div className="flex gap-2">
-            <Link href={`/fiestas/nueva/invitados/numeros-mesa?fiestaId=${fiestaId}`} passHref>
+            <Link href={`/fiestas/nueva/invitados/numeros-mesa?fiestaId=${searchParams.get('fiestaId')}`} passHref>
                 <Button variant="secondary" size="sm"><Printer className="w-4 h-4 mr-1"/>Imprimir Números</Button>
             </Link>
-            <Link href={`/fiestas/nueva/invitados?fiestaId=${fiestaId}`} passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver a Invitados</Button></Link>
+            <Link href={`/fiestas/nueva/invitados?fiestaId=${searchParams.get('fiestaId')}`} passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver a Invitados</Button></Link>
         </div>
       </div>
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
@@ -362,7 +367,7 @@ export default function SalonLayoutPage() {
         </div>
          <div className="xl:col-span-3">
           <Card>
-            <CardHeader><CardTitle>Asignación de Invitados</CardTitle><CardDescription>Modo: {decoracion.layoutMode}</CardDescription></CardHeader>
+            <CardHeader><CardTitle>Asignación de Invitados</CardTitle><CardDescription>Selecciona el modo de asignación de mesas.</CardDescription></CardHeader>
             <CardContent><RadioGroup value={decoracion.layoutMode || 'asignado'} onValueChange={(value) => setDecoracion(d => d ? {...d, layoutMode: value as any}: null)} className="flex space-x-4"><div className="flex items-center space-x-2"><RadioGroupItem value="numerado" id="mode-numerado"/><Label htmlFor="mode-numerado">Numerado</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="mixto" id="mode-mixto"/><Label htmlFor="mode-mixto">Mixto</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="libre" id="mode-libre"/><Label htmlFor="mode-libre">Libre</Label></div></RadioGroup></CardContent>
           </Card>
           {decoracion.layoutMode !== 'libre' && (
@@ -415,3 +420,4 @@ export default function SalonLayoutPage() {
   );
 }
 
+    
