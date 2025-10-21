@@ -7,9 +7,10 @@ import { readData, writeData } from '@/lib/data-service';
 import { saveCustomer } from '@/app/actions/customers'; 
 import type { Customer } from '@/types/customer'; 
 import { createNewFiestaForCustomer } from '@/app/actions/fiesta/fiesta.actions';
-import { activateAnnualAdjustmentForBudget, getPresupuestos } from './presupuestos';
+import { activateAnnualAdjustmentForBudget, getPresupuestos, updatePresupuesto } from './presupuestos';
 import { addReunion } from './fiesta/reuniones.actions';
 import { createNotification } from './notifications';
+import type { Presupuesto } from '@/types/presupuesto';
 
 const LEADS_FILE = 'crm-leads.json';
 const STAGES_FILE = 'crm-stages.json';
@@ -80,37 +81,56 @@ export async function addCrmLead(
   leads.push(newLead);
   await writeData(LEADS_FILE, leads);
   
-  await createNotification({
-    mensaje: `Nuevo prospecto añadido: ${newLead.name}`,
-    href: '/contabilidad/crm',
-    icono: 'KanbanSquare',
-  });
+  // This notification must be created after the lead is saved
+  if (newLead.presupuestoId) {
+    await createNotification({
+      mensaje: `Nuevo prospecto y presupuesto de ${newLead.name}`,
+      href: `/contabilidad/crm?leadId=${newLead.id}`, // Link to CRM to see the new lead
+      icono: 'KanbanSquare',
+    });
+  }
 
   return { success: true, lead: newLead };
 }
 
 export async function findLeadByBudgetOrCreate(
-  presupuestoData: { id: string; leadId?: string; clienteNombre: string; clienteContacto?: string; costoTotalEstimado: number; totalConDescuento?: number }
+  presupuestoData: Presupuesto
 ): Promise<{lead: CrmLead; isNew: boolean}> {
   const leads = await getCrmLeads();
+  let existingLead: CrmLead | null = null;
   
-  let existingLead = presupuestoData.leadId ? leads.find(lead => lead.id === presupuestoData.leadId) : null;
+  // First, try to find a lead by an explicit ID on the budget
+  if (presupuestoData.leadId) {
+    existingLead = leads.find(lead => lead.id === presupuestoData.leadId) || null;
+  }
+  // If not found, try to find a lead that already has this budget's ID
   if (!existingLead) {
-    existingLead = leads.find(lead => lead.presupuestoId === presupuestoData.id);
+    existingLead = leads.find(lead => lead.presupuestoId === presupuestoData.id) || null;
   }
   
+  // If a lead exists, ensure its data is up-to-date and return it
   if (existingLead) {
+    let leadNeedsUpdate = false;
     if (existingLead.presupuestoId !== presupuestoData.id) {
-       const originalLeads = await readData<CrmLead[]>(LEADS_FILE, []);
-       const leadIndex = originalLeads.findIndex(l => l.id === existingLead!.id);
-       if (leadIndex !== -1) {
-           originalLeads[leadIndex].presupuestoId = presupuestoData.id;
-           await writeData(LEADS_FILE, originalLeads);
-       }
+       existingLead.presupuestoId = presupuestoData.id;
+       leadNeedsUpdate = true;
+    }
+     if (existingLead.name !== presupuestoData.clienteNombre) {
+       existingLead.name = presupuestoData.clienteNombre;
+       leadNeedsUpdate = true;
+    }
+    if (leadNeedsUpdate) {
+        const allLeads = await readData<CrmLead[]>(LEADS_FILE, []);
+        const leadIndex = allLeads.findIndex(l => l.id === existingLead!.id);
+        if (leadIndex !== -1) {
+            allLeads[leadIndex] = existingLead;
+            await writeData(LEADS_FILE, allLeads);
+        }
     }
     return { lead: existingLead, isNew: false };
   }
 
+  // If no lead exists, create a new one
   const newLeadData: NewCrmLeadData = {
     name: presupuestoData.clienteNombre,
     phone: presupuestoData.clienteContacto,
@@ -118,11 +138,21 @@ export async function findLeadByBudgetOrCreate(
     currentStageId: 's1', 
     presupuestoId: presupuestoData.id,
   };
+
   const result = await addCrmLead(newLeadData, { preventDuplicateCheck: true });
   if (!result.success || !result.lead) {
     throw new Error('Failed to create a new lead for the budget.');
   }
-  return { lead: result.lead, isNew: true };
+
+  // CRITICAL FIX: Update the original budget with the new lead's ID
+  const newLead = result.lead;
+  const updatedBudget: Presupuesto = {
+    ...presupuestoData,
+    leadId: newLead.id
+  };
+  await updatePresupuesto(updatedBudget);
+
+  return { lead: newLead, isNew: true };
 }
 
 

@@ -89,15 +89,8 @@ export async function savePresupuesto(
 
   // Post-save CRM logic
   try {
-    const { lead, isNew } = await findLeadByBudgetOrCreate({
-      id: presupuestoId,
-      leadId: options?.leadId,
-      clienteNombre: nuevoPresupuesto.clienteNombre,
-      clienteContacto: nuevoPresupuesto.clienteContacto,
-      costoTotalEstimado: nuevoPresupuesto.costoTotalEstimado,
-      totalConDescuento: nuevoPresupuesto.totalConDescuento,
-    });
-
+    const { lead, isNew } = await findLeadByBudgetOrCreate(nuevoPresupuesto);
+    
     finalLeadId = lead.id;
 
     // Only move if it's newly created (from simulator or manual without leadId)

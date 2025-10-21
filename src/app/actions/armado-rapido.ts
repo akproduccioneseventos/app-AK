@@ -49,7 +49,7 @@ export async function saveArmadoRapidoConfig(
 }
 
 export async function generateBudgetAndLeadFromSimulator(
-  data: LeadFromQuickBudget & { items: Omit<ItemPresupuestado, 'costoTotalItem'>[] }
+  data: LeadFromQuickBudget & { items: Omit<ItemPresupuestado, 'id' | 'costoTotalItem'>[] }
 ): Promise<{ success: boolean; leadId?: string; presupuestoId?: string; error?: string }> {
   try {
     const presupuestoData: Omit<Presupuesto, 'id' | 'estado' | 'invoiceId' > = {
@@ -61,24 +61,19 @@ export async function generateBudgetAndLeadFromSimulator(
       invitadosAdultos: data.adultos,
       invitadosNinos: data.ninos,
       salonFiestas: 'A definir',
-      itemsPresupuestados: data.items.map(item => ({...item, costoTotalItem: 0})), // cost is recalculated server-side
+      itemsPresupuestados: data.items,
       timestamp: new Date().toISOString(),
       notas: `Presupuesto generado desde el Simulador. Paquete: ${data.paqueteNombre || 'N/A'}. Costo estimado: ${formatCurrency(data.costoEstimado)}`,
       costoTotalEstimado: data.costoEstimado,
     };
 
-    // This call ALWAYS creates a new prospect because leadId is undefined.
     const budgetResult = await savePresupuesto(presupuestoData, {
       source: 'simulator',
-      leadId: undefined, // Explicitly undefined to ensure a new lead is created
+      leadId: undefined,
     });
 
-    if (budgetResult.success && budgetResult.id) {
-       await createNotification({
-        mensaje: `Nuevo prospecto desde Simulador: ${data.clienteNombre}`,
-        href: `/contabilidad/crm`, // Direct link to CRM to see the new lead
-        icono: 'Wand2',
-      });
+    if (budgetResult.success && budgetResult.id && budgetResult.leadId) {
+      // The notification is now handled within addCrmLead to ensure it has all necessary data.
       return { success: true, presupuestoId: budgetResult.id, leadId: budgetResult.leadId };
     } else {
       return { success: false, error: budgetResult.error || "No se pudo procesar la solicitud." };
