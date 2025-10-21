@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef, use } from 'react';
@@ -8,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Music, Beer, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Image as ImageIcon, Maximize, Minimize, FolderUp, Wand2, Settings2, FolderDown } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Music, Beer, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Image as ImageIcon, Maximize, Minimize, FolderUp, Wand2, Settings2, FolderDown, Sofa, Disc, Clapperboard } from 'lucide-react';
 import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData } from '@/types/fiesta';
@@ -33,7 +32,6 @@ export default function SalonLayoutPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  const [isAssigningWithAI, setIsAssigningWithAI] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingElement, setEditingElement] = useState<LayoutElement | null>(null);
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
@@ -46,19 +44,13 @@ export default function SalonLayoutPage() {
 
   const [isFullscreen, setIsFullscreen] = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
-  
-  const [generatorGuestCount, setGeneratorGuestCount] = useState<number>(100);
-  const [generatorSeatsPerTable, setGeneratorSeatsPerTable] = useState<number>(8);
-  const [isGenerateConfirmOpen, setIsGenerateConfirmOpen] = useState(false);
-
 
   const loadData = useCallback(async (showLoading = true) => {
     if(showLoading) setIsLoading(true);
     try {
       const fiesta = await getFiestaActual();
-      setDecoracion(fiesta.decoracion || { salonElements: [], salonWidth: 800, salonHeight: 600, layoutMode: 'asignado' });
+      setDecoracion(fiesta.decoracion || { salonElements: [], salonWidth: 20, salonHeight: 30, pixelsPerMeter: 30, layoutMode: 'asignado' });
       setInvitados(fiesta.invitados || []);
-      setGeneratorGuestCount(fiesta.configuracion?.invitadosEstimados ? Number(fiesta.configuracion.invitadosEstimados) : 100);
     } catch (e: any) {
       setError("No se pudo cargar la información del evento.");
       toast({ title: "Error", description: e.message, variant: "destructive" });
@@ -93,59 +85,25 @@ export default function SalonLayoutPage() {
   
   const addElement = (category: string) => {
     if (!decoracion) return;
-    const newElement: LayoutElement = {
+    let newElement: LayoutElement;
+    const defaultSeats = category.includes('Mesa') ? 8 : undefined;
+    
+    let width = 120;
+    let height = 120;
+    if(category === 'Mesa Redonda') { width = 100; height = 100; }
+    else if(category === 'Mesa Rectangular') { width = 120; height = 60; }
+    else if(category === 'Pista de Baile') { width = 200; height = 200; }
+    else if(category === 'Escenario') { width = 200; height = 100; }
+
+    newElement = {
       id: `el_${Date.now()}`,
       name: `${category} ${ (decoracion.salonElements?.filter(e => e.category === category).length || 0) + 1}`,
       x: 20, y: 20,
-      width: category.includes('Mesa') ? 100 : 120,
-      height: category.includes('Mesa Redonda') ? 100 : (category.includes('Mesa Rectangular') ? 60 : 100),
-      rotation: 0,
-      quantity: 1,
-      type: 'predefined',
-      category: category,
-      seats: category.includes('Mesa') ? 8 : undefined,
+      width, height, rotation: 0,
+      type: 'predefined', category: category, seats: defaultSeats,
     };
     setDecoracion({ ...decoracion, salonElements: [...(decoracion.salonElements || []), newElement] });
   };
-  
-  const handleGenerateTables = () => {
-      if(!decoracion || generatorGuestCount <= 0 || generatorSeatsPerTable <= 0) return;
-      const tablesNeeded = Math.ceil(generatorGuestCount / generatorSeatsPerTable);
-      const newTables: LayoutElement[] = [];
-      
-      const canvasWidth = decoracion.salonWidth || 800;
-      const padding = 40;
-      const tableSize = 100;
-      const tableSpacing = 40;
-      let x = padding;
-      let y = padding;
-
-      for (let i = 0; i < tablesNeeded; i++) {
-        newTables.push({
-            id: `auto_table_${Date.now()}_${i}`,
-            name: `Mesa ${i + 1}`,
-            x: x, y: y,
-            width: tableSize, height: tableSize,
-            rotation: 0,
-            quantity: 1,
-            type: 'predefined',
-            category: 'Mesa Redonda',
-            seats: generatorSeatsPerTable
-        });
-        
-        x += tableSize + tableSpacing;
-        if(x + tableSize > canvasWidth - padding) {
-            x = padding;
-            y += tableSize + tableSpacing;
-        }
-      }
-
-      setDecoracion({
-          ...decoracion,
-          salonElements: newTables,
-      });
-      setIsGenerateConfirmOpen(false);
-  }
 
   const handleOpenEditModal = (element: LayoutElement) => {
     setEditingElement(element);
@@ -186,7 +144,6 @@ export default function SalonLayoutPage() {
     const guestId = e.dataTransfer.getData('guestId');
     const table = decoracion?.salonElements?.find(el => el.id === tableId);
     
-    // Prevent dropping on non-table elements or tables without seat capacity
     if (!table || table.seats === undefined) return;
 
     const guestsAtTable = invitados.filter(i => i.tableNumber === table?.name).reduce((acc, g) => acc + (g.partySize || 1), 0);
@@ -205,11 +162,9 @@ export default function SalonLayoutPage() {
     if (!decoracion) return;
     setIsSaving(true);
     try {
-        // Save guest assignments
         const updateGuestPromises = invitados.map(invitado => updateInvitadoFiestaActual(invitado));
         await Promise.all(updateGuestPromises);
         
-        // Also save the salon layout itself as it might have changed
         const decoracionToSave = { ...decoracion, items: decoracion.items || [] };
         await updateDecoracionFiestaActual(decoracionToSave);
 
@@ -276,6 +231,11 @@ export default function SalonLayoutPage() {
   if (isLoading) return <div className="flex items-center justify-center p-8"><Loader2 className="w-8 h-8 animate-spin" /></div>;
   if (error) return <div className="text-destructive text-center p-4">{error}</div>;
   if (!decoracion) return null;
+  
+  const pixelsPerMeter = decoracion.pixelsPerMeter || 30;
+  const salonWidthPx = (decoracion.salonWidth || 20) * pixelsPerMeter;
+  const salonHeightPx = (decoracion.salonHeight || 30) * pixelsPerMeter;
+
 
   return (
     <div className="space-y-6">
@@ -288,6 +248,10 @@ export default function SalonLayoutPage() {
             <div className="space-y-4">
               <div className="space-y-1"><Label htmlFor="el-name">Nombre</Label><Input id="el-name" value={editingElement.name} onChange={e => setEditingElement(prev => prev ? {...prev, name: e.target.value} : null)}/></div>
               {editingElement.category?.includes('Mesa') && <div className="space-y-1"><Label htmlFor="el-seats">Asientos</Label><Input id="el-seats" type="number" value={editingElement.seats || 0} onChange={e => setEditingElement(prev => prev ? {...prev, seats: Number(e.target.value) || 0} : null)}/></div>}
+              <div className="grid grid-cols-2 gap-3">
+                 <div className="space-y-1"><Label htmlFor="el-width">Ancho (px)</Label><Input id="el-width" type="number" value={editingElement.width || 0} onChange={e => setEditingElement(prev => prev ? {...prev, width: Number(e.target.value) || 0} : null)}/></div>
+                 <div className="space-y-1"><Label htmlFor="el-height">Alto (px)</Label><Input id="el-height" type="number" value={editingElement.height || 0} onChange={e => setEditingElement(prev => prev ? {...prev, height: Number(e.target.value) || 0} : null)}/></div>
+              </div>
             </div>
           )}
           <DialogFooter>
@@ -330,7 +294,7 @@ export default function SalonLayoutPage() {
             </CardHeader>
             <CardContent className="flex-grow">
               <div className="relative border rounded-lg bg-muted/30 overflow-auto canvas-grid-background h-full">
-                <div style={{ width: `${decoracion.salonWidth || 800}px`, height: `${decoracion.salonHeight || 600}px`}} className="relative">
+                <div style={{ width: `${salonWidthPx}px`, height: `${salonHeightPx}px`}} className="relative">
                   {decoracion.salonPlanBackgroundImageUrl && (
                       <NextImage src={decoracion.salonPlanBackgroundImageUrl} alt="Plano del Salón" layout="fill" objectFit="contain" className="opacity-50" data-ai-hint="event floor plan"/>
                   )}
@@ -386,35 +350,26 @@ export default function SalonLayoutPage() {
         </div>
         <div className="space-y-4">
           <Card>
-            <CardHeader><CardTitle>Controles</CardTitle></CardHeader>
-            <CardContent>
-               <AlertDialog open={isGenerateConfirmOpen} onOpenChange={setIsGenerateConfirmOpen}>
-                 <div className="p-3 border rounded-md bg-muted/20">
-                      <h4 className="font-medium text-sm mb-3">Asistente de Configuración Rápida</h4>
-                      <div className="grid grid-cols-2 gap-3">
-                           <div className="space-y-1"><Label htmlFor="gen-guests">Total de Invitados</Label><Input id="gen-guests" type="number" value={generatorGuestCount} onChange={e => setGeneratorGuestCount(Number(e.target.value) || 0)}/></div>
-                           <div className="space-y-1"><Label htmlFor="gen-seats">Asientos por Mesa</Label><Input id="gen-seats" type="number" value={generatorSeatsPerTable} onChange={e => setGeneratorSeatsPerTable(Number(e.target.value) || 0)}/></div>
-                      </div>
-                     <AlertDialogTrigger asChild><Button type="button" className="w-full mt-3">Generar Mesas</Button></AlertDialogTrigger>
-                </div>
-                 <AlertDialogContent>
-                   <AlertDialogHeader><AlertDialogTitle>Confirmar Generación de Mesas</AlertDialogTitle><AlertDialogDescription>Esta acción reemplazará todos los elementos actuales del salón con una nueva distribución automática. ¿Deseas continuar?</AlertDialogDescription></AlertDialogHeader>
-                   <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={handleGenerateTables}>Sí, generar</AlertDialogAction></AlertDialogFooter>
-                 </AlertDialogContent>
-               </AlertDialog>
-
+            <CardHeader><CardTitle>Controles del Lienzo</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+               <div className="grid grid-cols-3 gap-2">
+                <div className="space-y-1"><Label htmlFor="salon-width">Ancho (m)</Label><Input id="salon-width" type="number" value={decoracion.salonWidth || 20} onChange={e => setDecoracion(d => d ? {...d, salonWidth: Number(e.target.value)}: null)} /></div>
+                <div className="space-y-1"><Label htmlFor="salon-height">Alto (m)</Label><Input id="salon-height" type="number" value={decoracion.salonHeight || 30} onChange={e => setDecoracion(d => d ? {...d, salonHeight: Number(e.target.value)}: null)} /></div>
+                <div className="space-y-1"><Label htmlFor="salon-scale">Escala (px/m)</Label><Input id="salon-scale" type="number" value={decoracion.pixelsPerMeter || 30} onChange={e => setDecoracion(d => d ? {...d, pixelsPerMeter: Number(e.target.value)}: null)} /></div>
+               </div>
+               <div className="space-y-2"><Label htmlFor="salon-bg">URL Imagen de Fondo</Label><Input id="salon-bg" type="url" value={decoracion.salonPlanBackgroundImageUrl || ''} onChange={e => setDecoracion(d => d ? {...d, salonPlanBackgroundImageUrl: e.target.value}: null)} placeholder="https://ejemplo.com/plano.png"/></div>
                <Separator className="my-4"/>
-              <h4 className="font-medium text-sm">Añadir Elementos Manualmente</h4>
+              <h4 className="font-medium text-sm">Añadir Elementos</h4>
               <div className="grid grid-cols-2 gap-2">
                 <Button variant="outline" onClick={() => addElement('Mesa Redonda')}><Circle className="w-4 h-4 mr-2"/>Mesa Redonda</Button>
                 <Button variant="outline" onClick={() => addElement('Mesa Rectangular')}><Square className="w-4 h-4 mr-2"/>Mesa Rectangular</Button>
                 <Button variant="outline" onClick={() => addElement('Pista de Baile')}><Music className="w-4 h-4 mr-2"/>Pista</Button>
                 <Button variant="outline" onClick={() => addElement('Barra')}><Beer className="w-4 h-4 mr-2"/>Barra</Button>
+                <Button variant="outline" onClick={() => addElement('Cabina DJ')}><Disc className="w-4 h-4 mr-2"/>Cabina DJ</Button>
+                <Button variant="outline" onClick={() => addElement('Escenario')}><Clapperboard className="w-4 h-4 mr-2"/>Escenario</Button>
+                <Button variant="outline" onClick={() => addElement('Living')}><Sofa className="w-4 h-4 mr-2"/>Living</Button>
+                <Button variant="outline" onClick={() => addElement('Área de Fotos')}><Camera className="w-4 h-4 mr-2"/>Área Fotos</Button>
               </div>
-               <Separator className="my-4"/>
-               <div className="space-y-2"><Label htmlFor="salon-width">Ancho del Salón (px)</Label><Input id="salon-width" type="number" value={decoracion.salonWidth || 800} onChange={e => setDecoracion(d => d ? {...d, salonWidth: Number(e.target.value)}: null)} /></div>
-               <div className="space-y-2"><Label htmlFor="salon-height">Alto del Salón (px)</Label><Input id="salon-height" type="number" value={decoracion.salonHeight || 600} onChange={e => setDecoracion(d => d ? {...d, salonHeight: Number(e.target.value)}: null)} /></div>
-               <div className="space-y-2"><Label htmlFor="salon-bg">URL Imagen de Fondo</Label><Input id="salon-bg" type="url" value={decoracion.salonPlanBackgroundImageUrl || ''} onChange={e => setDecoracion(d => d ? {...d, salonPlanBackgroundImageUrl: e.target.value}: null)} placeholder="https://ejemplo.com/plano.png"/></div>
             </CardContent>
             <CardFooter className="flex-col gap-2">
                 <Button type="button" onClick={handleLoadTemplate} variant="outline" className="w-full"><FolderDown className="w-4 h-4 mr-2"/>Cargar Plantilla</Button>
@@ -428,14 +383,14 @@ export default function SalonLayoutPage() {
                         <DialogFooter><DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose><Button onClick={handleSaveAsTemplate} disabled={isSaving}>Guardar</Button></DialogFooter>
                     </DialogContent>
                 </Dialog>
-                <Link href="/settings/templates/layouts" passHref><Button variant="link" size="sm">Gestionar Plantillas Guardadas</Button></Link>
+                <Link href="/settings/templates/layouts" passHref><Button variant="link" size="sm">Gestionar Plantillas</Button></Link>
             </CardFooter>
           </Card>
           
           <Card>
             <CardHeader>
                 <CardTitle>Asignación de Invitados</CardTitle>
-                <CardDescription>Selecciona el modo de asignación de mesas para el evento.</CardDescription>
+                <CardDescription>Selecciona el modo de asignación de mesas.</CardDescription>
             </CardHeader>
             <CardContent>
                 <RadioGroup 
@@ -443,7 +398,7 @@ export default function SalonLayoutPage() {
                     onValueChange={(value) => setDecoracion(d => d ? {...d, layoutMode: value as any}: null)}
                     className="space-y-2"
                 >
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="asignado" id="mode-asignado"/><Label htmlFor="mode-asignado">Numerado</Label></div>
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="numerado" id="mode-numerado"/><Label htmlFor="mode-numerado">Numerado</Label></div>
                     <div className="flex items-center space-x-2"><RadioGroupItem value="mixto" id="mode-mixto"/><Label htmlFor="mode-mixto">Mixto (Numerado y Libre)</Label></div>
                     <div className="flex items-center space-x-2"><RadioGroupItem value="libre" id="mode-libre"/><Label htmlFor="mode-libre">Libre</Label></div>
                 </RadioGroup>
@@ -463,10 +418,6 @@ export default function SalonLayoutPage() {
                     </>
                 )}
             </CardContent>
-            {decoracion.layoutMode !== 'libre' && (
-                <CardFooter>
-                </CardFooter>
-            )}
           </Card>
         </div>
       </div>
