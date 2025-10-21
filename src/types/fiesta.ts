@@ -49,8 +49,8 @@ export interface Trago {
 }
 
 export interface CartaTragosData {
-  items: Trago[];
-  protagonistaFotoUrl?: string; // Foto principal de la carta
+    items: Trago[];
+    protagonistaFotoUrl?: string; // Foto principal de la carta
 }
 
 
@@ -149,10 +149,11 @@ export interface DecoracionData {
   salonPlanBackgroundImageUrl?: string;
   salonElements?: LayoutElement[];
   generalNotesSalonLayout?: string;
-  layoutMode?: 'libre' | 'asignado' | 'mixto';
+  layoutMode?: 'libre' | 'numerado' | 'mixto';
   guestNameStyle?: 'full' | 'initials' | 'none';
   guestIconStyle?: 'color' | 'bw';
   layoutTemplateName?: string;
+  pixelsPerMeter?: number; // Nueva propiedad
 }
 
 export interface GiftItem {
