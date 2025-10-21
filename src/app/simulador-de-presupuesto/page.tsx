@@ -322,8 +322,10 @@ export default function ArmadoRapidoPage() {
     };
 
     const handleGenerateLeadAndProceed = useCallback(async () => {
+        if (step !== 3) return; // Only trigger when moving from step 3
+        
         if (!clienteNombre.trim() || !clienteContacto.trim()) {
-            return; // Don't proceed if basic info is missing
+            return; // Don't proceed if basic info is missing from step 1
         }
         setIsGeneratingLead(true);
         const data = {
@@ -349,14 +351,14 @@ export default function ArmadoRapidoPage() {
             const result = await generateBudgetAndLeadFromSimulator(data);
             if(result.success) {
                 toast({ title: "Presupuesto registrado", description: "Tu estimación ha sido enviada al equipo de ventas."});
-                setStep(5);
+                setStep(4); // Move to final summary/contact step
             } else { throw new Error(result.error); }
         } catch(e: any) {
              toast({ title: "Error al registrar", description: e.message, variant: "destructive" });
         } finally {
             setIsGeneratingLead(false);
         }
-    }, [clienteNombre, clienteContacto, adultos, ninos, costoTotal, config?.paquetes, selectedPaqueteId, serviciosDetallados, toast]);
+    }, [clienteNombre, clienteContacto, adultos, ninos, costoTotal, config?.paquetes, selectedPaqueteId, serviciosDetallados, toast, step]);
     
     const isStepTwoInvalid = useMemo(() => {
         const requiredEntradas = duracionHoras > 4 ? 2 : 1;
@@ -377,17 +379,23 @@ export default function ArmadoRapidoPage() {
             toast({ title: "Paquete Requerido", description: "Por favor, elige un paquete de servicios para continuar.", variant: "destructive" });
             return;
         }
-        if (step === 3) { // When moving from step 3 to 4, generate lead
-            handleGenerateLeadAndProceed();
-        }
+        
         if (step < 4) {
             setStep(s => s + 1);
+            if(s + 1 === 4) { // Moving to step 4
+                handleGenerateLeadAndProceed();
+            }
+        } else if (step === 4) {
+            handleContactWhatsApp();
         }
     };
 
 
     const prevStep = () => setStep(s => s > 1 ? s - 1 : s);
     
+    const maxEntradas = duracionHoras > 4 ? 2 : 1;
+    const entradasFaltantes = maxEntradas - selectedEntradas.length;
+
     if (isLoading) { return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>; }
     if (step === 5) {
       return (
@@ -462,7 +470,8 @@ export default function ArmadoRapidoPage() {
                         <div className="space-y-6 animate-in fade-in-20">
                             <h3 className="font-semibold text-lg flex items-center gap-2"><ChefHat className="text-primary w-5 h-5"/>Elige tu menú gastronómico</h3>
                             <div className="space-y-4">
-                                <Label>Elige {duracionHoras > 4 ? 'hasta 2 entradas' : '1 entrada'} ({duracionHoras > 4 ? 'Fiesta larga' : 'Fiesta corta'})</Label>
+                                <Label>Debes elegir {maxEntradas === 1 ? '1 entrada' : '2 entradas'} ({duracionHoras > 4 ? 'Fiesta larga' : 'Fiesta corta'})</Label>
+                                {entradasFaltantes > 0 && <p className="text-sm text-amber-600">Selecciona {entradasFaltantes} entrada{entradasFaltantes > 1 ? 's' : ''}.</p>}
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">{entradasDisponibles.map(s => (<div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><Checkbox id={`e-${s.id}`} checked={selectedEntradas.includes(s.id)} onCheckedChange={(checked) => handleEntradaChange(s.id, !!checked)}/><Label htmlFor={`e-${s.id}`} className="text-sm font-normal">{s.nombre} <span className="text-xs text-muted-foreground">({formatCurrency(s.precioPorPersona || 0, true)})</span></Label></div>))}</div>
                             </div>
                             <div className="space-y-4"><Label>Plato Principal (elige 1)</Label>
@@ -623,12 +632,15 @@ export default function ArmadoRapidoPage() {
                     )}
                 </CardContent>
                 <CardFooter className="flex justify-between border-t pt-4 print:hidden">
-                    <Button variant="outline" onClick={prevStep} disabled={step === 1}>
+                    <Button variant="outline" onClick={prevStep} disabled={step === 1 || isGeneratingLead}>
                         <ArrowLeft className="w-4 h-4 mr-2"/>Anterior
                     </Button>
                     {step < 4 ? (
-                        <Button onClick={nextStep} disabled={ (step === 1 && (!clienteNombre.trim() || !/^\d{9}$/.test(clienteContacto.trim()) || adultos <= 0)) || (step === 2 && isStepTwoInvalid) || (step === 3 && !selectedPaqueteId) }>
-                            Siguiente <ArrowRight className="w-4 h-4 ml-2" />
+                        <Button onClick={nextStep} disabled={ (step === 1 && (!clienteNombre.trim() || !/^\d{9}$/.test(clienteContacto.trim()) || adultos <= 0)) || (step === 2 && isStepTwoInvalid) || (step === 3 && !selectedPaqueteId) || isGeneratingLead}>
+                            {isGeneratingLead ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : (
+                                step === 3 ? "Generar Resumen" : "Siguiente"
+                            )}
+                            {step < 3 && <ArrowRight className="w-4 h-4 ml-2" />}
                         </Button>
                     ) : (
                         <div className="flex flex-col sm:flex-row gap-2">
