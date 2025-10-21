@@ -29,9 +29,23 @@ export async function getCrmStages(): Promise<CrmStage[]> {
 }
 
 export async function getCrmLeads(): Promise<CrmLead[]> {
-  const leads = await readData<CrmLead[]>(LEADS_FILE, []);
-  // Removed logic that auto-created leads from budgets here.
-  return leads.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  const [leads, presupuestos] = await Promise.all([
+    readData<CrmLead[]>(LEADS_FILE, []),
+    getPresupuestos(),
+  ]);
+
+  const presupuestosMap = new Map(presupuestos.map(p => [p.id, p]));
+
+  const leadsWithData = leads.map(lead => {
+    const presupuesto = lead.presupuestoId ? presupuestosMap.get(lead.presupuestoId) : undefined;
+    return {
+      ...lead,
+      presupuestoEstado: presupuesto?.estado,
+      invoiceId: presupuesto?.invoiceId,
+    };
+  });
+
+  return leadsWithData.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
 

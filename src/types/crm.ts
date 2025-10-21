@@ -34,7 +34,11 @@ export interface CrmLead {
   venueName?: string;
   guestCount?: number;
   followUpDate?: string; // ISO Date string for follow-up or event estimate
+  presupuestoId?: string; // ID of the linked budget
+  presupuestoEstado?: 'Borrador' | 'Enviado' | 'Aceptado' | 'Rechazado' | 'Facturado'; // Denormalized status
+  invoiceId?: string; // If the budget was invoiced
 }
 
-export type NewCrmLeadData = Omit<CrmLead, 'id' | 'createdAt' | 'updatedAt' | 'history'>;
+export type NewCrmLeadData = Omit<CrmLead, 'id' | 'createdAt' | 'updatedAt' | 'history' | 'presupuestoEstado' | 'invoiceId' >;
+
 

@@ -6,7 +6,7 @@ import { CSS } from '@dnd-kit/utilities';
 import type { CrmLead } from '@/types/crm';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Trash2, GripVertical, FilePlus2, Users, Building2, CalendarDays, Clock, ChevronLeft, ChevronRight, FileText } from 'lucide-react';
+import { Loader2, Trash2, GripVertical, FilePlus2, Users, Building2, CalendarDays, Clock, ChevronLeft, ChevronRight, FileText, FileSignature } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -72,8 +72,9 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting, isMobile, onMove }
   };
 
   const displayNotes = getDisplayNotes(lead.notes);
-  // Corrected logic: `hasBudget` should primarily rely on the existence of `presupuestoId`.
   const hasBudget = !!lead.presupuestoId;
+  const isBudgetFacturado = lead.presupuestoEstado === 'Facturado' && lead.invoiceId;
+
 
   return (
     <div ref={setNodeRef} style={style} className="mb-2 touch-none w-full">
@@ -124,7 +125,13 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting, isMobile, onMove }
                 <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => onMove(1)}><ChevronRight className="w-4 h-4"/></Button>
               </div>
             )}
-            {hasBudget ? (
+            {isBudgetFacturado ? (
+                 <Link href={`/invoices/${lead.invoiceId}`} passHref className="flex-grow">
+                    <Button variant="secondary" size="sm" className="h-8 text-xs gap-1.5 w-full bg-green-100 text-green-700 hover:bg-green-200">
+                        <FileSignature className="w-4 h-4"/> Ver Factura
+                    </Button>
+                </Link>
+            ) : hasBudget ? (
                 <Link href={`/presupuestos/${lead.presupuestoId}/ver`} passHref className="flex-grow">
                     <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5 w-full">
                         <FileText className="w-4 h-4"/> Ver Presupuesto

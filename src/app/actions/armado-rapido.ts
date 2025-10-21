@@ -67,13 +67,16 @@ export async function generateBudgetAndLeadFromSimulator(
       costoTotalEstimado: data.costoEstimado,
     };
 
+    // Corrected logic: Call savePresupuesto which handles both budget and lead creation.
+    // It will return the final leadId.
     const budgetResult = await savePresupuesto(presupuestoData, {
       source: 'simulator',
-      leadId: undefined,
+      // Pass undefined leadId to trigger creation of a new lead in findLeadByBudgetOrCreate
+      leadId: undefined, 
     });
 
     if (budgetResult.success && budgetResult.id && budgetResult.leadId) {
-      // The notification is now handled within addCrmLead to ensure it has all necessary data.
+      // The notification is now correctly handled within addCrmLead, which is called by savePresupuesto's logic.
       return { success: true, presupuestoId: budgetResult.id, leadId: budgetResult.leadId };
     } else {
       return { success: false, error: budgetResult.error || "No se pudo procesar la solicitud." };
