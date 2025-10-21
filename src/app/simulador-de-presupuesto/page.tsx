@@ -358,24 +358,29 @@ export default function ArmadoRapidoPage() {
         }
     }, [clienteNombre, clienteContacto, adultos, ninos, costoTotal, config?.paquetes, selectedPaqueteId, serviciosDetallados, toast]);
     
+    const isStepTwoInvalid = useMemo(() => {
+        const requiredEntradas = duracionHoras > 4 ? 2 : 1;
+        return !selectedPrincipal || selectedEntradas.length !== requiredEntradas;
+    }, [duracionHoras, selectedPrincipal, selectedEntradas]);
+
     const nextStep = () => {
         if (step === 1 && (!clienteNombre.trim() || !/^\d{9}$/.test(clienteContacto.trim()) || adultos <= 0)) {
             toast({ title: "Datos incompletos", description: "Por favor, ingresa un nombre, un celular válido de 9 dígitos y la cantidad de adultos.", variant: "destructive" });
             return;
         }
-        if (step === 2 && !selectedPrincipal) {
-            toast({ title: "Plato Principal Requerido", description: "Por favor, elige un plato principal para continuar.", variant: "destructive" });
+        if (step === 2 && isStepTwoInvalid) {
+            const requiredEntradas = duracionHoras > 4 ? 2 : 1;
+            toast({ title: "Selección de Menú Incompleta", description: `Debes elegir un plato principal y exactamente ${requiredEntradas} entrada(s).`, variant: "destructive" });
             return;
         }
         if (step === 3 && !selectedPaqueteId) {
             toast({ title: "Paquete Requerido", description: "Por favor, elige un paquete de servicios para continuar.", variant: "destructive" });
             return;
         }
-        if (step === 3) { // When moving from step 3 to 4
-            setStep(s => s + 1);
-            // Trigger lead generation in the background
+        if (step === 3) { // When moving from step 3 to 4, generate lead
             handleGenerateLeadAndProceed();
-        } else if (step < 4) {
+        }
+        if (step < 4) {
             setStep(s => s + 1);
         }
     };
@@ -622,7 +627,7 @@ export default function ArmadoRapidoPage() {
                         <ArrowLeft className="w-4 h-4 mr-2"/>Anterior
                     </Button>
                     {step < 4 ? (
-                        <Button onClick={nextStep} disabled={ (step === 1 && (!clienteNombre.trim() || !/^\d{9}$/.test(clienteContacto.trim()) || adultos <= 0)) || (step === 2 && !selectedPrincipal) || (step === 3 && !selectedPaqueteId) }>
+                        <Button onClick={nextStep} disabled={ (step === 1 && (!clienteNombre.trim() || !/^\d{9}$/.test(clienteContacto.trim()) || adultos <= 0)) || (step === 2 && isStepTwoInvalid) || (step === 3 && !selectedPaqueteId) }>
                             Siguiente <ArrowRight className="w-4 h-4 ml-2" />
                         </Button>
                     ) : (

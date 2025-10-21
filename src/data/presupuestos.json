@@ -1,5 +1,145 @@
 [
   {
+    "clienteNombre": "nico",
+    "clienteContacto": "999788888",
+    "eventoTipo": "Evento (desde Simulador)",
+    "eventoFecha": "2025-10-21T19:23:26.178Z",
+    "invitadosCantidad": 50,
+    "invitadosAdultos": 50,
+    "invitadosNinos": 0,
+    "salonFiestas": "A definir",
+    "itemsPresupuestados": [
+      {
+        "idServicioCatalogo": "dish_entrada_5",
+        "nombreServicio": "Picada Snack",
+        "cantidad": 50,
+        "unidad": "personas",
+        "precioUnitario": 100.10000000000001,
+        "precioUnitarioPresupuesto": 100.10000000000001,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de catering",
+        "costoTotalItem": 5005
+      },
+      {
+        "idServicioCatalogo": "dish_main_19",
+        "nombreServicio": "Asado Completo C/ Guarnición",
+        "cantidad": 50,
+        "unidad": "personas",
+        "precioUnitario": 615.736,
+        "precioUnitarioPresupuesto": 615.736,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de catering",
+        "costoTotalItem": 30786.8
+      },
+      {
+        "idServicioCatalogo": "item_1756940568854_u5m4prf",
+        "nombreServicio": "Servicio de discoteca",
+        "cantidad": 1,
+        "unidad": "evento",
+        "precioUnitario": 20000,
+        "precioUnitarioPresupuesto": 20000,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de discoteca",
+        "costoTotalItem": 20000
+      },
+      {
+        "idServicioCatalogo": "item_1757282105396_39i6zkn",
+        "nombreServicio": "Decoración",
+        "cantidad": 1,
+        "unidad": "evento",
+        "precioUnitario": 14500,
+        "precioUnitarioPresupuesto": 14500,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de decoración",
+        "costoTotalItem": 14500
+      },
+      {
+        "idServicioCatalogo": "serv_invitaciones_digitales",
+        "nombreServicio": "Invitaciones Digitales",
+        "cantidad": 1,
+        "unidad": "evento",
+        "precioUnitario": 2500,
+        "precioUnitarioPresupuesto": 2500,
+        "esRegalo": true,
+        "categoriaServicio": "Regalo exclusivo",
+        "costoTotalItem": 0
+      },
+      {
+        "idServicioCatalogo": "serv_mozos",
+        "nombreServicio": "Mozo",
+        "cantidad": 50,
+        "unidad": "evento",
+        "precioUnitario": 2900,
+        "precioUnitarioPresupuesto": 2900,
+        "esRegalo": false,
+        "categoriaServicio": "Personal",
+        "costoTotalItem": 145000
+      },
+      {
+        "idServicioCatalogo": "serv_mozo_cocina",
+        "nombreServicio": "Mozo de Cocina",
+        "cantidad": 50,
+        "unidad": "evento",
+        "precioUnitario": 2900,
+        "precioUnitarioPresupuesto": 2900,
+        "esRegalo": false,
+        "categoriaServicio": "Personal",
+        "costoTotalItem": 145000
+      },
+      {
+        "idServicioCatalogo": "item_1757281980225_3x3nbzo",
+        "nombreServicio": "Organizador de la Fiesta",
+        "cantidad": 1,
+        "unidad": "evento",
+        "precioUnitario": 10000,
+        "precioUnitarioPresupuesto": 10000,
+        "esRegalo": true,
+        "categoriaServicio": "Regalo exclusivo",
+        "costoTotalItem": 0
+      },
+      {
+        "idServicioCatalogo": "item_1758319656786_6sjl431",
+        "nombreServicio": "Vajilla Completa",
+        "cantidad": 50,
+        "unidad": "personas",
+        "precioUnitario": 75,
+        "precioUnitarioPresupuesto": 75,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de catering",
+        "costoTotalItem": 3750
+      },
+      {
+        "idServicioCatalogo": "serv_manteleria_completa",
+        "nombreServicio": "Mantelería Completa",
+        "cantidad": 50,
+        "unidad": "personas",
+        "precioUnitario": 75,
+        "precioUnitarioPresupuesto": 75,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de catering",
+        "costoTotalItem": 3750
+      },
+      {
+        "idServicioCatalogo": "item_1757539236109_vtqfjaz",
+        "nombreServicio": "Torta Principal",
+        "cantidad": 50,
+        "unidad": "personas",
+        "precioUnitario": 6000,
+        "precioUnitarioPresupuesto": 6000,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de repostería",
+        "costoTotalItem": 300000
+      }
+    ],
+    "timestamp": "2025-10-21T19:23:26.266Z",
+    "notas": "Presupuesto generado desde el Simulador. Paquete: Paquete Básico. Costo estimado: $ 71.724,53",
+    "costoTotalEstimado": 667791.8,
+    "id": "pres_1761074606252_qwxfb1f",
+    "estado": "Borrador",
+    "ajusteAnualActivo": false,
+    "leadId": "lead_1761074606260_e3rwh6r"
+  },
+  {
     "clienteNombre": "Ana García",
     "clienteContacto": "0999588945",
     "eventoTipo": "Cumpleaños",

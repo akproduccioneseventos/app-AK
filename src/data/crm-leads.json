@@ -1,1 +1,25 @@
-[]
+[
+  {
+    "id": "lead_1761074606260_e3rwh6r",
+    "name": "nico",
+    "phone": "999788888",
+    "notes": "Presupuesto ID: pres_1761074606252_qwxfb1f\nCosto: $ 667.791,80",
+    "presupuestoId": "pres_1761074606252_qwxfb1f",
+    "currentStageId": "s3",
+    "createdAt": "2025-10-21T19:23:26.260Z",
+    "updatedAt": "2025-10-21T19:23:26.274Z",
+    "history": [
+      {
+        "stageId": "s1",
+        "stageName": "Consultó",
+        "timestamp": "2025-10-21T19:23:26.260Z"
+      },
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2025-10-21T19:23:26.274Z"
+      }
+    ],
+    "presupuestoEstado": "Borrador"
+  }
+]
