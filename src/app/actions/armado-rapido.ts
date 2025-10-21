@@ -94,3 +94,5 @@ const formatCurrency = (amount?: number) => {
   if (amount === undefined) return 'N/A';
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
+
+    

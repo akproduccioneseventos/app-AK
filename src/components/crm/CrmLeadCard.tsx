@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useSortable } from '@dnd-kit/sortable';
@@ -73,12 +74,12 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting, isMobile, onMove }
 
   const displayNotes = getDisplayNotes(lead.notes);
   const hasBudget = !!lead.presupuestoId;
-  const isBudgetFacturado = lead.presupuestoEstado === 'Facturado' && lead.invoiceId;
+  const isBudgetFacturado = lead.presupuestoEstado === 'Facturado' && !!lead.invoiceId;
 
 
   return (
     <div ref={setNodeRef} style={style} className="mb-2 touch-none">
-      <Card className="shadow-sm hover:shadow-md transition-shadow bg-card flex flex-col h-auto min-h-[190px]">
+      <Card className="shadow-sm hover:shadow-md transition-shadow bg-card flex flex-col h-auto">
         <CardHeader 
           {...attributes} 
           {...listeners} 
@@ -160,3 +161,5 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting, isMobile, onMove }
     </div>
   );
 }
+
+    
