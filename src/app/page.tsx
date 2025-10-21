@@ -49,18 +49,6 @@ const mainHubItems = [
       href: '/empresa/contabilidad',
       icon: BarChart3,
     },
-     {
-      title: 'Crear Presupuesto Manual',
-      description: 'Genera un presupuesto detallado para un cliente seleccionando servicios del catálogo.',
-      href: '/presupuestos/nuevo/crear',
-      icon: ListChecks,
-    },
-    {
-      title: 'Simulador de Presupuestos',
-      description: 'Herramienta rápida para que los clientes armen su propio presupuesto estimado.',
-      href: '/simulador-de-presupuesto',
-      icon: Wand2,
-    },
     {
       title: 'Configuración General',
       description: 'Ajusta las preferencias de la aplicación, plantillas y detalles de tu cuenta.',
@@ -127,6 +115,26 @@ export default function MainDashboardPage() {
         <KpiCard title="Eventos Futuros" value={kpiData?.fiestasFuturas ?? '...'} icon={CalendarClock} isLoading={isLoading} description="Eventos en planificación activa."/>
       </div>
 
+      <Separator className="my-8"/>
+
+       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Link href="/presupuestos/nuevo/crear" passHref>
+          <Card className="h-full hover:shadow-lg hover:border-primary/50 transition-all cursor-pointer">
+            <CardHeader>
+              <CardTitle className="font-headline text-xl flex items-center gap-2"><ListChecks className="w-6 h-6 text-primary"/> Crear Presupuesto Detallado</CardTitle>
+              <CardDescription>Genera un presupuesto manual seleccionando servicios del catálogo.</CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
+        <Link href="/simulador-de-presupuesto" passHref>
+          <Card className="h-full hover:shadow-lg hover:border-primary/50 transition-all cursor-pointer">
+            <CardHeader>
+              <CardTitle className="font-headline text-xl flex items-center gap-2"><Wand2 className="w-6 h-6 text-primary"/> Ir al Simulador Rápido</CardTitle>
+              <CardDescription>Herramienta para que los clientes armen su presupuesto estimado.</CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
+      </div>
 
       <Separator className="my-8"/>
 
@@ -134,12 +142,12 @@ export default function MainDashboardPage() {
         {mainHubItems.map((item) => (
           <Card key={item.title} className="flex flex-col shadow-md hover:shadow-lg transition-shadow duration-300">
             <CardHeader className="flex-row items-center justify-between pb-3 space-y-0">
-              <CardTitle className="font-headline text-lg flex items-center gap-3">
+              <div className="flex items-center gap-3">
                  <div className="p-2 bg-primary/10 rounded-md">
                     <item.icon className="w-6 h-6 text-primary" />
                  </div>
-                 {item.title}
-              </CardTitle>
+                 <CardTitle className="font-headline text-lg">{item.title}</CardTitle>
+              </div>
             </CardHeader>
             <CardContent className="flex-grow">
               <p className="text-sm text-muted-foreground line-clamp-2">{item.description}</p>
