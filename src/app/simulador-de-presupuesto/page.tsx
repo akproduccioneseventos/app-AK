@@ -292,39 +292,28 @@ export default function ArmadoRapidoPage() {
         }, {} as Record<string, ServicioDetallado[]>);
     }, [serviciosDetallados]);
 
-     const generarTextoWhatsApp = useCallback(() => {
-        let message = `🎉 *¡Presupuesto Estimado - AK Producciones!* 🎉\n\n`;
-        message += `Estimado/a *${clienteNombre || 'Cliente'}*,\n\n`;
-        message += `Gracias por tu interés. Aquí tienes el enlace a tu simulación:\n\n`;
-        message += window.location.href;
-        message += `\n\nPara confirmar y obtener más detalles, ¡no dudes en contactarnos!\n*El equipo de AK Producciones*`;
+    const generarTextoWhatsApp = useCallback(() => {
+        if (typeof window === 'undefined') return '';
+        const url = window.location.href; // The URL to the simulator for them to see.
+        let message = `¡Hola! He generado un presupuesto estimado a través del simulador y quisiera más información. Puedes ver mi resumen aquí: ${url}`;
         return message;
-    }, [clienteNombre]);
+    }, []);
 
     const handleShareWhatsApp = () => {
-        if (typeof window === 'undefined') return;
-        const message = generarTextoWhatsApp();
-        const whatsAppUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-        window.open(whatsAppUrl, '_blank');
-    };
-
-    const handleContactWhatsApp = () => {
         if (!whatsappNumber) {
             toast({title: "Número no configurado", description: "El número de WhatsApp no ha sido configurado en los ajustes.", variant: "destructive"});
             return;
         }
-        const message = `Hola, he generado un presupuesto estimado a través del simulador y quisiera más información.`;
+        const message = generarTextoWhatsApp();
         window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank');
-    }
+    };
 
     const handleDownloadPdf = () => {
         window.print();
     };
 
     const handleGenerateLead = useCallback(async () => {
-        if (!clienteNombre.trim() || !clienteContacto.trim()) {
-            // Fail silently in this automatic flow, the user can still proceed.
-            console.warn("Datos de contacto incompletos, no se creará el prospecto en CRM.");
+        if (!clienteNombre.trim() || !clienteContacto.trim() || isGeneratingLead) {
             return;
         }
         setIsGeneratingLead(true);
@@ -359,7 +348,7 @@ export default function ArmadoRapidoPage() {
         } finally {
             setIsGeneratingLead(false);
         }
-    }, [clienteNombre, clienteContacto, adultos, ninos, costoTotal, config?.paquetes, selectedPaqueteId, serviciosDetallados, toast]);
+    }, [clienteNombre, clienteContacto, adultos, ninos, costoTotal, config?.paquetes, selectedPaqueteId, serviciosDetallados, toast, isGeneratingLead]);
     
     const isStepTwoInvalid = useMemo(() => {
         const requiredEntradas = duracionHoras > 4 ? 2 : 1;
@@ -382,8 +371,8 @@ export default function ArmadoRapidoPage() {
         }
         
         if (step < 4) {
-            if (step === 3) { // Moving from step 3 to 4
-                handleGenerateLead();
+            if (step === 3) {
+                handleGenerateLead(); // Generate lead when moving to step 4
             }
             setStep(s => s + 1);
         }
@@ -615,16 +604,16 @@ export default function ArmadoRapidoPage() {
                         <ArrowLeft className="w-4 h-4 mr-2"/>Anterior
                     </Button>
                     {step < 4 ? (
-                        <Button onClick={nextStep} disabled={ (step === 1 && (!clienteNombre.trim() || !/^\d{9}$/.test(clienteContacto.trim()) || adultos <= 0)) || (step === 2 && isStepTwoInvalid) || (step === 3 && !selectedPaqueteId) }>
+                        <Button onClick={nextStep} disabled={isGeneratingLead || (step === 2 && isStepTwoInvalid) || (step === 3 && !selectedPaqueteId) }>
                             {step === 3 ? "Ver Resumen" : "Siguiente"}
                             {step < 3 && <ArrowRight className="w-4 h-4 ml-2" />}
                         </Button>
                     ) : (
                         <div className="flex flex-col sm:flex-row gap-2">
-                             <Button type="button" onClick={handleContactWhatsApp} className="bg-green-500 hover:bg-green-600">
-                                <MessageSquare className="w-4 h-4 mr-2"/>Contactar Asesor por WhatsApp
+                             <Button type="button" onClick={handleShareWhatsApp} variant="secondary" className="bg-green-500 hover:bg-green-600">
+                                <Share2 className="w-4 h-4 mr-2"/>Enviar por WhatsApp
                              </Button>
-                             <Button type="button" onClick={handleDownloadPdf} variant="secondary"><Printer className="w-4 h-4 mr-2"/>Guardar o Imprimir</Button>
+                             <Button type="button" onClick={handleDownloadPdf} variant="outline"><Printer className="w-4 h-4 mr-2"/>Guardar o Imprimir PDF</Button>
                         </div>
                     )}
                 </CardFooter>
