@@ -77,8 +77,8 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting, isMobile, onMove }
 
 
   return (
-    <div ref={setNodeRef} style={style} className="mb-2 touch-none w-full">
-      <Card className="shadow-sm hover:shadow-md transition-shadow bg-card w-full flex flex-col h-auto min-h-[190px]">
+    <div ref={setNodeRef} style={style} className="mb-2 touch-none">
+      <Card className="shadow-sm hover:shadow-md transition-shadow bg-card flex flex-col h-auto min-h-[190px]">
         <CardHeader 
           {...attributes} 
           {...listeners} 
