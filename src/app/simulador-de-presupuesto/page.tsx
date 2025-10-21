@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -143,7 +144,7 @@ export default function ArmadoRapidoPage() {
         const allDishes = allMenus.flatMap(m => m.items);
         const visibleDishes = allDishes.filter(d => isPlatoVisible(d.id));
         
-        const sortByPrice = (a: ServicioEmpresa, b: ServicioEmpresa) => (a.precioPorPersona || 0) - (b.precioPorPersona || 0);
+        const sortByPrice = (a: { precioPorPersona?: number }, b: { precioPorPersona?: number }) => (a.precioPorPersona || 0) - (b.precioPorPersona || 0);
 
         const enhanceWithPrice = (item: MenuItem): MenuItem & { precioVenta: number } => ({
           ...item,
@@ -302,7 +303,7 @@ export default function ArmadoRapidoPage() {
 
     const handleShareWhatsApp = () => {
         if (typeof window === 'undefined') return;
-        const message = generateWhatsAppMessage();
+        const message = generarTextoWhatsApp();
         const whatsAppUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
         window.open(whatsAppUrl, '_blank');
     };
@@ -322,8 +323,8 @@ export default function ArmadoRapidoPage() {
 
     const handleGenerateLead = useCallback(async () => {
         if (!clienteNombre.trim() || !clienteContacto.trim()) {
-            toast({ title: "Datos de contacto requeridos", description: "Por favor, vuelve al Paso 1 y completa tu nombre y celular para continuar.", variant: "destructive" });
-            setStep(1);
+            // Fail silently in this automatic flow, the user can still proceed.
+            console.warn("Datos de contacto incompletos, no se creará el prospecto en CRM.");
             return;
         }
         setIsGeneratingLead(true);
@@ -348,12 +349,13 @@ export default function ArmadoRapidoPage() {
 
         try {
             const result = await generateBudgetAndLeadFromSimulator(data);
-            if(result.success) {
-                toast({ title: "¡Gracias!", description: "Tu presupuesto ha sido registrado. Un asesor se pondrá en contacto a la brevedad."});
-                setStep(5);
-            } else { throw new Error(result.error); }
+            if(!result.success) { 
+                throw new Error(result.error); 
+            } else {
+                 toast({ title: "Prospecto Creado", description: "Se ha registrado un nuevo prospecto en el CRM.", variant: 'default' });
+            }
         } catch(e: any) {
-             toast({ title: "Error al registrar", description: e.message, variant: "destructive" });
+             toast({ title: "Error al registrar prospecto", description: e.message, variant: "destructive" });
         } finally {
             setIsGeneratingLead(false);
         }
@@ -380,6 +382,9 @@ export default function ArmadoRapidoPage() {
         }
         
         if (step < 4) {
+            if (step === 3) { // Moving from step 3 to 4
+                handleGenerateLead();
+            }
             setStep(s => s + 1);
         }
     };
@@ -391,16 +396,6 @@ export default function ArmadoRapidoPage() {
     const entradasFaltantes = maxEntradas - selectedEntradas.length;
 
     if (isLoading) { return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>; }
-    if (step === 5) {
-      return (
-        <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4">
-            <Card className="w-full max-w-lg text-center shadow-xl p-6">
-                <CardHeader><PartyPopper className="w-16 h-16 mx-auto text-green-500 mb-4"/><CardTitle className="font-headline text-3xl text-green-600">¡Presupuesto Solicitado!</CardTitle><CardDescription className="text-lg">Gracias por tu interés. Un representante se pondrá en contacto contigo a la brevedad.</CardDescription></CardHeader>
-                <CardFooter><Button className="w-full" onClick={() => { setStep(1); setClienteNombre(''); setClienteContacto(''); setSelectedEntradas([]); setSelectedPrincipal(''); setSelectedMenuNino(''); setSelectedPaqueteId(''); }}>Volver a Simular</Button></CardFooter>
-            </Card>
-        </div>
-      )
-    }
 
     const today = new Date();
     const validUntil = new Date(today);
@@ -438,8 +433,12 @@ export default function ArmadoRapidoPage() {
                 <CardHeader className="text-center print:hidden">
                     <Wand2 className="w-12 h-12 mx-auto text-primary mb-2"/>
                     <CardTitle className="font-headline text-3xl">Simulador de Presupuesto</CardTitle>
-                    <CardDescription className="text-lg">Paso {step} de 4: {['Tus Datos', 'Menú Gastronómico', 'Paquete de Servicios', 'Resumen y Contacto'][step-1]}</CardDescription>
-                    <Progress value={(step / 4) * 100} className="w-full h-2 mt-4" />
+                    {step < 4 && (
+                        <>
+                            <CardDescription className="text-lg">Paso {step} de 4: {['Tus Datos', 'Menú Gastronómico', 'Paquete de Servicios', 'Resumen'][step-1]}</CardDescription>
+                            <Progress value={(step / 4) * 100} className="w-full h-2 mt-4" />
+                        </>
+                    )}
                 </CardHeader>
                 <CardContent className="min-h-[350px] py-6 px-4 sm:px-8 print:p-2">
                     {step === 1 && (
@@ -465,7 +464,7 @@ export default function ArmadoRapidoPage() {
                             <h3 className="font-semibold text-lg flex items-center gap-2"><ChefHat className="text-primary w-5 h-5"/>Elige tu menú gastronómico</h3>
                             <div className="space-y-4">
                                 <Label>Debes elegir {maxEntradas} entrada{maxEntradas > 1 ? 's' : ''} ({duracionHoras > 4 ? 'Fiesta larga' : 'Fiesta corta'})</Label>
-                                {entradasFaltantes > 0 && <p className="text-sm text-amber-600">Selecciona {entradasFaltantes} entrada{entradasFaltantes > 1 ? 's' : ''}.</p>}
+                                {entradasFaltantes > 0 && <p className="text-sm text-amber-600">Te falta seleccionar {entradasFaltantes} entrada{entradasFaltantes > 1 ? 's' : ''}.</p>}
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">{entradasDisponibles.map(s => (<div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><Checkbox id={`e-${s.id}`} checked={selectedEntradas.includes(s.id)} onCheckedChange={(checked) => handleEntradaChange(s.id, !!checked)}/><Label htmlFor={`e-${s.id}`} className="text-sm font-normal">{s.nombre} <span className="text-xs text-muted-foreground">({formatCurrency(s.precioPorPersona || 0, true)})</span></Label></div>))}</div>
                             </div>
                             <div className="space-y-4"><Label>Plato Principal (elige 1)</Label>
@@ -605,7 +604,7 @@ export default function ArmadoRapidoPage() {
                                 {descuento > 0 && <div className="flex justify-between text-destructive"><span>Descuento ({config?.descuentoGeneral}%):</span><span>-${formatCurrency(descuento)}</span></div>}
                                 <div className="flex justify-between font-bold text-lg pt-2 border-t"><span className="text-primary">Importe total</span><span className="text-primary">{formatCurrency(costoTotal)}</span></div>
                             </div>
-                            <footer className="mt-6 pt-3 border-t border-gray-300 print:mt-2 print:pt-1.5 print:border-gray-400 text-xs print:text-[8pt] text-gray-600 print:text-black">
+                             <footer className="mt-6 pt-3 border-t border-gray-300 print:mt-2 print:pt-1.5 print:border-gray-400 text-xs print:text-[8pt] text-gray-600 print:text-black">
                               <p className="text-red-600 font-bold text-lg">{BUDGET_DEPOSIT_NOTE_PDF}</p>
                             </footer>
                         </div>
@@ -617,14 +616,13 @@ export default function ArmadoRapidoPage() {
                     </Button>
                     {step < 4 ? (
                         <Button onClick={nextStep} disabled={ (step === 1 && (!clienteNombre.trim() || !/^\d{9}$/.test(clienteContacto.trim()) || adultos <= 0)) || (step === 2 && isStepTwoInvalid) || (step === 3 && !selectedPaqueteId) }>
-                            {step === 3 ? "Generar Resumen" : "Siguiente"}
+                            {step === 3 ? "Ver Resumen" : "Siguiente"}
                             {step < 3 && <ArrowRight className="w-4 h-4 ml-2" />}
                         </Button>
                     ) : (
                         <div className="flex flex-col sm:flex-row gap-2">
-                             <Button type="button" onClick={handleGenerateLead} disabled={isGeneratingLead}>
-                                {isGeneratingLead ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Send className="w-4 h-4 mr-2"/>}
-                                {isGeneratingLead ? "Enviando..." : "Finalizar y Solicitar Presupuesto a un Asesor"}
+                             <Button type="button" onClick={handleContactWhatsApp} className="bg-green-500 hover:bg-green-600">
+                                <MessageSquare className="w-4 h-4 mr-2"/>Contactar Asesor por WhatsApp
                              </Button>
                              <Button type="button" onClick={handleDownloadPdf} variant="secondary"><Printer className="w-4 h-4 mr-2"/>Guardar o Imprimir</Button>
                         </div>
@@ -634,4 +632,3 @@ export default function ArmadoRapidoPage() {
         </div>
     );
 }
-
