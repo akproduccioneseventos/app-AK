@@ -146,6 +146,12 @@ export default function ArmadoRapidoPage() {
         
         const sortByPrice = (a: ServicioEmpresa, b: ServicioEmpresa) => (a.precioPorPersona || 0) - (b.precioPorPersona || 0);
 
+        const enhanceWithPrice = (item: MenuItem): MenuItem & { precioVenta: number } => ({
+          ...item,
+          nombre: item.name,
+          precioVenta: item.suggestedSellingPrice ?? ((item.totalDishCost || 0) * (1 + (item.profitMargin ?? 120) / 100)),
+        });
+    
         return { 
             entradasDisponibles: visibleDishes.filter(s => s.type === 'Entrada').map(menuItemToServicioEmpresa).sort(sortByPrice), 
             principalesDisponibles: visibleDishes.filter(s => s.type === 'Plato Principal').map(menuItemToServicioEmpresa).sort(sortByPrice), 
