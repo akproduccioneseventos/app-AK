@@ -313,4 +313,3 @@ export async function getCrmKpiData() {
     return { success: false, error: 'Failed to calculate CRM KPIs.' };
   }
 }
-
