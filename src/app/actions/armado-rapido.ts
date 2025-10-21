@@ -67,8 +67,9 @@ export async function generateBudgetAndLeadFromSimulator(
       costoTotalEstimado: data.costoEstimado,
     };
 
-    // Corrected logic: Call savePresupuesto which handles both budget and lead creation.
-    // It will return the final leadId.
+    // The savePresupuesto action now correctly handles both creating the budget,
+    // finding/creating the CRM lead, and linking them.
+    // We must await its result to get the final leadId for the notification.
     const budgetResult = await savePresupuesto(presupuestoData, {
       source: 'simulator',
       // Pass undefined leadId to trigger creation of a new lead in findLeadByBudgetOrCreate
@@ -76,7 +77,9 @@ export async function generateBudgetAndLeadFromSimulator(
     });
 
     if (budgetResult.success && budgetResult.id && budgetResult.leadId) {
-      // The notification is now correctly handled within addCrmLead, which is called by savePresupuesto's logic.
+      // The notification logic is correctly handled inside `addCrmLead`, 
+      // which is called by `savePresupuesto`. No need to create another one here.
+      // The key was awaiting the result to ensure the lead was created before finishing.
       return { success: true, presupuestoId: budgetResult.id, leadId: budgetResult.leadId };
     } else {
       return { success: false, error: budgetResult.error || "No se pudo procesar la solicitud." };

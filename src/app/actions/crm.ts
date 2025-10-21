@@ -40,6 +40,7 @@ export async function getCrmLeads(): Promise<CrmLead[]> {
     const presupuesto = lead.presupuestoId ? presupuestosMap.get(lead.presupuestoId) : undefined;
     return {
       ...lead,
+      presupuestoId: lead.presupuestoId, // Ensure presupuestoId is always passed through
       presupuestoEstado: presupuesto?.estado,
       invoiceId: presupuesto?.invoiceId,
     };
