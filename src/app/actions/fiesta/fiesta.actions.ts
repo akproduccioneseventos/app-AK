@@ -101,17 +101,6 @@ export async function getAllFiestas(): Promise<FiestaEnPlanificacion[]> {
   const [activas, archivadas] = await Promise.all([getActivas(), getHistorialFiestas()]);
   const allFiestas = [...activas, ...archivadas];
   const uniqueFiestas = Array.from(new Map(allFiestas.map(item => [item.id, item])).values());
-
-  // Check if any active event is the example one, to avoid duplicates
-  if (activas.length === 0) {
-    try {
-        const exampleFiesta = await readData<FiestaEnPlanificacion>(EXAMPLE_FIESTA_FILE, null as any);
-        if(exampleFiesta && !uniqueFiestas.some(f => f.id === exampleFiesta.id)) {
-            uniqueFiestas.push(exampleFiesta);
-        }
-    } catch {}
-  }
-  
   return uniqueFiestas;
 }
 
