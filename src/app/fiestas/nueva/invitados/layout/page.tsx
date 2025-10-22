@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Image as ImageIcon, Maximize, Minimize, FolderUp, Wand2, Settings2, FolderDown, Sofa, Disc, Clapperboard, Camera, Search, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Image as ImageIcon, Maximize, Minimize, FolderUp, Wand2, Settings2, FolderDown, Sofa, Disc, Clapperboard, Camera, Search, CheckCircle, Printer } from 'lucide-react';
 import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData } from '@/types/fiesta';
@@ -110,6 +110,7 @@ export default function SalonLayoutPage() {
       name: `${category} ${ (decoracion.salonElements?.filter(e => e.category === category).length || 0) + 1}`,
       x: 20, y: 20,
       width, height, rotation: 0,
+      quantity: 1,
       type: 'predefined', category: category, seats: defaultSeats,
     };
     setDecoracion({ ...decoracion, salonElements: [...(decoracion.salonElements || []), newElement] });
@@ -376,7 +377,7 @@ export default function SalonLayoutPage() {
                     <CardHeader><CardTitle className="text-lg">Invitados sin Mesa</CardTitle></CardHeader>
                     <CardContent>
                         <ScrollArea className="h-40 border rounded-md p-2">
-                        <ul className="space-y-2">{invitadosSinMesa.map(inv => (<li key={inv.id} draggable onDragStart={e => e.dataTransfer.setData('guestId', inv.id)} className="p-2 border rounded bg-background cursor-grab"><p className="font-medium text-sm">{inv.nombre}</p><p className="text-xs text-muted-foreground">{inv.partySize || 1} persona(s)</p></li>))}{invitadosSinMesa.length === 0 && <p className="text-sm text-center text-muted-foreground p-4">Todos asignados.</p>}</ul>
+                        <ul className="space-y-2">{invitadosSinMesa.map(inv => (<li key={inv.id} draggable onDragStart={e => e.dataTransfer.setData('guestId', inv.id)} className="p-2 border rounded bg-background cursor-grab"><p className="font-medium text-sm">{inv.nombre}</p><p className="text-xs text-muted-foreground">{inv.partySize || 1} persona(s)</p></li>))}{invitadosSinMesa.length === 0 && <p className="text-sm text-center text-muted-foreground p-4">Todos los invitados confirmados tienen una mesa.</p>}</ul>
                         </ScrollArea>
                     </CardContent>
                 </Card>
