@@ -99,8 +99,8 @@ export const defaultDecoracion: DecoracionData = {
   zonasContratadas: JSON.parse(JSON.stringify(defaultZonasContratadas)),
   generalNotesDecoracion: "Detalles pendientes de definir: colores, cubre mantel, decoración torta, centros de mesa, etc.",
   pdfNotasAdicionales: '',
-  salonWidth: 800,
-  salonHeight: 600,
+  salonWidth: 15,
+  salonHeight: 15,
   salonPlanBackgroundImageUrl: '',
   salonElements: [],
   generalNotesSalonLayout: 'Disposición estándar del salón, ajustar según necesidad.',
@@ -108,6 +108,7 @@ export const defaultDecoracion: DecoracionData = {
   guestNameStyle: 'full',
   guestIconStyle: 'color',
   layoutTemplateName: '',
+  pixelsPerMeter: 40,
 };
 
 export const defaultClientPortalSettings: ClientPortalSettings = {

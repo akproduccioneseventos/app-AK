@@ -30,6 +30,7 @@ function SalonLayoutContent() {
   const searchParams = useSearchParams();
   const fiestaId = searchParams.get('fiestaId');
 
+  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [decoracion, setDecoracion] = useState<DecoracionData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -51,16 +52,17 @@ function SalonLayoutContent() {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [guestSearchTerm, setGuestSearchTerm] = useState('');
 
   const loadData = useCallback(async (showLoading = true) => {
     if (!fiestaId) return;
     if(showLoading) setIsLoading(true);
     try {
-      const fiesta = await getFiestaById(fiestaId);
-      if (!fiesta) throw new Error("Fiesta no encontrada.");
+      const fiestaData = await getFiestaById(fiestaId);
+      if (!fiestaData) throw new Error("Fiesta no encontrada.");
       
-      const loadedDecoracion = fiesta.decoracion || { salonElements: [], salonWidth: 20, salonHeight: 30, pixelsPerMeter: 30 };
-      setDecoracion(loadedDecoracion);
+      setFiesta(fiestaData);
+      setDecoracion(fiestaData.decoracion || { salonElements: [], salonWidth: 15, salonHeight: 15, pixelsPerMeter: 40 });
 
     } catch (e: any) {
       setError("No se pudo cargar la información del evento.");
@@ -89,13 +91,17 @@ function SalonLayoutContent() {
   
   const addElement = (category: string, customProps?: Partial<LayoutElement>) => {
     if (!decoracion) return;
-    const defaultProps: Partial<LayoutElement> = { width: 120, height: 120, seats: 8 };
-    if (category === 'Mesa Redonda') { defaultProps.width = 120; defaultProps.height = 120; }
-    else if (category === 'Mesa Rectangular') { defaultProps.width = 180; defaultProps.height = 80; }
-    else if (category === 'Pista de Baile') { defaultProps.width = 240; defaultProps.height = 240; defaultProps.seats = undefined; }
-    else if (category === 'Escenario') { defaultProps.width = 200; defaultProps.height = 100; defaultProps.seats = undefined; }
-    else if (category === 'Living') { defaultProps.width = 180; defaultProps.height = 180; defaultProps.seats = undefined; }
-    else if (category === 'Área de Fotos') { defaultProps.width = 150; defaultProps.height = 100; defaultProps.seats = undefined; }
+    const pixelsPerMeter = decoracion.pixelsPerMeter || 40;
+    
+    const defaultProps: Partial<LayoutElement> = { 
+        width: 3 * pixelsPerMeter, height: 3 * pixelsPerMeter, seats: 8 
+    };
+
+    if (category === 'Mesa Rectangular') { defaultProps.width = 4 * pixelsPerMeter; defaultProps.height = 2 * pixelsPerMeter; }
+    else if (category === 'Pista de Baile') { defaultProps.width = 6 * pixelsPerMeter; defaultProps.height = 6 * pixelsPerMeter; defaultProps.seats = undefined; }
+    else if (category === 'Escenario') { defaultProps.width = 5 * pixelsPerMeter; defaultProps.height = 2.5 * pixelsPerMeter; defaultProps.seats = undefined; }
+    else if (category === 'Living') { defaultProps.width = 4.5 * pixelsPerMeter; defaultProps.height = 4.5 * pixelsPerMeter; defaultProps.seats = undefined; }
+    else if (category === 'Área de Fotos') { defaultProps.width = 4 * pixelsPerMeter; defaultProps.height = 2.5 * pixelsPerMeter; defaultProps.seats = undefined; }
 
     const newElement: LayoutElement = {
       id: `el_${Date.now()}`, name: customProps?.name || `${category} ${ (decoracion.salonElements?.filter(e => e.category === category).length || 0) + 1}`,
@@ -108,16 +114,18 @@ function SalonLayoutContent() {
     if (!customElement.name.trim()) { toast({title: "Nombre requerido", variant: "destructive"}); return; }
     if (!decoracion) return;
 
-    const pixelsPerMeter = decoracion.pixelsPerMeter || 30;
+    const pixelsPerMeter = decoracion.pixelsPerMeter || 40;
     const categoryName = customElement.shape === 'circle' ? 'Mesa Redonda' : 'Varios';
+    
     const newElementData: Partial<LayoutElement> = {
       name: customElement.name,
       width: customElement.width * pixelsPerMeter,
       height: customElement.height * pixelsPerMeter,
       category: categoryName,
-      seats: customElement.shape === 'circle' ? 8 : undefined,
-      shape: customElement.shape
+      seats: customElement.shape === 'circle' ? 8 : undefined, // Default seats for custom round tables
+      shape: customElement.shape as 'rectangle' | 'circle',
     };
+    
     addElement(categoryName, newElementData);
     setIsCustomElementModalOpen(false);
     setCustomElement({ name: '', category: 'Varios', width: 2, height: 1, shape: 'rectangle' });
@@ -188,14 +196,43 @@ function SalonLayoutContent() {
          setIsTemplateActionLoading(false);
     }
   };
+  
+  const handleAssignGuestToSeat = async (guestId: string, tableId: string, seatIndex: number) => {
+    const updatedInvitados = (fiesta?.invitados || []).map(inv => 
+      inv.id === guestId ? { ...inv, tableNumber: tableId, seatNumber: seatIndex } : inv
+    );
+    if (fiesta) {
+      setFiesta({ ...fiesta, invitados: updatedInvitados });
+      const guestToUpdate = updatedInvitados.find(i => i.id === guestId);
+      if (guestToUpdate) await updateInvitadoFiestaActual(fiesta.id, guestToUpdate);
+    }
+  };
+
+  const handleUnassignGuest = async (guestId: string) => {
+    const updatedInvitados = (fiesta?.invitados || []).map(inv => 
+      inv.id === guestId ? { ...inv, tableNumber: undefined, seatNumber: undefined } : inv
+    );
+     if (fiesta) {
+      setFiesta({ ...fiesta, invitados: updatedInvitados });
+      const guestToUpdate = updatedInvitados.find(i => i.id === guestId);
+      if (guestToUpdate) await updateInvitadoFiestaActual(fiesta.id, guestToUpdate);
+    }
+  };
+
+  const invitadosSinMesa = useMemo(() => {
+    return (fiesta?.invitados || [])
+      .filter(inv => !inv.tableNumber && inv.nombre.toLowerCase().includes(guestSearchTerm.toLowerCase()))
+      .sort((a,b) => a.nombre.localeCompare(b.nombre));
+  }, [fiesta?.invitados, guestSearchTerm]);
+  
 
   if (isLoading) return <div className="flex items-center justify-center p-8"><Loader2 className="w-8 h-8 animate-spin" /></div>;
   if (error) return <div className="text-destructive text-center p-4">{error}</div>;
-  if (!decoracion) return null;
+  if (!decoracion || !fiesta) return null;
   
-  const pixelsPerMeter = decoracion.pixelsPerMeter || 30;
-  const salonWidthPx = (decoracion.salonWidth || 20) * pixelsPerMeter;
-  const salonHeightPx = (decoracion.salonHeight || 30) * pixelsPerMeter;
+  const pixelsPerMeter = decoracion.pixelsPerMeter || 40;
+  const salonWidthPx = (decoracion.salonWidth || 15) * pixelsPerMeter;
+  const salonHeightPx = (decoracion.salonHeight || 15) * pixelsPerMeter;
 
   return (
     <div className="space-y-6">
@@ -209,14 +246,21 @@ function SalonLayoutContent() {
           <LayoutDashboard className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">Diseño de Salón (Organizador)</h1>
         </div>
-        <div className="flex gap-2">
-            <Link href={`/evento/actual/mesa?fiestaId=${fiestaId}`} passHref>
-                <Button variant="secondary" size="sm">Ver Página del Cliente</Button>
-            </Link>
-            <Link href={`/fiestas/nueva/invitados?fiestaId=${fiestaId}`} passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver a Invitados</Button></Link>
-        </div>
       </div>
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 h-[calc(100vh-250px)]">
+        <Card className="xl:col-span-3 flex flex-col"><CardHeader><CardTitle>Controles</CardTitle></CardHeader>
+          <CardContent className="flex-grow space-y-4 overflow-y-auto">
+             <div className="grid grid-cols-2 gap-3"><div className="space-y-1"><Label>Ancho Salón (m)</Label><Input type="number" value={decoracion.salonWidth || 15} onChange={e => setDecoracion(d => d ? {...d, salonWidth: Number(e.target.value)} : null)} /></div><div className="space-y-1"><Label>Alto Salón (m)</Label><Input type="number" value={decoracion.salonHeight || 15} onChange={e => setDecoracion(d => d ? {...d, salonHeight: Number(e.target.value)} : null)} /></div></div>
+             <div className="space-y-1"><Label>Píxeles por Metro</Label><Input type="number" value={decoracion.pixelsPerMeter || 40} onChange={e => setDecoracion(d => d ? {...d, pixelsPerMeter: Number(e.target.value)} : null)} /></div>
+             <Separator/>
+             <h4 className="font-medium text-sm">Añadir Elementos</h4>
+             <div className="grid grid-cols-2 gap-2"><Button variant="outline" onClick={() => addElement('Mesa Redonda')}><Circle className="w-4 h-4 mr-2"/>Mesa Redonda</Button><Button variant="outline" onClick={() => addElement('Mesa Rectangular')}><Square className="w-4 h-4 mr-2"/>Mesa Rectangular</Button><Button variant="outline" onClick={() => addElement('Pista de Baile')}><Disc className="w-4 h-4 mr-2"/>Pista</Button><Button variant="outline" onClick={() => addElement('Escenario')}><Clapperboard className="w-4 h-4 mr-2"/>Escenario</Button><Button variant="outline" onClick={() => addElement('Living')}><Sofa className="w-4 h-4 mr-2"/>Living</Button><Button variant="outline" onClick={() => addElement('Área de Fotos')}><CameraIcon className="w-4 h-4 mr-2"/>Área Fotos</Button></div>
+             <Button variant="outline" className="w-full" onClick={() => setIsCustomElementModalOpen(true)}><PlusCircle className="w-4 h-4 mr-2"/>Elemento Personalizado</Button>
+          </CardContent>
+          <CardFooter className="flex-col gap-2 pt-4 border-t">
+              <Button onClick={handleSaveAll} disabled={isSaving} className="w-full"><Save className="w-4 h-4 mr-2"/>Guardar Plano del Salón</Button>
+          </CardFooter>
+        </Card>
         <div className={cn("xl:col-span-9 bg-card", isFullScreen ? 'fixed inset-0 z-40 p-4' : '')}>
           <Card className="h-full flex flex-col"><CardHeader><CardTitle>Lienzo del Salón</CardTitle></CardHeader>
             <CardContent className="flex-grow p-1">
@@ -247,27 +291,6 @@ function SalonLayoutContent() {
               </div>
             </CardContent>
           </Card>
-        </div>
-        <div className="xl:col-span-3 space-y-4 flex flex-col min-h-0">
-             <Card>
-                <CardHeader className="pb-3"><CardTitle className="text-md font-medium">Controles del Plano</CardTitle></CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-3">
-                      <div className="space-y-1"><Label>Ancho Salón (m)</Label><Input type="number" value={decoracion.salonWidth || 20} onChange={e => setDecoracion(d => d ? {...d, salonWidth: Number(e.target.value)} : null)} /></div>
-                      <div className="space-y-1"><Label>Alto Salón (m)</Label><Input type="number" value={decoracion.salonHeight || 30} onChange={e => setDecoracion(d => d ? {...d, salonHeight: Number(e.target.value)} : null)} /></div>
-                  </div>
-                  <div className="space-y-1"><Label>Píxeles por Metro</Label><Input type="number" value={decoracion.pixelsPerMeter || 30} onChange={e => setDecoracion(d => d ? {...d, pixelsPerMeter: Number(e.target.value)} : null)} /></div>
-                  <Separator/>
-                    <h4 className="font-medium text-sm">Añadir Elementos</h4>
-                    <div className="grid grid-cols-2 gap-2"><Button variant="outline" onClick={() => addElement('Mesa Redonda')}><Circle className="w-4 h-4 mr-2"/>Mesa Redonda</Button><Button variant="outline" onClick={() => addElement('Mesa Rectangular')}><Square className="w-4 h-4 mr-2"/>Mesa Rectangular</Button><Button variant="outline" onClick={() => addElement('Pista de Baile')}><Disc className="w-4 h-4 mr-2"/>Pista</Button><Button variant="outline" onClick={() => addElement('Escenario')}><Clapperboard className="w-4 h-4 mr-2"/>Escenario</Button><Button variant="outline" onClick={() => addElement('Living')}><Sofa className="w-4 h-4 mr-2"/>Living</Button><Button variant="outline" onClick={() => addElement('Área de Fotos')}><CameraIcon className="w-4 h-4 mr-2"/>Área Fotos</Button></div>
-                    <Button variant="outline" className="w-full" onClick={() => setIsCustomElementModalOpen(true)}><PlusCircle className="w-4 h-4 mr-2"/>Elemento Personalizado</Button>
-                </CardContent>
-                <CardFooter className="flex-col gap-2">
-                   <Button type="button" onClick={handleLoadTemplate} variant="outline" className="w-full"><FolderDown className="w-4 h-4 mr-2"/>Cargar Plantilla</Button>
-                   <Dialog open={isSaveTemplateModalOpen} onOpenChange={setIsSaveTemplateModalOpen}><DialogTrigger asChild><Button type="button" className="w-full"><FolderUp className="w-4 h-4 mr-2"/>Guardar Diseño como Plantilla</Button></DialogTrigger><DialogContent><DialogHeader><DialogTitle>Guardar Diseño como Plantilla</DialogTitle></DialogHeader><div className="space-y-2 py-2"><Label htmlFor="template-name">Nombre de la Plantilla</Label><Input id="template-name" value={templateName} onChange={e=>setTemplateName(e.target.value)} placeholder="Ej: Club Uruguay - 80 invitados"/></div><DialogFooter><DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose><Button onClick={handleSaveAsTemplate} disabled={isSaving}>Guardar</Button></DialogFooter></DialogContent></Dialog>
-                   <Button onClick={handleSaveAll} disabled={isSaving} className="w-full mt-2"><Save className="w-4 h-4 mr-2"/>Guardar Plano del Salón</Button>
-                </CardFooter>
-            </Card>
         </div>
       </div>
     </div>
