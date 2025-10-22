@@ -64,9 +64,8 @@
 
 @layer components {
   .canvas-grid-background {
-    background-color: hsl(var(--muted) / 0.5);
-    background-image:
-      radial-gradient(hsl(var(--border)) 1px, transparent 1px);
+    background-color: hsl(var(--muted));
+    background-image: radial-gradient(hsl(var(--border)) 1px, transparent 1px);
     background-size: 20px 20px;
   }
 }
