@@ -85,20 +85,20 @@ export interface Reunion {
   fiestaId?: string;
 }
 
+export type LayoutElementType = 'element' | 'area';
+
 export interface LayoutElement {
   id: string;
   name: string;
-  quantity: number;
-  notes?: string;
-  imageUrl?: string;
   x: number;
   y: number;
   width: number;
   height: number;
   rotation: number;
-  type: 'predefined' | 'custom';
+  type: LayoutElementType;
   category?: string;
-  dataAiHint?: string;
+  shape?: 'rectangle' | 'circle';
+  backgroundColor?: string;
   seats?: number;
 }
 
