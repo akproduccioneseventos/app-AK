@@ -1,19 +1,20 @@
 
+
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense, use } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Disc, Clapperboard, Sofa, Camera as CameraIcon, Search, Printer, Settings2, FolderDown, FolderUp, Maximize, ZoomIn, ZoomOut, Upload, Map } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Disc, Clapperboard, Sofa, Camera as CameraIcon, Search, Printer, Settings2, FolderDown, FolderUp, Maximize, ZoomIn, ZoomOut, Upload, Map, ChevronsUp, ChevronsDown } from 'lucide-react';
 import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData, LayoutElementType } from '@/types/fiesta';
-import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
-import { updateDecoracionFiestaActual, updateInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
+import { updateInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaById, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogTrigger } from "@/components/ui/dialog";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import NextImage from 'next/image';
@@ -57,13 +58,15 @@ function SalonLayoutContent() {
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
 
   const [isCustomElementModalOpen, setIsCustomElementModalOpen] = useState(false);
-  const [customElement, setCustomElement] = useState({ name: '', width: 2, height: 1, type: 'element' as 'element' | 'area', shape: 'rectangle' });
+  const [customElement, setCustomElement] = useState({ name: '', width: 2, height: 1, type: 'element' as 'element' | 'area', shape: 'rectangle' as 'rectangle' | 'circle' });
   
   const [isSaveTemplateModalOpen, setIsSaveTemplateModalOpen] = useState(false);
   const [isLoadTemplateModalOpen, setIsLoadTemplateModalOpen] = useState(false);
   const [templates, setTemplates] = useState<SalonLayoutTemplate[]>([]);
   const [templateName, setTemplateName] = useState('');
   const [isTemplateActionLoading, setIsTemplateActionLoading] = useState(false);
+  const [processingPointName, setProcessingPointName] = useState<string | null>(null);
+
   
   const canvasRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
@@ -110,18 +113,18 @@ function SalonLayoutContent() {
  const addElement = (category: string, customProps?: Partial<LayoutElement>, type: LayoutElementType = 'element') => {
     if (!decoracion) return;
     
-    let defaultProps: Partial<LayoutElement> = { width: 80, height: 80, seats: 8 };
+    let defaultProps: Partial<LayoutElement> = { width: 80, height: 80, seats: 8, shape: 'circle' };
 
-    if (category === 'Mesa Rectangular') { defaultProps = { width: 160, height: 80, seats: 8 }; }
-    else if (category === 'Pista de Baile') { defaultProps = { width: 240, height: 200, seats: undefined }; }
-    else if (category === 'Escenario') { defaultProps = { width: 200, height: 100, seats: undefined }; }
-    else if (category === 'Living') { defaultProps = { width: 180, height: 180, seats: undefined }; }
-    else if (category === 'Área de Fotos') { defaultProps = { width: 160, height: 100, seats: undefined }; }
+    if (category === 'Mesa Rectangular') { defaultProps = { width: 160, height: 80, seats: 8, shape: 'rectangle' }; }
+    else if (category === 'Pista de Baile') { defaultProps = { width: 240, height: 200, seats: undefined, backgroundColor: 'rgba(56, 189, 248, 0.2)', shape: 'rectangle' }; }
+    else if (category === 'Escenario') { defaultProps = { width: 200, height: 100, seats: undefined, backgroundColor: 'rgba(139, 92, 246, 0.2)', shape: 'rectangle' }; }
+    else if (category === 'Living') { defaultProps = { width: 180, height: 180, seats: undefined, backgroundColor: 'rgba(234, 179, 8, 0.2)', shape: 'rectangle' }; }
+    else if (category === 'Área de Fotos') { defaultProps = { width: 160, height: 100, seats: undefined, backgroundColor: 'rgba(236, 72, 153, 0.2)', shape: 'rectangle' }; }
 
     const newElement: LayoutElement = {
       id: `el_${Date.now()}`, 
       name: customProps?.name || `${category} ${ (decoracion.salonElements?.filter(e => e.category === category).length || 0) + 1}`,
-      x: 20, y: 20, rotation: 0, 
+      x: 20, y: 20, rotation: 0, zIndex: (decoracion.salonElements?.length || 0) + 1,
       ...defaultProps, 
       ...customProps, 
       category, 
@@ -148,6 +151,7 @@ function SalonLayoutContent() {
         category: customElement.type === 'area' ? 'Área' : 'Varios',
         shape: customElement.shape === 'circle' ? 'circle' : 'rectangle',
         seats: customElement.shape === 'circle' ? 8 : undefined,
+        backgroundColor: customElement.type === 'area' ? 'rgba(59, 130, 246, 0.2)' : undefined,
     };
     
     addElement(newElementData.category!, newElementData, customElement.type);
@@ -158,20 +162,37 @@ function SalonLayoutContent() {
 
 
   const handleOpenEditModal = (element: LayoutElement) => { setEditingElement(element); setIsEditModalOpen(true); };
+  
   const handleUpdateElement = () => {
     if (!editingElement || !decoracion) return;
     
-    const newElements = (decoracion.salonElements || []).map(el => el.id === editingElement.id ? editingElement : el
-    );
+    const newElements = (decoracion.salonElements || []).map(el => el.id === editingElement.id ? editingElement : el );
     setDecoracion({ ...decoracion, salonElements: newElements });
     setIsEditModalOpen(false);
     setEditingElement(null);
   };
   
+  const handleElementLayering = (elementId: string, direction: 'up' | 'down') => {
+    if (!decoracion) return;
+    const currentElements = decoracion.salonElements || [];
+    const maxZ = Math.max(...currentElements.map(e => e.zIndex || 0));
+    const minZ = Math.min(...currentElements.map(e => e.zIndex || 0));
+
+    const newElements = currentElements.map(el => {
+        if (el.id === elementId) {
+            const newZ = direction === 'up' ? maxZ + 1 : minZ - 1;
+            return { ...el, zIndex: newZ };
+        }
+        return el;
+    });
+    setDecoracion({ ...decoracion, salonElements: newElements });
+  };
+
+
   const handleElementRotation = (elementId: string) => {
     if (!decoracion) return;
     const newElements = (decoracion.salonElements || []).map(el =>
-      el.id === elementId ? { ...el, rotation: (el.rotation + 45) % 360 } : el
+      el.id === elementId ? { ...el, rotation: (el.rotation || 0) + 45 % 360 } : el
     );
     setDecoracion({ ...decoracion, salonElements: newElements });
   };
@@ -225,12 +246,16 @@ function SalonLayoutContent() {
   };
 
   const handleDeleteTemplate = async (templateId: string) => {
-    setIsTemplateActionLoading(true);
+    setProcessingPointName(templateId);
     try {
-      await deleteSalonLayoutTemplate(templateId);
-      toast({ title: "Plantilla eliminada" });
-      const updatedTemplates = templates.filter(t => t.id !== templateId);
-      setTemplates(updatedTemplates);
+      const result = await deleteSalonLayoutTemplate(templateId);
+      if (result.success) {
+        toast({ title: "Plantilla eliminada" });
+        const updatedTemplates = templates.filter(t => t.id !== templateId);
+        setTemplates(updatedTemplates);
+      } else {
+        throw new Error(result.error);
+      }
     } catch (e: any) {
       toast({ title: "Error", description: "No se pudo eliminar la plantilla.", variant: "destructive" });
     } finally {
@@ -296,15 +321,99 @@ function SalonLayoutContent() {
   return (
     <div className="space-y-6">
       {/* Modals */}
-      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}><DialogContent><DialogHeader><DialogTitle>Editar Elemento: {editingElement?.name}</DialogTitle></DialogHeader>{editingElement && (<div className="space-y-4"><div className="space-y-1"><Label htmlFor="el-name">Nombre</Label><Input id="el-name" value={editingElement.name} onChange={e => setEditingElement(prev => prev ? {...prev, name: e.target.value} : null)}/></div>{editingElement.category?.includes('Mesa') && <div className="space-y-1"><Label htmlFor="el-seats">Asientos</Label><Input id="el-seats" type="number" value={editingElement.seats || 0} onChange={e => setEditingElement(prev => prev ? {...prev, seats: Number(e.target.value) || 0} : null)}/></div>}<div className="grid grid-cols-2 gap-3"><div className="space-y-1"><Label htmlFor="el-width">Ancho (px)</Label><Input id="el-width" type="number" value={editingElement.width || 0} onChange={e => setEditingElement(prev => prev ? {...prev, width: Number(e.target.value) || 0} : null)}/></div><div className="space-y-1"><Label htmlFor="el-height">Alto (px)</Label><Input id="el-height" type="number" value={editingElement.height || 0} onChange={e => setEditingElement(prev => prev ? {...prev, height: Number(e.target.value) || 0} : null)}/></div></div></div>)}<DialogFooter><Button variant="outline" onClick={() => setIsEditModalOpen(false)}>Cancelar</Button><Button onClick={handleUpdateElement}>Guardar</Button></DialogFooter></DialogContent></Dialog>
-      <Dialog open={isCustomElementModalOpen} onOpenChange={setIsCustomElementModalOpen}><DialogContent><DialogHeader><DialogTitle>Crear Elemento o Área Personalizada</DialogTitle></DialogHeader><div className="space-y-3 py-2"><div className="space-y-1"><Label htmlFor="custom-el-type">Tipo</Label><RadioGroup value={customElement.type} onValueChange={(v) => setCustomElement(p=>({...p, type:v as any}))} className="flex gap-4"><div className="flex items-center space-x-2"><RadioGroupItem value="element" id="type-element"/><Label htmlFor="type-element">Elemento</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="area" id="type-area"/><Label htmlFor="type-area">Área/Zona</Label></div></RadioGroup></div><div className="space-y-1"><Label htmlFor="custom-el-name">Nombre</Label><Input id="custom-el-name" value={customElement.name} onChange={e => setCustomElement(p => ({...p, name: e.target.value}))}/></div><div className="grid grid-cols-2 gap-3"><div className="space-y-1"><Label htmlFor="custom-el-width">Ancho (m)</Label><Input id="custom-el-width" type="number" value={customElement.width} onChange={e => setCustomElement(p => ({...p, width: Number(e.target.value)}))}/></div><div className="space-y-1"><Label htmlFor="custom-el-height">Alto (m)</Label><Input id="custom-el-height" type="number" value={customElement.height} onChange={e => setCustomElement(p => ({...p, height: Number(e.target.value)}))}/></div></div><div className="space-y-1"><Label>Forma</Label><RadioGroup defaultValue="rectangle" value={customElement.shape} onValueChange={(v) => setCustomElement(p=>({...p, shape:v}))} className="flex gap-4"><div className="flex items-center space-x-2"><RadioGroupItem value="rectangle" id="shape-rect"/><Label htmlFor="shape-rect">Rectángulo</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="circle" id="shape-circ"/><Label htmlFor="shape-circ">Círculo</Label></div></RadioGroup></div></div><DialogFooter><DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose><Button onClick={handleAddCustomElement}>Añadir</Button></DialogFooter></DialogContent></Dialog>
-      <Dialog open={isLoadTemplateModalOpen} onOpenChange={setIsLoadTemplateModalOpen}><DialogContent><DialogHeader><DialogTitle>Cargar Plantilla de Salón</DialogTitle></DialogHeader>{isTemplateActionLoading ? <div className="p-4 text-center"><Loader2 className="w-6 h-6 animate-spin"/></div> : templates.length === 0 ? <p className="text-muted-foreground p-4 text-center">No hay plantillas guardadas.</p> : <ScrollArea className="max-h-64"><div className="space-y-2 pr-4">{templates.map(t => <div key={t.name} className="flex items-center justify-between p-2 rounded-md border"><span className="font-medium text-sm">{t.name}</span><div className="flex gap-1"><Button size="sm" onClick={() => { setDecoracion(t.layoutData); setIsLoadTemplateModalOpen(false); toast({title:'Plantilla cargada'}); }}>Cargar</Button><Button size="icon" variant="destructive" className="h-8 w-8" onClick={() => handleDeleteTemplate(t.id)} disabled={!!processingPointName}>{processingPointName === t.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}</Button></div></div>)}</div></ScrollArea>}</DialogContent></Dialog>
-      <Dialog open={isSaveTemplateModalOpen} onOpenChange={setIsSaveTemplateModalOpen}><DialogContent><DialogHeader><DialogTitle>Guardar Diseño como Plantilla</DialogTitle></DialogHeader><div className="py-2"><Label>Nombre:</Label><Input value={templateName} onChange={e => setTemplateName(e.target.value)}/></div><DialogFooter><Button variant="outline" onClick={()=>setIsSaveTemplateModalOpen(false)}>Cancelar</Button><Button onClick={handleSaveAsTemplate} disabled={isTemplateActionLoading}>Guardar</Button></DialogFooter></DialogContent></Dialog>
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar Elemento: {editingElement?.name}</DialogTitle>
+          </DialogHeader>
+          {editingElement && (
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <Label htmlFor="el-name">Nombre</Label>
+                <Input id="el-name" value={editingElement.name} onChange={e => setEditingElement(prev => prev ? {...prev, name: e.target.value} : null)}/>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                      <Label htmlFor="el-width">Ancho (m)</Label>
+                      <Input id="el-width" type="number" value={(editingElement.width / pixelsPerMeter).toFixed(2)} onChange={e => setEditingElement(prev => prev ? {...prev, width: Number(e.target.value) * pixelsPerMeter} : null)}/>
+                  </div>
+                  <div className="space-y-1">
+                      <Label htmlFor="el-height">Alto (m)</Label>
+                      <Input id="el-height" type="number" value={(editingElement.height / pixelsPerMeter).toFixed(2)} onChange={e => setEditingElement(prev => prev ? {...prev, height: Number(e.target.value) * pixelsPerMeter} : null)}/>
+                  </div>
+              </div>
+              {editingElement.category?.includes('Mesa') && (
+                  <div className="space-y-1">
+                      <Label htmlFor="el-seats">Asientos</Label>
+                      <Input id="el-seats" type="number" value={editingElement.seats || 0} onChange={e => setEditingElement(prev => prev ? {...prev, seats: Number(e.target.value) || 0} : null)}/>
+                  </div>
+              )}
+               <div className="space-y-1">
+                  <Label htmlFor="el-color">Color de Fondo</Label>
+                  <Input id="el-color" type="color" value={editingElement.backgroundColor || '#ffffff'} onChange={e => setEditingElement(prev => prev ? {...prev, backgroundColor: e.target.value} : null)}/>
+              </div>
+              <div className="flex items-center gap-2">
+                  <Label>Capas:</Label>
+                  <Button size="sm" variant="outline" onClick={() => handleElementLayering(editingElement.id, 'up')}><ChevronsUp className="w-4 h-4 mr-1"/>Traer al frente</Button>
+                  <Button size="sm" variant="outline" onClick={() => handleElementLayering(editingElement.id, 'down')}><ChevronsDown className="w-4 h-4 mr-1"/>Enviar al fondo</Button>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>Cancelar</Button>
+            <Button onClick={handleUpdateElement}>Guardar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={isCustomElementModalOpen} onOpenChange={setIsCustomElementModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Crear Elemento o Área Personalizada</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <div className="space-y-1">
+              <Label htmlFor="custom-el-type">Tipo</Label>
+              <RadioGroup value={customElement.type} onValueChange={(v) => setCustomElement(p=>({...p, type:v as any}))} className="flex gap-4">
+                <div className="flex items-center space-x-2"><RadioGroupItem value="element" id="type-element"/><Label htmlFor="type-element">Elemento</Label></div>
+                <div className="flex items-center space-x-2"><RadioGroupItem value="area" id="type-area"/><Label htmlFor="type-area">Área/Zona</Label></div>
+              </RadioGroup>
+            </div>
+            <div className="space-y-1"><Label htmlFor="custom-el-name">Nombre</Label><Input id="custom-el-name" value={customElement.name} onChange={e => setCustomElement(p => ({...p, name: e.target.value}))}/></div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1"><Label htmlFor="custom-el-width">Ancho (m)</Label><Input id="custom-el-width" type="number" value={customElement.width} onChange={e => setCustomElement(p => ({...p, width: Number(e.target.value)}))}/></div>
+              <div className="space-y-1"><Label htmlFor="custom-el-height">Alto (m)</Label><Input id="custom-el-height" type="number" value={customElement.height} onChange={e => setCustomElement(p => ({...p, height: Number(e.target.value)}))}/></div>
+            </div>
+            <div className="space-y-1"><Label>Forma</Label><RadioGroup defaultValue="rectangle" value={customElement.shape} onValueChange={(v) => setCustomElement(p=>({...p, shape:v}))} className="flex gap-4"><div className="flex items-center space-x-2"><RadioGroupItem value="rectangle" id="shape-rect"/><Label htmlFor="shape-rect">Rectángulo</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="circle" id="shape-circ"/><Label htmlFor="shape-circ">Círculo</Label></div></RadioGroup></div>
+          </div>
+          <DialogFooter>
+            <DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose>
+            <Button onClick={handleAddCustomElement}>Añadir</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={isLoadTemplateModalOpen} onOpenChange={setIsLoadTemplateModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Cargar Plantilla de Salón</DialogTitle>
+          </DialogHeader>
+          {isTemplateActionLoading ? <div className="p-4 text-center"><Loader2 className="w-6 h-6 animate-spin"/></div> : templates.length === 0 ? <p className="text-muted-foreground p-4 text-center">No hay plantillas guardadas.</p> : <ScrollArea className="max-h-64"><div className="space-y-2 pr-4">{templates.map(t => <div key={t.name} className="flex items-center justify-between p-2 rounded-md border"><span className="font-medium text-sm">{t.name}</span><div className="flex gap-1"><Button size="sm" onClick={() => { setDecoracion(t.layoutData); setIsLoadTemplateModalOpen(false); toast({title:'Plantilla cargada'}); }}>Cargar</Button><Button size="icon" variant="destructive" className="h-8 w-8" onClick={() => handleDeleteTemplate(t.id)} disabled={!!processingPointName}>{processingPointName === t.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}</Button></div></div>)}</div></ScrollArea>}
+        </DialogContent>
+      </Dialog>
+      <Dialog open={isSaveTemplateModalOpen} onOpenChange={setIsSaveTemplateModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Guardar Diseño como Plantilla</DialogTitle>
+          </DialogHeader>
+          <div className="py-2"><Label>Nombre:</Label><Input value={templateName} onChange={e => setTemplateName(e.target.value)}/></div>
+          <DialogFooter><Button variant="outline" onClick={()=>setIsSaveTemplateModalOpen(false)}>Cancelar</Button><Button onClick={handleSaveAsTemplate} disabled={isTemplateActionLoading}>Guardar</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
        
        <div className="flex items-center justify-between">
         <div className="flex items-center gap-3"><LayoutDashboard className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Diseño del Salón (Organizador)</h1></div>
       </div>
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 h-[calc(100vh-250px)]">
+        {/* Left Panel */}
         <Card className="xl:col-span-3 flex flex-col"><CardHeader><CardTitle>Controles</CardTitle></CardHeader>
           <CardContent className="flex-grow space-y-4 overflow-y-auto pr-4 -mr-4">
              <div className="grid grid-cols-2 gap-3"><div className="space-y-1"><Label>Ancho Salón (m)</Label><Input type="number" value={decoracion.salonWidth || 15} onChange={e => setDecoracion(d => d ? {...d, salonWidth: Number(e.target.value)} : null)} /></div><div className="space-y-1"><Label>Alto Salón (m)</Label><Input type="number" value={decoracion.salonHeight || 15} onChange={e => setDecoracion(d => d ? {...d, salonHeight: Number(e.target.value)} : null)} /></div></div>
@@ -318,26 +427,30 @@ function SalonLayoutContent() {
                 <div className="space-y-2"><Label htmlFor="bg-image-upload" className="font-medium text-sm">Plano de Fondo</Label><div className="flex gap-2 items-center"><Input id="bg-image-upload" type="file" accept="image/*" onChange={handleBackgroundImageUpload} className="text-xs file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"/><Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => { if (decoracion) setDecoracion({ ...decoracion, salonPlanBackgroundImageUrl: undefined }); }}><Trash2 className="w-4 h-4"/></Button>{isUploading && <Loader2 className="w-4 h-4 animate-spin"/>}</div></div>
                 <Separator/>
                  <h4 className="font-medium text-sm">Elementos en el Plano</h4>
-                 <ScrollArea className="h-32 border rounded-md p-1"><ul className="space-y-1">{decoracion.salonElements?.map(el => <li key={el.id} className="flex items-center text-xs p-1 rounded hover:bg-muted/50"><ElementIcon category={el.category} type={el.type}/><span className="ml-2 flex-grow truncate">{el.name}</span><Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleOpenEditModal(el)}><Edit className="w-3 h-3"/></Button><Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => handleDeleteElement(el.id)}><Trash2 className="w-3 h-3"/></Button></li>)}</ul></ScrollArea>
+                 <ScrollArea className="h-32 border rounded-md p-1"><ul className="space-y-1">{(decoracion.salonElements || []).map(el => <li key={el.id} className="flex items-center text-xs p-1 rounded hover:bg-muted/50"><ElementIcon category={el.category} type={el.type}/><span className="ml-2 flex-grow truncate">{el.name}</span><Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleOpenEditModal(el)}><Edit className="w-3 h-3"/></Button><Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => handleDeleteElement(el.id)}><Trash2 className="w-3 h-3"/></Button></li>)}</ul></ScrollArea>
           </CardContent>
           <CardFooter className="flex-col gap-2 pt-4 border-t">
               <Button onClick={handleSaveAll} disabled={isSaving} className="w-full"><Save className="w-4 h-4 mr-2"/>Guardar Plano</Button>
-               <div className="flex w-full gap-2"><Dialog open={isSaveTemplateModalOpen} onOpenChange={setIsSaveTemplateModalOpen}><DialogTrigger asChild><Button variant="secondary" className="flex-1"><FolderUp className="w-4 h-4 mr-2"/>Guardar Plantilla</Button></DialogTrigger><DialogContent><DialogHeader><DialogTitle>Guardar Diseño como Plantilla</DialogTitle></DialogHeader><div className="py-2"><Label>Nombre:</Label><Input value={templateName} onChange={e => setTemplateName(e.target.value)}/></div><DialogFooter><Button variant="outline" onClick={()=>setIsSaveTemplateModalOpen(false)}>Cancelar</Button><Button onClick={handleSaveAsTemplate} disabled={isTemplateActionLoading}>Guardar</Button></DialogFooter></DialogContent></Dialog><Button variant="secondary" className="flex-1" onClick={handleLoadTemplate} disabled={isTemplateActionLoading}><FolderDown className="w-4 h-4 mr-2"/>Cargar Plantilla</Button></div>
+               <div className="flex w-full gap-2"><Button variant="secondary" className="flex-1" onClick={() => setIsSaveTemplateModalOpen(true)}><FolderUp className="w-4 h-4 mr-2"/>Guardar Plantilla</Button><Button variant="secondary" className="flex-1" onClick={handleLoadTemplate} disabled={isTemplateActionLoading}><FolderDown className="w-4 h-4 mr-2"/>Cargar Plantilla</Button></div>
           </CardFooter>
         </Card>
-        <div className={cn("xl:col-span-9 bg-card flex flex-col flex-grow", isFullScreen ? 'fixed inset-0 z-40 p-4' : '')}>
-          <Card className="h-full flex flex-col flex-grow"><CardHeader className="flex-row justify-between items-center"><CardTitle>Lienzo del Salón</CardTitle><div className="flex items-center gap-1"><Button size="icon" variant="outline" onClick={() => setScale(s => s / 1.2)}><ZoomOut className="w-4 h-4"/></Button><Button size="icon" variant="outline" onClick={() => setScale(s => s * 1.2)}><ZoomIn className="w-4 h-4"/></Button><Button size="icon" variant="outline" onClick={() => setIsFullScreen(!isFullScreen)}><Maximize className="w-4 h-4"/></Button></div></CardHeader>
-            <CardContent className="flex-grow p-1 overflow-auto"><div ref={canvasRef} className="relative canvas-grid-background" style={{ width: `${(decoracion.salonWidth || 15) * pixelsPerMeter}px`, height: `${(decoracion.salonHeight || 15) * pixelsPerMeter}px`, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
+        {/* Center Panel (Canvas) */}
+        <div className={cn("xl:col-span-9 bg-card flex flex-col", isFullScreen ? 'fixed inset-0 z-40 p-4' : '')}>
+          <Card className="h-full flex flex-col flex-grow">
+            <CardHeader className="flex-row justify-between items-center"><CardTitle>Lienzo del Salón</CardTitle><div className="flex items-center gap-1"><Button size="icon" variant="outline" onClick={() => setScale(s => s / 1.2)}><ZoomOut className="w-4 h-4"/></Button><Button size="icon" variant="outline" onClick={() => setScale(s => s * 1.2)}><ZoomIn className="w-4 h-4"/></Button><Button size="icon" variant="outline" onClick={() => setIsFullScreen(!isFullScreen)}><Maximize className="w-4 h-4"/></Button></div></CardHeader>
+            <CardContent className="flex-grow p-1 overflow-auto">
+              <div ref={canvasRef} className="relative canvas-grid-background" style={{ width: `${(decoracion.salonWidth || 15) * pixelsPerMeter}px`, height: `${(decoracion.salonHeight || 15) * pixelsPerMeter}px`, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
                   {decoracion.salonPlanBackgroundImageUrl && (<NextImage src={decoracion.salonPlanBackgroundImageUrl} alt="Plano del Salón" layout="fill" objectFit="contain" className="opacity-50" data-ai-hint="event floor plan"/>)}
-                  {(decoracion.salonElements || []).map(el => {
+                  {(decoracion.salonElements || []).sort((a,b) => (a.zIndex || 0) - (b.zIndex || 0)).map(el => {
                     const nodeRef = React.createRef<HTMLDivElement>();
-                    const isRound = el.category === 'Mesa Redonda' || el.shape === 'circle';
+                    const isRound = el.shape === 'circle';
                     const assignedGuests = (fiesta?.invitados || []).filter(inv => inv.tableNumber === el.name);
                     const isArea = el.type === 'area';
                     return (
                     <Draggable key={el.id} nodeRef={nodeRef} bounds="parent" grid={[grid, grid]} position={{ x: el.x, y: el.y }} onStop={(e, data) => handleDragStop(e, data, el.id)}>
-                        <div ref={nodeRef} id={el.id} className="absolute cursor-grab active:cursor-grabbing" style={{ left: el.x, top: el.y, width: el.width, height: el.height, transform: `rotate(${el.rotation}deg)`}}>
-                           <div className={cn('w-full h-full border flex items-center justify-center font-bold p-1 relative', selectedElementId === el.id ? 'border-primary shadow-lg z-10' : 'border-gray-500', isRound ? 'rounded-full bg-white/70' : 'rounded-sm', isArea ? 'bg-blue-500/20 border-dashed border-blue-600' : 'bg-white/70')}
+                        <div ref={nodeRef} id={el.id} className="absolute cursor-grab active:cursor-grabbing" style={{ left: el.x, top: el.y, width: el.width, height: el.height, transform: `rotate(${el.rotation}deg)`, zIndex: el.zIndex || 1 }}>
+                           <div className={cn('w-full h-full border flex items-center justify-center font-bold p-1 relative', selectedElementId === el.id ? 'border-primary shadow-lg z-10' : 'border-gray-500', isRound ? 'rounded-full' : 'rounded-sm')}
+                                style={{ backgroundColor: el.backgroundColor || (isArea ? 'rgba(59, 130, 246, 0.2)' : 'rgba(255, 255, 255, 0.7)') }}
                                 onClick={(e) => { e.stopPropagation(); setSelectedElementId(el.id); }}>
                                 <span className={cn("text-center truncate", isArea ? 'text-blue-800' : 'text-base')}>{el.name}</span>
                                 {isRound && el.seats && Array.from({length: el.seats}).map((_, i) => {
@@ -353,12 +466,13 @@ function SalonLayoutContent() {
                                     )
                                 })}
                             </div>
-                            {selectedElementId === el.id && (<div className="absolute -top-7 -right-2 flex gap-0.5 z-20" style={{transform: `rotate(-${el.rotation}deg)`}}><Button type="button" variant="ghost" size="icon" className="h-6 w-6 bg-white" onClick={() => handleOpenEditModal(el)}><Edit className="w-3 h-3"/></Button><Button type="button" variant="ghost" size="icon" className="h-6 w-6 bg-white" onClick={() => handleElementRotation(el.id)}><RotateCw className="w-3 h-3"/></Button><Button type="button" variant="ghost" size="icon" className="h-6 w-6 text-destructive bg-white" onClick={() => handleDeleteElement(el.id)}><Trash2 className="w-3 h-3"/></Button></div>)}
+                            {selectedElementId === el.id && (<div className="absolute -top-7 -right-2 flex gap-0.5 z-20" style={{transform: `rotate(-${el.rotation || 0}deg)`}}><Button type="button" variant="ghost" size="icon" className="h-6 w-6 bg-white" onClick={() => handleOpenEditModal(el)}><Edit className="w-3 h-3"/></Button><Button type="button" variant="ghost" size="icon" className="h-6 w-6 bg-white" onClick={() => handleElementRotation(el.id)}><RotateCw className="w-3 h-3"/></Button><Button type="button" variant="ghost" size="icon" className="h-6 w-6 text-destructive bg-white" onClick={() => handleDeleteElement(el.id)}><Trash2 className="w-3 h-3"/></Button></div>)}
                         </div>
                     </Draggable>
                     )
                   })}
-                </div></CardContent>
+                </div>
+            </CardContent>
           </Card>
         </div>
       </div>

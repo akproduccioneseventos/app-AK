@@ -100,6 +100,7 @@ export interface LayoutElement {
   shape?: 'rectangle' | 'circle';
   backgroundColor?: string;
   seats?: number;
+  zIndex?: number;
 }
 
 export interface ColorPalette {
