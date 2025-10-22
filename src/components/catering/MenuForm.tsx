@@ -36,7 +36,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
 
   const calculatePrices = (item: MenuItem): MenuItem => {
     const totalDishCost = (item.ingredients || []).reduce((sum, ing) => sum + (Number(ing.cost) || 0), 0);
-    const profitMargin = item.profitMargin === undefined ? 100 : item.profitMargin;
+    const profitMargin = item.profitMargin === undefined || isNaN(item.profitMargin) ? 100 : item.profitMargin;
     const suggestedSellingPrice = totalDishCost * (1 + profitMargin / 100);
     return { ...item, totalDishCost, suggestedSellingPrice, profitMargin };
   };
@@ -70,7 +70,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
       items: (prev.items || []).map(item => {
         if (item.id === itemId) {
           const updatedItem = { ...item, [field]: value };
-          if (field === 'profitMargin') {
+           if (field === 'profitMargin') {
             const margin = Number(value) || 0;
             const newPrice = (item.totalDishCost || 0) * (1 + margin / 100);
             return { ...updatedItem, suggestedSellingPrice: newPrice };
@@ -78,8 +78,8 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
           if (field === 'suggestedSellingPrice') {
             const price = Number(value) || 0;
             const cost = item.totalDishCost || 0;
-            const newMargin = cost > 0 ? ((price / cost) - 1) * 100 : item.profitMargin; // Keep margin if cost is 0
-            return { ...updatedItem, profitMargin: newMargin };
+            const newMargin = cost > 0 ? ((price / cost) - 1) * 100 : item.profitMargin;
+            return { ...updatedItem, profitMargin: newMargin, suggestedSellingPrice: price };
           }
           return calculatePrices(updatedItem);
         }
