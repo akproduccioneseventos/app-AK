@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -8,10 +9,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PlusCircle, Trash2, Loader2, Save, BookOpen, Search, Percent, DollarSign } from 'lucide-react';
+import { PlusCircle, Trash2, Loader2, Save, BookOpen, Search, Percent, DollarSign, Link as LinkIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveMenu } from '@/app/actions/menus-catering';
-import { getInsumos } from '@/app/actions/insumos';
+import { getInsumos, saveInsumo } from '@/app/actions/insumos';
 import type { FullMenu, MenuItem, Ingredient } from '@/types/catering';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogTrigger } from '@/components/ui/dialog';
@@ -19,17 +20,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
-};
-
-// This function now calculates the total cost of an ingredient based on its quantity and unit cost.
-const calculateIngredientTotalCost = (ing: Ingredient): number => {
-    const quantity = parseFloat(ing.quantityPerPerson || '0');
-    const unitCost = Number(ing.cost) || 0;
-    if (isNaN(quantity) || isNaN(unitCost)) {
-        return 0;
-    }
-    // The 'cost' field now represents cost PER UNIT (g, ml, ud), so we multiply.
-    return quantity * unitCost;
 };
 
 
@@ -45,10 +35,8 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
   const [currentItemIdForCatalog, setCurrentItemIdForCatalog] = useState<string | null>(null);
   const [catalogSearchTerm, setCatalogSearchTerm] = useState('');
 
-  // This is the core reactive calculation engine for a dish.
   const calculatePrices = useCallback((item: MenuItem): MenuItem => {
     const totalDishCost = (item.ingredients || []).reduce((sum, ing) => {
-        // Here, ing.cost is the cost PER UNIT. We need to multiply by quantity.
         const quantity = parseFloat(ing.quantityPerPerson || '0');
         const unitCost = Number(ing.cost) || 0;
         return sum + (quantity * unitCost);
@@ -60,6 +48,15 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     return { ...item, totalDishCost, suggestedSellingPrice, profitMargin };
   }, []);
   
+  const fetchInsumos = useCallback(async () => {
+      try {
+        const insumos = await getInsumos();
+        setCatalogoInsumos(insumos.filter(i => i.tipoItem === 'Insumo/Ingrediente' || i.tipoItem === 'Bebida (Insumo)'));
+      } catch (e) {
+        toast({ title: "Error", description: "No se pudo cargar el catálogo de insumos."});
+      }
+    }, [toast]);
+
   useEffect(() => {
     if (existingMenu) {
       const menuWithCalculatedPrices = {
@@ -68,16 +65,8 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
       };
       setMenu(menuWithCalculatedPrices);
     }
-    const fetchInsumos = async () => {
-      try {
-        const insumos = await getInsumos();
-        setCatalogoInsumos(insumos.filter(i => i.tipoItem === 'Insumo/Ingrediente' || i.tipoItem === 'Bebida (Insumo)'));
-      } catch (e) {
-        toast({ title: "Error", description: "No se pudo cargar el catálogo de insumos."});
-      }
-    };
     fetchInsumos();
-  }, [existingMenu, toast, calculatePrices]);
+  }, [existingMenu, toast, calculatePrices, fetchInsumos]);
 
 
   const handleMenuChange = (field: keyof FullMenu, value: string) => {
@@ -114,7 +103,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
       const newItems = (prev.items || []).map(item => {
         if (item.id === itemId) {
           const newIngredients = (item.ingredients || []).map(ing =>
-            ing.id === ingId ? { ...ing, [field]: value, origenId: undefined } : ing
+            ing.id === ingId ? { ...ing, [field]: value } : ing
           );
           return calculatePrices({ ...item, ingredients: newIngredients });
         }
@@ -124,6 +113,37 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     });
   };
   
+  const handleIngredientBlur = async (itemId: string, ing: Ingredient, field: 'name' | 'cost') => {
+    if (!ing.origenId) return;
+
+    const catalogItem = catalogoInsumos.find(i => i.id === ing.origenId);
+    if (!catalogItem || catalogItem[field === 'name' ? 'nombre' : 'valorUnitarioEstimado'] === ing[field]) return;
+
+    try {
+        const updatedInsumo = { ...catalogItem, [field === 'name' ? 'nombre' : 'valorUnitarioEstimado']: ing[field] };
+        await saveInsumo(updatedInsumo);
+        toast({ title: 'Catálogo Actualizado', description: `Se actualizó "${ing.name}" en el catálogo de insumos.`});
+        await fetchInsumos(); // Refresh catalog state
+    } catch (e: any) {
+        toast({ title: "Error de Sincronización", description: e.message, variant: "destructive"});
+        // Revert UI change on failure
+        setMenu(prev => {
+            if (!prev) return null;
+            const revertedItems = (prev.items || []).map(item => {
+                if (item.id === itemId) {
+                    const revertedIngredients = (item.ingredients || []).map(i =>
+                        i.id === ing.id ? { ...i, [field]: catalogItem[field === 'name' ? 'nombre' : 'valorUnitarioEstimado'] } : i
+                    );
+                    return calculatePrices({ ...item, ingredients: revertedIngredients });
+                }
+                return item;
+            });
+            return { ...prev, items: revertedItems };
+        });
+    }
+  }
+
+
   const addItem = () => {
     const newItem: MenuItem = {
       id: `new_item_${Date.now()}`, name: '', type: 'Entrada', ingredients: [], totalDishCost: 0,
@@ -218,7 +238,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
             <DialogHeader><DialogTitle>Seleccionar Ingrediente del Catálogo</DialogTitle></DialogHeader>
             <div className="py-2 space-y-2">
                 <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"/><Input placeholder="Buscar insumo..." value={catalogSearchTerm} onChange={e => setCatalogSearchTerm(e.target.value)} className="pl-9"/></div>
-                <ScrollArea className="h-72 border rounded-md"><ul className="p-2 space-y-1">{filteredInsumos.length > 0 ? (filteredInsumos.map(insumo => (<li key={insumo.id}><Button type="button" variant="ghost" className="w-full justify-start text-left h-auto" onClick={() => { if (currentItemIdForCatalog) { addIngredientFromCatalog(currentItemIdForCatalog, insumo); } setIsCatalogModalOpen(false); }}><div><p className="font-medium text-sm">{insumo.nombre}</p><p className="text-xs text-muted-foreground">{formatCurrency(insumo.valorUnitarioEstimado || 0)} / {insumo.unidad}</p></div></Button></li>))) : <li className="p-4 text-sm text-center text-muted-foreground">No se encontraron insumos.</li>}</ul></ScrollArea>
+                <ScrollArea className="h-72 border rounded-md p-1"><ul className="space-y-1">{filteredInsumos.length > 0 ? (filteredInsumos.map(insumo => (<li key={insumo.id}><Button type="button" variant="ghost" className="w-full justify-start text-left h-auto" onClick={() => { if (currentItemIdForCatalog) { addIngredientFromCatalog(currentItemIdForCatalog, insumo); } setIsCatalogModalOpen(false); }}><div><p className="font-medium text-sm">{insumo.nombre}</p><p className="text-xs text-muted-foreground">{formatCurrency(insumo.valorUnitarioEstimado || 0)} / {insumo.unidad}</p></div></Button></li>))) : <li className="p-4 text-sm text-center text-muted-foreground">No se encontraron insumos.</li>}</ul></ScrollArea>
             </div>
         </DialogContent>
        </Dialog>
@@ -254,10 +274,14 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                     <div className="mt-2 space-y-3">
                         {item.ingredients?.map(ing => (
                             <div key={ing.id} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 items-end p-3 border-l-4 border-primary/50 rounded-r-md bg-background shadow-sm">
-                                <div className="space-y-1 lg:col-span-2"><Label className="text-xs">Nombre</Label><Input value={ing.name || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'name', e.target.value)} className="h-8"/></div>
+                                <div className="space-y-1 lg:col-span-2 relative">
+                                    <Label className="text-xs">Nombre</Label>
+                                    {ing.origenId && <LinkIcon className="w-3 h-3 absolute top-0.5 right-0.5 text-muted-foreground" title="Vinculado al catálogo de insumos"/>}
+                                    <Input value={ing.name || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'name', e.target.value)} onBlur={() => handleIngredientBlur(item.id, ing, 'name')} className="h-8"/>
+                                </div>
                                 <div className="space-y-1"><Label className="text-xs">Cant. p/p</Label><Input value={ing.quantityPerPerson || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'quantityPerPerson', e.target.value)} className="h-8"/></div>
                                 <div className="space-y-1"><Label className="text-xs">Unidad</Label><Input value={ing.unit || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'unit', e.target.value)} className="h-8"/></div>
-                                <div className="space-y-1 relative"><Label className="text-xs">Costo Unit. ($)</Label><Input type="number" value={ing.cost || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'cost', Number(e.target.value))} className="h-8 pl-6"/><span className="absolute left-2 top-1/2 mt-1 text-muted-foreground">$</span></div>
+                                <div className="space-y-1 relative"><Label className="text-xs">Costo Unit. ($)</Label><Input type="number" value={ing.cost || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'cost', Number(e.target.value))} onBlur={() => handleIngredientBlur(item.id, ing, 'cost')} className="h-8 pl-6"/><span className="absolute left-2 top-1/2 mt-1 text-muted-foreground">$</span></div>
                                 <div className="lg:col-span-5 flex justify-end">
                                 <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteIngredient(item.id, ing.id)}><Trash2 className="w-3.5 h-3.5"/></Button>
                                 </div>
@@ -277,11 +301,11 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                         </div>
                         <div className="space-y-1">
                             <Label htmlFor={`profit-${item.id}`} className="text-sm flex items-center gap-1"><Percent className="w-3 h-3"/>Margen (%)</Label>
-                            <Input id={`profit-${item.id}`} type="number" value={item.profitMargin?.toFixed(0) ?? ''} onChange={e => handleItemChange(item.id, 'profitMargin', e.target.value)} />
+                            <Input id={`profit-${item.id}`} type="number" value={item.profitMargin?.toFixed(0) ?? ''} onChange={e => handleItemChange(item.id, 'profitMargin', Number(e.target.value) || 0)} />
                         </div>
                         <div className="space-y-1">
                              <Label htmlFor={`price-${item.id}`} className="text-sm flex items-center gap-1"><DollarSign className="w-3 h-3"/>Precio ($)</Label>
-                             <Input id={`price-${item.id}`} type="number" value={item.suggestedSellingPrice?.toFixed(0) ?? ''} onChange={e => handleItemChange(item.id, 'suggestedSellingPrice', e.target.value)} />
+                             <Input id={`price-${item.id}`} type="number" value={item.suggestedSellingPrice?.toFixed(0) ?? ''} onChange={e => handleItemChange(item.id, 'suggestedSellingPrice', Number(e.target.value) || 0)} />
                         </div>
                     </div>
                  </CardFooter>

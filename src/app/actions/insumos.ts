@@ -46,6 +46,13 @@ export async function saveInsumo(
     const index = inventario.findIndex(s => s.id === itemId);
     if (index === -1) return { success: false, error: `Insumo con ID ${itemId} no encontrado.` };
     
+    // Check for duplicate name ONLY if the name has changed
+    const originalItem = inventario[index];
+    if (originalItem.nombre.trim().toLowerCase() !== dataWithParsedNumbers.nombre!.trim().toLowerCase()) {
+        const isDuplicate = inventario.some(s => s.id !== itemId && s.nombre.trim().toLowerCase() === dataWithParsedNumbers.nombre!.trim().toLowerCase());
+        if (isDuplicate) return { success: false, error: `Ya existe otro insumo con el nombre "${dataWithParsedNumbers.nombre!.trim()}".` };
+    }
+
     inventario[index] = { ...inventario[index], ...dataWithParsedNumbers } as ServicioEmpresa;
     finalItemData = inventario[index];
   } else {
