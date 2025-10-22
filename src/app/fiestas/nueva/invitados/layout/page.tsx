@@ -1,8 +1,9 @@
+
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense, use } from 'react';
-import Link from 'next/link';
+import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,7 +12,7 @@ import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVer
 import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData } from '@/types/fiesta';
-import { getFiestaById, updateInvitadoFiestaActual, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaById, updateDecoracionFiestaActual, updateInvitado } from '@/app/actions/fiesta-actual';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogTrigger } from "@/components/ui/dialog";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import NextImage from 'next/image';
@@ -145,7 +146,7 @@ function SalonLayoutContent() {
   const handleDeleteElement = (elementId: string) => {
     if (!decoracion) return;
     const elementToDelete = decoracion.salonElements?.find(e => e.id === elementId);
-    if(elementToDelete?.category?.includes('Mesa')) {
+    if(elementToDelete?.category?.toLowerCase().includes('mesa')) {
         setInvitados(prev => prev.map(inv => inv.tableNumber === elementToDelete.name ? {...inv, tableNumber: undefined, seatNumber: undefined} : inv));
     }
     setDecoracion({ ...decoracion, salonElements: (decoracion.salonElements || []).filter(el => el.id !== elementId) });
@@ -155,6 +156,7 @@ function SalonLayoutContent() {
     e.preventDefault();
     const guestId = e.dataTransfer.getData('guestId');
     const guestBeingDragged = invitados.find(i => i.id === guestId);
+    if (!guestBeingDragged) return;
 
     const alreadyAssignedToSeat = invitados.some(i => i.tableNumber === table.name && i.seatNumber === seatNumber);
     if (alreadyAssignedToSeat) {
@@ -169,9 +171,9 @@ function SalonLayoutContent() {
     if (!decoracion || !fiestaId) return;
     setIsSaving(true);
     try {
-        const updateGuestPromises = invitados.map(invitado => updateInvitadoFiestaActual(fiestaId, invitado));
+        const updateGuestPromises = invitados.map(invitado => updateInvitado(fiestaId, invitado));
         await Promise.all(updateGuestPromises);
-        await updateDecoracionFiestaActual(fiestaId, decoracion);
+        await updateDecoracionFiestaActual(decoracion);
         toast({ title: "¡Guardado!", description: "El diseño del salón y la asignación de invitados han sido guardados." });
         await loadData(false);
     } catch(err: any) {
@@ -214,12 +216,11 @@ function SalonLayoutContent() {
     setInvitados(prev => prev.map(inv => inv.id === guestId ? { ...inv, tableNumber: tableName, seatNumber: undefined } : inv));
   };
   
-  const invitadosConfirmados = useMemo(() => invitados.filter(i => i.rsvp === 'Confirmado'), [invitados]);
   const invitadosSinMesa = useMemo(() => {
-    const unassigned = invitadosConfirmados.filter(i => !i.tableNumber);
+    const unassigned = invitados.filter(i => !i.tableNumber && (i.rsvp === 'Confirmado' || i.rsvp === 'Pendiente'));
     if (!guestSearchTerm.trim()) return unassigned;
     return unassigned.filter(i => i.nombre.toLowerCase().includes(guestSearchTerm.toLowerCase()));
-  }, [invitadosConfirmados, guestSearchTerm]);
+  }, [invitados, guestSearchTerm]);
   
   const mesas = useMemo(() => (decoracion?.salonElements || []).filter(el => el.category?.toLowerCase().includes('mesa')), [decoracion]);
 
@@ -237,37 +238,51 @@ function SalonLayoutContent() {
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}><DialogContent><DialogHeader><DialogTitle>Editar Elemento: {editingElement?.name}</DialogTitle></DialogHeader>{editingElement && (<div className="space-y-4"><div className="space-y-1"><Label htmlFor="el-name">Nombre</Label><Input id="el-name" value={editingElement.name} onChange={e => setEditingElement(prev => prev ? {...prev, name: e.target.value} : null)}/></div>{editingElement.category?.includes('Mesa') && <div className="space-y-1"><Label htmlFor="el-seats">Asientos</Label><Input id="el-seats" type="number" value={editingElement.seats || 0} onChange={e => setEditingElement(prev => prev ? {...prev, seats: Number(e.target.value) || 0} : null)}/></div>}<div className="grid grid-cols-2 gap-3"><div className="space-y-1"><Label htmlFor="el-width">Ancho (px)</Label><Input id="el-width" type="number" value={editingElement.width || 0} onChange={e => setEditingElement(prev => prev ? {...prev, width: Number(e.target.value) || 0} : null)}/></div><div className="space-y-1"><Label htmlFor="el-height">Alto (px)</Label><Input id="el-height" type="number" value={editingElement.height || 0} onChange={e => setEditingElement(prev => prev ? {...prev, height: Number(e.target.value) || 0} : null)}/></div></div></div>)}<DialogFooter><Button variant="outline" onClick={() => setIsEditModalOpen(false)}>Cancelar</Button><Button onClick={handleUpdateElement}>Guardar</Button></DialogFooter></DialogContent></Dialog>
       <Dialog open={isCustomElementModalOpen} onOpenChange={setIsCustomElementModalOpen}><DialogContent><DialogHeader><DialogTitle>Crear Elemento Personalizado</DialogTitle></DialogHeader><div className="space-y-3 py-2"><div className="space-y-1"><Label htmlFor="custom-el-name">Nombre</Label><Input id="custom-el-name" value={customElement.name} onChange={e => setCustomElement(p => ({...p, name: e.target.value}))}/></div><div className="grid grid-cols-2 gap-3"><div className="space-y-1"><Label htmlFor="custom-el-width">Ancho (px)</Label><Input id="custom-el-width" type="number" value={customElement.width} onChange={e => setCustomElement(p => ({...p, width: Number(e.target.value)}))}/></div><div className="space-y-1"><Label htmlFor="custom-el-height">Alto (px)</Label><Input id="custom-el-height" type="number" value={customElement.height} onChange={e => setCustomElement(p => ({...p, height: Number(e.target.value)}))}/></div></div><div className="space-y-1"><Label>Forma</Label><RadioGroup defaultValue="rectangle" value={customElement.shape} onValueChange={(v) => setCustomElement(p=>({...p, shape:v}))} className="flex gap-4"><div className="flex items-center space-x-2"><RadioGroupItem value="rectangle" id="shape-rect"/><Label htmlFor="shape-rect">Rectángulo</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="circle" id="shape-circ"/><Label htmlFor="shape-circ">Círculo</Label></div></RadioGroup></div></div><DialogFooter><DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose><Button onClick={handleAddCustomElement}>Añadir Elemento</Button></DialogFooter></DialogContent></Dialog>
       <Dialog open={isLoadTemplateModalOpen} onOpenChange={setIsLoadTemplateModalOpen}><DialogContent><DialogHeader><DialogTitle>Cargar Plantilla de Salón</DialogTitle></DialogHeader>{isTemplateActionLoading ? <div className="p-4 text-center"><Loader2 className="w-6 h-6 animate-spin"/></div> : templates.length === 0 ? <p>No hay plantillas.</p> : <ScrollArea className="max-h-64"><div className="space-y-2 pr-4">{templates.map(t => <Button key={t.id} variant="secondary" className="w-full justify-start" onClick={() => { setDecoracion(t.layoutData); setIsLoadTemplateModalOpen(false); toast({title:'Plantilla cargada'}); }}>{t.name}</Button>)}</div></ScrollArea>}</DialogContent></Dialog>
-
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3"><LayoutDashboard className="w-8 h-8 text-primary"/><h1 className="text-3xl font-bold tracking-tight font-headline">Diseño de Salón</h1></div>
+      
+       <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <LayoutDashboard className="w-8 h-8 text-primary" />
+          <h1 className="text-3xl font-bold tracking-tight font-headline">Diseño de Mesas y Salón</h1>
+        </div>
         <div className="flex gap-2">
+            <Link href={`/fiestas/nueva/invitados/numeros-mesa?fiestaId=${fiestaId}`} passHref>
+                <Button variant="secondary" size="sm"><Printer className="w-4 h-4 mr-1"/>Imprimir Números</Button>
+            </Link>
             <Link href={`/fiestas/nueva/invitados?fiestaId=${fiestaId}`} passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver a Invitados</Button></Link>
-            <Button onClick={handleSaveAll} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2" />}Guardar</Button>
         </div>
       </div>
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 h-[calc(100vh-250px)]">
         <div className="xl:col-span-3 space-y-4 flex flex-col min-h-0">
-            <Card>
-                <CardHeader className="pb-3"><CardTitle>Controles del Diseño</CardTitle></CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="space-y-1"><Label>Ancho (m)</Label><Input type="number" value={decoracion.salonWidth || 20} onChange={e => setDecoracion(d => d ? {...d, salonWidth: Number(e.target.value)} : null)} /></div>
-                    <div className="space-y-1"><Label>Alto (m)</Label><Input type="number" value={decoracion.salonHeight || 30} onChange={e => setDecoracion(d => d ? {...d, salonHeight: Number(e.target.value)} : null)} /></div>
-                  </div>
-                  <div className="space-y-1"><Label>Píxeles/Metro</Label><Input type="number" value={pixelsPerMeter} onChange={e => setDecoracion(d => d ? {...d, pixelsPerMeter: Number(e.target.value)} : null)} /></div>
-                  <Separator/>
-                    <h4 className="font-medium text-sm">Añadir Elementos</h4>
-                    <div className="grid grid-cols-2 gap-2"><Button variant="outline" onClick={() => addElement('Mesa Redonda')}><Circle className="w-4 h-4 mr-2"/>Mesa Redonda</Button><Button variant="outline" onClick={() => addElement('Mesa Rectangular')}><Square className="w-4 h-4 mr-2"/>Mesa Rectangular</Button><Button variant="outline" onClick={() => addElement('Pista de Baile')}><Disc className="w-4 h-4 mr-2"/>Pista</Button><Button variant="outline" onClick={() => addElement('Escenario')}><Clapperboard className="w-4 h-4 mr-2"/>Escenario</Button><Button variant="outline" onClick={() => addElement('Living')}><Sofa className="w-4 h-4 mr-2"/>Living</Button><Button variant="outline" onClick={() => addElement('Área de Fotos')}><CameraIcon className="w-4 h-4 mr-2"/>Área Fotos</Button></div>
-                    <Button variant="outline" className="w-full" onClick={() => setIsCustomElementModalOpen(true)}><PlusCircle className="w-4 h-4 mr-2"/>Elemento Personalizado</Button>
-                </CardContent>
-                <CardFooter className="flex-col gap-2">
-                  <Button type="button" onClick={handleLoadTemplate} variant="outline" className="w-full" disabled={isTemplateActionLoading}><FolderDown className="w-4 h-4 mr-2"/>Cargar Plantilla</Button>
-                  <Dialog open={isSaveTemplateModalOpen} onOpenChange={setIsSaveTemplateModalOpen}>
-                    <DialogTrigger asChild><Button type="button" className="w-full"><FolderUp className="w-4 h-4 mr-2"/>Guardar Diseño</Button></DialogTrigger>
-                    <DialogContent><DialogHeader><DialogTitle>Guardar Diseño como Plantilla</DialogTitle></DialogHeader><div className="space-y-2 py-2"><Label htmlFor="template-name">Nombre de la Plantilla</Label><Input id="template-name" value={templateName} onChange={e=>setTemplateName(e.target.value)} placeholder="Ej: Club Uruguay - 80 invitados"/></div><DialogFooter><DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose><Button onClick={handleSaveAsTemplate} disabled={isTemplateActionLoading}>Guardar</Button></DialogFooter></DialogContent>
-                  </Dialog>
-                </CardFooter>
-            </Card>
+          <Card className="shadow-sm">
+            <CardHeader className="pb-3"><CardTitle className="text-md">Añadir Elementos</CardTitle></CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-2">
+                <Button variant="outline" onClick={() => addElement('Mesa Redonda')}><Circle className="w-4 h-4 mr-2"/>Mesa Redonda</Button>
+                <Button variant="outline" onClick={() => addElement('Mesa Rectangular')}><Square className="w-4 h-4 mr-2"/>Mesa Rectangular</Button>
+                <Button variant="outline" onClick={() => addElement('Pista de Baile')}><Disc className="w-4 h-4 mr-2"/>Pista</Button>
+                <Button variant="outline" onClick={() => addElement('Escenario')}><Clapperboard className="w-4 h-4 mr-2"/>Escenario</Button>
+                <Button variant="outline" onClick={() => addElement('Living')}><Sofa className="w-4 h-4 mr-2"/>Living</Button>
+                <Button variant="outline" onClick={() => addElement('Área de Fotos')}><CameraIcon className="w-4 h-4 mr-2"/>Área Fotos</Button>
+              </div>
+              <Button variant="outline" className="w-full mt-2" onClick={() => setIsCustomElementModalOpen(true)}><PlusCircle className="w-4 h-4 mr-2"/>Elemento Personalizado</Button>
+            </CardContent>
+          </Card>
+          <Card className="flex-grow flex flex-col min-h-0 shadow-sm">
+            <CardHeader className="pb-3"><CardTitle className="text-md">Invitados sin Mesa ({invitadosSinMesa.length})</CardTitle></CardHeader>
+            <CardContent className="flex-grow flex flex-col min-h-0 p-2">
+                <div className="relative mb-2"><Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" /><Input placeholder="Buscar invitado..." className="pl-8 h-9" value={guestSearchTerm} onChange={e => setGuestSearchTerm(e.target.value)} /></div>
+                <ScrollArea className="flex-grow">
+                    <div className="space-y-2 pr-2">
+                        {invitadosSinMesa.map(inv => (
+                            <div key={inv.id} draggable onDragStart={e => e.dataTransfer.setData('guestId', inv.id)} className="p-2 border rounded bg-card cursor-grab shadow-sm">
+                                <p className="font-medium text-sm">{inv.nombre}</p>
+                                <p className="text-xs text-muted-foreground">{inv.partySize || 1} persona(s)</p>
+                            </div>
+                        ))}
+                    </div>
+                </ScrollArea>
+            </CardContent>
+          </Card>
         </div>
         <div className={cn("xl:col-span-6 bg-card", isFullScreen ? 'fixed inset-0 z-40 p-4' : '')}>
           <Card className="h-full flex flex-col"><CardHeader><CardTitle>Lienzo del Salón</CardTitle></CardHeader>
@@ -278,6 +293,8 @@ function SalonLayoutContent() {
                   {(decoracion.salonElements || []).map(el => {
                     const nodeRef = React.createRef<HTMLDivElement>();
                     const isTable = el.category?.toLowerCase().includes('mesa');
+                    const assignedGuests = invitados.filter(inv => inv.tableNumber === el.name);
+                    const asientosOcupados = assignedGuests.reduce((acc, curr) => acc + (curr.partySize || 1), 0);
                     
                     let seats = [];
                     if (isTable && el.seats) {
@@ -312,9 +329,9 @@ function SalonLayoutContent() {
                     return (
                     <Draggable key={el.id} nodeRef={nodeRef} bounds="parent" grid={[grid, grid]} position={{ x: el.x, y: el.y }} onStop={(e, data) => handleDragStop(e, data, el.id)}>
                         <div ref={nodeRef} id={el.id} className="absolute cursor-grab active:cursor-grabbing" style={{ left: el.x, top: el.y, width: el.width, height: el.height, transform: `rotate(${el.rotation}deg)`}}>
-                            <div className={cn('w-full h-full border-2 flex items-center justify-center text-lg font-bold bg-white/80', selectedElementId === el.id ? 'border-primary shadow-lg' : 'border-gray-500', el.category?.includes('Mesa Redonda') || el.shape === 'circle' ? 'rounded-full' : 'rounded-md')}
+                            <div className={cn('w-full h-full border-2 flex items-center justify-center text-lg font-bold bg-white/80 p-1', selectedElementId === el.id ? 'border-primary shadow-lg' : 'border-gray-500', el.category?.includes('Mesa Redonda') || el.shape === 'circle' ? 'rounded-full' : 'rounded-md')}
                                 onClick={() => setSelectedElementId(el.id)}>
-                                {el.name}
+                                <span className="text-center truncate">{el.name}</span>
                             </div>
                             {seats}
                             {selectedElementId === el.id && (<div className="absolute -top-7 -right-2 flex gap-0.5 z-20" style={{transform: `rotate(-${el.rotation}deg)`}}><Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleOpenEditModal(el)}><Edit className="w-3 h-3"/></Button><Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleElementRotation(el.id)}><RotateCw className="w-3 h-3"/></Button><Button type="button" variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => handleDeleteElement(el.id)}><Trash2 className="w-3 h-3"/></Button></div>)}
@@ -333,23 +350,31 @@ function SalonLayoutContent() {
           </Card>
         </div>
         <div className="xl:col-span-3 space-y-4 flex flex-col min-h-0">
-             <Card className="flex-grow flex flex-col">
-                <CardHeader className="pb-3"><CardTitle>Invitados sin Mesa</CardTitle></CardHeader>
-                <CardContent className="flex-grow min-h-0">
-                    <div className="relative mb-2">
-                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input placeholder="Buscar invitado..." className="pl-8" value={guestSearchTerm} onChange={e => setGuestSearchTerm(e.target.value)} />
-                    </div>
-                    <ScrollArea className="h-96">
-                        <div className="space-y-2 pr-3">
-                            {invitadosSinMesa.map(inv => (
-                                <div key={inv.id} draggable onDragStart={e => e.dataTransfer.setData('guestId', inv.id)} className="p-2 border rounded bg-card cursor-grab shadow-sm">
-                                    <p className="font-medium text-sm">{inv.nombre}</p>
-                                    <p className="text-xs text-muted-foreground">{inv.partySize || 1} persona(s)</p>
-                                </div>
-                            ))}
-                            {invitadosSinMesa.length === 0 && <p className="text-sm text-center text-muted-foreground py-4">Todos los invitados confirmados tienen una mesa.</p>}
-                        </div>
+             <Card className="flex-grow flex flex-col min-h-0 shadow-sm">
+                <CardHeader className="pb-3"><CardTitle className="text-md">Asignación por Mesa</CardTitle></CardHeader>
+                <CardContent className="flex-grow min-h-0 p-2">
+                    <ScrollArea className="h-full pr-2">
+                        <Accordion type="multiple" className="w-full space-y-2">
+                            {mesas.map(mesa => {
+                                const invitadosEnMesa = invitados.filter(inv => inv.tableNumber === mesa.name);
+                                const asientosOcupados = invitadosEnMesa.reduce((acc, curr) => acc + (curr.partySize || 1), 0);
+                                return (
+                                <AccordionItem value={mesa.id} key={mesa.id}>
+                                    <AccordionTrigger className="p-2 text-sm font-medium hover:no-underline bg-muted/40 rounded-md">
+                                        {mesa.name} ({asientosOcupados}/{mesa.seats || 'N/A'})
+                                    </AccordionTrigger>
+                                    <AccordionContent className="p-2 space-y-2">
+                                        {invitadosEnMesa.map(inv => (
+                                            <div key={inv.id} className="text-xs p-1 border-b flex justify-between items-center">
+                                                <span>{inv.nombre}</span>
+                                                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleAssignGuestToTable(inv.id, '')}><Trash2 className="w-3 h-3 text-destructive"/></Button>
+                                            </div>
+                                        ))}
+                                    </AccordionContent>
+                                </AccordionItem>
+                                )
+                            })}
+                        </Accordion>
                     </ScrollArea>
                 </CardContent>
             </Card>
