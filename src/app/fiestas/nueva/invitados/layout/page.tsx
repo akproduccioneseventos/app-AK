@@ -12,7 +12,8 @@ import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVer
 import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData } from '@/types/fiesta';
-import { getFiestaById, updateDecoracionFiestaActual, updateInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { updateDecoracionFiestaActual, updateInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogTrigger } from "@/components/ui/dialog";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import NextImage from 'next/image';
@@ -110,7 +111,7 @@ function SalonLayoutContent() {
     if (!decoracion) return;
     const pixelsPerMeter = decoracion.pixelsPerMeter || PIXELS_PER_METER_DEFAULT;
     
-    let defaultProps: Partial<LayoutElement> = { width: 3 * pixelsPerMeter, height: 3 * pixelsPerMeter, seats: 8 };
+    let defaultProps: Partial<LayoutElement> = { width: 2.5 * pixelsPerMeter, height: 2.5 * pixelsPerMeter, seats: 8 };
 
     if (category === 'Mesa Rectangular') { defaultProps = { width: 4 * pixelsPerMeter, height: 2 * pixelsPerMeter, seats: 8 }; }
     else if (category === 'Pista de Baile') { defaultProps = { width: 6 * pixelsPerMeter, height: 6 * pixelsPerMeter, seats: undefined }; }
@@ -140,6 +141,7 @@ function SalonLayoutContent() {
         width: (customElement.width || 2) * pixelsPerMeter,
         height: (customElement.height || 1) * pixelsPerMeter,
         category: 'Varios',
+        shape: customElement.shape === 'circle' ? 'circle' : 'rectangle',
         seats: customElement.shape === 'circle' ? 8 : undefined,
     };
     
@@ -154,7 +156,8 @@ function SalonLayoutContent() {
   const handleUpdateElement = () => {
     if (!editingElement || !decoracion) return;
     
-    const newElements = (decoracion.salonElements || []).map(el => el.id === editingElement.id ? editingElement : el);
+    const newElements = (decoracion.salonElements || []).map(el => el.id === editingElement.id ? editingElement : el
+    );
     setDecoracion({ ...decoracion, salonElements: newElements });
     setIsEditModalOpen(false);
     setEditingElement(null);
