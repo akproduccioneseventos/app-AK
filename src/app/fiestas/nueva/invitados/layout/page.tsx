@@ -8,19 +8,16 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Image as ImageIcon, Maximize, Minimize, FolderUp, FolderDown, Sofa, Disc, Clapperboard, Camera as CameraIcon, Search, Printer, Settings2 } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Image as ImageIcon, Maximize, Minimize, Sofa, Disc, Clapperboard, Camera as CameraIcon, Search, Printer, Settings2 } from 'lucide-react';
 import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData } from '@/types/fiesta';
 import { getFiestaById, updateDecoracionFiestaActual, updateInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import NextImage from 'next/image';
-import { Separator } from '@/components/ui/separator';
-import { getSalonLayoutTemplates, saveSalonLayoutTemplate, type SalonLayoutTemplate } from '@/app/actions/salon-layout-templates';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from "@/lib/utils";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const grid = 10;
 
@@ -31,7 +28,7 @@ const getInitials = (name: string) => {
         return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
     }
     return name.substring(0, 2).toUpperCase();
-}
+};
 
 function SalonLayoutContent() {
   const { toast } = useToast();
@@ -51,19 +48,10 @@ function SalonLayoutContent() {
 
   const [isCustomElementModalOpen, setIsCustomElementModalOpen] = useState(false);
   const [customElement, setCustomElement] = useState({ name: '', category: 'Varios', width: 100, height: 100, shape: 'rectangle' });
-
-  const [isSaveTemplateModalOpen, setIsSaveTemplateModalOpen] = useState(false);
-  const [isLoadTemplateModalOpen, setIsLoadTemplateModalOpen] = useState(false);
-  const [templates, setTemplates] = useState<SalonLayoutTemplate[]>([]);
-  const [templateName, setTemplateName] = useState('');
-  const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
   
   const [guestSearchTerm, setGuestSearchTerm] = useState('');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
-
-  const [guestNameStyle, setGuestNameStyle] = useState<'full' | 'initials' | 'none'>('initials');
-  const [guestIconStyle, setGuestIconStyle] = useState<'color' | 'bw'>('color');
 
   const loadData = useCallback(async (showLoading = true) => {
     if (!fiestaId) return;
@@ -72,11 +60,9 @@ function SalonLayoutContent() {
       const fiesta = await getFiestaById(fiestaId);
       if (!fiesta) throw new Error("Fiesta no encontrada.");
       
-      const loadedDecoracion = fiesta.decoracion || { salonElements: [], salonWidth: 20, salonHeight: 30, pixelsPerMeter: 30, layoutMode: 'asignado' };
+      const loadedDecoracion = fiesta.decoracion || { salonElements: [], salonWidth: 20, salonHeight: 30, pixelsPerMeter: 30 };
       
       setDecoracion(loadedDecoracion);
-      setGuestNameStyle(loadedDecoracion.guestNameStyle || 'initials');
-      setGuestIconStyle(loadedDecoracion.guestIconStyle || 'color');
       setInvitados(fiesta.invitados || []);
 
     } catch (e: any) {
@@ -160,8 +146,6 @@ function SalonLayoutContent() {
   
   const handleSeatDrop = (e: React.DragEvent, table: LayoutElement, seatNumber: number) => {
     e.preventDefault();
-    if (decoracion?.layoutMode === 'libre') return;
-
     const guestId = e.dataTransfer.getData('guestId');
     const guestBeingDragged = invitados.find(i => i.id === guestId);
     const guestPartySize = guestBeingDragged?.partySize || 1;
@@ -181,10 +165,7 @@ function SalonLayoutContent() {
     try {
         const updateGuestPromises = invitados.map(invitado => updateInvitadoFiestaActual(fiestaId, invitado));
         await Promise.all(updateGuestPromises);
-        
-        const decoracionToSave = { ...decoracion, guestNameStyle, guestIconStyle, items: decoracion.items || [] };
-        await updateDecoracionFiestaActual(fiestaId, decoracionToSave);
-
+        await updateDecoracionFiestaActual(fiestaId, decoracion);
         toast({ title: "¡Guardado!", description: "El diseño del salón y la asignación de invitados han sido guardados." });
         await loadData(false);
     } catch(err: any) {
@@ -203,6 +184,20 @@ function SalonLayoutContent() {
   
   const mesas = useMemo(() => (decoracion?.salonElements || []).filter(el => el.category?.toLowerCase().includes('mesa')), [decoracion]);
 
+  const handleFullscreenToggle = () => {
+    const elem = canvasRef.current;
+    if (!elem) return;
+    if (!document.fullscreenElement) {
+        elem.requestFullscreen().catch(err => {
+            alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+        });
+        setIsFullscreen(true);
+    } else {
+        document.exitFullscreen();
+        setIsFullscreen(false);
+    }
+  };
+
   if (isLoading) return <div className="flex items-center justify-center p-8"><Loader2 className="w-8 h-8 animate-spin" /></div>;
   if (error) return <div className="text-destructive text-center p-4">{error}</div>;
   if (!decoracion) return null;
@@ -213,11 +208,8 @@ function SalonLayoutContent() {
 
   return (
     <div className="space-y-6">
-      {/* ... (Dialogs remain the same) ... */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}><DialogContent><DialogHeader><DialogTitle>Editar Elemento: {editingElement?.name}</DialogTitle></DialogHeader>{editingElement && (<div className="space-y-4"><div className="space-y-1"><Label htmlFor="el-name">Nombre</Label><Input id="el-name" value={editingElement.name} onChange={e => setEditingElement(prev => prev ? {...prev, name: e.target.value} : null)}/></div>{editingElement.category?.includes('Mesa') && <div className="space-y-1"><Label htmlFor="el-seats">Asientos</Label><Input id="el-seats" type="number" value={editingElement.seats || 0} onChange={e => setEditingElement(prev => prev ? {...prev, seats: Number(e.target.value) || 0} : null)}/></div>}<div className="grid grid-cols-2 gap-3"><div className="space-y-1"><Label htmlFor="el-width">Ancho (px)</Label><Input id="el-width" type="number" value={editingElement.width || 0} onChange={e => setEditingElement(prev => prev ? {...prev, width: Number(e.target.value) || 0} : null)}/></div><div className="space-y-1"><Label htmlFor="el-height">Alto (px)</Label><Input id="el-height" type="number" value={editingElement.height || 0} onChange={e => setEditingElement(prev => prev ? {...prev, height: Number(e.target.value) || 0} : null)}/></div></div></div>)}<DialogFooter><Button variant="outline" onClick={() => setIsEditModalOpen(false)}>Cancelar</Button><Button onClick={handleUpdateElement}>Guardar</Button></DialogFooter></DialogContent></Dialog>
       <Dialog open={isCustomElementModalOpen} onOpenChange={setIsCustomElementModalOpen}><DialogContent><DialogHeader><DialogTitle>Crear Elemento Personalizado</DialogTitle></DialogHeader><div className="space-y-3 py-2"><div className="space-y-1"><Label htmlFor="custom-el-name">Nombre</Label><Input id="custom-el-name" value={customElement.name} onChange={e => setCustomElement(p => ({...p, name: e.target.value}))}/></div><div className="grid grid-cols-2 gap-3"><div className="space-y-1"><Label htmlFor="custom-el-width">Ancho (px)</Label><Input id="custom-el-width" type="number" value={customElement.width} onChange={e => setCustomElement(p => ({...p, width: Number(e.target.value)}))}/></div><div className="space-y-1"><Label htmlFor="custom-el-height">Alto (px)</Label><Input id="custom-el-height" type="number" value={customElement.height} onChange={e => setCustomElement(p => ({...p, height: Number(e.target.value)}))}/></div></div><div className="space-y-1"><Label>Forma</Label><RadioGroup defaultValue="rectangle" value={customElement.shape} onValueChange={(v) => setCustomElement(p=>({...p, shape:v}))} className="flex gap-4"><div className="flex items-center space-x-2"><RadioGroupItem value="rectangle" id="shape-rect"/><Label htmlFor="shape-rect">Rectángulo</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="circle" id="shape-circ"/><Label htmlFor="shape-circ">Círculo</Label></div></RadioGroup></div></div><DialogFooter><DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose><Button onClick={handleAddCustomElement}>Añadir Elemento</Button></DialogFooter></DialogContent></Dialog>
-      <Dialog open={isLoadTemplateModalOpen} onOpenChange={setIsLoadTemplateModalOpen}><DialogContent><DialogHeader><DialogTitle>Cargar Diseño desde Plantilla</DialogTitle></DialogHeader>{isLoadingTemplates ? <div className="p-4 text-center"><Loader2 className="w-6 h-6 animate-spin"/></div> : (<ScrollArea className="h-72"><ul className="space-y-2 pr-3">{templates.map(t => (<li key={t.id} className="flex justify-between items-center p-2 border rounded-md"><span>{t.name}</span><Button size="sm" onClick={() => applyTemplate(t)}>Cargar</Button></li>))}</ul></ScrollArea>)}</DialogContent></Dialog>
-
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -225,6 +217,10 @@ function SalonLayoutContent() {
             <h1 className="text-3xl font-bold tracking-tight font-headline">Diseño de Salón</h1>
         </div>
         <div className="flex gap-2">
+            <Link href={`/fiestas/nueva/invitados/numeros-mesa?fiestaId=${fiestaId}`} passHref>
+                <Button variant="secondary" size="sm"><Printer className="w-4 h-4 mr-1"/>Imprimir Números</Button>
+            </Link>
+            <Link href={`/fiestas/nueva/invitados?fiestaId=${fiestaId}`} passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver a Invitados</Button></Link>
             <Button onClick={handleSaveAll} disabled={isSaving}>
               {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2" />}
               Guardar
@@ -234,23 +230,17 @@ function SalonLayoutContent() {
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
         <div className="xl:col-span-3 space-y-4">
             <Card>
-                <CardHeader className="pb-3"><CardTitle>Invitados sin Asignar</CardTitle></CardHeader>
-                <CardContent>
-                    <div className="relative mb-2">
-                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input placeholder="Buscar invitado..." className="pl-8" value={guestSearchTerm} onChange={e => setGuestSearchTerm(e.target.value)} />
-                    </div>
-                    <ScrollArea className="h-96">
-                        <div className="space-y-2 pr-3">
-                            {invitadosSinMesa.map(inv => (
-                                <div key={inv.id} draggable onDragStart={e => e.dataTransfer.setData('guestId', inv.id)} className="p-2 border rounded bg-card cursor-grab shadow-sm">
-                                    <p className="font-medium text-sm">{inv.nombre}</p>
-                                    <p className="text-xs text-muted-foreground">{inv.partySize || 1} persona(s)</p>
-                                </div>
-                            ))}
-                            {invitadosSinMesa.length === 0 && <p className="text-sm text-center text-muted-foreground py-4">Todos los invitados confirmados tienen una mesa.</p>}
-                        </div>
-                    </ScrollArea>
+                <CardHeader className="pb-3"><CardTitle>Controles del Diseño</CardTitle></CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1"><Label>Ancho Salón (m)</Label><Input type="number" value={decoracion.salonWidth || 20} onChange={e => setDecoracion(d => d ? {...d, salonWidth: Number(e.target.value)} : null)} /></div>
+                    <div className="space-y-1"><Label>Alto Salón (m)</Label><Input type="number" value={decoracion.salonHeight || 30} onChange={e => setDecoracion(d => d ? {...d, salonHeight: Number(e.target.value)} : null)} /></div>
+                  </div>
+                  <div className="space-y-1"><Label>Píxeles por Metro</Label><Input type="number" value={decoracion.pixelsPerMeter || 30} onChange={e => setDecoracion(d => d ? {...d, pixelsPerMeter: Number(e.target.value)} : null)} /></div>
+                  <Separator/>
+                    <h4 className="font-medium text-sm">Añadir Elementos</h4>
+                    <div className="grid grid-cols-2 gap-2"><Button variant="outline" onClick={() => addElement('Mesa Redonda')}><Circle className="w-4 h-4 mr-2"/>Mesa Redonda</Button><Button variant="outline" onClick={() => addElement('Mesa Rectangular')}><Square className="w-4 h-4 mr-2"/>Mesa Rectangular</Button><Button variant="outline" onClick={() => addElement('Pista de Baile')}><Disc className="w-4 h-4 mr-2"/>Pista</Button><Button variant="outline" onClick={() => addElement('Escenario')}><Clapperboard className="w-4 h-4 mr-2"/>Escenario</Button><Button variant="outline" onClick={() => addElement('Living')}><Sofa className="w-4 h-4 mr-2"/>Living</Button><Button variant="outline" onClick={() => addElement('Área de Fotos')}><CameraIcon className="w-4 h-4 mr-2"/>Área Fotos</Button></div>
+                    <Button variant="outline" className="w-full" onClick={() => setIsCustomElementModalOpen(true)}><PlusCircle className="w-4 h-4 mr-2"/>Elemento Personalizado</Button>
                 </CardContent>
             </Card>
         </div>
@@ -262,13 +252,11 @@ function SalonLayoutContent() {
                 const nodeRef = React.createRef<HTMLDivElement>();
                 const isTable = el.category?.toLowerCase().includes('mesa');
                 
-                // Seat logic for tables
                 let seats = [];
                 if (isTable && el.seats) {
                   const radiusX = el.width / 2;
                   const radiusY = el.height / 2;
                   for (let i = 0; i < el.seats; i++) {
-                    const angle = (i / el.seats) * 2 * Math.PI;
                     const seatSize = 30; // px
                     let x, y;
                     if (el.category === 'Mesa Redonda') {
@@ -292,11 +280,9 @@ function SalonLayoutContent() {
 
                     seats.push(
                       <div key={i} onDragOver={e => e.preventDefault()} onDrop={e => handleSeatDrop(e, el, i+1)} 
-                           className={cn("absolute border-2 border-dashed border-gray-400 rounded-full flex items-center justify-center text-xs font-semibold text-gray-500", guestIconStyle === 'bw' && 'grayscale', assignedGuest && 'border-solid border-primary bg-primary/20 text-primary-foreground')}
+                           className={cn("absolute border-2 border-dashed border-gray-400 rounded-full flex items-center justify-center text-xs font-semibold text-gray-500", assignedGuest && 'border-solid border-primary bg-primary/20 text-primary-foreground')}
                            style={{ left: x, top: y, width: seatSize, height: seatSize }}>
-                        {assignedGuest ? 
-                          (guestNameStyle === 'initials' ? getInitials(assignedGuest.nombre) : guestNameStyle === 'full' ? assignedGuest.nombre : '') 
-                        : i + 1}
+                        {assignedGuest ? getInitials(assignedGuest.nombre) : i + 1}
                       </div>
                     );
                   }
@@ -320,29 +306,23 @@ function SalonLayoutContent() {
         </div>
         <div className="xl:col-span-3 space-y-4">
              <Card>
-                <CardHeader>
-                    <CardTitle>Controles del Diseño</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <h4 className="font-medium text-sm">Añadir Elementos</h4>
-                    <div className="grid grid-cols-2 gap-2"><Button variant="outline" onClick={() => addElement('Mesa Redonda')}><Circle className="w-4 h-4 mr-2"/>Mesa Redonda</Button><Button variant="outline" onClick={() => addElement('Mesa Rectangular')}><Square className="w-4 h-4 mr-2"/>Mesa Rectangular</Button><Button variant="outline" onClick={() => addElement('Pista de Baile')}><Disc className="w-4 h-4 mr-2"/>Pista</Button><Button variant="outline" onClick={() => addElement('Escenario')}><Clapperboard className="w-4 h-4 mr-2"/>Escenario</Button><Button variant="outline" onClick={() => addElement('Living')}><Sofa className="w-4 h-4 mr-2"/>Living</Button><Button variant="outline" onClick={() => addElement('Área de Fotos')}><CameraIcon className="w-4 h-4 mr-2"/>Área Fotos</Button></div>
-                    <Button variant="outline" className="w-full" onClick={() => setIsCustomElementModalOpen(true)}><PlusCircle className="w-4 h-4 mr-2"/>Elemento Personalizado</Button>
-                    <Separator/>
-                     <h4 className="font-medium text-sm">Configuración de Visualización</h4>
-                      <div className="space-y-2">
-                        <Label>Nombres de invitados</Label>
-                        <Select value={guestNameStyle} onValueChange={(v) => setGuestNameStyle(v as any)}>
-                          <SelectTrigger><SelectValue/></SelectTrigger>
-                          <SelectContent><SelectItem value="initials">Mostrar iniciales</SelectItem><SelectItem value="full">Nombre completo</SelectItem><SelectItem value="none">No mostrar</SelectItem></SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Iconos de personas</Label>
-                        <RadioGroup value={guestIconStyle} onValueChange={(v) => setGuestIconStyle(v as any)} className="flex gap-4">
-                          <div className="flex items-center space-x-2"><RadioGroupItem value="color" id="ricon-color"/><Label htmlFor="ricon-color">Coloreados</Label></div>
-                          <div className="flex items-center space-x-2"><RadioGroupItem value="bw" id="ricon-bw"/><Label htmlFor="ricon-bw">Blanco y Negro</Label></div>
-                        </RadioGroup>
-                      </div>
+                <CardHeader className="pb-3"><CardTitle>Invitados sin Mesa</CardTitle></CardHeader>
+                <CardContent>
+                    <div className="relative mb-2">
+                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input placeholder="Buscar invitado..." className="pl-8" value={guestSearchTerm} onChange={e => setGuestSearchTerm(e.target.value)} />
+                    </div>
+                    <ScrollArea className="h-96">
+                        <div className="space-y-2 pr-3">
+                            {invitadosSinMesa.map(inv => (
+                                <div key={inv.id} draggable onDragStart={e => e.dataTransfer.setData('guestId', inv.id)} className="p-2 border rounded bg-card cursor-grab shadow-sm">
+                                    <p className="font-medium text-sm">{inv.nombre}</p>
+                                    <p className="text-xs text-muted-foreground">{inv.partySize || 1} persona(s)</p>
+                                </div>
+                            ))}
+                            {invitadosSinMesa.length === 0 && <p className="text-sm text-center text-muted-foreground py-4">Todos los invitados confirmados tienen una mesa.</p>}
+                        </div>
+                    </ScrollArea>
                 </CardContent>
             </Card>
         </div>
