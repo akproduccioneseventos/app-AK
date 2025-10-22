@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -30,8 +30,14 @@ function MesaLookupContent() {
       setIsLoading(true);
       setError(null);
       try {
-        const fiestaData = await getFiestaActual();
+        const fiestaIdFromUrl = new URLSearchParams(window.location.search).get('fiestaId');
+        if (!fiestaIdFromUrl) {
+            throw new Error("No se encontró el ID del evento en el enlace.");
+        }
+        const fiestaData = await getFiestaById(fiestaIdFromUrl); // Usar getFiestaById
+        if(!fiestaData) throw new Error("Evento no encontrado.");
         setFiesta(fiestaData);
+        
         const foundInvitado = fiestaData.invitados?.find(inv => inv.id === guestId);
         
         if (foundInvitado) {
@@ -67,7 +73,7 @@ function MesaLookupContent() {
         </CardHeader>
         <CardContent className="text-center space-y-4 py-6">
           <p className="text-muted-foreground">{error}</p>
-          <Link href={`/evento/actual`} passHref>
+          <Link href={`/evento/actual?fiestaId=${fiesta?.id || ''}`} passHref>
             <Button variant="outline">Volver a la Página del Evento</Button>
           </Link>
         </CardContent>
@@ -121,7 +127,7 @@ function MesaLookupContent() {
         )}
       </CardContent>
       <CardFooter className="justify-center py-4">
-         <Link href={`/evento/actual`} passHref>
+         <Link href={`/evento/actual?fiestaId=${fiesta?.id || ''}`} passHref>
             <Button variant="outline" size="sm">Volver a la Página del Evento</Button>
           </Link>
       </CardFooter>
@@ -144,4 +150,6 @@ export default function MesaPage() {
         </div>
     );
 }
+    
+
     

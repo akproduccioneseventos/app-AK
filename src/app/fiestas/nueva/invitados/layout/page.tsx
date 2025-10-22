@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Disc, Clapperboard, Sofa, Camera as CameraIcon, Search, Printer, Settings2, FolderDown, FolderUp, Maximize, ZoomIn, ZoomOut } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Disc, Clapperboard, Sofa, Camera as CameraIcon, Search, Printer, Settings2, FolderDown, FolderUp, Maximize, ZoomIn, ZoomOut, Upload } from 'lucide-react';
 import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData } from '@/types/fiesta';
@@ -21,6 +21,8 @@ import { Separator } from '@/components/ui/separator';
 import { cn } from "@/lib/utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { saveSalonLayoutTemplate, getSalonLayoutTemplates, type SalonLayoutTemplate } from '@/app/actions/salon-layout-templates';
+import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
+
 
 const grid = 10;
 
@@ -53,6 +55,8 @@ function SalonLayoutContent() {
   const [scale, setScale] = useState(1);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [guestSearchTerm, setGuestSearchTerm] = useState('');
+  
+  const [isUploading, setIsUploading] = useState(false);
 
   const loadData = useCallback(async (showLoading = true) => {
     if (!fiestaId) return;
@@ -93,24 +97,22 @@ function SalonLayoutContent() {
     if (!decoracion) return;
     const pixelsPerMeter = decoracion.pixelsPerMeter || 40;
     
-    const defaultProps: Partial<LayoutElement> = { 
-        width: 3 * pixelsPerMeter, height: 3 * pixelsPerMeter, seats: 8 
-    };
+    let defaultProps: Partial<LayoutElement> = { width: 3 * pixelsPerMeter, height: 3 * pixelsPerMeter, seats: 8 };
 
-    if (category === 'Mesa Rectangular') { defaultProps.width = 4 * pixelsPerMeter; defaultProps.height = 2 * pixelsPerMeter; }
-    else if (category === 'Pista de Baile') { defaultProps.width = 6 * pixelsPerMeter; defaultProps.height = 6 * pixelsPerMeter; defaultProps.seats = undefined; }
-    else if (category === 'Escenario') { defaultProps.width = 5 * pixelsPerMeter; defaultProps.height = 2.5 * pixelsPerMeter; defaultProps.seats = undefined; }
-    else if (category === 'Living') { defaultProps.width = 4.5 * pixelsPerMeter; defaultProps.height = 4.5 * pixelsPerMeter; defaultProps.seats = undefined; }
-    else if (category === 'Área de Fotos') { defaultProps.width = 4 * pixelsPerMeter; defaultProps.height = 2.5 * pixelsPerMeter; defaultProps.seats = undefined; }
+    if (category === 'Mesa Rectangular') { defaultProps = { width: 4 * pixelsPerMeter, height: 2 * pixelsPerMeter, seats: 8 }; }
+    else if (category === 'Pista de Baile') { defaultProps = { width: 6 * pixelsPerMeter, height: 6 * pixelsPerMeter, seats: undefined }; }
+    else if (category === 'Escenario') { defaultProps = { width: 5 * pixelsPerMeter, height: 2.5 * pixelsPerMeter, seats: undefined }; }
+    else if (category === 'Living') { defaultProps = { width: 4.5 * pixelsPerMeter, height: 4.5 * pixelsPerMeter, seats: undefined }; }
+    else if (category === 'Área de Fotos') { defaultProps = { width: 4 * pixelsPerMeter, height: 2.5 * pixelsPerMeter, seats: undefined }; }
 
     const newElement: LayoutElement = {
       id: `el_${Date.now()}`, name: customProps?.name || `${category} ${ (decoracion.salonElements?.filter(e => e.category === category).length || 0) + 1}`,
-      x: 20, y: 20, rotation: 0, quantity: 1, type: 'predefined', ...defaultProps, ...customProps, category,
+      x: 20, y: 20, rotation: 0, ...defaultProps, ...customProps, category, type: 'predefined',
     };
     setDecoracion({ ...decoracion, salonElements: [...(decoracion.salonElements || []), newElement] });
   };
   
-const handleAddCustomElement = () => {
+  const handleAddCustomElement = () => {
     if (!customElement.name.trim()) { toast({ title: "Nombre requerido", variant: "destructive" }); return; }
     if (!decoracion) return;
 
@@ -122,20 +124,20 @@ const handleAddCustomElement = () => {
         height: (customElement.height || 1) * pixelsPerMeter,
         category: 'Varios',
         seats: customElement.shape === 'circle' ? 8 : undefined,
-        shape: customElement.shape as 'rectangle' | 'circle',
     };
     
     addElement('Varios', newElementData);
     
     setIsCustomElementModalOpen(false);
     setCustomElement({ name: '', width: 2, height: 1, shape: 'rectangle' });
-};
+  };
 
 
   const handleOpenEditModal = (element: LayoutElement) => { setEditingElement(element); setIsEditModalOpen(true); };
   const handleUpdateElement = () => {
     if (!editingElement || !decoracion) return;
     const pixelsPerMeter = decoracion.pixelsPerMeter || 40;
+    
     const updatedWidth = editingElement.width && !String(editingElement.width).endsWith('px') ? editingElement.width * pixelsPerMeter : editingElement.width;
     const updatedHeight = editingElement.height && !String(editingElement.height).endsWith('px') ? editingElement.height * pixelsPerMeter : editingElement.height;
 
@@ -203,9 +205,9 @@ const handleAddCustomElement = () => {
     }
   };
   
-  const handleAssignGuestToSeat = async (guestId: string, tableId: string, seatIndex: number) => {
+  const handleAssignGuestToTable = async (guestId: string, tableName: string) => {
     const updatedInvitados = (fiesta?.invitados || []).map(inv => 
-      inv.id === guestId ? { ...inv, tableNumber: tableId, seatNumber: seatIndex } : inv
+      inv.id === guestId ? { ...inv, tableNumber: tableName } : inv
     );
     if (fiesta) {
       setFiesta({ ...fiesta, invitados: updatedInvitados });
@@ -216,12 +218,31 @@ const handleAddCustomElement = () => {
 
   const handleUnassignGuest = async (guestId: string) => {
     const updatedInvitados = (fiesta?.invitados || []).map(inv => 
-      inv.id === guestId ? { ...inv, tableNumber: undefined, seatNumber: undefined } : inv
+      inv.id === guestId ? { ...inv, tableNumber: undefined } : inv
     );
      if (fiesta) {
       setFiesta({ ...fiesta, invitados: updatedInvitados });
       const guestToUpdate = updatedInvitados.find(i => i.id === guestId);
       if (guestToUpdate) await updateInvitadoFiestaActual(fiesta.id, guestToUpdate);
+    }
+  };
+
+  const handleBackgroundImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !fiestaId) return;
+    setIsUploading(true);
+    try {
+      const result = await uploadPublicPageAsset(fiestaId, file);
+      if(result.success && result.url) {
+        if(decoracion) setDecoracion({ ...decoracion, salonPlanBackgroundImageUrl: result.url });
+        toast({ title: "Plano Subido", description: "La imagen de fondo ha sido actualizada." });
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (e: any) {
+      toast({ title: "Error al subir", description: e.message, variant: "destructive" });
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -263,9 +284,21 @@ const handleAddCustomElement = () => {
                <h4 className="font-medium text-sm">Añadir Elementos</h4>
                <div className="grid grid-cols-2 gap-2"><Button variant="outline" onClick={() => addElement('Mesa Redonda')}><Circle className="w-4 h-4 mr-2"/>Mesa Redonda</Button><Button variant="outline" onClick={() => addElement('Mesa Rectangular')}><Square className="w-4 h-4 mr-2"/>Mesa Rectangular</Button><Button variant="outline" onClick={() => addElement('Pista de Baile')}><Disc className="w-4 h-4 mr-2"/>Pista</Button><Button variant="outline" onClick={() => addElement('Escenario')}><Clapperboard className="w-4 h-4 mr-2"/>Escenario</Button><Button variant="outline" onClick={() => addElement('Living')}><Sofa className="w-4 h-4 mr-2"/>Living</Button><Button variant="outline" onClick={() => addElement('Área de Fotos')}><CameraIcon className="w-4 h-4 mr-2"/>Área Fotos</Button></div>
                <Button variant="outline" className="w-full" onClick={() => setIsCustomElementModalOpen(true)}><PlusCircle className="w-4 h-4 mr-2"/>Elemento Personalizado</Button>
+               <Separator/>
+                 <div className="space-y-2">
+                    <Label htmlFor="bg-image-upload" className="font-medium text-sm">Plano de Fondo</Label>
+                    <div className="flex gap-2 items-center">
+                        <Input id="bg-image-upload" type="file" accept="image/*" onChange={handleBackgroundImageUpload} className="text-xs file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"/>
+                        {isUploading && <Loader2 className="w-4 h-4 animate-spin"/>}
+                    </div>
+                </div>
           </CardContent>
           <CardFooter className="flex-col gap-2 pt-4 border-t">
               <Button onClick={handleSaveAll} disabled={isSaving} className="w-full"><Save className="w-4 h-4 mr-2"/>Guardar Plano del Salón</Button>
+               <div className="flex w-full gap-2">
+                    <Dialog open={isSaveTemplateModalOpen} onOpenChange={setIsSaveTemplateModalOpen}><DialogTrigger asChild><Button variant="secondary" className="flex-1"><FolderUp className="w-4 h-4 mr-2"/>Guardar como Plantilla</Button></DialogTrigger><DialogContent><DialogHeader><DialogTitle>Guardar Plantilla de Salón</DialogTitle></DialogHeader><div className="py-2"><Label>Nombre:</Label><Input value={templateName} onChange={e => setTemplateName(e.target.value)}/></div><DialogFooter><Button variant="outline" onClick={()=>setIsSaveTemplateModalOpen(false)}>Cancelar</Button><Button onClick={handleSaveAsTemplate} disabled={isTemplateActionLoading}>Guardar</Button></DialogFooter></DialogContent></Dialog>
+                    <Button variant="secondary" className="flex-1" onClick={handleLoadTemplate} disabled={isTemplateActionLoading}><FolderDown className="w-4 h-4 mr-2"/>Cargar Plantilla</Button>
+                </div>
           </CardFooter>
         </Card>
         <div className={cn("xl:col-span-9 bg-card", isFullScreen ? 'fixed inset-0 z-40 p-4' : '')}>
@@ -311,3 +344,5 @@ export default function SalonLayoutPage() {
         </Suspense>
     )
 }
+
+    

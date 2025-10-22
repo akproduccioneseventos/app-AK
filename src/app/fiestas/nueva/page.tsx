@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, AlertTriangle, PartyPopper, Calendar, Users, Palette, ChefHat, Music2, ListChecks, DollarSign, Camera, Gift, FileText, UserCheck, Clock, Archive, PackageSearch, Video, Globe, MessageSquare, LayoutDashboard, Link as LinkIcon, Image as ImageIcon, GlassWater } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, PartyPopper, Calendar, Users, Palette, ChefHat, Music2, ListChecks, DollarSign, Camera, Gift, FileText, UserCheck, Clock, Archive, PackageSearch, Video, Globe, MessageSquare, LayoutDashboard } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -29,8 +29,6 @@ const modules = [
   { title: "Página del Evento", href: "pagina-web", icon: Globe, description: "Personaliza la web que verán tus invitados." },
   { title: "Diseño y Decoración", href: "decoracion", icon: Palette, description: "Define el estilo y la ambientación." },
   { title: "Catering", href: "catering", icon: ChefHat, description: "Planifica el menú gastronómico." },
-  { title: "Carta de Tragos", href: "carta-tragos", icon: GlassWater, description: "Diseña el menú de la barra de tragos." },
-  { title: "Menú para Mesas", href: "menu-mesa", icon: FileText, description: "Imprime el menú para cada mesa." },
   { title: "Música", href: "musica", icon: Music2, description: "Define las preferencias musicales." },
   { title: "Personal", href: "personal", icon: UserCheck, description: "Asigna personal al evento." },
   { title: "Itinerario", href: "itinerario", icon: Clock, description: "Organiza el cronograma." },
@@ -40,7 +38,6 @@ const modules = [
   { title: "Fotografía y Video", href: "fotografia", icon: Camera, description: "Seguimiento de entregas." },
   { title: "Video de Vida", href: "video-vida", icon: Video, description: "Gestiona las fotos del cliente." },
   { title: "Reuniones", href: "reuniones", icon: MessageSquare, description: "Agenda y minutas de reuniones." },
-  { title: "Muro Social (En Vivo)", href: "/evento/social/[fiestaId]", icon: ImageIcon, description: "Galería de fotos de los invitados en tiempo real." },
 ];
 
 function PlannerDashboardContent() {
@@ -129,11 +126,11 @@ function PlannerDashboardContent() {
         </CardHeader>
         <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {modules.map(module => {
-            const href = module.href.startsWith('/') 
-                ? module.href.replace('[fiestaId]', fiesta.id) + `?fiestaId=${fiesta.id}`
-                : `/fiestas/nueva/${module.href}?fiestaId=${fiesta.id}`;
+            const hrefWithId = module.href.startsWith('/') 
+                ? module.href.replace('[fiestaId]', fiesta.id)
+                : `/fiestas/nueva/${module.href}`;
             return (
-              <Link key={module.href} href={href} passHref>
+              <Link key={module.href} href={`${hrefWithId}?fiestaId=${fiesta.id}`} passHref>
                 <Card className="h-full hover:shadow-lg hover:border-primary/50 transition-all cursor-pointer flex flex-col">
                   <CardHeader className="flex-row items-center gap-3 space-y-0 pb-2">
                     <div className="p-2 bg-primary/10 rounded-md"><module.icon className="w-5 h-5 text-primary" /></div>
@@ -162,3 +159,5 @@ export default function PlannerDashboardPage() {
         </Suspense>
     );
 }
+
+    
