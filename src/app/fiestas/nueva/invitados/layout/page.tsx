@@ -12,7 +12,7 @@ import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVer
 import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData } from '@/types/fiesta';
-import { getFiestaById, updateDecoracionFiestaActual, updateInvitado } from '@/app/actions/fiesta-actual';
+import { getFiestaById, updateDecoracionFiestaActual, updateInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogTrigger } from "@/components/ui/dialog";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import NextImage from 'next/image';
@@ -103,7 +103,7 @@ function SalonLayoutContent() {
   
   const addElement = (category: string, customProps?: Partial<LayoutElement>) => {
     if (!decoracion) return;
-    const defaultProps: Partial<LayoutElement> = { width: 120, height: 120, seats: category.toLowerCase().includes('mesa') ? 8 : undefined };
+    const defaultProps: Partial<LayoutElement> = { width: 120, height: 120, seats: 8 };
     if (category === 'Mesa Redonda') { defaultProps.width = 120; defaultProps.height = 120; }
     else if (category === 'Mesa Rectangular') { defaultProps.width = 180; defaultProps.height = 80; }
     else if (category === 'Pista de Baile') { defaultProps.width = 240; defaultProps.height = 240; defaultProps.seats = undefined; }
@@ -171,9 +171,9 @@ function SalonLayoutContent() {
     if (!decoracion || !fiestaId) return;
     setIsSaving(true);
     try {
-        const updateGuestPromises = invitados.map(invitado => updateInvitado(fiestaId, invitado));
+        const updateGuestPromises = invitados.map(invitado => updateInvitadoFiestaActual(fiestaId, invitado));
         await Promise.all(updateGuestPromises);
-        await updateDecoracionFiestaActual(decoracion);
+        await updateDecoracionFiestaActual(fiestaId, decoracion);
         toast({ title: "¡Guardado!", description: "El diseño del salón y la asignación de invitados han sido guardados." });
         await loadData(false);
     } catch(err: any) {
@@ -253,20 +253,6 @@ function SalonLayoutContent() {
       </div>
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 h-[calc(100vh-250px)]">
         <div className="xl:col-span-3 space-y-4 flex flex-col min-h-0">
-          <Card className="shadow-sm">
-            <CardHeader className="pb-3"><CardTitle className="text-md">Añadir Elementos</CardTitle></CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-2">
-                <Button variant="outline" onClick={() => addElement('Mesa Redonda')}><Circle className="w-4 h-4 mr-2"/>Mesa Redonda</Button>
-                <Button variant="outline" onClick={() => addElement('Mesa Rectangular')}><Square className="w-4 h-4 mr-2"/>Mesa Rectangular</Button>
-                <Button variant="outline" onClick={() => addElement('Pista de Baile')}><Disc className="w-4 h-4 mr-2"/>Pista</Button>
-                <Button variant="outline" onClick={() => addElement('Escenario')}><Clapperboard className="w-4 h-4 mr-2"/>Escenario</Button>
-                <Button variant="outline" onClick={() => addElement('Living')}><Sofa className="w-4 h-4 mr-2"/>Living</Button>
-                <Button variant="outline" onClick={() => addElement('Área de Fotos')}><CameraIcon className="w-4 h-4 mr-2"/>Área Fotos</Button>
-              </div>
-              <Button variant="outline" className="w-full mt-2" onClick={() => setIsCustomElementModalOpen(true)}><PlusCircle className="w-4 h-4 mr-2"/>Elemento Personalizado</Button>
-            </CardContent>
-          </Card>
           <Card className="flex-grow flex flex-col min-h-0 shadow-sm">
             <CardHeader className="pb-3"><CardTitle className="text-md">Invitados sin Mesa ({invitadosSinMesa.length})</CardTitle></CardHeader>
             <CardContent className="flex-grow flex flex-col min-h-0 p-2">
@@ -350,10 +336,30 @@ function SalonLayoutContent() {
           </Card>
         </div>
         <div className="xl:col-span-3 space-y-4 flex flex-col min-h-0">
-             <Card className="flex-grow flex flex-col min-h-0 shadow-sm">
-                <CardHeader className="pb-3"><CardTitle className="text-md">Asignación por Mesa</CardTitle></CardHeader>
-                <CardContent className="flex-grow min-h-0 p-2">
-                    <ScrollArea className="h-full pr-2">
+             <Card>
+                <CardHeader className="pb-3">
+                    <h4 className="font-medium text-sm">Añadir Elementos</h4>
+                </CardHeader>
+                <CardContent className="grid grid-cols-2 gap-2">
+                    <Button variant="outline" onClick={() => addElement('Mesa Redonda')}><Circle className="w-4 h-4 mr-2"/>Mesa Redonda</Button>
+                    <Button variant="outline" onClick={() => addElement('Mesa Rectangular')}><Square className="w-4 h-4 mr-2"/>Mesa Rectangular</Button>
+                    <Button variant="outline" onClick={() => addElement('Pista de Baile')}><Disc className="w-4 h-4 mr-2"/>Pista</Button>
+                    <Button variant="outline" onClick={() => addElement('Escenario')}><Clapperboard className="w-4 h-4 mr-2"/>Escenario</Button>
+                    <Button variant="outline" onClick={() => addElement('Living')}><Sofa className="w-4 h-4 mr-2"/>Living</Button>
+                    <Button variant="outline" onClick={() => addElement('Área de Fotos')}><CameraIcon className="w-4 h-4 mr-2"/>Área Fotos</Button>
+                </CardContent>
+                <CardFooter className="flex-col gap-2">
+                   <Button variant="outline" className="w-full" onClick={() => setIsCustomElementModalOpen(true)}><PlusCircle className="w-4 h-4 mr-2"/>Elemento Personalizado</Button>
+                   <Button type="button" onClick={handleLoadTemplate} variant="outline" className="w-full"><FolderDown className="w-4 h-4 mr-2"/>Cargar Plantilla</Button>
+                   <Dialog open={isSaveTemplateModalOpen} onOpenChange={setIsSaveTemplateModalOpen}><DialogTrigger asChild><Button type="button" className="w-full"><FolderUp className="w-4 h-4 mr-2"/>Guardar Diseño</Button></DialogTrigger><DialogContent><DialogHeader><DialogTitle>Guardar Diseño como Plantilla</DialogTitle></DialogHeader><div className="space-y-2 py-2"><Label htmlFor="template-name">Nombre de la Plantilla</Label><Input id="template-name" value={templateName} onChange={e=>setTemplateName(e.target.value)} placeholder="Ej: Club Uruguay - 80 invitados"/></div><DialogFooter><DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose><Button onClick={handleSaveAsTemplate} disabled={isSaving}>Guardar</Button></DialogFooter></DialogContent></Dialog>
+                </CardFooter>
+            </Card>
+             <Card>
+                <CardHeader>
+                    <CardTitle>Asignación por Mesa</CardTitle>
+                </CardHeader>
+                <CardContent className="p-2">
+                    <ScrollArea className="h-60 pr-2">
                         <Accordion type="multiple" className="w-full space-y-2">
                             {mesas.map(mesa => {
                                 const invitadosEnMesa = invitados.filter(inv => inv.tableNumber === mesa.name);
