@@ -295,7 +295,6 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                                 <div className="space-y-1 lg:col-span-2"><Label className="text-xs">Nombre</Label><Input value={ing.name || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'name', e.target.value)} className="h-8"/></div>
                                 <div className="space-y-1"><Label className="text-xs">Cant. p/p</Label><Input value={ing.quantityPerPerson || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'quantityPerPerson', e.target.value)} className="h-8"/></div>
                                 <div className="space-y-1"><Label className="text-xs">Unidad</Label><Input value={ing.unit || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'unit', e.target.value)} className="h-8"/></div>
-                                <div className="space-y-1"><Label className="text-xs">Proveedor</Label><Input value={ing.proveedor || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'proveedor', e.target.value)} className="h-8"/></div>
                                 <div className="space-y-1"><Label className="text-xs">Costo ($)</Label><Input type="number" value={ing.cost || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'cost', Number(e.target.value))} className="h-8"/></div>
                                 <div className="lg:col-span-5 flex justify-end">
                                 <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteIngredient(item.id, ing.id)}><Trash2 className="w-3.5 h-3.5"/></Button>
@@ -308,8 +307,8 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                         <Button type="button" size="sm" variant="outline" onClick={() => openCatalogModal(item.id)}><BookOpen className="w-4 h-4 mr-1.5"/>Seleccionar del Catálogo</Button>
                      </div>
                  </CardContent>
-                 <CardFooter className="p-0 pt-4">
-                    <div className="grid grid-cols-3 gap-4 w-full">
+                 <CardFooter className="p-0 pt-4 mt-4 border-t">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
                         <div className="space-y-1">
                             <Label className="text-sm font-medium">Costo p/Persona</Label>
                             <p className="font-semibold text-lg">{formatCurrency(item.totalDishCost || 0)}</p>
@@ -320,7 +319,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                         </div>
                         <div className="space-y-1">
                              <Label htmlFor={`price-${item.id}`} className="text-sm flex items-center gap-1"><DollarSign className="w-3 h-3"/>Precio ($)</Label>
-                             <Input id={`price-${item.id}`} type="number" value={item.suggestedSellingPrice?.toFixed(0) ?? ''} onChange={e => handleItemChange(item.id, 'suggestedSellingPrice', e.target.value)} />
+                             <Input id={`price-${item.id}`} type="number" value={item.suggestedSellingPrice?.toFixed(0) ?? ''} onChange={e => handleItemChange(item.id, 'suggestedSellingPrice', parseFloat(e.target.value))} />
                         </div>
                     </div>
                  </CardFooter>
