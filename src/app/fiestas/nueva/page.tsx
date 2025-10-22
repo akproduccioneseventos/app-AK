@@ -24,7 +24,8 @@ const formatDate = (dateString?: string) => {
 const modules = [
   { title: "Configuración", href: "configuracion", icon: Users, description: "Datos generales del evento." },
   { title: "Tareas", href: "tareas", icon: ListChecks, description: "Checklist de pendientes." },
-  { title: "Invitados", href: "invitados", icon: Users, description: "Gestiona tu lista, asigna mesas e imprime los números." },
+  { title: "Invitados", href: "invitados", icon: Users, description: "Gestiona tu lista y el diseño del salón." },
+  { title: "Asignación de Mesas (Cliente)", href: "/evento/actual/mesa", icon: LayoutDashboard, description: "Vista para que el cliente asigne sus invitados." },
   { title: "Página del Evento", href: "pagina-web", icon: Globe, description: "Personaliza la web que verán tus invitados." },
   { title: "Diseño y Decoración", href: "decoracion", icon: Palette, description: "Define el estilo y la ambientación." },
   { title: "Catering", href: "catering", icon: ChefHat, description: "Planifica el menú gastronómico." },
@@ -129,7 +130,7 @@ function PlannerDashboardContent() {
         <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {modules.map(module => {
             const href = module.href.startsWith('/') 
-                ? module.href.replace('[fiestaId]', fiesta.id)
+                ? module.href.replace('[fiestaId]', fiesta.id) + `?fiestaId=${fiesta.id}`
                 : `/fiestas/nueva/${module.href}?fiestaId=${fiesta.id}`;
             return (
               <Link key={module.href} href={href} passHref>

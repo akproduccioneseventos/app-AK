@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
@@ -111,32 +110,40 @@ function SalonLayoutContent() {
     setDecoracion({ ...decoracion, salonElements: [...(decoracion.salonElements || []), newElement] });
   };
   
-  const handleAddCustomElement = () => {
-    if (!customElement.name.trim()) { toast({title: "Nombre requerido", variant: "destructive"}); return; }
+ const handleAddCustomElement = () => {
+    if (!customElement.name.trim()) { toast({ title: "Nombre requerido", variant: "destructive" }); return; }
     if (!decoracion) return;
 
     const pixelsPerMeter = decoracion.pixelsPerMeter || 40;
     const categoryName = customElement.shape === 'circle' ? 'Mesa Redonda' : 'Varios';
     
     const newElementData: Partial<LayoutElement> = {
-      name: customElement.name,
-      width: customElement.width * pixelsPerMeter,
-      height: customElement.height * pixelsPerMeter,
-      category: categoryName,
-      seats: customElement.shape === 'circle' ? 8 : undefined, // Default seats for custom round tables
-      shape: customElement.shape as 'rectangle' | 'circle',
+        name: customElement.name,
+        width: (customElement.width || 2) * pixelsPerMeter,
+        height: (customElement.height || 1) * pixelsPerMeter,
+        category: categoryName,
+        seats: customElement.shape === 'circle' ? 8 : undefined, // Default seats for custom round tables
+        shape: customElement.shape as 'rectangle' | 'circle',
     };
     
+    // Use the existing addElement function to create the new element
     addElement(categoryName, newElementData);
+    
     setIsCustomElementModalOpen(false);
     setCustomElement({ name: '', category: 'Varios', width: 2, height: 1, shape: 'rectangle' });
-  };
+};
 
 
   const handleOpenEditModal = (element: LayoutElement) => { setEditingElement(element); setIsEditModalOpen(true); };
   const handleUpdateElement = () => {
     if (!editingElement || !decoracion) return;
-    const newElements = (decoracion.salonElements || []).map(el => el.id === editingElement.id ? editingElement : el);
+    const pixelsPerMeter = decoracion.pixelsPerMeter || 40;
+    const updatedWidth = editingElement.width && !String(editingElement.width).endsWith('px') ? editingElement.width * pixelsPerMeter : editingElement.width;
+    const updatedHeight = editingElement.height && !String(editingElement.height).endsWith('px') ? editingElement.height * pixelsPerMeter : editingElement.height;
+
+    const finalElement = { ...editingElement, width: updatedWidth, height: updatedHeight };
+
+    const newElements = (decoracion.salonElements || []).map(el => el.id === editingElement.id ? finalElement : el);
     setDecoracion({ ...decoracion, salonElements: newElements });
     setIsEditModalOpen(false);
     setEditingElement(null);
@@ -221,10 +228,11 @@ function SalonLayoutContent() {
   };
 
   const invitadosSinMesa = useMemo(() => {
-    return (fiesta?.invitados || [])
+    if (!fiesta) return [];
+    return (fiesta.invitados || [])
       .filter(inv => !inv.tableNumber && (inv.rsvp === 'Confirmado' || inv.rsvp === 'Pendiente') && inv.nombre.toLowerCase().includes(guestSearchTerm.toLowerCase()))
       .sort((a, b) => a.nombre.localeCompare(b.nombre));
-  }, [fiesta?.invitados, guestSearchTerm]);
+  }, [fiesta, guestSearchTerm]);
   
 
   if (isLoading) return <div className="flex items-center justify-center p-8"><Loader2 className="w-8 h-8 animate-spin" /></div>;
@@ -252,7 +260,7 @@ function SalonLayoutContent() {
         <Card className="xl:col-span-3 flex flex-col"><CardHeader><CardTitle>Controles</CardTitle></CardHeader>
           <CardContent className="flex-grow space-y-4 overflow-y-auto">
              <div className="grid grid-cols-2 gap-3"><div className="space-y-1"><Label>Ancho Salón (m)</Label><Input type="number" value={decoracion.salonWidth || 15} onChange={e => setDecoracion(d => d ? {...d, salonWidth: Number(e.target.value)} : null)} /></div><div className="space-y-1"><Label>Alto Salón (m)</Label><Input type="number" value={decoracion.salonHeight || 15} onChange={e => setDecoracion(d => d ? {...d, salonHeight: Number(e.target.value)} : null)} /></div></div>
-             <div className="space-y-1"><Label>Píxeles por Metro</Label><Input type="number" value={decoracion.pixelsPerMeter || 30} onChange={e => setDecoracion(d => d ? {...d, pixelsPerMeter: Number(e.target.value)} : null)} /></div>
+             <div className="space-y-1"><Label>Píxeles por Metro</Label><Input type="number" value={decoracion.pixelsPerMeter || 40} onChange={e => setDecoracion(d => d ? {...d, pixelsPerMeter: Number(e.target.value)} : null)} /></div>
              <Separator/>
                <h4 className="font-medium text-sm">Añadir Elementos</h4>
                <div className="grid grid-cols-2 gap-2"><Button variant="outline" onClick={() => addElement('Mesa Redonda')}><Circle className="w-4 h-4 mr-2"/>Mesa Redonda</Button><Button variant="outline" onClick={() => addElement('Mesa Rectangular')}><Square className="w-4 h-4 mr-2"/>Mesa Rectangular</Button><Button variant="outline" onClick={() => addElement('Pista de Baile')}><Disc className="w-4 h-4 mr-2"/>Pista</Button><Button variant="outline" onClick={() => addElement('Escenario')}><Clapperboard className="w-4 h-4 mr-2"/>Escenario</Button><Button variant="outline" onClick={() => addElement('Living')}><Sofa className="w-4 h-4 mr-2"/>Living</Button><Button variant="outline" onClick={() => addElement('Área de Fotos')}><CameraIcon className="w-4 h-4 mr-2"/>Área Fotos</Button></div>
