@@ -1,22 +1,22 @@
-
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense, use } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Image as ImageIcon, Maximize, Minimize, Sofa, Disc, Clapperboard, Camera as CameraIcon, Search, Printer, Settings2 } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Disc, Clapperboard, Sofa, Camera as CameraIcon, Search, Printer, Settings2 } from 'lucide-react';
 import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData } from '@/types/fiesta';
 import { getFiestaById, updateDecoracionFiestaActual, updateInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogTrigger } from "@/components/ui/dialog";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import NextImage from 'next/image';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Separator } from '@/components/ui/separator';
 import { cn } from "@/lib/utils";
 
 const grid = 10;
@@ -50,8 +50,11 @@ function SalonLayoutContent() {
   const [customElement, setCustomElement] = useState({ name: '', category: 'Varios', width: 100, height: 100, shape: 'rectangle' });
   
   const [guestSearchTerm, setGuestSearchTerm] = useState('');
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const canvasRef = useRef<HTMLDivElement>(null);
+  
+  const [isAsignacionModalOpen, setIsAsignacionModalOpen] = useState(false);
+  const [mesaParaAsignar, setMesaParaAsignar] = useState<LayoutElement | null>(null);
+  const [asignacionSearchTerm, setAsignacionSearchTerm] = useState('');
+
 
   const loadData = useCallback(async (showLoading = true) => {
     if (!fiestaId) return;
@@ -184,20 +187,6 @@ function SalonLayoutContent() {
   
   const mesas = useMemo(() => (decoracion?.salonElements || []).filter(el => el.category?.toLowerCase().includes('mesa')), [decoracion]);
 
-  const handleFullscreenToggle = () => {
-    const elem = canvasRef.current;
-    if (!elem) return;
-    if (!document.fullscreenElement) {
-        elem.requestFullscreen().catch(err => {
-            alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
-        });
-        setIsFullscreen(true);
-    } else {
-        document.exitFullscreen();
-        setIsFullscreen(false);
-    }
-  };
-
   if (isLoading) return <div className="flex items-center justify-center p-8"><Loader2 className="w-8 h-8 animate-spin" /></div>;
   if (error) return <div className="text-destructive text-center p-4">{error}</div>;
   if (!decoracion) return null;
@@ -210,7 +199,7 @@ function SalonLayoutContent() {
     <div className="space-y-6">
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}><DialogContent><DialogHeader><DialogTitle>Editar Elemento: {editingElement?.name}</DialogTitle></DialogHeader>{editingElement && (<div className="space-y-4"><div className="space-y-1"><Label htmlFor="el-name">Nombre</Label><Input id="el-name" value={editingElement.name} onChange={e => setEditingElement(prev => prev ? {...prev, name: e.target.value} : null)}/></div>{editingElement.category?.includes('Mesa') && <div className="space-y-1"><Label htmlFor="el-seats">Asientos</Label><Input id="el-seats" type="number" value={editingElement.seats || 0} onChange={e => setEditingElement(prev => prev ? {...prev, seats: Number(e.target.value) || 0} : null)}/></div>}<div className="grid grid-cols-2 gap-3"><div className="space-y-1"><Label htmlFor="el-width">Ancho (px)</Label><Input id="el-width" type="number" value={editingElement.width || 0} onChange={e => setEditingElement(prev => prev ? {...prev, width: Number(e.target.value) || 0} : null)}/></div><div className="space-y-1"><Label htmlFor="el-height">Alto (px)</Label><Input id="el-height" type="number" value={editingElement.height || 0} onChange={e => setEditingElement(prev => prev ? {...prev, height: Number(e.target.value) || 0} : null)}/></div></div></div>)}<DialogFooter><Button variant="outline" onClick={() => setIsEditModalOpen(false)}>Cancelar</Button><Button onClick={handleUpdateElement}>Guardar</Button></DialogFooter></DialogContent></Dialog>
       <Dialog open={isCustomElementModalOpen} onOpenChange={setIsCustomElementModalOpen}><DialogContent><DialogHeader><DialogTitle>Crear Elemento Personalizado</DialogTitle></DialogHeader><div className="space-y-3 py-2"><div className="space-y-1"><Label htmlFor="custom-el-name">Nombre</Label><Input id="custom-el-name" value={customElement.name} onChange={e => setCustomElement(p => ({...p, name: e.target.value}))}/></div><div className="grid grid-cols-2 gap-3"><div className="space-y-1"><Label htmlFor="custom-el-width">Ancho (px)</Label><Input id="custom-el-width" type="number" value={customElement.width} onChange={e => setCustomElement(p => ({...p, width: Number(e.target.value)}))}/></div><div className="space-y-1"><Label htmlFor="custom-el-height">Alto (px)</Label><Input id="custom-el-height" type="number" value={customElement.height} onChange={e => setCustomElement(p => ({...p, height: Number(e.target.value)}))}/></div></div><div className="space-y-1"><Label>Forma</Label><RadioGroup defaultValue="rectangle" value={customElement.shape} onValueChange={(v) => setCustomElement(p=>({...p, shape:v}))} className="flex gap-4"><div className="flex items-center space-x-2"><RadioGroupItem value="rectangle" id="shape-rect"/><Label htmlFor="shape-rect">Rectángulo</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="circle" id="shape-circ"/><Label htmlFor="shape-circ">Círculo</Label></div></RadioGroup></div></div><DialogFooter><DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose><Button onClick={handleAddCustomElement}>Añadir Elemento</Button></DialogFooter></DialogContent></Dialog>
-
+      
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
             <LayoutDashboard className="w-8 h-8 text-primary"/>
@@ -244,8 +233,8 @@ function SalonLayoutContent() {
                 </CardContent>
             </Card>
         </div>
-        <div ref={canvasRef} className={cn("xl:col-span-6 bg-card transition-all duration-300", isFullscreen && "fixed inset-0 z-50 p-4")}>
-          <Card className="h-full flex flex-col"><CardHeader className="flex-row items-center justify-between"><CardTitle>Lienzo del Salón</CardTitle><div className="flex gap-2"><Button variant="ghost" size="icon" onClick={handleFullscreenToggle}>{isFullscreen ? <Minimize className="w-5 h-5"/> : <Maximize className="w-5 h-5"/>}</Button></div></CardHeader>
+        <div className="xl:col-span-6 bg-card">
+          <Card className="h-full flex flex-col"><CardHeader><CardTitle>Lienzo del Salón</CardTitle></CardHeader>
             <CardContent className="flex-grow"><div className="relative border rounded-lg overflow-auto canvas-grid-background h-full"><div style={{ width: `${salonWidthPx}px`, height: `${salonHeightPx}px`}} className="relative">
               {decoracion.salonPlanBackgroundImageUrl && (<NextImage src={decoracion.salonPlanBackgroundImageUrl} alt="Plano del Salón" layout="fill" objectFit="contain" className="opacity-50" data-ai-hint="event floor plan"/>)}
               {(decoracion.salonElements || []).map(el => {
@@ -254,26 +243,21 @@ function SalonLayoutContent() {
                 
                 let seats = [];
                 if (isTable && el.seats) {
-                  const radiusX = el.width / 2;
-                  const radiusY = el.height / 2;
                   for (let i = 0; i < el.seats; i++) {
+                    const angle = (i / el.seats) * 2 * Math.PI;
                     const seatSize = 30; // px
                     let x, y;
                     if (el.category === 'Mesa Redonda') {
-                       x = radiusX + (radiusX + seatSize / 2 + 5) * Math.cos(angle) - seatSize / 2;
-                       y = radiusY + (radiusY + seatSize / 2 + 5) * Math.sin(angle) - seatSize / 2;
+                       x = el.width / 2 + (el.width / 2 + seatSize / 2 + 5) * Math.cos(angle) - seatSize / 2;
+                       y = el.height / 2 + (el.height / 2 + seatSize / 2 + 5) * Math.sin(angle) - seatSize / 2;
                     } else { // Rectangular
                        const perimeter = 2 * el.width + 2 * el.height;
                        const seatSpacing = perimeter / el.seats;
                        let p = i * seatSpacing;
-                       if (p < el.width) { // Top edge
-                           x = p - seatSize / 2; y = -seatSize - 5;
-                       } else if (p < el.width + el.height) { // Right edge
-                           x = el.width + 5; y = (p - el.width) - seatSize / 2;
-                       } else if (p < 2 * el.width + el.height) { // Bottom edge
-                           x = el.width - (p - el.width - el.height) - seatSize / 2; y = el.height + 5;
-                       } else { // Left edge
-                           x = -seatSize - 5; y = el.height - (p - 2 * el.width - el.height) - seatSize / 2;
+                       if (p < el.width) { x = p - seatSize / 2; y = -seatSize - 5;
+                       } else if (p < el.width + el.height) { x = el.width + 5; y = (p - el.width) - seatSize / 2;
+                       } else if (p < 2 * el.width + el.height) { x = el.width - (p - el.width - el.height) - seatSize / 2; y = el.height + 5;
+                       } else { x = -seatSize - 5; y = el.height - (p - 2 * el.width - el.height) - seatSize / 2;
                        }
                     }
                     const assignedGuest = invitados.find(inv => inv.tableNumber === el.name && inv.seatNumber === i + 1);
