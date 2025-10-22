@@ -127,10 +127,10 @@ function PlannerDashboardContent() {
         <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {modules.map(module => {
             const hrefWithId = module.href.startsWith('/') 
-                ? module.href.replace('[fiestaId]', fiesta.id)
-                : `/fiestas/nueva/${module.href}`;
+                ? `${module.href}?fiestaId=${fiesta.id}`
+                : `/fiestas/nueva/${module.href}?fiestaId=${fiesta.id}`;
             return (
-              <Link key={module.href} href={`${hrefWithId}?fiestaId=${fiesta.id}`} passHref>
+              <Link key={module.href} href={hrefWithId} passHref>
                 <Card className="h-full hover:shadow-lg hover:border-primary/50 transition-all cursor-pointer flex flex-col">
                   <CardHeader className="flex-row items-center gap-3 space-y-0 pb-2">
                     <div className="p-2 bg-primary/10 rounded-md"><module.icon className="w-5 h-5 text-primary" /></div>
@@ -159,5 +159,3 @@ export default function PlannerDashboardPage() {
         </Suspense>
     );
 }
-
-    

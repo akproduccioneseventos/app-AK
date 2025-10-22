@@ -25,6 +25,19 @@ import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 
 
 const grid = 10;
+const PIXELS_PER_METER_DEFAULT = 40;
+
+const ElementIcon: React.FC<{ category?: string }> = ({ category }) => {
+    switch (category) {
+        case 'Mesa Redonda': return <Circle className="w-4 h-4 text-muted-foreground"/>;
+        case 'Mesa Rectangular': return <Square className="w-4 h-4 text-muted-foreground"/>;
+        case 'Pista de Baile': return <Disc className="w-4 h-4 text-muted-foreground"/>;
+        case 'Escenario': return <Clapperboard className="w-4 h-4 text-muted-foreground"/>;
+        case 'Living': return <Sofa className="w-4 h-4 text-muted-foreground"/>;
+        case 'Área de Fotos': return <CameraIcon className="w-4 h-4 text-muted-foreground"/>;
+        default: return <LayoutDashboard className="w-4 h-4 text-muted-foreground"/>;
+    }
+};
 
 function SalonLayoutContent() {
   const { toast } = useToast();
@@ -66,7 +79,7 @@ function SalonLayoutContent() {
       if (!fiestaData) throw new Error("Fiesta no encontrada.");
       
       setFiesta(fiestaData);
-      setDecoracion(fiestaData.decoracion || { salonElements: [], salonWidth: 15, salonHeight: 15, pixelsPerMeter: 40 });
+      setDecoracion(fiestaData.decoracion || { salonElements: [], pixelsPerMeter: PIXELS_PER_METER_DEFAULT });
 
     } catch (e: any) {
       setError("No se pudo cargar la información del evento.");
@@ -95,7 +108,7 @@ function SalonLayoutContent() {
   
   const addElement = (category: string, customProps?: Partial<LayoutElement>) => {
     if (!decoracion) return;
-    const pixelsPerMeter = decoracion.pixelsPerMeter || 40;
+    const pixelsPerMeter = decoracion.pixelsPerMeter || PIXELS_PER_METER_DEFAULT;
     
     let defaultProps: Partial<LayoutElement> = { width: 3 * pixelsPerMeter, height: 3 * pixelsPerMeter, seats: 8 };
 
@@ -109,14 +122,18 @@ function SalonLayoutContent() {
       id: `el_${Date.now()}`, name: customProps?.name || `${category} ${ (decoracion.salonElements?.filter(e => e.category === category).length || 0) + 1}`,
       x: 20, y: 20, rotation: 0, ...defaultProps, ...customProps, category, type: 'predefined',
     };
-    setDecoracion({ ...decoracion, salonElements: [...(decoracion.salonElements || []), newElement] });
+
+    setDecoracion(prev => {
+        if (!prev) return null;
+        return { ...prev, salonElements: [...(prev.salonElements || []), newElement] };
+    });
   };
   
   const handleAddCustomElement = () => {
     if (!customElement.name.trim()) { toast({ title: "Nombre requerido", variant: "destructive" }); return; }
     if (!decoracion) return;
 
-    const pixelsPerMeter = decoracion.pixelsPerMeter || 40;
+    const pixelsPerMeter = decoracion.pixelsPerMeter || PIXELS_PER_METER_DEFAULT;
     
     const newElementData: Partial<LayoutElement> = {
         name: customElement.name,
@@ -136,14 +153,8 @@ function SalonLayoutContent() {
   const handleOpenEditModal = (element: LayoutElement) => { setEditingElement(element); setIsEditModalOpen(true); };
   const handleUpdateElement = () => {
     if (!editingElement || !decoracion) return;
-    const pixelsPerMeter = decoracion.pixelsPerMeter || 40;
     
-    const updatedWidth = editingElement.width && !String(editingElement.width).endsWith('px') ? editingElement.width * pixelsPerMeter : editingElement.width;
-    const updatedHeight = editingElement.height && !String(editingElement.height).endsWith('px') ? editingElement.height * pixelsPerMeter : editingElement.height;
-
-    const finalElement = { ...editingElement, width: updatedWidth, height: updatedHeight };
-
-    const newElements = (decoracion.salonElements || []).map(el => el.id === editingElement.id ? finalElement : el);
+    const newElements = (decoracion.salonElements || []).map(el => el.id === editingElement.id ? editingElement : el);
     setDecoracion({ ...decoracion, salonElements: newElements });
     setIsEditModalOpen(false);
     setEditingElement(null);
@@ -258,9 +269,7 @@ function SalonLayoutContent() {
   if (error) return <div className="text-destructive text-center p-4">{error}</div>;
   if (!decoracion || !fiesta) return null;
   
-  const pixelsPerMeter = decoracion.pixelsPerMeter || 40;
-  const salonWidthPx = (decoracion.salonWidth || 15) * pixelsPerMeter;
-  const salonHeightPx = (decoracion.salonHeight || 15) * pixelsPerMeter;
+  const pixelsPerMeter = decoracion.pixelsPerMeter || PIXELS_PER_METER_DEFAULT;
 
   return (
     <div className="space-y-6">
@@ -279,7 +288,7 @@ function SalonLayoutContent() {
         <Card className="xl:col-span-3 flex flex-col"><CardHeader><CardTitle>Controles</CardTitle></CardHeader>
           <CardContent className="flex-grow space-y-4 overflow-y-auto">
              <div className="grid grid-cols-2 gap-3"><div className="space-y-1"><Label>Ancho Salón (m)</Label><Input type="number" value={decoracion.salonWidth || 15} onChange={e => setDecoracion(d => d ? {...d, salonWidth: Number(e.target.value)} : null)} /></div><div className="space-y-1"><Label>Alto Salón (m)</Label><Input type="number" value={decoracion.salonHeight || 15} onChange={e => setDecoracion(d => d ? {...d, salonHeight: Number(e.target.value)} : null)} /></div></div>
-             <div className="space-y-1"><Label>Píxeles por Metro</Label><Input type="number" value={decoracion.pixelsPerMeter || 40} onChange={e => setDecoracion(d => d ? {...d, pixelsPerMeter: Number(e.target.value)} : null)} /></div>
+             <div className="space-y-1"><Label>Píxeles por Metro</Label><Input type="number" value={decoracion.pixelsPerMeter || PIXELS_PER_METER_DEFAULT} onChange={e => setDecoracion(d => d ? {...d, pixelsPerMeter: Number(e.target.value)} : null)} /></div>
              <Separator/>
                <h4 className="font-medium text-sm">Añadir Elementos</h4>
                <div className="grid grid-cols-2 gap-2"><Button variant="outline" onClick={() => addElement('Mesa Redonda')}><Circle className="w-4 h-4 mr-2"/>Mesa Redonda</Button><Button variant="outline" onClick={() => addElement('Mesa Rectangular')}><Square className="w-4 h-4 mr-2"/>Mesa Rectangular</Button><Button variant="outline" onClick={() => addElement('Pista de Baile')}><Disc className="w-4 h-4 mr-2"/>Pista</Button><Button variant="outline" onClick={() => addElement('Escenario')}><Clapperboard className="w-4 h-4 mr-2"/>Escenario</Button><Button variant="outline" onClick={() => addElement('Living')}><Sofa className="w-4 h-4 mr-2"/>Living</Button><Button variant="outline" onClick={() => addElement('Área de Fotos')}><CameraIcon className="w-4 h-4 mr-2"/>Área Fotos</Button></div>
@@ -305,17 +314,31 @@ function SalonLayoutContent() {
           <Card className="h-full flex flex-col"><CardHeader><CardTitle>Lienzo del Salón</CardTitle></CardHeader>
             <CardContent className="flex-grow p-1">
               <ScrollArea className="w-full h-full">
-                <div ref={canvasRef} className="relative canvas-grid-background overflow-hidden" style={{ width: `${salonWidthPx}px`, height: `${salonHeightPx}px`, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
+                <div ref={canvasRef} className="relative canvas-grid-background overflow-auto" style={{ width: `${(decoracion.salonWidth || 15) * pixelsPerMeter}px`, height: `${(decoracion.salonHeight || 15) * pixelsPerMeter}px`, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
                   {decoracion.salonPlanBackgroundImageUrl && (<NextImage src={decoracion.salonPlanBackgroundImageUrl} alt="Plano del Salón" layout="fill" objectFit="contain" className="opacity-50" data-ai-hint="event floor plan"/>)}
                   {(decoracion.salonElements || []).map(el => {
                     const nodeRef = React.createRef<HTMLDivElement>();
                     const isRound = el.category === 'Mesa Redonda' || el.shape === 'circle';
+                    const assignedGuests = (fiesta?.invitados || []).filter(inv => inv.tableNumber === el.name);
+                    
                     return (
                     <Draggable key={el.id} nodeRef={nodeRef} bounds="parent" grid={[grid, grid]} position={{ x: el.x, y: el.y }} onStop={(e, data) => handleDragStop(e, data, el.id)}>
                         <div ref={nodeRef} id={el.id} className="absolute cursor-grab active:cursor-grabbing" style={{ left: el.x, top: el.y, width: el.width, height: el.height, transform: `rotate(${el.rotation}deg)`}}>
-                            <div className={cn('w-full h-full border-2 flex items-center justify-center font-bold bg-white/80 p-1', selectedElementId === el.id ? 'border-primary shadow-lg' : 'border-gray-500', isRound ? 'rounded-full' : 'rounded-md')}
+                           <div className={cn('w-full h-full border-2 flex items-center justify-center font-bold bg-white/80 p-1 relative', selectedElementId === el.id ? 'border-primary shadow-lg' : 'border-gray-500', isRound ? 'rounded-full' : 'rounded-sm')}
                                 onClick={() => setSelectedElementId(el.id)}>
                                 <span className="text-center truncate text-base">{el.name}</span>
+                                {isRound && el.seats && Array.from({length: el.seats}).map((_, i) => {
+                                    const angle = (i / el.seats!) * 2 * Math.PI;
+                                    const radius = (Math.min(el.width, el.height) / 2) + 20;
+                                    const seatX = radius * Math.cos(angle) + (el.width/2);
+                                    const seatY = radius * Math.sin(angle) + (el.height/2);
+                                    const guest = assignedGuests[i];
+                                    return (
+                                        <div key={i} style={{left: `${seatX-12}px`, top: `${seatY-12}px`}} className="absolute w-6 h-6 rounded-full border-2 border-dashed border-gray-400 bg-white/90 flex items-center justify-center text-xs">
+                                          {guest ? <span className="truncate text-blue-600 font-medium" title={guest.nombre}>{guest.nombre.charAt(0)}</span> : <span className="text-gray-400">{i+1}</span>}
+                                        </div>
+                                    )
+                                })}
                             </div>
                             {selectedElementId === el.id && (<div className="absolute -top-7 -right-2 flex gap-0.5 z-20" style={{transform: `rotate(-${el.rotation}deg)`}}><Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleOpenEditModal(el)}><Edit className="w-3 h-3"/></Button><Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleElementRotation(el.id)}><RotateCw className="w-3 h-3"/></Button><Button type="button" variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => handleDeleteElement(el.id)}><Trash2 className="w-3 h-3"/></Button></div>)}
                         </div>
@@ -344,5 +367,3 @@ export default function SalonLayoutPage() {
         </Suspense>
     )
 }
-
-    
