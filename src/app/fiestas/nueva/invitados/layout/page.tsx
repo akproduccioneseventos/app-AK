@@ -41,7 +41,7 @@ function SalonLayoutContent() {
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
 
   const [isCustomElementModalOpen, setIsCustomElementModalOpen] = useState(false);
-  const [customElement, setCustomElement] = useState({ name: '', category: 'Varios', width: 2, height: 1, shape: 'rectangle' });
+  const [customElement, setCustomElement] = useState({ name: '', width: 2, height: 1, shape: 'rectangle' });
   
   const [isSaveTemplateModalOpen, setIsSaveTemplateModalOpen] = useState(false);
   const [isLoadTemplateModalOpen, setIsLoadTemplateModalOpen] = useState(false);
@@ -110,27 +110,25 @@ function SalonLayoutContent() {
     setDecoracion({ ...decoracion, salonElements: [...(decoracion.salonElements || []), newElement] });
   };
   
- const handleAddCustomElement = () => {
+const handleAddCustomElement = () => {
     if (!customElement.name.trim()) { toast({ title: "Nombre requerido", variant: "destructive" }); return; }
     if (!decoracion) return;
 
     const pixelsPerMeter = decoracion.pixelsPerMeter || 40;
-    const categoryName = customElement.shape === 'circle' ? 'Mesa Redonda' : 'Varios';
     
     const newElementData: Partial<LayoutElement> = {
         name: customElement.name,
         width: (customElement.width || 2) * pixelsPerMeter,
         height: (customElement.height || 1) * pixelsPerMeter,
-        category: categoryName,
-        seats: customElement.shape === 'circle' ? 8 : undefined, // Default seats for custom round tables
+        category: 'Varios',
+        seats: customElement.shape === 'circle' ? 8 : undefined,
         shape: customElement.shape as 'rectangle' | 'circle',
     };
     
-    // Use the existing addElement function to create the new element
-    addElement(categoryName, newElementData);
+    addElement('Varios', newElementData);
     
     setIsCustomElementModalOpen(false);
-    setCustomElement({ name: '', category: 'Varios', width: 2, height: 1, shape: 'rectangle' });
+    setCustomElement({ name: '', width: 2, height: 1, shape: 'rectangle' });
 };
 
 
@@ -253,7 +251,7 @@ function SalonLayoutContent() {
        <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <LayoutDashboard className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline">Diseño de Salón (Organizador)</h1>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">Diseño del Salón (Organizador)</h1>
         </div>
       </div>
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 h-[calc(100vh-250px)]">
