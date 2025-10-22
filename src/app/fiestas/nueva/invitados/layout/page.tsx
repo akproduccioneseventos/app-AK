@@ -12,7 +12,7 @@ import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVer
 import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData } from '@/types/fiesta';
-import { getFiestaById, updateDecoracionFiestaActual, updateInvitadoFiestaActual } from '@/app/actions/fiesta/fiesta.actions';
+import { getFiestaById, updateDecoracionFiestaActual, updateInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import NextImage from 'next/image';
@@ -331,7 +331,10 @@ function SalonLayoutContent() {
        <Dialog open={isLoadTemplateModalOpen} onOpenChange={setIsLoadTemplateModalOpen}><DialogContent><DialogHeader><DialogTitle>Cargar Diseño desde Plantilla</DialogTitle></DialogHeader>{isLoadingTemplates ? <div className="p-4 text-center"><Loader2 className="w-6 h-6 animate-spin"/></div> : (<ScrollArea className="h-72"><ul className="space-y-2 pr-3">{templates.map(t => (<li key={t.id} className="flex justify-between items-center p-2 border rounded-md"><span>{t.name}</span><Button size="sm" onClick={() => applyTemplate(t)}>Cargar</Button></li>))}</ul></ScrollArea>)}</DialogContent></Dialog>
 
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight font-headline flex items-center gap-2"><LayoutDashboard className="w-8 h-8 text-primary"/>Diseño de Mesas y Salón</h1>
+        <div className="flex items-center gap-3">
+            <LayoutDashboard className="w-8 h-8 text-primary"/>
+            <h1 className="text-3xl font-bold tracking-tight font-headline">Diseño de Mesas y Salón</h1>
+        </div>
         <div className="flex gap-2">
             <Link href={`/fiestas/nueva/invitados/numeros-mesa?fiestaId=${searchParams.get('fiestaId')}`} passHref><Button variant="secondary" size="sm"><Printer className="w-4 h-4 mr-1"/>Imprimir Números</Button></Link>
             <Link href={`/fiestas/nueva/invitados?fiestaId=${searchParams.get('fiestaId')}`} passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver a Invitados</Button></Link>
@@ -354,23 +357,7 @@ function SalonLayoutContent() {
                 <CardHeader><CardTitle>Asignación de Invitados</CardTitle><CardDescription>Selecciona el modo de asignación de mesas.</CardDescription></CardHeader>
                 <CardContent><RadioGroup value={decoracion.layoutMode || 'asignado'} onValueChange={(value) => setDecoracion(d => d ? {...d, layoutMode: value as any}: null)} className="flex space-x-4"><div className="flex items-center space-x-2"><RadioGroupItem value="numerado" id="mode-numerado"/><Label htmlFor="mode-numerado">Numerado</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="mixto" id="mode-mixto"/><Label htmlFor="mode-mixto">Mixto</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="libre" id="mode-libre"/><Label htmlFor="mode-libre">Libre</Label></div></RadioGroup></CardContent>
             </Card>
-        </div>
-        <div ref={canvasRef} className={cn("xl:col-span-6 bg-white transition-all duration-300", isFullscreen && "fixed inset-0 z-50 p-4")}>
-          <Card className="h-full flex flex-col"><CardHeader className="flex-row items-center justify-between"><CardTitle>Lienzo del Salón</CardTitle><Button variant="ghost" size="icon" onClick={handleFullscreenToggle}>{isFullscreen ? <Minimize className="w-5 h-5"/> : <Maximize className="w-5 h-5"/>}</Button></CardHeader>
-            <CardContent className="flex-grow"><div className="relative border rounded-lg overflow-auto canvas-grid-background h-full"><div style={{ width: `${salonWidthPx}px`, height: `${salonHeightPx}px`}} className="relative">
-              {decoracion.salonPlanBackgroundImageUrl && (<NextImage src={decoracion.salonPlanBackgroundImageUrl} alt="Plano del Salón" layout="fill" objectFit="contain" className="opacity-50" data-ai-hint="event floor plan"/>)}
-              {(decoracion.salonElements || []).map(el => {
-                const guestsAtTable = invitados.filter(i => i.tableNumber === el.name);
-                const asientosOcupados = guestsAtTable.reduce((acc, g) => acc + (g.partySize || 1), 0);
-                const isFull = el.seats !== undefined && asientosOcupados >= el.seats;
-                const nodeRef = React.createRef<HTMLDivElement>();
-                return (<Draggable key={el.id} nodeRef={nodeRef} bounds="parent" grid={[grid, grid]} position={{ x: el.x, y: el.y }} onStop={(e, data) => handleDragStop(e, data, el.id)}><div ref={nodeRef} id={el.id} onDragOver={e => e.preventDefault()} onDrop={e => handleGuestDrop(e, el.id)} className={cn('absolute border-2 flex flex-col items-center justify-center p-1 cursor-grab active:cursor-grabbing', el.category?.includes('Mesa Redonda') || el.shape === 'circle' ? 'rounded-full' : 'rounded-md', selectedElementId === el.id ? 'border-primary shadow-lg z-10' : 'border-gray-500 bg-white/80')} style={{ width: el.width, height: el.height, transform: `rotate(${el.rotation}deg)`}} onClick={() => setSelectedElementId(el.id)}><p className="text-base font-bold text-center truncate px-1">{el.name}</p>{el.seats !== undefined && <p className={`text-xs font-semibold ${isFull ? 'text-destructive' : 'text-muted-foreground'}`}>{asientosOcupados} / {el.seats}</p>}<div className="flex flex-wrap gap-1 justify-center mt-1">{guestsAtTable.map(g => <div key={g.id} title={g.nombre} className="w-6 h-6 rounded-full bg-primary/20 text-primary-foreground flex items-center justify-center text-[10px] font-bold border-2 border-white">{getInitials(g.nombre)}</div>)}</div>{selectedElementId === el.id && (<div className="absolute -top-7 -right-2 flex gap-0.5 z-20" style={{transform: `rotate(-${el.rotation}deg)`}}><Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleOpenEditModal(el)}><Edit className="w-3 h-3"/></Button><Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleElementRotation(el.id)}><RotateCw className="w-3 h-3"/></Button><Button type="button" variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => handleDeleteElement(el.id)}><Trash2 className="w-3 h-3"/></Button></div>)}</div></Draggable>)
-              })}
-            </div></div></CardContent>
-          </Card>
-        </div>
-         <div className="xl:col-span-3">
-          {decoracion.layoutMode !== 'libre' && (
+            {decoracion.layoutMode !== 'libre' && (
             <div className="space-y-4">
                 <Card><CardHeader><CardTitle className="text-lg">Invitados sin Mesa ({invitadosSinMesa.length})</CardTitle></CardHeader>
                     <CardContent>
@@ -403,7 +390,21 @@ function SalonLayoutContent() {
                     </CardContent>
                 </Card>
             </div>
-          )}
+            )}
+        </div>
+        <div ref={canvasRef} className={cn("xl:col-span-9 bg-white transition-all duration-300", isFullscreen && "fixed inset-0 z-50 p-4")}>
+          <Card className="h-full flex flex-col"><CardHeader className="flex-row items-center justify-between"><CardTitle>Lienzo del Salón</CardTitle><Button variant="ghost" size="icon" onClick={handleFullscreenToggle}>{isFullscreen ? <Minimize className="w-5 h-5"/> : <Maximize className="w-5 h-5"/>}</Button></CardHeader>
+            <CardContent className="flex-grow"><div className="relative border rounded-lg overflow-auto canvas-grid-background h-full"><div style={{ width: `${salonWidthPx}px`, height: `${salonHeightPx}px`}} className="relative">
+              {decoracion.salonPlanBackgroundImageUrl && (<NextImage src={decoracion.salonPlanBackgroundImageUrl} alt="Plano del Salón" layout="fill" objectFit="contain" className="opacity-50" data-ai-hint="event floor plan"/>)}
+              {(decoracion.salonElements || []).map(el => {
+                const guestsAtTable = invitados.filter(i => i.tableNumber === el.name);
+                const asientosOcupados = guestsAtTable.reduce((acc, g) => acc + (g.partySize || 1), 0);
+                const isFull = el.seats !== undefined && asientosOcupados >= el.seats;
+                const nodeRef = React.createRef<HTMLDivElement>();
+                return (<Draggable key={el.id} nodeRef={nodeRef} bounds="parent" grid={[grid, grid]} position={{ x: el.x, y: el.y }} onStop={(e, data) => handleDragStop(e, data, el.id)}><div ref={nodeRef} id={el.id} onDragOver={e => e.preventDefault()} onDrop={e => handleGuestDrop(e, el.id)} className={cn('absolute border-2 flex flex-col items-center justify-center p-1 cursor-grab active:cursor-grabbing', el.category?.includes('Mesa Redonda') || el.shape === 'circle' ? 'rounded-full' : 'rounded-md', selectedElementId === el.id ? 'border-primary shadow-lg z-10' : 'border-gray-500 bg-white/80')} style={{ width: el.width, height: el.height, transform: `rotate(${el.rotation}deg)`}} onClick={() => setSelectedElementId(el.id)}><p className="text-base font-bold text-center truncate px-1">{el.name}</p>{el.seats !== undefined && <p className={`text-xs font-semibold ${isFull ? 'text-destructive' : 'text-muted-foreground'}`}>{asientosOcupados} / {el.seats}</p>}<div className="flex flex-wrap gap-1 justify-center mt-1">{guestsAtTable.map(g => <div key={g.id} title={g.nombre} className="w-6 h-6 rounded-full bg-primary/20 text-primary-foreground flex items-center justify-center text-[10px] font-bold border-2 border-white">{getInitials(g.nombre)}</div>)}</div>{selectedElementId === el.id && (<div className="absolute -top-7 -right-2 flex gap-0.5 z-20" style={{transform: `rotate(-${el.rotation}deg)`}}><Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleOpenEditModal(el)}><Edit className="w-3 h-3"/></Button><Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleElementRotation(el.id)}><RotateCw className="w-3 h-3"/></Button><Button type="button" variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => handleDeleteElement(el.id)}><Trash2 className="w-3 h-3"/></Button></div>)}</div></Draggable>)
+              })}
+            </div></div></CardContent>
+          </Card>
         </div>
       </div>
        <div className="flex justify-end mt-6">
@@ -424,3 +425,5 @@ export default function SalonLayoutPage() {
         </Suspense>
     )
 }
+
+    
