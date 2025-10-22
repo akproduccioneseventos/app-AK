@@ -11,8 +11,8 @@ import { Label } from '@/components/ui/label';
 import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Disc, Clapperboard, Sofa, Camera as CameraIcon, Search, Printer, Settings2, FolderDown, FolderUp, Maximize, ZoomIn, ZoomOut } from 'lucide-react';
 import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData } from '@/types/fiesta';
-import { getFiestaById, updateDecoracionFiestaActual, updateInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
+import type { FiestaEnPlanificacion, LayoutElement, DecoracionData } from '@/types/fiesta';
+import { getFiestaById, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogTrigger } from "@/components/ui/dialog";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import NextImage from 'next/image';
@@ -24,15 +24,6 @@ import { saveSalonLayoutTemplate, getSalonLayoutTemplates, type SalonLayoutTempl
 
 const grid = 10;
 
-const getInitials = (name: string) => {
-    if (!name) return '?';
-    const names = name.split(' ');
-    if (names.length > 1 && names[names.length - 1]) {
-        return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
-    }
-    return name.substring(0, 2).toUpperCase();
-};
-
 function SalonLayoutContent() {
   const { toast } = useToast();
   const router = useRouter();
@@ -40,7 +31,6 @@ function SalonLayoutContent() {
   const fiestaId = searchParams.get('fiestaId');
 
   const [decoracion, setDecoracion] = useState<DecoracionData | null>(null);
-  const [invitados, setInvitados] = useState<Invitado[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -51,8 +41,6 @@ function SalonLayoutContent() {
 
   const [isCustomElementModalOpen, setIsCustomElementModalOpen] = useState(false);
   const [customElement, setCustomElement] = useState({ name: '', category: 'Varios', width: 100, height: 100, shape: 'rectangle' });
-  
-  const [guestSearchTerm, setGuestSearchTerm] = useState('');
   
   const [isSaveTemplateModalOpen, setIsSaveTemplateModalOpen] = useState(false);
   const [isLoadTemplateModalOpen, setIsLoadTemplateModalOpen] = useState(false);
@@ -72,9 +60,7 @@ function SalonLayoutContent() {
       if (!fiesta) throw new Error("Fiesta no encontrada.");
       
       const loadedDecoracion = fiesta.decoracion || { salonElements: [], salonWidth: 20, salonHeight: 30, pixelsPerMeter: 30 };
-      
       setDecoracion(loadedDecoracion);
-      setInvitados(fiesta.invitados || []);
 
     } catch (e: any) {
       setError("No se pudo cargar la información del evento.");
@@ -121,10 +107,18 @@ function SalonLayoutContent() {
   const handleAddCustomElement = () => {
     if (!customElement.name.trim()) { toast({title: "Nombre requerido", variant: "destructive"}); return; }
     const categoryName = customElement.shape === 'circle' ? 'Mesa Redonda' : 'Varios';
-    addElement(categoryName, { name: customElement.name, width: customElement.width, height: customElement.height, category: categoryName, seats: undefined });
+    const newElementData: Partial<LayoutElement> = {
+      name: customElement.name,
+      width: customElement.width,
+      height: customElement.height,
+      category: categoryName,
+      seats: customElement.shape === 'circle' ? 8 : undefined // Default seats for custom circles
+    };
+    addElement(categoryName, newElementData);
     setIsCustomElementModalOpen(false);
     setCustomElement({ name: '', category: 'Varios', width: 100, height: 100, shape: 'rectangle' });
   };
+
 
   const handleOpenEditModal = (element: LayoutElement) => { setEditingElement(element); setIsEditModalOpen(true); };
   const handleUpdateElement = () => {
@@ -145,36 +139,15 @@ function SalonLayoutContent() {
 
   const handleDeleteElement = (elementId: string) => {
     if (!decoracion) return;
-    const elementToDelete = decoracion.salonElements?.find(e => e.id === elementId);
-    if(elementToDelete?.category?.toLowerCase().includes('mesa')) {
-        setInvitados(prev => prev.map(inv => inv.tableNumber === elementToDelete.name ? {...inv, tableNumber: undefined, seatNumber: undefined} : inv));
-    }
     setDecoracion({ ...decoracion, salonElements: (decoracion.salonElements || []).filter(el => el.id !== elementId) });
-  };
-  
-  const handleSeatDrop = (e: React.DragEvent, table: LayoutElement, seatNumber: number) => {
-    e.preventDefault();
-    const guestId = e.dataTransfer.getData('guestId');
-    const guestBeingDragged = invitados.find(i => i.id === guestId);
-    if (!guestBeingDragged) return;
-
-    const alreadyAssignedToSeat = invitados.some(i => i.tableNumber === table.name && i.seatNumber === seatNumber);
-    if (alreadyAssignedToSeat) {
-      toast({ title: "Asiento Ocupado", description: "Este asiento ya está asignado.", variant: "destructive" });
-      return;
-    }
-    
-    setInvitados(prev => prev.map(inv => inv.id === guestId ? { ...inv, tableNumber: table.name, seatNumber } : inv));
   };
   
   const handleSaveAll = async () => {
     if (!decoracion || !fiestaId) return;
     setIsSaving(true);
     try {
-        const updateGuestPromises = invitados.map(invitado => updateInvitadoFiestaActual(fiestaId, invitado));
-        await Promise.all(updateGuestPromises);
         await updateDecoracionFiestaActual(fiestaId, decoracion);
-        toast({ title: "¡Guardado!", description: "El diseño del salón y la asignación de invitados han sido guardados." });
+        toast({ title: "¡Guardado!", description: "El diseño del salón ha sido guardado." });
         await loadData(false);
     } catch(err: any) {
         toast({ title: "Error al Guardar", description: err.message, variant: "destructive" });
@@ -211,18 +184,6 @@ function SalonLayoutContent() {
          setIsTemplateActionLoading(false);
     }
   };
-  
-  const handleAssignGuestToTable = (guestId: string, tableName: string) => {
-    setInvitados(prev => prev.map(inv => inv.id === guestId ? { ...inv, tableNumber: tableName, seatNumber: undefined } : inv));
-  };
-  
-  const invitadosSinMesa = useMemo(() => {
-    const unassigned = invitados.filter(i => !i.tableNumber && (i.rsvp === 'Confirmado' || i.rsvp === 'Pendiente'));
-    if (!guestSearchTerm.trim()) return unassigned;
-    return unassigned.filter(i => i.nombre.toLowerCase().includes(guestSearchTerm.toLowerCase()));
-  }, [invitados, guestSearchTerm]);
-  
-  const mesas = useMemo(() => (decoracion?.salonElements || []).filter(el => el.category?.toLowerCase().includes('mesa')), [decoracion]);
 
   if (isLoading) return <div className="flex items-center justify-center p-8"><Loader2 className="w-8 h-8 animate-spin" /></div>;
   if (error) return <div className="text-destructive text-center p-4">{error}</div>;
@@ -242,35 +203,14 @@ function SalonLayoutContent() {
        <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <LayoutDashboard className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline">Diseño de Mesas y Salón</h1>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">Diseño de Salón (Organizador)</h1>
         </div>
         <div className="flex gap-2">
-            <Link href={`/fiestas/nueva/invitados/numeros-mesa?fiestaId=${fiestaId}`} passHref>
-                <Button variant="secondary" size="sm"><Printer className="w-4 h-4 mr-1"/>Imprimir Números</Button>
-            </Link>
             <Link href={`/fiestas/nueva/invitados?fiestaId=${fiestaId}`} passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver a Invitados</Button></Link>
         </div>
       </div>
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 h-[calc(100vh-250px)]">
-        <div className="xl:col-span-3 space-y-4 flex flex-col min-h-0">
-          <Card className="flex-grow flex flex-col min-h-0 shadow-sm">
-            <CardHeader className="pb-3"><CardTitle className="text-md">Invitados sin Mesa ({invitadosSinMesa.length})</CardTitle></CardHeader>
-            <CardContent className="flex-grow flex flex-col min-h-0 p-2">
-                <div className="relative mb-2"><Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" /><Input placeholder="Buscar invitado..." className="pl-8 h-9" value={guestSearchTerm} onChange={e => setGuestSearchTerm(e.target.value)} /></div>
-                <ScrollArea className="flex-grow">
-                    <div className="space-y-2 pr-2">
-                        {invitadosSinMesa.map(inv => (
-                            <div key={inv.id} draggable onDragStart={e => e.dataTransfer.setData('guestId', inv.id)} className="p-2 border rounded bg-card cursor-grab shadow-sm">
-                                <p className="font-medium text-sm">{inv.nombre}</p>
-                                <p className="text-xs text-muted-foreground">{inv.partySize || 1} persona(s)</p>
-                            </div>
-                        ))}
-                    </div>
-                </ScrollArea>
-            </CardContent>
-          </Card>
-        </div>
-        <div className={cn("xl:col-span-6 bg-card", isFullScreen ? 'fixed inset-0 z-40 p-4' : '')}>
+        <div className={cn("xl:col-span-9 bg-card", isFullScreen ? 'fixed inset-0 z-40 p-4' : '')}>
           <Card className="h-full flex flex-col"><CardHeader><CardTitle>Lienzo del Salón</CardTitle></CardHeader>
             <CardContent className="flex-grow p-1">
               <ScrollArea className="w-full h-full">
@@ -278,48 +218,14 @@ function SalonLayoutContent() {
                   {decoracion.salonPlanBackgroundImageUrl && (<NextImage src={decoracion.salonPlanBackgroundImageUrl} alt="Plano del Salón" layout="fill" objectFit="contain" className="opacity-50" data-ai-hint="event floor plan"/>)}
                   {(decoracion.salonElements || []).map(el => {
                     const nodeRef = React.createRef<HTMLDivElement>();
-                    const isTable = el.category?.toLowerCase().includes('mesa');
-                    const assignedGuests = invitados.filter(inv => inv.tableNumber === el.name);
-                    const asientosOcupados = assignedGuests.reduce((acc, curr) => acc + (curr.partySize || 1), 0);
-                    
-                    let seats = [];
-                    if (isTable && el.seats) {
-                        for (let i = 0; i < el.seats; i++) {
-                            const angle = (i / el.seats) * 2 * Math.PI;
-                            const seatSize = 30;
-                            let x, y;
-                            if (el.category === 'Mesa Redonda' || el.shape === 'circle') {
-                                x = el.width / 2 + (el.width / 2 + seatSize / 2 - 5) * Math.cos(angle) - seatSize / 2;
-                                y = el.height / 2 + (el.height / 2 + seatSize / 2 - 5) * Math.sin(angle) - seatSize / 2;
-                            } else {
-                                const perimeter = 2 * el.width + 2 * el.height;
-                                const seatSpacing = perimeter / el.seats;
-                                let p = i * seatSpacing;
-                                if (p < el.width) { x = p; y = -seatSize - 5; } 
-                                else if (p < el.width + el.height) { x = el.width + 5; y = (p - el.width); } 
-                                else if (p < 2 * el.width + el.height) { x = el.width - (p - el.width - el.height); y = el.height + 5; } 
-                                else { x = -seatSize - 5; y = el.height - (p - 2 * el.width - el.height); }
-                            }
-                            const assignedGuest = invitados.find(inv => inv.tableNumber === el.name && inv.seatNumber === i + 1);
-
-                            seats.push(
-                                <div key={i} onDragOver={e => e.preventDefault()} onDrop={e => handleSeatDrop(e, el, i+1)} 
-                                    className={cn("absolute border-2 border-dashed border-gray-400 rounded-full flex items-center justify-center text-xs font-semibold text-gray-500", assignedGuest && 'border-solid border-primary bg-primary/20 text-primary-foreground')}
-                                    style={{ left: x, top: y, width: seatSize, height: seatSize, transform: `rotate(-${el.rotation}deg)` }}>
-                                    {assignedGuest ? getInitials(assignedGuest.nombre) : i + 1}
-                                </div>
-                            );
-                        }
-                    }
-
+                    const isRound = el.category === 'Mesa Redonda' || el.shape === 'circle';
                     return (
                     <Draggable key={el.id} nodeRef={nodeRef} bounds="parent" grid={[grid, grid]} position={{ x: el.x, y: el.y }} onStop={(e, data) => handleDragStop(e, data, el.id)}>
                         <div ref={nodeRef} id={el.id} className="absolute cursor-grab active:cursor-grabbing" style={{ left: el.x, top: el.y, width: el.width, height: el.height, transform: `rotate(${el.rotation}deg)`}}>
-                            <div className={cn('w-full h-full border-2 flex items-center justify-center text-lg font-bold bg-white/80 p-1', selectedElementId === el.id ? 'border-primary shadow-lg' : 'border-gray-500', el.category?.includes('Mesa Redonda') || el.shape === 'circle' ? 'rounded-full' : 'rounded-md')}
+                            <div className={cn('w-full h-full border-2 flex items-center justify-center text-lg font-bold bg-white/80 p-1', selectedElementId === el.id ? 'border-primary shadow-lg' : 'border-gray-500', isRound ? 'rounded-full' : 'rounded-md')}
                                 onClick={() => setSelectedElementId(el.id)}>
                                 <span className="text-center truncate">{el.name}</span>
                             </div>
-                            {seats}
                             {selectedElementId === el.id && (<div className="absolute -top-7 -right-2 flex gap-0.5 z-20" style={{transform: `rotate(-${el.rotation}deg)`}}><Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleOpenEditModal(el)}><Edit className="w-3 h-3"/></Button><Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleElementRotation(el.id)}><RotateCw className="w-3 h-3"/></Button><Button type="button" variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => handleDeleteElement(el.id)}><Trash2 className="w-3 h-3"/></Button></div>)}
                         </div>
                     </Draggable>
@@ -337,52 +243,30 @@ function SalonLayoutContent() {
         </div>
         <div className="xl:col-span-3 space-y-4 flex flex-col min-h-0">
              <Card>
-                <CardHeader className="pb-3">
+                <CardHeader className="pb-3"><CardTitle className="text-md font-medium">Controles del Plano</CardTitle></CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1"><Label>Ancho Salón (m)</Label><Input type="number" value={decoracion.salonWidth || 20} onChange={e => setDecoracion(d => d ? {...d, salonWidth: Number(e.target.value)} : null)} /></div>
+                      <div className="space-y-1"><Label>Alto Salón (m)</Label><Input type="number" value={decoracion.salonHeight || 30} onChange={e => setDecoracion(d => d ? {...d, salonHeight: Number(e.target.value)} : null)} /></div>
+                  </div>
+                  <div className="space-y-1"><Label>Píxeles por Metro</Label><Input type="number" value={decoracion.pixelsPerMeter || 30} onChange={e => setDecoracion(d => d ? {...d, pixelsPerMeter: Number(e.target.value)} : null)} /></div>
+                  <Separator/>
                     <h4 className="font-medium text-sm">Añadir Elementos</h4>
-                </CardHeader>
-                <CardContent className="grid grid-cols-2 gap-2">
-                    <Button variant="outline" onClick={() => addElement('Mesa Redonda')}><Circle className="w-4 h-4 mr-2"/>Mesa Redonda</Button>
-                    <Button variant="outline" onClick={() => addElement('Mesa Rectangular')}><Square className="w-4 h-4 mr-2"/>Mesa Rectangular</Button>
-                    <Button variant="outline" onClick={() => addElement('Pista de Baile')}><Disc className="w-4 h-4 mr-2"/>Pista</Button>
-                    <Button variant="outline" onClick={() => addElement('Escenario')}><Clapperboard className="w-4 h-4 mr-2"/>Escenario</Button>
-                    <Button variant="outline" onClick={() => addElement('Living')}><Sofa className="w-4 h-4 mr-2"/>Living</Button>
-                    <Button variant="outline" onClick={() => addElement('Área de Fotos')}><CameraIcon className="w-4 h-4 mr-2"/>Área Fotos</Button>
+                    <div className="grid grid-cols-2 gap-2">
+                        <Button variant="outline" onClick={() => addElement('Mesa Redonda')}><Circle className="w-4 h-4 mr-2"/>Mesa Redonda</Button>
+                        <Button variant="outline" onClick={() => addElement('Mesa Rectangular')}><Square className="w-4 h-4 mr-2"/>Mesa Rectangular</Button>
+                        <Button variant="outline" onClick={() => addElement('Pista de Baile')}><Disc className="w-4 h-4 mr-2"/>Pista</Button>
+                        <Button variant="outline" onClick={() => addElement('Escenario')}><Clapperboard className="w-4 h-4 mr-2"/>Escenario</Button>
+                        <Button variant="outline" onClick={() => addElement('Living')}><Sofa className="w-4 h-4 mr-2"/>Living</Button>
+                        <Button variant="outline" onClick={() => addElement('Área de Fotos')}><CameraIcon className="w-4 h-4 mr-2"/>Área Fotos</Button>
+                    </div>
+                    <Button variant="outline" className="w-full" onClick={() => setIsCustomElementModalOpen(true)}><PlusCircle className="w-4 h-4 mr-2"/>Elemento Personalizado</Button>
                 </CardContent>
                 <CardFooter className="flex-col gap-2">
-                   <Button variant="outline" className="w-full" onClick={() => setIsCustomElementModalOpen(true)}><PlusCircle className="w-4 h-4 mr-2"/>Elemento Personalizado</Button>
                    <Button type="button" onClick={handleLoadTemplate} variant="outline" className="w-full"><FolderDown className="w-4 h-4 mr-2"/>Cargar Plantilla</Button>
                    <Dialog open={isSaveTemplateModalOpen} onOpenChange={setIsSaveTemplateModalOpen}><DialogTrigger asChild><Button type="button" className="w-full"><FolderUp className="w-4 h-4 mr-2"/>Guardar Diseño</Button></DialogTrigger><DialogContent><DialogHeader><DialogTitle>Guardar Diseño como Plantilla</DialogTitle></DialogHeader><div className="space-y-2 py-2"><Label htmlFor="template-name">Nombre de la Plantilla</Label><Input id="template-name" value={templateName} onChange={e=>setTemplateName(e.target.value)} placeholder="Ej: Club Uruguay - 80 invitados"/></div><DialogFooter><DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose><Button onClick={handleSaveAsTemplate} disabled={isSaving}>Guardar</Button></DialogFooter></DialogContent></Dialog>
+                   <Button onClick={handleSaveAll} disabled={isSaving} className="w-full mt-2"><Save className="w-4 h-4 mr-2"/>Guardar Plano del Salón</Button>
                 </CardFooter>
-            </Card>
-             <Card>
-                <CardHeader>
-                    <CardTitle>Asignación por Mesa</CardTitle>
-                </CardHeader>
-                <CardContent className="p-2">
-                    <ScrollArea className="h-60 pr-2">
-                        <Accordion type="multiple" className="w-full space-y-2">
-                            {mesas.map(mesa => {
-                                const invitadosEnMesa = invitados.filter(inv => inv.tableNumber === mesa.name);
-                                const asientosOcupados = invitadosEnMesa.reduce((acc, curr) => acc + (curr.partySize || 1), 0);
-                                return (
-                                <AccordionItem value={mesa.id} key={mesa.id}>
-                                    <AccordionTrigger className="p-2 text-sm font-medium hover:no-underline bg-muted/40 rounded-md">
-                                        {mesa.name} ({asientosOcupados}/{mesa.seats || 'N/A'})
-                                    </AccordionTrigger>
-                                    <AccordionContent className="p-2 space-y-2">
-                                        {invitadosEnMesa.map(inv => (
-                                            <div key={inv.id} className="text-xs p-1 border-b flex justify-between items-center">
-                                                <span>{inv.nombre}</span>
-                                                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleAssignGuestToTable(inv.id, '')}><Trash2 className="w-3 h-3 text-destructive"/></Button>
-                                            </div>
-                                        ))}
-                                    </AccordionContent>
-                                </AccordionItem>
-                                )
-                            })}
-                        </Accordion>
-                    </ScrollArea>
-                </CardContent>
             </Card>
         </div>
       </div>
