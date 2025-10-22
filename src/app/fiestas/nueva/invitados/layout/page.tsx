@@ -1,9 +1,9 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,8 +12,8 @@ import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVer
 import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData } from '@/types/fiesta';
-import { getFiestaById, updateDecoracionFiestaActual, updateInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogTrigger } from "@/components/ui/dialog";
+import { getFiestaById, updateDecoracionFiestaActual, updateInvitadoFiestaActual } from '@/app/actions/fiesta/fiesta.actions';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import NextImage from 'next/image';
 import { Separator } from '@/components/ui/separator';
@@ -29,15 +29,19 @@ const grid = 20;
 const getInitials = (name: string) => {
     if (!name) return '?';
     const names = name.split(' ');
-    if (names.length > 1) {
+    if (names.length > 1 && names[names.length - 1]) {
         return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
     }
     return name.substring(0, 2).toUpperCase();
 }
 
 
-export default function SalonLayoutPage() {
+function SalonLayoutContent() {
   const { toast } = useToast();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const fiestaId = searchParams.get('fiestaId');
+
   const [decoracion, setDecoracion] = useState<DecoracionData | null>(null);
   const [invitados, setInvitados] = useState<Invitado[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -48,7 +52,6 @@ export default function SalonLayoutPage() {
   const [editingElement, setEditingElement] = useState<LayoutElement | null>(null);
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
 
-  // New state for custom element creation
   const [isCustomElementModalOpen, setIsCustomElementModalOpen] = useState(false);
   const [customElement, setCustomElement] = useState({ name: '', category: 'Varios', width: 100, height: 100, shape: 'rectangle' });
 
@@ -63,13 +66,10 @@ export default function SalonLayoutPage() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
 
-  const searchParams = useSearchParams()
-
   const loadData = useCallback(async (showLoading = true) => {
-    const fiestaId = searchParams.get('fiestaId');
+    if (!fiestaId) return;
     if(showLoading) setIsLoading(true);
     try {
-      if (!fiestaId) throw new Error("No se ha especificado un ID de fiesta.");
       const fiesta = await getFiestaById(fiestaId);
       if (!fiesta) throw new Error("Fiesta no encontrada.");
       setDecoracion(fiesta.decoracion || { salonElements: [], salonWidth: 20, salonHeight: 30, pixelsPerMeter: 30, layoutMode: 'asignado' });
@@ -80,12 +80,17 @@ export default function SalonLayoutPage() {
     } finally {
       if(showLoading) setIsLoading(false);
     }
-  }, [toast, searchParams]);
+  }, [toast, fiestaId]);
   
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    if (!fiestaId) {
+      toast({title: "Error", description: "No se ha especificado un ID de fiesta."});
+      router.push('/eventos');
+    } else {
+        loadData();
+    }
+  }, [fiestaId, loadData, router, toast]);
   
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -110,16 +115,19 @@ export default function SalonLayoutPage() {
   const addElement = (category: string, customProps?: Partial<LayoutElement>) => {
     if (!decoracion) return;
     
-    const defaultProps = {
+    const defaultProps: Partial<LayoutElement> = {
       width: 120,
       height: 120,
-      seats: category.includes('Mesa') ? 8 : undefined,
+      seats: category.toLowerCase().includes('mesa') ? 8 : undefined,
     };
     
     if (category === 'Mesa Redonda') { defaultProps.width = 100; defaultProps.height = 100; }
     else if (category === 'Mesa Rectangular') { defaultProps.width = 120; defaultProps.height = 60; }
-    else if (category === 'Pista de Baile') { defaultProps.width = 200; defaultProps.height = 200; }
-    else if (category === 'Escenario') { defaultProps.width = 200; defaultProps.height = 100; }
+    else if (category === 'Pista de Baile') { defaultProps.width = 200; defaultProps.height = 200; defaultProps.seats = undefined; }
+    else if (category === 'Escenario') { defaultProps.width = 200; defaultProps.height = 100; defaultProps.seats = undefined; }
+    else if (category === 'Living') { defaultProps.width = 150; defaultProps.height = 150; defaultProps.seats = undefined; }
+    else if (category === 'Área de Fotos') { defaultProps.width = 150; defaultProps.height = 100; defaultProps.seats = undefined; }
+
 
     const newElement: LayoutElement = {
       id: `el_${Date.now()}`,
@@ -140,7 +148,7 @@ export default function SalonLayoutPage() {
         toast({title: "Nombre requerido", variant: "destructive"});
         return;
     }
-    const shapeCategory = customElement.shape === 'circle' ? 'Mesa Redonda' : 'Mesa Rectangular'; // Simplified category
+    const shapeCategory = customElement.shape === 'circle' ? 'Mesa Redonda' : 'Varios';
     addElement(customElement.category || 'Varios', {
         name: customElement.name,
         width: customElement.width,
@@ -198,7 +206,7 @@ export default function SalonLayoutPage() {
     
     if (!table || table.seats === undefined) return;
 
-    const guestsAtTable = invitados.filter(i => i.tableNumber === table?.name).reduce((acc, g) => acc + (g.partySize || 1), 0);
+    const guestsAtTable = invitados.filter(i => i.tableNumber === table.name).reduce((acc, g) => acc + (g.partySize || 1), 0);
     const guestBeingDragged = invitados.find(i => i.id === guestId);
     const guestPartySize = guestBeingDragged?.partySize || 1;
 
@@ -214,7 +222,7 @@ export default function SalonLayoutPage() {
     const table = decoracion?.salonElements?.find(el => el.id === tableId);
     if(!table) return;
 
-    const guestsAtTable = invitados.filter(i => i.tableNumber === table.name).reduce((acc, g) => acc + (g.partySize || 1), 0);
+    const guestsAtTable = invitados.filter(i => i.tableNumber === table.name && i.id !== guestId).reduce((acc, g) => acc + (g.partySize || 1), 0);
     const guestToToggle = invitados.find(i => i.id === guestId);
     const guestPartySize = guestToToggle?.partySize || 1;
     
@@ -232,7 +240,6 @@ export default function SalonLayoutPage() {
   };
   
   const handleSaveAssignments = async () => {
-    const fiestaId = searchParams.get('fiestaId');
     if (!decoracion || !fiestaId) return;
     setIsSaving(true);
     try {
@@ -337,11 +344,15 @@ export default function SalonLayoutPage() {
                 <CardContent className="space-y-4">
                    <div className="grid grid-cols-3 gap-2"><div className="space-y-1"><Label htmlFor="salon-width">Ancho (m)</Label><Input id="salon-width" type="number" value={decoracion.salonWidth || 20} onChange={e => setDecoracion(d => d ? {...d, salonWidth: Number(e.target.value)}: null)} /></div><div className="space-y-1"><Label htmlFor="salon-height">Alto (m)</Label><Input id="salon-height" type="number" value={decoracion.salonHeight || 30} onChange={e => setDecoracion(d => d ? {...d, salonHeight: Number(e.target.value)}: null)} /></div><div className="space-y-1"><Label htmlFor="salon-scale">px / metro</Label><Input id="salon-scale" type="number" value={decoracion.pixelsPerMeter || 30} onChange={e => setDecoracion(d => d ? {...d, pixelsPerMeter: Number(e.target.value)}: null)} /></div></div>
                    <div className="space-y-2"><Label htmlFor="salon-bg">URL Imagen de Fondo</Label><Input id="salon-bg" type="url" value={decoracion.salonPlanBackgroundImageUrl || ''} onChange={e => setDecoracion(d => d ? {...d, salonPlanBackgroundImageUrl: e.target.value}: null)} placeholder="https://ejemplo.com/plano.png"/></div>
-                   <Separator className="my-4"/><h4 className="font-medium text-sm">Añadir Elementos Predefinidos</h4>
+                   <Separator className="my-4"/><h4 className="font-medium text-sm">Añadir Elementos</h4>
                    <div className="grid grid-cols-2 gap-2"><Button variant="outline" onClick={() => addElement('Mesa Redonda')}><Circle className="w-4 h-4 mr-2"/>Mesa Redonda</Button><Button variant="outline" onClick={() => addElement('Mesa Rectangular')}><Square className="w-4 h-4 mr-2"/>Mesa Rectangular</Button><Button variant="outline" onClick={() => addElement('Pista de Baile')}><Disc className="w-4 h-4 mr-2"/>Pista</Button><Button variant="outline" onClick={() => addElement('Escenario')}><Clapperboard className="w-4 h-4 mr-2"/>Escenario</Button><Button variant="outline" onClick={() => addElement('Living')}><Sofa className="w-4 h-4 mr-2"/>Living</Button><Button variant="outline" onClick={() => addElement('Área de Fotos')}><Camera className="w-4 h-4 mr-2"/>Área Fotos</Button></div>
                    <Button variant="outline" className="w-full" onClick={() => setIsCustomElementModalOpen(true)}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Elemento Personalizado</Button>
                 </CardContent>
                 <CardFooter className="flex-col gap-2"><Button type="button" onClick={handleLoadTemplate} variant="outline" className="w-full"><FolderDown className="w-4 h-4 mr-2"/>Cargar Plantilla</Button><Dialog open={isSaveTemplateModalOpen} onOpenChange={setIsSaveTemplateModalOpen}><DialogTrigger asChild><Button type="button" className="w-full"><FolderUp className="w-4 h-4 mr-2"/>Guardar Diseño</Button></DialogTrigger><DialogContent><DialogHeader><DialogTitle>Guardar Diseño como Plantilla</DialogTitle></DialogHeader><div className="space-y-2 py-2"><Label htmlFor="template-name">Nombre de la Plantilla</Label><Input id="template-name" value={templateName} onChange={e=>setTemplateName(e.target.value)} placeholder="Ej: Club Uruguay - 80 invitados"/></div><DialogFooter><DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose><Button onClick={handleSaveAsTemplate} disabled={isSaving}>Guardar</Button></DialogFooter></DialogContent></Dialog></CardFooter>
+            </Card>
+            <Card>
+                <CardHeader><CardTitle>Asignación de Invitados</CardTitle><CardDescription>Selecciona el modo de asignación de mesas.</CardDescription></CardHeader>
+                <CardContent><RadioGroup value={decoracion.layoutMode || 'asignado'} onValueChange={(value) => setDecoracion(d => d ? {...d, layoutMode: value as any}: null)} className="flex space-x-4"><div className="flex items-center space-x-2"><RadioGroupItem value="numerado" id="mode-numerado"/><Label htmlFor="mode-numerado">Numerado</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="mixto" id="mode-mixto"/><Label htmlFor="mode-mixto">Mixto</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="libre" id="mode-libre"/><Label htmlFor="mode-libre">Libre</Label></div></RadioGroup></CardContent>
             </Card>
         </div>
         <div ref={canvasRef} className={cn("xl:col-span-6 bg-white transition-all duration-300", isFullscreen && "fixed inset-0 z-50 p-4")}>
@@ -350,18 +361,17 @@ export default function SalonLayoutPage() {
               {decoracion.salonPlanBackgroundImageUrl && (<NextImage src={decoracion.salonPlanBackgroundImageUrl} alt="Plano del Salón" layout="fill" objectFit="contain" className="opacity-50" data-ai-hint="event floor plan"/>)}
               {(decoracion.salonElements || []).map(el => {
                 const guestsAtTable = invitados.filter(i => i.tableNumber === el.name);
-                const seatsTaken = guestsAtTable.reduce((acc, g) => acc + (g.partySize || 1), 0);
-                const isFull = el.seats !== undefined && seatsTaken >= el.seats;
+                const asientosOcupados = guestsAtTable.reduce((acc, g) => acc + (g.partySize || 1), 0);
+                const isFull = el.seats !== undefined && asientosOcupados >= el.seats;
                 const nodeRef = React.createRef<HTMLDivElement>();
-                return (<Draggable key={el.id} nodeRef={nodeRef} bounds="parent" grid={[grid, grid]} position={{ x: el.x, y: el.y }} onStop={(e, data) => handleDragStop(e, data, el.id)}><div ref={nodeRef} id={el.id} onDragOver={e => e.preventDefault()} onDrop={e => handleGuestDrop(e, el.id)} className={cn('absolute border-2 flex flex-col items-center justify-center p-1 cursor-grab active:cursor-grabbing', el.category?.includes('Mesa Redonda') || el.shape === 'circle' ? 'rounded-full' : 'rounded-md', selectedElementId === el.id ? 'border-primary shadow-lg z-10' : 'border-gray-500 bg-white/80')} style={{ width: el.width, height: el.height, transform: `rotate(${el.rotation}deg)`}} onClick={() => setSelectedElementId(el.id)}><p className="text-sm font-bold text-center truncate px-1">{el.name}</p>{el.seats !== undefined && <p className={`text-xs font-semibold ${isFull ? 'text-destructive' : 'text-muted-foreground'}`}>{seatsTaken} / {el.seats}</p>}<div className="flex flex-wrap gap-1 justify-center mt-1">{guestsAtTable.map(g => <div key={g.id} title={g.nombre} className="w-5 h-5 rounded-full bg-primary/20 text-primary-foreground flex items-center justify-center text-[10px] font-bold border-2 border-white">{getInitials(g.nombre)}</div>)}</div>{selectedElementId === el.id && (<div className="absolute -top-7 -right-2 flex gap-0.5 z-20" style={{transform: `rotate(-${el.rotation}deg)`}}><Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleOpenEditModal(el)}><Edit className="w-3 h-3"/></Button><Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleElementRotation(el.id)}><RotateCw className="w-3 h-3"/></Button><Button type="button" variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => handleDeleteElement(el.id)}><Trash2 className="w-3 h-3"/></Button></div>)}</div></Draggable>)
+                return (<Draggable key={el.id} nodeRef={nodeRef} bounds="parent" grid={[grid, grid]} position={{ x: el.x, y: el.y }} onStop={(e, data) => handleDragStop(e, data, el.id)}><div ref={nodeRef} id={el.id} onDragOver={e => e.preventDefault()} onDrop={e => handleGuestDrop(e, el.id)} className={cn('absolute border-2 flex flex-col items-center justify-center p-1 cursor-grab active:cursor-grabbing', el.category?.includes('Mesa Redonda') || el.shape === 'circle' ? 'rounded-full' : 'rounded-md', selectedElementId === el.id ? 'border-primary shadow-lg z-10' : 'border-gray-500 bg-white/80')} style={{ width: el.width, height: el.height, transform: `rotate(${el.rotation}deg)`}} onClick={() => setSelectedElementId(el.id)}><p className="text-base font-bold text-center truncate px-1">{el.name}</p>{el.seats !== undefined && <p className={`text-xs font-semibold ${isFull ? 'text-destructive' : 'text-muted-foreground'}`}>{asientosOcupados} / {el.seats}</p>}<div className="flex flex-wrap gap-1 justify-center mt-1">{guestsAtTable.map(g => <div key={g.id} title={g.nombre} className="w-6 h-6 rounded-full bg-primary/20 text-primary-foreground flex items-center justify-center text-[10px] font-bold border-2 border-white">{getInitials(g.nombre)}</div>)}</div>{selectedElementId === el.id && (<div className="absolute -top-7 -right-2 flex gap-0.5 z-20" style={{transform: `rotate(-${el.rotation}deg)`}}><Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleOpenEditModal(el)}><Edit className="w-3 h-3"/></Button><Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleElementRotation(el.id)}><RotateCw className="w-3 h-3"/></Button><Button type="button" variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => handleDeleteElement(el.id)}><Trash2 className="w-3 h-3"/></Button></div>)}</div></Draggable>)
               })}
             </div></div></CardContent>
           </Card>
         </div>
          <div className="xl:col-span-3">
-          <Card><CardHeader><CardTitle>Asignación de Invitados</CardTitle><CardDescription>Selecciona el modo de asignación de mesas.</CardDescription></CardHeader><CardContent><RadioGroup value={decoracion.layoutMode || 'asignado'} onValueChange={(value) => setDecoracion(d => d ? {...d, layoutMode: value as any}: null)} className="flex space-x-4"><div className="flex items-center space-x-2"><RadioGroupItem value="numerado" id="mode-numerado"/><Label htmlFor="mode-numerado">Numerado</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="mixto" id="mode-mixto"/><Label htmlFor="mode-mixto">Mixto</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="libre" id="mode-libre"/><Label htmlFor="mode-libre">Libre</Label></div></RadioGroup></CardContent></Card>
           {decoracion.layoutMode !== 'libre' && (
-            <div className="mt-4 space-y-4">
+            <div className="space-y-4">
                 <Card><CardHeader><CardTitle className="text-lg">Invitados sin Mesa ({invitadosSinMesa.length})</CardTitle></CardHeader>
                     <CardContent>
                         <ScrollArea className="h-40 border rounded-md p-2">
@@ -404,4 +414,13 @@ export default function SalonLayoutPage() {
         </div>
     </div>
   );
+}
+
+
+export default function SalonLayoutPage() {
+    return (
+        <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>}>
+            <SalonLayoutContent/>
+        </Suspense>
+    )
 }
