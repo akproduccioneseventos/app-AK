@@ -259,7 +259,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
         </CardHeader>
         <CardContent className="space-y-4">
           {(menu.items || []).map((item) => (
-            <Card key={item.id} className="p-4 bg-blue-50/50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+            <Card key={item.id} className="p-4 bg-muted/30">
                 <CardHeader className="p-0 pb-4">
                      <div className="flex justify-between items-start">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
