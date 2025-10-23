@@ -9,17 +9,20 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PlusCircle, Trash2, Loader2, Save, BookOpen, Search, Percent, DollarSign, Link as LinkIcon } from 'lucide-react';
+import { PlusCircle, Trash2, Loader2, Save, BookOpen, Search, Percent, DollarSign, Link as LinkIcon, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveMenu } from '@/app/actions/menus-catering';
 import { getInsumos, saveInsumo } from '@/app/actions/insumos';
 import type { FullMenu, MenuItem, Ingredient } from '@/types/catering';
 import type { ServicioEmpresa } from '@/types/empresa';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogDescription } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
+import { cn } from '@/lib/utils';
 
-const formatCurrency = (amount: number) => {
+
+const formatCurrency = (amount?: number) => {
+  if (amount === undefined || isNaN(amount)) return 'N/A';
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
@@ -36,23 +39,21 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
   const [currentItemIdForCatalog, setCurrentItemIdForCatalog] = useState<string | null>(null);
   const [catalogSearchTerm, setCatalogSearchTerm] = useState('');
 
-  const calculatePrices = useCallback((item: MenuItem): MenuItem => {
-    const totalDishCost = (item.ingredients || []).reduce((sum, ing) => {
-        const quantity = parseFloat(ing.quantityPerPerson || '0');
-        const unitCost = Number(ing.cost) || 0;
-        return sum + (quantity * unitCost);
-    }, 0);
+  const calculateTotalDishCost = useCallback((ingredients: Ingredient[]): number => {
+    return ingredients.reduce((sum, ing) => sum + (Number(ing.costoTotalReceta) || 0), 0);
+  }, []);
 
+  const calculatePrices = useCallback((item: MenuItem): MenuItem => {
+    const totalDishCost = calculateTotalDishCost(item.ingredients || []);
     const profitMargin = item.profitMargin === undefined || isNaN(item.profitMargin) ? 100 : item.profitMargin;
     const suggestedSellingPrice = totalDishCost * (1 + profitMargin / 100);
-
     return { ...item, totalDishCost, suggestedSellingPrice, profitMargin };
-  }, []);
-  
+  }, [calculateTotalDishCost]);
+
   const fetchInsumos = useCallback(async () => {
       try {
         const insumos = await getInsumos();
-        setCatalogoInsumos(insumos.filter(i => i.tipoItem === 'Insumo/Ingrediente' || i.tipoItem === 'Bebida (Insumo)'));
+        setCatalogoInsumos(insumos);
       } catch (e) {
         toast({ title: "Error", description: "No se pudo cargar el catálogo de insumos."});
       }
@@ -67,8 +68,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
       setMenu(menuWithCalculatedPrices);
     }
     fetchInsumos();
-  }, [existingMenu, toast, calculatePrices, fetchInsumos]);
-
+  }, [existingMenu, calculatePrices, fetchInsumos]);
 
   const handleMenuChange = (field: keyof FullMenu, value: string) => {
     setMenu(prev => ({ ...prev, [field]: value }));
@@ -103,10 +103,18 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
       if (!prev) return null;
       const newItems = (prev.items || []).map(item => {
         if (item.id === itemId) {
-          const newIngredients = (item.ingredients || []).map(ing =>
-            ing.id === ingId ? { ...ing, [field]: value } : ing
-          );
-          // Recalculate prices for the whole dish whenever an ingredient changes
+          const newIngredients = (item.ingredients || []).map(ing => {
+            if (ing.id === ingId) {
+                const updatedIng = { ...ing, [field]: value };
+                if (field === 'quantityPerPerson' || field === 'costoUnitario') {
+                    const quantity = parseFloat(updatedIng.quantityPerPerson || '0');
+                    const unitCost = Number(updatedIng.costoUnitario) || 0;
+                    updatedIng.costoTotalReceta = quantity * unitCost;
+                }
+                return updatedIng;
+            }
+            return ing;
+          });
           return calculatePrices({ ...item, ingredients: newIngredients });
         }
         return item;
@@ -115,26 +123,25 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     });
   };
   
-  const handleIngredientBlur = async (itemId: string, ing: Ingredient, field: 'name' | 'cost') => {
+ const handleIngredientBlur = async (itemId: string, ing: Ingredient, field: 'costoUnitario') => {
     if (!ing.origenId) return;
 
     const catalogItem = catalogoInsumos.find(i => i.id === ing.origenId);
-    if (!catalogItem || catalogItem[field === 'name' ? 'nombre' : 'valorUnitarioEstimado'] === ing[field]) return;
-
+    if (!catalogItem || catalogItem.valorUnitarioEstimado === ing.costoUnitario) return;
+    
     try {
-        const updatedInsumo = { ...catalogItem, [field === 'name' ? 'nombre' : 'valorUnitarioEstimado']: ing[field] };
+        const updatedInsumo = { ...catalogItem, valorUnitarioEstimado: Number(ing.costoUnitario) || 0 };
         await saveInsumo(updatedInsumo);
-        toast({ title: 'Catálogo Actualizado', description: `Se actualizó "${ing.name}" en el catálogo de insumos.`});
-        await fetchInsumos(); // Refresh catalog state
+        toast({ title: 'Catálogo Actualizado', description: `Se actualizó el costo de "${ing.name}" en el catálogo.`});
+        await fetchInsumos();
     } catch (e: any) {
         toast({ title: "Error de Sincronización", description: e.message, variant: "destructive"});
-        // Revert UI change on failure
         setMenu(prev => {
             if (!prev) return null;
             const revertedItems = (prev.items || []).map(item => {
                 if (item.id === itemId) {
                     const revertedIngredients = (item.ingredients || []).map(i =>
-                        i.id === ing.id ? { ...i, [field]: catalogItem[field === 'name' ? 'nombre' : 'valorUnitarioEstimado'] } : i
+                        i.id === ing.id ? { ...i, [field]: catalogItem.valorUnitarioEstimado } : i
                     );
                     return calculatePrices({ ...item, ingredients: revertedIngredients });
                 }
@@ -143,7 +150,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
             return { ...prev, items: revertedItems };
         });
     }
-  }
+  };
 
 
   const addItem = () => {
@@ -156,7 +163,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
   
   const addIngredient = (itemId: string) => {
     const newIngredient: Ingredient = {
-        id: `new_ing_${Date.now()}`, name: '', quantityPerPerson: '0', unit: 'g', cost: 0,
+        id: `new_ing_${Date.now()}`, name: '', quantityPerPerson: '0', unit: 'g', costoUnitario: 0, costoTotalReceta: 0
     };
      setMenu(prev => ({
       ...prev,
@@ -167,15 +174,17 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
   }
 
   const addIngredientFromCatalog = (itemId: string, insumo: ServicioEmpresa) => {
-      const newIngredient: Ingredient = {
-        id: `new_ing_${Date.now()}_${insumo.id}`,
-        origenId: insumo.id, name: insumo.nombre, quantityPerPerson: '1', unit: insumo.unidad || 'Unidad',
-        cost: insumo.valorUnitarioEstimado || 0, proveedor: insumo.proveedor || '', 
+      const quantity = 0; // Default quantity
+      const unitCost = insumo.valorUnitarioEstimado || 0;
+      const newItem: Ingredient = {
+        id: `new_ing_cat_${insumo.id}_${Date.now()}`,
+        origenId: insumo.id, name: insumo.nombre, quantityPerPerson: String(quantity), unit: insumo.unidad || 'Unidad',
+        costoUnitario: unitCost, proveedor: insumo.proveedor || '', costoTotalReceta: quantity * unitCost
       };
       setMenu(prev => ({
       ...prev,
       items: (prev.items || []).map(item =>
-        item.id === itemId ? calculatePrices({ ...item, ingredients: [...(item.ingredients || []), newIngredient] }) : item
+        item.id === itemId ? calculatePrices({ ...item, ingredients: [...(item.ingredients || []), newItem] }) : item
       ),
     }));
     toast({ description: `"${insumo.nombre}" añadido al plato.` });
@@ -207,7 +216,6 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     }
     setIsSaving(true);
     
-    // Ensure all calculations are final before saving
     const menuToSave = { ...menu };
     if (menuToSave.items) {
       menuToSave.items = menuToSave.items.map(calculatePrices);
@@ -240,7 +248,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
             <DialogHeader><DialogTitle>Seleccionar Ingrediente del Catálogo</DialogTitle></DialogHeader>
             <div className="py-2 space-y-2">
                 <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"/><Input placeholder="Buscar insumo..." value={catalogSearchTerm} onChange={e => setCatalogSearchTerm(e.target.value)} className="pl-9"/></div>
-                <ScrollArea className="h-72 border rounded-md p-1"><ul className="space-y-1">{filteredInsumos.length > 0 ? (filteredInsumos.map(insumo => (<li key={insumo.id}><Button type="button" variant="ghost" className="w-full justify-start text-left h-auto" onClick={() => { if (currentItemIdForCatalog) { addIngredientFromCatalog(currentItemIdForCatalog, insumo); } setIsCatalogModalOpen(false); }}><div><p className="font-medium text-sm">{insumo.nombre}</p><p className="text-xs text-muted-foreground">{formatCurrency(insumo.valorUnitarioEstimado || 0)} / {insumo.unidad}</p></div></Button></li>))) : <li className="p-4 text-sm text-center text-muted-foreground">No se encontraron insumos.</li>}</ul></ScrollArea>
+                <ScrollArea className="h-72 border rounded-md p-1"><ul className="space-y-1">{filteredInsumos.length > 0 ? (filteredInsumos.map(insumo => (<li key={insumo.id}><Button type="button" variant="ghost" className="w-full justify-start text-left h-auto" onClick={() => { if (currentItemIdForCatalog) { addIngredientFromCatalog(currentItemIdForCatalog, insumo); } setIsCatalogModalOpen(false); }}><div><p className="font-medium text-sm">{insumo.nombre}</p><p className="text-xs text-muted-foreground">{formatCurrency(insumo.valorUnitarioEstimado)} / {insumo.unidad}</p></div></Button></li>))) : <li className="p-4 text-sm text-center text-muted-foreground">No se encontraron insumos.</li>}</ul></ScrollArea>
             </div>
         </DialogContent>
        </Dialog>
@@ -276,21 +284,22 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                       <AccordionItem value="ingredients">
                         <AccordionTrigger className="text-sm font-medium">Ingredientes</AccordionTrigger>
                         <AccordionContent>
-                          <div className="mt-2 space-y-3 p-3 bg-background/70 dark:bg-black/20 rounded-lg">
+                           <div className="mt-2 space-y-3 p-3 bg-white dark:bg-black/20 rounded-lg">
                               {item.ingredients?.map(ing => (
-                                  <div key={ing.id} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 items-end p-3 border-b last:border-b-0">
-                                      <div className="space-y-1 lg:col-span-2 relative">
-                                          <Label className="text-xs">Nombre</Label>
-                                          {ing.origenId && <LinkIcon className="w-3 h-3 absolute top-0.5 right-0.5 text-muted-foreground" title="Vinculado al catálogo de insumos"/>}
-                                          <Input value={ing.name || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'name', e.target.value)} onBlur={() => handleIngredientBlur(item.id, ing, 'name')} className="h-8"/>
-                                      </div>
-                                      <div className="space-y-1"><Label className="text-xs">Cant. p/p</Label><Input value={ing.quantityPerPerson || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'quantityPerPerson', e.target.value)} className="h-8"/></div>
-                                      <div className="space-y-1"><Label className="text-xs">Unidad</Label><Input value={ing.unit || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'unit', e.target.value)} className="h-8"/></div>
-                                      <div className="space-y-1 relative"><Label className="text-xs">Costo Unit. ($)</Label><Input type="number" value={ing.cost || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'cost', Number(e.target.value))} onBlur={() => handleIngredientBlur(item.id, ing, 'cost')} className="h-8 pl-6"/><span className="absolute left-2 top-1/2 mt-1 text-muted-foreground">$</span></div>
-                                      <div className="lg:col-span-5 flex justify-end">
+                                <div key={ing.id} className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 items-end p-3 border-b last:border-b-0">
+                                    <div className="space-y-1 col-span-2 lg:col-span-2 relative">
+                                        <Label className="text-xs">Nombre</Label>
+                                        {ing.origenId && <LinkIcon className="w-3 h-3 absolute top-0.5 right-0.5 text-muted-foreground" title="Vinculado al catálogo de insumos"/>}
+                                        <Input value={ing.name || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'name', e.target.value)} className="h-8 text-sm" disabled={!!ing.origenId}/>
+                                    </div>
+                                    <div className="space-y-1"><Label className="text-xs">Cant. p/p</Label><Input value={ing.quantityPerPerson || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'quantityPerPerson', e.target.value)} className="h-8 text-sm" /></div>
+                                    <div className="space-y-1"><Label className="text-xs">Unidad</Label><Input value={ing.unit || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'unit', e.target.value)} className="h-8 text-sm" disabled={!!ing.origenId}/></div>
+                                    <div className="space-y-1 relative"><Label className="text-xs">Costo p/Unidad</Label><Input type="number" value={ing.costoUnitario || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'costoUnitario', Number(e.target.value))} onBlur={() => handleIngredientBlur(item.id, ing, 'costoUnitario')} className="h-8 pl-6 text-sm" disabled={!ing.origenId}/><span className="absolute left-2 top-1/2 mt-1 text-muted-foreground">$</span></div>
+                                    <div className="flex items-center gap-2">
+                                      <p className="text-xs text-muted-foreground text-right w-full font-semibold">{formatCurrency(ing.costoTotalReceta)}</p>
                                       <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteIngredient(item.id, ing.id)}><Trash2 className="w-3.5 h-3.5"/></Button>
-                                      </div>
-                                  </div>
+                                    </div>
+                                </div>
                               ))}
                               <div className="flex gap-2 mt-3">
                                   <Button type="button" size="sm" variant="outline" onClick={() => addIngredient(item.id)}><PlusCircle className="w-4 h-4 mr-1.5"/>Añadir Manual</Button>
@@ -312,7 +321,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                             <Input id={`profit-${item.id}`} type="number" value={item.profitMargin?.toFixed(0) ?? ''} onChange={e => handleItemChange(item.id, 'profitMargin', Number(e.target.value) || 0)} />
                         </div>
                         <div className="space-y-1">
-                             <Label htmlFor={`price-${item.id}`} className="text-sm flex items-center gap-1"><DollarSign className="w-3 h-3"/>Precio ($)</Label>
+                             <Label htmlFor={`price-${item.id}`} className="text-sm flex items-center gap-1"><DollarSign className="w-3 h-3"/>Precio Venta ($)</Label>
                              <Input id={`price-${item.id}`} type="number" value={item.suggestedSellingPrice?.toFixed(0) ?? ''} onChange={e => handleItemChange(item.id, 'suggestedSellingPrice', Number(e.target.value) || 0)} />
                         </div>
                     </div>
@@ -334,3 +343,4 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     </form>
   );
 }
+
