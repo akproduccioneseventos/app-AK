@@ -40,7 +40,11 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
   const [catalogSearchTerm, setCatalogSearchTerm] = useState('');
 
   const calculateTotalDishCost = useCallback((ingredients: Ingredient[]): number => {
-    return ingredients.reduce((sum, ing) => sum + (Number(ing.costoTotalReceta) || 0), 0);
+    return ingredients.reduce((sum, ing) => {
+      const quantity = parseFloat(ing.quantityPerPerson || '0');
+      const unitCost = Number(ing.costoUnitario) || 0;
+      return sum + (quantity * unitCost);
+    }, 0);
   }, []);
 
   const calculatePrices = useCallback((item: MenuItem): MenuItem => {
@@ -106,16 +110,21 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
           const newIngredients = (item.ingredients || []).map(ing => {
             if (ing.id === ingId) {
                 const updatedIng = { ...ing, [field]: value };
-                if (field === 'quantityPerPerson' || field === 'costoUnitario') {
+                 if (field === 'quantityPerPerson' || field === 'costoUnitario') {
                     const quantity = parseFloat(updatedIng.quantityPerPerson || '0');
                     const unitCost = Number(updatedIng.costoUnitario) || 0;
-                    updatedIng.costoTotalReceta = quantity * unitCost;
+                    updatedIng.costoTotalReceta = quantity * unitCost; // This is now cost for THIS ingredient's quantity.
                 }
                 return updatedIng;
             }
             return ing;
           });
-          return calculatePrices({ ...item, ingredients: newIngredients });
+          // After updating an ingredient, recalculate the whole dish cost
+          const totalDishCost = newIngredients.reduce((sum, ing) => sum + (Number(ing.costoTotalReceta) || 0), 0);
+          const profitMargin = item.profitMargin === undefined || isNaN(item.profitMargin) ? 100 : item.profitMargin;
+          const suggestedSellingPrice = totalDishCost * (1 + profitMargin / 100);
+
+          return { ...item, ingredients: newIngredients, totalDishCost, suggestedSellingPrice };
         }
         return item;
       });
@@ -136,6 +145,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
         await fetchInsumos();
     } catch (e: any) {
         toast({ title: "Error de Sincronización", description: e.message, variant: "destructive"});
+        // Revert UI change on error
         setMenu(prev => {
             if (!prev) return null;
             const revertedItems = (prev.items || []).map(item => {
@@ -156,7 +166,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
   const addItem = () => {
     const newItem: MenuItem = {
       id: `new_item_${Date.now()}`, name: '', type: 'Entrada', ingredients: [], totalDishCost: 0,
-      profitMargin: 120, suggestedSellingPrice: 0,
+      profitMargin: 100, suggestedSellingPrice: 0,
     };
     setMenu(prev => ({ ...prev, items: [...(prev.items || []), newItem] }));
   };
@@ -269,7 +279,11 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
         </CardHeader>
         <CardContent className="space-y-4">
           {(menu.items || []).map((item, index) => (
-            <Card key={item.id} className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900">
+            <Card key={item.id} className={cn("p-4",
+              index % 3 === 0 ? "bg-blue-50 dark:bg-blue-900/20" :
+              index % 3 === 1 ? "bg-green-50 dark:bg-green-900/20" :
+              "bg-purple-50 dark:bg-purple-900/20"
+            )}>
                 <CardHeader className="p-0 pb-4">
                      <div className="flex justify-between items-start">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
@@ -294,7 +308,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                                     </div>
                                     <div className="space-y-1"><Label className="text-xs">Cant. p/p</Label><Input value={ing.quantityPerPerson || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'quantityPerPerson', e.target.value)} className="h-8 text-sm" /></div>
                                     <div className="space-y-1"><Label className="text-xs">Unidad</Label><Input value={ing.unit || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'unit', e.target.value)} className="h-8 text-sm" disabled={!!ing.origenId}/></div>
-                                    <div className="space-y-1 relative"><Label className="text-xs">Costo p/Unidad</Label><Input type="number" value={ing.costoUnitario || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'costoUnitario', Number(e.target.value))} onBlur={() => handleIngredientBlur(item.id, ing, 'costoUnitario')} className="h-8 pl-6 text-sm" disabled={!ing.origenId}/><span className="absolute left-2 top-1/2 mt-1 text-muted-foreground">$</span></div>
+                                    <div className="space-y-1 relative"><Label className="text-xs">Costo p/Unidad</Label><Input type="number" value={ing.costoUnitario || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'costoUnitario', Number(e.target.value))} onBlur={() => handleIngredientBlur(item.id, ing, 'costoUnitario')} className="h-8 pl-6 text-sm"/><span className="absolute left-2 top-1/2 mt-1 text-muted-foreground">$</span></div>
                                     <div className="flex items-center gap-2">
                                       <p className="text-xs text-muted-foreground text-right w-full font-semibold">{formatCurrency(ing.costoTotalReceta)}</p>
                                       <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteIngredient(item.id, ing.id)}><Trash2 className="w-3.5 h-3.5"/></Button>
