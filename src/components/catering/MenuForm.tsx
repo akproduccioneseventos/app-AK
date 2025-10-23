@@ -106,6 +106,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
           const newIngredients = (item.ingredients || []).map(ing =>
             ing.id === ingId ? { ...ing, [field]: value } : ing
           );
+          // Recalculate prices for the whole dish whenever an ingredient changes
           return calculatePrices({ ...item, ingredients: newIngredients });
         }
         return item;
@@ -260,7 +261,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
         </CardHeader>
         <CardContent className="space-y-4">
           {(menu.items || []).map((item, index) => (
-            <Card key={item.id} className={`p-4 bg-gradient-to-br ${index % 2 === 0 ? 'from-blue-50 to-indigo-50' : 'from-purple-50 to-pink-50'} dark:from-gray-800 dark:to-gray-900`}>
+            <Card key={item.id} className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900">
                 <CardHeader className="p-0 pb-4">
                      <div className="flex justify-between items-start">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
@@ -275,7 +276,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                       <AccordionItem value="ingredients">
                         <AccordionTrigger className="text-sm font-medium">Ingredientes</AccordionTrigger>
                         <AccordionContent>
-                          <div className="mt-2 space-y-3 p-3 bg-white/70 dark:bg-black/20 rounded-lg">
+                          <div className="mt-2 space-y-3 p-3 bg-background/70 dark:bg-black/20 rounded-lg">
                               {item.ingredients?.map(ing => (
                                   <div key={ing.id} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 items-end p-3 border-b last:border-b-0">
                                       <div className="space-y-1 lg:col-span-2 relative">
