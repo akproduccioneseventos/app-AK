@@ -17,6 +17,7 @@ import type { FullMenu, MenuItem, Ingredient } from '@/types/catering';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogTrigger } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
@@ -258,8 +259,8 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
           <CardDescription>Añade o edita los platos que componen este menú.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {(menu.items || []).map((item) => (
-            <Card key={item.id} className="p-4 bg-muted/30">
+          {(menu.items || []).map((item, index) => (
+            <Card key={item.id} className={`p-4 bg-gradient-to-br ${index % 2 === 0 ? 'from-blue-50 to-indigo-50' : 'from-purple-50 to-pink-50'} dark:from-gray-800 dark:to-gray-900`}>
                 <CardHeader className="p-0 pb-4">
                      <div className="flex justify-between items-start">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
@@ -270,34 +271,40 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                      </div>
                 </CardHeader>
                  <CardContent className="p-0">
-                    <Label className="text-sm font-medium">Ingredientes</Label>
-                    <div className="mt-2 space-y-3">
-                        {item.ingredients?.map(ing => (
-                            <div key={ing.id} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 items-end p-3 border-l-4 border-primary/50 rounded-r-md bg-background shadow-sm">
-                                <div className="space-y-1 lg:col-span-2 relative">
-                                    <Label className="text-xs">Nombre</Label>
-                                    {ing.origenId && <LinkIcon className="w-3 h-3 absolute top-0.5 right-0.5 text-muted-foreground" title="Vinculado al catálogo de insumos"/>}
-                                    <Input value={ing.name || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'name', e.target.value)} onBlur={() => handleIngredientBlur(item.id, ing, 'name')} className="h-8"/>
-                                </div>
-                                <div className="space-y-1"><Label className="text-xs">Cant. p/p</Label><Input value={ing.quantityPerPerson || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'quantityPerPerson', e.target.value)} className="h-8"/></div>
-                                <div className="space-y-1"><Label className="text-xs">Unidad</Label><Input value={ing.unit || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'unit', e.target.value)} className="h-8"/></div>
-                                <div className="space-y-1 relative"><Label className="text-xs">Costo Unit. ($)</Label><Input type="number" value={ing.cost || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'cost', Number(e.target.value))} onBlur={() => handleIngredientBlur(item.id, ing, 'cost')} className="h-8 pl-6"/><span className="absolute left-2 top-1/2 mt-1 text-muted-foreground">$</span></div>
-                                <div className="lg:col-span-5 flex justify-end">
-                                <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteIngredient(item.id, ing.id)}><Trash2 className="w-3.5 h-3.5"/></Button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                     <div className="flex gap-2 mt-3">
-                        <Button type="button" size="sm" variant="outline" onClick={() => addIngredient(item.id)}><PlusCircle className="w-4 h-4 mr-1.5"/>Añadir Ingrediente Manual</Button>
-                        <Button type="button" size="sm" variant="outline" onClick={() => openCatalogModal(item.id)}><BookOpen className="w-4 h-4 mr-1.5"/>Seleccionar del Catálogo</Button>
-                     </div>
+                    <Accordion type="single" collapsible>
+                      <AccordionItem value="ingredients">
+                        <AccordionTrigger className="text-sm font-medium">Ingredientes</AccordionTrigger>
+                        <AccordionContent>
+                          <div className="mt-2 space-y-3 p-3 bg-white/70 dark:bg-black/20 rounded-lg">
+                              {item.ingredients?.map(ing => (
+                                  <div key={ing.id} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 items-end p-3 border-b last:border-b-0">
+                                      <div className="space-y-1 lg:col-span-2 relative">
+                                          <Label className="text-xs">Nombre</Label>
+                                          {ing.origenId && <LinkIcon className="w-3 h-3 absolute top-0.5 right-0.5 text-muted-foreground" title="Vinculado al catálogo de insumos"/>}
+                                          <Input value={ing.name || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'name', e.target.value)} onBlur={() => handleIngredientBlur(item.id, ing, 'name')} className="h-8"/>
+                                      </div>
+                                      <div className="space-y-1"><Label className="text-xs">Cant. p/p</Label><Input value={ing.quantityPerPerson || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'quantityPerPerson', e.target.value)} className="h-8"/></div>
+                                      <div className="space-y-1"><Label className="text-xs">Unidad</Label><Input value={ing.unit || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'unit', e.target.value)} className="h-8"/></div>
+                                      <div className="space-y-1 relative"><Label className="text-xs">Costo Unit. ($)</Label><Input type="number" value={ing.cost || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'cost', Number(e.target.value))} onBlur={() => handleIngredientBlur(item.id, ing, 'cost')} className="h-8 pl-6"/><span className="absolute left-2 top-1/2 mt-1 text-muted-foreground">$</span></div>
+                                      <div className="lg:col-span-5 flex justify-end">
+                                      <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteIngredient(item.id, ing.id)}><Trash2 className="w-3.5 h-3.5"/></Button>
+                                      </div>
+                                  </div>
+                              ))}
+                              <div className="flex gap-2 mt-3">
+                                  <Button type="button" size="sm" variant="outline" onClick={() => addIngredient(item.id)}><PlusCircle className="w-4 h-4 mr-1.5"/>Añadir Manual</Button>
+                                  <Button type="button" size="sm" variant="outline" onClick={() => openCatalogModal(item.id)}><BookOpen className="w-4 h-4 mr-1.5"/>Desde Catálogo</Button>
+                              </div>
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
                  </CardContent>
                  <CardFooter className="p-0 pt-4 mt-4 border-t">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
                         <div className="space-y-1">
                             <Label className="text-sm font-medium">Costo p/Persona</Label>
-                            <p className="font-semibold text-lg">{formatCurrency(item.totalDishCost || 0)}</p>
+                            <p className="font-bold text-lg text-blue-600">{formatCurrency(item.totalDishCost || 0)}</p>
                         </div>
                         <div className="space-y-1">
                             <Label htmlFor={`profit-${item.id}`} className="text-sm flex items-center gap-1"><Percent className="w-3 h-3"/>Margen (%)</Label>
