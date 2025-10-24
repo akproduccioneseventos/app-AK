@@ -5,8 +5,11 @@ export interface Ingredient {
   name: string;
   quantityPerPerson: string; // Cantidad por persona para esta receta (ej: "100", "0.5")
   unit: string; // Unidad de la cantidad (ej: gr, ml, ud)
-  cost: number; // Costo de ESA quantityPerPerson para ESTA receta
-  proveedor?: string; // Nombre del proveedor (manual por ahora)
+  // COSTO BASE DEL INSUMO
+  costoUnitario: number; // Costo por la unidad de compra (ej: $180 por KG, $500 por LT)
+  // COSTO CALCULADO PARA LA RECETA
+  costoTotalReceta: number; // Costo de ESA quantityPerPerson para ESTA receta (ej: (40g/1000) * $180/kg = $7.2)
+  proveedor?: string;
   marca?: string;
   fecha_actualizacion?: string; // ISO date string
 }
@@ -16,10 +19,10 @@ export interface MenuItem { // Representa un Plato
   name: string;
   type: 'Entrada' | 'Plato Principal' | 'Postre' | 'Bebida' | 'Menú Infantil' | 'Menú Infantil/Adolescente' | ''; // Categoría del plato
   ingredients: Ingredient[];
-  // totalDishCost is the cost of this dish FOR ONE PERSON, calculated from sum of its ingredient costs (which are per person)
+  // totalDishCost es el costo de este plato PARA UNA PERSONA, calculado de la suma de costoTotalReceta de sus ingredientes
   totalDishCost: number; 
-  allergens?: string; // Texto simple para alérgenos, separados por coma
-  notes?: string; // Para información adicional
+  allergens?: string;
+  notes?: string;
   profitMargin?: number; // Porcentaje de ganancia (ej: 100 para 100%)
   suggestedSellingPrice?: number; // Precio de venta calculado
 }
