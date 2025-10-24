@@ -4,7 +4,7 @@ export interface Ingredient {
   origenId?: string; // Link to the 'ServicioEmpresa' item ID in the main catalog
   name: string;
   quantityPerPerson: string; // Cantidad por persona para esta receta (ej: "100", "0.5")
-  unit: string; // Unidad de la cantidad (ej: gr, ml, ud)
+  unit: string; // Unidad de la cantidad (ej: g, ml, ud)
   // COSTO BASE DEL INSUMO
   costoUnitario: number; // Costo por la unidad de compra (ej: $180 por KG, $500 por LT)
   // COSTO CALCULADO PARA LA RECETA
@@ -39,4 +39,5 @@ export interface FullMenu { // Representa un Menú completo guardado
 
 // Para el formulario, antes de tener un ID de FullMenu
 export type NewMenuFormData = Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'>;
+
 
