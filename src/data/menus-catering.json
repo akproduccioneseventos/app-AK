@@ -19,8 +19,7 @@
           { "id": "ing_1_4", "name": "Aceite", "quantityPerPerson": "100", "unit": "ml", "costoUnitario": 70 },
           { "id": "ing_1_5", "name": "Gas", "quantityPerPerson": "5", "unit": "min", "costoUnitario": 1000 },
           { "id": "ing_1_6", "name": "Huevo", "quantityPerPerson": "0.1", "unit": "Unidad", "costoUnitario": 10 }
-        ],
-        "totalDishCost": 45.2, "profitMargin": 100
+        ]
       },
       {
         "id": "dish_entrada_2",
@@ -30,8 +29,7 @@
           { "id": "ing_2_1", "name": "Salsa de soja", "quantityPerPerson": "10", "unit": "g", "costoUnitario": 300 },
           { "id": "ing_2_2", "name": "Aceite", "quantityPerPerson": "100", "unit": "ml", "costoUnitario": 70 },
           { "id": "ing_2_3", "name": "Arrolladitos primavera", "quantityPerPerson": "5", "unit": "Unidad", "costoUnitario": 6 }
-        ],
-        "totalDishCost": 40, "profitMargin": 100
+        ]
       },
       {
         "id": "dish_entrada_3",
@@ -47,8 +45,7 @@
           { "id": "ing_3_7", "name": "Aceitunas rodajas", "quantityPerPerson": "15", "unit": "g", "costoUnitario": 180 },
           { "id": "ing_3_8", "name": "Salsas", "quantityPerPerson": "20", "unit": "g", "costoUnitario": 180 },
           { "id": "ing_3_9", "name": "Tomate cherry", "quantityPerPerson": "15", "unit": "g", "costoUnitario": 200 }
-        ],
-        "totalDishCost": 48.4, "profitMargin": 100
+        ]
       },
       {
         "id": "dish_entrada_4",
@@ -60,8 +57,7 @@
           { "id": "ing_4_3", "name": "Muzarella", "quantityPerPerson": "40", "unit": "g", "costoUnitario": 330 },
           { "id": "ing_4_4", "name": "Gas", "quantityPerPerson": "5", "unit": "min", "costoUnitario": 0 },
           { "id": "ing_4_5", "name": "Pan de Sandwiches", "quantityPerPerson": "60", "unit": "g", "costoUnitario": 380 }
-        ],
-        "totalDishCost": 54.2, "profitMargin": 100
+        ]
       },
       {
         "id": "dish_entrada_5",
@@ -73,8 +69,7 @@
           { "id": "ing_5_3", "name": "Mani", "quantityPerPerson": "25", "unit": "g", "costoUnitario": 200 },
           { "id": "ing_5_4", "name": "Papas Chips", "quantityPerPerson": "25", "unit": "g", "costoUnitario": 400 },
           { "id": "ing_5_5", "name": "Doritos", "quantityPerPerson": "25", "unit": "g", "costoUnitario": 800 }
-        ],
-        "totalDishCost": 45.5, "profitMargin": 100
+        ]
       },
       {
         "id": "dish_papas_cheddar",
@@ -84,8 +79,7 @@
           { "id": "ing_pc_1", "name": "Fritas", "quantityPerPerson": "200", "unit": "g", "costoUnitario": 130 },
           { "id": "ing_pc_2", "name": "Queso Cheddar", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 340 },
           { "id": "ing_pc_3", "name": "Aceite", "quantityPerPerson": "100", "unit": "g", "costoUnitario": 70 }
-        ],
-        "totalDishCost": 50, "profitMargin": 100
+        ]
       },
       {
         "id": "dish_picada_fria",
@@ -108,17 +102,17 @@
           {"id": "pcf_14", "name": "Catalan 20g con sesamo verde", "quantityPerPerson": "8", "unit": "g", "costoUnitario": 340},
           {"id": "pcf_15", "name": "Escones de queso con sesamo", "quantityPerPerson": "0.2", "unit": "Unidad", "costoUnitario": 11},
           {"id": "pcf_16", "name": "Chipa", "quantityPerPerson": "0.2", "unit": "Unidad", "costoUnitario": 11}
-        ],
-        "totalDishCost": 40.352, "profitMargin": 100
+        ]
       }
     ]
   },
   {
-    "id": "menu_platos_principales",
-    "name": "Platos Principales",
-    "description": "Platos fuertes para el evento.",
-    "createdAt": "2025-07-30T12:00:00.000Z",
-    "updatedAt": "2025-07-30T12:00:00.000Z",
+    "id": "menu_platos_principales_predisenado",
+    "name": "Menú de Platos Principales",
+    "description": "Una selección de platos fuertes para el evento.",
+    "templateType": "Menú de Platos Principales",
+    "createdAt": "2025-07-28T10:00:00.000Z",
+    "updatedAt": "2025-07-28T10:00:00.000Z",
     "items": [
       {
         "id": "dish_main_1",
@@ -131,22 +125,41 @@
           { "id": "ing_m1_4", "name": "Tomate cherry", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 150 },
           { "id": "ing_m1_5", "name": "Morron verde", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 100 },
           { "id": "ing_m1_6", "name": "Cebollas", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 80 }
-        ],
-        "totalDishCost": 57.2, "profitMargin": 100
+        ]
+      },
+      {
+        "id": "dish_main_2",
+        "name": "Chivito C/ Fritas",
+        "type": "Plato Principal",
+        "ingredients": [
+          { "id": "ing_m2_1", "name": "Huevo duro", "quantityPerPerson": "0.3", "unit": "Unidad", "costoUnitario": 10 },
+          { "id": "ing_m2_2", "name": "Tortuga", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 16 },
+          { "id": "ing_m2_3", "name": "Emboltorio", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 6 },
+          { "id": "ing_m2_4", "name": "Jamon", "quantityPerPerson": "25", "unit": "g", "costoUnitario": 180 },
+          { "id": "ing_m2_5", "name": "Lechuga", "quantityPerPerson": "100", "unit": "g", "costoUnitario": 25 },
+          { "id": "ing_m2_6", "name": "Tomate", "quantityPerPerson": "150", "unit": "g", "costoUnitario": 90 },
+          { "id": "ing_m2_7", "name": "Aderezos", "quantityPerPerson": "101", "unit": "g", "costoUnitario": 46 },
+          { "id": "ing_m2_8", "name": "Carne", "quantityPerPerson": "120", "unit": "g", "costoUnitario": 400 },
+          { "id": "ing_m2_9", "name": "Aceite", "quantityPerPerson": "100", "unit": "ml", "costoUnitario": 60 },
+          { "id": "ing_m2_10", "name": "Queso Muzzarella", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 400 },
+          { "id": "ing_m2_11", "name": "Fritas", "quantityPerPerson": "200", "unit": "g", "costoUnitario": 120 },
+          { "id": "ing_m2_12", "name": "Gas", "quantityPerPerson": "5", "unit": "min", "costoUnitario": 0 }
+        ]
       }
     ]
   },
   {
-    "id": "menu_infantil",
+    "id": "menu_infantil_predisenado",
     "name": "Menú Infantil y Adolescente",
-    "description": "Opciones para los más jóvenes.",
-    "createdAt": "2025-07-30T12:00:00.000Z",
-    "updatedAt": "2025-07-30T12:00:00.000Z",
+    "description": "Opciones divertidas y deliciosas para los más chicos.",
+    "templateType": "Menú para Niños",
+    "createdAt": "2025-07-28T10:00:00.000Z",
+    "updatedAt": "2025-07-28T10:00:00.000Z",
     "items": [
         {
             "id": "dish_child_1",
             "name": "Panchos Medio Metro C/ Fritas",
-            "type": "Menú Infantil",
+            "type": "Menú Infantil/Adolescente",
             "ingredients": [
                 { "id": "ing_c1_1", "name": "Panchos medio metro", "quantityPerPerson": "190", "unit": "g", "costoUnitario": 270 },
                 { "id": "ing_c1_2", "name": "Papas pai", "quantityPerPerson": "3", "unit": "g", "costoUnitario": 1000 },
@@ -156,8 +169,7 @@
                 { "id": "ing_c1_6", "name": "Porta pancho medio metro", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 15 },
                 { "id": "ing_c1_7", "name": "Pan de panchos medio metro", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 48 },
                 { "id": "ing_c1_8", "name": "Gas", "quantityPerPerson": "3", "unit": "min", "costoUnitario": 0 }
-            ],
-            "totalDishCost": 164.3, "profitMargin": 100
+            ]
         }
     ]
   },
@@ -196,8 +208,7 @@
           {"id": "buff_21", "name": "Choclo", "quantityPerPerson": "0.02", "unit": "Unidad", "costoUnitario": 200},
           {"id": "buff_22", "name": "Palmitos", "quantityPerPerson": "0.02", "unit": "Unidad", "costoUnitario": 150},
           {"id": "buff_23", "name": "Anana", "quantityPerPerson": "0.02", "unit": "Unidad", "costoUnitario": 150}
-        ],
-        "totalDishCost": 53.426, "profitMargin": 100
+        ]
       }
     ]
   }
