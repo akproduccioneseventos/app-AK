@@ -78,7 +78,7 @@
         "ingredients": [
           { "id": "ing_pc_1", "name": "Fritas", "quantityPerPerson": "200", "unit": "g", "costoUnitario": 130 },
           { "id": "ing_pc_2", "name": "Queso Cheddar", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 340 },
-          { "id": "ing_pc_3", "name": "Aceite", "quantityPerPerson": "100", "unit": "g", "costoUnitario": 70 }
+          { "id": "ing_pc_3", "name": "Aceite", "quantityPerPerson": "100", "unit": "ml", "costoUnitario": 70 }
         ]
       },
       {
@@ -169,6 +169,36 @@
                 { "id": "ing_c1_6", "name": "Porta pancho medio metro", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 15 },
                 { "id": "ing_c1_7", "name": "Pan de panchos medio metro", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 48 },
                 { "id": "ing_c1_8", "name": "Gas", "quantityPerPerson": "3", "unit": "min", "costoUnitario": 0 }
+            ]
+        },
+        {
+            "id": "dish_child_2",
+            "name": "Panchos C/ Fritas",
+            "type": "Menú Infantil/Adolescente",
+            "ingredients": [
+                { "id": "ing_c2_1", "name": "Panchos", "quantityPerPerson": "120", "unit": "g", "costoUnitario": 260 },
+                { "id": "ing_c2_2", "name": "Aderezos", "quantityPerPerson": "2", "unit": "Unidad", "costoUnitario": 4 },
+                { "id": "ing_c2_3", "name": "Aceite", "quantityPerPerson": "100", "unit": "ml", "costoUnitario": 60 },
+                { "id": "ing_c2_4", "name": "Fritas", "quantityPerPerson": "200", "unit": "g", "costoUnitario": 150 },
+                { "id": "ing_c2_5", "name": "Pan de panchos", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 13 },
+                { "id": "ing_c2_6", "name": "Gas", "quantityPerPerson": "5", "unit": "min", "costoUnitario": 0 }
+            ]
+        },
+        {
+            "id": "dish_child_3",
+            "name": "Hamburguesa C/ Fritas",
+            "type": "Menú Infantil/Adolescente",
+            "ingredients": [
+                { "id": "ing_c3_1", "name": "Hamburguesas", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 35 },
+                { "id": "ing_c3_2", "name": "Lechuga", "quantityPerPerson": "0.3", "unit": "Unidad", "costoUnitario": 30 },
+                { "id": "ing_c3_3", "name": "Huevo frito", "quantityPerPerson": "0.3", "unit": "Unidad", "costoUnitario": 10 },
+                { "id": "ing_c3_4", "name": "Tortugas brioche 70 gramos", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 20 },
+                { "id": "ing_c3_5", "name": "Tomate", "quantityPerPerson": "40", "unit": "g", "costoUnitario": 150 },
+                { "id": "ing_c3_6", "name": "Queso Cheddar", "quantityPerPerson": "40", "unit": "g", "costoUnitario": 340 },
+                { "id": "ing_c3_7", "name": "Jamon", "quantityPerPerson": "40", "unit": "g", "costoUnitario": 180 },
+                { "id": "ing_c3_8", "name": "Aderesos", "quantityPerPerson": "100", "unit": "g", "costoUnitario": 45 },
+                { "id": "ing_c3_9", "name": "Fritas", "quantityPerPerson": "200", "unit": "g", "costoUnitario": 130 },
+                { "id": "ing_c3_10", "name": "Gas", "quantityPerPerson": "10", "unit": "min", "costoUnitario": 0 }
             ]
         }
     ]
