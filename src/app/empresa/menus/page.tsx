@@ -3,6 +3,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
 import Link from 'next/link';
+import NextImage from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ChefHat, PlusCircle, Edit, List, Loader2, Info, Package, Cake, GlassWater, Printer, Percent, DollarSign, Search } from 'lucide-react';
@@ -212,17 +213,19 @@ export default function GestionMenusPage() {
                     {menus.length > 0 ? (
                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {menus.map((menu) => (
-                            <Card key={menu.id} className="shadow-sm hover:shadow-md transition-shadow bg-muted/30">
+                            <Card key={menu.id} className="shadow-sm hover:shadow-md transition-shadow bg-muted/30 flex flex-col">
                                 <CardHeader className="pb-2">
-                                    <div className="flex justify-between items-start">
-                                    <CardTitle className="text-lg">{menu.name}</CardTitle>
-                                    <Link href={`/empresa/menus/${encodeURIComponent(menu.id)}/editar`} passHref>
-                                        <Button variant="outline" size="sm"><Edit className="w-4 h-4 mr-2"/>Editar Menú</Button>
-                                    </Link>
+                                    <div className="flex justify-between items-start gap-2">
+                                        <div className="flex-grow">
+                                            <CardTitle className="text-lg">{menu.name}</CardTitle>
+                                            <CardDescription>{menu.description}</CardDescription>
+                                        </div>
+                                        <div className="w-20 h-16 bg-background border rounded-md relative overflow-hidden flex-shrink-0">
+                                            {menu.imageUrl && <NextImage src={menu.imageUrl} alt={menu.name} layout="fill" objectFit="cover" data-ai-hint={menu.dataAiHint || "food menu"}/>}
+                                        </div>
                                     </div>
-                                    <CardDescription>{menu.description}</CardDescription>
                                 </CardHeader>
-                                <CardContent>
+                                <CardContent className="flex-grow">
                                     {(menu.items || []).length > 0 && (
                                     <ScrollArea className="h-20 text-xs text-muted-foreground border-t pt-2">
                                         <p className="font-semibold text-xs mb-1">Platos Incluidos:</p>
@@ -232,6 +235,11 @@ export default function GestionMenusPage() {
                                     </ScrollArea>
                                     )}
                                 </CardContent>
+                                <CardFooter className="pt-2">
+                                    <Link href={`/empresa/menus/${encodeURIComponent(menu.id)}/editar`} passHref className="w-full">
+                                        <Button variant="outline" size="sm" className="w-full"><Edit className="w-4 h-4 mr-2"/>Editar Menú</Button>
+                                    </Link>
+                                </CardFooter>
                             </Card>
                         ))}
                        </div>
@@ -268,7 +276,7 @@ export default function GestionMenusPage() {
                                       <div key={item.id} className="p-3 border-b last:border-b-0">
                                           <p className="font-medium text-sm">{item.name}</p>
                                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2 items-end">
-                                            <div className="p-2 rounded-md bg-blue-50 dark:bg-blue-900/40">
+                                            <div className="p-3 rounded-md bg-blue-50 dark:bg-blue-900/40">
                                               <Label className="text-xs font-medium text-blue-800 dark:text-blue-200">Costo p/Persona</Label>
                                               <p className="font-semibold text-md text-blue-700 dark:text-blue-300">{formatCurrency(item.totalDishCost)}</p>
                                             </div>

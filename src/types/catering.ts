@@ -31,6 +31,8 @@ export interface FullMenu { // Representa un Menú completo guardado
   id: string; // ej: 'menu_12345', 'menu_67890'
   name: string; // ej: 'Menú Clásico Casamiento'
   description: string; // Descripción general del menú
+  imageUrl?: string; // URL a una imagen representativa del menú
+  dataAiHint?: string; // Hint para la IA sobre la imagen
   items: MenuItem[]; // Lista de platos
   templateType?: 'Personalizado' | 'Menú de Entradas' | 'Menú de Platos Principales' | 'Menú para Adolescente' | 'Menú Infantil' | 'Menú del personal'; // Tipo de plantilla/menu
   createdAt?: string; // ISO date string
@@ -39,5 +41,6 @@ export interface FullMenu { // Representa un Menú completo guardado
 
 // Para el formulario, antes de tener un ID de FullMenu
 export type NewMenuFormData = Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'>;
+
 
 
