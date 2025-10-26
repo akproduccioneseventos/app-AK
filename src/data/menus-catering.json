@@ -11,58 +11,228 @@
     "updatedAt": "2025-07-28T10:00:00.000Z",
     "items": [
       {
-        "id": "dish_entrada_1",
-        "name": "Buñuelos de Algas",
-        "type": "Entrada",
-        "totalDishCost": 45.2,
-        "ingredients": [
-          { "id": "ing_1_1", "name": "Harina", "quantityPerPerson": "40", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 7.2 },
-          { "id": "ing_1_2", "name": "Algas", "quantityPerPerson": "10", "unit": "g", "costoUnitario": 2000, "costoTotalReceta": 20 },
-          { "id": "ing_1_3", "name": "Salsa de soja", "quantityPerPerson": "10", "unit": "ml", "costoUnitario": 500, "costoTotalReceta": 5 },
-          { "id": "ing_1_4", "name": "Aceite", "quantityPerPerson": "100", "unit": "ml", "costoUnitario": 70, "costoTotalReceta": 7 },
-          { "id": "ing_1_5", "name": "Gas", "quantityPerPerson": "5", "unit": "min", "costoUnitario": 1, "costoTotalReceta": 5 },
-          { "id": "ing_1_6", "name": "Huevo", "quantityPerPerson": "0.1", "unit": "Unidad", "costoUnitario": 10, "costoTotalReceta": 1 }
-        ]
-      },
-      {
         "id": "dish_entrada_2",
         "name": "Arrolladitos Primavera",
         "type": "Entrada",
         "totalDishCost": 40,
         "ingredients": [
-          { "id": "ing_2_1", "name": "Salsa de soja", "quantityPerPerson": "10", "unit": "g", "costoUnitario": 300, "costoTotalReceta": 3 },
-          { "id": "ing_2_2", "name": "Aceite", "quantityPerPerson": "100", "unit": "ml", "costoUnitario": 70, "costoTotalReceta": 7 },
-          { "id": "ing_2_3", "name": "Arrolladitos primavera", "quantityPerPerson": "5", "unit": "Unidad", "costoUnitario": 6, "costoTotalReceta": 30 }
+          {
+            "id": "ing_2_1",
+            "name": "Salsa de soja",
+            "quantityPerPerson": "10",
+            "unit": "g",
+            "costoUnitario": 300,
+            "costoTotalReceta": 3,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_2_2",
+            "name": "Aceite",
+            "quantityPerPerson": "100",
+            "unit": "ml",
+            "costoUnitario": 70,
+            "costoTotalReceta": 7,
+            "proveedor": "DK MAYORISTA"
+          },
+          {
+            "id": "ing_2_3",
+            "name": "Arrolladitos primavera",
+            "quantityPerPerson": "5",
+            "unit": "Unidad",
+            "costoUnitario": 6,
+            "costoTotalReceta": 30,
+            "proveedor": "DOPACA"
+          }
         ]
       },
       {
-        "id": "dish_entrada_3",
-        "name": "Tapas Saborizadas",
+        "id": "dish_entrada_7",
+        "name": "Picada de Fiambres",
         "type": "Entrada",
-        "totalDishCost": 48.4,
+        "totalDishCost": 40.352,
         "ingredients": [
-          { "id": "ing_3_1", "name": "Tostaditas", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 390, "costoTotalReceta": 19.5 },
-          { "id": "ing_3_2", "name": "Albahaca", "quantityPerPerson": "0.1", "unit": "Unidad", "costoUnitario": 40, "costoTotalReceta": 4 },
-          { "id": "ing_3_3", "name": "Hongos", "quantityPerPerson": "15", "unit": "g", "costoUnitario": 280, "costoTotalReceta": 4.2 },
-          { "id": "ing_3_4", "name": "Picles", "quantityPerPerson": "15", "unit": "g", "costoUnitario": 200, "costoTotalReceta": 3 },
-          { "id": "ing_3_5", "name": "Pate", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 200, "costoTotalReceta": 6 },
-          { "id": "ing_3_6", "name": "Salsa", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 5.4 },
-          { "id": "ing_3_7", "name": "Aceitunas rodajas", "quantityPerPerson": "15", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 2.7 },
-          { "id": "ing_3_8", "name": "Salsas", "quantityPerPerson": "20", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 3.6 },
-          { "id": "ing_3_9", "name": "Tomate cherry", "quantityPerPerson": "15", "unit": "g", "costoUnitario": 200, "costoTotalReceta": 3 }
+          {
+            "id": "ing_7_1",
+            "name": "Paleta",
+            "quantityPerPerson": "6",
+            "unit": "g",
+            "costoUnitario": 180,
+            "costoTotalReceta": 1.08,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_7_2",
+            "name": "Queso Dambo",
+            "quantityPerPerson": "6",
+            "unit": "g",
+            "costoUnitario": 430,
+            "costoTotalReceta": 2.58,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_7_3",
+            "name": "Salame",
+            "quantityPerPerson": "6",
+            "unit": "g",
+            "costoUnitario": 430,
+            "costoTotalReceta": 2.58,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_7_4",
+            "name": "Queso muzzarella",
+            "quantityPerPerson": "6",
+            "unit": "g",
+            "costoUnitario": 340,
+            "costoTotalReceta": 2.04,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_7_5",
+            "name": "Queso de cerdo",
+            "quantityPerPerson": "6",
+            "unit": "g",
+            "costoUnitario": 380,
+            "costoTotalReceta": 2.28,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_7_6",
+            "name": "Queso alpa",
+            "quantityPerPerson": "6",
+            "unit": "g",
+            "costoUnitario": 280,
+            "costoTotalReceta": 1.68,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_7_7",
+            "name": "Leonesa primavera",
+            "quantityPerPerson": "6",
+            "unit": "g",
+            "costoUnitario": 322,
+            "costoTotalReceta": 1.932,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_7_8",
+            "name": "Salsas",
+            "quantityPerPerson": "9",
+            "unit": "g",
+            "costoUnitario": 180,
+            "costoTotalReceta": 1.62,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_7_9",
+            "name": "Aceitunas s/ carozo",
+            "quantityPerPerson": "8",
+            "unit": "g",
+            "costoUnitario": 250,
+            "costoTotalReceta": 2,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_7_10",
+            "name": "Grisines chicos",
+            "quantityPerPerson": "8",
+            "unit": "g",
+            "costoUnitario": 370,
+            "costoTotalReceta": 2.96,
+            "proveedor": "BISIO"
+          },
+          {
+            "id": "ing_7_11",
+            "name": "Galletas malteadas sin sal",
+            "quantityPerPerson": "8",
+            "unit": "g",
+            "costoUnitario": 270,
+            "costoTotalReceta": 2.16,
+            "proveedor": "DON DIEGO"
+          },
+          {
+            "id": "ing_7_12",
+            "name": "Tostadas baguet saborizadas",
+            "quantityPerPerson": "8",
+            "unit": "g",
+            "costoUnitario": 635,
+            "costoTotalReceta": 5.08,
+            "proveedor": "DON DIEGO"
+          },
+          {
+            "id": "ing_7_13",
+            "name": "Catalan 20g con sesamo de remolacha",
+            "quantityPerPerson": "8",
+            "unit": "g",
+            "costoUnitario": 340,
+            "costoTotalReceta": 2.72,
+            "proveedor": "DON DIEGO"
+          },
+          {
+            "id": "ing_7_14",
+            "name": "Catalan 20g con sesamo verde",
+            "quantityPerPerson": "8",
+            "unit": "g",
+            "costoUnitario": 340,
+            "costoTotalReceta": 2.72,
+            "proveedor": "DON DIEGO"
+          }
         ]
       },
       {
-        "id": "dish_entrada_4",
-        "name": "Planchas Calientes",
+        "id": "dish_entrada_1",
+        "name": "Buñuelos de Algas",
         "type": "Entrada",
-        "totalDishCost": 54.2,
+        "totalDishCost": 45.2,
         "ingredients": [
-          { "id": "ing_4_1", "name": "Jamon", "quantityPerPerson": "40", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 7.2 },
-          { "id": "ing_4_2", "name": "Manteca", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 200, "costoTotalReceta": 6 },
-          { "id": "ing_4_3", "name": "Muzzarella", "quantityPerPerson": "40", "unit": "g", "costoUnitario": 330, "costoTotalReceta": 13.2 },
-          { "id": "ing_4_4", "name": "Gas", "quantityPerPerson": "5", "unit": "min", "costoUnitario": 1, "costoTotalReceta": 5 },
-          { "id": "ing_4_5", "name": "Pan de Sandwiches", "quantityPerPerson": "60", "unit": "g", "costoUnitario": 380, "costoTotalReceta": 22.8 }
+          {
+            "id": "ing_1_1",
+            "name": "Harina",
+            "quantityPerPerson": "40",
+            "unit": "g",
+            "costoUnitario": 180,
+            "costoTotalReceta": 7.2
+          },
+          {
+            "id": "ing_1_2",
+            "name": "Algas",
+            "quantityPerPerson": "10",
+            "unit": "g",
+            "costoUnitario": 2000,
+            "costoTotalReceta": 20
+          },
+          {
+            "id": "ing_1_3",
+            "name": "Salsa de soja",
+            "quantityPerPerson": "10",
+            "unit": "ml",
+            "costoUnitario": 500,
+            "costoTotalReceta": 5
+          },
+          {
+            "id": "ing_1_4",
+            "name": "Aceite",
+            "quantityPerPerson": "100",
+            "unit": "ml",
+            "costoUnitario": 70,
+            "costoTotalReceta": 7
+          },
+          {
+            "id": "ing_1_5",
+            "name": "Gas",
+            "quantityPerPerson": "5",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 5
+          },
+          {
+            "id": "ing_1_6",
+            "name": "Huevo",
+            "quantityPerPerson": "0.1",
+            "unit": "Unidad",
+            "costoUnitario": 10,
+            "costoTotalReceta": 1
+          }
         ]
       },
       {
@@ -71,11 +241,126 @@
         "type": "Entrada",
         "totalDishCost": 45.5,
         "ingredients": [
-          { "id": "ing_5_1", "name": "Aceitunas", "quantityPerPerson": "25", "unit": "g", "costoUnitario": 220, "costoTotalReceta": 5.5 },
-          { "id": "ing_5_2", "name": "Palitos salados", "quantityPerPerson": "25", "unit": "g", "costoUnitario": 200, "costoTotalReceta": 5 },
-          { "id": "ing_5_3", "name": "Mani", "quantityPerPerson": "25", "unit": "g", "costoUnitario": 200, "costoTotalReceta": 5 },
-          { "id": "ing_5_4", "name": "Papas Chips", "quantityPerPerson": "25", "unit": "g", "costoUnitario": 400, "costoTotalReceta": 10 },
-          { "id": "ing_5_5", "name": "Doritos", "quantityPerPerson": "25", "unit": "g", "costoUnitario": 800, "costoTotalReceta": 20 }
+          {
+            "id": "ing_5_1",
+            "name": "Aceitunas",
+            "quantityPerPerson": "25",
+            "unit": "g",
+            "costoUnitario": 220,
+            "costoTotalReceta": 5.5
+          },
+          {
+            "id": "ing_5_2",
+            "name": "Palitos salados",
+            "quantityPerPerson": "25",
+            "unit": "g",
+            "costoUnitario": 200,
+            "costoTotalReceta": 5
+          },
+          {
+            "id": "ing_5_3",
+            "name": "Mani",
+            "quantityPerPerson": "25",
+            "unit": "g",
+            "costoUnitario": 200,
+            "costoTotalReceta": 5
+          },
+          {
+            "id": "ing_5_4",
+            "name": "Papas Chips",
+            "quantityPerPerson": "25",
+            "unit": "g",
+            "costoUnitario": 400,
+            "costoTotalReceta": 10
+          },
+          {
+            "id": "ing_5_5",
+            "name": "Doritos",
+            "quantityPerPerson": "25",
+            "unit": "g",
+            "costoUnitario": 800,
+            "costoTotalReceta": 20
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_3",
+        "name": "Tapas Saborizadas",
+        "type": "Entrada",
+        "totalDishCost": 48.4,
+        "ingredients": [
+          {
+            "id": "ing_3_1",
+            "name": "Tostaditas",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 390,
+            "costoTotalReceta": 19.5
+          },
+          {
+            "id": "ing_3_2",
+            "name": "Albahaca",
+            "quantityPerPerson": "0.1",
+            "unit": "Unidad",
+            "costoUnitario": 40,
+            "costoTotalReceta": 4
+          },
+          {
+            "id": "ing_3_3",
+            "name": "Hongos",
+            "quantityPerPerson": "15",
+            "unit": "g",
+            "costoUnitario": 280,
+            "costoTotalReceta": 4.2
+          },
+          {
+            "id": "ing_3_4",
+            "name": "Picles",
+            "quantityPerPerson": "15",
+            "unit": "g",
+            "costoUnitario": 200,
+            "costoTotalReceta": 3
+          },
+          {
+            "id": "ing_3_5",
+            "name": "Pate",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 200,
+            "costoTotalReceta": 6
+          },
+          {
+            "id": "ing_3_6",
+            "name": "Salsa",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 180,
+            "costoTotalReceta": 5.4
+          },
+          {
+            "id": "ing_3_7",
+            "name": "Aceitunas rodajas",
+            "quantityPerPerson": "15",
+            "unit": "g",
+            "costoUnitario": 180,
+            "costoTotalReceta": 2.7
+          },
+          {
+            "id": "ing_3_8",
+            "name": "Salsas",
+            "quantityPerPerson": "20",
+            "unit": "g",
+            "costoUnitario": 180,
+            "costoTotalReceta": 3.6
+          },
+          {
+            "id": "ing_3_9",
+            "name": "Tomate cherry",
+            "quantityPerPerson": "15",
+            "unit": "g",
+            "costoUnitario": 200,
+            "costoTotalReceta": 3
+          }
         ]
       },
       {
@@ -84,28 +369,1512 @@
         "type": "Entrada",
         "totalDishCost": 50,
         "ingredients": [
-          { "id": "ing_pc_1", "name": "Fritas", "quantityPerPerson": "200", "unit": "g", "costoUnitario": 130, "costoTotalReceta": 26 },
-          { "id": "ing_pc_2", "name": "Queso Cheddar", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 340, "costoTotalReceta": 17 },
-          { "id": "ing_pc_3", "name": "Aceite", "quantityPerPerson": "100", "unit": "g", "costoUnitario": 70, "costoTotalReceta": 7 }
+          {
+            "id": "ing_pc_1",
+            "name": "Fritas",
+            "quantityPerPerson": "200",
+            "unit": "g",
+            "costoUnitario": 130,
+            "costoTotalReceta": 26
+          },
+          {
+            "id": "ing_pc_2",
+            "name": "Queso Cheddar",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 340,
+            "costoTotalReceta": 17
+          },
+          {
+            "id": "ing_pc_3",
+            "name": "Aceite",
+            "quantityPerPerson": "100",
+            "unit": "g",
+            "costoUnitario": 70,
+            "costoTotalReceta": 7
+          }
         ]
       },
-      { "id": "dish_entrada_7", "name": "Picada de Fiambres", "type": "Entrada", "totalDishCost": 40.352, "ingredients": [ { "id": "ing_7_1", "name": "Paleta", "quantityPerPerson": "6", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 1.08, "proveedor": "EL TROPERO" }, { "id": "ing_7_2", "name": "Queso Dambo", "quantityPerPerson": "6", "unit": "g", "costoUnitario": 430, "costoTotalReceta": 2.58, "proveedor": "EL TROPERO" }, { "id": "ing_7_3", "name": "Salame", "quantityPerPerson": "6", "unit": "g", "costoUnitario": 430, "costoTotalReceta": 2.58, "proveedor": "EL TROPERO" }, { "id": "ing_7_4", "name": "Queso muzzarella", "quantityPerPerson": "6", "unit": "g", "costoUnitario": 340, "costoTotalReceta": 2.04, "proveedor": "EL TROPERO" }, { "id": "ing_7_5", "name": "Queso de cerdo", "quantityPerPerson": "6", "unit": "g", "costoUnitario": 380, "costoTotalReceta": 2.28, "proveedor": "EL TROPERO" }, { "id": "ing_7_6", "name": "Queso alpa", "quantityPerPerson": "6", "unit": "g", "costoUnitario": 280, "costoTotalReceta": 1.68, "proveedor": "EL TROPERO" }, { "id": "ing_7_7", "name": "Leonesa primavera", "quantityPerPerson": "6", "unit": "g", "costoUnitario": 322, "costoTotalReceta": 1.932, "proveedor": "EL TROPERO" }, { "id": "ing_7_8", "name": "Salsas", "quantityPerPerson": "9", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 1.62, "proveedor": "UNIPLAS" }, { "id": "ing_7_9", "name": "Aceitunas s/ carozo", "quantityPerPerson": "8", "unit": "g", "costoUnitario": 250, "costoTotalReceta": 2, "proveedor": "UNIPLAS" }, { "id": "ing_7_10", "name": "Grisines chicos", "quantityPerPerson": "8", "unit": "g", "costoUnitario": 370, "costoTotalReceta": 2.96, "proveedor": "BISIO" }, { "id": "ing_7_11", "name": "Galletas malteadas sin sal", "quantityPerPerson": "8", "unit": "g", "costoUnitario": 270, "costoTotalReceta": 2.16, "proveedor": "DON DIEGO" }, { "id": "ing_7_12", "name": "Tostadas baguet saborizadas", "quantityPerPerson": "8", "unit": "g", "costoUnitario": 635, "costoTotalReceta": 5.08, "proveedor": "DON DIEGO" }, { "id": "ing_7_13", "name": "Catalan 20g con sesamo de remolacha", "quantityPerPerson": "8", "unit": "g", "costoUnitario": 340, "costoTotalReceta": 2.72, "proveedor": "DON DIEGO" }, { "id": "ing_7_14", "name": "Catalan 20g con sesamo verde", "quantityPerPerson": "8", "unit": "g", "costoUnitario": 340, "costoTotalReceta": 2.72, "proveedor": "DON DIEGO" } ] },
-      { "id": "dish_entrada_8", "name": "Kebabs", "type": "Entrada", "totalDishCost": 76, "ingredients": [ { "id": "ing_8_1", "name": "Picada de carne", "quantityPerPerson": "100", "unit": "g", "costoUnitario": 330, "costoTotalReceta": 33, "proveedor": "CARNICERIA" }, { "id": "ing_8_2", "name": "Manteca", "quantityPerPerson": "60", "unit": "g", "costoUnitario": 200, "costoTotalReceta": 12, "proveedor": "UNIPLAS" }, { "id": "ing_8_3", "name": "Aderezos", "quantityPerPerson": "60", "unit": "g", "costoUnitario": 150, "costoTotalReceta": 9, "proveedor": "UNIPLAS" }, { "id": "ing_8_4", "name": "Perejil y ajo natural", "quantityPerPerson": "60", "unit": "g", "costoUnitario": 100, "costoTotalReceta": 6, "proveedor": "VERDULERIA" }, { "id": "ing_8_5", "name": "Cebollas", "quantityPerPerson": "60", "unit": "g", "costoUnitario": 100, "costoTotalReceta": 6, "proveedor": "VERDULERIA" }, { "id": "ing_8_6", "name": "Gas", "quantityPerPerson": "10", "unit": "min", "costoUnitario": 1, "costoTotalReceta": 10 } ] },
-      { "id": "dish_entrada_9", "name": "Salpicón de Pollo", "type": "Entrada", "totalDishCost": 71.2, "ingredients": [ { "id": "ing_9_1", "name": "Pollo", "quantityPerPerson": "250", "unit": "g", "costoUnitario": 120, "costoTotalReceta": 30, "proveedor": "CARNICERIA" }, { "id": "ing_9_2", "name": "Papa", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 60, "costoTotalReceta": 1.8, "proveedor": "VERDULERIA" }, { "id": "ing_9_3", "name": "Zanahoria", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 120, "costoTotalReceta": 3.6, "proveedor": "VERDULERIA" }, { "id": "ing_9_4", "name": "Arbejas", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 500, "costoTotalReceta": 15, "proveedor": "UNIPLAS" }, { "id": "ing_9_5", "name": "Mayonesa", "quantityPerPerson": "40", "unit": "g", "costoUnitario": 120, "costoTotalReceta": 4.8, "proveedor": "UNIPLAS" }, { "id": "ing_9_6", "name": "Condimentos", "quantityPerPerson": "60", "unit": "g", "costoUnitario": 100, "costoTotalReceta": 6, "proveedor": "UNIPLAS" }, { "id": "ing_9_7", "name": "Gas", "quantityPerPerson": "10", "unit": "min", "costoUnitario": 1, "costoTotalReceta": 10 } ] },
-      { "id": "dish_entrada_10", "name": "Empanadas", "type": "Entrada", "totalDishCost": 57.2, "ingredients": [ { "id": "ing_10_1", "name": "Tapa de Empanada", "quantityPerPerson": "2", "unit": "Unidad", "costoUnitario": 6, "costoTotalReceta": 12, "proveedor": "PASTAS LULU" }, { "id": "ing_10_2", "name": "Huevo", "quantityPerPerson": "0.2", "unit": "Unidad", "costoUnitario": 10, "costoTotalReceta": 2, "proveedor": "VERDULERIA" }, { "id": "ing_10_3", "name": "Cebolla", "quantityPerPerson": "60", "unit": "g", "costoUnitario": 100, "costoTotalReceta": 6, "proveedor": "VERDULERIA" }, { "id": "ing_10_4", "name": "Morron", "quantityPerPerson": "60", "unit": "g", "costoUnitario": 120, "costoTotalReceta": 7.2, "proveedor": "VERDULERIA" }, { "id": "ing_10_5", "name": "Gas", "quantityPerPerson": "5", "unit": "min", "costoUnitario": 1, "costoTotalReceta": 5 }, { "id": "ing_10_6", "name": "Carne picada", "quantityPerPerson": "100", "unit": "g", "costoUnitario": 250, "costoTotalReceta": 25, "proveedor": "CARNICERIA" } ] },
-      { "id": "dish_entrada_12", "name": "Cono Pizza", "type": "Entrada", "totalDishCost": 78.312, "ingredients": [ { "id": "ing_12_1", "name": "Choclo", "quantityPerPerson": "6", "unit": "g", "costoUnitario": 260, "costoTotalReceta": 1.56, "proveedor": "UNIPLAS" }, { "id": "ing_12_2", "name": "Papas pay", "quantityPerPerson": "6", "unit": "g", "costoUnitario": 450, "costoTotalReceta": 2.7, "proveedor": "UNIPLAS" }, { "id": "ing_12_3", "name": "Aceitunas", "quantityPerPerson": "6", "unit": "g", "costoUnitario": 221, "costoTotalReceta": 1.326, "proveedor": "UNIPLAS" }, { "id": "ing_12_4", "name": "Jamón", "quantityPerPerson": "6", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 1.08, "proveedor": "UNIPLAS" }, { "id": "ing_12_5", "name": "Palmitos", "quantityPerPerson": "6", "unit": "g", "costoUnitario": 200, "costoTotalReceta": 1.2, "proveedor": "UNIPLAS" }, { "id": "ing_12_6", "name": "Panchos", "quantityPerPerson": "6", "unit": "g", "costoUnitario": 200, "costoTotalReceta": 1.2, "proveedor": "DK MAYORISTA" }, { "id": "ing_12_7", "name": "Salame", "quantityPerPerson": "6", "unit": "g", "costoUnitario": 420, "costoTotalReceta": 2.52, "proveedor": "EL TROPERO" }, { "id": "ing_12_8", "name": "Panceta", "quantityPerPerson": "6", "unit": "g", "costoUnitario": 421, "costoTotalReceta": 2.526, "proveedor": "EL TROPERO" }, { "id": "ing_12_9", "name": "Muzzarella", "quantityPerPerson": "80", "unit": "g", "costoUnitario": 340, "costoTotalReceta": 27.2, "proveedor": "EL TROPERO" }, { "id": "ing_12_10", "name": "Conos para pizza", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 25, "costoTotalReceta": 25, "proveedor": "DON DIEGO" }, { "id": "ing_12_11", "name": "Albahaca", "quantityPerPerson": "0.08", "unit": "g", "costoUnitario": 50, "costoTotalReceta": 4, "proveedor": "VERDULERIA" }, { "id": "ing_12_12", "name": "Huevo", "quantityPerPerson": "0.1", "unit": "Unidad", "costoUnitario": 10, "costoTotalReceta": 1, "proveedor": "VERDULERIA" }, { "id": "ing_12_13", "name": "Gas", "quantityPerPerson": "7", "unit": "min", "costoUnitario": 0.57, "costoTotalReceta": 4 } ] },
-      { "id": "dish_entrada_13", "name": "Show de Pizzas", "type": "Entrada", "totalDishCost": 89.616, "ingredients": [ { "id": "ing_13_1", "name": "Choclo", "quantityPerPerson": "8", "unit": "g", "costoUnitario": 260, "costoTotalReceta": 2.08, "proveedor": "UNIPLAS" }, { "id": "ing_13_2", "name": "Papas pay", "quantityPerPerson": "8", "unit": "g", "costoUnitario": 450, "costoTotalReceta": 3.6, "proveedor": "UNIPLAS" }, { "id": "ing_13_3", "name": "Aceitunas", "quantityPerPerson": "8", "unit": "g", "costoUnitario": 221, "costoTotalReceta": 1.768, "proveedor": "UNIPLAS" }, { "id": "ing_13_4", "name": "Jamón", "quantityPerPerson": "8", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 1.44, "proveedor": "UNIPLAS" }, { "id": "ing_13_5", "name": "Palmitos", "quantityPerPerson": "8", "unit": "g", "costoUnitario": 200, "costoTotalReceta": 1.6, "proveedor": "UNIPLAS" }, { "id": "ing_13_6", "name": "Panchos", "quantityPerPerson": "8", "unit": "g", "costoUnitario": 200, "costoTotalReceta": 1.6, "proveedor": "DK MAYORISTA" }, { "id": "ing_13_7", "name": "Salame", "quantityPerPerson": "8", "unit": "g", "costoUnitario": 420, "costoTotalReceta": 3.36, "proveedor": "EL TROPERO" }, { "id": "ing_13_8", "name": "Panceta", "quantityPerPerson": "8", "unit": "g", "costoUnitario": 421, "costoTotalReceta": 3.368, "proveedor": "EL TROPERO" }, { "id": "ing_13_9", "name": "Muzzarella", "quantityPerPerson": "80", "unit": "g", "costoUnitario": 340, "costoTotalReceta": 27.2, "proveedor": "EL TROPERO" }, { "id": "ing_13_10", "name": "Pizzas prehechas", "quantityPerPerson": "0.5", "unit": "Unidad", "costoUnitario": 60, "costoTotalReceta": 30, "proveedor": "DON DIEGO" }, { "id": "ing_13_11", "name": "Albahaca", "quantityPerPerson": "0.08", "unit": "g", "costoUnitario": 50, "costoTotalReceta": 4, "proveedor": "VERDULERIA" }, { "id": "ing_13_12", "name": "Huevo", "quantityPerPerson": "0.1", "unit": "Unidad", "costoUnitario": 10, "costoTotalReceta": 1, "proveedor": "VERDULERIA" }, { "id": "ing_13_13", "name": "Tomate Cherry", "quantityPerPerson": "8", "unit": "g", "costoUnitario": 200, "costoTotalReceta": 1.6, "proveedor": "VERDULERIA" }, { "id": "ing_13_14", "name": "Gas", "quantityPerPerson": "7", "unit": "min", "costoUnitario": 0.57, "costoTotalReceta": 4 } ] },
-      { "id": "dish_entrada_14", "name": "Arepas", "type": "Entrada", "totalDishCost": 84.8, "ingredients": [ { "id": "ing_14_1", "name": "Cebolla", "quantityPerPerson": "20", "unit": "g", "costoUnitario": 100, "costoTotalReceta": 2, "proveedor": "VERDULERIA" }, { "id": "ing_14_2", "name": "Morron rojo", "quantityPerPerson": "20", "unit": "g", "costoUnitario": 150, "costoTotalReceta": 3, "proveedor": "VERDULERIA" }, { "id": "ing_14_3", "name": "Lechuga", "quantityPerPerson": "0.25", "unit": "Unidad", "costoUnitario": 40, "costoTotalReceta": 10, "proveedor": "VERDULERIA" }, { "id": "ing_14_4", "name": "Tomate", "quantityPerPerson": "35", "unit": "g", "costoUnitario": 150, "costoTotalReceta": 5.25, "proveedor": "VERDULERIA" }, { "id": "ing_14_5", "name": "Condimentos", "quantityPerPerson": "20", "unit": "g", "costoUnitario": 300, "costoTotalReceta": 6, "proveedor": "UNIPLAS" }, { "id": "ing_14_6", "name": "Carne picada", "quantityPerPerson": "100", "unit": "g", "costoUnitario": 250, "costoTotalReceta": 25, "proveedor": "CARNICERIA" }, { "id": "ing_14_7", "name": "Muzzarella", "quantityPerPerson": "35", "unit": "g", "costoUnitario": 330, "costoTotalReceta": 11.55, "proveedor": "EL TROPERO" }, { "id": "ing_14_8", "name": "Harina de maiz blanco (arepas)", "quantityPerPerson": "100", "unit": "g", "costoUnitario": 120, "costoTotalReceta": 12, "proveedor": "EL TROPERO" }, { "id": "ing_14_9", "name": "Gas", "quantityPerPerson": "10", "unit": "min", "costoUnitario": 1, "costoTotalReceta": 10 } ] },
-      { "id": "dish_entrada_15", "name": "Calzonne", "type": "Entrada", "totalDishCost": 96, "ingredients": [ { "id": "ing_15_1", "name": "Aceitunas", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 220, "costoTotalReceta": 11, "proveedor": "UNIPLAS" }, { "id": "ing_15_2", "name": "Jamon", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 9, "proveedor": "EL TROPERO" }, { "id": "ing_15_3", "name": "Muzarella", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 330, "costoTotalReceta": 16.5, "proveedor": "EL TROPERO" }, { "id": "ing_15_4", "name": "Tomate", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 100, "costoTotalReceta": 5, "proveedor": "VERDULERIA" }, { "id": "ing_15_5", "name": "Albahaca", "quantityPerPerson": "0.3", "unit": "Unidad", "costoUnitario": 40, "costoTotalReceta": 12, "proveedor": "VERDULERIA" }, { "id": "ing_15_6", "name": "Huevo", "quantityPerPerson": "0.5", "unit": "Unidad", "costoUnitario": 10, "costoTotalReceta": 5, "proveedor": "VERDULERIA" }, { "id": "ing_15_7", "name": "Tapas de hojaldre", "quantityPerPerson": "0.5", "unit": "Unidad", "costoUnitario": 65, "costoTotalReceta": 32.5, "proveedor": "PASTAS LULU" }, { "id": "ing_15_8", "name": "Gas", "quantityPerPerson": "5", "unit": "min", "costoUnitario": 1, "costoTotalReceta": 5 } ] },
-      { "id": "dish_entrada_16", "name": "Tacos Mexicanos", "type": "Entrada", "totalDishCost": 92.45, "ingredients": [ { "id": "ing_16_1", "name": "Salsa picante", "quantityPerPerson": "15", "unit": "g", "costoUnitario": 300, "costoTotalReceta": 4.5, "proveedor": "UNIPLAS" }, { "id": "ing_16_2", "name": "Condimentos", "quantityPerPerson": "15", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 2.7, "proveedor": "UNIPLAS" }, { "id": "ing_16_3", "name": "Cebolla", "quantityPerPerson": "15", "unit": "g", "costoUnitario": 100, "costoTotalReceta": 1.5, "proveedor": "VERDULERIA" }, { "id": "ing_16_4", "name": "Morrón rojo", "quantityPerPerson": "15", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 2.7, "proveedor": "VERDULERIA" }, { "id": "ing_16_5", "name": "Morrón verde", "quantityPerPerson": "15", "unit": "g", "costoUnitario": 120, "costoTotalReceta": 1.8, "proveedor": "VERDULERIA" }, { "id": "ing_16_6", "name": "Tomate", "quantityPerPerson": "40", "unit": "g", "costoUnitario": 150, "costoTotalReceta": 6, "proveedor": "VERDULERIA" }, { "id": "ing_16_7", "name": "Huevo", "quantityPerPerson": "0.2", "unit": "Unidad", "costoUnitario": 10, "costoTotalReceta": 2, "proveedor": "VERDULERIA" }, { "id": "ing_16_8", "name": "Lechuga", "quantityPerPerson": "0.2", "unit": "Unidad", "costoUnitario": 40, "costoTotalReceta": 8, "proveedor": "VERDULERIA" }, { "id": "ing_16_9", "name": "Palta", "quantityPerPerson": "0.2", "unit": "Unidad", "costoUnitario": 40, "costoTotalReceta": 8, "proveedor": "VERDULERIA" }, { "id": "ing_16_10", "name": "Gas", "quantityPerPerson": "10", "unit": "min", "costoUnitario": 1, "costoTotalReceta": 10 }, { "id": "ing_16_11", "name": "Carne picada", "quantityPerPerson": "120", "unit": "g", "costoUnitario": 250, "costoTotalReceta": 30, "proveedor": "CARNICERIA" }, { "id": "ing_16_12", "name": "Muzzarella para rallar", "quantityPerPerson": "25", "unit": "g", "costoUnitario": 330, "costoTotalReceta": 8.25, "proveedor": "EL TROPERO" }, { "id": "ing_16_13", "name": "Tapas de hojaldre", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 7, "costoTotalReceta": 7, "proveedor": "PASTAS LULU" } ] },
-      { "id": "dish_entrada_17", "name": "Empanaditas y Pizzetitas", "type": "Entrada", "totalDishCost": 89, "ingredients": [ { "id": "ing_17_1", "name": "Enpanaditas copetin", "quantityPerPerson": "3", "unit": "Unidad", "costoUnitario": 13, "costoTotalReceta": 39, "proveedor": "VALENTIN" }, { "id": "ing_17_2", "name": "pizzetitas con muzzarella", "quantityPerPerson": "3", "unit": "Unidad", "costoUnitario": 15, "costoTotalReceta": 45, "proveedor": "VALENTIN" }, { "id": "ing_17_3", "name": "Gas", "quantityPerPerson": "5", "unit": "min", "costoUnitario": 1, "costoTotalReceta": 5 } ] },
-      { "id": "dish_entrada_18", "name": "Picada Premium", "type": "Entrada", "totalDishCost": 91.566, "ingredients": [ { "id": "ing_18_1", "name": "Paleta", "quantityPerPerson": "40", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 7.2, "proveedor": "EL TROPERO" }, { "id": "ing_18_2", "name": "Queso", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 420, "costoTotalReceta": 12.6, "proveedor": "EL TROPERO" }, { "id": "ing_18_3", "name": "Salame", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 420, "costoTotalReceta": 12.6, "proveedor": "EL TROPERO" }, { "id": "ing_18_4", "name": "Salsas", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 100, "costoTotalReceta": 3, "proveedor": "UNIPLAS" }, { "id": "ing_18_5", "name": "Papas Chips", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 400, "costoTotalReceta": 12, "proveedor": "DK MAYORISTA" }, { "id": "ing_18_6", "name": "Palitos salados", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 200, "costoTotalReceta": 6, "proveedor": "BAGASHOPING" }, { "id": "ing_18_7", "name": "Mani", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 200, "costoTotalReceta": 6, "proveedor": "EL TROPERO" }, { "id": "ing_18_8", "name": "Paleta", "quantityPerPerson": "9", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 1.62, "proveedor": "EL TROPERO" }, { "id": "ing_18_9", "name": "Queso", "quantityPerPerson": "9", "unit": "g", "costoUnitario": 420, "costoTotalReceta": 3.78, "proveedor": "EL TROPERO" }, { "id": "ing_18_10", "name": "Salame", "quantityPerPerson": "9", "unit": "g", "costoUnitario": 420, "costoTotalReceta": 3.78, "proveedor": "EL TROPERO" }, { "id": "ing_18_11", "name": "Queso muzzarela", "quantityPerPerson": "9", "unit": "g", "costoUnitario": 250, "costoTotalReceta": 2.25, "proveedor": "EL TROPERO" }, { "id": "ing_18_12", "name": "Queso de cerdo", "quantityPerPerson": "9", "unit": "g", "costoUnitario": 270, "costoTotalReceta": 2.43, "proveedor": "EL TROPERO" }, { "id": "ing_18_13", "name": "Leonesa primavera", "quantityPerPerson": "9", "unit": "g", "costoUnitario": 322, "costoTotalReceta": 2.898, "proveedor": "EL TROPERO" }, { "id": "ing_18_14", "name": "Aceitunas s/ carozo", "quantityPerPerson": "9", "unit": "g", "costoUnitario": 220, "costoTotalReceta": 1.98, "proveedor": "UNIPLAS" }, { "id": "ing_18_15", "name": "Grisines chicos", "quantityPerPerson": "9", "unit": "g", "costoUnitario": 370, "costoTotalReceta": 3.33, "proveedor": "BISIO" }, { "id": "ing_18_16", "name": "Galletas malteadas sin sal", "quantityPerPerson": "9", "unit": "g", "costoUnitario": 250, "costoTotalReceta": 2.25, "proveedor": "DON DIEGO" }, { "id": "ing_18_17", "name": "Tostadas baguet saborizadas", "quantityPerPerson": "9", "unit": "g", "costoUnitario": 400, "costoTotalReceta": 3.6, "proveedor": "DON DIEGO" }, { "id": "ing_18_18", "name": "Catalan 20g con sesamo de remolacha", "quantityPerPerson": "8", "unit": "g", "costoUnitario": 265, "costoTotalReceta": 2.12, "proveedor": "DON DIEGO" }, { "id": "ing_18_19", "name": "Catalan 20g con sesamo verde", "quantityPerPerson": "8", "unit": "g", "costoUnitario": 266, "costoTotalReceta": 2.128, "proveedor": "DON DIEGO" } ] },
-      { "id": "dish_entrada_19", "name": "Picada Caliente", "type": "Entrada", "totalDishCost": 98.48, "ingredients": [ { "id": "ing_19_1", "name": "Nugget de pollo", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 283, "costoTotalReceta": 8.49, "proveedor": "DOPACA" }, { "id": "ing_19_2", "name": "Aros de cebolla", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 253, "costoTotalReceta": 7.59, "proveedor": "DOPACA" }, { "id": "ing_19_3", "name": "Papas fritas", "quantityPerPerson": "60", "unit": "g", "costoUnitario": 130, "costoTotalReceta": 7.8, "proveedor": "DOPACA" }, { "id": "ing_19_4", "name": "Arrolladitos primavera", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 261, "costoTotalReceta": 7.83, "proveedor": "DOPACA" }, { "id": "ing_19_5", "name": "Croquetas de papa", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 250, "costoTotalReceta": 7.5, "proveedor": "DOPACA" }, { "id": "ing_19_6", "name": "Noisettes", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 200, "costoTotalReceta": 6, "proveedor": "DOPACA" }, { "id": "ing_19_7", "name": "Formitas de merluza", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 239, "costoTotalReceta": 7.17, "proveedor": "DOPACA" }, { "id": "ing_19_8", "name": "Aceite", "quantityPerPerson": "100", "unit": "g", "costoUnitario": 60, "costoTotalReceta": 6, "proveedor": "DK MAYORISTA" }, { "id": "ing_19_9", "name": "Gas", "quantityPerPerson": "5", "unit": "min", "costoUnitario": 1, "costoTotalReceta": 5 }, { "id": "ing_19_10", "name": "Milanesa de carne", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 320, "costoTotalReceta": 9.6, "proveedor": "CARNICERIA" }, { "id": "ing_19_11", "name": "Milanesa de pollo", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 250, "costoTotalReceta": 7.5, "proveedor": "CARNICERIA" }, { "id": "ing_19_12", "name": "Galletas", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 220, "costoTotalReceta": 6.6, "proveedor": "DON DIEGO" }, { "id": "ing_19_13", "name": "Grisines", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 200, "costoTotalReceta": 6, "proveedor": "DON DIEGO" }, { "id": "ing_19_14", "name": "Salsas", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 5.4, "proveedor": "UNIPLAS" } ] },
-      { "id": "dish_entrada_20", "name": "Picada Criolla", "type": "Entrada", "totalDishCost": 102.119, "ingredients": [ { "id": "ing_20_1", "name": "Aceitunas", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 220, "costoTotalReceta": 6.6, "proveedor": "UNIPLAS" }, { "id": "ing_20_2", "name": "Salsa criolla", "quantityPerPerson": "53", "unit": "g", "costoUnitario": 200, "costoTotalReceta": 10.6, "proveedor": "UNIPLAS" }, { "id": "ing_20_3", "name": "Queso colonia", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 5.4, "proveedor": "EL TROPERO" }, { "id": "ing_20_4", "name": "Ravioles Fritos", "quantityPerPerson": "51", "unit": "g", "costoUnitario": 209, "costoTotalReceta": 10.659, "proveedor": "DOPACA" }, { "id": "ing_20_5", "name": "Papas rústicas", "quantityPerPerson": "52", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 9.36, "proveedor": "DOPACA" }, { "id": "ing_20_6", "name": "Chorizos", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 250, "costoTotalReceta": 12.5, "proveedor": "CARNICERIA" }, { "id": "ing_20_7", "name": "Morcilla", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 360, "costoTotalReceta": 18, "proveedor": "CARNICERIA" }, { "id": "ing_20_8", "name": "Pan de campo", "quantityPerPerson": "0.2", "unit": "Unidad", "costoUnitario": 120, "costoTotalReceta": 24, "proveedor": "PANONO" }, { "id": "ing_20_9", "name": "Gas", "quantityPerPerson": "5", "unit": "min", "costoUnitario": 1, "costoTotalReceta": 5 } ] },
-      { "id": "dish_entrada_21", "name": "Picada de Mar", "type": "Entrada", "totalDishCost": 100.22, "ingredients": [ { "id": "ing_21_1", "name": "Formitas de merluza", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 239, "costoTotalReceta": 7.17, "proveedor": "DOPACA" }, { "id": "ing_21_2", "name": "Aros de cebolla", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 253, "costoTotalReceta": 7.59, "proveedor": "DOPACA" }, { "id": "ing_21_3", "name": "Milanesa de pescado", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 400, "costoTotalReceta": 12, "proveedor": "DOPACA" }, { "id": "ing_21_4", "name": "Rabas rebozadas de calamar", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 415, "costoTotalReceta": 12.45, "proveedor": "DOPACA" }, { "id": "ing_21_5", "name": "Papas fritas", "quantityPerPerson": "60", "unit": "g", "costoUnitario": 256, "costoTotalReceta": 15.36, "proveedor": "DOPACA" }, { "id": "ing_21_6", "name": "Bastones de muzarella", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 365, "costoTotalReceta": 10.95, "proveedor": "DOPACA" }, { "id": "ing_21_7", "name": "Tostadas", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 390, "costoTotalReceta": 11.7, "proveedor": "DON DIEGO" }, { "id": "ing_21_8", "name": "Grisines", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 200, "costoTotalReceta": 6, "proveedor": "DON DIEGO" }, { "id": "ing_21_9", "name": "Salsas", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 5.4, "proveedor": "UNIPLAS" }, { "id": "ing_21_10", "name": "Aceite", "quantityPerPerson": "100", "unit": "ml", "costoUnitario": 60, "costoTotalReceta": 6, "proveedor": "DK MOYORISTA" }, { "id": "ing_21_11", "name": "Gas", "quantityPerPerson": "5", "unit": "min", "costoUnitario": 1, "costoTotalReceta": 5 } ] },
-      { "id": "dish_entrada_22", "name": "Sushi", "type": "Entrada", "totalDishCost": 99.8, "ingredients": [ { "id": "ing_22_1", "name": "Salmon", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 1000, "costoTotalReceta": 50, "proveedor": "FERRANDO" }, { "id": "ing_22_2", "name": "Arroz de Shushi", "quantityPerPerson": "100", "unit": "g", "costoUnitario": 135, "costoTotalReceta": 13.5, "proveedor": "TATA" }, { "id": "ing_22_3", "name": "condimentos", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 120, "costoTotalReceta": 3.6, "proveedor": "UNIPLAS" }, { "id": "ing_22_4", "name": "Queso crema", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 400, "costoTotalReceta": 12, "proveedor": "EL TROPERO" }, { "id": "ing_22_5", "name": "Pepino", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 90, "costoTotalReceta": 2.7, "proveedor": "VERDULERIA" }, { "id": "ing_22_6", "name": "Palta", "quantityPerPerson": "0.2", "unit": "Unidad", "costoUnitario": 40, "costoTotalReceta": 8, "proveedor": "VERDULERIA" }, { "id": "ing_22_7", "name": "Gas", "quantityPerPerson": "10", "unit": "min", "costoUnitario": 1, "costoTotalReceta": 10 } ] },
-      { "id": "dish_entrada_23", "name": "Sandwiches y Saladitos", "type": "Entrada", "totalDishCost": 74.8, "ingredients": [ { "id": "ing_23_1", "name": "Sandwiches pan blanco", "quantityPerPerson": "0.5", "unit": "Unidad", "costoUnitario": 15, "costoTotalReceta": 7.5, "proveedor": "VALENTIN" }, { "id": "ing_23_2", "name": "Pebetes", "quantityPerPerson": "0.3", "unit": "Unidad", "costoUnitario": 11, "costoTotalReceta": 3.3, "proveedor": "VALENTIN" }, { "id": "ing_23_3", "name": "Arrolladitos de hojaldre", "quantityPerPerson": "0.3", "unit": "Unidad", "costoUnitario": 11, "costoTotalReceta": 3.3, "proveedor": "VALENTIN" }, { "id": "ing_23_4", "name": "Enpanaditas copetin", "quantityPerPerson": "0.5", "unit": "Unidad", "costoUnitario": 11, "costoTotalReceta": 5.5, "proveedor": "VALENTIN" }, { "id": "ing_23_5", "name": "pizzetitas con muzzarella", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 11, "costoTotalReceta": 11, "proveedor": "VALENTIN" }, { "id": "ing_23_6", "name": "Medialunas", "quantityPerPerson": "0.5", "unit": "Unidad", "costoUnitario": 15, "costoTotalReceta": 7.5, "proveedor": "VALENTIN" }, { "id": "ing_23_7", "name": "Cañoncitos", "quantityPerPerson": "0.3", "unit": "Unidad", "costoUnitario": 12.5, "costoTotalReceta": 3.75, "proveedor": "DON DIEGO" }, { "id": "ing_23_8", "name": "Palmitas", "quantityPerPerson": "0.3", "unit": "Unidad", "costoUnitario": 8, "costoTotalReceta": 2.4, "proveedor": "DON DIEGO" }, { "id": "ing_23_9", "name": "Tarteletas", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 7.5, "costoTotalReceta": 7.5, "proveedor": "DON DIEGO" }, { "id": "ing_23_10", "name": "Arrolladitos", "quantityPerPerson": "0.3", "unit": "Unidad", "costoUnitario": 7, "costoTotalReceta": 2.1, "proveedor": "DON DIEGO" }, { "id": "ing_23_11", "name": "Jesuitas", "quantityPerPerson": "0.3", "unit": "Unidad", "costoUnitario": 10.5, "costoTotalReceta": 3.15, "proveedor": "DON DIEGO" }, { "id": "ing_23_12", "name": "Sandwiches pan negro", "quantityPerPerson": "0.5", "unit": "Unidad", "costoUnitario": 13, "costoTotalReceta": 6.5, "proveedor": "DON DIEGO" }, { "id": "ing_23_13", "name": "Vulevanes", "quantityPerPerson": "0.3", "unit": "Unidad", "costoUnitario": 12, "costoTotalReceta": 3.6, "proveedor": "DON DIEGO" }, { "id": "ing_23_14", "name": "Escones de queso con sesamo", "quantityPerPerson": "0.2", "unit": "Unidad", "costoUnitario": 11, "costoTotalReceta": 2.2, "proveedor": "DON DIEGO" }, { "id": "ing_23_15", "name": "Chipa", "quantityPerPerson": "0.2", "unit": "Unidad", "costoUnitario": 11, "costoTotalReceta": 2.2, "proveedor": "DON DIEGO" }, { "id": "ing_23_16", "name": "Queso con cereza", "quantityPerPerson": "0.3", "unit": "Unidad", "costoUnitario": 11, "costoTotalReceta": 3.3, "proveedor": "EL TROPERO" } ] },
-      { "id": "dish_entrada_24", "name": "Tabla de Fiambre Gourmet", "type": "Entrada", "totalDishCost": 118.905, "ingredients": [ { "id": "ing_24_1", "name": "Lomito ahumado", "quantityPerPerson": "15", "unit": "g", "costoUnitario": 511, "costoTotalReceta": 7.665, "proveedor": "BORDENAVE" }, { "id": "ing_24_2", "name": "Mortadela", "quantityPerPerson": "15", "unit": "g", "costoUnitario": 327, "costoTotalReceta": 4.905, "proveedor": "EL TROPERO" }, { "id": "ing_24_3", "name": "Jamon crudo", "quantityPerPerson": "15", "unit": "g", "costoUnitario": 1799, "costoTotalReceta": 26.985, "proveedor": "FENIX" }, { "id": "ing_24_4", "name": "Queso Dambo", "quantityPerPerson": "15", "unit": "g", "costoUnitario": 420, "costoTotalReceta": 6.3, "proveedor": "EL TROPERO" }, { "id": "ing_24_5", "name": "Queso Muzzarella", "quantityPerPerson": "15", "unit": "g", "costoUnitario": 300, "costoTotalReceta": 4.5, "proveedor": "EL TROPERO" }, { "id": "ing_24_6", "name": "Queso colonial", "quantityPerPerson": "15", "unit": "g", "costoUnitario": 420, "costoTotalReceta": 6.3, "proveedor": "EL TROPERO" }, { "id": "ing_24_7", "name": "Bondiola cocida ahumada", "quantityPerPerson": "15", "unit": "g", "costoUnitario": 480, "costoTotalReceta": 7.2, "proveedor": "BORDENAVE" }, { "id": "ing_24_8", "name": "Salame", "quantityPerPerson": "15", "unit": "g", "costoUnitario": 390, "costoTotalReceta": 5.85, "proveedor": "EL TROPERO" }, { "id": "ing_24_9", "name": "Salsas", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 9, "proveedor": "DK MOYORISTA" }, { "id": "ing_24_10", "name": "Tomate Cherry", "quantityPerPerson": "15", "unit": "g", "costoUnitario": 120, "costoTotalReceta": 1.8, "proveedor": "VERDULERIA" }, { "id": "ing_24_11", "name": "Cerezas verde", "quantityPerPerson": "10", "unit": "g", "costoUnitario": 1000, "costoTotalReceta": 10, "proveedor": "UNIPLAS" }, { "id": "ing_24_12", "name": "Cerezas roja", "quantityPerPerson": "10", "unit": "g", "costoUnitario": 1000, "costoTotalReceta": 10, "proveedor": "UNIPLAS" }, { "id": "ing_24_13", "name": "Aceitunas", "quantityPerPerson": "20", "unit": "g", "costoUnitario": 220, "costoTotalReceta": 4.4, "proveedor": "UNIPLAS" }, { "id": "ing_24_14", "name": "Aceitunas negras", "quantityPerPerson": "20", "unit": "g", "costoUnitario": 300, "costoTotalReceta": 6, "proveedor": "UNIPLAS" }, { "id": "ing_24_15", "name": "Galletas", "quantityPerPerson": "20", "unit": "g", "costoUnitario": 220, "costoTotalReceta": 4.4, "proveedor": "DON DIEGO" }, { "id": "ing_24_16", "name": "Grisines", "quantityPerPerson": "20", "unit": "g", "costoUnitario": 220, "costoTotalReceta": 4.4, "proveedor": "DON DIEGO" } ] }
+      {
+        "id": "dish_entrada_4",
+        "name": "Planchas Calientes",
+        "type": "Entrada",
+        "totalDishCost": 54.2,
+        "ingredients": [
+          {
+            "id": "ing_4_1",
+            "name": "Jamon",
+            "quantityPerPerson": "40",
+            "unit": "g",
+            "costoUnitario": 180,
+            "costoTotalReceta": 7.2
+          },
+          {
+            "id": "ing_4_2",
+            "name": "Manteca",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 200,
+            "costoTotalReceta": 6
+          },
+          {
+            "id": "ing_4_3",
+            "name": "Muzzarella",
+            "quantityPerPerson": "40",
+            "unit": "g",
+            "costoUnitario": 330,
+            "costoTotalReceta": 13.2
+          },
+          {
+            "id": "ing_4_4",
+            "name": "Gas",
+            "quantityPerPerson": "5",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 5
+          },
+          {
+            "id": "ing_4_5",
+            "name": "Pan de Sandwiches",
+            "quantityPerPerson": "60",
+            "unit": "g",
+            "costoUnitario": 380,
+            "costoTotalReceta": 22.8
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_10",
+        "name": "Empanadas",
+        "type": "Entrada",
+        "totalDishCost": 57.2,
+        "ingredients": [
+          {
+            "id": "ing_10_1",
+            "name": "Tapa de Empanada",
+            "quantityPerPerson": "2",
+            "unit": "Unidad",
+            "costoUnitario": 6,
+            "costoTotalReceta": 12
+          },
+          {
+            "id": "ing_10_2",
+            "name": "Huevo",
+            "quantityPerPerson": "0.2",
+            "unit": "Unidad",
+            "costoUnitario": 10,
+            "costoTotalReceta": 2
+          },
+          {
+            "id": "ing_10_3",
+            "name": "Cebolla",
+            "quantityPerPerson": "60",
+            "unit": "g",
+            "costoUnitario": 100,
+            "costoTotalReceta": 6
+          },
+          {
+            "id": "ing_10_4",
+            "name": "Morron",
+            "quantityPerPerson": "60",
+            "unit": "g",
+            "costoUnitario": 120,
+            "costoTotalReceta": 7.2
+          },
+          {
+            "id": "ing_10_5",
+            "name": "Gas",
+            "quantityPerPerson": "5",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 5
+          },
+          {
+            "id": "ing_10_6",
+            "name": "Carne picada",
+            "quantityPerPerson": "100",
+            "unit": "g",
+            "costoUnitario": 250,
+            "costoTotalReceta": 25
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_9",
+        "name": "Salpicón de Pollo",
+        "type": "Entrada",
+        "totalDishCost": 71.2,
+        "ingredients": [
+          {
+            "id": "ing_9_1",
+            "name": "Pollo",
+            "quantityPerPerson": "250",
+            "unit": "g",
+            "costoUnitario": 120,
+            "costoTotalReceta": 30
+          },
+          {
+            "id": "ing_9_2",
+            "name": "Papa",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 60,
+            "costoTotalReceta": 1.8
+          },
+          {
+            "id": "ing_9_3",
+            "name": "Zanahoria",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 120,
+            "costoTotalReceta": 3.6
+          },
+          {
+            "id": "ing_9_4",
+            "name": "Arbejas",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 500,
+            "costoTotalReceta": 15
+          },
+          {
+            "id": "ing_9_5",
+            "name": "Mayonesa",
+            "quantityPerPerson": "40",
+            "unit": "g",
+            "costoUnitario": 120,
+            "costoTotalReceta": 4.8
+          },
+          {
+            "id": "ing_9_6",
+            "name": "Condimentos",
+            "quantityPerPerson": "60",
+            "unit": "g",
+            "costoUnitario": 100,
+            "costoTotalReceta": 6
+          },
+          {
+            "id": "ing_9_7",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 10
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_23",
+        "name": "Sandwiches y Saladitos",
+        "type": "Entrada",
+        "totalDishCost": 74.8,
+        "ingredients": [
+          {
+            "id": "ing_23_1",
+            "name": "Sandwiches pan blanco",
+            "quantityPerPerson": "0.5",
+            "unit": "Unidad",
+            "costoUnitario": 15,
+            "costoTotalReceta": 7.5
+          },
+          {
+            "id": "ing_23_2",
+            "name": "Pebetes",
+            "quantityPerPerson": "0.3",
+            "unit": "Unidad",
+            "costoUnitario": 11,
+            "costoTotalReceta": 3.3
+          },
+          {
+            "id": "ing_23_3",
+            "name": "Arrolladitos de hojaldre",
+            "quantityPerPerson": "0.3",
+            "unit": "Unidad",
+            "costoUnitario": 11,
+            "costoTotalReceta": 3.3
+          },
+          {
+            "id": "ing_23_4",
+            "name": "Enpanaditas copetin",
+            "quantityPerPerson": "0.5",
+            "unit": "Unidad",
+            "costoUnitario": 11,
+            "costoTotalReceta": 5.5
+          },
+          {
+            "id": "ing_23_5",
+            "name": "pizzetitas con muzzarella",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "costoUnitario": 11,
+            "costoTotalReceta": 11
+          },
+          {
+            "id": "ing_23_6",
+            "name": "Medialunas",
+            "quantityPerPerson": "0.5",
+            "unit": "Unidad",
+            "costoUnitario": 15,
+            "costoTotalReceta": 7.5
+          },
+          {
+            "id": "ing_23_7",
+            "name": "Cañoncitos",
+            "quantityPerPerson": "0.3",
+            "unit": "Unidad",
+            "costoUnitario": 12.5,
+            "costoTotalReceta": 3.75
+          },
+          {
+            "id": "ing_23_8",
+            "name": "Palmitas",
+            "quantityPerPerson": "0.3",
+            "unit": "Unidad",
+            "costoUnitario": 8,
+            "costoTotalReceta": 2.4
+          },
+          {
+            "id": "ing_23_9",
+            "name": "Tarteletas",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "costoUnitario": 7.5,
+            "costoTotalReceta": 7.5
+          },
+          {
+            "id": "ing_23_10",
+            "name": "Arrolladitos",
+            "quantityPerPerson": "0.3",
+            "unit": "Unidad",
+            "costoUnitario": 7,
+            "costoTotalReceta": 2.1
+          },
+          {
+            "id": "ing_23_11",
+            "name": "Jesuitas",
+            "quantityPerPerson": "0.3",
+            "unit": "Unidad",
+            "costoUnitario": 10.5,
+            "costoTotalReceta": 3.15
+          },
+          {
+            "id": "ing_23_12",
+            "name": "Sandwiches pan negro",
+            "quantityPerPerson": "0.5",
+            "unit": "Unidad",
+            "costoUnitario": 13,
+            "costoTotalReceta": 6.5
+          },
+          {
+            "id": "ing_23_13",
+            "name": "Vulevanes",
+            "quantityPerPerson": "0.3",
+            "unit": "Unidad",
+            "costoUnitario": 12,
+            "costoTotalReceta": 3.6
+          },
+          {
+            "id": "ing_23_14",
+            "name": "Escones de queso con sesamo",
+            "quantityPerPerson": "0.2",
+            "unit": "Unidad",
+            "costoUnitario": 11,
+            "costoTotalReceta": 2.2
+          },
+          {
+            "id": "ing_23_15",
+            "name": "Chipa",
+            "quantityPerPerson": "0.2",
+            "unit": "Unidad",
+            "costoUnitario": 11,
+            "costoTotalReceta": 2.2
+          },
+          {
+            "id": "ing_23_16",
+            "name": "Queso con cereza",
+            "quantityPerPerson": "0.3",
+            "unit": "Unidad",
+            "costoUnitario": 11,
+            "costoTotalReceta": 3.3
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_8",
+        "name": "Kebabs",
+        "type": "Entrada",
+        "totalDishCost": 76,
+        "ingredients": [
+          {
+            "id": "ing_8_1",
+            "name": "Picada de carne",
+            "quantityPerPerson": "100",
+            "unit": "g",
+            "costoUnitario": 330,
+            "costoTotalReceta": 33
+          },
+          {
+            "id": "ing_8_2",
+            "name": "Manteca",
+            "quantityPerPerson": "60",
+            "unit": "g",
+            "costoUnitario": 200,
+            "costoTotalReceta": 12
+          },
+          {
+            "id": "ing_8_3",
+            "name": "Aderezos",
+            "quantityPerPerson": "60",
+            "unit": "g",
+            "costoUnitario": 150,
+            "costoTotalReceta": 9
+          },
+          {
+            "id": "ing_8_4",
+            "name": "Perejil y ajo natural",
+            "quantityPerPerson": "60",
+            "unit": "g",
+            "costoUnitario": 100,
+            "costoTotalReceta": 6
+          },
+          {
+            "id": "ing_8_5",
+            "name": "Cebollas",
+            "quantityPerPerson": "60",
+            "unit": "g",
+            "costoUnitario": 100,
+            "costoTotalReceta": 6
+          },
+          {
+            "id": "ing_8_6",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 10
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_12",
+        "name": "Cono Pizza",
+        "type": "Entrada",
+        "totalDishCost": 78.312,
+        "ingredients": [
+          {
+            "id": "ing_12_1",
+            "name": "Choclo",
+            "quantityPerPerson": "6",
+            "unit": "g",
+            "costoUnitario": 260,
+            "costoTotalReceta": 1.56
+          },
+          {
+            "id": "ing_12_2",
+            "name": "Papas pay",
+            "quantityPerPerson": "6",
+            "unit": "g",
+            "costoUnitario": 450,
+            "costoTotalReceta": 2.7
+          },
+          {
+            "id": "ing_12_3",
+            "name": "Aceitunas",
+            "quantityPerPerson": "6",
+            "unit": "g",
+            "costoUnitario": 221,
+            "costoTotalReceta": 1.326
+          },
+          {
+            "id": "ing_12_4",
+            "name": "Jamón",
+            "quantityPerPerson": "6",
+            "unit": "g",
+            "costoUnitario": 180,
+            "costoTotalReceta": 1.08
+          },
+          {
+            "id": "ing_12_5",
+            "name": "Palmitos",
+            "quantityPerPerson": "6",
+            "unit": "g",
+            "costoUnitario": 200,
+            "costoTotalReceta": 1.2
+          },
+          {
+            "id": "ing_12_6",
+            "name": "Panchos",
+            "quantityPerPerson": "6",
+            "unit": "g",
+            "costoUnitario": 200,
+            "costoTotalReceta": 1.2
+          },
+          {
+            "id": "ing_12_7",
+            "name": "Salame",
+            "quantityPerPerson": "6",
+            "unit": "g",
+            "costoUnitario": 420,
+            "costoTotalReceta": 2.52
+          },
+          {
+            "id": "ing_12_8",
+            "name": "Panceta",
+            "quantityPerPerson": "6",
+            "unit": "g",
+            "costoUnitario": 421,
+            "costoTotalReceta": 2.526
+          },
+          {
+            "id": "ing_12_9",
+            "name": "Muzzarella",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "costoUnitario": 340,
+            "costoTotalReceta": 27.2
+          },
+          {
+            "id": "ing_12_10",
+            "name": "Conos para pizza",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "costoUnitario": 25,
+            "costoTotalReceta": 25
+          },
+          {
+            "id": "ing_12_11",
+            "name": "Albahaca",
+            "quantityPerPerson": "0.08",
+            "unit": "g",
+            "costoUnitario": 50,
+            "costoTotalReceta": 4
+          },
+          {
+            "id": "ing_12_12",
+            "name": "Huevo",
+            "quantityPerPerson": "0.1",
+            "unit": "Unidad",
+            "costoUnitario": 10,
+            "costoTotalReceta": 1
+          },
+          {
+            "id": "ing_12_13",
+            "name": "Gas",
+            "quantityPerPerson": "7",
+            "unit": "min",
+            "costoUnitario": 0.57,
+            "costoTotalReceta": 4
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_11",
+        "name": "Mini Chivitos",
+        "type": "Entrada",
+        "totalDishCost": 80,
+        "ingredients": [
+          {
+            "id": "ing_11_1",
+            "name": "Pan de Chivito",
+            "quantityPerPerson": "2",
+            "unit": "Unidad",
+            "costoUnitario": 6,
+            "costoTotalReceta": 12
+          },
+          {
+            "id": "ing_11_2",
+            "name": "lechuga",
+            "quantityPerPerson": "0.1",
+            "unit": "Unidad",
+            "costoUnitario": 50,
+            "costoTotalReceta": 5
+          },
+          {
+            "id": "ing_11_3",
+            "name": "Huevos",
+            "quantityPerPerson": "0.2",
+            "unit": "Unidad",
+            "costoUnitario": 10,
+            "costoTotalReceta": 2
+          },
+          {
+            "id": "ing_11_4",
+            "name": "Carne para chivito",
+            "quantityPerPerson": "60",
+            "unit": "g",
+            "costoUnitario": 380,
+            "costoTotalReceta": 22.8
+          },
+          {
+            "id": "ing_11_5",
+            "name": "Tomate",
+            "quantityPerPerson": "40",
+            "unit": "g",
+            "costoUnitario": 150,
+            "costoTotalReceta": 6
+          },
+          {
+            "id": "ing_11_6",
+            "name": "Jamon",
+            "quantityPerPerson": "40",
+            "unit": "g",
+            "costoUnitario": 330,
+            "costoTotalReceta": 13.2
+          },
+          {
+            "id": "ing_11_7",
+            "name": "queso",
+            "quantityPerPerson": "40",
+            "unit": "g",
+            "costoUnitario": 400,
+            "costoTotalReceta": 16
+          },
+          {
+            "id": "ing_11_8",
+            "name": "Gas",
+            "quantityPerPerson": "3",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 3
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_14",
+        "name": "Arepas",
+        "type": "Entrada",
+        "totalDishCost": 84.8,
+        "ingredients": [
+          {
+            "id": "ing_14_1",
+            "name": "Cebolla",
+            "quantityPerPerson": "20",
+            "unit": "g",
+            "costoUnitario": 100,
+            "costoTotalReceta": 2
+          },
+          {
+            "id": "ing_14_2",
+            "name": "Morron rojo",
+            "quantityPerPerson": "20",
+            "unit": "g",
+            "costoUnitario": 150,
+            "costoTotalReceta": 3
+          },
+          {
+            "id": "ing_14_3",
+            "name": "Lechuga",
+            "quantityPerPerson": "0.25",
+            "unit": "Unidad",
+            "costoUnitario": 40,
+            "costoTotalReceta": 10
+          },
+          {
+            "id": "ing_14_4",
+            "name": "Tomate",
+            "quantityPerPerson": "35",
+            "unit": "g",
+            "costoUnitario": 150,
+            "costoTotalReceta": 5.25
+          },
+          {
+            "id": "ing_14_5",
+            "name": "Condimentos",
+            "quantityPerPerson": "20",
+            "unit": "g",
+            "costoUnitario": 300,
+            "costoTotalReceta": 6
+          },
+          {
+            "id": "ing_14_6",
+            "name": "Carne picada",
+            "quantityPerPerson": "100",
+            "unit": "g",
+            "costoUnitario": 250,
+            "costoTotalReceta": 25
+          },
+          {
+            "id": "ing_14_7",
+            "name": "Muzzarella",
+            "quantityPerPerson": "35",
+            "unit": "g",
+            "costoUnitario": 330,
+            "costoTotalReceta": 11.55
+          },
+          {
+            "id": "ing_14_8",
+            "name": "Harina de maiz blanco (arepas)",
+            "quantityPerPerson": "100",
+            "unit": "g",
+            "costoUnitario": 120,
+            "costoTotalReceta": 12
+          },
+          {
+            "id": "ing_14_9",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 10
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_17",
+        "name": "Empanaditas y Pizzetitas",
+        "type": "Entrada",
+        "totalDishCost": 89,
+        "ingredients": [
+          {
+            "id": "ing_17_1",
+            "name": "Enpanaditas copetin",
+            "quantityPerPerson": "3",
+            "unit": "Unidad",
+            "costoUnitario": 13,
+            "costoTotalReceta": 39
+          },
+          {
+            "id": "ing_17_2",
+            "name": "pizzetitas con muzzarella",
+            "quantityPerPerson": "3",
+            "unit": "Unidad",
+            "costoUnitario": 15,
+            "costoTotalReceta": 45
+          },
+          {
+            "id": "ing_17_3",
+            "name": "Gas",
+            "quantityPerPerson": "5",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 5
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_13",
+        "name": "Show de Pizzas",
+        "type": "Entrada",
+        "totalDishCost": 89.616,
+        "ingredients": [
+          {
+            "id": "ing_13_1",
+            "name": "Choclo",
+            "quantityPerPerson": "8",
+            "unit": "g",
+            "costoUnitario": 260,
+            "costoTotalReceta": 2.08
+          },
+          {
+            "id": "ing_13_2",
+            "name": "Papas pay",
+            "quantityPerPerson": "8",
+            "unit": "g",
+            "costoUnitario": 450,
+            "costoTotalReceta": 3.6
+          },
+          {
+            "id": "ing_13_3",
+            "name": "Aceitunas",
+            "quantityPerPerson": "8",
+            "unit": "g",
+            "costoUnitario": 221,
+            "costoTotalReceta": 1.768
+          },
+          {
+            "id": "ing_13_4",
+            "name": "Jamón",
+            "quantityPerPerson": "8",
+            "unit": "g",
+            "costoUnitario": 180,
+            "costoTotalReceta": 1.44
+          },
+          {
+            "id": "ing_13_5",
+            "name": "Palmitos",
+            "quantityPerPerson": "8",
+            "unit": "g",
+            "costoUnitario": 200,
+            "costoTotalReceta": 1.6
+          },
+          {
+            "id": "ing_13_6",
+            "name": "Panchos",
+            "quantityPerPerson": "8",
+            "unit": "g",
+            "costoUnitario": 200,
+            "costoTotalReceta": 1.6
+          },
+          {
+            "id": "ing_13_7",
+            "name": "Salame",
+            "quantityPerPerson": "8",
+            "unit": "g",
+            "costoUnitario": 420,
+            "costoTotalReceta": 3.36
+          },
+          {
+            "id": "ing_13_8",
+            "name": "Panceta",
+            "quantityPerPerson": "8",
+            "unit": "g",
+            "costoUnitario": 421,
+            "costoTotalReceta": 3.368
+          },
+          {
+            "id": "ing_13_9",
+            "name": "Muzzarella",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "costoUnitario": 340,
+            "costoTotalReceta": 27.2
+          },
+          {
+            "id": "ing_13_10",
+            "name": "Pizzas prehechas",
+            "quantityPerPerson": "0.5",
+            "unit": "Unidad",
+            "costoUnitario": 60,
+            "costoTotalReceta": 30
+          },
+          {
+            "id": "ing_13_11",
+            "name": "Albahaca",
+            "quantityPerPerson": "0.08",
+            "unit": "g",
+            "costoUnitario": 50,
+            "costoTotalReceta": 4
+          },
+          {
+            "id": "ing_13_12",
+            "name": "Huevo",
+            "quantityPerPerson": "0.1",
+            "unit": "Unidad",
+            "costoUnitario": 10,
+            "costoTotalReceta": 1
+          },
+          {
+            "id": "ing_13_13",
+            "name": "Tomate Cherry",
+            "quantityPerPerson": "8",
+            "unit": "g",
+            "costoUnitario": 200,
+            "costoTotalReceta": 1.6
+          },
+          {
+            "id": "ing_13_14",
+            "name": "Gas",
+            "quantityPerPerson": "7",
+            "unit": "min",
+            "costoUnitario": 0.57,
+            "costoTotalReceta": 4
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_18",
+        "name": "Tabla de Fiambre Gourmet",
+        "type": "Entrada",
+        "totalDishCost": 91.566,
+        "ingredients": [
+          {
+            "id": "ing_18_1",
+            "name": "Paleta",
+            "quantityPerPerson": "40",
+            "unit": "g",
+            "costoUnitario": 180,
+            "costoTotalReceta": 7.2
+          },
+          {
+            "id": "ing_18_2",
+            "name": "Queso",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 420,
+            "costoTotalReceta": 12.6
+          },
+          {
+            "id": "ing_18_3",
+            "name": "Salame",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 420,
+            "costoTotalReceta": 12.6
+          },
+          {
+            "id": "ing_18_4",
+            "name": "Salsas",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 100,
+            "costoTotalReceta": 3
+          },
+          {
+            "id": "ing_18_5",
+            "name": "Papas Chips",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 400,
+            "costoTotalReceta": 12
+          },
+          {
+            "id": "ing_18_6",
+            "name": "Palitos salados",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 200,
+            "costoTotalReceta": 6
+          },
+          {
+            "id": "ing_18_7",
+            "name": "Mani",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 200,
+            "costoTotalReceta": 6
+          },
+          {
+            "id": "ing_18_8",
+            "name": "Paleta",
+            "quantityPerPerson": "9",
+            "unit": "g",
+            "costoUnitario": 180,
+            "costoTotalReceta": 1.62
+          },
+          {
+            "id": "ing_18_9",
+            "name": "Queso",
+            "quantityPerPerson": "9",
+            "unit": "g",
+            "costoUnitario": 420,
+            "costoTotalReceta": 3.78
+          },
+          {
+            "id": "ing_18_10",
+            "name": "Salame",
+            "quantityPerPerson": "9",
+            "unit": "g",
+            "costoUnitario": 420,
+            "costoTotalReceta": 3.78
+          },
+          {
+            "id": "ing_18_11",
+            "name": "Queso muzzarela",
+            "quantityPerPerson": "9",
+            "unit": "g",
+            "costoUnitario": 250,
+            "costoTotalReceta": 2.25
+          },
+          {
+            "id": "ing_18_12",
+            "name": "Queso de cerdo",
+            "quantityPerPerson": "9",
+            "unit": "g",
+            "costoUnitario": 270,
+            "costoTotalReceta": 2.43
+          },
+          {
+            "id": "ing_18_13",
+            "name": "Leonesa primavera",
+            "quantityPerPerson": "9",
+            "unit": "g",
+            "costoUnitario": 322,
+            "costoTotalReceta": 2.898
+          },
+          {
+            "id": "ing_18_14",
+            "name": "Aceitunas s/ carozo",
+            "quantityPerPerson": "9",
+            "unit": "g",
+            "costoUnitario": 220,
+            "costoTotalReceta": 1.98
+          },
+          {
+            "id": "ing_18_15",
+            "name": "Grisines chicos",
+            "quantityPerPerson": "9",
+            "unit": "g",
+            "costoUnitario": 370,
+            "costoTotalReceta": 3.33
+          },
+          {
+            "id": "ing_18_16",
+            "name": "Galletas malteadas sin sal",
+            "quantityPerPerson": "9",
+            "unit": "g",
+            "costoUnitario": 250,
+            "costoTotalReceta": 2.25
+          },
+          {
+            "id": "ing_18_17",
+            "name": "Tostadas baguet saborizadas",
+            "quantityPerPerson": "9",
+            "unit": "g",
+            "costoUnitario": 400,
+            "costoTotalReceta": 3.6
+          },
+          {
+            "id": "ing_18_18",
+            "name": "Catalan 20g con sesamo de remolacha",
+            "quantityPerPerson": "8",
+            "unit": "g",
+            "costoUnitario": 265,
+            "costoTotalReceta": 2.12
+          },
+          {
+            "id": "ing_18_19",
+            "name": "Catalan 20g con sesamo verde",
+            "quantityPerPerson": "8",
+            "unit": "g",
+            "costoUnitario": 266,
+            "costoTotalReceta": 2.128
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_16",
+        "name": "Tacos Mexicanos",
+        "type": "Entrada",
+        "totalDishCost": 92.45,
+        "ingredients": [
+          {
+            "id": "ing_16_1",
+            "name": "Salsa picante",
+            "quantityPerPerson": "15",
+            "unit": "g",
+            "costoUnitario": 300,
+            "costoTotalReceta": 4.5
+          },
+          {
+            "id": "ing_16_2",
+            "name": "Condimentos",
+            "quantityPerPerson": "15",
+            "unit": "g",
+            "costoUnitario": 180,
+            "costoTotalReceta": 2.7
+          },
+          {
+            "id": "ing_16_3",
+            "name": "Cebolla",
+            "quantityPerPerson": "15",
+            "unit": "g",
+            "costoUnitario": 100,
+            "costoTotalReceta": 1.5
+          },
+          {
+            "id": "ing_16_4",
+            "name": "Morrón rojo",
+            "quantityPerPerson": "15",
+            "unit": "g",
+            "costoUnitario": 180,
+            "costoTotalReceta": 2.7
+          },
+          {
+            "id": "ing_16_5",
+            "name": "Morrón verde",
+            "quantityPerPerson": "15",
+            "unit": "g",
+            "costoUnitario": 120,
+            "costoTotalReceta": 1.8
+          },
+          {
+            "id": "ing_16_6",
+            "name": "Tomate",
+            "quantityPerPerson": "40",
+            "unit": "g",
+            "costoUnitario": 150,
+            "costoTotalReceta": 6
+          },
+          {
+            "id": "ing_16_7",
+            "name": "Huevo",
+            "quantityPerPerson": "0.2",
+            "unit": "Unidad",
+            "costoUnitario": 10,
+            "costoTotalReceta": 2
+          },
+          {
+            "id": "ing_16_8",
+            "name": "Lechuga",
+            "quantityPerPerson": "0.2",
+            "unit": "Unidad",
+            "costoUnitario": 40,
+            "costoTotalReceta": 8
+          },
+          {
+            "id": "ing_16_9",
+            "name": "Palta",
+            "quantityPerPerson": "0.2",
+            "unit": "Unidad",
+            "costoUnitario": 40,
+            "costoTotalReceta": 8
+          },
+          {
+            "id": "ing_16_10",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 10
+          },
+          {
+            "id": "ing_16_11",
+            "name": "Carne picada",
+            "quantityPerPerson": "120",
+            "unit": "g",
+            "costoUnitario": 250,
+            "costoTotalReceta": 30
+          },
+          {
+            "id": "ing_16_12",
+            "name": "Muzzarella para rallar",
+            "quantityPerPerson": "25",
+            "unit": "g",
+            "costoUnitario": 330,
+            "costoTotalReceta": 8.25
+          },
+          {
+            "id": "ing_16_13",
+            "name": "Tapas de hojaldre",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "costoUnitario": 7,
+            "costoTotalReceta": 7
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_15",
+        "name": "Calzonne",
+        "type": "Entrada",
+        "totalDishCost": 96,
+        "ingredients": [
+          {
+            "id": "ing_15_1",
+            "name": "Aceitunas",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 220,
+            "costoTotalReceta": 11
+          },
+          {
+            "id": "ing_15_2",
+            "name": "Jamon",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 180,
+            "costoTotalReceta": 9
+          },
+          {
+            "id": "ing_15_3",
+            "name": "Muzarella",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 330,
+            "costoTotalReceta": 16.5
+          },
+          {
+            "id": "ing_15_4",
+            "name": "Tomate",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 100,
+            "costoTotalReceta": 5
+          },
+          {
+            "id": "ing_15_5",
+            "name": "Albahaca",
+            "quantityPerPerson": "0.3",
+            "unit": "Unidad",
+            "costoUnitario": 40,
+            "costoTotalReceta": 12
+          },
+          {
+            "id": "ing_15_6",
+            "name": "Huevo",
+            "quantityPerPerson": "0.5",
+            "unit": "Unidad",
+            "costoUnitario": 10,
+            "costoTotalReceta": 5
+          },
+          {
+            "id": "ing_15_7",
+            "name": "Tapas de hojaldre",
+            "quantityPerPerson": "0.5",
+            "unit": "Unidad",
+            "costoUnitario": 65,
+            "costoTotalReceta": 32.5
+          },
+          {
+            "id": "ing_15_8",
+            "name": "Gas",
+            "quantityPerPerson": "5",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 5
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_19",
+        "name": "Picada Caliente",
+        "type": "Entrada",
+        "totalDishCost": 98.48,
+        "ingredients": [
+          {
+            "id": "ing_19_1",
+            "name": "Nugget de pollo",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 283,
+            "costoTotalReceta": 8.49
+          },
+          {
+            "id": "ing_19_2",
+            "name": "Aros de cebolla",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 253,
+            "costoTotalReceta": 7.59
+          },
+          {
+            "id": "ing_19_3",
+            "name": "Papas fritas",
+            "quantityPerPerson": "60",
+            "unit": "g",
+            "costoUnitario": 130,
+            "costoTotalReceta": 7.8
+          },
+          {
+            "id": "ing_19_4",
+            "name": "Arrolladitos primavera",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 261,
+            "costoTotalReceta": 7.83
+          },
+          {
+            "id": "ing_19_5",
+            "name": "Croquetas de papa",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 250,
+            "costoTotalReceta": 7.5
+          },
+          {
+            "id": "ing_19_6",
+            "name": "Noisettes",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 200,
+            "costoTotalReceta": 6
+          },
+          {
+            "id": "ing_19_7",
+            "name": "Formitas de merluza",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 239,
+            "costoTotalReceta": 7.17
+          },
+          {
+            "id": "ing_19_8",
+            "name": "Aceite",
+            "quantityPerPerson": "100",
+            "unit": "g",
+            "costoUnitario": 60,
+            "costoTotalReceta": 6
+          },
+          {
+            "id": "ing_19_9",
+            "name": "Gas",
+            "quantityPerPerson": "5",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 5
+          },
+          {
+            "id": "ing_19_10",
+            "name": "Milanesa de carne",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 320,
+            "costoTotalReceta": 9.6
+          },
+          {
+            "id": "ing_19_11",
+            "name": "Milanesa de pollo",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 250,
+            "costoTotalReceta": 7.5
+          },
+          {
+            "id": "ing_19_12",
+            "name": "Galletas",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 220,
+            "costoTotalReceta": 6.6
+          },
+          {
+            "id": "ing_19_13",
+            "name": "Grisines",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 200,
+            "costoTotalReceta": 6
+          },
+          {
+            "id": "ing_19_14",
+            "name": "Salsas",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 180,
+            "costoTotalReceta": 5.4
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_22",
+        "name": "Sushi",
+        "type": "Entrada",
+        "totalDishCost": 99.8,
+        "ingredients": [
+          {
+            "id": "ing_22_1",
+            "name": "Salmon",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 1000,
+            "costoTotalReceta": 50
+          },
+          {
+            "id": "ing_22_2",
+            "name": "Arroz de Shushi",
+            "quantityPerPerson": "100",
+            "unit": "g",
+            "costoUnitario": 135,
+            "costoTotalReceta": 13.5
+          },
+          {
+            "id": "ing_22_3",
+            "name": "condimentos",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 120,
+            "costoTotalReceta": 3.6
+          },
+          {
+            "id": "ing_22_4",
+            "name": "Queso crema",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 400,
+            "costoTotalReceta": 12
+          },
+          {
+            "id": "ing_22_5",
+            "name": "Pepino",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 90,
+            "costoTotalReceta": 2.7
+          },
+          {
+            "id": "ing_22_6",
+            "name": "Palta",
+            "quantityPerPerson": "0.2",
+            "unit": "Unidad",
+            "costoUnitario": 40,
+            "costoTotalReceta": 8
+          },
+          {
+            "id": "ing_22_7",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 10
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_21",
+        "name": "Picada de Mar",
+        "type": "Entrada",
+        "totalDishCost": 100.22,
+        "ingredients": [
+          {
+            "id": "ing_21_1",
+            "name": "Formitas de merluza",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 239,
+            "costoTotalReceta": 7.17
+          },
+          {
+            "id": "ing_21_2",
+            "name": "Aros de cebolla",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 253,
+            "costoTotalReceta": 7.59
+          },
+          {
+            "id": "ing_21_3",
+            "name": "Milanesa de pescado",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 400,
+            "costoTotalReceta": 12
+          },
+          {
+            "id": "ing_21_4",
+            "name": "Rabas rebozadas de calamar",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 415,
+            "costoTotalReceta": 12.45
+          },
+          {
+            "id": "ing_21_5",
+            "name": "Papas fritas",
+            "quantityPerPerson": "60",
+            "unit": "g",
+            "costoUnitario": 256,
+            "costoTotalReceta": 15.36
+          },
+          {
+            "id": "ing_21_6",
+            "name": "Bastones de muzarella",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 365,
+            "costoTotalReceta": 10.95
+          },
+          {
+            "id": "ing_21_7",
+            "name": "Tostadas",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 390,
+            "costoTotalReceta": 11.7
+          },
+          {
+            "id": "ing_21_8",
+            "name": "Grisines",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 200,
+            "costoTotalReceta": 6
+          },
+          {
+            "id": "ing_21_9",
+            "name": "Salsas",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 180,
+            "costoTotalReceta": 5.4
+          },
+          {
+            "id": "ing_21_10",
+            "name": "Aceite",
+            "quantityPerPerson": "100",
+            "unit": "ml",
+            "costoUnitario": 60,
+            "costoTotalReceta": 6
+          },
+          {
+            "id": "ing_21_11",
+            "name": "Gas",
+            "quantityPerPerson": "5",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 5
+          }
+        ]
+      },
+      {
+        "id": "dish_entrada_20",
+        "name": "Picada Criolla",
+        "type": "Entrada",
+        "totalDishCost": 102.119,
+        "ingredients": [
+          {
+            "id": "ing_20_1",
+            "name": "Aceitunas",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 220,
+            "costoTotalReceta": 6.6
+          },
+          {
+            "id": "ing_20_2",
+            "name": "Salsa criolla",
+            "quantityPerPerson": "53",
+            "unit": "g",
+            "costoUnitario": 200,
+            "costoTotalReceta": 10.6
+          },
+          {
+            "id": "ing_20_3",
+            "name": "Queso colonia",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 180,
+            "costoTotalReceta": 5.4
+          },
+          {
+            "id": "ing_20_4",
+            "name": "Ravioles Fritos",
+            "quantityPerPerson": "51",
+            "unit": "g",
+            "costoUnitario": 209,
+            "costoTotalReceta": 10.659
+          },
+          {
+            "id": "ing_20_5",
+            "name": "Papas rústicas",
+            "quantityPerPerson": "52",
+            "unit": "g",
+            "costoUnitario": 180,
+            "costoTotalReceta": 9.36
+          },
+          {
+            "id": "ing_20_6",
+            "name": "Chorizos",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 250,
+            "costoTotalReceta": 12.5
+          },
+          {
+            "id": "ing_20_7",
+            "name": "Morcilla",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 360,
+            "costoTotalReceta": 18
+          },
+          {
+            "id": "ing_20_8",
+            "name": "Pan de campo",
+            "quantityPerPerson": "0.2",
+            "unit": "Unidad",
+            "costoUnitario": 120,
+            "costoTotalReceta": 24
+          },
+          {
+            "id": "ing_20_9",
+            "name": "Gas",
+            "quantityPerPerson": "5",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 5
+          }
+        ]
+      }
     ]
   },
   {
@@ -118,23 +1887,1231 @@
     "createdAt": "2025-07-28T10:00:00.000Z",
     "updatedAt": "2025-07-28T10:00:00.000Z",
     "items": [
-      { "id": "dish_main_1", "name": "Mini Brochetas", "type": "Plato Principal", "totalDishCost": 57.2, "imageUrl": "https://picsum.photos/seed/brochetas/200/200", "ingredients": [ { "id": "ing_m1_1", "name": "Carnes para brocheta (mix)", "quantityPerPerson": "60", "unit": "g", "costoUnitario": 380, "costoTotalReceta": 22.8 }, { "id": "ing_m1_2", "name": "Panceta", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 400, "costoTotalReceta": 20 }, { "id": "ing_m1_3", "name": "Morron rojo", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 150, "costoTotalReceta": 4.5 }, { "id": "ing_m1_4", "name": "Tomate cherry", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 150, "costoTotalReceta": 4.5 }, { "id": "ing_m1_5", "name": "Morron verde", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 100, "costoTotalReceta": 3 }, { "id": "ing_m1_6", "name": "Cebollas", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 80, "costoTotalReceta": 2.4 } ] },
-      { "id": "dish_main_3", "name": "Pollo Arrollado C/ Guarnición", "type": "Plato Principal", "totalDishCost": 140, "imageUrl": "https://picsum.photos/seed/polloroll/200/200", "ingredients": [ { "id": "ing_m3_1", "name": "Pollo arrollado", "quantityPerPerson": "200", "unit": "g", "costoUnitario": 500, "costoTotalReceta": 100 }, { "id": "ing_m3_2", "name": "Guarnicion (genérica)", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 40, "costoTotalReceta": 40 } ] },
-      { "id": "dish_main_4", "name": "Cerdo Braseado a la Mostaza C/ Guarnición", "type": "Plato Principal", "totalDishCost": 148.1, "imageUrl": "https://picsum.photos/seed/cerdomostaza/200/200", "ingredients": [ { "id": "ing_m4_1", "name": "Bondiola de cerdo (carne)", "quantityPerPerson": "250", "unit": "g", "costoUnitario": 190, "costoTotalReceta": 47.5 }, { "id": "ing_m4_2", "name": "Crema de leche", "quantityPerPerson": "80", "unit": "ml", "costoUnitario": 200, "costoTotalReceta": 16 }, { "id": "ing_m4_3", "name": "Condimentos", "quantityPerPerson": "80", "unit": "g", "costoUnitario": 120, "costoTotalReceta": 9.6 }, { "id": "ing_m4_4", "name": "Miel", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 120, "costoTotalReceta": 3.6 }, { "id": "ing_m4_5", "name": "Mostaza", "quantityPerPerson": "80", "unit": "g", "costoUnitario": 250, "costoTotalReceta": 20 }, { "id": "ing_m4_6", "name": "Gas", "quantityPerPerson": "10", "unit": "min", "costoUnitario": 1, "costoTotalReceta": 10 }, { "id": "ing_m4_7", "name": "Guarnicion (genérica)", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 40, "costoTotalReceta": 40 } ] },
-      { "id": "dish_main_5", "name": "Cerdo Braseado a la Barbacoa C/ Guarnición", "type": "Plato Principal", "totalDishCost": 142.1, "imageUrl": "https://picsum.photos/seed/cerdobbq/200/200", "ingredients": [ { "id": "ing_m5_1", "name": "Bondiola de cerdo (carne)", "quantityPerPerson": "250", "unit": "g", "costoUnitario": 190, "costoTotalReceta": 47.5 }, { "id": "ing_m5_2", "name": "Salsa Barbacoa", "quantityPerPerson": "80", "unit": "g", "costoUnitario": 300, "costoTotalReceta": 24 }, { "id": "ing_m5_3", "name": "Condimentos", "quantityPerPerson": "80", "unit": "g", "costoUnitario": 120, "costoTotalReceta": 9.6 }, { "id": "ing_m5_4", "name": "Cebolla", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 100, "costoTotalReceta": 3 }, { "id": "ing_m5_5", "name": "Ajo (verdura)", "quantityPerPerson": "80", "unit": "g", "costoUnitario": 100, "costoTotalReceta": 8 }, { "id": "ing_m5_6", "name": "Gas", "quantityPerPerson": "10", "unit": "min", "costoUnitario": 1, "costoTotalReceta": 10 }, { "id": "ing_m5_7", "name": "Guarnicion (genérica)", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 40, "costoTotalReceta": 40 } ] },
-      { "id": "dish_main_6", "name": "Ravioles a la Crema", "type": "Plato Principal", "totalDishCost": 115.5, "imageUrl": "https://picsum.photos/seed/ravioles/200/200", "ingredients": [ { "id": "ing_m6_1", "name": "Crema de leche", "quantityPerPerson": "130", "unit": "ml", "costoUnitario": 200, "costoTotalReceta": 26 }, { "id": "ing_m6_2", "name": "Paleta", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 200, "costoTotalReceta": 10 }, { "id": "ing_m6_3", "name": "Queso dambo", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 200, "costoTotalReceta": 10 }, { "id": "ing_m6_4", "name": "Ravioles congelados", "quantityPerPerson": "250", "unit": "g", "costoUnitario": 220, "costoTotalReceta": 55 }, { "id": "ing_m6_5", "name": "Queso rallado", "quantityPerPerson": "10", "unit": "g", "costoUnitario": 450, "costoTotalReceta": 4.5 }, { "id": "ing_m6_6", "name": "Gas", "quantityPerPerson": "10", "unit": "min", "costoUnitario": 1, "costoTotalReceta": 10 } ] },
-      { "id": "dish_main_7", "name": "Ñoquis al Queso", "type": "Plato Principal", "totalDishCost": 155.5, "imageUrl": "https://picsum.photos/seed/gnoquis/200/200", "ingredients": [ { "id": "ing_m7_1", "name": "Crema de leche", "quantityPerPerson": "50", "unit": "ml", "costoUnitario": 190, "costoTotalReceta": 9.5 }, { "id": "ing_m7_2", "name": "Noquis congelados", "quantityPerPerson": "200", "unit": "g", "costoUnitario": 160, "costoTotalReceta": 32 }, { "id": "ing_m7_3", "name": "Queso colonial", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 420, "costoTotalReceta": 21 }, { "id": "ing_m7_4", "name": "Queso rallado", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 200, "costoTotalReceta": 10 }, { "id": "ing_m7_5", "name": "Queso crema", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 500, "costoTotalReceta": 25 }, { "id": "ing_m7_6", "name": "Manteca", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 500, "costoTotalReceta": 25 }, { "id": "ing_m7_7", "name": "Queso muzzarella", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 310, "costoTotalReceta": 15.5 }, { "id": "ing_m7_8", "name": "condimentos", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 250, "costoTotalReceta": 7.5 }, { "id": "ing_m7_9", "name": "Gas", "quantityPerPerson": "10", "unit": "min", "costoUnitario": 1, "costoTotalReceta": 10 } ] },
-      { "id": "dish_main_8", "name": "Cerdo Arrollado C/ Guarnición", "type": "Plato Principal", "totalDishCost": 150, "imageUrl": "https://picsum.photos/seed/cerdoroll/200/200", "ingredients": [ { "id": "ing_m8_1", "name": "Cerdo arrollado (carne)", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 110, "costoTotalReceta": 110 }, { "id": "ing_m8_2", "name": "Guarnicion (genérica)", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 40, "costoTotalReceta": 40 } ] },
-      { "id": "dish_main_9", "name": "Pollo a la Crema C/ Guarnición", "type": "Plato Principal", "totalDishCost": 175.6, "imageUrl": "https://picsum.photos/seed/pollocrema/200/200", "ingredients": [ { "id": "ing_m9_1", "name": "Muslos de pollo", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 70, "costoTotalReceta": 70 }, { "id": "ing_m9_2", "name": "Guarnicion (genérica)", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 40, "costoTotalReceta": 40 }, { "id": "ing_m9_3", "name": "Crema de leche", "quantityPerPerson": "100", "unit": "g", "costoUnitario": 200, "costoTotalReceta": 20 }, { "id": "ing_m9_4", "name": "Paleta", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 9 }, { "id": "ing_m9_5", "name": "Queso dambo", "quantityPerPerson": "20", "unit": "g", "costoUnitario": 380, "costoTotalReceta": 7.6 }, { "id": "ing_m9_6", "name": "Cebolla", "quantityPerPerson": "100", "unit": "g", "costoUnitario": 90, "costoTotalReceta": 9 }, { "id": "ing_m9_7", "name": "Gas", "quantityPerPerson": "20", "unit": "min", "costoUnitario": 1, "costoTotalReceta": 20 } ] },
-      { "id": "dish_main_10", "name": "Sorrentinos C/ Salsa Rosa", "type": "Plato Principal", "totalDishCost": 160.25, "imageUrl": "https://picsum.photos/seed/sorrentinos/200/200", "ingredients": [ { "id": "ing_m10_1", "name": "Crema de leche", "quantityPerPerson": "100", "unit": "ml", "costoUnitario": 200, "costoTotalReceta": 20 }, { "id": "ing_m10_2", "name": "Ketchup", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 200, "costoTotalReceta": 10 }, { "id": "ing_m10_3", "name": "cebolla", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 200, "costoTotalReceta": 10 }, { "id": "ing_m10_4", "name": "Sorrentinos congelados", "quantityPerPerson": "250", "unit": "g", "costoUnitario": 465, "costoTotalReceta": 115.75 }, { "id": "ing_m10_5", "name": "Queso rallado", "quantityPerPerson": "10", "unit": "g", "costoUnitario": 450, "costoTotalReceta": 4.5 }, { "id": "ing_m10_6", "name": "Gas", "quantityPerPerson": "10", "unit": "min", "costoUnitario": 1, "costoTotalReceta": 10 } ] },
-      { "id": "dish_main_11", "name": "Brochetas C/ Fritas", "type": "Plato Principal", "totalDishCost": 178.8, "imageUrl": "https://picsum.photos/seed/brochetasfritas/200/200", "ingredients": [ { "id": "ing_m11_1", "name": "Carne para brocheta (kg)", "quantityPerPerson": "80", "unit": "g", "costoUnitario": 380, "costoTotalReceta": 30.4 }, { "id": "ing_m11_2", "name": "Suprema de pollo", "quantityPerPerson": "80", "unit": "g", "costoUnitario": 300, "costoTotalReceta": 24 }, { "id": "ing_m11_3", "name": "Bondiola", "quantityPerPerson": "80", "unit": "g", "costoUnitario": 190, "costoTotalReceta": 15.2 }, { "id": "ing_m11_4", "name": "Panceta", "quantityPerPerson": "80", "unit": "g", "costoUnitario": 400, "costoTotalReceta": 32 }, { "id": "ing_m11_5", "name": "Morron rojo", "quantityPerPerson": "80", "unit": "g", "costoUnitario": 150, "costoTotalReceta": 12 }, { "id": "ing_m11_6", "name": "Tomate cherry", "quantityPerPerson": "80", "unit": "g", "costoUnitario": 150, "costoTotalReceta": 12 }, { "id": "ing_m11_7", "name": "Papas para freir", "quantityPerPerson": "200", "unit": "g", "costoUnitario": 120, "costoTotalReceta": 24 }, { "id": "ing_m11_8", "name": "aceite", "quantityPerPerson": "80", "unit": "ml", "costoUnitario": 60, "costoTotalReceta": 4.8 }, { "id": "ing_m11_9", "name": "Morron verde", "quantityPerPerson": "80", "unit": "g", "costoUnitario": 100, "costoTotalReceta": 8 }, { "id": "ing_m11_10", "name": "Cebollas", "quantityPerPerson": "80", "unit": "g", "costoUnitario": 80, "costoTotalReceta": 6.4 }, { "id": "ing_m11_11", "name": "Gas", "quantityPerPerson": "10", "unit": "min", "costoUnitario": 1, "costoTotalReceta": 10 } ] },
-      { "id": "dish_main_12", "name": "Napolitana C/ Fritas", "type": "Plato Principal", "totalDishCost": 173.2, "imageUrl": "https://picsum.photos/seed/napolitana/200/200", "ingredients": [ { "id": "ing_m12_1", "name": "Lechuga", "quantityPerPerson": "0.3", "unit": "Unidad", "costoUnitario": 30, "costoTotalReceta": 9 }, { "id": "ing_m12_2", "name": "Milanesa de carne (kg)", "quantityPerPerson": "250", "unit": "g", "costoUnitario": 350, "costoTotalReceta": 87.5 }, { "id": "ing_m12_3", "name": "Tomate", "quantityPerPerson": "80", "unit": "g", "costoUnitario": 100, "costoTotalReceta": 8 }, { "id": "ing_m12_4", "name": "Jamon", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 200, "costoTotalReceta": 10 }, { "id": "ing_m12_5", "name": "Queso", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 320, "costoTotalReceta": 16 }, { "id": "ing_m12_6", "name": "Salsa", "quantityPerPerson": "60", "unit": "g", "costoUnitario": 70, "costoTotalReceta": 4.2 }, { "id": "ing_m12_7", "name": "Fritas", "quantityPerPerson": "200", "unit": "g", "costoUnitario": 120, "costoTotalReceta": 24 }, { "id": "ing_m12_8", "name": "Aceite", "quantityPerPerson": "100", "unit": "ml", "costoUnitario": 60, "costoTotalReceta": 6 }, { "id": "ing_m12_9", "name": "Gas", "quantityPerPerson": "5", "unit": "min", "costoUnitario": 1, "costoTotalReceta": 5 } ] },
-      { "id": "dish_main_14", "name": "Strogonoff de Pollo C/ Guarnición", "type": "Plato Principal", "totalDishCost": 186.1, "imageUrl": "https://picsum.photos/seed/strogonoff/200/200", "ingredients": [ { "id": "ing_m14_1", "name": "pollo", "quantityPerPerson": "200", "unit": "g", "costoUnitario": 280, "costoTotalReceta": 56 }, { "id": "ing_m14_2", "name": "Crema de leche", "quantityPerPerson": "80", "unit": "g", "costoUnitario": 200, "costoTotalReceta": 16 }, { "id": "ing_m14_3", "name": "condimentos", "quantityPerPerson": "80", "unit": "g", "costoUnitario": 120, "costoTotalReceta": 9.6 }, { "id": "ing_m14_4", "name": "cebolla", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 90, "costoTotalReceta": 4.5 }, { "id": "ing_m14_5", "name": "Champiñon", "quantityPerPerson": "100", "unit": "g", "costoUnitario": 500, "costoTotalReceta": 50 }, { "id": "ing_m14_6", "name": "Gas", "quantityPerPerson": "10", "unit": "min", "costoUnitario": 1, "costoTotalReceta": 10 }, { "id": "ing_m14_7", "name": "guarnicion", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 40, "costoTotalReceta": 40 } ] },
-      { "id": "dish_main_15", "name": "Merluza a la Crema C/ Guarnición", "type": "Plato Principal", "totalDishCost": 197.35, "imageUrl": "https://picsum.photos/seed/merluza/200/200", "ingredients": [ { "id": "ing_m15_1", "name": "Merluza (kg)", "quantityPerPerson": "250", "unit": "g", "costoUnitario": 345, "costoTotalReceta": 86.25 }, { "id": "ing_m15_2", "name": "Crema de leche", "quantityPerPerson": "100", "unit": "ml", "costoUnitario": 180, "costoTotalReceta": 18 }, { "id": "ing_m15_3", "name": "condimentos", "quantityPerPerson": "80", "unit": "g", "costoUnitario": 120, "costoTotalReceta": 9.6 }, { "id": "ing_m15_4", "name": "Queso dambo", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 400, "costoTotalReceta": 20 }, { "id": "ing_m15_5", "name": "cebolla", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 90, "costoTotalReceta": 4.5 }, { "id": "ing_m15_6", "name": "paleta", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 9 }, { "id": "ing_m15_7", "name": "Gas", "quantityPerPerson": "10", "unit": "min", "costoUnitario": 1, "costoTotalReceta": 10 }, { "id": "ing_m15_8", "name": "guarnicion", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 40, "costoTotalReceta": 40 } ] },
-      { "id": "dish_main_16", "name": "Sushi C/ Guarnición", "type": "Plato Principal", "totalDishCost": 192.35, "imageUrl": "https://picsum.photos/seed/sushi/200/200", "ingredients": [ { "id": "ing_m16_1", "name": "Palta", "quantityPerPerson": "0.35", "unit": "Unidad", "costoUnitario": 40, "costoTotalReceta": 14 }, { "id": "ing_m16_2", "name": "Salmon", "quantityPerPerson": "90", "unit": "g", "costoUnitario": 1000, "costoTotalReceta": 90 }, { "id": "ing_m16_3", "name": "Arroz de Shushi", "quantityPerPerson": "150", "unit": "g", "costoUnitario": 135, "costoTotalReceta": 20.25 }, { "id": "ing_m16_4", "name": "condimentos", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 120, "costoTotalReceta": 3.6 }, { "id": "ing_m16_5", "name": "Queso crema", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 400, "costoTotalReceta": 20 }, { "id": "ing_m16_6", "name": "Pepino", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 90, "costoTotalReceta": 4.5 }, { "id": "ing_m16_7", "name": "Gas", "quantityPerPerson": "10", "unit": "min", "costoUnitario": 1, "costoTotalReceta": 10 }, { "id": "ing_m16_8", "name": "Guarnicion verde", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 40, "costoTotalReceta": 40 } ] },
-      { "id": "dish_main_17", "name": "Bife al Champiñon C/ Guarnición", "type": "Plato Principal", "totalDishCost": 225.1, "imageUrl": "https://picsum.photos/seed/bifechampi/200/200", "ingredients": [ { "id": "ing_m17_1", "name": "Bife (carne)", "quantityPerPerson": "250", "unit": "g", "costoUnitario": 380, "costoTotalReceta": 95 }, { "id": "ing_m17_2", "name": "Crema de leche", "quantityPerPerson": "80", "unit": "ml", "costoUnitario": 200, "costoTotalReceta": 16 }, { "id": "ing_m17_3", "name": "condimentos", "quantityPerPerson": "80", "unit": "g", "costoUnitario": 120, "costoTotalReceta": 9.6 }, { "id": "ing_m17_4", "name": "cebolla", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 90, "costoTotalReceta": 4.5 }, { "id": "ing_m17_5", "name": "Champiñon", "quantityPerPerson": "100", "unit": "g", "costoUnitario": 500, "costoTotalReceta": 50 }, { "id": "ing_m17_6", "name": "Gas", "quantityPerPerson": "10", "unit": "min", "costoUnitario": 1, "costoTotalReceta": 10 }, { "id": "ing_m17_7", "name": "guarnicion", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 40, "costoTotalReceta": 40 } ] },
-      { "id": "dish_main_18", "name": "Cordero Asado C/ Guarnición", "type": "Plato Principal", "totalDishCost": 255, "imageUrl": "https://picsum.photos/seed/cordero/200/200", "ingredients": [ { "id": "ing_m18_1", "name": "Cordero crudo (kg)", "quantityPerPerson": "700", "unit": "g", "costoUnitario": 300, "costoTotalReceta": 210 }, { "id": "ing_m18_2", "name": "Guarnicion (genérica)", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 45, "costoTotalReceta": 45 } ] },
-      { "id": "dish_main_19", "name": "Asado Completo C/ Guarnición", "type": "Plato Principal", "totalDishCost": 279.88, "imageUrl": "https://picsum.photos/seed/asado/200/200", "ingredients": [ { "id": "ing_m19_1", "name": "Asado vacio (kg)", "quantityPerPerson": "500", "unit": "g", "costoUnitario": 370, "costoTotalReceta": 185 }, { "id": "ing_m19_2", "name": "Chorizos", "quantityPerPerson": "120", "unit": "g", "costoUnitario": 299, "costoTotalReceta": 35.88 }, { "id": "ing_m19_3", "name": "Morcilla", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 380, "costoTotalReceta": 19 }, { "id": "ing_m19_4", "name": "Guarnicion (genérica)", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 40, "costoTotalReceta": 40 } ] }
+      {
+        "id": "dish_main_1",
+        "name": "Mini Brochetas",
+        "type": "Plato Principal",
+        "totalDishCost": 57.2,
+        "imageUrl": "https://picsum.photos/seed/brochetas/200/200",
+        "ingredients": [
+          {
+            "id": "ing_m1_1",
+            "name": "Carnes para brocheta (mix)",
+            "quantityPerPerson": "60",
+            "unit": "g",
+            "costoUnitario": 380,
+            "costoTotalReceta": 22.8
+          },
+          {
+            "id": "ing_m1_2",
+            "name": "Panceta",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 400,
+            "costoTotalReceta": 20
+          },
+          {
+            "id": "ing_m1_3",
+            "name": "Morron rojo",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 150,
+            "costoTotalReceta": 4.5
+          },
+          {
+            "id": "ing_m1_4",
+            "name": "Tomate cherry",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 150,
+            "costoTotalReceta": 4.5
+          },
+          {
+            "id": "ing_m1_5",
+            "name": "Morron verde",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 100,
+            "costoTotalReceta": 3
+          },
+          {
+            "id": "ing_m1_6",
+            "name": "Cebollas",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 80,
+            "costoTotalReceta": 2.4
+          }
+        ]
+      },
+      {
+        "id": "dish_main_6",
+        "name": "Ravioles a la Crema",
+        "type": "Plato Principal",
+        "totalDishCost": 115.5,
+        "imageUrl": "https://picsum.photos/seed/ravioles/200/200",
+        "ingredients": [
+          {
+            "id": "ing_m6_1",
+            "name": "Crema de leche",
+            "quantityPerPerson": "130",
+            "unit": "ml",
+            "costoUnitario": 200,
+            "costoTotalReceta": 26
+          },
+          {
+            "id": "ing_m6_2",
+            "name": "Paleta",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 200,
+            "costoTotalReceta": 10
+          },
+          {
+            "id": "ing_m6_3",
+            "name": "Queso dambo",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 200,
+            "costoTotalReceta": 10
+          },
+          {
+            "id": "ing_m6_4",
+            "name": "Ravioles congelados",
+            "quantityPerPerson": "250",
+            "unit": "g",
+            "costoUnitario": 220,
+            "costoTotalReceta": 55
+          },
+          {
+            "id": "ing_m6_5",
+            "name": "Queso rallado",
+            "quantityPerPerson": "10",
+            "unit": "g",
+            "costoUnitario": 450,
+            "costoTotalReceta": 4.5
+          },
+          {
+            "id": "ing_m6_6",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 10
+          }
+        ]
+      },
+      {
+        "id": "dish_main_3",
+        "name": "Pollo Arrollado C/ Guarnición",
+        "type": "Plato Principal",
+        "totalDishCost": 140,
+        "imageUrl": "https://picsum.photos/seed/polloroll/200/200",
+        "ingredients": [
+          {
+            "id": "ing_m3_1",
+            "name": "Pollo arrollado",
+            "quantityPerPerson": "200",
+            "unit": "g",
+            "costoUnitario": 500,
+            "costoTotalReceta": 100
+          },
+          {
+            "id": "ing_m3_2",
+            "name": "Guarnicion (genérica)",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "costoUnitario": 40,
+            "costoTotalReceta": 40
+          }
+        ]
+      },
+      {
+        "id": "dish_main_5",
+        "name": "Cerdo Braseado a la Barbacoa C/ Guarnición",
+        "type": "Plato Principal",
+        "totalDishCost": 142.1,
+        "imageUrl": "https://picsum.photos/seed/cerdobbq/200/200",
+        "ingredients": [
+          {
+            "id": "ing_m5_1",
+            "name": "Bondiola de cerdo (carne)",
+            "quantityPerPerson": "250",
+            "unit": "g",
+            "costoUnitario": 190,
+            "costoTotalReceta": 47.5
+          },
+          {
+            "id": "ing_m5_2",
+            "name": "Salsa Barbacoa",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "costoUnitario": 300,
+            "costoTotalReceta": 24
+          },
+          {
+            "id": "ing_m5_3",
+            "name": "Condimentos",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "costoUnitario": 120,
+            "costoTotalReceta": 9.6
+          },
+          {
+            "id": "ing_m5_4",
+            "name": "Cebolla",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 100,
+            "costoTotalReceta": 3
+          },
+          {
+            "id": "ing_m5_5",
+            "name": "Ajo (verdura)",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "costoUnitario": 100,
+            "costoTotalReceta": 8
+          },
+          {
+            "id": "ing_m5_6",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 10
+          },
+          {
+            "id": "ing_m5_7",
+            "name": "Guarnicion (genérica)",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "costoUnitario": 40,
+            "costoTotalReceta": 40
+          }
+        ]
+      },
+      {
+        "id": "dish_main_4",
+        "name": "Cerdo Braseado a la Mostaza C/ Guarnición",
+        "type": "Plato Principal",
+        "totalDishCost": 146.7,
+        "imageUrl": "https://picsum.photos/seed/cerdomostaza/200/200",
+        "ingredients": [
+          {
+            "id": "ing_m4_1",
+            "name": "Bondiola de cerdo (carne)",
+            "quantityPerPerson": "250",
+            "unit": "g",
+            "costoUnitario": 190,
+            "costoTotalReceta": 47.5
+          },
+          {
+            "id": "ing_m4_2",
+            "name": "Crema de leche",
+            "quantityPerPerson": "80",
+            "unit": "ml",
+            "costoUnitario": 200,
+            "costoTotalReceta": 16
+          },
+          {
+            "id": "ing_m4_3",
+            "name": "Condimentos",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "costoUnitario": 120,
+            "costoTotalReceta": 9.6
+          },
+          {
+            "id": "ing_m4_4",
+            "name": "Miel",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 120,
+            "costoTotalReceta": 3.6
+          },
+          {
+            "id": "ing_m4_5",
+            "name": "Mostaza",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "costoUnitario": 250,
+            "costoTotalReceta": 20
+          },
+          {
+            "id": "ing_m4_6",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 10
+          },
+          {
+            "id": "ing_m4_7",
+            "name": "Guarnicion (genérica)",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "costoUnitario": 40,
+            "costoTotalReceta": 40
+          }
+        ]
+      },
+      {
+        "id": "dish_main_8",
+        "name": "Cerdo Arrollado C/ Guarnición",
+        "type": "Plato Principal",
+        "totalDishCost": 150,
+        "imageUrl": "https://picsum.photos/seed/cerdoroll/200/200",
+        "ingredients": [
+          {
+            "id": "ing_m8_1",
+            "name": "Cerdo arrollado (carne)",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "costoUnitario": 110,
+            "costoTotalReceta": 110
+          },
+          {
+            "id": "ing_m8_2",
+            "name": "Guarnicion (genérica)",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "costoUnitario": 40,
+            "costoTotalReceta": 40
+          }
+        ]
+      },
+      {
+        "id": "dish_main_2",
+        "name": "Chivito C/ Fritas",
+        "type": "Plato Principal",
+        "totalDishCost": 153.146,
+        "imageUrl": "https://picsum.photos/seed/chivito/200/200",
+        "ingredients": [
+          {
+            "id": "ing_m2_1",
+            "name": "Huevo duro",
+            "quantityPerPerson": "0.3",
+            "unit": "Unidad",
+            "costoUnitario": 10,
+            "costoTotalReceta": 3
+          },
+          {
+            "id": "ing_m2_2",
+            "name": "Tortuga para chivito",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "costoUnitario": 16,
+            "costoTotalReceta": 16
+          },
+          {
+            "id": "ing_m2_3",
+            "name": "Emboltorio",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "costoUnitario": 6,
+            "costoTotalReceta": 6
+          },
+          {
+            "id": "ing_m2_4",
+            "name": "Jamon",
+            "quantityPerPerson": "25",
+            "unit": "g",
+            "costoUnitario": 180,
+            "costoTotalReceta": 4.5
+          },
+          {
+            "id": "ing_m2_5",
+            "name": "Lechuga",
+            "quantityPerPerson": "100",
+            "unit": "g",
+            "costoUnitario": 25,
+            "costoTotalReceta": 2.5
+          },
+          {
+            "id": "ing_m2_6",
+            "name": "Tomate",
+            "quantityPerPerson": "150",
+            "unit": "g",
+            "costoUnitario": 90,
+            "costoTotalReceta": 13.5
+          },
+          {
+            "id": "ing_m2_7",
+            "name": "Aderezos (varios)",
+            "quantityPerPerson": "101",
+            "unit": "g",
+            "costoUnitario": 46,
+            "costoTotalReceta": 4.646
+          },
+          {
+            "id": "ing_m2_8",
+            "name": "Carne para chivito",
+            "quantityPerPerson": "120",
+            "unit": "g",
+            "costoUnitario": 400,
+            "costoTotalReceta": 48
+          },
+          {
+            "id": "ing_m2_9",
+            "name": "Aceite",
+            "quantityPerPerson": "100",
+            "unit": "ml",
+            "costoUnitario": 60,
+            "costoTotalReceta": 6
+          },
+          {
+            "id": "ing_m2_10",
+            "name": "Queso Muzzarella",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 400,
+            "costoTotalReceta": 20
+          },
+          {
+            "id": "ing_m2_11",
+            "name": "Papas fritas",
+            "quantityPerPerson": "200",
+            "unit": "g",
+            "costoUnitario": 120,
+            "costoTotalReceta": 24
+          },
+          {
+            "id": "ing_m2_12",
+            "name": "Gas",
+            "quantityPerPerson": "5",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 5
+          }
+        ]
+      },
+      {
+        "id": "dish_main_7",
+        "name": "Ñoquis al Queso",
+        "type": "Plato Principal",
+        "totalDishCost": 155.5,
+        "imageUrl": "https://picsum.photos/seed/gnoquis/200/200",
+        "ingredients": [
+          {
+            "id": "ing_m7_1",
+            "name": "Crema de leche",
+            "quantityPerPerson": "50",
+            "unit": "ml",
+            "costoUnitario": 190,
+            "costoTotalReceta": 9.5
+          },
+          {
+            "id": "ing_m7_2",
+            "name": "Noquis congelados",
+            "quantityPerPerson": "200",
+            "unit": "g",
+            "costoUnitario": 160,
+            "costoTotalReceta": 32
+          },
+          {
+            "id": "ing_m7_3",
+            "name": "Queso colonial",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 420,
+            "costoTotalReceta": 21
+          },
+          {
+            "id": "ing_m7_4",
+            "name": "Queso rallado",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 200,
+            "costoTotalReceta": 10
+          },
+          {
+            "id": "ing_m7_5",
+            "name": "Queso crema",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 500,
+            "costoTotalReceta": 25
+          },
+          {
+            "id": "ing_m7_6",
+            "name": "Manteca",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 500,
+            "costoTotalReceta": 25
+          },
+          {
+            "id": "ing_m7_7",
+            "name": "Queso muzzarella",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 310,
+            "costoTotalReceta": 15.5
+          },
+          {
+            "id": "ing_m7_8",
+            "name": "condimentos",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 250,
+            "costoTotalReceta": 7.5
+          },
+          {
+            "id": "ing_m7_9",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 10
+          }
+        ]
+      },
+      {
+        "id": "dish_main_10",
+        "name": "Sorrentinos C/ Salsa Rosa",
+        "type": "Plato Principal",
+        "totalDishCost": 170.75,
+        "imageUrl": "https://picsum.photos/seed/sorrentinos/200/200",
+        "ingredients": [
+          {
+            "id": "ing_m10_1",
+            "name": "Crema de leche",
+            "quantityPerPerson": "100",
+            "unit": "ml",
+            "costoUnitario": 200,
+            "costoTotalReceta": 20
+          },
+          {
+            "id": "ing_m10_2",
+            "name": "Ketchup",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 200,
+            "costoTotalReceta": 10
+          },
+          {
+            "id": "ing_m10_3",
+            "name": "cebolla",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 200,
+            "costoTotalReceta": 10
+          },
+          {
+            "id": "ing_m10_4",
+            "name": "Sorrentinos congelados",
+            "quantityPerPerson": "250",
+            "unit": "g",
+            "costoUnitario": 465,
+            "costoTotalReceta": 115.75
+          },
+          {
+            "id": "ing_m10_5",
+            "name": "Queso rallado",
+            "quantityPerPerson": "10",
+            "unit": "g",
+            "costoUnitario": 450,
+            "costoTotalReceta": 4.5
+          },
+          {
+            "id": "ing_m10_6",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 10
+          }
+        ]
+      },
+      {
+        "id": "dish_main_9",
+        "name": "Pollo a la Crema C/ Guarnición",
+        "type": "Plato Principal",
+        "totalDishCost": 175.6,
+        "imageUrl": "https://picsum.photos/seed/pollocrema/200/200",
+        "ingredients": [
+          {
+            "id": "ing_m9_1",
+            "name": "Muslos de pollo",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "costoUnitario": 70,
+            "costoTotalReceta": 70
+          },
+          {
+            "id": "ing_m9_2",
+            "name": "Guarnicion (genérica)",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "costoUnitario": 40,
+            "costoTotalReceta": 40
+          },
+          {
+            "id": "ing_m9_3",
+            "name": "Crema de leche",
+            "quantityPerPerson": "100",
+            "unit": "g",
+            "costoUnitario": 200,
+            "costoTotalReceta": 20
+          },
+          {
+            "id": "ing_m9_4",
+            "name": "paleta",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 180,
+            "costoTotalReceta": 9
+          },
+          {
+            "id": "ing_m9_5",
+            "name": "queso dambo",
+            "quantityPerPerson": "20",
+            "unit": "g",
+            "costoUnitario": 380,
+            "costoTotalReceta": 7.6
+          },
+          {
+            "id": "ing_m9_6",
+            "name": "Cebolla",
+            "quantityPerPerson": "100",
+            "unit": "g",
+            "costoUnitario": 90,
+            "costoTotalReceta": 9
+          },
+          {
+            "id": "ing_m9_7",
+            "name": "Gas",
+            "quantityPerPerson": "20",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 20
+          }
+        ]
+      },
+      {
+        "id": "dish_main_11",
+        "name": "Brochetas C/ Fritas",
+        "type": "Plato Principal",
+        "totalDishCost": 178.8,
+        "imageUrl": "https://picsum.photos/seed/brochetasfritas/200/200",
+        "ingredients": [
+          {
+            "id": "ing_m11_1",
+            "name": "Carne para brocheta (kg)",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "costoUnitario": 380,
+            "costoTotalReceta": 30.4
+          },
+          {
+            "id": "ing_m11_2",
+            "name": "Suprema de pollo",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "costoUnitario": 300,
+            "costoTotalReceta": 24
+          },
+          {
+            "id": "ing_m11_3",
+            "name": "Bondiola",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "costoUnitario": 190,
+            "costoTotalReceta": 15.2
+          },
+          {
+            "id": "ing_m11_4",
+            "name": "Panceta",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "costoUnitario": 400,
+            "costoTotalReceta": 32
+          },
+          {
+            "id": "ing_m11_5",
+            "name": "Morron rojo",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "costoUnitario": 150,
+            "costoTotalReceta": 12
+          },
+          {
+            "id": "ing_m11_6",
+            "name": "Tomate cherry",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "costoUnitario": 150,
+            "costoTotalReceta": 12
+          },
+          {
+            "id": "ing_m11_7",
+            "name": "Papas para freir",
+            "quantityPerPerson": "200",
+            "unit": "g",
+            "costoUnitario": 120,
+            "costoTotalReceta": 24
+          },
+          {
+            "id": "ing_m11_8",
+            "name": "aceite",
+            "quantityPerPerson": "80",
+            "unit": "ml",
+            "costoUnitario": 60,
+            "costoTotalReceta": 4.8
+          },
+          {
+            "id": "ing_m11_9",
+            "name": "Morron verde",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "costoUnitario": 100,
+            "costoTotalReceta": 8
+          },
+          {
+            "id": "ing_m11_10",
+            "name": "Cebollas",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "costoUnitario": 80,
+            "costoTotalReceta": 6.4
+          },
+          {
+            "id": "ing_m11_11",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 10
+          }
+        ]
+      },
+      {
+        "id": "dish_main_14",
+        "name": "Strogonoff de Pollo C/ Guarnición",
+        "type": "Plato Principal",
+        "totalDishCost": 186.1,
+        "imageUrl": "https://picsum.photos/seed/strogonoff/200/200",
+        "ingredients": [
+          {
+            "id": "ing_m14_1",
+            "name": "pollo",
+            "quantityPerPerson": "200",
+            "unit": "g",
+            "costoUnitario": 280,
+            "costoTotalReceta": 56
+          },
+          {
+            "id": "ing_m14_2",
+            "name": "Crema de leche",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "costoUnitario": 200,
+            "costoTotalReceta": 16
+          },
+          {
+            "id": "ing_m14_3",
+            "name": "condimentos",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "costoUnitario": 120,
+            "costoTotalReceta": 9.6
+          },
+          {
+            "id": "ing_m14_4",
+            "name": "cebolla",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 90,
+            "costoTotalReceta": 4.5
+          },
+          {
+            "id": "ing_m14_5",
+            "name": "Champiñon",
+            "quantityPerPerson": "100",
+            "unit": "g",
+            "costoUnitario": 500,
+            "costoTotalReceta": 50
+          },
+          {
+            "id": "ing_m14_6",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 10
+          },
+          {
+            "id": "ing_m14_7",
+            "name": "guarnicion",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "costoUnitario": 40,
+            "costoTotalReceta": 40
+          }
+        ]
+      },
+      {
+        "id": "dish_main_15",
+        "name": "Merluza a la Crema C/ Guarnición",
+        "type": "Plato Principal",
+        "totalDishCost": 197.35,
+        "imageUrl": "https://picsum.photos/seed/merluza/200/200",
+        "ingredients": [
+          {
+            "id": "ing_m15_1",
+            "name": "Merluza (kg)",
+            "quantityPerPerson": "250",
+            "unit": "g",
+            "costoUnitario": 345,
+            "costoTotalReceta": 86.25
+          },
+          {
+            "id": "ing_m15_2",
+            "name": "Crema de leche",
+            "quantityPerPerson": "100",
+            "unit": "ml",
+            "costoUnitario": 180,
+            "costoTotalReceta": 18
+          },
+          {
+            "id": "ing_m15_3",
+            "name": "condimentos",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "costoUnitario": 120,
+            "costoTotalReceta": 9.6
+          },
+          {
+            "id": "ing_m15_4",
+            "name": "Queso dambo",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 400,
+            "costoTotalReceta": 20
+          },
+          {
+            "id": "ing_m15_5",
+            "name": "cebolla",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 90,
+            "costoTotalReceta": 4.5
+          },
+          {
+            "id": "ing_m15_6",
+            "name": "paleta",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 180,
+            "costoTotalReceta": 9
+          },
+          {
+            "id": "ing_m15_7",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 10
+          },
+          {
+            "id": "ing_m15_8",
+            "name": "guarnicion",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "costoUnitario": 40,
+            "costoTotalReceta": 40
+          }
+        ]
+      },
+      {
+        "id": "dish_main_16",
+        "name": "Sushi C/ Guarnición",
+        "type": "Plato Principal",
+        "totalDishCost": 202.35,
+        "imageUrl": "https://picsum.photos/seed/sushi/200/200",
+        "ingredients": [
+          {
+            "id": "ing_m16_1",
+            "name": "Palta",
+            "quantityPerPerson": "0.35",
+            "unit": "Unidad",
+            "costoUnitario": 40,
+            "costoTotalReceta": 14
+          },
+          {
+            "id": "ing_m16_2",
+            "name": "Salmon",
+            "quantityPerPerson": "90",
+            "unit": "g",
+            "costoUnitario": 1000,
+            "costoTotalReceta": 90
+          },
+          {
+            "id": "ing_m16_3",
+            "name": "Arroz de Shushi",
+            "quantityPerPerson": "150",
+            "unit": "g",
+            "costoUnitario": 135,
+            "costoTotalReceta": 20.25
+          },
+          {
+            "id": "ing_m16_4",
+            "name": "condimentos",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 120,
+            "costoTotalReceta": 3.6
+          },
+          {
+            "id": "ing_m16_5",
+            "name": "Queso crema",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 400,
+            "costoTotalReceta": 20
+          },
+          {
+            "id": "ing_m16_6",
+            "name": "Pepino",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 90,
+            "costoTotalReceta": 4.5
+          },
+          {
+            "id": "ing_m16_7",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 10
+          },
+          {
+            "id": "ing_m16_8",
+            "name": "Guarnicion verde",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "costoUnitario": 40,
+            "costoTotalReceta": 40
+          }
+        ]
+      },
+      {
+        "id": "dish_main_17",
+        "name": "Bife al Champiñon C/ Guarnición",
+        "type": "Plato Principal",
+        "totalDishCost": 225.1,
+        "imageUrl": "https://picsum.photos/seed/bifechampi/200/200",
+        "ingredients": [
+          {
+            "id": "ing_m17_1",
+            "name": "Bife (carne)",
+            "quantityPerPerson": "250",
+            "unit": "g",
+            "costoUnitario": 380,
+            "costoTotalReceta": 95
+          },
+          {
+            "id": "ing_m17_2",
+            "name": "Crema de leche",
+            "quantityPerPerson": "80",
+            "unit": "ml",
+            "costoUnitario": 200,
+            "costoTotalReceta": 16
+          },
+          {
+            "id": "ing_m17_3",
+            "name": "condimentos",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "costoUnitario": 120,
+            "costoTotalReceta": 9.6
+          },
+          {
+            "id": "ing_m17_4",
+            "name": "cebolla",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 90,
+            "costoTotalReceta": 4.5
+          },
+          {
+            "id": "ing_m17_5",
+            "name": "Champiñon",
+            "quantityPerPerson": "100",
+            "unit": "g",
+            "costoUnitario": 500,
+            "costoTotalReceta": 50
+          },
+          {
+            "id": "ing_m17_6",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 10
+          },
+          {
+            "id": "ing_m17_7",
+            "name": "guarnicion",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "costoUnitario": 40,
+            "costoTotalReceta": 40
+          }
+        ]
+      },
+      {
+        "id": "dish_main_18",
+        "name": "Cordero Asado C/ Guarnición",
+        "type": "Plato Principal",
+        "totalDishCost": 255,
+        "imageUrl": "https://picsum.photos/seed/cordero/200/200",
+        "ingredients": [
+          {
+            "id": "ing_m18_1",
+            "name": "Cordero crudo (kg)",
+            "quantityPerPerson": "700",
+            "unit": "g",
+            "costoUnitario": 300,
+            "costoTotalReceta": 210
+          },
+          {
+            "id": "ing_m18_2",
+            "name": "Guarnicion (genérica)",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "costoUnitario": 45,
+            "costoTotalReceta": 45
+          }
+        ]
+      },
+      {
+        "id": "dish_main_19",
+        "name": "Asado Completo C/ Guarnición",
+        "type": "Plato Principal",
+        "totalDishCost": 279.88,
+        "imageUrl": "https://picsum.photos/seed/asado/200/200",
+        "ingredients": [
+          {
+            "id": "ing_m19_1",
+            "name": "Asado vacio (kg)",
+            "quantityPerPerson": "500",
+            "unit": "g",
+            "costoUnitario": 370,
+            "costoTotalReceta": 185
+          },
+          {
+            "id": "ing_m19_2",
+            "name": "Chorizos",
+            "quantityPerPerson": "120",
+            "unit": "g",
+            "costoUnitario": 299,
+            "costoTotalReceta": 35.88
+          },
+          {
+            "id": "ing_m19_3",
+            "name": "Morcilla",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 380,
+            "costoTotalReceta": 19
+          },
+          {
+            "id": "ing_m19_4",
+            "name": "Guarnicion (genérica)",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "costoUnitario": 40,
+            "costoTotalReceta": 40
+          }
+        ]
+      },
+      {
+        "id": "dish_main_13",
+        "name": "Bauru C/ Fritas",
+        "type": "Plato Principal",
+        "totalDishCost": 159.5,
+        "ingredients": [
+          {
+            "id": "ing_m13_1",
+            "name": "Huevo duro",
+            "quantityPerPerson": "0.3",
+            "unit": "Unidad",
+            "costoUnitario": 10,
+            "costoTotalReceta": 3
+          },
+          {
+            "id": "ing_m13_2",
+            "name": "Lechuga",
+            "quantityPerPerson": "0.3",
+            "unit": "Unidad",
+            "costoUnitario": 30,
+            "costoTotalReceta": 9
+          },
+          {
+            "id": "ing_m13_3",
+            "name": "Tortugas",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "costoUnitario": 30,
+            "costoTotalReceta": 30
+          },
+          {
+            "id": "ing_m13_4",
+            "name": "Carne picada",
+            "quantityPerPerson": "180",
+            "unit": "g",
+            "costoUnitario": 250,
+            "costoTotalReceta": 45
+          },
+          {
+            "id": "ing_m13_5",
+            "name": "Tomate",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "costoUnitario": 100,
+            "costoTotalReceta": 8
+          },
+          {
+            "id": "ing_m13_6",
+            "name": "Jamon",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 200,
+            "costoTotalReceta": 10
+          },
+          {
+            "id": "ing_m13_7",
+            "name": "Queso",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 320,
+            "costoTotalReceta": 16
+          },
+          {
+            "id": "ing_m13_8",
+            "name": "choclo",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 200,
+            "costoTotalReceta": 10
+          },
+          {
+            "id": "ing_m13_9",
+            "name": "Aderesos",
+            "quantityPerPerson": "100",
+            "unit": "g",
+            "costoUnitario": 45,
+            "costoTotalReceta": 4.5
+          },
+          {
+            "id": "ing_m13_10",
+            "name": "Fritas",
+            "quantityPerPerson": "200",
+            "unit": "g",
+            "costoUnitario": 120,
+            "costoTotalReceta": 24
+          },
+          {
+            "id": "ing_m13_11",
+            "name": "aceite",
+            "quantityPerPerson": "100",
+            "unit": "ml",
+            "costoUnitario": 121,
+            "costoTotalReceta": 12.1
+          },
+          {
+            "id": "ing_m13_12",
+            "name": "Gas",
+            "quantityPerPerson": "8",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 8
+          }
+        ]
+      },
+      {
+        "id": "dish_main_12",
+        "name": "Napolitana C/ Fritas",
+        "type": "Plato Principal",
+        "totalDishCost": 169.7,
+        "ingredients": [
+          {
+            "id": "ing_m12_1",
+            "name": "Lechuga",
+            "quantityPerPerson": "0.3",
+            "unit": "Unidad",
+            "costoUnitario": 30,
+            "costoTotalReceta": 9
+          },
+          {
+            "id": "ing_m12_2",
+            "name": "Milanesa de carne (kg)",
+            "quantityPerPerson": "250",
+            "unit": "g",
+            "costoUnitario": 350,
+            "costoTotalReceta": 87.5
+          },
+          {
+            "id": "ing_m12_3",
+            "name": "Tomate",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "costoUnitario": 100,
+            "costoTotalReceta": 8
+          },
+          {
+            "id": "ing_m12_4",
+            "name": "Jamon",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 200,
+            "costoTotalReceta": 10
+          },
+          {
+            "id": "ing_m12_5",
+            "name": "Queso",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 320,
+            "costoTotalReceta": 16
+          },
+          {
+            "id": "ing_m12_6",
+            "name": "Salsa",
+            "quantityPerPerson": "60",
+            "unit": "g",
+            "costoUnitario": 70,
+            "costoTotalReceta": 4.2
+          },
+          {
+            "id": "ing_m12_7",
+            "name": "Fritas",
+            "quantityPerPerson": "200",
+            "unit": "g",
+            "costoUnitario": 120,
+            "costoTotalReceta": 24
+          },
+          {
+            "id": "ing_m12_8",
+            "name": "Aceite",
+            "quantityPerPerson": "100",
+            "unit": "ml",
+            "costoUnitario": 60,
+            "costoTotalReceta": 6
+          },
+          {
+            "id": "ing_m12_9",
+            "name": "Gas",
+            "quantityPerPerson": "5",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 5
+          }
+        ]
+      }
     ]
   },
   {
@@ -147,10 +3124,225 @@
     "createdAt": "2025-07-28T10:00:00.000Z",
     "updatedAt": "2025-07-28T10:00:00.000Z",
     "items": [
-      { "id": "dish_child_1", "name": "Panchos Medio Metro C/ Fritas", "type": "Menú Infantil/Adolescente", "totalDishCost": 164.3, "imageUrl": "https://picsum.photos/seed/longhotdog/200/200", "ingredients": [ { "id": "ing_c1_1", "name": "Panchos medio metro", "quantityPerPerson": "190", "unit": "g", "costoUnitario": 270, "costoTotalReceta": 51.3 }, { "id": "ing_c1_2", "name": "Papas pay", "quantityPerPerson": "3", "unit": "g", "costoUnitario": 1000, "costoTotalReceta": 3 }, { "id": "ing_c1_3", "name": "Aderezos", "quantityPerPerson": "2", "unit": "Unidad", "costoUnitario": 4, "costoTotalReceta": 8 }, { "id": "ing_c1_4", "name": "Aceite", "quantityPerPerson": "100", "unit": "ml", "costoUnitario": 60, "costoTotalReceta": 6 }, { "id": "ing_c1_5", "name": "Fritas", "quantityPerPerson": "200", "unit": "g", "costoUnitario": 150, "costoTotalReceta": 30 }, { "id": "ing_c1_6", "name": "Porta pancho medio metro", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 15, "costoTotalReceta": 15 }, { "id": "ing_c1_7", "name": "Pan de panchos medio metro", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 48, "costoTotalReceta": 48 }, { "id": "ing_c1_8", "name": "Gas", "quantityPerPerson": "3", "unit": "min", "costoUnitario": 1, "costoTotalReceta": 3 } ] },
-      { "id": "dish_child_2", "name": "Panchos C/ Fritas", "type": "Menú Infantil/Adolescente", "totalDishCost": 93.2, "imageUrl": "https://picsum.photos/seed/hotdogfries/200/200", "ingredients": [ { "id": "ing_c2_1", "name": "Panchos comunes", "quantityPerPerson": "120", "unit": "g", "costoUnitario": 260, "costoTotalReceta": 31.2 }, { "id": "ing_c2_2", "name": "Aderezos", "quantityPerPerson": "2", "unit": "Unidad", "costoUnitario": 4, "costoTotalReceta": 8 }, { "id": "ing_c2_3", "name": "Aceite", "quantityPerPerson": "100", "unit": "ml", "costoUnitario": 60, "costoTotalReceta": 6 }, { "id": "ing_c2_4", "name": "Papas fritas", "quantityPerPerson": "200", "unit": "g", "costoUnitario": 150, "costoTotalReceta": 30 }, { "id": "ing_c2_5", "name": "Pan de panchos común", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 13, "costoTotalReceta": 13 }, { "id": "ing_c2_6", "name": "Gas", "quantityPerPerson": "5", "unit": "min", "costoUnitario": 1, "costoTotalReceta": 5 } ] },
-      { "id": "dish_child_3", "name": "Hamburguesa C/ Fritas", "type": "Menú Infantil/Adolescente", "totalDishCost": 134.3, "imageUrl": "https://picsum.photos/seed/burgerfries/200/200", "ingredients": [ { "id": "ing_c3_1", "name": "Hamburguesas congeladas", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 35, "costoTotalReceta": 35 }, { "id": "ing_c3_2", "name": "Lechuga", "quantityPerPerson": "0.3", "unit": "Unidad", "costoUnitario": 30, "costoTotalReceta": 9 }, { "id": "ing_c3_3", "name": "Huevo frito", "quantityPerPerson": "0.3", "unit": "Unidad", "costoUnitario": 10, "costoTotalReceta": 3 }, { "id": "ing_c3_4", "name": "Tortugas brioche 70 gramos", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 20, "costoTotalReceta": 20 }, { "id": "ing_c3_5", "name": "Tomate", "quantityPerPerson": "40", "unit": "g", "costoUnitario": 150, "costoTotalReceta": 6 }, { "id": "ing_c3_6", "name": "Queso Cheddar", "quantityPerPerson": "40", "unit": "g", "costoUnitario": 340, "costoTotalReceta": 13.6 }, { "id": "ing_c3_7", "name": "Jamon", "quantityPerPerson": "40", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 7.2 }, { "id": "ing_c3_8", "name": "Aderezos", "quantityPerPerson": "100", "unit": "g", "costoUnitario": 45, "costoTotalReceta": 4.5 }, { "id": "ing_c3_9", "name": "Papas fritas", "quantityPerPerson": "200", "unit": "g", "costoUnitario": 130, "costoTotalReceta": 26 }, { "id": "ing_c3_10", "name": "Gas", "quantityPerPerson": "10", "unit": "min", "costoUnitario": 1, "costoTotalReceta": 10 } ] },
-      { "id": "dish_main_2", "name": "Chivito C/ Fritas", "type": "Menú Infantil/Adolescente", "totalDishCost": 153.146, "imageUrl": "https://picsum.photos/seed/chivito/200/200", "ingredients": [ { "id": "ing_m2_1", "name": "Huevo duro", "quantityPerPerson": "0.3", "unit": "Unidad", "costoUnitario": 10, "costoTotalReceta": 3 }, { "id": "ing_m2_2", "name": "Tortuga para chivito", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 16, "costoTotalReceta": 16 }, { "id": "ing_m2_3", "name": "Emboltorio", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 6, "costoTotalReceta": 6 }, { "id": "ing_m2_4", "name": "Jamon", "quantityPerPerson": "25", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 4.5 }, { "id": "ing_m2_5", "name": "Lechuga", "quantityPerPerson": "100", "unit": "g", "costoUnitario": 25, "costoTotalReceta": 2.5 }, { "id": "ing_m2_6", "name": "Tomate", "quantityPerPerson": "150", "unit": "g", "costoUnitario": 90, "costoTotalReceta": 13.5 }, { "id": "ing_m2_7", "name": "Aderezos (varios)", "quantityPerPerson": "101", "unit": "g", "costoUnitario": 46, "costoTotalReceta": 4.646 }, { "id": "ing_m2_8", "name": "Carne para chivito", "quantityPerPerson": "120", "unit": "g", "costoUnitario": 400, "costoTotalReceta": 48 }, { "id": "ing_m2_9", "name": "Aceite", "quantityPerPerson": "100", "unit": "ml", "costoUnitario": 60, "costoTotalReceta": 6 }, { "id": "ing_m2_10", "name": "Queso Muzzarella", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 400, "costoTotalReceta": 20 }, { "id": "ing_m2_11", "name": "Papas fritas", "quantityPerPerson": "200", "unit": "g", "costoUnitario": 120, "costoTotalReceta": 24 }, { "id": "ing_m2_12", "name": "Gas", "quantityPerPerson": "5", "unit": "min", "costoUnitario": 1, "costoTotalReceta": 5 } ] }
+      {
+        "id": "dish_child_2",
+        "name": "Panchos C/ Fritas",
+        "type": "Menú Infantil/Adolescente",
+        "totalDishCost": 93.2,
+        "imageUrl": "https://picsum.photos/seed/hotdogfries/200/200",
+        "ingredients": [
+          {
+            "id": "ing_c2_1",
+            "name": "Panchos comunes",
+            "quantityPerPerson": "120",
+            "unit": "g",
+            "costoUnitario": 260,
+            "costoTotalReceta": 31.2
+          },
+          {
+            "id": "ing_c2_2",
+            "name": "Aderezos",
+            "quantityPerPerson": "2",
+            "unit": "Unidad",
+            "costoUnitario": 4,
+            "costoTotalReceta": 8
+          },
+          {
+            "id": "ing_c2_3",
+            "name": "Aceite",
+            "quantityPerPerson": "100",
+            "unit": "ml",
+            "costoUnitario": 60,
+            "costoTotalReceta": 6
+          },
+          {
+            "id": "ing_c2_4",
+            "name": "Papas fritas",
+            "quantityPerPerson": "200",
+            "unit": "g",
+            "costoUnitario": 150,
+            "costoTotalReceta": 30
+          },
+          {
+            "id": "ing_c2_5",
+            "name": "Pan de panchos común",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "costoUnitario": 13,
+            "costoTotalReceta": 13
+          },
+          {
+            "id": "ing_c2_6",
+            "name": "Gas",
+            "quantityPerPerson": "5",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 5
+          }
+        ]
+      },
+      {
+        "id": "dish_child_3",
+        "name": "Hamburguesa C/ Fritas",
+        "type": "Menú Infantil/Adolescente",
+        "totalDishCost": 134.3,
+        "imageUrl": "https://picsum.photos/seed/burgerfries/200/200",
+        "ingredients": [
+          {
+            "id": "ing_c3_1",
+            "name": "Hamburguesas congeladas",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "costoUnitario": 35,
+            "costoTotalReceta": 35
+          },
+          {
+            "id": "ing_c3_2",
+            "name": "Lechuga",
+            "quantityPerPerson": "0.3",
+            "unit": "Unidad",
+            "costoUnitario": 30,
+            "costoTotalReceta": 9
+          },
+          {
+            "id": "ing_c3_3",
+            "name": "Huevo frito",
+            "quantityPerPerson": "0.3",
+            "unit": "Unidad",
+            "costoUnitario": 10,
+            "costoTotalReceta": 3
+          },
+          {
+            "id": "ing_c3_4",
+            "name": "Tortugas brioche 70 gramos",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "costoUnitario": 20,
+            "costoTotalReceta": 20
+          },
+          {
+            "id": "ing_c3_5",
+            "name": "Tomate",
+            "quantityPerPerson": "40",
+            "unit": "g",
+            "costoUnitario": 150,
+            "costoTotalReceta": 6
+          },
+          {
+            "id": "ing_c3_6",
+            "name": "Queso Cheddar",
+            "quantityPerPerson": "40",
+            "unit": "g",
+            "costoUnitario": 340,
+            "costoTotalReceta": 13.6
+          },
+          {
+            "id": "ing_c3_7",
+            "name": "Jamon",
+            "quantityPerPerson": "40",
+            "unit": "g",
+            "costoUnitario": 180,
+            "costoTotalReceta": 7.2
+          },
+          {
+            "id": "ing_c3_8",
+            "name": "Aderesos",
+            "quantityPerPerson": "100",
+            "unit": "g",
+            "costoUnitario": 45,
+            "costoTotalReceta": 4.5
+          },
+          {
+            "id": "ing_c3_9",
+            "name": "Fritas",
+            "quantityPerPerson": "200",
+            "unit": "g",
+            "costoUnitario": 130,
+            "costoTotalReceta": 26
+          },
+          {
+            "id": "ing_c3_10",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 10
+          }
+        ]
+      },
+      {
+        "id": "dish_child_1",
+        "name": "Panchos Medio Metro C/ Fritas",
+        "type": "Menú Infantil/Adolescente",
+        "totalDishCost": 164.3,
+        "imageUrl": "https://picsum.photos/seed/longhotdog/200/200",
+        "ingredients": [
+          {
+            "id": "ing_c1_1",
+            "name": "Panchos medio metro",
+            "quantityPerPerson": "190",
+            "unit": "g",
+            "costoUnitario": 270,
+            "costoTotalReceta": 51.3
+          },
+          {
+            "id": "ing_c1_2",
+            "name": "Papas pai",
+            "quantityPerPerson": "3",
+            "unit": "g",
+            "costoUnitario": 1000,
+            "costoTotalReceta": 3
+          },
+          {
+            "id": "ing_c1_3",
+            "name": "Aderezos",
+            "quantityPerPerson": "2",
+            "unit": "Unidad",
+            "costoUnitario": 4,
+            "costoTotalReceta": 8
+          },
+          {
+            "id": "ing_c1_4",
+            "name": "Aceite",
+            "quantityPerPerson": "100",
+            "unit": "ml",
+            "costoUnitario": 60,
+            "costoTotalReceta": 6
+          },
+          {
+            "id": "ing_c1_5",
+            "name": "Fritas",
+            "quantityPerPerson": "200",
+            "unit": "g",
+            "costoUnitario": 150,
+            "costoTotalReceta": 30
+          },
+          {
+            "id": "ing_c1_6",
+            "name": "Porta pancho medio metro",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "costoUnitario": 15,
+            "costoTotalReceta": 15
+          },
+          {
+            "id": "ing_c1_7",
+            "name": "Pan de panchos medio metro",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "costoUnitario": 48,
+            "costoTotalReceta": 48
+          },
+          {
+            "id": "ing_c1_8",
+            "name": "Gas",
+            "quantityPerPerson": "3",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 3
+          }
+        ]
+      }
     ]
   },
   {
@@ -169,29 +3361,190 @@
         "totalDishCost": 53.426,
         "imageUrl": "https://picsum.photos/seed/saladbuffet/200/200",
         "ingredients": [
-          { "id": "buff_1", "name": "Repollo Blanco", "quantityPerPerson": "10", "unit": "g", "costoUnitario": 119, "costoTotalReceta": 1.19 },
-          { "id": "buff_2", "name": "Repollo Morado", "quantityPerPerson": "10", "unit": "g", "costoUnitario": 120, "costoTotalReceta": 1.2 },
-          { "id": "buff_3", "name": "Tomate cherry", "quantityPerPerson": "10", "unit": "g", "costoUnitario": 120, "costoTotalReceta": 1.2 },
-          { "id": "buff_4", "name": "Tomate", "quantityPerPerson": "18", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 3.24 },
-          { "id": "buff_5", "name": "Cebolla blanca", "quantityPerPerson": "7", "unit": "g", "costoUnitario": 100, "costoTotalReceta": 0.7 },
-          { "id": "buff_6", "name": "Cebolla morada", "quantityPerPerson": "7", "unit": "g", "costoUnitario": 70, "costoTotalReceta": 0.49 },
-          { "id": "buff_7", "name": "Lechuga crespa y lisa", "quantityPerPerson": "15", "unit": "g", "costoUnitario": 100, "costoTotalReceta": 1.5 },
-          { "id": "buff_8", "name": "Chauchas", "quantityPerPerson": "9", "unit": "g", "costoUnitario": 119, "costoTotalReceta": 1.071 },
-          { "id": "buff_9", "name": "Pepinos", "quantityPerPerson": "5", "unit": "g", "costoUnitario": 120, "costoTotalReceta": 0.6 },
-          { "id": "buff_10", "name": "Zanahoria", "quantityPerPerson": "10", "unit": "g", "costoUnitario": 80, "costoTotalReceta": 0.8 },
-          { "id": "buff_11", "name": "Remolacha", "quantityPerPerson": "5", "unit": "Unidad", "costoUnitario": 10, "costoTotalReceta": 0.5 },
-          { "id": "buff_12", "name": "Papas", "quantityPerPerson": "100", "unit": "g", "costoUnitario": 79, "costoTotalReceta": 7.9 },
-          { "id": "buff_13", "name": "Huevo", "quantityPerPerson": "0.2", "unit": "Unidad", "costoUnitario": 10, "costoTotalReceta": 2 },
-          { "id": "buff_14", "name": "Boniato", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 80, "costoTotalReceta": 4 },
-          { "id": "buff_15", "name": "Limón", "quantityPerPerson": "20", "unit": "g", "costoUnitario": 75, "costoTotalReceta": 1.5 },
-          { "id": "buff_16", "name": "Papas congeladas torneadas", "quantityPerPerson": "40", "unit": "g", "costoUnitario": 130, "costoTotalReceta": 5.2 },
-          { "id": "buff_17", "name": "Crema de leche", "quantityPerPerson": "20", "unit": "ml", "costoUnitario": 180, "costoTotalReceta": 3.6 },
-          { "id": "buff_18", "name": "Queso muzarella para rallar", "quantityPerPerson": "3", "unit": "g", "costoUnitario": 190, "costoTotalReceta": 0.57 },
-          { "id": "buff_19", "name": "Ensalada rusa congelada", "quantityPerPerson": "35", "unit": "g", "costoUnitario": 165, "costoTotalReceta": 5.775 },
-          { "id": "buff_20", "name": "Pasas de uva", "quantityPerPerson": "3", "unit": "g", "costoUnitario": 130, "costoTotalReceta": 0.39 },
-          { "id": "buff_21", "name": "Choclo", "quantityPerPerson": "20", "unit": "g", "costoUnitario": 200, "costoTotalReceta": 4 },
-          { "id": "buff_22", "name": "Palmitos", "quantityPerPerson": "20", "unit": "g", "costoUnitario": 150, "costoTotalReceta": 3 },
-          { "id": "buff_23", "name": "Anana", "quantityPerPerson": "20", "unit": "g", "costoUnitario": 150, "costoTotalReceta": 3 }
+          {
+            "id": "buff_1",
+            "name": "Repollo Blanco",
+            "quantityPerPerson": "10",
+            "unit": "g",
+            "costoUnitario": 119,
+            "costoTotalReceta": 1.19
+          },
+          {
+            "id": "buff_2",
+            "name": "Repollo Morado",
+            "quantityPerPerson": "10",
+            "unit": "g",
+            "costoUnitario": 120,
+            "costoTotalReceta": 1.2
+          },
+          {
+            "id": "buff_3",
+            "name": "Tomate cherry",
+            "quantityPerPerson": "10",
+            "unit": "g",
+            "costoUnitario": 120,
+            "costoTotalReceta": 1.2
+          },
+          {
+            "id": "buff_4",
+            "name": "Tomate",
+            "quantityPerPerson": "18",
+            "unit": "g",
+            "costoUnitario": 180,
+            "costoTotalReceta": 3.24
+          },
+          {
+            "id": "buff_5",
+            "name": "Cebolla blanca",
+            "quantityPerPerson": "7",
+            "unit": "g",
+            "costoUnitario": 100,
+            "costoTotalReceta": 0.7
+          },
+          {
+            "id": "buff_6",
+            "name": "Cebolla morada",
+            "quantityPerPerson": "7",
+            "unit": "g",
+            "costoUnitario": 70,
+            "costoTotalReceta": 0.49
+          },
+          {
+            "id": "buff_7",
+            "name": "Lechuga crespa y lisa",
+            "quantityPerPerson": "15",
+            "unit": "g",
+            "costoUnitario": 100,
+            "costoTotalReceta": 1.5
+          },
+          {
+            "id": "buff_8",
+            "name": "Chauchas",
+            "quantityPerPerson": "9",
+            "unit": "g",
+            "costoUnitario": 119,
+            "costoTotalReceta": 1.071
+          },
+          {
+            "id": "buff_9",
+            "name": "Pepinos",
+            "quantityPerPerson": "5",
+            "unit": "g",
+            "costoUnitario": 120,
+            "costoTotalReceta": 0.6
+          },
+          {
+            "id": "buff_10",
+            "name": "Zanahoria",
+            "quantityPerPerson": "10",
+            "unit": "g",
+            "costoUnitario": 80,
+            "costoTotalReceta": 0.8
+          },
+          {
+            "id": "buff_11",
+            "name": "Remolacha",
+            "quantityPerPerson": "0.05",
+            "unit": "Unidad",
+            "costoUnitario": 10,
+            "costoTotalReceta": 0.5
+          },
+          {
+            "id": "buff_12",
+            "name": "Papas",
+            "quantityPerPerson": "100",
+            "unit": "g",
+            "costoUnitario": 79,
+            "costoTotalReceta": 7.9
+          },
+          {
+            "id": "buff_13",
+            "name": "Huevo",
+            "quantityPerPerson": "0.2",
+            "unit": "Unidad",
+            "costoUnitario": 10,
+            "costoTotalReceta": 2
+          },
+          {
+            "id": "buff_14",
+            "name": "Boniato",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 80,
+            "costoTotalReceta": 4
+          },
+          {
+            "id": "buff_15",
+            "name": "Limón",
+            "quantityPerPerson": "20",
+            "unit": "g",
+            "costoUnitario": 75,
+            "costoTotalReceta": 1.5
+          },
+          {
+            "id": "buff_16",
+            "name": "Papas congeladas torneadas",
+            "quantityPerPerson": "40",
+            "unit": "g",
+            "costoUnitario": 130,
+            "costoTotalReceta": 5.2
+          },
+          {
+            "id": "buff_17",
+            "name": "Crema de leche",
+            "quantityPerPerson": "20",
+            "unit": "ml",
+            "costoUnitario": 180,
+            "costoTotalReceta": 3.6
+          },
+          {
+            "id": "buff_18",
+            "name": "Queso muzzarella para rallar",
+            "quantityPerPerson": "3",
+            "unit": "g",
+            "costoUnitario": 190,
+            "costoTotalReceta": 0.57
+          },
+          {
+            "id": "buff_19",
+            "name": "Ensalada rusa congelada",
+            "quantityPerPerson": "35",
+            "unit": "g",
+            "costoUnitario": 165,
+            "costoTotalReceta": 5.775
+          },
+          {
+            "id": "buff_20",
+            "name": "Pasas de uva",
+            "quantityPerPerson": "3",
+            "unit": "g",
+            "costoUnitario": 130,
+            "costoTotalReceta": 0.39
+          },
+          {
+            "id": "buff_21",
+            "name": "Choclo",
+            "quantityPerPerson": "20",
+            "unit": "g",
+            "costoUnitario": 200,
+            "costoTotalReceta": 4
+          },
+          {
+            "id": "buff_22",
+            "name": "Palmitos",
+            "quantityPerPerson": "20",
+            "unit": "g",
+            "costoUnitario": 150,
+            "costoTotalReceta": 3
+          },
+          {
+            "id": "buff_23",
+            "name": "Anana",
+            "quantityPerPerson": "20",
+            "unit": "g",
+            "costoUnitario": 150,
+            "costoTotalReceta": 3
+          }
         ]
       }
     ]
