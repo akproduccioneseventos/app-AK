@@ -11,10 +11,7 @@
     "updatedAt": "2025-07-28T10:00:00.000Z",
     "items": [
       {
-        "id": "dish_entrada_1",
-        "name": "Buñuelos de Algas",
-        "type": "Entrada",
-        "totalDishCost": 45.2,
+        "id": "dish_entrada_1", "name": "Buñuelos de Algas", "type": "Entrada", "totalDishCost": 45.2,
         "ingredients": [
           { "id": "ing_1_1", "name": "Harina", "quantityPerPerson": "40", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 7.2 },
           { "id": "ing_1_2", "name": "Algas", "quantityPerPerson": "10", "unit": "g", "costoUnitario": 2000, "costoTotalReceta": 20 },
@@ -25,10 +22,7 @@
         ]
       },
       {
-        "id": "dish_entrada_2",
-        "name": "Arrolladitos Primavera",
-        "type": "Entrada",
-        "totalDishCost": 40,
+        "id": "dish_entrada_2", "name": "Arrolladitos Primavera", "type": "Entrada", "totalDishCost": 40,
         "ingredients": [
           { "id": "ing_2_1", "name": "Salsa de soja", "quantityPerPerson": "10", "unit": "g", "costoUnitario": 300, "costoTotalReceta": 3 },
           { "id": "ing_2_2", "name": "Aceite", "quantityPerPerson": "100", "unit": "ml", "costoUnitario": 70, "costoTotalReceta": 7 },
@@ -36,10 +30,7 @@
         ]
       },
       {
-        "id": "dish_entrada_3",
-        "name": "Tapas Saborizadas",
-        "type": "Entrada",
-        "totalDishCost": 48.4,
+        "id": "dish_entrada_3", "name": "Tapas Saborizadas", "type": "Entrada", "totalDishCost": 48.4,
         "ingredients": [
           { "id": "ing_3_1", "name": "Tostaditas", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 390, "costoTotalReceta": 19.5 },
           { "id": "ing_3_2", "name": "Albahaca", "quantityPerPerson": "0.1", "unit": "Unidad", "costoUnitario": 40, "costoTotalReceta": 4 },
@@ -53,10 +44,7 @@
         ]
       },
       {
-        "id": "dish_entrada_4",
-        "name": "Planchas Calientes",
-        "type": "Entrada",
-        "totalDishCost": 54.2,
+        "id": "dish_entrada_4", "name": "Planchas Calientes", "type": "Entrada", "totalDishCost": 54.2,
         "ingredients": [
           { "id": "ing_4_1", "name": "Jamon", "quantityPerPerson": "40", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 7.2 },
           { "id": "ing_4_2", "name": "Manteca", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 200, "costoTotalReceta": 6 },
@@ -66,10 +54,7 @@
         ]
       },
       {
-        "id": "dish_entrada_5",
-        "name": "Picada Snack",
-        "type": "Entrada",
-        "totalDishCost": 45.5,
+        "id": "dish_entrada_5", "name": "Picada Snack", "type": "Entrada", "totalDishCost": 45.5,
         "ingredients": [
           { "id": "ing_5_1", "name": "Aceitunas", "quantityPerPerson": "25", "unit": "g", "costoUnitario": 220, "costoTotalReceta": 5.5 },
           { "id": "ing_5_2", "name": "Palitos salados", "quantityPerPerson": "25", "unit": "g", "costoUnitario": 200, "costoTotalReceta": 5 },
@@ -78,11 +63,7 @@
           { "id": "ing_5_5", "name": "Doritos", "quantityPerPerson": "25", "unit": "g", "costoUnitario": 800, "costoTotalReceta": 20 }
         ]
       },
-      {
-        "id": "dish_papas_cheddar",
-        "name": "Papas fritas con Cheddar",
-        "type": "Entrada",
-        "totalDishCost": 50,
+      { "id": "dish_papas_cheddar", "name": "Papas fritas con Cheddar", "type": "Entrada", "totalDishCost": 50,
         "ingredients": [
           { "id": "ing_pc_1", "name": "Fritas", "quantityPerPerson": "200", "unit": "g", "costoUnitario": 130, "costoTotalReceta": 26 },
           { "id": "ing_pc_2", "name": "Queso Cheddar", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 340, "costoTotalReceta": 17 },
