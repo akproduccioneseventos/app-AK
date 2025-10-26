@@ -37,8 +37,20 @@ export default function GestionMenusPage() {
   const [searchTerm, setSearchTerm] = useState('');
 
   const calculatePrices = useCallback((item: MenuItem): MenuItem => {
-    const totalDishCost = (item.ingredients || []).reduce((sum, ing) => sum + (Number(ing.cost) || 0), 0);
-    const profitMargin = item.profitMargin === undefined || isNaN(item.profitMargin) ? 120 : item.profitMargin;
+    const totalDishCost = (item.ingredients || []).reduce((sum, ing) => {
+        const quantity = parseFloat(ing.quantityPerPerson || '0');
+        const unitCost = Number(ing.costoUnitario) || 0;
+        const unit = ing.unit?.toLowerCase();
+
+        if (isNaN(quantity) || isNaN(unitCost)) return sum;
+
+        if (unit === 'g' || unit === 'gramos' || unit === 'ml') {
+            return sum + (quantity / 1000) * unitCost;
+        }
+        return sum + quantity * unitCost;
+    }, 0);
+
+    const profitMargin = item.profitMargin === undefined || isNaN(item.profitMargin) ? 100 : item.profitMargin;
     const suggestedSellingPrice = totalDishCost * (1 + profitMargin / 100);
     return { ...item, totalDishCost, suggestedSellingPrice, profitMargin };
   }, []);
@@ -256,17 +268,17 @@ export default function GestionMenusPage() {
                                       <div key={item.id} className="p-3 border-b last:border-b-0">
                                           <p className="font-medium text-sm">{item.name}</p>
                                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2 items-end">
-                                            <div className="p-2 rounded-md bg-blue-50 dark:bg-blue-900/30">
+                                            <div className="p-2 rounded-md bg-blue-50 dark:bg-blue-900/40">
                                               <Label className="text-xs font-medium text-blue-800 dark:text-blue-200">Costo p/Persona</Label>
                                               <p className="font-semibold text-md text-blue-700 dark:text-blue-300">{formatCurrency(item.totalDishCost)}</p>
                                             </div>
                                             <div className="space-y-1">
                                                 <Label htmlFor={`profit-${item.id}`} className="text-xs flex items-center gap-1"><Percent className="w-3 h-3"/>Margen (%)</Label>
-                                                <Input id={`profit-${item.id}`} type="number" value={item.profitMargin?.toFixed(0) ?? ''} onChange={e => handleItemPriceChange(item.id, 'profitMargin', Number(e.target.value) || 0)} className="h-8"/>
+                                                <Input id={`profit-${item.id}`} type="number" value={item.profitMargin?.toFixed(0) ?? ''} onChange={e => handleItemPriceChange(item.id, 'profitMargin', Number(e.target.value) || 0)} className="h-8 bg-white dark:bg-background"/>
                                             </div>
                                             <div className="space-y-1">
-                                                 <Label htmlFor={`price-${item.id}`} className="text-xs flex items-center gap-1"><DollarSign className="w-3 h-3"/>Precio ($)</Label>
-                                                 <Input id={`price-${item.id}`} type="number" value={item.suggestedSellingPrice?.toFixed(0) ?? ''} onChange={e => handleItemPriceChange(item.id, 'suggestedSellingPrice', Number(e.target.value) || 0)} className="h-8"/>
+                                                 <Label htmlFor={`price-${item.id}`} className="text-xs flex items-center gap-1"><DollarSign className="w-3 h-3"/>Precio Venta ($)</Label>
+                                                 <Input id={`price-${item.id}`} type="number" value={item.suggestedSellingPrice?.toFixed(0) ?? ''} onChange={e => handleItemPriceChange(item.id, 'suggestedSellingPrice', Number(e.target.value) || 0)} className="h-8 bg-white dark:bg-background"/>
                                             </div>
                                           </div>
                                       </div>
