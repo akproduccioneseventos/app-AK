@@ -1,14 +1,16 @@
+
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, type FormEvent, type ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PlusCircle, Trash2, Loader2, Save, BookOpen, Search, Percent, DollarSign, Link as LinkIcon, Info, Image as ImageIconLucide } from 'lucide-react';
+import { PlusCircle, Trash2, Loader2, Save, BookOpen, Search, Percent, DollarSign, Link as LinkIcon, Info, Image as ImageIconLucide, UploadCloud } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveMenu } from '@/app/actions/menus-catering';
 import { getInsumos, saveInsumo } from '@/app/actions/insumos';
@@ -18,7 +20,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogC
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 import { cn } from '@/lib/utils';
-import Link from 'next/link';
+import NextImage from 'next/image';
 
 
 const formatCurrency = (amount?: number) => {
@@ -86,9 +88,18 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     fetchInsumos();
   }, [existingMenu, calculatePrices, calculateIngredientCost, fetchInsumos]);
 
-  const handleMenuChange = (field: keyof FullMenu, value: string) => {
-    setMenu(prev => ({ ...prev, [field]: value }));
+  const handleMenuChange = (field: keyof FullMenu, value: string | File | null) => {
+      if (field === 'imageUrl' && value instanceof File) {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+              setMenu(prev => ({ ...prev, imageUrl: reader.result as string }));
+          };
+          reader.readAsDataURL(value);
+      } else {
+          setMenu(prev => ({ ...prev, [field]: value }));
+      }
   };
+
 
   const handleItemChange = (itemId: string, field: keyof MenuItem, value: any) => {
     setMenu(prev => ({
@@ -106,6 +117,14 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
             const cost = item.totalDishCost || 0;
             const newMargin = cost > 0 ? ((price / cost) - 1) * 100 : item.profitMargin;
             return { ...updatedItem, profitMargin: newMargin };
+          }
+          if (field === 'imageUrl' && value instanceof File) {
+              const reader = new FileReader();
+              reader.onloadend = () => {
+                   handleItemChange(itemId, 'imageUrl', reader.result as string);
+              };
+              reader.readAsDataURL(value);
+              return item; // Return original item for now, update will be triggered by onloadend
           }
           return calculatePrices(updatedItem);
         }
@@ -262,7 +281,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
             <DialogHeader><DialogTitle>Seleccionar Ingrediente del Catálogo</DialogTitle></DialogHeader>
             <div className="py-2 space-y-2">
                 <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"/><Input placeholder="Buscar insumo..." value={catalogSearchTerm} onChange={e => setCatalogSearchTerm(e.target.value)} className="pl-9"/></div>
-                <ScrollArea className="h-72 border rounded-md p-1"><ul className="space-y-1">{filteredInsumos.length > 0 ? (filteredInsumos.map(insumo => (<li key={insumo.id}><Button type="button" variant="ghost" className="w-full justify-start text-left h-auto" onClick={() => { if (currentItemIdForCatalog) { addIngredientFromCatalog(currentItemIdForCatalog, insumo); } setIsCatalogModalOpen(false); }}><div><p className="font-medium text-sm">{insumo.nombre}</p><p className="text-xs text-muted-foreground">{formatCurrency(insumo.valorUnitarioEstimado)} / {insumo.unidad}</p></div></Button></li>))) : <li className="p-4 text-sm text-center text-muted-foreground">No se encontraron insumos. <Link href="/empresa/insumos/nuevo" className="text-primary underline">Añadir al catálogo</Link>.</li>}</ul></ScrollArea>
+                <ScrollArea className="h-72 border rounded-md p-1"><ul className="space-y-1">{filteredInsumos.length > 0 ? (filteredInsumos.map(insumo => (<li key={insumo.id}><Button type="button" variant="ghost" className="w-full justify-start text-left h-auto" onClick={() => { if (currentItemIdForCatalog) { addIngredientFromCatalog(currentItemIdForCatalog, insumo); } setIsCatalogModalOpen(false); }}><div><p className="font-medium text-sm">{insumo.nombre}</p><p className="text-xs text-muted-foreground">{formatCurrency(insumo.valorUnitarioEstimado)} / {insumo.unidad}</p></div></Button></li>))) : <li className="p-4 text-sm text-center text-muted-foreground">No se encontraron insumos. <Link href="/empresa/insumos/nuevo?from=gastronomia" className="text-primary underline">Añadir al catálogo</Link>.</li>}</ul></ScrollArea>
             </div>
              <DialogFooter><DialogClose asChild><Button variant="outline">Cerrar</Button></DialogClose></DialogFooter>
         </DialogContent>
@@ -275,8 +294,13 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
           <div className="space-y-2"><Label htmlFor="menu-name">Nombre del Menú</Label><Input id="menu-name" value={menu.name || ''} onChange={(e) => handleMenuChange('name', e.target.value)} required /></div>
           <div className="space-y-2"><Label htmlFor="menu-description">Descripción</Label><Textarea id="menu-description" value={menu.description || ''} onChange={(e) => handleMenuChange('description', e.target.value)} /></div>
            <div className="space-y-2">
-            <Label htmlFor="menu-image">URL de Imagen del Menú</Label>
-            <Input id="menu-image" value={menu.imageUrl || ''} onChange={(e) => handleMenuChange('imageUrl', e.target.value)} placeholder="https://ejemplo.com/imagen.jpg"/>
+            <Label htmlFor="menu-image-upload">Imagen del Menú (General)</Label>
+            <div className="flex items-center gap-4">
+              <div className="w-24 h-24 border rounded-md flex items-center justify-center bg-muted overflow-hidden">
+                {menu.imageUrl ? <NextImage src={menu.imageUrl} alt="Preview" width={96} height={96} className="object-cover"/> : <ImageIconLucide className="w-8 h-8 text-muted-foreground"/>}
+              </div>
+              <Input id="menu-image-upload" type="file" accept="image/*" onChange={(e) => handleMenuChange('imageUrl', e.target.files?.[0] || null)} className="text-sm file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"/>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -288,16 +312,21 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
         </CardHeader>
         <CardContent className="space-y-4">
           {(menu.items || []).map((item, index) => (
-            <Card key={item.id} className={cn("p-4",
-              index % 3 === 0 ? "bg-blue-50 dark:bg-blue-900/20" :
-              index % 3 === 1 ? "bg-green-50 dark:bg-green-900/20" :
-              "bg-purple-50 dark:bg-purple-900/20"
-            )}>
+            <Card key={item.id} className={cn("p-4")}>
                 <CardHeader className="p-0 pb-4">
                      <div className="flex justify-between items-start">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-                           <div className="space-y-2"><Label htmlFor={`item-name-${item.id}`}>Nombre Plato</Label><Input id={`item-name-${item.id}`} value={item.name} onChange={(e) => handleItemChange(item.id, 'name', e.target.value)} /></div>
-                           <div className="space-y-2"><Label htmlFor={`item-type-${item.id}`}>Tipo</Label><Select value={item.type || ''} onValueChange={(value) => handleItemChange(item.id, 'type', value)}><SelectTrigger id={`item-type-${item.id}`}><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Entrada">Entrada</SelectItem><SelectItem value="Plato Principal">Plato Principal</SelectItem><SelectItem value="Postre">Postre</SelectItem><SelectItem value="Bebida">Bebida</SelectItem><SelectItem value="Menú Infantil/Adolescente">Menú Infantil/Adolescente</SelectItem></SelectContent></Select></div>
+                        <div className="flex gap-4 items-start flex-grow">
+                          <div className="w-24 h-24 border rounded-md flex-shrink-0 flex items-center justify-center bg-muted overflow-hidden relative group">
+                            {item.imageUrl ? <NextImage src={item.imageUrl} alt={item.name} layout='fill' objectFit='cover' /> : <ImageIconLucide className="w-8 h-8 text-muted-foreground"/>}
+                             <Label htmlFor={`item-image-${item.id}`} className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition-opacity">
+                                <UploadCloud className="w-6 h-6 text-white"/>
+                             </Label>
+                             <Input id={`item-image-${item.id}`} type="file" accept="image/*" className="hidden" onChange={(e) => handleItemChange(item.id, 'imageUrl', e.target.files?.[0] || null)} />
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                            <div className="space-y-2"><Label htmlFor={`item-name-${item.id}`}>Nombre Plato</Label><Input id={`item-name-${item.id}`} value={item.name} onChange={(e) => handleItemChange(item.id, 'name', e.target.value)} /></div>
+                            <div className="space-y-2"><Label htmlFor={`item-type-${item.id}`}>Tipo</Label><Select value={item.type || ''} onValueChange={(value) => handleItemChange(item.id, 'type', value)}><SelectTrigger id={`item-type-${item.id}`}><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Entrada">Entrada</SelectItem><SelectItem value="Plato Principal">Plato Principal</SelectItem><SelectItem value="Postre">Postre</SelectItem><SelectItem value="Bebida">Bebida</SelectItem><SelectItem value="Menú Infantil/Adolescente">Menú Infantil/Adolescente</SelectItem></SelectContent></Select></div>
+                          </div>
                         </div>
                         <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive ml-2 flex-shrink-0" onClick={() => deleteItem(item.id)}><Trash2 className="w-4 h-4"/></Button>
                      </div>
@@ -307,7 +336,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                       <AccordionItem value="ingredients">
                         <AccordionTrigger className="text-sm font-medium">Ingredientes</AccordionTrigger>
                         <AccordionContent>
-                           <div className="mt-2 space-y-3 p-3 bg-white dark:bg-black/20 rounded-lg">
+                           <div className="mt-2 space-y-3 p-3 bg-muted/30 rounded-lg">
                               {item.ingredients?.map(ing => (
                                 <div key={ing.id} className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-12 gap-2 items-end p-2 border-b last:border-b-0">
                                     <div className="space-y-1 col-span-2 lg:col-span-3 relative">
@@ -335,17 +364,17 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                  </CardContent>
                  <CardFooter className="p-0 pt-4 mt-4 border-t">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
-                        <div className="p-3 rounded-md bg-blue-100 dark:bg-blue-900/40">
+                        <div className="p-3 rounded-md bg-blue-50 dark:bg-blue-900/40">
                             <Label className="text-sm font-medium text-blue-800 dark:text-blue-200">Costo p/Persona</Label>
                             <p className="font-bold text-lg text-blue-700 dark:text-blue-300">{formatCurrency(item.totalDishCost || 0)}</p>
                         </div>
-                        <div className="p-3 rounded-md bg-green-100 dark:bg-green-900/40 space-y-1">
+                        <div className="p-3 rounded-md bg-green-50 dark:bg-green-900/40 space-y-1">
                             <Label htmlFor={`profit-${item.id}`} className="text-sm font-medium text-green-800 dark:text-green-200 flex items-center gap-1"><Percent className="w-4 h-4"/>Margen (%)</Label>
-                            <Input id={`profit-${item.id}`} type="number" value={item.profitMargin?.toFixed(0) ?? ''} onChange={e => handleItemChange(item.id, 'profitMargin', Number(e.target.value) || 0)} className="bg-white" />
+                            <Input id={`profit-${item.id}`} type="number" value={item.profitMargin?.toFixed(0) ?? ''} onChange={e => handleItemChange(item.id, 'profitMargin', Number(e.target.value) || 0)} className="bg-white dark:bg-background"/>
                         </div>
-                        <div className="p-3 rounded-md bg-green-100 dark:bg-green-900/40 space-y-1">
+                        <div className="p-3 rounded-md bg-green-50 dark:bg-green-900/40 space-y-1">
                              <Label htmlFor={`price-${item.id}`} className="text-sm font-medium text-green-800 dark:text-green-200 flex items-center gap-1"><DollarSign className="w-4 h-4"/>Precio Venta ($)</Label>
-                             <Input id={`price-${item.id}`} type="number" value={item.suggestedSellingPrice?.toFixed(0) ?? ''} onChange={e => handleItemChange(item.id, 'suggestedSellingPrice', Number(e.target.value) || 0)} className="bg-white"/>
+                             <Input id={`price-${item.id}`} type="number" value={item.suggestedSellingPrice?.toFixed(0) ?? ''} onChange={e => handleItemChange(item.id, 'suggestedSellingPrice', Number(e.target.value) || 0)} className="bg-white dark:bg-background"/>
                         </div>
                     </div>
                  </CardFooter>
