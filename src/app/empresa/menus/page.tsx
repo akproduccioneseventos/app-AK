@@ -5,7 +5,7 @@ import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ChefHat, PlusCircle, Edit, List, Loader2, Info, Package, Cake, GlassWater, Printer, Percent, DollarSign } from 'lucide-react';
+import { ArrowLeft, ChefHat, PlusCircle, Edit, List, Loader2, Info, Package, Cake, GlassWater, Printer, Percent, DollarSign, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FullMenu, MenuItem, ReposteriaData, BebidasData } from '@/types/fiesta';
 import { getMenus, saveMenu } from '@/app/actions/menus-catering';
@@ -34,6 +34,7 @@ export default function GestionMenusPage() {
 
   // State for individual dish editing
   const [editableItems, setEditableItems] = useState<(MenuItem & { menuId: string })[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const calculatePrices = useCallback((item: MenuItem): MenuItem => {
     const totalDishCost = (item.ingredients || []).reduce((sum, ing) => sum + (Number(ing.cost) || 0), 0);
@@ -140,14 +141,19 @@ export default function GestionMenusPage() {
   };
 
 
-  const itemsAgrupadosPorTipo = useMemo(() => {
-    return editableItems.reduce((acc, item) => {
+  const filteredAndGroupedItems = useMemo(() => {
+    const lowercasedTerm = searchTerm.toLowerCase();
+    const filtered = searchTerm
+      ? editableItems.filter(item => item.name.toLowerCase().includes(lowercasedTerm))
+      : editableItems;
+
+    return filtered.reduce((acc, item) => {
       const categoria = item.type || 'Sin Categoría';
       if (!acc[categoria]) acc[categoria] = [];
       acc[categoria].push(item);
       return acc;
-    }, {} as Record<string, MenuItem[]>);
-  }, [editableItems]);
+    }, {} as Record<string, (MenuItem & { menuId: string })[]>);
+  }, [editableItems, searchTerm]);
 
 
   return (
@@ -226,12 +232,22 @@ export default function GestionMenusPage() {
                  <Card className="shadow-sm">
                   <CardHeader>
                     <CardTitle className="font-headline text-xl">Catálogo de Platos Individuales</CardTitle>
-                     <CardDescription>Ajusta el precio de venta y el margen de ganancia de cada plato de forma individual.</CardDescription>
+                     <CardDescription>Ajusta el precio de venta y el margen de ganancia de cada plato. Usa el buscador para encontrar un plato rápidamente.</CardDescription>
+                     <div className="relative pt-2">
+                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                        <Input
+                            type="text"
+                            placeholder="Buscar plato por nombre..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full pl-10"
+                        />
+                    </div>
                   </CardHeader>
                   <CardContent>
-                    {Object.keys(itemsAgrupadosPorTipo).length > 0 ? (
-                        <Accordion type="multiple" defaultValue={Object.keys(itemsAgrupadosPorTipo)}>
-                          {Object.entries(itemsAgrupadosPorTipo).sort(([catA], [catB]) => catA.localeCompare(catB)).map(([categoria, items]) => (
+                    {Object.keys(filteredAndGroupedItems).length > 0 ? (
+                        <Accordion type="multiple" defaultValue={Object.keys(filteredAndGroupedItems)}>
+                          {Object.entries(filteredAndGroupedItems).sort(([catA], [catB]) => catA.localeCompare(catB)).map(([categoria, items]) => (
                             <AccordionItem key={categoria} value={categoria} className="border rounded-md my-2">
                                 <AccordionTrigger className="px-3 text-md font-semibold hover:no-underline">{categoria}</AccordionTrigger>
                                 <AccordionContent className="p-2 border-t">
@@ -240,17 +256,17 @@ export default function GestionMenusPage() {
                                       <div key={item.id} className="p-3 border-b last:border-b-0">
                                           <p className="font-medium text-sm">{item.name}</p>
                                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2 items-end">
-                                            <div className="space-y-1">
-                                              <Label className="text-xs text-muted-foreground">Costo p/Persona</Label>
-                                              <p className="font-semibold">{formatCurrency(item.totalDishCost)}</p>
+                                            <div className="p-2 rounded-md bg-blue-50 dark:bg-blue-900/30">
+                                              <Label className="text-xs font-medium text-blue-800 dark:text-blue-200">Costo p/Persona</Label>
+                                              <p className="font-semibold text-md text-blue-700 dark:text-blue-300">{formatCurrency(item.totalDishCost)}</p>
                                             </div>
                                             <div className="space-y-1">
-                                                <Label htmlFor={`item-profit-${item.id}`} className="text-xs flex items-center gap-1"><Percent className="w-3 h-3"/>Margen Ganancia (%)</Label>
-                                                <Input id={`item-profit-${item.id}`} type="number" value={item.profitMargin?.toFixed(0) ?? ''} onChange={e => handleItemPriceChange(item.id, 'profitMargin', Number(e.target.value) || 0)} className="h-8"/>
+                                                <Label htmlFor={`profit-${item.id}`} className="text-xs flex items-center gap-1"><Percent className="w-3 h-3"/>Margen (%)</Label>
+                                                <Input id={`profit-${item.id}`} type="number" value={item.profitMargin?.toFixed(0) ?? ''} onChange={e => handleItemPriceChange(item.id, 'profitMargin', Number(e.target.value) || 0)} className="h-8"/>
                                             </div>
                                             <div className="space-y-1">
-                                                 <Label htmlFor={`item-price-${item.id}`} className="text-xs flex items-center gap-1"><DollarSign className="w-3 h-3"/>Precio ($)</Label>
-                                                 <Input id={`item-price-${item.id}`} type="number" value={item.suggestedSellingPrice?.toFixed(0) ?? ''} onChange={e => handleItemPriceChange(item.id, 'suggestedSellingPrice', Number(e.target.value) || 0)} className="h-8"/>
+                                                 <Label htmlFor={`price-${item.id}`} className="text-xs flex items-center gap-1"><DollarSign className="w-3 h-3"/>Precio ($)</Label>
+                                                 <Input id={`price-${item.id}`} type="number" value={item.suggestedSellingPrice?.toFixed(0) ?? ''} onChange={e => handleItemPriceChange(item.id, 'suggestedSellingPrice', Number(e.target.value) || 0)} className="h-8"/>
                                             </div>
                                           </div>
                                       </div>
@@ -260,7 +276,7 @@ export default function GestionMenusPage() {
                             </AccordionItem>
                           ))}
                         </Accordion>
-                    ) : <p className="text-center text-muted-foreground p-4">No hay platos en ningún menú.</p>}
+                    ) : <p className="text-center text-muted-foreground p-4">No se encontraron platos con ese nombre.</p>}
                   </CardContent>
                   <CardFooter>
                     <Button onClick={handleSaveAllItemChanges} disabled={isSaving}>
