@@ -167,6 +167,9 @@ async function processMenuForSave(menuData: Omit<FullMenu, 'id' | 'createdAt' | 
       suggestedSellingPrice: totalDishCost * (1 + Number(profitMargin) / 100),
     };
   });
+  
+  // Sort items by totalDishCost before returning
+  processedItems.sort((a, b) => (a.totalDishCost || 0) - (b.totalDishCost || 0));
 
   return {
     ...menuData,

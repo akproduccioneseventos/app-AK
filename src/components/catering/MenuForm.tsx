@@ -87,6 +87,10 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     }
     fetchInsumos();
   }, [existingMenu, calculatePrices, calculateIngredientCost, fetchInsumos]);
+  
+  const sortedItems = useMemo(() => {
+    return [...(menu.items || [])].sort((a, b) => (a.totalDishCost || 0) - (b.totalDishCost || 0));
+  }, [menu.items]);
 
   const handleMenuChange = (field: keyof FullMenu, value: string | File | null) => {
       if (field === 'imageUrl' && value instanceof File) {
@@ -311,7 +315,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
           <CardDescription>Añade o edita los platos que componen este menú.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {(menu.items || []).map((item, index) => (
+          {sortedItems.map((item, index) => (
             <Card key={item.id} className={cn("p-4")}>
                 <CardHeader className="p-0 pb-4">
                      <div className="flex justify-between items-start">
