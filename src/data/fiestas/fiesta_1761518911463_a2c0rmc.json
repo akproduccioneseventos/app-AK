@@ -1,7 +1,7 @@
 {
-  "id": "fiesta_1762181514757",
+  "id": "fiesta_1761518911463_a2c0rmc",
   "configuracion": {
-    "nombreEvento": "XV Años de Sofía",
+    "nombreEvento": "[COPIA] XV Años de Sofía",
     "tipoCelebracion": "Fiesta de 15",
     "fechaEvento": "2025-11-22T21:00:00.000Z",
     "horaInicio": "21:00",
@@ -40,7 +40,6 @@
     }
   ],
   "menuAsignadoId": "menu_platos_principales_predisenado",
-  "presupuestoId": "pres_1759445334346_d6m6fi9",
   "invoiceIds": [],
   "reuniones": [
     {
@@ -236,14 +235,14 @@
       "nombre": "Abuelos Maternos",
       "rsvp": "Confirmado",
       "partySize": 2,
-      "tableNumber": "Mesa Principal"
+      "tableNumber": "Mesa 2"
     },
     {
       "id": "inv_3",
       "nombre": "Abuelos Paternos",
       "rsvp": "Confirmado",
       "partySize": 2,
-      "tableNumber": "Mesa Principal"
+      "tableNumber": "Mesa 4"
     },
     {
       "id": "inv_4",
@@ -316,9 +315,8 @@
     {
       "id": "inv_14",
       "nombre": "Agustina Costa",
-      "rsvp": "Confirmado",
-      "partySize": 1,
-      "tableNumber": "Mesa 6"
+      "rsvp": "Rechazado",
+      "partySize": 1
     },
     {
       "id": "inv_15",
@@ -500,7 +498,7 @@
       "nombre": "Abril Ortiz",
       "rsvp": "Confirmado",
       "partySize": 1,
-      "tableNumber": "Mesa 5"
+      "tableNumber": "Mesa 1"
     },
     {
       "id": "inv_42",
