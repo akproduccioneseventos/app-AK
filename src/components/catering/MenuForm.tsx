@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -19,6 +18,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogC
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 
 const formatCurrency = (amount?: number) => {
@@ -188,8 +188,12 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
   const addIngredientFromCatalog = (itemId: string, insumo: ServicioEmpresa) => {
       const newIngredient: Ingredient = {
         id: `new_ing_cat_${insumo.id}_${Date.now()}`,
-        origenId: insumo.id, name: insumo.nombre, quantityPerPerson: '0', unit: insumo.unidad || 'g',
-        costoUnitario: insumo.valorUnitarioEstimado || 0, costoTotalReceta: 0
+        origenId: insumo.id,
+        name: insumo.nombre,
+        quantityPerPerson: '0',
+        unit: insumo.unidad || 'g',
+        costoUnitario: insumo.valorUnitarioEstimado || 0,
+        costoTotalReceta: 0
       };
       setMenu(prev => ({
       ...prev,
