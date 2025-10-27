@@ -40,7 +40,7 @@ import { updatePagosProveedores } from './fiesta/pagos.actions';
 import { addReunion, deleteReunion, updateReunion } from './fiesta/reuniones.actions';
 import { updateMenuAsignado } from './fiesta/catering.actions';
 import { updateVideoVidaSettings as updateVideoVidaSettingsFromModule } from './fiesta/video-vida.actions';
-import { claimGift } from './fiesta/regalos.actions';
+import { claimGift, addGiftToRegistry } from './fiesta/regalos.actions';
 
 // --- General Fiesta Actions ---
 export const getFiestaActual = getFiestaData;
@@ -134,6 +134,7 @@ export const updateVideoVidaSettingsFiestaActual = updateVideoVidaSettingsFromMo
 
 // --- Regalos Actions ---
 export const claimGiftFiestaActual = claimGift;
+export const addGiftToRegistryFiestaActual = addGiftToRegistry;
 
 // --- Carta Tragos Actions ---
 export const updateCartaTragosFiestaActual = updateCartaTragosFromModule;

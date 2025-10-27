@@ -18,7 +18,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { claimGiftFiestaActual, addGiftToRegistry } from '@/app/actions/fiesta-actual';
+import { claimGiftFiestaActual, addGiftToRegistryFiestaActual } from '@/app/actions/fiesta-actual';
 import { Loader2 } from 'lucide-react';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Textarea } from '@/components/ui/textarea';
@@ -38,7 +38,7 @@ const formatDate = (dateString?: string, shortMonth = false) => {
       return `${String(day).padStart(2, '0')}/${String(month + 1).padStart(2, '0')}/${year}`;
     }
     return new Date(year, month, day).toLocaleDateString('es-ES', {
-      day: 'numeric', month: 'long', year: 'numeric'
+      day: '2-digit', month: 'long', year: 'numeric'
     });
   } catch (e) {
     console.error("Error formatting date:", dateString, e);
@@ -326,7 +326,7 @@ const GraziaRegalos: React.FC<{ data: InvitacionDigitalData['regalos'], fiestaId
         if (!newGiftName.trim() || !fiestaId) return;
         setIsSuggesting(true);
         try {
-            const result = await addGiftToRegistry(fiestaId, {
+            const result = await addGiftToRegistryFiestaActual(fiestaId, {
                 name: newGiftName,
                 description: newGiftDescription,
                 imageUrl: newGiftImageUrl
@@ -660,7 +660,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
         return <SectionWrapper {...wrapperProps}>
             <SectionIcon><Heart className="w-12 h-12 mx-auto mb-3" style={{color: paletaColores.primary}} /></SectionIcon>
             <h3 className="font-headline text-3xl mb-4" style={{color: paletaColores.accent}}><EditableText initialValue={seccion.data.titulo?.text || 'Nuestra Historia'} style={seccion.data.titulo?.style} onSave={(v) => onUpdate?.({ historia: { ...seccion.data, titulo: { ...(seccion.data.titulo || {style:{}}), text: v } } })} textarea={false}/></h3>
-            <p className="max-w-prose mx-auto text-muted-foreground"><EditableText initialValue={seccion.data.texto?.text || 'Un breve relato de nuestro camino juntos...'} style={seccion.data.texto?.style} onSave={(v) => onUpdate?.({ historia: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } } })} textarea/></p></SectionWrapper>;
+            <p className="max-w-prose mx-auto text-muted-foreground"><EditableText initialValue={seccion.data.texto?.text || 'Un breve relato de cómo llegamos hasta aquí...'} style={seccion.data.texto?.style} onSave={(v) => onUpdate?.({ historia: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } } })} textarea/></p></SectionWrapper>;
       case 'dressCode':
         return <SectionWrapper {...wrapperProps}>
             <SectionIcon><Sparkles className="w-12 h-12 mx-auto mb-3" style={{color: paletaColores.primary}} /></SectionIcon>
