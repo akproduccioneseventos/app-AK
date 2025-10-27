@@ -47,6 +47,12 @@ const formatDate = (dateString?: string, shortMonth = false) => {
 };
 
 
+const companyName = "AK Producciones";
+
+const iconMap: Record<string, React.ElementType> = {
+  Utensils, GlassWater, Music, CakeSlice, Camera: CameraIcon, Diamond, PartyPopper, Clock,
+};
+
 const SectionWrapper: React.FC<{
     seccion: SeccionInvitacion,
     children: React.ReactNode,
@@ -166,7 +172,7 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
                     textarea={false}
                 />
             </motion.div>
-            <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.8 }} className="font-headline text-6xl md:text-8xl my-4" style={{color: primaryColor}}>
+            <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.8 }} className="font-headline text-5xl md:text-7xl my-4" style={{color: primaryColor}}>
                <EditableText
                     initialValue={data.protagonista1 || "Protagonista 1"}
                     style={{ fontFamily: 'Belleza', fontSize: 'inherit', color: 'inherit' }}
@@ -189,9 +195,6 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
 };
 
 
-const iconMap: Record<string, React.ElementType> = {
-  Utensils: Utensils, GlassWater: GlassWater, Music: Music, CakeSlice: CakeSlice, Camera: CameraIcon, Diamond: Diamond, PartyPopper: PartyPopper, Clock: Clock,
-};
 
 const GraziaDetalles: React.FC<{ data: InvitacionDigitalData['detallesEvento'], fiesta: FiestaEnPlanificacion, paleta: ColorPalette, onUpdate?: (newData: Partial<InvitacionDigitalData>) => void }> = ({ data, fiesta, paleta, onUpdate }) => {
 
@@ -321,7 +324,7 @@ const GraziaRegalos: React.FC<{ data: InvitacionDigitalData['regalos'], fiestaId
         setGuestName('');
     };
     
-    const handleAddGiftSubmit = async (e: FormEvent) => {
+    const handleAddGiftSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!newGiftName.trim() || !fiestaId) return;
         setIsSuggesting(true);

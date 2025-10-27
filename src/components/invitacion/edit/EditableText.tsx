@@ -13,6 +13,7 @@ interface EditableTextProps {
   className?: string;
   textarea?: boolean;
   style?: TextStyle;
+  as?: 'span' | 'p' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
 }
 
 export const EditableText: React.FC<EditableTextProps> = ({
@@ -21,17 +22,18 @@ export const EditableText: React.FC<EditableTextProps> = ({
   className,
   textarea = false,
   style = {},
+  as: Component = 'span'
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState(initialValue);
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
 
   const dynamicStyle = {
-    fontFamily: style.fontFamily ? `var(--font-${style.fontFamily.toLowerCase()})` : 'inherit',
+    fontFamily: style.fontFamily ? `var(--font-${style.fontFamily.toLowerCase().replace(/ /g, '_')})` : 'inherit',
     fontSize: style.fontSize || 'inherit',
     color: style.color || 'inherit',
   };
-
+  
   useEffect(() => {
     setValue(initialValue);
   }, [initialValue]);
@@ -91,7 +93,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
   }
 
   return (
-    <span
+    <Component
       onDoubleClick={handleDoubleClick}
       className={cn(
         "cursor-pointer hover:bg-primary/10 transition-colors p-1 -m-1 rounded-sm",
@@ -101,6 +103,6 @@ export const EditableText: React.FC<EditableTextProps> = ({
       style={dynamicStyle}
     >
       {value || <span className="text-muted-foreground italic">[Vacío]</span>}
-    </span>
+    </Component>
   );
 };
