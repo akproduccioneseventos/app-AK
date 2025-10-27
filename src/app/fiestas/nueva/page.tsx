@@ -27,7 +27,7 @@ const modules = [
   { title: "Invitados", href: "invitados", icon: Users, description: "Gestiona tu lista y el diseño del salón." },
   { title: "Página del Evento", href: "pagina-web", icon: Globe, description: "Personaliza la web que verán tus invitados." },
   { title: "Diseño y Decoración", href: "decoracion", icon: Palette, description: "Define el estilo y la ambientación." },
-  { title: "Planificador Gastronómico Integral", href: "/empresa/menus", icon: Calculator, description: "Menús, repostería, bebidas y lista de compras." },
+  { title: "Planificador Gastronómico Integral", href: "catering", icon: Calculator, description: "Menús, repostería, bebidas y lista de compras." },
   { title: "Menú de Mesa", href: "menu-mesa", icon: ChefHat, description: "Diseña el menú impreso para las mesas." },
   { title: "Carta de Tragos", href: "carta-tragos", icon: GlassWater, description: "Diseña la carta de tragos para la barra." },
   { title: "Música", href: "musica", icon: Music2, description: "Define las preferencias musicales." },
