@@ -2,7 +2,7 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, Tarea, Invitado, DecoracionData, ProgramaEventoItem, PersonalAsignadoDetalleStorage, ClientTarea, ClientPortalSettings, EventWebPageSettings, MusicaFiesta, GiftItem, ReposteriaData, BebidasData, ListaDeCargaOperativa, GestionCostosData, FotografiaYFilmacionData, OtroDocumento, DocumentoTipo, PagoProveedor, VideoVidaData, InvitacionDigitalData, CartaTragosData } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, Tarea, Invitado, DecoracionData, ProgramaEventoItem, PersonalAsignadoDetalleStorage, ClientTarea, ClientPortalSettings, EventWebPageSettings, MusicaFiesta, GiftItem, ReposteriaData, BebidasData, ListaDeCargaOperativa, GestionCostosData, FotografiaYFilmacionData, OtroDocumento, DocumentoTipo, PagoProveedor, VideoVidaData, InvitacionDigitalData, CartaTragosData, MenuMesaData } from '@/types/fiesta';
 import { 
     getFiestas as getFiestasFromModule,
     getAllFiestas as getAllFiestasFromModule,
@@ -18,7 +18,8 @@ import {
     duplicateFiesta as duplicateFiestaFromModule,
     getHistorialFiestas as getHistorialFiestasFromModule,
     getFiestaActual as getFiestaData,
-    updateCartaTragos as updateCartaTragosFromModule
+    updateCartaTragos as updateCartaTragosFromModule,
+    updateMenuMesa as updateMenuMesaFromModule
 } from './fiesta/fiesta.actions';
 
 
@@ -40,7 +41,7 @@ import { updatePagosProveedores } from './fiesta/pagos.actions';
 import { addReunion, deleteReunion, updateReunion } from './fiesta/reuniones.actions';
 import { updateMenuAsignado } from './fiesta/catering.actions';
 import { updateVideoVidaSettings as updateVideoVidaSettingsFromModule } from './fiesta/video-vida.actions';
-import { claimGift, addGiftToRegistry } from './fiesta/regalos.actions';
+import { claimGift, addGiftToRegistry as addGiftToRegistryAction } from './fiesta/regalos.actions';
 
 // --- General Fiesta Actions ---
 export const getFiestaActual = getFiestaData;
@@ -134,7 +135,8 @@ export const updateVideoVidaSettingsFiestaActual = updateVideoVidaSettingsFromMo
 
 // --- Regalos Actions ---
 export const claimGiftFiestaActual = claimGift;
-export const addGiftToRegistryFiestaActual = addGiftToRegistry;
+export const addGiftToRegistryFiestaActual = addGiftToRegistryAction;
 
 // --- Carta Tragos / Menu Mesa Actions ---
-export const updateMenuMesaFiestaActual = updateCartaTragosFromModule;
+export const updateCartaTragosFiestaActual = updateCartaTragosFromModule;
+export const updateMenuMesaFiestaActual = updateMenuMesaFromModule;
