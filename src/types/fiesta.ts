@@ -40,7 +40,7 @@ export interface AsistenteAkConfig {
   }
 }
 
-// --- CARTA DE TRAGOS ---
+// --- CARTA DE TRAGOS / MENU MESA ---
 export interface Trago {
   id: string;
   nombre: string;
@@ -312,7 +312,7 @@ export interface ClientPortalSettings {
   itinerario: PortalViewOnlyModuleSettings;
   musica: PortalModuleSettings;
   videoVida: PortalModuleSettings;
-  listaRegalos: PortalModuleSettings;
+  listaRegalos: PortalViewOnlyModuleSettings;
   documentos: PortalViewOnlyModuleSettings;
   notasCliente: PortalModuleSettings;
   invitados: PortalViewOnlyModuleSettings;
@@ -587,7 +587,7 @@ export interface FiestaEnPlanificacion {
   invitacionDigital?: InvitacionDigitalData;
 
   // New object for drink menu
-  cartaTragos?: CartaTragosData;
+  menuMesa?: CartaTragosData;
 
   // Deprecated - will be migrated to invitacionDigital
   webPageSettings?: EventWebPageSettings; 

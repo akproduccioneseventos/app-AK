@@ -329,7 +329,7 @@ export async function updateCartaTragos(fiestaId: string, cartaData: CartaTragos
     }
     const updatedFiesta = {
       ...fiesta,
-      cartaTragos: cartaData,
+      menuMesa: cartaData,
     };
     await saveFiesta(updatedFiesta);
     return { success: true };

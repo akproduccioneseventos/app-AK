@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
@@ -28,6 +29,7 @@ const modules = [
   { title: "Página del Evento", href: "pagina-web", icon: Globe, description: "Personaliza la web que verán tus invitados." },
   { title: "Diseño y Decoración", href: "decoracion", icon: Palette, description: "Define el estilo y la ambientación." },
   { title: "Planificador Gastronómico Integral", href: "/planner-costo-fiesta", icon: Calculator, description: "Menús, repostería, bebidas y lista de compras." },
+  { title: "Menú de Mesa", href: "menu-mesa", icon: ChefHat, description: "Diseña el menú impreso para las mesas." },
   { title: "Música", href: "musica", icon: Music2, description: "Define las preferencias musicales." },
   { title: "Personal", href: "personal", icon: UserCheck, description: "Asigna personal al evento." },
   { title: "Itinerario", href: "itinerario", icon: Clock, description: "Organiza el cronograma." },

@@ -136,5 +136,5 @@ export const updateVideoVidaSettingsFiestaActual = updateVideoVidaSettingsFromMo
 export const claimGiftFiestaActual = claimGift;
 export const addGiftToRegistryFiestaActual = addGiftToRegistry;
 
-// --- Carta Tragos Actions ---
-export const updateCartaTragosFiestaActual = updateCartaTragosFromModule;
+// --- Carta Tragos / Menu Mesa Actions ---
+export const updateMenuMesaFiestaActual = updateCartaTragosFromModule;

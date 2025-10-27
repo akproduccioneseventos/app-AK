@@ -1,20 +1,24 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, use } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent, type ChangeEvent } from 'react';
 import Link from 'next/link';
-import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Printer as PrinterIcon, Share2, ChefHat, Phone, QrCode } from 'lucide-react';
-import { getFiestaActual } from '@/app/actions/fiesta-actual';
-import { getMenuById } from '@/app/actions/menus-catering';
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
-import type { FullMenu, MenuItem } from '@/types/catering';
-import QRCodeStylized from 'qrcode.react';
 import NextImage from 'next/image';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, Printer as PrinterIcon, Share2, GlassWater, Edit, Upload, PlusCircle, Trash2, Camera, Loader2, Save, ChefHat } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import type { FiestaEnPlanificacion, CartaTragosData, Trago } from '@/types/fiesta';
+import { getFiestaActual, updateMenuMesaFiestaActual as updateMenuMesa } from '@/app/actions/fiesta-actual';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Loader2 as LoaderIcon } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import { cn } from '@/lib/utils';
+import { defaultMenuMesaData } from '@/lib/fiesta-defaults';
+
 
 const companyInfo = {
   name: "AK PRODUCCIONES",
@@ -23,70 +27,85 @@ const companyInfo = {
   contact: "098 355 530",
 };
 
-interface MenuSectionProps {
-  title: string;
-  items: string[];
-  titleClassName?: string;
-  itemClassName?: string;
-}
+const MenuComponent: React.FC<{
+  fiesta: FiestaEnPlanificacion;
+  carta: CartaTragosData;
+  logoUrl: string | null;
+  openEditModal: (item: Trago) => void;
+}> = ({ fiesta, carta, logoUrl, openEditModal }) => {
+  
+  const protagonistaNombre = fiesta.configuracion.protagonista1Nombre || 'Protagonista';
+  const tipoEvento = fiesta.configuracion.tipoCelebracion || 'Mi Evento';
 
-const MenuSection: React.FC<MenuSectionProps> = ({ title, items, titleClassName, itemClassName }) => {
-  if (!items || items.length === 0) return null;
   return (
-    <div className="text-center">
-      <h3 className={cn("font-headline text-3xl font-bold tracking-wider mb-2", titleClassName)} style={{ color: '#9333ea' }}>
-        {title}
-      </h3>
-      <div className="relative inline-block px-4">
-        <div className="absolute left-0 top-1/2 w-4 h-px bg-purple-400"></div>
-        <svg width="10" height="10" viewBox="0 0 10 10" className="inline-block fill-current text-purple-400">
-            <polygon points="5,0 6.5,3.5 10,5 6.5,6.5 5,10 3.5,6.5 0,5 3.5,3.5" />
-        </svg>
-        <div className="absolute right-0 top-1/2 w-4 h-px bg-purple-400"></div>
-      </div>
-      <div className={cn("mt-2 text-gray-700", itemClassName)}>
-        {items.map((item, index) => <p key={index} className="text-lg">{item}</p>)}
-      </div>
+    <div className="w-full h-full flex flex-col p-2 relative overflow-hidden bg-gradient-to-br from-[#e9d5ff] to-[#f3e8ff]">
+      <div className="absolute top-0 left-0 w-full h-12" style={{ background: 'url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%239333ea" fill-opacity="0.8" d="M0,192L48,176C96,160,192,128,288,133.3C384,139,480,181,576,186.7C672,192,768,160,864,138.7C960,117,1056,107,1152,117.3C1248,128,1344,160,1392,176L1440,192L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"></path></svg>\')', backgroundSize: 'cover' }}></div>
+      <div className="absolute bottom-0 left-0 w-full h-12" style={{ background: 'url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%239333ea" fill-opacity="0.8" d="M0,192L48,176C96,160,192,128,288,133.3C384,139,480,181,576,186.7C672,192,768,160,864,138.7C960,117,1056,107,1152,117.3C1248,128,1344,160,1392,176L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>\')', backgroundSize: 'cover' }}></div>
+
+      <header className="relative z-10 grid grid-cols-2 gap-2 items-center px-4 mt-12">
+        <div className="w-24 h-24 rounded-full border-4 border-white bg-gray-200 shadow-lg overflow-hidden justify-self-center">
+            <NextImage src={carta.protagonistaFotoUrl || "https://picsum.photos/seed/quinceanera-main/300/300"} alt={`Foto de ${protagonistaNombre}`} width={96} height={96} className="object-cover w-full h-full" data-ai-hint="protagonist photo"/>
+        </div>
+        <div className="text-center">
+            <h1 className="font-bold text-xl text-white uppercase tracking-wider" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>Carta de Menú</h1>
+            <h2 className="font-extrabold text-5xl mt-1 text-white" style={{ fontFamily: "'Dancing Script', cursive", textShadow: '3px 3px 5px rgba(0,0,0,0.5)' }}>{protagonistaNombre}</h2>
+            <h3 className="font-extrabold text-3xl mt-0 text-white" style={{ fontFamily: "'Dancing Script', cursive", textShadow: '3px 3px 5px rgba(0,0,0,0.5)' }}>{tipoEvento}</h3>
+        </div>
+      </header>
+
+      <main className="relative z-10 flex-grow grid grid-cols-2 gap-x-2 gap-y-4 px-2 mt-4">
+        {carta.items.map((item) => (
+          <div key={item.id} className="text-center group relative" onClick={() => openEditModal(item)}>
+            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer z-20 rounded-lg">
+                <Edit className="w-8 h-8 text-white"/>
+            </div>
+            <h4 className="font-extrabold text-[0.6rem] uppercase tracking-wide text-purple-900" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.2)' }}>{item.nombre}</h4>
+            <div className="mt-1 aspect-[3/4] rounded-lg shadow-md overflow-hidden border-2 border-white">
+                <NextImage src={item.imageUrl} alt={item.nombre} width={200} height={300} className="w-full h-full object-cover" data-ai-hint={item.aiHint}/>
+            </div>
+          </div>
+        ))}
+      </main>
+
+       <footer className="relative z-10 mt-auto flex justify-center pb-8 pt-4">
+            {logoUrl && (
+                <div className="w-16 h-16">
+                  <NextImage src={logoUrl} alt="AK Producciones Logo" width={64} height={64} className="object-contain" data-ai-hint="company logo"/>
+                </div>
+            )}
+        </footer>
     </div>
   );
 };
-
-const CornerBorder: React.FC<{className?: string}> = ({ className }) => (
-    <svg className={cn("absolute w-12 h-12 text-purple-400", className)} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M40 0H20V5H35V20H40V0Z" fill="currentColor"/>
-        <path d="M0 0H5V15H20V20H0V0Z" fill="currentColor"/>
-        <path d="M20 40V20H15V35H0V40H20Z" fill="currentColor"/>
-        <path d="M40 40H20V35H35V20H40V40Z" fill="currentColor"/>
-    </svg>
-);
 
 
 export default function MenuMesaPage() {
   const { toast } = useToast();
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
-  const [menu, setMenu] = useState<FullMenu | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [socialWallUrl, setSocialWallUrl] = useState('');
+  const [menuMesa, setMenuMesa] = useState<CartaTragosData>(defaultMenuMesaData);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Modal State
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<Trago | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [fileToUpload, setFileToUpload] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
-    setError(null);
     try {
-      const fiestaData = await getFiestaActual();
+      const [fiestaData, settings] = await Promise.all([getFiestaActual(), getInvoiceTemplateSettings()]);
       setFiesta(fiestaData);
-      
-      const [templateSettings, menuData] = await Promise.all([
-          getInvoiceTemplateSettings(),
-          fiestaData.menuAsignadoId ? getMenuById(fiestaData.menuAsignadoId) : Promise.resolve(null),
-      ]);
-      setLogoUrl(templateSettings.logoUrl);
-      setMenu(menuData);
-      
-    } catch (err: any) {
-      setError("No se pudieron cargar los datos para el menú.");
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+      setLogoUrl(settings.logoUrl);
+      if (fiestaData.menuMesa) {
+        setMenuMesa(fiestaData.menuMesa);
+      }
+    } catch (e: any) {
+      toast({ title: "Error", description: "No se pudieron cargar los datos del evento.", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -96,143 +115,158 @@ export default function MenuMesaPage() {
     loadData();
   }, [loadData]);
   
-  useEffect(() => {
-    if(typeof window !== 'undefined' && fiesta?.id) {
-        setSocialWallUrl(`${window.location.origin}/evento/social/${fiesta.id}`);
+  const handleSaveChanges = async () => {
+    if (!fiesta) return;
+    setIsSaving(true);
+    try {
+      const result = await updateMenuMesa(fiesta.id, menuMesa);
+      if (result.success) {
+        toast({ title: "Guardado", description: "El menú de mesa ha sido actualizado." });
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    } finally {
+      setIsSaving(false);
     }
-  }, [fiesta?.id]);
-
-  const { menuEntradas, menuPrincipal, menuAdolescente, mesaPostres, bebidas, tortaPrincipal, fuenteChocolate } = useMemo(() => {
-    if (!fiesta) return { menuEntradas: [], menuPrincipal: [], menuAdolescente: [], mesaPostres: [], bebidas: [], tortaPrincipal: [], fuenteChocolate: [] };
-    
-    const allItems = menu?.items || [];
-    
-    const reposteriaItems = fiesta?.reposteria?.categorias
-      .filter(c => c.activada)
-      .flatMap(c => c.items.map(i => i.nombre)) || [];
-      
-    const bebidasItems = fiesta?.bebidas?.categorias
-      .filter(c => c.activada)
-      .flatMap(c => c.items.map(i => i.nombre)) || [];
-
-    const torta = fiesta?.decoracion?.decoracionTorta?.descripcion ? [fiesta.decoracion.decoracionTorta.descripcion] : [];
-    
-    const fuente = fiesta?.reposteria?.categorias.find(c => c.id === 'fuente_chocolate' && c.activada) ? ['Fuente de Chocolate con frutas de estación'] : [];
-
-    return {
-      menuEntradas: allItems.filter(i => i.type === 'Entrada').map(i => i.name),
-      menuPrincipal: allItems.filter(i => i.type === 'Plato Principal').map(i => i.name),
-      menuAdolescente: allItems.filter(i => i.type === 'Menú Infantil/Adolescente').map(i => i.name),
-      mesaPostres: reposteriaItems,
-      bebidas: bebidasItems,
-      tortaPrincipal: torta,
-      fuenteChocolate: fuente,
-    };
-  }, [menu, fiesta]);
-  
-  const handlePrint = () => window.print();
-
-  const handleShare = () => {
-    const url = window.location.href;
-    const message = `Menú del Evento: ${url}`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
   };
 
-  const protagonistName = useMemo(() => {
-    if (!fiesta) return 'El Agasajado';
-    return fiesta.configuracion.protagonista1Nombre || 'Evento Especial';
-  }, [fiesta]);
+  const handleOpenEditModal = (item: Trago) => {
+    setEditingItem(item);
+    setPreviewUrl(item.imageUrl);
+    setFileToUpload(null);
+    setIsEditModalOpen(true);
+  };
   
-  const protagonistPhoto = useMemo(() => {
-    return 'https://picsum.photos/seed/quinceanera/300/300';
-  }, []);
+  const handleAddItem = () => {
+    const newItem: Trago = {
+      id: `plato_${Date.now()}`,
+      nombre: 'Nuevo Plato',
+      imageUrl: 'https://placehold.co/400x600/e2e8f0/a0aec0?text=Plato'
+    };
+    setMenuMesa(prev => ({ ...prev, items: [...prev.items, newItem] }));
+  };
 
-  if (isLoading) {
-    return <div className="p-8 max-w-lg mx-auto bg-white"><Skeleton className="h-[80vh] w-full" /></div>;
-  }
+  const handleUpdateItem = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!editingItem) return;
+
+    let finalImageUrl = editingItem.imageUrl;
+
+    if (fileToUpload) {
+      if (!fiesta) {
+        toast({ title: "Error", description: "ID de fiesta no encontrado para subir imagen.", variant: "destructive" });
+        return;
+      }
+      setIsUploading(true);
+      const formData = new FormData();
+      formData.append('fiestaId', fiesta.id);
+      formData.append('file', fileToUpload);
+      
+      const result = await uploadPublicPageAsset(fiesta.id, fileToUpload);
+      if(result.success && result.url) {
+        finalImageUrl = result.url;
+      } else {
+        toast({ title: "Error al subir", description: result.error, variant: "destructive" });
+        setIsUploading(false);
+        return;
+      }
+      setIsUploading(false);
+    }
+    
+    setMenuMesa(prev => ({
+      ...prev,
+      items: prev.items.map(item =>
+        item.id === editingItem.id ? { ...editingItem, imageUrl: finalImageUrl } : item
+      ),
+    }));
+    
+    setIsEditModalOpen(false);
+    setEditingItem(null);
+  };
+
+  const handleDeleteItem = () => {
+    if (!editingItem) return;
+    setMenuMesa(prev => ({ ...prev, items: prev.items.filter(item => item.id !== editingItem.id) }));
+    setIsEditModalOpen(false);
+    setEditingItem(null);
+  };
   
-  if (error) {
-    return <div className="p-8 max-w-lg mx-auto text-center"><p className="mt-2 text-destructive">{error}</p></div>;
-  }
-  
-  if (!fiesta) {
-    return <div className="p-8 max-w-lg mx-auto text-center"><p className="mt-2 text-muted-foreground">No se encontró información del evento.</p></div>;
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFileToUpload(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
+
+  const handlePrint = () => window.print();
+  const handleShare = () => { /* ... (implement if needed) ... */ };
+
+  if (isLoading || !fiesta) {
+    return <div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
   }
 
   return (
-    <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans" lang="es">
-      <div className="fixed top-4 right-4 print:hidden flex flex-col gap-2 z-50">
-        <Link href={`/fiestas/nueva?fiestaId=${fiesta?.id}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver</Button></Link>
-        <Button onClick={handleShare} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir</Button>
-        <Button onClick={handlePrint} size="sm"><PrinterIcon className="w-4 h-4 mr-1.5" />Imprimir</Button>
+    <div className="bg-gray-100 print:bg-white font-sans">
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Editar Plato del Menú</DialogTitle></DialogHeader>
+          {editingItem && (
+            <form onSubmit={handleUpdateItem} className="space-y-4">
+              <div className="space-y-1">
+                <Label htmlFor="trago-name">Nombre</Label>
+                <Input id="trago-name" value={editingItem.nombre} onChange={e => setEditingItem(prev => prev ? {...prev, nombre: e.target.value} : null)} />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="trago-image">Imagen</Label>
+                 {previewUrl && <NextImage src={previewUrl} alt="preview" width={100} height={150} className="rounded-md object-cover border"/>}
+                 <Input id="trago-image" type="file" accept="image/*" onChange={handleFileChange} />
+              </div>
+              <DialogFooter className="justify-between">
+                <Button type="button" variant="destructive" onClick={handleDeleteItem}>Eliminar</Button>
+                <div className="flex gap-2">
+                  <DialogClose asChild><Button type="button" variant="outline">Cancelar</Button></DialogClose>
+                  <Button type="submit" disabled={isUploading}>{isUploading ? <Loader2 className="w-4 h-4 animate-spin"/> : 'Guardar'}</Button>
+                </div>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+      <div className="py-4 px-8 print:hidden flex justify-between items-center bg-white shadow-sm sticky top-0 z-50">
+        <div className="flex gap-4 items-center">
+            <h1 className="font-headline text-xl">Menú de Mesa Personalizable</h1>
+            <Button size="sm" onClick={handleSaveChanges} disabled={isSaving}>
+                {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>}
+                Guardar Cambios
+            </Button>
+        </div>
+        <div className="flex gap-2">
+            <Button size="sm" variant="outline" onClick={handleAddItem}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Plato</Button>
+            <Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
+            <Button onClick={handlePrint} size="sm"><PrinterIcon className="w-4 h-4 mr-2"/>Imprimir</Button>
+        </div>
       </div>
       
-      <div className="w-[210mm] min-h-[297mm] mx-auto bg-white shadow-lg print:shadow-none p-8 flex flex-col relative border-8 border-purple-400">
-        <CornerBorder className="top-0 left-0"/>
-        <CornerBorder className="top-0 right-0 rotate-90"/>
-        <CornerBorder className="bottom-0 left-0 -rotate-90"/>
-        <CornerBorder className="bottom-0 right-0 rotate-180"/>
-        
-        <header className="text-center mb-6 relative">
-           <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-36 h-36 rounded-full border-4 border-purple-400 bg-white shadow-lg p-1">
-                <NextImage 
-                  src={protagonistPhoto} 
-                  alt={`Foto de ${protagonistName}`}
-                  width={144}
-                  height={144}
-                  className="rounded-full object-cover w-full h-full"
-                  data-ai-hint="protagonist photo"
-                />
-           </div>
-           <div className="pt-20">
-             <h1 className="text-7xl font-bold" style={{fontFamily: "'Belleza', serif", color: '#9333ea', textShadow: '2px 2px 4px rgba(0,0,0,0.1)'}}>{protagonistName}</h1>
-             <div className="relative mt-2 inline-block">
-                <div className="absolute inset-x-0 top-1/2 h-8 bg-purple-400 transform -translate-y-1/2"></div>
-                <h2 className="font-['Dancing_Script',_cursive] text-4xl relative px-4" style={{color: '#fff'}}>
-                    {fiesta?.configuracion.tipoCelebracion}
-                </h2>
-             </div>
-           </div>
-        </header>
-
-        <main className="flex-grow space-y-6 font-['Belleza',_serif]">
-          <MenuSection title="Entrada" items={menuEntradas} />
-          <MenuSection title="Plato Principal" items={menuPrincipal} />
-          {menuAdolescente.length > 0 && <MenuSection title="Menú Adolescente" items={menuAdolescente} />}
-          <MenuSection title="Mesa de Postres" items={[...mesaPostres, ...tortaPrincipal, ...fuenteChocolate]} />
-          <MenuSection title="Bebidas" items={bebidas} />
-        </main>
-        
-        <footer className="mt-auto pt-8 text-center relative -mb-4">
-            <svg viewBox="0 0 100 20" className="w-full h-auto text-purple-400 absolute left-0 -top-8">
-                <path d="M 0 10 Q 50 20, 100 10" stroke="currentColor" fill="none" strokeWidth="0.5"/>
-            </svg>
-            <div className="bg-purple-400 text-white p-4 rounded-lg relative">
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 flex items-center justify-center transform rotate-45">
-                    <div className="w-4 h-4 bg-purple-400"></div>
-                </div>
-                <p className="text-xl font-bold">{companyInfo.name}</p>
-                <p className="text-sm">{companyInfo.line1}</p>
-                <p className="text-sm">{companyInfo.line2}</p>
-                <div className="flex justify-center items-center gap-2 mt-2">
-                    <div className="w-6 h-6 rounded-full bg-yellow-400 flex items-center justify-center">
-                        <Phone className="w-4 h-4 text-black"/>
-                    </div>
-                    <span className="font-bold text-lg">{companyInfo.contact}</span>
-                </div>
-                 {socialWallUrl && (
-                    <div className="absolute -left-4 -bottom-4 w-20 h-20 bg-white rounded-full p-1 shadow-md">
-                        <QRCodeStylized id="qr-social-wall" value={socialWallUrl} size={72} />
-                    </div>
-                 )}
-                 {logoUrl && (
-                    <div className="absolute -right-4 -bottom-4 w-20 h-20 bg-white rounded-full p-1 shadow-md">
-                        <NextImage src={logoUrl} alt="Logo" width={72} height={72} className="rounded-full object-contain"/>
-                    </div>
-                 )}
-            </div>
-        </footer>
+      <div className="w-[297mm] h-[210mm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto flex gap-4 p-4 border-2 border-dashed print:border-none">
+        <div className="w-1/2 h-full border border-gray-300 print:border-none">
+            <MenuComponent fiesta={fiesta} carta={menuMesa} logoUrl={logoUrl} openEditModal={handleOpenEditModal}/>
+        </div>
+         <div className="w-1/2 h-full border border-gray-300 print:border-none">
+            <MenuComponent fiesta={fiesta} carta={menuMesa} logoUrl={logoUrl} openEditModal={handleOpenEditModal}/>
+        </div>
       </div>
+
+       <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Belleza&family=Dancing+Script:wght@700&display=swap');
+        @media print {
+            body { -webkit-print-color-adjust: exact; color-adjust: exact; }
+            @page { size: A4 landscape; margin: 0; }
+        }
+       `}</style>
     </div>
   );
 }
