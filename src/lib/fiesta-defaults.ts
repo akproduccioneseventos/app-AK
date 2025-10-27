@@ -1,4 +1,5 @@
 
+
 import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, GiftItem, LayoutElement, ClientTarea, ProgramaEventoItem, TareaAsignadaA, FotografiaYFilmacionData, BebidasConsumoConfig, TipoAsistente, ReposteriaConsumoConfig, OtroDocumento, VideoVidaData, BebidaReceta, IngredienteReceta, CargaOperativaCategoria, InvitacionDigitalData, SeccionInvitacion, CartaTragosData } from '@/types/fiesta';
 import { defaultInvitacionDigitalData } from './invitacion-digital-defaults';
 
@@ -78,14 +79,15 @@ export const defaultZonasContratadas: ZonaContratada[] = [
   { id: 'centro_salon', nombreDisplay: 'Centro del salón / Ambientación general', activada: false, descripcion: '', imagenReferenciaUrl: '', dataAiHint: 'event hall center' },
 ];
 
-export const defaultGiftItems: Omit<GiftItem, 'id' | 'isClaimed'>[] = [
-    { name: 'Noche de hotel', description: 'Una noche de relax en un hotel especial.', imageUrl: 'https://placehold.co/200x150.png', dataAiHint: 'hotel room' },
-    { name: 'Cena para dos', description: 'Una cena romántica en nuestro restaurante favorito.', imageUrl: 'https://placehold.co/200x150.png', dataAiHint: 'romantic dinner' },
-    { name: 'Set de Copas de Vino', description: 'Un elegante set de copas para brindar en ocasiones especiales.', imageUrl: 'https://placehold.co/200x150.png', dataAiHint: 'wine glasses' },
-    { name: 'Electrodoméstico para la cocina', description: 'Una ayuda moderna para nuestro día a día en la cocina.', imageUrl: 'https://placehold.co/200x150.png', dataAiHint: 'kitchen appliance' },
-    { name: 'Aporte para la Luna de Miel', description: '¡Ayúdanos a hacer nuestro viaje de bodas inolvidable!', imageUrl: 'https://placehold.co/200x150.png', dataAiHint: 'honeymoon travel' },
-    { name: 'Día de Spa', description: 'Un día completo de masajes y relajación para dos.', imageUrl: 'https://placehold.co/200x150.png', dataAiHint: 'spa day' },
+export const defaultGiftItems: Omit<GiftItem, 'id' | 'isClaimed' | 'claimedBy'>[] = [
+    { name: 'Noche de hotel', description: 'Una noche de relax en un hotel especial.', imageUrl: 'https://picsum.photos/seed/hotel-gift/200/150', dataAiHint: 'hotel room' },
+    { name: 'Cena para dos', description: 'Una cena romántica en nuestro restaurante favorito.', imageUrl: 'https://picsum.photos/seed/dinner-gift/200/150', dataAiHint: 'romantic dinner' },
+    { name: 'Set de Copas de Vino', description: 'Un elegante set de copas para brindar en ocasiones especiales.', imageUrl: 'https://picsum.photos/seed/wine-gift/200/150', dataAiHint: 'wine glasses' },
+    { name: 'Electrodoméstico de Cocina', description: 'Una ayuda moderna para nuestro día a día en la cocina.', imageUrl: 'https://picsum.photos/seed/kitchen-gift/200/150', dataAiHint: 'kitchen appliance' },
+    { name: 'Aporte para Luna de Miel', description: '¡Ayúdanos a hacer nuestro viaje de bodas inolvidable!', imageUrl: 'https://picsum.photos/seed/honeymoon-gift/200/150', dataAiHint: 'honeymoon travel' },
+    { name: 'Día de Spa para Dos', description: 'Un día completo de masajes y relajación.', imageUrl: 'https://picsum.photos/seed/spa-gift/200/150', dataAiHint: 'spa day' },
 ];
+
 
 export const defaultDecoracion: DecoracionData = {
   tema: 'Elegante y Moderno',
@@ -311,7 +313,14 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
   cartaTragos: { ...defaultCartaTragosData },
 
   // DEPRECATED - will be migrated/removed
-  webPageSettings: { ...defaultWebPageSettings },
+  webPageSettings: { 
+      ...defaultWebPageSettings,
+       giftRegistry: defaultGiftItems.map(item => ({
+        ...item,
+        id: `gift_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
+        isClaimed: false,
+    })),
+   },
 
   // NEW UNIFIED OBJECT
   invitacionDigital: { ...defaultInvitacionDigitalData }
