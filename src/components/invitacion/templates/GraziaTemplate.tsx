@@ -19,7 +19,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { claimGiftFiestaActual, addGiftToRegistryFiestaActual } from '@/app/actions/fiesta-actual';
+import { claimGiftFiestaActual, addGiftToRegistryFiestaActual } from '@/app/actions/fiesta/regalos.actions';
 import { Loader2 } from 'lucide-react';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Textarea } from '@/components/ui/textarea';
@@ -46,6 +46,7 @@ const formatDate = (dateString?: string, shortMonth = false) => {
     return 'Fecha inválida';
   }
 };
+
 
 
 const companyName = "AK Producciones";
@@ -144,6 +145,43 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
   const primaryColor = paleta.primary || 'hsl(var(--primary))';
   const backgroundImage = data.videoFondoUrl ? '' : (data.imagenFondoUrl || 'https://picsum.photos/seed/weddingcouple/1200/800');
   
+  const generateICSContent = (): string => {
+    if (!fiesta.configuracion.fechaEvento) return '';
+    const startDate = new Date(fiesta.configuracion.fechaEvento);
+    const endDate = new Date(startDate.getTime() + 4 * 60 * 60 * 1000); // Default 4 hours duration
+
+    const toUTC = (date: Date) => date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+
+    return [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//AKProducciones//App//EN',
+        'BEGIN:VEVENT',
+        `UID:${fiesta.id}@akproducciones.app`,
+        `DTSTAMP:${toUTC(new Date())}`,
+        `DTSTART:${toUTC(startDate)}`,
+        `DTEND:${toUTC(endDate)}`,
+        `SUMMARY:${fiesta.configuracion.nombreEvento}`,
+        `LOCATION:${fiesta.configuracion.nombreLugar}`,
+        `DESCRIPTION:¡No te pierdas la celebración de ${fiesta.configuracion.nombreEvento}!`,
+        'END:VEVENT',
+        'END:VCALENDAR'
+    ].join('\n');
+  };
+
+  const handleAddToCalendar = () => {
+    const icsContent = generateICSContent();
+    if (icsContent) {
+        const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `${fiesta.configuracion.nombreEvento}.ics`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+  };
+
   return (
     <header
         className="relative py-24 md:py-32 text-center bg-cover bg-center min-h-[70vh] flex items-center justify-center"
@@ -191,6 +229,11 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
                }
             </motion.h1>
              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7, duration: 0.8 }} className="mt-4 text-lg" style={{color: paleta.secondary}}>{formatDate(fiesta.configuracion.fechaEvento)}</motion.p>
+             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9, duration: 0.8 }} className="mt-6">
+                 <Button onClick={handleAddToCalendar} variant="outline" className="bg-background/80">
+                     <Calendar className="w-4 h-4 mr-2"/> Agendar Fecha
+                 </Button>
+            </motion.div>
          </div>
     </header>
   );
@@ -225,7 +268,7 @@ const GraziaDetalles: React.FC<{ data: InvitacionDigitalData['detallesEvento'], 
 
     const toUTC = (date: Date) => date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
 
-    const icsContent = [
+    return [
         'BEGIN:VCALENDAR',
         'VERSION:2.0',
         'PRODID:-//AKProducciones//App//EN',
@@ -239,7 +282,6 @@ const GraziaDetalles: React.FC<{ data: InvitacionDigitalData['detallesEvento'], 
         'END:VEVENT',
         'END:VCALENDAR'
     ].join('\n');
-    return icsContent;
   };
 
   const handleAddToCalendar = (detalle: DetalleEventoEspecifico) => {
@@ -267,7 +309,7 @@ const GraziaDetalles: React.FC<{ data: InvitacionDigitalData['detallesEvento'], 
         <h3 className="font-headline text-3xl mb-4" style={{color: paleta.accent}}>{detalle.titulo}</h3>
         {detalle.imagenUrl && (
           <div className="relative aspect-video w-full rounded-lg overflow-hidden shadow-lg mb-6">
-            <NextImage src={detalle.imagenUrl} alt={`Foto de ${detalle.nombreLugar}`} layout="fill" objectFit="cover" />
+            <NextImage src={detalle.imagenUrl} alt={`Foto de ${detalle.nombreLugar}`} layout="fill" objectFit="cover" data-ai-hint="event venue photo"/>
           </div>
         )}
         <div className="text-lg space-y-1">
