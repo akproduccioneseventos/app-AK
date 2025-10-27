@@ -5,6 +5,7 @@ import { defaultInvitacionDigitalData } from './invitacion-digital-defaults';
 
 export const defaultCartaTragosData: CartaTragosData = {
     protagonistaFotoUrl: "https://picsum.photos/seed/quinceanera-main/300/300",
+    paletaColores: { primary: '#9333ea', secondary: '#363636', accent: '#facc15' },
     items: [
         { id: 'trago_1', nombre: 'DAIQUIRI DE DURAZNO', imageUrl: 'https://picsum.photos/seed/peach-daiquiri/400/600', aiHint: 'peach daiquiri' },
         { id: 'trago_2', nombre: 'CAIPIRINHA', imageUrl: 'https://picsum.photos/seed/caipirinha/400/600', aiHint: 'caipirinha cocktail' },
@@ -349,7 +350,7 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
   cartaTragos: { ...defaultCartaTragosData },
   menuMesa: { ...defaultMenuMesaData },
 
-  // DEPRECATED - will be migrated/removed
+  // DEPRECATED - will be migrated to invitacionDigital
   webPageSettings: { 
       ...defaultWebPageSettings,
        giftRegistry: defaultGiftItems.map(item => ({

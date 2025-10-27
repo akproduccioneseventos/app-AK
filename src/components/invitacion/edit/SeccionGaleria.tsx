@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { InvitacionDigitalData } from '@/types/fiesta';
@@ -16,7 +17,7 @@ interface Props {
 }
 
 export const SeccionGaleriaEditor: React.FC<Props> = ({ data, update, fiestaId }) => {
-  const handleFieldChange = (field: keyof typeof data, value: boolean) => {
+  const handleFieldChange = (field: keyof typeof data, value: any) => {
     update({ ...data, [field]: value });
   };
   
@@ -43,12 +44,21 @@ export const SeccionGaleriaEditor: React.FC<Props> = ({ data, update, fiestaId }
       {data.visible && (
         <Card className="bg-muted/40">
           <CardHeader>
-            <CardTitle className="text-md">Fotos de la Galería</CardTitle>
+            <CardTitle className="text-md">Galería de Fotos</CardTitle>
             <CardDescription>Sube las fotos que aparecerán en el carrusel de la invitación.</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
+             <div className="space-y-1">
+                <Label>Imagen de Fondo de la Sección</Label>
+                <UploadButton
+                    currentUrl={data.imagenFondoUrl}
+                    onUrlChange={(url) => handleFieldChange('imagenFondoUrl', url)}
+                    fiestaId={fiestaId}
+                    accept="image/*"
+                />
+            </div>
              <div className="space-y-2">
-                <Label>Añadir Nueva Foto</Label>
+                <Label>Añadir Nueva Foto a la Galería</Label>
                 <UploadButton
                     onUrlChange={handleAddPhoto}
                     fiestaId={fiestaId}

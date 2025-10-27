@@ -5,16 +5,23 @@ import type { InvitacionDigitalData, TextStyle, TextWithStyle } from '@/types/fi
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Image as ImageIcon } from 'lucide-react';
 import { TextStyleEditor } from './TextStyleEditor';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { UploadButton } from './UploadButton';
+import { Separator } from '@/components/ui/separator';
 
 interface Props {
   data: InvitacionDigitalData['dressCode'];
   update: (newData: Partial<InvitacionDigitalData['dressCode']>) => void;
+  fiestaId?: string;
 }
 
-export const SeccionDressCodeEditor: React.FC<Props> = ({ data, update }) => {
+export const SeccionDressCodeEditor: React.FC<Props> = ({ data, update, fiestaId }) => {
+  const handleFieldChange = (field: keyof typeof data, value: any) => {
+    update({ ...data, [field]: value });
+  };
+  
   const handleTextChange = (text: string) => {
     const textData: TextWithStyle = {
       ...(data.texto || { style: {} }),
@@ -56,6 +63,16 @@ export const SeccionDressCodeEditor: React.FC<Props> = ({ data, update }) => {
 
   return (
     <div className="space-y-4 pt-2">
+      <div className="space-y-1">
+          <Label>Imagen de Fondo</Label>
+          <UploadButton
+              currentUrl={data.imagenFondoUrl}
+              onUrlChange={(url) => handleFieldChange('imagenFondoUrl', url)}
+              fiestaId={fiestaId}
+          />
+      </div>
+      <Separator />
+
       <div className="p-3 border rounded-md">
         <Label>Tipo de Vestimenta</Label>
         <RadioGroup

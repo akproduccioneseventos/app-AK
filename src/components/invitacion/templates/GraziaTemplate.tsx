@@ -168,7 +168,7 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
                     initialValue={data.subtitulo?.text || "Nuestra Boda"}
                     style={data.subtitulo?.style}
                     onSave={v => onUpdate?.({ cabecera: { ...data, subtitulo: { ...(data.subtitulo || {style:{}}), text: v } } })}
-                    className="font-headline text-2xl"
+                    className="font-headline md:text-2xl"
                     textarea={false}
                 />
             </motion.div>
