@@ -462,7 +462,7 @@ const GraziaRegalos: React.FC<{ data: InvitacionDigitalData['regalos'], fiestaId
                         <div className="space-y-1"><Label htmlFor="new-gift-name">Nombre del Regalo</Label><Input id="new-gift-name" value={newGiftName} onChange={e => setNewGiftName(e.target.value)} required/></div>
                         <div className="space-y-1"><Label htmlFor="new-gift-desc">Descripción (Opcional)</Label><Textarea id="new-gift-desc" value={newGiftDescription} onChange={e => setNewGiftDescription(e.target.value)} rows={2}/></div>
                         <div className="space-y-1"><Label htmlFor="new-gift-img">URL de Imagen (Opcional)</Label><Input id="new-gift-img" value={newGiftImageUrl} onChange={e => setNewGiftImageUrl(e.target.value)} /></div>
-                        <DialogFooter><DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose><Button type="submit" disabled={isSuggesting}>{isSuggesting ? <Loader2 className="w-4 h-4 animate-spin mr-2"/> : null}Añadir a la Lista</Button></DialogFooter>
+                        <DialogFooter><DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose><Button type="submit" disabled={isSuggesting}>{isSuggesting ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : null}Añadir a la Lista</Button></DialogFooter>
                     </form>
                 </DialogContent>
             </Dialog>
@@ -589,16 +589,12 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
 
 
   useEffect(() => {
-    setCompanionNames(prevNames => {
-      const numCompanions = rsvpGuests > 1 ? rsvpGuests - 1 : 0;
-      const newCompanionNames = Array.from({ length: numCompanions }, (_, i) => prevNames[i] || '');
-      // Only update if the array length differs, to prevent loop
-      if (newCompanionNames.length !== prevNames.length) {
-        return newCompanionNames;
-      }
-      return prevNames;
-    });
-  }, [rsvpGuests]);
+    const numCompanions = rsvpGuests > 1 ? rsvpGuests - 1 : 0;
+    if (companionNames.length !== numCompanions) {
+        const newCompanionNames = Array.from({ length: numCompanions }, (_, i) => companionNames[i] || '');
+        setCompanionNames(newCompanionNames);
+    }
+  }, [rsvpGuests, companionNames]);
 
 
   const togglePlayPause = () => {
@@ -829,17 +825,17 @@ END:VCALENDAR`;
             )}
              {fiesta.socialGallerySettings?.enabled && (
                 <div className="mt-8 flex flex-col items-center gap-6">
-                    <Button asChild variant="default" style={{backgroundColor: primaryColor}}>
+                    <Button asChild style={{backgroundColor: primaryColor}}>
                         <Link href={`/evento/social/${fiesta.id}`}>
                             <CameraIcon className="w-5 h-5 mr-2" />
                             Ir al Muro Social
                         </Link>
                     </Button>
-                    <div className="p-2 bg-white border rounded-md">
-                        <QRCodeStylized id="qr-code-social" value={socialWallUrl} size={100} />
+                    <div className="p-4 bg-white border rounded-lg">
+                        <QRCodeStylized id="qr-code-social" value={socialWallUrl} size={120} />
                     </div>
                     <Button variant="link" size="sm" className="text-xs" onClick={downloadQR}>
-                        <Download className="w-3 h-3 mr-1" /> Descargar QR
+                        <Download className="w-3 h-3 mr-1" /> Descargar QR para el Muro Social
                     </Button>
                 </div>
              )}
@@ -848,7 +844,7 @@ END:VCALENDAR`;
       case 'despedida':
         return <SectionWrapper {...wrapperProps}>
             <h3 className="font-headline text-4xl" style={{fontFamily: 'Dancing_Script', color: paletaColores.accent}}>
-              <EditableText initialValue={seccion.data.texto?.text || "¡Te esperamos!"} style={seccion.data.texto?.style} onSave={v => onUpdate?.({ despedida: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } }})} textarea={false}/>
+              <EditableText initialValue={seccion.data.texto?.text || "¡Te espero para festejar!"} style={seccion.data.texto?.style} onSave={v => onUpdate?.({ despedida: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } }})} textarea={false}/>
             </h3>
         </SectionWrapper>;
       case 'footer': return null; // Footer is handled separately
