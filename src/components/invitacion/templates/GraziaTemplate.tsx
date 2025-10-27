@@ -18,7 +18,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { claimGift, addGiftToRegistry } from '@/app/actions/fiesta/regalos.actions';
+import { claimGift, addGiftToRegistry } from '@/app/actions/fiesta-actual';
 import { Loader2 } from 'lucide-react';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Textarea } from '@/components/ui/textarea';
@@ -83,7 +83,9 @@ const SectionWrapper: React.FC<{
                     <div className="absolute inset-0 bg-background/80 dark:bg-background/90 -z-10"></div>
                 </>
             )}
-            {children}
+            <div className="max-w-4xl mx-auto">
+              {children}
+            </div>
         </motion.section>
     );
 };
@@ -589,12 +591,21 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
 
 
   useEffect(() => {
-    const numCompanions = rsvpGuests > 1 ? rsvpGuests - 1 : 0;
-    if (companionNames.length !== numCompanions) {
+    // Only run this effect if rsvpGuests is greater than 1.
+    if (rsvpGuests > 1) {
+      const numCompanions = rsvpGuests - 1;
+      // Only update state if the array length is actually different.
+      if (companionNames.length !== numCompanions) {
         const newCompanionNames = Array.from({ length: numCompanions }, (_, i) => companionNames[i] || '');
         setCompanionNames(newCompanionNames);
+      }
+    } else {
+      // If rsvpGuests is 1 or less, ensure companionNames is empty.
+      if (companionNames.length > 0) {
+        setCompanionNames([]);
+      }
     }
-  }, [rsvpGuests, companionNames]);
+  }, [rsvpGuests]); // Dependency array only includes rsvpGuests.
 
 
   const togglePlayPause = () => {
@@ -766,8 +777,8 @@ END:VCALENDAR`;
         );
       case 'dressCode':
         return (
-          <SectionWrapper {...wrapperProps}>
-            <SectionIcon><Sparkles className="w-12 h-12 mx-auto mb-3" style={{color: paletaColores.primary}} /></SectionIcon>
+        <SectionWrapper {...wrapperProps}>
+            <SectionIcon><Sparkles className="w-12 h-12 mx-auto mb-3" style={{color: paletaColores.primary}}/></SectionIcon>
             <h3 className="font-headline text-3xl mb-2" style={{color: paletaColores.accent}}>Código de Vestimenta</h3>
             <div className="text-xl font-semibold"><EditableText initialValue={seccion.data.texto?.text || "Formal"} style={seccion.data.texto?.style || {}} onSave={v => onUpdate?.({ dressCode: { ...seccion.data, texto: { ...seccion.data.texto, text: v }} })} textarea={false}/></div>
              {(seccion.data.sugeridos?.length > 0 || seccion.data.evitar?.length > 0) && (
@@ -859,7 +870,7 @@ END:VCALENDAR`;
         <GraziaCabecera data={invitacionData.cabecera} fiesta={fiesta} paleta={paletaColores} onUpdate={onUpdate} isPreview={isPreview} />
        </div>
 
-       <main className={!isPreview ? 'max-w-3xl mx-auto p-4 md:p-8' : ''}>
+       <main className={cn(!isPreview && "max-w-3xl mx-auto p-4 md:p-8")}>
         {invitacionData.secciones.map((seccion, index) => {
            if(seccion.tipo === 'cabecera' || !seccion.data?.visible) return null;
            const component = renderSectionComponent(seccion);
