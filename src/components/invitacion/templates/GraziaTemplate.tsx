@@ -19,12 +19,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { claimGiftFiestaActual, addGiftToRegistryFiestaActual } from '@/app/actions/fiesta/regalos.actions';
+import { claimGiftFiestaActual, addGiftToRegistryFiestaActual } from '@/app/actions/fiesta-actual';
 import { Loader2 } from 'lucide-react';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Textarea } from '@/components/ui/textarea';
 import QRCodeStylized from 'qrcode.react';
-import { saveSugerenciaMusical } from '@/app/actions/fiesta/musica.actions';
+import { saveSugerenciaMusicalFiestaActual } from '@/app/actions/fiesta-actual';
 
 const formatDate = (dateString?: string, shortMonth = false) => {
   if (!dateString) return "Fecha no especificada";
@@ -637,7 +637,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
     setIsSubmittingMusic(true);
     try {
         const fullSuggestion = `${suggesterName.trim() || 'Anónimo'}: ${musicSuggestion.trim()}`;
-        const result = await saveSugerenciaMusical(fiesta.id, fullSuggestion);
+        const result = await saveSugerenciaMusicalFiestaActual(fiesta.id, fullSuggestion);
         if (result.success) {
             toast({ title: "¡Sugerencia Enviada!", description: "Gracias por tu aporte a la fiesta." });
             setIsMusicModalOpen(false);
@@ -711,10 +711,38 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
       case 'galeria':
         return <SectionWrapper {...wrapperProps}><GraziaGaleria {...props} /></SectionWrapper>;
       case 'historia': 
-        return <SectionWrapper {...wrapperProps}>
-            <SectionIcon><Heart className="w-12 h-12 mx-auto mb-3" style={{color: paletaColores.primary}} /></SectionIcon>
-            <h3 className="font-headline text-3xl mb-4" style={{color: paletaColores.accent}}><EditableText initialValue={seccion.data.titulo?.text || 'Nuestra Historia'} style={seccion.data.titulo?.style} onSave={(v) => onUpdate?.({ historia: { ...seccion.data, titulo: { ...(seccion.data.titulo || {style:{}}), text: v } } })} textarea={false}/></h3>
-            <p className="max-w-prose mx-auto text-muted-foreground"><EditableText initialValue={seccion.data.texto?.text || 'Un breve relato de cómo llegamos hasta aquí...'} style={seccion.data.texto?.style} onSave={(v) => onUpdate?.({ historia: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } } })} textarea/></p></SectionWrapper>;
+        return (
+          <SectionWrapper {...wrapperProps}>
+            <SectionIcon>
+              <Heart className="w-12 h-12 mx-auto mb-3" style={{color: paletaColores.primary}} />
+            </SectionIcon>
+            <h3 className="font-headline text-3xl mb-4" style={{color: paletaColores.accent}}>
+              <EditableText 
+                initialValue={seccion.data.titulo?.text || 'Nuestra Historia'} 
+                style={seccion.data.titulo?.style} 
+                onSave={v => onUpdate?.({ historia: { ...seccion.data, titulo: { ...(seccion.data.titulo || {style:{}}), text: v } } })} 
+                textarea={false}
+              />
+            </h3>
+             <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-8">
+                {seccion.data.fotoHistoriaUrl && (
+                    <motion.div initial={{ opacity: 0, scale: 0.8 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="w-full md:w-1/3 flex-shrink-0">
+                      <div className="relative aspect-square rounded-lg overflow-hidden shadow-lg">
+                        <NextImage src={seccion.data.fotoHistoriaUrl} alt="Nuestra historia" layout="fill" objectFit="cover" data-ai-hint="couple story photo"/>
+                      </div>
+                    </motion.div>
+                )}
+                <div className="text-muted-foreground text-left md:text-lg">
+                    <EditableText 
+                        initialValue={seccion.data.texto?.text || 'Un breve relato de cómo llegamos hasta aquí...'} 
+                        style={seccion.data.texto?.style} 
+                        onSave={v => onUpdate?.({ historia: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } } })} 
+                        textarea
+                    />
+                </div>
+            </div>
+          </SectionWrapper>
+        );
       case 'dressCode':
         return <SectionWrapper {...wrapperProps}>
             <SectionIcon><Sparkles className="w-12 h-12 mx-auto mb-3" style={{color: paletaColores.primary}} /></SectionIcon>

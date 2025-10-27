@@ -138,5 +138,6 @@ export const claimGiftFiestaActual = claimGift;
 export const addGiftToRegistryFiestaActual = addGiftToRegistryAction;
 
 // --- Carta Tragos / Menu Mesa Actions ---
-export const updateCartaTragosFiestaActual = updateCartaTragosFromModule;
-export const updateMenuMesaFiestaActual = updateMenuMesaFromModule;
+export const updateCartaTragos = updateCartaTragosFromModule;
+export const updateMenuMesa = updateMenuMesaFromModule;
+
