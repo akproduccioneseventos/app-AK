@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import type { FiestaEnPlanificacion, InvitacionDigitalData, ColorPalette, SocialConnection, SeccionInvitacion, GiftItem, DetalleEventoEspecifico, TextWithStyle, TextStyle } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, InvitacionDigitalData, ColorPalette, SocialConnection, SeccionInvitacion, GiftItem, DetalleEventoEspecifico, TextWithStyle, TextStyle, ProgramaEventoItem } from '@/types/fiesta';
 import { EditableText } from '../edit/EditableText';
 import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
@@ -636,27 +636,31 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
       case 'detallesEvento':
         return <SectionWrapper {...wrapperProps}><GraziaDetalles {...props} /></SectionWrapper>;
       case 'itinerario':
-        return <SectionWrapper {...wrapperProps}>
-            <SectionIcon><Clock className="w-12 h-12 mx-auto mb-3" style={{color: paletaColores.primary}} /></SectionIcon>
-            <h3 className="font-headline text-3xl mb-6" style={{color: paletaColores.accent}}>Cronograma</h3>
+        return (
+          <SectionWrapper {...wrapperProps}>
+            <SectionIcon>
+              <Clock className="w-12 h-12 mx-auto mb-3" style={{ color: paletaColores.primary }} />
+            </SectionIcon>
+            <h3 className="font-headline text-3xl mb-6" style={{ color: paletaColores.accent }}>Cronograma</h3>
             <ul className="max-w-sm mx-auto space-y-4 text-left">
-              {(fiesta.programa || []).map(item => {
+              {(fiesta.programa || []).map((item) => {
                 const Icon = item.icono && iconMap[item.icono] ? iconMap[item.icono] : Clock;
                 return (
                   <li key={item.id} className="flex items-center gap-4">
                     <div className="flex flex-col items-center">
-                        <Icon className="w-6 h-6 text-primary mb-1"/>
-                        <span className="font-bold text-sm" style={{color: paletaColores.primary}}>{item.hora}</span>
+                      <Icon className="w-6 h-6 text-primary mb-1" />
+                      <span className="font-bold text-sm" style={{ color: paletaColores.primary }}>{item.hora}</span>
                     </div>
                     <div>
-                        <p className="font-semibold">{item.titulo}</p>
-                        {item.descripcion && <p className="text-sm text-muted-foreground">{item.descripcion}</p>}
+                      <p className="font-semibold">{item.titulo}</p>
+                      {item.descripcion && <p className="text-sm text-muted-foreground">{item.descripcion}</p>}
                     </div>
                   </li>
-                )
+                );
               })}
             </ul>
-        </SectionWrapper>;
+          </SectionWrapper>
+        );
       case 'galeria':
         return <SectionWrapper {...wrapperProps}><GraziaGaleria {...props} /></SectionWrapper>;
       case 'historia': 
