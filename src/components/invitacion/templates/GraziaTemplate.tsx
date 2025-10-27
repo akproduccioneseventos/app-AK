@@ -57,7 +57,8 @@ const SectionWrapper: React.FC<{
     isSelected?: boolean,
     className?: string,
     backgroundColor?: string,
-}> = ({ seccion, children, onClick, isSelected, className, backgroundColor }) => {
+    innerClassName?: string;
+}> = ({ seccion, children, onClick, isSelected, className, backgroundColor, innerClassName }) => {
     if (!seccion.data?.visible) return null;
 
     const sectionVariants = {
@@ -72,7 +73,7 @@ const SectionWrapper: React.FC<{
             viewport={{ once: true, amount: 0.2 }}
             variants={sectionVariants}
             id={seccion.tipo}
-            className={cn("py-16 px-6 text-center relative", className, onClick && "cursor-pointer group/section")}
+            className={cn("relative py-16 px-6", className, onClick && "cursor-pointer group/section")}
             onClick={onClick}
             style={{ backgroundColor }}
         >
@@ -83,7 +84,7 @@ const SectionWrapper: React.FC<{
                     <div className="absolute inset-0 bg-background/80 dark:bg-background/90 -z-10"></div>
                 </>
             )}
-            <div className="max-w-4xl mx-auto">
+            <div className={cn("max-w-4xl mx-auto text-center", innerClassName)}>
               {children}
             </div>
         </motion.section>
@@ -140,7 +141,7 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
   };
   
   const primaryColor = paleta.primary || 'hsl(var(--primary))';
-  const backgroundImage = data.videoFondoUrl ? '' : (data.imagenFondoUrl || 'https://picsum.photos/seed/weddingcouple/1200/800');
+  const backgroundImage = data.videoFondoUrl ? '' : (data.imagenFondoUrl || 'https://picsum.photos/seed/quinceanera-party/1200/800');
   
   const generateICSContent = (): string => {
     if (!fiesta.configuracion.fechaEvento) return '';
@@ -591,12 +592,17 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
 
 
   useEffect(() => {
-    // Only update companion names if the number of companions changes
     const numCompanions = rsvpGuests > 1 ? rsvpGuests - 1 : 0;
     if (companionNames.length !== numCompanions) {
-        setCompanionNames(Array(numCompanions).fill(''));
+        setCompanionNames(prev => {
+            const newNames = Array(numCompanions).fill('');
+            for (let i = 0; i < Math.min(prev.length, numCompanions); i++) {
+                newNames[i] = prev[i];
+            }
+            return newNames;
+        });
     }
-}, [rsvpGuests, companionNames.length]); // Depend only on these two
+  }, [rsvpGuests]);
 
 
   const togglePlayPause = () => {
@@ -663,7 +669,8 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
       onClick: () => onSectionClick(seccion.id),
       isSelected: selectedSectionId === seccion.id,
       backgroundColor: 'transparent',
-    } : { seccion, backgroundColor: 'transparent' };
+      innerClassName: 'max-w-4xl mx-auto'
+    } : { seccion, backgroundColor: 'transparent', innerClassName: 'max-w-4xl mx-auto' };
 
     const sectionIndex = invitacionData.secciones.findIndex(s => s.id === seccion.id);
     if(sectionIndex % 2 !== 0){
@@ -672,7 +679,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
 
     switch (seccion.tipo) {
       case 'bienvenida':
-        return <SectionWrapper {...wrapperProps}><SectionIcon><Heart className="w-12 h-12 mx-auto mb-3" style={{color: primaryColor}} /></SectionIcon><h2 className="font-headline text-2xl mb-4"><EditableText initialValue={seccion.data.titulo?.text || ""} style={seccion.data.titulo?.style} onSave={v => onUpdate?.({ bienvenida: { ...seccion.data, titulo: { ...(seccion.data.titulo || {style:{}}), text: v } }})} textarea={false} /></h2><div className="max-w-xl mx-auto text-muted-foreground"><EditableText initialValue={seccion.data.texto?.text || ""} style={seccion.data.texto?.style} onSave={v => onUpdate?.({ bienvenida: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } }})} textarea/></div></SectionWrapper>;
+        return <SectionWrapper {...wrapperProps} innerClassName="max-w-xl mx-auto"><SectionIcon><Heart className="w-12 h-12 mx-auto mb-3" style={{color: primaryColor}} /></SectionIcon><h2 className="font-headline text-2xl mb-4"><EditableText initialValue={seccion.data.titulo?.text || ""} style={seccion.data.titulo?.style} onSave={v => onUpdate?.({ bienvenida: { ...seccion.data, titulo: { ...(seccion.data.titulo || {style:{}}), text: v } }})} textarea={false} /></h2><div className="text-muted-foreground"><EditableText initialValue={seccion.data.texto?.text || ""} style={seccion.data.texto?.style} onSave={v => onUpdate?.({ bienvenida: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } }})} textarea/></div></SectionWrapper>;
       case 'cuentaRegresiva':
         return <SectionWrapper {...wrapperProps}><h3 className="font-headline text-2xl mb-4" style={{color: primaryColor}}>Faltan</h3><CountdownTimer targetDate={fiesta.configuracion.fechaEvento} /></SectionWrapper>;
       case 'detallesEvento':
@@ -699,31 +706,6 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
                       <p className="font-bold text-sm" style={{ color: paletaColores.primary }}>{item.hora}</p>
                       <p className="font-semibold text-base">{item.titulo}</p>
                       {item.descripcion && <p className="text-sm text-muted-foreground">{item.descripcion}</p>}
-                       <Button variant="link" size="sm" className="absolute right-0 top-1 text-primary text-xs" onClick={() => {
-                            const eventEndDate = new Date(fiesta.configuracion.fechaEvento!);
-                            eventEndDate.setHours(eventEndDate.getHours() + 1);
-                            const icsContent = `BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//My Company//My Product//EN
-BEGIN:VEVENT
-UID:${item.id}
-DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'}
-DTSTART:${new Date(fiesta.configuracion.fechaEvento!).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'}
-DTEND:${eventEndDate.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'}
-SUMMARY:${item.titulo}
-DESCRIPTION:${item.descripcion || ''}
-END:VEVENT
-END:VCALENDAR`;
-                            const blob = new Blob([icsContent], {type: 'text/calendar'});
-                            const url = URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = `${item.titulo}.ics`;
-                            a.click();
-                            URL.revokeObjectURL(url);
-                        }}>
-                            Agendar
-                        </Button>
                     </div>
                   </motion.div>
                 );
@@ -732,10 +714,10 @@ END:VCALENDAR`;
           </SectionWrapper>
         );
       case 'galeria':
-        return <SectionWrapper {...wrapperProps}><GraziaGaleria {...props} /></SectionWrapper>;
+        return <SectionWrapper {...wrapperProps} innerClassName="max-w-2xl mx-auto"><GraziaGaleria {...props} /></SectionWrapper>;
       case 'historia': 
         return (
-          <SectionWrapper {...wrapperProps}>
+          <SectionWrapper {...wrapperProps} innerClassName="max-w-4xl mx-auto">
             <SectionIcon>
               <Heart className="w-12 h-12 mx-auto mb-3" style={{color: paletaColores.primary}} />
             </SectionIcon>
@@ -747,7 +729,7 @@ END:VCALENDAR`;
                 textarea={false}
               />
             </h3>
-             <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-8">
+             <div className="flex flex-col md:flex-row items-center gap-8">
                 {seccion.data.fotoHistoriaUrl && (
                     <motion.div initial={{ opacity: 0, scale: 0.8 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="w-full md:w-1/3 flex-shrink-0">
                       <div className="relative aspect-square rounded-lg overflow-hidden shadow-lg">
@@ -768,7 +750,7 @@ END:VCALENDAR`;
         );
       case 'dressCode':
         return (
-        <SectionWrapper {...wrapperProps}>
+        <SectionWrapper {...wrapperProps} innerClassName="max-w-xl mx-auto">
             <SectionIcon><Sparkles className="w-12 h-12 mx-auto mb-3" style={{color: paletaColores.primary}}/></SectionIcon>
             <h3 className="font-headline text-3xl mb-2" style={{color: paletaColores.accent}}>Código de Vestimenta</h3>
             <div className="text-xl font-semibold"><EditableText initialValue={seccion.data.texto?.text || "Formal"} style={seccion.data.texto?.style || {}} onSave={v => onUpdate?.({ dressCode: { ...seccion.data, texto: { ...seccion.data.texto, text: v }} })} textarea={false}/></div>
@@ -815,7 +797,7 @@ END:VCALENDAR`;
             }
         };
         return (
-          <SectionWrapper {...wrapperProps}>
+          <SectionWrapper {...wrapperProps} innerClassName="max-w-xl mx-auto">
             <SectionIcon><Share2 className="w-12 h-12 mx-auto mb-3" style={{ color: primaryColor }} /></SectionIcon>
             <h3 className="font-headline text-3xl mb-3" style={{ color: paletaColores.accent }}>
                 <EditableText initialValue={seccion.data.texto?.text || '¡Comparte tus momentos!'} style={seccion.data.texto?.style} onSave={v => onUpdate?.({ redesSociales: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } } })} textarea={false} />
@@ -861,7 +843,7 @@ END:VCALENDAR`;
         <GraziaCabecera data={invitacionData.cabecera} fiesta={fiesta} paleta={paletaColores} onUpdate={onUpdate} isPreview={isPreview} />
        </div>
 
-       <main className={cn(isPreview ? "" : "max-w-3xl mx-auto p-4 md:p-8")}>
+       <main>
         {invitacionData.secciones.map((seccion, index) => {
            if(seccion.tipo === 'cabecera' || !seccion.data?.visible) return null;
            const component = renderSectionComponent(seccion);
@@ -956,3 +938,5 @@ END:VCALENDAR`;
     </div>
   );
 };
+
+    
