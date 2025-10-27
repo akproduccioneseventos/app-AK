@@ -36,7 +36,7 @@ const modules = [
   { title: "Carga Operativa", href: "carga-operativa", icon: PackageSearch, description: "Checklist de carga de materiales." },
   { title: "Fotografía y Video", href: "fotografia", icon: Camera, description: "Seguimiento de entregas." },
   { title: "Video de Vida", href: "video-vida", icon: Video, description: "Gestiona las fotos del cliente." },
-  { title: "Reuniones", href: "reuniones", icon: MessageSquare, description: "Agenda y minutas de reuniones." },
+  { title: "Reuniones y Portal Cliente", href: "reuniones", icon: MessageSquare, description: "Gestiona reuniones y la experiencia del cliente." },
   { title: "Muro Social", href: "/evento/social/[fiestaId]", icon: Camera, description: "Modera la galería de fotos en vivo del evento." },
 ];
 

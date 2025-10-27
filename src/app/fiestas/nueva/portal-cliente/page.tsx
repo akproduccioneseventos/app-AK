@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
-
 // This page is obsolete. Its functionality has been moved to a central module.
 function RedirectComponent() {
     const router = useRouter();
@@ -34,7 +33,7 @@ function RedirectComponent() {
                     </p>
                 </CardContent>
                  <CardFooter className="justify-center">
-                    <Link href="/fiestas/nueva/reuniones" passHref>
+                    <Link href={`/fiestas/nueva/reuniones${fiestaId ? `?fiestaId=${fiestaId}` : ''}`} passHref>
                         <Button variant="link">
                             Si no eres redirigido, haz clic aquí.
                         </Button>
@@ -47,7 +46,7 @@ function RedirectComponent() {
 
 export default function DeprecatedPortalClientePage() {
     return (
-        <Suspense fallback={<div>Cargando...</div>}>
+        <Suspense fallback={<div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>}>
             <RedirectComponent />
         </Suspense>
     );
