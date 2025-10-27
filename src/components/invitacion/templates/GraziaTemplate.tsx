@@ -19,7 +19,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { claimGiftFiestaActual, addGiftToRegistryFiestaActual } from '@/app/actions/fiesta-actual';
+import { claimGift, addGiftToRegistry } from '@/app/actions/fiesta/regalos.actions';
 import { Loader2 } from 'lucide-react';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Textarea } from '@/components/ui/textarea';
@@ -373,7 +373,7 @@ const GraziaRegalos: React.FC<{ data: InvitacionDigitalData['regalos'], fiestaId
         if (!newGiftName.trim() || !fiestaId) return;
         setIsSuggesting(true);
         try {
-            const result = await addGiftToRegistryFiestaActual(fiestaId, {
+            const result = await addGiftToRegistry(fiestaId, {
                 name: newGiftName,
                 description: newGiftDescription,
                 imageUrl: newGiftImageUrl
@@ -400,7 +400,7 @@ const GraziaRegalos: React.FC<{ data: InvitacionDigitalData['regalos'], fiestaId
         if (!selectedGift || !guestName.trim() || !fiestaId) return;
         setIsClaiming(true);
         try {
-            const result = await claimGiftFiestaActual(fiestaId, selectedGift.id, guestName);
+            const result = await claimGift(fiestaId, selectedGift.id, guestName);
             if (result.success) {
                 toast({ title: "¡Gracias por tu regalo!", description: `${guestName}, tu selección de "${selectedGift.name}" ha sido registrada.` });
                 setIsClaimModalOpen(false);
@@ -702,6 +702,31 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
                       <p className="font-semibold text-base">{item.titulo}</p>
                       {item.descripcion && <p className="text-sm text-muted-foreground">{item.descripcion}</p>}
                     </div>
+                    <Button variant="link" size="sm" className="absolute right-0 top-1 text-primary text-xs" onClick={() => {
+                        const eventEndDate = new Date(fiesta.configuracion.fechaEvento!);
+                        eventEndDate.setHours(eventEndDate.getHours() + 1);
+                        const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//My Company//My Product//EN
+BEGIN:VEVENT
+UID:${item.id}
+DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'}
+DTSTART:${new Date(fiesta.configuracion.fechaEvento!).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'}
+DTEND:${eventEndDate.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'}
+SUMMARY:${item.titulo}
+DESCRIPTION:${item.descripcion || ''}
+END:VEVENT
+END:VCALENDAR`;
+                        const blob = new Blob([icsContent], {type: 'text/calendar'});
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `${item.titulo}.ics`;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                    }}>
+                        Agendar
+                    </Button>
                   </motion.div>
                 );
               })}
@@ -788,12 +813,18 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
               </p>
             )}
              {fiesta.socialGallerySettings?.enabled && (
-                <Button asChild variant="default" className="mt-6" style={{backgroundColor: primaryColor}}>
-                    <Link href={`/evento/social/${fiesta.id}`}>
-                        <CameraIcon className="w-5 h-5 mr-2" />
-                        Ir al Muro Social
-                    </Link>
-                </Button>
+                <div className="mt-8 flex flex-col items-center gap-6">
+                    <Button asChild variant="default" className="mt-6" style={{backgroundColor: primaryColor}}>
+                        <Link href={`/evento/social/${fiesta.id}`}>
+                            <CameraIcon className="w-5 h-5 mr-2" />
+                            Ir al Muro Social
+                        </Link>
+                    </Button>
+                    <div className="p-2 bg-white border rounded-md">
+                        <QRCodeStylized value={`${window.location.origin}/evento/social/${fiesta.id}`} size={100} />
+                    </div>
+                    <p className="text-sm text-muted-foreground">¡Escanea para subir tus fotos!</p>
+                </div>
              )}
           </SectionWrapper>
         );
