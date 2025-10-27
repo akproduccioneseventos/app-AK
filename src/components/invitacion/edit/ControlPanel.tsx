@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { defaultInvitacionDigitalData } from "@/lib/invitacion-digital-defaults";
 import type { InvitacionDigitalData, SeccionInvitacion, ColorPalette } from '@/types/fiesta';
-import { Sparkles, PlusCircle, Trash2, Edit, Link as LinkIcon, QrCode, ClipboardCopy } from "lucide-react";
+import { Sparkles, PlusCircle, Trash2, Edit, Link as LinkIcon, QrCode, ClipboardCopy, Camera } from "lucide-react";
 import React from 'react';
 import {
   DropdownMenu,
@@ -50,6 +50,20 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ data, update, addSec
         if (!fiestaId) return '';
         return `${window.location.origin}${path.replace('[fiestaId]', fiestaId)}${hash ? `#${hash}` : ''}`;
     }
+    
+    const downloadQR = (id: string, name: string) => {
+        const canvas = document.getElementById(id) as HTMLCanvasElement;
+        if (canvas) {
+            const pngUrl = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+            let downloadLink = document.createElement("a");
+            downloadLink.href = pngUrl;
+            downloadLink.download = `${name}.png`;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }
+    };
+
 
     return (
         <div className="p-4 space-y-4">
@@ -143,6 +157,17 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ data, update, addSec
                                 <div className="flex items-center space-x-2">
                                     <Input value={getFullLink('/evento/actual', 'confirmacion')} readOnly />
                                     <Button size="icon" variant="outline" onClick={() => handleCopyToClipboard(getFullLink('/evento/actual', 'confirmacion'))}><ClipboardCopy className="h-4 w-4" /></Button>
+                                </div>
+                            </div>
+                             <div className="space-y-2 mt-4">
+                                <Label className="text-sm font-medium flex items-center gap-1.5"><Camera className="w-4 h-4"/>Muro Social</Label>
+                                <div className="flex items-center space-x-2">
+                                    <Input value={getFullLink('/evento/social/[fiestaId]')} readOnly />
+                                    <Button size="icon" variant="outline" onClick={() => handleCopyToClipboard(getFullLink('/evento/social/[fiestaId]'))}><ClipboardCopy className="h-4 w-4" /></Button>
+                                </div>
+                                <div className="text-center mt-3">
+                                    <QRCodeStylized id="qr-social-panel" value={getFullLink('/evento/social/[fiestaId]')} size={80} level="M" />
+                                    <Button size="sm" variant="link" onClick={() => downloadQR('qr-social-panel', 'qr-muro-social')}>Descargar QR</Button>
                                 </div>
                             </div>
                         </Card>

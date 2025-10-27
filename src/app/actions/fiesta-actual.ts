@@ -25,7 +25,7 @@ import {
 
 import { updateConfiguracion } from './fiesta/configuracion.actions';
 import { updateTareas } from './fiesta/tareas.actions';
-import { addInvitado, deleteInvitado, updateInvitado, handleRsvpSubmission, getInvitados, checkInGuest } from './invitados.actions';
+import { addInvitado as addInvitadoAction, deleteInvitado as deleteInvitadoAction, updateInvitado as updateInvitadoAction, handleRsvpSubmission as handleRsvpSubmissionAction, getInvitados as getInvitadosAction, checkInGuest as checkInGuestAction } from './invitados.actions';
 import { updateDecoracion } from './fiesta/decoracion.actions';
 import { updatePrograma } from './fiesta/itinerario.actions';
 import { updatePersonal } from './fiesta/personal.actions';
@@ -41,7 +41,7 @@ import { updatePagosProveedores } from './fiesta/pagos.actions';
 import { addReunion, deleteReunion, updateReunion } from './fiesta/reuniones.actions';
 import { updateMenuAsignado } from './fiesta/catering.actions';
 import { updateVideoVidaSettings as updateVideoVidaSettingsFromModule } from './fiesta/video-vida.actions';
-import { claimGift, addGiftToRegistry as addGiftToRegistryAction } from './fiesta/regalos.actions';
+import { claimGift, addGiftToRegistry } from './fiesta/regalos.actions';
 
 // --- General Fiesta Actions ---
 export const getFiestaActual = getFiestaData;
@@ -67,12 +67,12 @@ export const updateConfiguracionFiestaActual = updateConfiguracion;
 export const updateTareasFiestaActual = updateTareas;
 
 // --- Invitados Actions ---
-export const getInvitadosFiestaActual = getInvitados;
-export const addInvitadoFiestaActual = addInvitado;
-export const updateInvitadoFiestaActual = updateInvitado;
-export const handleRsvpSubmissionFiestaActual = handleRsvpSubmission;
-export const checkInGuestFiestaActual = checkInGuest;
-export const deleteInvitadoFiestaActual = deleteInvitado;
+export const getInvitadosFiestaActual = getInvitadosAction;
+export const addInvitadoFiestaActual = addInvitadoAction;
+export const updateInvitadoFiestaActual = updateInvitadoAction;
+export const handleRsvpSubmissionFiestaActual = handleRsvpSubmissionAction;
+export const checkInGuestFiestaActual = checkInGuestAction;
+export const deleteInvitadoFiestaActual = deleteInvitadoAction;
 
 // --- Decoracion Actions ---
 export const updateDecoracionFiestaActual = updateDecoracion;
@@ -135,9 +135,8 @@ export const updateVideoVidaSettingsFiestaActual = updateVideoVidaSettingsFromMo
 
 // --- Regalos Actions ---
 export const claimGiftFiestaActual = claimGift;
-export const addGiftToRegistryFiestaActual = addGiftToRegistryAction;
+export const addGiftToRegistryFiestaActual = addGiftToRegistry;
 
 // --- Carta Tragos / Menu Mesa Actions ---
 export const updateCartaTragos = updateCartaTragosFromModule;
 export const updateMenuMesa = updateMenuMesaFromModule;
-

@@ -18,7 +18,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { claimGift, addGiftToRegistry } from '@/app/actions/fiesta-actual';
+import { claimGiftFiestaActual, addGiftToRegistryFiestaActual } from '@/app/actions/fiesta-actual';
 import { Loader2 } from 'lucide-react';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Textarea } from '@/components/ui/textarea';
@@ -370,7 +370,7 @@ const GraziaRegalos: React.FC<{ data: InvitacionDigitalData['regalos'], fiestaId
         if (!newGiftName.trim() || !fiestaId) return;
         setIsSuggesting(true);
         try {
-            const result = await addGiftToRegistry(fiestaId, {
+            const result = await addGiftToRegistryFiestaActual(fiestaId, {
                 name: newGiftName,
                 description: newGiftDescription,
                 imageUrl: newGiftImageUrl
@@ -397,7 +397,7 @@ const GraziaRegalos: React.FC<{ data: InvitacionDigitalData['regalos'], fiestaId
         if (!selectedGift || !guestName.trim() || !fiestaId) return;
         setIsClaiming(true);
         try {
-            const result = await claimGift(fiestaId, selectedGift.id, guestName);
+            const result = await claimGiftFiestaActual(fiestaId, selectedGift.id, guestName);
             if (result.success) {
                 toast({ title: "¡Gracias por tu regalo!", description: `${guestName}, tu selección de "${selectedGift.name}" ha sido registrada.` });
                 setIsClaimModalOpen(false);
@@ -591,21 +591,12 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
 
 
   useEffect(() => {
-    // Only run this effect if rsvpGuests is greater than 1.
-    if (rsvpGuests > 1) {
-      const numCompanions = rsvpGuests - 1;
-      // Only update state if the array length is actually different.
-      if (companionNames.length !== numCompanions) {
-        const newCompanionNames = Array.from({ length: numCompanions }, (_, i) => companionNames[i] || '');
-        setCompanionNames(newCompanionNames);
-      }
-    } else {
-      // If rsvpGuests is 1 or less, ensure companionNames is empty.
-      if (companionNames.length > 0) {
-        setCompanionNames([]);
-      }
+    // Only update companion names if the number of companions changes
+    const numCompanions = rsvpGuests > 1 ? rsvpGuests - 1 : 0;
+    if (companionNames.length !== numCompanions) {
+        setCompanionNames(Array(numCompanions).fill(''));
     }
-  }, [rsvpGuests]); // Dependency array only includes rsvpGuests.
+}, [rsvpGuests, companionNames.length]); // Depend only on these two
 
 
   const togglePlayPause = () => {
@@ -708,11 +699,10 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
                       <p className="font-bold text-sm" style={{ color: paletaColores.primary }}>{item.hora}</p>
                       <p className="font-semibold text-base">{item.titulo}</p>
                       {item.descripcion && <p className="text-sm text-muted-foreground">{item.descripcion}</p>}
-                    </div>
-                     <Button variant="link" size="sm" className="absolute right-0 top-1 text-primary text-xs" onClick={() => {
-                        const eventEndDate = new Date(fiesta.configuracion.fechaEvento!);
-                        eventEndDate.setHours(eventEndDate.getHours() + 1);
-                        const icsContent = `BEGIN:VCALENDAR
+                       <Button variant="link" size="sm" className="absolute right-0 top-1 text-primary text-xs" onClick={() => {
+                            const eventEndDate = new Date(fiesta.configuracion.fechaEvento!);
+                            eventEndDate.setHours(eventEndDate.getHours() + 1);
+                            const icsContent = `BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//My Company//My Product//EN
 BEGIN:VEVENT
@@ -724,16 +714,17 @@ SUMMARY:${item.titulo}
 DESCRIPTION:${item.descripcion || ''}
 END:VEVENT
 END:VCALENDAR`;
-                        const blob = new Blob([icsContent], {type: 'text/calendar'});
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = `${item.titulo}.ics`;
-                        a.click();
-                        URL.revokeObjectURL(url);
-                    }}>
-                        Agendar
-                    </Button>
+                            const blob = new Blob([icsContent], {type: 'text/calendar'});
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `${item.titulo}.ics`;
+                            a.click();
+                            URL.revokeObjectURL(url);
+                        }}>
+                            Agendar
+                        </Button>
+                    </div>
                   </motion.div>
                 );
               })}
@@ -864,13 +855,13 @@ END:VCALENDAR`;
   }
 
   return (
-    <div className={cn("min-h-screen bg-background font-body", isPreview && "overflow-y-auto h-full")} style={{'--theme-primary': primaryColor} as React.CSSProperties}>
+    <div className={cn("min-h-screen bg-background font-body w-full", isPreview && "h-full overflow-y-auto")} style={{'--theme-primary': primaryColor} as React.CSSProperties}>
        <div onClick={() => onSectionClick?.('cabecera')} className={cn("relative", isPreview && "cursor-pointer")}>
         {isPreview && <div className={cn("absolute inset-0 border-2 transition-all pointer-events-none", selectedSectionId === 'cabecera' ? 'border-primary' : 'border-transparent')}></div>}
         <GraziaCabecera data={invitacionData.cabecera} fiesta={fiesta} paleta={paletaColores} onUpdate={onUpdate} isPreview={isPreview} />
        </div>
 
-       <main className={cn(!isPreview && "max-w-3xl mx-auto p-4 md:p-8")}>
+       <main className={cn(isPreview ? "" : "max-w-3xl mx-auto p-4 md:p-8")}>
         {invitacionData.secciones.map((seccion, index) => {
            if(seccion.tipo === 'cabecera' || !seccion.data?.visible) return null;
            const component = renderSectionComponent(seccion);

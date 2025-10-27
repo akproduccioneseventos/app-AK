@@ -8,7 +8,7 @@ import { Switch } from '@/components/ui/switch';
 import { TextStyleEditor } from './TextStyleEditor';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { CameraIcon } from 'lucide-react';
+import { CameraIcon, Download } from 'lucide-react';
 import QRCodeStylized from 'qrcode.react';
 
 interface Props {
@@ -38,6 +38,19 @@ export const SeccionRedesSocialesEditor: React.FC<Props> = ({ data, update, fies
   }
   
   const socialWallUrl = getFullLink('/evento/social/[fiestaId]');
+
+  const downloadQR = () => {
+    const canvas = document.getElementById('qr-code-social-editor') as HTMLCanvasElement;
+    if (canvas) {
+        const pngUrl = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+        let downloadLink = document.createElement("a");
+        downloadLink.href = pngUrl;
+        downloadLink.download = `qr-muro-social-${fiestaId}.png`;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+    }
+  };
 
   return (
     <div className="space-y-3 pt-2">
@@ -82,8 +95,11 @@ export const SeccionRedesSocialesEditor: React.FC<Props> = ({ data, update, fies
                     <div className="p-2 border rounded-md bg-muted/40">
                       <Label className="text-xs text-muted-foreground">Código QR para el Muro Social</Label>
                       <div className="flex justify-center mt-2">
-                         <QRCodeStylized value={socialWallUrl} size={80} />
+                         <QRCodeStylized id="qr-code-social-editor" value={socialWallUrl} size={80} />
                       </div>
+                      <Button size="sm" variant="link" className="text-xs" onClick={downloadQR}>
+                        <Download className="w-3 h-3 mr-1" /> Descargar QR
+                      </Button>
                     </div>
                 </div>
             )}
