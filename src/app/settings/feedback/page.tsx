@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, type FormEvent } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Loader2, AlertTriangle, Star, Wand2, Trash2, ClipboardCopy, CheckCircle, Info, Link as LinkIcon } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, Star, Wand2, Trash2, ClipboardCopy, CheckCircle, Info, Link as LinkIcon, Send } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FeedbackSubmission, Testimonial } from '@/types/feedback';
 import { getFeedback, getTestimonials, saveTestimonial, updateTestimonialApproval, deleteTestimonial } from '@/app/actions/feedback';
@@ -26,6 +26,8 @@ import {
 } from "@/components/ui/dialog";
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { Input } from '@/components/ui/input';
+import { NewPostDialog } from '@/components/social-media/NewPostDialog';
+import type { SocialPost } from '@/types/social-media';
 
 const formatDate = (dateString: string) => new Date(dateString).toLocaleString('es-ES');
 
@@ -42,6 +44,11 @@ export default function FeedbackPage() {
   const [generatedText, setGeneratedText] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSavingTestimonial, setIsSavingTestimonial] = useState(false);
+
+  // State for post creation dialog
+  const [postToCreate, setPostToCreate] = useState<Partial<SocialPost> | null>(null);
+  const [isPostModalOpen, setIsPostModalOpen] = useState(false);
+
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -103,12 +110,29 @@ export default function FeedbackPage() {
      await loadData();
   }
   
+  const handlePublishTestimonial = (testimonial: Testimonial) => {
+    setPostToCreate({
+      text: `"${testimonial.testimonialText}" - ${testimonial.clientName}`,
+      isGeneralCampaign: true, // Testimonials are usually general marketing
+    });
+    setIsPostModalOpen(true);
+  };
+
   const feedbackSinTestimonio = feedbackList.filter(fb => !testimonials.some(t => t.feedbackId === fb.id));
   
   const feedbackLink = typeof window !== 'undefined' && fiestaIdActual ? `${window.location.origin}/feedback/${fiestaIdActual}` : '';
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
+      <NewPostDialog
+          isOpen={isPostModalOpen}
+          onOpenChange={setIsPostModalOpen}
+          onPostCreated={() => {
+              setIsPostModalOpen(false);
+              toast({ title: "Publicación Programada/Creada" });
+          }}
+          postToDuplicate={postToCreate} // Using duplicate to pre-fill text
+      />
       <Dialog open={isGeneratorOpen} onOpenChange={setIsGeneratorOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
@@ -207,6 +231,9 @@ export default function FeedbackPage() {
                         {t.isApproved && <CheckCircle className="w-4 h-4 text-green-500"/>}
                     </div>
                     <div className="flex gap-2">
+                         <Button variant="secondary" size="sm" onClick={() => handlePublishTestimonial(t)} disabled={!t.isApproved}>
+                            <Send className="w-4 h-4 mr-2"/> Publicar
+                         </Button>
                          <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => {navigator.clipboard.writeText(t.testimonialText); toast({title:"Copiado!"})}}><ClipboardCopy className="w-4 h-4"/></Button>
                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDeleteTestimonial(t.id)}><Trash2 className="w-4 h-4"/></Button>
                     </div>
