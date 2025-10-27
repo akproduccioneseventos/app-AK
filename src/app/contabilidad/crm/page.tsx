@@ -219,10 +219,10 @@ export default function CrmPage() {
     }
   };
 
-  const leadsByStage = stages.reduce((acc, stage) => {
+  const leadsByStage = useMemo(() => stages.reduce((acc, stage) => {
     acc[stage.id] = leads.filter(lead => lead.currentStageId === stage.id);
     return acc;
-  }, {} as Record<string, CrmLead[]>);
+  }, {} as Record<string, CrmLead[]>), [stages, leads]);
 
   if (isLoading && !isConvertToClientModalOpen) {
     return (

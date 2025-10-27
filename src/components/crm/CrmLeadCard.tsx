@@ -153,4 +153,3 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting, isMobile, onMove }
     </div>
   );
 }
-
