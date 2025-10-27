@@ -1,7 +1,7 @@
 {
   "id": "fiesta_1761518911463_a2c0rmc",
   "configuracion": {
-    "nombreEvento": "[COPIA] XV Años de Sofía",
+    "nombreEvento": "XV Años de Sofía",
     "tipoCelebracion": "Fiesta de 15",
     "fechaEvento": "2025-11-22T21:00:00.000Z",
     "horaInicio": "21:00",
@@ -44,7 +44,7 @@
   "reuniones": [
     {
       "titulo": "Reunión Inicial con Familia García",
-      "fecha": "2025-06-15T19:00:00.000Z",
+      "fecha": "2025-08-20T19:00:00.000Z",
       "notas": "Se define la temática 'Noche Estrellada'. Cantidad de invitados estimada en 120. Se confirma preferencia por DJ sobre banda.",
       "id": "reunion_1758487653347"
     }
@@ -101,20 +101,56 @@
     "items": [
       {
         "id": "deco_1",
-        "name": "Centro de Mesa con luces LED",
+        "name": "Centro de Mesa con velas flotantes y estrellas",
         "category": "Centro de Mesa",
         "quantity": 12,
         "estimatedCost": 450
       },
       {
         "id": "deco_2",
-        "name": "Guirnaldas de estrellas luminosas",
+        "name": "Guirnaldas de estrellas luminosas para el techo",
         "category": "Iluminación",
         "quantity": 20,
         "estimatedCost": 150
+      },
+      {
+        "id": "deco_3",
+        "name": "Cartel de Bienvenida 'Los 15 de Sofi'",
+        "category": "Detalle Entrada",
+        "quantity": 1,
+        "estimatedCost": 1200
+      },
+      {
+        "id": "deco_4",
+        "name": "Tules azul noche con luces para la entrada",
+        "category": "Detalle Entrada",
+        "quantity": 2,
+        "estimatedCost": 800
       }
     ],
-    "zonasContratadas": [],
+    "zonasContratadas": [
+      {
+        "id": "atras_torta",
+        "nombreDisplay": "Atrás de la torta",
+        "activada": true,
+        "descripcion": "Panel circular con fondo de noche estrellada y el nombre 'SOFI' en neón.",
+        "imagenReferenciaUrl": "https://picsum.photos/seed/cake-backdrop/400/300"
+      },
+      {
+        "id": "frente_salon",
+        "nombreDisplay": "Frente del salón / Entrada principal",
+        "activada": true,
+        "descripcion": "Alfombra azul y camino de faroles con velas LED.",
+        "imagenReferenciaUrl": ""
+      },
+      {
+        "id": "zona_fotografia",
+        "nombreDisplay": "Zona de fotografía / Photocall",
+        "activada": true,
+        "descripcion": "Backdrop con una media luna iluminada y fondo de estrellas.",
+        "imagenReferenciaUrl": ""
+      }
+    ],
     "salonElements": [
       {
         "id": "el_1",
@@ -125,7 +161,7 @@
         "height": 60,
         "rotation": 0,
         "quantity": 1,
-        "type": "predefined",
+        "type": "element",
         "category": "Mesa Rectangular"
       },
       {
@@ -137,8 +173,9 @@
         "height": 200,
         "rotation": 0,
         "quantity": 1,
-        "type": "predefined",
-        "category": "Pista de Baile"
+        "type": "area",
+        "category": "Pista de Baile",
+        "backgroundColor": "rgba(56, 189, 248, 0.2)"
       },
       {
         "id": "el_3",
@@ -149,7 +186,7 @@
         "height": 100,
         "rotation": 0,
         "quantity": 1,
-        "type": "predefined",
+        "type": "element",
         "category": "Mesa Redonda",
         "seats": 10
       },
@@ -162,7 +199,7 @@
         "height": 100,
         "rotation": 0,
         "quantity": 1,
-        "type": "predefined",
+        "type": "element",
         "category": "Mesa Redonda",
         "seats": 10
       },
@@ -175,7 +212,7 @@
         "height": 100,
         "rotation": 0,
         "quantity": 1,
-        "type": "predefined",
+        "type": "element",
         "category": "Mesa Redonda",
         "seats": 10
       },
@@ -188,7 +225,7 @@
         "height": 100,
         "rotation": 0,
         "quantity": 1,
-        "type": "predefined",
+        "type": "element",
         "category": "Mesa Redonda",
         "seats": 10
       },
@@ -201,7 +238,7 @@
         "height": 100,
         "rotation": 0,
         "quantity": 1,
-        "type": "predefined",
+        "type": "element",
         "category": "Mesa Redonda",
         "seats": 10
       },
@@ -214,7 +251,7 @@
         "height": 100,
         "rotation": 0,
         "quantity": 1,
-        "type": "predefined",
+        "type": "element",
         "category": "Mesa Redonda",
         "seats": 10
       }
@@ -235,14 +272,14 @@
       "nombre": "Abuelos Maternos",
       "rsvp": "Confirmado",
       "partySize": 2,
-      "tableNumber": "Mesa 2"
+      "tableNumber": "Mesa Principal"
     },
     {
       "id": "inv_3",
       "nombre": "Abuelos Paternos",
       "rsvp": "Confirmado",
       "partySize": 2,
-      "tableNumber": "Mesa 4"
+      "tableNumber": "Mesa Principal"
     },
     {
       "id": "inv_4",
@@ -291,288 +328,33 @@
       "nombre": "Mateo González",
       "rsvp": "Pendiente",
       "partySize": 1
-    },
-    {
-      "id": "inv_11",
-      "nombre": "Santiago Pérez",
-      "rsvp": "Confirmado",
-      "partySize": 1,
-      "tableNumber": "Mesa 4"
-    },
-    {
-      "id": "inv_12",
-      "nombre": "Lucía Martínez",
-      "rsvp": "Pendiente",
-      "partySize": 1
-    },
-    {
-      "id": "inv_13",
-      "nombre": "Benjamín Silva",
-      "rsvp": "Confirmado",
-      "partySize": 2,
-      "tableNumber": "Mesa 3"
-    },
-    {
-      "id": "inv_14",
-      "nombre": "Agustina Costa",
-      "rsvp": "Rechazado",
-      "partySize": 1
-    },
-    {
-      "id": "inv_15",
-      "nombre": "Facundo Méndez",
-      "rsvp": "Pendiente",
-      "partySize": 1
-    },
-    {
-      "id": "inv_16",
-      "nombre": "Florencia Castro",
-      "rsvp": "Confirmado",
-      "partySize": 1,
-      "tableNumber": "Mesa 5"
-    },
-    {
-      "id": "inv_17",
-      "nombre": "Joaquín Herrera",
-      "rsvp": "Confirmado",
-      "partySize": 2,
-      "tableNumber": "Mesa 5"
-    },
-    {
-      "id": "inv_18",
-      "nombre": "Renata Núñez",
-      "rsvp": "Confirmado",
-      "partySize": 1,
-      "tableNumber": "Mesa 6"
-    },
-    {
-      "id": "inv_19",
-      "nombre": "Bautista Rojas",
-      "rsvp": "Pendiente",
-      "partySize": 1
-    },
-    {
-      "id": "inv_20",
-      "nombre": "Catalina Sosa",
-      "rsvp": "Confirmado",
-      "partySize": 1,
-      "tableNumber": "Mesa 2"
-    },
-    {
-      "id": "inv_21",
-      "nombre": "Felipe Morales",
-      "rsvp": "Confirmado",
-      "partySize": 2,
-      "tableNumber": "Mesa 6"
-    },
-    {
-      "id": "inv_22",
-      "nombre": "Isabella Cabrera",
-      "rsvp": "Confirmado",
-      "partySize": 1,
-      "tableNumber": "Mesa 4"
-    },
-    {
-      "id": "inv_23",
-      "nombre": "Delfina Ríos",
-      "rsvp": "Pendiente",
-      "partySize": 1
-    },
-    {
-      "id": "inv_24",
-      "nombre": "Tomás Acosta",
-      "rsvp": "Confirmado",
-      "partySize": 1,
-      "tableNumber": "Mesa 4"
-    },
-    {
-      "id": "inv_25",
-      "nombre": "Olivia Giménez",
-      "rsvp": "Confirmado",
-      "partySize": 1,
-      "tableNumber": "Mesa 5"
-    },
-    {
-      "id": "inv_26",
-      "nombre": "Thiago Medina",
-      "rsvp": "Confirmado",
-      "partySize": 2,
-      "tableNumber": "Mesa 6"
-    },
-    {
-      "id": "inv_27",
-      "nombre": "Emilia Pereyra",
-      "rsvp": "Pendiente",
-      "partySize": 1
-    },
-    {
-      "id": "inv_28",
-      "nombre": "Máximo Romero",
-      "rsvp": "Confirmado",
-      "partySize": 1,
-      "tableNumber": "Mesa 3"
-    },
-    {
-      "id": "inv_29",
-      "nombre": "Victoria Ferreyra",
-      "rsvp": "Confirmado",
-      "partySize": 1,
-      "tableNumber": "Mesa 2"
-    },
-    {
-      "id": "inv_30",
-      "nombre": "Lorenzo Gutiérrez",
-      "rsvp": "Confirmado",
-      "partySize": 1,
-      "tableNumber": "Mesa 4"
-    },
-    {
-      "id": "inv_31",
-      "nombre": "Mía Benítez",
-      "rsvp": "Pendiente",
-      "partySize": 1
-    },
-    {
-      "id": "inv_32",
-      "nombre": "Francisco Molina",
-      "rsvp": "Confirmado",
-      "partySize": 2,
-      "tableNumber": "Mesa 3"
-    },
-    {
-      "id": "inv_33",
-      "nombre": "Emma Suárez",
-      "rsvp": "Confirmado",
-      "partySize": 1,
-      "tableNumber": "Mesa 2"
-    },
-    {
-      "id": "inv_34",
-      "nombre": "Santino Castro",
-      "rsvp": "Confirmado",
-      "partySize": 1,
-      "tableNumber": "Mesa 5"
-    },
-    {
-      "id": "inv_35",
-      "nombre": "Zoe Torres",
-      "rsvp": "Pendiente",
-      "partySize": 1
-    },
-    {
-      "id": "inv_36",
-      "nombre": "Bautista Dominguez",
-      "rsvp": "Confirmado",
-      "partySize": 1,
-      "tableNumber": "Mesa 6"
-    },
-    {
-      "id": "inv_37",
-      "nombre": "Alma Vázquez",
-      "rsvp": "Confirmado",
-      "partySize": 1,
-      "tableNumber": "Mesa 1"
-    },
-    {
-      "id": "inv_38",
-      "nombre": "Valentín Ramos",
-      "rsvp": "Confirmado",
-      "partySize": 2,
-      "tableNumber": "Mesa 4"
-    },
-    {
-      "id": "inv_39",
-      "nombre": "Pilar Álvarez",
-      "rsvp": "Confirmado",
-      "partySize": 1,
-      "tableNumber": "Mesa 3"
-    },
-    {
-      "id": "inv_40",
-      "nombre": "Ignacio Castillo",
-      "rsvp": "Pendiente",
-      "partySize": 1
-    },
-    {
-      "id": "inv_41",
-      "nombre": "Abril Ortiz",
-      "rsvp": "Confirmado",
-      "partySize": 1,
-      "tableNumber": "Mesa 1"
-    },
-    {
-      "id": "inv_42",
-      "nombre": "Lucas Ruiz",
-      "rsvp": "Confirmado",
-      "partySize": 1,
-      "tableNumber": "Mesa 6"
-    },
-    {
-      "id": "inv_43",
-      "nombre": "Guadalupe Paredes",
-      "rsvp": "Confirmado",
-      "partySize": 1,
-      "tableNumber": "Mesa 1"
-    },
-    {
-      "id": "inv_44",
-      "nombre": "Juan Cruz Miranda",
-      "rsvp": "Pendiente",
-      "partySize": 1
-    },
-    {
-      "id": "inv_45",
-      "nombre": "Regina Mendoza",
-      "rsvp": "Confirmado",
-      "partySize": 2,
-      "tableNumber": "Mesa 2"
-    },
-    {
-      "id": "inv_46",
-      "nombre": "Agustín Ferreyra",
-      "rsvp": "Confirmado",
-      "partySize": 1,
-      "tableNumber": "Mesa 3"
-    },
-    {
-      "id": "inv_47",
-      "nombre": "Paulina Rivas",
-      "rsvp": "Confirmado",
-      "partySize": 1,
-      "tableNumber": "Mesa 4"
-    },
-    {
-      "id": "inv_48",
-      "nombre": "Ciro Campos",
-      "rsvp": "Pendiente",
-      "partySize": 1
-    },
-    {
-      "id": "inv_49",
-      "nombre": "Guillermina Ponce",
-      "rsvp": "Confirmado",
-      "partySize": 1,
-      "tableNumber": "Mesa 5"
-    },
-    {
-      "id": "inv_50",
-      "nombre": "Noah Vega",
-      "rsvp": "Confirmado",
-      "partySize": 1,
-      "tableNumber": "Mesa 6"
     }
   ],
   "clientPortalSettings": {
     "enabled": true
   },
-  "musica": {},
+  "musica": {
+    "cancionEntrada": "A Sky Full of Stars - Coldplay",
+    "cancionVals": "Perfect - Ed Sheeran",
+    "cancionesTortaBrindis": ["Feliz Cumpleaños", "Brindis - Soledad"],
+    "listaNoReproducir": "Reggaeton antiguo."
+  },
   "reposteria": {
     "categorias": [
       {
         "id": "mesa_dulce_tradicional",
         "nombreDisplay": "Mesa Dulce Tradicional",
         "activada": true,
-        "items": []
+        "items": [
+            { "id": "rep_1", "nombre": "Mini Lemon Pies", "cantidad": 50, "unidad": "unidad", "costoEstimado": 40 },
+            { "id": "rep_2", "nombre": "Shots de Chocotorta", "cantidad": 50, "unidad": "unidad", "costoEstimado": 55 }
+        ]
+      },
+      {
+          "id": "candy_bar",
+          "nombreDisplay": "Candy Bar Temático",
+          "activada": true,
+          "items": []
       }
     ]
   },
@@ -583,11 +365,26 @@
         "nombreDisplay": "Refrescos / Gaseosas",
         "activada": true,
         "items": []
+      },
+      {
+        "id": "barra_tragos",
+        "nombreDisplay": "Barra de Tragos",
+        "activada": true,
+        "items": []
       }
     ]
   },
   "listaDeCargaOperativa": {
-    "categorias": []
+    "categorias": [
+      {
+        "id": "carga_1",
+        "nombre": "Equipos de Sonido",
+        "items": [
+          { "id": "carga_item_1", "nombre": "Consola DJ", "cantidad": "1", "cargado": false },
+          { "id": "carga_item_2", "nombre": "Parlantes (x2)", "cantidad": "2", "cargado": false }
+        ]
+      }
+    ]
   },
   "gestionCostos": {
     "costosItems": [
@@ -602,25 +399,61 @@
         "nombre": "Fotografía y Video (Imágenes Inolvidables)",
         "categoria": "Servicio Proveedor",
         "montoEstimado": 95000
-      },
-      {
-        "id": "cost_3",
-        "nombre": "Torta de 15 años (Dulce Arte)",
-        "categoria": "Servicio Proveedor",
-        "montoEstimado": 15000
       }
     ],
-    "ingresosTotalesEstimados": 850000
+    "ingresosTotalesEstimados": 750000
   },
-  "videoVida": {},
+  "videoVida": {
+      "galleryEnabled": true,
+      "songSuggestion": "Photograph - Ed Sheeran",
+      "customText": "Sofi, por favor sube una foto por cada año de tu vida, desde bebé hasta ahora. ¡Queremos contar tu historia!",
+      "photoCount": 15
+  },
   "programa": [],
-  "fotografiaYFilmacion": {},
+  "fotografiaYFilmacion": {
+      "servicios": [
+          { "id": "fyv_1", "nombre": "Fotografía del Evento Completo", "estado": "Pendiente", "fechaEntregaEstimada": "2025-12-22T00:00:00.000Z" },
+          { "id": "fyv_2", "nombre": "Video Resumen del Evento", "estado": "Pendiente", "fechaEntregaEstimada": "2026-01-15T00:00:00.000Z" }
+      ]
+  },
   "otrosDocumentos": [],
   "pagosProveedores": [],
   "cartaTragos": {
     "items": [],
     "protagonistaFotoUrl": ""
   },
-  "webPageSettings": {},
-  "invitacionDigital": {}
+  "invitacionDigital": {
+    "plantilla": "Grazia",
+    "secciones": [],
+    "cabecera": {
+      "visible": true,
+      "protagonista1": "Sofía",
+      "protagonista2": "",
+      "subtitulo": { "text": "Mis XV Años" },
+      "paletaColores": { "primary": "#1E3A8A", "secondary": "#F3F4F6", "accent": "#FBBF24" }
+    },
+    "bienvenida": { "visible": true, "titulo": { "text": "¡Te invito a mi noche mágica!" }, "texto": { "text": "Acompáñame a celebrar mis 15 años en una noche llena de estrellas, sueños y mucha diversión. ¡Tu presencia es el mejor regalo!" } },
+    "cuentaRegresiva": { "visible": true },
+    "detallesEvento": { "visible": true, "ceremoniaReligiosa": { "visible": false }, "ceremoniaCivil": { "visible": false }, "celebracion": { "visible": true, "titulo": "La Fiesta", "nombreLugar": "Salón La Casona", "hora": "21:00" } },
+    "itinerario": { "visible": true },
+    "historia": { "visible": true, "titulo": { "text": "Mi Camino" }, "texto": { "text": "Un pequeño recorrido por mis 15 años de vida..." } },
+    "galeria": { "visible": true, "fotos": ["https://picsum.photos/seed/sofia1/600/400", "https://picsum.photos/seed/sofia2/600/400", "https://picsum.photos/seed/sofia3/600/400"] },
+    "dressCode": { "visible": true, "texto": { "text": "Elegante Sport" } },
+    "regalos": {
+      "visible": true,
+      "titulo": { "text": "Lista de Regalos" },
+      "texto": { "text": "Si deseas hacerme un regalo, aquí tienes algunas ideas. ¡Pero tu compañía es lo más importante!" },
+      "datosBancarios": "Colectivo Abitab/RedPagos: 'Los 15 de Sofi'",
+      "items": [
+        { "id": "gift_1", "name": "Aporte para viaje", "isClaimed": false },
+        { "id": "gift_2", "name": "Libros", "isClaimed": true, "claimedBy": "Tía Laura" },
+        { "id": "gift_3", "name": "Entradas para concierto", "isClaimed": false }
+      ]
+    },
+    "confirmacion": { "visible": true },
+    "musica": { "visible": true },
+    "redesSociales": { "visible": true, "hashtag": "#Los15deSofi" },
+    "despedida": { "visible": true, "texto": { "text": "¡No faltes!" } },
+    "footer": { "visible": true }
+  }
 }
