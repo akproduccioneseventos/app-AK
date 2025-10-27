@@ -53,6 +53,20 @@ export interface CartaTragosData {
     protagonistaFotoUrl?: string; // Foto principal de la carta
 }
 
+export interface Plato {
+  id: string;
+  nombre: string;
+  imageUrl: string;
+  aiHint?: string;
+}
+
+export interface MenuMesaData {
+  items: Plato[];
+  protagonistaFotoUrl?: string;
+  paletaColores?: Partial<ColorPalette>;
+}
+
+
 
 // --- RESTO DE TIPOS ---
 
@@ -68,6 +82,7 @@ export interface ConfigEventoDataStorage {
   notasAdicionales: string;
   clienteId?: string; // ID del cliente principal vinculado a esta fiesta
   protagonista1Nombre?: string; // Nuevo campo para el nombre del agasajado/a
+  protagonistaFotoUrl?: string;
 }
 
 export interface PersonalAsignadoDetalleStorage {
@@ -248,6 +263,7 @@ export interface InvitacionDigitalData {
   };
   galeria: {
     visible: boolean;
+    imagenFondoUrl?: string;
     fotos: string[];
   };
   historia: {
@@ -266,8 +282,8 @@ export interface InvitacionDigitalData {
   };
   dressCode: {
     visible: boolean;
-    tipo: 'Formal' | 'Informal';
-    texto?: TextWithStyle; // Para "Otro"
+    imagenFondoUrl?: string;
+    texto?: TextWithStyle;
     sugeridos?: string[];
     evitar?: string[];
   };
@@ -568,10 +584,33 @@ export interface OtroDocumento {
   timestamp: string; // ISO String
 }
 
+export interface ModulosContratados {
+  tareas: boolean;
+  invitados: boolean;
+  paginaWeb: boolean;
+  decoracion: boolean;
+  catering: boolean;
+  musica: boolean;
+  personal: boolean;
+  itinerario: boolean;
+  documentos: boolean;
+  costos: boolean;
+  cargaOperativa: boolean;
+  fotografia: boolean;
+  videoVida: boolean;
+  reuniones: boolean;
+  muroSocial: boolean;
+  regalos: boolean;
+  feedback: boolean;
+  menuMesa: boolean;
+  cartaTragos: boolean;
+}
+
 
 export interface FiestaEnPlanificacion {
   id: string;
   configuracion: ConfigEventoDataStorage;
+  modulosContratados?: ModulosContratados;
   personalAsignado: PersonalAsignadoDetalleStorage[];
   menuAsignadoId?: string;
   presupuestoId?: string;
@@ -587,7 +626,8 @@ export interface FiestaEnPlanificacion {
   invitacionDigital?: InvitacionDigitalData;
 
   // New object for drink menu
-  menuMesa?: CartaTragosData;
+  cartaTragos?: CartaTragosData;
+  menuMesa?: MenuMesaData;
 
   // Deprecated - will be migrated to invitacionDigital
   webPageSettings?: EventWebPageSettings; 
@@ -620,13 +660,13 @@ export interface EventWebPageSettings {
   pageTitle: string;
   heroSubtitle?: string;
   welcomeMessage: string;
-  coverImageUrl: string;
-  galleryImageUrls: string[];
+  coverImageUrl: string; 
+  galleryImageUrls: string[]; 
   showCountdown: boolean;
   ourStoryTitle?: string;
   ourStoryText?: string;
-  ourStoryImageUrl?: string;
-  showOurStory: boolean;
+  ourStoryImageUrl?: string; 
+  showOurStory: boolean; 
   eventDetailsTitle?: string;
   eventDetailsText?: string;
   showEventDetails: boolean;
@@ -639,6 +679,7 @@ export interface EventWebPageSettings {
   showRsvp: boolean;
   showPrograma: boolean;
   musicaEspecialText?: string;
-  showGallery: boolean;
+  showGallery: boolean; 
   templateName: 'Obsidiana' | 'Grazia' | 'Allegria';
 }
+

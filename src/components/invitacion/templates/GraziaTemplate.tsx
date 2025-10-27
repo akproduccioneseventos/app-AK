@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -168,7 +169,7 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
                     initialValue={data.subtitulo?.text || "Nuestra Boda"}
                     style={data.subtitulo?.style}
                     onSave={v => onUpdate?.({ cabecera: { ...data, subtitulo: { ...(data.subtitulo || {style:{}}), text: v } } })}
-                    className="font-headline md:text-2xl"
+                    className="font-headline text-lg md:text-2xl"
                     textarea={false}
                 />
             </motion.div>
@@ -189,6 +190,7 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
                 />
                }
             </motion.h1>
+             <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7, duration: 0.8 }} className="mt-4 text-lg" style={{color: paleta.secondary}}>{formatDate(fiesta.configuracion.fechaEvento)}</motion.p>
          </div>
     </header>
   );
@@ -642,23 +644,26 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
               <Clock className="w-12 h-12 mx-auto mb-3" style={{ color: paletaColores.primary }} />
             </SectionIcon>
             <h3 className="font-headline text-3xl mb-6" style={{ color: paletaColores.accent }}>Cronograma</h3>
-            <ul className="max-w-sm mx-auto space-y-4 text-left">
+            <div className="relative max-w-sm mx-auto pl-8">
+              <div className="absolute left-8 h-full w-0.5 bg-gray-200 -z-10" style={{left: '26px'}}></div>
               {(fiesta.programa || []).map((item) => {
                 const Icon = item.icono && iconMap[item.icono] ? iconMap[item.icono] : Clock;
                 return (
-                  <li key={item.id} className="flex items-center gap-4">
-                    <div className="flex flex-col items-center">
-                      <Icon className="w-6 h-6 text-primary mb-1" />
-                      <span className="font-bold text-sm" style={{ color: paletaColores.primary }}>{item.hora}</span>
+                  <motion.div key={item.id} initial={{opacity: 0, x: -20}} whileInView={{opacity: 1, x: 0}} viewport={{once: true}} transition={{delay: 0.2}} className="relative flex items-start gap-4 pb-6">
+                    <div className="relative z-10 flex flex-col items-center">
+                      <div className="grid h-14 w-14 place-items-center rounded-full bg-primary/10 border-2 border-primary">
+                          <Icon className="h-6 w-6 text-primary" />
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-semibold">{item.titulo}</p>
+                    <div className="pt-1 text-left">
+                      <p className="font-bold text-sm" style={{ color: paletaColores.primary }}>{item.hora}</p>
+                      <p className="font-semibold text-base">{item.titulo}</p>
                       {item.descripcion && <p className="text-sm text-muted-foreground">{item.descripcion}</p>}
                     </div>
-                  </li>
+                  </motion.div>
                 );
               })}
-            </ul>
+            </div>
           </SectionWrapper>
         );
       case 'galeria':
@@ -672,7 +677,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
         return <SectionWrapper {...wrapperProps}>
             <SectionIcon><Sparkles className="w-12 h-12 mx-auto mb-3" style={{color: paletaColores.primary}} /></SectionIcon>
             <h3 className="font-headline text-3xl mb-2" style={{color: paletaColores.accent}}>Código de Vestimenta</h3>
-            <div className="text-xl font-semibold"><EditableText initialValue={seccion.data.texto?.text || "Formal"} style={{}} onSave={(v) => onUpdate?.({ dressCode: { ...seccion.data, texto: { ...seccion.data.texto, text: v }} })} textarea={false}/></div>
+            <div className="text-xl font-semibold"><EditableText initialValue={seccion.data.texto?.text || "Formal"} style={seccion.data.texto?.style || {}} onSave={v => onUpdate?.({ dressCode: { ...seccion.data, texto: { ...seccion.data.texto, text: v }} })} textarea={false}/></div>
              {(seccion.data.sugeridos?.length > 0 || seccion.data.evitar?.length > 0) && (
               <div className="mt-6 flex flex-col md:flex-row justify-center items-start gap-8">
                 {seccion.data.sugeridos?.length > 0 && (
