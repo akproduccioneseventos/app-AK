@@ -1,6 +1,6 @@
 
 
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, GiftItem, LayoutElement, ClientTarea, ProgramaEventoItem, TareaAsignadaA, FotografiaYFilmacionData, BebidasConsumoConfig, TipoAsistente, ReposteriaConsumoConfig, OtroDocumento, VideoVidaData, BebidaReceta, IngredienteReceta, CargaOperativaCategoria, InvitacionDigitalData, SeccionInvitacion, CartaTragosData } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, GiftItem, LayoutElement, ClientTarea, ProgramaEventoItem, TareaAsignadaA, FotografiaYFilmacionData, BebidasConsumoConfig, TipoAsistente, ReposteriaConsumoConfig, OtroDocumento, VideoVidaData, BebidaReceta, IngredienteReceta, CargaOperativaCategoria, InvitacionDigitalData, SeccionInvitacion, CartaTragosData, MenuMesaData, ModulosContratados } from '@/types/fiesta';
 import { defaultInvitacionDigitalData } from './invitacion-digital-defaults';
 
 export const defaultCartaTragosData: CartaTragosData = {
@@ -18,6 +18,18 @@ export const defaultCartaTragosData: CartaTragosData = {
         { id: 'trago_10', nombre: 'DESTORNILLADOR', imageUrl: 'https://picsum.photos/seed/screwdriver/400/600', aiHint: 'screwdriver cocktail' },
     ]
 };
+
+export const defaultMenuMesaData: MenuMesaData = {
+    protagonistaFotoUrl: "https://picsum.photos/seed/quinceanera-main/300/300",
+    paletaColores: { primary: '#9333ea', secondary: '#363636', accent: '#facc15' },
+    items: [
+        { id: 'plato_1', nombre: 'Entrada Ligera', imageUrl: 'https://picsum.photos/seed/light-appetizer/400/600', aiHint: 'light appetizer' },
+        { id: 'plato_2', nombre: 'Sopa Cremosa', imageUrl: 'https://picsum.photos/seed/cream-soup/400/600', aiHint: 'cream soup' },
+        { id: 'plato_3', nombre: 'Plato Principal', imageUrl: 'https://picsum.photos/seed/main-course/400/600', aiHint: 'main course' },
+        { id: 'plato_4', nombre: 'Postre', imageUrl: 'https://picsum.photos/seed/dessert/400/600', aiHint: 'dessert' },
+    ]
+};
+
 
 export const defaultConfiguracion: ConfigEventoDataStorage = {
   nombreEvento: 'Mi Próximo Evento Increíble',
@@ -247,6 +259,29 @@ export const defaultFotografiaYFilmacionData: FotografiaYFilmacionData = {
     notasGenerales: '',
 };
 
+// Default settings for which modules are enabled in the planner
+export const defaultModulosContratados: ModulosContratados = {
+  tareas: true,
+  invitados: true,
+  paginaWeb: true,
+  decoracion: true,
+  catering: true,
+  musica: true,
+  personal: true,
+  itinerario: true,
+  documentos: true,
+  costos: true,
+  cargaOperativa: true,
+  fotografia: true,
+  videoVida: true,
+  reuniones: true,
+  muroSocial: true,
+  regalos: true,
+  feedback: true,
+  menuMesa: true,
+  cartaTragos: true,
+};
+
 // Deprecated, keep for data migration if necessary
 export const defaultWebPageSettings: EventWebPageSettings = {
   pageTitle: 'Mi Evento Especial',
@@ -280,6 +315,7 @@ export const defaultWebPageSettings: EventWebPageSettings = {
 export const initialFiestaActualData: FiestaEnPlanificacion = {
   id: `fiesta_${Date.now()}`,
   configuracion: { ...defaultConfiguracion },
+  modulosContratados: { ...defaultModulosContratados },
   personalAsignado: [],
   menuAsignadoId: undefined,
   presupuestoId: undefined,
@@ -311,6 +347,7 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
   otrosDocumentos: [],
   pagosProveedores: [],
   cartaTragos: { ...defaultCartaTragosData },
+  menuMesa: { ...defaultMenuMesaData },
 
   // DEPRECATED - will be migrated/removed
   webPageSettings: { 
@@ -325,3 +362,5 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
   // NEW UNIFIED OBJECT
   invitacionDigital: { ...defaultInvitacionDigitalData }
 };
+
+    
