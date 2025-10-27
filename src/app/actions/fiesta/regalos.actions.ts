@@ -31,6 +31,28 @@ export async function updateGiftRegistry(fiestaId: string, giftList: GiftItem[])
         };
     });
 }
+
+export async function addGiftToRegistry(fiestaId: string, newGiftData: Omit<GiftItem, 'id' | 'isClaimed'>): Promise<{ success: boolean; error?: string }> {
+    return updateFiestaData(fiestaId, data => {
+        const webPageSettings = data.webPageSettings || defaultWebPageSettings;
+        const giftList = webPageSettings.giftRegistry || [];
+        
+        const newGift: GiftItem = {
+            ...newGiftData,
+            id: `gift_user_${Date.now()}`,
+            isClaimed: false,
+        };
+
+        const updatedList = [...giftList, newGift];
+
+        return {
+            ...data,
+            webPageSettings: { ...webPageSettings, giftRegistry: updatedList }
+        };
+    });
+}
+
+
 export async function claimGift(fiestaId: string, giftId: string, guestName: string): Promise<{ success: boolean; error?: string }> {
     return updateFiestaData(fiestaId, data => {
         const webPageSettings = data.webPageSettings || defaultWebPageSettings;

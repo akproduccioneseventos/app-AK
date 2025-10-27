@@ -8,7 +8,7 @@ import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
 import { CountdownTimer } from '@/components/countdown-timer';
 import { Separator } from '@/components/ui/separator';
-import { Church, Building, PartyPopper, Gift, Heart, MapPin, Play, Pause, Facebook, Instagram, Music, MessageSquare, Sparkles, Check, ArrowRight, X, Calendar, User, Mail, Grid, Code, Palette as PaletteIcon, Share2, Camera as CameraIcon, ArrowLeft, Clock, Users as UsersIcon, Link as LinkIcon, QrCode, Download, Utensils, GlassWater, CakeSlice, Diamond } from 'lucide-react';
+import { Church, Building, PartyPopper, Gift, Heart, MapPin, Play, Pause, Facebook, Instagram, Music, MessageSquare, Sparkles, Check, ArrowRight, X, Calendar, User, Mail, Grid, Code, Palette as PaletteIcon, Share2, Camera as CameraIcon, ArrowLeft, Clock, Users as UsersIcon, Link as LinkIcon, QrCode, Download, Utensils, GlassWater, CakeSlice, Diamond, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import type { SocialPlatformName } from '@/types/settings';
@@ -18,7 +18,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { claimGiftFiestaActual } from '@/app/actions/fiesta-actual';
+import { claimGiftFiestaActual, addGiftToRegistry } from '@/app/actions/fiesta-actual';
 import { Loader2 } from 'lucide-react';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Textarea } from '@/components/ui/textarea';
@@ -307,11 +307,46 @@ const GraziaRegalos: React.FC<{ data: InvitacionDigitalData['regalos'], fiestaId
     const [guestName, setGuestName] = useState('');
     const [isClaiming, setIsClaiming] = useState(false);
     const [isDatosBancariosOpen, setIsDatosBancariosOpen] = useState(false);
+    
+    // Suggest Gift Modal State
+    const [isSuggestModalOpen, setIsSuggestModalOpen] = useState(false);
+    const [newGiftName, setNewGiftName] = useState('');
+    const [newGiftDescription, setNewGiftDescription] = useState('');
+    const [newGiftImageUrl, setNewGiftImageUrl] = useState('');
+    const [isSuggesting, setIsSuggesting] = useState(false);
 
     const handleOpenClaimModal = (gift: GiftItem) => {
         setSelectedGift(gift);
         setIsClaimModalOpen(true);
         setGuestName('');
+    };
+    
+    const handleAddGiftSubmit = async (e: FormEvent) => {
+        e.preventDefault();
+        if (!newGiftName.trim() || !fiestaId) return;
+        setIsSuggesting(true);
+        try {
+            const result = await addGiftToRegistry(fiestaId, {
+                name: newGiftName,
+                description: newGiftDescription,
+                imageUrl: newGiftImageUrl
+            });
+            if (result.success) {
+                toast({ title: "¡Sugerencia Añadida!", description: "Gracias por tu idea, se ha añadido a la lista." });
+                setIsSuggestModalOpen(false);
+                // We need to trigger a re-fetch in the parent component
+                onUpdate?.({ regalos: { ...data, items: [...(data.items || []), { id: `new_${Date.now()}`, name: newGiftName, isClaimed: false }] } });
+                setNewGiftName('');
+                setNewGiftDescription('');
+                setNewGiftImageUrl('');
+            } else {
+                throw new Error(result.error);
+            }
+        } catch(err: any) {
+            toast({ title: "Error", description: err.message, variant: "destructive"});
+        } finally {
+            setIsSuggesting(false);
+        }
     };
 
     const handleClaimGift = async () => {
@@ -375,6 +410,22 @@ const GraziaRegalos: React.FC<{ data: InvitacionDigitalData['regalos'], fiestaId
                 </DialogContent>
             </Dialog>
 
+            <Dialog open={isSuggestModalOpen} onOpenChange={setIsSuggestModalOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Sugerir un Nuevo Regalo</DialogTitle>
+                        <DialogDescription>Añade una idea a la lista para que otros invitados puedan verla.</DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleAddGiftSubmit} className="space-y-3 py-2">
+                        <div className="space-y-1"><Label htmlFor="new-gift-name">Nombre del Regalo</Label><Input id="new-gift-name" value={newGiftName} onChange={e => setNewGiftName(e.target.value)} required/></div>
+                        <div className="space-y-1"><Label htmlFor="new-gift-desc">Descripción (Opcional)</Label><Textarea id="new-gift-desc" value={newGiftDescription} onChange={e => setNewGiftDescription(e.target.value)} rows={2}/></div>
+                        <div className="space-y-1"><Label htmlFor="new-gift-img">URL de Imagen (Opcional)</Label><Input id="new-gift-img" value={newGiftImageUrl} onChange={e => setNewGiftImageUrl(e.target.value)} /></div>
+                        <DialogFooter><DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose><Button type="submit" disabled={isSuggesting}>{isSuggesting ? <Loader2 className="w-4 h-4 animate-spin mr-2"/> : null}Añadir a la Lista</Button></DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+
             <SectionIcon><Gift className="w-12 h-12 mx-auto mb-3" style={{color: paleta.primary}}/></SectionIcon>
             <h3 className="font-headline text-3xl mb-3" style={{color: paleta.accent}}>
               <EditableText initialValue={data.titulo.text || "Lista de Regalos"} style={data.titulo.style} onSave={v => onUpdate?.({ regalos: { ...data, titulo: { ...(data.titulo || {style:{}}), text: v } }})} textarea={false}/>
@@ -382,11 +433,14 @@ const GraziaRegalos: React.FC<{ data: InvitacionDigitalData['regalos'], fiestaId
             <div className="text-muted-foreground max-w-md mx-auto mb-6">
               <EditableText initialValue={data.texto.text || "Tu presencia es nuestro mejor regalo. Si aún así deseas obsequiarnos algo, puedes ayudarnos con nuestra luna de miel o elegir una de estas opciones."} style={data.texto.style} onSave={v => onUpdate?.({ regalos: { ...data, texto: { ...(data.texto || {style:{}}), text: v } }})} textarea/>
             </div>
-            {data.datosBancarios && (
-                <div className="mb-8">
-                     <Button onClick={() => setIsDatosBancariosOpen(true)}><QrCode className="w-4 h-4 mr-2"/> Ver Datos Bancarios</Button>
-                </div>
-            )}
+            <div className="flex flex-wrap justify-center gap-2 mb-8">
+                {data.datosBancarios && (
+                    <Button onClick={() => setIsDatosBancariosOpen(true)}><QrCode className="w-4 h-4 mr-2"/> Ver Datos Bancarios</Button>
+                )}
+                <Button variant="outline" onClick={() => setIsSuggestModalOpen(true)}>
+                    <PlusCircle className="w-4 h-4 mr-2"/> Sugerir un Regalo
+                </Button>
+            </div>
              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
               {(data.items || []).map(item => (
                 <div key={item.id} className="border rounded-lg shadow-sm overflow-hidden flex flex-col bg-card">
