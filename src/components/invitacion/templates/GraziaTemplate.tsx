@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -801,6 +800,19 @@ END:VCALENDAR`;
       case 'musica':
         return <SectionWrapper {...wrapperProps}><Button size="lg" variant="outline" style={{borderColor: primaryColor, color: primaryColor}} onClick={() => !isPreview && setIsMusicModalOpen(true)}><Music className="w-5 h-5 mr-2"/>Sugerir una Canción</Button></SectionWrapper>;
       case 'redesSociales':
+        const socialWallUrl = typeof window !== 'undefined' ? `${window.location.origin}/evento/social/${fiesta.id}` : '';
+        const downloadQR = () => {
+            const canvas = document.getElementById('qr-code-social') as HTMLCanvasElement;
+            if (canvas) {
+                const pngUrl = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+                let downloadLink = document.createElement("a");
+                downloadLink.href = pngUrl;
+                downloadLink.download = `qr-muro-social-${fiesta.id}.png`;
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+            }
+        };
         return (
           <SectionWrapper {...wrapperProps}>
             <SectionIcon><Share2 className="w-12 h-12 mx-auto mb-3" style={{ color: primaryColor }} /></SectionIcon>
@@ -814,16 +826,18 @@ END:VCALENDAR`;
             )}
              {fiesta.socialGallerySettings?.enabled && (
                 <div className="mt-8 flex flex-col items-center gap-6">
-                    <Button asChild variant="default" className="mt-6" style={{backgroundColor: primaryColor}}>
+                    <Button asChild variant="default" style={{backgroundColor: primaryColor}}>
                         <Link href={`/evento/social/${fiesta.id}`}>
                             <CameraIcon className="w-5 h-5 mr-2" />
                             Ir al Muro Social
                         </Link>
                     </Button>
                     <div className="p-2 bg-white border rounded-md">
-                        <QRCodeStylized value={`${window.location.origin}/evento/social/${fiesta.id}`} size={100} />
+                        <QRCodeStylized id="qr-code-social" value={socialWallUrl} size={100} />
                     </div>
-                    <p className="text-sm text-muted-foreground">¡Escanea para subir tus fotos!</p>
+                    <Button variant="link" size="sm" className="text-xs" onClick={downloadQR}>
+                        <Download className="w-3 h-3 mr-1" /> Descargar QR
+                    </Button>
                 </div>
              )}
           </SectionWrapper>
