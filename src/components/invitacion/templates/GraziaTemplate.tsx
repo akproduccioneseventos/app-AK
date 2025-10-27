@@ -766,7 +766,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
        {invitacionData.footer.visible && (
         <footer className="text-center py-8 mt-8 border-t bg-muted/20">
             <h4 className="font-headline text-lg mb-2" style={{color: primaryColor}}>
-                 <EditableText initialValue={invitacionData.footer.titulo.text || 'Con cariño, María y Juan'} style={invitacionData.footer.titulo.style} onSave={(v) => onUpdate?.({ footer: { ...invitacionData.footer, titulo: { ...invitacionData.footer.titulo, text: v } } })} textarea={false}/>
+                 <EditableText initialValue={invitacionData.footer.titulo.text || 'Con cariño, María y Juan'} style={invitacionData.footer.titulo.style} onSave={v => onUpdate?.({ footer: { ...invitacionData.footer, titulo: { ...invitacionData.footer.titulo, text: v } } })} textarea={false}/>
             </h4>
              <p className="text-sm text-muted-foreground mb-4">Síguenos en nuestras redes sociales</p>
             <div className="flex justify-center items-center gap-4 mb-4">
