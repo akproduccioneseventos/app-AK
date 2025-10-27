@@ -128,3 +128,44 @@ export async function checkAndCreateTaskReminders(): Promise<{ success: boolean;
         return { success: false, created: 0 };
     }
 }
+
+export async function checkAndCreateReunionReminders(): Promise<{ success: boolean; created: number }> {
+    try {
+        const fiesta = await getFiestaActual();
+        if (!fiesta || !fiesta.reuniones) {
+            return { success: true, created: 0 };
+        }
+
+        const today = startOfToday();
+        let createdCount = 0;
+
+        for (const reunion of fiesta.reuniones) {
+            if (!reunion.fecha) continue;
+            
+            const meetingDate = new Date(reunion.fecha);
+            const daysUntilMeeting = differenceInDays(meetingDate, today);
+
+            if (daysUntilMeeting >= 0 && daysUntilMeeting <= 1) { // Reminder for today or tomorrow
+                let mensaje = '';
+                 if(isToday(meetingDate)) {
+                    mensaje = `Recordatorio de Reunión HOY: "${reunion.titulo}" a las ${new Date(reunion.fecha).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })}.`;
+                } else {
+                    mensaje = `Recordatorio de Reunión Mañana: "${reunion.titulo}" a las ${new Date(reunion.fecha).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })}.`;
+                }
+                
+                const result = await createNotification({
+                    mensaje,
+                    href: '/fiestas/nueva/reuniones',
+                    icono: 'MessageSquareText', // Using a different icon for meetings
+                });
+                if(result.success && result.notification?.id.startsWith('notif_')) {
+                  createdCount++;
+                }
+            }
+        }
+        return { success: true, created: createdCount };
+    } catch(e) {
+        console.error("Failed to check and create meeting reminders:", e);
+        return { success: false, created: 0 };
+    }
+}

@@ -5,7 +5,7 @@ import { getCustomers } from './customers';
 import { getPresupuestos } from './presupuestos';
 import { getInvoices } from './invoices';
 import { getAllFiestas } from './fiesta/fiesta.actions';
-import { checkAndCreateTaskReminders } from './notifications';
+import { checkAndCreateTaskReminders, checkAndCreateReunionReminders } from './notifications';
 import { subMonths, format, startOfMonth } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -17,8 +17,9 @@ export interface MonthlyChartData {
 
 export async function getDashboardKpiData() {
   try {
-    // Run task reminder check in the background without waiting for it
+    // Run reminder checks in the background without waiting for them
     checkAndCreateTaskReminders().catch(err => console.warn("Background task reminder check failed:", err));
+    checkAndCreateReunionReminders().catch(err => console.warn("Background meeting reminder check failed:", err));
 
     const [
       customersData,
