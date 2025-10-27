@@ -1,3 +1,4 @@
+
 {
   "id": "fiesta_1761518911463_a2c0rmc",
   "configuracion": {
@@ -10,7 +11,8 @@
     "invitadosEstimados": 120,
     "presupuestoEstimado": 750000,
     "notasAdicionales": "Fiesta temática 'Noche Estrellada'. Foco en la pista de baile y la música.",
-    "clienteId": "cust_1759360164472"
+    "clienteId": "cust_1759360164472",
+    "protagonista1Nombre": "Sofía"
   },
   "modulosContratados": {
     "tareas": true,
@@ -494,7 +496,7 @@
         "secondary": "#F3F4F6",
         "accent": "#FBBF24"
       },
-      "imagenFondoUrl": "https://picsum.photos/seed/nightsky/1200/800"
+      "imagenFondoUrl": "https://picsum.photos/seed/quinceanera-party/1200/800"
     },
     "bienvenida": {
       "visible": true,
@@ -561,18 +563,18 @@
       "items": [
         {
           "id": "gift_1",
-          "name": "Aporte para viaje",
+          "name": "Aporte para viaje de 15",
           "isClaimed": false
         },
         {
           "id": "gift_2",
-          "name": "Libros",
+          "name": "Libros de Aventura",
           "isClaimed": true,
           "claimedBy": "Tía Laura"
         },
         {
           "id": "gift_3",
-          "name": "Entradas para concierto",
+          "name": "Entradas para concierto de su artista favorito",
           "isClaimed": false
         }
       ]
@@ -590,11 +592,14 @@
     "despedida": {
       "visible": true,
       "texto": {
-        "text": "¡No faltes!"
+        "text": "¡Te espero para festejar!"
       }
     },
     "footer": {
-      "visible": true
+      "visible": true,
+      "titulo": {
+        "text": "Con cariño, Sofía"
+      }
     }
   },
   "menuMesa": {

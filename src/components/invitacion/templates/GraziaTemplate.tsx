@@ -203,7 +203,7 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
         <div className="relative z-10 p-6 max-w-2xl mx-auto text-center">
              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3, duration: 0.8 }}>
                 <EditableText
-                    initialValue={data.subtitulo?.text || "Nuestra Boda"}
+                    initialValue={data.subtitulo?.text || "Mis XV Años"}
                     style={data.subtitulo?.style}
                     onSave={v => onUpdate?.({ cabecera: { ...data, subtitulo: { ...(data.subtitulo || {style:{}}), text: v } } })}
                     className="font-headline text-lg md:text-2xl"
@@ -212,7 +212,7 @@ const GraziaCabecera: React.FC<{ data: InvitacionDigitalData['cabecera'], fiesta
             </motion.div>
             <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.8 }} className="font-headline text-5xl md:text-7xl my-4" style={{color: primaryColor}}>
                <EditableText
-                    initialValue={data.protagonista1 || "Protagonista 1"}
+                    initialValue={data.protagonista1 || "Protagonista"}
                     style={{ fontFamily: 'Belleza', fontSize: 'inherit', color: 'inherit' }}
                     onSave={(val) => handleUpdateProtagonista('protagonista1', val)}
                     textarea={false}
@@ -597,7 +597,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
     const currentNames = companionNames; // Use the state directly
     const newCompanionNames = Array(numCompanions).fill('').map((_, i) => currentNames[i] || '');
     setCompanionNames(newCompanionNames);
-  }, [rsvpGuests]);
+  }, [rsvpGuests, companionNames]);
 
 
   const togglePlayPause = () => {
@@ -679,6 +679,16 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
       case 'detallesEvento':
         return <SectionWrapper {...wrapperProps}><GraziaDetalles {...props} /></SectionWrapper>;
       case 'itinerario':
+        const iconMap: Record<string, React.ElementType> = {
+          Utensils: Utensils,
+          GlassWater: GlassWater,
+          Music: Music,
+          CakeSlice: CakeSlice,
+          Camera: CameraIcon,
+          Diamond: Diamond,
+          PartyPopper: PartyPopper,
+          Clock: Clock,
+        };
         return (
           <SectionWrapper {...wrapperProps}>
             <SectionIcon>
@@ -701,7 +711,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
                       <p className="font-semibold text-base">{item.titulo}</p>
                       {item.descripcion && <p className="text-sm text-muted-foreground">{item.descripcion}</p>}
                     </div>
-                    <Button variant="link" size="sm" className="absolute right-0 top-1 text-primary text-xs" onClick={() => {
+                     <Button variant="link" size="sm" className="absolute right-0 top-1 text-primary text-xs" onClick={() => {
                         const eventEndDate = new Date(fiesta.configuracion.fechaEvento!);
                         eventEndDate.setHours(eventEndDate.getHours() + 1);
                         const icsContent = `BEGIN:VCALENDAR
@@ -742,7 +752,7 @@ END:VCALENDAR`;
             </SectionIcon>
             <h3 className="font-headline text-3xl mb-4" style={{color: paletaColores.accent}}>
               <EditableText 
-                initialValue={seccion.data.titulo?.text || 'Nuestra Historia'} 
+                initialValue={seccion.data.titulo?.text || 'Mi Camino'} 
                 style={seccion.data.titulo?.style} 
                 onSave={v => onUpdate?.({ historia: { ...seccion.data, titulo: { ...(seccion.data.titulo || {style:{}}), text: v } } })} 
                 textarea={false}
@@ -758,7 +768,7 @@ END:VCALENDAR`;
                 )}
                 <div className="text-muted-foreground text-left md:text-lg">
                     <EditableText 
-                        initialValue={seccion.data.texto?.text || 'Un breve relato de cómo llegamos hasta aquí...'} 
+                        initialValue={seccion.data.texto?.text || 'Un pequeño recorrido por mis 15 años de vida...'} 
                         style={seccion.data.texto?.style} 
                         onSave={v => onUpdate?.({ historia: { ...seccion.data, texto: { ...(seccion.data.texto || {style:{}}), text: v } } })} 
                         textarea
@@ -768,7 +778,8 @@ END:VCALENDAR`;
           </SectionWrapper>
         );
       case 'dressCode':
-        return <SectionWrapper {...wrapperProps}>
+        return (
+          <SectionWrapper {...wrapperProps}>
             <SectionIcon><Sparkles className="w-12 h-12 mx-auto mb-3" style={{color: paletaColores.primary}} /></SectionIcon>
             <h3 className="font-headline text-3xl mb-2" style={{color: paletaColores.accent}}>Código de Vestimenta</h3>
             <div className="text-xl font-semibold"><EditableText initialValue={seccion.data.texto?.text || "Formal"} style={seccion.data.texto?.style || {}} onSave={v => onUpdate?.({ dressCode: { ...seccion.data, texto: { ...seccion.data.texto, text: v }} })} textarea={false}/></div>
@@ -792,7 +803,8 @@ END:VCALENDAR`;
                 )}
               </div>
             )}
-        </SectionWrapper>;
+        </SectionWrapper>
+        );
       case 'regalos':
         return <SectionWrapper {...wrapperProps}><GraziaRegalos {...props} fiestaId={fiesta.id}/></SectionWrapper>;
       case 'confirmacion':
@@ -886,7 +898,7 @@ END:VCALENDAR`;
        {invitacionData.footer.visible && (
         <footer className="text-center py-8 mt-8 border-t bg-muted/20">
             <h4 className="font-headline text-lg mb-2" style={{color: primaryColor}}>
-                 <EditableText initialValue={invitacionData.footer.titulo.text || 'Con cariño, María y Juan'} style={invitacionData.footer.titulo.style} onSave={v => onUpdate?.({ footer: { ...invitacionData.footer, titulo: { ...invitacionData.footer.titulo, text: v } } })} textarea={false}/>
+                 <EditableText initialValue={invitacionData.footer.titulo.text || 'Con cariño, Sofía'} style={invitacionData.footer.titulo.style} onSave={v => onUpdate?.({ footer: { ...invitacionData.footer, titulo: { ...invitacionData.footer.titulo, text: v } } })} textarea={false}/>
             </h4>
              <p className="text-sm text-muted-foreground mb-4">Síguenos en nuestras redes sociales</p>
             <div className="flex justify-center items-center gap-4 mb-4">
