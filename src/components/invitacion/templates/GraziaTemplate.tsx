@@ -50,10 +50,6 @@ const formatDate = (dateString?: string, shortMonth = false) => {
 
 const companyName = "AK Producciones";
 
-const iconMap: Record<string, React.ElementType> = {
-  Utensils, GlassWater, Music, CakeSlice, Camera: CameraIcon, Diamond, PartyPopper, Clock,
-};
-
 const SectionWrapper: React.FC<{
     seccion: SeccionInvitacion,
     children: React.ReactNode,
@@ -593,11 +589,16 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
 
 
   useEffect(() => {
-    const numCompanions = rsvpGuests > 1 ? rsvpGuests - 1 : 0;
-    const currentNames = companionNames; // Use the state directly
-    const newCompanionNames = Array(numCompanions).fill('').map((_, i) => currentNames[i] || '');
-    setCompanionNames(newCompanionNames);
-  }, [rsvpGuests, companionNames]);
+    setCompanionNames(prevNames => {
+      const numCompanions = rsvpGuests > 1 ? rsvpGuests - 1 : 0;
+      const newCompanionNames = Array.from({ length: numCompanions }, (_, i) => prevNames[i] || '');
+      // Only update if the array length differs, to prevent loop
+      if (newCompanionNames.length !== prevNames.length) {
+        return newCompanionNames;
+      }
+      return prevNames;
+    });
+  }, [rsvpGuests]);
 
 
   const togglePlayPause = () => {
@@ -679,16 +680,6 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
       case 'detallesEvento':
         return <SectionWrapper {...wrapperProps}><GraziaDetalles {...props} /></SectionWrapper>;
       case 'itinerario':
-        const iconMap: Record<string, React.ElementType> = {
-          Utensils: Utensils,
-          GlassWater: GlassWater,
-          Music: Music,
-          CakeSlice: CakeSlice,
-          Camera: CameraIcon,
-          Diamond: Diamond,
-          PartyPopper: PartyPopper,
-          Clock: Clock,
-        };
         return (
           <SectionWrapper {...wrapperProps}>
             <SectionIcon>
