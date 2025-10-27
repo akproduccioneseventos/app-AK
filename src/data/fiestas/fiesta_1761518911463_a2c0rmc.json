@@ -12,6 +12,27 @@
     "notasAdicionales": "Fiesta temática 'Noche Estrellada'. Foco en la pista de baile y la música.",
     "clienteId": "cust_1759360164472"
   },
+  "modulosContratados": {
+    "tareas": true,
+    "invitados": true,
+    "paginaWeb": true,
+    "decoracion": true,
+    "catering": true,
+    "musica": true,
+    "personal": true,
+    "itinerario": true,
+    "documentos": true,
+    "costos": true,
+    "cargaOperativa": true,
+    "fotografia": true,
+    "videoVida": true,
+    "reuniones": true,
+    "muroSocial": true,
+    "regalos": true,
+    "feedback": true,
+    "menuMesa": true,
+    "cartaTragos": true
+  },
   "personalAsignado": [
     {
       "empleadoId": "emp_1759834108949_7q9gi",
@@ -336,7 +357,10 @@
   "musica": {
     "cancionEntrada": "A Sky Full of Stars - Coldplay",
     "cancionVals": "Perfect - Ed Sheeran",
-    "cancionesTortaBrindis": ["Feliz Cumpleaños", "Brindis - Soledad"],
+    "cancionesTortaBrindis": [
+      "Feliz Cumpleaños",
+      "Brindis - Soledad"
+    ],
     "listaNoReproducir": "Reggaeton antiguo."
   },
   "reposteria": {
@@ -346,15 +370,27 @@
         "nombreDisplay": "Mesa Dulce Tradicional",
         "activada": true,
         "items": [
-            { "id": "rep_1", "nombre": "Mini Lemon Pies", "cantidad": 50, "unidad": "unidad", "costoEstimado": 40 },
-            { "id": "rep_2", "nombre": "Shots de Chocotorta", "cantidad": 50, "unidad": "unidad", "costoEstimado": 55 }
+          {
+            "id": "rep_1",
+            "nombre": "Mini Lemon Pies",
+            "cantidad": 50,
+            "unidad": "unidad",
+            "costoEstimado": 40
+          },
+          {
+            "id": "rep_2",
+            "nombre": "Shots de Chocotorta",
+            "cantidad": 50,
+            "unidad": "unidad",
+            "costoEstimado": 55
+          }
         ]
       },
       {
-          "id": "candy_bar",
-          "nombreDisplay": "Candy Bar Temático",
-          "activada": true,
-          "items": []
+        "id": "candy_bar",
+        "nombreDisplay": "Candy Bar Temático",
+        "activada": true,
+        "items": []
       }
     ]
   },
@@ -380,8 +416,18 @@
         "id": "carga_1",
         "nombre": "Equipos de Sonido",
         "items": [
-          { "id": "carga_item_1", "nombre": "Consola DJ", "cantidad": "1", "cargado": false },
-          { "id": "carga_item_2", "nombre": "Parlantes (x2)", "cantidad": "2", "cargado": false }
+          {
+            "id": "carga_item_1",
+            "nombre": "Consola DJ",
+            "cantidad": "1",
+            "cargado": false
+          },
+          {
+            "id": "carga_item_2",
+            "nombre": "Parlantes (x2)",
+            "cantidad": "2",
+            "cargado": false
+          }
         ]
       }
     ]
@@ -404,17 +450,27 @@
     "ingresosTotalesEstimados": 750000
   },
   "videoVida": {
-      "galleryEnabled": true,
-      "songSuggestion": "Photograph - Ed Sheeran",
-      "customText": "Sofi, por favor sube una foto por cada año de tu vida, desde bebé hasta ahora. ¡Queremos contar tu historia!",
-      "photoCount": 15
+    "galleryEnabled": true,
+    "songSuggestion": "Photograph - Ed Sheeran",
+    "customText": "Sofi, por favor sube una foto por cada año de tu vida, desde bebé hasta ahora. ¡Queremos contar tu historia!",
+    "photoCount": 15
   },
   "programa": [],
   "fotografiaYFilmacion": {
-      "servicios": [
-          { "id": "fyv_1", "nombre": "Fotografía del Evento Completo", "estado": "Pendiente", "fechaEntregaEstimada": "2025-12-22T00:00:00.000Z" },
-          { "id": "fyv_2", "nombre": "Video Resumen del Evento", "estado": "Pendiente", "fechaEntregaEstimada": "2026-01-15T00:00:00.000Z" }
-      ]
+    "servicios": [
+      {
+        "id": "fyv_1",
+        "nombre": "Fotografía del Evento Completo",
+        "estado": "Pendiente",
+        "fechaEntregaEstimada": "2025-12-22T00:00:00.000Z"
+      },
+      {
+        "id": "fyv_2",
+        "nombre": "Video Resumen del Evento",
+        "estado": "Pendiente",
+        "fechaEntregaEstimada": "2026-01-15T00:00:00.000Z"
+      }
+    ]
   },
   "otrosDocumentos": [],
   "pagosProveedores": [],
@@ -427,33 +483,152 @@
     "secciones": [],
     "cabecera": {
       "visible": true,
+      "logoUrl": "",
       "protagonista1": "Sofía",
       "protagonista2": "",
-      "subtitulo": { "text": "Mis XV Años" },
-      "paletaColores": { "primary": "#1E3A8A", "secondary": "#F3F4F6", "accent": "#FBBF24" }
+      "subtitulo": {
+        "text": "Mis XV Años"
+      },
+      "paletaColores": {
+        "primary": "#1E3A8A",
+        "secondary": "#F3F4F6",
+        "accent": "#FBBF24"
+      },
+      "imagenFondoUrl": "https://picsum.photos/seed/nightsky/1200/800"
     },
-    "bienvenida": { "visible": true, "titulo": { "text": "¡Te invito a mi noche mágica!" }, "texto": { "text": "Acompáñame a celebrar mis 15 años en una noche llena de estrellas, sueños y mucha diversión. ¡Tu presencia es el mejor regalo!" } },
-    "cuentaRegresiva": { "visible": true },
-    "detallesEvento": { "visible": true, "ceremoniaReligiosa": { "visible": false }, "ceremoniaCivil": { "visible": false }, "celebracion": { "visible": true, "titulo": "La Fiesta", "nombreLugar": "Salón La Casona", "hora": "21:00" } },
-    "itinerario": { "visible": true },
-    "historia": { "visible": true, "titulo": { "text": "Mi Camino" }, "texto": { "text": "Un pequeño recorrido por mis 15 años de vida..." } },
-    "galeria": { "visible": true, "fotos": ["https://picsum.photos/seed/sofia1/600/400", "https://picsum.photos/seed/sofia2/600/400", "https://picsum.photos/seed/sofia3/600/400"] },
-    "dressCode": { "visible": true, "texto": { "text": "Elegante Sport" } },
-    "regalos": {
+    "bienvenida": {
       "visible": true,
-      "titulo": { "text": "Lista de Regalos" },
-      "texto": { "text": "Si deseas hacerme un regalo, aquí tienes algunas ideas. ¡Pero tu compañía es lo más importante!" },
-      "datosBancarios": "Colectivo Abitab/RedPagos: 'Los 15 de Sofi'",
-      "items": [
-        { "id": "gift_1", "name": "Aporte para viaje", "isClaimed": false },
-        { "id": "gift_2", "name": "Libros", "isClaimed": true, "claimedBy": "Tía Laura" },
-        { "id": "gift_3", "name": "Entradas para concierto", "isClaimed": false }
+      "titulo": {
+        "text": "¡Te invito a mi noche mágica!"
+      },
+      "texto": {
+        "text": "Acompáñame a celebrar mis 15 años en una noche llena de estrellas, sueños y mucha diversión. ¡Tu presencia es el mejor regalo!"
+      }
+    },
+    "cuentaRegresiva": {
+      "visible": true
+    },
+    "detallesEvento": {
+      "visible": true,
+      "ceremoniaReligiosa": {
+        "visible": false
+      },
+      "ceremoniaCivil": {
+        "visible": false
+      },
+      "celebracion": {
+        "visible": true,
+        "titulo": "La Fiesta",
+        "nombreLugar": "Salón La Casona",
+        "hora": "21:00"
+      }
+    },
+    "itinerario": {
+      "visible": true
+    },
+    "historia": {
+      "visible": true,
+      "titulo": {
+        "text": "Mi Camino"
+      },
+      "texto": {
+        "text": "Un pequeño recorrido por mis 15 años de vida..."
+      }
+    },
+    "galeria": {
+      "visible": true,
+      "fotos": [
+        "https://picsum.photos/seed/sofia1/600/400",
+        "https://picsum.photos/seed/sofia2/600/400",
+        "https://picsum.photos/seed/sofia3/600/400"
       ]
     },
-    "confirmacion": { "visible": true },
-    "musica": { "visible": true },
-    "redesSociales": { "visible": true, "hashtag": "#Los15deSofi" },
-    "despedida": { "visible": true, "texto": { "text": "¡No faltes!" } },
-    "footer": { "visible": true }
+    "dressCode": {
+      "visible": true,
+      "texto": {
+        "text": "Elegante Sport"
+      }
+    },
+    "regalos": {
+      "visible": true,
+      "titulo": {
+        "text": "Lista de Regalos"
+      },
+      "texto": {
+        "text": "Si deseas hacerme un regalo, aquí tienes algunas ideas. ¡Pero tu compañía es lo más importante!"
+      },
+      "datosBancarios": "Colectivo Abitab/RedPagos: 'Los 15 de Sofi'",
+      "items": [
+        {
+          "id": "gift_1",
+          "name": "Aporte para viaje",
+          "isClaimed": false
+        },
+        {
+          "id": "gift_2",
+          "name": "Libros",
+          "isClaimed": true,
+          "claimedBy": "Tía Laura"
+        },
+        {
+          "id": "gift_3",
+          "name": "Entradas para concierto",
+          "isClaimed": false
+        }
+      ]
+    },
+    "confirmacion": {
+      "visible": true
+    },
+    "musica": {
+      "visible": true
+    },
+    "redesSociales": {
+      "visible": true,
+      "hashtag": "#Los15deSofi"
+    },
+    "despedida": {
+      "visible": true,
+      "texto": {
+        "text": "¡No faltes!"
+      }
+    },
+    "footer": {
+      "visible": true
+    }
+  },
+  "menuMesa": {
+    "protagonistaFotoUrl": "",
+    "paletaColores": {
+      "primary": "#9333ea",
+      "secondary": "#363636",
+      "accent": "#facc15"
+    },
+    "items": [
+      {
+        "id": "plato_1",
+        "nombre": "Entrada Ligera",
+        "imageUrl": "https://picsum.photos/seed/light-appetizer/400/600",
+        "aiHint": "light appetizer"
+      },
+      {
+        "id": "plato_2",
+        "nombre": "Sopa Cremosa",
+        "imageUrl": "https://picsum.photos/seed/cream-soup/400/600",
+        "aiHint": "cream soup"
+      },
+      {
+        "id": "plato_3",
+        "nombre": "Plato Principal",
+        "imageUrl": "https://picsum.photos/seed/main-course/400/600",
+        "aiHint": "main course"
+      },
+      {
+        "id": "plato_4",
+        "nombre": "Postre",
+        "imageUrl": "https://picsum.photos/seed/dessert/400/600",
+        "aiHint": "dessert"
+      }
+    ]
   }
 }
