@@ -25,7 +25,6 @@ const modules = [
   { title: "Configuración", href: "configuracion", icon: Users, description: "Datos generales del evento." },
   { title: "Tareas", href: "tareas", icon: ListChecks, description: "Checklist de pendientes." },
   { title: "Invitados", href: "invitados", icon: Users, description: "Gestiona tu lista y el diseño del salón." },
-  { title: "Asignación de Mesas (Cliente)", href: "/evento/actual/mesa", icon: LayoutDashboard, description: "Vista para que el cliente asigne sus invitados." },
   { title: "Página del Evento", href: "pagina-web", icon: Globe, description: "Personaliza la web que verán tus invitados." },
   { title: "Diseño y Decoración", href: "decoracion", icon: Palette, description: "Define el estilo y la ambientación." },
   { title: "Catering", href: "catering", icon: ChefHat, description: "Planifica el menú gastronómico." },
@@ -38,6 +37,7 @@ const modules = [
   { title: "Fotografía y Video", href: "fotografia", icon: Camera, description: "Seguimiento de entregas." },
   { title: "Video de Vida", href: "video-vida", icon: Video, description: "Gestiona las fotos del cliente." },
   { title: "Reuniones", href: "reuniones", icon: MessageSquare, description: "Agenda y minutas de reuniones." },
+  { title: "Muro Social", href: "/evento/social/[fiestaId]", icon: Camera, description: "Modera la galería de fotos en vivo del evento." },
 ];
 
 function PlannerDashboardContent() {
@@ -127,7 +127,7 @@ function PlannerDashboardContent() {
         <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {modules.map(module => {
             const hrefWithId = module.href.startsWith('/') 
-                ? `${module.href}?fiestaId=${fiesta.id}`
+                ? module.href.replace('[fiestaId]', fiesta.id)
                 : `/fiestas/nueva/${module.href}?fiestaId=${fiesta.id}`;
             return (
               <Link key={module.href} href={hrefWithId} passHref>
