@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, AlertTriangle, UserCircle, CalendarDays, DollarSign, FileText, CreditCard, UploadCloud, Info, Eye, Briefcase, Phone, Mail, Printer } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, UserCircle, CalendarDays, DollarSign, FileText, CreditCard, UploadCloud, Info, Eye, Briefcase, Phone, Mail, Printer, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Customer } from '@/types/customer';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -188,14 +188,14 @@ export default function CustomerDetailsPage({ params: paramsProp }: { params: { 
             </div>
             <Separator />
             <div>
-                 <h4 className="text-sm font-semibold mb-2">Documentos Adjuntos</h4>
+                 <h4 className="text-sm font-semibold mb-2">Documentos y Acciones</h4>
                  <div className="flex flex-wrap gap-2">
                     {customer.contractFileName ? (
                         <a href={`/api/contracts/${customer.contractFileName}`} target="_blank" rel="noopener noreferrer">
-                            <Button variant="outline"><Eye className="w-4 h-4 mr-2"/> Ver Contrato de Servicio</Button>
+                            <Button variant="outline"><Eye className="w-4 h-4 mr-2"/> Ver Contrato</Button>
                         </a>
                     ) : (
-                        <Button variant="outline" disabled><FileText className="w-4 h-4 mr-2"/> Contrato de Servicio no subido</Button>
+                        <Button variant="outline" disabled><FileText className="w-4 h-4 mr-2"/> Contrato no subido</Button>
                     )}
                      {customer.budgetFileName ? (
                         <a href={`/api/budgets/${customer.budgetFileName}`} target="_blank" rel="noopener noreferrer">
@@ -206,11 +206,14 @@ export default function CustomerDetailsPage({ params: paramsProp }: { params: { 
                     )}
                     {customer.salonContractFileName ? (
                         <a href={`/api/salon-contracts/${customer.salonContractFileName}`} target="_blank" rel="noopener noreferrer">
-                            <Button variant="outline"><Eye className="w-4 h-4 mr-2"/> Ver Contrato del Salón</Button>
+                            <Button variant="outline"><Eye className="w-4 h-4 mr-2"/> Ver Contrato Salón</Button>
                         </a>
                     ) : (
                          <Button variant="outline" disabled><FileText className="w-4 h-4 mr-2"/> Contrato Salón no subido</Button>
                     )}
+                    <Link href="/settings/feedback" passHref>
+                        <Button variant="secondary"><Star className="w-4 h-4 mr-2"/>Ver Feedback</Button>
+                    </Link>
                  </div>
             </div>
         </CardContent>
