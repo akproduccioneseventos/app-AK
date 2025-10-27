@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent, Suspense } from 'react';
@@ -12,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, Gift, Save, Loader2, PlusCircle, Trash2, Edit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getFiestaActual, claimGiftFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { updateGiftRegistry } from '@/app/actions/fiesta/regalos.actions';
 import type { FiestaEnPlanificacion, GiftItem } from '@/types/fiesta';
 import {
@@ -24,6 +23,7 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
+import { defaultGiftItems } from '@/lib/fiesta-defaults';
 
 function GiftRegistryPageContent() {
   const { toast } = useToast();
@@ -36,13 +36,23 @@ function GiftRegistryPageContent() {
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentItem, setCurrentItem] = useState<Partial<GiftItem> | null>(null);
-
+  
   const loadData = useCallback(async () => {
     if (!fiestaId) return;
     setIsLoading(true);
     try {
       const fiestaData = await getFiestaActual();
-      setGiftList(fiestaData.webPageSettings?.giftRegistry || []);
+      let currentGiftList = fiestaData.webPageSettings?.giftRegistry || [];
+
+      // If the list is empty, populate with defaults
+      if (currentGiftList.length === 0) {
+        currentGiftList = defaultGiftItems.map(item => ({
+          ...item,
+          id: `gift_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+          isClaimed: false,
+        }));
+      }
+      setGiftList(currentGiftList);
     } catch (e) {
       toast({ title: "Error", description: "No se pudo cargar la lista de regalos.", variant: "destructive" });
     } finally {
@@ -121,7 +131,7 @@ function GiftRegistryPageContent() {
           <div className="space-y-3 py-2">
             <div className="space-y-1"><Label htmlFor="item-name">Nombre del Regalo *</Label><Input id="item-name" value={currentItem?.name || ''} onChange={e => handleItemChange('name', e.target.value)} required /></div>
             <div className="space-y-1"><Label htmlFor="item-desc">Descripción (Opcional)</Label><Textarea id="item-desc" value={currentItem?.description || ''} onChange={e => handleItemChange('description', e.target.value)} rows={2}/></div>
-            <div className="space-y-1"><Label htmlFor="item-img">URL de Imagen (Opcional)</Label><Input id="item-img" value={currentItem?.imageUrl || ''} onChange={e => handleItemChange('imageUrl', e.target.value)} /></div>
+            <div className="space-y-1"><Label htmlFor="item-img">URL de Imagen (Opcional)</Label><Input id="item-img" value={currentItem?.imageUrl || ''} onChange={e => handleItemChange('imageUrl', e.target.value)} placeholder="https://ejemplo.com/foto.jpg"/></div>
              {currentItem?.imageUrl && <NextImage src={currentItem.imageUrl} alt="preview" width={100} height={100} className="rounded-md border object-contain"/>}
           </div>
           <DialogFooter><Button variant="outline" onClick={() => setIsModalOpen(false)}>Cancelar</Button><Button onClick={handleSaveItem}>Guardar Regalo</Button></DialogFooter>
@@ -145,7 +155,7 @@ function GiftRegistryPageContent() {
                     <Card key={item.id} className="p-3">
                        <div className="flex justify-between items-start gap-3">
                         <div className="flex items-start gap-3">
-                          {item.imageUrl && <NextImage src={item.imageUrl} alt={item.name} width={60} height={60} className="rounded-md border object-cover"/>}
+                          {item.imageUrl && <div className="relative w-16 h-16 rounded-md border overflow-hidden flex-shrink-0"><NextImage src={item.imageUrl} alt={item.name} layout="fill" objectFit="cover"/></div>}
                           <div>
                             <p className="font-semibold">{item.name}</p>
                             <p className="text-sm text-muted-foreground">{item.description}</p>
