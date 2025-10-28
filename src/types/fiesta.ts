@@ -66,6 +66,13 @@ export interface MenuMesaData {
   paletaColores?: Partial<ColorPalette>;
 }
 
+export interface NumerosMesaData {
+  protagonistaNombre: string;
+  fechaEvento: string;
+  backgroundImageUrl: string;
+  colorPrincipal: string;
+  colorSecundario: string;
+}
 
 
 // --- RESTO DE TIPOS ---
@@ -628,6 +635,7 @@ export interface FiestaEnPlanificacion {
   // New object for drink menu
   cartaTragos?: CartaTragosData;
   menuMesa?: MenuMesaData;
+  numerosMesa?: NumerosMesaData;
 
   // Deprecated - will be migrated to invitacionDigital
   webPageSettings?: EventWebPageSettings; 
@@ -682,4 +690,3 @@ export interface EventWebPageSettings {
   showGallery: boolean; 
   templateName: 'Obsidiana' | 'Grazia' | 'Allegria';
 }
-

@@ -1,5 +1,6 @@
 
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, GiftItem, LayoutElement, ClientTarea, ProgramaEventoItem, TareaAsignadaA, FotografiaYFilmacionData, BebidasConsumoConfig, TipoAsistente, ReposteriaConsumoConfig, OtroDocumento, VideoVidaData, BebidaReceta, IngredienteReceta, CargaOperativaCategoria, InvitacionDigitalData, SeccionInvitacion, CartaTragosData, MenuMesaData, ModulosContratados } from '@/types/fiesta';
+
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, GiftItem, LayoutElement, ClientTarea, ProgramaEventoItem, TareaAsignadaA, FotografiaYFilmacionData, BebidasConsumoConfig, TipoAsistente, ReposteriaConsumoConfig, OtroDocumento, VideoVidaData, BebidaReceta, IngredienteReceta, CargaOperativaCategoria, InvitacionDigitalData, SeccionInvitacion, CartaTragosData, MenuMesaData, ModulosContratados, NumerosMesaData } from '@/types/fiesta';
 import { defaultInvitacionDigitalData } from './invitacion-digital-defaults';
 
 export const defaultCartaTragosData: CartaTragosData = {
@@ -28,6 +29,14 @@ export const defaultMenuMesaData: MenuMesaData = {
         { id: 'plato_3', nombre: 'Plato Principal', imageUrl: 'https://picsum.photos/seed/main-course/400/600', aiHint: 'main course' },
         { id: 'plato_4', nombre: 'Postre', imageUrl: 'https://picsum.photos/seed/dessert/400/600', aiHint: 'dessert' },
     ]
+};
+
+export const defaultNumerosMesaData: NumerosMesaData = {
+    protagonistaNombre: 'La Agasajada',
+    fechaEvento: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+    backgroundImageUrl: 'https://picsum.photos/seed/flowers-bg/800/400',
+    colorPrincipal: '#9333ea',
+    colorSecundario: '#363636',
 };
 
 
@@ -65,7 +74,7 @@ export const defaultPrograma: ProgramaEventoItem[] = [
   { id: 'prog_2', hora: '22:15', titulo: 'Se Sirve Entrada 1', icono: 'Utensils' },
   { id: 'prog_3', hora: '22:30', titulo: 'Entrada de la Quinceañera y Vals', descripcion: 'Fotografía a los invitados individualmente.', icono: 'Camera' },
   { id: 'prog_4', hora: '22:45', titulo: 'Se Sirve Entrada 2', icono: 'Utensils' },
-  { id: 'prog_5', hora: '00:00', titulo: 'Comienza el Baile / Abre Barra de Tragos', icono: 'Music' },
+  { id: 'prog_5', hora: '00:00', titulo: '¡A Bailar!', descripcion: 'Se abre la pista de baile.', icono: 'Music' },
   { id: 'prog_6', hora: '01:00', titulo: 'Cena / Cierra Barra de Tragos', icono: 'Utensils' },
   { id: 'prog_7', hora: '01:45', titulo: 'Video de Vida', icono: 'Film' },
   { id: 'prog_8', hora: '02:00', titulo: 'Reapertura de Barra y Baile', icono: 'GlassWater' },
@@ -282,6 +291,7 @@ export const defaultModulosContratados: ModulosContratados = {
   cartaTragos: true,
 };
 
+
 // Deprecated, keep for data migration if necessary
 export const defaultWebPageSettings: EventWebPageSettings = {
   pageTitle: 'Mi Evento Especial',
@@ -348,6 +358,7 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
   pagosProveedores: [],
   cartaTragos: { ...defaultCartaTragosData },
   menuMesa: { ...defaultMenuMesaData },
+  numerosMesa: { ...defaultNumerosMesaData },
 
   // DEPRECATED - will be migrated to invitacionDigital
   webPageSettings: { 

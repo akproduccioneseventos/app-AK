@@ -2,7 +2,7 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, CartaTragosData, MenuMesaData } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, CartaTragosData, MenuMesaData, NumerosMesaData } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import { initialFiestaActualData } from '@/lib/fiesta-defaults';
 import { readData, writeData } from '@/lib/data-service';
@@ -347,6 +347,23 @@ export async function updateMenuMesa(fiestaId: string, menuData: MenuMesaData): 
     const updatedFiesta = {
       ...fiesta,
       menuMesa: menuData,
+    };
+    await saveFiesta(updatedFiesta);
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: e.message };
+  }
+}
+
+export async function updateNumerosMesa(fiestaId: string, data: NumerosMesaData): Promise<{ success: boolean, error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) {
+      return { success: false, error: "Fiesta no encontrada." };
+    }
+    const updatedFiesta = {
+      ...fiesta,
+      numerosMesa: data,
     };
     await saveFiesta(updatedFiesta);
     return { success: true };

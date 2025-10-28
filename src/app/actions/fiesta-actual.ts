@@ -2,7 +2,7 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, Tarea, Invitado, DecoracionData, ProgramaEventoItem, PersonalAsignadoDetalleStorage, ClientTarea, ClientPortalSettings, EventWebPageSettings, MusicaFiesta, GiftItem, ReposteriaData, BebidasData, ListaDeCargaOperativa, GestionCostosData, FotografiaYFilmacionData, OtroDocumento, DocumentoTipo, PagoProveedor, VideoVidaData, InvitacionDigitalData, CartaTragosData, MenuMesaData } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, Tarea, Invitado, DecoracionData, ProgramaEventoItem, PersonalAsignadoDetalleStorage, ClientTarea, ClientPortalSettings, EventWebPageSettings, MusicaFiesta, GiftItem, ReposteriaData, BebidasData, ListaDeCargaOperativa, GestionCostosData, FotografiaYFilmacionData, OtroDocumento, DocumentoTipo, PagoProveedor, VideoVidaData, InvitacionDigitalData, CartaTragosData, MenuMesaData, NumerosMesaData } from '@/types/fiesta';
 import { 
     getFiestas as getFiestasFromModule,
     getAllFiestas as getAllFiestasFromModule,
@@ -19,7 +19,8 @@ import {
     getHistorialFiestas as getHistorialFiestasFromModule,
     getFiestaActual as getFiestaData,
     updateCartaTragos as updateCartaTragosFromModule,
-    updateMenuMesa as updateMenuMesaFromModule
+    updateMenuMesa as updateMenuMesaFromModule,
+    updateNumerosMesa as updateNumerosMesaFromModule
 } from './fiesta/fiesta.actions';
 
 
@@ -140,3 +141,4 @@ export const addGiftToRegistryFiestaActual = addGiftToRegistry;
 // --- Carta Tragos / Menu Mesa Actions ---
 export const updateCartaTragos = updateCartaTragosFromModule;
 export const updateMenuMesa = updateMenuMesaFromModule;
+export const updateNumerosMesa = updateNumerosMesaFromModule;
