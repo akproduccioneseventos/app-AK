@@ -1240,13 +1240,13 @@
   },
   {
     "id": "menu_platos_principales_predisenado",
-    "name": "[COPIA] Menú de Platos Principales",
+    "name": "[COPIA] [COPIA] Menú de Platos Principales",
     "description": "Una selección de platos fuertes para el evento.",
     "imageUrl": "https://picsum.photos/seed/main-courses/400/300",
     "dataAiHint": "main course dishes",
     "templateType": "Menú de Platos Principales",
     "createdAt": "2025-07-28T10:00:00.000Z",
-    "updatedAt": "2025-10-28T20:23:31.587Z",
+    "updatedAt": "2025-10-28T20:32:13.542Z",
     "items": [
       {
         "id": "dish_main_buffet",

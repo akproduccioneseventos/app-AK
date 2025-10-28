@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useEffect, useState, useCallback, use } from 'react';
@@ -17,8 +16,7 @@ export default function EditarMenuPage({ params: paramsProp }: { params: { menuI
   const { toast } = useToast();
   const [menu, setMenu] = useState<FullMenu | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isDuplicating, setIsDuplicating] = useState(false);
-
+  
   const loadMenu = useCallback(async (id: string) => {
     setIsLoading(true);
     try {
@@ -42,27 +40,6 @@ export default function EditarMenuPage({ params: paramsProp }: { params: { menuI
     }
   }, [router, toast]);
   
-  const handleDuplicate = async () => {
-    if (!menu) return;
-    setIsDuplicating(true);
-    try {
-      const result = await duplicateMenu(menu.id);
-      if (result.success) {
-        toast({
-          title: "Menú Duplicado",
-          description: `Se ha creado una copia como "${result.menu?.name}".`,
-        });
-        router.push('/empresa/menus');
-      } else {
-        throw new Error(result.error || 'No se pudo duplicar el menú.');
-      }
-    } catch (e: any) {
-      toast({ title: "Error", description: e.message, variant: "destructive" });
-    } finally {
-      setIsDuplicating(false);
-    }
-  };
-
 
   useEffect(() => {
     if (params.menuId) {
@@ -84,10 +61,6 @@ export default function EditarMenuPage({ params: paramsProp }: { params: { menuI
           </h1>
         </div>
         <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={handleDuplicate} disabled={isDuplicating}>
-                {isDuplicating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Copy className="w-4 h-4 mr-2"/>}
-                Duplicar Menú
-            </Button>
             <Link href="/empresa/menus" passHref>
                 <Button variant="outline">
                     <ArrowLeft className="w-4 h-4 mr-2" />
