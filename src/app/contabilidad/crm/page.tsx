@@ -276,7 +276,7 @@ export default function CrmPage() {
                 </div>
               </SheetContent>
             </Sheet>
-            <Link href={`/contabilidad/crm/agenda`} passHref>
+            <Link href="/contabilidad/crm/agenda" passHref>
                 <Button variant="outline"><Clock className="w-4 h-4 mr-2"/>Agenda de Prospectos</Button>
             </Link>
             <Link href="/settings/accesos-personal" passHref>
