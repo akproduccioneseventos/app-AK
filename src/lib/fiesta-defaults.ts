@@ -1,5 +1,4 @@
 
-
 import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, GiftItem, LayoutElement, ClientTarea, ProgramaEventoItem, TareaAsignadaA, FotografiaYFilmacionData, BebidasConsumoConfig, TipoAsistente, ReposteriaConsumoConfig, OtroDocumento, VideoVidaData, BebidaReceta, IngredienteReceta, CargaOperativaCategoria, InvitacionDigitalData, SeccionInvitacion, CartaTragosData, MenuMesaData, ModulosContratados } from '@/types/fiesta';
 import { defaultInvitacionDigitalData } from './invitacion-digital-defaults';
 
@@ -62,19 +61,19 @@ export const defaultClientChecklist: Omit<ClientTarea, 'id'>[] = [
 ];
 
 export const defaultPrograma: ProgramaEventoItem[] = [
-  { id: 'prog_1', hora: '22:00', titulo: 'Comienzo', descripcion: 'Recepción de invitados con música suave.', icono: 'PartyPopper' },
-  { id: 'prog_2', hora: '22:15', titulo: 'Servicio de Entrada 1', descripcion: 'Se sirve la primera tanda de bocaditos.', icono: 'Utensils' },
-  { id: 'prog_3', hora: '22:30', titulo: 'Entrada de la Quinceañera y Vals', descripcion: 'Momento emotivo principal.', icono: 'Diamond' },
-  { id: 'prog_4', hora: '22:45', titulo: 'Servicio de Entrada 2', descripcion: 'Segunda tanda de bocaditos.', icono: 'Utensils' },
-  { id: 'prog_5', hora: '00:00', titulo: '¡A Bailar!', descripcion: 'Se abre la pista de baile.', icono: 'Music' },
-  { id: 'prog_6', hora: '01:00', titulo: 'Cena / Cierre de Barra', descripcion: 'Se sirve el plato principal. La barra se cierra temporalmente.', icono: 'Utensils' },
-  { id: 'prog_7', hora: '01:45', titulo: 'Video de Vida', descripcion: 'Proyección del video emotivo.', icono: 'Camera' },
-  { id: 'prog_8', hora: '02:00', titulo: 'Reapertura de Barra y Baile', descripcion: 'Continúa la fiesta.', icono: 'GlassWater' },
-  { id: 'prog_9', hora: '02:30', titulo: 'Plataforma 360 / Fotocabina', descripcion: 'Activación de entretenimiento fotográfico.', icono: 'Camera' },
-  { id: 'prog_10', hora: '03:00', titulo: 'Cotillón', descripcion: 'Reparto de cotillón para el carnaval carioca.', icono: 'Sparkles' },
-  { id: 'prog_11', hora: '03:45', titulo: 'Fuente de Chocolate', descripcion: 'Se habilita la mesa de postres o fuente de chocolate.', icono: 'CakeSlice' },
-  { id: 'prog_12', hora: '04:00', titulo: 'Apagado de Velas y Torta', descripcion: 'Momento de cantar y cortar la torta.', icono: 'CakeSlice' },
-  { id: 'prog_13', hora: '05:00', titulo: 'Final de la Fiesta', descripcion: 'Cierre del evento.', icono: 'Clock' },
+  { id: 'prog_1', hora: '22:00', titulo: 'Comienzo del Evento', icono: 'PartyPopper' },
+  { id: 'prog_2', hora: '22:15', titulo: 'Se Sirve Entrada 1', icono: 'Utensils' },
+  { id: 'prog_3', hora: '22:30', titulo: 'Entrada de la Quinceañera y Vals', descripcion: 'Fotografía a los invitados individualmente.', icono: 'Camera' },
+  { id: 'prog_4', hora: '22:45', titulo: 'Se Sirve Entrada 2', icono: 'Utensils' },
+  { id: 'prog_5', hora: '00:00', titulo: 'Comienza el Baile / Abre Barra de Tragos', icono: 'Music' },
+  { id: 'prog_6', hora: '01:00', titulo: 'Cena / Cierra Barra de Tragos', icono: 'Utensils' },
+  { id: 'prog_7', hora: '01:45', titulo: 'Video de Vida', icono: 'Film' },
+  { id: 'prog_8', hora: '02:00', titulo: 'Reapertura de Barra y Baile', icono: 'GlassWater' },
+  { id: 'prog_9', hora: '02:30', titulo: 'Plataforma 360 y Fotocabina', icono: 'Camera' },
+  { id: 'prog_10', hora: '03:00', titulo: 'Cotillón', icono: 'Sparkles' },
+  { id: 'prog_11', hora: '03:45', titulo: 'Fuente de Chocolate', icono: 'CakeSlice' },
+  { id: 'prog_12', hora: '04:00', titulo: 'Apagado de Velas y Corte de Torta', icono: 'CakeSlice' },
+  { id: 'prog_13', hora: '05:00', titulo: 'Final de la Fiesta', icono: 'Clock' },
 ];
 
 
