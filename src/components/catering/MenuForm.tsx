@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PlusCircle, Trash2, Loader2, Save, BookOpen, Search, Percent, DollarSign, Link as LinkIcon, Info, Image as ImageIconLucide, UploadCloud } from 'lucide-react';
+import { PlusCircle, Trash2, Loader2, Save, BookOpen, Search, Percent, DollarSign, Link as LinkIcon, Info, Image as ImageIconLucide, UploadCloud, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveMenu } from '@/app/actions/menus-catering';
 import { getInsumos, saveInsumo } from '@/app/actions/insumos';
@@ -196,6 +196,28 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     setMenu(prev => ({ ...prev, items: [...(prev.items || []), newItem] }));
   };
   
+  const duplicateItem = (itemId: string) => {
+    setMenu(prev => {
+      if (!prev || !prev.items) return prev;
+      const itemToDuplicate = prev.items.find(item => item.id === itemId);
+      if (!itemToDuplicate) return prev;
+      
+      const newIndex = prev.items.findIndex(item => item.id === itemId) + 1;
+
+      const duplicatedItem: MenuItem = {
+        ...JSON.parse(JSON.stringify(itemToDuplicate)),
+        id: `dupe_item_${Date.now()}`,
+        name: `[COPIA] ${itemToDuplicate.name}`,
+      };
+      
+      const newItems = [...prev.items];
+      newItems.splice(newIndex, 0, duplicatedItem);
+      
+      return { ...prev, items: newItems };
+    });
+  };
+
+
   const addIngredient = (itemId: string) => {
     const newIngredient: Ingredient = {
         id: `new_ing_${Date.now()}`, name: '', quantityPerPerson: '0', unit: 'g', costoUnitario: 0, costoTotalReceta: 0
@@ -332,7 +354,10 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                             <div className="space-y-2"><Label htmlFor={`item-type-${item.id}`}>Tipo</Label><Select value={item.type || ''} onValueChange={(value) => handleItemChange(item.id, 'type', value)}><SelectTrigger id={`item-type-${item.id}`}><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Entrada">Entrada</SelectItem><SelectItem value="Plato Principal">Plato Principal</SelectItem><SelectItem value="Postre">Postre</SelectItem><SelectItem value="Bebida">Bebida</SelectItem><SelectItem value="Menú Infantil/Adolescente">Menú Infantil/Adolescente</SelectItem></SelectContent></Select></div>
                           </div>
                         </div>
-                        <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive ml-2 flex-shrink-0" onClick={() => deleteItem(item.id)}><Trash2 className="w-4 h-4"/></Button>
+                        <div className="flex flex-col gap-1">
+                          <Button type="button" variant="ghost" size="icon" className="h-8 w-8" onClick={() => duplicateItem(item.id)} title="Duplicar Plato"><Copy className="w-4 h-4"/></Button>
+                          <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive ml-2 flex-shrink-0" onClick={() => deleteItem(item.id)}><Trash2 className="w-4 h-4"/></Button>
+                        </div>
                      </div>
                 </CardHeader>
                  <CardContent className="p-0">
