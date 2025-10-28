@@ -1,21 +1,24 @@
 
 'use client';
 
-import React, { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 // This page is obsolete. Its functionality has been moved to a central module.
-export default function DeprecatedPortalPage() {
+function RedirectComponent() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const fiestaId = searchParams.get('fiestaId');
 
     useEffect(() => {
-        // Redirect to the new central hub for client collaboration
-        router.replace('/fiestas/nueva/reuniones');
-    }, [router]);
+        // Redirect to the new central hub for client collaboration, preserving the fiestaId
+        const destination = `/fiestas/nueva/reuniones${fiestaId ? `?fiestaId=${fiestaId}` : ''}`;
+        router.replace(destination);
+    }, [router, fiestaId]);
 
     return (
         <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4">
@@ -30,7 +33,7 @@ export default function DeprecatedPortalPage() {
                     </p>
                 </CardContent>
                  <CardFooter className="justify-center">
-                    <Link href="/fiestas/nueva/reuniones" passHref>
+                    <Link href={`/fiestas/nueva/reuniones${fiestaId ? `?fiestaId=${fiestaId}` : ''}`} passHref>
                         <Button variant="link">
                             Si no eres redirigido, haz clic aquí.
                         </Button>
@@ -38,5 +41,14 @@ export default function DeprecatedPortalPage() {
                 </CardFooter>
             </Card>
         </div>
+    );
+}
+
+
+export default function DeprecatedPortalPage() {
+    return (
+        <Suspense fallback={<div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>}>
+            <RedirectComponent />
+        </Suspense>
     );
 }
