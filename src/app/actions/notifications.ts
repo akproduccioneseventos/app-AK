@@ -3,7 +3,7 @@
 
 import { readData, writeData } from '@/lib/data-service';
 import type { Notificacion } from '@/types/fiesta';
-import { getFiestaActual } from './fiesta-actual';
+import { getFiestas } from './fiesta/fiesta.actions';
 import { differenceInDays, isToday, startOfToday } from 'date-fns';
 
 const NOTIFICATIONS_FILE = 'notifications.json';
@@ -90,35 +90,39 @@ export async function deleteNotification(
 
 export async function checkAndCreateTaskReminders(): Promise<{ success: boolean; created: number }> {
     try {
-        const fiesta = await getFiestaActual();
-        if (!fiesta || !fiesta.tareas) {
+        const fiestasActivas = await getFiestas(false); // Fetch all active events
+        if (!fiestasActivas || fiestasActivas.length === 0) {
             return { success: true, created: 0 };
         }
 
         const today = startOfToday();
         let createdCount = 0;
+        
+        for (const fiesta of fiestasActivas) {
+            if (!fiesta.tareas) continue;
 
-        for (const tarea of fiesta.tareas) {
-            if (tarea.completada || !tarea.fechaLimite) continue;
-            
-            const dueDate = new Date(tarea.fechaLimite);
-            const daysUntilDue = differenceInDays(dueDate, today);
-
-            if (daysUntilDue >= 0 && daysUntilDue <= 2) {
-                let mensaje = '';
-                if(isToday(dueDate)) {
-                    mensaje = `Recordatorio: La tarea "${tarea.texto}" vence HOY.`;
-                } else {
-                    mensaje = `Recordatorio: La tarea "${tarea.texto}" vence en ${daysUntilDue + 1} día(s).`;
-                }
+            for (const tarea of fiesta.tareas) {
+                if (tarea.completada || !tarea.fechaLimite) continue;
                 
-                const result = await createNotification({
-                    mensaje,
-                    href: '/fiestas/nueva/tareas',
-                    icono: 'ListChecks',
-                });
-                if(result.success && result.notification?.id.startsWith('notif_')) { // Check if it's a newly created one
-                  createdCount++;
+                const dueDate = new Date(tarea.fechaLimite);
+                const daysUntilDue = differenceInDays(dueDate, today);
+
+                if (daysUntilDue >= 0 && daysUntilDue <= 2) {
+                    let mensaje = '';
+                    if(isToday(dueDate)) {
+                        mensaje = `Recordatorio HOY: Tarea "${tarea.texto}" vence para el evento ${fiesta.configuracion.nombreEvento}.`;
+                    } else {
+                        mensaje = `Recordatorio: Tarea "${tarea.texto}" (${fiesta.configuracion.nombreEvento}) vence en ${daysUntilDue + 1} día(s).`;
+                    }
+                    
+                    const result = await createNotification({
+                        mensaje,
+                        href: `/fiestas/nueva/tareas?fiestaId=${fiesta.id}`,
+                        icono: 'ListChecks',
+                    });
+                    if(result.success && result.notification?.id.startsWith('notif_')) {
+                      createdCount++;
+                    }
                 }
             }
         }
@@ -131,35 +135,39 @@ export async function checkAndCreateTaskReminders(): Promise<{ success: boolean;
 
 export async function checkAndCreateReunionReminders(): Promise<{ success: boolean; created: number }> {
     try {
-        const fiesta = await getFiestaActual();
-        if (!fiesta || !fiesta.reuniones) {
+        const fiestasActivas = await getFiestas(false);
+        if (!fiestasActivas || fiestasActivas.length === 0) {
             return { success: true, created: 0 };
         }
 
         const today = startOfToday();
         let createdCount = 0;
+        
+        for (const fiesta of fiestasActivas) {
+            if (!fiesta.reuniones) continue;
 
-        for (const reunion of fiesta.reuniones) {
-            if (!reunion.fecha) continue;
-            
-            const meetingDate = new Date(reunion.fecha);
-            const daysUntilMeeting = differenceInDays(meetingDate, today);
-
-            if (daysUntilMeeting >= 0 && daysUntilMeeting <= 1) { // Reminder for today or tomorrow
-                let mensaje = '';
-                 if(isToday(meetingDate)) {
-                    mensaje = `Recordatorio de Reunión HOY: "${reunion.titulo}" a las ${new Date(reunion.fecha).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })}.`;
-                } else {
-                    mensaje = `Recordatorio de Reunión Mañana: "${reunion.titulo}" a las ${new Date(reunion.fecha).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })}.`;
-                }
+            for (const reunion of fiesta.reuniones) {
+                if (!reunion.fecha) continue;
                 
-                const result = await createNotification({
-                    mensaje,
-                    href: '/fiestas/nueva/reuniones',
-                    icono: 'MessageSquareText', // Using a different icon for meetings
-                });
-                if(result.success && result.notification?.id.startsWith('notif_')) {
-                  createdCount++;
+                const meetingDate = new Date(reunion.fecha);
+                const daysUntilMeeting = differenceInDays(meetingDate, today);
+
+                if (daysUntilMeeting >= 0 && daysUntilMeeting <= 1) { // Reminder for today or tomorrow
+                    let mensaje = '';
+                     if(isToday(meetingDate)) {
+                        mensaje = `Reunión HOY: "${reunion.titulo}" (${fiesta.configuracion.nombreEvento}) a las ${new Date(reunion.fecha).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })}hs.`;
+                    } else {
+                        mensaje = `Reunión Mañana: "${reunion.titulo}" (${fiesta.configuracion.nombreEvento}) a las ${new Date(reunion.fecha).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })}hs.`;
+                    }
+                    
+                    const result = await createNotification({
+                        mensaje,
+                        href: `/fiestas/nueva/reuniones?fiestaId=${fiesta.id}`,
+                        icono: 'MessageSquareText',
+                    });
+                    if(result.success && result.notification?.id.startsWith('notif_')) {
+                      createdCount++;
+                    }
                 }
             }
         }
