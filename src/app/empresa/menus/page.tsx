@@ -45,7 +45,7 @@ export default function GestionMenusPage() {
 
         if (isNaN(quantity) || isNaN(unitCost)) return sum;
 
-        if (unit === 'g' || unit === 'gramos' || unit === 'ml') {
+        if (unit === 'g' || unit === 'ml' || unit === 'gramos') {
             return sum + (quantity / 1000) * unitCost;
         }
         return sum + quantity * unitCost;
