@@ -315,7 +315,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
           <CardDescription>Añade o edita los platos que componen este menú.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {sortedItems.map((item, index) => (
+          {sortedItems.map((item) => (
             <Card key={item.id} className={cn("p-4")}>
                 <CardHeader className="p-0 pb-4">
                      <div className="flex justify-between items-start">
@@ -397,3 +397,5 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     </form>
   );
 }
+
+    
