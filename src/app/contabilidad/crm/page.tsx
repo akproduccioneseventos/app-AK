@@ -287,7 +287,7 @@ export default function CrmPage() {
         </div>
         
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
-            <KpiCard title="Valor en Presupuestos" value={formatCurrency(kpiData?.pipelineValue)} icon={Wallet} isLoading={isLoading} description="Suma de presupuestos en estado 'Borrador' o 'Enviado'."/>
+            <KpiCard title="Valor en Propuestas" value={formatCurrency(kpiData?.pipelineValue)} icon={Wallet} isLoading={isLoading} description="Suma de presupuestos en estado 'Borrador' o 'Enviado'."/>
             <KpiCard title="Prospectos Activos" value={kpiData?.activeLeads} icon={Users} isLoading={isLoading} description="Potenciales clientes en el embudo."/>
             <KpiCard title="Tasa de Conversión" value={`${(kpiData?.conversionRate ?? 0).toFixed(1)}%`} icon={TrendingUp} isLoading={isLoading} description="De prospectos a clientes."/>
             <KpiCard title="Ganados vs. Perdidos" value={`${kpiData?.wonLeads ?? 0} / ${kpiData?.lostLeads ?? 0}`} icon={CheckCircle} isLoading={isLoading} description="Clientes confirmados vs. no contratados."/>
