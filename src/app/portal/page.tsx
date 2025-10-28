@@ -25,7 +25,7 @@ function RedirectComponent() {
             <Card className="max-w-xl text-center">
                 <CardHeader>
                     <Loader2 className="w-12 h-12 mx-auto text-primary animate-spin" />
-                    <CardTitle className="font-headline text-2xl mt-4">Redirigiendo...</CardTitle>
+                    <CardTitle className="font-headline text-2xl mt-4">Página Movida</CardTitle>
                 </CardHeader>
                 <CardContent>
                      <p className="text-muted-foreground">

@@ -25,6 +25,8 @@ import { getDashboardKpiData } from '@/app/actions/dashboard';
 import { MonthlySalesChart } from '@/components/charts/MonthlySalesChart';
 import { PaymentStatusPieChart } from '@/components/charts/PaymentStatusPieChart';
 import { Separator } from '@/components/ui/separator';
+import { getFiestaActual, type FiestaEnPlanificacion } from './actions/fiesta-actual';
+import { useToast } from '@/hooks/use-toast';
 
 const formatCurrency = (value?: number) => {
     if (value === undefined) return 'N/A';
@@ -67,15 +69,26 @@ const mainHubItems = [
 export default function MainDashboardPage() {
     const [kpiData, setKpiData] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
+    const { toast } = useToast();
 
     const fetchData = useCallback(async () => {
         setIsLoading(true);
-        const result = await getDashboardKpiData();
-        if (result.success) {
-            setKpiData(result.data);
+        try {
+            const [dashboardResult, fiestaData] = await Promise.all([
+                getDashboardKpiData(),
+                getFiestaActual()
+            ]);
+            if (dashboardResult.success) {
+                setKpiData(dashboardResult.data);
+            }
+            setFiestaActual(fiestaData);
+        } catch(e) {
+            toast({ title: "Error", description: "No se pudieron cargar los datos del panel.", variant: "destructive" });
+        } finally {
+            setIsLoading(false);
         }
-        setIsLoading(false);
-    }, []);
+    }, [toast]);
 
     useEffect(() => {
         fetchData();
@@ -88,6 +101,13 @@ export default function MainDashboardPage() {
             { name: 'Pendiente', value: kpiData.totalPendiente || 0, fill: 'hsl(var(--chart-5))' },
         ];
     }, [kpiData]);
+    
+    const getLinkHref = (baseHref: string) => {
+      if (baseHref === "/fiestas/nueva/reuniones" && fiestaActual) {
+        return `${baseHref}?fiestaId=${fiestaActual.id}`;
+      }
+      return baseHref;
+    };
 
 
   return (
@@ -160,7 +180,7 @@ export default function MainDashboardPage() {
               <p className="text-sm text-muted-foreground line-clamp-2">{item.description}</p>
             </CardContent>
             <CardFooter className="pt-3">
-                 <Link href={item.href} passHref className="w-full">
+                 <Link href={getLinkHref(item.href)} passHref className="w-full">
                     <Button variant="secondary" className="w-full">
                         Acceder
                     </Button>

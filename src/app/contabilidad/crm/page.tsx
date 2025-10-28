@@ -37,6 +37,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { CrmLeadCard } from '@/components/crm/CrmLeadCard';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { Separator } from '@/components/ui/separator';
+import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import { getFiestaActual } from '@/app/actions/fiesta/fiesta.actions';
 
 const formatCurrency = (value?: number) => {
     if (value === undefined) return 'N/A';
@@ -59,6 +61,8 @@ export default function CrmPage() {
   const [isMeetingModalOpen, setIsMeetingModalOpen] = useState(false);
   const [leadForMeeting, setLeadForMeeting] = useState<CrmLead | null>(null);
   const [meetingType, setMeetingType] = useState<'Entrevista' | 'Firma de Contrato'>('Entrevista');
+  
+  const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
 
   const isMobile = useIsMobile();
   
@@ -68,11 +72,12 @@ export default function CrmPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const [stagesData, leadsData, occupiedDatesStrings, crmKpis] = await Promise.all([
+      const [stagesData, leadsData, occupiedDatesStrings, crmKpis, fiestaData] = await Promise.all([
         getCrmStages(),
         getCrmLeads(),
         getOcupiedDates(),
         getCrmKpiData(),
+        getFiestaActual(),
       ]);
       const sortedStages = stagesData.sort((a,b) => a.order - b.order);
       setStages(sortedStages);
@@ -82,6 +87,7 @@ export default function CrmPage() {
         setKpiData(crmKpis.data);
       }
       setOccupiedDates(occupiedDatesStrings.map(d => new Date(d)));
+      setFiestaActual(fiestaData);
     } catch (err: any) {
       console.error("Error fetching CRM data:", err);
       setError("No se pudieron cargar los datos del CRM.");
@@ -270,7 +276,7 @@ export default function CrmPage() {
                 </div>
               </SheetContent>
             </Sheet>
-            <Link href="/fiestas/nueva/reuniones" passHref>
+            <Link href={`/fiestas/nueva/reuniones?fiestaId=${fiestaActual?.id || ''}`} passHref>
                 <Button variant="outline"><Clock className="w-4 h-4 mr-2"/>Ver Agenda de Reuniones</Button>
             </Link>
             <Link href="/settings/accesos-personal" passHref>
