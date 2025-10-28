@@ -5,9 +5,9 @@ import React, { useEffect, useState, useCallback, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ChefHat, Loader2 } from 'lucide-react';
+import { ArrowLeft, ChefHat, Loader2, Copy } from 'lucide-react';
 import { MenuForm } from '@/components/catering/MenuForm';
-import { getMenuById } from '@/app/actions/menus-catering';
+import { getMenuById, duplicateMenu } from '@/app/actions/menus-catering';
 import type { FullMenu } from '@/types/catering';
 import { useToast } from '@/hooks/use-toast';
 
@@ -17,6 +17,7 @@ export default function EditarMenuPage({ params: paramsProp }: { params: { menuI
   const { toast } = useToast();
   const [menu, setMenu] = useState<FullMenu | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDuplicating, setIsDuplicating] = useState(false);
 
   const loadMenu = useCallback(async (id: string) => {
     setIsLoading(true);
@@ -40,6 +41,28 @@ export default function EditarMenuPage({ params: paramsProp }: { params: { menuI
       setIsLoading(false);
     }
   }, [router, toast]);
+  
+  const handleDuplicate = async () => {
+    if (!menu) return;
+    setIsDuplicating(true);
+    try {
+      const result = await duplicateMenu(menu.id);
+      if (result.success) {
+        toast({
+          title: "Menú Duplicado",
+          description: `Se ha creado una copia como "${result.menu?.name}".`,
+        });
+        router.push('/empresa/menus');
+      } else {
+        throw new Error(result.error || 'No se pudo duplicar el menú.');
+      }
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    } finally {
+      setIsDuplicating(false);
+    }
+  };
+
 
   useEffect(() => {
     if (params.menuId) {
@@ -60,12 +83,18 @@ export default function EditarMenuPage({ params: paramsProp }: { params: { menuI
             Editar Menú: <span className="text-primary">{menu?.name}</span>
           </h1>
         </div>
-        <Link href="/empresa/menus" passHref>
-          <Button variant="outline">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver a Menús
-          </Button>
-        </Link>
+        <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={handleDuplicate} disabled={isDuplicating}>
+                {isDuplicating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Copy className="w-4 h-4 mr-2"/>}
+                Duplicar Menú
+            </Button>
+            <Link href="/empresa/menus" passHref>
+                <Button variant="outline">
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Volver a Menús
+                </Button>
+            </Link>
+        </div>
       </div>
 
       <MenuForm existingMenu={menu || undefined} />
