@@ -135,11 +135,11 @@ export default function TareasEventoPage() {
   const handleDeleteTemplate = async (id: string) => {
     setDeletingTemplateId(id);
     const result = await deleteTaskTemplate(id);
-    if (result.success) {
-      toast({ title: "Plantilla eliminada" });
+    if(result.success) {
+      toast({title: "Plantilla eliminada"});
       setTemplates(prev => prev.filter(t => t.id !== id));
     } else {
-      toast({ title: "Error al eliminar", description: result.error, variant: "destructive" });
+      toast({title: "Error al eliminar", description: result.error, variant: "destructive"});
     }
     setDeletingTemplateId(null);
   };
@@ -311,12 +311,7 @@ export default function TareasEventoPage() {
             <Label htmlFor="template-name">Nombre de la Plantilla</Label>
             <Input id="template-name" value={templateName} onChange={e => setTemplateName(e.target.value)} placeholder="Ej: Plantilla Boda Completa"/>
           </div>
-          <DialogFooter>
-            <DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose>
-            <Button onClick={handleSaveTemplate} disabled={isSaving}>
-              {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin"/>} Guardar Plantilla
-            </Button>
-          </DialogFooter>
+          <DialogFooter><DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose><Button onClick={handleSaveTemplate} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : "Guardar"}</Button></DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -331,6 +326,7 @@ export default function TareasEventoPage() {
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline text-xl">Añadir Nueva Tarea</CardTitle>
+          <CardDescription>El sistema creará notificaciones automáticas para tareas con fecha límite próxima.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleAddTask} className="space-y-4">
@@ -428,5 +424,3 @@ export default function TareasEventoPage() {
     </div>
   );
 }
-
-    
