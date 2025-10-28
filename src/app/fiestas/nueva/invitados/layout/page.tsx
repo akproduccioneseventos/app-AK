@@ -441,14 +441,18 @@ function SalonLayoutContent() {
             <CardContent className="flex-grow p-1 overflow-auto">
               <div ref={canvasRef} className="relative canvas-grid-background" style={{ width: `${(decoracion.salonWidth || 15) * pixelsPerMeter}px`, height: `${(decoracion.salonHeight || 15) * pixelsPerMeter}px`, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
                   {decoracion.salonPlanBackgroundImageUrl && (<NextImage src={decoracion.salonPlanBackgroundImageUrl} alt="Plano del Salón" layout="fill" objectFit="contain" className="opacity-50" data-ai-hint="event floor plan"/>)}
-                  {(decoracion.salonElements || []).sort((a,b) => (a.zIndex || 0) - (b.zIndex || 0)).map(el => {
+                  {(decoracion.salonElements || []).sort((a,b) => {
+                      const zA = a.type === 'area' ? -1 : (a.zIndex || 0);
+                      const zB = b.type === 'area' ? -1 : (b.zIndex || 0);
+                      return zA - zB;
+                  }).map(el => {
                     const nodeRef = React.createRef<HTMLDivElement>();
                     const isRound = el.shape === 'circle';
                     const assignedGuests = (fiesta?.invitados || []).filter(inv => inv.tableNumber === el.name);
                     const isArea = el.type === 'area';
                     return (
                     <Draggable key={el.id} nodeRef={nodeRef} bounds="parent" grid={[grid, grid]} position={{ x: el.x, y: el.y }} onStop={(e, data) => handleDragStop(e, data, el.id)}>
-                        <div ref={nodeRef} id={el.id} className="absolute cursor-grab active:cursor-grabbing" style={{ left: el.x, top: el.y, width: el.width, height: el.height, transform: `rotate(${el.rotation}deg)`, zIndex: el.zIndex || 1 }}>
+                        <div ref={nodeRef} id={el.id} className="absolute cursor-grab active:cursor-grabbing" style={{ left: el.x, top: el.y, width: el.width, height: el.height, transform: `rotate(${el.rotation}deg)`, zIndex: el.zIndex || (isArea ? 0 : 1) }}>
                            <div className={cn('w-full h-full border flex items-center justify-center font-bold p-1 relative', selectedElementId === el.id ? 'border-primary shadow-lg z-10' : 'border-gray-500', isRound ? 'rounded-full' : 'rounded-sm')}
                                 style={{ backgroundColor: el.backgroundColor || (isArea ? 'rgba(59, 130, 246, 0.2)' : 'rgba(255, 255, 255, 0.7)') }}
                                 onClick={(e) => { e.stopPropagation(); setSelectedElementId(el.id); }}>
