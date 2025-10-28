@@ -2,25 +2,24 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar, type CalendarProps } from "@/components/ui/calendar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { es } from 'date-fns/locale';
 
-interface DashboardCalendarProps {
+interface DashboardCalendarProps extends Omit<CalendarProps, 'mode'> {
   occupiedDates?: Date[];
 }
 
-export function DashboardCalendar({ occupiedDates = [] }: DashboardCalendarProps) {
+export function DashboardCalendar({ occupiedDates = [], ...props }: DashboardCalendarProps) {
   const [clientSideMonth, setClientSideMonth] = useState<Date | undefined>(undefined);
 
   useEffect(() => {
-    // This ensures that the calendar's initial month is set on the client-side,
-    // avoiding hydration mismatches with server-rendered content.
     setClientSideMonth(new Date());
   }, []);
 
   const modifiers = {
     booked: occupiedDates.filter(d => !isNaN(d.getTime())), // Filter out invalid dates
+    ...props.modifiers
   };
 
   const modifiersStyles = {
@@ -29,8 +28,8 @@ export function DashboardCalendar({ occupiedDates = [] }: DashboardCalendarProps
       color: 'hsl(var(--destructive-foreground))',
       backgroundColor: 'hsl(var(--destructive))',
       opacity: 0.8,
-      borderRadius: 'var(--radius)',
-    }
+    },
+    ...props.modifiersStyles
   };
 
   if (!clientSideMonth) {
@@ -45,11 +44,10 @@ export function DashboardCalendar({ occupiedDates = [] }: DashboardCalendarProps
     <Calendar
       mode="single"
       defaultMonth={clientSideMonth}
-      month={clientSideMonth}
-      onMonthChange={setClientSideMonth}
+      month={props.month || clientSideMonth}
+      onMonthChange={props.onMonthChange || setClientSideMonth}
       modifiers={modifiers}
       modifiersStyles={modifiersStyles}
-      disabled={occupiedDates} // Disables selection of occupied dates
       locale={es}
       className="p-0 rounded-md border shadow-sm mx-auto"
       classNames={{
@@ -60,6 +58,7 @@ export function DashboardCalendar({ occupiedDates = [] }: DashboardCalendarProps
         day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
         day_today: "bg-accent text-accent-foreground",
       }}
+      {...props}
     />
   );
 }
