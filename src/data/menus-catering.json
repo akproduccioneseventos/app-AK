@@ -1,4 +1,3 @@
-
 [
   {
     "id": "menu_entradas_predisenado",
@@ -2240,7 +2239,7 @@
     "dataAiHint": "kids menu fun food",
     "templateType": "Menú para Niños",
     "createdAt": "2025-07-28T10:00:00.000Z",
-    "updatedAt": "2025-10-28T22:10:31.817Z",
+    "updatedAt": "2025-10-28T22:29:14.825Z",
     "items": [
       {
         "id": "dish_child_2",
@@ -2430,7 +2429,7 @@
           {
             "id": "ing_1722368532455",
             "name": "Lechuga",
-            "quantityPerPerson": "100",
+            "quantityPerPerson": "0.1",
             "unit": "Unidades",
             "costoUnitario": 25,
             "costoTotalReceta": 2.5
@@ -2460,14 +2459,6 @@
             "costoTotalReceta": 48
           },
           {
-            "id": "ing_1722368568471",
-            "name": "Aceite",
-            "quantityPerPerson": "100",
-            "unit": "Litros",
-            "costoUnitario": 60,
-            "costoTotalReceta": 6
-          },
-          {
             "id": "ing_1722368576407",
             "name": "Queso Muzzarella",
             "quantityPerPerson": "50",
@@ -2490,11 +2481,20 @@
             "unit": "min",
             "costoUnitario": 1,
             "costoTotalReceta": 5
+          },
+          {
+            "id": "new_ing_cat_ing-aceite_1761690531980",
+            "origenId": "ing-aceite",
+            "name": "Aceite",
+            "quantityPerPerson": "0.3",
+            "unit": "Litro",
+            "costoUnitario": 70,
+            "costoTotalReceta": 21
           }
         ],
-        "totalDishCost": 153.146,
+        "totalDishCost": 168.14600000000002,
         "profitMargin": 100,
-        "suggestedSellingPrice": 306.292
+        "suggestedSellingPrice": 336.29200000000003
       },
       {
         "id": "dish_child_1",

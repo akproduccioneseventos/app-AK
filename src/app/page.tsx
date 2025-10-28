@@ -16,7 +16,8 @@ import {
     Banknote,
     Users,
     CalendarClock,
-    Archive
+    Archive,
+    MessageSquareText
 } from 'lucide-react';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { KpiCard } from '@/components/dashboard/kpi-card';
@@ -48,6 +49,12 @@ const mainHubItems = [
       description: 'Controla el CRM, presupuestos, facturas y la salud financiera de tu negocio.',
       href: '/empresa/contabilidad',
       icon: BarChart3,
+    },
+     {
+      title: "Mis Reuniones",
+      description: "Agenda y consulta las reuniones programadas con tus clientes.",
+      href: "/fiestas/nueva/reuniones",
+      icon: MessageSquareText,
     },
     {
       title: 'Configuración General',
@@ -141,12 +148,12 @@ export default function MainDashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {mainHubItems.map((item) => (
           <Card key={item.title} className="flex flex-col shadow-md hover:shadow-lg transition-shadow duration-300">
-            <CardHeader className="flex-row items-center justify-between pb-3 space-y-0">
-              <div className="flex items-center gap-3">
-                 <div className="p-2 bg-primary/10 rounded-md">
-                    <item.icon className="w-6 h-6 text-primary" />
-                 </div>
-                 <CardTitle className="font-headline text-lg">{item.title}</CardTitle>
+            <CardHeader className="flex-row items-start gap-4 space-y-0 pb-3">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                    <item.icon className="w-7 h-7 text-primary" />
+              </div>
+              <div>
+                  <CardTitle className="font-headline text-lg mb-1">{item.title}</CardTitle>
               </div>
             </CardHeader>
             <CardContent className="flex-grow">
