@@ -38,7 +38,8 @@ async function readMenusFile(): Promise<FullMenu[]> {
         ingredients: item.ingredients.map(ingredient => ({
           ...ingredient,
           quantityPerPerson: ingredient.quantityPerPerson || '0', // Ensure exists, default to '0' if migrating
-          cost: Number(ingredient.cost) || 0,
+          costoUnitario: Number(ingredient.costoUnitario) || 0,
+          costoTotalReceta: Number(ingredient.costoTotalReceta) || 0,
           proveedor: ingredient.proveedor || undefined,
           marca: ingredient.marca || undefined,
           fecha_actualizacion: ingredient.fecha_actualizacion || undefined,
@@ -73,7 +74,9 @@ async function initializeLocalMenusFile() {
   let needsResave = menus.some(menu => 
       menu.items.some(item => 
         item.ingredients.some(ing => 
-          typeof ing.cost === 'string' || 
+          (ing as any).cost !== undefined || // Old field
+          !('costoUnitario' in ing) ||
+          !('costoTotalReceta' in ing) ||
           !('proveedor' in ing) || 
           !('marca' in ing) ||
           !('fecha_actualizacion' in ing) ||
@@ -93,15 +96,19 @@ async function initializeLocalMenusFile() {
           const { basePortions, costPerPortion, ...restOfItem } = item as any; // Remove old fields
           return {
             ...restOfItem,
-            ingredients: item.ingredients.map(ingredient => ({
-              ...ingredient,
-              quantityPerPerson: ingredient.quantityPerPerson || '0',
-              cost: Number(ingredient.cost) || 0,
-              proveedor: ingredient.proveedor || undefined,
-              marca: ingredient.marca || undefined,
-              fecha_actualizacion: ingredient.fecha_actualizacion || undefined,
-              origenId: ingredient.origenId || undefined,
-            })),
+            ingredients: item.ingredients.map(ingredient => {
+              const { cost, ...restOfIng } = ingredient as any; // Remove old cost field
+              return {
+                ...restOfIng,
+                quantityPerPerson: ingredient.quantityPerPerson || '0',
+                costoUnitario: Number(ingredient.costoUnitario) || 0,
+                costoTotalReceta: Number(ingredient.costoTotalReceta) || 0,
+                proveedor: ingredient.proveedor || undefined,
+                marca: ingredient.marca || undefined,
+                fecha_actualizacion: ingredient.fecha_actualizacion || undefined,
+                origenId: ingredient.origenId || undefined,
+              }
+            }),
             totalDishCost: Number(item.totalDishCost) || 0,
           };
         })
@@ -122,9 +129,20 @@ export async function getMenuById(id: string): Promise<FullMenu | null> {
   return menus.find(menu => menu.id === id) || null;
 }
 
+function calculateIngredientCost(ing: Ingredient): number {
+    const quantity = parseFloat(ing.quantityPerPerson || '0');
+    const unitCost = Number(ing.costoUnitario) || 0;
+    const unit = ing.unit?.toLowerCase();
+    if (isNaN(quantity) || isNaN(unitCost)) return 0;
+    if (unit === 'g' || unit === 'ml' || unit === 'gramos') {
+      return (quantity / 1000) * unitCost;
+    }
+    return quantity * unitCost;
+}
+
 // Helper to calculate totalDishCost for a MenuItem based on its ingredients
 function calculateDishCostPerPerson(ingredients: Ingredient[]): number {
-  return ingredients.reduce((sum, ing) => sum + (ing.cost || 0), 0);
+  return ingredients.reduce((sum, ing) => sum + calculateIngredientCost(ing), 0);
 }
 
 async function processMenuForSave(menuData: Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'> | FullMenu): Promise<FullMenu> {
@@ -136,7 +154,7 @@ async function processMenuForSave(menuData: Omit<FullMenu, 'id' | 'createdAt' | 
       if (ing.origenId) {
         const catalogItem = catalogoInsumos.find(ci => ci.id === ing.origenId);
         if (catalogItem) {
-          ing.cost = catalogItem.valorUnitarioEstimado || 0;
+          ing.costoUnitario = catalogItem.valorUnitarioEstimado || 0;
           ing.name = catalogItem.nombre;
           ing.unit = catalogItem.unidad || ing.unit;
         }
@@ -146,7 +164,8 @@ async function processMenuForSave(menuData: Omit<FullMenu, 'id' | 'createdAt' | 
         name: ing.name.trim(),
         quantityPerPerson: ing.quantityPerPerson?.toString().trim() || '0', // Ensure it's a string
         unit: ing.unit.trim(),
-        cost: Number(ing.cost) || 0,
+        costoUnitario: Number(ing.costoUnitario) || 0,
+        costoTotalReceta: calculateIngredientCost(ing), // Recalculate cost
         proveedor: ing.proveedor?.trim() || undefined,
         marca: ing.marca?.trim() || undefined,
         fecha_actualizacion: ing.fecha_actualizacion?.trim() ? new Date(ing.fecha_actualizacion.trim()).toISOString() : undefined,
@@ -168,9 +187,6 @@ async function processMenuForSave(menuData: Omit<FullMenu, 'id' | 'createdAt' | 
     };
   });
   
-  // Sort items by totalDishCost before returning
-  processedItems.sort((a, b) => (a.totalDishCost || 0) - (b.totalDishCost || 0));
-
   return {
     ...menuData,
     name: menuData.name.trim(),
@@ -225,3 +241,21 @@ export async function deleteMenu(id: string): Promise<{ success: boolean; error?
   await writeMenusFile(menus);
   return { success: true };
 }
+
+export async function duplicateMenu(id: string): Promise<{ success: boolean; error?: string; menu?: FullMenu }> {
+    const menus = await readMenusFile();
+    const menuToDuplicate = menus.find(menu => menu.id === id);
+
+    if (!menuToDuplicate) {
+        return { success: false, error: 'Menú a duplicar no encontrado.' };
+    }
+
+    const newMenu: Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'> = {
+        ...menuToDuplicate,
+        name: `[COPIA] ${menuToDuplicate.name}`,
+    };
+
+    return saveMenu(newMenu);
+}
+
+    

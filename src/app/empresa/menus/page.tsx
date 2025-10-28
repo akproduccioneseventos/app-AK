@@ -6,10 +6,10 @@ import Link from 'next/link';
 import NextImage from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ChefHat, PlusCircle, Edit, List, Loader2, Info, Package, Cake, GlassWater, Printer, Percent, DollarSign, Search } from 'lucide-react';
+import { ArrowLeft, ChefHat, PlusCircle, Edit, List, Loader2, Info, Package, Cake, GlassWater, Printer, Percent, DollarSign, Search, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FullMenu, MenuItem, ReposteriaData, BebidasData } from '@/types/fiesta';
-import { getMenus, saveMenu } from '@/app/actions/menus-catering';
+import { getMenus, saveMenu, duplicateMenu } from '@/app/actions/menus-catering';
 import { getReposteriaMasterTemplate, saveReposteriaMasterTemplate } from '@/app/actions/reposteria.actions';
 import { getBebidasMasterTemplate, saveBebidasMasterTemplate } from '@/app/actions/bebidas.actions';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -32,6 +32,7 @@ export default function GestionMenusPage() {
   const [bebidasTemplate, setBebidasTemplate] = useState<BebidasData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isProcessing, setIsProcessing] = useState<string | null>(null);
 
   // State for individual dish editing
   const [editableItems, setEditableItems] = useState<(MenuItem & { menuId: string })[]>([]);
@@ -153,6 +154,23 @@ export default function GestionMenusPage() {
     }
   };
 
+  const handleDuplicateMenu = async (menuId: string) => {
+    setIsProcessing(menuId);
+    try {
+        const result = await duplicateMenu(menuId);
+        if (result.success) {
+            toast({ title: "Menú Duplicado" });
+            await loadData();
+        } else {
+            throw new Error(result.error || "No se pudo duplicar el menú.");
+        }
+    } catch (e: any) {
+        toast({ title: "Error", description: e.message, variant: "destructive"});
+    } finally {
+        setIsProcessing(null);
+    }
+  }
+
 
   const filteredAndGroupedItems = useMemo(() => {
     const lowercasedTerm = searchTerm.toLowerCase();
@@ -235,10 +253,13 @@ export default function GestionMenusPage() {
                                     </ScrollArea>
                                     )}
                                 </CardContent>
-                                <CardFooter className="pt-2">
-                                    <Link href={`/empresa/menus/${encodeURIComponent(menu.id)}/editar`} passHref className="w-full">
-                                        <Button variant="outline" size="sm" className="w-full"><Edit className="w-4 h-4 mr-2"/>Editar Menú</Button>
+                                <CardFooter className="pt-2 flex gap-2">
+                                    <Link href={`/empresa/menus/${encodeURIComponent(menu.id)}/editar`} passHref className="flex-grow">
+                                        <Button variant="outline" size="sm" className="w-full"><Edit className="w-4 h-4 mr-2"/>Editar</Button>
                                     </Link>
+                                    <Button variant="outline" size="sm" onClick={() => handleDuplicateMenu(menu.id)} disabled={isProcessing === menu.id}>
+                                       {isProcessing === menu.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Copy className="w-4 h-4"/>}
+                                    </Button>
                                 </CardFooter>
                             </Card>
                         ))}
@@ -312,7 +333,7 @@ export default function GestionMenusPage() {
                             setReposteriaTemplate(newData);
                         }}
                         onSave={async (dataToSave) => {
-                            await saveBebidasMasterTemplate(dataToSave as any);
+                            await saveReposteriaMasterTemplate(dataToSave as any);
                             toast({ title: "Plantilla de Repostería Actualizada" });
                         }}
                         invitados={{adultos: 100, ninos: 0, adolescentes: 0}} // Placeholder for calculations
@@ -340,3 +361,5 @@ export default function GestionMenusPage() {
     </div>
   );
 }
+
+    
