@@ -38,7 +38,7 @@ import { CrmLeadCard } from '@/components/crm/CrmLeadCard';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { Separator } from '@/components/ui/separator';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
-import { getFiestaActual } from '@/app/actions/fiesta/fiesta.actions';
+import { getFiestaActual } from '@/app/actions/fiesta-actual';
 
 const formatCurrency = (value?: number) => {
     if (value === undefined) return 'N/A';
