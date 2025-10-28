@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, AlertTriangle, PartyPopper, Calendar, Users, Palette, ChefHat, Music2, ListChecks, DollarSign, Camera, Gift, FileText, UserCheck, Clock, Archive, PackageSearch, Video, Globe, MessageSquare, LayoutDashboard, Star, Calculator, GlassWater } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, PartyPopper, Calendar, Users, Palette, ChefHat, Music2, ListChecks, DollarSign, Camera, Gift, FileText, UserCheck, Clock, Archive, PackageSearch, Video, Globe, MessageSquare, LayoutDashboard, Star, Calculator, GlassWater, ShoppingCart, ClipboardList } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -27,7 +27,8 @@ const modules = [
   { title: "Invitados", href: "invitados", icon: Users, description: "Gestiona tu lista y el diseño del salón." },
   { title: "Página del Evento", href: "pagina-web", icon: Globe, description: "Personaliza la web que verán tus invitados." },
   { title: "Diseño y Decoración", href: "decoracion", icon: Palette, description: "Define el estilo y la ambientación." },
-  { title: "Planificador Gastronómico Integral", href: "catering", icon: Calculator, description: "Menús, repostería, bebidas y lista de compras." },
+  { title: "Planificador Gastronómico Integral", href: "catering", icon: Calculator, description: "Menús, repostería y bebidas." },
+  { title: "Lista de Compras", href: "catering/lista-compras", icon: ShoppingCart, description: "Insumos y bebidas para el evento." },
   { title: "Menú de Mesa", href: "menu-mesa", icon: ChefHat, description: "Diseña el menú impreso para las mesas." },
   { title: "Carta de Tragos", href: "carta-tragos", icon: GlassWater, description: "Diseña la carta de tragos para la barra." },
   { title: "Música", href: "musica", icon: Music2, description: "Define las preferencias musicales." },
@@ -35,7 +36,7 @@ const modules = [
   { title: "Itinerario", href: "itinerario", icon: Clock, description: "Organiza el cronograma." },
   { title: "Documentos", href: "gestion-documental", icon: Archive, description: "Contratos y archivos importantes." },
   { title: "Costos", href: "gestion-costos-rentabilidad", icon: DollarSign, description: "Analiza la rentabilidad." },
-  { title: "Carga Operativa", href: "carga-operativa", icon: PackageSearch, description: "Checklist de carga de materiales." },
+  { title: "Lista de Carga Operativa", href: "carga-operativa", icon: ClipboardList, description: "Checklist de carga de materiales." },
   { title: "Fotografía y Video", href: "fotografia", icon: Camera, description: "Seguimiento de entregas." },
   { title: "Video de Vida", href: "video-vida", icon: Video, description: "Gestiona las fotos del cliente." },
   { title: "Reuniones y Portal Cliente", href: "reuniones", icon: MessageSquare, description: "Gestiona reuniones y la experiencia del cliente." },
