@@ -51,8 +51,8 @@ const mainHubItems = [
       icon: BarChart3,
     },
      {
-      title: "Mis Reuniones",
-      description: "Agenda y consulta las reuniones programadas con tus clientes.",
+      title: "Portal del Cliente y Reuniones",
+      description: "Agenda reuniones y configura el portal privado para tus clientes.",
       href: "/fiestas/nueva/reuniones",
       icon: MessageSquareText,
     },
