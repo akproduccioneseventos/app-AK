@@ -299,7 +299,7 @@ export default function GestionMenusPage() {
                                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2 items-end">
                                             <div className="p-3 rounded-md bg-blue-50 dark:bg-blue-900/40">
                                               <Label className="text-xs font-medium text-blue-800 dark:text-blue-200">Costo p/Persona</Label>
-                                              <p className="font-semibold text-md text-blue-700 dark:text-blue-300">{formatCurrency(item.totalDishCost)}</p>
+                                              <p className="font-bold text-lg text-blue-700 dark:text-blue-300">{formatCurrency(item.totalDishCost)}</p>
                                             </div>
                                             <div className="space-y-1">
                                                 <Label htmlFor={`profit-${item.id}`} className="text-xs flex items-center gap-1"><Percent className="w-3 h-3"/>Margen (%)</Label>
