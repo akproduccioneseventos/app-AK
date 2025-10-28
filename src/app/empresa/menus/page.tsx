@@ -257,7 +257,7 @@ export default function GestionMenusPage() {
                                     <Link href={`/empresa/menus/${encodeURIComponent(menu.id)}/editar`} passHref className="flex-grow">
                                         <Button variant="outline" size="sm" className="w-full"><Edit className="w-4 h-4 mr-2"/>Editar</Button>
                                     </Link>
-                                    <Button variant="outline" size="sm" onClick={() => handleDuplicateMenu(menu.id)} disabled={isProcessing === menu.id}>
+                                    <Button variant="outline" size="sm" onClick={() => handleDuplicateMenu(menu.id)} disabled={isProcessing === menu.id} title="Duplicar Menú">
                                        {isProcessing === menu.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Copy className="w-4 h-4"/>}
                                     </Button>
                                 </CardFooter>
