@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -101,10 +102,18 @@ export default function ItinerarioEventoPage() {
     setError(null);
     try {
       const fiestaData = await getFiestaActual();
-      setPrograma(fiestaData.programa || []);
+      const itinerario = fiestaData.programa || [];
+      // If the current event has no schedule, load the default one.
+      if (itinerario.length === 0) {
+        setPrograma([...defaultPrograma.map(p => ({...p, id: `prog_${Date.now()}_${Math.random()}`}))]);
+        toast({ title: "Plantilla por Defecto Cargada", description: "Se ha cargado un cronograma de ejemplo. Puedes modificarlo y guardarlo." });
+      } else {
+        setPrograma(itinerario);
+      }
     } catch (err: any) {
+      console.error("Error loading tasks:", err);
       setError("No se pudo cargar el cronograma.");
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+      toast({ title: "Error", description: err.message || "Ocurrió un problema inesperado.", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -125,7 +134,7 @@ export default function ItinerarioEventoPage() {
     } finally {
         setIsLoadingTemplates(false);
     }
-  }
+  };
 
   const handleOpenSaveTemplateModal = () => {
     setTemplateName(''); // Reset name
@@ -291,7 +300,7 @@ export default function ItinerarioEventoPage() {
             <Link href="/fiestas/nueva/itinerario/pdf" passHref>
               <Button variant="secondary" size="sm"><Eye className="w-4 h-4 mr-2"/>Vista Previa / PDF</Button>
             </Link>
-            <Link href="/fiestas/nueva" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
+            <Link href="/fiestas/nueva" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
         </div>
       </div>
       <Card>
