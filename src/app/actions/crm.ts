@@ -170,6 +170,35 @@ export async function findLeadByBudgetOrCreate(
   return { lead: newLead, isNew: true };
 }
 
+export async function scheduleCrmMeeting(
+  leadId: string,
+  meetingDate: string,
+  meetingTitle: string
+): Promise<{ success: boolean; lead?: CrmLead; error?: string }> {
+  let leads = await readData<CrmLead[]>(LEADS_FILE, []);
+  const leadIndex = leads.findIndex(l => l.id === leadId);
+
+  if (leadIndex === -1) {
+    return { success: false, error: `Prospecto con ID ${leadId} no encontrado.` };
+  }
+  
+  const now = new Date().toISOString();
+  let currentNotes = leads[leadIndex].notes || '';
+  const meetingNote = `\nREUNIÓN: ${meetingTitle} - ${new Date(meetingDate).toLocaleString('es-UY')}`;
+  
+  const updatedLead = {
+    ...leads[leadIndex],
+    followUpDate: meetingDate,
+    updatedAt: now,
+    notes: `${meetingNote}\n---\n${currentNotes}`.trim(),
+  };
+
+  leads[leadIndex] = updatedLead;
+
+  await writeData(LEADS_FILE, leads);
+  return { success: true, lead: updatedLead };
+}
+
 
 export async function moveCrmLead(
   leadId: string,

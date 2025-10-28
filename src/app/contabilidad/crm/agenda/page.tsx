@@ -4,20 +4,21 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, CalendarDays, Loader2, AlertTriangle, Clock } from 'lucide-react';
+import { ArrowLeft, CalendarDays, Loader2, AlertTriangle, Clock, CalendarPlus } from 'lucide-react';
 import Link from 'next/link';
 import { DashboardCalendar } from '@/components/dashboard-calendar';
 import { getCrmLeads } from '@/app/actions/crm';
 import { useToast } from '@/hooks/use-toast';
 import type { CrmLead } from '@/types/crm';
 import { isSameDay, startOfToday } from 'date-fns';
+import { ScheduleNewMeetingDialog } from '@/components/crm/ScheduleNewMeetingDialog';
 
 export default function CrmAgendaPage() {
-  const [meetingDates, setMeetingDates] = useState<Date[]>([]);
   const [allMeetings, setAllMeetings] = useState<CrmLead[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(startOfToday());
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { toast } = useToast();
 
   const fetchMeetings = useCallback(async () => {
@@ -26,10 +27,7 @@ export default function CrmAgendaPage() {
     try {
       const leads = await getCrmLeads();
       const meetingsWithDate = leads.filter(lead => !!lead.followUpDate);
-      const dates = meetingsWithDate.map(lead => new Date(lead.followUpDate!));
-      
       setAllMeetings(meetingsWithDate.sort((a,b) => new Date(a.followUpDate!).getTime() - new Date(b.followUpDate!).getTime()));
-      setMeetingDates(dates);
 
     } catch (err: any) {
       setError("No se pudieron cargar las fechas de las reuniones.");
@@ -43,6 +41,10 @@ export default function CrmAgendaPage() {
     fetchMeetings();
   }, [fetchMeetings]);
 
+  const meetingDates = useMemo(() => {
+      return allMeetings.map(lead => new Date(lead.followUpDate!));
+  }, [allMeetings]);
+
   const meetingsForSelectedDay = useMemo(() => {
     if (!selectedDate) {
       // Show today's and future meetings if no date is selected
@@ -54,16 +56,24 @@ export default function CrmAgendaPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+      <ScheduleNewMeetingDialog 
+        isOpen={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        onMeetingScheduled={fetchMeetings}
+      />
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <h1 className="text-3xl font-bold tracking-tight font-headline">
           Agenda de Reuniones con Prospectos
         </h1>
-        <Link href="/contabilidad/crm" passHref>
-          <Button variant="outline">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver al CRM
-          </Button>
-        </Link>
+        <div className="flex gap-2">
+            <Button onClick={() => setIsModalOpen(true)}><CalendarPlus className="w-4 h-4 mr-2"/>Agendar Nueva Reunión</Button>
+            <Link href="/contabilidad/crm" passHref>
+              <Button variant="outline">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Volver al CRM
+              </Button>
+            </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
