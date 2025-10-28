@@ -26,7 +26,7 @@ const getPageTitle = (pathname: string): string => {
   const pathSegments = pathname.split('/').filter(Boolean);
   const idSegment = pathSegments[pathSegments.length -1];
 
-  if (pathname === '/') return 'Dashboard Principal';
+  if (pathname === '/') return 'Menú Principal';
   
   if (pathname === '/presupuestos/nuevo') return 'Central de Presupuestos';
   if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'editar' && pathSegments.length === 3) return `Editar Presupuesto #${idSegment?.substring(0,5)}`;
@@ -100,8 +100,11 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/regalos') return 'Lista de Regalos';
   if (pathname === '/fiestas/nueva/resumen-imprimible') return 'Resumen Imprimible del Evento';
   if (pathname === '/fiestas/nueva/pagina-web') return 'Página Pública del Evento';
+  if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
 
   if (pathname === '/contabilidad/crm') return 'Gestión de Prospectos (CRM)';
+  if (pathname === '/contabilidad/crm/agenda') return 'Agenda de Prospectos (CRM)';
+
 
   if (pathname === '/settings') return 'Configuración General';
   if (pathname === '/settings/templates') return 'Personalizar Plantillas';
@@ -135,8 +138,6 @@ const getPageTitle = (pathname: string): string => {
 
 const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/') return LayoutDashboard;
-  if (pathname === '/admin/aaiff') return LayoutDashboard;
-  
   if (pathname.startsWith('/fiestas/nueva')) {
     if (pathname === '/fiestas/nueva/personal') return UserCheck;
     if (pathname === '/fiestas/nueva/personal/recibos') return Printer;
@@ -162,6 +163,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/regalos') return Gift;
     if (pathname === '/fiestas/nueva/resumen-imprimible') return Printer;
     if (pathname === '/fiestas/nueva/pagina-web') return Globe;
+    if (pathname === '/planner-costo-fiesta') return Calculator;
     return PartyPopper;
   }
 
@@ -189,6 +191,8 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname.startsWith('/presupuestos')) return ListChecks;
   if (pathname === '/invoices') return FileText;
   if (pathname === '/contabilidad/crm') return KanbanSquare;
+  if (pathname === '/contabilidad/crm/agenda') return CalendarDaysIcon;
+
 
   if (pathname === '/settings') return SettingsIcon;
   if (pathname === '/settings/templates') return Palette;

@@ -262,7 +262,7 @@ export default function CrmPage() {
           <div className="flex gap-2 flex-wrap">
              <Sheet>
               <SheetTrigger asChild>
-                <Button variant="outline"><CalendarDays className="w-4 h-4 mr-2"/>Ver Calendario</Button>
+                <Button variant="outline"><CalendarDays className="w-4 h-4 mr-2"/>Ver Calendario Eventos</Button>
               </SheetTrigger>
               <SheetContent>
                 <SheetHeader>
@@ -276,8 +276,8 @@ export default function CrmPage() {
                 </div>
               </SheetContent>
             </Sheet>
-            <Link href={`/fiestas/nueva/reuniones?fiestaId=${fiestaActual?.id || ''}`} passHref>
-                <Button variant="outline"><Clock className="w-4 h-4 mr-2"/>Ver Agenda de Reuniones</Button>
+            <Link href={`/contabilidad/crm/agenda`} passHref>
+                <Button variant="outline"><Clock className="w-4 h-4 mr-2"/>Agenda de Prospectos</Button>
             </Link>
             <Link href="/settings/accesos-personal" passHref>
                 <Button variant="secondary"><UserCog className="w-4 h-4 mr-2"/>Gestionar Accesos</Button>
