@@ -63,10 +63,11 @@
     }
   ],
   "menuAsignadoId": "menu_platos_principales_predisenado",
+  "presupuestoId": "pres_1759445334346_d6m6fi9",
   "invoiceIds": [],
   "reuniones": [
     {
-      "titulo": "Reunión Inicial con Familia García",
+      "titulo": "Primera reunión con Familia García",
       "fecha": "2025-08-20T19:00:00.000Z",
       "notas": "Se define la temática 'Noche Estrellada'. Cantidad de invitados estimada en 120. Se confirma preferencia por DJ sobre banda.",
       "id": "reunion_1758487653347"
@@ -457,7 +458,99 @@
     "customText": "Sofi, por favor sube una foto por cada año de tu vida, desde bebé hasta ahora. ¡Queremos contar tu historia!",
     "photoCount": 15
   },
-  "programa": [],
+  "programa": [
+    {
+      "id": "prog_1759360083805_yhkk5xs",
+      "hora": "22:00",
+      "titulo": "Comienzo",
+      "descripcion": "Recepción de invitados con música suave.",
+      "icono": "PartyPopper"
+    },
+    {
+      "id": "prog_1759360083805_epxd6sc",
+      "hora": "22:15",
+      "titulo": "Servicio de Entrada 1",
+      "descripcion": "Se sirve la primera tanda de bocaditos.",
+      "icono": "Utensils"
+    },
+    {
+      "id": "prog_1759360083805_x4y89g4",
+      "hora": "22:30",
+      "titulo": "Entrada de la Quinceañera y Vals",
+      "descripcion": "Momento emotivo principal.",
+      "icono": "Diamond"
+    },
+    {
+      "id": "prog_1759360083805_n02s8zj",
+      "hora": "22:45",
+      "titulo": "Servicio de Entrada 2",
+      "descripcion": "Segunda tanda de bocaditos.",
+      "icono": "Utensils"
+    },
+    {
+      "id": "prog_1759360083805_to0ggr5",
+      "hora": "00:00",
+      "titulo": "¡A Bailar!",
+      "descripcion": "Se abre la pista de baile.",
+      "icono": "Music"
+    },
+    {
+      "id": "prog_1759360083805_xvbv12r",
+      "hora": "01:00",
+      "titulo": "Cena / Cierre de Barra",
+      "descripcion": "Se sirve el plato principal. La barra se cierra temporalmente.",
+      "icono": "Utensils"
+    },
+    {
+      "id": "prog_1759360083805_gip75ou",
+      "hora": "01:45",
+      "titulo": "Video de Vida",
+      "descripcion": "Proyección del video emotivo.",
+      "icono": "Camera"
+    },
+    {
+      "id": "prog_1759360083805_oy1u2w4",
+      "hora": "02:00",
+      "titulo": "Reapertura de Barra y Baile",
+      "descripcion": "Continúa la fiesta.",
+      "icono": "GlassWater"
+    },
+    {
+      "id": "prog_1759360083805_mycizbc",
+      "hora": "02:30",
+      "titulo": "Plataforma 360 / Fotocabina",
+      "descripcion": "Activación de entretenimiento fotográfico.",
+      "icono": "Camera"
+    },
+    {
+      "id": "prog_1759360083805_lsw77jw",
+      "hora": "03:00",
+      "titulo": "Cotillón",
+      "descripcion": "Reparto de cotillón para el carnaval carioca.",
+      "icono": "Sparkles"
+    },
+    {
+      "id": "prog_1759360083805_y9m867s",
+      "hora": "03:45",
+      "titulo": "Fuente de Chocolate",
+      "descripcion": "Se habilita la mesa de postres o fuente de chocolate.",
+      "icono": "CakeSlice"
+    },
+    {
+      "id": "prog_1759360083805_timkezw",
+      "hora": "04:00",
+      "titulo": "Apagado de Velas y Torta",
+      "descripcion": "Momento de cantar y cortar la torta.",
+      "icono": "CakeSlice"
+    },
+    {
+      "id": "prog_1759360083805_badhhxy",
+      "hora": "05:00",
+      "titulo": "Final de la Fiesta",
+      "descripcion": "Cierre del evento.",
+      "icono": "Clock"
+    }
+  ],
   "fotografiaYFilmacion": {
     "servicios": [
       {
@@ -477,8 +570,45 @@
   "otrosDocumentos": [],
   "pagosProveedores": [],
   "cartaTragos": {
-    "items": [],
-    "protagonistaFotoUrl": ""
+    "protagonistaFotoUrl": "https://picsum.photos/seed/quinceanera-main/300/300",
+    "paletaColores": {
+      "primary": "#9333ea",
+      "secondary": "#363636",
+      "accent": "#facc15"
+    },
+    "items": [
+        { "id": "trago_1", "nombre": "DAIQUIRI DE DURAZNO", "imageUrl": "https://picsum.photos/seed/peach-daiquiri/400/600", "aiHint": "peach daiquiri" },
+        { "id": "trago_2", "nombre": "CAIPIRINHA", "imageUrl": "https://picsum.photos/seed/caipirinha/400/600", "aiHint": "caipirinha cocktail" },
+        { "id": "trago_3", "nombre": "ARIZONA", "imageUrl": "https://picsum.photos/seed/arizona-cocktail/400/600", "aiHint": "arizona cocktail" },
+        { "id": "trago_4", "nombre": "DAIQUIRI DE ANANA", "imageUrl": "https://picsum.photos/seed/pineapple-daiquiri/400/600", "aiHint": "pineapple daiquiri" },
+        { "id": "trago_5", "nombre": "DAIQUIRI DE FRUTILLA", "imageUrl": "https://picsum.photos/seed/strawberry-daiquiri/400/600", "aiHint": "strawberry daiquiri" },
+        { "id": "trago_6", "nombre": "ATOMIC GREEN", "imageUrl": "https://picsum.photos/seed/atomic-green/400/600", "aiHint": "atomic green cocktail" },
+        { "id": "trago_7", "nombre": "DAIQUIRI PRIMAVERA", "imageUrl": "https://picsum.photos/seed/spring-daiquiri/400/600", "aiHint": "spring daiquiri" },
+        { "id": "trago_8", "nombre": "FERNET CON COCA", "imageUrl": "https://picsum.photos/seed/fernet-coke/400/600", "aiHint": "fernet with coke" },
+        { "id": "trago_9", "nombre": "ATARDECER", "imageUrl": "https://picsum.photos/seed/sunset-cocktail/400/600", "aiHint": "sunset cocktail" },
+        { "id": "trago_10", "nombre": "DESTORNILLADOR", "imageUrl": "https://picsum.photos/seed/screwdriver/400/600", "aiHint": "screwdriver cocktail" }
+    ]
+  },
+  "menuMesa": {
+     "protagonistaFotoUrl": "https://picsum.photos/seed/quinceanera-main/300/300",
+    "paletaColores": {
+      "primary": "#9333ea",
+      "secondary": "#363636",
+      "accent": "#facc15"
+    },
+    "items": [
+      { "id": "plato_1", "nombre": "Entrada Ligera", "imageUrl": "https://picsum.photos/seed/light-appetizer/400/600", "aiHint": "light appetizer" },
+      { "id": "plato_2", "nombre": "Sopa Cremosa", "imageUrl": "https://picsum.photos/seed/cream-soup/400/600", "aiHint": "cream soup" },
+      { "id": "plato_3", "nombre": "Plato Principal", "imageUrl": "https://picsum.photos/seed/main-course/400/600", "aiHint": "main course" },
+      { "id": "plato_4", "nombre": "Postre", "imageUrl": "https://picsum.photos/seed/dessert/400/600", "aiHint": "dessert" }
+    ]
+  },
+   "numerosMesa": {
+    "protagonistaNombre": "Sofía",
+    "fechaEvento": "22/11/2025",
+    "backgroundImageUrl": "https://picsum.photos/seed/floral-background/800/400",
+    "colorPrincipal": "#9333ea",
+    "colorSecundario": "#363636"
   },
   "invitacionDigital": {
     "plantilla": "Grazia",
@@ -557,7 +687,7 @@
         "text": "Lista de Regalos"
       },
       "texto": {
-        "text": "Si deseas hacerme un regalo, aquí tienes algunas ideas. ¡Pero tu compañía es lo más importante!"
+        "text": "Si deseas obsequiarme algo, aquí tienes algunas ideas. ¡Pero tu compañía es lo más importante!"
       },
       "datosBancarios": "Colectivo Abitab/RedPagos: 'Los 15 de Sofi'",
       "items": [
@@ -601,39 +731,5 @@
         "text": "Con cariño, Sofía"
       }
     }
-  },
-  "menuMesa": {
-    "protagonistaFotoUrl": "",
-    "paletaColores": {
-      "primary": "#9333ea",
-      "secondary": "#363636",
-      "accent": "#facc15"
-    },
-    "items": [
-      {
-        "id": "plato_1",
-        "nombre": "Entrada Ligera",
-        "imageUrl": "https://picsum.photos/seed/light-appetizer/400/600",
-        "aiHint": "light appetizer"
-      },
-      {
-        "id": "plato_2",
-        "nombre": "Sopa Cremosa",
-        "imageUrl": "https://picsum.photos/seed/cream-soup/400/600",
-        "aiHint": "cream soup"
-      },
-      {
-        "id": "plato_3",
-        "nombre": "Plato Principal",
-        "imageUrl": "https://picsum.photos/seed/main-course/400/600",
-        "aiHint": "main course"
-      },
-      {
-        "id": "plato_4",
-        "nombre": "Postre",
-        "imageUrl": "https://picsum.photos/seed/dessert/400/600",
-        "aiHint": "dessert"
-      }
-    ]
   }
 }
