@@ -25,7 +25,7 @@ const modules = [
   { title: "Configuración", href: "configuracion", icon: Users, description: "Datos generales del evento." },
   { title: "Tareas", href: "tareas", icon: ListChecks, description: "Checklist de pendientes." },
   { title: "Invitados", href: "invitados", icon: Users, description: "Gestiona tu lista de invitados." },
-  { title: "Diseño de Salón", href: "diseno-salon", icon: LayoutDashboard, description: "Distribuye mesas y asigna invitados." },
+  { title: "Diseño de Salón", href: "invitados/layout", icon: LayoutDashboard, description: "Distribuye mesas y asigna invitados." },
   { title: "Números de Mesa", href: "invitados/numeros-mesa", icon: Printer, description: "Imprime los números para las mesas." },
   { title: "Check-in de Invitados (QR)", href: "invitados/checkin-scanner", icon: QrCode, description: "Escanea los QR de los invitados en la entrada." },
   { title: "Página del Evento", href: "pagina-web", icon: Globe, description: "Personaliza la web que verán tus invitados." },
