@@ -16,7 +16,9 @@ import { Separator } from '@/components/ui/separator';
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no definida";
   try {
-    return new Date(dateString).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+    return new Date(dateString).toLocaleDateString('es-ES', {
+      day: 'numeric', month: 'long', year: 'numeric'
+    });
   } catch (e) {
     return "Fecha inválida";
   }
@@ -28,11 +30,9 @@ const modules = [
   { title: "Invitados", href: "invitados", icon: Users, description: "Gestiona tu lista de invitados." },
   { title: "Check-in de Invitados (QR)", href: "invitados/checkin-scanner", icon: QrCode, description: "Escanea los QR de los invitados en la entrada." },
   { title: "Página del Evento", href: "pagina-web", icon: Globe, description: "Personaliza la web que verán tus invitados." },
-  { title: "Diseño y Decoración", href: "decoracion", icon: Palette, description: "Define el estilo y la ambientación." },
+  { title: "Decoración y Diseño", href: "decoracion", icon: Palette, description: "Define el estilo y la ambientación." },
   { title: "Planificación Gastronómica", href: "catering", icon: Calculator, description: "Menús, repostería y bebidas." },
   { title: "Lista de Compras", href: "catering/lista-compras", icon: ShoppingCart, description: "Insumos y bebidas para el evento."},
-  { title: "Menú de Mesa", href: "menu-mesa", icon: Printer, description: "Diseña el menú impreso para las mesas." },
-  { title: "Carta de Tragos", href: "carta-tragos", icon: GlassWater, description: "Diseña la carta de tragos para la barra." },
   { title: "Música", href: "musica", icon: Music2, description: "Define las preferencias musicales." },
   { title: "Personal", href: "personal", icon: UserCheck, description: "Asigna personal al evento." },
   { title: "Itinerario", href: "itinerario", icon: Clock, description: "Organiza el cronograma." },
@@ -45,7 +45,10 @@ const modules = [
   { title: "Muro Social", href: "/evento/social/[fiestaId]", icon: Camera, description: "Modera la galería de fotos en vivo del evento." },
   { title: "Lista de Regalos", href: "regalos", icon: Gift, description: "Configura la lista de regalos para los invitados." },
   { title: "Feedback y Testimonios", href: "/settings/feedback", icon: Star, description: "Gestiona la opinión de tus clientes post-evento." },
-  { title: "Resumen Imprimible", href: "resumen-imprimible", icon: Printer, description: "Genera un PDF con el resumen operativo del evento." }
+  { title: "Resumen Imprimible", href: "resumen-imprimible", icon: Printer, description: "Genera un PDF con el resumen operativo del evento." },
+  { title: "Menú de Mesa", href: "menu-mesa", icon: Printer, description: "Diseña el menú impreso para las mesas." },
+  { title: "Carta de Tragos", href: "carta-tragos", icon: GlassWater, description: "Diseña la carta de tragos para la barra." },
+  { title: "Diseño de Salón", href: "invitados/layout", icon: LayoutDashboard, description: "Organiza la distribución de mesas y elementos." },
 ];
 
 function PlannerDashboardContent() {
@@ -126,8 +129,6 @@ function PlannerDashboardContent() {
         <KpiCard title="Presupuesto" value={new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(Number(configuracion.presupuestoEstimado))} icon={DollarSign} description="Valor estimado del evento."/>
         <KpiCard title="Fecha del Evento" value={formatDate(configuracion.fechaEvento)} icon={Calendar} />
       </div>
-
-      <Separator className="my-8"/>
 
        <div className="grid gap-4 md:grid-cols-2">
           <Link href={`/fiestas/nueva/invitados/layout?fiestaId=${fiesta.id}`} passHref>
