@@ -27,12 +27,15 @@ const formatDate = (dateString?: string) => {
 const modules = [
   { title: "Configuración", href: "configuracion", icon: Users, description: "Datos generales del evento." },
   { title: "Tareas", href: "tareas", icon: ListChecks, description: "Checklist de pendientes." },
-  { title: "Invitados", href: "invitados", icon: Users, description: "Gestiona tu lista de invitados." },
+  { title: "Invitados", href: "invitados", icon: Users, description: "Gestiona tu lista y el diseño del salón." },
   { title: "Check-in de Invitados (QR)", href: "invitados/checkin-scanner", icon: QrCode, description: "Escanea los QR de los invitados en la entrada." },
   { title: "Página del Evento", href: "pagina-web", icon: Globe, description: "Personaliza la web que verán tus invitados." },
   { title: "Decoración y Diseño", href: "decoracion", icon: Palette, description: "Define el estilo y la ambientación." },
+  { title: "Diseño de Salón", href: "invitados/layout", icon: LayoutDashboard, description: "Organiza la distribución de mesas y elementos." },
   { title: "Planificación Gastronómica", href: "catering", icon: Calculator, description: "Menús, repostería y bebidas." },
   { title: "Lista de Compras", href: "catering/lista-compras", icon: ShoppingCart, description: "Insumos y bebidas para el evento."},
+  { title: "Menú de Mesa", href: "menu-mesa", icon: Printer, description: "Diseña el menú impreso para las mesas." },
+  { title: "Carta de Tragos", href: "carta-tragos", icon: GlassWater, description: "Diseña la carta de tragos para la barra." },
   { title: "Música", href: "musica", icon: Music2, description: "Define las preferencias musicales." },
   { title: "Personal", href: "personal", icon: UserCheck, description: "Asigna personal al evento." },
   { title: "Itinerario", href: "itinerario", icon: Clock, description: "Organiza el cronograma." },
@@ -46,9 +49,6 @@ const modules = [
   { title: "Lista de Regalos", href: "regalos", icon: Gift, description: "Configura la lista de regalos para los invitados." },
   { title: "Feedback y Testimonios", href: "/settings/feedback", icon: Star, description: "Gestiona la opinión de tus clientes post-evento." },
   { title: "Resumen Imprimible", href: "resumen-imprimible", icon: Printer, description: "Genera un PDF con el resumen operativo del evento." },
-  { title: "Menú de Mesa", href: "menu-mesa", icon: Printer, description: "Diseña el menú impreso para las mesas." },
-  { title: "Carta de Tragos", href: "carta-tragos", icon: GlassWater, description: "Diseña la carta de tragos para la barra." },
-  { title: "Diseño de Salón", href: "invitados/layout", icon: LayoutDashboard, description: "Organiza la distribución de mesas y elementos." },
 ];
 
 function PlannerDashboardContent() {
@@ -130,25 +130,6 @@ function PlannerDashboardContent() {
         <KpiCard title="Fecha del Evento" value={formatDate(configuracion.fechaEvento)} icon={Calendar} />
       </div>
 
-       <div className="grid gap-4 md:grid-cols-2">
-          <Link href={`/fiestas/nueva/invitados/layout?fiestaId=${fiesta.id}`} passHref>
-              <Card className="h-full hover:shadow-lg hover:border-primary/50 transition-all cursor-pointer">
-                  <CardHeader>
-                      <CardTitle className="font-headline text-xl flex items-center gap-2"><LayoutDashboard className="w-6 h-6 text-primary"/> Diseño de Salón y Mesas</CardTitle>
-                      <CardDescription>Accede al diseñador para organizar la distribución de tu evento.</CardDescription>
-                  </CardHeader>
-              </Card>
-          </Link>
-          <Link href={`/fiestas/nueva/invitados/numeros-mesa?fiestaId=${fiesta.id}`} passHref>
-              <Card className="h-full hover:shadow-lg hover:border-primary/50 transition-all cursor-pointer">
-                  <CardHeader>
-                      <CardTitle className="font-headline text-xl flex items-center gap-2"><Printer className="w-6 h-6 text-primary"/> Números de Mesa para Imprimir</CardTitle>
-                      <CardDescription>Genera e imprime los identificadores para cada mesa.</CardDescription>
-                  </CardHeader>
-              </Card>
-          </Link>
-       </div>
-
       <Separator className="my-8"/>
 
       <Card>
@@ -191,3 +172,5 @@ export default function PlannerDashboardPage() {
         </Suspense>
     );
 }
+
+    
