@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, AlertTriangle, PartyPopper, Calendar, Users, Palette, ChefHat, Music2, ListChecks, DollarSign, Camera, Gift, FileText, UserCheck, Clock, Archive, PackageSearch, Video, Globe, MessageSquare, LayoutDashboard, Star, Calculator, GlassWater, ShoppingCart, ClipboardList } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, PartyPopper, Calendar, Users, Palette, ChefHat, Music2, ListChecks, DollarSign, Camera, Gift, FileText, UserCheck, Clock, Archive, PackageSearch, Video, Globe, MessageSquare, LayoutDashboard, Star, Calculator, GlassWater, ShoppingCart, ClipboardList, QrCode } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -24,10 +24,13 @@ const formatDate = (dateString?: string) => {
 const modules = [
   { title: "Configuración", href: "configuracion", icon: Users, description: "Datos generales del evento." },
   { title: "Tareas", href: "tareas", icon: ListChecks, description: "Checklist de pendientes." },
-  { title: "Invitados", href: "invitados", icon: Users, description: "Gestiona tu lista y el diseño del salón." },
+  { title: "Invitados", href: "invitados", icon: Users, description: "Gestiona tu lista de invitados." },
+  { title: "Diseño de Salón", href: "diseno-salon", icon: LayoutDashboard, description: "Distribuye mesas y asigna invitados." },
+  { title: "Números de Mesa", href: "invitados/numeros-mesa", icon: Printer, description: "Imprime los números para las mesas." },
+  { title: "Check-in de Invitados (QR)", href: "invitados/checkin-scanner", icon: QrCode, description: "Escanea los QR de los invitados en la entrada." },
   { title: "Página del Evento", href: "pagina-web", icon: Globe, description: "Personaliza la web que verán tus invitados." },
   { title: "Diseño y Decoración", href: "decoracion", icon: Palette, description: "Define el estilo y la ambientación." },
-  { title: "Planificador Gastronómico Integral", href: "catering", icon: Calculator, description: "Menús, repostería y bebidas." },
+  { title: "Planificador Gastronómico", href: "catering", icon: Calculator, description: "Menús, repostería y bebidas." },
   { title: "Lista de Compras", href: "catering/lista-compras", icon: ShoppingCart, description: "Insumos y bebidas para el evento." },
   { title: "Menú de Mesa", href: "menu-mesa", icon: ChefHat, description: "Diseña el menú impreso para las mesas." },
   { title: "Carta de Tragos", href: "carta-tragos", icon: GlassWater, description: "Diseña la carta de tragos para la barra." },

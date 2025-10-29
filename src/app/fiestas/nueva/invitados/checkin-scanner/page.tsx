@@ -13,12 +13,13 @@ import Link from 'next/link';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-
-// QR SCANNER IS TEMPORARILY DISABLED DUE TO PACKAGE CONFLICTS
-// This component will be replaced with a functional scanner once a compatible library is ensured.
+import { useSearchParams } from 'next/navigation';
 
 function CheckinScannerContent() {
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const fiestaId = searchParams.get('fiestaId');
+
   const [allGuests, setAllGuests] = useState<Invitado[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -28,21 +29,23 @@ function CheckinScannerContent() {
   const loadInitialData = useCallback(async (showLoading = true) => {
     if(showLoading) setIsLoading(true);
     try {
-      const fiesta = await getFiestaActual();
+      if (!fiestaId) throw new Error("Falta el ID del evento.");
+      const fiesta = await getFiestaById(fiestaId);
+      if (!fiesta) throw new Error("Evento no encontrado");
       setAllGuests((fiesta.invitados || []).sort((a, b) => a.nombre.localeCompare(b.nombre)));
     } catch (e: any) {
       toast({title: "Error", description: "No se pudo cargar la lista de invitados.", variant: "destructive"});
     } finally {
       if(showLoading) setIsLoading(false);
     }
-  }, [toast]);
+  }, [toast, fiestaId]);
   
   useEffect(() => {
     loadInitialData();
   }, [loadInitialData]);
 
   const processCheckIn = useCallback(async (guestId: string) => {
-    if (isProcessingCheckin) return;
+    if (isProcessingCheckin || !fiestaId) return;
     
     setIsProcessingCheckin(guestId);
 
@@ -65,7 +68,7 @@ function CheckinScannerContent() {
     }
 
     try {
-      const result = await checkInGuestFiestaActual(guestId);
+      const result = await checkInGuestFiestaActual(fiestaId, guestId);
       if (result.success && result.invitado) {
         setAllGuests(prevGuests => prevGuests.map(g => g.id === guestId ? result.invitado! : g));
         toast({
@@ -83,14 +86,14 @@ function CheckinScannerContent() {
     } finally {
       setIsProcessingCheckin(null);
     }
-  }, [isProcessingCheckin, allGuests, toast]);
+  }, [isProcessingCheckin, allGuests, toast, fiestaId]);
 
   const handleTabChange = (value: string) => {
     // Placeholder for future scanner logic
   };
   
-  const checkedInGuests = useMemo(() => allGuests.filter(g => g.checkedIn), [allGuests]);
-  const pendingGuests = useMemo(() => {
+  const checkedInGuests = React.useMemo(() => allGuests.filter(g => g.checkedIn), [allGuests]);
+  const pendingGuests = React.useMemo(() => {
     const confirmed = allGuests.filter(g => g.rsvp === 'Confirmado' && !g.checkedIn);
     if (!searchTerm.trim()) {
         return confirmed;
@@ -98,7 +101,7 @@ function CheckinScannerContent() {
     return confirmed.filter(g => g.nombre.toLowerCase().includes(searchTerm.toLowerCase()));
   }, [allGuests, searchTerm]);
 
-  const totalConfirmados = useMemo(() => allGuests.filter(i => i.rsvp === 'Confirmado').length, [allGuests]);
+  const totalConfirmados = React.useMemo(() => allGuests.filter(i => i.rsvp === 'Confirmado').length, [allGuests]);
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -107,7 +110,7 @@ function CheckinScannerContent() {
           <UserCheck className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">Check-in de Invitados</h1>
         </div>
-        <Link href="/fiestas/nueva/invitados"><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver a Invitados</Button></Link>
+        <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver al Planificador</Button></Link>
       </div>
 
       <Card className="shadow-md">
