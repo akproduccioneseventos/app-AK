@@ -2,7 +2,7 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, Tarea, Invitado, DecoracionData, ProgramaEventoItem, PersonalAsignadoDetalleStorage, ClientTarea, ClientPortalSettings, EventWebPageSettings, MusicaFiesta, GiftItem, ReposteriaData, BebidasData, ListaDeCargaOperativa, GestionCostosData, FotografiaYFilmacionData, OtroDocumento, DocumentoTipo, PagoProveedor, VideoVidaData, InvitacionDigitalData, CartaTragosData, MenuMesaData, NumerosMesaData } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, Tarea, Invitado, DecoracionData, ProgramaEventoItem, PersonalAsignadoDetalleStorage, ClientTarea, ClientPortalSettings, EventWebPageSettings, MusicaFiesta, GiftItem, ReposteriaData, BebidasData, ListaDeCargaOperativa, GestionCostosData, FotografiaYFilmacionData, OtroDocumento, DocumentoTipo, PagoProveedor, VideoVidaData, InvitacionDigitalData, CartaTragosData, MenuMesaData, NumerosMesaData, ModulosContratados } from '@/types/fiesta';
 import { 
     getFiestas as getFiestasFromModule,
     getAllFiestas as getAllFiestasFromModule,
@@ -63,6 +63,14 @@ export const duplicateFiesta = duplicateFiestaFromModule;
 
 // --- Configuration Actions ---
 export const updateConfiguracionFiestaActual = updateConfiguracion;
+
+export const updateModulosContratadosFiestaActual = async (fiestaId: string, modulos: ModulosContratados) => {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) throw new Error("Fiesta no encontrada");
+    const updatedFiesta = { ...fiesta, modulosContratados: modulos };
+    return saveFiesta(updatedFiesta);
+}
+
 
 // --- Tareas Actions ---
 export const updateTareasFiestaActual = updateTareas;

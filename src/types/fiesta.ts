@@ -51,6 +51,7 @@ export interface Trago {
 export interface CartaTragosData {
     items: Trago[];
     protagonistaFotoUrl?: string; // Foto principal de la carta
+    paletaColores?: Partial<ColorPalette>;
 }
 
 export interface Plato {
