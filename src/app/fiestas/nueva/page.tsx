@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
@@ -10,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getFiestaById } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { KpiCard } from '@/components/dashboard/kpi-card';
+import { Separator } from '@/components/ui/separator';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no definida";
@@ -124,6 +126,29 @@ function PlannerDashboardContent() {
         <KpiCard title="Presupuesto" value={new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(Number(configuracion.presupuestoEstimado))} icon={DollarSign} description="Valor estimado del evento."/>
         <KpiCard title="Fecha del Evento" value={formatDate(configuracion.fechaEvento)} icon={Calendar} />
       </div>
+
+      <Separator className="my-8"/>
+
+       <div className="grid gap-4 md:grid-cols-2">
+          <Link href={`/fiestas/nueva/invitados/layout?fiestaId=${fiesta.id}`} passHref>
+              <Card className="h-full hover:shadow-lg hover:border-primary/50 transition-all cursor-pointer">
+                  <CardHeader>
+                      <CardTitle className="font-headline text-xl flex items-center gap-2"><LayoutDashboard className="w-6 h-6 text-primary"/> Diseño de Salón y Mesas</CardTitle>
+                      <CardDescription>Accede al diseñador para organizar la distribución de tu evento.</CardDescription>
+                  </CardHeader>
+              </Card>
+          </Link>
+          <Link href={`/fiestas/nueva/invitados/numeros-mesa?fiestaId=${fiesta.id}`} passHref>
+              <Card className="h-full hover:shadow-lg hover:border-primary/50 transition-all cursor-pointer">
+                  <CardHeader>
+                      <CardTitle className="font-headline text-xl flex items-center gap-2"><Printer className="w-6 h-6 text-primary"/> Números de Mesa para Imprimir</CardTitle>
+                      <CardDescription>Genera e imprime los identificadores para cada mesa.</CardDescription>
+                  </CardHeader>
+              </Card>
+          </Link>
+       </div>
+
+      <Separator className="my-8"/>
 
       <Card>
         <CardHeader>

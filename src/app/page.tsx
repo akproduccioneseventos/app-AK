@@ -17,8 +17,7 @@ import {
     Users,
     CalendarClock,
     Archive,
-    MessageSquareText,
-    Printer
+    MessageSquareText
 } from 'lucide-react';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { KpiCard } from '@/components/dashboard/kpi-card';
@@ -104,7 +103,7 @@ export default function MainDashboardPage() {
     }, [kpiData]);
     
     const getLinkHref = (baseHref: string) => {
-      if ((baseHref === "/fiestas/nueva/reuniones" || baseHref === "/fiestas/nueva/invitados/layout" || baseHref === "/fiestas/nueva/invitados/numeros-mesa") && fiestaActual) {
+      if (baseHref === "/fiestas/nueva/reuniones" && fiestaActual) {
         return `${baseHref}?fiestaId=${fiestaActual.id}`;
       }
       return baseHref;
@@ -164,27 +163,6 @@ export default function MainDashboardPage() {
         </Link>
       </div>
       
-      <Separator className="my-8"/>
-        
-       <div className="grid gap-4 md:grid-cols-2">
-          <Link href={getLinkHref("/fiestas/nueva/invitados/layout")} passHref>
-              <Card className="h-full hover:shadow-lg hover:border-primary/50 transition-all cursor-pointer">
-                  <CardHeader>
-                      <CardTitle className="font-headline text-xl flex items-center gap-2"><LayoutDashboard className="w-6 h-6 text-primary"/> Diseño de Salón y Mesas</CardTitle>
-                      <CardDescription>Accede al diseñador para organizar la distribución de tu evento.</CardDescription>
-                  </CardHeader>
-              </Card>
-          </Link>
-          <Link href={getLinkHref("/fiestas/nueva/invitados/numeros-mesa")} passHref>
-              <Card className="h-full hover:shadow-lg hover:border-primary/50 transition-all cursor-pointer">
-                  <CardHeader>
-                      <CardTitle className="font-headline text-xl flex items-center gap-2"><Printer className="w-6 h-6 text-primary"/> Números de Mesa para Imprimir</CardTitle>
-                      <CardDescription>Genera e imprime los identificadores para cada mesa.</CardDescription>
-                  </CardHeader>
-              </Card>
-          </Link>
-       </div>
-
       <Separator className="my-8"/>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
