@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, Suspense, type ChangeEvent } from 'react';
@@ -9,13 +8,13 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Printer as PrinterIcon, Share2, Edit, Upload, Loader2, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, NumerosMesaData } from '@/types/fiesta';
-import { getFiestaById, updateNumerosMesa as updateNumerosMesaAction } from '@/app/actions/fiesta-actual';
+import { getFiestaById, updateNumerosMesa as updateNumerosMesaAction } from '@/app/actions/fiesta/fiesta.actions';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
-import { Loader2 as LoaderIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import { defaultNumerosMesaData } from '@/lib/fiesta-defaults';
+import { Separator } from '@/components/ui/separator';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "____________";
@@ -102,7 +101,7 @@ function NumerosDeMesaContent() {
 
   useEffect(() => {
     loadData();
-  }, [fiestaId]);
+  }, [fiestaId, loadData]);
   
   const handleUpdate = (field: keyof NumerosMesaData, value: string) => {
     setData(prev => ({ ...prev, [field]: value }));
@@ -145,12 +144,7 @@ function NumerosDeMesaContent() {
   }
 
   const handlePrint = () => window.print();
-  const handleShare = () => {
-      const url = window.location.href;
-      const message = `Mira los números de mesa que diseñé: ${url}`;
-      window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
-  };
-
+  
   if (isLoading || !fiesta) {
     return <div className="p-8 max-w-4xl mx-auto flex justify-center"><Loader2 className="w-8 h-8 animate-spin" /></div>;
   }
@@ -180,9 +174,11 @@ function NumerosDeMesaContent() {
                  <Input value={data.protagonistaNombre} onChange={e => handleUpdate('protagonistaNombre', e.target.value)} className="h-9 w-32"/>
               </div>
                <Separator orientation="vertical" className="h-10 mx-2"/>
-               <Button size="sm" onClick={handleSave} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}</Button>
-               <Button onClick={handlePrint} size="sm" variant="outline"><PrinterIcon className="w-4 h-4"/></Button>
-               <Link href={`/fiestas/nueva/invitados?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4"/></Button></Link>
+               <div className="flex items-end gap-2">
+                 <Button size="sm" onClick={handleSave} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}</Button>
+                 <Button onClick={handlePrint} size="sm" variant="outline"><PrinterIcon className="w-4 h-4"/></Button>
+                 <Link href={`/fiestas/nueva/invitados?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4"/></Button></Link>
+               </div>
             </div>
         </div>
 
