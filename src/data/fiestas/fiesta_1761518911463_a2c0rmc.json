@@ -567,7 +567,15 @@
       }
     ]
   },
-  "otrosDocumentos": [],
+  "otrosDocumentos": [
+    {
+      "id": "doc_1762191632734",
+      "nombre": "Contrato Salón La Casona",
+      "tipo": "contrato_salon",
+      "fileName": "ejemplo_contrato.pdf",
+      "timestamp": "2025-10-30T14:20:32.734Z"
+    }
+  ],
   "pagosProveedores": [],
   "cartaTragos": {
     "protagonistaFotoUrl": "https://picsum.photos/seed/quinceanera-main/300/300",
@@ -626,7 +634,7 @@
         "secondary": "#F3F4F6",
         "accent": "#FBBF24"
       },
-      "imagenFondoUrl": "https://picsum.photos/seed/quinceanera-party/1200/800"
+      "videoFondoUrl": "https://cdn.coverr.co/videos/coverr-a-man-and-a-woman-get-married-at-a-wedding-ceremony-2508/1080p.mp4"
     },
     "bienvenida": {
       "visible": true,
@@ -687,7 +695,7 @@
         "text": "Lista de Regalos"
       },
       "texto": {
-        "text": "Si deseas obsequiarme algo, aquí tienes algunas ideas. ¡Pero tu compañía es lo más importante!"
+        "text": "Tu presencia es nuestro mejor regalo. Si aún así deseas obsequiarnos algo, aquí tienes algunas ideas."
       },
       "datosBancarios": "Colectivo Abitab/RedPagos: 'Los 15 de Sofi'",
       "items": [
@@ -704,7 +712,7 @@
         },
         {
           "id": "gift_3",
-          "name": "Entradas para concierto de su artista favorito",
+          "name": "Entradas para concierto",
           "isClaimed": false
         }
       ]
