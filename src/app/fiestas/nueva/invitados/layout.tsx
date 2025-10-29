@@ -1,38 +1,27 @@
 
 'use client';
 
-import React, { use } from 'react';
+import React, { Suspense } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Users, LayoutDashboard, Send, Printer } from 'lucide-react';
+import { Users, LayoutDashboard, Printer } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
-export default function InvitadosLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function InvitadosLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const fiestaId = searchParams.get('fiestaId');
 
   const navItems = [
-    { href: `/fiestas/nueva/invitados?fiestaId=${fiestaId}`, label: 'Lista de Invitados', icon: Users, pathSegment: '/invitados' },
-    { href: `/fiestas/nueva/invitados/layout?fiestaId=${fiestaId}`, label: 'Diseño de Salón', icon: LayoutDashboard, pathSegment: '/layout' },
-    { href: `/fiestas/nueva/invitados/numeros-mesa?fiestaId=${fiestaId}`, label: 'Números de Mesa', icon: Printer, pathSegment: '/numeros-mesa' },
+    { href: `/fiestas/nueva/invitados?fiestaId=${fiestaId}`, label: 'Lista de Invitados', icon: Users },
+    { href: `/fiestas/nueva/diseno-salon?fiestaId=${fiestaId}`, label: 'Diseño de Salón', icon: LayoutDashboard },
+    { href: `/fiestas/nueva/numeros-mesa?fiestaId=${fiestaId}`, label: 'Números de Mesa', icon: Printer },
   ];
 
-  const getIsActive = (itemPathSegment: string) => {
-    // Exact match or if it's the base and the path is just the base
-    if (pathname.endsWith(itemPathSegment)) {
-      return true;
-    }
-    // Special case for the base '/invitados' path
-    if (itemPathSegment === '/invitados' && !pathname.includes('/layout') && !pathname.includes('/numeros-mesa')) {
-      return true;
-    }
-    return false;
-  }
+  const getIsActive = (href: string) => {
+    return pathname === href;
+  };
 
   return (
     <div className="space-y-6">
@@ -41,7 +30,7 @@ export default function InvitadosLayout({
           {navItems.map(item => (
             <Link key={item.label} href={item.href} passHref>
               <Button 
-                variant={getIsActive(item.pathSegment) ? 'default' : 'ghost'} 
+                variant={getIsActive(item.href) ? 'default' : 'ghost'} 
                 className="h-auto py-2 px-3 flex-shrink-0"
               >
                 <item.icon className="w-4 h-4 mr-2" />
@@ -53,5 +42,13 @@ export default function InvitadosLayout({
       </div>
       <div>{children}</div>
     </div>
+  );
+}
+
+export default function InvitadosLayout({ children }: { children: React.ReactNode; }) {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+      <InvitadosLayoutContent>{children}</InvitadosLayoutContent>
+    </Suspense>
   );
 }
