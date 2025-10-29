@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, AlertTriangle, PartyPopper, Calendar, Users, Palette, ChefHat, Music2, ListChecks, DollarSign, Camera, Gift, FileText, UserCheck, Clock, Archive, PackageSearch, Video, Globe, MessageSquare, LayoutDashboard, Star, Calculator, GlassWater, ShoppingCart, ClipboardList, QrCode } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, PartyPopper, Calendar, Users, Palette, ChefHat, Music2, ListChecks, DollarSign, Camera, Gift, FileText, UserCheck, Clock, Archive, PackageSearch, Video, Globe, MessageSquare, LayoutDashboard, Star, Calculator, GlassWater, ShoppingCart, ClipboardList, QrCode, Printer } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -30,9 +30,8 @@ const modules = [
   { title: "Check-in de Invitados (QR)", href: "invitados/checkin-scanner", icon: QrCode, description: "Escanea los QR de los invitados en la entrada." },
   { title: "Página del Evento", href: "pagina-web", icon: Globe, description: "Personaliza la web que verán tus invitados." },
   { title: "Diseño y Decoración", href: "decoracion", icon: Palette, description: "Define el estilo y la ambientación." },
-  { title: "Planificador Gastronómico", href: "catering", icon: Calculator, description: "Menús, repostería y bebidas." },
-  { title: "Lista de Compras", href: "catering/lista-compras", icon: ShoppingCart, description: "Insumos y bebidas para el evento." },
-  { title: "Menú de Mesa", href: "menu-mesa", icon: ChefHat, description: "Diseña el menú impreso para las mesas." },
+  { title: "Catering", href: "catering", icon: ChefHat, description: "Menús, repostería, bebidas y lista de compras." },
+  { title: "Menú de Mesa", href: "menu-mesa", icon: Printer, description: "Diseña el menú impreso para las mesas." },
   { title: "Carta de Tragos", href: "carta-tragos", icon: GlassWater, description: "Diseña la carta de tragos para la barra." },
   { title: "Música", href: "musica", icon: Music2, description: "Define las preferencias musicales." },
   { title: "Personal", href: "personal", icon: UserCheck, description: "Asigna personal al evento." },

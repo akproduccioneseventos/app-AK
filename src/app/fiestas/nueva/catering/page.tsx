@@ -3,9 +3,10 @@
 
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { useSearchParams } from 'next/navigation';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ShoppingCart, Save, Loader2, Calculator, ChefHat } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Save, Loader2, Calculator, ChefHat, GlassWater } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaActual, updateReposteriaFiestaActual, updateBebidasFiestaActual, updateMenuAsignadoFiestaActual } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion, ReposteriaData, BebidasData } from '@/types/fiesta';
@@ -21,6 +22,8 @@ import type { FullMenu } from '@/types/catering';
 
 export default function PlannerGastronomicoFiestaPage() {
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const fiestaId = searchParams.get('fiestaId');
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -33,12 +36,15 @@ export default function PlannerGastronomicoFiestaPage() {
   const [selectedMenuId, setSelectedMenuId] = useState<string | undefined>(undefined);
 
   const loadData = useCallback(async () => {
+    if (!fiestaId) return;
     setIsLoading(true);
     try {
       const [fiestaData, menuTemplates] = await Promise.all([
-        getFiestaActual(),
+        getFiestaById(fiestaId),
         getMenus()
       ]);
+      if (!fiestaData) throw new Error("Fiesta no encontrada.");
+      
       setFiesta(fiestaData);
       setAllMenus(menuTemplates);
       setSelectedMenuId(fiestaData.menuAsignadoId);
@@ -71,19 +77,20 @@ export default function PlannerGastronomicoFiestaPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, [toast, fiestaId]);
 
   useEffect(() => {
     loadData();
   }, [loadData]);
 
    const handleSaveAll = async () => {
+        if (!fiestaId) return;
         setIsSaving(true);
         try {
             await Promise.all([
-                updateReposteriaFiestaActual(reposteriaData),
-                updateBebidasFiestaActual(bebidasData),
-                updateMenuAsignadoFiestaActual(selectedMenuId)
+                updateReposteriaFiestaActual(fiestaId, reposteriaData),
+                updateBebidasFiestaActual(fiestaId, bebidasData),
+                updateMenuAsignadoFiestaActual(fiestaId, selectedMenuId)
             ]);
             toast({ title: "Guardado", description: "Los cambios en la planificación gastronómica han sido guardados."});
         } catch(e: any) {
@@ -101,9 +108,9 @@ export default function PlannerGastronomicoFiestaPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <ChefHat className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline">Catering y Menú del Evento</h1>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">Gastronomía del Evento</h1>
         </div>
-        <Link href="/fiestas/nueva" passHref>
+        <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref>
           <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver al Planificador</Button>
         </Link>
       </div>
@@ -119,7 +126,7 @@ export default function PlannerGastronomicoFiestaPage() {
       </Card>
       
        <div className="flex justify-end gap-2">
-         <Link href="/fiestas/nueva/catering/lista-compras" passHref>
+         <Link href={`/fiestas/nueva/catering/lista-compras?fiestaId=${fiestaId}`} passHref>
            <Button variant="outline"><ShoppingCart className="w-4 h-4 mr-2"/>Ver Lista de Compras</Button>
          </Link>
          <Button onClick={handleSaveAll} disabled={isSaving || isLoading}>{isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin"/>}Guardar Cambios</Button>
@@ -149,14 +156,12 @@ export default function PlannerGastronomicoFiestaPage() {
             <GestionReposteria 
                 initialData={reposteriaData} 
                 onDataChange={setReposteriaData}
-                onSave={updateReposteriaFiestaActual}
                 invitados={{adultos: Number(adultos), ninos: Number(ninos), adolescentes: Number(adolescentes)}} 
             />
             
             <GestionBebidas 
                 initialData={bebidasData} 
                 onDataChange={setBebidasData}
-                onSave={updateBebidasFiestaActual}
                 invitados={{adultos: Number(adultos), ninos: Number(ninos), adolescentes: Number(adolescentes)}}
             />
         </>
