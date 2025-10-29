@@ -46,6 +46,7 @@ const modules = [
   { title: "Muro Social", href: "/evento/social/[fiestaId]", icon: Camera, description: "Modera la galería de fotos en vivo del evento." },
   { title: "Lista de Regalos", href: "regalos", icon: Gift, description: "Configura la lista de regalos para los invitados." },
   { title: "Feedback y Testimonios", href: "/settings/feedback", icon: Star, description: "Gestiona la opinión de tus clientes post-evento." },
+  { title: "Resumen Imprimible", href: "resumen-imprimible", icon: Printer, description: "Genera un PDF con el resumen operativo del evento." }
 ];
 
 function PlannerDashboardContent() {
