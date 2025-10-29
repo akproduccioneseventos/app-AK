@@ -15,12 +15,15 @@ function InvitadosLayoutContent({ children }: { children: React.ReactNode }) {
 
   const navItems = [
     { href: `/fiestas/nueva/invitados?fiestaId=${fiestaId}`, label: 'Lista de Invitados', icon: Users },
-    { href: `/fiestas/nueva/diseno-salon?fiestaId=${fiestaId}`, label: 'Diseño de Salón', icon: LayoutDashboard },
-    { href: `/fiestas/nueva/numeros-mesa?fiestaId=${fiestaId}`, label: 'Números de Mesa', icon: Printer },
+    { href: `/fiestas/nueva/invitados/layout?fiestaId=${fiestaId}`, label: 'Diseño de Salón', icon: LayoutDashboard },
+    { href: `/fiestas/nueva/invitados/numeros-mesa?fiestaId=${fiestaId}`, label: 'Números de Mesa', icon: Printer },
   ];
 
   const getIsActive = (href: string) => {
-    return pathname === href;
+    // We need to check the base path, ignoring query params for comparison
+    const currentBasePath = pathname;
+    const linkBasePath = new URL(href, 'http://localhost').pathname;
+    return currentBasePath === linkBasePath;
   };
 
   return (
