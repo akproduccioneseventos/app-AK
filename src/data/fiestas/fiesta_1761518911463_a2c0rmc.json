@@ -14,27 +14,6 @@
     "clienteId": "cust_1759360164472",
     "protagonista1Nombre": "Sofía"
   },
-  "modulosContratados": {
-    "tareas": true,
-    "invitados": true,
-    "paginaWeb": true,
-    "decoracion": true,
-    "catering": true,
-    "musica": true,
-    "personal": true,
-    "itinerario": true,
-    "documentos": true,
-    "costos": true,
-    "cargaOperativa": true,
-    "fotografia": true,
-    "videoVida": true,
-    "reuniones": true,
-    "muroSocial": true,
-    "regalos": true,
-    "feedback": true,
-    "menuMesa": true,
-    "cartaTragos": true
-  },
   "personalAsignado": [
     {
       "empleadoId": "emp_1759834108949_7q9gi",
