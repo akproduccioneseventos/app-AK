@@ -49,12 +49,14 @@ export interface Trago {
 }
 
 export interface CartaTragosData {
+    titulo?: string;
     items: Trago[];
     protagonistaFotoUrl?: string; // Foto principal de la carta
     protagonistaNombre?: string;
     numeroPrincipal?: string;
     backgroundImageUrl?: string;
     paletaColores?: Partial<ColorPalette>;
+    backgroundColor?: string;
     empresaNombre?: string;
     empresaContacto?: string;
 }
@@ -619,6 +621,11 @@ export interface ModulosContratados {
   feedback: boolean;
   menuMesa: boolean;
   cartaTragos: boolean;
+  checkin: boolean;
+  resumenImprimible: boolean;
+  configuracion: boolean;
+  disenoSalon: boolean;
+  listaCompras: boolean;
 }
 
 

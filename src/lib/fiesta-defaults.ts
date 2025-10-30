@@ -18,11 +18,12 @@ export const defaultStaticTragos: Trago[] = [
 
 export const defaultCartaTragosData: CartaTragosData = {
     protagonistaNombre: "Luciana",
+    titulo: 'CARTA DE TRAGOS',
     numeroPrincipal: "Mis XV",
     protagonistaFotoUrl: "https://i.imgur.com/sC3a3gM.png",
     backgroundImageUrl: "https://i.imgur.com/FwIe1tY.jpeg",
     paletaColores: { primary: '#9333ea', secondary: '#363636', accent: '#ffffff' },
-    backgroundColor: '#FBF8F0',
+    backgroundColor: '#e9d5ff', // A light lavender
     items: defaultStaticTragos,
     empresaNombre: 'AK PRODUCCIONES',
     empresaContacto: '098355530',
