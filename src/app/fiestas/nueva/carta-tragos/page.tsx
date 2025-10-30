@@ -36,7 +36,10 @@ function CartaTragosContent() {
       const fiestaData = await getFiestaById(fiestaId);
       if (!fiestaData) throw new Error("Fiesta no encontrada");
       setFiesta(fiestaData);
+      
       const mergedData = { ...defaultCartaTragosData, ...(fiestaData.cartaTragos || {}) };
+      
+      // Ensure 'protagonistaNombre' and 'numeroPrincipal' are sourced from event config if not set
       if (!mergedData.protagonistaNombre) {
         mergedData.protagonistaNombre = fiestaData.configuracion.protagonista1Nombre || 'La Agasajada';
       }
@@ -44,6 +47,7 @@ function CartaTragosContent() {
         mergedData.numeroPrincipal = fiestaData.configuracion.tipoCelebracion === 'XV años' ? 'Mis XV' : 'Nuestra Boda';
       }
       setCartaTragos(mergedData);
+
     } catch (e: any) {
       setError("No se pudo cargar la información del evento.");
       toast({ title: "Error", description: e.message, variant: "destructive" });
@@ -116,7 +120,7 @@ function CartaTragosContent() {
     <div className="bg-gray-100 print:bg-white">
         <div className="py-4 px-8 print:hidden flex flex-col md:flex-row justify-between items-center gap-4 bg-white shadow-sm sticky top-0 z-50">
             <h1 className="font-headline text-xl">Editor de Carta de Tragos</h1>
-             <div className="flex flex-wrap gap-3 items-center">
+             <div className="flex flex-wrap gap-2 items-center">
                 <div className="space-y-1">
                     <Label htmlFor="protagonista-foto" className="text-xs">Foto Protagonista</Label>
                     <Input id="protagonista-foto" type="file" accept="image/*" onChange={handleProtagonistPhotoUpload} className="text-xs w-48" disabled={isUploading}/>
@@ -129,6 +133,8 @@ function CartaTragosContent() {
                     <Label className="text-xs">Color Texto</Label>
                     <Input type="color" value={cartaTragos.paletaColores?.secondary || '#f0e68c'} onChange={e => handleColorChange('secondary', e.target.value)} className="w-10 h-9 p-0.5"/>
                 </div>
+                <div className="space-y-1"><Label className="text-xs">Título</Label><Input value={cartaTragos.numeroPrincipal || ''} onChange={e => handleUpdate('numeroPrincipal', e.target.value)} className="h-9 w-20"/></div>
+                <div className="space-y-1"><Label className="text-xs">Nombre</Label><Input value={cartaTragos.protagonistaNombre || ''} onChange={e => handleUpdate('protagonistaNombre', e.target.value)} className="h-9 w-32"/></div>
                 <div className="space-y-1"><Label className="text-xs">Nombre Empresa</Label><Input value={cartaTragos.empresaNombre || ''} onChange={e => handleUpdate('empresaNombre', e.target.value)} className="h-9 w-32"/></div>
                 <div className="space-y-1"><Label className="text-xs">Contacto Empresa</Label><Input value={cartaTragos.empresaContacto || ''} onChange={e => handleUpdate('empresaContacto', e.target.value)} className="h-9 w-24"/></div>
                <Separator orientation="vertical" className="h-10 mx-2"/>
@@ -140,20 +146,32 @@ function CartaTragosContent() {
             </div>
         </div>
         
-        <div className="w-[210mm] h-[297mm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto p-4 flex flex-col gap-4 border-2 border-dashed print:border-none">
-          <div className="flex-1 border border-dashed border-gray-400 print:border-none">
-             <MenuComponent fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={(d) => setCartaTragos(prev => ({...prev, ...d}))}/>
+        {/* A4 Landscape container */}
+        <div className="w-[297mm] h-[210mm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto p-4 flex gap-4 border-2 border-dashed print:border-none">
+          {/* Card 1 */}
+          <div className="w-1/2 h-full flex flex-col border border-dashed border-gray-400 print:border-none">
+            <div className="w-full flex-1">
+               <MenuComponent fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} />
+            </div>
+            <div className="w-full flex-1 transform rotate-180">
+               <MenuComponent fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} />
+            </div>
           </div>
-          <div className="flex-1 border border-dashed border-gray-400 print:border-none">
-             <MenuComponent fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={(d) => setCartaTragos(prev => ({...prev, ...d}))}/>
+          {/* Card 2 */}
+          <div className="w-1/2 h-full flex flex-col border border-dashed border-gray-400 print:border-none">
+             <div className="w-full flex-1">
+               <MenuComponent fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} />
+            </div>
+            <div className="w-full flex-1 transform rotate-180">
+               <MenuComponent fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} />
+            </div>
           </div>
         </div>
 
        <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Belleza&family=Dancing+Script:wght@700&display=swap');
-         @media print {
+        @media print {
             body { -webkit-print-color-adjust: exact; color-adjust: exact; }
-            @page { size: A4 portrait; margin: 0; }
+            @page { size: A4 landscape; margin: 0; }
         }
        `}</style>
     </div>

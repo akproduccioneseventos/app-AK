@@ -11,7 +11,6 @@ import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 interface MenuComponentProps {
     fiesta: FiestaEnPlanificacion;
     carta: CartaTragosData;
-    inverted?: boolean;
     onUpdate?: (newData: Partial<CartaTragosData>) => void;
     isPreview?: boolean;
 }
@@ -29,7 +28,7 @@ const BottomWave = ({ className, color }: { className: string; color: string }) 
 );
 
 
-export const MenuComponent: React.FC<MenuComponentProps> = ({ fiesta, carta, inverted, onUpdate, isPreview }) => {
+export const MenuComponent: React.FC<MenuComponentProps> = ({ fiesta, carta, onUpdate, isPreview }) => {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -55,13 +54,13 @@ export const MenuComponent: React.FC<MenuComponentProps> = ({ fiesta, carta, inv
   };
 
   return (
-    <div className={cn("w-full h-full p-0 relative overflow-hidden flex flex-col items-center", inverted && 'print:transform print:rotate-180')} style={{ backgroundColor: '#FBF8F0' }}>
+    <div className={cn("w-full h-full p-0 relative overflow-hidden flex flex-col items-center")} style={{ backgroundColor: '#FBF8F0' }}>
        {carta.backgroundImageUrl && <NextImage src={carta.backgroundImageUrl} alt="Fondo" layout="fill" objectFit="cover" className="absolute inset-0 opacity-40 z-0" data-ai-hint="paper texture"/>}
         <Wave className="top-0 z-10" color={carta.paletaColores?.primary || '#a855f7'} />
 
         <header className="w-full pt-6 px-4 flex justify-between items-center relative z-20">
           <div className="w-24 h-24 md:w-28 md:h-28 rounded-full border-4 border-white shadow-lg overflow-hidden bg-gray-200 -ml-4 mt-8 flex-shrink-0">
-            <NextImage src={carta.protagonistaFotoUrl || "https://picsum.photos/seed/quinceanera-main/300/300"} alt="Protagonista" width={128} height={128} className="object-cover w-full h-full" data-ai-hint="protagonist photo"/>
+            <NextImage src={carta.protagonistaFotoUrl || "https://picsum.photos/seed/quinceanera/300/300"} alt="Protagonista" width={128} height={128} className="object-cover w-full h-full" data-ai-hint="protagonist photo"/>
           </div>
           <div className="flex-grow text-center pl-2">
             <h2 className="text-xl" style={{...textStyle, color: carta.paletaColores?.secondary}}>CARTA DE TRAGOS</h2>
@@ -78,7 +77,7 @@ export const MenuComponent: React.FC<MenuComponentProps> = ({ fiesta, carta, inv
           </div>
         </header>
 
-        <main className="relative z-10 flex-grow grid grid-cols-5 gap-1.5 px-2 mt-4 w-full">
+        <main className="relative z-10 flex-grow grid grid-cols-5 gap-1 px-2 mt-4 w-full">
             {carta.items.map((trago) => (
                 <div key={trago.id} className="text-center">
                     <p style={drinkNameStyle} className="h-6 flex items-center justify-center">{trago.nombre}</p>
@@ -91,14 +90,16 @@ export const MenuComponent: React.FC<MenuComponentProps> = ({ fiesta, carta, inv
         
         <BottomWave className="bottom-0 z-10" color={carta.paletaColores?.primary || '#a855f7'} />
         
-        <footer className="relative z-20 w-full flex flex-col items-center justify-center pb-2 pt-12 text-white">
+        <footer className="relative z-20 w-full flex justify-between items-center pb-2 px-4 text-white">
             {logoUrl && (
                 <div className="w-16 h-12 relative">
                   <NextImage src={logoUrl} alt="Logo Empresa" layout="fill" className="object-contain" data-ai-hint="company logo"/>
                 </div>
             )}
-            {carta.empresaNombre && <p className="text-xs font-bold -mt-2" style={{textShadow: '1px 1px 2px #000'}}>{carta.empresaNombre}</p>}
-            {carta.empresaContacto && <p className="text-[10px] font-medium" style={{textShadow: '1px 1px 2px #000'}}>{carta.empresaContacto}</p>}
+            <div className="text-right">
+              {carta.empresaNombre && <p className="text-xs font-bold" style={{textShadow: '1px 1px 2px #000'}}>{carta.empresaNombre}</p>}
+              {carta.empresaContacto && <p className="text-[10px] font-medium" style={{textShadow: '1px 1px 2px #000'}}>{carta.empresaContacto}</p>}
+            </div>
         </footer>
        
         <style jsx global>{`
