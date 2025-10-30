@@ -43,7 +43,7 @@ const modules = [
   { id: 'personal', title: "Personal", href: "personal", icon: UserCheck, description: "Asigna personal al evento.", category: 'Planificación del Evento' },
   { id: 'cargaOperativa', title: "Lista de Carga Operativa", href: "carga-operativa", icon: ClipboardList, description: "Checklist de carga de materiales.", category: 'Planificación del Evento' },
 
-  // Portal del Cliente y Herramientas
+  // Portal del Cliente
   { id: 'reuniones', title: "Reuniones y Portal Cliente", href: "reuniones", icon: MessageSquare, description: "Gestiona reuniones y la experiencia del cliente.", category: 'Portal del Cliente' },
   { id: 'paginaWeb', title: "Página del Evento", href: "pagina-web", icon: Globe, description: "Personaliza la web que verán tus invitados.", category: 'Portal del Cliente' },
   { id: 'itinerario', title: "Itinerario", href: "itinerario", icon: Clock, description: "Organiza el cronograma del evento.", category: 'Portal del Cliente' },
@@ -52,7 +52,7 @@ const modules = [
   { id: 'videoVida', title: "Video de Vida", href: "video-vida", icon: Video, description: "Gestiona las fotos del cliente.", category: 'Portal del Cliente' },
   { id: 'muroSocial', title: "Muro Social", href: "/evento/social/[fiestaId]", icon: Camera, description: "Modera la galería de fotos en vivo del evento.", category: 'Portal del Cliente' },
   { id: 'feedback', title: "Feedback y Testimonios", href: "/settings/feedback", icon: Star, description: "Gestiona la opinión de tus clientes post-evento.", category: 'Portal del Cliente' },
-  { id: 'invitados', title: "Asignación de Mesas", href: "/portal/[fiestaId]/mesas", icon: Users, description: "Permite al cliente organizar sus invitados en las mesas.", category: 'Portal del Cliente' },
+  { id: 'invitados', title: "Asignación de Mesas (Cliente)", href: "/portal/[fiestaId]/mesas", icon: Users, description: "Permite al cliente organizar sus invitados en las mesas.", category: 'Portal del Cliente' },
   
   // Herramientas Adicionales
   { id: 'checkin', title: "Check-in de Invitados (QR)", href: "invitados/checkin-scanner", icon: QrCode, description: "Escanea los QR de los invitados en la entrada.", category: 'Herramientas Adicionales' },
