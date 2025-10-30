@@ -38,6 +38,7 @@ const modules = [
   
   // Planificación del Evento
   { id: 'invitados', title: "Invitados", href: "invitados", icon: Users, description: "Gestiona tu lista de invitados.", category: 'Planificación del Evento' },
+  { id: 'disenoSalon', title: "Diseño de Salón", href: "invitados/layout", icon: LayoutDashboard, description: "Organiza la distribución de tu evento.", category: 'Planificación del Evento' },
   { id: 'decoracion', title: "Decoración y Diseño", href: "decoracion", icon: Palette, description: "Define el estilo y la ambientación.", category: 'Planificación del Evento' },
   { id: 'catering', title: "Planificación Gastronómica", href: "catering", icon: Calculator, description: "Menús, repostería y bebidas.", category: 'Planificación del Evento' },
   { id: 'personal', title: "Personal", href: "personal", icon: UserCheck, description: "Asigna personal al evento.", category: 'Planificación del Evento' },
@@ -59,6 +60,7 @@ const modules = [
   { id: 'menuMesa', title: "Menú de Mesa", href: "menu-mesa", icon: Printer, description: "Diseña el menú impreso para las mesas.", category: 'Herramientas Adicionales' },
   { id: 'cartaTragos', title: "Carta de Tragos", href: "carta-tragos", icon: GlassWater, description: "Diseña la carta de tragos para la barra.", category: 'Herramientas Adicionales' },
   { id: 'muroSocial', title: "Muro Social", href: "/evento/social/[fiestaId]", icon: Camera, description: "Modera la galería de fotos en vivo del evento.", category: 'Herramientas Adicionales' },
+  { id: 'numerosMesa', title: "Números de Mesa", href: "invitados/numeros-mesa", icon: Printer, description: "Diseña y personaliza los números de mesa.", category: 'Herramientas Adicionales' },
 ];
 
 const moduleCategories = [
@@ -153,27 +155,6 @@ function PlannerDashboardContent() {
         <KpiCard title="Presupuesto" value={new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(Number(configuracion.presupuestoEstimado))} icon={DollarSign} description="Valor estimado del evento."/>
         <KpiCard title="Fecha del Evento" value={formatDate(configuracion.fechaEvento)} icon={Calendar} />
       </div>
-
-       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Link href={`/fiestas/nueva/invitados/layout?fiestaId=${fiesta.id}`} passHref>
-             <Card className="hover:shadow-md transition-shadow cursor-pointer flex items-center p-4">
-                <LayoutDashboard className="w-8 h-8 text-primary mr-4"/>
-                <div>
-                   <CardTitle className="font-headline text-lg">Diseño de Salón y Mesas</CardTitle>
-                   <CardDescription className="text-sm">Accede al diseñador para organizar la distribución de tu evento.</CardDescription>
-                </div>
-            </Card>
-          </Link>
-          <Link href={`/fiestas/nueva/invitados/numeros-mesa?fiestaId=${fiesta.id}`} passHref>
-             <Card className="hover:shadow-md transition-shadow cursor-pointer flex items-center p-4">
-                <Printer className="w-8 h-8 text-primary mr-4"/>
-                <div>
-                   <CardTitle className="font-headline text-lg">Números de Mesa para Imprimir</CardTitle>
-                   <CardDescription className="text-sm">Diseña y personaliza los números para las mesas de tus invitados.</CardDescription>
-                </div>
-            </Card>
-          </Link>
-       </div>
 
        <Accordion type="single" collapsible className="w-full">
         <AccordionItem value="item-1">
