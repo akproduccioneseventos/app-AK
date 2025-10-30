@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,9 +10,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, CompraProveedorEstado } from '@/types/fiesta';
 import { getMenuById } from '@/app/actions/menus-catering';
-import { getFiestaById, updateShoppingListStatus } from '@/app/actions/fiesta/catering.actions';
+import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { updateShoppingListStatus } from '@/app/actions/fiesta/catering.actions';
 import { useSearchParams } from 'next/navigation';
-import { Suspense } from 'react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 
@@ -32,6 +32,7 @@ const formatCurrency = (amount?: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
+
 function ListaDeComprasContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
@@ -46,7 +47,7 @@ function ListaDeComprasContent() {
   const [estadosCompra, setEstadosCompra] = useState<CompraProveedorEstado[]>([]);
   const [isSavingStatus, setIsSavingStatus] = useState<string | null>(null);
 
-  const generateShoppingList = useCallback(async (showLoading = true) => {
+  const loadData = useCallback(async (showLoading = true) => {
     if (!fiestaId) {
       setError("No se proporcionó un ID de evento.");
       setIsLoading(false);
@@ -131,8 +132,8 @@ function ListaDeComprasContent() {
             totalCostValue += itemCost;
           });
           cat.recetas?.forEach(receta => {
-            const factorEscala = invitados / (receta.porcionesBase || 1);
-            totalCostValue += (receta.costoTotalReceta || 0) * (isNaN(factorEscala) ? 0 : factorEscala);
+                 const factorEscala = invitados / (receta.porcionesBase || 1);
+                 totalCostValue += (receta.costoTotalReceta || 0) * (isNaN(factorEscala) ? 0 : factorEscala);
           });
         }
       });
@@ -149,8 +150,8 @@ function ListaDeComprasContent() {
   }, [toast, fiestaId]);
 
   useEffect(() => {
-    generateShoppingList();
-  }, [generateShoppingList]);
+    loadData();
+  }, [loadData]);
   
   const handlePrint = () => {
     window.print();
@@ -210,7 +211,7 @@ function ListaDeComprasContent() {
     return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Generando lista de compras...</p></div>;
   }
   if (error) {
-    return <div className="text-center py-10"><AlertTriangle className="w-12 h-12 mx-auto text-destructive mb-3" /><p className="font-semibold">{error}</p><Button onClick={() => generateShoppingList()} className="mt-4">Reintentar</Button></div>;
+    return <div className="text-center py-10"><AlertTriangle className="w-12 h-12 mx-auto text-destructive mb-3" /><p className="font-semibold">{error}</p><Button onClick={() => loadData()} className="mt-4">Reintentar</Button></div>;
   }
 
   return (
@@ -324,3 +325,5 @@ export default function ListaDeComprasPage() {
         </Suspense>
     );
 }
+
+    
