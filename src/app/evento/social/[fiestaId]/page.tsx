@@ -27,7 +27,7 @@ import {
   DialogClose,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Loader2, AlertTriangle, Heart, MessageCircle, Send, Upload, RefreshCw, PartyPopper, MonitorPlay, X, Trash2, Download, Share2, User as UserIcon } from 'lucide-react';
+import { Loader2, AlertTriangle, Heart, MessageCircle, Send, Upload, RefreshCw, PartyPopper, MonitorPlay, X, Trash2, Download, Share2, User as UserIcon, MessageSquare } from 'lucide-react';
 import { WatermarkedImage } from '@/components/watermarked-image';
 import {
   AlertDialog,
@@ -489,5 +489,6 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
     </div>
   );
 }
+
 
     
