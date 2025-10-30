@@ -6,13 +6,14 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Loader2, AlertTriangle, Printer, ShoppingCart, Truck, CheckCircle, PackageSearch } from 'lucide-react';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, CompraProveedorEstado } from '@/types/fiesta';
 import { getMenuById } from '@/app/actions/menus-catering';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { updateShoppingListStatus } from '@/app/actions/fiesta/catering.actions';
 import { useSearchParams } from 'next/navigation';
+import { Suspense as ReactSuspense } from 'react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 
@@ -33,7 +34,7 @@ const formatCurrency = (amount?: number) => {
 };
 
 
-function ListaDeComprasContent() {
+export default function ListaDeComprasPage() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const fiestaId = searchParams.get('fiestaId');
@@ -215,115 +216,106 @@ function ListaDeComprasContent() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 print:space-y-3">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 print:hidden">
-        <div className="flex items-center gap-3">
-          <ShoppingCart className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline">Lista de Compras Gastronómica</h1>
+    <Suspense fallback={<div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+      <div className="max-w-4xl mx-auto space-y-6 print:space-y-3">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 print:hidden">
+          <div className="flex items-center gap-3">
+            <ShoppingCart className="w-8 h-8 text-primary" />
+            <h1 className="text-3xl font-bold tracking-tight font-headline">Lista de Compras Gastronómica</h1>
+          </div>
+          <div className="flex gap-2">
+            <Button onClick={handlePrint} variant="outline"><Printer className="w-4 h-4 mr-2"/>Imprimir/PDF</Button>
+              <Link href={`/fiestas/nueva/catering?fiestaId=${fiesta?.id || ''}`} passHref>
+                  <Button><ArrowLeft className="w-4 h-4 mr-2"/>Volver a Catering</Button>
+              </Link>
+          </div>
         </div>
-        <div className="flex gap-2">
-           <Button onClick={handlePrint} variant="outline"><Printer className="w-4 h-4 mr-2"/>Imprimir/PDF</Button>
-            <Link href={`/fiestas/nueva/catering?fiestaId=${fiesta?.id || ''}`} passHref>
-                <Button><ArrowLeft className="w-4 h-4 mr-2"/>Volver a Catering</Button>
-            </Link>
+        
+        <div className="print:block hidden text-center mb-2">
+          <h1 className="text-xl font-bold">Lista de Compras - {fiesta?.configuracion.nombreEvento}</h1>
+          <p className="text-sm">Para {fiesta?.configuracion.invitadosEstimados} invitados</p>
         </div>
-      </div>
-      
-       <div className="print:block hidden text-center mb-2">
-        <h1 className="text-xl font-bold">Lista de Compras - {fiesta?.configuracion.nombreEvento}</h1>
-        <p className="text-sm">Para {fiesta?.configuracion.invitadosEstimados} invitados</p>
-      </div>
 
-      <Card className="shadow-lg print:shadow-none print:border-none">
-        <CardHeader>
-          <CardTitle>Resumen General de Compra</CardTitle>
-           <CardDescription>
-            Lista consolidada de todos los insumos necesarios, agrupados por proveedor.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {shoppingList.length === 0 ? (
-            <p className="text-muted-foreground text-center py-6">No hay ítems en la lista. Asigna un menú, repostería o bebidas en sus respectivos módulos.</p>
-          ) : (
-            <div className="space-y-8">
-              {providerNames.map((providerName) => {
-                 const { items, total } = groupedByProvider[providerName];
-                 const estadoActual = estadosCompra.find(e => e.proveedor === providerName) || { pedido: false, pagado: false };
-                 const isSavingThis = isSavingStatus === providerName;
-                 return (
-                    <div key={providerName} className="print:break-inside-avoid">
-                        <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-3 gap-2">
-                            <h3 className="font-headline text-lg text-primary flex items-center gap-2">
-                                <Truck className="w-5 h-5"/>{providerName}
-                            </h3>
-                             <div className="flex items-center gap-4 bg-muted p-2 rounded-md border text-xs print:hidden">
-                                <div className="flex items-center gap-2">
-                                    <Switch id={`pedido-${providerName}`} checked={estadoActual.pedido} onCheckedChange={(val) => handleStatusChange(providerName, 'pedido', val)} disabled={isSavingThis} />
-                                    <Label htmlFor={`pedido-${providerName}`} className="font-medium">Pedido</Label>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <Switch id={`pagado-${providerName}`} checked={estadoActual.pagado} onCheckedChange={(val) => handleStatusChange(providerName, 'pagado', val)} disabled={isSavingThis} />
-                                    <Label htmlFor={`pagado-${providerName}`} className="font-medium">Pagado</Label>
-                                </div>
-                                {isSavingThis && <Loader2 className="w-4 h-4 animate-spin"/>}
-                             </div>
-                        </div>
-                         <div className="overflow-x-auto border rounded-md">
-                            <Table className="text-sm">
-                                <TableHeader>
-                                <TableRow>
-                                    <TableHead className="font-semibold">Producto</TableHead>
-                                    <TableHead>Proveedor</TableHead>
-                                    <TableHead className="text-right">Cant. Total</TableHead>
-                                    <TableHead className="w-[100px]">Unidad</TableHead>
-                                    <TableHead className="text-right">Costo Unit. Est.</TableHead>
-                                    <TableHead className="text-right font-semibold">Costo Total Est.</TableHead>
-                                </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                {items.map(item => (
-                                    <TableRow key={item.id}>
-                                    <TableCell className="font-medium">{item.nombre}<p className="text-xs text-muted-foreground font-normal">({item.origen})</p></TableCell>
-                                    <TableCell className="text-muted-foreground">{item.proveedor}</TableCell>
-                                    <TableCell className="text-right">{typeof item.cantidadTotal === 'number' ? item.cantidadTotal.toFixed(2) : item.cantidadTotal}</TableCell>
-                                    <TableCell>{item.unidad}</TableCell>
-                                    <TableCell className="text-right">{formatCurrency(item.costoUnitario)}</TableCell>
-                                    <TableCell className="text-right font-semibold">{formatCurrency(item.costoTotal)}</TableCell>
-                                    </TableRow>
-                                ))}
-                                </TableBody>
-                                <CardFooter className="p-2 bg-muted/50">
+        <Card className="shadow-lg print:shadow-none print:border-none">
+          <CardHeader>
+            <CardTitle>Resumen General de Compra</CardTitle>
+            <CardDescription>
+              Lista consolidada de todos los insumos necesarios, agrupados por proveedor.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {shoppingList.length === 0 ? (
+              <p className="text-muted-foreground text-center py-6">No hay ítems en la lista. Asigna un menú, repostería o bebidas en sus respectivos módulos.</p>
+            ) : (
+              <div className="space-y-8">
+                {providerNames.map((providerName) => {
+                  const { items, total } = groupedByProvider[providerName];
+                  const estadoActual = estadosCompra.find(e => e.proveedor === providerName) || { pedido: false, pagado: false };
+                  const isSavingThis = isSavingStatus === providerName;
+                  return (
+                      <div key={providerName} className="print:break-inside-avoid">
+                          <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-3 gap-2">
+                              <h3 className="font-headline text-lg text-primary flex items-center gap-2">
+                                  <Truck className="w-5 h-5"/>{providerName}
+                              </h3>
+                              <div className="flex items-center gap-4 bg-muted p-2 rounded-md border text-xs print:hidden">
+                                  <div className="flex items-center gap-2">
+                                      <Switch id={`pedido-${providerName}`} checked={estadoActual.pedido} onCheckedChange={(val) => handleStatusChange(providerName, 'pedido', val)} disabled={isSavingThis} />
+                                      <Label htmlFor={`pedido-${providerName}`} className="font-medium">Pedido</Label>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                      <Switch id={`pagado-${providerName}`} checked={estadoActual.pagado} onCheckedChange={(val) => handleStatusChange(providerName, 'pagado', val)} disabled={isSavingThis} />
+                                      <Label htmlFor={`pagado-${providerName}`} className="font-medium">Pagado</Label>
+                                  </div>
+                                  {isSavingThis && <Loader2 className="w-4 h-4 animate-spin"/>}
+                              </div>
+                          </div>
+                          <div className="overflow-x-auto border rounded-md">
+                              <Table className="text-sm">
+                                  <TableHeader>
+                                  <TableRow>
+                                      <TableHead className="font-semibold">Producto</TableHead>
+                                      <TableHead>Proveedor</TableHead>
+                                      <TableHead className="text-right">Cant. Total</TableHead>
+                                      <TableHead className="w-[100px]">Unidad</TableHead>
+                                      <TableHead className="text-right">Costo Unit. Est.</TableHead>
+                                      <TableHead className="text-right font-semibold">Costo Total Est.</TableHead>
+                                  </TableRow>
+                                  </TableHeader>
+                                  <TableBody>
+                                  {items.map(item => (
+                                      <TableRow key={item.id}>
+                                      <TableCell className="font-medium">{item.nombre}<p className="text-xs text-muted-foreground font-normal">({item.origen})</p></TableCell>
+                                      <TableCell className="text-muted-foreground">{item.proveedor}</TableCell>
+                                      <TableCell className="text-right">{typeof item.cantidadTotal === 'number' ? item.cantidadTotal.toFixed(2) : item.cantidadTotal}</TableCell>
+                                      <TableCell>{item.unidad}</TableCell>
+                                      <TableCell className="text-right">{formatCurrency(item.costoUnitario)}</TableCell>
+                                      <TableCell className="text-right font-semibold">{formatCurrency(item.costoTotal)}</TableCell>
+                                      </TableRow>
+                                  ))}
+                                  </TableBody>
+                                  <TableFooter>
                                     <TableRow>
                                         <TableCell colSpan={5} className="text-right font-bold">Subtotal Proveedor:</TableCell>
                                         <TableCell className="text-right font-bold">{formatCurrency(total)}</TableCell>
                                     </TableRow>
-                                </CardFooter>
-                            </Table>
-                         </div>
-                    </div>
-                 )
-              })}
-            </div>
-          )}
-        </CardContent>
-         <CardFooter className="border-t mt-6 pt-4 flex justify-end">
-            <div className="text-right">
-                <p className="text-sm text-muted-foreground">Costo Total Estimado Gastronomía</p>
-                <p className="text-2xl font-bold text-primary">{formatCurrency(totalCost)}</p>
-            </div>
-         </CardFooter>
-      </Card>
-    </div>
+                                </TableFooter>
+                              </Table>
+                          </div>
+                      </div>
+                  )
+                })}
+              </div>
+            )}
+          </CardContent>
+          <CardFooter className="border-t mt-6 pt-4 flex justify-end">
+              <div className="text-right">
+                  <p className="text-sm text-muted-foreground">Costo Total Estimado Gastronomía</p>
+                  <p className="text-2xl font-bold text-primary">{formatCurrency(totalCost)}</p>
+              </div>
+          </CardFooter>
+        </Card>
+      </div>
+    </Suspense>
   );
 }
-
-
-export default function ListaDeComprasPage() {
-    return (
-        <Suspense fallback={<div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
-            <ListaDeComprasContent />
-        </Suspense>
-    );
-}
-
-    
