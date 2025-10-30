@@ -274,14 +274,18 @@
       "nombre": "Abuelos Maternos",
       "rsvp": "Confirmado",
       "partySize": 2,
-      "tableNumber": "Mesa Principal"
+      "tableNumber": "Mesa Principal",
+      "checkedIn": true,
+      "checkInTimestamp": "2025-10-30T23:04:33.486Z"
     },
     {
       "id": "inv_3",
       "nombre": "Abuelos Paternos",
       "rsvp": "Confirmado",
       "partySize": 2,
-      "tableNumber": "Mesa Principal"
+      "tableNumber": "Mesa Principal",
+      "checkedIn": true,
+      "checkInTimestamp": "2025-10-30T23:04:36.283Z"
     },
     {
       "id": "inv_4",
