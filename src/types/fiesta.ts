@@ -192,7 +192,7 @@ export interface DecoracionData {
   salonPlanBackgroundImageUrl?: string;
   salonElements?: LayoutElement[];
   generalNotesSalonLayout?: string;
-  layoutMode?: 'libre' | 'numerado' | 'mixto';
+  layoutMode?: 'libre' | 'mixto' | 'numerado';
   guestNameStyle?: 'full' | 'initials' | 'none';
   guestIconStyle?: 'color' | 'bw';
   layoutTemplateName?: string;

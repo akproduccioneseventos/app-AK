@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense, use } from 'react';
@@ -8,13 +7,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Disc, Clapperboard, Sofa, Camera as CameraIcon, Search, Printer, Settings2, FolderDown, FolderUp, Maximize, ZoomIn, ZoomOut, Upload, Map, ChevronsUp, ChevronsDown } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Disc, Clapperboard, Sofa, Camera as CameraIcon, Search, Printer, Settings2, FolderDown, FolderUp, Maximize, ZoomIn, ZoomOut, Upload, Map, ChevronsUp, ChevronsDown, X } from 'lucide-react';
 import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData, LayoutElementType } from '@/types/fiesta';
 import { updateInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
 import { getFiestaById, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogDescription } from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import NextImage from 'next/image';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -23,9 +23,67 @@ import { cn } from "@/lib/utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { saveSalonLayoutTemplate, getSalonLayoutTemplates, type SalonLayoutTemplate, deleteSalonLayoutTemplate } from '@/app/actions/salon-layout-templates';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
+import { DndProvider, useDrag, useDrop } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-const grid = 10;
+const GUEST_ITEM_TYPE = 'guest';
 const PIXELS_PER_METER_DEFAULT = 40;
+const grid = 10;
+
+interface GuestDragItem {
+  id: string;
+}
+
+interface GuestCardProps {
+  guest: Invitado;
+}
+
+const GuestCard: React.FC<GuestCardProps> = ({ guest }) => {
+  const [{ isDragging }, drag] = useDrag(() => ({
+    type: GUEST_ITEM_TYPE,
+    item: { id: guest.id } as GuestDragItem,
+    collect: (monitor) => ({
+      isDragging: !!monitor.isDragging(),
+    }),
+  }));
+
+  return (
+    <div
+      ref={drag}
+      className={cn(
+        "p-2 border rounded-md bg-background shadow-sm cursor-grab",
+        isDragging && "opacity-50"
+      )}
+    >
+      <p className="font-medium text-sm truncate">{guest.nombre}</p>
+      <p className="text-xs text-muted-foreground">{guest.partySize || 1} persona(s)</p>
+    </div>
+  );
+};
+
+interface TableDropZoneProps {
+    element: LayoutElement;
+    onDrop: (guestId: string, tableName: string) => void;
+    children: React.ReactNode;
+}
+
+const TableDropZone: React.FC<TableDropZoneProps> = ({ element, onDrop, children }) => {
+  const [{ isOver }, drop] = useDrop(() => ({
+    accept: GUEST_ITEM_TYPE,
+    drop: (item: GuestDragItem) => onDrop(item.id, element.name),
+    collect: (monitor) => ({
+      isOver: !!monitor.isOver(),
+    }),
+  }));
+
+  return (
+    <div ref={drop} className={cn("absolute", isOver && "ring-2 ring-offset-2 ring-primary rounded-md")}>
+        {children}
+    </div>
+  );
+};
 
 const ElementIcon: React.FC<{ category?: string, type?: LayoutElementType }> = ({ category, type }) => {
     if (type === 'area') return <Map className="w-4 h-4 text-muted-foreground"/>;
@@ -39,6 +97,7 @@ const ElementIcon: React.FC<{ category?: string, type?: LayoutElementType }> = (
         default: return <LayoutDashboard className="w-4 h-4 text-muted-foreground"/>;
     }
 };
+
 
 function SalonLayoutContent() {
   const { toast } = useToast();
@@ -67,7 +126,7 @@ function SalonLayoutContent() {
   const [processingPointName, setProcessingPointName] = useState<string | null>(null);
 
   
-  const canvasRef = useRef<HTMLDivElement>(null);
+  const canvasRef = React.useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [guestSearchTerm, setGuestSearchTerm] = useState('');
@@ -303,28 +362,35 @@ function SalonLayoutContent() {
     }
   };
 
-  const invitadosSinMesa = useMemo(() => {
-    if (!fiesta) return [];
-    return (fiesta.invitados || [])
-      .filter(inv => !inv.tableNumber && (inv.rsvp === 'Confirmado' || inv.rsvp === 'Pendiente') && inv.nombre.toLowerCase().includes(guestSearchTerm.toLowerCase()))
-      .sort((a, b) => a.nombre.localeCompare(b.nombre));
-  }, [fiesta, guestSearchTerm]);
+  const filteredGuests = useMemo(() => {
+    if (!fiesta?.invitados) return { conMesa: [], sinMesa: [] };
+    
+    const lowerCaseSearch = guestSearchTerm.toLowerCase();
+    const guestsToConsider = fiesta.invitados.filter(g => g.rsvp === 'Confirmado' || g.rsvp === 'Pendiente');
+
+    const conMesa = guestsToConsider
+      .filter(g => g.tableNumber && g.nombre.toLowerCase().includes(lowerCaseSearch))
+      .sort((a,b) => (a.tableNumber || '').localeCompare(b.tableNumber || ''));
+      
+    const sinMesa = guestsToConsider
+      .filter(g => !g.tableNumber && g.nombre.toLowerCase().includes(lowerCaseSearch))
+      .sort((a,b) => a.nombre.localeCompare(b.nombre));
+
+    return { conMesa, sinMesa };
+  }, [fiesta?.invitados, guestSearchTerm]);
   
 
-  if (isLoading) return <div className="flex items-center justify-center p-8"><Loader2 className="w-8 h-8 animate-spin" /></div>;
-  if (error) return <div className="text-destructive text-center p-4">{error}</div>;
-  if (!decoracion || !fiesta) return null;
+  if (isLoading || !fiestaId) return <div className="flex items-center justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>
+  if (error || !decoracion || !fiesta) return <div className="text-destructive text-center p-4">{error}</div>
   
   const pixelsPerMeter = decoracion.pixelsPerMeter || PIXELS_PER_METER_DEFAULT;
 
   return (
     <div className="space-y-6">
       {/* Modals */}
-      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
         <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Editar Elemento: {editingElement?.name}</DialogTitle>
-          </DialogHeader>
+          <DialogHeader><DialogTitle>Editar Elemento: {editingElement?.name}</DialogTitle></DialogHeader>
           {editingElement && (
             <div className="space-y-4">
               <div className="space-y-1">
@@ -408,12 +474,23 @@ function SalonLayoutContent() {
         </DialogContent>
       </Dialog>
        
-       <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 h-[calc(100vh-250px)]">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 h-[calc(100vh-250px)]">
         {/* Left Panel */}
         <Card className="xl:col-span-3 flex flex-col"><CardHeader><CardTitle>Controles</CardTitle></CardHeader>
           <CardContent className="flex-grow space-y-4 overflow-y-auto pr-4 -mr-4">
              <div className="grid grid-cols-2 gap-3"><div className="space-y-1"><Label>Ancho Salón (m)</Label><Input type="number" value={decoracion.salonWidth || 15} onChange={e => setDecoracion(d => d ? {...d, salonWidth: Number(e.target.value)} : null)} /></div><div className="space-y-1"><Label>Alto Salón (m)</Label><Input type="number" value={decoracion.salonHeight || 15} onChange={e => setDecoracion(d => d ? {...d, salonHeight: Number(e.target.value)} : null)} /></div></div>
              <div className="space-y-1"><Label>Píxeles por Metro</Label><Input type="number" value={decoracion.pixelsPerMeter || PIXELS_PER_METER_DEFAULT} onChange={e => setDecoracion(d => d ? {...d, pixelsPerMeter: Number(e.target.value)} : null)} /></div>
+             <div className="space-y-2">
+                <Label htmlFor="layout-mode">Modo de Asignación</Label>
+                <Select value={decoracion.layoutMode || 'mixto'} onValueChange={v => setDecoracion(d => d ? {...d, layoutMode: v as any} : null)}>
+                    <SelectTrigger><SelectValue/></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="libre">Libre (Sin asignación)</SelectItem>
+                        <SelectItem value="mixto">Mixto (Algunos asignados, otros libres)</SelectItem>
+                        <SelectItem value="numerado">Numerado (Todos asignados)</SelectItem>
+                    </SelectContent>
+                </Select>
+             </div>
              <Separator/>
                <h4 className="font-medium text-sm">Añadir Elementos</h4>
                <div className="grid grid-cols-2 gap-2"><Button variant="outline" onClick={() => addElement('Mesa Redonda')}><Circle className="w-4 h-4 mr-2"/>Mesa Redonda</Button><Button variant="outline" onClick={() => addElement('Mesa Rectangular')}><Square className="w-4 h-4 mr-2"/>Mesa Rectangular</Button><Button variant="outline" onClick={() => addElement('Pista de Baile')}><Disc className="w-4 h-4 mr-2"/>Pista</Button><Button variant="outline" onClick={() => addElement('Escenario')}><Clapperboard className="w-4 h-4 mr-2"/>Escenario</Button><Button variant="outline" onClick={() => addElement('Living')}><Sofa className="w-4 h-4 mr-2"/>Living</Button><Button variant="outline" onClick={() => addElement('Área de Fotos')}><CameraIcon className="w-4 h-4 mr-2"/>Área Fotos</Button></div>
@@ -436,38 +513,34 @@ function SalonLayoutContent() {
             <CardHeader className="flex-row justify-between items-center"><CardTitle>Lienzo del Salón</CardTitle><div className="flex items-center gap-1"><Button size="icon" variant="outline" onClick={() => setScale(s => s / 1.2)}><ZoomOut className="w-4 h-4"/></Button><Button size="icon" variant="outline" onClick={() => setScale(s => s * 1.2)}><ZoomIn className="w-4 h-4"/></Button><Button size="icon" variant="outline" onClick={() => setIsFullScreen(!isFullScreen)}><Maximize className="w-4 h-4"/></Button></div></CardHeader>
             <CardContent className="flex-grow p-1 overflow-auto">
               <div ref={canvasRef} className="relative canvas-grid-background" style={{ width: `${(decoracion.salonWidth || 15) * pixelsPerMeter}px`, height: `${(decoracion.salonHeight || 15) * pixelsPerMeter}px`, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
-                  {decoracion.salonPlanBackgroundImageUrl && (<NextImage src={decoracion.salonPlanBackgroundImageUrl} alt="Plano del Salón" layout="fill" objectFit="contain" className="opacity-50" data-ai-hint="event floor plan"/>)}
-                  {(decoracion.salonElements || []).sort((a,b) => {
-                      const zA = a.type === 'area' ? -1 : (a.zIndex || 0);
-                      const zB = b.type === 'area' ? -1 : (b.zIndex || 0);
-                      return zA - zB;
-                  }).map(el => {
+                  {decoracion.salonPlanBackgroundImageUrl && (<NextImage src={decoracion.salonPlanBackgroundImageUrl} alt="Plano del Salón" layout="fill" objectFit="contain" className="opacity-50"/>)}
+                  {(decoracion.salonElements || []).sort((a,b) => (a.zIndex || 0) - (b.zIndex || 0)).map(el => {
                     const nodeRef = React.createRef<HTMLDivElement>();
                     const isRound = el.shape === 'circle';
                     const assignedGuests = (fiesta?.invitados || []).filter(inv => inv.tableNumber === el.name);
                     const isArea = el.type === 'area';
                     return (
                     <Draggable key={el.id} nodeRef={nodeRef} bounds="parent" grid={[grid, grid]} position={{ x: el.x, y: el.y }} onStop={(e, data) => handleDragStop(e, data, el.id)}>
+                        <TableDropZone element={el} onDrop={(guestId, tableName) => handleAssignGuestToTable(guestId, tableName)}>
                         <div ref={nodeRef} id={el.id} className="absolute cursor-grab active:cursor-grabbing" style={{ left: el.x, top: el.y, width: el.width, height: el.height, transform: `rotate(${el.rotation}deg)`, zIndex: el.zIndex || (isArea ? 0 : 1) }}>
-                           <div className={cn('w-full h-full border flex items-center justify-center font-bold p-1 relative', selectedElementId === el.id ? 'border-primary shadow-lg z-10' : 'border-gray-500', isRound ? 'rounded-full' : 'rounded-sm')}
+                           <div className={cn('w-full h-full border flex flex-col p-1', selectedElementId === el.id ? 'border-primary shadow-lg z-10' : 'border-gray-500', isRound ? 'rounded-full justify-center' : 'rounded-sm')}
                                 style={{ backgroundColor: el.backgroundColor || (isArea ? 'rgba(59, 130, 246, 0.2)' : 'rgba(255, 255, 255, 0.7)') }}
                                 onClick={(e) => { e.stopPropagation(); setSelectedElementId(el.id); }}>
-                                <span className={cn("text-center truncate", isArea ? 'text-blue-800' : 'text-base')}>{el.name}</span>
-                                {isRound && el.seats && Array.from({length: el.seats}).map((_, i) => {
-                                    const angle = (i / el.seats!) * 2 * Math.PI;
-                                    const radius = (Math.min(el.width, el.height) / 2) + 12;
-                                    const seatX = radius * Math.cos(angle) + (el.width/2);
-                                    const seatY = radius * Math.sin(angle) + (el.height/2);
-                                    const guest = assignedGuests[i];
-                                    return (
-                                        <div key={i} style={{left: `${seatX-10}px`, top: `${seatY-10}px`}} className="absolute w-5 h-5 rounded-full border border-dashed border-gray-400 bg-white/90 flex items-center justify-center text-xs">
-                                          {guest ? <span className="truncate text-blue-600 font-medium" title={guest.nombre}>{guest.nombre.charAt(0)}</span> : <span className="text-gray-400 text-[9px]">{i+1}</span>}
+                                <p className={cn("text-xs font-bold text-center truncate", isArea ? 'text-blue-800' : 'text-base')}>{el.name}</p>
+                                <div className="text-[9px] space-y-0.5 overflow-y-auto flex-grow">
+                                    {assignedGuests.map(g => (
+                                        <div key={g.id} className="flex items-center gap-1 group relative">
+                                            <span className="truncate">{g.nombre}</span>
+                                            <button onClick={() => handleUnassignGuest(g.id)} className="hidden group-hover:block text-destructive">
+                                                <X className="w-3 h-3"/>
+                                            </button>
                                         </div>
-                                    )
-                                })}
+                                    ))}
+                                </div>
                             </div>
                             {selectedElementId === el.id && (<div className="absolute -top-7 -right-2 flex gap-0.5 z-20" style={{transform: `rotate(-${el.rotation || 0}deg)`}}><Button type="button" variant="ghost" size="icon" className="h-6 w-6 bg-white" onClick={() => handleOpenEditModal(el)}><Edit className="w-3 h-3"/></Button><Button type="button" variant="ghost" size="icon" className="h-6 w-6 bg-white" onClick={() => handleElementRotation(el.id)}><RotateCw className="w-3 h-3"/></Button><Button type="button" variant="ghost" size="icon" className="h-6 w-6 text-destructive bg-white" onClick={() => handleDeleteElement(el.id)}><Trash2 className="w-3 h-3"/></Button></div>)}
                         </div>
+                        </TableDropZone>
                     </Draggable>
                     )
                   })}
@@ -480,10 +553,13 @@ function SalonLayoutContent() {
   );
 }
 
+
 export default function SalonLayoutPage() {
     return (
-        <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>}>
-            <SalonLayoutContent/>
-        </Suspense>
-    )
+        <DndProvider backend={HTML5Backend}>
+            <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>}>
+                <SalonLayoutContent />
+            </Suspense>
+        </DndProvider>
+    );
 }

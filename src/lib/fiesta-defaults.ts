@@ -1,4 +1,5 @@
 
+
 import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, GiftItem, LayoutElement, ClientTarea, ProgramaEventoItem, TareaAsignadaA, FotografiaYFilmacionData, BebidasConsumoConfig, TipoAsistente, ReposteriaConsumoConfig, OtroDocumento, VideoVidaData, BebidaReceta, IngredienteReceta, CargaOperativaCategoria, InvitacionDigitalData, SeccionInvitacion, CartaTragosData, MenuMesaData, ModulosContratados, NumerosMesaData, Trago } from '@/types/fiesta';
 import { defaultInvitacionDigitalData } from './invitacion-digital-defaults';
 
@@ -46,9 +47,9 @@ export const defaultMenuMesaData: MenuMesaData = {
   postres: 'Torta principal\nFuente de chocolate',
   bebidas: 'Barra de tragos, cerveza y Refrescos',
   empresa: {
-      linea1: 'AK PRODUCCIONES',
-      linea2: 'Servicio de fiestas integral\nTodos los servicios-un solo lugar',
-      contacto: '098 355 530'
+    linea1: 'AK PRODUCCIONES',
+    linea2: 'Servicio de fiestas integral\nTodos los servicios-un solo lugar',
+    contacto: '098 355 530'
   }
 };
 
@@ -148,7 +149,7 @@ export const defaultDecoracion: DecoracionData = {
   salonPlanBackgroundImageUrl: '',
   salonElements: [],
   generalNotesSalonLayout: 'Disposición estándar del salón, ajustar según necesidad.',
-  layoutMode: 'libre',
+  layoutMode: 'mixto',
   guestNameStyle: 'full',
   guestIconStyle: 'color',
   layoutTemplateName: '',
