@@ -1,4 +1,3 @@
-
 {
   "id": "fiesta_1761518911463_a2c0rmc",
   "configuracion": {
@@ -564,33 +563,103 @@
       "accent": "#facc15"
     },
     "items": [
-        { "id": "trago_1", "nombre": "DAIQUIRI DE DURAZNO", "imageUrl": "https://picsum.photos/seed/peach-daiquiri/400/600", "aiHint": "peach daiquiri" },
-        { "id": "trago_2", "nombre": "CAIPIRINHA", "imageUrl": "https://picsum.photos/seed/caipirinha/400/600", "aiHint": "caipirinha cocktail" },
-        { "id": "trago_3", "nombre": "ARIZONA", "imageUrl": "https://picsum.photos/seed/arizona-cocktail/400/600", "aiHint": "arizona cocktail" },
-        { "id": "trago_4", "nombre": "DAIQUIRI DE ANANA", "imageUrl": "https://picsum.photos/seed/pineapple-daiquiri/400/600", "aiHint": "pineapple daiquiri" },
-        { "id": "trago_5", "nombre": "DAIQUIRI DE FRUTILLA", "imageUrl": "https://picsum.photos/seed/strawberry-daiquiri/400/600", "aiHint": "strawberry daiquiri" },
-        { "id": "trago_6", "nombre": "ATOMIC GREEN", "imageUrl": "https://picsum.photos/seed/atomic-green/400/600", "aiHint": "atomic green cocktail" },
-        { "id": "trago_7", "nombre": "DAIQUIRI PRIMAVERA", "imageUrl": "https://picsum.photos/seed/spring-daiquiri/400/600", "aiHint": "spring daiquiri" },
-        { "id": "trago_8", "nombre": "FERNET CON COCA", "imageUrl": "https://picsum.photos/seed/fernet-coke/400/600", "aiHint": "fernet with coke" },
-        { "id": "trago_9", "nombre": "ATARDECER", "imageUrl": "https://picsum.photos/seed/sunset-cocktail/400/600", "aiHint": "sunset cocktail" },
-        { "id": "trago_10", "nombre": "DESTORNILLADOR", "imageUrl": "https://picsum.photos/seed/screwdriver/400/600", "aiHint": "screwdriver cocktail" }
+      {
+        "id": "trago_1",
+        "nombre": "DAIQUIRI DE DURAZNO",
+        "imageUrl": "https://picsum.photos/seed/peach-daiquiri/400/600",
+        "aiHint": "peach daiquiri"
+      },
+      {
+        "id": "trago_2",
+        "nombre": "CAIPIRINHA",
+        "imageUrl": "https://picsum.photos/seed/caipirinha/400/600",
+        "aiHint": "caipirinha cocktail"
+      },
+      {
+        "id": "trago_3",
+        "nombre": "ARIZONA",
+        "imageUrl": "https://picsum.photos/seed/arizona-cocktail/400/600",
+        "aiHint": "arizona cocktail"
+      },
+      {
+        "id": "trago_4",
+        "nombre": "DAIQUIRI DE ANANA",
+        "imageUrl": "https://picsum.photos/seed/pineapple-daiquiri/400/600",
+        "aiHint": "pineapple daiquiri"
+      },
+      {
+        "id": "trago_5",
+        "nombre": "DAIQUIRI DE FRUTILLA",
+        "imageUrl": "https://picsum.photos/seed/strawberry-daiquiri/400/600",
+        "aiHint": "strawberry daiquiri"
+      },
+      {
+        "id": "trago_6",
+        "nombre": "ATOMIC GREEN",
+        "imageUrl": "https://picsum.photos/seed/atomic-green/400/600",
+        "aiHint": "atomic green cocktail"
+      },
+      {
+        "id": "trago_7",
+        "nombre": "DAIQUIRI PRIMAVERA",
+        "imageUrl": "https://picsum.photos/seed/spring-daiquiri/400/600",
+        "aiHint": "spring daiquiri"
+      },
+      {
+        "id": "trago_8",
+        "nombre": "FERNET CON COCA",
+        "imageUrl": "https://picsum.photos/seed/fernet-coke/400/600",
+        "aiHint": "fernet with coke"
+      },
+      {
+        "id": "trago_9",
+        "nombre": "ATARDECER",
+        "imageUrl": "https://picsum.photos/seed/sunset-cocktail/400/600",
+        "aiHint": "sunset cocktail"
+      },
+      {
+        "id": "trago_10",
+        "nombre": "DESTORNILLADOR",
+        "imageUrl": "https://picsum.photos/seed/screwdriver/400/600",
+        "aiHint": "screwdriver cocktail"
+      }
     ]
   },
   "menuMesa": {
-     "protagonistaFotoUrl": "https://picsum.photos/seed/quinceanera-main/300/300",
+    "protagonistaFotoUrl": "https://picsum.photos/seed/quinceanera-main/300/300",
     "paletaColores": {
       "primary": "#9333ea",
       "secondary": "#363636",
       "accent": "#facc15"
     },
     "items": [
-      { "id": "plato_1", "nombre": "Entrada Ligera", "imageUrl": "https://picsum.photos/seed/light-appetizer/400/600", "aiHint": "light appetizer" },
-      { "id": "plato_2", "nombre": "Sopa Cremosa", "imageUrl": "https://picsum.photos/seed/cream-soup/400/600", "aiHint": "cream soup" },
-      { "id": "plato_3", "nombre": "Plato Principal", "imageUrl": "https://picsum.photos/seed/main-course/400/600", "aiHint": "main course" },
-      { "id": "plato_4", "nombre": "Postre", "imageUrl": "https://picsum.photos/seed/dessert/400/600", "aiHint": "dessert" }
+      {
+        "id": "plato_1",
+        "nombre": "Entrada Ligera",
+        "imageUrl": "https://picsum.photos/seed/light-appetizer/400/600",
+        "aiHint": "light appetizer"
+      },
+      {
+        "id": "plato_2",
+        "nombre": "Sopa Cremosa",
+        "imageUrl": "https://picsum.photos/seed/cream-soup/400/600",
+        "aiHint": "cream soup"
+      },
+      {
+        "id": "plato_3",
+        "nombre": "Plato Principal",
+        "imageUrl": "https://picsum.photos/seed/main-course/400/600",
+        "aiHint": "main course"
+      },
+      {
+        "id": "plato_4",
+        "nombre": "Postre",
+        "imageUrl": "https://picsum.photos/seed/dessert/400/600",
+        "aiHint": "dessert"
+      }
     ]
   },
-   "numerosMesa": {
+  "numerosMesa": {
     "protagonistaNombre": "Sofía",
     "fechaEvento": "22/11/2025",
     "backgroundImageUrl": "https://picsum.photos/seed/floral-background/800/400",
@@ -718,5 +787,31 @@
         "text": "Con cariño, Sofía"
       }
     }
+  },
+  "modulosContratados": {
+    "tareas": true,
+    "invitados": true,
+    "paginaWeb": true,
+    "decoracion": true,
+    "catering": true,
+    "musica": true,
+    "personal": true,
+    "itinerario": true,
+    "documentos": true,
+    "costos": true,
+    "cargaOperativa": true,
+    "fotografia": true,
+    "videoVida": true,
+    "reuniones": true,
+    "muroSocial": true,
+    "regalos": true,
+    "feedback": true,
+    "menuMesa": true,
+    "cartaTragos": true,
+    "checkin": true,
+    "resumenImprimible": true,
+    "configuracion": true,
+    "disenoSalon": true,
+    "listaCompras": true
   }
 }

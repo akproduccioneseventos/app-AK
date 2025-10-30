@@ -194,26 +194,37 @@ function PlannerDashboardContent() {
           <CardTitle className="font-headline text-2xl">Módulos del Planificador</CardTitle>
           <CardDescription>Accede a las diferentes secciones para organizar cada detalle de tu evento.</CardDescription>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {modules.map(module => {
-            if (!modulosContratados[module.id]) return null;
-            const hrefWithId = module.href.startsWith('/') 
-                ? module.href.replace('[fiestaId]', fiesta.id)
-                : `/fiestas/nueva/${module.href}?fiestaId=${fiesta.id}`;
+        <CardContent className="space-y-6">
+          {moduleCategories.map(category => {
+            const categoryModules = modules.filter(m => m.category === category && modulosContratados[m.id]);
+            if (categoryModules.length === 0) return null;
+
             return (
-              <Link key={module.href} href={hrefWithId} passHref>
-                <Card className="h-full hover:shadow-lg hover:border-primary/50 transition-all cursor-pointer flex flex-col">
-                  <CardHeader className="flex-row items-center gap-3 space-y-0 pb-2">
-                    <div className="p-2 bg-primary/10 rounded-md"><module.icon className="w-5 h-5 text-primary" /></div>
-                    <CardTitle className="text-base font-semibold">{module.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="flex-grow pt-0">
-                    <p className="text-xs text-muted-foreground">{module.description}</p>
-                  </CardContent>
-                </Card>
-              </Link>
-            )
-           })}
+              <div key={category}>
+                <h3 className="text-lg font-semibold mb-3 font-headline">{category}</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {categoryModules.map(module => {
+                    const hrefWithId = module.href.startsWith('/') 
+                        ? module.href.replace('[fiestaId]', fiesta.id)
+                        : `/fiestas/nueva/${module.href}?fiestaId=${fiesta.id}`;
+                    return (
+                      <Link key={module.href} href={hrefWithId} passHref>
+                        <Card className="h-full hover:shadow-lg hover:border-primary/50 transition-all cursor-pointer flex flex-col">
+                          <CardHeader className="flex-row items-center gap-3 space-y-0 pb-2">
+                            <div className="p-2 bg-primary/10 rounded-md"><module.icon className="w-5 h-5 text-primary" /></div>
+                            <CardTitle className="text-base font-semibold">{module.title}</CardTitle>
+                          </CardHeader>
+                          <CardContent className="flex-grow pt-0">
+                            <p className="text-xs text-muted-foreground">{module.description}</p>
+                          </CardContent>
+                        </Card>
+                      </Link>
+                    )
+                  })}
+                </div>
+              </div>
+            );
+          })}
         </CardContent>
       </Card>
     </div>
