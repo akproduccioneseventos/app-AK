@@ -19,7 +19,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
-
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const GUEST_ITEM_TYPE = 'guest';
 
@@ -53,7 +53,6 @@ const GuestCard: React.FC<GuestCardProps> = ({ guest }) => {
     </div>
   );
 };
-
 
 interface TableDropZoneProps {
     element: LayoutElement;
@@ -202,10 +201,23 @@ function AsignacionMesasContent() {
         </TabsContent>
         <TabsContent value="visual">
              <div className="grid grid-cols-12 gap-4 h-[calc(100vh-300px)]">
-                 <Card className="col-span-3"><CardHeader><CardTitle>Invitados sin Mesa</CardTitle></CardHeader><CardContent className="space-y-2">
-                    {filteredGuests.sinMesa.map(guest => <GuestCard key={guest.id} guest={guest} />)}
-                </CardContent></Card>
-                <div className="col-span-9 bg-card p-2 overflow-auto border rounded-md">
+                 <Card className="col-span-12 md:col-span-3 flex flex-col">
+                    <CardHeader>
+                        <CardTitle>Invitados sin Mesa</CardTitle>
+                        <div className="relative pt-2">
+                           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                           <Input placeholder="Buscar..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10"/>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="flex-grow min-h-0">
+                      <ScrollArea className="h-full">
+                        <div className="space-y-2 pr-4">
+                            {filteredGuests.sinMesa.map(guest => <GuestCard key={guest.id} guest={guest} />)}
+                        </div>
+                      </ScrollArea>
+                    </CardContent>
+                 </Card>
+                <div className="col-span-12 md:col-span-9 bg-card p-2 overflow-auto border rounded-md">
                      <div className="relative canvas-grid-background" style={{ width: `${(decoracion?.salonWidth || 15) * pixelsPerMeter}px`, height: `${(decoracion?.salonHeight || 15) * pixelsPerMeter}px` }}>
                         {decoracion?.salonPlanBackgroundImageUrl && (<NextImage src={decoracion.salonPlanBackgroundImageUrl} alt="Plano del Salón" layout="fill" objectFit="contain" className="opacity-50"/>)}
                         {(decoracion?.salonElements || []).map(element => {
@@ -219,7 +231,9 @@ function AsignacionMesasContent() {
                                             {assignedGuests.map(g => (
                                                 <div key={g.id} className="flex items-center gap-1 group relative">
                                                     <span className="truncate">{g.nombre}</span>
-                                                    <button onClick={() => handleTableAssignment(g.id, undefined)} className="hidden group-hover:block text-destructive">x</button>
+                                                    <button onClick={() => handleTableAssignment(g.id, undefined)} className="hidden group-hover:block text-destructive">
+                                                        <X className="w-3 h-3"/>
+                                                    </button>
                                                 </div>
                                             ))}
                                         </div>
@@ -247,3 +261,5 @@ export default function PortalMesasPage() {
         </DndProvider>
     );
 }
+
+    
