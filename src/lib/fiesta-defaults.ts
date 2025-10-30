@@ -19,9 +19,9 @@ export const defaultStaticTragos: Trago[] = [
 export const defaultCartaTragosData: CartaTragosData = {
     protagonistaNombre: "Luciana",
     numeroPrincipal: "Mis XV",
-    protagonistaFotoUrl: "https://picsum.photos/seed/quinceanera/300/300",
+    protagonistaFotoUrl: "https://i.imgur.com/sC3a3gM.png",
     backgroundImageUrl: "https://i.imgur.com/FwIe1tY.jpeg",
-    paletaColores: { primary: '#a855f7', secondary: '#f0e68c', accent: '#ffffff' },
+    paletaColores: { primary: '#9333ea', secondary: '#363636', accent: '#ffffff' },
     backgroundColor: '#FBF8F0',
     items: defaultStaticTragos,
     empresaNombre: 'AK PRODUCCIONES',

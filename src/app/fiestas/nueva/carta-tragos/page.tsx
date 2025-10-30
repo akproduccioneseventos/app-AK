@@ -3,18 +3,20 @@
 
 import React, { useState, useEffect, useCallback, Suspense, type ChangeEvent } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import NextImage from 'next/image';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer as PrinterIcon, Save, Loader2, Upload, Edit, Trash2 } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, Share2, Edit, Upload, Loader2, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, CartaTragosData, Trago } from '@/types/fiesta';
 import { getFiestaById, updateCartaTragos as updateCartaTragosAction } from '@/app/actions/fiesta/fiesta.actions';
+import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import { defaultCartaTragosData } from '@/lib/fiesta-defaults';
-import { MenuComponent } from '@/components/invitacion/templates/CartaTragosMenu';
 import { Separator } from '@/components/ui/separator';
+import { MenuComponent } from '@/components/invitacion/templates/CartaTragosMenu';
 
 function CartaTragosContent() {
   const { toast } = useToast();
@@ -28,7 +30,7 @@ function CartaTragosContent() {
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const loadData = useCallback(async () => {
     if (!fiestaId) return;
     setIsLoading(true);
@@ -39,6 +41,7 @@ function CartaTragosContent() {
       
       const mergedData = { ...defaultCartaTragosData, ...(fiestaData.cartaTragos || {}) };
       
+      // Auto-fill from event config if fields are empty
       if (!mergedData.protagonistaNombre) {
         mergedData.protagonistaNombre = fiestaData.configuracion.protagonista1Nombre || 'La Agasajada';
       }
@@ -57,7 +60,7 @@ function CartaTragosContent() {
 
   useEffect(() => {
     loadData();
-  }, [fiestaId, loadData]);
+  }, [fiestaId]);
 
   const handleUpdate = (field: keyof CartaTragosData, value: string | Partial<CartaTragosData['paletaColores']>) => {
     setCartaTragos(prev => ({ ...prev, [field]: value }));
@@ -71,7 +74,6 @@ function CartaTragosContent() {
         handleUpdate('paletaColores', { ...paleta, [colorType]: value });
     }
   };
-
 
   const handleProtagonistPhotoUpload = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -111,7 +113,6 @@ function CartaTragosContent() {
     }
   };
 
-
   const handleSave = async () => {
     if (!fiestaId) return;
     setIsSaving(true);
@@ -143,10 +144,11 @@ function CartaTragosContent() {
         <div className="py-2 px-4 print:hidden flex flex-col md:flex-row justify-between items-center gap-4 bg-white shadow-sm sticky top-0 z-50">
             <h1 className="font-headline text-lg">Editor de Carta de Tragos</h1>
             <div className="flex flex-wrap gap-2 items-center">
-                <div className="space-y-1"><Label htmlFor="bg-image-upload" className="text-xs">Imagen Fondo</Label><Input id="bg-image-upload" type="file" accept="image/*" onChange={handleBackgroundImageUpload} className="text-xs w-44" disabled={isUploading}/></div>
-                <div className="space-y-1"><Label className="text-xs">Fondo</Label><Input type="color" value={cartaTragos.backgroundColor || '#FBF8F0'} onChange={e => handleColorChange('background', e.target.value)} className="w-9 h-8 p-0.5"/></div>
-                <div className="space-y-1"><Label className="text-xs">Color Onda</Label><Input type="color" value={cartaTragos.paletaColores?.primary || '#9333ea'} onChange={e => handleColorChange('primary', e.target.value)} className="w-9 h-8 p-0.5"/></div>
-                <div className="space-y-1"><Label className="text-xs">Color Texto</Label><Input type="color" value={cartaTragos.paletaColores?.secondary || '#363636'} onChange={e => handleColorChange('secondary', e.target.value)} className="w-9 h-8 p-0.5"/></div>
+                <div className="space-y-1"><Label htmlFor="protagonista-foto" className="text-xs">Foto Protagonista</Label><Input id="protagonista-foto" type="file" accept="image/*" onChange={handleProtagonistPhotoUpload} className="text-xs w-44" disabled={isUploading}/></div>
+                <div className="space-y-1"><Label htmlFor="bg-image-upload" className="text-xs">Fondo</Label><Input id="bg-image-upload" type="file" accept="image/*" onChange={handleBackgroundImageUpload} className="text-xs w-44" disabled={isUploading}/></div>
+                <div className="space-y-1"><Label className="text-xs">Fondo Principal</Label><Input type="color" value={cartaTragos.backgroundColor || '#FBF8F0'} onChange={e => handleColorChange('background', e.target.value)} className="w-9 h-8 p-0.5"/></div>
+                <div className="space-y-1"><Label className="text-xs">Color Primario</Label><Input type="color" value={cartaTragos.paletaColores?.primary || '#9333ea'} onChange={e => handleColorChange('primary', e.target.value)} className="w-9 h-8 p-0.5"/></div>
+                <div className="space-y-1"><Label className="text-xs">Color Secundario</Label><Input type="color" value={cartaTragos.paletaColores?.secondary || '#363636'} onChange={e => handleColorChange('secondary', e.target.value)} className="w-9 h-8 p-0.5"/></div>
                 <div className="space-y-1"><Label className="text-xs">Título</Label><Input value={cartaTragos.numeroPrincipal || ''} onChange={e => handleUpdate('numeroPrincipal', e.target.value)} className="h-8 w-16"/></div>
                 <div className="space-y-1"><Label className="text-xs">Nombre</Label><Input value={cartaTragos.protagonistaNombre || ''} onChange={e => handleUpdate('protagonistaNombre', e.target.value)} className="h-8 w-28"/></div>
                <Separator orientation="vertical" className="h-10 mx-1"/>
@@ -158,12 +160,14 @@ function CartaTragosContent() {
             </div>
         </div>
         
-        <div className="w-[21cm] h-[29.7cm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto p-4 grid grid-cols-2 gap-4">
-            <div className="border border-dashed border-gray-400 print:border-none">
-                 <MenuComponent fiesta={fiesta} carta={cartaTragos} onUpdate={setCartaTragos} isPreview={true} />
-            </div>
-             <div className="border border-dashed border-gray-400 print:border-none">
-                 <MenuComponent fiesta={fiesta} carta={cartaTragos} onUpdate={setCartaTragos} isPreview={true} />
+        <div className="w-[210mm] h-[297mm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto p-4 flex flex-col">
+            <div className="flex-1 grid grid-cols-2 gap-4">
+                <div className="border-4 border-dashed border-gray-300 print:border-none p-2">
+                    <MenuComponent fiesta={fiesta} carta={cartaTragos} isPreview={true} />
+                </div>
+                 <div className="border-4 border-dashed border-gray-300 print:border-none p-2">
+                    <MenuComponent fiesta={fiesta} carta={cartaTragos} isPreview={true} />
+                </div>
             </div>
         </div>
 
@@ -172,6 +176,7 @@ function CartaTragosContent() {
          @media print {
             body { -webkit-print-color-adjust: exact; color-adjust: exact; }
             @page { size: A4 portrait; margin: 0; }
+            .print-hidden { display: none; }
         }
        `}</style>
     </div>
