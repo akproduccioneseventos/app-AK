@@ -4,23 +4,27 @@ import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionD
 import { defaultInvitacionDigitalData } from './invitacion-digital-defaults';
 
 export const defaultStaticTragos: Trago[] = [
-    { id: 'trago_1', nombre: 'DAIQUIRI DE DURAZNO', imageUrl: 'https://picsum.photos/seed/peach-daiquiri/400/600', aiHint: 'peach daiquiri' },
-    { id: 'trago_2', nombre: 'CAIPIRINHA', imageUrl: 'https://picsum.photos/seed/caipirinha/400/600', aiHint: 'caipirinha cocktail' },
-    { id: 'trago_3', nombre: 'ARIZONA', imageUrl: 'https://picsum.photos/seed/arizona-cocktail/400/600', aiHint: 'arizona cocktail' },
-    { id: 'trago_4', nombre: 'DAIQUIRI DE ANANA', imageUrl: 'https://picsum.photos/seed/pineapple-daiquiri/400/600', aiHint: 'pineapple daiquiri' },
-    { id: 'trago_5', nombre: 'DAIQUIRI DE FRUTILLA', imageUrl: 'https://picsum.photos/seed/strawberry-daiquiri/400/600', aiHint: 'strawberry daiquiri' },
-    { id: 'trago_6', nombre: 'ATOMIC GREEN', imageUrl: 'https://picsum.photos/seed/atomic-green/400/600', aiHint: 'atomic green cocktail' },
-    { id: 'trago_7', nombre: 'DAIQUIRI PRIMAVERA', imageUrl: 'https://picsum.photos/seed/spring-daiquiri/400/600', aiHint: 'spring daiquiri' },
-    { id: 'trago_8', nombre: 'FERNET CON COCA', imageUrl: 'https://picsum.photos/seed/fernet-coke/400/600', aiHint: 'fernet with coke' },
-    { id: 'trago_9', nombre: 'ATARDECER', imageUrl: 'https://picsum.photos/seed/sunset-cocktail/400/600', aiHint: 'sunset cocktail' },
-    { id: 'trago_10', nombre: 'DESTORNILLADOR', imageUrl: 'https://picsum.photos/seed/screwdriver/400/600', aiHint: 'screwdriver cocktail' },
+    { id: 'trago_1', nombre: 'DAIQUIRI DE DURAZNO', imageUrl: 'https://i.imgur.com/gK5A5tG.jpeg', aiHint: 'peach daiquiri' },
+    { id: 'trago_2', nombre: 'CAIPIRINHA', imageUrl: 'https://i.imgur.com/yqf1h7m.jpeg', aiHint: 'caipirinha cocktail' },
+    { id: 'trago_3', nombre: 'ARIZONA', imageUrl: 'https://i.imgur.com/eBf2j4G.jpeg', aiHint: 'arizona cocktail' },
+    { id: 'trago_4', nombre: 'DAIQUIRI DE ANANA', imageUrl: 'https://i.imgur.com/mS9z5sE.jpeg', aiHint: 'pineapple daiquiri' },
+    { id: 'trago_5', nombre: 'DAIQUIRI DE FRUTILLA', imageUrl: 'https://i.imgur.com/f9W9g7d.jpeg', aiHint: 'strawberry daiquiri' },
+    { id: 'trago_6', nombre: 'ATOMIC GREEN', imageUrl: 'https://i.imgur.com/HqP3aV4.jpeg', aiHint: 'atomic green cocktail' },
+    { id: 'trago_7', nombre: 'DAIQUIRI PRIMAVERA', imageUrl: 'https://i.imgur.com/2s4P0Xz.jpeg', aiHint: 'spring daiquiri' },
+    { id: 'trago_8', nombre: 'FERNET CON COCA', imageUrl: 'https://i.imgur.com/rMvJp3P.jpeg', aiHint: 'fernet with coke' },
+    { id: 'trago_9', nombre: 'ATARDECER', imageUrl: 'https://i.imgur.com/1G6K2Vn.jpeg', aiHint: 'sunset cocktail' },
+    { id: 'trago_10', nombre: 'DESTORNILLADOR', imageUrl: 'https://i.imgur.com/4l3F8tD.jpeg', aiHint: 'screwdriver cocktail' },
 ];
 
 export const defaultCartaTragosData: CartaTragosData = {
-    protagonistaFotoUrl: "https://picsum.photos/seed/quinceanera-main/300/300",
-    paletaColores: { primary: '#9333ea', secondary: '#363636', accent: '#facc15' },
+    protagonistaNombre: "SILVIA",
+    numeroPrincipal: "70",
+    headerImageUrl: "https://i.imgur.com/S2t8aFz.png", // Imagen del '70'
+    backgroundImageUrl: "https://i.imgur.com/FwIe1tY.jpeg", // Fondo texturizado
+    paletaColores: { primary: '#B99D75', secondary: '#363636', accent: '#D4AF37' },
     items: defaultStaticTragos,
 };
+
 
 export const defaultMenuMesaData: MenuMesaData = {
     protagonistaFotoUrl: "https://picsum.photos/seed/quinceanera-main/300/300",
