@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -22,16 +23,16 @@ export const MenuComponent: React.FC<MenuComponentProps> = ({ fiesta, carta, onU
   }, []);
   
   const textNameStyle: React.CSSProperties = {
-    fontFamily: "'Dancing Script', cursive",
+    fontFamily: "'Belleza', serif",
     color: carta.paletaColores?.primary || '#FFFFFF',
-    textShadow: '2px 2px 2px rgba(0,0,0,0.7), -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000',
+    textShadow: '1px 1px 2px rgba(0,0,0,0.5)',
     fontWeight: 'bold',
   };
   
   const textTitleStyle: React.CSSProperties = {
     fontFamily: "'Belleza', serif",
     color: carta.paletaColores?.primary || '#FFFFFF',
-    textShadow: '1px 1px 2px rgba(0,0,0,0.5), -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000',
+    textShadow: '1px 1px 2px rgba(0,0,0,0.5)',
     fontWeight: 'bold',
     letterSpacing: '0.05em'
   };
@@ -52,6 +53,13 @@ export const MenuComponent: React.FC<MenuComponentProps> = ({ fiesta, carta, onU
         onUpdate({ [field]: value });
     }
   };
+  
+  const handleUpdateEmpresa = (field: 'empresaNombre' | 'empresaContacto', value: string) => {
+      if (onUpdate && isPreview) {
+          onUpdate({ [field]: value });
+      }
+  }
+
 
   return (
     <div 
@@ -100,12 +108,20 @@ export const MenuComponent: React.FC<MenuComponentProps> = ({ fiesta, carta, onU
           </svg>
         </div>
        
-        <footer className="relative z-10 mt-auto w-full px-4 pb-1 flex justify-center">
-            {logoUrl && (
-                <div className="w-20 h-12">
-                  <NextImage src={logoUrl} alt="AK Producciones Logo" width={80} height={48} className="object-contain" data-ai-hint="company logo"/>
-                </div>
-            )}
+         <footer className="relative z-10 mt-auto w-full px-4 pb-2 flex justify-between items-center">
+            <div className="w-16 h-10 relative">
+                 {logoUrl && (
+                    <NextImage src={logoUrl} alt="AK Producciones Logo" layout="fill" className="object-contain" data-ai-hint="company logo"/>
+                )}
+            </div>
+            <div className="text-right">
+                <p className="font-semibold text-xs leading-tight" style={{color: carta.paletaColores?.secondary}}>
+                   {isPreview ? <EditableText initialValue={carta.empresaNombre || 'AK PRODUCCIONES'} onSave={(v) => handleUpdateEmpresa('empresaNombre', v)} /> : carta.empresaNombre}
+                </p>
+                <p className="text-xs" style={{color: carta.paletaColores?.secondary}}>
+                   {isPreview ? <EditableText initialValue={carta.empresaContacto || '098355530'} onSave={(v) => handleUpdateEmpresa('empresaContacto', v)} /> : carta.empresaContacto}
+                </p>
+            </div>
         </footer>
     </div>
   );

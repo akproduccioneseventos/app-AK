@@ -43,7 +43,6 @@ function CartaTragosContent() {
       setFiesta(fiestaData);
       
       const mergedData = { ...defaultCartaTragosData, ...(fiestaData.cartaTragos || {}) };
-      
       if (!mergedData.protagonistaNombre) mergedData.protagonistaNombre = fiestaData.configuracion.protagonista1Nombre || 'La Agasajada';
       if (!mergedData.titulo) mergedData.titulo = 'CARTA DE TRAGOS';
       if (!mergedData.numeroPrincipal) mergedData.numeroPrincipal = fiestaData.configuracion.tipoCelebracion === 'XV años' ? 'Mis XV' : 'Nuestra Boda';
@@ -60,7 +59,7 @@ function CartaTragosContent() {
 
   useEffect(() => {
     loadData();
-  }, [fiestaId, loadData]);
+  }, [loadData]);
 
   const handleUpdate = (field: keyof CartaTragosData, value: any) => {
     setCartaTragos(prev => ({ ...prev, [field]: value }));
@@ -147,8 +146,8 @@ function CartaTragosContent() {
                 <div className="space-y-1"><Label htmlFor="protagonista-foto" className="text-xs">Foto Protagonista</Label><Input id="protagonista-foto" type="file" accept="image/*" onChange={handleProtagonistPhotoUpload} className="text-xs w-44" disabled={isUploading}/></div>
                 <div className="space-y-1"><Label htmlFor="bg-image-upload" className="text-xs">Fondo</Label><Input id="bg-image-upload" type="file" accept="image/*" onChange={handleBackgroundImageUpload} className="text-xs w-44" disabled={isUploading}/></div>
                 <div className="space-y-1"><Label className="text-xs">Fondo Principal</Label><Input type="color" value={cartaTragos.backgroundColor || '#D9B8FF'} onChange={e => handleColorChange('background', e.target.value)} className="w-9 h-8 p-0.5"/></div>
-                <div className="space-y-1"><Label className="text-xs">Color Primario</Label><Input type="color" value={cartaTragos.paletaColores?.primary || '#9333ea'} onChange={e => handleColorChange('primary', e.target.value)} className="w-9 h-8 p-0.5"/></div>
-                <div className="space-y-1"><Label className="text-xs">Color Secundario</Label><Input type="color" value={cartaTragos.paletaColores?.secondary || '#363636'} onChange={e => handleColorChange('secondary', e.target.value)} className="w-9 h-8 p-0.5"/></div>
+                <div className="space-y-1"><Label className="text-xs">Color Ondas</Label><Input type="color" value={cartaTragos.paletaColores?.primary || '#9333ea'} onChange={e => handleColorChange('primary', e.target.value)} className="w-9 h-8 p-0.5"/></div>
+                <div className="space-y-1"><Label className="text-xs">Color Texto</Label><Input type="color" value={cartaTragos.paletaColores?.secondary || '#363636'} onChange={e => handleColorChange('secondary', e.target.value)} className="w-9 h-8 p-0.5"/></div>
                 <Separator orientation="vertical" className="h-10 mx-1"/>
                <div className="flex items-end gap-2">
                  <Button size="sm" onClick={handleSave} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}</Button>
@@ -158,15 +157,13 @@ function CartaTragosContent() {
             </div>
         </div>
         
-        <div className="w-[21cm] h-[29.7cm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto p-4 flex flex-col">
-            <div className="flex-1 grid grid-cols-2 gap-4">
-                <div className="border border-dashed border-gray-300 print:border-none p-2 relative" style={{width: '10cm', height: '15cm'}}>
-                    <MenuComponent fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} />
-                </div>
-                <div className="border border-dashed border-gray-300 print:border-none p-2 relative" style={{width: '10cm', height: '15cm'}}>
-                    <MenuComponent fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} />
-                </div>
-            </div>
+        <div className="w-[210mm] h-[297mm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto p-4 grid grid-cols-2 gap-4">
+           <div className="w-full h-full relative" style={{width: '10cm', height: '15cm'}}>
+              <MenuComponent fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} />
+           </div>
+            <div className="w-full h-full relative" style={{width: '10cm', height: '15cm'}}>
+              <MenuComponent fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} />
+           </div>
         </div>
 
        <style jsx global>{`
