@@ -1,14 +1,14 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, Suspense, use } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Loader2, Users, LayoutDashboard, Search } from 'lucide-react';
+import { ArrowLeft, Loader2, Users, LayoutDashboard, Search, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, Invitado, LayoutElement } from '@/types/fiesta';
 import { getFiestaById, updateInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
@@ -71,7 +71,7 @@ const TableDropZone: React.FC<TableDropZoneProps> = ({ element, onDrop, children
   }));
 
   return (
-    <div ref={drop} className={cn("absolute", isOver && "ring-2 ring-offset-2 ring-primary rounded-full")}>
+    <div ref={drop} className={cn("absolute", isOver && "ring-2 ring-offset-2 ring-primary rounded-md")}>
         {children}
     </div>
   );
