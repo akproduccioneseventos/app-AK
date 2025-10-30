@@ -1,6 +1,6 @@
 
 
-'use client';
+'use server';
 
 import { initialFiestaActualData } from '@/lib/fiesta-defaults';
 import type { FiestaEnPlanificacion, CompraProveedorEstado } from '@/types/fiesta';
