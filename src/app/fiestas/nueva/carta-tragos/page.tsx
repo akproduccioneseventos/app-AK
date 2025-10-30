@@ -5,7 +5,7 @@ import React, { useState, useEffect, useCallback, Suspense, type ChangeEvent } f
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer as PrinterIcon, Save, Loader2, Edit, Upload, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, Save, Loader2, Edit, Upload, Image as ImageIconLucide } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, CartaTragosData, Trago } from '@/types/fiesta';
 import { getFiestaById, updateCartaTragos as updateCartaTragosAction } from '@/app/actions/fiesta/fiesta.actions';
@@ -259,7 +259,7 @@ function CartaTragosContent() {
             </div>
         </div>
         
-        <div className="w-[21cm] h-[29.7cm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto p-4 flex items-center justify-center">
+        <div className="w-[150mm] h-[100mm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto p-4 flex items-center justify-center">
             <div className="w-full h-full relative">
                 <CartaTragosMenu fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} openEditModal={openEditModal} />
             </div>
@@ -269,7 +269,10 @@ function CartaTragosContent() {
         @import url('https://fonts.googleapis.com/css2?family=Belleza&family=Dancing+Script:wght@400;700&family=Great+Vibes&display=swap');
          @media print {
             body { -webkit-print-color-adjust: exact; color-adjust: exact; }
-            @page { size: A4 landscape; margin: 0; }
+            @page { 
+                size: 150mm 100mm;
+                margin: 0; 
+            }
         }
        `}</style>
     </div>

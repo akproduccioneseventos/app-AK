@@ -9,11 +9,11 @@ export const defaultStaticTragos: Trago[] = [
     { id: 'trago_3', nombre: 'ARIZONA', imageUrl: 'https://i.imgur.com/eBf2j4G.jpeg', aiHint: 'arizona cocktail' },
     { id: 'trago_4', nombre: 'DAIQUIRI DE ANANA', imageUrl: 'https://i.imgur.com/mS9z5sE.jpeg', aiHint: 'pineapple daiquiri' },
     { id: 'trago_5', nombre: 'DAIQUIRI DE FRUTILLA', imageUrl: 'https://i.imgur.com/f9W9g7d.jpeg', aiHint: 'strawberry daiquiri' },
-    { id: 'trago_6', nombre: 'ATOMIC GREEN', imageUrl: 'https://i.imgur.com/HqP3aV4.jpeg', aiHint: 'atomic green cocktail' },
+    { id: 'trago_6', nombre: 'ATOMIC GREEN', imageUrl: 'https://i.imgur.com/1G6K2Vn.jpeg', aiHint: 'atomic green cocktail' },
     { id: 'trago_7', nombre: 'DAIQUIRI PRIMAVERA', imageUrl: 'https://i.imgur.com/2s4P0Xz.jpeg', aiHint: 'spring daiquiri' },
     { id: 'trago_8', nombre: 'FERNET CON COCA', imageUrl: 'https://i.imgur.com/rMvJp3P.jpeg', aiHint: 'fernet with coke' },
-    { id: 'trago_9', nombre: 'ATARDECER', imageUrl: 'https://i.imgur.com/1G6K2Vn.jpeg', aiHint: 'sunset cocktail' },
-    { id: 'trago_10', nombre: 'DESTORNILLADOR', imageUrl: 'https://i.imgur.com/4l3F8tD.jpeg', aiHint: 'screwdriver cocktail' },
+    { id: 'trago_9', nombre: 'ATARDECER', imageUrl: 'https://i.imgur.com/4l3F8tD.jpeg', aiHint: 'sunset cocktail' },
+    { id: 'trago_10', nombre: 'DESTORNILLADOR', imageUrl: 'https://i.imgur.com/sC3a3gM.png', aiHint: 'screwdriver cocktail' },
 ];
 
 export const defaultCartaTragosData: CartaTragosData = {
