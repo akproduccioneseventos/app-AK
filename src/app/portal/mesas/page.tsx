@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense, use } from 'react';
@@ -25,7 +26,8 @@ import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const GUEST_ITEM_TYPE = 'guest';
 const PIXELS_PER_METER_DEFAULT = 40;
