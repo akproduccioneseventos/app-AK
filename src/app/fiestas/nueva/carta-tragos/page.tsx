@@ -4,6 +4,7 @@
 import React, { useState, useEffect, useCallback, type ChangeEvent, use } from 'react';
 import Link from 'next/link';
 import NextImage from 'next/image';
+import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Printer as PrinterIcon, Share2, GlassWater, Upload, Loader2, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -64,7 +65,7 @@ const MenuComponent: React.FC<{
 };
 
 export default function CartaTragosPage() {
-  const params = use(useSearchParams());
+  const params = useSearchParams();
   const fiestaId = params.get('fiestaId');
   const { toast } = useToast();
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
