@@ -134,7 +134,7 @@ function CartaTragosContent() {
     } catch (e: any) {
       toast({ title: "Error", description: e.message, variant: "destructive" });
     } finally {
-      setIsSaving(false);
+        setIsSaving(false);
     }
   }
 
@@ -199,10 +199,6 @@ function CartaTragosContent() {
     }
   };
 
-  const handleEmpresaUpdate = (field: keyof NonNullable<CartaTragosData['empresa']>, value: string) => {
-    setCartaTragos(prev => ({...prev, empresa: { ...(prev.empresa || defaultCartaTragosData.empresa), [field]: value } }));
-  };
-
   if (isLoading || !fiesta) {
     return <div className="p-8 max-w-4xl mx-auto flex justify-center"><Loader2 className="w-8 h-8 animate-spin" /></div>;
   }
@@ -243,13 +239,12 @@ function CartaTragosContent() {
         <div className="py-2 px-4 print:hidden flex flex-col md:flex-row justify-between items-center gap-4 bg-white shadow-sm sticky top-0 z-50">
             <h1 className="font-headline text-lg">Editor de Carta de Tragos</h1>
             <div className="flex flex-wrap gap-2 items-center">
-                <div className="space-y-1"><Label htmlFor="protagonista-foto" className="text-xs">Foto Protagonista</Label><Input id="protagonista-foto" type="file" accept="image/*" onChange={handleProtagonistPhotoUpload} className="text-xs w-48" disabled={isUploading}/></div>
-                <div className="space-y-1"><Label htmlFor="titulo-numero" className="text-xs">Título/Número</Label><Input id="titulo-numero" value={cartaTragos.numeroPrincipal || ''} onChange={(e) => handleUpdate('numeroPrincipal', e.target.value)} className="h-9 w-24"/></div>
-                <div className="space-y-1"><Label htmlFor="protagonista-nombre" className="text-xs">Nombre Protagonista</Label><Input id="protagonista-nombre" value={cartaTragos.protagonistaNombre || ''} onChange={(e) => handleUpdate('protagonistaNombre', e.target.value)} className="h-9 w-32"/></div>
+                <div className="space-y-1"><Label htmlFor="protagonista-foto" className="text-xs">Foto</Label><Input id="protagonista-foto" type="file" accept="image/*" onChange={handleProtagonistPhotoUpload} className="text-xs w-48" disabled={isUploading}/></div>
                 <div className="space-y-1"><Label htmlFor="bg-image-upload" className="text-xs">Fondo</Label><Input id="bg-image-upload" type="file" accept="image/*" onChange={handleBackgroundImageUpload} className="text-xs w-44" disabled={isUploading}/></div>
-                <div className="space-y-1"><Label className="text-xs">Color Principal</Label><Input type="color" value={cartaTragos.paletaColores?.primary || '#9333ea'} onChange={e => handleColorChange('primary', e.target.value)} className="w-9 h-8 p-0.5"/></div>
-                <div className="space-y-1"><Label className="text-xs">Color Secundario</Label><Input type="color" value={cartaTragos.paletaColores?.secondary || '#363636'} onChange={e => handleColorChange('secondary', e.target.value)} className="w-9 h-8 p-0.5"/></div>
-                <div className="space-y-1"><Label className="text-xs">Fondo Tarjetas</Label><Input type="color" value={cartaTragos.backgroundColor || '#e9d5ff'} onChange={e => handleUpdate('backgroundColor', e.target.value)} className="w-9 h-8 p-0.5"/></div>
+                <div className="space-y-1"><Label className="text-xs">Ola/Principal</Label><Input type="color" value={cartaTragos.paletaColores?.primary || '#8b5cf6'} onChange={e => handleColorChange('primary', e.target.value)} className="w-9 h-8 p-0.5"/></div>
+                <div className="space-y-1"><Label className="text-xs">Textos</Label><Input type="color" value={cartaTragos.paletaColores?.secondary || '#363636'} onChange={e => handleColorChange('secondary', e.target.value)} className="w-9 h-8 p-0.5"/></div>
+                <div className="space-y-1"><Label className="text-xs">Borde Foto</Label><Input type="color" value={cartaTragos.paletaColores?.accent || '#facc15'} onChange={e => handleColorChange('accent', e.target.value)} className="w-9 h-8 p-0.5"/></div>
+                <div className="space-y-1"><Label className="text-xs">Fondo Tarjeta</Label><Input type="color" value={cartaTragos.backgroundColor || '#ffffff'} onChange={e => handleUpdate('backgroundColor', e.target.value)} className="w-9 h-8 p-0.5"/></div>
 
                <div className="flex items-end gap-2">
                  <Button size="sm" onClick={handleSave} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}</Button>
@@ -259,10 +254,12 @@ function CartaTragosContent() {
             </div>
         </div>
         
-        <div className="w-[150mm] h-[100mm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto p-4 flex items-center justify-center">
-            <div className="w-full h-full relative">
-                <CartaTragosMenu fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} openEditModal={openEditModal} />
-            </div>
+        <div className="flex justify-center items-center py-4 print:py-0" style={{ transform: 'scale(0.8)', transformOrigin: 'top' }}>
+          <div className="w-[100mm] h-[150mm] bg-white shadow-lg print:shadow-none print:m-0 print:mx-auto">
+              <div className="w-full h-full relative">
+                  <CartaTragosMenu fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} openEditModal={openEditModal} />
+              </div>
+          </div>
         </div>
 
        <style jsx global>{`
@@ -270,7 +267,7 @@ function CartaTragosContent() {
          @media print {
             body { -webkit-print-color-adjust: exact; color-adjust: exact; }
             @page { 
-                size: 150mm 100mm;
+                size: 100mm 150mm;
                 margin: 0; 
             }
         }
@@ -286,3 +283,4 @@ export default function CartaTragosPageWrapper() {
         </Suspense>
     )
 }
+

@@ -6,7 +6,6 @@ import NextImage from 'next/image';
 import type { FiestaEnPlanificacion, CartaTragosData, Trago } from '@/types/fiesta';
 import { EditableText } from '../edit/EditableText';
 import { cn } from '@/lib/utils';
-import { Phone } from 'lucide-react';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 
 interface CartaTragosMenuProps {
@@ -17,26 +16,14 @@ interface CartaTragosMenuProps {
     openEditModal?: (item: Trago) => void;
 }
 
-
-const Ornament: React.FC<{ position: string; color: string }> = ({ position, color }) => {
-    const baseClasses = "absolute w-8 h-8 border-2";
-    const positionClasses = {
-        'top-left': 'top-2 left-2 border-t-0 border-r-0',
-        'top-right': 'top-2 right-2 border-t-0 border-l-0',
-        'bottom-left': 'bottom-2 left-2 border-b-0 border-r-0',
-        'bottom-right': 'bottom-2 right-2 border-b-0 border-l-0',
-    };
-    const innerClasses = "absolute w-4 h-4 border-2";
-    const innerPositionClasses = {
-        'top-left': 'top-[-2px] left-[-2px] border-t-0 border-r-0',
-        'top-right': 'top-[-2px] right-[-2px] border-t-0 border-l-0',
-        'bottom-left': 'bottom-[-2px] left-[-2px] border-b-0 border-r-0',
-        'bottom-right': 'bottom-[-2px] right-[-2px] border-b-0 border-l-0',
-    }
-
+const WavyBorder: React.FC<{ position: 'top' | 'bottom'; color: string }> = ({ position, color }) => {
+    const path = "M0,50 Q12.5,0 25,50 T50,50 T75,50 T100,50";
+    const transform = position === 'bottom' ? 'scale(1, -1) translate(0, -100)' : '';
     return (
-        <div className={cn(baseClasses, positionClasses[position])} style={{ borderColor: color }}>
-            <div className={cn(innerClasses, innerPositionClasses[position])} style={{ borderColor: color }} />
+        <div className={cn("absolute left-0 w-full h-12", position === 'top' ? '-top-1' : '-bottom-1')}>
+            <svg viewBox="0 0 100 50" preserveAspectRatio="none" className="w-full h-full">
+                <path d={path} fill={color} transform={transform} />
+            </svg>
         </div>
     );
 };
@@ -59,85 +46,77 @@ export const CartaTragosMenu: React.FC<CartaTragosMenuProps> = ({ fiesta, carta,
     
     const paleta = carta.paletaColores;
     
-    const handleUpdate = (field: keyof Omit<CartaTragosData, 'paletaColores' | 'protagonistaFotoUrl'>, value: string) => {
+    const handleUpdate = (field: keyof Omit<CartaTragosData, 'paletaColores' | 'protagonistaFotoUrl' | 'empresa'>, value: string) => {
         if (onUpdate && isPreview) {
             onUpdate({ [field]: value });
         }
     };
-    
-    const handleEmpresaUpdate = (field: keyof NonNullable<CartaTragosData['empresa']>, value: string) => {
-         if (onUpdate && isPreview) {
-            onUpdate({ empresa: { ...(carta.empresa || { linea1: '', linea2: '', contacto: '' }), [field]: value } });
-        }
-    }
-    
+
     return (
         <div
-            className={cn("w-full h-full p-3 relative overflow-hidden flex flex-col border-2")}
-            style={{ backgroundColor: carta.backgroundColor, borderColor: paleta?.primary }}
+            className={cn("w-full h-full relative overflow-hidden flex flex-col font-sans")}
+            style={{ backgroundColor: carta.backgroundColor }}
         >
-             <Ornament position="top-left" color={paleta?.primary || '#000'} />
-             <Ornament position="top-right" color={paleta?.primary || '#000'} />
-             <Ornament position="bottom-left" color={paleta?.primary || '#000'} />
-             <Ornament position="bottom-right" color={paleta?.primary || '#000'} />
+            <WavyBorder position="top" color={paleta?.primary || '#8b5cf6'} />
             
-            {carta.backgroundImageUrl && (
-                <NextImage src={carta.backgroundImageUrl} alt="Fondo" layout="fill" objectFit="cover" className="absolute inset-0 opacity-40 -z-10" />
-            )}
+            <header className="relative z-10 p-4 pt-10">
+                <div className="grid grid-cols-2 gap-4 items-center">
+                    <div className="relative aspect-square w-full max-w-[120px] mx-auto">
+                        <div className="relative w-full h-full rounded-full overflow-hidden border-4" style={{borderColor: paleta?.accent}}>
+                            {carta.protagonistaFotoUrl ? (
+                                <NextImage src={carta.protagonistaFotoUrl} alt="Protagonista" layout="fill" objectFit="cover" data-ai-hint="quinceanera portrait"/>
+                            ) : <div className="w-full h-full bg-gray-200"></div>}
+                        </div>
+                    </div>
 
-            <header className="w-full text-center relative z-10 pt-4">
-                <div className="relative w-28 h-28 mx-auto rounded-full overflow-hidden border-4" style={{borderColor: paleta?.primary}}>
-                    {carta.protagonistaFotoUrl ? (
-                         <NextImage src={carta.protagonistaFotoUrl} alt="Protagonista" layout="fill" objectFit="cover" data-ai-hint="quinceanera portrait"/>
-                    ) : <div className="w-full h-full bg-gray-200"></div>}
+                    <div className="text-center space-y-0.5">
+                        <h2 className="font-extrabold text-white text-xl uppercase tracking-wider" style={{ WebkitTextStroke: `1px ${paleta?.secondary}`}}>
+                            CARTA DE TRAGOS
+                        </h2>
+                        <h1 className="font-['Dancing_Script',_cursive] text-4xl font-bold" style={{color: paleta?.primary}}>
+                            {isPreview ? <EditableText initialValue={carta.protagonistaNombre || "Luciana"} onSave={val => handleUpdate('protagonistaNombre', val)} textarea={false}/> : (carta.protagonistaNombre || "Luciana")}
+                        </h1>
+                         <h3 className="font-['Dancing_Script',_cursive] text-3xl font-bold" style={{color: paleta?.primary}}>
+                            {isPreview ? <EditableText initialValue={carta.numeroPrincipal || "Mis XV"} onSave={val => handleUpdate('numeroPrincipal', val)} textarea={false}/> : (carta.numeroPrincipal || "Mis XV")}
+                        </h3>
+                    </div>
                 </div>
-                <h2 className="font-['Belleza',_serif] text-5xl mt-2" style={{color: paleta?.primary, textShadow: '1px 1px 3px rgba(0,0,0,0.2)'}}>
-                     {isPreview ? <EditableText initialValue={carta.numeroPrincipal || "Mis XV"} onSave={val => handleUpdate('numeroPrincipal', val)} textarea={false}/> : (carta.numeroPrincipal || "Mis XV")}
-                </h2>
-                <h1 className="font-['Dancing_Script',_cursive] text-4xl" style={{color: paleta?.secondary}}>
-                     {isPreview ? <EditableText initialValue={carta.protagonistaNombre || "Luciana"} onSave={val => handleUpdate('protagonistaNombre', val)} textarea={false}/> : (carta.protagonistaNombre || "Luciana")}
-                </h1>
             </header>
 
-             <main className="w-full px-2 mt-4 space-y-2 text-center flex-grow">
-                <h3 className="font-['Belleza',_serif] text-2xl tracking-widest" style={{color: paleta?.primary}}>
-                   {isPreview ? <EditableText initialValue={carta.titulo || 'CARTA DE TRAGOS'} onSave={val => handleUpdate('titulo', val)} textarea={false}/> : (carta.titulo || 'CARTA DE TRAGOS')}
-                </h3>
-                <div className="grid grid-cols-2 gap-2 mt-2">
-                    {carta.items.map(item => (
-                        <div key={item.id} className="relative aspect-[3/4] rounded-md overflow-hidden border-2" style={{borderColor: paleta?.accent}} onClick={() => openEditModal?.(item)}>
-                            {item.imageUrl ? (
-                                <NextImage src={item.imageUrl} alt={item.nombre} layout="fill" objectFit="cover" data-ai-hint={item.aiHint || 'cocktail drink'} />
-                            ) : <div className="w-full h-full bg-gray-100"></div>}
-                            <div className="absolute bottom-0 left-0 right-0 p-1 bg-black/50 text-white text-center">
-                                <p className="text-[8px] font-bold uppercase truncate">{item.nombre}</p>
+             <main className="w-full px-2 mt-4 space-y-3 text-center flex-grow">
+                <div className="grid grid-cols-5 gap-2">
+                    {carta.items.slice(0, 5).map(item => (
+                        <div key={item.id} className="text-center">
+                             <div className="relative aspect-[3/4] rounded-md overflow-hidden border" onClick={() => openEditModal?.(item)} style={{borderColor: paleta?.accent}}>
+                                {item.imageUrl ? (
+                                    <NextImage src={item.imageUrl} alt={item.nombre} layout="fill" objectFit="cover" data-ai-hint={item.aiHint || 'cocktail drink'} />
+                                ) : <div className="w-full h-full bg-gray-100"></div>}
                             </div>
+                            <p className="text-[7px] font-bold uppercase mt-1" style={{color: paleta?.secondary}}>{item.nombre}</p>
+                        </div>
+                    ))}
+                </div>
+                 <div className="grid grid-cols-5 gap-2">
+                    {carta.items.slice(5, 10).map(item => (
+                        <div key={item.id} className="text-center">
+                             <div className="relative aspect-[3/4] rounded-md overflow-hidden border" onClick={() => openEditModal?.(item)} style={{borderColor: paleta?.accent}}>
+                                {item.imageUrl ? (
+                                    <NextImage src={item.imageUrl} alt={item.nombre} layout="fill" objectFit="cover" data-ai-hint={item.aiHint || 'cocktail drink'} />
+                                ) : <div className="w-full h-full bg-gray-100"></div>}
+                            </div>
+                            <p className="text-[7px] font-bold uppercase mt-1" style={{color: paleta?.secondary}}>{item.nombre}</p>
                         </div>
                     ))}
                 </div>
              </main>
             
-            <footer 
-                className="relative z-10 w-[110%] -bottom-4 mt-auto rounded-t-[100%] p-4 pt-10 pb-6 text-center text-white" 
-                style={{backgroundColor: paleta?.primary}}
-            >
-                <div className="relative">
-                    <div className="flex items-center justify-center gap-4">
-                        {logoUrl && (
-                             <div className="w-16 h-16 flex-shrink-0">
-                                <NextImage src={logoUrl} alt="Logo" width={64} height={64} className="object-contain" data-ai-hint="company logo"/>
-                            </div>
-                        )}
-                        <div className="text-left">
-                            <h4 className="font-['Belleza',_serif] font-bold text-lg leading-tight">{isPreview ? <EditableText initialValue={carta.empresa?.linea1 || 'AK PRODUCCIONES'} onSave={val => handleEmpresaUpdate('linea1', val)} textarea={false}/> : (carta.empresa?.linea1 || 'AK PRODUCCIONES')}</h4>
-                            <p className="text-xs">{isPreview ? <EditableText initialValue={carta.empresa?.linea2 || 'Servicio de fiestas integral'} onSave={val => handleEmpresaUpdate('linea2', val)} textarea={false}/> : (carta.empresa?.linea2 || 'Servicio de fiestas integral')}</p>
-                            <div className="flex items-center gap-1 mt-1">
-                                <Phone className="w-3 h-3"/>
-                                <p className="text-sm font-semibold">{isPreview ? <EditableText initialValue={carta.empresa?.contacto || '098 355 530'} onSave={val => handleEmpresaUpdate('contacto', val)} textarea={false}/> : (carta.empresa?.contacto || '098 355 530')}</p>
-                            </div>
-                        </div>
+            <footer className="relative z-10 w-full mt-auto">
+                <WavyBorder position="bottom" color={paleta?.primary || '#8b5cf6'} />
+                 {logoUrl && (
+                    <div className="absolute left-1/2 -translate-x-1/2 bottom-2 w-10 h-10 z-20">
+                        <NextImage src={logoUrl} alt="Logo" layout="fill" className="object-contain" data-ai-hint="company logo"/>
                     </div>
-                </div>
+                )}
             </footer>
         </div>
     );
