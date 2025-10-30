@@ -4,7 +4,7 @@ import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionD
 import { defaultInvitacionDigitalData } from './invitacion-digital-defaults';
 
 export const defaultStaticTragos: Trago[] = [
-    { id: 'trago_1', nombre: 'DAIQUIRI DE DURAZNO', imageUrl: 'https://i.imgur.com/gK5A5tG.jpeg', aiHint: 'peach daiquiri' },
+    { id: 'trago_1', nombre: 'DAIQUIRI DE DURAZNO', imageUrl: 'https://i.imgur.com/kR1Z1zF.jpeg', aiHint: 'peach daiquiri' },
     { id: 'trago_2', nombre: 'CAIPIRINHA', imageUrl: 'https://i.imgur.com/yqf1h7m.jpeg', aiHint: 'caipirinha cocktail' },
     { id: 'trago_3', nombre: 'ARIZONA', imageUrl: 'https://i.imgur.com/eBf2j4G.jpeg', aiHint: 'arizona cocktail' },
     { id: 'trago_4', nombre: 'DAIQUIRI DE ANANA', imageUrl: 'https://i.imgur.com/mS9z5sE.jpeg', aiHint: 'pineapple daiquiri' },
@@ -17,11 +17,11 @@ export const defaultStaticTragos: Trago[] = [
 ];
 
 export const defaultCartaTragosData: CartaTragosData = {
-    protagonistaNombre: "SILVIA",
-    numeroPrincipal: "70",
-    headerImageUrl: "https://i.imgur.com/S2t8aFz.png", // Imagen del '70'
-    backgroundImageUrl: "https://i.imgur.com/FwIe1tY.jpeg", // Fondo texturizado
-    paletaColores: { primary: '#B99D75', secondary: '#363636', accent: '#D4AF37' },
+    protagonistaNombre: "Luciana",
+    numeroPrincipal: "Mis XV",
+    protagonistaFotoUrl: "https://picsum.photos/seed/quinceanera/300/300",
+    backgroundImageUrl: "", // Background is now gradient + waves
+    paletaColores: { primary: '#a855f7', secondary: '#f0e68c', accent: '#ffffff' }, // Purple, Khaki, White
     items: defaultStaticTragos,
 };
 

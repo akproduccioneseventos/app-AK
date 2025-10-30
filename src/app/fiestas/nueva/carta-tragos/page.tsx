@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useCallback, Suspense, type ChangeEvent } from 'react';
 import Link from 'next/link';
-import NextImage from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Printer as PrinterIcon, Save, Loader2, Upload } from 'lucide-react';
@@ -15,6 +14,7 @@ import { Label } from '@/components/ui/label';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import { defaultCartaTragosData } from '@/lib/fiesta-defaults';
 import { MenuComponent } from '@/components/invitacion/templates/CartaTragosMenu';
+import { Card } from '@/components/ui/card';
 
 function CartaTragosContent() {
   const { toast } = useToast();
@@ -56,40 +56,21 @@ function CartaTragosContent() {
 
   useEffect(() => {
     loadData();
-  }, [fiestaId, loadData]);
+  }, [fiestaId]);
 
   const handleUpdate = (field: keyof CartaTragosData, value: string) => {
     setCartaTragos(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleBackgroundImageUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+  const handleProtagonistPhotoUpload = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file || !fiestaId) return;
     setIsUploading(true);
     try {
       const result = await uploadPublicPageAsset(fiestaId, file);
       if (result.success && result.url) {
-        setCartaTragos(prev => ({ ...prev, backgroundImageUrl: result.url }));
-        toast({ title: "Imagen de fondo actualizada" });
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (e: any) {
-      toast({ title: "Error al subir foto", variant: "destructive" });
-    } finally {
-      setIsUploading(false);
-    }
-  };
-  
-   const handleHeaderImageUpload = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file || !fiestaId) return;
-    setIsUploading(true);
-    try {
-      const result = await uploadPublicPageAsset(fiestaId, file);
-      if (result.success && result.url) {
-        setCartaTragos(prev => ({ ...prev, headerImageUrl: result.url }));
-        toast({ title: "Imagen de cabecera actualizada" });
+        setCartaTragos(prev => ({ ...prev, protagonistaFotoUrl: result.url }));
+        toast({ title: "Foto del protagonista actualizada" });
       } else {
         throw new Error(result.error);
       }
@@ -129,35 +110,43 @@ function CartaTragosContent() {
 
   return (
     <div className="bg-gray-100 print:bg-white">
-      <div className="py-4 px-8 print:hidden flex flex-col md:flex-row justify-between items-center gap-4 bg-white shadow-sm sticky top-0 z-50">
-        <h1 className="font-headline text-xl">Editor de Carta de Tragos</h1>
-        <div className="flex flex-wrap gap-2 items-end">
-          <div className="space-y-1"><Label className="text-xs">Número</Label><Input value={cartaTragos.numeroPrincipal || ''} onChange={e => handleUpdate('numeroPrincipal', e.target.value)} className="h-9 w-20"/></div>
-          <div className="space-y-1"><Label className="text-xs">Nombre Protagonista</Label><Input value={cartaTragos.protagonistaNombre || ''} onChange={e => handleUpdate('protagonistaNombre', e.target.value)} className="h-9 w-32"/></div>
-          <div className="space-y-1"><Label htmlFor="header-image-upload" className="text-xs">Imagen Número</Label><Input id="header-image-upload" type="file" accept="image/*" onChange={handleHeaderImageUpload} className="text-xs w-48" disabled={isUploading}/></div>
-          <div className="space-y-1"><Label htmlFor="bg-image-upload" className="text-xs">Imagen Fondo</Label><Input id="bg-image-upload" type="file" accept="image/*" onChange={handleBackgroundImageUpload} className="text-xs w-48" disabled={isUploading}/></div>
-          <div className="flex gap-2">
-            <Button size="sm" onClick={handleSave} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}</Button>
-            <Button onClick={handlePrint} size="sm" variant="outline"><PrinterIcon className="w-4 h-4"/></Button>
-            <Link href={`/fiestas/nueva/catering?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4"/></Button></Link>
+        <Card className="py-4 px-8 print:hidden flex flex-col md:flex-row justify-between items-center gap-4 bg-white shadow-sm sticky top-0 z-50">
+            <h1 className="font-headline text-xl">Editor de Carta de Tragos</h1>
+            <div className="flex flex-wrap gap-3 items-center">
+              <div className="space-y-1">
+                <Label htmlFor="protagonista-foto" className="text-xs">Foto Protagonista</Label>
+                <Input id="protagonista-foto" type="file" accept="image/*" onChange={handleProtagonistPhotoUpload} className="text-xs w-48" disabled={isUploading}/>
+              </div>
+              <div className="space-y-1">
+                 <Label className="text-xs">Nombre</Label>
+                 <Input value={cartaTragos.protagonistaNombre} onChange={e => handleUpdate('protagonistaNombre', e.target.value)} className="h-9 w-32"/>
+              </div>
+               <div className="space-y-1">
+                 <Label className="text-xs">Título</Label>
+                 <Input value={cartaTragos.numeroPrincipal} onChange={e => handleUpdate('numeroPrincipal', e.target.value)} className="h-9 w-24"/>
+              </div>
+               <div className="flex items-end gap-2">
+                 <Button size="sm" onClick={handleSave} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}</Button>
+                 <Button onClick={handlePrint} size="sm" variant="outline"><PrinterIcon className="w-4 h-4"/></Button>
+                 <Link href={`/fiestas/nueva/catering?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4"/></Button></Link>
+               </div>
+            </div>
+        </Card>
+        
+        <div className="w-[21cm] h-[29.7cm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto flex flex-col p-4 border-2 border-dashed print:border-none">
+          <div className="flex-1 grid grid-cols-2 gap-4">
+            <div className="border-2 border-dashed border-gray-300 print:border-none">
+              <MenuComponent fiesta={fiesta} carta={cartaTragos} logoUrl={logoUrl}/>
+            </div>
+            <div className="border-2 border-dashed border-gray-300 print:border-none">
+              <MenuComponent fiesta={fiesta} carta={cartaTragos} logoUrl={logoUrl}/>
+            </div>
           </div>
         </div>
-      </div>
-      
-      <div className="w-[210mm] h-[297mm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto p-4 flex flex-col gap-4 border-2 border-dashed print:border-none">
-        <div className="flex-1 grid grid-cols-2 gap-4">
-          <div className="border border-black/20 print:border-none">
-            <MenuComponent fiesta={fiesta} carta={cartaTragos} logoUrl={logoUrl}/>
-          </div>
-          <div className="border border-black/20 print:border-none">
-            <MenuComponent fiesta={fiesta} carta={cartaTragos} logoUrl={logoUrl}/>
-          </div>
-        </div>
-      </div>
 
        <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Belleza&family=Dancing+Script:wght@700&display=swap');
-        @media print {
+         @media print {
             body { -webkit-print-color-adjust: exact; color-adjust: exact; }
             @page { size: A4 landscape; margin: 0; }
         }
@@ -167,9 +156,9 @@ function CartaTragosContent() {
 }
 
 export default function CartaTragosPageWrapper() {
-  return (
-    <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>}>
-        <CartaTragosContent/>
-    </Suspense>
-  )
+    return (
+        <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>}>
+            <CartaTragosContent/>
+        </Suspense>
+    )
 }
