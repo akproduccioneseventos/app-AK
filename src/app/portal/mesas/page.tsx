@@ -146,9 +146,9 @@ const Seat: React.FC<{ angle?: number; distance?: number; isOccupied: boolean; i
 
 
 function AsignacionMesasContent() {
-  const params = use(useSearchParams());
-  const guestId = params.get('guestId');
-  const fiestaId = params.get('fiestaId');
+  const searchParams = useSearchParams();
+  const guestId = searchParams.get('guestId');
+  const fiestaId = searchParams.get('fiestaId');
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [invitado, setInvitado] = useState<Invitado | null>(null);
@@ -281,4 +281,5 @@ export default function MesaPage() {
         </div>
     );
 }
+
 
