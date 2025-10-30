@@ -8,7 +8,7 @@ import type { SocialGalleryPost, SocialComment, ChatMessage } from '@/types/soci
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, SocialConnection } from '@/types/fiesta';
 
 // UI Components
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -43,6 +43,9 @@ import {
 import { ShareLinkDialog } from '@/components/dashboard/ShareLinkDialog';
 import QRCodeStylized from 'qrcode.react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { getInvoiceTemplateSettings } from '@/app/actions/settings';
+import { getSocialConnections } from '@/app/actions/social-connections';
+
 
 const PostCard: React.FC<{ 
   post: SocialGalleryPost; 
@@ -143,6 +146,10 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
 
   const [isAdminView, setIsAdminView] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
+  
+  const [companyLogoUrl, setCompanyLogoUrl] = useState<string | null>(null);
+  const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
+
 
   // Dialog state
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
@@ -158,14 +165,19 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
   const fetchData = useCallback(async (showLoadingIndicator = true) => {
     if(showLoadingIndicator) setIsLoading(true);
     try {
-      const [fetchedPosts, fiestaData, fetchedChat] = await Promise.all([
+      const [fetchedPosts, fiestaData, fetchedChat, settingsData, socialConnections] = await Promise.all([
           getSocialPosts(params.fiestaId),
           getFiestaById(params.fiestaId),
           getChatMessages(params.fiestaId),
+          getInvoiceTemplateSettings(),
+          getSocialConnections(),
       ]);
       setPosts(fetchedPosts);
       setFiesta(fiestaData);
       setChatMessages(fetchedChat);
+      setCompanyLogoUrl(settingsData.logoUrl);
+      setWhatsappNumber(socialConnections.find(c => c.platform === 'WhatsApp')?.phoneNumber || null);
+
     } catch (e) {
       toast({ title: "Error al cargar galería", variant: "destructive" });
     } finally {
@@ -436,7 +448,12 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
                     </div>
                 ))}
             </div>
-            <div className="flex-shrink-0 w-full md:w-1/4 h-1/3 md:h-full bg-gray-900/80 rounded-lg p-4 flex flex-col text-white">
+             <div className="flex-shrink-0 w-full md:w-1/4 h-1/3 md:h-full bg-gray-900/80 rounded-lg p-4 flex flex-col text-white">
+                {companyLogoUrl && (
+                    <div className="relative h-20 w-full mb-4">
+                        <NextImage src={companyLogoUrl} alt="Logo" layout="fill" objectFit="contain" />
+                    </div>
+                )}
                 <h2 className="text-xl font-bold text-center mb-4">Chat en Vivo</h2>
                  <ScrollArea className="flex-grow mb-4">
                      <div className="space-y-3">
@@ -449,11 +466,22 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
                         <div ref={chatEndRef}/>
                     </div>
                  </ScrollArea>
-                 <div className="flex-shrink-0 text-center space-y-2 p-3 bg-black/50 rounded-md">
-                     <p className="font-semibold">¡Únete a la conversación!</p>
-                     <div className="bg-white p-2 rounded-md inline-block">
-                         <QRCodeStylized value={`${window.location.origin}/evento/social/${params.fiestaId}`} size={80} />
+                 <div className="flex-shrink-0 text-center space-y-4 p-3 bg-black/50 rounded-md">
+                     <div>
+                        <p className="font-semibold">¡Únete a la conversación!</p>
+                        <div className="bg-white p-2 rounded-md inline-block mt-2">
+                            <QRCodeStylized value={`${window.location.origin}/evento/social/${params.fiestaId}`} size={80} />
+                        </div>
                      </div>
+                     {whatsappNumber && (
+                        <div className="border-t border-gray-600 pt-3">
+                           <p className="font-semibold">Contacto</p>
+                           <p className="flex items-center justify-center gap-2 mt-1">
+                             <MessageSquare className="w-4 h-4 text-green-400"/>
+                             {whatsappNumber}
+                           </p>
+                        </div>
+                     )}
                  </div>
             </div>
         </div>
@@ -461,3 +489,5 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
     </div>
   );
 }
+
+    
