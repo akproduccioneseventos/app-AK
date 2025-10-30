@@ -146,10 +146,10 @@ const Seat: React.FC<{ angle?: number; distance?: number; isOccupied: boolean; i
 
 
 function SalonLayoutContent() {
-  const params = use(useSearchParams());
+  const searchParams = useSearchParams();
   const router = useRouter();
   const { toast } = useToast();
-  const fiestaId = params.get('fiestaId');
+  const fiestaId = searchParams.get('fiestaId');
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [decoracion, setDecoracion] = useState<DecoracionData | null>(null);
@@ -582,7 +582,7 @@ function SalonLayoutContent() {
                                      {el.seats && Array.from({ length: el.seats }).map((_, i) => (
                                         <Seat key={i} index={i} total={el.seats!} isOccupied={i < assignedSeatsCount} isRound={isRound} width={el.width} height={el.height} />
                                       ))}
-                                    <div className={cn('w-full h-full border flex flex-col p-1', selectedElementId === el.id ? 'border-primary shadow-lg z-10' : 'border-gray-500', isRound ? 'rounded-full justify-center' : 'rounded-sm')}
+                                    <div className={cn('w-full h-full border flex flex-col p-1', selectedElementId === el.id ? 'border-primary shadow-lg z-10' : 'border-gray-500', isRound && 'rounded-full', !isRound && 'rounded-sm')}
                                         style={{ backgroundColor: el.backgroundColor || (isArea ? 'rgba(59, 130, 246, 0.2)' : 'rgba(255, 255, 255, 0.7)') }}
                                         onClick={(e) => { e.stopPropagation(); setSelectedElementId(el.id); }}>
                                         <p className={cn("text-xs font-bold text-center truncate", isArea ? 'text-blue-800' : 'text-base')}>{el.name}</p>
