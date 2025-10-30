@@ -1,16 +1,15 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, type ChangeEvent } from 'react';
+import React, { useState, useEffect, useCallback, type ChangeEvent, use } from 'react';
 import Link from 'next/link';
 import NextImage from 'next/image';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Printer as PrinterIcon, Share2, GlassWater, Upload, Loader2, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, CartaTragosData, Trago } from '@/types/fiesta';
-import { getFiestaActual, updateCartaTragos as updateCartaTragosAction } from '@/app/actions/fiesta/fiesta.actions';
+import { getFiestaById, updateCartaTragos as updateCartaTragosAction } from '@/app/actions/fiesta/fiesta.actions';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
-import { Loader2 as LoaderIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
@@ -65,6 +64,8 @@ const MenuComponent: React.FC<{
 };
 
 export default function CartaTragosPage() {
+  const params = use(useSearchParams());
+  const fiestaId = params.get('fiestaId');
   const { toast } = useToast();
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [cartaTragos, setCartaTragos] = useState<CartaTragosData>(defaultCartaTragosData);
@@ -74,15 +75,17 @@ export default function CartaTragosPage() {
   const [isUploading, setIsUploading] = useState(false);
 
   const loadData = useCallback(async () => {
+    if (!fiestaId) return;
     setIsLoading(true);
     try {
-      const [fiestaData, settings] = await Promise.all([getFiestaActual(), getInvoiceTemplateSettings()]);
+      const [fiestaData, settings] = await Promise.all([getFiestaById(fiestaId), getInvoiceTemplateSettings()]);
+      if (!fiestaData) throw new Error("Fiesta no encontrada");
       setFiesta(fiestaData);
       setLogoUrl(settings.logoUrl);
       const mergedData = { 
         ...defaultCartaTragosData, 
         ...(fiestaData.cartaTragos || {}),
-        items: defaultStaticTragos // Always use static list
+        items: defaultStaticTragos
       };
       if (!mergedData.protagonistaNombre && fiestaData.configuracion.protagonista1Nombre) {
         mergedData.protagonistaNombre = fiestaData.configuracion.protagonista1Nombre;
@@ -93,7 +96,7 @@ export default function CartaTragosPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, [fiestaId, toast]);
 
   useEffect(() => {
     loadData();
@@ -105,7 +108,7 @@ export default function CartaTragosPage() {
     try {
       const dataToSave: CartaTragosData = {
           ...cartaTragos,
-          items: defaultStaticTragos // Ensure we always save the static list, not any dynamic version
+          items: defaultStaticTragos
       };
       const result = await updateCartaTragosAction(fiesta.id, dataToSave);
       if (result.success) {
@@ -154,7 +157,6 @@ export default function CartaTragosPage() {
   };
 
   const handlePrint = () => window.print();
-  const handleShare = () => { /* ... (implement if needed) ... */ };
 
   if (isLoading || !fiesta) {
     return <div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
@@ -173,27 +175,23 @@ export default function CartaTragosPage() {
                  <Label className="text-xs">Color Título</Label>
                  <Input type="color" value={cartaTragos.paletaColores?.primary || '#9333ea'} onChange={e => handleColorChange('primary', e.target.value)} className="w-10 h-9 p-0.5"/>
               </div>
-              <div className="space-y-1">
+               <div className="space-y-1">
                  <Label className="text-xs">Nombre</Label>
                  <Input value={cartaTragos.protagonistaNombre || ''} onChange={e => handleUpdate('protagonistaNombre', e.target.value)} className="h-9 w-32"/>
               </div>
                <div className="flex items-end gap-2">
-                 <Button size="sm" onClick={handleSaveChanges} disabled={isSaving}>
-                    {isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}
-                 </Button>
+                 <Button size="sm" onClick={handleSaveChanges} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}</Button>
                  <Button onClick={handlePrint} size="sm" variant="outline"><PrinterIcon className="w-4 h-4"/></Button>
-                 <Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`} passHref>
-                    <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4"/></Button>
-                 </Link>
+                 <Link href={`/fiestas/nueva/catering?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4"/></Button></Link>
                </div>
             </div>
       </div>
       
-      <div className="w-[297mm] h-[210mm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto flex gap-4 p-4 border-2 border-dashed print:border-none">
-        <div className="w-1/2 h-full border border-gray-300 print:border-none">
+      <div className="w-[210mm] h-[297mm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto p-4 flex flex-col gap-4">
+        <div className="h-1/2 w-full border border-dashed border-gray-400 p-1">
             <MenuComponent fiesta={fiesta} carta={cartaTragos} logoUrl={logoUrl}/>
         </div>
-         <div className="w-1/2 h-full border border-gray-300 print:border-none">
+         <div className="h-1/2 w-full border border-dashed border-gray-400 p-1">
             <MenuComponent fiesta={fiesta} carta={cartaTragos} logoUrl={logoUrl}/>
         </div>
       </div>
@@ -202,7 +200,7 @@ export default function CartaTragosPage() {
         @import url('https://fonts.googleapis.com/css2?family=Belleza&family=Dancing+Script:wght@700&display=swap');
          @media print {
             body { -webkit-print-color-adjust: exact; color-adjust: exact; }
-            @page { size: A4 landscape; margin: 0; }
+            @page { size: A4 portrait; margin: 0; }
         }
        `}</style>
     </div>
