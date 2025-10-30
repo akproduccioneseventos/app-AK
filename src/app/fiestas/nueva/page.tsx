@@ -53,7 +53,7 @@ const modules = [
   { id: 'regalos', title: "Lista de Regalos", href: "regalos", icon: Gift, description: "Configura la lista de regalos para los invitados.", category: 'Portal del Cliente' },
   { id: 'videoVida', title: "Video de Vida", href: "video-vida", icon: Video, description: "Gestiona las fotos del cliente.", category: 'Portal del Cliente' },
   { id: 'feedback', title: "Feedback y Testimonios", href: "/settings/feedback", icon: Star, description: "Gestiona la opinión de tus clientes post-evento.", category: 'Portal del Cliente' },
-  { id: 'invitados', title: "Asignación de Mesas (Cliente)", href: "/portal/mesas", icon: Users, description: "Vista del cliente para organizar mesas.", category: 'Portal del Cliente' },
+  { id: 'invitados', title: "Asignación de Mesas (Cliente)", href: "invitados/layout", icon: Users, description: "Vista del cliente para organizar mesas.", category: 'Portal del Cliente' },
 
   // Herramientas Adicionales
   { id: 'checkin', title: "Check-in de Invitados (QR)", href: "invitados/checkin-scanner", icon: QrCode, description: "Escanea los QR de los invitados en la entrada.", category: 'Herramientas Adicionales' },
@@ -124,7 +124,6 @@ function PlannerDashboardContent() {
     if (!fiesta) return '#';
     const handlers: Record<string, () => string> = {
         "/fiestas/nueva/reuniones": () => `/fiestas/nueva/reuniones?fiestaId=${fiesta.id}`,
-        "/portal/mesas": () => `/portal/mesas?fiestaId=${fiesta.id}`,
         "/evento/social/[fiestaId]": () => `/evento/social/${fiesta.id}`,
     };
     return handlers[baseHref] ? handlers[baseHref]() : baseHref;

@@ -329,7 +329,8 @@
       "id": "inv_10",
       "nombre": "Mateo González",
       "rsvp": "Pendiente",
-      "partySize": 1
+      "partySize": 1,
+      "tableNumber": "Mesa Principal"
     }
   ],
   "clientPortalSettings": {
@@ -434,7 +435,7 @@
     "galleryEnabled": true,
     "songSuggestion": "Photograph - Ed Sheeran",
     "customText": "Sofi, por favor sube una foto por cada año de tu vida, desde bebé hasta ahora. ¡Queremos contar tu historia!",
-    "photoCount": 15
+    "photoCount": 50
   },
   "programa": [
     {
