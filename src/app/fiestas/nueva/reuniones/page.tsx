@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { DatePickerDemo } from '@/components/date-picker-demo';
-import { ArrowLeft, PlusCircle, Edit3, Trash2, Loader2, AlertTriangle, MessageSquareText, CalendarIcon, NotebookTextIcon, CalendarPlus, Palette, Music2, ChefHat, PackageSearch, Globe, KeyRound, ClipboardCopy } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Edit3, Trash2, Loader2, AlertTriangle, MessageSquareText, CalendarIcon, NotebookTextIcon, CalendarPlus, Palette, Music2, ChefHat, PackageSearch, Globe, KeyRound, ClipboardCopy, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, Reunion, ClientPortalSettings } from '@/types/fiesta';
 import { getFiestaById, addReunionToFiestaActual, updateReunionInFiestaActual, deleteReunionFromFiestaActual, updatePortalSettings } from '@/app/actions/fiesta-actual';
@@ -91,7 +91,7 @@ const portalModules: { id: keyof Omit<ClientPortalSettings, 'enabled' | 'accessK
     { id: 'listaRegalos', label: 'Ver Lista de Regalos' },
     { id: 'documentos', label: 'Documentos' },
     { id: 'notasCliente', label: 'Notas Compartidas' },
-    { id: 'invitados', label: 'Lista de Invitados' },
+    { id: 'invitados', label: 'Lista de Invitados y Asignación de Mesas' },
     { id: 'paginaPublica', label: 'Acceso a Página Pública' },
     { id: 'fotografiaYFilmacion', label: 'Seguimiento de Fotografía/Video' },
 ];
