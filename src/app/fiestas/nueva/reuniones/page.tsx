@@ -280,7 +280,7 @@ function GestionReunionesContent() {
           <MessageSquareText className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">Reuniones y Portal Cliente</h1>
         </div>
-        <Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`} passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
+        <Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`} passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Planificador</Button></Link>
       </div>
 
       <Card>

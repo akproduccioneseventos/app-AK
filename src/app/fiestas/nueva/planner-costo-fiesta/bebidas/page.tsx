@@ -1,21 +1,23 @@
 
 'use client';
 
-import React, { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
-// This page is obsolete. Its functionality has been moved to the event planner itself.
-// We redirect to the new central page for this functionality.
-export default function DeprecatedBebidasPage() {
-    const router = useRouter();
 
+function RedirectToCatering() {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const fiestaId = searchParams.get('fiestaId');
+    
     useEffect(() => {
-        router.replace('/fiestas/nueva/catering');
-    }, [router]);
+        const destination = `/fiestas/nueva/catering${fiestaId ? `?fiestaId=${fiestaId}` : ''}`;
+        router.replace(destination);
+    }, [router, fiestaId]);
 
     return (
         <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4">
@@ -30,7 +32,7 @@ export default function DeprecatedBebidasPage() {
                     </p>
                 </CardContent>
                  <CardFooter className="justify-center">
-                    <Link href="/fiestas/nueva/catering" passHref>
+                    <Link href={`/fiestas/nueva/catering${fiestaId ? `?fiestaId=${fiestaId}` : ''}`} passHref>
                         <Button variant="link">
                             Si no eres redirigido, haz clic aquí.
                         </Button>
@@ -40,3 +42,12 @@ export default function DeprecatedBebidasPage() {
         </div>
     );
 }
+
+export default function DeprecatedBebidasPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>}>
+      <RedirectToCatering />
+    </Suspense>
+  );
+}
+

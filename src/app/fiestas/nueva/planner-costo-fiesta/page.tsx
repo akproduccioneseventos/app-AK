@@ -1,14 +1,15 @@
 
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { Suspense } from 'react';
 
+// This page is obsolete. Its functionality has been moved to the event planner itself.
+// We redirect to the new central page for this functionality.
 function RedirectToCatering() {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -27,7 +28,7 @@ function RedirectToCatering() {
                 </CardHeader>
                 <CardContent>
                      <p className="text-muted-foreground">
-                        La gestión de Repostería ahora es parte del Planificador Gastronómico. Serás redirigido.
+                        El Planificador Gastronómico ahora está integrado en el módulo de Catering. Serás redirigido.
                     </p>
                 </CardContent>
                  <CardFooter className="justify-center">
@@ -43,11 +44,10 @@ function RedirectToCatering() {
 }
 
 
-export default function DeprecatedReposteriaPage() {
+export default function DeprecatedPlannerCostoPage() {
     return (
         <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>}>
             <RedirectToCatering />
         </Suspense>
     );
 }
-

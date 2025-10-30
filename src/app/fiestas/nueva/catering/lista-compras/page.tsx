@@ -13,9 +13,9 @@ import { getMenuById } from '@/app/actions/menus-catering';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { updateShoppingListStatus } from '@/app/actions/fiesta/catering.actions';
 import { useSearchParams } from 'next/navigation';
-import { Suspense as ReactSuspense } from 'react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { addTareaToFiestaActual } from '@/app/actions/fiesta-actual';
 
 interface ShoppingListItem {
   id: string;
@@ -33,8 +33,7 @@ const formatCurrency = (amount?: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
-
-export default function ListaDeComprasPage() {
+function ListaDeComprasContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const fiestaId = searchParams.get('fiestaId');
@@ -186,7 +185,6 @@ export default function ListaDeComprasPage() {
         updatedEstados.push(estadoProveedor);
     }
     
-    // Optimistic UI update
     setEstadosCompra(updatedEstados);
 
     try {
@@ -200,7 +198,6 @@ export default function ListaDeComprasPage() {
         });
     } catch(e: any) {
         toast({ title: "Error", description: `No se pudo guardar el estado: ${e.message}`, variant: "destructive" });
-        // Revert UI on error
         loadData(false);
     } finally {
         setIsSavingStatus(null);
@@ -214,9 +211,11 @@ export default function ListaDeComprasPage() {
   if (error) {
     return <div className="text-center py-10"><AlertTriangle className="w-12 h-12 mx-auto text-destructive mb-3" /><p className="font-semibold">{error}</p><Button onClick={() => loadData()} className="mt-4">Reintentar</Button></div>;
   }
+  if (!fiesta) {
+    return <div className="text-center py-10"><p className="text-muted-foreground">No hay datos de fiesta.</p></div>;
+  }
 
   return (
-    <Suspense fallback={<div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
       <div className="max-w-4xl mx-auto space-y-6 print:space-y-3">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 print:hidden">
           <div className="flex items-center gap-3">
@@ -225,15 +224,15 @@ export default function ListaDeComprasPage() {
           </div>
           <div className="flex gap-2">
             <Button onClick={handlePrint} variant="outline"><Printer className="w-4 h-4 mr-2"/>Imprimir/PDF</Button>
-              <Link href={`/fiestas/nueva/catering?fiestaId=${fiesta?.id || ''}`} passHref>
-                  <Button><ArrowLeft className="w-4 h-4 mr-2"/>Volver a Catering</Button>
+              <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref>
+                  <Button><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Planificador</Button>
               </Link>
           </div>
         </div>
         
         <div className="print:block hidden text-center mb-2">
-          <h1 className="text-xl font-bold">Lista de Compras - {fiesta?.configuracion.nombreEvento}</h1>
-          <p className="text-sm">Para {fiesta?.configuracion.invitadosEstimados} invitados</p>
+          <h1 className="text-xl font-bold">Lista de Compras - {fiesta.configuracion.nombreEvento}</h1>
+          <p className="text-sm">Para {fiesta.configuracion.invitadosEstimados} invitados</p>
         </div>
 
         <Card className="shadow-lg print:shadow-none print:border-none">
@@ -294,12 +293,12 @@ export default function ListaDeComprasPage() {
                                       </TableRow>
                                   ))}
                                   </TableBody>
-                                  <TableFooter>
+                                   <TableFooter>
                                     <TableRow>
                                         <TableCell colSpan={5} className="text-right font-bold">Subtotal Proveedor:</TableCell>
                                         <TableCell className="text-right font-bold">{formatCurrency(total)}</TableCell>
                                     </TableRow>
-                                </TableFooter>
+                                  </TableFooter>
                               </Table>
                           </div>
                       </div>
@@ -316,6 +315,13 @@ export default function ListaDeComprasPage() {
           </CardFooter>
         </Card>
       </div>
-    </Suspense>
   );
+}
+
+export default function ListaDeComprasPageWrapper() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+        <ListaDeComprasContent/>
+    </Suspense>
+  )
 }

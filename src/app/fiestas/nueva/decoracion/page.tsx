@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Palette, Save, Loader2, AlertTriangle, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, Settings2, StickyNote, CakeSlice, Building, Gift, Camera, Sparkles as SparklesIcon, ChevronDown, ListPlus, LayoutDashboard } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getFiestaActual, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaById, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion, DecoracionData, DecorationItem, ColorPalette, ZonaContratada } from '@/types/fiesta';
 import { defaultDecoracion, defaultZonasContratadas } from '@/lib/fiesta-defaults';
 import { Separator } from '@/components/ui/separator';
@@ -30,6 +30,8 @@ import { Accordion, AccordionContent, AccordionItem } from "@/components/ui/acco
 import { cn } from "@/lib/utils";
 import { suggestPalette, type ColorPalette as SuggestedPalette } from '@/ai/flows/suggest-palette-flow';
 import { Switch } from '@/components/ui/switch';
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 
 const ALL_DECORATION_ITEM_CATEGORIES = [
@@ -51,9 +53,10 @@ interface ItemSectionProps {
   onEditItem: (item: DecorationItem) => void;
   onDeleteItem: (itemId: string) => void;
   failedImageUrls: Record<string, boolean>;
+  setFailedImageUrls: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
 }
 
-const ItemSection: React.FC<ItemSectionProps> = ({ title, category, items, onAddItem, onEditItem, onDeleteItem, failedImageUrls }) => {
+const ItemSection: React.FC<ItemSectionProps> = ({ title, category, items, onAddItem, onEditItem, onDeleteItem, failedImageUrls, setFailedImageUrls }) => {
   const filteredItems = items.filter(item => item.category === category);
   return (
     <div className="space-y-3">
@@ -86,9 +89,11 @@ const ItemSection: React.FC<ItemSectionProps> = ({ title, category, items, onAdd
   );
 };
 
-
-export default function DecoracionYDisenoEventoPage() {
+function DecoracionYDisenoEventoContent() {
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const fiestaId = searchParams.get('fiestaId');
+
   const [decoracionData, setDecoracionData] = useState<DecoracionData>(defaultDecoracion);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -107,11 +112,18 @@ export default function DecoracionYDisenoEventoPage() {
   const [aiError, setAiError] = useState<string | null>(null);
   
   const loadDecoracionData = useCallback(async () => {
+    if (!fiestaId) {
+      setError("No se especificó ID de fiesta");
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     setError(null);
     setFailedImageUrls({});
     try {
-      const fiestaData = await getFiestaActual();
+      const fiestaData = await getFiestaById(fiestaId);
+      if (!fiestaData) throw new Error("Fiesta no encontrada");
+
       const loadedDecoracion = fiestaData.decoracion || defaultDecoracion;
       
       const mergedZonas = defaultZonasContratadas.map(defaultZona => {
@@ -142,7 +154,7 @@ export default function DecoracionYDisenoEventoPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, [toast, fiestaId]);
 
   useEffect(() => {
     loadDecoracionData();
@@ -232,9 +244,10 @@ export default function DecoracionYDisenoEventoPage() {
   
   const handleSaveDecoracion = async (e: FormEvent) => {
     e.preventDefault();
+    if (!fiestaId) return;
     setIsSaving(true);
     try {
-      const result = await updateDecoracionFiestaActual(decoracionData);
+      const result = await updateDecoracionFiestaActual(fiestaId, decoracionData);
       if (result.success && result.updatedData) {
         toast({ title: "¡Decoración Guardada!", description: "Los detalles de decoración se han actualizado." });
         const loadedDecoracion = result.updatedData || defaultDecoracion;
@@ -301,7 +314,7 @@ export default function DecoracionYDisenoEventoPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3"><Palette className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">🎨 Decoración y Diseño del Evento</h1></div>
-        <Link href="/fiestas/nueva" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
+        <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
       </div>
 
       <form onSubmit={handleSaveDecoracion}>
@@ -384,6 +397,7 @@ export default function DecoracionYDisenoEventoPage() {
                 onEditItem={openItemModal}
                 onDeleteItem={handleDeleteItem}
                 failedImageUrls={failedImageUrls}
+                setFailedImageUrls={setFailedImageUrls}
             />
             <Separator/>
             <ItemSection
@@ -394,6 +408,7 @@ export default function DecoracionYDisenoEventoPage() {
                 onEditItem={openItemModal}
                 onDeleteItem={handleDeleteItem}
                 failedImageUrls={failedImageUrls}
+                setFailedImageUrls={setFailedImageUrls}
             />
              <Separator/>
              <ItemSection
@@ -404,6 +419,7 @@ export default function DecoracionYDisenoEventoPage() {
                 onEditItem={openItemModal}
                 onDeleteItem={handleDeleteItem}
                 failedImageUrls={failedImageUrls}
+                setFailedImageUrls={setFailedImageUrls}
             />
              <Separator/>
               <ItemSection
@@ -414,6 +430,7 @@ export default function DecoracionYDisenoEventoPage() {
                 onEditItem={openItemModal}
                 onDeleteItem={handleDeleteItem}
                 failedImageUrls={failedImageUrls}
+                setFailedImageUrls={setFailedImageUrls}
             />
           </CardContent>
         </Card>
@@ -498,4 +515,12 @@ export default function DecoracionYDisenoEventoPage() {
       
     </div>
   );
+}
+
+export default function DecoracionPageWrapper() {
+    return (
+        <Suspense fallback={<div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>}>
+            <DecoracionYDisenoEventoContent/>
+        </Suspense>
+    )
 }

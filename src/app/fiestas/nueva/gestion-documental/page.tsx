@@ -11,7 +11,7 @@ import { ArrowLeft, UploadCloud, FileText, Loader2, AlertTriangle, Archive, File
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { FiestaEnPlanificacion, OtroDocumento, DocumentoTipo } from '@/types/fiesta';
-import { getFiestaActual, uploadDocumentoFiesta, deleteDocumentoFiesta } from '@/app/actions/fiesta-actual';
+import { getFiestaById, uploadDocumentoFiesta, deleteDocumentoFiesta } from '@/app/actions/fiesta-actual';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 
@@ -65,7 +65,7 @@ function GestionDocumentalContent() {
   };
   
   const handleUpload = async () => {
-    if (!fileToUpload) {
+    if (!fileToUpload || !fiestaId) {
       toast({ title: "No hay archivo", description: "Selecciona un archivo para subir.", variant: "destructive" });
       return;
     }
@@ -79,6 +79,7 @@ function GestionDocumentalContent() {
     formData.append('file', fileToUpload);
     formData.append('docType', docType);
     formData.append('customName', customName);
+    formData.append('fiestaId', fiestaId);
     
     try {
       const result = await uploadDocumentoFiesta(formData);
@@ -99,6 +100,7 @@ function GestionDocumentalContent() {
   };
 
   const handleDelete = async (docId: string) => {
+    if (!fiestaId) return;
     try {
       const result = await deleteDocumentoFiesta(docId);
       if (result.success) {

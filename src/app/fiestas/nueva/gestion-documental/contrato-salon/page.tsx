@@ -8,7 +8,7 @@ import { ArrowLeft, Printer as PrinterIcon, Share2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
-import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getCustomerById } from '@/app/actions/customers';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertTriangle } from 'lucide-react';
@@ -44,13 +44,19 @@ function ContratoSalonContent() {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
+    if (!fiestaId) {
+        setError("Falta el ID del evento.");
+        setIsLoading(false);
+        return;
+    }
     setIsLoading(true);
     setError(null);
     try {
       const [fiestaData, settings] = await Promise.all([
-          getFiestaActual(),
+          getFiestaById(fiestaId),
           getInvoiceTemplateSettings()
       ]);
+      if (!fiestaData) throw new Error("Evento no encontrado.");
       if (!fiestaData.configuracion.clienteId) {
         setError("Para generar este contrato, primero asigna un cliente al evento en la sección de 'Configuración del Evento'.");
         setIsLoading(false);
@@ -69,7 +75,7 @@ function ContratoSalonContent() {
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, [toast, fiestaId]);
 
   useEffect(() => {
     loadData();

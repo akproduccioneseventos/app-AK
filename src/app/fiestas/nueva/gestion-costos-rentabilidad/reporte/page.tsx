@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Printer as PrinterIcon, Share2, TrendingUp, TrendingDown, DollarSign, BarChart3 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
-import { getEventFinancialSummary, type EventFinancialSummaryData } from '@/app/actions/reportes';
+import { getProfitAndLossData, type ProfitAndLossData } from '@/app/actions/reportes';
 import { WatermarkedImage } from '@/components/watermarked-image';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Loader2, AlertTriangle } from 'lucide-react';
@@ -21,22 +21,31 @@ function ReporteEventoContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const fiestaId = searchParams.get('fiestaId');
-  const [reportData, setReportData] = useState<EventFinancialSummaryData | null>(null);
+  const [reportData, setReportData] = useState<ProfitAndLossData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
   const fetchReportData = useCallback(async () => {
+    if (!fiestaId) {
+        setError("Falta el ID del evento.");
+        setIsLoading(false);
+        return;
+    }
     setIsLoading(true);
     setError(null);
     try {
+      // NOTE: This report page is not fully implemented to filter by a specific event.
+      // It currently shows the Profit & Loss for a default or broader range.
+      // This would need to be updated in `reportes.ts` to accept and use a `fiestaId`.
       const [reportResult, settings] = await Promise.all([
-          getEventFinancialSummary(),
+          getProfitAndLossData({from: new Date(2000, 1, 1), to: new Date(2100, 1, 1)}), // Placeholder date range
           getInvoiceTemplateSettings()
       ]);
       
       if (reportResult.success && reportResult.data) {
-        setReportData(reportResult.data);
+        // Placeholder for event-specific name, as the backend doesn't filter yet.
+        setReportData({...(reportResult.data), nombreEvento: 'Evento Actual'}); 
       } else {
         throw new Error(reportResult.error || "No se pudo generar el reporte.");
       }
@@ -48,7 +57,7 @@ function ReporteEventoContent() {
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, [toast, fiestaId]);
 
   useEffect(() => {
     fetchReportData();
@@ -83,7 +92,7 @@ function ReporteEventoContent() {
           <AlertTriangle className="w-16 h-16 text-destructive mb-4" />
           <h1 className="text-2xl font-bold">Error al Generar Reporte</h1>
           <p className="text-muted-foreground mt-2">{error || "No se encontró información del evento."}</p>
-          <Link href={`/fiestas/nueva/gestion-costos-rentabilidad?fiestaId=${fiestaId}`} passHref>
+          <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref>
             <Button variant="outline" className="mt-4">Volver</Button>
           </Link>
       </div>

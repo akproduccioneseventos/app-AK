@@ -7,9 +7,9 @@ import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Printer as PrinterIcon, Music, Ban, PartyPopper, Share2, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, Share2, AlertTriangle, Music, Ban, PartyPopper } from 'lucide-react';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
-import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { WatermarkedImage } from '@/components/watermarked-image';
 import { useSearchParams } from 'next/navigation';
@@ -42,13 +42,19 @@ function MusicaPdfContent() {
   const [error, setError] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
+    if (!fiestaId) {
+      setError("No se especificó ID de fiesta.");
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     setError(null);
     try {
       const [fiestaData, templateSettings] = await Promise.all([
-        getFiestaActual(),
+        getFiestaById(fiestaId),
         getInvoiceTemplateSettings()
       ]);
+      if (!fiestaData) throw new Error("Evento no encontrado.");
       setFiesta(fiestaData);
       setLogoUrl(templateSettings.logoUrl);
     } catch (err: any) {
@@ -58,7 +64,7 @@ function MusicaPdfContent() {
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, [toast, fiestaId]);
 
   useEffect(() => {
     loadData();
@@ -83,17 +89,7 @@ function MusicaPdfContent() {
   };
 
   if (isLoading) {
-    return (
-      <div className="p-8 max-w-3xl mx-auto bg-white">
-        <div className="flex justify-between items-center mb-6 print:hidden">
-          <Skeleton className="h-10 w-40" /> <Skeleton className="h-10 w-40" />
-        </div>
-        <Skeleton className="h-12 w-3/4 mb-2" />
-        <Skeleton className="h-6 w-1/2 mb-6" />
-        <Skeleton className="h-24 w-full mb-6" />
-        <Skeleton className="h-20 w-full mb-6" />
-      </div>
-    );
+    return <div className="p-8 max-w-3xl mx-auto bg-white"><Skeleton className="h-[80vh] w-full" /></div>;
   }
 
   if (error || !fiesta || !fiesta.musica) {
@@ -171,7 +167,7 @@ function MusicaPdfContent() {
         </div>
 
         <footer className="mt-8 pt-4 border-t text-center text-xs text-gray-400 print:mt-5 print:pt-2 print:border-gray-300">
-          <p>Generado el: {new Date().toLocaleString('es-ES')}</p>
+          <p>Generado por {companyName} el: {new Date().toLocaleString('es-ES')}</p>
         </footer>
       </div>
     </div>
