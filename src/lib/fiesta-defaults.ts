@@ -1,23 +1,25 @@
 
 
-import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, GiftItem, LayoutElement, ClientTarea, ProgramaEventoItem, TareaAsignadaA, FotografiaYFilmacionData, BebidasConsumoConfig, TipoAsistente, ReposteriaConsumoConfig, OtroDocumento, VideoVidaData, BebidaReceta, IngredienteReceta, CargaOperativaCategoria, InvitacionDigitalData, SeccionInvitacion, CartaTragosData, MenuMesaData, ModulosContratados, NumerosMesaData } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, GiftItem, LayoutElement, ClientTarea, ProgramaEventoItem, TareaAsignadaA, FotografiaYFilmacionData, BebidasConsumoConfig, TipoAsistente, ReposteriaConsumoConfig, OtroDocumento, VideoVidaData, BebidaReceta, IngredienteReceta, CargaOperativaCategoria, InvitacionDigitalData, SeccionInvitacion, CartaTragosData, MenuMesaData, ModulosContratados, NumerosMesaData, Trago } from '@/types/fiesta';
 import { defaultInvitacionDigitalData } from './invitacion-digital-defaults';
+
+export const defaultStaticTragos: Trago[] = [
+    { id: 'trago_1', nombre: 'DAIQUIRI DE DURAZNO', imageUrl: 'https://picsum.photos/seed/peach-daiquiri/400/600', aiHint: 'peach daiquiri' },
+    { id: 'trago_2', nombre: 'CAIPIRINHA', imageUrl: 'https://picsum.photos/seed/caipirinha/400/600', aiHint: 'caipirinha cocktail' },
+    { id: 'trago_3', nombre: 'ARIZONA', imageUrl: 'https://picsum.photos/seed/arizona-cocktail/400/600', aiHint: 'arizona cocktail' },
+    { id: 'trago_4', nombre: 'DAIQUIRI DE ANANA', imageUrl: 'https://picsum.photos/seed/pineapple-daiquiri/400/600', aiHint: 'pineapple daiquiri' },
+    { id: 'trago_5', nombre: 'DAIQUIRI DE FRUTILLA', imageUrl: 'https://picsum.photos/seed/strawberry-daiquiri/400/600', aiHint: 'strawberry daiquiri' },
+    { id: 'trago_6', nombre: 'ATOMIC GREEN', imageUrl: 'https://picsum.photos/seed/atomic-green/400/600', aiHint: 'atomic green cocktail' },
+    { id: 'trago_7', nombre: 'DAIQUIRI PRIMAVERA', imageUrl: 'https://picsum.photos/seed/spring-daiquiri/400/600', aiHint: 'spring daiquiri' },
+    { id: 'trago_8', nombre: 'FERNET CON COCA', imageUrl: 'https://picsum.photos/seed/fernet-coke/400/600', aiHint: 'fernet with coke' },
+    { id: 'trago_9', nombre: 'ATARDECER', imageUrl: 'https://picsum.photos/seed/sunset-cocktail/400/600', aiHint: 'sunset cocktail' },
+    { id: 'trago_10', nombre: 'DESTORNILLADOR', imageUrl: 'https://picsum.photos/seed/screwdriver/400/600', aiHint: 'screwdriver cocktail' },
+];
 
 export const defaultCartaTragosData: CartaTragosData = {
     protagonistaFotoUrl: "https://picsum.photos/seed/quinceanera-main/300/300",
     paletaColores: { primary: '#9333ea', secondary: '#363636', accent: '#facc15' },
-    items: [
-        { id: 'trago_1', nombre: 'DAIQUIRI DE DURAZNO', imageUrl: 'https://picsum.photos/seed/peach-daiquiri/400/600', aiHint: 'peach daiquiri' },
-        { id: 'trago_2', nombre: 'CAIPIRINHA', imageUrl: 'https://picsum.photos/seed/caipirinha/400/600', aiHint: 'caipirinha cocktail' },
-        { id: 'trago_3', nombre: 'ARIZONA', imageUrl: 'https://picsum.photos/seed/arizona-cocktail/400/600', aiHint: 'arizona cocktail' },
-        { id: 'trago_4', nombre: 'DAIQUIRI DE ANANA', imageUrl: 'https://picsum.photos/seed/pineapple-daiquiri/400/600', aiHint: 'pineapple daiquiri' },
-        { id: 'trago_5', nombre: 'DAIQUIRI DE FRUTILLA', imageUrl: 'https://picsum.photos/seed/strawberry-daiquiri/400/600', aiHint: 'strawberry daiquiri' },
-        { id: 'trago_6', nombre: 'ATOMIC GREEN', imageUrl: 'https://picsum.photos/seed/atomic-green/400/600', aiHint: 'atomic green cocktail' },
-        { id: 'trago_7', nombre: 'DAIQUIRI PRIMAVERA', imageUrl: 'https://picsum.photos/seed/spring-daiquiri/400/600', aiHint: 'spring daiquiri' },
-        { id: 'trago_8', nombre: 'FERNET CON COCA', imageUrl: 'https://picsum.photos/seed/fernet-coke/400/600', aiHint: 'fernet with coke' },
-        { id: 'trago_9', nombre: 'ATARDECER', imageUrl: 'https://picsum.photos/seed/sunset-cocktail/400/600', aiHint: 'sunset cocktail' },
-        { id: 'trago_10', nombre: 'DESTORNILLADOR', imageUrl: 'https://picsum.photos/seed/screwdriver/400/600', aiHint: 'screwdriver cocktail' },
-    ]
+    items: defaultStaticTragos,
 };
 
 export const defaultMenuMesaData: MenuMesaData = {
@@ -78,7 +80,7 @@ export const defaultPrograma: ProgramaEventoItem[] = [
   { id: 'prog_6', hora: '01:00', titulo: 'Cena / Cierra Barra de Tragos', icono: 'Utensils' },
   { id: 'prog_7', hora: '01:45', titulo: 'Video de Vida', icono: 'Film' },
   { id: 'prog_8', hora: '02:00', titulo: 'Reapertura de Barra y Baile', icono: 'GlassWater' },
-  { id: 'prog_9', hora: '02:30', titulo: 'Plataforma 360 y Fotocabina', icono: 'Camera' },
+  { id: 'prog_9', hora: '02:30', titulo: 'Plataforma 360 / Fotocabina', icono: 'Camera' },
   { id: 'prog_10', hora: '03:00', titulo: 'Cotillón', icono: 'Sparkles' },
   { id: 'prog_11', hora: '03:45', titulo: 'Fuente de Chocolate', icono: 'CakeSlice' },
   { id: 'prog_12', hora: '04:00', titulo: 'Apagado de Velas y Corte de Torta', icono: 'CakeSlice' },
@@ -289,6 +291,11 @@ export const defaultModulosContratados: ModulosContratados = {
   feedback: true,
   menuMesa: true,
   cartaTragos: true,
+  checkin: true,
+  resumenImprimible: true,
+  configuracion: true,
+  disenoSalon: true,
+  listaCompras: true
 };
 
 
