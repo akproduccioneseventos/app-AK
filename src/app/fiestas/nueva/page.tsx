@@ -120,12 +120,15 @@ function PlannerDashboardContent() {
     }
   };
   
-  const getLinkHref = (baseHref: string) => {
-    if ((baseHref === "/fiestas/nueva/reuniones" || baseHref === "/portal/mesas") && fiesta) {
-      return `${baseHref}?fiestaId=${fiesta.id}`;
-    }
-    return baseHref;
-  };
+ const getLinkHref = (baseHref: string) => {
+    if (!fiesta) return '#';
+    const handlers: Record<string, () => string> = {
+        "/fiestas/nueva/reuniones": () => `/fiestas/nueva/reuniones?fiestaId=${fiesta.id}`,
+        "/portal/mesas": () => `/portal/mesas?fiestaId=${fiesta.id}`,
+        "/evento/social/[fiestaId]": () => `/evento/social/${fiesta.id}`,
+    };
+    return handlers[baseHref] ? handlers[baseHref]() : baseHref;
+ };
 
   if (isLoading) {
     return <div className="flex justify-center items-center h-[calc(100vh-200px)]"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
