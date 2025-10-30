@@ -1,11 +1,11 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, Suspense, type ChangeEvent } from 'react';
+import React, { useState, useEffect, useCallback, Suspense, type ChangeEvent, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer as PrinterIcon, Save, Loader2, Edit, Upload, Image as ImageIconLucide } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, Save, Loader2, Edit, Upload, Image as ImageIconLucide, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, CartaTragosData, Trago } from '@/types/fiesta';
 import { getFiestaById, updateCartaTragos as updateCartaTragosAction } from '@/app/actions/fiesta/fiesta.actions';
@@ -13,10 +13,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import { defaultCartaTragosData } from '@/lib/fiesta-defaults';
-import { Separator } from '@/components/ui/separator';
 import { CartaTragosMenu } from '@/components/invitacion/templates/CartaTragosMenu';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import NextImage from 'next/image';
+import html2canvas from 'html2canvas';
+
 
 function CartaTragosContent() {
   const { toast } = useToast();
@@ -31,6 +32,9 @@ function CartaTragosContent() {
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  const printRef = useRef<HTMLDivElement>(null);
+
 
   // Modal State
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -140,6 +144,26 @@ function CartaTragosContent() {
 
   const handlePrint = () => window.print();
 
+  const handleDownloadJpg = async () => {
+    if (!printRef.current) return;
+    toast({ title: "Generando imagen...", description: "Por favor, espera un momento."});
+    try {
+        const canvas = await html2canvas(printRef.current, { 
+            scale: 2, // Increase resolution
+            useCORS: true, // For external images
+            backgroundColor: null, // Transparent background
+        });
+        const link = document.createElement('a');
+        link.download = 'carta-tragos.jpg';
+        link.href = canvas.toDataURL('image/jpeg', 0.9); // Use jpeg format
+        link.click();
+        toast({ title: "¡Descarga iniciada!", description: "La imagen de la carta de tragos se está descargando."});
+    } catch(e) {
+        toast({ title: "Error al generar imagen", description: "No se pudo crear el archivo JPG.", variant: "destructive"});
+    }
+  };
+
+
   const openEditModal = (item: Trago) => {
     setEditingItem(item);
     setPreviewUrl(item.imageUrl);
@@ -241,20 +265,21 @@ function CartaTragosContent() {
             <div className="flex flex-wrap gap-2 items-center">
                 <div className="space-y-1"><Label htmlFor="protagonista-foto" className="text-xs">Foto</Label><Input id="protagonista-foto" type="file" accept="image/*" onChange={handleProtagonistPhotoUpload} className="text-xs w-48" disabled={isUploading}/></div>
                 <div className="space-y-1"><Label htmlFor="bg-image-upload" className="text-xs">Fondo</Label><Input id="bg-image-upload" type="file" accept="image/*" onChange={handleBackgroundImageUpload} className="text-xs w-44" disabled={isUploading}/></div>
-                <div className="space-y-1"><Label className="text-xs">Borde</Label><Input type="color" value={cartaTragos.paletaColores?.primary || '#8b5cf6'} onChange={e => handleColorChange('primary', e.target.value)} className="w-9 h-8 p-0.5"/></div>
-                <div className="space-y-1"><Label className="text-xs">Título</Label><Input type="color" value={cartaTragos.paletaColores?.accent || '#3b82f6'} onChange={e => handleColorChange('accent', e.target.value)} className="w-9 h-8 p-0.5"/></div>
-                <div className="space-y-1"><Label className="text-xs">Texto</Label><Input type="color" value={cartaTragos.paletaColores?.secondary || '#4b5563'} onChange={e => handleColorChange('secondary', e.target.value)} className="w-9 h-8 p-0.5"/></div>
-                <div className="space-y-1"><Label className="text-xs">Fondo Tarjeta</Label><Input type="color" value={cartaTragos.backgroundColor || '#ffffff'} onChange={e => handleColorChange('background', e.target.value)} className="w-9 h-8 p-0.5"/></div>
+                <div className="space-y-1"><Label className="text-xs">Borde</Label><Input type="color" value={cartaTragos.paletaColores?.primary || '#8b5cf6'} onChange={e => handleColorChange('primary', e.target.value)} className="w-10 h-9 p-0.5"/></div>
+                <div className="space-y-1"><Label className="text-xs">Título</Label><Input type="color" value={cartaTragos.paletaColores?.accent || '#3b82f6'} onChange={e => handleColorChange('accent', e.target.value)} className="w-10 h-9 p-0.5"/></div>
+                <div className="space-y-1"><Label className="text-xs">Texto</Label><Input type="color" value={cartaTragos.paletaColores?.secondary || '#4b5563'} onChange={e => handleColorChange('secondary', e.target.value)} className="w-10 h-9 p-0.5"/></div>
+                <div className="space-y-1"><Label className="text-xs">Fondo Tarjeta</Label><Input type="color" value={cartaTragos.backgroundColor || '#ffffff'} onChange={e => handleColorChange('background', e.target.value)} className="w-10 h-9 p-0.5"/></div>
                <div className="flex items-end gap-2">
                  <Button size="sm" onClick={handleSave} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}</Button>
-                 <Button onClick={handlePrint} size="sm" variant="outline"><PrinterIcon className="w-4 h-4"/></Button>
+                 <Button onClick={handleDownloadJpg} size="sm" variant="outline" title="Descargar como JPG"><Download className="w-4 h-4"/></Button>
+                 <Button onClick={handlePrint} size="sm" variant="outline" title="Imprimir o Guardar como PDF"><PrinterIcon className="w-4 h-4"/></Button>
                  <Link href={`/fiestas/nueva/catering?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4"/></Button></Link>
                </div>
             </div>
         </div>
         
         <div className="flex justify-center items-center py-4 print:py-0">
-          <div className="w-[15cm] h-[10cm] bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto">
+          <div ref={printRef} className="w-[15cm] h-[10cm] bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto">
               <CartaTragosMenu fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} openEditModal={openEditModal} />
           </div>
         </div>
@@ -264,7 +289,7 @@ function CartaTragosContent() {
          @media print {
             body { -webkit-print-color-adjust: exact; color-adjust: exact; }
             @page { 
-                size: 15cm 10cm;
+                size: 15cm 10cm landscape;
                 margin: 0; 
             }
         }
