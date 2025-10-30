@@ -200,11 +200,8 @@ function CartaTragosContent() {
   };
 
   const handleEmpresaUpdate = (field: keyof NonNullable<CartaTragosData['empresa']>, value: string) => {
-    if (onUpdate && isPreview) {
-       onUpdate({ empresa: { ...(carta.empresa || defaultCartaTragosData.empresa), [field]: value } });
-   }
- }
-
+    setCartaTragos(prev => ({...prev, empresa: { ...(prev.empresa || defaultCartaTragosData.empresa), [field]: value } }));
+  };
 
   if (isLoading || !fiesta) {
     return <div className="p-8 max-w-4xl mx-auto flex justify-center"><Loader2 className="w-8 h-8 animate-spin" /></div>;
@@ -262,14 +259,9 @@ function CartaTragosContent() {
             </div>
         </div>
         
-        <div className="w-[21cm] h-[29.7cm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto p-4 flex flex-col items-center justify-center">
-            <div className="grid grid-cols-2 gap-4 w-full h-full">
-                <div className="w-full h-full relative">
-                    <CartaTragosMenu fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} openEditModal={openEditModal} />
-                </div>
-                <div className="w-full h-full relative">
-                    <CartaTragosMenu fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} openEditModal={openEditModal} />
-                </div>
+        <div className="w-[21cm] h-[29.7cm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto p-4 flex items-center justify-center">
+            <div className="w-full h-full relative">
+                <CartaTragosMenu fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} openEditModal={openEditModal} />
             </div>
         </div>
 
