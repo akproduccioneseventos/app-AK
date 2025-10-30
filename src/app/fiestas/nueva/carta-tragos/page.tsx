@@ -5,9 +5,9 @@ import React, { useState, useEffect, useCallback, Suspense, type ChangeEvent } f
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer as PrinterIcon, Save, Loader2 } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, Save, Loader2, Edit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, CartaTragosData } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, CartaTragosData, Trago } from '@/types/fiesta';
 import { getFiestaById, updateCartaTragos as updateCartaTragosAction } from '@/app/actions/fiesta/fiesta.actions';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,6 +15,8 @@ import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import { defaultCartaTragosData } from '@/lib/fiesta-defaults';
 import { Separator } from '@/components/ui/separator';
 import { MenuComponent } from '@/components/invitacion/templates/CartaTragosMenu';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
+import NextImage from 'next/image';
 
 function CartaTragosContent() {
   const { toast } = useToast();
@@ -29,6 +31,12 @@ function CartaTragosContent() {
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Modal State
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<Trago | null>(null);
+  const [fileToUpload, setFileToUpload] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     if (!fiestaId) {
@@ -65,13 +73,14 @@ function CartaTragosContent() {
     setCartaTragos(prev => ({ ...prev, [field]: value }));
   };
   
-  const handleColorChange = (colorType: 'primary' | 'secondary' | 'accent' | 'background', value: string) => {
-    if (colorType === 'background') {
-        setCartaTragos(prev => ({ ...prev, backgroundColor: value }));
-    } else {
-        const paleta = cartaTragos.paletaColores || defaultCartaTragosData.paletaColores;
-        handleUpdate('paletaColores', { ...paleta, [colorType]: value });
-    }
+  const handleColorChange = (colorType: 'primary' | 'secondary' | 'accent', value: string) => {
+    setCartaTragos(prev => ({
+        ...prev,
+        paletaColores: {
+            ...(prev.paletaColores || { primary: '#9333ea', secondary: '#363636', accent: '#ffffff' }),
+            [colorType]: value,
+        }
+    }));
   };
 
   const handleProtagonistPhotoUpload = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -131,6 +140,66 @@ function CartaTragosContent() {
 
   const handlePrint = () => window.print();
 
+  const openEditModal = (item: Trago) => {
+    setEditingItem(item);
+    setPreviewUrl(item.imageUrl);
+    setFileToUpload(null);
+    setIsEditModalOpen(true);
+  };
+  
+  const handleUpdateItem = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingItem) return;
+
+    let finalImageUrl = editingItem.imageUrl;
+    let finalItem = { ...editingItem };
+
+    if (fileToUpload) {
+      if (!fiestaId) {
+        toast({ title: "Error", description: "ID de fiesta no encontrado para subir imagen.", variant: "destructive" });
+        return;
+      }
+      setIsUploading(true);
+      try {
+        const result = await uploadPublicPageAsset(fiestaId, fileToUpload);
+        if(result.success && result.url) {
+          finalImageUrl = result.url;
+        } else {
+          throw new Error(result.error);
+        }
+      } catch (e: any) {
+        toast({ title: "Error al subir", description: e.message, variant: "destructive" });
+        setIsUploading(false);
+        return;
+      } finally {
+        setIsUploading(false);
+      }
+    }
+
+    finalItem.imageUrl = finalImageUrl;
+    
+    setCartaTragos(prev => ({
+      ...prev,
+      items: prev.items.map(item =>
+        item.id === finalItem.id ? finalItem : item
+      ),
+    }));
+    
+    setIsEditModalOpen(false);
+    setEditingItem(null);
+    setFileToUpload(null);
+    setPreviewUrl(null);
+  };
+  
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFileToUpload(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
+
   if (isLoading || !fiesta) {
     return <div className="p-8 max-w-4xl mx-auto flex justify-center"><Loader2 className="w-8 h-8 animate-spin" /></div>;
   }
@@ -140,12 +209,40 @@ function CartaTragosContent() {
   
   return (
     <div className="bg-gray-100 print:bg-white">
+        <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Editar Trago</DialogTitle>
+                </DialogHeader>
+                {editingItem && (
+                    <form onSubmit={handleUpdateItem} className="space-y-4 py-2">
+                        <div className="space-y-1">
+                            <Label htmlFor="item-name">Nombre del Trago</Label>
+                            <Input id="item-name" value={editingItem.nombre} onChange={e => setEditingItem(prev => prev ? {...prev, nombre: e.target.value} : null)} />
+                        </div>
+                        <div className="space-y-1">
+                            <Label htmlFor="item-image-upload">Cambiar Imagen</Label>
+                            {previewUrl && <NextImage src={previewUrl} alt="Preview" width={100} height={150} className="rounded-md border object-cover" />}
+                            <Input id="item-image-upload" type="file" accept="image/*" onChange={handleFileChange} />
+                        </div>
+                         <div className="space-y-1">
+                            <Label htmlFor="item-ai-hint">AI Hint (para futuras funciones)</Label>
+                            <Input id="item-ai-hint" value={editingItem.aiHint || ''} onChange={e => setEditingItem(prev => prev ? {...prev, aiHint: e.target.value} : null)} placeholder="Ej: pink cocktail with lime"/>
+                        </div>
+                        <DialogFooter>
+                            <DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose>
+                            <Button type="submit" disabled={isUploading}>{isUploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : null} Guardar Trago</Button>
+                        </DialogFooter>
+                    </form>
+                )}
+            </DialogContent>
+        </Dialog>
         <div className="py-2 px-4 print:hidden flex flex-col md:flex-row justify-between items-center gap-4 bg-white shadow-sm sticky top-0 z-50">
             <h1 className="font-headline text-lg">Editor de Carta de Tragos</h1>
             <div className="flex flex-wrap gap-2 items-center">
                 <div className="space-y-1"><Label htmlFor="protagonista-foto" className="text-xs">Foto Protagonista</Label><Input id="protagonista-foto" type="file" accept="image/*" onChange={handleProtagonistPhotoUpload} className="text-xs w-44" disabled={isUploading}/></div>
                 <div className="space-y-1"><Label htmlFor="bg-image-upload" className="text-xs">Fondo</Label><Input id="bg-image-upload" type="file" accept="image/*" onChange={handleBackgroundImageUpload} className="text-xs w-44" disabled={isUploading}/></div>
-                <div className="space-y-1"><Label className="text-xs">Fondo Principal</Label><Input type="color" value={cartaTragos.backgroundColor || '#D9B8FF'} onChange={e => handleColorChange('background', e.target.value)} className="w-9 h-8 p-0.5"/></div>
+                <div className="space-y-1"><Label className="text-xs">Fondo Principal</Label><Input type="color" value={cartaTragos.backgroundColor || '#D9B8FF'} onChange={e => handleUpdate('backgroundColor', e.target.value)} className="w-9 h-8 p-0.5"/></div>
                 <div className="space-y-1"><Label className="text-xs">Color Ondas</Label><Input type="color" value={cartaTragos.paletaColores?.primary || '#9333ea'} onChange={e => handleColorChange('primary', e.target.value)} className="w-9 h-8 p-0.5"/></div>
                 <div className="space-y-1"><Label className="text-xs">Color Texto</Label><Input type="color" value={cartaTragos.paletaColores?.secondary || '#363636'} onChange={e => handleColorChange('secondary', e.target.value)} className="w-9 h-8 p-0.5"/></div>
                 <Separator orientation="vertical" className="h-10 mx-1"/>
@@ -157,12 +254,12 @@ function CartaTragosContent() {
             </div>
         </div>
         
-        <div className="w-[210mm] h-[297mm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto p-4 grid grid-cols-2 gap-4">
+        <div className="w-[21cm] h-[29.7cm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto p-4 grid grid-cols-2 gap-4">
            <div className="w-full h-full relative" style={{width: '10cm', height: '15cm'}}>
-              <MenuComponent fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} />
+              <MenuComponent fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} openEditModal={openEditModal} />
            </div>
             <div className="w-full h-full relative" style={{width: '10cm', height: '15cm'}}>
-              <MenuComponent fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} />
+              <MenuComponent fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} openEditModal={openEditModal} />
            </div>
         </div>
 

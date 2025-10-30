@@ -3,19 +3,21 @@
 
 import React, { useState, useEffect } from 'react';
 import NextImage from 'next/image';
-import type { FiestaEnPlanificacion, CartaTragosData } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, CartaTragosData, Trago } from '@/types/fiesta';
 import { cn } from '@/lib/utils';
 import { EditableText } from '../edit/EditableText';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
+import { Edit } from 'lucide-react';
 
 interface MenuComponentProps {
     fiesta?: FiestaEnPlanificacion;
     carta: CartaTragosData;
     onUpdate?: (newData: Partial<CartaTragosData>) => void;
     isPreview?: boolean;
+    openEditModal?: (item: Trago) => void;
 }
 
-export const MenuComponent: React.FC<MenuComponentProps> = ({ fiesta, carta, onUpdate, isPreview }) => {
+export const MenuComponent: React.FC<MenuComponentProps> = ({ fiesta, carta, onUpdate, isPreview, openEditModal }) => {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -93,7 +95,10 @@ export const MenuComponent: React.FC<MenuComponentProps> = ({ fiesta, carta, onU
 
         <main className="relative z-10 flex-grow grid grid-cols-5 gap-x-1 gap-y-2 px-2 mt-4 w-full">
             {carta.items.map((trago) => (
-                <div key={trago.id} className="text-center flex flex-col">
+                <div key={trago.id} className="text-center flex flex-col group relative cursor-pointer" onClick={() => openEditModal?.(trago)}>
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity z-20 rounded-lg">
+                        <Edit className="w-6 h-6 text-white"/>
+                    </div>
                     <p style={drinkNameStyle} className="h-6 flex items-end justify-center leading-none">{trago.nombre.split(' ').join('\n')}</p>
                     <div className="mt-1 aspect-[3/4] rounded-lg shadow-md overflow-hidden border-2 border-white">
                         <NextImage src={trago.imageUrl} alt={trago.nombre} width={100} height={150} className="w-full h-full object-cover" data-ai-hint={trago.aiHint}/>
