@@ -57,21 +57,32 @@ export interface CartaTragosData {
     backgroundImageUrl?: string;
     paletaColores?: Partial<ColorPalette>;
     backgroundColor?: string;
-    empresaNombre?: string;
-    empresaContacto?: string;
+    empresa: {
+        linea1: string;
+        linea2: string;
+        contacto: string;
+    };
 }
 
-export interface Plato {
-  id: string;
-  nombre: string;
-  imageUrl: string;
-  aiHint?: string;
-}
 
 export interface MenuMesaData {
-  items: Plato[];
   protagonistaFotoUrl?: string;
-  paletaColores?: Partial<ColorPalette>;
+  paletaColores: {
+    primary: string;
+    secondary: string;
+    accent: string;
+    background: string;
+  };
+  entrada: string;
+  platoPrincipal: string;
+  adolescentes: string;
+  postres: string;
+  bebidas: string;
+  empresa: {
+    linea1: string;
+    linea2: string;
+    contacto: string;
+  };
 }
 
 export interface NumerosMesaData {

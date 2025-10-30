@@ -1,3 +1,4 @@
+
 import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, GiftItem, LayoutElement, ClientTarea, ProgramaEventoItem, TareaAsignadaA, FotografiaYFilmacionData, BebidasConsumoConfig, TipoAsistente, ReposteriaConsumoConfig, OtroDocumento, VideoVidaData, BebidaReceta, IngredienteReceta, CargaOperativaCategoria, InvitacionDigitalData, SeccionInvitacion, CartaTragosData, MenuMesaData, ModulosContratados, NumerosMesaData, Trago } from '@/types/fiesta';
 import { defaultInvitacionDigitalData } from './invitacion-digital-defaults';
 
@@ -23,8 +24,11 @@ export const defaultCartaTragosData: CartaTragosData = {
     paletaColores: { primary: '#9333ea', secondary: '#363636', accent: '#ffffff' },
     backgroundColor: '#e9d5ff', // A light lavender
     items: defaultStaticTragos,
-    empresaNombre: 'AK PRODUCCIONES',
-    empresaContacto: '098355530',
+    empresa: {
+        linea1: 'AK PRODUCCIONES',
+        linea2: 'Servicio de fiestas integral',
+        contacto: '098 355 530'
+    }
 };
 
 
@@ -42,8 +46,8 @@ export const defaultMenuMesaData: MenuMesaData = {
   postres: 'Torta principal\nFuente de chocolate',
   bebidas: 'Barra de tragos, cerveza y Refrescos',
   empresa: {
-      linea1: 'Servicio de fiestas integral',
-      linea2: 'Todos los servicios-un solo lugar',
+      linea1: 'AK PRODUCCIONES',
+      linea2: 'Servicio de fiestas integral\nTodos los servicios-un solo lugar',
       contacto: '098 355 530'
   }
 };

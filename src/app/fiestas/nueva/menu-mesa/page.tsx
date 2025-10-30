@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useCallback, Suspense, type ChangeEvent } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Printer as PrinterIcon, Save, Loader2, Edit, Upload, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -21,6 +21,7 @@ function MenuDeMesaContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const fiestaId = searchParams.get('fiestaId');
+  const router = useRouter();
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [data, setData] = useState<MenuMesaData>(defaultMenuMesaData);
@@ -32,7 +33,11 @@ function MenuDeMesaContent() {
   const [error, setError] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
-    if (!fiestaId) return;
+    if (!fiestaId) {
+      toast({ title: "Error", description: "No se encontró ID de evento.", variant: "destructive" });
+      router.push('/eventos');
+      return;
+    }
     setIsLoading(true);
     try {
       const [fiestaData, settings] = await Promise.all([getFiestaById(fiestaId), getInvoiceTemplateSettings()]);
@@ -48,13 +53,13 @@ function MenuDeMesaContent() {
     } finally {
       setIsLoading(false);
     }
-  }, [toast, fiestaId]);
+  }, [toast, fiestaId, router]);
 
   useEffect(() => {
     loadData();
-  }, [fiestaId, loadData]);
+  }, [loadData]);
   
-  const handleUpdate = (field: keyof MenuMesaData, value: string) => {
+  const handleUpdate = (field: keyof Omit<MenuMesaData, 'paletaColores' | 'empresa'>, value: string) => {
     setData(prev => ({ ...prev, [field]: value }));
   };
   
@@ -62,11 +67,15 @@ function MenuDeMesaContent() {
     setData(prev => ({
         ...prev,
         paletaColores: {
-            ...(prev.paletaColores || { primary: '', secondary: '', accent: '', background: '' }),
+            ...(prev.paletaColores || defaultMenuMesaData.paletaColores),
             [colorType]: value,
         }
     }));
   };
+  
+  const handleEmpresaUpdate = (field: keyof MenuMesaData['empresa'], value: string) => {
+      setData(prev => ({ ...prev, empresa: { ...(prev.empresa || defaultMenuMesaData.empresa), [field]: value } }));
+  }
 
   const handlePhotoUpload = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -115,35 +124,47 @@ function MenuDeMesaContent() {
   
   return (
     <div className="bg-gray-100 print:bg-white">
-      <div className="py-4 px-8 print:hidden flex flex-col md:flex-row justify-between items-center gap-4 bg-white shadow-sm sticky top-0 z-50">
-        <h1 className="font-headline text-xl">Editor de Menú de Mesa</h1>
-        <div className="flex flex-wrap gap-2 items-center">
-            <div className="space-y-1"><Label htmlFor="protagonista-foto" className="text-xs">Foto Protagonista</Label><Input id="protagonista-foto" type="file" accept="image/*" onChange={handlePhotoUpload} className="text-xs w-48" disabled={isUploading}/></div>
-            <div className="space-y-1"><Label className="text-xs">Fondo</Label><Input type="color" value={data.paletaColores?.background || '#ffffff'} onChange={e => handleColorChange('background', e.target.value)} className="w-10 h-9 p-0.5"/></div>
-            <div className="space-y-1"><Label className="text-xs">Color Principal</Label><Input type="color" value={data.paletaColores?.primary || '#8b5cf6'} onChange={e => handleColorChange('primary', e.target.value)} className="w-10 h-9 p-0.5"/></div>
-            <div className="flex items-end gap-2">
-                <Button size="sm" onClick={handleSave} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}</Button>
-                <Button onClick={handlePrint} size="sm" variant="outline"><PrinterIcon className="w-4 h-4"/></Button>
-                <Link href={`/fiestas/nueva/catering?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4"/></Button></Link>
+        <div className="py-2 px-4 print:hidden flex flex-col md:flex-row justify-between items-center gap-4 bg-white shadow-sm sticky top-0 z-50">
+            <h1 className="font-headline text-lg">Editor de Menú de Mesa</h1>
+            <div className="flex flex-wrap gap-2 items-center">
+                <div className="space-y-1"><Label htmlFor="protagonista-foto" className="text-xs">Foto</Label><Input id="protagonista-foto" type="file" accept="image/*" onChange={handlePhotoUpload} className="text-xs w-48" disabled={isUploading}/></div>
+                <div className="space-y-1"><Label className="text-xs">Borde</Label><Input type="color" value={data.paletaColores?.primary || '#8b5cf6'} onChange={e => handleColorChange('primary', e.target.value)} className="w-10 h-9 p-0.5"/></div>
+                <div className="space-y-1"><Label className="text-xs">Título</Label><Input type="color" value={data.paletaColores?.accent || '#3b82f6'} onChange={e => handleColorChange('accent', e.target.value)} className="w-10 h-9 p-0.5"/></div>
+                <div className="space-y-1"><Label className="text-xs">Texto</Label><Input type="color" value={data.paletaColores?.secondary || '#4b5563'} onChange={e => handleColorChange('secondary', e.target.value)} className="w-10 h-9 p-0.5"/></div>
+                <div className="space-y-1"><Label className="text-xs">Fondo</Label><Input type="color" value={data.paletaColores?.background || '#ffffff'} onChange={e => handleColorChange('background', e.target.value)} className="w-10 h-9 p-0.5"/></div>
+
+               <div className="flex items-end gap-2">
+                 <Button size="sm" onClick={handleSave} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}</Button>
+                 <Button onClick={handlePrint} size="sm" variant="outline"><PrinterIcon className="w-4 h-4"/></Button>
+                 <Link href={`/fiestas/nueva/catering?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4"/></Button></Link>
+               </div>
             </div>
         </div>
-      </div>
-      <div className="w-[210mm] h-[148mm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto flex gap-4 p-4 border-2 border-dashed print:border-none">
-          <div className="w-full h-full relative">
-            <MenuMesaTemplate
-                fiesta={fiesta}
-                data={data}
-                logoUrl={logoUrl}
-                onUpdate={setData}
-                isPreview={true}
-            />
-          </div>
-      </div>
+        <div className="w-[29.7cm] h-[21cm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto flex gap-4 p-4 border-2 border-dashed print:border-none">
+            <div className="w-1/2 h-full relative">
+                <MenuMesaTemplate
+                    fiesta={fiesta}
+                    data={data}
+                    logoUrl={logoUrl}
+                    onUpdate={setData}
+                    isPreview={true}
+                />
+            </div>
+             <div className="w-1/2 h-full relative">
+                <MenuMesaTemplate
+                    fiesta={fiesta}
+                    data={data}
+                    logoUrl={logoUrl}
+                    onUpdate={setData}
+                    isPreview={true}
+                />
+            </div>
+        </div>
        <style jsx global>{`
             @import url('https://fonts.googleapis.com/css2?family=Belleza&family=Dancing+Script:wght@400;700&family=Great+Vibes&display=swap');
              @media print {
                 body { -webkit-print-color-adjust: exact; color-adjust: exact; }
-                @page { size: A5 landscape; margin: 0; }
+                @page { size: A4 landscape; margin: 0; }
             }
         `}</style>
     </div>
