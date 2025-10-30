@@ -16,7 +16,7 @@ function InvitadosLayoutContent({ children }: { children: React.ReactNode }) {
   const navItems = [
     { href: `/fiestas/nueva/invitados?fiestaId=${fiestaId}`, label: 'Lista de Invitados', icon: Users },
     { href: `/fiestas/nueva/invitados/layout?fiestaId=${fiestaId}`, label: 'Diseño de Salón', icon: LayoutDashboard },
-    { href: `/portal/${fiestaId}/mesas`, label: 'Asignación de Cliente', icon: UserCheck },
+    { href: `/portal/mesas?fiestaId=${fiestaId}`, label: 'Asignación de Cliente', icon: UserCheck },
     { href: `/fiestas/nueva/invitados/numeros-mesa?fiestaId=${fiestaId}`, label: 'Números de Mesa', icon: Printer },
   ];
 
