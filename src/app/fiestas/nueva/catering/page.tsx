@@ -1,14 +1,14 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ShoppingCart, Save, Loader2, Calculator, ChefHat, GlassWater } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getFiestaActual, updateReposteriaFiestaActual, updateBebidasFiestaActual, updateMenuAsignadoFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaById, updateReposteriaFiestaActual, updateBebidasFiestaActual, updateMenuAsignadoFiestaActual } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion, ReposteriaData, BebidasData } from '@/types/fiesta';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import type { Presupuesto } from '@/types/presupuesto';
@@ -20,7 +20,7 @@ import { Label } from '@/components/ui/label';
 import { getMenus } from '@/app/actions/menus-catering';
 import type { FullMenu } from '@/types/catering';
 
-export default function PlannerGastronomicoFiestaPage() {
+function PlannerGastronomicoFiestaContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const fiestaId = searchParams.get('fiestaId');
@@ -168,4 +168,13 @@ export default function PlannerGastronomicoFiestaPage() {
        }
     </div>
   );
+}
+
+
+export default function PlannerGastronomicoFiestaPage() {
+    return (
+        <Suspense fallback={<div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+            <PlannerGastronomicoFiestaContent />
+        </Suspense>
+    );
 }

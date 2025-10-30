@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent, use } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, Save, Loader2, Film, PlusCircle, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getFiestaActual, updateFotografiaYFilmacionFiestaActual as updateFotografia } from '@/app/actions/fiesta-actual';
+import { getFiestaById, updateFotografiaYFilmacionFiestaActual as updateFotografia } from '@/app/actions/fiesta-actual';
 import type { FotografiaYFilmacionData, ServicioFotografia, EntregaMaterialEstado } from '@/types/fiesta';
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -24,11 +24,16 @@ import {
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 const ALL_ESTADOS_ENTREGA: EntregaMaterialEstado[] = ['Pendiente', 'En edición', 'En revisión', 'Entregado parcial', 'Entregado completo'];
 
-export default function FotografiaPage() {
+function FotografiaContent() {
     const { toast } = useToast();
+    const searchParams = useSearchParams();
+    const fiestaId = searchParams.get('fiestaId');
+
     const [formData, setFormData] = useState<FotografiaYFilmacionData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
@@ -38,26 +43,28 @@ export default function FotografiaPage() {
     const [currentItem, setCurrentItem] = useState<Partial<ServicioFotografia> | null>(null);
 
     const loadData = useCallback(async () => {
+        if (!fiestaId) return;
         setIsLoading(true);
         try {
-            const fiesta = await getFiestaActual();
+            const fiesta = await getFiestaById(fiestaId);
+            if (!fiesta) throw new Error("Fiesta no encontrada");
             setFormData(fiesta.fotografiaYFilmacion || { servicios: [], notasGenerales: '' });
         } catch (e) {
             toast({ title: "Error", description: "No se pudieron cargar los datos.", variant: "destructive" });
         } finally {
             setIsLoading(false);
         }
-    }, [toast]);
+    }, [toast, fiestaId]);
 
     useEffect(() => {
         loadData();
     }, [loadData]);
     
     const handleSave = async () => {
-        if (!formData) return;
+        if (!formData || !fiestaId) return;
         setIsSaving(true);
         try {
-            const result = await updateFotografia(formData);
+            const result = await updateFotografia(fiestaId, formData);
             if (result.success) {
                 toast({ title: "¡Guardado!", description: "La información de fotografía y filmación ha sido actualizada." });
                 await loadData();
@@ -160,7 +167,7 @@ export default function FotografiaPage() {
                     <Film className="w-8 h-8 text-primary" />
                     <h1 className="text-3xl font-bold tracking-tight font-headline">Proceso de Edición y Entrega</h1>
                 </div>
-                <Link href="/fiestas/nueva" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
+                <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver al Planificador</Button></Link>
             </div>
             
             <p className="text-muted-foreground">Aquí es donde se sigue el proceso de edición y entrega de las fotos o videos contratados. Mantén un registro del estado de cada entregable para una comunicación clara con el cliente.</p>
@@ -208,4 +215,12 @@ export default function FotografiaPage() {
             </div>
         </div>
     );
+}
+
+export default function FotografiaPage() {
+    return (
+        <Suspense fallback={<div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+            <FotografiaContent />
+        </Suspense>
+    )
 }
