@@ -5,13 +5,16 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, AlertTriangle, Printer, ShoppingCart, Truck, Building } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, Printer, ShoppingCart, Truck, CheckCircle, PackageSearch } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, CompraProveedorEstado } from '@/types/fiesta';
 import { getMenuById } from '@/app/actions/menus-catering';
-import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaById, updateShoppingListStatus } from '@/app/actions/fiesta/catering.actions';
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 interface ShoppingListItem {
   id: string;
@@ -29,20 +32,35 @@ const formatCurrency = (amount?: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
-export default function ListaDeComprasPage() {
+function ListaDeComprasContent() {
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const fiestaId = searchParams.get('fiestaId');
+
   const [shoppingList, setShoppingList] = useState<ShoppingListItem[]>([]);
   const [totalCost, setTotalCost] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
 
-  const generateShoppingList = useCallback(async () => {
-    setIsLoading(true);
+  const [estadosCompra, setEstadosCompra] = useState<CompraProveedorEstado[]>([]);
+  const [isSavingStatus, setIsSavingStatus] = useState<string | null>(null);
+
+  const generateShoppingList = useCallback(async (showLoading = true) => {
+    if (!fiestaId) {
+      setError("No se proporcionó un ID de evento.");
+      setIsLoading(false);
+      return;
+    }
+    if (showLoading) setIsLoading(true);
     setError(null);
     try {
-      const fiestaData = await getFiestaActual();
+      const fiestaData = await getFiestaById(fiestaId);
+      if (!fiestaData) throw new Error("Fiesta no encontrada.");
+      
       setFiesta(fiestaData);
+      setEstadosCompra(fiestaData.estadosCompra || []);
+
       const invitados = Number(fiestaData.configuracion.invitadosEstimados) || 0;
       let generatedList: ShoppingListItem[] = [];
       let totalCostValue = 0;
@@ -78,6 +96,7 @@ export default function ListaDeComprasPage() {
       fiestaData.reposteria?.categorias.forEach(cat => {
         if (cat.activada) {
           cat.items.forEach(item => {
+            if (!item.origenId) return; // Only include items from catalog
             const itemCost = (item.costoEstimado || 0) * (item.cantidad || 1);
             generatedList.push({
               id: `rep-${item.id}`,
@@ -86,7 +105,7 @@ export default function ListaDeComprasPage() {
               unidad: item.unidad || 'unidad',
               costoUnitario: item.costoEstimado,
               costoTotal: itemCost,
-              proveedor: 'Proveedor Repostería', // Placeholder
+              proveedor: 'Proveedor Repostería', // Placeholder - needs data from Insumo
               origen: cat.nombreDisplay,
             });
             totalCostValue += itemCost;
@@ -111,6 +130,10 @@ export default function ListaDeComprasPage() {
             });
             totalCostValue += itemCost;
           });
+          cat.recetas?.forEach(receta => {
+            const factorEscala = invitados / (receta.porcionesBase || 1);
+            totalCostValue += (receta.costoTotalReceta || 0) * (isNaN(factorEscala) ? 0 : factorEscala);
+          });
         }
       });
       
@@ -121,9 +144,9 @@ export default function ListaDeComprasPage() {
       setError("No se pudo generar la lista de compras.");
       toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
-      setIsLoading(false);
+      if (showLoading) setIsLoading(false);
     }
-  }, [toast]);
+  }, [toast, fiestaId]);
 
   useEffect(() => {
     generateShoppingList();
@@ -146,13 +169,48 @@ export default function ListaDeComprasPage() {
   }, [shoppingList]);
   
   const providerNames = Object.keys(groupedByProvider).sort();
+  
+  const handleStatusChange = async (proveedor: string, field: 'pedido' | 'pagado', value: boolean) => {
+    if (!fiestaId) return;
+    setIsSavingStatus(proveedor);
+
+    const updatedEstados = [...estadosCompra];
+    let estadoProveedor = updatedEstados.find(e => e.proveedor === proveedor);
+    
+    if (estadoProveedor) {
+        estadoProveedor[field] = value;
+    } else {
+        estadoProveedor = { proveedor, pedido: false, pagado: false, [field]: value };
+        updatedEstados.push(estadoProveedor);
+    }
+    
+    // Optimistic UI update
+    setEstadosCompra(updatedEstados);
+
+    try {
+        const result = await updateShoppingListStatus(fiestaId, updatedEstados);
+        if (!result.success) {
+            throw new Error(result.error || "Error al actualizar estado");
+        }
+        toast({
+            title: "Estado Actualizado",
+            description: `El estado de ${proveedor} ha sido guardado.`,
+        });
+    } catch(e: any) {
+        toast({ title: "Error", description: `No se pudo guardar el estado: ${e.message}`, variant: "destructive" });
+        // Revert UI on error
+        loadData(false);
+    } finally {
+        setIsSavingStatus(null);
+    }
+  };
 
 
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Generando lista de compras...</p></div>;
   }
   if (error) {
-    return <div className="text-center py-10"><AlertTriangle className="w-12 h-12 mx-auto text-destructive mb-3" /><p className="font-semibold">{error}</p><Button onClick={generateShoppingList} className="mt-4">Reintentar</Button></div>;
+    return <div className="text-center py-10"><AlertTriangle className="w-12 h-12 mx-auto text-destructive mb-3" /><p className="font-semibold">{error}</p><Button onClick={() => generateShoppingList()} className="mt-4">Reintentar</Button></div>;
   }
 
   return (
@@ -186,20 +244,35 @@ export default function ListaDeComprasPage() {
           {shoppingList.length === 0 ? (
             <p className="text-muted-foreground text-center py-6">No hay ítems en la lista. Asigna un menú, repostería o bebidas en sus respectivos módulos.</p>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-8">
               {providerNames.map((providerName) => {
                  const { items, total } = groupedByProvider[providerName];
+                 const estadoActual = estadosCompra.find(e => e.proveedor === providerName) || { pedido: false, pagado: false };
+                 const isSavingThis = isSavingStatus === providerName;
                  return (
                     <div key={providerName} className="print:break-inside-avoid">
-                        <h3 className="font-headline text-lg text-primary flex items-center justify-between mb-2">
-                          <span className="flex items-center gap-2"><Truck className="w-5 h-5"/>{providerName}</span>
-                          <span className="text-sm font-mono">{formatCurrency(total)}</span>
-                        </h3>
+                        <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-3 gap-2">
+                            <h3 className="font-headline text-lg text-primary flex items-center gap-2">
+                                <Truck className="w-5 h-5"/>{providerName}
+                            </h3>
+                             <div className="flex items-center gap-4 bg-muted p-2 rounded-md border text-xs print:hidden">
+                                <div className="flex items-center gap-2">
+                                    <Switch id={`pedido-${providerName}`} checked={estadoActual.pedido} onCheckedChange={(val) => handleStatusChange(providerName, 'pedido', val)} disabled={isSavingThis} />
+                                    <Label htmlFor={`pedido-${providerName}`} className="font-medium">Pedido</Label>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Switch id={`pagado-${providerName}`} checked={estadoActual.pagado} onCheckedChange={(val) => handleStatusChange(providerName, 'pagado', val)} disabled={isSavingThis} />
+                                    <Label htmlFor={`pagado-${providerName}`} className="font-medium">Pagado</Label>
+                                </div>
+                                {isSavingThis && <Loader2 className="w-4 h-4 animate-spin"/>}
+                             </div>
+                        </div>
                          <div className="overflow-x-auto border rounded-md">
                             <Table className="text-sm">
                                 <TableHeader>
                                 <TableRow>
                                     <TableHead className="font-semibold">Producto</TableHead>
+                                    <TableHead>Proveedor</TableHead>
                                     <TableHead className="text-right">Cant. Total</TableHead>
                                     <TableHead className="w-[100px]">Unidad</TableHead>
                                     <TableHead className="text-right">Costo Unit. Est.</TableHead>
@@ -210,6 +283,7 @@ export default function ListaDeComprasPage() {
                                 {items.map(item => (
                                     <TableRow key={item.id}>
                                     <TableCell className="font-medium">{item.nombre}<p className="text-xs text-muted-foreground font-normal">({item.origen})</p></TableCell>
+                                    <TableCell className="text-muted-foreground">{item.proveedor}</TableCell>
                                     <TableCell className="text-right">{typeof item.cantidadTotal === 'number' ? item.cantidadTotal.toFixed(2) : item.cantidadTotal}</TableCell>
                                     <TableCell>{item.unidad}</TableCell>
                                     <TableCell className="text-right">{formatCurrency(item.costoUnitario)}</TableCell>
@@ -217,6 +291,12 @@ export default function ListaDeComprasPage() {
                                     </TableRow>
                                 ))}
                                 </TableBody>
+                                <CardFooter className="p-2 bg-muted/50">
+                                    <TableRow>
+                                        <TableCell colSpan={5} className="text-right font-bold">Subtotal Proveedor:</TableCell>
+                                        <TableCell className="text-right font-bold">{formatCurrency(total)}</TableCell>
+                                    </TableRow>
+                                </CardFooter>
                             </Table>
                          </div>
                     </div>
@@ -234,4 +314,13 @@ export default function ListaDeComprasPage() {
       </Card>
     </div>
   );
+}
+
+
+export default function ListaDeComprasPage() {
+    return (
+        <Suspense fallback={<div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+            <ListaDeComprasContent />
+        </Suspense>
+    );
 }

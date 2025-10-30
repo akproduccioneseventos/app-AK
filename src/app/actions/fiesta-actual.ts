@@ -25,7 +25,7 @@ import {
 
 
 import { updateConfiguracion } from './fiesta/configuracion.actions';
-import { updateTareas } from './fiesta/tareas.actions';
+import { updateTareas, addTarea as addTareaToFiesta } from './fiesta/tareas.actions';
 import { addInvitado as addInvitadoAction, deleteInvitado as deleteInvitadoAction, updateInvitado as updateInvitadoAction, handleRsvpSubmission as handleRsvpSubmissionAction, getInvitados as getInvitadosAction, checkInGuest as checkInGuestAction } from './invitados.actions';
 import { updateDecoracion } from './fiesta/decoracion.actions';
 import { updatePrograma } from './fiesta/itinerario.actions';
@@ -74,6 +74,7 @@ export const updateModulosContratadosFiestaActual = async (fiestaId: string, mod
 
 // --- Tareas Actions ---
 export const updateTareasFiestaActual = updateTareas;
+export const addTareaToFiestaActual = addTareaToFiesta;
 
 // --- Invitados Actions ---
 export const getInvitadosFiestaActual = getInvitadosAction;
@@ -150,3 +151,4 @@ export const addGiftToRegistryFiestaActual = addGiftToRegistry;
 export const updateCartaTragos = updateCartaTragosFromModule;
 export const updateMenuMesa = updateMenuMesaFromModule;
 export const updateNumerosMesa = updateNumerosMesaFromModule;
+

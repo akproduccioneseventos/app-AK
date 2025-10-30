@@ -639,6 +639,11 @@ export interface ModulosContratados {
   listaCompras: boolean;
 }
 
+export interface CompraProveedorEstado {
+    proveedor: string;
+    pedido: boolean;
+    pagado: boolean;
+}
 
 export interface FiestaEnPlanificacion {
   id: string;
@@ -681,6 +686,8 @@ export interface FiestaEnPlanificacion {
   otrosDocumentos?: OtroDocumento[];
   // New provider payment tracking
   pagosProveedores?: PagoProveedor[];
+
+  estadosCompra?: CompraProveedorEstado[];
 }
 
 export interface RestorePoint {

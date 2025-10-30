@@ -23,3 +23,12 @@ async function updateFiestaData(updateFn: (data: FiestaEnPlanificacion) => Fiest
 export async function updateTareas(tareas: Tarea[]) {
   return updateFiestaData(data => ({ ...data, tareas }));
 }
+
+export async function addTarea(fiestaId: string, tareaData: Omit<Tarea, 'id'>) {
+    const newTarea: Tarea = { ...tareaData, id: `task_${Date.now()}` };
+    const result = updateFiestaData(data => {
+        const tareas = [...(data.tareas || []), newTarea];
+        return { ...data, tareas };
+    });
+    return {...result, tarea: newTarea };
+}
