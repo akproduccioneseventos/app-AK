@@ -135,7 +135,7 @@ function ClientPortalContent() {
                            const finalHref = mod.href.replace('[fiestaId]', fiesta.id);
 
                            return (
-                               <Link href={finalHref} key={mod.id} passHref>
+                               <Link href={`${finalHref}?fiestaId=${fiesta.id}`} key={mod.id} passHref>
                                     <Button variant="outline" className="w-full h-auto justify-start p-4 text-left">
                                         <Icon className="w-6 h-6 mr-4 text-primary"/>
                                         <div className="flex-grow">
@@ -161,4 +161,3 @@ export default function ClientPortalPage() {
         </Suspense>
     );
 }
-

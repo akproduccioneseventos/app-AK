@@ -30,38 +30,36 @@ const formatDate = (dateString?: string) => {
 
 const modules = [
   // Gestión Central
-  { id: 'configuracion' as keyof ModulosContratados, title: "Configuración", href: "configuracion", icon: Settings2, description: "Datos generales del evento.", category: 'Gestión Central' },
-  { id: 'tareas' as keyof ModulosContratados, title: "Tareas", href: "tareas", icon: ListChecks, description: "Checklist de pendientes.", category: 'Gestión Central' },
-  { id: 'documentos' as keyof ModulosContratados, title: "Documentos", href: "gestion-documental", icon: Archive, description: "Contratos y archivos importantes.", category: 'Gestión Central' },
-  { id: 'costos' as keyof ModulosContratados, title: "Costos", href: "gestion-costos-rentabilidad", icon: DollarSign, description: "Analiza la rentabilidad.", category: 'Gestión Central' },
-  { id: 'resumenImprimible' as keyof ModulosContratados, title: "Resumen Imprimible", href: "resumen-imprimible", icon: Printer, description: "Genera un PDF con el resumen operativo del evento.", category: 'Gestión Central' },
+  { id: 'configuracion', title: "Configuración", href: "configuracion", icon: Settings2, description: "Datos generales del evento.", category: 'Gestión Central' },
+  { id: 'tareas', title: "Tareas", href: "tareas", icon: ListChecks, description: "Checklist de pendientes.", category: 'Gestión Central' },
+  { id: 'documentos', title: "Documentos", href: "gestion-documental", icon: Archive, description: "Contratos y archivos importantes.", category: 'Gestión Central' },
+  { id: 'costos', title: "Costos", href: "gestion-costos-rentabilidad", icon: DollarSign, description: "Analiza la rentabilidad.", category: 'Gestión Central' },
+  { id: 'resumenImprimible', title: "Resumen Imprimible", href: "resumen-imprimible", icon: Printer, description: "Genera un PDF con el resumen operativo del evento.", category: 'Gestión Central' },
   
   // Planificación del Evento
-  { id: 'invitados' as keyof ModulosContratados, title: "Invitados", href: "invitados", icon: Users, description: "Gestiona tu lista de invitados.", category: 'Planificación del Evento' },
-  { id: 'disenoSalon' as keyof ModulosContratados, title: "Diseño de Salón", href: "invitados/layout", icon: LayoutDashboard, description: "Organiza la distribución de mesas y elementos.", category: 'Planificación del Evento' },
-  { id: 'decoracion' as keyof ModulosContratados, title: "Decoración y Diseño", href: "decoracion", icon: Palette, description: "Define el estilo y la ambientación.", category: 'Planificación del Evento' },
-  { id: 'catering' as keyof ModulosContratados, title: "Planificación Gastronómica", href: "catering", icon: Calculator, description: "Menús, repostería y bebidas.", category: 'Planificación del Evento' },
-  { id: 'personal' as keyof ModulosContratados, title: "Personal", href: "personal", icon: UserCheck, description: "Asigna personal al evento.", category: 'Planificación del Evento' },
-  { id: 'cargaOperativa' as keyof ModulosContratados, title: "Lista de Carga Operativa", href: "carga-operativa", icon: ClipboardList, description: "Checklist de carga de materiales.", category: 'Planificación del Evento' },
+  { id: 'invitados', title: "Invitados y Salón", href: "invitados", icon: Users, description: "Gestiona tu lista y el diseño del salón.", category: 'Planificación del Evento' },
+  { id: 'decoracion', title: "Decoración y Diseño", href: "decoracion", icon: Palette, description: "Define el estilo y la ambientación.", category: 'Planificación del Evento' },
+  { id: 'catering', title: "Planificación Gastronómica", href: "catering", icon: Calculator, description: "Menús, repostería y bebidas.", category: 'Planificación del Evento' },
+  { id: 'personal', title: "Personal", href: "personal", icon: UserCheck, description: "Asigna personal al evento.", category: 'Planificación del Evento' },
+  { id: 'cargaOperativa', title: "Lista de Carga Operativa", href: "carga-operativa", icon: ClipboardList, description: "Checklist de carga de materiales.", category: 'Planificación del Evento' },
 
-  // Portal del Cliente
-  { id: 'reuniones' as keyof ModulosContratados, title: "Reuniones y Portal", href: "reuniones", icon: MessageSquare, description: "Gestiona reuniones y la experiencia del cliente.", category: 'Portal del Cliente' },
-  { id: 'paginaWeb' as keyof ModulosContratados, title: "Página del Evento", href: "pagina-web", icon: Globe, description: "Personaliza la web que verán tus invitados.", category: 'Portal del Cliente' },
-  { id: 'itinerario' as keyof ModulosContratados, title: "Itinerario", href: "itinerario", icon: Clock, description: "Organiza el cronograma del evento.", category: 'Portal del Cliente' },
-  { id: 'musica' as keyof ModulosContratados, title: "Música", href: "musica", icon: Music2, description: "Define las preferencias musicales.", category: 'Portal del Cliente' },
-  { id: 'regalos' as keyof ModulosContratados, title: "Lista de Regalos", href: "regalos", icon: Gift, description: "Configura la lista de regalos para los invitados.", category: 'Portal del Cliente' },
-  { id: 'videoVida' as keyof ModulosContratados, title: "Video de Vida", href: "video-vida", icon: Video, description: "Gestiona las fotos del cliente.", category: 'Portal del Cliente' },
-  { id: 'muroSocial' as keyof ModulosContratados, title: "Muro Social", href: "/evento/social/[fiestaId]", icon: Camera, description: "Modera la galería de fotos en vivo del evento.", category: 'Portal del Cliente' },
-  { id: 'feedback' as keyof ModulosContratados, title: "Feedback y Testimonios", href: "/settings/feedback", icon: Star, description: "Gestiona la opinión de tus clientes post-evento.", category: 'Portal del Cliente' },
+  // Portal del Cliente y Herramientas
+  { id: 'reuniones', title: "Reuniones y Portal Cliente", href: "reuniones", icon: MessageSquare, description: "Gestiona reuniones y la experiencia del cliente.", category: 'Portal del Cliente' },
+  { id: 'paginaWeb', title: "Página del Evento", href: "pagina-web", icon: Globe, description: "Personaliza la web que verán tus invitados.", category: 'Portal del Cliente' },
+  { id: 'itinerario', title: "Itinerario", href: "itinerario", icon: Clock, description: "Organiza el cronograma del evento.", category: 'Portal del Cliente' },
+  { id: 'musica', title: "Música", href: "musica", icon: Music2, description: "Define las preferencias musicales.", category: 'Portal del Cliente' },
+  { id: 'regalos', title: "Lista de Regalos", href: "regalos", icon: Gift, description: "Configura la lista de regalos para los invitados.", category: 'Portal del Cliente' },
+  { id: 'videoVida', title: "Video de Vida", href: "video-vida", icon: Video, description: "Gestiona las fotos del cliente.", category: 'Portal del Cliente' },
+  { id: 'muroSocial', title: "Muro Social", href: "/evento/social/[fiestaId]", icon: Camera, description: "Modera la galería de fotos en vivo del evento.", category: 'Portal del Cliente' },
+  { id: 'feedback', title: "Feedback y Testimonios", href: "/settings/feedback", icon: Star, description: "Gestiona la opinión de tus clientes post-evento.", category: 'Portal del Cliente' },
   { id: 'invitados', title: "Asignación de Mesas", href: "/portal/[fiestaId]/mesas", icon: Users, description: "Permite al cliente organizar sus invitados en las mesas.", category: 'Portal del Cliente' },
-
   
   // Herramientas Adicionales
-  { id: 'checkin' as keyof ModulosContratados, title: "Check-in de Invitados (QR)", href: "invitados/checkin-scanner", icon: QrCode, description: "Escanea los QR de los invitados en la entrada.", category: 'Herramientas Adicionales' },
-  { id: 'listaCompras' as keyof ModulosContratados, title: "Lista de Compras", href: "catering/lista-compras", icon: ShoppingCart, description: "Insumos y bebidas para el evento.", category: 'Herramientas Adicionales' },
-  { id: 'menuMesa' as keyof ModulosContratados, title: "Menú de Mesa", href: "menu-mesa", icon: Printer, description: "Diseña el menú impreso para las mesas.", category: 'Herramientas Adicionales' },
-  { id: 'cartaTragos' as keyof ModulosContratados, title: "Carta de Tragos", href: "carta-tragos", icon: GlassWater, description: "Diseña la carta de tragos para la barra.", category: 'Herramientas Adicionales' },
-  { id: 'fotografia' as keyof ModulosContratados, title: "Fotografía y Video", href: "fotografia", icon: Camera, description: "Seguimiento de entregas.", category: 'Herramientas Adicionales' },
+  { id: 'checkin', title: "Check-in de Invitados (QR)", href: "invitados/checkin-scanner", icon: QrCode, description: "Escanea los QR de los invitados en la entrada.", category: 'Herramientas Adicionales' },
+  { id: 'listaCompras', title: "Lista de Compras", href: "catering/lista-compras", icon: ShoppingCart, description: "Insumos y bebidas para el evento.", category: 'Herramientas Adicionales' },
+  { id: 'menuMesa', title: "Menú de Mesa", href: "menu-mesa", icon: Printer, description: "Diseña el menú impreso para las mesas.", category: 'Herramientas Adicionales' },
+  { id: 'cartaTragos', title: "Carta de Tragos", href: "carta-tragos", icon: GlassWater, description: "Diseña la carta de tragos para la barra.", category: 'Herramientas Adicionales' },
+  { id: 'fotografia', title: "Fotografía y Video", href: "fotografia", icon: Camera, description: "Seguimiento de entregas.", category: 'Herramientas Adicionales' },
 ];
 
 const moduleCategories = [

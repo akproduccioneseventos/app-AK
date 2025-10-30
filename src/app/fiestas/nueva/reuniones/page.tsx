@@ -338,7 +338,7 @@ function GestionReunionesContent() {
                             <div key={mod.id} className="flex items-center space-x-2 p-3 border rounded-md">
                                 <Switch 
                                     id={`switch-${mod.id}`}
-                                    checked={portalSettings[mod.id]?.visible}
+                                    checked={portalSettings[mod.id as keyof typeof settings]?.visible}
                                     onCheckedChange={(v) => handlePortalSwitch(mod.id, 'visible', v)}
                                 />
                                 <Label htmlFor={`switch-${mod.id}`}>{mod.label}</Label>
