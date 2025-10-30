@@ -286,7 +286,7 @@ export default function CrmPage() {
             <Link href="/empresa/contabilidad" passHref>
               <Button variant="outline">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Volver
+                Volver al Panel Contable
               </Button>
             </Link>
           </div>

@@ -110,7 +110,7 @@ function SocialMediaPageContent() {
                 <div className="flex gap-2">
                     <NewPostDialog onPostCreated={fetchData} />
                      <Link href="/empresa" passHref>
-                        <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
+                        <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver a Empresa</Button>
                     </Link>
                 </div>
             </div>
