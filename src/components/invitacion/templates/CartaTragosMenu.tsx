@@ -17,6 +17,38 @@ interface CartaTragosMenuProps {
     openEditModal?: (item: Trago) => void;
 }
 
+const Ornament: React.FC<{ position: string; color: string }> = ({ position, color }) => {
+    const baseClasses = "absolute w-8 h-8 border-2";
+    const positionClasses = {
+        'top-left': 'top-2 left-2 border-t-0 border-r-0',
+        'top-right': 'top-2 right-2 border-t-0 border-l-0',
+        'bottom-left': 'bottom-2 left-2 border-b-0 border-r-0',
+        'bottom-right': 'bottom-2 right-2 border-b-0 border-l-0',
+    };
+    const innerClasses = "absolute w-4 h-4 border-2";
+    const innerPositionClasses = {
+        'top-left': 'top-[-2px] left-[-2px] border-t-0 border-r-0',
+        'top-right': 'top-[-2px] right-[-2px] border-t-0 border-l-0',
+        'bottom-left': 'bottom-[-2px] left-[-2px] border-b-0 border-r-0',
+        'bottom-right': 'bottom-[-2px] right-[-2px] border-b-0 border-l-0',
+    }
+
+    return (
+        <div className={cn(baseClasses, positionClasses[position])} style={{ borderColor: color }}>
+            <div className={cn(innerClasses, innerPositionClasses[position])} style={{ borderColor: color }} />
+        </div>
+    );
+};
+
+const SectionSeparator: React.FC<{ color: string }> = ({ color }) => (
+    <div className="flex items-center justify-center my-1">
+        <div className="flex-grow h-px bg-gray-300"></div>
+        <div className="w-2.5 h-2.5 mx-2 transform rotate-45" style={{ backgroundColor: color }}></div>
+        <div className="flex-grow h-px bg-gray-300"></div>
+    </div>
+);
+
+
 export const CartaTragosMenu: React.FC<CartaTragosMenuProps> = ({ fiesta, carta, onUpdate, isPreview, openEditModal }) => {
     const [logoUrl, setLogoUrl] = React.useState<string | null>(null);
 
@@ -45,7 +77,12 @@ export const CartaTragosMenu: React.FC<CartaTragosMenuProps> = ({ fiesta, carta,
             className={cn("w-full h-full p-2 relative overflow-hidden flex border-2")}
             style={{ backgroundColor: carta.backgroundColor, borderColor: paleta.primary }}
         >
-             {/* Background Image */}
+             <Ornament position="top-left" color={paleta.primary} />
+             <Ornament position="top-right" color={paleta.primary} />
+             <Ornament position="bottom-left" color={paleta.primary} />
+             <Ornament position="bottom-right" color={paleta.primary} />
+            
+            {/* Background Image */}
             {carta.backgroundImageUrl && (
                 <NextImage src={carta.backgroundImageUrl} layout="fill" objectFit="cover" className="absolute inset-0 opacity-20 -z-10" alt="" data-ai-hint="floral background texture" />
             )}
@@ -94,7 +131,7 @@ export const CartaTragosMenu: React.FC<CartaTragosMenuProps> = ({ fiesta, carta,
                             <p className="text-[8px] leading-tight">
                                 <EditableText initialValue={carta.empresa.linea2 || 'Servicio de fiestas integral'} onSave={(val) => handleEmpresaUpdate('linea2', val)} textarea={false} style={{fontFamily: 'Inter'}}/>
                             </p>
-                             <div className="flex items-center justify-center gap-1 pt-0.5">
+                             <div className="flex items-center justify-center gap-1.5 pt-0.5">
                                 <Phone className="w-2.5 h-2.5"/>
                                 <p className="text-xs font-semibold">
                                    <EditableText initialValue={carta.empresa.contacto || '098 355 530'} onSave={(val) => handleEmpresaUpdate('contacto', val)} textarea={false} style={{fontFamily: 'Inter'}}/>
@@ -105,7 +142,7 @@ export const CartaTragosMenu: React.FC<CartaTragosMenuProps> = ({ fiesta, carta,
                 </div>
             </div>
             {logoUrl && (
-                <div className="absolute right-2 bottom-2 w-10 h-10 z-20">
+                <div className="absolute left-2 bottom-2 w-14 h-14 z-20">
                     <NextImage src={logoUrl} alt="Logo" layout="fill" className="object-contain" data-ai-hint="company logo"/>
                 </div>
             )}
