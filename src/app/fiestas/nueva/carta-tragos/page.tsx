@@ -73,11 +73,11 @@ function CartaTragosContent() {
     setCartaTragos(prev => ({ ...prev, [field]: value }));
   };
   
-  const handleColorChange = (colorType: 'primary' | 'secondary' | 'accent', value: string) => {
+  const handleColorChange = (colorType: 'primary' | 'secondary' | 'accent' | 'background', value: string) => {
     setCartaTragos(prev => ({
         ...prev,
         paletaColores: {
-            ...(prev.paletaColores || { primary: '#9333ea', secondary: '#363636', accent: '#ffffff' }),
+            ...(prev.paletaColores || { primary: '#9333ea', secondary: '#363636', accent: '#ffffff', background: '#ffffff' }),
             [colorType]: value,
         }
     }));
@@ -241,11 +241,10 @@ function CartaTragosContent() {
             <div className="flex flex-wrap gap-2 items-center">
                 <div className="space-y-1"><Label htmlFor="protagonista-foto" className="text-xs">Foto</Label><Input id="protagonista-foto" type="file" accept="image/*" onChange={handleProtagonistPhotoUpload} className="text-xs w-48" disabled={isUploading}/></div>
                 <div className="space-y-1"><Label htmlFor="bg-image-upload" className="text-xs">Fondo</Label><Input id="bg-image-upload" type="file" accept="image/*" onChange={handleBackgroundImageUpload} className="text-xs w-44" disabled={isUploading}/></div>
-                <div className="space-y-1"><Label className="text-xs">Ola/Principal</Label><Input type="color" value={cartaTragos.paletaColores?.primary || '#8b5cf6'} onChange={e => handleColorChange('primary', e.target.value)} className="w-9 h-8 p-0.5"/></div>
-                <div className="space-y-1"><Label className="text-xs">Textos</Label><Input type="color" value={cartaTragos.paletaColores?.secondary || '#363636'} onChange={e => handleColorChange('secondary', e.target.value)} className="w-9 h-8 p-0.5"/></div>
-                <div className="space-y-1"><Label className="text-xs">Borde Foto</Label><Input type="color" value={cartaTragos.paletaColores?.accent || '#facc15'} onChange={e => handleColorChange('accent', e.target.value)} className="w-9 h-8 p-0.5"/></div>
-                <div className="space-y-1"><Label className="text-xs">Fondo Tarjeta</Label><Input type="color" value={cartaTragos.backgroundColor || '#ffffff'} onChange={e => handleUpdate('backgroundColor', e.target.value)} className="w-9 h-8 p-0.5"/></div>
-
+                <div className="space-y-1"><Label className="text-xs">Borde</Label><Input type="color" value={cartaTragos.paletaColores?.primary || '#8b5cf6'} onChange={e => handleColorChange('primary', e.target.value)} className="w-9 h-8 p-0.5"/></div>
+                <div className="space-y-1"><Label className="text-xs">Título</Label><Input type="color" value={cartaTragos.paletaColores?.accent || '#3b82f6'} onChange={e => handleColorChange('accent', e.target.value)} className="w-9 h-8 p-0.5"/></div>
+                <div className="space-y-1"><Label className="text-xs">Texto</Label><Input type="color" value={cartaTragos.paletaColores?.secondary || '#4b5563'} onChange={e => handleColorChange('secondary', e.target.value)} className="w-9 h-8 p-0.5"/></div>
+                <div className="space-y-1"><Label className="text-xs">Fondo Tarjeta</Label><Input type="color" value={cartaTragos.backgroundColor || '#ffffff'} onChange={e => handleColorChange('background', e.target.value)} className="w-9 h-8 p-0.5"/></div>
                <div className="flex items-end gap-2">
                  <Button size="sm" onClick={handleSave} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}</Button>
                  <Button onClick={handlePrint} size="sm" variant="outline"><PrinterIcon className="w-4 h-4"/></Button>
@@ -254,10 +253,10 @@ function CartaTragosContent() {
             </div>
         </div>
         
-        <div className="flex justify-center items-center py-4 print:py-0" style={{ transform: 'scale(0.8)', transformOrigin: 'top' }}>
-          <div className="w-[100mm] h-[150mm] bg-white shadow-lg print:shadow-none print:m-0 print:mx-auto">
-              <div className="w-full h-full relative">
-                  <CartaTragosMenu fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} openEditModal={openEditModal} />
+        <div className="flex justify-center items-center py-4 print:py-0">
+          <div className="w-[15cm] h-[10cm] bg-white shadow-lg print:shadow-none print:m-0 print:mx-auto" style={{ transform: 'rotate(-90deg)', transformOrigin: 'center' }}>
+              <div className="w-[10cm] h-[15cm] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                <CartaTragosMenu fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} openEditModal={openEditModal} />
               </div>
           </div>
         </div>
@@ -267,8 +266,12 @@ function CartaTragosContent() {
          @media print {
             body { -webkit-print-color-adjust: exact; color-adjust: exact; }
             @page { 
-                size: 100mm 150mm;
+                size: 15cm 10cm;
                 margin: 0; 
+            }
+            .page-container {
+                width: 15cm;
+                height: 10cm;
             }
         }
        `}</style>
@@ -283,4 +286,3 @@ export default function CartaTragosPageWrapper() {
         </Suspense>
     )
 }
-

@@ -1,5 +1,4 @@
 
-
 import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, GiftItem, LayoutElement, ClientTarea, ProgramaEventoItem, TareaAsignadaA, FotografiaYFilmacionData, BebidasConsumoConfig, TipoAsistente, ReposteriaConsumoConfig, OtroDocumento, VideoVidaData, BebidaReceta, IngredienteReceta, CargaOperativaCategoria, InvitacionDigitalData, SeccionInvitacion, CartaTragosData, MenuMesaData, ModulosContratados, NumerosMesaData, Trago } from '@/types/fiesta';
 import { defaultInvitacionDigitalData } from './invitacion-digital-defaults';
 
@@ -10,7 +9,7 @@ export const defaultStaticTragos: Trago[] = [
     { id: 'trago_4', nombre: 'DAIQUIRI DE ANANA', imageUrl: 'https://i.imgur.com/mS9z5sE.jpeg', aiHint: 'pineapple daiquiri' },
     { id: 'trago_5', nombre: 'DAIQUIRI DE FRUTILLA', imageUrl: 'https://i.imgur.com/f9W9g7d.jpeg', aiHint: 'strawberry daiquiri' },
     { id: 'trago_6', nombre: 'ATOMIC GREEN', imageUrl: 'https://i.imgur.com/1G6K2Vn.jpeg', aiHint: 'atomic green cocktail' },
-    { id: 'trago_7', nombre: 'DAIQUIRI PRIMAVERA', imageUrl: 'https://i.imgur.com/2s4P0Xz.jpeg', aiHint: 'spring daiquiri' },
+    { id: 'trago_7', nombre: 'DAIQUIRI PRIMAVERA', imageUrl: 'https://picsum.photos/seed/spring-daiquiri/400/600', aiHint: 'spring daiquiri' },
     { id: 'trago_8', nombre: 'FERNET CON COCA', imageUrl: 'https://i.imgur.com/rMvJp3P.jpeg', aiHint: 'fernet with coke' },
     { id: 'trago_9', nombre: 'ATARDECER', imageUrl: 'https://i.imgur.com/4l3F8tD.jpeg', aiHint: 'sunset cocktail' },
     { id: 'trago_10', nombre: 'DESTORNILLADOR', imageUrl: 'https://i.imgur.com/sC3a3gM.png', aiHint: 'screwdriver cocktail' },
@@ -34,7 +33,7 @@ export const defaultCartaTragosData: CartaTragosData = {
 
 
 export const defaultMenuMesaData: MenuMesaData = {
-  protagonistaFotoUrl: "https://i.imgur.com/sC3a3gM.png",
+  protagonistaFotoUrl: "https://picsum.photos/seed/quinceanera-main/300/300",
   paletaColores: {
     primary: '#8b5cf6', // purple-500
     secondary: '#4b5563', // gray-600
@@ -57,7 +56,7 @@ export const defaultMenuMesaData: MenuMesaData = {
 export const defaultNumerosMesaData: NumerosMesaData = {
     protagonistaNombre: 'La Agasajada',
     fechaEvento: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }),
-    backgroundImageUrl: 'https://picsum.photos/seed/flowers-bg/800/400',
+    backgroundImageUrl: 'https://picsum.photos/seed/floral-background/800/400',
     colorPrincipal: '#9333ea',
     colorSecundario: '#363636',
 };
