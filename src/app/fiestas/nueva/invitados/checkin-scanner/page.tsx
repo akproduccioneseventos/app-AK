@@ -96,7 +96,11 @@ function CheckinScannerContent() {
   }, [isProcessingCheckin, allGuests, toast, fiestaId]);
 
   const onScanSuccess: QrcodeSuccessCallback = (decodedText, decodedResult) => {
-    console.log(`Code matched = ${decodedText}`, decodedResult);
+    // Stop scanning after a successful scan.
+    if(scannerRef.current?.getState() === 2) { // 2 is SCANNING state
+        scannerRef.current.pause(true);
+    }
+
     try {
         const url = new URL(decodedText);
         const scannedFiestaId = url.searchParams.get('fiestaId');
@@ -104,6 +108,7 @@ function CheckinScannerContent() {
 
         if (scannedFiestaId !== fiestaId) {
             toast({title: "QR Incorrecto", description: "Este QR no pertenece al evento actual.", variant: "destructive"});
+            setTimeout(() => scannerRef.current?.resume(), 2000); // Resume scanning after showing toast
             return;
         }
 
@@ -114,6 +119,12 @@ function CheckinScannerContent() {
         }
     } catch (e) {
         toast({title: "Error de Escaneo", description: "El código QR no es una URL válida.", variant: "destructive"});
+    } finally {
+        setTimeout(() => {
+            if(scannerRef.current?.getState() === 3) { // 3 is PAUSED state
+                scannerRef.current.resume();
+            }
+        }, 3000); // Wait 3 seconds before resuming scanning
     }
   };
 
@@ -121,39 +132,44 @@ function CheckinScannerContent() {
     // console.warn(`Code scan error = ${error}`);
   };
 
-  const startScanner = useCallback(() => {
-    if(scannerRef.current) return; // Already initialized
-
-    const config = { fps: 10, qrbox: { width: 250, height: 250 }, rememberLastUsedCamera: true };
-    const html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", config, false);
-    
-    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
-    scannerRef.current = html5QrcodeScanner;
-    setHasCameraPermission(true);
-  }, [onScanSuccess, onScanFailure]);
-
-  const stopScanner = useCallback(() => {
-    if (scannerRef.current && scannerRef.current.getState() !== 1) { // 1 is NOT_STARTED
-      scannerRef.current.clear().catch(error => {
-        console.error("Failed to clear html5QrcodeScanner.", error);
-      });
-      scannerRef.current = null;
-    }
-  }, []);
-
   const handleTabChange = (value: string) => {
     if (value === 'scanner') {
-        startScanner();
+        if (!scannerRef.current) {
+            // This ensures the DOM element is ready before initializing.
+            const scanner = new Html5QrcodeScanner("qr-reader", { 
+                fps: 10, 
+                qrbox: { width: 250, height: 250 } 
+            }, false);
+            scanner.render(onScanSuccess, onScanFailure);
+            scannerRef.current = scanner;
+        } else {
+            // If scanner exists but might be paused
+            if(scannerRef.current.getState() === 3) { // 3 is PAUSED state
+                scannerRef.current.resume();
+            }
+        }
     } else {
-        stopScanner();
+        // Stop scanning when switching away from the tab
+        if (scannerRef.current && scannerRef.current.getState() !== 1) { // 1 = NOT_STARTED
+             try {
+                scannerRef.current.pause(true);
+            } catch (e) {
+                console.warn("Could not pause scanner, it might already be stopped.", e);
+            }
+        }
     }
   };
   
   useEffect(() => {
     return () => {
-      stopScanner();
+      // Cleanup on component unmount
+      if (scannerRef.current) {
+        scannerRef.current.clear().catch(error => {
+          console.error("Failed to clear html5QrcodeScanner.", error);
+        });
+      }
     };
-  }, [stopScanner]);
+  }, []);
 
 
   const checkedInGuests = React.useMemo(() => allGuests.filter(g => g.checkedIn), [allGuests]);
@@ -234,14 +250,7 @@ function CheckinScannerContent() {
               </CardHeader>
               <CardContent>
                 <div id="qr-reader" className="w-full max-w-sm mx-auto rounded-lg overflow-hidden aspect-square border-2 border-dashed">
-                  {hasCameraPermission === false && (
-                    <Alert variant="destructive">
-                      <AlertTitle>Se requiere acceso a la cámara</AlertTitle>
-                      <AlertDescription>
-                        Por favor, habilita el permiso para usar la cámara en la configuración de tu navegador para poder escanear.
-                      </AlertDescription>
-                    </Alert>
-                  )}
+                  {/* The scanner will be rendered here by the useEffect hook */}
                 </div>
               </CardContent>
             </Card>
