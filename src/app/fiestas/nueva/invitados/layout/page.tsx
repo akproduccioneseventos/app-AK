@@ -217,7 +217,7 @@ function SalonLayoutContent() {
  const addElement = (category: string, customProps?: Partial<LayoutElement>, type: LayoutElementType = 'element') => {
     if (!decoracion) return;
     
-    let defaultProps: Partial<LayoutElement> = { width: 80, height: 80, seats: 8, shape: 'circle' };
+    let defaultProps: Partial<LayoutElement> = { width: 100, height: 100, seats: 8, shape: 'circle' };
 
     if (category === 'Mesa Rectangular') { defaultProps = { width: 160, height: 80, seats: 8, shape: 'rectangle' }; }
     else if (category === 'Pista de Baile') { defaultProps = { width: 240, height: 200, seats: undefined, backgroundColor: 'rgba(56, 189, 248, 0.2)', shape: 'rectangle' }; }
@@ -412,7 +412,7 @@ function SalonLayoutContent() {
     if (!fiesta?.invitados) return { conMesa: [], sinMesa: [] };
     
     const lowerCaseSearch = guestSearchTerm.toLowerCase();
-    const guestsToConsider = fiesta.invitados.filter(g => g.rsvp === 'Confirmado' || g.rsvp === 'Pendiente');
+    const guestsToConsider = fiesta.invitados.filter(g => g.rsvp === 'Confirmado');
 
     const conMesa = guestsToConsider
       .filter(g => g.tableNumber && g.nombre.toLowerCase().includes(lowerCaseSearch))
@@ -560,14 +560,14 @@ function SalonLayoutContent() {
         <TabsContent value="visual">
             <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 h-[calc(100vh-450px)]">
             <Card className="xl:col-span-3 flex flex-col">
-                <CardHeader><CardTitle>Invitados sin Mesa</CardTitle><div className="relative pt-2"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input placeholder="Buscar..." value={guestSearchTerm} onChange={(e) => setGuestSearchTerm(e.target.value)} className="w-full pl-10"/></div></CardHeader>
+                <CardHeader><CardTitle>Invitados sin Mesa ({filteredGuests.sinMesa.length})</CardTitle><div className="relative pt-2"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input placeholder="Buscar..." value={guestSearchTerm} onChange={(e) => setGuestSearchTerm(e.target.value)} className="w-full pl-10"/></div></CardHeader>
                 <CardContent className="flex-grow min-h-0"><ScrollArea className="h-full"><div className="space-y-2 pr-4">{filteredGuests.sinMesa.map(guest => <GuestCard key={guest.id} guest={guest} />)}</div></ScrollArea></CardContent>
             </Card>
             <div className={cn("xl:col-span-9 bg-card flex flex-col", isFullScreen ? 'fixed inset-0 z-40 p-4' : '')}>
                 <Card className="h-full flex flex-col flex-grow">
                     <CardHeader className="flex-row justify-between items-center"><CardTitle>Lienzo del Salón</CardTitle><div className="flex items-center gap-1"><Button size="icon" variant="outline" onClick={() => setScale(s => s / 1.2)}><ZoomOut className="w-4 h-4"/></Button><Button size="icon" variant="outline" onClick={() => setScale(s => s * 1.2)}><ZoomIn className="w-4 h-4"/></Button><Button size="icon" variant="outline" onClick={() => setIsFullScreen(!isFullScreen)}><Maximize className="w-4 h-4"/></Button></div></CardHeader>
                     <CardContent className="flex-grow p-1 overflow-auto">
-                    <div ref={canvasRef} className="relative canvas-grid-background" style={{ width: `${(decoracion.salonWidth || 15) * pixelsPerMeter}px`, height: `${(decoracion.salonHeight || 15) * pixelsPerMeter}px`, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
+                    <div className="relative canvas-grid-background" style={{ width: `${(decoracion.salonWidth || 15) * pixelsPerMeter}px`, height: `${(decoracion.salonHeight || 15) * pixelsPerMeter}px`, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
                         {decoracion.salonPlanBackgroundImageUrl && (<NextImage src={decoracion.salonPlanBackgroundImageUrl} alt="Plano del Salón" layout="fill" objectFit="contain" className="opacity-50"/>)}
                         {(decoracion.salonElements || []).sort((a,b) => (a.zIndex || 0) - (b.zIndex || 0)).map(el => {
                             const nodeRef = React.createRef<HTMLDivElement>();
@@ -625,5 +625,6 @@ export default function SalonLayoutPage() {
         </DndProvider>
     );
 }
+
 
 

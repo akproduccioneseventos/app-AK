@@ -147,46 +147,127 @@ const Seat: React.FC<{ angle?: number; distance?: number; isOccupied: boolean; i
 
 function AsignacionMesasContent() {
   const searchParams = useSearchParams();
-  const guestId = searchParams.get('guestId');
+  const router = useRouter();
+  const { toast } = useToast();
   const fiestaId = searchParams.get('fiestaId');
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
-  const [invitado, setInvitado] = useState<Invitado | null>(null);
+  const [decoracion, setDecoracion] = useState<DecoracionData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function fetchData() {
-      if (!guestId || !fiestaId) {
-        setError("No se proporcionó ID de invitado o de fiesta.");
-        setIsLoading(false);
-        return;
-      }
-      setIsLoading(true);
-      setError(null);
-      try {
-        const fiestaData = await getFiestaById(fiestaId);
-        if(!fiestaData) throw new Error("Evento no encontrado.");
-        setFiesta(fiestaData);
-        
-        const foundInvitado = fiestaData.invitados?.find(inv => inv.id === guestId);
-        
-        if (foundInvitado) {
-          setInvitado(foundInvitado);
-        } else {
-          setError("Invitación no encontrada. Por favor, verifica el código QR o contacta al organizador.");
-        }
-      } catch (err: any) {
-        setError("Error al cargar la información del evento. Intenta de nuevo más tarde.");
-        console.error("Error fetching data for table lookup:", err);
-      } finally {
-        setIsLoading(false);
-      }
+  const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
+  
+  const [templates, setTemplates] = useState<SalonLayoutTemplate[]>([]);
+  const [isLoadTemplateModalOpen, setIsLoadTemplateModalOpen] = useState(false);
+  const [isTemplateActionLoading, setIsTemplateActionLoading] = useState(false);
+  
+  const [scale, setScale] = useState(1);
+  const [guestSearchTerm, setGuestSearchTerm] = useState('');
+  
+  const loadData = useCallback(async () => {
+    if (!fiestaId) {
+      setError("No se proporcionó ID de evento.");
+      setIsLoading(false);
+      return;
     }
-    fetchData();
-  }, [guestId, fiestaId]);
+    setIsLoading(true);
+    setError(null);
+    try {
+      const fiestaData = await getFiestaById(fiestaId);
+      if(!fiestaData) throw new Error("Evento no encontrado.");
+      setFiesta(fiestaData);
+      setDecoracion(fiestaData.decoracion || { salonElements: [], pixelsPerMeter: PIXELS_PER_METER_DEFAULT, salonWidth: 15, salonHeight: 15 });
+    } catch (err: any) {
+      setError("Error al cargar la información del evento.");
+      console.error("Error fetching data for table lookup:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [fiestaId]);
 
-  if (isLoading) {
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+  
+  const handleLoadTemplate = async () => {
+    setIsTemplateActionLoading(true);
+    try {
+        const data = await getSalonLayoutTemplates();
+        setTemplates(data);
+        setIsLoadTemplateModalOpen(true);
+    } catch(e) {
+        toast({title: "Error", description: "No se pudieron cargar las plantillas."});
+    } finally {
+        setIsTemplateActionLoading(false);
+    }
+  };
+
+  const applyTemplate = (template: SalonLayoutTemplate) => {
+    if (decoracion) {
+        const newDecoracion = { ...decoracion, ...template.layoutData };
+        setDecoracion(newDecoracion);
+        setIsLoadTemplateModalOpen(false);
+        toast({title: "Plantilla aplicada", description: "El diseño del salón ha sido actualizado."});
+    }
+  };
+
+  const handleSaveAll = async () => {
+    if (!decoracion || !fiestaId) return;
+    setIsSaving(true);
+    try {
+        await updateDecoracionFiestaActual(fiestaId, decoracion);
+        toast({ title: "¡Guardado!", description: "El diseño del salón ha sido guardado." });
+        await loadData();
+    } catch(err: any) {
+        toast({ title: "Error al Guardar", description: err.message, variant: "destructive" });
+    } finally {
+        setIsSaving(false);
+    }
+  };
+
+  const handleAssignGuestToTable = async (guestId: string, tableName: string) => {
+    const updatedInvitados = (fiesta?.invitados || []).map(inv => 
+      inv.id === guestId ? { ...inv, tableNumber: tableName } : inv
+    );
+    if (fiesta) {
+      setFiesta({ ...fiesta, invitados: updatedInvitados });
+      const guestToUpdate = updatedInvitados.find(i => i.id === guestId);
+      if (guestToUpdate) await updateInvitadoFiestaActual(fiestaId!, guestToUpdate);
+    }
+  };
+
+  const handleUnassignGuest = async (guestId: string) => {
+    const updatedInvitados = (fiesta?.invitados || []).map(inv => 
+      inv.id === guestId ? { ...inv, tableNumber: undefined } : inv
+    );
+     if (fiesta) {
+      setFiesta({ ...fiesta, invitados: updatedInvitados });
+      const guestToUpdate = updatedInvitados.find(i => i.id === guestId);
+      if (guestToUpdate) await updateInvitadoFiestaActual(fiestaId!, guestToUpdate);
+    }
+  };
+  
+  const filteredGuests = useMemo(() => {
+    if (!fiesta?.invitados) return { conMesa: [], sinMesa: [] };
+    
+    const lowerCaseSearch = guestSearchTerm.toLowerCase();
+    const guestsToConsider = fiesta.invitados.filter(g => g.rsvp === 'Confirmado');
+
+    const conMesa = guestsToConsider
+      .filter(g => g.tableNumber && g.nombre.toLowerCase().includes(lowerCaseSearch))
+      .sort((a,b) => (a.tableNumber || '').localeCompare(b.tableNumber || ''));
+      
+    const sinMesa = guestsToConsider
+      .filter(g => !g.tableNumber && g.nombre.toLowerCase().includes(lowerCaseSearch))
+      .sort((a,b) => a.nombre.localeCompare(b.nombre));
+
+    return { conMesa, sinMesa };
+  }, [fiesta?.invitados, guestSearchTerm]);
+
+
+  if (isLoading || !fiesta) {
     return (
       <div className="flex flex-col items-center justify-center text-center p-8">
         <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
@@ -198,71 +279,113 @@ function AsignacionMesasContent() {
   if (error) {
     return (
       <Card className="w-full max-w-md shadow-lg">
-        <CardHeader className="text-center bg-destructive/10">
-          <AlertTriangle className="w-16 h-16 mx-auto text-destructive mb-3" />
-          <CardTitle className="text-xl font-semibold text-destructive">Error</CardTitle>
-        </CardHeader>
-        <CardContent className="text-center space-y-4 py-6">
-          <p className="text-muted-foreground">{error}</p>
-          <Link href={`/evento/actual?fiestaId=${fiesta?.id || ''}`} passHref>
-            <Button variant="outline">Volver a la Página del Evento</Button>
-          </Link>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (!invitado || !fiesta) {
-    return (
-       <Card className="w-full max-w-md shadow-lg">
-        <CardHeader className="text-center">
-          <CardTitle className="text-xl font-semibold">Información No Disponible</CardTitle>
-        </CardHeader>
-        <CardContent className="text-center space-y-4 py-6">
-          <p className="text-muted-foreground">No se pudo cargar la información necesaria.</p>
-        </CardContent>
+        <CardHeader className="text-center bg-destructive/10"><AlertTriangle className="w-16 h-16 mx-auto text-destructive mb-3" /><CardTitle className="text-xl font-semibold text-destructive">Error</CardTitle></CardHeader>
+        <CardContent className="text-center space-y-4 py-6"><p className="text-muted-foreground">{error}</p></CardContent>
       </Card>
     );
   }
   
-  const pagePrimaryColor = fiesta.decoracion?.paletaColores?.primary || 'hsl(var(--primary))';
-
+  if (!decoracion) return null;
+  const pixelsPerMeter = decoracion.pixelsPerMeter || PIXELS_PER_METER_DEFAULT;
 
   return (
-    <Card className="w-full max-w-md shadow-xl border-t-4" style={{ borderColor: pagePrimaryColor }}>
-      <CardHeader className="text-center pb-4">
-         <PartyPopper className="w-12 h-12 mx-auto mb-3" style={{ color: pagePrimaryColor }} />
-        <CardTitle className="text-2xl font-bold font-headline" style={{ color: pagePrimaryColor }}>
-          {fiesta.configuracion.nombreEvento}
-        </CardTitle>
-        <CardDescription className="text-md">¡Bienvenido/a, {invitado.nombre}!</CardDescription>
-      </CardHeader>
-      <CardContent className="text-center space-y-6 py-8">
-        {invitado.tableNumber ? (
-          <>
-            <p className="text-lg text-muted-foreground">Tu mesa asignada es la número:</p>
-            <div 
-                className="inline-flex items-center justify-center w-24 h-24 md:w-32 md:h-32 rounded-full border-4 text-4xl md:text-5xl font-bold shadow-inner"
-                style={{ borderColor: pagePrimaryColor, color: pagePrimaryColor, backgroundColor: `${pagePrimaryColor}1A` }}
-            >
-              {invitado.tableNumber}
-            </div>
-            <p className="text-sm text-muted-foreground pt-2">¡Disfruta de la fiesta!</p>
-          </>
-        ) : (
-          <>
-            <Ticket className="w-12 h-12 mx-auto text-muted-foreground/70 mb-2" />
-            <p className="text-lg font-medium">Tu mesa aún no ha sido asignada.</p>
-            <p className="text-muted-foreground">Por favor, consulta con el personal del evento al llegar o revisa esta pantalla más tarde.</p>
-          </>
-        )}
-      </CardContent>
-      <CardFooter className="justify-center py-4">
-         <Link href={`/evento/actual?fiestaId=${fiesta?.id || ''}`} passHref>
-            <Button variant="outline" size="sm">Volver a la Página del Evento</Button>
-          </Link>
-      </CardFooter>
-    </Card>
+    <div className="min-h-screen bg-muted/30 p-4">
+         <Dialog open={isLoadTemplateModalOpen} onOpenChange={setIsLoadTemplateModalOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Cargar Plantilla de Salón</DialogTitle>
+                <DialogDescription>Selecciona un diseño pre-guardado para empezar a organizar.</DialogDescription>
+              </DialogHeader>
+              {isTemplateActionLoading ? <div className="p-4 text-center"><Loader2 className="w-6 h-6 animate-spin"/></div> : templates.length === 0 ? <p className="text-muted-foreground p-4 text-center">No hay plantillas guardadas.</p> : <ScrollArea className="max-h-64"><div className="space-y-2 pr-4">{templates.map(t => <div key={t.name} className="flex items-center justify-between p-2 rounded-md border"><span className="font-medium text-sm">{t.name}</span><Button size="sm" onClick={() => applyTemplate(t)}>Cargar</Button></div>)}</div></ScrollArea>}
+            </DialogContent>
+        </Dialog>
+
+        <Card className="max-w-6xl mx-auto shadow-xl">
+            <CardHeader className="text-center">
+                <PartyPopper className="w-10 h-10 mx-auto text-primary" />
+                <CardTitle className="font-headline text-3xl">Organiza tus Mesas</CardTitle>
+                <CardDescription>Arrastra los invitados a las mesas para asignar sus lugares.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 h-[calc(100vh-350px)] min-h-[500px]">
+                    <Card className="xl:col-span-3 flex flex-col">
+                        <CardHeader className="pb-3">
+                            <CardTitle>Invitados sin Mesa ({filteredGuests.sinMesa.length})</CardTitle>
+                            <div className="relative pt-2">
+                                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                <Input placeholder="Buscar..." value={guestSearchTerm} onChange={(e) => setGuestSearchTerm(e.target.value)} className="w-full pl-10"/>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="flex-grow min-h-0">
+                            <ScrollArea className="h-full">
+                                <div className="space-y-2 pr-4">
+                                    {filteredGuests.sinMesa.map(guest => <GuestCard key={guest.id} guest={guest} />)}
+                                </div>
+                            </ScrollArea>
+                        </CardContent>
+                    </Card>
+                    <div className="xl:col-span-9 bg-card flex flex-col">
+                        <Card className="h-full flex flex-col flex-grow">
+                            <CardHeader className="flex-row justify-between items-center">
+                                <div className="flex items-center gap-2">
+                                  <CardTitle>Lienzo del Salón</CardTitle>
+                                  <Button size="sm" variant="outline" onClick={handleLoadTemplate} disabled={isTemplateActionLoading}>
+                                    <FolderUp className="w-4 h-4 mr-2"/> Cargar Plantilla
+                                  </Button>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                    <Button size="icon" variant="outline" onClick={() => setScale(s => s / 1.2)}><ZoomOut className="w-4 h-4"/></Button>
+                                    <Button size="icon" variant="outline" onClick={() => setScale(s => s * 1.2)}><ZoomIn className="w-4 h-4"/></Button>
+                                </div>
+                            </CardHeader>
+                            <CardContent className="flex-grow p-1 overflow-auto">
+                            <div className="relative canvas-grid-background" style={{ width: `${(decoracion.salonWidth || 15) * pixelsPerMeter}px`, height: `${(decoracion.salonHeight || 15) * pixelsPerMeter}px`, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
+                                {decoracion.salonPlanBackgroundImageUrl && (<NextImage src={decoracion.salonPlanBackgroundImageUrl} alt="Plano del Salón" layout="fill" objectFit="contain" className="opacity-50"/>)}
+                                {(decoracion.salonElements || []).map(el => {
+                                    const assignedGuests = (fiesta?.invitados || []).filter(inv => inv.tableNumber === el.name);
+                                    const assignedSeatsCount = assignedGuests.reduce((sum, g) => sum + (g.partySize || 1), 0);
+                                    const isRound = el.shape === 'circle';
+
+                                    return (
+                                        <TableDropZone key={el.id} element={el} onDrop={handleAssignGuestToTable}>
+                                        <div id={el.id} className="absolute" style={{ left: el.x, top: el.y, width: el.width, height: el.height, transform: `rotate(${el.rotation}deg)` }}>
+                                             {el.seats && Array.from({ length: el.seats }).map((_, i) => (
+                                                <Seat key={i} index={i} total={el.seats!} isOccupied={i < assignedSeatsCount} isRound={isRound} width={el.width} height={el.height} />
+                                              ))}
+                                            <div className={cn('w-full h-full border flex flex-col p-1', selectedElementId === el.id ? 'border-primary shadow-lg z-10' : 'border-gray-500', isRound && 'rounded-full')}
+                                                style={{ backgroundColor: el.backgroundColor || 'rgba(255, 255, 255, 0.7)' }}
+                                                onClick={(e) => { e.stopPropagation(); setSelectedElementId(el.id); }}>
+                                                <p className="text-xs font-bold text-center truncate">{el.name}</p>
+                                                <p className="text-[10px] text-center text-muted-foreground">{assignedSeatsCount}/{el.seats || 'N/A'}</p>
+                                                <div className="text-[9px] space-y-0.5 overflow-y-auto flex-grow mt-1 text-center">
+                                                    {assignedGuests.map(g => (
+                                                        <div key={g.id} className="flex items-center justify-center gap-1 group relative">
+                                                            <span className="truncate">{g.nombre} ({g.partySize})</span>
+                                                            <button onClick={() => handleUnassignGuest(g.id)} className="hidden group-hover:block text-destructive">
+                                                                <X className="w-3 h-3"/>
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        </TableDropZone>
+                                    )
+                                })}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+                </div>
+            </CardContent>
+            <CardFooter className="flex justify-end">
+                <Button onClick={handleSaveAll} disabled={isSaving}>
+                    {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>}
+                    Guardar Cambios
+                </Button>
+            </CardFooter>
+        </Card>
+    </div>
   );
 }
 
@@ -276,10 +399,5 @@ export default function MesaPage() {
                     <p className="text-lg text-muted-foreground">Cargando...</p>
                 </div>
             }>
-                <AsignacionMesasContent />
-            </Suspense>
-        </div>
-    );
-}
-
-
+                <DndProvider backend={HTML5Backend}>
+                    <AsignacionMes
