@@ -22,6 +22,7 @@ export const defaultCartaTragosData: CartaTragosData = {
     protagonistaFotoUrl: "https://picsum.photos/seed/quinceanera/300/300",
     backgroundImageUrl: "https://i.imgur.com/FwIe1tY.jpeg",
     paletaColores: { primary: '#a855f7', secondary: '#f0e68c', accent: '#ffffff' },
+    backgroundColor: '#FBF8F0',
     items: defaultStaticTragos,
     empresaNombre: 'AK PRODUCCIONES',
     empresaContacto: '098355530',

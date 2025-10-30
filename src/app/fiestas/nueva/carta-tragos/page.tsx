@@ -39,7 +39,6 @@ function CartaTragosContent() {
       
       const mergedData = { ...defaultCartaTragosData, ...(fiestaData.cartaTragos || {}) };
       
-      // Ensure 'protagonistaNombre' and 'numeroPrincipal' are sourced from event config if not set
       if (!mergedData.protagonistaNombre) {
         mergedData.protagonistaNombre = fiestaData.configuracion.protagonista1Nombre || 'La Agasajada';
       }
@@ -64,9 +63,13 @@ function CartaTragosContent() {
     setCartaTragos(prev => ({ ...prev, [field]: value }));
   };
   
-  const handleColorChange = (colorType: 'primary' | 'secondary' | 'accent', value: string) => {
-    const paleta = cartaTragos.paletaColores || defaultCartaTragosData.paletaColores;
-    handleUpdate('paletaColores', { ...paleta, [colorType]: value });
+  const handleColorChange = (colorType: 'primary' | 'secondary' | 'accent' | 'background', value: string) => {
+    if (colorType === 'background') {
+        setCartaTragos(prev => ({ ...prev, backgroundColor: value }));
+    } else {
+        const paleta = cartaTragos.paletaColores || defaultCartaTragosData.paletaColores;
+        handleUpdate('paletaColores', { ...paleta, [colorType]: value });
+    }
   };
 
 
@@ -84,6 +87,25 @@ function CartaTragosContent() {
       }
     } catch (e: any) {
       toast({ title: "Error al subir foto", variant: "destructive" });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleBackgroundImageUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !fiestaId) return;
+    setIsUploading(true);
+    try {
+      const result = await uploadPublicPageAsset(fiestaId, file);
+      if (result.success && result.url) {
+        setCartaTragos(prev => ({ ...prev, backgroundImageUrl: result.url }));
+        toast({ title: "Imagen de fondo actualizada" });
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (e: any) {
+      toast({ title: "Error al subir foto de fondo", variant: "destructive" });
     } finally {
       setIsUploading(false);
     }
@@ -115,29 +137,19 @@ function CartaTragosContent() {
   if (error) {
     return <div className="p-8 max-w-4xl mx-auto text-center">{error}</div>;
   }
-
+  
   return (
     <div className="bg-gray-100 print:bg-white">
-        <div className="py-4 px-8 print:hidden flex flex-col md:flex-row justify-between items-center gap-4 bg-white shadow-sm sticky top-0 z-50">
-            <h1 className="font-headline text-xl">Editor de Carta de Tragos</h1>
-             <div className="flex flex-wrap gap-2 items-center">
-                <div className="space-y-1">
-                    <Label htmlFor="protagonista-foto" className="text-xs">Foto Protagonista</Label>
-                    <Input id="protagonista-foto" type="file" accept="image/*" onChange={handleProtagonistPhotoUpload} className="text-xs w-48" disabled={isUploading}/>
-                </div>
-                <div className="space-y-1">
-                    <Label className="text-xs">Color Principal</Label>
-                    <Input type="color" value={cartaTragos.paletaColores?.primary || '#9333ea'} onChange={e => handleColorChange('primary', e.target.value)} className="w-10 h-9 p-0.5"/>
-                </div>
-                <div className="space-y-1">
-                    <Label className="text-xs">Color Texto</Label>
-                    <Input type="color" value={cartaTragos.paletaColores?.secondary || '#f0e68c'} onChange={e => handleColorChange('secondary', e.target.value)} className="w-10 h-9 p-0.5"/>
-                </div>
-                <div className="space-y-1"><Label className="text-xs">Título</Label><Input value={cartaTragos.numeroPrincipal || ''} onChange={e => handleUpdate('numeroPrincipal', e.target.value)} className="h-9 w-20"/></div>
-                <div className="space-y-1"><Label className="text-xs">Nombre</Label><Input value={cartaTragos.protagonistaNombre || ''} onChange={e => handleUpdate('protagonistaNombre', e.target.value)} className="h-9 w-32"/></div>
-                <div className="space-y-1"><Label className="text-xs">Nombre Empresa</Label><Input value={cartaTragos.empresaNombre || ''} onChange={e => handleUpdate('empresaNombre', e.target.value)} className="h-9 w-32"/></div>
-                <div className="space-y-1"><Label className="text-xs">Contacto Empresa</Label><Input value={cartaTragos.empresaContacto || ''} onChange={e => handleUpdate('empresaContacto', e.target.value)} className="h-9 w-24"/></div>
-               <Separator orientation="vertical" className="h-10 mx-2"/>
+        <div className="py-2 px-4 print:hidden flex flex-col md:flex-row justify-between items-center gap-4 bg-white shadow-sm sticky top-0 z-50">
+            <h1 className="font-headline text-lg">Editor de Carta de Tragos</h1>
+            <div className="flex flex-wrap gap-2 items-center">
+                <div className="space-y-1"><Label htmlFor="bg-image-upload" className="text-xs">Imagen Fondo</Label><Input id="bg-image-upload" type="file" accept="image/*" onChange={handleBackgroundImageUpload} className="text-xs w-44" disabled={isUploading}/></div>
+                <div className="space-y-1"><Label className="text-xs">Fondo</Label><Input type="color" value={cartaTragos.backgroundColor || '#FBF8F0'} onChange={e => handleColorChange('background', e.target.value)} className="w-9 h-8 p-0.5"/></div>
+                <div className="space-y-1"><Label className="text-xs">Color Onda</Label><Input type="color" value={cartaTragos.paletaColores?.primary || '#9333ea'} onChange={e => handleColorChange('primary', e.target.value)} className="w-9 h-8 p-0.5"/></div>
+                <div className="space-y-1"><Label className="text-xs">Color Texto</Label><Input type="color" value={cartaTragos.paletaColores?.secondary || '#363636'} onChange={e => handleColorChange('secondary', e.target.value)} className="w-9 h-8 p-0.5"/></div>
+                <div className="space-y-1"><Label className="text-xs">Título</Label><Input value={cartaTragos.numeroPrincipal || ''} onChange={e => handleUpdate('numeroPrincipal', e.target.value)} className="h-8 w-16"/></div>
+                <div className="space-y-1"><Label className="text-xs">Nombre</Label><Input value={cartaTragos.protagonistaNombre || ''} onChange={e => handleUpdate('protagonistaNombre', e.target.value)} className="h-8 w-28"/></div>
+               <Separator orientation="vertical" className="h-10 mx-1"/>
                <div className="flex items-end gap-2">
                  <Button size="sm" onClick={handleSave} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}</Button>
                  <Button onClick={handlePrint} size="sm" variant="outline"><PrinterIcon className="w-4 h-4"/></Button>
@@ -146,32 +158,20 @@ function CartaTragosContent() {
             </div>
         </div>
         
-        {/* A4 Landscape container */}
-        <div className="w-[297mm] h-[210mm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto p-4 flex gap-4 border-2 border-dashed print:border-none">
-          {/* Card 1 */}
-          <div className="w-1/2 h-full flex flex-col border border-dashed border-gray-400 print:border-none">
-            <div className="w-full flex-1">
-               <MenuComponent fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} />
+        <div className="w-[21cm] h-[29.7cm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto p-4 grid grid-cols-2 gap-4">
+            <div className="border border-dashed border-gray-400 print:border-none">
+                 <MenuComponent fiesta={fiesta} carta={cartaTragos} onUpdate={setCartaTragos} isPreview={true} />
             </div>
-            <div className="w-full flex-1 transform rotate-180">
-               <MenuComponent fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} />
+             <div className="border border-dashed border-gray-400 print:border-none">
+                 <MenuComponent fiesta={fiesta} carta={cartaTragos} onUpdate={setCartaTragos} isPreview={true} />
             </div>
-          </div>
-          {/* Card 2 */}
-          <div className="w-1/2 h-full flex flex-col border border-dashed border-gray-400 print:border-none">
-             <div className="w-full flex-1">
-               <MenuComponent fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} />
-            </div>
-            <div className="w-full flex-1 transform rotate-180">
-               <MenuComponent fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} />
-            </div>
-          </div>
         </div>
 
        <style jsx global>{`
-        @media print {
+        @import url('https://fonts.googleapis.com/css2?family=Belleza&family=Dancing+Script:wght@700&display=swap');
+         @media print {
             body { -webkit-print-color-adjust: exact; color-adjust: exact; }
-            @page { size: A4 landscape; margin: 0; }
+            @page { size: A4 portrait; margin: 0; }
         }
        `}</style>
     </div>
