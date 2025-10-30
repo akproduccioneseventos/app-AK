@@ -1,29 +1,27 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, AlertTriangle, Printer, ShoppingCart, ChefHat, Cake, GlassWater } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, Printer, ShoppingCart, Truck, Building } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
-import type { FullMenu } from '@/types/catering';
-
-import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { getMenuById } from '@/app/actions/menus-catering';
+import { getFiestaActual } from '@/app/actions/fiesta-actual';
 
 interface ShoppingListItem {
   id: string;
   nombre: string;
-  cantidadTotal: number | string; // Can be number or string like "1 Caja"
+  cantidadTotal: number | string;
   unidad: string;
   costoUnitario?: number;
   costoTotal: number;
-  categoria: 'Menú Principal' | 'Repostería' | 'Bebidas';
-  origen: string; // e.g., name of the dish or sub-category
+  proveedor: string;
+  origen: string;
 }
 
 const formatCurrency = (amount?: number) => {
@@ -56,21 +54,20 @@ export default function ListaDeComprasPage() {
           menuData.items.forEach(plato => {
             plato.ingredients.forEach(ing => {
               const qtyPerPerson = parseFloat(ing.quantityPerPerson);
-              if (!isNaN(qtyPerPerson)) {
+              if (!isNaN(qtyPerPerson) && qtyPerPerson > 0) {
                 const totalQty = qtyPerPerson * invitados;
-                // Costo ya es por persona-receta, así que lo multiplicamos por invitados
-                const totalCostoIngrediente = ing.cost * invitados;
+                const totalCostoIngrediente = (ing.costoUnitario || 0) * (totalQty / (ing.unit.toLowerCase() === 'g' || ing.unit.toLowerCase() === 'ml' ? 1000 : 1));
                 generatedList.push({
                   id: `${plato.id}-${ing.id}`,
                   nombre: ing.name,
                   cantidadTotal: totalQty,
                   unidad: ing.unit,
-                  costoUnitario: qtyPerPerson > 0 ? ing.cost / qtyPerPerson : 0,
-                  costoTotal: totalCostoIngrediente,
-                  categoria: 'Menú Principal',
+                  costoUnitario: ing.costoUnitario,
+                  costoTotal: ing.costoTotalReceta * invitados,
+                  proveedor: ing.proveedor || 'Sin especificar',
                   origen: plato.name,
                 });
-                totalCostValue += totalCostoIngrediente;
+                totalCostValue += ing.costoTotalReceta * invitados;
               }
             });
           });
@@ -89,7 +86,7 @@ export default function ListaDeComprasPage() {
               unidad: item.unidad || 'unidad',
               costoUnitario: item.costoEstimado,
               costoTotal: itemCost,
-              categoria: 'Repostería',
+              proveedor: 'Proveedor Repostería', // Placeholder
               origen: cat.nombreDisplay,
             });
             totalCostValue += itemCost;
@@ -109,7 +106,7 @@ export default function ListaDeComprasPage() {
               unidad: item.unidadCantidad || 'botellas',
               costoUnitario: item.costoUnitario,
               costoTotal: itemCost,
-              categoria: 'Bebidas',
+              proveedor: item.proveedorHabitual || 'Sin especificar',
               origen: cat.nombreDisplay,
             });
             totalCostValue += itemCost;
@@ -136,22 +133,19 @@ export default function ListaDeComprasPage() {
     window.print();
   };
 
-  const groupedList = useMemo(() => {
+  const groupedByProvider = useMemo(() => {
     return shoppingList.reduce((acc, item) => {
-      const { categoria } = item;
-      if (!acc[categoria]) {
-        acc[categoria] = [];
+      const provider = item.proveedor || 'Sin Proveedor Especificado';
+      if (!acc[provider]) {
+        acc[provider] = { items: [], total: 0 };
       }
-      acc[categoria].push(item);
+      acc[provider].items.push(item);
+      acc[provider].total += item.costoTotal;
       return acc;
-    }, {} as Record<ShoppingListItem['categoria'], ShoppingListItem[]>);
+    }, {} as Record<string, { items: ShoppingListItem[], total: number }>);
   }, [shoppingList]);
   
-  const categoryIcons: Record<ShoppingListItem['categoria'], React.ElementType> = {
-    'Menú Principal': ChefHat,
-    'Repostería': Cake,
-    'Bebidas': GlassWater,
-  };
+  const providerNames = Object.keys(groupedByProvider).sort();
 
 
   if (isLoading) {
@@ -170,7 +164,7 @@ export default function ListaDeComprasPage() {
         </div>
         <div className="flex gap-2">
            <Button onClick={handlePrint} variant="outline"><Printer className="w-4 h-4 mr-2"/>Imprimir/PDF</Button>
-            <Link href="/fiestas/nueva/catering" passHref>
+            <Link href={`/fiestas/nueva/catering?fiestaId=${fiesta?.id || ''}`} passHref>
                 <Button><ArrowLeft className="w-4 h-4 mr-2"/>Volver a Catering</Button>
             </Link>
         </div>
@@ -185,7 +179,7 @@ export default function ListaDeComprasPage() {
         <CardHeader>
           <CardTitle>Resumen General de Compra</CardTitle>
            <CardDescription>
-            Lista consolidada de todos los insumos necesarios para el catering, repostería y bebidas del evento.
+            Lista consolidada de todos los insumos necesarios, agrupados por proveedor.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -193,14 +187,13 @@ export default function ListaDeComprasPage() {
             <p className="text-muted-foreground text-center py-6">No hay ítems en la lista. Asigna un menú, repostería o bebidas en sus respectivos módulos.</p>
           ) : (
             <div className="space-y-6">
-              {Object.entries(groupedList).map(([categoria, items]) => {
-                 const CategoryIcon = categoryIcons[categoria as ShoppingListItem['categoria']];
-                 const categoryTotal = items.reduce((sum, item) => sum + item.costoTotal, 0);
+              {providerNames.map((providerName) => {
+                 const { items, total } = groupedByProvider[providerName];
                  return (
-                    <div key={categoria}>
+                    <div key={providerName} className="print:break-inside-avoid">
                         <h3 className="font-headline text-lg text-primary flex items-center justify-between mb-2">
-                          <span className="flex items-center gap-2"><CategoryIcon className="w-5 h-5"/>{categoria}</span>
-                          <span className="text-sm font-mono">{formatCurrency(categoryTotal)}</span>
+                          <span className="flex items-center gap-2"><Truck className="w-5 h-5"/>{providerName}</span>
+                          <span className="text-sm font-mono">{formatCurrency(total)}</span>
                         </h3>
                          <div className="overflow-x-auto border rounded-md">
                             <Table className="text-sm">
@@ -208,7 +201,7 @@ export default function ListaDeComprasPage() {
                                 <TableRow>
                                     <TableHead className="font-semibold">Producto</TableHead>
                                     <TableHead className="text-right">Cant. Total</TableHead>
-                                    <TableHead className="w-[120px]">Unidad</TableHead>
+                                    <TableHead className="w-[100px]">Unidad</TableHead>
                                     <TableHead className="text-right">Costo Unit. Est.</TableHead>
                                     <TableHead className="text-right font-semibold">Costo Total Est.</TableHead>
                                 </TableRow>
