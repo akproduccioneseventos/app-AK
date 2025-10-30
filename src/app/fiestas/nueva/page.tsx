@@ -6,12 +6,16 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, AlertTriangle, PartyPopper, Calendar, Users, Palette, ChefHat, Music2, ListChecks, DollarSign, Camera, Gift, FileText, UserCheck, Clock, Archive, PackageSearch, Video, Globe, MessageSquare, LayoutDashboard, Star, Calculator, GlassWater, ShoppingCart, ClipboardList, QrCode, Printer } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, PartyPopper, Calendar, Users, Palette, ChefHat, Music2, ListChecks, DollarSign, Camera, Gift, FileText, UserCheck, Clock, Archive, PackageSearch, Video, Globe, MessageSquare, LayoutDashboard, Star, Calculator, GlassWater, ShoppingCart, ClipboardList, QrCode, Printer, Settings2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getFiestaById } from '@/app/actions/fiesta-actual';
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import { getFiestaById, updateModulosContratadosFiestaActual, type FiestaEnPlanificacion, type ModulosContratados } from '../../actions/fiesta-actual';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { Separator } from '@/components/ui/separator';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { defaultModulosContratados } from '@/lib/fiesta-defaults';
+
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no definida";
@@ -25,31 +29,46 @@ const formatDate = (dateString?: string) => {
 };
 
 const modules = [
-  { title: "Configuración", href: "configuracion", icon: Users, description: "Datos generales del evento." },
-  { title: "Tareas", href: "tareas", icon: ListChecks, description: "Checklist de pendientes." },
-  { title: "Invitados", href: "invitados", icon: Users, description: "Gestiona tu lista y el diseño del salón." },
-  { title: "Check-in de Invitados (QR)", href: "invitados/checkin-scanner", icon: QrCode, description: "Escanea los QR de los invitados en la entrada." },
-  { title: "Página del Evento", href: "pagina-web", icon: Globe, description: "Personaliza la web que verán tus invitados." },
-  { title: "Decoración y Diseño", href: "decoracion", icon: Palette, description: "Define el estilo y la ambientación." },
-  { title: "Diseño de Salón", href: "invitados/layout", icon: LayoutDashboard, description: "Organiza la distribución de mesas y elementos." },
-  { title: "Planificación Gastronómica", href: "catering", icon: Calculator, description: "Menús, repostería y bebidas." },
-  { title: "Lista de Compras", href: "catering/lista-compras", icon: ShoppingCart, description: "Insumos y bebidas para el evento."},
-  { title: "Menú de Mesa", href: "menu-mesa", icon: Printer, description: "Diseña el menú impreso para las mesas." },
-  { title: "Carta de Tragos", href: "carta-tragos", icon: GlassWater, description: "Diseña la carta de tragos para la barra." },
-  { title: "Música", href: "musica", icon: Music2, description: "Define las preferencias musicales." },
-  { title: "Personal", href: "personal", icon: UserCheck, description: "Asigna personal al evento." },
-  { title: "Itinerario", href: "itinerario", icon: Clock, description: "Organiza el cronograma." },
-  { title: "Documentos", href: "gestion-documental", icon: Archive, description: "Contratos y archivos importantes." },
-  { title: "Costos", href: "gestion-costos-rentabilidad", icon: DollarSign, description: "Analiza la rentabilidad." },
-  { title: "Lista de Carga Operativa", href: "carga-operativa", icon: ClipboardList, description: "Checklist de carga de materiales." },
-  { title: "Fotografía y Video", href: "fotografia", icon: Camera, description: "Seguimiento de entregas." },
-  { title: "Video de Vida", href: "video-vida", icon: Video, description: "Gestiona las fotos del cliente." },
-  { title: "Reuniones y Portal Cliente", href: "reuniones", icon: MessageSquare, description: "Gestiona reuniones y la experiencia del cliente." },
-  { title: "Muro Social", href: "/evento/social/[fiestaId]", icon: Camera, description: "Modera la galería de fotos en vivo del evento." },
-  { title: "Lista de Regalos", href: "regalos", icon: Gift, description: "Configura la lista de regalos para los invitados." },
-  { title: "Feedback y Testimonios", href: "/settings/feedback", icon: Star, description: "Gestiona la opinión de tus clientes post-evento." },
-  { title: "Resumen Imprimible", href: "resumen-imprimible", icon: Printer, description: "Genera un PDF con el resumen operativo del evento." },
+  // Gestión Central
+  { id: 'configuracion' as keyof ModulosContratados, title: "Configuración", href: "configuracion", icon: Settings2, description: "Datos generales del evento.", category: 'Gestión Central' },
+  { id: 'tareas' as keyof ModulosContratados, title: "Tareas", href: "tareas", icon: ListChecks, description: "Checklist de pendientes.", category: 'Gestión Central' },
+  { id: 'documentos' as keyof ModulosContratados, title: "Documentos", href: "gestion-documental", icon: Archive, description: "Contratos y archivos importantes.", category: 'Gestión Central' },
+  { id: 'costos' as keyof ModulosContratados, title: "Costos", href: "gestion-costos-rentabilidad", icon: DollarSign, description: "Analiza la rentabilidad.", category: 'Gestión Central' },
+  { id: 'resumenImprimible' as keyof ModulosContratados, title: "Resumen Imprimible", href: "resumen-imprimible", icon: Printer, description: "Genera un PDF con el resumen operativo del evento.", category: 'Gestión Central' },
+  
+  // Invitados y Público
+  { id: 'invitados' as keyof ModulosContratados, title: "Invitados", href: "invitados", icon: Users, description: "Gestiona tu lista y el diseño del salón.", category: 'Invitados y Público' },
+  { id: 'checkin' as keyof ModulosContratados, title: "Check-in de Invitados (QR)", href: "invitados/checkin-scanner", icon: QrCode, description: "Escanea los QR de los invitados en la entrada.", category: 'Invitados y Público' },
+  { id: 'paginaWeb' as keyof ModulosContratados, title: "Página del Evento", href: "pagina-web", icon: Globe, description: "Personaliza la web que verán tus invitados.", category: 'Invitados y Público' },
+  { id: 'reuniones' as keyof ModulosContratados, title: "Reuniones y Portal Cliente", href: "reuniones", icon: MessageSquare, description: "Gestiona reuniones y la experiencia del cliente.", category: 'Invitados y Público' },
+  { id: 'muroSocial' as keyof ModulosContratados, title: "Muro Social", href: "/evento/social/[fiestaId]", icon: Camera, description: "Modera la galería de fotos en vivo del evento.", category: 'Invitados y Público' },
+  { id: 'regalos' as keyof ModulosContratados, title: "Lista de Regalos", href: "regalos", icon: Gift, description: "Configura la lista de regalos para los invitados.", category: 'Invitados y Público' },
+  { id: 'feedback' as keyof ModulosContratados, title: "Feedback y Testimonios", href: "/settings/feedback", icon: Star, description: "Gestiona la opinión de tus clientes post-evento.", category: 'Invitados y Público' },
+
+  // Diseño y Ambientación
+  { id: 'decoracion' as keyof ModulosContratados, title: "Decoración y Diseño", href: "decoracion", icon: Palette, description: "Define el estilo y la ambientación.", category: 'Diseño y Ambientación' },
+  { id: 'disenoSalon' as keyof ModulosContratados, title: "Diseño de Salón", href: "invitados/layout", icon: LayoutDashboard, description: "Organiza la distribución de mesas y elementos.", category: 'Diseño y Ambientación' },
+  
+  // Gastronomía
+  { id: 'catering' as keyof ModulosContratados, title: "Planificación Gastronómica", href: "catering", icon: Calculator, description: "Menús, repostería y bebidas.", category: 'Gastronomía' },
+  { id: 'listaCompras' as keyof ModulosContratados, title: "Lista de Compras", href: "catering/lista-compras", icon: ShoppingCart, description: "Insumos y bebidas para el evento.", category: 'Gastronomía' },
+  { id: 'menuMesa' as keyof ModulosContratados, title: "Menú de Mesa", href: "menu-mesa", icon: Printer, description: "Diseña el menú impreso para las mesas.", category: 'Gastronomía' },
+  { id: 'cartaTragos' as keyof ModulosContratados, title: "Carta de Tragos", href: "carta-tragos", icon: GlassWater, description: "Diseña la carta de tragos para la barra.", category: 'Gastronomía' },
+  
+  // Staff y Logística
+  { id: 'personal' as keyof ModulosContratados, title: "Personal", href: "personal", icon: UserCheck, description: "Asigna personal al evento.", category: 'Staff y Logística' },
+  { id: 'itinerario' as keyof ModulosContratados, title: "Itinerario", href: "itinerario", icon: Clock, description: "Organiza el cronograma.", category: 'Staff y Logística' },
+  { id: 'cargaOperativa' as keyof ModulosContratados, title: "Lista de Carga Operativa", href: "carga-operativa", icon: ClipboardList, description: "Checklist de carga de materiales.", category: 'Staff y Logística' },
+
+  // Multimedia
+  { id: 'fotografia' as keyof ModulosContratados, title: "Fotografía y Video", href: "fotografia", icon: Camera, description: "Seguimiento de entregas.", category: 'Multimedia' },
+  { id: 'videoVida' as keyof ModulosContratados, title: "Video de Vida", href: "video-vida", icon: Video, description: "Gestiona las fotos del cliente.", category: 'Multimedia' },
 ];
+
+const moduleCategories = [
+    'Gestión Central', 'Invitados y Público', 'Diseño y Ambientación', 'Gastronomía', 'Staff y Logística', 'Multimedia'
+];
+
 
 function PlannerDashboardContent() {
   const { toast } = useToast();
@@ -58,16 +77,13 @@ function PlannerDashboardContent() {
   const fiestaId = searchParams.get('fiestaId');
   
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
+  const [modulosContratados, setModulosContratados] = useState<ModulosContratados>(defaultModulosContratados);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!fiestaId) {
-      toast({
-        title: "Selecciona un Evento",
-        description: "Serás redirigido para que elijas un evento con el cual trabajar.",
-        variant: "default"
-      });
+      toast({ title: "Selecciona un Evento", description: "Serás redirigido para que elijas un evento.", variant: "default" });
       router.replace('/eventos');
       return;
     }
@@ -77,10 +93,9 @@ function PlannerDashboardContent() {
       setError(null);
       try {
         const fiestaData = await getFiestaById(fiestaId);
-        if (!fiestaData) {
-          throw new Error("No se encontró el evento especificado.");
-        }
+        if (!fiestaData) throw new Error("No se encontró el evento especificado.");
         setFiesta(fiestaData);
+        setModulosContratados(fiestaData.modulosContratados || defaultModulosContratados);
       } catch (err: any) {
         setError(err.message || "Error al cargar los datos del evento.");
         toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -91,6 +106,17 @@ function PlannerDashboardContent() {
 
     loadFiesta();
   }, [fiestaId, toast, router]);
+
+  const handleModuleToggle = async (moduleId: keyof ModulosContratados, checked: boolean) => {
+    const updatedModules = { ...modulosContratados, [moduleId]: checked };
+    setModulosContratados(updatedModules);
+    try {
+      if(fiesta) await updateModulosContratadosFiestaActual(fiesta.id, updatedModules);
+    } catch(e: any) {
+        toast({ title: "Error al guardar", description: e.message, variant: "destructive"});
+        setModulosContratados(modulosContratados); // Revert on error
+    }
+  };
 
   if (isLoading) {
     return <div className="flex justify-center items-center h-[calc(100vh-200px)]"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
@@ -108,7 +134,6 @@ function PlannerDashboardContent() {
   const { configuracion } = fiesta;
   const confirmedGuests = fiesta.invitados?.filter(i => i.rsvp === 'Confirmado').reduce((sum, i) => sum + (i.partySize || 1), 0) || 0;
   const pendingTasks = fiesta.tareas?.filter(t => !t.completada).length || 0;
-  const totalCost = fiesta.gestionCostos?.ingresosTotalesEstimados || 0;
 
   return (
     <div className="space-y-6">
@@ -130,7 +155,39 @@ function PlannerDashboardContent() {
         <KpiCard title="Fecha del Evento" value={formatDate(configuracion.fechaEvento)} icon={Calendar} />
       </div>
 
-      <Separator className="my-8"/>
+       <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value="item-1">
+          <AccordionTrigger>
+            <div className="flex items-center gap-2 text-primary font-semibold">
+              <Settings2 className="w-5 h-5"/>
+              Configurar Módulos Visibles
+            </div>
+          </AccordionTrigger>
+          <AccordionContent>
+            <div className="p-4 bg-muted/30 rounded-md">
+                 <Accordion type="multiple" className="w-full space-y-2" defaultValue={['Gestión Central']}>
+                    {moduleCategories.map(category => (
+                        <AccordionItem key={category} value={category} className="border rounded-md bg-background">
+                            <AccordionTrigger className="px-4 py-2 text-sm font-medium hover:no-underline">{category}</AccordionTrigger>
+                            <AccordionContent className="p-4 border-t grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {modules.filter(m => m.category === category).map(module => (
+                                    <div key={module.id} className="flex items-center space-x-2">
+                                        <Switch
+                                            id={`switch-${module.id}`}
+                                            checked={modulosContratados[module.id]}
+                                            onCheckedChange={(checked) => handleModuleToggle(module.id, checked)}
+                                        />
+                                        <Label htmlFor={`switch-${module.id}`} className="text-sm font-normal">{module.title}</Label>
+                                    </div>
+                                ))}
+                            </AccordionContent>
+                        </AccordionItem>
+                    ))}
+                 </Accordion>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
 
       <Card>
         <CardHeader>
@@ -139,6 +196,7 @@ function PlannerDashboardContent() {
         </CardHeader>
         <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {modules.map(module => {
+            if (!modulosContratados[module.id]) return null;
             const hrefWithId = module.href.startsWith('/') 
                 ? module.href.replace('[fiestaId]', fiesta.id)
                 : `/fiestas/nueva/${module.href}?fiestaId=${fiesta.id}`;
