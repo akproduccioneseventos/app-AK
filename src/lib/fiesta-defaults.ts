@@ -20,9 +20,11 @@ export const defaultCartaTragosData: CartaTragosData = {
     protagonistaNombre: "Luciana",
     numeroPrincipal: "Mis XV",
     protagonistaFotoUrl: "https://picsum.photos/seed/quinceanera/300/300",
-    backgroundImageUrl: "", // Background is now gradient + waves
-    paletaColores: { primary: '#a855f7', secondary: '#f0e68c', accent: '#ffffff' }, // Purple, Khaki, White
+    backgroundImageUrl: "https://i.imgur.com/FwIe1tY.jpeg",
+    paletaColores: { primary: '#a855f7', secondary: '#f0e68c', accent: '#ffffff' },
     items: defaultStaticTragos,
+    empresaNombre: 'AK PRODUCCIONES',
+    empresaContacto: '098355530',
 };
 
 

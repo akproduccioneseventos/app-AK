@@ -51,7 +51,12 @@ export interface Trago {
 export interface CartaTragosData {
     items: Trago[];
     protagonistaFotoUrl?: string; // Foto principal de la carta
+    protagonistaNombre?: string;
+    numeroPrincipal?: string;
+    backgroundImageUrl?: string;
     paletaColores?: Partial<ColorPalette>;
+    empresaNombre?: string;
+    empresaContacto?: string;
 }
 
 export interface Plato {
@@ -90,6 +95,7 @@ export interface ConfigEventoDataStorage {
   notasAdicionales: string;
   clienteId?: string; // ID del cliente principal vinculado a esta fiesta
   protagonista1Nombre?: string; // Nuevo campo para el nombre del agasajado/a
+  protagonista2Nombre?: string; // Nuevo campo para bodas
   protagonistaFotoUrl?: string;
 }
 
@@ -279,6 +285,7 @@ export interface InvitacionDigitalData {
     titulo: TextWithStyle;
     texto: TextWithStyle;
     imagenFondoUrl?: string;
+    fotoHistoriaUrl?: string;
   };
   regalos: {
     visible: boolean;
