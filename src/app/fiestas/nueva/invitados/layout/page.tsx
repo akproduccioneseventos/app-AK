@@ -146,10 +146,10 @@ const Seat: React.FC<{ angle?: number; distance?: number; isOccupied: boolean; i
 
 
 function SalonLayoutContent() {
-  const { toast } = useToast();
+  const params = use(useSearchParams());
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const fiestaId = searchParams.get('fiestaId');
+  const { toast } = useToast();
+  const fiestaId = params.get('fiestaId');
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [decoracion, setDecoracion] = useState<DecoracionData | null>(null);

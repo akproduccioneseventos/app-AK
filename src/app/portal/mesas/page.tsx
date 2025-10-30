@@ -146,8 +146,9 @@ const Seat: React.FC<{ angle?: number; distance?: number; isOccupied: boolean; i
 
 
 function AsignacionMesasContent() {
-  const searchParams = useSearchParams();
-  const guestId = searchParams.get('guestId');
+  const params = use(useSearchParams());
+  const guestId = params.get('guestId');
+  const fiestaId = params.get('fiestaId');
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [invitado, setInvitado] = useState<Invitado | null>(null);
@@ -156,19 +157,15 @@ function AsignacionMesasContent() {
 
   useEffect(() => {
     async function fetchData() {
-      if (!guestId) {
-        setError("No se proporcionó ID de invitado.");
+      if (!guestId || !fiestaId) {
+        setError("No se proporcionó ID de invitado o de fiesta.");
         setIsLoading(false);
         return;
       }
       setIsLoading(true);
       setError(null);
       try {
-        const fiestaIdFromUrl = new URLSearchParams(window.location.search).get('fiestaId');
-        if (!fiestaIdFromUrl) {
-            throw new Error("No se encontró el ID del evento en el enlace.");
-        }
-        const fiestaData = await getFiestaById(fiestaIdFromUrl); // Usar getFiestaById
+        const fiestaData = await getFiestaById(fiestaId);
         if(!fiestaData) throw new Error("Evento no encontrado.");
         setFiesta(fiestaData);
         
@@ -187,7 +184,7 @@ function AsignacionMesasContent() {
       }
     }
     fetchData();
-  }, [guestId]);
+  }, [guestId, fiestaId]);
 
   if (isLoading) {
     return (
