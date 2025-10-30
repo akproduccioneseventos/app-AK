@@ -81,7 +81,7 @@ export default function ResumenImprimiblePage() {
         const personalDetallado = fiestaData.personalAsignado.map(pa => {
           const empleado = empleadosData.find((e:any) => e.id === pa.empleadoId);
           if (!empleado) return null;
-          const rol = empleado.rolId ? rolesData.find((r:any) => r.id === empleado.rolId) : undefined;
+          const rol = rolesData.find((r:any) => r.id === pa.rolId);
           return { nombre: empleado.nombre, rol: rol?.nombre || 'Sin rol', pago: pa.eventSalary };
         }).filter(Boolean);
         setPersonal(personalDetallado);
@@ -160,6 +160,7 @@ export default function ResumenImprimiblePage() {
             )}
           <h1 className="text-xl font-bold text-primary print:text-lg">Resumen Operativo del Evento</h1>
           <p className="text-md text-gray-700 print:text-sm mt-1">{configuracion.nombreEvento}</p>
+          {cliente && <p className="text-sm text-gray-600 print:text-xs">Cliente: {cliente.name || cliente.companyName}</p>}
         </header>
 
         <section className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm print:text-xs mb-4">
@@ -234,7 +235,7 @@ export default function ResumenImprimiblePage() {
         </section>
         
         <footer className="mt-8 pt-4 border-t text-center text-xs text-gray-400 print:mt-5 print:pt-2 print:border-gray-300">
-          <p>Documento generado el: {new Date().toLocaleString('es-ES')}</p>
+          <p>Documento generado por {companyName} el: {new Date().toLocaleString('es-ES')}</p>
         </footer>
       </div>
     </div>
