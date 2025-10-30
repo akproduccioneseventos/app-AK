@@ -119,6 +119,13 @@ function PlannerDashboardContent() {
         setModulosContratados(modulosContratados); // Revert on error
     }
   };
+  
+  const getLinkHref = (baseHref: string) => {
+    if ((baseHref === "/fiestas/nueva/reuniones" || baseHref === "/portal/mesas") && fiesta) {
+      return `${baseHref}?fiestaId=${fiesta.id}`;
+    }
+    return baseHref;
+  };
 
   if (isLoading) {
     return <div className="flex justify-center items-center h-[calc(100vh-200px)]"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
@@ -207,7 +214,7 @@ function PlannerDashboardContent() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   {categoryModules.map(module => {
                     const hrefWithId = module.href.startsWith('/') 
-                        ? module.href.replace('[fiestaId]', fiesta.id)
+                        ? getLinkHref(module.href)
                         : `/fiestas/nueva/${module.href}?fiestaId=${fiesta.id}`;
                     return (
                       <Link key={module.href} href={hrefWithId} passHref>

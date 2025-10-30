@@ -16,13 +16,14 @@ const SESSION_KEY_PREFIX = 'portal_auth_';
 
 const portalModules = [
     { id: 'checklist', label: 'Mis Tareas', href: '/portal/[fiestaId]/tareas', icon: ListChecks },
-    { id: 'invitados', label: 'Asignación de Mesas', href: '/portal/[fiestaId]/mesas', icon: Users },
+    { id: 'invitados', label: 'Asignación de Mesas', href: '/portal/mesas', icon: Users },
     { id: 'musica', label: 'Sugerencias Musicales', href: '/portal/[fiestaId]/musica', icon: Music },
-    { id: 'videoVida', label: 'Fotos para Video', href: '/portal/[fiestaId]/video-vida', icon: Camera },
+    { id: 'videoVida', label: 'Carga de Fotos para Video', href: '/portal/[fiestaId]/video-vida', icon: Camera },
     { id: 'listaRegalos', label: 'Configurar Regalos', href: '/fiestas/nueva/regalos', icon: Gift },
     { id: 'documentos', label: 'Mis Documentos', href: '/portal/[fiestaId]/documentos', icon: FileText },
     { id: 'notasCliente', label: 'Notas Compartidas', href: '/portal/[fiestaId]/notas', icon: NotebookTextIcon },
-    { id: 'fotografiaYFilmacion', label: 'Entrega de Material', href: '/portal/[fiestaId]/fotografia', icon: UserCheck },
+    { id: 'paginaPublica', label: 'Acceso a Página Pública', href: '/evento/actual', icon: 'Globe' },
+    { id: 'fotografiaYFilmacion', label: 'Seguimiento de Fotografía/Video', href: '/portal/[fiestaId]/fotografia', icon: UserCheck },
 ];
 
 function ClientPortalContent() {
