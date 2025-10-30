@@ -37,7 +37,8 @@ const modules = [
   { id: 'resumenImprimible' as keyof ModulosContratados, title: "Resumen Imprimible", href: "resumen-imprimible", icon: Printer, description: "Genera un PDF con el resumen operativo del evento.", category: 'Gestión Central' },
   
   // Planificación del Evento
-  { id: 'invitados' as keyof ModulosContratados, title: "Invitados", href: "invitados", icon: Users, description: "Gestiona tu lista y el diseño del salón.", category: 'Planificación del Evento' },
+  { id: 'invitados' as keyof ModulosContratados, title: "Invitados", href: "invitados", icon: Users, description: "Gestiona tu lista de invitados.", category: 'Planificación del Evento' },
+  { id: 'disenoSalon' as keyof ModulosContratados, title: "Diseño de Salón", href: "invitados/layout", icon: LayoutDashboard, description: "Organiza la distribución de mesas y elementos.", category: 'Planificación del Evento' },
   { id: 'decoracion' as keyof ModulosContratados, title: "Decoración y Diseño", href: "decoracion", icon: Palette, description: "Define el estilo y la ambientación.", category: 'Planificación del Evento' },
   { id: 'catering' as keyof ModulosContratados, title: "Planificación Gastronómica", href: "catering", icon: Calculator, description: "Menús, repostería y bebidas.", category: 'Planificación del Evento' },
   { id: 'personal' as keyof ModulosContratados, title: "Personal", href: "personal", icon: UserCheck, description: "Asigna personal al evento.", category: 'Planificación del Evento' },
@@ -52,6 +53,8 @@ const modules = [
   { id: 'videoVida' as keyof ModulosContratados, title: "Video de Vida", href: "video-vida", icon: Video, description: "Gestiona las fotos del cliente.", category: 'Portal del Cliente' },
   { id: 'muroSocial' as keyof ModulosContratados, title: "Muro Social", href: "/evento/social/[fiestaId]", icon: Camera, description: "Modera la galería de fotos en vivo del evento.", category: 'Portal del Cliente' },
   { id: 'feedback' as keyof ModulosContratados, title: "Feedback y Testimonios", href: "/settings/feedback", icon: Star, description: "Gestiona la opinión de tus clientes post-evento.", category: 'Portal del Cliente' },
+  { id: 'invitados', title: "Asignación de Mesas", href: "/portal/[fiestaId]/mesas", icon: Users, description: "Permite al cliente organizar sus invitados en las mesas.", category: 'Portal del Cliente' },
+
   
   // Herramientas Adicionales
   { id: 'checkin' as keyof ModulosContratados, title: "Check-in de Invitados (QR)", href: "invitados/checkin-scanner", icon: QrCode, description: "Escanea los QR de los invitados en la entrada.", category: 'Herramientas Adicionales' },
@@ -173,8 +176,8 @@ function PlannerDashboardContent() {
                                     <div key={module.id} className="flex items-center space-x-2">
                                         <Switch
                                             id={`switch-${module.id}`}
-                                            checked={modulosContratados[module.id]}
-                                            onCheckedChange={(checked) => handleModuleToggle(module.id, checked)}
+                                            checked={modulosContratados[module.id as keyof ModulosContratados]}
+                                            onCheckedChange={(checked) => handleModuleToggle(module.id as keyof ModulosContratados, checked)}
                                         />
                                         <Label htmlFor={`switch-${module.id}`} className="text-sm font-normal">{module.title}</Label>
                                     </div>
@@ -195,7 +198,7 @@ function PlannerDashboardContent() {
         </CardHeader>
         <CardContent className="space-y-6">
           {moduleCategories.map(category => {
-            const categoryModules = modules.filter(m => m.category === category && modulosContratados[m.id]);
+            const categoryModules = modules.filter(m => m.category === category && modulosContratados[m.id as keyof ModulosContratados]);
             if (categoryModules.length === 0) return null;
 
             return (
@@ -221,6 +224,7 @@ function PlannerDashboardContent() {
                     )
                   })}
                 </div>
+                 {category !== moduleCategories[moduleCategories.length - 1] && <Separator className="mt-6"/>}
               </div>
             );
           })}
