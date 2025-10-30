@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -24,8 +25,8 @@ const Wave = ({ className, color }: { className: string; color: string }) => (
 
 export const MenuComponent: React.FC<MenuComponentProps> = ({ fiesta, carta, logoUrl, onUpdate, isPreview }) => {
     
-  const protagonistaNombre = carta.protagonistaNombre || 'Luciana';
-  const eventoNombre = carta.numeroPrincipal || 'Mis XV'; // Using 'numeroPrincipal' as the event name like "Mis XV"
+  const protagonistaNombre = carta.protagonistaNombre || 'SILVIA';
+  const eventoNombre = carta.numeroPrincipal || '70'; 
 
   const textStyle: React.CSSProperties = {
     fontFamily: "'Belleza', serif",
@@ -40,19 +41,19 @@ export const MenuComponent: React.FC<MenuComponentProps> = ({ fiesta, carta, log
     fontWeight: '900',
     color: 'black',
     textTransform: 'uppercase',
-    fontSize: '0.6rem',
+    fontSize: '0.5rem',
     textAlign: 'center',
-    lineHeight: '1.2'
+    lineHeight: '1.1'
   };
 
   return (
-    <div className="w-full h-full p-0 relative overflow-hidden bg-[#e9d5ff] flex flex-col items-center">
+    <div className="w-full h-full p-0 relative overflow-hidden bg-[#E9D5FF] flex flex-col items-center">
         {/* Top Wave */}
         <Wave className="top-0 z-0" color="#a855f7" />
 
         {/* Header Section */}
-        <div className="w-full pt-8 px-4 flex justify-between items-center relative z-10">
-          <div className="w-28 h-28 md:w-32 md:h-32 rounded-full border-4 border-white shadow-lg overflow-hidden bg-gray-200 -ml-4 mt-8">
+        <div className="w-full pt-6 px-4 flex justify-between items-center relative z-10">
+          <div className="w-24 h-24 md:w-28 md:h-28 rounded-full border-4 border-white shadow-lg overflow-hidden bg-gray-200 -ml-4 mt-8 flex-shrink-0">
             <NextImage src={carta.protagonistaFotoUrl || "https://picsum.photos/seed/quinceanera-main/300/300"} alt={`Foto de ${protagonistaNombre}`} width={128} height={128} className="object-cover w-full h-full" data-ai-hint="protagonist photo"/>
           </div>
           <div className="flex-grow text-center pl-2">
@@ -63,10 +64,10 @@ export const MenuComponent: React.FC<MenuComponentProps> = ({ fiesta, carta, log
         </div>
 
         {/* Main Content: Drinks */}
-        <main className="relative z-10 flex-grow grid grid-cols-5 gap-2 px-2 mt-6 w-full">
+        <main className="relative z-10 flex-grow grid grid-cols-5 gap-1 px-2 mt-4 w-full">
             {carta.items.map((trago) => (
                 <div key={trago.id} className="text-center">
-                    <p style={drinkNameStyle}>{trago.nombre}</p>
+                    <p style={drinkNameStyle} className="h-6 flex items-center justify-center">{trago.nombre}</p>
                     <div className="mt-1 aspect-square rounded-lg shadow-md overflow-hidden border-2 border-white">
                         <NextImage src={trago.imageUrl} alt={trago.nombre} width={80} height={80} className="w-full h-full object-cover" data-ai-hint={trago.aiHint}/>
                     </div>
@@ -78,7 +79,7 @@ export const MenuComponent: React.FC<MenuComponentProps> = ({ fiesta, carta, log
         <Wave className="bottom-0 z-0 transform rotate-180" color="#a855f7" />
 
         {/* Footer with Logo */}
-        <footer className="relative z-10 w-full flex justify-center pb-2 pt-16">
+        <footer className="relative z-10 w-full flex justify-center pb-2 pt-12">
           {logoUrl && (
                 <div className="w-16 h-16">
                   <NextImage src={logoUrl} alt="AK Producciones Logo" width={64} height={64} className="object-contain" data-ai-hint="company logo"/>

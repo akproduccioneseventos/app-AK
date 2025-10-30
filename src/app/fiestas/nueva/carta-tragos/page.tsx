@@ -1,20 +1,20 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, Suspense, type ChangeEvent } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer as PrinterIcon, Save, Loader2, Upload } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, Save, Loader2, Upload, Edit, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, CartaTragosData } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, CartaTragosData, Trago } from '@/types/fiesta';
 import { getFiestaById, updateCartaTragos as updateCartaTragosAction } from '@/app/actions/fiesta/fiesta.actions';
-import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import { defaultCartaTragosData } from '@/lib/fiesta-defaults';
 import { MenuComponent } from '@/components/invitacion/templates/CartaTragosMenu';
-import { Card } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 
 function CartaTragosContent() {
   const { toast } = useToast();
@@ -29,20 +29,22 @@ function CartaTragosContent() {
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
+  
   const loadData = useCallback(async () => {
     if (!fiestaId) return;
     setIsLoading(true);
     try {
-      const [fiestaData, settings] = await Promise.all([getFiestaById(fiestaId), getInvoiceTemplateSettings()]);
+      const fiestaData = await getFiestaById(fiestaId);
       if (!fiestaData) throw new Error("Fiesta no encontrada");
       setFiesta(fiestaData);
-      setLogoUrl(settings.logoUrl);
+      // Ensure we merge defaults with saved data
       const mergedData = { ...defaultCartaTragosData, ...(fiestaData.cartaTragos || {}) };
-      
-      // Ensure 'protagonistaNombre' and 'numeroPrincipal' have fallbacks from the event config
+      // Fallback for names
       if (!mergedData.protagonistaNombre) {
         mergedData.protagonistaNombre = fiestaData.configuracion.protagonista1Nombre || 'Protagonista';
+      }
+       if (!mergedData.numeroPrincipal) {
+        mergedData.numeroPrincipal = fiestaData.configuracion.tipoCelebracion === 'XV años' ? 'Mis XV' : 'Nuestra Boda';
       }
       setCartaTragos(mergedData);
       
@@ -56,7 +58,7 @@ function CartaTragosContent() {
 
   useEffect(() => {
     loadData();
-  }, [fiestaId]);
+  }, [fiestaId, loadData]);
 
   const handleUpdate = (field: keyof CartaTragosData, value: string) => {
     setCartaTragos(prev => ({ ...prev, [field]: value }));
@@ -110,37 +112,36 @@ function CartaTragosContent() {
 
   return (
     <div className="bg-gray-100 print:bg-white">
-        <Card className="py-4 px-8 print:hidden flex flex-col md:flex-row justify-between items-center gap-4 bg-white shadow-sm sticky top-0 z-50">
+        <div className="py-4 px-8 print:hidden flex flex-col md:flex-row justify-between items-center gap-4 bg-white shadow-sm sticky top-0 z-50">
             <h1 className="font-headline text-xl">Editor de Carta de Tragos</h1>
-            <div className="flex flex-wrap gap-3 items-center">
+            <div className="flex flex-wrap gap-2 items-center">
               <div className="space-y-1">
                 <Label htmlFor="protagonista-foto" className="text-xs">Foto Protagonista</Label>
                 <Input id="protagonista-foto" type="file" accept="image/*" onChange={handleProtagonistPhotoUpload} className="text-xs w-48" disabled={isUploading}/>
               </div>
-              <div className="space-y-1">
-                 <Label className="text-xs">Nombre</Label>
-                 <Input value={cartaTragos.protagonistaNombre} onChange={e => handleUpdate('protagonistaNombre', e.target.value)} className="h-9 w-32"/>
-              </div>
                <div className="space-y-1">
-                 <Label className="text-xs">Título</Label>
+                 <Label className="text-xs">Título/Número</Label>
                  <Input value={cartaTragos.numeroPrincipal} onChange={e => handleUpdate('numeroPrincipal', e.target.value)} className="h-9 w-24"/>
               </div>
+              <div className="space-y-1">
+                 <Label className="text-xs">Nombre Protagonista</Label>
+                 <Input value={cartaTragos.protagonistaNombre} onChange={e => handleUpdate('protagonistaNombre', e.target.value)} className="h-9 w-32"/>
+              </div>
+               <Separator orientation="vertical" className="h-10 mx-2"/>
                <div className="flex items-end gap-2">
                  <Button size="sm" onClick={handleSave} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}</Button>
                  <Button onClick={handlePrint} size="sm" variant="outline"><PrinterIcon className="w-4 h-4"/></Button>
                  <Link href={`/fiestas/nueva/catering?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4"/></Button></Link>
                </div>
             </div>
-        </Card>
+        </div>
         
-        <div className="w-[21cm] h-[29.7cm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto flex flex-col p-4 border-2 border-dashed print:border-none">
-          <div className="flex-1 grid grid-cols-2 gap-4">
-            <div className="border-2 border-dashed border-gray-300 print:border-none">
-              <MenuComponent fiesta={fiesta} carta={cartaTragos} logoUrl={logoUrl}/>
-            </div>
-            <div className="border-2 border-dashed border-gray-300 print:border-none">
-              <MenuComponent fiesta={fiesta} carta={cartaTragos} logoUrl={logoUrl}/>
-            </div>
+        <div className="w-[297mm] h-[210mm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto flex gap-4 p-4 border-2 border-dashed print:border-none">
+          <div className="w-1/2 h-full border border-gray-300 print:border-none">
+            <MenuComponent fiesta={fiesta} carta={cartaTragos} logoUrl={logoUrl}/>
+          </div>
+          <div className="w-1/2 h-full border border-gray-300 print:border-none">
+            <MenuComponent fiesta={fiesta} carta={cartaTragos} logoUrl={logoUrl} inverted/>
           </div>
         </div>
 
