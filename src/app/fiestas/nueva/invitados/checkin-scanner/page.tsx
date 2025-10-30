@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useSearchParams } from 'next/navigation';
 import { Html5QrcodeScanner, type QrcodeSuccessCallback } from 'html5-qrcode';
-import { Alert, AlertTitle } from '@/components/ui/alert';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 
 function CheckinScannerContent() {
@@ -29,6 +29,9 @@ function CheckinScannerContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessingCheckin, setIsProcessingCheckin] = useState<string | null>(null);
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
+  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
 
   const loadInitialData = useCallback(async (showLoading = true) => {
     if(showLoading) setIsLoading(true);
@@ -123,22 +126,36 @@ function CheckinScannerContent() {
         }, 3000);
     }
   }, [fiestaId, processCheckIn, toast]);
-
-  const onScanFailure = (error: any) => {
-    // This callback is called frequently, so keep it lightweight.
-    // console.warn(`Code scan error = ${error}`);
-  };
+  
+  const onScanFailure = (error: any) => {};
 
   const startScanner = useCallback(() => {
-    if (!scannerRef.current) {
-        try {
-            const scanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: { width: 250, height: 250 } }, false);
-            scanner.render(onScanSuccess, onScanFailure);
-            scannerRef.current = scanner;
-        } catch (e) {
-            console.error("Failed to initialize scanner:", e);
+    const getCameraPermission = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        setHasCameraPermission(true);
+
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
         }
-    }
+
+        if (!scannerRef.current) {
+          const scanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: { width: 250, height: 250 } }, false);
+          scanner.render(onScanSuccess, onScanFailure);
+          scannerRef.current = scanner;
+        }
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+        setHasCameraPermission(false);
+        toast({
+          variant: 'destructive',
+          title: 'Acceso a Cámara Denegado',
+          description: 'Por favor, habilita el permiso de la cámara en tu navegador para usar el escáner.',
+        });
+      }
+    };
+
+    getCameraPermission();
   }, [onScanSuccess]);
 
   const stopScanner = () => {
@@ -159,7 +176,6 @@ function CheckinScannerContent() {
   };
   
   useEffect(() => {
-    // Cleanup on component unmount
     return () => {
       stopScanner();
     };
@@ -241,10 +257,18 @@ function CheckinScannerContent() {
                 <CardTitle>Escáner QR</CardTitle>
                  <CardDescription>Apunta la cámara al código QR del invitado para registrar su entrada.</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div id="qr-reader" className="w-full max-w-sm mx-auto rounded-lg overflow-hidden aspect-square border-2 border-dashed">
-                  {/* The scanner will be rendered here by the useEffect hook */}
-                </div>
+              <CardContent className="flex flex-col items-center">
+                 {hasCameraPermission === null && <div className="p-4"><Loader2 className="w-6 h-6 animate-spin" /></div>}
+                 {hasCameraPermission === false && (
+                    <Alert variant="destructive">
+                      <CameraOff className="h-4 w-4" />
+                      <AlertTitle>Se requiere acceso a la cámara</AlertTitle>
+                      <AlertDescription>
+                        Habilita los permisos de la cámara en tu navegador para continuar.
+                      </AlertDescription>
+                    </Alert>
+                 )}
+                 <div id="qr-reader" className="w-full max-w-sm mx-auto rounded-lg overflow-hidden aspect-square"></div>
               </CardContent>
             </Card>
         </TabsContent>
