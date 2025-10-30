@@ -82,10 +82,10 @@ export default function CatalogoPlatosPage() {
             Catálogo de Platos
           </h1>
         </div>
-        <Link href="/empresa/menus" passHref>
+        <Link href="/empresa" passHref>
           <Button variant="outline">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver a Menús
+            Volver a Empresa
           </Button>
         </Link>
       </div>

@@ -91,8 +91,8 @@ export default function ReporteClientesPage() {
           <WatermarkedImage src={logoUrl} alt="Marca de agua" />
         </div>
         <div className="flex justify-between items-center mb-6 print:hidden">
-          <Link href="/" passHref>
-            <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver al Panel</Button>
+          <Link href="/customers" passHref>
+            <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Clientes</Button>
           </Link>
           <div className="flex gap-2">
             <Button onClick={handlePrint} variant="outline" size="sm"><Eye className="w-4 h-4 mr-1.5"/>Vista Previa</Button>
