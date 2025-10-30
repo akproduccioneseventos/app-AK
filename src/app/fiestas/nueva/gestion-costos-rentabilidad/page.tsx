@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
+import { useState, useEffect, useCallback, useMemo, type FormEvent, Suspense, use } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,7 @@ import { getMenuById } from '@/app/actions/menus-catering';
 import { Separator } from '@/components/ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useSearchParams } from 'next/navigation';
 
 const COST_CATEGORIES: CostoCategoria[] = [
   'Servicio Proveedor',
@@ -39,8 +40,11 @@ const formatCurrency = (amount: number | undefined) => {
   }).format(amount);
 };
 
-export default function GestionCostosRentabilidadPage() {
+function GestionCostosRentabilidadContent() {
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const fiestaId = searchParams.get('fiestaId');
+
   const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
   const [gestionCostos, setGestionCostos] = useState<GestionCostosData>(initialGestionCostosData);
   const [costoTotalMenu, setCostoTotalMenu] = useState<number>(0);
@@ -58,10 +62,17 @@ export default function GestionCostosRentabilidadPage() {
   const [newCostoNotas, setNewCostoNotas] = useState('');
 
   const loadData = useCallback(async () => {
+    if(!fiestaId) {
+        setError("Falta el ID del evento.");
+        setIsLoading(false);
+        return;
+    }
     setIsLoading(true);
     setError(null);
     try {
-      const fiesta = await getFiestaActual();
+      const fiesta = await getFiestaById(fiestaId);
+      if (!fiesta) throw new Error("Fiesta no encontrada.");
+
       setFiestaActual(fiesta);
       setGestionCostos(fiesta.gestionCostos || initialGestionCostosData);
       const invitados = Number(fiesta.configuracion.invitadosEstimados) || 0;
@@ -104,7 +115,7 @@ export default function GestionCostosRentabilidadPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, [toast, fiestaId]);
 
   useEffect(() => {
     loadData();
@@ -160,13 +171,14 @@ export default function GestionCostosRentabilidadPage() {
   const margenRentabilidad = useMemo(() => {
     if (gestionCostos.ingresosTotalesEstimados === 0) return 0;
     return (gananciaNetaEstimada / gestionCostos.ingresosTotalesEstimados) * 100;
-  }, [gananciaNetaEstimada, costoTotalEstimadoEvento]);
+  }, [gananciaNetaEstimada, costoTotalEstimadoEvento, gestionCostos.ingresosTotalesEstimados]);
 
 
   const handleSave = async () => {
+    if (!fiestaId) return;
     setIsSaving(true);
     try {
-      const result = await updateGestionCostosFiestaActual(gestionCostos);
+      const result = await updateGestionCostosFiestaActual(fiestaId, gestionCostos);
       if (result.success) {
         toast({ title: "¡Datos Guardados!", description: "La información de costos y rentabilidad ha sido actualizada." });
         if (result.updatedData) setGestionCostos(result.updatedData);
@@ -199,10 +211,10 @@ export default function GestionCostosRentabilidadPage() {
           <h1 className="text-3xl font-bold tracking-tight font-headline">Gestión de Costos y Rentabilidad del Evento</h1>
         </div>
         <div className="flex gap-2">
-            <Link href="/fiestas/nueva/gestion-costos-rentabilidad/reporte" passHref>
+            <Link href={`/fiestas/nueva/gestion-costos-rentabilidad/reporte?fiestaId=${fiestaId}`} passHref>
                 <Button variant="secondary"><Printer className="w-4 h-4 mr-2" />Ver Reporte Detallado</Button>
             </Link>
-            <Link href="/fiestas/nueva" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Planificador</Button></Link>
+            <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Planificador</Button></Link>
         </div>
       </div>
 
@@ -269,7 +281,7 @@ export default function GestionCostosRentabilidadPage() {
             <AccordionContent className="p-4 border-t space-y-3">
                  <div className="flex justify-between items-center p-2 border-b"><span>Costo Personal Asignado:</span><span className="font-semibold">{formatCurrency(fiestaActual.personalAsignado.reduce((sum, p) => sum + p.eventSalary, 0))}</span></div>
                  <div className="flex justify-between items-center p-2 border-b"><span>Costo Decoración (Ítems Específicos):</span><span className="font-semibold">{formatCurrency(fiestaActual.decoracion?.items?.reduce((s, i) => s + (i.estimatedCost || 0), 0) || 0)}</span></div>
-                 <p className="text-xs text-muted-foreground">Estos costos se gestionan en sus respectivos módulos (<Link href="/fiestas/nueva/personal" className="underline">Personal</Link>, <Link href="/fiestas/nueva/decoracion" className="underline">Decoración</Link>, etc.).</p>
+                 <p className="text-xs text-muted-foreground">Estos costos se gestionan en sus respectivos módulos (<Link href={`/fiestas/nueva/personal?fiestaId=${fiestaId}`} className="underline">Personal</Link>, <Link href={`/fiestas/nueva/decoracion?fiestaId=${fiestaId}`} className="underline">Decoración</Link>, etc.).</p>
             </AccordionContent>
         </AccordionItem>
       </Accordion>
@@ -289,4 +301,12 @@ export default function GestionCostosRentabilidadPage() {
       </div>
     </div>
   );
+}
+
+export default function GestionCostosPage() {
+    return (
+        <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>}>
+            <GestionCostosRentabilidadContent />
+        </Suspense>
+    )
 }

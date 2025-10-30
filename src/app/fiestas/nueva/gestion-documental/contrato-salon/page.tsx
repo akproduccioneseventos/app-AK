@@ -14,6 +14,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { AlertTriangle } from 'lucide-react';
 import { WatermarkedImage } from '@/components/watermarked-image';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "____________";
@@ -30,8 +32,11 @@ const today = new Date().toLocaleDateString('es-ES', {
   year: 'numeric'
 });
 
-export default function ContratoSalonPage() {
+function ContratoSalonContent() {
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const fiestaId = searchParams.get('fiestaId');
+
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [cliente, setCliente] = useState<Customer | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -90,7 +95,7 @@ export default function ContratoSalonPage() {
             <AlertTriangle className="w-12 h-12 mx-auto text-destructive mb-3" />
             <h2 className="font-semibold text-lg text-destructive">Datos Incompletos</h2>
             <p className="text-sm text-muted-foreground mt-2">{error || "No se encontró un evento activo."}</p>
-             <Link href="/fiestas/nueva/configuracion" passHref>
+             <Link href={`/fiestas/nueva/configuracion?fiestaId=${fiestaId}`} passHref>
                 <Button variant="secondary" className="mt-4">Ir a Configuración</Button>
             </Link>
         </div>
@@ -104,7 +109,7 @@ export default function ContratoSalonPage() {
             <WatermarkedImage src={logoUrl} alt="Marca de agua" containerClassName='w-full h-full'/>
         </div>
         <div className="flex justify-between items-center mb-6 print:hidden">
-          <Link href="/fiestas/nueva/gestion-documental" passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver</Button></Link>
+          <Link href={`/fiestas/nueva/gestion-documental?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver</Button></Link>
           <div className="flex gap-2">
             <Button onClick={handleShare} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir por WhatsApp</Button>
             <Button onClick={handlePrint} size="sm"><PrinterIcon className="w-4 h-4 mr-1.5" />Imprimir / PDF</Button>
@@ -143,4 +148,12 @@ export default function ContratoSalonPage() {
       </div>
     </div>
   );
+}
+
+export default function ContratoSalonPage() {
+    return (
+        <Suspense fallback={<div className="p-8 max-w-3xl mx-auto bg-white"><Skeleton className="h-[80vh] w-full" /></div>}>
+            <ContratoSalonContent />
+        </Suspense>
+    );
 }

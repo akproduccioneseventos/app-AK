@@ -11,6 +11,9 @@ import { ArrowLeft, Printer as PrinterIcon, Share2, AlertTriangle, Clock, Utensi
 import type { FiestaEnPlanificacion, ProgramaEventoItem } from '@/types/fiesta';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
+import { WatermarkedImage } from '@/components/watermarked-image';
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no definida";
@@ -29,8 +32,11 @@ const iconMap: Record<string, React.ElementType> = {
   Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper, Clock,
 };
 
-export default function ItinerarioPdfPage() {
+function ItinerarioPdfContent() {
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const fiestaId = searchParams.get('fiestaId');
+
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -49,6 +55,7 @@ export default function ItinerarioPdfPage() {
     } catch (err: any) {
       setError("No se pudieron cargar los datos para el PDF.");
       toast({ title: "Error", description: err.message, variant: "destructive" });
+      console.error("Error loading data for PDF:", err);
     } finally {
       setIsLoading(false);
     }
@@ -87,12 +94,12 @@ export default function ItinerarioPdfPage() {
     return <div className="p-8 max-w-3xl mx-auto bg-white"><Skeleton className="h-[80vh] w-full" /></div>;
   }
 
-  if (error || !fiesta) {
+  if (error || !fiesta || !fiesta.musica) {
     return (
       <div className="p-8 max-w-3xl mx-auto bg-white text-center">
          <div className="flex justify-between items-center mb-6 print:hidden">
-             <Link href="/fiestas/nueva/itinerario" passHref>
-                <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Editar</Button>
+             <Link href={`/fiestas/nueva/itinerario?fiestaId=${fiestaId}`} passHref>
+                <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver</Button>
             </Link>
         </div>
         <AlertTriangle className="w-12 h-12 mx-auto text-destructive mb-3" />
@@ -102,11 +109,13 @@ export default function ItinerarioPdfPage() {
     );
   }
 
+  const musica = fiesta.musica;
+
   return (
     <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans">
       <div className="max-w-3xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2">
         <div className="flex justify-between items-center mb-6 print:hidden">
-          <Link href="/fiestas/nueva/itinerario" passHref>
+          <Link href={`/fiestas/nueva/itinerario?fiestaId=${fiestaId}`} passHref>
             <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Editar</Button>
           </Link>
           <div className="flex gap-2">
@@ -159,4 +168,12 @@ export default function ItinerarioPdfPage() {
       </div>
     </div>
   );
+}
+
+export default function ItinerarioPdfPageWrapper() {
+  return (
+    <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>}>
+        <ItinerarioPdfContent />
+    </Suspense>
+  )
 }

@@ -12,6 +12,8 @@ import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { WatermarkedImage } from '@/components/watermarked-image';
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no definida";
@@ -26,9 +28,14 @@ const formatDate = (dateString?: string) => {
 
 const companyName = "AK Producciones";
 
+const iconMap: Record<string, React.ElementType> = {
+  Utensils: Music, GlassWater: Music, Music: Music, CakeSlice: Music, Camera: Music, Diamond: Music, PartyPopper: Music, Clock: Music,
+};
 
-export default function MusicaPdfPage() {
+function MusicaPdfContent() {
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const fiestaId = searchParams.get('fiestaId');
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -93,7 +100,7 @@ export default function MusicaPdfPage() {
     return (
       <div className="p-8 max-w-3xl mx-auto bg-white text-center">
          <div className="flex justify-between items-center mb-6 print:hidden">
-             <Link href="/fiestas/nueva/musica" passHref>
+             <Link href={`/fiestas/nueva/musica?fiestaId=${fiestaId}`} passHref>
                 <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver</Button>
             </Link>
         </div>
@@ -113,7 +120,7 @@ export default function MusicaPdfPage() {
             <WatermarkedImage src={logoUrl} alt="Marca de agua" containerClassName='w-full h-full'/>
         </div>
         <div className="flex justify-between items-center mb-6 print:hidden">
-          <Link href="/fiestas/nueva/musica" passHref>
+          <Link href={`/fiestas/nueva/musica?fiestaId=${fiestaId}`} passHref>
             <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Editar</Button>
           </Link>
           <div className="flex gap-2">
@@ -169,4 +176,12 @@ export default function MusicaPdfPage() {
       </div>
     </div>
   );
+}
+
+export default function MusicaPdfPageWrapper() {
+    return (
+        <Suspense fallback={<div className="p-8 max-w-3xl mx-auto bg-white"><Skeleton className="h-[80vh] w-full" /></div>}>
+            <MusicaPdfContent />
+        </Suspense>
+    )
 }

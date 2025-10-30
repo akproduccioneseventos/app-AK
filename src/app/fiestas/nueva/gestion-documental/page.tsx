@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, use } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { FiestaEnPlanificacion, OtroDocumento, DocumentoTipo } from '@/types/fiesta';
 import { getFiestaActual, uploadDocumentoFiesta, deleteDocumentoFiesta } from '@/app/actions/fiesta-actual';
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 const ALL_DOC_TYPES: { value: DocumentoTipo; label: string }[] = [
   { value: 'contrato_servicio', label: 'Contrato de Servicio (con cliente)' },
@@ -21,8 +23,11 @@ const ALL_DOC_TYPES: { value: DocumentoTipo; label: string }[] = [
   { value: 'otro', label: 'Otro Documento' },
 ];
 
-export default function GestionDocumentalPage() {
+function GestionDocumentalContent() {
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const fiestaId = searchParams.get('fiestaId');
+
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
@@ -32,16 +37,17 @@ export default function GestionDocumentalPage() {
   const [customName, setCustomName] = useState('');
 
   const loadData = useCallback(async () => {
+    if (!fiestaId) return;
     setIsLoading(true);
     try {
-      const fiestaData = await getFiestaActual();
+      const fiestaData = await getFiestaById(fiestaId);
       setFiesta(fiestaData);
     } catch (e) {
       toast({ title: "Error", description: "No se pudieron cargar los datos.", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, [toast, fiestaId]);
 
   useEffect(() => {
     loadData();
@@ -145,7 +151,7 @@ export default function GestionDocumentalPage() {
           <Archive className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">Gestión Documental</h1>
         </div>
-        <Link href="/fiestas/nueva" passHref>
+        <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref>
           <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver al Planificador</Button>
         </Link>
       </div>
@@ -196,14 +202,14 @@ export default function GestionDocumentalPage() {
                      <Button variant="secondary" size="sm"><FileText className="w-4 h-4 mr-1.5"/>Ver Presupuesto</Button>
                    </Link>
                 ) : (
-                   <Link href="/presupuestos/nuevo" passHref>
+                   <Link href={`/presupuestos/nuevo/crear?fiestaId=${fiestaId}`} passHref>
                      <Button variant="secondary" size="sm"><ListChecks className="w-4 h-4 mr-1.5"/>Crear Presupuesto</Button>
                    </Link>
                 )}
-                <Link href={`/fiestas/nueva/gestion-documental/contrato-servicio`} passHref>
+                <Link href={`/fiestas/nueva/gestion-documental/contrato-servicio?fiestaId=${fiestaId}`} passHref>
                   <Button variant="secondary" size="sm"><FileSignature className="w-4 h-4 mr-1.5"/>Borrador Contrato Servicio</Button>
                 </Link>
-                <Link href={`/fiestas/nueva/gestion-documental/contrato-salon`} passHref>
+                <Link href={`/fiestas/nueva/gestion-documental/contrato-salon?fiestaId=${fiestaId}`} passHref>
                    <Button variant="secondary" size="sm"><FileSignature className="w-4 h-4 mr-1.5"/>Borrador Contrato Salón</Button>
                 </Link>
                 <Button onClick={handleDownloadAll} variant="outline" size="sm" disabled={isDownloading}>
@@ -239,4 +245,12 @@ export default function GestionDocumentalPage() {
       </Card>
     </div>
   );
+}
+
+export default function GestionDocumentalPageWrapper() {
+    return (
+        <Suspense fallback={<div className="p-8 max-w-3xl mx-auto"><Loader2 className="w-8 h-8 animate-spin"/></div>}>
+            <GestionDocumentalContent />
+        </Suspense>
+    )
 }

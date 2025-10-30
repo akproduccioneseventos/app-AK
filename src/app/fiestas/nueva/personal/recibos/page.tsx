@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, use } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Printer, Share2, Save, Loader2 } from 'lucide-react';
 import Link from 'next/link';
@@ -18,6 +18,8 @@ import { Input } from '@/components/ui/input';
 import { WatermarkedImage } from '@/components/watermarked-image';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Separator } from '@/components/ui/separator';
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -63,8 +65,11 @@ const calculateSalaryBreakdown = (totalPayment: number, rol?: Rol): SalaryBreakd
   return { base: sueldoBase, vacacional: salarioVacacional, aguinaldo: aguinaldo };
 };
 
-export default function RecibosDePagoPage() {
+function RecibosDePagoContent() {
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const fiestaId = searchParams.get('fiestaId');
+
   const [assignedStaffDetails, setAssignedStaffDetails] = useState<FullStaffDetail[]>([]);
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -138,13 +143,18 @@ export default function RecibosDePagoPage() {
   
   const handleSaveChanges = async () => {
     setIsSaving(true);
+    if (!fiestaId) {
+        toast({ title: "Error", description: "No se encontró el ID de la fiesta", variant: "destructive" });
+        setIsSaving(false);
+        return;
+    }
     const personalToSave: PersonalAsignadoDetalleStorage[] = assignedStaffDetails.map(item => ({
-      empleadoId: item.empleadoId,
+      empleadoId: item.empleado.id,
       rolId: item.rolId,
       eventSalary: item.eventSalary
     }));
     try {
-      const result = await updatePersonalFiestaActual(personalToSave);
+      const result = await updatePersonalFiestaActual(fiestaId, personalToSave);
       if (result.success) {
         toast({ title: "¡Cambios Guardados!", description: `Se guardaron los nuevos montos de pago.` });
         await loadData();
@@ -166,7 +176,7 @@ export default function RecibosDePagoPage() {
     return (
       <div className="p-8 max-w-4xl mx-auto bg-white text-center">
          <div className="flex justify-between items-center mb-6 print:hidden">
-             <Link href="/fiestas/nueva/personal" passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Asignar</Button></Link>
+             <Link href={`/fiestas/nueva/personal?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Asignar</Button></Link>
         </div>
         <AlertTriangle className="w-12 h-12 mx-auto text-destructive mb-3" />
         <p className="font-semibold text-lg text-destructive">Error al Cargar</p>
@@ -179,7 +189,7 @@ export default function RecibosDePagoPage() {
     <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans">
       <div className="max-w-3xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2">
         <div className="flex justify-between items-center mb-6 print:hidden">
-            <Link href="/fiestas/nueva/personal" passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Asignar</Button></Link>
+            <Link href={`/fiestas/nueva/personal?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Asignar</Button></Link>
             <div className="flex gap-2">
               <Button onClick={handleSaveChanges} size="sm" variant="secondary" disabled={isSaving}>
                 {isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}
@@ -285,4 +295,10 @@ export default function RecibosDePagoPage() {
   );
 }
 
-    
+export default function RecibosPage() {
+  return (
+    <Suspense fallback={<div className="p-8 max-w-4xl mx-auto bg-white"><Skeleton className="h-[80vh] w-full" /></div>}>
+      <RecibosDePagoContent />
+    </Suspense>
+  )
+}

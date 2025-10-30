@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, use } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Printer as PrinterIcon, Share2, TrendingUp, TrendingDown, DollarSign, BarChart3 } from 'lucide-react';
@@ -11,12 +11,16 @@ import { getEventFinancialSummary, type EventFinancialSummaryData } from '@/app/
 import { WatermarkedImage } from '@/components/watermarked-image';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Loader2, AlertTriangle } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 const formatCurrency = (amount: number) => new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString('es-ES');
 
-export default function ReporteEventoPage() {
+function ReporteEventoContent() {
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const fiestaId = searchParams.get('fiestaId');
   const [reportData, setReportData] = useState<EventFinancialSummaryData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -79,7 +83,7 @@ export default function ReporteEventoPage() {
           <AlertTriangle className="w-16 h-16 text-destructive mb-4" />
           <h1 className="text-2xl font-bold">Error al Generar Reporte</h1>
           <p className="text-muted-foreground mt-2">{error || "No se encontró información del evento."}</p>
-          <Link href="/fiestas/nueva/gestion-costos-rentabilidad" passHref>
+          <Link href={`/fiestas/nueva/gestion-costos-rentabilidad?fiestaId=${fiestaId}`} passHref>
             <Button variant="outline" className="mt-4">Volver</Button>
           </Link>
       </div>
@@ -93,7 +97,7 @@ export default function ReporteEventoPage() {
             <WatermarkedImage src={logoUrl} alt="Marca de agua" containerClassName='w-full h-full'/>
         </div>
         <div className="flex justify-between items-center mb-6 print:hidden">
-          <Link href="/fiestas/nueva/gestion-costos-rentabilidad" passHref>
+          <Link href={`/fiestas/nueva/gestion-costos-rentabilidad?fiestaId=${fiestaId}`} passHref>
             <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver</Button>
           </Link>
           <div className="flex gap-2">
@@ -151,4 +155,12 @@ export default function ReporteEventoPage() {
       </div>
     </div>
   );
+}
+
+export default function ReporteEventoPageWrapper() {
+    return (
+        <Suspense fallback={<div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>}>
+            <ReporteEventoContent />
+        </Suspense>
+    )
 }

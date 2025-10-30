@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, use } from 'react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,8 @@ import { getEmpleados } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no definida";
@@ -34,8 +36,10 @@ const formatDate = (dateString?: string) => {
 
 const companyName = "AK Producciones";
 
-export default function ResumenImprimiblePage() {
+function ResumenImprimibleContent() {
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const fiestaId = searchParams.get('fiestaId');
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [cliente, setCliente] = useState<Customer | null>(null);
   const [menu, setMenu] = useState<FullMenu | null>(null);
@@ -45,13 +49,20 @@ export default function ResumenImprimiblePage() {
   const [error, setError] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
+    if (!fiestaId) {
+      setError("Falta el ID del evento.");
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     setError(null);
     try {
       const [fiestaData, templateSettings] = await Promise.all([
-        getFiestaActual(),
+        getFiestaById(fiestaId),
         getInvoiceTemplateSettings()
       ]);
+      
+      if (!fiestaData) throw new Error("Evento no encontrado.");
       setFiesta(fiestaData);
       setLogoUrl(templateSettings.logoUrl);
 
@@ -93,7 +104,7 @@ export default function ResumenImprimiblePage() {
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, [toast, fiestaId]);
 
   useEffect(() => {
     loadData();
@@ -136,7 +147,7 @@ export default function ResumenImprimiblePage() {
 
 
   if (isLoading) return <div className="p-8 max-w-3xl mx-auto bg-white"><div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div></div>;
-  if (error || !fiesta) return <div className="p-8 max-w-3xl mx-auto bg-white text-center"><AlertTriangle className="w-12 h-12 mx-auto text-destructive mb-3" /><p className="font-semibold text-lg text-destructive">{error || 'No se encontró la fiesta'}</p></div>;
+  if (error || !fiesta) return <div className="p-8 max-w-3xl mx-auto text-center"><AlertTriangle className="w-12 h-12 mx-auto text-destructive mb-3" /><p className="font-semibold text-lg text-destructive">{error || 'No se encontró la fiesta'}</p></div>;
 
   const { configuracion, decoracion, tareas } = fiesta;
   const tareasPendientes = tareas?.filter(t => !t.completada) || [];
@@ -145,7 +156,7 @@ export default function ResumenImprimiblePage() {
     <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans">
       <div className="max-w-3xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2">
         <div className="flex justify-between items-center mb-6 print:hidden">
-          <Link href="/fiestas/nueva" passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver</Button></Link>
+          <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver</Button></Link>
           <div className="flex gap-2">
             <Button onClick={handleShare} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir</Button>
             <Button onClick={handlePrint} size="sm"><PrinterIcon className="w-4 h-4 mr-1.5" />Imprimir / PDF</Button>
@@ -240,4 +251,12 @@ export default function ResumenImprimiblePage() {
       </div>
     </div>
   );
+}
+
+export default function ResumenImprimiblePageWrapper() {
+  return (
+    <Suspense fallback={<div className="p-8 max-w-3xl mx-auto bg-white"><Skeleton className="h-[80vh] w-full" /></div>}>
+        <ResumenImprimibleContent />
+    </Suspense>
+  )
 }
