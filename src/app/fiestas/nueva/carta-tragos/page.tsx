@@ -6,7 +6,7 @@ import Link from 'next/link';
 import NextImage from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer as PrinterIcon, Share2, Edit, Upload, Loader2, Save } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, Edit, Upload, Loader2, Save, Wand2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, CartaTragosData, Trago } from '@/types/fiesta';
 import { getFiestaById, updateCartaTragos as updateCartaTragosAction } from '@/app/actions/fiesta/fiesta.actions';
@@ -24,52 +24,50 @@ const MenuComponent: React.FC<{
 }> = ({ fiesta, carta, logoUrl }) => {
   
   const protagonistaNombre = carta.protagonistaNombre || fiesta.configuracion.protagonista1Nombre || 'Protagonista';
-  const tipoEvento = fiesta.configuracion.tipoCelebracion || 'Mi Evento';
 
   return (
-     <div className="w-full h-full flex flex-col p-2 relative overflow-hidden bg-white">
-      {/* Background Pattern */}
-      <div 
-        className="absolute inset-0 opacity-10" 
-        style={{
-          backgroundImage: carta.backgroundImageUrl || `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          backgroundSize: carta.backgroundImageUrl ? 'cover' : 'auto'
-        }}
-      ></div>
+     <div className="w-full h-full p-4 relative overflow-hidden bg-white text-center" style={{ backgroundColor: carta.backgroundColor || 'white' }}>
+        {carta.backgroundImageUrl && (
+            <NextImage 
+                src={carta.backgroundImageUrl}
+                alt="Fondo de la carta"
+                layout="fill"
+                objectFit="cover"
+                className="absolute inset-0 z-0 opacity-80"
+                data-ai-hint="elegant texture background"
+            />
+        )}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120%] h-32 bg-contain bg-no-repeat" style={{ backgroundImage: "url('/wave-top.svg')" }}></div>
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[120%] h-32 bg-contain bg-no-repeat" style={{ backgroundImage: "url('/wave-bottom.svg')" }}></div>
 
-      <div className="flex-1 grid grid-cols-2 gap-2">
-        {/* Parte Izquierda (Tragos) */}
-        <div className="text-center p-2">
-            <h3 className="font-extrabold text-sm uppercase tracking-wider" style={{ color: carta.paletaColores?.secondary }}>Nuestros Tragos</h3>
-            <div className="mt-2 space-y-1 text-left">
-              {carta.items.map((trago, index) => (
-                <div key={index} className="text-xs font-serif leading-tight">
-                    <span className="font-bold">{trago.nombre}</span>
-                </div>
-              ))}
-            </div>
-        </div>
-
-        {/* Parte Derecha (Portada) */}
-        <div className="flex flex-col items-center justify-center text-center p-2">
-          {carta.protagonistaFotoUrl && (
-            <div className="w-20 h-20 rounded-full border-2 overflow-hidden shadow-md mb-3" style={{borderColor: carta.paletaColores?.primary}}>
-              <NextImage src={carta.protagonistaFotoUrl} alt={`Foto de ${protagonistaNombre}`} width={80} height={80} className="object-cover w-full h-full" data-ai-hint="protagonist photo" />
-            </div>
-          )}
-          <h1 className="font-extrabold text-lg uppercase tracking-wider" style={{ color: carta.paletaColores?.primary }}>Carta de Tragos</h1>
-          <h2 className="font-extrabold text-3xl mt-1" style={{ fontFamily: "'Dancing Script', cursive", color: carta.paletaColores?.secondary }}>{protagonistaNombre}</h2>
-          <h3 className="font-extrabold text-xl mt-0" style={{ fontFamily: "'Dancing Script', cursive", color: carta.paletaColores?.secondary }}>{tipoEvento}</h3>
-        </div>
-      </div>
-
-       <footer className="mt-auto flex justify-center pb-1 pt-1">
+        <div className="relative z-10 flex flex-col h-full">
             {logoUrl && (
-                <div className="w-10 h-10">
-                  <NextImage src={logoUrl} alt="AK Producciones Logo" width={40} height={40} className="object-contain" data-ai-hint="company logo"/>
+                <div className="absolute top-2 right-2 w-12 h-12">
+                  <NextImage src={logoUrl} alt="AK Producciones Logo" width={48} height={48} className="object-contain" data-ai-hint="company logo"/>
                 </div>
             )}
-        </footer>
+            
+            <header className="pt-10">
+                {carta.headerImageUrl && (
+                     <div className="relative w-24 h-16 mx-auto mb-2">
+                        <NextImage src={carta.headerImageUrl} alt="Header image" layout="fill" objectFit="contain" data-ai-hint="birthday number balloons"/>
+                     </div>
+                )}
+                <h1 className="text-3xl font-bold tracking-wider" style={{ fontFamily: 'Belleza, serif', color: carta.paletaColores?.primary }}>{protagonistaNombre}</h1>
+                <h2 className="text-xl tracking-widest mt-1" style={{color: carta.paletaColores?.secondary}}>CARTA DE TRAGOS</h2>
+            </header>
+
+            <main className="flex-grow grid grid-cols-5 gap-2 px-2 mt-4">
+                {carta.items.map(trago => (
+                    <div key={trago.id} className="text-center">
+                        <div className="aspect-square relative rounded-full overflow-hidden border-2 border-white shadow-lg mx-auto w-16 h-16">
+                            <NextImage src={trago.imageUrl} alt={trago.nombre} layout="fill" objectFit="cover" data-ai-hint="cocktail photo"/>
+                        </div>
+                        <p className="text-[0.5rem] font-bold mt-1 uppercase" style={{color: carta.paletaColores?.secondary}}>{trago.nombre}</p>
+                    </div>
+                ))}
+            </main>
+        </div>
     </div>
   );
 };
@@ -93,14 +91,23 @@ export default function CartaTragosPage() {
       if (!fiestaData) throw new Error("Fiesta no encontrada");
       setFiesta(fiestaData);
       setLogoUrl(settings.logoUrl);
-      const mergedData = { 
+
+      const cartaData = fiestaData.cartaTragos || {};
+      
+      const mergedData: CartaTragosData = { 
         ...defaultCartaTragosData, 
-        ...(fiestaData.cartaTragos || {}),
-        items: defaultStaticTragos
+        ...cartaData,
+        items: defaultStaticTragos, // Always use static list
+        protagonistaNombre: cartaData.protagonistaNombre || fiestaData.configuracion.protagonista1Nombre || 'Protagonista',
+        headerImageUrl: cartaData.headerImageUrl || '/70.png',
+        backgroundImageUrl: cartaData.backgroundImageUrl || '/brushed-background.png',
+        backgroundColor: cartaData.backgroundColor || '#FBF8F0',
+        paletaColores: {
+            primary: cartaData.paletaColores?.primary || '#B99D75',
+            secondary: cartaData.paletaColores?.secondary || '#363636',
+            accent: cartaData.paletaColores?.accent || '#D4AF37'
+        }
       };
-      if (!mergedData.protagonistaNombre && fiestaData.configuracion.protagonista1Nombre) {
-        mergedData.protagonistaNombre = fiestaData.configuracion.protagonista1Nombre;
-      }
       setCartaTragos(mergedData);
     } catch (e: any) {
       toast({ title: "Error", description: "No se pudieron cargar los datos del evento.", variant: "destructive" });
@@ -113,33 +120,16 @@ export default function CartaTragosPage() {
     loadData();
   }, [loadData]);
   
-  const handleSaveChanges = async () => {
-    if (!fiesta) return;
-    setIsSaving(true);
-    try {
-      const dataToSave: CartaTragosData = {
-          ...cartaTragos,
-          items: defaultStaticTragos
-      };
-      const result = await updateCartaTragosAction(fiesta.id, dataToSave);
-      if (result.success) {
-        toast({ title: "Guardado", description: "La carta de tragos ha sido actualizada." });
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (e: any) {
-      toast({ title: "Error", description: e.message, variant: "destructive" });
-    } finally {
-      setIsSaving(false);
-    }
+  const handleUpdate = (field: keyof CartaTragosData, value: string) => {
+    setCartaTragos(prev => ({ ...prev, [field]: value }));
   };
-  
-  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>, field: 'protagonistaFotoUrl' | 'backgroundImageUrl') => {
+
+  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>, field: 'backgroundImageUrl' | 'headerImageUrl') => {
     const file = event.target.files?.[0];
-    if (!file || !fiesta) return;
+    if (!file || !fiestaId) return;
     setIsUploading(true);
     try {
-      const result = await uploadPublicPageAsset(fiesta.id, file);
+      const result = await uploadPublicPageAsset(fiestaId, file);
       if(result.success && result.url) {
         setCartaTragos(prev => ({ ...prev, [field]: result.url }));
         toast({title: "Imagen actualizada"});
@@ -153,10 +143,6 @@ export default function CartaTragosPage() {
     }
   };
 
-  const handleUpdate = (field: keyof CartaTragosData, value: any) => {
-    setCartaTragos(prev => ({...prev, [field]: value}));
-  };
-  
   const handleColorChange = (colorType: 'primary' | 'secondary' | 'accent', value: string) => {
     setCartaTragos(prev => ({
         ...prev,
@@ -167,8 +153,23 @@ export default function CartaTragosPage() {
     }));
   };
 
-  const handlePrint = () => window.print();
+  const handleSave = async () => {
+    if (!fiestaId) return;
+    setIsSaving(true);
+    try {
+      const result = await updateCartaTragosAction(fiestaId, cartaTragos);
+      if (result.success) {
+        toast({ title: "Guardado!", description: "La carta de tragos ha sido actualizada." });
+      } else { throw new Error(result.error); }
+    } catch (e: any) {
+       toast({ title: "Error", description: e.message, variant: "destructive" });
+    } finally {
+        setIsSaving(false);
+    }
+  }
 
+  const handlePrint = () => window.print();
+  
   if (isLoading || !fiesta) {
     return <div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
   }
@@ -177,37 +178,22 @@ export default function CartaTragosPage() {
     <div className="bg-gray-100 print:bg-white font-sans">
         <div className="py-4 px-8 print:hidden flex flex-col md:flex-row justify-between items-center gap-4 bg-white shadow-sm sticky top-0 z-50">
             <h1 className="font-headline text-xl">Editor de Carta de Tragos</h1>
-            <div className="flex flex-wrap gap-2 items-center">
-              <div className="space-y-1">
-                <Label htmlFor="protagonista-foto" className="text-xs">Foto Protagonista</Label>
-                <Input id="protagonista-foto" type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'protagonistaFotoUrl')} className="text-xs w-48" disabled={isUploading}/>
-              </div>
-               <div className="space-y-1">
-                <Label className="text-xs">Color Principal</Label>
-                 <Input type="color" value={cartaTragos.paletaColores?.primary || '#9333ea'} onChange={e => handleColorChange('primary', e.target.value)} className="w-10 h-9 p-0.5"/>
-              </div>
-               <div className="space-y-1">
-                 <Label className="text-xs">Color Secundario</Label>
-                 <Input type="color" value={cartaTragos.paletaColores?.secondary || '#363636'} onChange={e => handleColorChange('secondary', e.target.value)} className="w-10 h-9 p-0.5"/>
-              </div>
-              <div className="space-y-1">
-                 <Label className="text-xs">Nombre</Label>
-                 <Input value={cartaTragos.protagonistaNombre || ''} onChange={e => handleUpdate('protagonistaNombre', e.target.value)} className="h-9 w-32"/>
-              </div>
-               <div className="flex items-end gap-2">
-                 <Button size="sm" onClick={handleSaveChanges} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}</Button>
+            <div className="flex flex-wrap gap-3 items-center">
+              <div className="space-y-1"><Label className="text-xs">Imagen Cabecera</Label><Input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'headerImageUrl')} className="text-xs w-48" disabled={isUploading}/></div>
+              <div className="space-y-1"><Label className="text-xs">Imagen Fondo</Label><Input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'backgroundImageUrl')} className="text-xs w-48" disabled={isUploading}/></div>
+              <div className="space-y-1"><Label className="text-xs">Color Principal</Label><Input type="color" value={cartaTragos.paletaColores?.primary || ''} onChange={e => handleColorChange('primary', e.target.value)} className="w-10 h-9 p-0.5"/></div>
+              <div className="space-y-1"><Label className="text-xs">Nombre</Label><Input value={cartaTragos.protagonistaNombre || ''} onChange={e => handleUpdate('protagonistaNombre', e.target.value)} className="h-9 w-32"/></div>
+              <div className="flex items-end gap-2">
+                 <Button size="sm" onClick={handleSave} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}</Button>
                  <Button onClick={handlePrint} size="sm" variant="outline"><PrinterIcon className="w-4 h-4"/></Button>
                  <Link href={`/fiestas/nueva/catering?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4"/></Button></Link>
                </div>
             </div>
         </div>
       
-        <div className="w-[297mm] h-[210mm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto flex gap-4 p-4 border-2 border-dashed print:border-none">
-            <div className="w-1/2 h-full border border-dashed border-gray-400">
-                <MenuComponent fiesta={fiesta} carta={cartaTragos} logoUrl={logoUrl}/>
-            </div>
-            <div className="w-1/2 h-full border border-dashed border-gray-400">
-                <MenuComponent fiesta={fiesta} carta={cartaTragos} logoUrl={logoUrl}/>
+        <div className="w-[210mm] h-[297mm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto p-4 flex flex-col gap-4 border border-dashed print:border-none">
+            <div className="w-1/2 h-full self-center">
+                 <MenuComponent fiesta={fiesta} carta={cartaTragos} logoUrl={logoUrl}/>
             </div>
         </div>
 
@@ -215,9 +201,24 @@ export default function CartaTragosPage() {
         @import url('https://fonts.googleapis.com/css2?family=Belleza&family=Dancing+Script:wght@700&display=swap');
          @media print {
             body { -webkit-print-color-adjust: exact; color-adjust: exact; }
-            @page { size: A4 landscape; margin: 0; }
+            .page-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 210mm;
+                height: 297mm;
+            }
+            .menu-card {
+                width: 100mm;
+                height: 297mm; /* Adjust to fit content or specific size */
+                margin: 0;
+                box-shadow: none;
+                border: 1px solid #ccc; /* Optional: for cutting guide */
+            }
+            @page { size: A4 portrait; margin: 0; }
         }
        `}</style>
     </div>
   );
 }
+
