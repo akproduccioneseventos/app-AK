@@ -6,7 +6,7 @@ import Link from 'next/link';
 import NextImage from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer as PrinterIcon, Share2, GlassWater, Upload, Loader2, Save } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, Share2, Edit, Upload, Loader2, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, CartaTragosData, Trago } from '@/types/fiesta';
 import { getFiestaById, updateCartaTragos as updateCartaTragosAction } from '@/app/actions/fiesta/fiesta.actions';
@@ -27,36 +27,46 @@ const MenuComponent: React.FC<{
   const tipoEvento = fiesta.configuracion.tipoCelebracion || 'Mi Evento';
 
   return (
-    <div className="w-full h-full flex flex-col p-2 relative overflow-hidden bg-gradient-to-br from-[#e9d5ff] to-[#f3e8ff]">
-      <div className="absolute top-0 left-0 w-full h-12" style={{ background: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="${carta.paletaColores?.primary.replace('#', '%23') || '%239333ea'}" fill-opacity="0.8" d="M0,192L48,176C96,160,192,128,288,133.3C384,139,480,181,576,186.7C672,192,768,160,864,138.7C960,117,1056,107,1152,117.3C1248,128,1344,160,1392,176L1440,192L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"></path></svg>')`, backgroundSize: 'cover' }}></div>
-      <div className="absolute bottom-0 left-0 w-full h-12" style={{ background: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="${carta.paletaColores?.primary.replace('#', '%23') || '%239333ea'}" fill-opacity="0.8" d="M0,192L48,176C96,160,192,128,288,133.3C384,139,480,181,576,186.7C672,192,768,160,864,138.7C960,117,1056,107,1152,117.3C1248,128,1344,160,1392,176L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>')`, backgroundSize: 'cover' }}></div>
+     <div className="w-full h-full flex flex-col p-2 relative overflow-hidden bg-white">
+      {/* Background Pattern */}
+      <div 
+        className="absolute inset-0 opacity-10" 
+        style={{
+          backgroundImage: carta.backgroundImageUrl || `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          backgroundSize: carta.backgroundImageUrl ? 'cover' : 'auto'
+        }}
+      ></div>
 
-      <header className="relative z-10 grid grid-cols-2 gap-2 items-center px-4 mt-12">
-        <div className="w-24 h-24 rounded-full border-4 border-white bg-gray-200 shadow-lg overflow-hidden justify-self-center">
-            {carta.protagonistaFotoUrl && <NextImage src={carta.protagonistaFotoUrl} alt={`Foto de ${protagonistaNombre}`} width={96} height={96} className="object-cover w-full h-full" data-ai-hint="protagonist photo"/>}
-        </div>
-        <div className="text-center">
-            <h1 className="font-extrabold text-xl text-white uppercase tracking-wider" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>Carta de Tragos</h1>
-            <h2 className="font-extrabold text-5xl mt-1 text-white" style={{ fontFamily: "'Dancing Script', cursive", textShadow: '3px 3px 5px rgba(0,0,0,0.5)' }}>{protagonistaNombre}</h2>
-            <h3 className="font-extrabold text-3xl mt-0 text-white" style={{ fontFamily: "'Dancing Script', cursive", textShadow: '3px 3px 5px rgba(0,0,0,0.5)' }}>{tipoEvento}</h3>
-        </div>
-      </header>
-
-      <main className="relative z-10 flex-grow grid grid-cols-2 gap-x-2 gap-y-4 px-2 mt-4">
-        {defaultStaticTragos.map((item) => (
-          <div key={item.id} className="text-center">
-            <h4 className="font-extrabold text-[0.6rem] uppercase tracking-wide text-purple-900" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.2)' }}>{item.nombre}</h4>
-            <div className="mt-1 aspect-[3/4] rounded-lg shadow-md overflow-hidden border-2 border-white">
-                <NextImage src={item.imageUrl} alt={item.nombre} width={200} height={300} className="w-full h-full object-cover" data-ai-hint={item.aiHint}/>
+      <div className="flex-1 grid grid-cols-2 gap-2">
+        {/* Parte Izquierda (Tragos) */}
+        <div className="text-center p-2">
+            <h3 className="font-extrabold text-sm uppercase tracking-wider" style={{ color: carta.paletaColores?.secondary }}>Nuestros Tragos</h3>
+            <div className="mt-2 space-y-1 text-left">
+              {carta.items.map((trago, index) => (
+                <div key={index} className="text-xs font-serif leading-tight">
+                    <span className="font-bold">{trago.nombre}</span>
+                </div>
+              ))}
             </div>
-          </div>
-        ))}
-      </main>
+        </div>
 
-       <footer className="relative z-10 mt-auto flex justify-center pb-8 pt-4">
+        {/* Parte Derecha (Portada) */}
+        <div className="flex flex-col items-center justify-center text-center p-2">
+          {carta.protagonistaFotoUrl && (
+            <div className="w-20 h-20 rounded-full border-2 overflow-hidden shadow-md mb-3" style={{borderColor: carta.paletaColores?.primary}}>
+              <NextImage src={carta.protagonistaFotoUrl} alt={`Foto de ${protagonistaNombre}`} width={80} height={80} className="object-cover w-full h-full" data-ai-hint="protagonist photo" />
+            </div>
+          )}
+          <h1 className="font-extrabold text-lg uppercase tracking-wider" style={{ color: carta.paletaColores?.primary }}>Carta de Tragos</h1>
+          <h2 className="font-extrabold text-3xl mt-1" style={{ fontFamily: "'Dancing Script', cursive", color: carta.paletaColores?.secondary }}>{protagonistaNombre}</h2>
+          <h3 className="font-extrabold text-xl mt-0" style={{ fontFamily: "'Dancing Script', cursive", color: carta.paletaColores?.secondary }}>{tipoEvento}</h3>
+        </div>
+      </div>
+
+       <footer className="mt-auto flex justify-center pb-1 pt-1">
             {logoUrl && (
-                <div className="w-16 h-16">
-                  <NextImage src={logoUrl} alt="AK Producciones Logo" width={64} height={64} className="object-contain" data-ai-hint="company logo"/>
+                <div className="w-10 h-10">
+                  <NextImage src={logoUrl} alt="AK Producciones Logo" width={40} height={40} className="object-contain" data-ai-hint="company logo"/>
                 </div>
             )}
         </footer>
@@ -124,15 +134,15 @@ export default function CartaTragosPage() {
     }
   };
   
-  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>, field: 'protagonistaFotoUrl' | 'backgroundImageUrl') => {
     const file = event.target.files?.[0];
     if (!file || !fiesta) return;
     setIsUploading(true);
     try {
       const result = await uploadPublicPageAsset(fiesta.id, file);
       if(result.success && result.url) {
-        setCartaTragos(prev => ({ ...prev, protagonistaFotoUrl: result.url }));
-        toast({title: "Foto actualizada"});
+        setCartaTragos(prev => ({ ...prev, [field]: result.url }));
+        toast({title: "Imagen actualizada"});
       } else {
         throw new Error(result.error);
       }
@@ -165,18 +175,22 @@ export default function CartaTragosPage() {
 
   return (
     <div className="bg-gray-100 print:bg-white font-sans">
-      <div className="py-4 px-8 print:hidden flex flex-col md:flex-row justify-between items-center gap-4 bg-white shadow-sm sticky top-0 z-50">
+        <div className="py-4 px-8 print:hidden flex flex-col md:flex-row justify-between items-center gap-4 bg-white shadow-sm sticky top-0 z-50">
             <h1 className="font-headline text-xl">Editor de Carta de Tragos</h1>
             <div className="flex flex-wrap gap-2 items-center">
               <div className="space-y-1">
                 <Label htmlFor="protagonista-foto" className="text-xs">Foto Protagonista</Label>
-                <Input id="protagonista-foto" type="file" accept="image/*" onChange={handleFileChange} className="text-xs w-48" disabled={isUploading}/>
+                <Input id="protagonista-foto" type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'protagonistaFotoUrl')} className="text-xs w-48" disabled={isUploading}/>
               </div>
-              <div className="space-y-1">
-                 <Label className="text-xs">Color Título</Label>
+               <div className="space-y-1">
+                <Label className="text-xs">Color Principal</Label>
                  <Input type="color" value={cartaTragos.paletaColores?.primary || '#9333ea'} onChange={e => handleColorChange('primary', e.target.value)} className="w-10 h-9 p-0.5"/>
               </div>
                <div className="space-y-1">
+                 <Label className="text-xs">Color Secundario</Label>
+                 <Input type="color" value={cartaTragos.paletaColores?.secondary || '#363636'} onChange={e => handleColorChange('secondary', e.target.value)} className="w-10 h-9 p-0.5"/>
+              </div>
+              <div className="space-y-1">
                  <Label className="text-xs">Nombre</Label>
                  <Input value={cartaTragos.protagonistaNombre || ''} onChange={e => handleUpdate('protagonistaNombre', e.target.value)} className="h-9 w-32"/>
               </div>
@@ -186,22 +200,22 @@ export default function CartaTragosPage() {
                  <Link href={`/fiestas/nueva/catering?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4"/></Button></Link>
                </div>
             </div>
-      </div>
+        </div>
       
-      <div className="w-[210mm] h-[297mm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto p-4 flex flex-col gap-4">
-        <div className="h-1/2 w-full border border-dashed border-gray-400 p-1">
-            <MenuComponent fiesta={fiesta} carta={cartaTragos} logoUrl={logoUrl}/>
+        <div className="w-[297mm] h-[210mm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto flex gap-4 p-4 border-2 border-dashed print:border-none">
+            <div className="w-1/2 h-full border border-dashed border-gray-400">
+                <MenuComponent fiesta={fiesta} carta={cartaTragos} logoUrl={logoUrl}/>
+            </div>
+            <div className="w-1/2 h-full border border-dashed border-gray-400">
+                <MenuComponent fiesta={fiesta} carta={cartaTragos} logoUrl={logoUrl}/>
+            </div>
         </div>
-         <div className="h-1/2 w-full border border-dashed border-gray-400 p-1">
-            <MenuComponent fiesta={fiesta} carta={cartaTragos} logoUrl={logoUrl}/>
-        </div>
-      </div>
 
        <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Belleza&family=Dancing+Script:wght@700&display=swap');
          @media print {
             body { -webkit-print-color-adjust: exact; color-adjust: exact; }
-            @page { size: A4 portrait; margin: 0; }
+            @page { size: A4 landscape; margin: 0; }
         }
        `}</style>
     </div>
