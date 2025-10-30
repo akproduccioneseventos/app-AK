@@ -28,9 +28,6 @@ function CheckinScannerContent() {
   
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessingCheckin, setIsProcessingCheckin] = useState<string | null>(null);
-
-  // Scanner state
-  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
 
   const loadInitialData = useCallback(async (showLoading = true) => {
@@ -95,9 +92,8 @@ function CheckinScannerContent() {
     }
   }, [isProcessingCheckin, allGuests, toast, fiestaId]);
 
-  const onScanSuccess: QrcodeSuccessCallback = (decodedText, decodedResult) => {
-    // Stop scanning after a successful scan.
-    if(scannerRef.current?.getState() === 2) { // 2 is SCANNING state
+  const onScanSuccess: QrcodeSuccessCallback = useCallback((decodedText, decodedResult) => {
+    if (scannerRef.current?.getState() === 2) { // 2 is SCANNING state
         scannerRef.current.pause(true);
     }
 
@@ -107,70 +103,67 @@ function CheckinScannerContent() {
         const scannedGuestId = url.searchParams.get('guestId');
 
         if (scannedFiestaId !== fiestaId) {
-            toast({title: "QR Incorrecto", description: "Este QR no pertenece al evento actual.", variant: "destructive"});
-            setTimeout(() => scannerRef.current?.resume(), 2000); // Resume scanning after showing toast
+            toast({ title: "QR Incorrecto", description: "Este QR no pertenece al evento actual.", variant: "destructive" });
+            setTimeout(() => scannerRef.current?.resume(), 2000);
             return;
         }
 
         if (scannedGuestId) {
             processCheckIn(scannedGuestId);
         } else {
-            toast({title: "QR Inválido", description: "El código QR no contiene un ID de invitado válido.", variant: "destructive"});
+            toast({ title: "QR Inválido", description: "El código QR no contiene un ID de invitado válido.", variant: "destructive" });
         }
     } catch (e) {
-        toast({title: "Error de Escaneo", description: "El código QR no es una URL válida.", variant: "destructive"});
+        toast({ title: "Error de Escaneo", description: "El código QR no es una URL válida.", variant: "destructive" });
     } finally {
         setTimeout(() => {
-            if(scannerRef.current?.getState() === 3) { // 3 is PAUSED state
+            if (scannerRef.current?.getState() === 3) { // 3 is PAUSED state
                 scannerRef.current.resume();
             }
-        }, 3000); // Wait 3 seconds before resuming scanning
+        }, 3000);
     }
-  };
+  }, [fiestaId, processCheckIn, toast]);
 
   const onScanFailure = (error: any) => {
+    // This callback is called frequently, so keep it lightweight.
     // console.warn(`Code scan error = ${error}`);
   };
 
-  const handleTabChange = (value: string) => {
-    if (value === 'scanner') {
-        if (!scannerRef.current) {
-            // This ensures the DOM element is ready before initializing.
-            const scanner = new Html5QrcodeScanner("qr-reader", { 
-                fps: 10, 
-                qrbox: { width: 250, height: 250 } 
-            }, false);
+  const startScanner = useCallback(() => {
+    if (!scannerRef.current) {
+        try {
+            const scanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: { width: 250, height: 250 } }, false);
             scanner.render(onScanSuccess, onScanFailure);
             scannerRef.current = scanner;
-        } else {
-            // If scanner exists but might be paused
-            if(scannerRef.current.getState() === 3) { // 3 is PAUSED state
-                scannerRef.current.resume();
-            }
+        } catch (e) {
+            console.error("Failed to initialize scanner:", e);
         }
+    }
+  }, [onScanSuccess]);
+
+  const stopScanner = () => {
+    if (scannerRef.current && scannerRef.current.getState() !== 1) { // 1 = NOT_STARTED
+      scannerRef.current.clear().catch(error => {
+        console.error("Failed to clear html5QrcodeScanner.", error);
+      });
+      scannerRef.current = null;
+    }
+  };
+  
+  const handleTabChange = (value: string) => {
+    if (value === 'scanner') {
+        startScanner();
     } else {
-        // Stop scanning when switching away from the tab
-        if (scannerRef.current && scannerRef.current.getState() !== 1) { // 1 = NOT_STARTED
-             try {
-                scannerRef.current.pause(true);
-            } catch (e) {
-                console.warn("Could not pause scanner, it might already be stopped.", e);
-            }
-        }
+        stopScanner();
     }
   };
   
   useEffect(() => {
+    // Cleanup on component unmount
     return () => {
-      // Cleanup on component unmount
-      if (scannerRef.current) {
-        scannerRef.current.clear().catch(error => {
-          console.error("Failed to clear html5QrcodeScanner.", error);
-        });
-      }
+      stopScanner();
     };
   }, []);
-
 
   const checkedInGuests = React.useMemo(() => allGuests.filter(g => g.checkedIn), [allGuests]);
   const pendingGuests = React.useMemo(() => {
@@ -267,5 +260,3 @@ export default function CheckinScannerPage() {
         </Suspense>
     )
 }
-
-    
