@@ -9,10 +9,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, Printer as PrinterIcon, Share2, AlertTriangle, Info, CalendarDays, Users, MapPin, ChefHat, Palette, UserCheck, Clock, Loader2, ListChecks } from 'lucide-react';
 import type { FiestaEnPlanificacion, Tarea, ProgramaEventoItem, DecorationItem } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
-import type { FullMenu } from '@/types/catering';
+import type { FullMenu, MenuItem } from '@/types/catering';
 import type { Empleado } from '@/types/empleado';
 import type { Rol } from '@/types/rol';
-import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaById } from '@/app/actions/fiesta-actual';
 import { getCustomerById } from '@/app/actions/customers';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getMenuById } from '@/app/actions/menus-catering';
@@ -43,7 +43,7 @@ function ResumenImprimibleContent() {
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [cliente, setCliente] = useState<Customer | null>(null);
   const [menu, setMenu] = useState<FullMenu | null>(null);
-  const [personal, setPersonal] = useState<any[]>([]);
+  const [personal, setPersonal] = useState<{ nombre: string, rol: string }[]>([]);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -92,15 +92,17 @@ function ResumenImprimibleContent() {
         const personalDetallado = fiestaData.personalAsignado.map(pa => {
           const empleado = empleadosData.find((e:any) => e.id === pa.empleadoId);
           if (!empleado) return null;
+          // Correctly find the role using the rolId from the assignment
           const rol = rolesData.find((r:any) => r.id === pa.rolId);
-          return { nombre: empleado.nombre, rol: rol?.nombre || 'Sin rol', pago: pa.eventSalary };
+          return { nombre: empleado.nombre, rol: rol?.nombre || 'Sin rol asignado' };
         }).filter(Boolean);
-        setPersonal(personalDetallado);
+        setPersonal(personalDetallado as { nombre: string, rol: string }[]);
       }
 
     } catch (err: any) {
       setError("No se pudieron cargar todos los datos para el resumen.");
       toast({ title: "Error", description: err.message, variant: "destructive" });
+      console.error("Error loading data for PDF:", err);
     } finally {
       setIsLoading(false);
     }
@@ -133,7 +135,7 @@ function ResumenImprimibleContent() {
         if (!acc[categoria]) acc[categoria] = [];
         acc[categoria].push(item);
         return acc;
-    }, {} as Record<string, typeof menu.items>);
+    }, {} as Record<string, MenuItem[]>);
   }, [menu]);
 
   const itemsDecoracionAgrupados = React.useMemo(() => 
@@ -146,9 +148,9 @@ function ResumenImprimibleContent() {
   [fiesta?.decoracion?.items]);
 
 
-  if (isLoading) return <div className="p-8 max-w-3xl mx-auto bg-white"><div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div></div>;
-  if (error || !fiesta) return <div className="p-8 max-w-3xl mx-auto text-center"><AlertTriangle className="w-12 h-12 mx-auto text-destructive mb-3" /><p className="font-semibold text-lg text-destructive">{error || 'No se encontró la fiesta'}</p></div>;
-
+  if (isLoading) { return <div className="p-8 max-w-3xl mx-auto bg-white"><div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div></div>; }
+  if (error || !fiesta) { return <div className="p-8 max-w-3xl mx-auto text-center"><AlertTriangle className="w-12 h-12 mx-auto text-destructive mb-3" /><p className="font-semibold text-lg text-destructive">{error || 'No se encontró la fiesta'}</p></div>; }
+  
   const { configuracion, decoracion, tareas } = fiesta;
   const tareasPendientes = tareas?.filter(t => !t.completada) || [];
 
@@ -173,7 +175,7 @@ function ResumenImprimibleContent() {
           <p className="text-md text-gray-700 print:text-sm mt-1">{configuracion.nombreEvento}</p>
           {cliente && <p className="text-sm text-gray-600 print:text-xs">Cliente: {cliente.name || cliente.companyName}</p>}
         </header>
-
+        
         <section className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm print:text-xs mb-4">
             <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-md"><CalendarDays className="w-4 h-4 text-primary"/><span>{formatDate(configuracion.fechaEvento)}</span></div>
             <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-md"><Users className="w-4 h-4 text-primary"/><span>{configuracion.invitadosEstimados} Invitados</span></div>
@@ -260,3 +262,5 @@ export default function ResumenImprimiblePageWrapper() {
     </Suspense>
   )
 }
+
+    
