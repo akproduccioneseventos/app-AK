@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo, use } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft, Package, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, DollarSign, Tag, BarChart3, StickyNote, Printer, Share2, Eye } from 'lucide-react';
@@ -26,7 +26,7 @@ import { Badge } from '@/components/ui/badge';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
-  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
+  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 };
 
 export default function DynamicCatalogPage({ params: paramsProp }: { params: { slugs: string[] } }) {

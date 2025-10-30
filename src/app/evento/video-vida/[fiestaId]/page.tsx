@@ -95,8 +95,7 @@ const PhotoUploadSlot: React.FC<{
 
 
 // --- Componente Principal que se renderiza solo en el cliente ---
-function VideoVidaClientPageContent({ params: paramsProp }: { params: { fiestaId: string } }) {
-  const params = use(paramsProp);
+function VideoVidaClientPageContent({ params }: { params: { fiestaId: string } }) {
   const { toast } = useToast();
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [photoSlots, setPhotoSlots] = useState<PhotoSlot[]>([]);
@@ -198,14 +197,8 @@ function VideoVidaClientPageContent({ params: paramsProp }: { params: { fiestaId
 
 
 // --- Página principal que se asegura de renderizar el contenido solo en el cliente ---
-export default function VideoVidaPage({ params: paramsProp }: { params: { fiestaId: string } }) {
-    const params = use(paramsProp);
-    const [isClient, setIsClient] = useState(false);
+export default function VideoVidaPage({ params }: { params: { fiestaId: string } }) {
+    const unwrappedParams = use(params);
 
-    useEffect(() => {
-        setIsClient(true);
-    }, []);
-
-    // Renderiza el contenido solo cuando isClient es true
-    return isClient ? <VideoVidaClientPageContent params={params} /> : <div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
+    return <VideoVidaClientPageContent params={unwrappedParams} />;
 }
