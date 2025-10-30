@@ -43,6 +43,7 @@ import { Badge } from '@/components/ui/badge';
 export default function InvitadosEventoPage() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const fiestaId = searchParams.get('fiestaId');
   const [invitados, setInvitados] = useState<Invitado[]>([]);
   const [tableNames, setTableNames] = useState<string[]>([]);
@@ -60,7 +61,12 @@ export default function InvitadosEventoPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   
   const fetchInvitados = useCallback(async () => {
-    if (!fiestaId) return;
+    if (!fiestaId) {
+      setError("No se ha especificado un ID de evento. Serás redirigido...");
+      setTimeout(() => router.push('/eventos'), 2500);
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     setError(null);
     try {
@@ -86,7 +92,7 @@ export default function InvitadosEventoPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [toast, fiestaId]);
+  }, [toast, fiestaId, router]);
 
   useEffect(() => {
     fetchInvitados();
@@ -463,3 +469,5 @@ export default function InvitadosEventoPage() {
     </div>
   );
 }
+
+    
