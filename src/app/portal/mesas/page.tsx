@@ -366,13 +366,13 @@ function AsignacionMesasContent() {
     if (!fiesta?.invitados) return { conMesa: [], sinMesa: [] };
     
     const lowerCaseSearch = guestSearchTerm.toLowerCase();
-    const confirmedGuests = fiesta.invitados.filter(g => g.rsvp === 'Confirmado');
+    const guestsToConsider = fiesta.invitados.filter(g => g.rsvp === 'Confirmado' || g.rsvp === 'Pendiente');
 
-    const conMesa = confirmedGuests
+    const conMesa = guestsToConsider
       .filter(g => g.tableNumber && g.nombre.toLowerCase().includes(lowerCaseSearch))
       .sort((a,b) => (a.tableNumber || '').localeCompare(b.tableNumber || ''));
       
-    const sinMesa = confirmedGuests
+    const sinMesa = guestsToConsider
       .filter(g => !g.tableNumber && g.nombre.toLowerCase().includes(lowerCaseSearch))
       .sort((a,b) => a.nombre.localeCompare(b.nombre));
 
@@ -483,17 +483,17 @@ function AsignacionMesasContent() {
             <LayoutDashboard className="w-6 h-6 text-primary"/>
             Asignación de Mesas
         </h1>
-        <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Portal</Button></Link>
+        <Link href={`/fiestas/nueva/invitados?fiestaId=${fiestaId}`} passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Portal</Button></Link>
       </div>
 
-       <Tabs defaultValue="list">
+       <Tabs defaultValue="visual">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="list">Asignación por Lista</TabsTrigger>
           <TabsTrigger value="visual">Asignación Visual en Salón</TabsTrigger>
         </TabsList>
         <TabsContent value="list">
              <Card>
-                 <CardHeader><CardTitle>Lista de Invitados Confirmados</CardTitle><div className="relative pt-2"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input placeholder="Buscar invitado..." value={guestSearchTerm} onChange={(e) => setGuestSearchTerm(e.target.value)} className="w-full max-w-sm pl-10"/></div></CardHeader>
+                 <CardHeader><CardTitle>Lista de Invitados </CardTitle><div className="relative pt-2"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input placeholder="Buscar invitado..." value={guestSearchTerm} onChange={(e) => setGuestSearchTerm(e.target.value)} className="w-full max-w-sm pl-10"/></div></CardHeader>
                 <CardContent><Table>
                     <TableHeader><TableRow><TableHead>Invitado</TableHead><TableHead>Personas</TableHead><TableHead>Mesa Asignada</TableHead></TableRow></TableHeader>
                     <TableBody>
