@@ -199,6 +199,12 @@ function CartaTragosContent() {
     }
   };
 
+  const handleEmpresaUpdate = (field: keyof NonNullable<CartaTragosData['empresa']>, value: string) => {
+    if (onUpdate && isPreview) {
+       onUpdate({ empresa: { ...(carta.empresa || defaultCartaTragosData.empresa), [field]: value } });
+   }
+ }
+
 
   if (isLoading || !fiesta) {
     return <div className="p-8 max-w-4xl mx-auto flex justify-center"><Loader2 className="w-8 h-8 animate-spin" /></div>;
@@ -240,7 +246,7 @@ function CartaTragosContent() {
         <div className="py-2 px-4 print:hidden flex flex-col md:flex-row justify-between items-center gap-4 bg-white shadow-sm sticky top-0 z-50">
             <h1 className="font-headline text-lg">Editor de Carta de Tragos</h1>
             <div className="flex flex-wrap gap-2 items-center">
-                <div className="space-y-1"><Label htmlFor="protagonista-foto" className="text-xs">Foto Protagonista</Label><Input id="protagonista-foto" type="file" accept="image/*" onChange={handleProtagonistPhotoUpload} className="text-xs w-44" disabled={isUploading}/></div>
+                <div className="space-y-1"><Label htmlFor="protagonista-foto" className="text-xs">Foto Protagonista</Label><Input id="protagonista-foto" type="file" accept="image/*" onChange={handleProtagonistPhotoUpload} className="text-xs w-48" disabled={isUploading}/></div>
                 <div className="space-y-1"><Label htmlFor="titulo-numero" className="text-xs">Título/Número</Label><Input id="titulo-numero" value={cartaTragos.numeroPrincipal || ''} onChange={(e) => handleUpdate('numeroPrincipal', e.target.value)} className="h-9 w-24"/></div>
                 <div className="space-y-1"><Label htmlFor="protagonista-nombre" className="text-xs">Nombre Protagonista</Label><Input id="protagonista-nombre" value={cartaTragos.protagonistaNombre || ''} onChange={(e) => handleUpdate('protagonistaNombre', e.target.value)} className="h-9 w-32"/></div>
                 <div className="space-y-1"><Label htmlFor="bg-image-upload" className="text-xs">Fondo</Label><Input id="bg-image-upload" type="file" accept="image/*" onChange={handleBackgroundImageUpload} className="text-xs w-44" disabled={isUploading}/></div>
@@ -248,7 +254,6 @@ function CartaTragosContent() {
                 <div className="space-y-1"><Label className="text-xs">Color Secundario</Label><Input type="color" value={cartaTragos.paletaColores?.secondary || '#363636'} onChange={e => handleColorChange('secondary', e.target.value)} className="w-9 h-8 p-0.5"/></div>
                 <div className="space-y-1"><Label className="text-xs">Fondo Tarjetas</Label><Input type="color" value={cartaTragos.backgroundColor || '#e9d5ff'} onChange={e => handleUpdate('backgroundColor', e.target.value)} className="w-9 h-8 p-0.5"/></div>
 
-               <Separator orientation="vertical" className="h-10 mx-1"/>
                <div className="flex items-end gap-2">
                  <Button size="sm" onClick={handleSave} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}</Button>
                  <Button onClick={handlePrint} size="sm" variant="outline"><PrinterIcon className="w-4 h-4"/></Button>
@@ -258,19 +263,21 @@ function CartaTragosContent() {
         </div>
         
         <div className="w-[21cm] h-[29.7cm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto p-4 flex flex-col items-center justify-center">
-            <div className="w-[10cm] h-[15cm] relative">
-              <CartaTragosMenu fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} openEditModal={openEditModal} />
-            </div>
-             <div className="w-[10cm] h-[15cm] relative mt-4">
-              <CartaTragosMenu fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} openEditModal={openEditModal} />
+            <div className="grid grid-cols-2 gap-4 w-full h-full">
+                <div className="w-full h-full relative">
+                    <CartaTragosMenu fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} openEditModal={openEditModal} />
+                </div>
+                <div className="w-full h-full relative">
+                    <CartaTragosMenu fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} openEditModal={openEditModal} />
+                </div>
             </div>
         </div>
 
        <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Belleza&family=Dancing+Script:wght@700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Belleza&family=Dancing+Script:wght@400;700&family=Great+Vibes&display=swap');
          @media print {
             body { -webkit-print-color-adjust: exact; color-adjust: exact; }
-            @page { size: A4 portrait; margin: 0; }
+            @page { size: A4 landscape; margin: 0; }
         }
        `}</style>
     </div>
