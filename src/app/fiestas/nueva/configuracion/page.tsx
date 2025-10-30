@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, type FormEvent, useEffect, useCallback } from 'react';
+import { useState, type FormEvent, useEffect, useCallback, Suspense, use } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,7 +19,7 @@ import { getFiestaActual, updateConfiguracionFiestaActual } from '@/app/actions/
 import { initialFiestaActualData } from '@/lib/fiesta-defaults'; 
 import { getCustomers, getCustomerById, syncCustomerFromFiestaConfig } from '@/app/actions/customers';
 import { Separator } from '@/components/ui/separator';
-
+import { useSearchParams, useRouter } from 'next/navigation';
 
 interface ConfigFormState extends Omit<ConfigEventoDataStorage, 'fechaEvento' | 'clienteId'> {
   fechaEvento?: Date;
@@ -29,8 +29,12 @@ interface ConfigFormState extends Omit<ConfigEventoDataStorage, 'fechaEvento' | 
 const tiposEventoDisponibles: TipoEvento[] = ['Cumpleaños', 'Boda', 'Fiesta de 15', 'Fiesta Infantil', 'Baby Shower', 'Evento Corporativo', 'Conferencia', 'Lanzamiento de Producto', 'Salón de Fiesta', 'Otro'];
 const defaultEventConfigFromFiesta = initialFiestaActualData.configuracion;
 
-export default function ConfiguracionEventoPage() {
+function ConfiguracionEventoContent() {
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const fiestaId = searchParams.get('fiestaId');
+
   const [config, setConfig] = useState<ConfigFormState | null>(null);
   const [allCustomers, setAllCustomers] = useState<Customer[]>([]);
   const [linkedCustomer, setLinkedCustomer] = useState<Customer | null>(null);
@@ -39,23 +43,29 @@ export default function ConfiguracionEventoPage() {
   const [isLoadingCustomers, setIsLoadingCustomers] = useState(true);
 
   const loadInitialData = useCallback(async () => {
+    if (!fiestaId) {
+      toast({title: "Error", description: "No se encontró el ID de evento", variant: "destructive"});
+      router.replace('/eventos');
+      return;
+    }
     setIsLoading(true);
     setIsLoadingCustomers(true);
     setLinkedCustomer(null);
     try {
       const [fiesta, fetchedCustomers] = await Promise.all([
-        getFiestaActual(),
+        getFiestaById(fiestaId),
         getCustomers()
       ]);
 
+      if (!fiesta) throw new Error("Evento no encontrado.");
+      
       setAllCustomers(fetchedCustomers);
 
       let tempConfig: ConfigFormState = {
-        ...(fiesta?.configuracion || defaultEventConfigFromFiesta),
-        fechaEvento: (fiesta?.configuracion?.fechaEvento) ? new Date(fiesta.configuracion.fechaEvento) : (defaultEventConfigFromFiesta.fechaEvento ? new Date(defaultEventConfigFromFiesta.fechaEvento) : undefined),
-        clienteId: fiesta?.configuracion?.clienteId || undefined,
+        ...(fiesta.configuracion || defaultEventConfigFromFiesta),
+        fechaEvento: (fiesta.configuracion?.fechaEvento) ? new Date(fiesta.configuracion.fechaEvento) : (defaultEventConfigFromFiesta.fechaEvento ? new Date(defaultEventConfigFromFiesta.fechaEvento) : undefined),
+        clienteId: fiesta.configuracion?.clienteId || undefined,
       };
-      // Eliminar direccionLugar si existe por migraciones antiguas
       delete (tempConfig as any).direccionLugar;
 
 
@@ -68,13 +78,10 @@ export default function ConfiguracionEventoPage() {
           tempConfig.tipoCelebracion = customerDetails.partyType || tempConfig.tipoCelebracion;
           tempConfig.fechaEvento = customerDetails.partyDate ? new Date(customerDetails.partyDate) : tempConfig.fechaEvento;
           
-          // Para horaInicio, intentar parsear desde partyTime del cliente si es un formato simple como HH:MM
           if (customerDetails.partyTime) {
-            const timeParts = customerDetails.partyTime.split(" - ")[0]; // Tomar la primera parte si hay rango
-            if (/^([01]\d|2[0-3]):([0-5]\d)$/.test(timeParts)) { // Validar HH:MM
+            const timeParts = customerDetails.partyTime.split(" - ")[0];
+            if (/^([01]\d|2[0-3]):([0-5]\d)$/.test(timeParts)) {
               tempConfig.horaInicio = timeParts;
-            } else {
-              // Si no es HH:MM, no sobreescribir, mantener lo que haya en config o default
             }
           }
 
@@ -98,7 +105,7 @@ export default function ConfiguracionEventoPage() {
       setIsLoading(false);
       setIsLoadingCustomers(false);
     }
-  }, [toast]);
+  }, [toast, router, fiestaId]);
   
   useEffect(() => {
     loadInitialData();
@@ -154,11 +161,9 @@ export default function ConfiguracionEventoPage() {
           const guestCountFromCustomer = customerDetails.guestCount !== undefined ? Number(customerDetails.guestCount) : defaultEventConfigFromFiesta.invitadosEstimados;
           updatedConfig.invitadosEstimados = guestCountFromCustomer;
           updatedConfig.nombreLugar = customerDetails.venueName || defaultEventConfigFromFiesta.nombreLugar;
-          // horaFin, notasAdicionales, presupuestoEstimado se mantienen del prevConfig
         }
       } else {
         setLinkedCustomer(null);
-        // Reset to defaults from initialFiestaActualData.configuracion, keeping some fields if they were manually edited
         updatedConfig.nombreEvento = prevConfig.nombreEvento !== defaultEventConfigFromFiesta.nombreEvento ? prevConfig.nombreEvento : defaultEventConfigFromFiesta.nombreEvento;
         updatedConfig.tipoCelebracion = prevConfig.tipoCelebracion !== defaultEventConfigFromFiesta.tipoCelebracion ? prevConfig.tipoCelebracion : defaultEventConfigFromFiesta.tipoCelebracion;
         updatedConfig.fechaEvento = prevConfig.fechaEvento && prevConfig.fechaEvento?.toISOString() !== defaultEventConfigFromFiesta.fechaEvento ? prevConfig.fechaEvento : (defaultEventConfigFromFiesta.fechaEvento ? new Date(defaultEventConfigFromFiesta.fechaEvento) : undefined);
@@ -173,7 +178,7 @@ export default function ConfiguracionEventoPage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!config) {
+    if (!config || !fiestaId) {
       toast({ title: "Error", description: "No hay datos de configuración para guardar.", variant: "destructive" });
       return;
     }
@@ -191,7 +196,7 @@ export default function ConfiguracionEventoPage() {
     if (!configToSave.clienteId) delete configToSave.clienteId;
 
     try {
-      const result = await updateConfiguracionFiestaActual(configToSave);
+      const result = await updateConfiguracionFiestaActual(fiestaId, configToSave);
       
       if (result.success && result.updatedData) {
         toast({
@@ -199,7 +204,6 @@ export default function ConfiguracionEventoPage() {
           description: "Los detalles generales del evento se han actualizado.",
         });
 
-        // Step 2: Bidirectional Sync
         if (config.clienteId) {
           const syncResult = await syncCustomerFromFiestaConfig(config.clienteId, configToSave);
           if (syncResult.success) {
@@ -218,11 +222,11 @@ export default function ConfiguracionEventoPage() {
         }
         
         const updatedConfigFromServer = {
-            ...result.updatedData,
-            fechaEvento: result.updatedData.fechaEvento ? new Date(result.updatedData.fechaEvento) : undefined,
-            clienteId: result.updatedData.clienteId || undefined,
-            invitadosEstimados: Number(result.updatedData.invitadosEstimados) || 0,
-            presupuestoEstimado: Number(result.updatedData.presupuestoEstimado) || 0,
+            ...result.updatedData.configuracion,
+            fechaEvento: result.updatedData.configuracion.fechaEvento ? new Date(result.updatedData.configuracion.fechaEvento) : undefined,
+            clienteId: result.updatedData.configuracion.clienteId || undefined,
+            invitadosEstimados: Number(result.updatedData.configuracion.invitadosEstimados) || 0,
+            presupuestoEstimado: Number(result.updatedData.configuracion.presupuestoEstimado) || 0,
         };
         delete (updatedConfigFromServer as any).direccionLugar;
         setConfig(updatedConfigFromServer);
@@ -243,24 +247,15 @@ export default function ConfiguracionEventoPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-12 h-12 animate-spin text-primary" />
-        <p className="ml-3 text-lg">Cargando configuración...</p>
-      </div>
-    );
+    return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando configuración...</p></div>;
   }
-
+  
   if (!config) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
-        <AlertTriangle className="w-12 h-12 text-destructive mb-4" />
-        <h2 className="text-xl font-semibold mb-2">Error al Cargar Configuración</h2>
-        <p className="text-muted-foreground">No se pudieron cargar los datos. Por favor, intentá de nuevo más tarde.</p>
-         <Button onClick={() => window.location.reload()} className="mt-4">Recargar Página</Button>
-      </div>
-    );
+    return <div className="flex flex-col items-center justify-center min-h-[400px] text-center"><AlertTriangle className="w-12 h-12 text-destructive mb-4" /><h2 className="text-xl font-semibold mb-2">Error al Cargar Configuración</h2><p className="text-muted-foreground">No se pudieron cargar los datos. Por favor, intentá de nuevo más tarde.</p><Button onClick={() => window.location.reload()} className="mt-4">Recargar Página</Button></div>;
   }
+  
+  const finalEventType = config.tipoCelebracion.trim();
+  const showCustomTipoInput = !tiposEventoDisponibles.includes(finalEventType as TipoEvento) && finalEventType !== '';
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -268,7 +263,7 @@ export default function ConfiguracionEventoPage() {
         <h1 className="text-3xl font-bold tracking-tight font-headline">
           Configuración General del Evento
         </h1>
-        <Link href="/fiestas/nueva" passHref>
+        <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref>
           <Button variant="outline" disabled={isSaving}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Volver al Planificador
@@ -308,46 +303,20 @@ export default function ConfiguracionEventoPage() {
                         ))}
                         </SelectContent>
                     </Select>
-                    <Link href="/customers/new?redirectTo=/fiestas/nueva/configuracion" passHref>
+                    <Link href={`/customers/new?redirectTo=/fiestas/nueva/configuracion?fiestaId=${fiestaId}`} passHref>
                         <Button type="button" variant="outline" size="icon" title="Crear Nuevo Cliente">
                             <UserCircle className="w-5 h-5" />
                         </Button>
                     </Link>
                 </div>
-                {allCustomers.length === 0 && !isLoadingCustomers && (
-                    <p className="text-xs text-muted-foreground">No hay clientes creados. <Link href="/customers/new?redirectTo=/fiestas/nueva/configuracion" className="underline text-primary">Crear nuevo cliente</Link>.</p>
-                 )}
+                 {allCustomers.length === 0 && !isLoadingCustomers && (<p className="text-xs text-muted-foreground">No hay clientes creados. <Link href={`/customers/new?redirectTo=/fiestas/nueva/configuracion?fiestaId=${fiestaId}`} className="underline text-primary">Crear nuevo cliente</Link>.</p>)}
                  {linkedCustomer && (
                     <div className="mt-3 p-3 border rounded-md bg-muted/10 space-y-2">
                         <h4 className="text-sm font-medium text-muted-foreground">Archivos del Cliente:</h4>
                         <div className="flex flex-wrap gap-2">
-                            {linkedCustomer.contractFileName && (
-                            <a 
-                                href={`/api/contracts/${linkedCustomer.contractFileName}`} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                            >
-                                <Button type="button" variant="outline" size="sm">
-                                <FileText className="w-4 h-4 mr-2"/>
-                                Ver/Descargar Contrato
-                                </Button>
-                            </a>
-                            )}
-                             {linkedCustomer.budgetFileName && (
-                            <a 
-                                href={`/api/budgets/${linkedCustomer.budgetFileName}`} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                            >
-                                <Button type="button" variant="outline" size="sm">
-                                <FileText className="w-4 h-4 mr-2"/>
-                                Ver/Descargar Presupuesto
-                                </Button>
-                            </a>
-                            )}
-                            {!linkedCustomer.contractFileName && !linkedCustomer.budgetFileName && (
-                                <p className="text-xs text-muted-foreground italic">No hay archivos PDF asociados a este cliente.</p>
-                            )}
+                            {linkedCustomer.contractFileName && (<a href={`/api/contracts/${linkedCustomer.contractFileName}`} target="_blank" rel="noopener noreferrer"><Button type="button" variant="outline" size="sm"><FileText className="w-4 h-4 mr-2"/> Ver Contrato</Button></a>)}
+                             {linkedCustomer.budgetFileName && (<a href={`/api/budgets/${linkedCustomer.budgetFileName}`} target="_blank" rel="noopener noreferrer"><Button type="button" variant="outline" size="sm"><FileText className="w-4 h-4 mr-2"/> Ver Presupuesto</Button></a>)}
+                            {!linkedCustomer.contractFileName && !linkedCustomer.budgetFileName && (<p className="text-xs text-muted-foreground italic">No hay archivos PDF asociados a este cliente.</p>)}
                         </div>
                     </div>
                  )}
@@ -357,128 +326,40 @@ export default function ConfiguracionEventoPage() {
 
             <div className="space-y-2">
                 <Label htmlFor="nombre-evento" className="text-base">Nombre del Evento</Label>
-                <Input
-                  id="nombre-evento"
-                  value={config.nombreEvento || ''}
-                  onChange={(e) => handleChange('nombreEvento', e.target.value)}
-                  placeholder="Ej: Boda Ana y Juan, Mi Cumpleaños N°30"
-                  className="text-base p-3"
-                  disabled={isSaving}
-                />
+                <Input id="nombre-evento" value={config.nombreEvento || ''} onChange={(e) => handleChange('nombreEvento', e.target.value)} placeholder="Ej: Boda Ana y Juan, Mi Cumpleaños N°30" className="text-base p-3" disabled={isSaving}/>
             </div>
             <div className="space-y-2">
                 <Label htmlFor="tipo-celebracion" className="text-base">Tipo de Celebración</Label>
                  <Select 
                     value={tiposEventoDisponibles.includes(config.tipoCelebracion as TipoEvento) ? config.tipoCelebracion : "Otro"}
-                    onValueChange={handleTipoEventoChange}
+                    onValueChange={handleSelectTipoEventoChange}
                     disabled={isSaving}
                   >
-                    <SelectTrigger id="tipo-celebracion" className="text-base p-3 h-auto">
-                      <SelectValue placeholder="Seleccioná un tipo" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {tiposEventoDisponibles.map(tipo => (
-                        <SelectItem key={tipo} value={tipo} className="text-base">{tipo}</SelectItem>
-                      ))}
-                      {/* <SelectItem value="Otro" className="text-base">Otro (especificar)</SelectItem> */}
-                    </SelectContent>
+                    <SelectTrigger id="tipo-celebracion" className="text-base p-3 h-auto"><SelectValue placeholder="Seleccioná un tipo" /></SelectTrigger>
+                    <SelectContent>{tiposEventoDisponibles.map(tipo => (<SelectItem key={tipo} value={tipo} className="text-base">{tipo}</SelectItem>))}</SelectContent>
                   </Select>
-                  {(!tiposEventoDisponibles.includes(config.tipoCelebracion as TipoEvento) && config.tipoCelebracion !== 'Otro' && config.tipoCelebracion !== '') && (
+                  {showCustomTipoInput && (
                      <Input 
-                        id="eventoTipoOtro" 
+                        id="eventoTipoOtroInput" 
                         placeholder="Especificá el tipo de evento" 
                         value={config.tipoCelebracion !== "Otro" ? config.tipoCelebracion : ""}
-                        onChange={(e) => handleChange('tipoCelebracion', e.target.value)}
+                        onChange={handleCustomTipoEventoInputChange}
                         className="text-base p-3 mt-2"
                         disabled={isSaving}
                     />
                   )}
               </div>
-
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="space-y-2 md:col-span-1">
-                <Label htmlFor="fecha-evento" className="text-base">Fecha del Evento</Label>
-                <DatePickerDemo selectedDate={config.fechaEvento} onDateChange={handleDateChange} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="hora-inicio" className="text-base">Hora de Inicio</Label>
-                <Input
-                  id="hora-inicio"
-                  type="time"
-                  value={config.horaInicio || ''}
-                  onChange={(e) => handleChange('horaInicio', e.target.value)}
-                  className="text-base p-3"
-                  disabled={isSaving}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="hora-fin" className="text-base">Hora de Fin (Opcional)</Label>
-                <Input
-                  id="hora-fin"
-                  type="time"
-                  value={config.horaFin || ''}
-                  onChange={(e) => handleChange('horaFin', e.target.value)}
-                  className="text-base p-3"
-                  disabled={isSaving}
-                />
-              </div>
+              <div className="space-y-2 md:col-span-1"><Label htmlFor="fecha-evento" className="text-base">Fecha del Evento</Label><DatePickerDemo selectedDate={config.fechaEvento} onDateChange={handleDateChange} /></div>
+              <div className="space-y-2"><Label htmlFor="hora-inicio" className="text-base">Hora de Inicio</Label><Input id="hora-inicio" type="time" value={config.horaInicio || ''} onChange={(e) => handleChange('horaInicio', e.target.value)} className="text-base p-3" disabled={isSaving}/></div>
+              <div className="space-y-2"><Label htmlFor="hora-fin" className="text-base">Hora de Fin (Opcional)</Label><Input id="hora-fin" type="time" value={config.horaFin || ''} onChange={(e) => handleChange('horaFin', e.target.value)} className="text-base p-3" disabled={isSaving}/></div>
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="nombre-lugar" className="text-base">Lugar del Evento (Nombre)</Label>
-              <Input
-                id="nombre-lugar"
-                value={config.nombreLugar || ''}
-                onChange={(e) => handleChange('nombreLugar', e.target.value)}
-                placeholder="Ej: Salón Paraíso, Finca Los Robles"
-                className="text-base p-3"
-                disabled={isSaving}
-              />
-            </div>
-            {/* Campo Dirección del Lugar eliminado */}
-            
+            <div className="space-y-2"><Label htmlFor="nombre-lugar" className="text-base">Lugar del Evento (Nombre)</Label><Input id="nombre-lugar" value={config.nombreLugar || ''} onChange={(e) => handleChange('nombreLugar', e.target.value)} placeholder="Ej: Salón Paraíso, Finca Los Robles" className="text-base p-3" disabled={isSaving}/></div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                    <Label htmlFor="invitados-estimados" className="text-base">Nº Estimado de Invitados</Label>
-                    <Input
-                    id="invitados-estimados"
-                    type="number"
-                    value={config.invitadosEstimados === undefined || config.invitadosEstimados === null ? '' : String(config.invitadosEstimados)}
-                    onChange={(e) => handleChange('invitadosEstimados', e.target.value === '' ? '' : parseInt(e.target.value, 10))}
-                    placeholder="Ej: 100"
-                    min="0" // Permitir 0 si no se sabe
-                    className="text-base p-3"
-                    disabled={isSaving}
-                    />
-                </div>
-                 <div className="space-y-2">
-                    <Label htmlFor="presupuesto-estimado" className="text-base">Presupuesto Total Estimado (UYU)</Label>
-                    <Input
-                    id="presupuesto-estimado"
-                    type="number"
-                    value={config.presupuestoEstimado === undefined || config.presupuestoEstimado === null ? '' : String(config.presupuestoEstimado)}
-                    onChange={(e) => handleChange('presupuestoEstimado', e.target.value === '' ? '' : parseFloat(e.target.value))}
-                    placeholder="Ej: 500000"
-                    min="0"
-                    step="any"
-                    className="text-base p-3"
-                    disabled={isSaving}
-                    />
-                </div>
+                <div className="space-y-2"><Label htmlFor="invitados-estimados" className="text-base">Nº Estimado de Invitados</Label><Input id="invitados-estimados" type="number" value={config.invitadosEstimados === undefined || config.invitadosEstimados === null ? '' : String(config.invitadosEstimados)} onChange={(e) => handleChange('invitadosEstimados', e.target.value === '' ? '' : parseInt(e.target.value, 10))} placeholder="Ej: 100" min="0" className="text-base p-3" disabled={isSaving}/></div>
+                 <div className="space-y-2"><Label htmlFor="presupuesto-estimado" className="text-base">Presupuesto Total Estimado (UYU)</Label><Input id="presupuesto-estimado" type="number" value={config.presupuestoEstimado === undefined || config.presupuestoEstimado === null ? '' : String(config.presupuestoEstimado)} onChange={(e) => handleChange('presupuestoEstimado', e.target.value === '' ? '' : parseFloat(e.target.value))} placeholder="Ej: 500000" min="0" step="any" className="text-base p-3" disabled={isSaving}/></div>
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="notas-adicionales-config" className="text-base">Notas Adicionales</Label>
-              <Textarea
-                id="notas-adicionales-config"
-                value={config.notasAdicionales || ''}
-                onChange={(e) => handleChange('notasAdicionales', e.target.value)}
-                placeholder="Cualquier otro detalle importante para la configuración general."
-                rows={3}
-                className="text-base p-3"
-                disabled={isSaving}
-              />
-            </div>
+            <div className="space-y-2"><Label htmlFor="notas-adicionales-config" className="text-base">Notas Adicionales</Label><Textarea id="notas-adicionales-config" value={config.notasAdicionales || ''} onChange={(e) => handleChange('notasAdicionales', e.target.value)} placeholder="Cualquier otro detalle importante para la configuración general." rows={3} className="text-base p-3" disabled={isSaving}/></div>
           </CardContent>
           <CardFooter className="border-t pt-6">
             <Button type="submit" className="w-full sm:w-auto" disabled={isSaving || isLoadingCustomers}>
@@ -492,3 +373,10 @@ export default function ConfiguracionEventoPage() {
   );
 }
 
+export default function ConfiguracionEventoPage() {
+    return (
+        <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>}>
+            <ConfiguracionEventoContent />
+        </Suspense>
+    );
+}
