@@ -12,9 +12,10 @@ import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVer
 import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData, LayoutElementType } from '@/types/fiesta';
-import { updateInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
-import { getFiestaById, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
+import { updateInvitadoFiestaActual, getFiestaById } from '@/app/actions/fiesta-actual';
+import { updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogDescription } from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import NextImage from 'next/image';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -26,7 +27,6 @@ import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const GUEST_ITEM_TYPE = 'guest';
@@ -493,7 +493,7 @@ function AsignacionMesasContent() {
         </TabsList>
         <TabsContent value="list">
              <Card>
-                 <CardHeader><CardTitle>Lista de Invitados </CardTitle><div className="relative pt-2"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input placeholder="Buscar invitado..." value={guestSearchTerm} onChange={(e) => setGuestSearchTerm(e.target.value)} className="w-full max-w-sm pl-10"/></div></CardHeader>
+                 <CardHeader><CardTitle>Lista de Invitados Confirmados</CardTitle><div className="relative pt-2"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input placeholder="Buscar invitado..." value={guestSearchTerm} onChange={(e) => setGuestSearchTerm(e.target.value)} className="w-full max-w-sm pl-10"/></div></CardHeader>
                 <CardContent><Table>
                     <TableHeader><TableRow><TableHead>Invitado</TableHead><TableHead>Personas</TableHead><TableHead>Mesa Asignada</TableHead></TableRow></TableHeader>
                     <TableBody>
@@ -508,7 +508,7 @@ function AsignacionMesasContent() {
                              <TableRow key={guest.id} className="bg-green-50/50">
                                 <TableCell className="font-medium">{guest.nombre}</TableCell>
                                 <TableCell>{guest.partySize}</TableCell>
-                                <TableCell><Select value={guest.tableNumber || ''} onValueChange={(val) => val === 'sin-mesa' ? handleUnassignGuest(guest.id) : handleAssignGuestToTable(guest.id, val)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{(decoracion.salonElements || []).filter(el => el.category?.includes("Mesa")).map(t => <SelectItem key={t.id} value={t.name}>{t.name}</SelectItem>)}<Separator/><SelectItem value="sin-mesa" className="text-destructive">Quitar de mesa</SelectItem></SelectContent></Select></TableCell>
+                                <TableCell><Select value={guest.tableNumber || 'sin-mesa'} onValueChange={(val) => val === 'sin-mesa' ? handleUnassignGuest(guest.id) : handleAssignGuestToTable(guest.id, val)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{(decoracion.salonElements || []).filter(el => el.category?.includes("Mesa")).map(t => <SelectItem key={t.id} value={t.name}>{t.name}</SelectItem>)}<Separator/><SelectItem value="sin-mesa" className="text-destructive">Quitar de mesa</SelectItem></SelectContent></Select></TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
