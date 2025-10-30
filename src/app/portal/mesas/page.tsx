@@ -483,7 +483,7 @@ function AsignacionMesasContent() {
             <LayoutDashboard className="w-6 h-6 text-primary"/>
             Asignación de Mesas
         </h1>
-        <Link href={`/fiestas/nueva/invitados?fiestaId=${fiestaId}`} passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Portal</Button></Link>
+        <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Portal</Button></Link>
       </div>
 
        <Tabs defaultValue="list">
@@ -508,7 +508,7 @@ function AsignacionMesasContent() {
                              <TableRow key={guest.id} className="bg-green-50/50">
                                 <TableCell className="font-medium">{guest.nombre}</TableCell>
                                 <TableCell>{guest.partySize}</TableCell>
-                                <TableCell><Select value={guest.tableNumber || ''} onValueChange={(val) => val === '' ? handleUnassignGuest(guest.id) : handleAssignGuestToTable(guest.id, val)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{(decoracion.salonElements || []).filter(el => el.category?.includes("Mesa")).map(t => <SelectItem key={t.id} value={t.name}>{t.name}</SelectItem>)}<Separator/><SelectItem value="" className="text-destructive">Quitar de mesa</SelectItem></SelectContent></Select></TableCell>
+                                <TableCell><Select value={guest.tableNumber || ''} onValueChange={(val) => val === 'sin-mesa' ? handleUnassignGuest(guest.id) : handleAssignGuestToTable(guest.id, val)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{(decoracion.salonElements || []).filter(el => el.category?.includes("Mesa")).map(t => <SelectItem key={t.id} value={t.name}>{t.name}</SelectItem>)}<Separator/><SelectItem value="sin-mesa" className="text-destructive">Quitar de mesa</SelectItem></SelectContent></Select></TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
