@@ -1,31 +1,31 @@
-
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, Suspense, use, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense, use } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Disc, Clapperboard, Sofa, Camera as CameraIcon, Search, Printer, Settings2, FolderDown, FolderUp, Maximize, ZoomIn, ZoomOut, Upload, Map, ChevronsUp, ChevronsDown } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Disc, Clapperboard, Sofa, Camera as CameraIcon, Search, Printer, Settings2, FolderDown, FolderUp, Maximize, ZoomIn, ZoomOut, Upload, Map, ChevronsUp, ChevronsDown, X } from 'lucide-react';
 import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData, LayoutElementType } from '@/types/fiesta';
-import { updateInvitadoFiestaActual, updateDecoracionFiestaActual, getFiestaById } from '@/app/actions/fiesta-actual';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { updateInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaById, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogDescription } from "@/components/ui/dialog";
+import { ScrollArea } from '@/components/ui/scroll-area';
+import NextImage from 'next/image';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Separator } from '@/components/ui/separator';
+import { cn } from "@/lib/utils";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { saveSalonLayoutTemplate, getSalonLayoutTemplates, type SalonLayoutTemplate, deleteSalonLayoutTemplate } from '@/app/actions/salon-layout-templates';
+import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import NextImage from 'next/image';
-import { cn } from '@/lib/utils';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogDescription } from "@/components/ui/dialog";
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Separator } from '@/components/ui/separator';
-import { saveSalonLayoutTemplate, getSalonLayoutTemplates, type SalonLayoutTemplate, deleteSalonLayoutTemplate } from '@/app/actions/salon-layout-templates';
-import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
+
 
 const GUEST_ITEM_TYPE = 'guest';
 const PIXELS_PER_METER_DEFAULT = 40;
@@ -216,6 +216,7 @@ function AsignacionMesasContent() {
     setCustomElement({ name: '', width: 2, height: 1, type: 'element', shape: 'rectangle' });
   };
 
+
   const handleOpenEditModal = (element: LayoutElement) => { setEditingElement(element); setIsEditModalOpen(true); };
   
   const handleUpdateElement = () => {
@@ -242,6 +243,7 @@ function AsignacionMesasContent() {
     });
     setDecoracion({ ...decoracion, salonElements: newElements });
   };
+
 
   const handleElementRotation = (elementId: string) => {
     if (!decoracion) return;
@@ -387,7 +389,94 @@ function AsignacionMesasContent() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      {/* Modals */}
+       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Editar Elemento: {editingElement?.name}</DialogTitle></DialogHeader>
+          {editingElement && (
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <Label htmlFor="el-name">Nombre</Label>
+                <Input id="el-name" value={editingElement.name} onChange={e => setEditingElement(prev => prev ? {...prev, name: e.target.value} : null)}/>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                      <Label htmlFor="el-width">Ancho (m)</Label>
+                      <Input id="el-width" type="number" value={(editingElement.width / pixelsPerMeter).toFixed(2)} onChange={e => setEditingElement(prev => prev ? {...prev, width: Number(e.target.value) * pixelsPerMeter} : null)}/>
+                  </div>
+                  <div className="space-y-1">
+                      <Label htmlFor="el-height">Alto (m)</Label>
+                      <Input id="el-height" type="number" value={(editingElement.height / pixelsPerMeter).toFixed(2)} onChange={e => setEditingElement(prev => prev ? {...prev, height: Number(e.target.value) * pixelsPerMeter} : null)}/>
+                  </div>
+              </div>
+              {editingElement.category?.includes('Mesa') && (
+                  <div className="space-y-1">
+                      <Label htmlFor="el-seats">Asientos</Label>
+                      <Input id="el-seats" type="number" value={editingElement.seats || 0} onChange={e => setEditingElement(prev => prev ? {...prev, seats: Number(e.target.value) || 0} : null)}/>
+                  </div>
+              )}
+               <div className="space-y-1">
+                  <Label htmlFor="el-color">Color de Fondo</Label>
+                  <Input id="el-color" type="color" value={editingElement.backgroundColor || '#ffffff'} onChange={e => setEditingElement(prev => prev ? {...prev, backgroundColor: e.target.value} : null)}/>
+              </div>
+              <div className="flex items-center gap-2">
+                  <Label>Capas:</Label>
+                  <Button size="sm" variant="outline" onClick={() => handleElementLayering(editingElement.id, 'up')}><ChevronsUp className="w-4 h-4 mr-1"/>Traer al frente</Button>
+                  <Button size="sm" variant="outline" onClick={() => handleElementLayering(editingElement.id, 'down')}><ChevronsDown className="w-4 h-4 mr-1"/>Enviar al fondo</Button>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>Cancelar</Button>
+            <Button onClick={handleUpdateElement}>Guardar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={isCustomElementModalOpen} onOpenChange={setIsCustomElementModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Crear Elemento o Área Personalizada</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <div className="space-y-1">
+              <Label htmlFor="custom-el-type">Tipo</Label>
+              <RadioGroup value={customElement.type} onValueChange={(v) => setCustomElement(p=>({...p, type:v as any}))} className="flex gap-4">
+                <div className="flex items-center space-x-2"><RadioGroupItem value="element" id="type-element"/><Label htmlFor="type-element">Elemento</Label></div>
+                <div className="flex items-center space-x-2"><RadioGroupItem value="area" id="type-area"/><Label htmlFor="type-area">Área/Zona</Label></div>
+              </RadioGroup>
+            </div>
+            <div className="space-y-1"><Label htmlFor="custom-el-name">Nombre</Label><Input id="custom-el-name" value={customElement.name} onChange={e => setCustomElement(p => ({...p, name: e.target.value}))}/></div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1"><Label htmlFor="custom-el-width">Ancho (m)</Label><Input id="custom-el-width" type="number" value={customElement.width} onChange={e => setCustomElement(p => ({...p, width: Number(e.target.value)}))}/></div>
+              <div className="space-y-1"><Label htmlFor="custom-el-height">Alto (m)</Label><Input id="custom-el-height" type="number" value={customElement.height} onChange={e => setCustomElement(p => ({...p, height: Number(e.target.value)}))}/></div>
+            </div>
+            <div className="space-y-1"><Label>Forma</Label><RadioGroup defaultValue="rectangle" value={customElement.shape} onValueChange={(v) => setCustomElement(p=>({...p, shape:v as any}))} className="flex gap-4"><div className="flex items-center space-x-2"><RadioGroupItem value="rectangle" id="shape-rect"/><Label htmlFor="shape-rect">Rectángulo</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="circle" id="shape-circ"/><Label htmlFor="shape-circ">Círculo</Label></div></RadioGroup></div>
+          </div>
+          <DialogFooter>
+            <DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose>
+            <Button onClick={handleAddCustomElement}>Añadir</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={isLoadTemplateModalOpen} onOpenChange={setIsLoadTemplateModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Cargar Plantilla de Salón</DialogTitle>
+          </DialogHeader>
+          {isTemplateActionLoading ? <div className="p-4 text-center"><Loader2 className="w-6 h-6 animate-spin"/></div> : templates.length === 0 ? <p className="text-muted-foreground p-4 text-center">No hay plantillas guardadas.</p> : <ScrollArea className="max-h-64"><div className="space-y-2 pr-4">{templates.map(t => <div key={t.name} className="flex items-center justify-between p-2 rounded-md border"><span className="font-medium text-sm">{t.name}</span><div className="flex gap-1"><Button size="sm" onClick={() => { setDecoracion(t.layoutData); setIsLoadTemplateModalOpen(false); toast({title:'Plantilla cargada'}); }}>Cargar</Button><Button size="icon" variant="destructive" className="h-8 w-8" onClick={() => handleDeleteTemplate(t.id)} disabled={!!processingPointName}>{processingPointName === t.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}</Button></div></div>)}</div></ScrollArea>}
+        </DialogContent>
+      </Dialog>
+      <Dialog open={isSaveTemplateModalOpen} onOpenChange={setIsSaveTemplateModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Guardar Diseño como Plantilla</DialogTitle>
+          </DialogHeader>
+          <div className="py-2"><Label>Nombre:</Label><Input value={templateName} onChange={e => setTemplateName(e.target.value)}/></div>
+          <DialogFooter><Button variant="outline" onClick={()=>setIsSaveTemplateModalOpen(false)}>Cancelar</Button><Button onClick={handleSaveAsTemplate} disabled={isTemplateActionLoading}>Guardar</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+       
+       <div className="flex justify-between items-center">
          <h1 className="text-2xl font-bold tracking-tight font-headline flex items-center gap-2">
             <LayoutDashboard className="w-6 h-6 text-primary"/>
             Asignación de Mesas
@@ -417,7 +506,7 @@ function AsignacionMesasContent() {
                              <TableRow key={guest.id} className="bg-green-50/50">
                                 <TableCell className="font-medium">{guest.nombre}</TableCell>
                                 <TableCell>{guest.partySize}</TableCell>
-                                <TableCell><Select value={guest.tableNumber || ''} onValueChange={(val) => handleAssignGuestToTable(guest.id, val)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{(decoracion.salonElements || []).filter(el => el.category?.includes("Mesa")).map(t => <SelectItem key={t.id} value={t.name}>{t.name}</SelectItem>)}<Separator/><SelectItem value="" className="text-destructive">Quitar de mesa</SelectItem></SelectContent></Select></TableCell>
+                                <TableCell><Select value={guest.tableNumber || ''} onValueChange={(val) => val === '' ? handleUnassignGuest(guest.id) : handleAssignGuestToTable(guest.id, val)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{(decoracion.salonElements || []).filter(el => el.category?.includes("Mesa")).map(t => <SelectItem key={t.id} value={t.name}>{t.name}</SelectItem>)}<Separator/><SelectItem value="" className="text-destructive">Quitar de mesa</SelectItem></SelectContent></Select></TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
@@ -487,5 +576,3 @@ export default function SalonLayoutPage() {
         </DndProvider>
     );
 }
-
-    
