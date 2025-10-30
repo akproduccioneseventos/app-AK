@@ -254,10 +254,8 @@ function CartaTragosContent() {
         </div>
         
         <div className="flex justify-center items-center py-4 print:py-0">
-          <div className="w-[15cm] h-[10cm] bg-white shadow-lg print:shadow-none print:m-0 print:mx-auto" style={{ transform: 'rotate(-90deg)', transformOrigin: 'center' }}>
-              <div className="w-[10cm] h-[15cm] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                <CartaTragosMenu fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} openEditModal={openEditModal} />
-              </div>
+          <div className="w-[15cm] h-[10cm] bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto">
+              <CartaTragosMenu fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} openEditModal={openEditModal} />
           </div>
         </div>
 
@@ -268,10 +266,6 @@ function CartaTragosContent() {
             @page { 
                 size: 15cm 10cm;
                 margin: 0; 
-            }
-            .page-container {
-                width: 15cm;
-                height: 10cm;
             }
         }
        `}</style>
