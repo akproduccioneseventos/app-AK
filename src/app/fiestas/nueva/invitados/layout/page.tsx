@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense, use } from 'react';
@@ -7,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Disc, Clapperboard, Sofa, Camera as CameraIcon, Search, Printer, Settings2, FolderDown, FolderUp, Maximize, ZoomIn, ZoomOut, Upload, Map, ChevronsUp, ChevronsDown, X } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Disc, Clapperboard, Sofa, Camera as CameraIcon, Search, Printer, Settings2, FolderDown, FolderUp, Maximize, ZoomIn, ZoomOut, Upload, Map, ChevronsUp, ChevronsDown, X, Armchair } from 'lucide-react';
 import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData, LayoutElementType } from '@/types/fiesta';
@@ -96,6 +97,51 @@ const ElementIcon: React.FC<{ category?: string, type?: LayoutElementType }> = (
         case 'Área de Fotos': return <CameraIcon className="w-4 h-4 text-muted-foreground"/>;
         default: return <LayoutDashboard className="w-4 h-4 text-muted-foreground"/>;
     }
+};
+
+const Seat: React.FC<{ angle?: number; distance?: number; isOccupied: boolean; isRound: boolean; width: number; height: number; index: number; total: number; }> = ({ angle, distance, isOccupied, isRound, width, height, index, total }) => {
+    let style: React.CSSProperties = {};
+    if (isRound) {
+        const calculatedAngle = angle ?? (index * (360 / total));
+        const calculatedDistance = distance ?? (Math.min(width, height) / 2 + 15);
+         style = {
+            transform: `rotate(${calculatedAngle}deg) translate(${calculatedDistance}px) rotate(-${calculatedAngle}deg)`,
+        };
+    } else {
+        const perimeter = 2 * (width + height);
+        const seatSpacing = perimeter / total;
+        let currentPosition = index * seatSpacing;
+        let x=0, y=0;
+
+        if (currentPosition < width) { // Top edge
+            x = currentPosition;
+            y = -10;
+        } else if (currentPosition < width + height) { // Right edge
+            x = width + 10;
+            y = currentPosition - width;
+        } else if (currentPosition < 2 * width + height) { // Bottom edge
+            x = width - (currentPosition - (width + height));
+            y = height + 10;
+        } else { // Left edge
+            x = -10;
+            y = height - (currentPosition - (2 * width + height));
+        }
+        
+        style = {
+            left: `${x}px`,
+            top: `${y}px`,
+            transform: 'translate(-50%, -50%)',
+        };
+    }
+
+    return (
+        <div className={cn(
+            "absolute w-4 h-4 rounded-full border-2",
+            isOccupied ? "bg-primary border-primary-foreground" : "border-primary",
+             !isRound && "absolute"
+        )} style={style}>
+        </div>
+    );
 };
 
 
@@ -474,81 +520,97 @@ function SalonLayoutContent() {
         </DialogContent>
       </Dialog>
        
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 h-[calc(100vh-250px)]">
-        {/* Left Panel */}
-        <Card className="xl:col-span-3 flex flex-col"><CardHeader><CardTitle>Controles</CardTitle></CardHeader>
-          <CardContent className="flex-grow space-y-4 overflow-y-auto pr-4 -mr-4">
-             <div className="grid grid-cols-2 gap-3"><div className="space-y-1"><Label>Ancho Salón (m)</Label><Input type="number" value={decoracion.salonWidth || 15} onChange={e => setDecoracion(d => d ? {...d, salonWidth: Number(e.target.value)} : null)} /></div><div className="space-y-1"><Label>Alto Salón (m)</Label><Input type="number" value={decoracion.salonHeight || 15} onChange={e => setDecoracion(d => d ? {...d, salonHeight: Number(e.target.value)} : null)} /></div></div>
-             <div className="space-y-1"><Label>Píxeles por Metro</Label><Input type="number" value={decoracion.pixelsPerMeter || PIXELS_PER_METER_DEFAULT} onChange={e => setDecoracion(d => d ? {...d, pixelsPerMeter: Number(e.target.value)} : null)} /></div>
-             <div className="space-y-2">
-                <Label htmlFor="layout-mode">Modo de Asignación</Label>
-                <Select value={decoracion.layoutMode || 'mixto'} onValueChange={v => setDecoracion(d => d ? {...d, layoutMode: v as any} : null)}>
-                    <SelectTrigger><SelectValue/></SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="libre">Libre (Sin asignación)</SelectItem>
-                        <SelectItem value="mixto">Mixto (Algunos asignados, otros libres)</SelectItem>
-                        <SelectItem value="numerado">Numerado (Todos asignados)</SelectItem>
-                    </SelectContent>
-                </Select>
-             </div>
-             <Separator/>
-               <h4 className="font-medium text-sm">Añadir Elementos</h4>
-               <div className="grid grid-cols-2 gap-2"><Button variant="outline" onClick={() => addElement('Mesa Redonda')}><Circle className="w-4 h-4 mr-2"/>Mesa Redonda</Button><Button variant="outline" onClick={() => addElement('Mesa Rectangular')}><Square className="w-4 h-4 mr-2"/>Mesa Rectangular</Button><Button variant="outline" onClick={() => addElement('Pista de Baile')}><Disc className="w-4 h-4 mr-2"/>Pista</Button><Button variant="outline" onClick={() => addElement('Escenario')}><Clapperboard className="w-4 h-4 mr-2"/>Escenario</Button><Button variant="outline" onClick={() => addElement('Living')}><Sofa className="w-4 h-4 mr-2"/>Living</Button><Button variant="outline" onClick={() => addElement('Área de Fotos')}><CameraIcon className="w-4 h-4 mr-2"/>Área Fotos</Button></div>
-               <Button variant="outline" className="w-full" onClick={() => { setCustomElement({ name: '', width: 3, height: 2, type: 'area', shape: 'rectangle' }); setIsCustomElementModalOpen(true); }}><Map className="w-4 h-4 mr-2"/>Crear Área/Zona</Button>
-               <Button variant="outline" className="w-full" onClick={() => { setCustomElement({ name: '', width: 2, height: 1, type: 'element', shape: 'rectangle' }); setIsCustomElementModalOpen(true); }}><PlusCircle className="w-4 h-4 mr-2"/>Elemento Personalizado</Button>
-               <Separator/>
-                <div className="space-y-2"><Label htmlFor="bg-image-upload" className="font-medium text-sm">Plano de Fondo</Label><div className="flex gap-2 items-center"><Input id="bg-image-upload" type="file" accept="image/*" onChange={handleBackgroundImageUpload} className="text-xs file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"/><Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => { if (decoracion) setDecoracion({ ...decoracion, salonPlanBackgroundImageUrl: undefined }); }}><Trash2 className="w-4 h-4"/></Button>{isUploading && <Loader2 className="w-4 h-4 animate-spin"/>}</div></div>
-                <Separator/>
-                 <h4 className="font-medium text-sm">Elementos en el Plano</h4>
-                 <ScrollArea className="h-32 border rounded-md p-1"><ul className="space-y-1">{(decoracion.salonElements || []).map(el => <li key={el.id} className="flex items-center text-xs p-1 rounded hover:bg-muted/50"><ElementIcon category={el.category} type={el.type}/><span className="ml-2 flex-grow truncate">{el.name}</span><Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleOpenEditModal(el)}><Edit className="w-3 h-3"/></Button><Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => handleDeleteElement(el.id)}><Trash2 className="w-3 h-3"/></Button></li>)}</ul></ScrollArea>
-          </CardContent>
-          <CardFooter className="flex-col gap-2 pt-4 border-t">
-              <Button onClick={handleSaveAll} disabled={isSaving} className="w-full"><Save className="w-4 h-4 mr-2"/>Guardar Plano</Button>
-               <div className="flex w-full gap-2"><Button variant="secondary" className="flex-1" onClick={() => setIsSaveTemplateModalOpen(true)}><FolderUp className="w-4 h-4 mr-2"/>Guardar Plantilla</Button><Button variant="secondary" className="flex-1" onClick={handleLoadTemplate} disabled={isTemplateActionLoading}><FolderDown className="w-4 h-4 mr-2"/>Cargar Plantilla</Button></div>
-          </CardFooter>
-        </Card>
-        {/* Center Panel (Canvas) */}
-        <div className={cn("xl:col-span-9 bg-card flex flex-col", isFullScreen ? 'fixed inset-0 z-40 p-4' : '')}>
-          <Card className="h-full flex flex-col flex-grow">
-            <CardHeader className="flex-row justify-between items-center"><CardTitle>Lienzo del Salón</CardTitle><div className="flex items-center gap-1"><Button size="icon" variant="outline" onClick={() => setScale(s => s / 1.2)}><ZoomOut className="w-4 h-4"/></Button><Button size="icon" variant="outline" onClick={() => setScale(s => s * 1.2)}><ZoomIn className="w-4 h-4"/></Button><Button size="icon" variant="outline" onClick={() => setIsFullScreen(!isFullScreen)}><Maximize className="w-4 h-4"/></Button></div></CardHeader>
-            <CardContent className="flex-grow p-1 overflow-auto">
-              <div ref={canvasRef} className="relative canvas-grid-background" style={{ width: `${(decoracion.salonWidth || 15) * pixelsPerMeter}px`, height: `${(decoracion.salonHeight || 15) * pixelsPerMeter}px`, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
-                  {decoracion.salonPlanBackgroundImageUrl && (<NextImage src={decoracion.salonPlanBackgroundImageUrl} alt="Plano del Salón" layout="fill" objectFit="contain" className="opacity-50"/>)}
-                  {(decoracion.salonElements || []).sort((a,b) => (a.zIndex || 0) - (b.zIndex || 0)).map(el => {
-                    const nodeRef = React.createRef<HTMLDivElement>();
-                    const isRound = el.shape === 'circle';
-                    const assignedGuests = (fiesta?.invitados || []).filter(inv => inv.tableNumber === el.name);
-                    const isArea = el.type === 'area';
-                    return (
-                    <Draggable key={el.id} nodeRef={nodeRef} bounds="parent" grid={[grid, grid]} position={{ x: el.x, y: el.y }} onStop={(e, data) => handleDragStop(e, data, el.id)}>
-                        <TableDropZone element={el} onDrop={(guestId, tableName) => handleAssignGuestToTable(guestId, tableName)}>
-                        <div ref={nodeRef} id={el.id} className="absolute cursor-grab active:cursor-grabbing" style={{ left: el.x, top: el.y, width: el.width, height: el.height, transform: `rotate(${el.rotation}deg)`, zIndex: el.zIndex || (isArea ? 0 : 1) }}>
-                           <div className={cn('w-full h-full border flex flex-col p-1', selectedElementId === el.id ? 'border-primary shadow-lg z-10' : 'border-gray-500', isRound ? 'rounded-full justify-center' : 'rounded-sm')}
-                                style={{ backgroundColor: el.backgroundColor || (isArea ? 'rgba(59, 130, 246, 0.2)' : 'rgba(255, 255, 255, 0.7)') }}
-                                onClick={(e) => { e.stopPropagation(); setSelectedElementId(el.id); }}>
-                                <p className={cn("text-xs font-bold text-center truncate", isArea ? 'text-blue-800' : 'text-base')}>{el.name}</p>
-                                <div className="text-[9px] space-y-0.5 overflow-y-auto flex-grow">
-                                    {assignedGuests.map(g => (
-                                        <div key={g.id} className="flex items-center gap-1 group relative">
-                                            <span className="truncate">{g.nombre}</span>
-                                            <button onClick={() => handleUnassignGuest(g.id)} className="hidden group-hover:block text-destructive">
-                                                <X className="w-3 h-3"/>
-                                            </button>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                            {selectedElementId === el.id && (<div className="absolute -top-7 -right-2 flex gap-0.5 z-20" style={{transform: `rotate(-${el.rotation || 0}deg)`}}><Button type="button" variant="ghost" size="icon" className="h-6 w-6 bg-white" onClick={() => handleOpenEditModal(el)}><Edit className="w-3 h-3"/></Button><Button type="button" variant="ghost" size="icon" className="h-6 w-6 bg-white" onClick={() => handleElementRotation(el.id)}><RotateCw className="w-3 h-3"/></Button><Button type="button" variant="ghost" size="icon" className="h-6 w-6 text-destructive bg-white" onClick={() => handleDeleteElement(el.id)}><Trash2 className="w-3 h-3"/></Button></div>)}
-                        </div>
-                        </TableDropZone>
-                    </Draggable>
-                    )
-                  })}
-                </div>
-            </CardContent>
-          </Card>
-        </div>
+       <div className="flex justify-between items-center">
+         <h1 className="text-2xl font-bold tracking-tight font-headline flex items-center gap-2">
+            <LayoutDashboard className="w-6 h-6 text-primary"/>
+            Diseño del Salón y Asignación de Mesas
+        </h1>
+        <Link href={`/fiestas/nueva/decoracion/pdf?fiestaId=${fiestaId}&layout=true`} passHref><Button variant="secondary"><Printer className="w-4 h-4 mr-2"/>Imprimir Plano</Button></Link>
       </div>
+
+       <Tabs defaultValue="visual">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="list">Asignación por Lista</TabsTrigger>
+          <TabsTrigger value="visual">Diseño Visual del Salón</TabsTrigger>
+        </TabsList>
+        <TabsContent value="list">
+             <Card>
+                 <CardHeader><CardTitle>Lista de Invitados Confirmados</CardTitle><div className="relative pt-2"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input placeholder="Buscar invitado..." value={guestSearchTerm} onChange={(e) => setGuestSearchTerm(e.target.value)} className="w-full max-w-sm pl-10"/></div></CardHeader>
+                <CardContent><Table>
+                    <TableHeader><TableRow><TableHead>Invitado</TableHead><TableHead>Personas</TableHead><TableHead>Mesa Asignada</TableHead></TableRow></TableHeader>
+                    <TableBody>
+                        {filteredGuests.sinMesa.map(guest => (
+                             <TableRow key={guest.id}>
+                                <TableCell className="font-medium">{guest.nombre}</TableCell>
+                                <TableCell>{guest.partySize}</TableCell>
+                                <TableCell><Select value={guest.tableNumber || ''} onValueChange={(val) => handleAssignGuestToTable(guest.id, val)}><SelectTrigger><SelectValue placeholder="Asignar mesa..." /></SelectTrigger><SelectContent>{(decoracion.salonElements || []).filter(el => el.category?.includes("Mesa")).map(t => <SelectItem key={t.id} value={t.name}>{t.name}</SelectItem>)}</SelectContent></Select></TableCell>
+                            </TableRow>
+                        ))}
+                        {filteredGuests.conMesa.map(guest => (
+                             <TableRow key={guest.id} className="bg-green-50/50">
+                                <TableCell className="font-medium">{guest.nombre}</TableCell>
+                                <TableCell>{guest.partySize}</TableCell>
+                                <TableCell><Select value={guest.tableNumber || 'sin-mesa'} onValueChange={(val) => val === 'sin-mesa' ? handleUnassignGuest(guest.id) : handleAssignGuestToTable(guest.id, val)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{(decoracion.salonElements || []).filter(el => el.category?.includes("Mesa")).map(t => <SelectItem key={t.id} value={t.name}>{t.name}</SelectItem>)}<Separator/><SelectItem value="sin-mesa" className="text-destructive">Quitar de mesa</SelectItem></SelectContent></Select></TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                 </Table></CardContent>
+            </Card>
+        </TabsContent>
+        <TabsContent value="visual">
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 h-[calc(100vh-450px)]">
+            <Card className="xl:col-span-3 flex flex-col">
+                <CardHeader><CardTitle>Invitados sin Mesa</CardTitle><div className="relative pt-2"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input placeholder="Buscar..." value={guestSearchTerm} onChange={(e) => setGuestSearchTerm(e.target.value)} className="w-full pl-10"/></div></CardHeader>
+                <CardContent className="flex-grow min-h-0"><ScrollArea className="h-full"><div className="space-y-2 pr-4">{filteredGuests.sinMesa.map(guest => <GuestCard key={guest.id} guest={guest} />)}</div></ScrollArea></CardContent>
+            </Card>
+            <div className={cn("xl:col-span-9 bg-card flex flex-col", isFullScreen ? 'fixed inset-0 z-40 p-4' : '')}>
+                <Card className="h-full flex flex-col flex-grow">
+                    <CardHeader className="flex-row justify-between items-center"><CardTitle>Lienzo del Salón</CardTitle><div className="flex items-center gap-1"><Button size="icon" variant="outline" onClick={() => setScale(s => s / 1.2)}><ZoomOut className="w-4 h-4"/></Button><Button size="icon" variant="outline" onClick={() => setScale(s => s * 1.2)}><ZoomIn className="w-4 h-4"/></Button><Button size="icon" variant="outline" onClick={() => setIsFullScreen(!isFullScreen)}><Maximize className="w-4 h-4"/></Button></div></CardHeader>
+                    <CardContent className="flex-grow p-1 overflow-auto">
+                    <div ref={canvasRef} className="relative canvas-grid-background" style={{ width: `${(decoracion.salonWidth || 15) * pixelsPerMeter}px`, height: `${(decoracion.salonHeight || 15) * pixelsPerMeter}px`, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
+                        {decoracion.salonPlanBackgroundImageUrl && (<NextImage src={decoracion.salonPlanBackgroundImageUrl} alt="Plano del Salón" layout="fill" objectFit="contain" className="opacity-50"/>)}
+                        {(decoracion.salonElements || []).sort((a,b) => (a.zIndex || 0) - (b.zIndex || 0)).map(el => {
+                            const nodeRef = React.createRef<HTMLDivElement>();
+                            const isRound = el.shape === 'circle';
+                            const assignedGuests = (fiesta?.invitados || []).filter(inv => inv.tableNumber === el.name);
+                            const assignedSeatsCount = assignedGuests.reduce((sum, g) => sum + (g.partySize || 1), 0);
+                            const isArea = el.type === 'area';
+                            return (
+                            <Draggable key={el.id} nodeRef={nodeRef} bounds="parent" grid={[grid, grid]} position={{ x: el.x, y: el.y }} onStop={(e, data) => handleDragStop(e, data, el.id)}>
+                                <TableDropZone element={el} onDrop={(guestId, tableName) => handleAssignGuestToTable(guestId, tableName)}>
+                                <div ref={nodeRef} id={el.id} className="absolute cursor-grab active:cursor-grabbing" style={{ left: el.x, top: el.y, width: el.width, height: el.height, transform: `rotate(${el.rotation}deg)`, zIndex: el.zIndex || (isArea ? 0 : 1) }}>
+                                     {el.seats && Array.from({ length: el.seats }).map((_, i) => (
+                                        <Seat key={i} index={i} total={el.seats!} isOccupied={i < assignedSeatsCount} isRound={isRound} width={el.width} height={el.height} />
+                                      ))}
+                                    <div className={cn('w-full h-full border flex flex-col p-1', selectedElementId === el.id ? 'border-primary shadow-lg z-10' : 'border-gray-500', isRound ? 'rounded-full justify-center' : 'rounded-sm')}
+                                        style={{ backgroundColor: el.backgroundColor || (isArea ? 'rgba(59, 130, 246, 0.2)' : 'rgba(255, 255, 255, 0.7)') }}
+                                        onClick={(e) => { e.stopPropagation(); setSelectedElementId(el.id); }}>
+                                        <p className={cn("text-xs font-bold text-center truncate", isArea ? 'text-blue-800' : 'text-base')}>{el.name}</p>
+                                        <p className="text-[10px] text-center text-muted-foreground">{assignedSeatsCount}/{el.seats || 'N/A'}</p>
+                                        <div className="text-[9px] space-y-0.5 overflow-y-auto flex-grow mt-1 text-center">
+                                            {assignedGuests.map(g => (
+                                                <div key={g.id} className="flex items-center justify-center gap-1 group relative">
+                                                    <span className="truncate">{g.nombre} ({g.partySize})</span>
+                                                    <button onClick={() => handleUnassignGuest(g.id)} className="hidden group-hover:block text-destructive">
+                                                        <X className="w-3 h-3"/>
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    {selectedElementId === el.id && (<div className="absolute -top-7 -right-2 flex gap-0.5 z-20" style={{transform: `rotate(-${el.rotation || 0}deg)`}}><Button type="button" variant="ghost" size="icon" className="h-6 w-6 bg-white" onClick={() => handleOpenEditModal(el)}><Edit className="w-3 h-3"/></Button><Button type="button" variant="ghost" size="icon" className="h-6 w-6 bg-white" onClick={() => handleElementRotation(el.id)}><RotateCw className="w-3 h-3"/></Button><Button type="button" variant="ghost" size="icon" className="h-6 w-6 text-destructive bg-white" onClick={() => handleDeleteElement(el.id)}><Trash2 className="w-3 h-3"/></Button></div>)}
+                                </div>
+                                </TableDropZone>
+                            </Draggable>
+                            )
+                        })}
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
@@ -563,3 +625,4 @@ export default function SalonLayoutPage() {
         </DndProvider>
     );
 }
+
