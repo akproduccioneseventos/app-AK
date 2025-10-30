@@ -5,7 +5,7 @@ import React, { useState, useEffect, useCallback, Suspense, type ChangeEvent } f
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer as PrinterIcon, Save, Loader2, Edit } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, Save, Loader2, Edit, Upload, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, CartaTragosData, Trago } from '@/types/fiesta';
 import { getFiestaById, updateCartaTragos as updateCartaTragosAction } from '@/app/actions/fiesta/fiesta.actions';
@@ -14,7 +14,7 @@ import { Label } from '@/components/ui/label';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import { defaultCartaTragosData } from '@/lib/fiesta-defaults';
 import { Separator } from '@/components/ui/separator';
-import { MenuComponent } from '@/components/invitacion/templates/CartaTragosMenu';
+import { CartaTragosMenu } from '@/components/invitacion/templates/CartaTragosMenu';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import NextImage from 'next/image';
 
@@ -241,11 +241,14 @@ function CartaTragosContent() {
             <h1 className="font-headline text-lg">Editor de Carta de Tragos</h1>
             <div className="flex flex-wrap gap-2 items-center">
                 <div className="space-y-1"><Label htmlFor="protagonista-foto" className="text-xs">Foto Protagonista</Label><Input id="protagonista-foto" type="file" accept="image/*" onChange={handleProtagonistPhotoUpload} className="text-xs w-44" disabled={isUploading}/></div>
+                <div className="space-y-1"><Label htmlFor="titulo-numero" className="text-xs">Título/Número</Label><Input id="titulo-numero" value={cartaTragos.numeroPrincipal || ''} onChange={(e) => handleUpdate('numeroPrincipal', e.target.value)} className="h-9 w-24"/></div>
+                <div className="space-y-1"><Label htmlFor="protagonista-nombre" className="text-xs">Nombre Protagonista</Label><Input id="protagonista-nombre" value={cartaTragos.protagonistaNombre || ''} onChange={(e) => handleUpdate('protagonistaNombre', e.target.value)} className="h-9 w-32"/></div>
                 <div className="space-y-1"><Label htmlFor="bg-image-upload" className="text-xs">Fondo</Label><Input id="bg-image-upload" type="file" accept="image/*" onChange={handleBackgroundImageUpload} className="text-xs w-44" disabled={isUploading}/></div>
-                <div className="space-y-1"><Label className="text-xs">Fondo Principal</Label><Input type="color" value={cartaTragos.backgroundColor || '#D9B8FF'} onChange={e => handleUpdate('backgroundColor', e.target.value)} className="w-9 h-8 p-0.5"/></div>
-                <div className="space-y-1"><Label className="text-xs">Color Ondas</Label><Input type="color" value={cartaTragos.paletaColores?.primary || '#9333ea'} onChange={e => handleColorChange('primary', e.target.value)} className="w-9 h-8 p-0.5"/></div>
-                <div className="space-y-1"><Label className="text-xs">Color Texto</Label><Input type="color" value={cartaTragos.paletaColores?.secondary || '#363636'} onChange={e => handleColorChange('secondary', e.target.value)} className="w-9 h-8 p-0.5"/></div>
-                <Separator orientation="vertical" className="h-10 mx-1"/>
+                <div className="space-y-1"><Label className="text-xs">Color Principal</Label><Input type="color" value={cartaTragos.paletaColores?.primary || '#9333ea'} onChange={e => handleColorChange('primary', e.target.value)} className="w-9 h-8 p-0.5"/></div>
+                <div className="space-y-1"><Label className="text-xs">Color Secundario</Label><Input type="color" value={cartaTragos.paletaColores?.secondary || '#363636'} onChange={e => handleColorChange('secondary', e.target.value)} className="w-9 h-8 p-0.5"/></div>
+                <div className="space-y-1"><Label className="text-xs">Fondo Tarjetas</Label><Input type="color" value={cartaTragos.backgroundColor || '#e9d5ff'} onChange={e => handleUpdate('backgroundColor', e.target.value)} className="w-9 h-8 p-0.5"/></div>
+
+               <Separator orientation="vertical" className="h-10 mx-1"/>
                <div className="flex items-end gap-2">
                  <Button size="sm" onClick={handleSave} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}</Button>
                  <Button onClick={handlePrint} size="sm" variant="outline"><PrinterIcon className="w-4 h-4"/></Button>
@@ -254,20 +257,20 @@ function CartaTragosContent() {
             </div>
         </div>
         
-        <div className="w-[21cm] h-[29.7cm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto p-4 grid grid-cols-2 gap-4">
-           <div className="w-full h-full relative" style={{width: '10cm', height: '15cm'}}>
-              <MenuComponent fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} openEditModal={openEditModal} />
-           </div>
-            <div className="w-full h-full relative" style={{width: '10cm', height: '15cm'}}>
-              <MenuComponent fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} openEditModal={openEditModal} />
-           </div>
+        <div className="w-[21cm] h-[29.7cm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto p-4 flex flex-col items-center justify-center">
+            <div className="w-[10cm] h-[15cm] relative">
+              <CartaTragosMenu fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} openEditModal={openEditModal} />
+            </div>
+             <div className="w-[10cm] h-[15cm] relative mt-4">
+              <CartaTragosMenu fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} openEditModal={openEditModal} />
+            </div>
         </div>
 
        <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Belleza&family=Dancing+Script:wght@700&display=swap');
          @media print {
             body { -webkit-print-color-adjust: exact; color-adjust: exact; }
-            @page { size: A4 landscape; margin: 0; }
+            @page { size: A4 portrait; margin: 0; }
         }
        `}</style>
     </div>

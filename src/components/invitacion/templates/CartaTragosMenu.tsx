@@ -1,133 +1,116 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import NextImage from 'next/image';
 import type { FiestaEnPlanificacion, CartaTragosData, Trago } from '@/types/fiesta';
-import { cn } from '@/lib/utils';
 import { EditableText } from '../edit/EditableText';
+import { cn } from '@/lib/utils';
+import { Phone } from 'lucide-react';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
-import { Edit } from 'lucide-react';
 
-interface MenuComponentProps {
-    fiesta?: FiestaEnPlanificacion;
+interface CartaTragosMenuProps {
+    fiesta: FiestaEnPlanificacion;
     carta: CartaTragosData;
     onUpdate?: (newData: Partial<CartaTragosData>) => void;
     isPreview?: boolean;
     openEditModal?: (item: Trago) => void;
 }
 
-export const MenuComponent: React.FC<MenuComponentProps> = ({ fiesta, carta, onUpdate, isPreview, openEditModal }) => {
-  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+export const CartaTragosMenu: React.FC<CartaTragosMenuProps> = ({ fiesta, carta, onUpdate, isPreview, openEditModal }) => {
+    const [logoUrl, setLogoUrl] = React.useState<string | null>(null);
 
-  useEffect(() => {
-    getInvoiceTemplateSettings().then(settings => setLogoUrl(settings.logoUrl));
-  }, []);
-  
-  const textNameStyle: React.CSSProperties = {
-    fontFamily: "'Belleza', serif",
-    color: carta.paletaColores?.primary || '#FFFFFF',
-    textShadow: '1px 1px 2px rgba(0,0,0,0.5)',
-    fontWeight: 'bold',
-  };
-  
-  const textTitleStyle: React.CSSProperties = {
-    fontFamily: "'Belleza', serif",
-    color: carta.paletaColores?.primary || '#FFFFFF',
-    textShadow: '1px 1px 2px rgba(0,0,0,0.5)',
-    fontWeight: 'bold',
-    letterSpacing: '0.05em'
-  };
-
-  const drinkNameStyle: React.CSSProperties = {
-    fontFamily: 'var(--font-inter)',
-    fontWeight: '900',
-    color: '#000000',
-    textTransform: 'uppercase',
-    fontSize: '0.5rem',
-    textAlign: 'center',
-    lineHeight: '1.1',
-    letterSpacing: '0.05em'
-  };
-
-  const handleUpdate = (field: keyof CartaTragosData, value: string) => {
-    if (onUpdate && isPreview) {
-        onUpdate({ [field]: value });
+    React.useEffect(() => {
+        async function fetchLogo() {
+            try {
+                const settings = await getInvoiceTemplateSettings();
+                setLogoUrl(settings.logoUrl);
+            } catch (error) {
+                console.error("Failed to fetch company logo", error);
+            }
+        }
+        fetchLogo();
+    }, []);
+    
+    const paleta = carta.paletaColores;
+    
+    const handleUpdate = (field: keyof Omit<CartaTragosData, 'paletaColores' | 'protagonistaFotoUrl'>, value: string) => {
+        if (onUpdate && isPreview) {
+            onUpdate({ [field]: value });
+        }
+    };
+    
+    const handleEmpresaUpdate = (field: keyof NonNullable<CartaTragosData['empresa']>, value: string) => {
+         if (onUpdate && isPreview) {
+            onUpdate({ empresa: { ...carta.empresa, [field]: value } });
+        }
     }
-  };
-  
-  const handleUpdateEmpresa = (field: 'empresaNombre' | 'empresaContacto', value: string) => {
-      if (onUpdate && isPreview) {
-          onUpdate({ [field]: value });
-      }
-  }
-
-
-  return (
-    <div 
-        className={cn("w-full h-full p-4 relative overflow-hidden flex flex-col items-center")} 
-        style={{ background: carta.backgroundColor || 'linear-gradient(to bottom right, #e9d5ff, #d8b4fe)' }}
-    >
-       <div className="absolute top-0 left-0 right-0 h-[120px] z-0">
-          <svg viewBox="0 0 100 20" preserveAspectRatio="none" className="w-full h-full">
-            <path d="M0,10 C20,25 40,0 50,10 S80,-5 100,10 V0 H0 Z" fill={carta.paletaColores?.primary || '#9333ea'} fillOpacity="0.9"/>
-          </svg>
-       </div>
-
-        <header className="w-full flex-shrink-0 flex items-start justify-between relative z-10 px-4 pt-4">
-            <div className="relative w-28 h-28 rounded-full overflow-hidden border-4 border-white shadow-lg -mt-2">
-                {carta.protagonistaFotoUrl ? (
-                    <NextImage src={carta.protagonistaFotoUrl} alt="Protagonista" layout="fill" objectFit="cover" data-ai-hint="protagonist photo"/>
-                ) : <div className="w-full h-full bg-gray-200"></div>}
+    
+    return (
+        <div
+            className={cn("w-full h-full p-4 relative overflow-hidden flex flex-col items-center border-4")}
+            style={{ backgroundColor: carta.backgroundColor, borderColor: paleta?.primary }}
+        >
+            <div className="absolute top-0 left-0 w-full h-20" style={{ backgroundColor: paleta?.primary }}>
+                <svg viewBox="0 0 100 10" preserveAspectRatio="none" className="absolute bottom-0 left-0 w-full h-auto" style={{ transform: 'translateY(100%)' }}>
+                    <path d="M0 0 Q 50 10, 100 0 L 100 10 L 0 10 Z" fill={paleta?.primary}></path>
+                </svg>
             </div>
-             <div className="text-center flex-grow -ml-8 mt-2">
-                 <h2 className="text-3xl" style={textTitleStyle}>
-                    {isPreview ? <EditableText initialValue={carta.titulo || 'CARTA DE TRAGOS'} onSave={(v) => handleUpdate('titulo', v)} /> : (carta.titulo || 'CARTA DE TRAGOS')}
+
+            <header className="w-full text-center mt-6 relative z-10">
+                <div className="relative w-28 h-28 mx-auto rounded-full overflow-hidden border-4" style={{borderColor: paleta?.primary}}>
+                    {carta.protagonistaFotoUrl ? (
+                         <NextImage src={carta.protagonistaFotoUrl} alt="Protagonista" layout="fill" objectFit="cover" data-ai-hint="quinceanera portrait"/>
+                    ) : <div className="w-full h-full bg-gray-200"></div>}
+                </div>
+                <h2 className="font-['Belleza',_serif] text-5xl mt-2" style={{color: paleta?.primary, textShadow: '1px 1px 3px rgba(0,0,0,0.2)'}}>
+                     {isPreview ? <EditableText initialValue={carta.numeroPrincipal || "Mis XV"} onSave={val => handleUpdate('numeroPrincipal', val)} textarea={false}/> : (carta.numeroPrincipal || "Mis XV")}
                 </h2>
-                <h1 className="text-5xl mt-1" style={textNameStyle}>
-                    {isPreview ? <EditableText initialValue={carta.protagonistaNombre || 'Luciana'} onSave={(v) => handleUpdate('protagonistaNombre', v)} /> : carta.protagonistaNombre}
+                <h1 className="font-['Dancing_Script',_cursive] text-4xl" style={{color: paleta?.secondary}}>
+                     {isPreview ? <EditableText initialValue={carta.protagonistaNombre || "Luciana"} onSave={val => handleUpdate('protagonistaNombre', val)} textarea={false}/> : (carta.protagonistaNombre || "Luciana")}
                 </h1>
-                <h3 className="text-4xl mt-0" style={textNameStyle}>
-                    {isPreview ? <EditableText initialValue={carta.numeroPrincipal || 'Mis XV'} onSave={(v) => handleUpdate('numeroPrincipal', v)} /> : carta.numeroPrincipal}
-                </h3>
-            </div>
-        </header>
+            </header>
 
-        <main className="relative z-10 flex-grow grid grid-cols-5 gap-x-1 gap-y-2 px-2 mt-4 w-full">
-            {carta.items.map((trago) => (
-                <div key={trago.id} className="text-center flex flex-col group relative cursor-pointer" onClick={() => openEditModal?.(trago)}>
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity z-20 rounded-lg">
-                        <Edit className="w-6 h-6 text-white"/>
-                    </div>
-                    <p style={drinkNameStyle} className="h-6 flex items-end justify-center leading-none">{trago.nombre.split(' ').join('\n')}</p>
-                    <div className="mt-1 aspect-[3/4] rounded-lg shadow-md overflow-hidden border-2 border-white">
-                        <NextImage src={trago.imageUrl} alt={trago.nombre} width={100} height={150} className="w-full h-full object-cover" data-ai-hint={trago.aiHint}/>
+             <main className="w-full px-2 mt-4 space-y-2 text-center flex-grow">
+                <h3 className="font-['Belleza',_serif] text-2xl tracking-widest" style={{color: paleta?.primary}}>
+                   {isPreview ? <EditableText initialValue={carta.titulo || 'CARTA DE TRAGOS'} onSave={val => handleUpdate('titulo', val)} textarea={false}/> : (carta.titulo || 'CARTA DE TRAGOS')}
+                </h3>
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                    {carta.items.map(item => (
+                        <div key={item.id} className="relative aspect-[3/4] rounded-md overflow-hidden border-2" style={{borderColor: paleta?.primary}} onClick={() => openEditModal?.(item)}>
+                            {item.imageUrl ? (
+                                <NextImage src={item.imageUrl} alt={item.nombre} layout="fill" objectFit="cover" data-ai-hint={item.aiHint || 'cocktail drink'} />
+                            ) : <div className="w-full h-full bg-gray-100"></div>}
+                            <div className="absolute bottom-0 left-0 right-0 p-1 bg-black/50 text-white text-center">
+                                <p className="text-[8px] font-bold uppercase truncate">{item.nombre}</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+             </main>
+            
+            <footer 
+                className="relative z-10 w-[110%] -bottom-4 mt-auto rounded-t-[100%] p-4 pt-10 pb-6 text-center text-white" 
+                style={{backgroundColor: paleta?.primary}}
+            >
+                <div className="relative">
+                    <div className="flex items-center justify-center gap-4">
+                        {logoUrl && (
+                             <div className="w-16 h-16 flex-shrink-0">
+                                <NextImage src={logoUrl} alt="Logo" width={64} height={64} className="object-contain" data-ai-hint="company logo"/>
+                            </div>
+                        )}
+                        <div className="text-left">
+                            <h4 className="font-['Belleza',_serif] font-bold text-lg leading-tight">{isPreview ? <EditableText initialValue={carta.empresa?.linea1 || 'AK PRODUCCIONES'} onSave={val => handleEmpresaUpdate('linea1', val)} textarea={false}/> : (carta.empresa?.linea1 || 'AK PRODUCCIONES')}</h4>
+                            <p className="text-xs">{isPreview ? <EditableText initialValue={carta.empresa?.linea2 || 'Servicio de fiestas integral'} onSave={val => handleEmpresaUpdate('linea2', val)} textarea={false}/> : (carta.empresa?.linea2 || 'Servicio de fiestas integral')}</p>
+                            <div className="flex items-center gap-1 mt-1">
+                                <Phone className="w-3 h-3"/>
+                                <p className="text-xs font-semibold">{isPreview ? <EditableText initialValue={carta.empresa?.contacto || '098 355 530'} onSave={val => handleEmpresaUpdate('contacto', val)} textarea={false}/> : (carta.empresa?.contacto || '098 355 530')}</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            ))}
-        </main>
-        
-        <div className="absolute bottom-0 left-0 right-0 h-[100px] z-0 transform rotate-180">
-           <svg viewBox="0 0 100 20" preserveAspectRatio="none" className="w-full h-full">
-            <path d="M0,10 C20,25 40,0 50,10 S80,-5 100,10 V0 H0 Z" fill={carta.paletaColores?.primary || '#9333ea'} fillOpacity="0.9"/>
-          </svg>
+            </footer>
         </div>
-       
-         <footer className="relative z-10 mt-auto w-full px-4 pb-2 flex justify-between items-center">
-            <div className="w-16 h-10 relative">
-                 {logoUrl && (
-                    <NextImage src={logoUrl} alt="AK Producciones Logo" layout="fill" className="object-contain" data-ai-hint="company logo"/>
-                )}
-            </div>
-            <div className="text-right">
-                <p className="font-semibold text-xs leading-tight" style={{color: carta.paletaColores?.secondary}}>
-                   {isPreview ? <EditableText initialValue={carta.empresaNombre || 'AK PRODUCCIONES'} onSave={(v) => handleUpdateEmpresa('empresaNombre', v)} /> : carta.empresaNombre}
-                </p>
-                <p className="text-xs" style={{color: carta.paletaColores?.secondary}}>
-                   {isPreview ? <EditableText initialValue={carta.empresaContacto || '098355530'} onSave={(v) => handleUpdateEmpresa('empresaContacto', v)} /> : carta.empresaContacto}
-                </p>
-            </div>
-        </footer>
-    </div>
-  );
+    );
 };

@@ -1,305 +1,159 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent, type ChangeEvent } from 'react';
+import React, { useState, useEffect, useCallback, Suspense, type ChangeEvent } from 'react';
 import Link from 'next/link';
-import NextImage from 'next/image';
+import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer as PrinterIcon, Share2, ChefHat, Edit, Upload, PlusCircle, Trash2, Camera, Loader2, Save } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, Save, Loader2, Edit, Upload, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, MenuMesaData, Plato } from '@/types/fiesta';
-import { getFiestaActual, updateMenuMesa as updateMenuMesaAction } from '@/app/actions/fiesta/fiesta.actions';
+import type { FiestaEnPlanificacion, MenuMesaData } from '@/types/fiesta';
+import { getFiestaById, updateMenuMesa as updateMenuMesaAction } from '@/app/actions/fiesta/fiesta.actions';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Loader2 as LoaderIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
-import { cn } from '@/lib/utils';
 import { defaultMenuMesaData } from '@/lib/fiesta-defaults';
+import { MenuMesaTemplate } from '@/components/invitacion/templates/MenuMesaTemplate';
+import { Textarea } from '@/components/ui/textarea';
 
-
-const companyInfo = {
-  name: "AK PRODUCCIONES",
-  line1: "Servicio de fiestas integral",
-  line2: "Todos los servicios-un solo lugar",
-  contact: "098 355 530",
-};
-
-const MenuComponent: React.FC<{
-  fiesta: FiestaEnPlanificacion;
-  menu: MenuMesaData;
-  logoUrl: string | null;
-  openEditModal: (item: Plato) => void;
-}> = ({ fiesta, menu, logoUrl, openEditModal }) => {
-  
-  const protagonistaNombre = fiesta.configuracion.protagonista1Nombre || 'Protagonista';
-  const tipoEvento = fiesta.configuracion.tipoCelebracion || 'Mi Evento';
-
-  return (
-    <div className="w-full h-full flex flex-col p-2 relative overflow-hidden bg-gradient-to-br" style={{'--tw-gradient-from': menu.paletaColores?.primary+'33', '--tw-gradient-to': menu.paletaColores?.secondary+'1A'} as React.CSSProperties}>
-       <div className="absolute top-0 left-0 w-full h-12" style={{ background: 'url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%239333ea" fill-opacity="0.8" d="M0,192L48,176C96,160,192,128,288,133.3C384,139,480,181,576,186.7C672,192,768,160,864,138.7C960,117,1056,107,1152,117.3C1248,128,1344,160,1392,176L1440,192L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"></path></svg>\')', backgroundSize: 'cover', '--svg-color': menu.paletaColores?.primary.replace('#','%23') || '%239333ea' }}></div>
-       <div className="absolute bottom-0 left-0 w-full h-12" style={{ background: 'url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%239333ea" fill-opacity="0.8" d="M0,192L48,176C96,160,192,128,288,133.3C384,139,480,181,576,186.7C672,192,768,160,864,138.7C960,117,1056,107,1152,117.3C1248,128,1344,160,1392,176L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>\')', backgroundSize: 'cover', '--svg-color': menu.paletaColores?.primary.replace('#','%23') || '%239333ea' }}></div>
-
-      <header className="relative z-10 grid grid-cols-2 gap-2 items-center px-4 mt-12">
-        <div className="w-24 h-24 rounded-full border-4 border-white bg-gray-200 shadow-lg overflow-hidden justify-self-center">
-            <NextImage src={menu.protagonistaFotoUrl || "https://picsum.photos/seed/quinceanera-main/300/300"} alt={`Foto de ${protagonistaNombre}`} width={96} height={96} className="object-cover w-full h-full" data-ai-hint="protagonist photo"/>
-        </div>
-        <div className="text-center">
-            <h1 className="font-extrabold text-xl text-white uppercase tracking-wider" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>Menú</h1>
-            <h2 className="font-extrabold text-5xl mt-1 text-white" style={{ fontFamily: "'Dancing Script', cursive", textShadow: '3px 3px 5px rgba(0,0,0,0.5)' }}>{protagonistaNombre}</h2>
-            <h3 className="font-extrabold text-3xl mt-0 text-white" style={{ fontFamily: "'Dancing Script', cursive", textShadow: '3px 3px 5px rgba(0,0,0,0.5)' }}>{tipoEvento}</h3>
-        </div>
-      </header>
-
-      <main className="relative z-10 flex-grow grid grid-cols-2 gap-x-2 gap-y-4 px-2 mt-4">
-        {menu.items.map((item) => (
-          <div key={item.id} className="text-center group relative" onClick={() => openEditModal(item)}>
-            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer z-20 rounded-lg">
-                <Edit className="w-8 h-8 text-white"/>
-            </div>
-            <h4 className="font-extrabold text-[0.6rem] uppercase tracking-wide" style={{ color: menu.paletaColores?.secondary, textShadow: '1px 1px 2px rgba(0,0,0,0.2)' }}>{item.nombre}</h4>
-            <div className="mt-1 aspect-[3/4] rounded-lg shadow-md overflow-hidden border-2 border-white">
-                <NextImage src={item.imageUrl} alt={item.nombre} width={200} height={300} className="w-full h-full object-cover" data-ai-hint={item.aiHint}/>
-            </div>
-          </div>
-        ))}
-      </main>
-
-       <footer className="relative z-10 mt-auto flex justify-center pb-8 pt-4">
-            {logoUrl && (
-                <div className="w-16 h-16">
-                  <NextImage src={logoUrl} alt="AK Producciones Logo" width={64} height={64} className="object-contain" data-ai-hint="company logo"/>
-                </div>
-            )}
-        </footer>
-    </div>
-  );
-};
-
-export default function MenuMesaPage() {
+function MenuDeMesaContent() {
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const fiestaId = searchParams.get('fiestaId');
+
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
-  const [menuMesa, setMenuMesa] = useState<MenuMesaData>(defaultMenuMesaData);
+  const [data, setData] = useState<MenuMesaData>(defaultMenuMesaData);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-
-  // Modal State
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<Plato | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [fileToUpload, setFileToUpload] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
+    if (!fiestaId) return;
     setIsLoading(true);
     try {
-      const [fiestaData, settings] = await Promise.all([getFiestaActual(), getInvoiceTemplateSettings()]);
+      const [fiestaData, settings] = await Promise.all([getFiestaById(fiestaId), getInvoiceTemplateSettings()]);
+      if (!fiestaData) throw new Error("Fiesta no encontrada");
       setFiesta(fiestaData);
       setLogoUrl(settings.logoUrl);
-      if (fiestaData.menuMesa) {
-        setMenuMesa(fiestaData.menuMesa);
-      } else {
-        setMenuMesa({
-          ...defaultMenuMesaData,
-          protagonistaFotoUrl: fiestaData.configuracion.protagonistaFotoUrl || defaultMenuMesaData.protagonistaFotoUrl
-        });
-      }
+      
+      const mergedData = { ...defaultMenuMesaData, ...(fiestaData.menuMesa || {}) };
+      setData(mergedData);
     } catch (e: any) {
-      toast({ title: "Error", description: "No se pudieron cargar los datos del evento.", variant: "destructive" });
+      setError("No se pudo cargar la información del evento.");
+      toast({ title: "Error", description: e.message, variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, [toast, fiestaId]);
 
   useEffect(() => {
     loadData();
-  }, [loadData]);
+  }, [fiestaId, loadData]);
   
-  const handleSaveChanges = async () => {
-    if (!fiesta) return;
-    setIsSaving(true);
-    try {
-      const result = await updateMenuMesaAction(fiesta.id, menuMesa);
-      if (result.success) {
-        toast({ title: "Guardado", description: "El menú de mesa ha sido actualizado." });
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (e: any) {
-      toast({ title: "Error", description: e.message, variant: "destructive" });
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleOpenEditModal = (item: Plato) => {
-    setEditingItem(item);
-    setPreviewUrl(item.imageUrl);
-    setFileToUpload(null);
-    setIsEditModalOpen(true);
+  const handleUpdate = (field: keyof MenuMesaData, value: string) => {
+    setData(prev => ({ ...prev, [field]: value }));
   };
   
-  const handleAddItem = () => {
-    const newItem: Plato = {
-      id: `plato_${Date.now()}`,
-      nombre: 'Nuevo Plato',
-      imageUrl: 'https://placehold.co/400x600/e2e8f0/a0aec0?text=Plato'
-    };
-    setMenuMesa(prev => ({ ...prev, items: [...prev.items, newItem] }));
-  };
-
-  const handleUpdateItem = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!editingItem) return;
-
-    let finalImageUrl = editingItem.imageUrl;
-
-    if (fileToUpload) {
-      if (!fiesta) {
-        toast({ title: "Error", description: "ID de fiesta no encontrado para subir imagen.", variant: "destructive" });
-        return;
-      }
-      setIsUploading(true);
-      const result = await uploadPublicPageAsset(fiesta.id, fileToUpload);
-      if(result.success && result.url) {
-        finalImageUrl = result.url;
-      } else {
-        toast({ title: "Error al subir", description: result.error, variant: "destructive" });
-        setIsUploading(false);
-        return;
-      }
-      setIsUploading(false);
-    }
-    
-    setMenuMesa(prev => ({
-      ...prev,
-      items: prev.items.map(item =>
-        item.id === editingItem.id ? { ...editingItem, imageUrl: finalImageUrl } : item
-      ),
-    }));
-    
-    setIsEditModalOpen(false);
-    setEditingItem(null);
-  };
-
-  const handleDeleteItem = () => {
-    if (!editingItem) return;
-    setMenuMesa(prev => ({ ...prev, items: prev.items.filter(item => item.id !== editingItem.id) }));
-    setIsEditModalOpen(false);
-    setEditingItem(null);
-  };
-  
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setFileToUpload(file);
-      setPreviewUrl(URL.createObjectURL(file));
-    }
-  };
-  
-  const handleColorChange = (colorType: 'primary' | 'secondary' | 'accent', value: string) => {
-    setMenuMesa(prev => ({
+  const handleColorChange = (colorType: 'primary' | 'secondary' | 'accent' | 'background', value: string) => {
+    setData(prev => ({
         ...prev,
         paletaColores: {
-            ...(prev.paletaColores || { primary: '', secondary: '', accent: '' }),
+            ...(prev.paletaColores || { primary: '', secondary: '', accent: '', background: '' }),
             [colorType]: value,
         }
     }));
   };
-  
-  const handleProtagonistPhotoUpload = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file || !fiesta) return;
-    setIsUploading(true);
-    const result = await uploadPublicPageAsset(fiesta.id, file);
-    if(result.success && result.url) {
-        setMenuMesa(prev => ({ ...prev, protagonistaFotoUrl: result.url }));
-        toast({title: "Foto actualizada"});
-    } else {
-        toast({title: "Error al subir foto", variant: "destructive"});
-    }
-    setIsUploading(false);
-  }
 
+  const handlePhotoUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !fiestaId) return;
+    setIsUploading(true);
+    try {
+      const result = await uploadPublicPageAsset(fiestaId, file);
+      if(result.success && result.url) {
+        setData(prev => ({ ...prev, protagonistaFotoUrl: result.url }));
+        toast({title: "Foto actualizada"});
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (e: any) {
+      toast({ title: "Error al subir foto", variant: "destructive" });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!fiestaId) return;
+    setIsSaving(true);
+    try {
+      const result = await updateMenuMesaAction(fiestaId, data);
+      if (result.success) {
+        toast({ title: "Guardado!", description: "El menú de mesa ha sido actualizado." });
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (e: any) {
+       toast({ title: "Error", description: e.message, variant: "destructive" });
+    } finally {
+        setIsSaving(false);
+    }
+  }
 
   const handlePrint = () => window.print();
-  const handleShare = () => { /* ... (implement if needed) ... */ };
-
+  
   if (isLoading || !fiesta) {
-    return <div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
+    return <div className="p-8 max-w-4xl mx-auto flex justify-center"><Loader2 className="w-8 h-8 animate-spin" /></div>;
   }
-
+  if (error) {
+    return <div className="p-8 max-w-4xl mx-auto text-center">{error}</div>;
+  }
+  
   return (
-    <div className="bg-gray-100 print:bg-white font-sans">
-       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Editar Plato del Menú</DialogTitle></DialogHeader>
-          {editingItem && (
-            <form onSubmit={handleUpdateItem} className="space-y-4">
-              <div className="space-y-1">
-                <Label htmlFor="plato-name">Nombre</Label>
-                <Input id="plato-name" value={editingItem.nombre} onChange={e => setEditingItem(prev => prev ? {...prev, nombre: e.target.value} : null)} />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="plato-image">Imagen</Label>
-                 {previewUrl && <NextImage src={previewUrl} alt="preview" width={100} height={150} className="rounded-md object-cover border"/>}
-                 <Input id="plato-image" type="file" accept="image/*" onChange={handleFileChange} />
-              </div>
-              <DialogFooter className="justify-between">
-                <Button type="button" variant="destructive" onClick={handleDeleteItem}>Eliminar</Button>
-                <div className="flex gap-2">
-                  <DialogClose asChild><Button type="button" variant="outline">Cancelar</Button></DialogClose>
-                  <Button type="submit" disabled={isUploading}>{isUploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : 'Guardar'}</Button>
-                </div>
-              </DialogFooter>
-            </form>
-          )}
-        </DialogContent>
-      </Dialog>
-      <div className="py-4 px-8 print:hidden flex justify-between items-center bg-white shadow-sm sticky top-0 z-50">
-        <div className="flex gap-4 items-center">
-            <h1 className="font-headline text-xl">Editor de Menú de Mesa</h1>
-            <div className="flex items-center gap-2 border-l pl-4">
-                <Label htmlFor="protagonista-foto" className="text-sm">Foto Protagonista:</Label>
-                <Input id="protagonista-foto" type="file" accept="image/*" onChange={handleProtagonistPhotoUpload} className="text-xs w-52 file:text-xs" disabled={isUploading}/>
-                {isUploading && <Loader2 className="w-4 h-4 animate-spin"/>}
-            </div>
-            <div className="flex items-center gap-2 border-l pl-4">
-                <Label className="text-sm">Colores:</Label>
-                <Input type="color" value={menuMesa.paletaColores?.primary || '#9333ea'} onChange={e => handleColorChange('primary', e.target.value)} className="w-8 h-8 p-0.5"/>
-                <Input type="color" value={menuMesa.paletaColores?.secondary || '#363636'} onChange={e => handleColorChange('secondary', e.target.value)} className="w-8 h-8 p-0.5"/>
+    <div className="bg-gray-100 print:bg-white">
+      <div className="py-4 px-8 print:hidden flex flex-col md:flex-row justify-between items-center gap-4 bg-white shadow-sm sticky top-0 z-50">
+        <h1 className="font-headline text-xl">Editor de Menú de Mesa</h1>
+        <div className="flex flex-wrap gap-2 items-center">
+            <div className="space-y-1"><Label htmlFor="protagonista-foto" className="text-xs">Foto Protagonista</Label><Input id="protagonista-foto" type="file" accept="image/*" onChange={handlePhotoUpload} className="text-xs w-48" disabled={isUploading}/></div>
+            <div className="space-y-1"><Label className="text-xs">Fondo</Label><Input type="color" value={data.paletaColores?.background || '#ffffff'} onChange={e => handleColorChange('background', e.target.value)} className="w-10 h-9 p-0.5"/></div>
+            <div className="space-y-1"><Label className="text-xs">Color Principal</Label><Input type="color" value={data.paletaColores?.primary || '#8b5cf6'} onChange={e => handleColorChange('primary', e.target.value)} className="w-10 h-9 p-0.5"/></div>
+            <div className="flex items-end gap-2">
+                <Button size="sm" onClick={handleSave} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}</Button>
+                <Button onClick={handlePrint} size="sm" variant="outline"><PrinterIcon className="w-4 h-4"/></Button>
+                <Link href={`/fiestas/nueva/catering?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4"/></Button></Link>
             </div>
         </div>
-        <div className="flex gap-2">
-            <Button size="sm" onClick={handleSaveChanges} disabled={isSaving}>
-                {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>}
-                Guardar
-            </Button>
-            <Button size="sm" variant="outline" onClick={handleAddItem}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Plato</Button>
-            <Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
-            <Button onClick={handlePrint} size="sm"><PrinterIcon className="w-4 h-4 mr-2"/>Imprimir</Button>
-        </div>
       </div>
-      
-      <div className="w-[297mm] h-[210mm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto flex gap-4 p-4 border-2 border-dashed print:border-none">
-        <div className="w-1/2 h-full border border-gray-300 print:border-none">
-            <MenuComponent fiesta={fiesta} menu={menuMesa} logoUrl={logoUrl} openEditModal={handleOpenEditModal}/>
-        </div>
-         <div className="w-1/2 h-full border border-gray-300 print:border-none">
-            <MenuComponent fiesta={fiesta} menu={menuMesa} logoUrl={logoUrl} openEditModal={handleOpenEditModal}/>
-        </div>
+      <div className="w-[210mm] h-[148mm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto flex gap-4 p-4 border-2 border-dashed print:border-none">
+          <div className="w-full h-full relative">
+            <MenuMesaTemplate
+                fiesta={fiesta}
+                data={data}
+                logoUrl={logoUrl}
+                onUpdate={setData}
+                isPreview={true}
+            />
+          </div>
       </div>
-
        <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Belleza&family=Dancing+Script:wght@700&display=swap');
-        @media print {
-            body { -webkit-print-color-adjust: exact; color-adjust: exact; }
-            @page { size: A4 landscape; margin: 0; }
-        }
-       `}</style>
+            @import url('https://fonts.googleapis.com/css2?family=Belleza&family=Dancing+Script:wght@400;700&family=Great+Vibes&display=swap');
+             @media print {
+                body { -webkit-print-color-adjust: exact; color-adjust: exact; }
+                @page { size: A5 landscape; margin: 0; }
+            }
+        `}</style>
     </div>
   );
+}
+
+export default function MenuMesaPageWrapper() {
+    return (
+        <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>}>
+            <MenuDeMesaContent/>
+        </Suspense>
+    )
 }

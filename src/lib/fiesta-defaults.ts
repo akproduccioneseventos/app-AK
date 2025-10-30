@@ -1,5 +1,3 @@
-
-
 import type { FiestaEnPlanificacion, ConfigEventoDataStorage, Tarea, DecoracionData, ColorPalette, EventWebPageSettings, ClientPortalSettings, SocialGallerySettings, MusicaFiesta, ZonaContratada, ReposteriaData, ReposteriaCategoria, BebidasData, BebidaCategoria, ListaDeCargaOperativa, GestionCostosData, GiftItem, LayoutElement, ClientTarea, ProgramaEventoItem, TareaAsignadaA, FotografiaYFilmacionData, BebidasConsumoConfig, TipoAsistente, ReposteriaConsumoConfig, OtroDocumento, VideoVidaData, BebidaReceta, IngredienteReceta, CargaOperativaCategoria, InvitacionDigitalData, SeccionInvitacion, CartaTragosData, MenuMesaData, ModulosContratados, NumerosMesaData, Trago } from '@/types/fiesta';
 import { defaultInvitacionDigitalData } from './invitacion-digital-defaults';
 
@@ -31,15 +29,25 @@ export const defaultCartaTragosData: CartaTragosData = {
 
 
 export const defaultMenuMesaData: MenuMesaData = {
-    protagonistaFotoUrl: "https://picsum.photos/seed/quinceanera-main/300/300",
-    paletaColores: { primary: '#9333ea', secondary: '#363636', accent: '#facc15' },
-    items: [
-        { id: 'plato_1', nombre: 'Entrada Ligera', imageUrl: 'https://picsum.photos/seed/light-appetizer/400/600', aiHint: 'light appetizer' },
-        { id: 'plato_2', nombre: 'Sopa Cremosa', imageUrl: 'https://picsum.photos/seed/cream-soup/400/600', aiHint: 'cream soup' },
-        { id: 'plato_3', nombre: 'Plato Principal', imageUrl: 'https://picsum.photos/seed/main-course/400/600', aiHint: 'main course' },
-        { id: 'plato_4', nombre: 'Postre', imageUrl: 'https://picsum.photos/seed/dessert/400/600', aiHint: 'dessert' },
-    ]
+  protagonistaFotoUrl: "https://i.imgur.com/sC3a3gM.png",
+  paletaColores: {
+    primary: '#8b5cf6', // purple-500
+    secondary: '#4b5563', // gray-600
+    accent: '#3b82f6', // blue-500
+    background: '#ffffff'
+  },
+  entrada: 'Sandwiches y saladitos\nTabla de fiambres',
+  platoPrincipal: 'Pollo y cerdo arrollado con mesa buffet',
+  adolescentes: 'Hamburguesa completa con fritas\nPanchos con fritas',
+  postres: 'Torta principal\nFuente de chocolate',
+  bebidas: 'Barra de tragos, cerveza y Refrescos',
+  empresa: {
+      linea1: 'Servicio de fiestas integral',
+      linea2: 'Todos los servicios-un solo lugar',
+      contacto: '098 355 530'
+  }
 };
+
 
 export const defaultNumerosMesaData: NumerosMesaData = {
     protagonistaNombre: 'La Agasajada',
@@ -388,5 +396,3 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
   // NEW UNIFIED OBJECT
   invitacionDigital: { ...defaultInvitacionDigitalData }
 };
-
-    
