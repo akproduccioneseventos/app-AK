@@ -109,94 +109,85 @@ export async function savePresupuesto(
 
 
 export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
-  let presupuestos = await getPresupuestos();
-  const index = presupuestos.findIndex(p => p.id === presupuestoData.id);
-  if (index === -1) {
-    return { success: false, error: `Presupuesto con ID ${presupuestoData.id} no encontrado.` };
-  }
-  
-  const isNowAcceptedOrBilled = ['Aceptado', 'Facturado'].includes(presupuestoData.estado);
-  const wasNotAcceptedOrBilled = !['Aceptado', 'Facturado'].includes(presupuestos[index].estado);
-
-  const activateAdjustment = isNowAcceptedOrBilled && wasNotAcceptedOrBilled;
-
-  const validItems = presupuestoData.itemsPresupuestados.map(item => ({
-    ...item,
-    costoTotalItem: recalcularCostoItem(item, presupuestoData.invitadosCantidad),
-  }));
-
-  const costoTotalEstimadoRecalculado = validItems
-    .filter(item => !item.esRegalo)
-    .reduce((sum, item) => sum + item.costoTotalItem, 0);
-  
-  let finalTotalWithDiscount = costoTotalEstimadoRecalculado;
-  if (presupuestoData.descuentoTipo && presupuestoData.descuentoValor && presupuestoData.descuentoValor > 0) {
-    const descuentoAplicado = presupuestoData.descuentoTipo === 'porcentaje'
-      ? (costoTotalEstimadoRecalculado * presupuestoData.descuentoValor) / 100
-      : presupuestoData.descuentoValor;
-    finalTotalWithDiscount = costoTotalEstimadoRecalculado - descuentoAplicado;
-  }
-  
-  const updatedPresupuesto: Presupuesto = {
-    ...presupuestoData,
-    itemsPresupuestados: validItems,
-    costoTotalEstimado: costoTotalEstimadoRecalculado,
-    totalConDescuento: finalTotalWithDiscount !== costoTotalEstimadoRecalculado ? finalTotalWithDiscount : undefined,
-    timestamp: new Date().toISOString(),
-    ajusteAnualActivo: presupuestos[index].ajusteAnualActivo || activateAdjustment,
-  };
-  
-  presupuestos[index] = updatedPresupuesto;
-  await writeData(PRESUPUESTOS_FILE, presupuestos);
-  
-  // Sync with CRM after successful save
-  try {
-    await findLeadByBudgetOrCreate(updatedPresupuesto);
-  } catch (crmError: any) {
-    console.warn(`Presupuesto ${updatedPresupuesto.id} actualizado, pero falló la sincronización con el CRM: ${crmError.message}`);
-  }
-
-
-  // If the budget is invoiced, update the invoice total as well.
-  if (updatedPresupuesto.estado === 'Facturado' && updatedPresupuesto.invoiceId) {
-    try {
-      const linkedInvoice = await getInvoiceById(updatedPresupuesto.invoiceId);
-      if (linkedInvoice) {
-        const budgetTotal = updatedPresupuesto.totalConDescuento ?? updatedPresupuesto.costoTotalEstimado;
-        
-        // Check if items differ significantly. A simple total check is a good heuristic.
-        const invoiceItemTotal = linkedInvoice.items.reduce((sum, item) => sum + item.total, 0);
-        
-        if (Math.abs(budgetTotal - invoiceItemTotal) > 0.01) {
-            // Replace items with a single summary line item pointing to the updated budget
-            const summaryItem: Omit<InvoiceItem, 'id'> = {
-                description: `Servicios según presupuesto #${updatedPresupuesto.id.split('_').pop()?.substring(0,5)} (actualizado)`,
-                quantity: 1,
-                unitPrice: budgetTotal,
-                total: budgetTotal,
-            };
-            
-            let invoiceDataToUpdate: Invoice = { ...linkedInvoice, items: [{ ...summaryItem, id: `item_summary_update_${Date.now()}` }], notes: updatedPresupuesto.notas || linkedInvoice.notes };
-            
-            // Recalculate invoice totals
-            const newSubtotal = invoiceDataToUpdate.items.reduce((sum, item) => sum + item.total, 0);
-            const newTaxAmount = (newSubtotal * (invoiceDataToUpdate.taxRate || 0)) / 100;
-            const newTotalAmount = newSubtotal + newTaxAmount;
-            
-            invoiceDataToUpdate.subtotal = newSubtotal;
-            invoiceDataToUpdate.taxAmount = newTaxAmount;
-            invoiceDataToUpdate.totalAmount = newTotalAmount;
-
-            // Save the updated invoice
-            await saveInvoice(invoiceDataToUpdate);
-        }
-      }
-    } catch (invoiceError) {
-      console.error(`Error al sincronizar la factura del presupuesto actualizado ${updatedPresupuesto.id}:`, invoiceError);
+    let presupuestos = await getPresupuestos();
+    const index = presupuestos.findIndex(p => p.id === presupuestoData.id);
+    if (index === -1) {
+        return { success: false, error: `Presupuesto con ID ${presupuestoData.id} no encontrado.` };
     }
-  }
 
-  return { success: true, presupuesto: updatedPresupuesto };
+    const isNowAcceptedOrBilled = ['Aceptado', 'Facturado'].includes(presupuestoData.estado);
+    const wasNotAcceptedOrBilled = !['Aceptado', 'Facturado'].includes(presupuestos[index].estado);
+    const activateAdjustment = isNowAcceptedOrBilled && wasNotAcceptedOrBilled;
+
+    const validItems = presupuestoData.itemsPresupuestados.map(item => ({
+        ...item,
+        costoTotalItem: recalcularCostoItem(item, presupuestoData.invitadosCantidad),
+    }));
+
+    const costoTotalEstimadoRecalculado = validItems
+        .filter(item => !item.esRegalo)
+        .reduce((sum, item) => sum + item.costoTotalItem, 0);
+
+    let finalTotalWithDiscount = costoTotalEstimadoRecalculado;
+    if (presupuestoData.descuentoTipo && presupuestoData.descuentoValor && presupuestoData.descuentoValor > 0) {
+        const descuentoAplicado = presupuestoData.descuentoTipo === 'porcentaje'
+            ? (costoTotalEstimadoRecalculado * presupuestoData.descuentoValor) / 100
+            : presupuestoData.descuentoValor;
+        finalTotalWithDiscount = costoTotalEstimadoRecalculado - descuentoAplicado;
+    }
+
+    const updatedPresupuesto: Presupuesto = {
+        ...presupuestoData,
+        itemsPresupuestados: validItems,
+        costoTotalEstimado: costoTotalEstimadoRecalculado,
+        totalConDescuento: finalTotalWithDiscount !== costoTotalEstimadoRecalculado ? finalTotalWithDiscount : undefined,
+        timestamp: new Date().toISOString(),
+        ajusteAnualActivo: presupuestos[index].ajusteAnualActivo || activateAdjustment,
+    };
+
+    presupuestos[index] = updatedPresupuesto;
+    await writeData(PRESUPUESTOS_FILE, presupuestos);
+
+    try {
+        await findLeadByBudgetOrCreate(updatedPresupuesto);
+    } catch (crmError: any) {
+        console.warn(`Presupuesto ${updatedPresupuesto.id} actualizado, pero falló la sincronización con el CRM: ${crmError.message}`);
+    }
+
+    if (updatedPresupuesto.estado === 'Facturado' && updatedPresupuesto.invoiceId) {
+        try {
+            const linkedInvoice = await getInvoiceById(updatedPresupuesto.invoiceId);
+            if (linkedInvoice) {
+                const budgetTotal = updatedPresupuesto.totalConDescuento ?? updatedPresupuesto.costoTotalEstimado;
+                const invoiceItemTotal = linkedInvoice.items.reduce((sum, item) => sum + item.total, 0);
+
+                if (Math.abs(budgetTotal - invoiceItemTotal) > 0.01) {
+                    const summaryItem: Omit<InvoiceItem, 'id'> = {
+                        description: `Servicios según presupuesto #${updatedPresupuesto.id.split('_').pop()?.substring(0,5)} (actualizado)`,
+                        quantity: 1,
+                        unitPrice: budgetTotal,
+                        total: budgetTotal,
+                    };
+                    
+                    let invoiceDataToUpdate: Invoice = { ...linkedInvoice, items: [{ ...summaryItem, id: `item_summary_update_${Date.now()}` }], notes: updatedPresupuesto.notas || linkedInvoice.notes };
+                    
+                    const newSubtotal = invoiceDataToUpdate.items.reduce((sum, item) => sum + item.total, 0);
+                    const newTaxAmount = (newSubtotal * (invoiceDataToUpdate.taxRate || 0)) / 100;
+                    const newTotalAmount = newSubtotal + newTaxAmount;
+                    
+                    invoiceDataToUpdate.subtotal = newSubtotal;
+                    invoiceDataToUpdate.taxAmount = newTaxAmount;
+                    invoiceDataToUpdate.totalAmount = newTotalAmount;
+
+                    await saveInvoice(invoiceDataToUpdate);
+                }
+            }
+        } catch (invoiceError) {
+            console.error(`Error al sincronizar la factura del presupuesto actualizado ${updatedPresupuesto.id}:`, invoiceError);
+        }
+    }
+
+    return { success: true, presupuesto: updatedPresupuesto };
 }
 
 export async function deletePresupuesto(id: string): Promise<{ success: boolean; error?: string }> {

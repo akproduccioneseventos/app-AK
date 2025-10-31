@@ -304,7 +304,7 @@ function CrearPresupuestoContent() {
                     ) : (
                         <Button onClick={handleSave} disabled={isSaving}>
                             {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
-                            {isSaving ? 'Guardando...' : (editingPresupuestoId ? 'Guardar Cambios' : 'Finalizar y Generar')}
+                            {isSaving ? 'Guardando...' : 'Finalizar y Generar'}
                         </Button>
                     )}
                 </CardFooter>

@@ -1,5 +1,28 @@
 [
   {
+    "id": "lead_1761945635976_vzyu4j0",
+    "name": "Ana García",
+    "phone": "0999588945",
+    "notes": "Presupuesto ID: pres_1761945635961_lvukwxv\nCosto: $ 11.550,00",
+    "presupuestoId": "pres_1761945635961_lvukwxv",
+    "currentStageId": "s3",
+    "createdAt": "2025-10-31T21:20:35.976Z",
+    "updatedAt": "2025-10-31T21:20:36.007Z",
+    "history": [
+      {
+        "stageId": "s1",
+        "stageName": "Consultó",
+        "timestamp": "2025-10-31T21:20:35.976Z"
+      },
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2025-10-31T21:20:36.007Z"
+      }
+    ],
+    "presupuestoEstado": "Enviado"
+  },
+  {
     "id": "lead_1761945384898_37o0vvf",
     "name": "Ana García",
     "phone": "0999588945",
@@ -19,8 +42,7 @@
         "stageName": "Con presupuesto",
         "timestamp": "2025-10-31T21:16:24.921Z"
       }
-    ],
-    "presupuestoEstado": "Borrador"
+    ]
   },
   {
     "id": "lead_1761944908513_zdrqaou",
