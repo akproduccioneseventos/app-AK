@@ -1,1 +1,18 @@
-[]
+[
+  {
+    "mensaje": "Nuevo prospecto y presupuesto de Ana García",
+    "href": "/contabilidad/crm?leadId=lead_1761942908015_kwc7cjx",
+    "icono": "KanbanSquare",
+    "id": "notif_1761942908020_9n0fp2g",
+    "fecha": "2025-10-31T20:35:08.020Z",
+    "leida": false
+  },
+  {
+    "mensaje": "Recordatorio: Tarea \"Confirmar lista de música con el DJ\" (XV Años de Sofía) vence en 2 día(s).",
+    "href": "/fiestas/nueva/tareas?fiestaId=fiesta_1761518911463_a2c0rmc",
+    "icono": "ListChecks",
+    "id": "notif_1761942762755_xbhpp4u",
+    "fecha": "2025-10-31T20:32:42.755Z",
+    "leida": false
+  }
+]

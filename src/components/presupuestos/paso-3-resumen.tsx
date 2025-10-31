@@ -199,5 +199,3 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
     </div>
   );
 }
-
-    
