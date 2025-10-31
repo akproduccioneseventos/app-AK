@@ -45,7 +45,7 @@ export async function getPresupuestoById(id: string): Promise<Presupuesto | null
 }
 
 export async function savePresupuesto(
-  presupuestoData: Omit<Presupuesto, 'id' | 'estado' | 'invoiceId'>,
+  presupuestoData: Omit<Presupuesto, 'id'>,
   options?: { source?: 'manual' | 'simulator', leadId?: string }
 ): Promise<{ success: boolean, id?: string, error?: string, presupuesto?: Presupuesto, leadId?: string }> {
   let presupuestos = await getPresupuestos();
