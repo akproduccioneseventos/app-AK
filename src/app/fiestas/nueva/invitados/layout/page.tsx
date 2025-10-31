@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense, use } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -105,49 +105,70 @@ const ElementIcon: React.FC<{ category?: string, type?: LayoutElementType }> = (
     }
 };
 
-const Seat: React.FC<{ angle?: number; distance?: number; isOccupied: boolean; isRound: boolean; width: number; height: number; index: number; total: number; }> = ({ angle, distance, isOccupied, isRound, width, height, index, total }) => {
-    let style: React.CSSProperties = {};
-    if (isRound) {
-        const calculatedAngle = angle ?? (index * (360 / total));
-        const calculatedDistance = distance ?? (Math.min(width, height) / 2 + 15);
-         style = {
-            transform: `rotate(${calculatedAngle}deg) translate(${calculatedDistance}px) rotate(-${calculatedAngle}deg)`,
-        };
-    } else {
-        const perimeter = 2 * (width + height);
-        const seatSpacing = perimeter / total;
-        let currentPosition = index * seatSpacing;
-        let x=0, y=0;
+const Seat: React.FC<{
+  isOccupied: boolean;
+  isRound: boolean;
+  width: number;
+  height: number;
+  index: number;
+  total: number;
+}> = ({ isOccupied, isRound, width, height, index, total }) => {
+  let style: React.CSSProperties = {};
+  if (isRound) {
+    const angle = index * (360 / total);
+    const radius = Math.min(width, height) / 2 + 12;
+    style = {
+      transform: `rotate(${angle}deg) translate(${radius}px) rotate(-${angle}deg)`,
+      transformOrigin: 'center center',
+      left: `calc(50% - 0.5rem)`, // Center the seat origin
+      top: `calc(50% - 0.5rem)`,
+    };
+  } else {
+    // Distribute seats along the perimeter of the rectangle
+    const perimeter = 2 * (width + height);
+    if (total === 0) return null; // Avoid division by zero
+    const seatSpacing = perimeter / total;
+    let currentPosition = index * seatSpacing;
 
-        if (currentPosition < width) { // Top edge
-            x = currentPosition;
-            y = -10;
-        } else if (currentPosition < width + height) { // Right edge
-            x = width + 10;
-            y = currentPosition - width;
-        } else if (currentPosition < 2 * width + height) { // Bottom edge
-            x = width - (currentPosition - (width + height));
-            y = height + 10;
-        } else { // Left edge
-            x = -10;
-            y = height - (currentPosition - (2 * width + height));
-        }
-        
-        style = {
-            left: `${x}px`,
-            top: `${y}px`,
-            transform: 'translate(-50%, -50%)',
-        };
+    let x = 0, y = 0;
+    
+    // Top edge
+    if (currentPosition <= width) {
+        x = currentPosition;
+        y = -15;
+    } 
+    // Right edge
+    else if (currentPosition <= width + height) {
+        x = width + 15;
+        y = currentPosition - width;
+    } 
+    // Bottom edge
+    else if (currentPosition <= 2 * width + height) {
+        x = width - (currentPosition - (width + height));
+        y = height + 15;
+    } 
+    // Left edge
+    else {
+        x = -15;
+        y = height - (currentPosition - (2 * width + height));
     }
 
-    return (
-        <div className={cn(
-            "absolute w-4 h-4 rounded-full border-2",
-            isOccupied ? "bg-primary border-primary-foreground" : "border-primary",
-             !isRound && "absolute"
-        )} style={style}>
-        </div>
-    );
+    style = {
+        left: `${x}px`,
+        top: `${y}px`,
+        transform: 'translate(-50%, -50%)',
+    };
+  }
+
+  return (
+    <div
+      className={cn(
+        "absolute w-4 h-4 rounded-full border-2",
+        isOccupied ? "bg-primary border-primary-foreground" : "border-primary bg-background"
+      )}
+      style={style}
+    ></div>
+  );
 };
 
 
@@ -564,7 +585,7 @@ function SalonLayoutContent() {
             </Card>
         </TabsContent>
         <TabsContent value="visual">
-            <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 h-[calc(100vh-450px)]">
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 h-[calc(100vh-450px)] pt-4">
             <Card className="xl:col-span-3 flex flex-col">
                 <CardHeader className="p-3">
                   <div className="flex justify-between items-center">
@@ -611,6 +632,17 @@ function SalonLayoutContent() {
                             <Draggable key={el.id} nodeRef={nodeRef} bounds="parent" grid={[grid, grid]} position={{ x: el.x, y: el.y }} onStop={(e, data) => handleDragStop(e, data, el.id)}>
                                 <TableDropZone element={el} onDrop={(guestId, tableName) => handleAssignGuestToTable(guestId, tableName)}>
                                 <div ref={nodeRef} id={el.id} className="absolute cursor-grab active:cursor-grabbing" style={{ left: el.x, top: el.y, width: el.width, height: el.height, transform: `rotate(${el.rotation}deg)`, zIndex: el.zIndex || (isArea ? 0 : 1) }}>
+                                    {Array.from({ length: el.seats || 0 }).map((_, i) => (
+                                        <Seat
+                                          key={i}
+                                          index={i}
+                                          total={el.seats || 0}
+                                          isOccupied={i < assignedSeatsCount}
+                                          isRound={isRound}
+                                          width={el.width}
+                                          height={el.height}
+                                        />
+                                    ))}
                                     <div className={cn('w-full h-full border flex flex-col p-1', selectedElementId === el.id ? 'border-primary shadow-lg z-10' : 'border-gray-500', isRound && 'rounded-full')}
                                         style={{ backgroundColor: el.backgroundColor || (isArea ? 'rgba(59, 130, 246, 0.2)' : 'rgba(255, 255, 255, 0.7)') }}
                                         onClick={(e) => { e.stopPropagation(); setSelectedElementId(el.id); }}>
@@ -682,4 +714,3 @@ export default function SalonLayoutPage() {
         </DndProvider>
     );
 }
-

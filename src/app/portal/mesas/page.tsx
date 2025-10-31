@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense, use } from 'react';
@@ -65,6 +66,72 @@ const TableDropZone: React.FC<{
     <div ref={drop} className={cn("absolute", isOver && "ring-2 ring-offset-2 ring-primary rounded-md")}>
         {children}
     </div>
+  );
+};
+
+const Seat: React.FC<{
+  isOccupied: boolean;
+  isRound: boolean;
+  width: number;
+  height: number;
+  index: number;
+  total: number;
+}> = ({ isOccupied, isRound, width, height, index, total }) => {
+  let style: React.CSSProperties = {};
+  if (isRound) {
+    const angle = index * (360 / total);
+    const radius = Math.min(width, height) / 2 + 12;
+    style = {
+      transform: `rotate(${angle}deg) translate(${radius}px) rotate(-${angle}deg)`,
+      transformOrigin: 'center center',
+      left: `calc(50% - 0.5rem)`, // Center the seat origin
+      top: `calc(50% - 0.5rem)`,
+    };
+  } else {
+    // Distribute seats along the perimeter of the rectangle
+    const perimeter = 2 * (width + height);
+    if (total === 0) return null; // Avoid division by zero
+    const seatSpacing = perimeter / total;
+    let currentPosition = index * seatSpacing;
+
+    let x = 0, y = 0;
+    
+    // Top edge
+    if (currentPosition <= width) {
+        x = currentPosition;
+        y = -15;
+    } 
+    // Right edge
+    else if (currentPosition <= width + height) {
+        x = width + 15;
+        y = currentPosition - width;
+    } 
+    // Bottom edge
+    else if (currentPosition <= 2 * width + height) {
+        x = width - (currentPosition - (width + height));
+        y = height + 15;
+    } 
+    // Left edge
+    else {
+        x = -15;
+        y = height - (currentPosition - (2 * width + height));
+    }
+
+    style = {
+        left: `${x}px`,
+        top: `${y}px`,
+        transform: 'translate(-50%, -50%)',
+    };
+  }
+
+  return (
+    <div
+      className={cn(
+        "absolute w-4 h-4 rounded-full border-2",
+        isOccupied ? "bg-primary border-primary-foreground" : "border-primary bg-background"
+      )}
+      style={style}
+    ></div>
   );
 };
 
@@ -179,13 +246,13 @@ function AsignacionMesasContent() {
           <CardHeader className="text-center">
               <PartyPopper className="w-10 h-10 mx-auto text-primary" />
               <CardTitle className="font-headline text-3xl">Organiza tus Mesas</CardTitle>
-              <CardDescription>Arrastra los invitados a las mesas para asignar sus lugares.</CardDescription>
+              <CardDescription>Arrastra los invitados a las mesas o asígnalos desde la lista.</CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="visual">
                 <TabsList className="grid w-full grid-cols-2">
                     <TabsTrigger value="visual">Diseño Visual</TabsTrigger>
-                    <TabsTrigger value="list">Lista Manual</TabsTrigger>
+                    <TabsTrigger value="list">Asignación por Lista</TabsTrigger>
                 </TabsList>
                 <TabsContent value="visual">
                    <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 h-[calc(100vh-450px)] pt-4">
@@ -206,6 +273,17 @@ function AsignacionMesasContent() {
                                     <Draggable key={el.id} nodeRef={nodeRef} position={{ x: el.x, y: el.y }} disabled>
                                         <TableDropZone element={el} onDrop={(guestId) => handleAssignGuestToTable(guestId, el.name)}>
                                             <div ref={nodeRef} id={el.id} className="absolute" style={{ left: el.x, top: el.y, width: el.width, height: el.height, transform: `rotate(${el.rotation}deg)`, zIndex: el.zIndex || (el.type === 'area' ? 0 : 1) }}>
+                                                {Array.from({ length: el.seats || 0 }).map((_, i) => (
+                                                    <Seat
+                                                      key={i}
+                                                      index={i}
+                                                      total={el.seats || 0}
+                                                      isOccupied={i < assignedSeatsCount}
+                                                      isRound={isRound}
+                                                      width={el.width}
+                                                      height={el.height}
+                                                    />
+                                                ))}
                                                 <div className={cn('w-full h-full border flex flex-col p-1 border-gray-500', isRound && 'rounded-full')} style={{ backgroundColor: el.backgroundColor || 'rgba(255, 255, 255, 0.7)' }}>
                                                     <p className="text-xs font-bold text-center truncate">{el.name}</p>
                                                     <p className="text-[10px] text-center text-muted-foreground">{assignedSeatsCount}/{el.seats || 'N/A'}</p>
