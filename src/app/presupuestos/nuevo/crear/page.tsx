@@ -20,6 +20,7 @@ import Paso3Resumen from '@/components/presupuestos/paso-3-resumen';
 import { Progress } from '@/components/ui/progress';
 import { getMenus } from '@/app/actions/menus-catering';
 import type { FullMenu } from '@/types/catering';
+import { getOcupiedDates } from '@/app/actions/agenda';
 
 const SESSION_STORAGE_KEY = 'presupuestoEnProgreso_v3';
 
@@ -60,22 +61,32 @@ function formStateInitializer(initialState: PresupuestoFormData): PresupuestoFor
 
 function calcularCostoItem(item: ItemPresupuestado, invitados: number): number {
   if (item.esRegalo) return 0;
+  
   let itemTotal = 0;
   const precioUnitario = item.precioUnitarioPresupuesto ?? item.precioUnitario;
+
   switch (item.calculationMethod) {
-    case 'fijo': itemTotal = item.precioBase ?? precioUnitario; break;
-    case 'porPersona': itemTotal = (item.precioPorPersona ?? precioUnitario) * invitados; break;
+    case 'fijo':
+      itemTotal = item.precioBase ?? precioUnitario;
+      break;
+    case 'porPersona':
+      itemTotal = (item.precioPorPersona ?? precioUnitario) * invitados;
+      break;
     case 'ratio':
       const invitadosPorUnidadNum = Number(item.invitadosPorUnidad);
       if (invitadosPorUnidadNum > 0) {
-        itemTotal = Math.ceil(invitados / invitadosPorUnidadNum) * (item.precioBase ?? precioUnitario);
-      } else { itemTotal = item.precioBase ?? precioUnitario; }
+        const basePrice = item.precioBase ?? precioUnitario;
+        itemTotal = Math.ceil(invitados / invitadosPorUnidadNum) * basePrice;
+      } else {
+        itemTotal = item.precioBase ?? precioUnitario; // Fallback
+      }
       break;
     case 'tramos':
       const tramo = item.tramosDePrecio?.find(t => invitados >= t.desde && invitados <= t.hasta);
       itemTotal = tramo?.precio || 0;
       break;
-    default: itemTotal = item.cantidad * precioUnitario;
+    default: // Fallback to simple calculation
+      itemTotal = item.cantidad * precioUnitario;
   }
   return itemTotal;
 }
@@ -93,6 +104,7 @@ function CrearPresupuestoContent() {
     
     const [formData, setFormData] = useState<PresupuestoFormData>(() => formStateInitializer(initialFormData));
     const [editingPresupuestoId, setEditingPresupuestoId] = useState<string | null>(null);
+    const [occupiedDates, setOccupiedDates] = useState<Date[]>([]);
     
     const leadIdFromParams = searchParams.get('leadId');
 
@@ -121,7 +133,13 @@ function CrearPresupuestoContent() {
                 const editId = searchParams.get('editId');
                 setEditingPresupuestoId(editId);
 
-                const [armadoConfig, menuData, services] = await Promise.all([getArmadoRapidoConfig(), getMenus(), getServiciosEmpresa()]);
+                const [armadoConfig, menuData, services, occupiedDatesStrings] = await Promise.all([
+                    getArmadoRapidoConfig(), 
+                    getMenus(), 
+                    getServiciosEmpresa(),
+                    getOcupiedDates()
+                ]);
+                setOccupiedDates(occupiedDatesStrings.map(d => new Date(d)));
                 setServiciosCatalogo(services.filter(s => s.tipoItem === 'Servicio'));
                 setPaquetesBase(armadoConfig.paquetes || []);
                 setAllMenus(menuData || []);
@@ -268,7 +286,7 @@ function CrearPresupuestoContent() {
                 <CardContent>
                     {isLoadingInitialData ? <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div> : (
                         <>
-                            {paso === 1 && <Paso1DatosEvento formData={formData} setFormData={setFormData} />}
+                            {paso === 1 && <Paso1DatosEvento formData={formData} setFormData={setFormData} occupiedDates={occupiedDates} />}
                             {paso === 2 && <Paso2Servicios formData={formData} setFormData={setFormData} serviciosCatalogo={serviciosCatalogo} paquetesBase={paquetesBase} allMenus={allMenus} onCatalogUpdate={fetchServicios} totalInvitados={totalInvitados} />}
                             {paso === 3 && <Paso3Resumen formData={formData} setFormData={setFormData} totalCalculado={totalCalculado} totalInvitados={totalInvitados} />}
                         </>

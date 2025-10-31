@@ -8,15 +8,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import type { Dispatch, SetStateAction } from 'react';
 import { ALL_TIPOS_EVENTO } from '@/types/presupuesto';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Separator } from '@/components/ui/separator';
+import { AlertTriangle } from 'lucide-react';
+import { isSameDay, startOfDay } from 'date-fns';
 
 interface Paso1Props {
   formData: PresupuestoFormData;
   setFormData: Dispatch<SetStateAction<PresupuestoFormData>>;
+  occupiedDates: Date[];
 }
 
-export function Paso1DatosEvento({ formData, setFormData }: Paso1Props) {
+export function Paso1DatosEvento({ formData, setFormData, occupiedDates }: Paso1Props) {
+  const [isDateOccupied, setIsDateOccupied] = useState(false);
   
   useEffect(() => {
     // Update total guest count whenever adults or ninos change
@@ -32,6 +36,13 @@ export function Paso1DatosEvento({ formData, setFormData }: Paso1Props) {
 
   const handleDateChange = (date: Date | undefined) => {
     setFormData(prev => ({ ...prev, eventoFecha: date }));
+    if (date) {
+      const selectedDay = startOfDay(date);
+      const isOccupied = occupiedDates.some(occupiedDate => isSameDay(selectedDay, startOfDay(occupiedDate)));
+      setIsDateOccupied(isOccupied);
+    } else {
+      setIsDateOccupied(false);
+    }
   };
   
   const eventoTipoEnSelect =
@@ -183,7 +194,14 @@ export function Paso1DatosEvento({ formData, setFormData }: Paso1Props) {
           <DatePickerDemo
             selectedDate={formData.eventoFecha}
             onDateChange={handleDateChange}
+            disabled={occupiedDates}
           />
+          {isDateOccupied && (
+            <div className="p-2 text-sm text-destructive-foreground bg-destructive/90 rounded-md flex items-center gap-2 mt-1">
+              <AlertTriangle className="w-4 h-4" />
+              ¡Fecha Ocupada!
+            </div>
+          )}
         </div>
         <div className="space-y-2">
           <Label htmlFor="invitadosAdultos" className="text-base">Nº Adultos*</Label>

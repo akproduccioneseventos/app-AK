@@ -175,10 +175,9 @@
     "nombrePromocion": "",
     "vigenciaPromocion": "",
     "notas": "",
-    "id": "pres_1761942907952_lu567a4",
-    "timestamp": "2025-10-31T20:35:08.024Z",
     "estado": "Borrador",
-    "ajusteAnualActivo": false,
-    "leadId": "lead_1761942908015_kwc7cjx"
+    "id": "pres_1761942907952_lu567a4",
+    "timestamp": "2025-10-31T20:41:51.418Z",
+    "ajusteAnualActivo": false
   }
 ]
