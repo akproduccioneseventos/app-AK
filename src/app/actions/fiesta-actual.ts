@@ -1,4 +1,5 @@
 
+
 'use server';
 
 // This file is a central hub for all actions related to the "current event".
@@ -97,7 +98,7 @@ export const updatePersonalFiestaActual = updatePersonal;
 // Portal & Digital Invitation Actions
 export const updateClientChecklistFiestaActual = updateClientChecklist;
 export const updateClientNotesFiestaActual = updateClientNotes;
-export const updatePortalSettings = updatePortalSettings;
+export const updatePortalSettingsFiestaActual = updatePortalSettings;
 
 // Musica Actions
 export const updateMusicaFiestaActual = updateMusica;
@@ -144,3 +145,4 @@ export const addGiftToRegistryFiestaActual = addGiftToRegistry;
 export const updateCartaTragos = updateCartaTragosFromModule;
 export const updateMenuMesa = updateMenuMesaFromModule;
 export const updateNumerosMesa = updateNumerosMesaFromModule;
+

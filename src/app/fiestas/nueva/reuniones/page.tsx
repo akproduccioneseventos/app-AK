@@ -12,7 +12,7 @@ import { DatePickerDemo } from '@/components/date-picker-demo';
 import { ArrowLeft, PlusCircle, Edit3, Trash2, Loader2, AlertTriangle, MessageSquareText, CalendarIcon, NotebookTextIcon, CalendarPlus, Palette, Music2, ChefHat, PackageSearch, Globe, KeyRound, ClipboardCopy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, Reunion, ClientPortalSettings } from '@/types/fiesta';
-import { getFiestaById, addReunionToFiestaActual, updateReunionInFiestaActual, deleteReunionFromFiestaActual, updatePortalSettings } from '@/app/actions/fiesta-actual';
+import { getFiestaById, addReunionToFiestaActual, updateReunionInFiestaActual, deleteReunionFromFiestaActual, updatePortalSettingsFiestaActual } from '@/app/actions/fiesta-actual';
 import {
   Dialog,
   DialogContent,
@@ -242,7 +242,7 @@ function GestionReunionesContent() {
     if (!portalSettings || !fiestaId) return;
     setIsSaving(true);
     try {
-      const result = await updatePortalSettings(fiestaId, portalSettings);
+      const result = await updatePortalSettingsFiestaActual(fiestaId, portalSettings);
       if (result.success) {
         toast({ title: "Configuración Guardada", description: "Los ajustes del portal del cliente se han actualizado." });
       } else {
