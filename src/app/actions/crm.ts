@@ -156,6 +156,7 @@ export async function findLeadByBudgetOrCreate(
 
   const result = await addCrmLead(newLeadData, { preventDuplicateCheck: true });
   if (!result.success || !result.lead) {
+    console.error("Failed to create a new CRM lead from budget:", result.error);
     throw new Error('Failed to create a new lead for the budget.');
   }
 
