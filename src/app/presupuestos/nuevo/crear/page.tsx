@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import type { Presupuesto, PresupuestoFormData, ItemPresupuestado } from '@/types/presupuesto';
 import type { ServicioEmpresa } from '@/types/empresa';
 import type { PaqueteArmadoRapido, MenuArmadoRapido } from '@/types/armado-rapido';
-import { savePresupuesto } from '@/app/actions/presupuestos';
+import { savePresupuesto, getPresupuestoById, updatePresupuesto } from '@/app/actions/presupuestos';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { Paso1DatosEvento } from '@/components/presupuestos/paso-1-datos-evento';
@@ -92,6 +92,7 @@ function CrearPresupuestoContent() {
     const [paso, setPaso] = useState(1);
     
     const [formData, setFormData] = useState<PresupuestoFormData>(() => formStateInitializer(initialFormData));
+    const [editingPresupuestoId, setEditingPresupuestoId] = useState<string | null>(null);
     
     const leadIdFromParams = searchParams.get('leadId');
 
@@ -117,14 +118,49 @@ function CrearPresupuestoContent() {
         const fetchInitialData = async () => {
             setIsLoadingInitialData(true);
             try {
-                const [armadoConfig, menuData] = await Promise.all([getArmadoRapidoConfig(), getMenus()]);
-                await fetchServicios();
+                const editId = searchParams.get('editId');
+                setEditingPresupuestoId(editId);
+
+                const [armadoConfig, menuData, services] = await Promise.all([getArmadoRapidoConfig(), getMenus(), getServiciosEmpresa()]);
+                setServiciosCatalogo(services.filter(s => s.tipoItem === 'Servicio'));
                 setPaquetesBase(armadoConfig.paquetes || []);
                 setAllMenus(menuData || []);
-                
-                const leadName = searchParams.get('leadName');
-                if (leadName && !sessionStorage.getItem(SESSION_STORAGE_KEY)) {
-                    setFormData(prev => ({ ...prev, clienteNombre: leadName }));
+
+                if (editId) {
+                    const presupuestoToEdit = await getPresupuestoById(editId);
+                    if (presupuestoToEdit) {
+                        const serviciosMap = new Map();
+                        presupuestoToEdit.itemsPresupuestados.forEach(item => {
+                            serviciosMap.set(item.idServicioCatalogo, {
+                                cantidad: item.cantidad,
+                                precioUnitarioOriginal: item.precioUnitario,
+                                precioUnitarioPresupuesto: item.precioUnitarioPresupuesto,
+                                nombreServicio: item.nombreServicio,
+                                unidad: item.unidad,
+                                categoriaServicio: item.categoriaServicio,
+                                esRegalo: item.esRegalo,
+                                calculationMethod: item.calculationMethod,
+                                precioBase: item.precioBase,
+                                precioPorPersona: item.precioPorPersona,
+                                invitadosPorUnidad: item.invitadosPorUnidad,
+                                tramosDePrecio: item.tramosDePrecio,
+                            });
+                        });
+                        setFormData({
+                            ...presupuestoToEdit,
+                            eventoFecha: new Date(presupuestoToEdit.eventoFecha),
+                            serviciosSeleccionados: serviciosMap,
+                            descuentoValor: presupuestoToEdit.descuentoValor?.toString() || ''
+                        });
+                         toast({ title: "Modo Edición", description: `Cargado el presupuesto de ${presupuestoToEdit.clienteNombre}.`});
+                    } else {
+                        toast({ title: "Error", description: "No se encontró el presupuesto a editar.", variant: "destructive" });
+                    }
+                } else {
+                    const leadName = searchParams.get('leadName');
+                    if (leadName && !sessionStorage.getItem(SESSION_STORAGE_KEY)) {
+                        setFormData(prev => ({ ...prev, clienteNombre: leadName }));
+                    }
                 }
             } catch (error) {
                 toast({ title: "Error", description: "No se pudieron cargar datos iniciales.", variant: "destructive" });
@@ -152,14 +188,14 @@ function CrearPresupuestoContent() {
     const totalCalculado = useMemo(() => {
       return Array.from(formData.serviciosSeleccionados.values()).reduce((sum, item) => {
         const itemDataForCalc: ItemPresupuestado = {
-          idServicioCatalogo: '', ...item, precioUnitario: item.precioUnitarioOriginal, costoTotalItem: 0
+          idServicioCatalogo: '', ...item, precioUnitario: item.precioUnitarioOriginal, costoTotalItem: 0 // dummy for calc
         };
         return sum + calcularCostoItem(itemDataForCalc, totalInvitados);
       }, 0);
     }, [formData.serviciosSeleccionados, totalInvitados]);
 
     const handleSave = async () => {
-        const presupuestoAGuardar: Omit<Presupuesto, 'id' | 'estado' | 'invoiceId'> = {
+        const presupuestoData: Omit<Presupuesto, 'id'> = {
             clienteNombre: formData.clienteNombre,
             clienteContacto: formData.clienteContacto,
             eventoTipo: formData.eventoTipo,
@@ -193,13 +229,21 @@ function CrearPresupuestoContent() {
             descuentoValor: parseFloat(formData.descuentoValor || '0') || undefined,
             vigenciaPromocion: formData.vigenciaPromocion,
             notas: formData.notas,
+            estado: 'Borrador', // Default for new
+            invoiceId: undefined, // Default for new
         };
         
         setIsSaving(true);
         try {
-          const result = await savePresupuesto(presupuestoAGuardar, { source: 'manual', leadId: leadIdFromParams || undefined });
+          let result;
+          if (editingPresupuestoId) {
+            result = await updatePresupuesto({ ...presupuestoData, id: editingPresupuestoId });
+          } else {
+            result = await savePresupuesto(presupuestoData, { source: 'manual', leadId: leadIdFromParams || undefined });
+          }
+
           if (result.success && result.id) {
-            toast({ title: "Presupuesto Guardado" });
+            toast({ title: `Presupuesto ${editingPresupuestoId ? 'Actualizado' : 'Guardado'}` });
             sessionStorage.removeItem(SESSION_STORAGE_KEY);
             router.push(`/presupuestos/${result.id}/ver`);
           } else { throw new Error(result.error || "Error al guardar"); }
@@ -213,7 +257,7 @@ function CrearPresupuestoContent() {
     return (
         <div className="space-y-6">
              <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-bold tracking-tight font-headline">Crear Presupuesto</h1>
+                <h1 className="text-3xl font-bold tracking-tight font-headline">{editingPresupuestoId ? 'Modificar Presupuesto' : 'Crear Presupuesto'}</h1>
                 <Link href="/presupuestos/nuevo" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver a la Central</Button></Link>
             </div>
             <Card className="shadow-lg">
@@ -241,7 +285,7 @@ function CrearPresupuestoContent() {
                     ) : (
                         <Button onClick={handleSave} disabled={isSaving}>
                             {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
-                            {isSaving ? 'Guardando...' : 'Finalizar y Generar Presupuesto'}
+                            {isSaving ? 'Guardando...' : (editingPresupuestoId ? 'Guardar Cambios' : 'Finalizar y Generar')}
                         </Button>
                     )}
                 </CardFooter>

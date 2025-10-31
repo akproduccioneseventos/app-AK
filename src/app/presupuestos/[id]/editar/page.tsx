@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DatePickerDemo } from '@/components/date-picker-demo';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Edit3, Tag, Percent } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Edit3, Tag, Percent, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Presupuesto, TipoEvento, ItemPresupuestado } from '@/types/presupuesto';
 import { getPresupuestoById, updatePresupuesto } from '@/app/actions/presupuestos';
@@ -160,7 +160,7 @@ export default function EditarPresupuestoPage({ params: paramsProp }: { params: 
       </div>
       
       <Card className="shadow-lg">
-        <CardHeader><CardTitle className="font-headline">Información Principal</CardTitle><CardDescription>Modifica los detalles generales. La edición de servicios se realiza en el Paso 2 del creador de presupuestos.</CardDescription></CardHeader>
+        <CardHeader><CardTitle className="font-headline">Información Principal</CardTitle><CardDescription>Modifica los detalles generales del presupuesto.</CardDescription></CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-6">
             {/* Step 1 equivalent fields */}
@@ -208,7 +208,18 @@ export default function EditarPresupuestoPage({ params: paramsProp }: { params: 
 
             <div className="space-y-2"><Label htmlFor="estado-presupuesto">Estado</Label><Select value={estado} onValueChange={(value) => setEstado(value as Presupuesto['estado'])} disabled={isSaving}><SelectTrigger id="estado-presupuesto"><SelectValue /></SelectTrigger><SelectContent>{(['Borrador', 'Enviado', 'Aceptado', 'Rechazado', 'Facturado'] as Presupuesto['estado'][]).map(s => (<SelectItem key={s} value={s}>{s}</SelectItem>))}</SelectContent></Select></div>
             <div className="space-y-2"><Label htmlFor="notas">Notas Adicionales</Label><Textarea id="notas" value={notas} onChange={(e) => setNotas(e.target.value)} rows={4} disabled={isSaving}/></div>
-            <p className="text-sm text-muted-foreground">Los servicios seleccionados se mantienen. Para modificarlos, crea un nuevo presupuesto o espera a futuras funcionalidades de edición detallada de ítems.</p>
+            
+            <div className="pt-6 border-t">
+              <h3 className="text-lg font-medium font-headline text-primary mb-2">Editar Servicios</h3>
+              <p className="text-sm text-muted-foreground mb-4">Para añadir, quitar o modificar los servicios y precios de este presupuesto, usa el creador de presupuestos.</p>
+              <Link href={`/presupuestos/nuevo/crear?editId=${presupuestoId}`} passHref>
+                <Button variant="secondary">
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Editar Servicios, Cantidades y Precios
+                </Button>
+              </Link>
+            </div>
+
           </CardContent>
           <CardFooter className="border-t pt-6">
             <Button type="submit" className="w-full sm:w-auto" disabled={isSaving}>
@@ -221,3 +232,4 @@ export default function EditarPresupuestoPage({ params: paramsProp }: { params: 
     </div>
   );
 }
+
