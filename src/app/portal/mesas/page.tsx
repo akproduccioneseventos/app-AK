@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense, use } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -69,7 +69,7 @@ const TableDropZone: React.FC<{
 
 // --- Main Content Component ---
 function AsignacionMesasContent() {
-  const searchParams = use(useSearchParams());
+  const searchParams = useSearchParams();
   const fiestaId = searchParams.get('fiestaId');
   const { toast } = useToast();
 

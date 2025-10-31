@@ -1,14 +1,14 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense, use } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Disc, Clapperboard, Sofa, Camera as CameraIcon, Search, Printer, Settings2, FolderDown, FolderUp, Maximize, ZoomIn, ZoomOut, Upload, Map, ChevronsUp, ChevronsDown, X, Armchair, PartyPopper, Ticket } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Disc, Clapperboard, Sofa, Camera as CameraIcon, Search, Printer, Settings2, FolderDown, FolderUp, Maximize, ZoomIn, ZoomOut, Upload, Map, ChevronsUp, ChevronsDown, X, Armchair, PartyPopper, Ticket, UserMinus } from 'lucide-react';
 import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData, LayoutElementType } from '@/types/fiesta';
@@ -152,10 +152,10 @@ const Seat: React.FC<{ angle?: number; distance?: number; isOccupied: boolean; i
 
 
 function SalonLayoutContent() {
-  const params = use(useSearchParams());
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
-  const fiestaId = params.get('fiestaId');
+  const fiestaId = searchParams.get('fiestaId');
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [decoracion, setDecoracion] = useState<DecoracionData | null>(null);
@@ -178,7 +178,7 @@ function SalonLayoutContent() {
   const [processingPointName, setProcessingPointName] = useState<string | null>(null);
 
   
-  const canvasRef = React.useRef<HTMLDivElement>(null);
+  const canvasRef = React.createRef<HTMLDivElement>();
   const [scale, setScale] = useState(1);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [guestSearchTerm, setGuestSearchTerm] = useState('');
@@ -373,9 +373,9 @@ function SalonLayoutContent() {
     }
   };
   
-  const handleAssignGuestToTable = async (guestId: string, tableName: string) => {
+  const handleAssignGuestToTable = async (guestId: string, tableName: string | null) => {
     const updatedInvitados = (fiesta?.invitados || []).map(inv => 
-      inv.id === guestId ? { ...inv, tableNumber: tableName } : inv
+      inv.id === guestId ? { ...inv, tableNumber: tableName === null ? undefined : tableName } : inv
     );
     if (fiesta && fiestaId) {
       setFiesta({ ...fiesta, invitados: updatedInvitados });
@@ -556,7 +556,7 @@ function SalonLayoutContent() {
                              <TableRow key={guest.id} className="bg-green-50/50">
                                 <TableCell className="font-medium">{guest.nombre}</TableCell>
                                 <TableCell>{guest.partySize}</TableCell>
-                                <TableCell><Select value={guest.tableNumber || 'sin-mesa'} onValueChange={(val) => val === 'sin-mesa' ? handleUnassignGuest(guest.id) : handleAssignGuestToTable(guest.id, val)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{(decoracion.salonElements || []).filter(el => el.category?.includes("Mesa")).map(t => <SelectItem key={t.id} value={t.name}>{t.name}</SelectItem>)}<Separator/><SelectItem value="sin-mesa" className="text-destructive">Quitar de mesa</SelectItem></SelectContent></Select></TableCell>
+                                <TableCell><Select value={guest.tableNumber || 'sin-mesa'} onValueChange={(val) => val === 'sin-mesa' ? handleAssignGuestToTable(guest.id, null) : handleAssignGuestToTable(guest.id, val)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{(decoracion.salonElements || []).filter(el => el.category?.includes("Mesa")).map(t => <SelectItem key={t.id} value={t.name}>{t.name}</SelectItem>)}<Separator/><SelectItem value="sin-mesa" className="text-destructive">Quitar de mesa</SelectItem></SelectContent></Select></TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
@@ -599,7 +599,7 @@ function SalonLayoutContent() {
                       </DropdownMenu>
                     </CardHeader>
                     <CardContent className="flex-grow p-1 overflow-auto">
-                    <div className="relative canvas-grid-background" style={{ width: `${(decoracion.salonWidth || 15) * pixelsPerMeter}px`, height: `${(decoracion.salonHeight || 15) * pixelsPerMeter}px`, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
+                    <div className="relative canvas-grid-background" ref={canvasRef} style={{ width: `${(decoracion.salonWidth || 15) * pixelsPerMeter}px`, height: `${(decoracion.salonHeight || 15) * pixelsPerMeter}px`, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
                         {decoracion.salonPlanBackgroundImageUrl && (<NextImage src={decoracion.salonPlanBackgroundImageUrl} alt="Plano del Salón" layout="fill" objectFit="contain" className="opacity-50"/>)}
                         {(decoracion.salonElements || []).sort((a,b) => (a.zIndex || 0) - (b.zIndex || 0)).map(el => {
                             const nodeRef = React.createRef<HTMLDivElement>();
@@ -611,9 +611,6 @@ function SalonLayoutContent() {
                             <Draggable key={el.id} nodeRef={nodeRef} bounds="parent" grid={[grid, grid]} position={{ x: el.x, y: el.y }} onStop={(e, data) => handleDragStop(e, data, el.id)}>
                                 <TableDropZone element={el} onDrop={(guestId, tableName) => handleAssignGuestToTable(guestId, tableName)}>
                                 <div ref={nodeRef} id={el.id} className="absolute cursor-grab active:cursor-grabbing" style={{ left: el.x, top: el.y, width: el.width, height: el.height, transform: `rotate(${el.rotation}deg)`, zIndex: el.zIndex || (isArea ? 0 : 1) }}>
-                                     {el.seats && Array.from({ length: el.seats }).map((_, i) => (
-                                        <Seat key={i} index={i} total={el.seats!} isOccupied={i < assignedSeatsCount} isRound={isRound} width={el.width} height={el.height} />
-                                      ))}
                                     <div className={cn('w-full h-full border flex flex-col p-1', selectedElementId === el.id ? 'border-primary shadow-lg z-10' : 'border-gray-500', isRound && 'rounded-full')}
                                         style={{ backgroundColor: el.backgroundColor || (isArea ? 'rgba(59, 130, 246, 0.2)' : 'rgba(255, 255, 255, 0.7)') }}
                                         onClick={(e) => { e.stopPropagation(); setSelectedElementId(el.id); }}>
