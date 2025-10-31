@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, use } from 'react';
@@ -151,13 +152,9 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
     const bruto = presupuesto.costoTotalEstimado;
     
     let descAplicado = 0;
-    if (presupuesto.descuentoValor && presupuesto.descuentoValor > 0) {
-      descAplicado = presupuesto.descuentoTipo === 'porcentaje'
-        ? (bruto * presupuesto.descuentoValor) / 100
-        : presupuesto.descuentoValor;
-    } else if (armadoRapidoConfig?.descuentoGeneral) {
-      // Apply "ficticio" discount from simulator config if budget has none
-      descAplicado = (bruto * armadoRapidoConfig.descuentoGeneral) / 100;
+    // The discount is now derived from the difference between subtotal and discounted total
+    if (presupuesto.totalConDescuento !== undefined) {
+      descAplicado = Math.max(0, bruto - presupuesto.totalConDescuento);
     }
 
     const totalDescuentoCalculado = bruto - descAplicado;
@@ -181,7 +178,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
       itemsAgrupados: sortedAgrupados,
       costoTotalRegalos: costoRegalos,
       subtotalBruto: bruto,
-      descuentoPromocional: Math.max(0, descAplicado),
+      descuentoPromocional: descAplicado,
       totalConDescuento: totalDescuentoCalculado,
       ajustesAnuales: ajustes,
       totalFinal: totalAjustado,
