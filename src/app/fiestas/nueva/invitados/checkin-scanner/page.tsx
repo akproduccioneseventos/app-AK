@@ -199,7 +199,7 @@ function CheckinScannerContent() {
           <UserCheck className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">Check-in de Invitados</h1>
         </div>
-        <Link href={`/fiestas/nueva/invitados?fiestaId=${fiestaId}`}><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver a Invitados</Button></Link>
+        <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver al Planificador</Button></Link>
       </div>
 
       <Card className="shadow-md">
@@ -264,7 +264,7 @@ function CheckinScannerContent() {
                       <CameraOff className="h-4 w-4" />
                       <AlertTitle>Se requiere acceso a la cámara</AlertTitle>
                       <AlertDescription>
-                        Habilita los permisos de la cámara en tu navegador para continuar.
+                        Habilita los permisos de la cámara en tu navegador para usar el escáner.
                       </AlertDescription>
                     </Alert>
                  )}
