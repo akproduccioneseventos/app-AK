@@ -194,7 +194,14 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
         
         <div className="space-y-2">
             <Label htmlFor="notas" className="text-base">Notas Adicionales para el Cliente</Label>
-            <Textarea id="notas" placeholder="Añade términos, condiciones de pago, o cualquier otra nota relevante aquí." value={formData.notas} onChange={(e) => setFormData(prev => ({...prev, notas: e.target.value}))} rows={4} className="text-base p-3" />
+            <Textarea 
+              id="notas" 
+              placeholder="Añade términos, condiciones de pago, o cualquier otra nota relevante aquí." 
+              value={formData.notas} 
+              onChange={(e) => setFormData(prev => ({...prev, notas: e.target.value}))} 
+              rows={4} 
+              className="text-base p-3" 
+            />
         </div>
     </div>
   );
