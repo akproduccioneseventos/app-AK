@@ -94,8 +94,6 @@ export async function savePresupuesto(
     
     finalLeadId = lead.id;
 
-    // Only move if it's newly created (from simulator or manual without leadId)
-    // or if it was manually created from a lead in a previous stage
     if (isNew || options?.source === 'manual' || options?.source === 'simulator') {
         const stages = await getCrmStages();
         const targetStage = stages.find(s => s.name.toLowerCase().includes('presupuesto'));
@@ -106,7 +104,6 @@ export async function savePresupuesto(
     
   } catch (crmError: any) {
     console.warn(`Presupuesto ${presupuestoId} guardado, pero falló la sincronización con el CRM: ${crmError.message}`);
-    // Do not fail the main operation, only log the issue.
   }
 
   return { success: true, id: nuevoPresupuesto.id, presupuesto: nuevoPresupuesto, leadId: finalLeadId };
@@ -192,7 +189,6 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
       }
     } catch (invoiceError) {
       console.error(`Error al sincronizar la factura del presupuesto actualizado ${updatedPresupuesto.id}:`, invoiceError);
-      // We don't fail the whole operation, but it's good to be aware of the issue.
     }
   }
 

@@ -64,7 +64,8 @@ export async function addCrmLead(
     if (isDuplicate) {
         const existingLead = leads.find(lead => lead.name.trim().toLowerCase() === leadData.name.trim().toLowerCase());
         if (existingLead) {
-            return { success: true, lead: existingLead };
+            // This was causing issues on edit. Return error only if it's a true duplicate creation attempt.
+            return { success: false, error: `Ya existe un prospecto con el nombre "${leadData.name.trim()}".` };
         }
     }
   }
