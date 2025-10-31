@@ -152,6 +152,14 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
   
   presupuestos[index] = updatedPresupuesto;
   await writeData(PRESUPUESTOS_FILE, presupuestos);
+  
+  // Sync with CRM
+  try {
+    await findLeadByBudgetOrCreate(updatedPresupuesto);
+  } catch (crmError: any) {
+    console.warn(`Presupuesto ${updatedPresupuesto.id} actualizado, pero falló la sincronización con el CRM: ${crmError.message}`);
+  }
+
 
   // If the budget is invoiced, update the invoice total as well.
   if (updatedPresupuesto.estado === 'Facturado' && updatedPresupuesto.invoiceId) {
