@@ -54,7 +54,7 @@ export async function addCrmLead(
   leadData: NewCrmLeadData,
   options: { preventDuplicateCheck?: boolean } = {}
 ): Promise<{ success: boolean; lead?: CrmLead; error?: string }> {
-  if (!leadData.name.trim()) {
+  if (!leadData.name?.trim()) {
     return { success: false, error: 'El nombre del prospecto es obligatorio.' };
   }
   const leads = await getCrmLeads();
