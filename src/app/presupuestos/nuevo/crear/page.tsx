@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
@@ -247,7 +248,7 @@ function CrearPresupuestoContent() {
             descuentoValor: parseFloat(formData.descuentoValor || '0') || undefined,
             vigenciaPromocion: formData.vigenciaPromocion,
             notas: formData.notas,
-            estado: 'Borrador', // Default for new
+            estado: 'Borrador', // Will be changed to 'Enviado' for new budgets in the action
             invoiceId: undefined, // Default for new
         };
         

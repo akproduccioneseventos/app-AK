@@ -77,7 +77,7 @@ export async function savePresupuesto(
     costoTotalEstimado: costoTotalEstimadoRecalculado,
     totalConDescuento: descuentoAplicado > 0 ? finalTotalWithDiscount : undefined,
     timestamp: new Date().toISOString(),
-    estado: 'Borrador',
+    estado: 'Enviado', // Default to "Sent" for new budgets
     invoiceId: undefined,
     ajusteAnualActivo: false,
     leadId: options?.leadId, // Start with the provided leadId
