@@ -39,6 +39,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Badge } from '@/components/ui/badge';
+import { Suspense } from 'react';
 
 export default function InvitadosEventoPage() {
   const { toast } = useToast();
@@ -236,238 +237,238 @@ export default function InvitadosEventoPage() {
   if (error) return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>{error}</div>;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6" id="guest-management-page">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 print:hidden">
-        <h1 className="text-3xl font-bold tracking-tight font-headline">
-          Gestión de Invitados
-        </h1>
-        <div className="flex flex-wrap gap-2">
-            <Link href={`/fiestas/nueva/invitados/numeros-mesa?fiestaId=${fiestaId}`} passHref>
-                <Button variant="secondary"><Printer className="w-4 h-4 mr-2"/>Imprimir Números de Mesa</Button>
-            </Link>
-            <Button variant="secondary" onClick={handlePrint}><Printer className="w-4 h-4 mr-2"/>Imprimir Lista</Button>
-            <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref>
-              <Button variant="outline">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Volver al Planificador
-              </Button>
-            </Link>
-        </div>
-      </div>
-      
-      <Card className="shadow-lg print:hidden">
-        <CardHeader>
-          <CardTitle className="font-headline text-xl">Añadir Nuevo Invitado</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleAddInvitado} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                <Label htmlFor="nombre-invitado">Nombre del Invitado</Label>
-                <Input id="nombre-invitado" value={nuevoNombre} onChange={(e) => setNuevoNombre(e.target.value)} placeholder="Ej: Laura Martínez" required />
-                </div>
-                <div className="space-y-2">
-                <Label htmlFor="contacto-invitado">Teléfono (Opcional)</Label>
-                <Input id="contacto-invitado" value={nuevoContacto} onChange={(e) => setNuevoContacto(e.target.value)} placeholder="099..." />
-                </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                <Label htmlFor="num-acompanantes">Nº de Acompañantes</Label>
-                <Input id="num-acompanantes" type="number" value={nuevoNumAcompanantes} onChange={(e) => setNuevoNumAcompanantes(Number(e.target.value))} min="0" />
-                 <p className="text-xs text-muted-foreground">El total de personas será {1 + nuevoNumAcompanantes}.</p>
-                </div>
-            </div>
-            <Button type="submit" className="w-full sm:w-auto" disabled={isSaving}>
-              {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <UserPlus2 className="w-4 h-4 mr-2" />}
-              Añadir Invitado
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-
-      <Card className="shadow-lg print:shadow-none print:border-none" id="guest-list-section">
-        <CardHeader>
-          <CardTitle className="font-headline text-xl flex items-center gap-2">
-            <Users className="w-6 h-6 text-primary" /> Lista de Invitados ({rsvpCounts.TotalInvitaciones || 0} invitaciones / {rsvpCounts.TotalPersonas || 0} personas)
-          </CardTitle>
-          <CardDescription className="print:hidden">
-            Confirmados: {rsvpCounts.Confirmado || 0}. Presentes: {rsvpCounts.checkedIn || 0}. Asigna un número de mesa a cada invitado confirmado.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {invitados.length > 0 ? (
-            <ScrollArea className="h-auto max-h-[500px] pr-1 print:max-h-none print:pr-0">
-              <div className="space-y-3">
-                {invitados.map((invitado) => (
-                  <Card key={invitado.id} className="p-3 hover:shadow-md transition-shadow bg-muted/30 print:border-none print:shadow-none print:p-0 print:bg-transparent print:border-b">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                      <div className="flex-grow space-y-1">
-                        <p className="font-semibold text-foreground flex items-center gap-2 print:text-sm">
-                           {invitado.nombre}
-                           {invitado.checkedIn && <Badge variant="default" className="bg-green-100 text-green-700 hover:bg-green-100 text-xs print:hidden"><UserCheck className="w-3 h-3 mr-1"/>Presente</Badge>}
-                        </p>
-                        {invitado.companionNames && invitado.companionNames.length > 0 && (
-                            <p className="text-xs text-muted-foreground pl-2 print:hidden">
-                                <span className="font-medium">Acompañantes:</span> {invitado.companionNames.join(', ')}
-                            </p>
-                        )}
-                        {invitado.contacto && (
-                          <div className="text-xs text-muted-foreground flex items-center gap-1 print:hidden">
-                            {invitado.contacto.includes('@') ? <Mail className="w-3 h-3" /> : <Phone className="w-3 h-3" />}
-                            {invitado.contacto}
-                          </div>
-                        )}
-                        <p className="text-xs text-muted-foreground">Personas: {invitado.partySize || 1}</p>
-                        {invitado.notes && <p className="text-xs text-muted-foreground italic print:hidden">Notas: {invitado.notes}</p>}
-                      </div>
-                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto sm:ml-auto">
-                        <div className="flex-1 sm:flex-none sm:w-[120px] print:hidden">
-                            <Label htmlFor={`rsvp-${invitado.id}`} className="sr-only">RSVP</Label>
-                            <Select value={invitado.rsvp} onValueChange={(value: RsvpStatus) => handleFieldChange(invitado.id, 'rsvp', value)}>
-                                <SelectTrigger id={`rsvp-${invitado.id}`} className="h-8 text-xs"><SelectValue /></SelectTrigger>
-                                <SelectContent>
-                                {(['Pendiente', 'Confirmado', 'Rechazado', 'Tal vez'] as RsvpStatus[]).map(status => (
-                                    <SelectItem key={status} value={status} className="text-xs">{status}</SelectItem>
-                                ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                         <div className="flex-1 sm:flex-none sm:w-[120px]">
-                           <Label htmlFor={`table-${invitado.id}`} className="sr-only">Mesa</Label>
-                            <div className="flex items-center gap-1">
-                               <span className="print:inline hidden text-xs">Mesa:</span>
-                               <Select value={invitado.tableNumber || 'sin-mesa'} onValueChange={(value) => handleFieldChange(invitado.id, 'tableNumber', value)} disabled={invitado.rsvp !== 'Confirmado'}>
-                                   <SelectTrigger id={`table-${invitado.id}`} className="h-9 text-sm print:border-none print:p-0 print:h-auto print:text-xs print:font-semibold">
-                                       <SelectValue placeholder="Mesa..." />
-                                   </SelectTrigger>
-                                   <SelectContent>
-                                        <SelectItem value="sin-mesa">Sin Asignar</SelectItem>
-                                        {tableNames.map(name => <SelectItem key={name} value={name}>{name}</SelectItem>)}
-                                   </SelectContent>
-                               </Select>
-                           </div>
-                        </div>
-                        <div className="flex gap-1 print:hidden">
-                            <Button variant="ghost" size="icon" onClick={() => openEditModal(invitado)} className="h-8 w-8"><Edit3 className="w-4 h-4" /></Button>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive/80 h-8 w-8"><UserMinus className="w-4 h-4" /></Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader><AlertDialogTitle>¿Eliminar Invitado?</AlertDialogTitle><AlertDialogDescription>Se eliminará a "{invitado.nombre}" de la lista.</AlertDialogDescription></AlertDialogHeader>
-                                <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteInvitado(invitado.id)} className="bg-destructive hover:bg-destructive/90">Eliminar</AlertDialogAction></AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                        </div>
-                        <div className="hidden print:inline-block border-2 border-gray-400 w-8 h-8 ml-4"></div>
-                      </div>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            </ScrollArea>
-          ) : (
-            <div className="text-center py-8">
-              <NotebookTextIcon className="w-12 h-12 mx-auto text-muted-foreground mb-2" />
-              <p className="text-muted-foreground">Aún no has añadido ningún invitado.</p>
-            </div>
-          )}
-        </CardContent>
-         {invitados.length > 0 && (
-            <CardFooter className="text-xs text-muted-foreground border-t pt-3 print:hidden">
-                <Ticket className="w-4 h-4 mr-2 shrink-0"/> Asigna un número de mesa a los invitados confirmados.
-            </CardFooter>
-        )}
-      </Card>
-
-      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="font-headline text-xl">Editar Invitado</DialogTitle>
-            <DialogDescription>Modifica los detalles de {editingInvitado?.nombre || 'este invitado'}.</DialogDescription>
-          </DialogHeader>
-          {editingInvitado && (
-            <form onSubmit={handleSaveEditModal} className="space-y-3 py-2">
-              <div className="space-y-1">
-                <Label htmlFor="edit-nombre">Nombre</Label>
-                <Input id="edit-nombre" value={editingInvitado.nombre} onChange={(e) => setEditingInvitado(p => p ? {...p, nombre: e.target.value} : null)} required />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="edit-contacto">Contacto</Label>
-                <Input id="edit-contacto" value={editingInvitado.contacto || ''} onChange={(e) => setEditingInvitado(p => p ? {...p, contacto: e.target.value} : null)} />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="edit-partySize">Nº Personas (Total, incl. invitado)</Label>
-                <Input id="edit-partySize" type="number" value={editingInvitado.partySize || 1} onChange={(e) => handlePartySizeChangeInModal(e.target.value)} min="1" />
-              </div>
-              
-              {Array.from({ length: (editingInvitado.partySize || 1) - 1 }).map((_, index) => (
-                  <div key={index} className="space-y-1 pl-4 border-l-2 border-primary/50">
-                      <Label htmlFor={`companion-name-edit-${index}`} className="text-sm">Nombre Acompañante {index + 1}</Label>
-                      <Input
-                          id={`companion-name-edit-${index}`}
-                          value={editingInvitado.companionNames?.[index] || ''}
-                          onChange={(e) => handleCompanionNameChangeInModal(index, e.target.value)}
-                          placeholder={`Nombre del acompañante ${index + 1}`}
-                          disabled={isSaving}
-                      />
-                  </div>
-              ))}
-
-               <div className="space-y-1">
-                <Label htmlFor="edit-rsvp">Estado RSVP</Label>
-                 <Select value={editingInvitado.rsvp} onValueChange={(value: RsvpStatus) => setEditingInvitado(p => p ? {...p, rsvp: value} : null)}>
-                    <SelectTrigger id="edit-rsvp"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                    {(['Pendiente', 'Confirmado', 'Rechazado', 'Tal vez'] as RsvpStatus[]).map(status => (
-                        <SelectItem key={status} value={status}>{status}</SelectItem>
-                    ))}
-                    </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="edit-tableNumber">Mesa Asignada</Label>
-                 <Select value={editingInvitado.tableNumber || 'sin-mesa'} onValueChange={(value) => setEditingInvitado(p => p ? {...p, tableNumber: value} : null)} disabled={editingInvitado.rsvp !== 'Confirmado'}>
-                    <SelectTrigger id="edit-tableNumber"><SelectValue placeholder="Asignar mesa..."/></SelectTrigger>
-                    <SelectContent>
-                         <SelectItem value="sin-mesa">Sin Asignar</SelectItem>
-                         {tableNames.map(name => <SelectItem key={name} value={name}>{name}</SelectItem>)}
-                    </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="edit-notes">Notas</Label>
-                <Textarea id="edit-notes" value={editingInvitado.notes || ''} onChange={(e) => setEditingInvitado(p => p ? {...p, notes: e.target.value} : null)} rows={3} />
-              </div>
-              <DialogFooter className="pt-3">
-                <DialogClose asChild><Button type="button" variant="outline" disabled={isSaving}>Cancelar</Button></DialogClose>
-                <Button type="submit" disabled={isSaving}>
-                  {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-                  Guardar Cambios
+    <Suspense fallback={<div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+      <div className="max-w-4xl mx-auto space-y-6" id="guest-management-page">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 print:hidden">
+          <h1 className="text-3xl font-bold tracking-tight font-headline">
+            Gestión de Invitados
+          </h1>
+          <div className="flex flex-wrap gap-2">
+              <Link href={`/fiestas/nueva/invitados/checkin-scanner?fiestaId=${fiestaId}`} passHref>
+                <Button variant="secondary"><UserCheck className="w-4 h-4 mr-2"/>Escanear QR</Button>
+              </Link>
+              <Button variant="secondary" onClick={handlePrint}><Printer className="w-4 h-4 mr-2"/>Imprimir Lista</Button>
+              <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref>
+                <Button variant="outline">
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Volver al Planificador
                 </Button>
-              </DialogFooter>
+              </Link>
+          </div>
+        </div>
+        
+        <Card className="shadow-lg print:hidden">
+          <CardHeader>
+            <CardTitle className="font-headline text-xl">Añadir Nuevo Invitado</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleAddInvitado} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                  <Label htmlFor="nombre-invitado">Nombre del Invitado</Label>
+                  <Input id="nombre-invitado" value={nuevoNombre} onChange={(e) => setNuevoNombre(e.target.value)} placeholder="Ej: Laura Martínez" required />
+                  </div>
+                  <div className="space-y-2">
+                  <Label htmlFor="contacto-invitado">Teléfono (Opcional)</Label>
+                  <Input id="contacto-invitado" value={nuevoContacto} onChange={(e) => setNuevoContacto(e.target.value)} placeholder="099..." />
+                  </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                  <Label htmlFor="num-acompanantes">Nº de Acompañantes</Label>
+                  <Input id="num-acompanantes" type="number" value={nuevoNumAcompanantes} onChange={(e) => setNuevoNumAcompanantes(Number(e.target.value))} min="0" />
+                  <p className="text-xs text-muted-foreground">El total de personas será {1 + nuevoNumAcompanantes}.</p>
+                  </div>
+              </div>
+              <Button type="submit" className="w-full sm:w-auto" disabled={isSaving}>
+                {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <UserPlus2 className="w-4 h-4 mr-2" />}
+                Añadir Invitado
+              </Button>
             </form>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-lg print:shadow-none print:border-none" id="guest-list-section">
+          <CardHeader>
+            <CardTitle className="font-headline text-xl flex items-center gap-2">
+              <Users className="w-6 h-6 text-primary" /> Lista de Invitados ({rsvpCounts.TotalInvitaciones || 0} invitaciones / {rsvpCounts.TotalPersonas || 0} personas)
+            </CardTitle>
+            <CardDescription className="print:hidden">
+              Confirmados: {rsvpCounts.Confirmado || 0}. Presentes: {rsvpCounts.checkedIn || 0}. Asigna un número de mesa a cada invitado confirmado.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {invitados.length > 0 ? (
+              <ScrollArea className="h-auto max-h-[500px] pr-1 print:max-h-none print:pr-0">
+                <div className="space-y-3">
+                  {invitados.map((invitado) => (
+                    <Card key={invitado.id} className="p-3 hover:shadow-md transition-shadow bg-muted/30 print:border-none print:shadow-none print:p-0 print:bg-transparent print:border-b">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                        <div className="flex-grow space-y-1">
+                          <div className="font-semibold text-foreground flex items-center gap-2 print:text-sm">
+                            {invitado.nombre}
+                            {invitado.checkedIn && <Badge variant="default" className="bg-green-100 text-green-700 hover:bg-green-100 text-xs print:hidden"><UserCheck className="w-3 h-3 mr-1"/>Presente</Badge>}
+                          </div>
+                          {invitado.companionNames && invitado.companionNames.length > 0 && (
+                              <p className="text-xs text-muted-foreground pl-2 print:hidden">
+                                  <span className="font-medium">Acompañantes:</span> {invitado.companionNames.join(', ')}
+                              </p>
+                          )}
+                          {invitado.contacto && (
+                            <div className="text-xs text-muted-foreground flex items-center gap-1 print:hidden">
+                              {invitado.contacto.includes('@') ? <Mail className="w-3 h-3" /> : <Phone className="w-3 h-3" />}
+                              {invitado.contacto}
+                            </div>
+                          )}
+                          <p className="text-xs text-muted-foreground">Personas: {invitado.partySize || 1}</p>
+                          {invitado.notes && <p className="text-xs text-muted-foreground italic print:hidden">Notas: {invitado.notes}</p>}
+                        </div>
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto sm:ml-auto">
+                          <div className="flex-1 sm:flex-none sm:w-[120px] print:hidden">
+                              <Label htmlFor={`rsvp-${invitado.id}`} className="sr-only">RSVP</Label>
+                              <Select value={invitado.rsvp} onValueChange={(value: RsvpStatus) => handleFieldChange(invitado.id, 'rsvp', value)}>
+                                  <SelectTrigger id={`rsvp-${invitado.id}`} className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                                  <SelectContent>
+                                  {(['Pendiente', 'Confirmado', 'Rechazado', 'Tal vez'] as RsvpStatus[]).map(status => (
+                                      <SelectItem key={status} value={status} className="text-xs">{status}</SelectItem>
+                                  ))}
+                                  </SelectContent>
+                              </Select>
+                          </div>
+                          <div className="flex-1 sm:flex-none sm:w-[120px]">
+                            <Label htmlFor={`table-${invitado.id}`} className="sr-only">Mesa</Label>
+                              <div className="flex items-center gap-1">
+                                <span className="print:inline hidden text-xs">Mesa:</span>
+                                <Select value={invitado.tableNumber || 'sin-mesa'} onValueChange={(value) => handleFieldChange(invitado.id, 'tableNumber', value)} disabled={invitado.rsvp !== 'Confirmado'}>
+                                    <SelectTrigger id={`table-${invitado.id}`} className="h-9 text-sm print:border-none print:p-0 print:h-auto print:text-xs print:font-semibold">
+                                        <SelectValue placeholder="Mesa..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                          <SelectItem value="sin-mesa">Sin Asignar</SelectItem>
+                                          {tableNames.map(name => <SelectItem key={name} value={name}>{name}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                          </div>
+                          <div className="flex gap-1 print:hidden">
+                              <Button variant="ghost" size="icon" onClick={() => openEditModal(invitado)} className="h-8 w-8"><Edit3 className="w-4 h-4" /></Button>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive/80 h-8 w-8"><UserMinus className="w-4 h-4" /></Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader><AlertDialogTitle>¿Eliminar Invitado?</AlertDialogTitle><AlertDialogDescription>Se eliminará a "{invitado.nombre}" de la lista.</AlertDialogDescription></AlertDialogHeader>
+                                  <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteInvitado(invitado.id)} className="bg-destructive hover:bg-destructive/90">Eliminar</AlertDialogAction></AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                          </div>
+                          <div className="hidden print:inline-block border-2 border-gray-400 w-8 h-8 ml-4"></div>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              </ScrollArea>
+            ) : (
+              <div className="text-center py-8">
+                <NotebookTextIcon className="w-12 h-12 mx-auto text-muted-foreground mb-2" />
+                <p className="text-muted-foreground">Aún no has añadido ningún invitado.</p>
+              </div>
+            )}
+          </CardContent>
+          {invitados.length > 0 && (
+              <CardFooter className="text-xs text-muted-foreground border-t pt-3 print:hidden">
+                  <Ticket className="w-4 h-4 mr-2 shrink-0"/> Asigna un número de mesa a los invitados confirmados.
+              </CardFooter>
           )}
-        </DialogContent>
-      </Dialog>
-      
-      <style jsx global>{`
-        @media print {
-            body {
-                background-color: white;
-            }
-            #guest-management-page > *:not(#guest-list-section) {
-                display: none;
-            }
-            #guest-list-section {
-                box-shadow: none;
-                border: none;
-            }
-        }
-      `}</style>
-    </div>
+        </Card>
+
+        <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="font-headline text-xl">Editar Invitado</DialogTitle>
+              <DialogDescription>Modifica los detalles de {editingInvitado?.nombre || 'este invitado'}.</DialogDescription>
+            </DialogHeader>
+            {editingInvitado && (
+              <form onSubmit={handleSaveEditModal} className="space-y-3 py-2">
+                <div className="space-y-1">
+                  <Label htmlFor="edit-nombre">Nombre</Label>
+                  <Input id="edit-nombre" value={editingInvitado.nombre} onChange={(e) => setEditingInvitado(p => p ? {...p, nombre: e.target.value} : null)} required />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="edit-contacto">Contacto</Label>
+                  <Input id="edit-contacto" value={editingInvitado.contacto || ''} onChange={(e) => setEditingInvitado(p => p ? {...p, contacto: e.target.value} : null)} />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="edit-partySize">Nº Personas (Total, incl. invitado)</Label>
+                  <Input id="edit-partySize" type="number" value={editingInvitado.partySize || 1} onChange={(e) => handlePartySizeChangeInModal(e.target.value)} min="1" />
+                </div>
+                
+                {Array.from({ length: (editingInvitado.partySize || 1) - 1 }).map((_, index) => (
+                    <div key={index} className="space-y-1 pl-4 border-l-2 border-primary/50">
+                        <Label htmlFor={`companion-name-edit-${index}`} className="text-sm">Nombre Acompañante {index + 1}</Label>
+                        <Input
+                            id={`companion-name-edit-${index}`}
+                            value={editingInvitado.companionNames?.[index] || ''}
+                            onChange={(e) => handleCompanionNameChangeInModal(index, e.target.value)}
+                            placeholder={`Nombre del acompañante ${index + 1}`}
+                            disabled={isSaving}
+                        />
+                    </div>
+                ))}
+
+                <div className="space-y-1">
+                  <Label htmlFor="edit-rsvp">Estado RSVP</Label>
+                  <Select value={editingInvitado.rsvp} onValueChange={(value: RsvpStatus) => setEditingInvitado(p => p ? {...p, rsvp: value} : null)}>
+                      <SelectTrigger id="edit-rsvp"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                      {(['Pendiente', 'Confirmado', 'Rechazado', 'Tal vez'] as RsvpStatus[]).map(status => (
+                          <SelectItem key={status} value={status}>{status}</SelectItem>
+                      ))}
+                      </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="edit-tableNumber">Mesa Asignada</Label>
+                  <Select value={editingInvitado.tableNumber || 'sin-mesa'} onValueChange={(value) => setEditingInvitado(p => p ? {...p, tableNumber: value} : null)} disabled={editingInvitado.rsvp !== 'Confirmado'}>
+                      <SelectTrigger id="edit-tableNumber"><SelectValue placeholder="Asignar mesa..."/></SelectTrigger>
+                      <SelectContent>
+                          <SelectItem value="sin-mesa">Sin Asignar</SelectItem>
+                          {tableNames.map(name => <SelectItem key={name} value={name}>{name}</SelectItem>)}
+                      </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="edit-notes">Notas</Label>
+                  <Textarea id="edit-notes" value={editingInvitado.notes || ''} onChange={(e) => setEditingInvitado(p => p ? {...p, notes: e.target.value} : null)} rows={3} />
+                </div>
+                <DialogFooter className="pt-3">
+                  <DialogClose asChild><Button type="button" variant="outline" disabled={isSaving}>Cancelar</Button></DialogClose>
+                  <Button type="submit" disabled={isSaving}>
+                    {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+                    Guardar Cambios
+                  </Button>
+                </DialogFooter>
+              </form>
+            )}
+          </DialogContent>
+        </Dialog>
+        
+        <style jsx global>{`
+          @media print {
+              body {
+                  background-color: white;
+              }
+              #guest-management-page > *:not(#guest-list-section) {
+                  display: none;
+              }
+              #guest-list-section {
+                  box-shadow: none;
+                  border: none;
+              }
+          }
+        `}</style>
+      </div>
+    </Suspense>
   );
 }
-
-    
