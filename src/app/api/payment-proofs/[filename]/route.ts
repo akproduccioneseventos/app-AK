@@ -2,11 +2,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
+import { use } from 'react';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { filename: string } }
+  { params: paramsProp }: { params: { filename: string } }
 ) {
+  const params = use(paramsProp);
   const filename = params.filename;
 
   if (!filename) {

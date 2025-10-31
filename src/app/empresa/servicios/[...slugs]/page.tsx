@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, use } from 'react';
@@ -119,8 +120,8 @@ export default function DynamicCatalogPage({ params: paramsProp }: { params: { s
       <Card className="shadow-lg">
         <CardHeader>
           <div className="relative pt-2">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input type="text" placeholder="Buscar por nombre..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full max-w-sm pl-10 text-base"/>
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input type="text" placeholder="Buscar por nombre..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full max-w-sm pl-8 h-9"/>
           </div>
         </CardHeader>
         <CardContent>

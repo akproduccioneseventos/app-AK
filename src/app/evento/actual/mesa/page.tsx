@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useState, use } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import { Loader2, AlertTriangle, Home, User, Ticket, PartyPopper } from 'lucide-
 import Link from 'next/link';
 import type { FiestaEnPlanificacion, Invitado } from '@/types/fiesta';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 
 
 function MesaLookupContent() {
@@ -150,6 +151,3 @@ export default function MesaPage() {
         </div>
     );
 }
-    
-
-    

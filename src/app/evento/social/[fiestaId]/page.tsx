@@ -451,7 +451,7 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
              <div className="flex-shrink-0 w-full md:w-1/4 h-1/3 md:h-full bg-gray-900/80 rounded-lg p-4 flex flex-col text-white">
                 {companyLogoUrl && (
                     <div className="relative h-20 w-full mb-4">
-                        <NextImage src={companyLogoUrl} alt="Logo" layout="fill" objectFit="contain" />
+                        <NextImage src={companyLogoUrl} alt="Logo" layout="fill" objectFit="contain" data-ai-hint="company logo"/>
                     </div>
                 )}
                 <h2 className="text-xl font-bold text-center mb-4">Chat en Vivo</h2>
@@ -489,6 +489,3 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
     </div>
   );
 }
-
-
-    

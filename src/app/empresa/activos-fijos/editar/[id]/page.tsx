@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Edit3, Save, Loader2, AlertTriangle, Trash2, PlusCircle, Percent } from 'lucide-react';
+import { ArrowLeft, Edit3, Save, Loader2, AlertTriangle, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getActivoFijoById, saveActivoFijo, deleteActivoFijo } from '@/app/actions/activos-fijos';
 import type { ServicioEmpresa, AnyCategoria, UnidadServicio, TramoDePrecio } from '@/types/empresa';
@@ -71,7 +71,7 @@ export default function EditarActivoFijoPage({ params: paramsProp }: { params: {
     }
   }, [itemIdFromParams, loadItem]);
 
-  const handleFormChange = (field: keyof ServicioEmpresa, value: any) => {
+  const handleFormChange = (field: keyof ServicioEmpresa, value: string | number | undefined) => {
     const isNumericField = ['cantidadDisponible', 'valorUnitarioEstimado', 'precioVenta', 'precioPorPersona', 'precioBase', 'invitadosPorUnidad'].includes(field as string);
     
     if (isNumericField && typeof value === 'string') {
@@ -81,22 +81,7 @@ export default function EditarActivoFijoPage({ params: paramsProp }: { params: {
       setFormData(prev => ({ ...prev, [field]: value }));
     }
   };
-
-  const handleTramoChange = (index: number, field: keyof TramoDePrecio, value: string) => {
-    setFormData(prev => {
-        const nuevosTramos = [...(prev.tramosDePrecio || [])];
-        nuevosTramos[index] = {...nuevosTramos[index], [field]: Number(value) || 0 };
-        return {...prev, tramosDePrecio: nuevosTramos};
-    });
-  };
-
-  const addTramo = () => {
-    setFormData(prev => ({...prev, tramosDePrecio: [...(prev.tramosDePrecio || []), {id: `tramo_${Date.now()}`, desde: 0, hasta: 0, precio: 0}]}));
-  };
-
-  const removeTramo = (index: number) => {
-    setFormData(prev => ({...prev, tramosDePrecio: (prev.tramosDePrecio || []).filter((_, i) => i !== index)}));
-  };
+  
 
   const backUrl = '/empresa/activos-fijos';
 

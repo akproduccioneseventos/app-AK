@@ -3,11 +3,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
+import { use } from 'react';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { parts: string[] } }
+  { params: paramsProp }: { params: { parts: string[] } }
 ) {
+  const params = use(paramsProp);
   const [fiestaId, filename] = params.parts;
 
   if (!fiestaId || !filename) {
