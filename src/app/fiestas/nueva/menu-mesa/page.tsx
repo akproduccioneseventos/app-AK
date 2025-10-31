@@ -1,11 +1,11 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, Suspense, type ChangeEvent } from 'react';
+import React, { useState, useEffect, useCallback, Suspense, type ChangeEvent, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer as PrinterIcon, Save, Loader2, Edit, Upload, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, Save, Loader2, Edit, Upload, Image as ImageIcon, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, MenuMesaData } from '@/types/fiesta';
 import { getFiestaById, updateMenuMesa as updateMenuMesaAction } from '@/app/actions/fiesta/fiesta.actions';
@@ -15,7 +15,10 @@ import { Label } from '@/components/ui/label';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import { defaultMenuMesaData } from '@/lib/fiesta-defaults';
 import { MenuMesaTemplate } from '@/components/invitacion/templates/MenuMesaTemplate';
-import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
+import NextImage from 'next/image';
+import html2canvas from 'html2canvas';
+
 
 function MenuDeMesaContent() {
   const { toast } = useToast();
@@ -31,6 +34,8 @@ function MenuDeMesaContent() {
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const printRef = useRef<HTMLDivElement>(null);
+
 
   const loadData = useCallback(async () => {
     if (!fiestaId) {
@@ -114,7 +119,27 @@ function MenuDeMesaContent() {
   }
 
   const handlePrint = () => window.print();
-  
+
+  const handleDownloadJpg = async () => {
+    if (!printRef.current) return;
+    toast({ title: "Generando imagen...", description: "Por favor, espera un momento."});
+    try {
+        const canvas = await html2canvas(printRef.current, { 
+            scale: 2, // Increase resolution
+            useCORS: true, // For external images
+            backgroundColor: null, // Transparent background
+        });
+        const link = document.createElement('a');
+        link.download = 'menu-de-mesa.jpg';
+        link.href = canvas.toDataURL('image/jpeg', 0.9); // Use jpeg format
+        link.click();
+        toast({ title: "¡Descarga iniciada!", description: "La imagen del menú se está descargando."});
+    } catch(e) {
+        toast({ title: "Error al generar imagen", description: "No se pudo crear el archivo JPG.", variant: "destructive"});
+    }
+  };
+
+
   if (isLoading || !fiesta) {
     return <div className="p-8 max-w-4xl mx-auto flex justify-center"><Loader2 className="w-8 h-8 animate-spin" /></div>;
   }
@@ -135,12 +160,13 @@ function MenuDeMesaContent() {
 
                <div className="flex items-end gap-2">
                  <Button size="sm" onClick={handleSave} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}</Button>
+                 <Button onClick={handleDownloadJpg} size="sm" variant="outline" title="Descargar como JPG"><Download className="w-4 h-4"/></Button>
                  <Button onClick={handlePrint} size="sm" variant="outline"><PrinterIcon className="w-4 h-4"/></Button>
                  <Link href={`/fiestas/nueva/catering?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4"/></Button></Link>
                </div>
             </div>
         </div>
-        <div className="w-[29.7cm] h-[21cm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto flex gap-4 p-4 border-2 border-dashed print:border-none">
+        <div className="w-[29.7cm] h-[21cm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto flex gap-4 p-4" ref={printRef}>
             <div className="w-1/2 h-full relative">
                 <MenuMesaTemplate
                     fiesta={fiesta}
