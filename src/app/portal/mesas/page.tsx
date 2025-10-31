@@ -12,6 +12,8 @@ import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVer
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData, LayoutElementType } from '@/types/fiesta';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import NextImage from 'next/image';
+import { cn } from "@/lib/utils";
 
 const PIXELS_PER_METER_DEFAULT = 40;
 
@@ -173,9 +175,7 @@ export default function MesaPage() {
                     <p className="text-lg text-muted-foreground">Cargando...</p>
                 </div>
             }>
-                <DndProvider backend={HTML5Backend}>
-                    <AsignacionMesasContent />
-                </DndProvider>
+                <AsignacionMesasContent />
             </Suspense>
         </div>
     );
