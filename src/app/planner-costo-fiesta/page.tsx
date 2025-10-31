@@ -8,8 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
-// This page is obsolete. Its functionality has been moved to the event planner itself.
-// We redirect to the new central page for this functionality.
 export default function DeprecatedPlannerCostoPage() {
     const router = useRouter();
 

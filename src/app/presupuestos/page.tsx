@@ -5,7 +5,6 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 
-// This page is now a redirect to the new central budget management page.
 export default function PresupuestosRedirectPage() {
     const router = useRouter();
 

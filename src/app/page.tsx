@@ -17,7 +17,6 @@ import {
     Users,
     CalendarClock,
     Archive,
-    MessageSquareText,
     CalendarDays
 } from 'lucide-react';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';

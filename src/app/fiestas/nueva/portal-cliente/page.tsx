@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
-// This page is obsolete and its functionality has been moved to the meetings page.
 function RedirectComponent() {
     const router = useRouter();
     const searchParams = useSearchParams();

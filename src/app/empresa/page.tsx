@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ContactRound, Briefcase, BarChart3, Building2, Package, Sparkles, Server, PlusCircle, ChefHat, Calculator, ShoppingCart, GlassWater, PackageSearch } from 'lucide-react';
+import { ArrowLeft, ContactRound, Briefcase, BarChart3, Building2, Package, Sparkles, ChefHat } from 'lucide-react';
 
 interface HubItem {
   title: string;
@@ -95,7 +95,7 @@ export default function EmpresaHubPage() {
                 <item.icon className="w-7 h-7 text-primary" />
               </div>
               <div>
-                <CardTitle className="font-headline text-lg mb-1">{item.title}</CardTitle>
+                  <CardTitle className="font-headline text-lg mb-1">{item.title}</CardTitle>
               </div>
             </CardHeader>
             <CardContent className="flex-grow space-y-2">
@@ -103,7 +103,7 @@ export default function EmpresaHubPage() {
             </CardContent>
             <CardFooter className="pt-2">
               <Link href={item.href} passHref className="w-full">
-                <Button variant="default" className="w-full">
+                <Button variant="secondary" className="w-full">
                   {item.actionLabel}
                 </Button>
               </Link>

@@ -1,10 +1,10 @@
 
 import type { Metadata } from 'next';
 import './globals.css';
-import { AppShell } from '@/app/app-shell';
+import { AppShell } from '@/components/app-shell';
 import { Toaster } from "@/components/ui/toaster";
 import { Inter, Belleza, Playfair_Display, Dancing_Script } from 'next/font/google';
-import { AuthGuard } from '@/components/auth-guard';
+import { AuthGuard } from './auth-guard';
 
 const inter = Inter({
   subsets: ['latin'],
