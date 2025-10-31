@@ -231,7 +231,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
             presupuesto.invoiceId ? 
             (<Link href={`/invoices/${presupuesto.invoiceId}`} passHref><Button variant="secondary" size="sm" className="bg-green-100 text-green-700 hover:bg-green-200"><FileSignature className="mr-2 h-4 w-4"/>Ver Factura</Button></Link>) : 
             (<Button variant="secondary" size="sm" disabled>Facturado</Button>)}
-           <Link href={`/presupuestos/${presupuestoId}/editar`} passHref><Button variant="outline" size="sm"><Edit className="mr-2 h-4 w-4"/>Editar</Button></Link>
+           <Link href={`/presupuestos/nuevo/crear?editId=${presupuestoId}`} passHref><Button variant="outline" size="sm"><Edit className="mr-2 h-4 w-4"/>Editar</Button></Link>
         </div>
       </div>
       <div className="max-w-3xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2" id="invoice-to-print">
