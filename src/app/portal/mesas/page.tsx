@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense, use } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -69,7 +69,7 @@ const TableDropZone: React.FC<{
 
 // --- Main Content Component ---
 function AsignacionMesasContent() {
-  const searchParams = useSearchParams();
+  const searchParams = use(useSearchParams());
   const fiestaId = searchParams.get('fiestaId');
   const { toast } = useToast();
 
@@ -153,7 +153,7 @@ function AsignacionMesasContent() {
 
 
   if (isLoading || !fiesta) {
-    return <div className="flex flex-col items-center justify-center text-center p-8"><Loader2 className="w-12 h-12 animate-spin text-primary mb-4" /><p className="text-lg text-muted-foreground">Cargando diseñador de mesas...</p></div>;
+    return <><div className="flex flex-col items-center justify-center text-center p-8"><Loader2 className="w-12 h-12 animate-spin text-primary mb-4" /><p className="text-lg text-muted-foreground">Cargando diseñador de mesas...</p></div></>;
   }
 
   if (error) {
@@ -187,14 +187,15 @@ function AsignacionMesasContent() {
                         <div className="relative canvas-grid-background" style={{ width: `${(decoracion.salonWidth || 15) * pixelsPerMeter}px`, height: `${(decoracion.salonHeight || 15) * pixelsPerMeter}px`, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
                            {decoracion.salonPlanBackgroundImageUrl && (<NextImage src={decoracion.salonPlanBackgroundImageUrl} alt="Plano del Salón" layout="fill" objectFit="contain" className="opacity-50"/>)}
                             {(decoracion.salonElements || []).map(el => {
+                                const nodeRef = React.createRef<HTMLDivElement>();
                                 const assignedGuests = (fiesta?.invitados || []).filter(inv => inv.tableNumber === el.name);
                                 const assignedSeatsCount = assignedGuests.reduce((sum, g) => sum + (g.partySize || 1), 0);
                                 const isRound = el.shape === 'circle';
 
                                 return (
-                                    <Draggable key={el.id} position={{ x: el.x, y: el.y }} disabled>
+                                    <Draggable key={el.id} nodeRef={nodeRef} position={{ x: el.x, y: el.y }} disabled>
                                         <TableDropZone element={el} onDrop={(guestId) => handleAssignGuestToTable(guestId, el.name)}>
-                                            <div id={el.id} className="absolute" style={{ left: el.x, top: el.y, width: el.width, height: el.height, transform: `rotate(${el.rotation}deg)`, zIndex: el.zIndex || (el.type === 'area' ? 0 : 1) }}>
+                                            <div ref={nodeRef} id={el.id} className="absolute" style={{ left: el.x, top: el.y, width: el.width, height: el.height, transform: `rotate(${el.rotation}deg)`, zIndex: el.zIndex || (el.type === 'area' ? 0 : 1) }}>
                                                 <div className={cn('w-full h-full border flex flex-col p-1 border-gray-500', isRound && 'rounded-full')} style={{ backgroundColor: el.backgroundColor || 'rgba(255, 255, 255, 0.7)' }}>
                                                     <p className="text-xs font-bold text-center truncate">{el.name}</p>
                                                     <p className="text-[10px] text-center text-muted-foreground">{assignedSeatsCount}/{el.seats || 'N/A'}</p>
@@ -202,6 +203,9 @@ function AsignacionMesasContent() {
                                                       {assignedGuests.map(g => (
                                                         <div key={g.id} className="flex items-center justify-center gap-1 group relative">
                                                           <span className="truncate">{g.nombre} ({g.partySize})</span>
+                                                           <button onClick={() => handleAssignGuestToTable(g.id, null)} className="hidden group-hover:block text-destructive">
+                                                                <UserMinus className="w-3 h-3"/>
+                                                            </button>
                                                         </div>
                                                       ))}
                                                     </div>

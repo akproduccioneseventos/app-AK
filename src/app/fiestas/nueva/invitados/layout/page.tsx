@@ -152,10 +152,10 @@ const Seat: React.FC<{ angle?: number; distance?: number; isOccupied: boolean; i
 
 
 function SalonLayoutContent() {
-  const searchParams = useSearchParams();
+  const params = use(useSearchParams());
   const router = useRouter();
   const { toast } = useToast();
-  const fiestaId = searchParams.get('fiestaId');
+  const fiestaId = params.get('fiestaId');
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [decoracion, setDecoracion] = useState<DecoracionData | null>(null);
@@ -541,7 +541,7 @@ function SalonLayoutContent() {
         </TabsList>
         <TabsContent value="list">
              <Card>
-                 <CardHeader><CardTitle>Lista de Invitados Confirmados</CardTitle><div className="relative pt-2"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input placeholder="Buscar invitado..." value={guestSearchTerm} onChange={(e) => setGuestSearchTerm(e.target.value)} className="w-full max-w-sm pl-10"/></div></CardHeader>
+                 <CardHeader><CardTitle>Lista de Invitados Confirmados</CardTitle><div className="relative pt-2"><Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" /><Input placeholder="Buscar invitado..." value={guestSearchTerm} onChange={(e) => setGuestSearchTerm(e.target.value)} className="w-full max-w-sm pl-8"/></div></CardHeader>
                 <CardContent><Table>
                     <TableHeader><TableRow><TableHead>Invitado</TableHead><TableHead>Personas</TableHead><TableHead>Mesa Asignada</TableHead></TableRow></TableHeader>
                     <TableBody>
@@ -686,4 +686,3 @@ export default function SalonLayoutPage() {
     );
 }
 
-    
