@@ -1,7 +1,6 @@
-
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense, use } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -12,7 +11,7 @@ import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData, La
 import { getFiestaById, updateInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
 import NextImage from 'next/image';
 import { cn } from "@/lib/utils";
-import Draggable from 'react-draggable';
+import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -21,6 +20,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 const PIXELS_PER_METER_DEFAULT = 40;
 const GUEST_ITEM_TYPE = 'guest';
@@ -69,7 +69,7 @@ const TableDropZone: React.FC<{
 
 // --- Main Content Component ---
 function AsignacionMesasContent() {
-  const searchParams = useSearchParams();
+  const searchParams = use(useSearchParams());
   const fiestaId = searchParams.get('fiestaId');
   const { toast } = useToast();
 
@@ -135,22 +135,31 @@ function AsignacionMesasContent() {
   };
   
   const filteredGuests = useMemo(() => {
-    if (!fiesta?.invitados) return { conMesa: [], sinMesa: [] };
+    if (!fiesta?.invitados) return { sinMesa: [] };
     
     const lowerCaseSearch = guestSearchTerm.toLowerCase();
     const guestsToConsider = fiesta.invitados.filter(g => g.rsvp === 'Confirmado');
-
-    const conMesa = guestsToConsider
-      .filter(g => g.tableNumber && g.nombre.toLowerCase().includes(lowerCaseSearch))
-      .sort((a,b) => (a.tableNumber || '').localeCompare(b.tableNumber || ''));
       
     const sinMesa = guestsToConsider
       .filter(g => !g.tableNumber && g.nombre.toLowerCase().includes(lowerCaseSearch))
       .sort((a,b) => a.nombre.localeCompare(b.nombre));
 
-    return { conMesa, sinMesa };
+    return { sinMesa };
   }, [fiesta?.invitados, guestSearchTerm]);
-
+  
+  const guestsByTable = useMemo(() => {
+    if (!fiesta?.invitados) return {};
+    return fiesta.invitados
+      .filter(g => g.rsvp === 'Confirmado' && g.tableNumber)
+      .reduce((acc, guest) => {
+        const table = guest.tableNumber!;
+        if (!acc[table]) {
+          acc[table] = [];
+        }
+        acc[table].push(guest);
+        return acc;
+      }, {} as Record<string, Invitado[]>);
+  }, [fiesta?.invitados]);
 
   if (isLoading || !fiesta) {
     return <><div className="flex flex-col items-center justify-center text-center p-8"><Loader2 className="w-12 h-12 animate-spin text-primary mb-4" /><p className="text-lg text-muted-foreground">Cargando diseñador de mesas...</p></div></>;
@@ -175,7 +184,7 @@ function AsignacionMesasContent() {
             <Tabs defaultValue="visual">
                 <TabsList className="grid w-full grid-cols-2">
                     <TabsTrigger value="visual">Diseño Visual</TabsTrigger>
-                    <TabsTrigger value="list">Lista Manual</TabsTrigger>
+                    <TabsTrigger value="list">Asignación por Lista</TabsTrigger>
                 </TabsList>
                 <TabsContent value="visual">
                    <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 h-[calc(100vh-450px)] pt-4">
@@ -220,29 +229,62 @@ function AsignacionMesasContent() {
                   </div>
                 </TabsContent>
                 <TabsContent value="list">
-                    <div className="pt-4">
-                        <div className="relative mb-4"><Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" /><Input placeholder="Buscar invitado..." value={guestSearchTerm} onChange={(e) => setGuestSearchTerm(e.target.value)} className="w-full max-w-sm pl-8"/></div>
-                        <ScrollArea className="h-[50vh] border rounded-md">
-                            <Table>
-                                <TableHeader><TableRow><TableHead>Invitado</TableHead><TableHead>Personas</TableHead><TableHead>Mesa Asignada</TableHead></TableRow></TableHeader>
-                                <TableBody>
-                                    {filteredGuests.sinMesa.map(guest => (
-                                        <TableRow key={guest.id}>
-                                            <TableCell className="font-medium">{guest.nombre}</TableCell>
-                                            <TableCell>{guest.partySize}</TableCell>
-                                            <TableCell><Select value={guest.tableNumber || ''} onValueChange={(val) => handleAssignGuestToTable(guest.id, val)}><SelectTrigger><SelectValue placeholder="Asignar mesa..." /></SelectTrigger><SelectContent>{(decoracion.salonElements || []).filter(el => el.category?.includes("Mesa")).map(t => <SelectItem key={t.id} value={t.name}>{t.name}</SelectItem>)}</SelectContent></Select></TableCell>
-                                        </TableRow>
-                                    ))}
-                                    {filteredGuests.conMesa.map(guest => (
-                                        <TableRow key={guest.id} className="bg-green-50/50">
-                                            <TableCell className="font-medium">{guest.nombre}</TableCell>
-                                            <TableCell>{guest.partySize}</TableCell>
-                                            <TableCell><Select value={guest.tableNumber || 'sin-mesa'} onValueChange={(val) => val === 'sin-mesa' ? handleAssignGuestToTable(guest.id, null) : handleAssignGuestToTable(guest.id, val)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{(decoracion.salonElements || []).filter(el => el.category?.includes("Mesa")).map(t => <SelectItem key={t.id} value={t.name}>{t.name}</SelectItem>)}<Separator/><SelectItem value="sin-mesa" className="text-destructive">Quitar de mesa</SelectItem></SelectContent></Select></TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </ScrollArea>
+                    <div className="pt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 className="font-semibold mb-2">Mesas</h4>
+                             <Accordion type="multiple" className="w-full space-y-2">
+                                {(decoracion.salonElements || []).filter(el => el.category?.includes("Mesa")).map(table => {
+                                    const assigned = guestsByTable[table.name] || [];
+                                    const totalSeats = assigned.reduce((sum, g) => sum + (g.partySize || 1), 0);
+                                    return (
+                                        <AccordionItem key={table.id} value={table.id}>
+                                            <AccordionTrigger className="p-2 border rounded-md text-sm font-medium">
+                                                {table.name} ({totalSeats}/{table.seats || 'N/A'})
+                                            </AccordionTrigger>
+                                            <AccordionContent className="p-2">
+                                               <ul className="space-y-1">
+                                                  {assigned.map(guest => (
+                                                    <li key={guest.id} className="text-xs flex items-center justify-between p-1 bg-muted/50 rounded">
+                                                        <span>{guest.nombre} ({guest.partySize})</span>
+                                                        <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => handleAssignGuestToTable(guest.id, null)}>
+                                                            <UserMinus className="w-3.5 h-3.5" />
+                                                        </Button>
+                                                    </li>
+                                                  ))}
+                                                  {assigned.length === 0 && <p className="text-xs text-center text-muted-foreground py-2">Mesa vacía</p>}
+                                               </ul>
+                                            </AccordionContent>
+                                        </AccordionItem>
+                                    )
+                                })}
+                             </Accordion>
+                        </div>
+                         <div>
+                            <h4 className="font-semibold mb-2">Invitados Sin Asignar ({filteredGuests.sinMesa.length})</h4>
+                            <div className="relative mb-2">
+                                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <Input placeholder="Buscar invitado..." value={guestSearchTerm} onChange={(e) => setGuestSearchTerm(e.target.value)} className="w-full pl-8 h-9"/>
+                            </div>
+                            <ScrollArea className="h-[40vh] border rounded-md">
+                                <Table>
+                                    <TableHeader><TableRow><TableHead>Invitado</TableHead><TableHead className="text-center">#</TableHead><TableHead>Asignar</TableHead></TableRow></TableHeader>
+                                    <TableBody>
+                                        {filteredGuests.sinMesa.map(guest => (
+                                            <TableRow key={guest.id}>
+                                                <TableCell className="font-medium text-xs">{guest.nombre}</TableCell>
+                                                <TableCell className="text-center text-xs">{guest.partySize}</TableCell>
+                                                <TableCell className="p-1">
+                                                  <Select value={''} onValueChange={(val) => handleAssignGuestToTable(guest.id, val)}>
+                                                    <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Mesa..." /></SelectTrigger>
+                                                    <SelectContent>{(decoracion.salonElements || []).filter(el => el.category?.includes("Mesa")).map(t => <SelectItem key={t.id} value={t.name} className="text-xs">{t.name}</SelectItem>)}</SelectContent>
+                                                  </Select>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </ScrollArea>
+                         </div>
                     </div>
                 </TabsContent>
             </Tabs>
@@ -268,3 +310,4 @@ export default function MesaPage() {
         </div>
     );
 }
+
