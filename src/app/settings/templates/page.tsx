@@ -7,12 +7,6 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, FileText, Sparkles as SparklesIcon, Wand2, UserCog, ListChecks, PackageSearch, Palette, Image as ImageIcon, LayoutDashboard } from 'lucide-react';
 
 const settingsCards = [
-   {
-    title: "Apariencia de Documentos",
-    description: "Personaliza el logo y los colores de tus facturas y presupuestos.",
-    href: "/settings/templates/documentos",
-    icon: FileText
-  },
   {
     title: "Plantillas de Invitación Digital",
     description: "Gestiona los diseños base para las invitaciones web de tus eventos.",
@@ -37,12 +31,6 @@ const settingsCards = [
     href: "/settings/templates/carga-operativa",
     icon: PackageSearch
   },
-  {
-    title: "Simulador de Presupuestos",
-    description: "Configura los paquetes y opciones disponibles en el simulador para clientes.",
-    href: "/settings/budget-display",
-    icon: Wand2
-  },
 ];
 
 export default function TemplatesPage() {
@@ -50,7 +38,7 @@ export default function TemplatesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <SparklesIcon className="w-8 h-8 text-primary"/>
+          <Palette className="w-8 h-8 text-primary"/>
           <div>
             <h1 className="text-3xl font-bold tracking-tight font-headline">
               Gestión de Plantillas

@@ -9,17 +9,23 @@ import { Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText, BrainC
 const settingsCards = [
    {
     title: "Información de la Empresa",
-    description: "Actualiza los datos fiscales y de contacto de tu empresa.",
+    description: "Actualiza los datos fiscales, de contacto y el logo de tu empresa.",
     href: "/settings/company", 
     icon: Building,
     buttonLabel: "Gestionar Datos"
   },
   {
-    title: "Personalizar Plantillas",
-    description: "Gestiona las plantillas de tareas, documentos y diseños de la aplicación.",
+    title: "Gestión de Plantillas",
+    description: "Crea y administra plantillas reutilizables para tareas, diseños, invitaciones y más.",
     href: "/settings/templates",
     icon: Palette,
     buttonLabel: "Gestionar Plantillas"
+  },
+  {
+    title: "Simulador de Presupuestos",
+    description: "Configura los paquetes y opciones disponibles en el simulador para clientes.",
+    href: "/settings/budget-display",
+    icon: Wand2
   },
    {
     title: "Cuentas Sociales Vinculadas",
@@ -76,23 +82,23 @@ export default function SettingsPage() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {settingsCards.map((item) => (
           <Card key={item.title} className="flex flex-col shadow-md hover:shadow-lg transition-shadow">
-            <CardHeader className="flex-row items-center justify-between pb-3 space-y-0">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-primary/10 rounded-md">
-                    <item.icon className="w-5 h-5 text-primary" />
-                </div>
-                <CardTitle className="text-lg font-semibold font-headline">{item.title}</CardTitle>
+            <CardHeader className="flex-row items-start gap-4 space-y-0 pb-3">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                    <item.icon className="w-7 h-7 text-primary" />
+              </div>
+              <div>
+                  <CardTitle className="font-headline text-lg mb-1">{item.title}</CardTitle>
               </div>
             </CardHeader>
             <CardContent className="flex-grow">
-              <p className="text-sm text-muted-foreground line-clamp-2">
+              <p className="text-sm text-muted-foreground line-clamp-3">
                 {item.description}
               </p>
             </CardContent>
             <CardFooter className="pt-3">
                  <Link href={item.href} passHref className="w-full">
-                    <Button variant="outline" className="w-full">
-                        {item.buttonLabel}
+                    <Button variant="secondary" className="w-full">
+                        {item.buttonLabel || "Gestionar"}
                     </Button>
                 </Link>
             </CardFooter>
