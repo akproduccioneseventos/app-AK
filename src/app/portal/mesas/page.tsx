@@ -1,10 +1,10 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense, use } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, AlertTriangle, Square, Circle, Users, LayoutDashboard, Disc, Clapperboard, Sofa, Camera as CameraIcon, Map, PartyPopper, Ticket } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -12,7 +12,6 @@ import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData, La
 import { getFiestaById } from '@/app/actions/fiesta-actual';
 import NextImage from 'next/image';
 import { cn } from "@/lib/utils";
-
 
 const PIXELS_PER_METER_DEFAULT = 40;
 
@@ -71,7 +70,6 @@ function AsignacionMesasContent() {
   const [error, setError] = useState<string | null>(null);
   const [scale, setScale] = useState(1);
 
-
   const loadData = useCallback(async () => {
     if (!fiestaId) {
       setError("No se proporcionó ID de evento.");
@@ -124,8 +122,8 @@ function AsignacionMesasContent() {
       <Card className="max-w-6xl w-full mx-auto shadow-xl">
           <CardHeader className="text-center">
               <PartyPopper className="w-10 h-10 mx-auto text-primary" />
-              <CardTitle className="font-headline text-3xl">Organiza tus Mesas</CardTitle>
-              <CardDescription>Arrastra los invitados a las mesas para asignar sus lugares.</CardDescription>
+              <CardTitle className="font-headline text-3xl">Distribución de Mesas</CardTitle>
+              <CardDescription>Este es el plano del salón con la asignación de invitados.</CardDescription>
           </CardHeader>
           <CardContent>
              <div className="w-full h-[calc(100vh-350px)] min-h-[500px] overflow-auto border rounded-lg bg-card p-2">
@@ -137,12 +135,11 @@ function AsignacionMesasContent() {
                         const isRound = el.shape === 'circle';
 
                         return (
-                            <div key={el.id} className="absolute" style={{ left: el.x, top: el.y, width: el.width, height: el.height, transform: `rotate(${el.rotation}deg)` }}>
+                            <div key={el.id} className={cn("absolute border flex flex-col p-1 border-gray-500", isRound && 'rounded-full')} style={{ left: el.x, top: el.y, width: el.width, height: el.height, transform: `rotate(${el.rotation}deg)`, backgroundColor: el.backgroundColor || 'rgba(255, 255, 255, 0.7)' }}>
                                 {el.seats && Array.from({ length: el.seats }).map((_, i) => (
                                     <Seat key={i} index={i} total={el.seats!} isOccupied={i < assignedSeatsCount} isRound={isRound} width={el.width} height={el.height} />
                                 ))}
-                                <div className={cn('w-full h-full border flex flex-col p-1 border-gray-500', isRound && 'rounded-full')}
-                                    style={{ backgroundColor: el.backgroundColor || 'rgba(255, 255, 255, 0.7)' }}>
+                                <div className="flex-grow flex flex-col items-center justify-center">
                                     <p className="text-xs font-bold text-center truncate">{el.name}</p>
                                     <p className="text-[10px] text-center text-muted-foreground">{assignedSeatsCount}/{el.seats || 'N/A'}</p>
                                     <div className="text-[9px] space-y-0.5 overflow-y-auto flex-grow mt-1 text-center">
