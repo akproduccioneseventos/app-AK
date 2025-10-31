@@ -80,6 +80,7 @@ export async function savePresupuesto(
     estado: 'Borrador',
     invoiceId: undefined,
     ajusteAnualActivo: false,
+    leadId: options?.leadId, // Start with the provided leadId
   };
 
   presupuestos.push(nuevoPresupuesto);
