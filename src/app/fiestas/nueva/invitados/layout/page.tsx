@@ -377,10 +377,10 @@ function SalonLayoutContent() {
     const updatedInvitados = (fiesta?.invitados || []).map(inv => 
       inv.id === guestId ? { ...inv, tableNumber: tableName } : inv
     );
-    if (fiesta) {
+    if (fiesta && fiestaId) {
       setFiesta({ ...fiesta, invitados: updatedInvitados });
       const guestToUpdate = updatedInvitados.find(i => i.id === guestId);
-      if (guestToUpdate) await updateInvitadoFiestaActual(fiestaId!, guestToUpdate);
+      if (guestToUpdate) await updateInvitadoFiestaActual(fiestaId, guestToUpdate);
     }
   };
 
@@ -388,21 +388,21 @@ function SalonLayoutContent() {
     const updatedInvitados = (fiesta?.invitados || []).map(inv => 
       inv.id === guestId ? { ...inv, tableNumber: undefined } : inv
     );
-     if (fiesta) {
+     if (fiesta && fiestaId) {
       setFiesta({ ...fiesta, invitados: updatedInvitados });
       const guestToUpdate = updatedInvitados.find(i => i.id === guestId);
-      if (guestToUpdate) await updateInvitadoFiestaActual(fiestaId!, guestToUpdate);
+      if (guestToUpdate) await updateInvitadoFiestaActual(fiestaId, guestToUpdate);
     }
   };
   
   const handleBackgroundImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file || !fiestaId) return;
+    if (!file || !fiestaId || !decoracion) return;
     setIsUploading(true);
     try {
       const result = await uploadPublicPageAsset(fiestaId, file);
       if(result.success && result.url) {
-        if(decoracion) setDecoracion({ ...decoracion, salonPlanBackgroundImageUrl: result.url });
+        setDecoracion({ ...decoracion, salonPlanBackgroundImageUrl: result.url });
         toast({ title: "Plano Subido", description: "La imagen de fondo ha sido actualizada." });
       } else {
         throw new Error(result.error);
@@ -521,7 +521,7 @@ function SalonLayoutContent() {
           <DialogHeader>
             <DialogTitle>Guardar Diseño como Plantilla</DialogTitle>
           </DialogHeader>
-          <div className="py-2"><Label>Nombre:</Label><Input value={templateName} onChange={e => setTemplateName(e.target.value)}/></div>
+          <div className="py-2"><Label>Nombre:</Label><Input value={templateName} onChange={e => setTemplateName(e.target.value)} placeholder="Ej: Club Uruguay, Salón Chico"/></div>
           <DialogFooter><Button variant="outline" onClick={()=>setIsSaveTemplateModalOpen(false)}>Cancelar</Button><Button onClick={handleSaveAsTemplate} disabled={isTemplateActionLoading}>Guardar</Button></DialogFooter>
         </DialogContent>
       </Dialog>
@@ -686,5 +686,3 @@ export default function SalonLayoutPage() {
     );
 }
 
-
-    
