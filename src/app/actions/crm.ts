@@ -62,10 +62,12 @@ export async function addCrmLead(
   if (!options.preventDuplicateCheck) {
     const isDuplicate = leads.some(lead => lead.name.trim().toLowerCase() === leadData.name.trim().toLowerCase() && lead.presupuestoId === leadData.presupuestoId);
     if (isDuplicate) {
+        // This was causing issues on edit. This check is too broad.
+        // It's better to allow updates and handle duplicates more specifically if needed.
+        // Let's refine this to only block pure duplicates on creation.
         const existingLead = leads.find(lead => lead.name.trim().toLowerCase() === leadData.name.trim().toLowerCase());
-        if (existingLead) {
-            // This was causing issues on edit. Return error only if it's a true duplicate creation attempt.
-            return { success: false, error: `Ya existe un prospecto con el nombre "${leadData.name.trim()}".` };
+        if (existingLead && !leadData.id) { // Only block if creating a new one with same name
+             return { success: false, error: `Ya existe un prospecto con el nombre "${leadData.name.trim()}".` };
         }
     }
   }
