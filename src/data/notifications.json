@@ -1,5 +1,13 @@
 [
   {
+    "mensaje": "Recordatorio: Tarea \"Confirmar lista de música con el DJ\" (XV Años de Sofía) vence en 2 día(s).",
+    "href": "/fiestas/nueva/tareas?fiestaId=fiesta_1761518911463_a2c0rmc",
+    "icono": "ListChecks",
+    "id": "notif_1761946430246_b3zo15a",
+    "fecha": "2025-10-31T21:33:50.246Z",
+    "leida": false
+  },
+  {
     "mensaje": "Nuevo prospecto y presupuesto de Ana García",
     "href": "/contabilidad/crm?leadId=lead_1761942908015_kwc7cjx",
     "icono": "KanbanSquare",

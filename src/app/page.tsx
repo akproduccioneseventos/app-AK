@@ -177,7 +177,7 @@ export default function MainDashboardPage() {
               </div>
             </CardHeader>
             <CardContent className="flex-grow">
-              <p className="text-sm text-muted-foreground line-clamp-2">{item.description}</p>
+              <p className="text-sm text-muted-foreground line-clamp-3">{item.description}</p>
             </CardContent>
             <CardFooter className="pt-3">
                  <Link href={getLinkHref(item.href)} passHref className="w-full">
