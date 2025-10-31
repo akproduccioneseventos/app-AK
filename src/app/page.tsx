@@ -17,7 +17,8 @@ import {
     Users,
     CalendarClock,
     Archive,
-    MessageSquareText
+    MessageSquareText,
+    CalendarDays
 } from 'lucide-react';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { KpiCard } from '@/components/dashboard/kpi-card';
@@ -25,7 +26,7 @@ import { getDashboardKpiData } from '@/app/actions/dashboard';
 import { MonthlySalesChart } from '@/components/charts/MonthlySalesChart';
 import { PaymentStatusPieChart } from '@/components/charts/PaymentStatusPieChart';
 import { Separator } from '@/components/ui/separator';
-import { getFiestaActual, type FiestaEnPlanificacion } from './actions/fiesta-actual';
+import { getFiestaActual, type FiestaEnPlanificacion } from './actions/fiesta/fiesta.actions';
 import { useToast } from '@/hooks/use-toast';
 
 const formatCurrency = (value?: number) => {
@@ -53,10 +54,10 @@ const mainHubItems = [
       icon: BarChart3,
     },
      {
-      title: "Portal del Cliente y Reuniones",
-      description: "Agenda reuniones y configura el portal privado para tus clientes.",
-      href: "/fiestas/nueva/reuniones",
-      icon: MessageSquareText,
+      title: "Agenda de Reuniones (CRM)",
+      description: "Visualiza y gestiona las reuniones coordinadas con prospectos y clientes potenciales.",
+      href: "/contabilidad/crm/agenda",
+      icon: CalendarDays,
     },
     {
       title: 'Configuración General',

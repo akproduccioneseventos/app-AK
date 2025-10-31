@@ -3,6 +3,14 @@
     "mensaje": "Recordatorio: Tarea \"Confirmar lista de música con el DJ\" (XV Años de Sofía) vence en 2 día(s).",
     "href": "/fiestas/nueva/tareas?fiestaId=fiesta_1761518911463_a2c0rmc",
     "icono": "ListChecks",
+    "id": "notif_1761942142130_v2dsen9",
+    "fecha": "2025-10-31T20:22:22.130Z",
+    "leida": false
+  },
+  {
+    "mensaje": "Recordatorio: Tarea \"Confirmar lista de música con el DJ\" (XV Años de Sofía) vence en 2 día(s).",
+    "href": "/fiestas/nueva/tareas?fiestaId=fiesta_1761518911463_a2c0rmc",
+    "icono": "ListChecks",
     "id": "notif_1761914174701_d9ua003",
     "fecha": "2025-10-31T12:36:14.701Z",
     "leida": false
