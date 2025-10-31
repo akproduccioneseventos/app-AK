@@ -20,6 +20,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
 
 const PIXELS_PER_METER_DEFAULT = 40;
 const GUEST_ITEM_TYPE = 'guest';
@@ -263,5 +264,3 @@ export default function MesaPage() {
         </div>
     );
 }
-
-    
