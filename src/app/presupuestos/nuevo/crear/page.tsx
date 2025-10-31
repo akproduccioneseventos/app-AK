@@ -44,6 +44,7 @@ const initialFormData: PresupuestoFormData = {
   descuentoValor: '',
   vigenciaPromocion: '',
   notas: '',
+  estado: 'Borrador',
 };
 
 function formStateInitializer(initialState: PresupuestoFormData): PresupuestoFormData {
@@ -248,8 +249,8 @@ function CrearPresupuestoContent() {
             descuentoValor: parseFloat(formData.descuentoValor || '0') || undefined,
             vigenciaPromocion: formData.vigenciaPromocion,
             notas: formData.notas,
-            estado: 'Borrador', // Will be changed to 'Enviado' for new budgets in the action
-            invoiceId: undefined, // Default for new
+            estado: formData.estado,
+            invoiceId: formData.invoiceId,
         };
         
         setIsSaving(true);

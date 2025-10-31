@@ -135,9 +135,16 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
             : presupuestoData.descuentoValor;
         finalTotalWithDiscount = costoTotalEstimadoRecalculado - descuentoAplicado;
     }
+    
+    let newStatus = presupuestoData.estado;
+    if (presupuestos[index].estado === 'Borrador' && presupuestoData.estado === 'Borrador') {
+      newStatus = 'Enviado';
+    }
+
 
     const updatedPresupuesto: Presupuesto = {
         ...presupuestoData,
+        estado: newStatus,
         itemsPresupuestados: validItems,
         costoTotalEstimado: costoTotalEstimadoRecalculado,
         totalConDescuento: finalTotalWithDiscount !== costoTotalEstimadoRecalculado ? finalTotalWithDiscount : undefined,
@@ -230,3 +237,4 @@ export async function activateAnnualAdjustmentForBudget(presupuestoId: string): 
 }
 
   
+
