@@ -91,7 +91,6 @@ export async function savePresupuesto(
   // Post-save CRM logic
   try {
     const { lead, isNew } = await findLeadByBudgetOrCreate(nuevoPresupuesto);
-    
     finalLeadId = lead.id;
 
     if (isNew || options?.source === 'manual' || options?.source === 'simulator') {
@@ -101,7 +100,6 @@ export async function savePresupuesto(
             await moveCrmLead(lead.id, targetStage.id);
         }
     }
-    
   } catch (crmError: any) {
     console.warn(`Presupuesto ${presupuestoId} guardado, pero falló la sincronización con el CRM: ${crmError.message}`);
   }
@@ -165,27 +163,33 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
       const linkedInvoice = await getInvoiceById(updatedPresupuesto.invoiceId);
       if (linkedInvoice) {
         const budgetTotal = updatedPresupuesto.totalConDescuento ?? updatedPresupuesto.costoTotalEstimado;
-        // Replace items with a single summary line item pointing to the updated budget
-        const summaryItem: Omit<InvoiceItem, 'id'> = {
-            description: `Servicios según presupuesto #${updatedPresupuesto.id.split('_').pop()?.substring(0,5)} (actualizado)`,
-            quantity: 1,
-            unitPrice: budgetTotal,
-            total: budgetTotal,
-        };
         
-        let invoiceDataToUpdate: Invoice = { ...linkedInvoice, items: [{ ...summaryItem, id: `item_summary_update_${Date.now()}` }], notes: updatedPresupuesto.notas || linkedInvoice.notes };
+        // Check if items differ significantly. A simple total check is a good heuristic.
+        const invoiceItemTotal = linkedInvoice.items.reduce((sum, item) => sum + item.total, 0);
         
-        // Recalculate invoice totals
-        const newSubtotal = invoiceDataToUpdate.items.reduce((sum, item) => sum + item.total, 0);
-        const newTaxAmount = (newSubtotal * (invoiceDataToUpdate.taxRate || 0)) / 100;
-        const newTotalAmount = newSubtotal + newTaxAmount;
-        
-        invoiceDataToUpdate.subtotal = newSubtotal;
-        invoiceDataToUpdate.taxAmount = newTaxAmount;
-        invoiceDataToUpdate.totalAmount = newTotalAmount;
+        if (Math.abs(budgetTotal - invoiceItemTotal) > 0.01) {
+            // Replace items with a single summary line item pointing to the updated budget
+            const summaryItem: Omit<InvoiceItem, 'id'> = {
+                description: `Servicios según presupuesto #${updatedPresupuesto.id.split('_').pop()?.substring(0,5)} (actualizado)`,
+                quantity: 1,
+                unitPrice: budgetTotal,
+                total: budgetTotal,
+            };
+            
+            let invoiceDataToUpdate: Invoice = { ...linkedInvoice, items: [{ ...summaryItem, id: `item_summary_update_${Date.now()}` }], notes: updatedPresupuesto.notas || linkedInvoice.notes };
+            
+            // Recalculate invoice totals
+            const newSubtotal = invoiceDataToUpdate.items.reduce((sum, item) => sum + item.total, 0);
+            const newTaxAmount = (newSubtotal * (invoiceDataToUpdate.taxRate || 0)) / 100;
+            const newTotalAmount = newSubtotal + newTaxAmount;
+            
+            invoiceDataToUpdate.subtotal = newSubtotal;
+            invoiceDataToUpdate.taxAmount = newTaxAmount;
+            invoiceDataToUpdate.totalAmount = newTotalAmount;
 
-        // Save the updated invoice
-        await saveInvoice(invoiceDataToUpdate);
+            // Save the updated invoice
+            await saveInvoice(invoiceDataToUpdate);
+        }
       }
     } catch (invoiceError) {
       console.error(`Error al sincronizar la factura del presupuesto actualizado ${updatedPresupuesto.id}:`, invoiceError);
@@ -233,3 +237,5 @@ export async function activateAnnualAdjustmentForBudget(presupuestoId: string): 
   await writeData(PRESUPUESTOS_FILE, presupuestos);
   return { success: true };
 }
+
+  

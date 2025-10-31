@@ -60,15 +60,12 @@ export async function addCrmLead(
   const leads = await getCrmLeads();
 
   if (!options.preventDuplicateCheck) {
-    const isDuplicate = leads.some(lead => lead.name.trim().toLowerCase() === leadData.name.trim().toLowerCase() && lead.presupuestoId === leadData.presupuestoId);
-    if (isDuplicate) {
-        // This was causing issues on edit. This check is too broad.
-        // It's better to allow updates and handle duplicates more specifically if needed.
-        // Let's refine this to only block pure duplicates on creation.
-        const existingLead = leads.find(lead => lead.name.trim().toLowerCase() === leadData.name.trim().toLowerCase());
-        if (existingLead && !leadData.id) { // Only block if creating a new one with same name
-             return { success: false, error: `Ya existe un prospecto con el nombre "${leadData.name.trim()}".` };
-        }
+    const existingLead = leads.find(lead => 
+      lead.name.trim().toLowerCase() === leadData.name!.trim().toLowerCase() && 
+      !lead.presupuestoId // Only block if it's a general lead without a budget
+    );
+    if (existingLead && !leadData.id) { // Only block if creating a new one
+         return { success: false, error: `Ya existe un prospecto con el nombre "${leadData.name.trim()}".` };
     }
   }
   
@@ -99,11 +96,10 @@ export async function addCrmLead(
   leads.push(newLead);
   await writeData(LEADS_FILE, leads);
   
-  // This notification must be created after the lead is saved
   if (newLead.presupuestoId) {
     await createNotification({
       mensaje: `Nuevo prospecto y presupuesto de ${newLead.name}`,
-      href: `/contabilidad/crm?leadId=${newLead.id}`, // Link to CRM to see the new lead
+      href: `/contabilidad/crm?leadId=${newLead.id}`,
       icono: 'KanbanSquare',
     });
   }
@@ -114,35 +110,39 @@ export async function addCrmLead(
 export async function findLeadByBudgetOrCreate(
   presupuestoData: Presupuesto
 ): Promise<{lead: CrmLead; isNew: boolean}> {
-  const leads = await getCrmLeads();
+  const allLeads = await readData<CrmLead[]>(LEADS_FILE, []);
   let existingLead: CrmLead | null = null;
   
-  // First, try to find a lead by an explicit ID on the budget
   if (presupuestoData.leadId) {
-    existingLead = leads.find(lead => lead.id === presupuestoData.leadId) || null;
+    existingLead = allLeads.find(lead => lead.id === presupuestoData.leadId) || null;
   }
-  // If not found, try to find a lead that already has this budget's ID
   if (!existingLead) {
-    existingLead = leads.find(lead => lead.presupuestoId === presupuestoData.id) || null;
+    existingLead = allLeads.find(lead => lead.presupuestoId === presupuestoData.id) || null;
   }
   
-  // If a lead exists, ensure its data is up-to-date and return it
   if (existingLead) {
     let leadNeedsUpdate = false;
+    const updates: Partial<CrmLead> = {};
+
     if (existingLead.presupuestoId !== presupuestoData.id) {
-       existingLead.presupuestoId = presupuestoData.id;
+       updates.presupuestoId = presupuestoData.id;
        leadNeedsUpdate = true;
     }
-     if (existingLead.name !== presupuestoData.clienteNombre) {
-       existingLead.name = presupuestoData.clienteNombre;
+    if (existingLead.name !== presupuestoData.clienteNombre) {
+       updates.name = presupuestoData.clienteNombre;
        leadNeedsUpdate = true;
     }
+    if (presupuestoData.clienteContacto && existingLead.phone !== presupuestoData.clienteContacto) {
+        updates.phone = presupuestoData.clienteContacto;
+        leadNeedsUpdate = true;
+    }
+
     if (leadNeedsUpdate) {
-        const allLeads = await readData<CrmLead[]>(LEADS_FILE, []);
         const leadIndex = allLeads.findIndex(l => l.id === existingLead!.id);
         if (leadIndex !== -1) {
-            allLeads[leadIndex] = existingLead;
+            allLeads[leadIndex] = { ...allLeads[leadIndex], ...updates };
             await writeData(LEADS_FILE, allLeads);
+            return { lead: allLeads[leadIndex], isNew: false };
         }
     }
     return { lead: existingLead, isNew: false };
@@ -163,12 +163,8 @@ export async function findLeadByBudgetOrCreate(
     throw new Error('Failed to create a new lead for the budget.');
   }
 
-  // CRITICAL FIX: Update the original budget with the new lead's ID
   const newLead = result.lead;
-  const updatedBudget: Presupuesto = {
-    ...presupuestoData,
-    leadId: newLead.id
-  };
+  const updatedBudget: Presupuesto = { ...presupuestoData, leadId: newLead.id };
   await updatePresupuesto(updatedBudget);
 
   return { lead: newLead, isNew: true };
@@ -391,3 +387,5 @@ export async function getCrmKpiData() {
     return { success: false, error: 'Failed to calculate CRM KPIs.' };
   }
 }
+
+  
