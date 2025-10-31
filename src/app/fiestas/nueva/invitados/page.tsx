@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, type FormEvent, useEffect, useCallback } from 'react';
@@ -11,12 +10,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Plus, Trash2, Users, Mail, Phone, Edit3, Save, Loader2, AlertTriangle, NotebookTextIcon, UserMinus, UserPlus2, UserCheck, Ticket, LayoutDashboard, ArrowRight, Printer } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Users, Mail, Phone, Edit3, Save, Loader2, AlertTriangle, NotebookTextIcon, UserMinus, UserPlus2, UserCheck, Ticket, LayoutDashboard, ArrowRight, Printer, QrCode } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import type { Invitado, RsvpStatus, NuevoInvitadoData } from '@/types/invitado';
 import { getFiestaById } from '@/app/actions/fiesta-actual';
 import { addInvitado, updateInvitado, deleteInvitado } from '@/app/actions/invitados.actions';
+import QRCodeStylized from 'qrcode.react';
+
 import {
   Dialog,
   DialogContent,
@@ -52,14 +53,16 @@ export default function InvitadosEventoPage() {
   const [isSaving, setIsSaving] = useState(false); 
   const [error, setError] = useState<string |null>(null);
   
-
-
   const [nuevoNombre, setNuevoNombre] = useState('');
   const [nuevoContacto, setNuevoContacto] = useState('');
   const [nuevoNumAcompanantes, setNuevoNumAcompanantes] = useState<number>(0);
 
   const [editingInvitado, setEditingInvitado] = useState<Invitado | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  // State for QR Code modal
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+  const [selectedGuestForQr, setSelectedGuestForQr] = useState<Invitado | null>(null);
   
   const fetchInvitados = useCallback(async () => {
     if (!fiestaId) {
@@ -189,6 +192,26 @@ export default function InvitadosEventoPage() {
   const handlePrint = () => {
     window.print();
   };
+  
+  const handleOpenQrModal = (guest: Invitado) => {
+    setSelectedGuestForQr(guest);
+    setIsQrModalOpen(true);
+  };
+  
+  const downloadQR = () => {
+    if (!selectedGuestForQr) return;
+    const canvas = document.getElementById('guest-qr-code') as HTMLCanvasElement;
+    if (canvas) {
+        const pngUrl = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+        let downloadLink = document.createElement("a");
+        downloadLink.href = pngUrl;
+        downloadLink.download = `QR-Entrada-${selectedGuestForQr.nombre}.png`;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+    }
+  };
+
 
   const openEditModal = (invitado: Invitado) => {
     const partySize = invitado.partySize || 1;
@@ -239,6 +262,27 @@ export default function InvitadosEventoPage() {
   return (
     <Suspense fallback={<div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
       <div className="max-w-4xl mx-auto space-y-6" id="guest-management-page">
+         <Dialog open={isQrModalOpen} onOpenChange={setIsQrModalOpen}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Código QR para: {selectedGuestForQr?.nombre}</DialogTitle>
+                    <DialogDescription>
+                        Este es el código de acceso único para tu invitado. Puede ser escaneado en la entrada del evento.
+                    </DialogDescription>
+                </DialogHeader>
+                {selectedGuestForQr && (
+                    <div className="flex flex-col items-center justify-center py-4">
+                        <div className="p-4 bg-white rounded-lg border">
+                           <QRCodeStylized id="guest-qr-code" value={`${window.location.origin}/evento/actual/checkin?fiestaId=${fiestaId}&guestId=${selectedGuestForQr.id}`} size={200} />
+                        </div>
+                    </div>
+                )}
+                <DialogFooter>
+                    <Button onClick={downloadQR}>Descargar QR</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 print:hidden">
           <h1 className="text-3xl font-bold tracking-tight font-headline">
             Gestión de Invitados
@@ -351,6 +395,7 @@ export default function InvitadosEventoPage() {
                             </div>
                           </div>
                           <div className="flex gap-1 print:hidden">
+                              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleOpenQrModal(invitado)} title="Ver QR de Invitado"><QrCode className="w-4 h-4"/></Button>
                               <Button variant="ghost" size="icon" onClick={() => openEditModal(invitado)} className="h-8 w-8"><Edit3 className="w-4 h-4" /></Button>
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
