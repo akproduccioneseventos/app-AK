@@ -1,6 +1,7 @@
+
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense, use } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -21,6 +22,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+
 
 const PIXELS_PER_METER_DEFAULT = 40;
 const GUEST_ITEM_TYPE = 'guest';
@@ -69,7 +71,7 @@ const TableDropZone: React.FC<{
 
 // --- Main Content Component ---
 function AsignacionMesasContent() {
-  const searchParams = use(useSearchParams());
+  const searchParams = useSearchParams();
   const fiestaId = searchParams.get('fiestaId');
   const { toast } = useToast();
 
@@ -184,7 +186,7 @@ function AsignacionMesasContent() {
             <Tabs defaultValue="visual">
                 <TabsList className="grid w-full grid-cols-2">
                     <TabsTrigger value="visual">Diseño Visual</TabsTrigger>
-                    <TabsTrigger value="list">Asignación por Lista</TabsTrigger>
+                    <TabsTrigger value="list">Lista Manual</TabsTrigger>
                 </TabsList>
                 <TabsContent value="visual">
                    <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 h-[calc(100vh-450px)] pt-4">
@@ -310,4 +312,3 @@ export default function MesaPage() {
         </div>
     );
 }
-
