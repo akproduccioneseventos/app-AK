@@ -108,7 +108,7 @@ export async function savePresupuesto(
 }
 
 
-export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
+export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{ success: boolean; id?: string; presupuesto?: Presupuesto; error?: string }> {
     let presupuestos = await getPresupuestos();
     const index = presupuestos.findIndex(p => p.id === presupuestoData.id);
     if (index === -1) {
@@ -187,7 +187,7 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
         }
     }
 
-    return { success: true, presupuesto: updatedPresupuesto };
+    return { success: true, id: updatedPresupuesto.id, presupuesto: updatedPresupuesto };
 }
 
 export async function deletePresupuesto(id: string): Promise<{ success: boolean; error?: string }> {

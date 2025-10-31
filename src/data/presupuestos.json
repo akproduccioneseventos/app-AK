@@ -30,10 +30,9 @@
     "nombrePromocion": "",
     "vigenciaPromocion": "",
     "notas": "",
-    "estado": "Enviado",
+    "estado": "Borrador",
     "id": "pres_1761945635961_lvukwxv",
-    "timestamp": "2025-10-31T21:20:35.984Z",
-    "ajusteAnualActivo": false,
-    "leadId": "lead_1761945635976_vzyu4j0"
+    "timestamp": "2025-10-31T21:23:01.346Z",
+    "ajusteAnualActivo": false
   }
 ]
