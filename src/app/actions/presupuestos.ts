@@ -153,11 +153,13 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
   presupuestos[index] = updatedPresupuesto;
   await writeData(PRESUPUESTOS_FILE, presupuestos);
 
+  // If the budget is invoiced, update the invoice total as well.
   if (updatedPresupuesto.estado === 'Facturado' && updatedPresupuesto.invoiceId) {
     try {
       const linkedInvoice = await getInvoiceById(updatedPresupuesto.invoiceId);
       if (linkedInvoice) {
         const budgetTotal = updatedPresupuesto.totalConDescuento ?? updatedPresupuesto.costoTotalEstimado;
+        // Replace items with a single summary line item pointing to the updated budget
         const summaryItem: Omit<InvoiceItem, 'id'> = {
             description: `Servicios según presupuesto #${updatedPresupuesto.id.split('_').pop()?.substring(0,5)} (actualizado)`,
             quantity: 1,
@@ -166,6 +168,8 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
         };
         
         let invoiceDataToUpdate: Invoice = { ...linkedInvoice, items: [{ ...summaryItem, id: `item_summary_update_${Date.now()}` }], notes: updatedPresupuesto.notas || linkedInvoice.notes };
+        
+        // Recalculate invoice totals
         const newSubtotal = invoiceDataToUpdate.items.reduce((sum, item) => sum + item.total, 0);
         const newTaxAmount = (newSubtotal * (invoiceDataToUpdate.taxRate || 0)) / 100;
         const newTotalAmount = newSubtotal + newTaxAmount;
@@ -174,10 +178,12 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
         invoiceDataToUpdate.taxAmount = newTaxAmount;
         invoiceDataToUpdate.totalAmount = newTotalAmount;
 
+        // Save the updated invoice
         await saveInvoice(invoiceDataToUpdate);
       }
     } catch (invoiceError) {
       console.error(`Error al sincronizar la factura del presupuesto actualizado ${updatedPresupuesto.id}:`, invoiceError);
+      // We don't fail the whole operation, but it's good to be aware of the issue.
     }
   }
 
@@ -204,7 +210,7 @@ export async function markPresupuestoAsFacturado(presupuestoId: string, invoiceI
   presupuestos[index].estado = 'Facturado';
   presupuestos[index].invoiceId = invoiceId;
   presupuestos[index].timestamp = new Date().toISOString();
-  presupuestos[index].ajusteAnualActivo = true;
+  presupuestos[index].ajusteAnualActivo = true; // Mark adjustment as active on billing
   
   await writeData(PRESUPUESTOS_FILE, presupuestos);
   return { success: true };
@@ -216,7 +222,7 @@ export async function activateAnnualAdjustmentForBudget(presupuestoId: string): 
   if (index === -1) {
     return { success: false, error: `Presupuesto con ID ${presupuestoId} no encontrado.` };
   }
-  if (presupuestos[index].ajusteAnualActivo) return { success: true };
+  if (presupuestos[index].ajusteAnualActivo) return { success: true }; // Already active
   
   presupuestos[index].ajusteAnualActivo = true;
   await writeData(PRESUPUESTOS_FILE, presupuestos);
