@@ -197,8 +197,9 @@ function VideoVidaClientPageContent({ params }: { params: { fiestaId: string } }
 
 
 // --- Página principal que se asegura de renderizar el contenido solo en el cliente ---
-export default function VideoVidaPage({ params }: { params: { fiestaId: string } }) {
-    const unwrappedParams = use(params);
+export default function VideoVidaPage({ params: paramsProp }: { params: { fiestaId: string } }) {
+    const params = use(paramsProp);
 
-    return <VideoVidaClientPageContent params={unwrappedParams} />;
+    // Renderiza el contenido solo cuando isClient es true
+    return <VideoVidaClientPageContent params={params} />;
 }
