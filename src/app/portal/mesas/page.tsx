@@ -1,18 +1,17 @@
-
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense, use } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, AlertTriangle, Square, Circle, Users, LayoutDashboard, Disc, Clapperboard, Sofa, Camera as CameraIcon, Map, PartyPopper, Ticket, Search, UserMinus } from 'lucide-react';
+import { Loader2, AlertTriangle, Square, Circle, Users, LayoutDashboard, Disc, Clapperboard, Sofa, Camera as CameraIcon, Map, PartyPopper, Ticket, Search, UserMinus, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData, LayoutElementType } from '@/types/fiesta';
 import { getFiestaById, updateInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
 import NextImage from 'next/image';
 import { cn } from "@/lib/utils";
-import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
+import Draggable from 'react-draggable';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
