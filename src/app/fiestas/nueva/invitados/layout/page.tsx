@@ -388,7 +388,7 @@ function SalonLayoutContent() {
       if (guestToUpdate) await updateInvitadoFiestaActual(fiestaId!, guestToUpdate);
     }
   };
-
+  
   const handleBackgroundImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file || !fiestaId) return;
@@ -560,12 +560,38 @@ function SalonLayoutContent() {
         <TabsContent value="visual">
             <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 h-[calc(100vh-450px)]">
             <Card className="xl:col-span-3 flex flex-col">
-                <CardHeader><CardTitle>Invitados sin Mesa ({filteredGuests.sinMesa.length})</CardTitle><div className="relative pt-2"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input placeholder="Buscar..." value={guestSearchTerm} onChange={(e) => setGuestSearchTerm(e.target.value)} className="w-full pl-10"/></div></CardHeader>
-                <CardContent className="flex-grow min-h-0"><ScrollArea className="h-full"><div className="space-y-2 pr-4">{filteredGuests.sinMesa.map(guest => <GuestCard key={guest.id} guest={guest} />)}</div></ScrollArea></CardContent>
+                <CardHeader className="p-3">
+                  <div className="flex justify-between items-center">
+                    <CardTitle className="text-md">Invitados sin Mesa ({filteredGuests.sinMesa.length})</CardTitle>
+                    <Button variant="outline" size="sm" onClick={() => setGuestSearchTerm('')}>Limpiar</Button>
+                  </div>
+                  <div className="relative pt-2"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input placeholder="Buscar..." value={guestSearchTerm} onChange={(e) => setGuestSearchTerm(e.target.value)} className="w-full pl-10 h-8"/></div>
+                </CardHeader>
+                <CardContent className="flex-grow min-h-0 p-3"><ScrollArea className="h-full"><div className="space-y-2 pr-4">{filteredGuests.sinMesa.map(guest => <GuestCard key={guest.id} guest={guest} />)}</div></ScrollArea></CardContent>
             </Card>
             <div className={cn("xl:col-span-9 bg-card flex flex-col", isFullScreen ? 'fixed inset-0 z-40 p-4' : '')}>
                 <Card className="h-full flex flex-col flex-grow">
-                    <CardHeader className="flex-row justify-between items-center"><CardTitle>Lienzo del Salón</CardTitle><div className="flex items-center gap-1"><Button size="icon" variant="outline" onClick={() => setScale(s => s / 1.2)}><ZoomOut className="w-4 h-4"/></Button><Button size="icon" variant="outline" onClick={() => setScale(s => s * 1.2)}><ZoomIn className="w-4 h-4"/></Button><Button size="icon" variant="outline" onClick={() => setIsFullScreen(!isFullScreen)}><Maximize className="w-4 h-4"/></Button></div></CardHeader>
+                    <CardHeader className="flex-row justify-between items-center p-3">
+                      <div className="flex items-center gap-2">
+                        <CardTitle className="text-md">Lienzo del Salón</CardTitle>
+                         <Button variant="outline" size="sm" onClick={() => setIsFullScreen(!isFullScreen)}><Maximize className="w-4 h-4"/></Button>
+                         <div className="flex items-center gap-1"><Button size="icon" variant="outline" className="h-8 w-8" onClick={() => setScale(s => s / 1.2)}><ZoomOut className="w-4 h-4"/></Button><Button size="icon" variant="outline" className="h-8 w-8" onClick={() => setScale(s => s * 1.2)}><ZoomIn className="w-4 h-4"/></Button></div>
+                      </div>
+                      <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                              <Button variant="secondary" size="sm"><PlusCircle className="w-4 h-4 mr-2"/>Añadir Elemento</Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent>
+                              <DropdownMenuItem onClick={() => addElement('Mesa Redonda')}><Circle className="w-4 h-4 mr-2"/>Mesa Redonda</DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => addElement('Mesa Rectangular')}><Square className="w-4 h-4 mr-2"/>Mesa Rectangular</DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => addElement('Pista de Baile', undefined, 'area')}><Disc className="w-4 h-4 mr-2"/>Pista de Baile</DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => addElement('Escenario', undefined, 'area')}><Clapperboard className="w-4 h-4 mr-2"/>Escenario</DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => addElement('Living', undefined, 'area')}><Sofa className="w-4 h-4 mr-2"/>Living</DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => addElement('Área de Fotos', undefined, 'area')}><CameraIcon className="w-4 h-4 mr-2"/>Área de Fotos</DropdownMenuItem>
+                               <DropdownMenuItem onClick={() => setIsCustomElementModalOpen(true)}><Armchair className="w-4 h-4 mr-2"/>Otro...</DropdownMenuItem>
+                          </DropdownMenuContent>
+                      </DropdownMenu>
+                    </CardHeader>
                     <CardContent className="flex-grow p-1 overflow-auto">
                     <div className="relative canvas-grid-background" style={{ width: `${(decoracion.salonWidth || 15) * pixelsPerMeter}px`, height: `${(decoracion.salonHeight || 15) * pixelsPerMeter}px`, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
                         {decoracion.salonPlanBackgroundImageUrl && (<NextImage src={decoracion.salonPlanBackgroundImageUrl} alt="Plano del Salón" layout="fill" objectFit="contain" className="opacity-50"/>)}
@@ -606,11 +632,39 @@ function SalonLayoutContent() {
                         })}
                         </div>
                     </CardContent>
+                    <CardFooter className="p-2 border-t">
+                      <Accordion type="single" collapsible className="w-full">
+                        <AccordionItem value="settings">
+                          <AccordionTrigger className="text-xs px-2 py-1">Ajustes del Plano</AccordionTrigger>
+                          <AccordionContent className="p-2 space-y-3">
+                            <div className="grid grid-cols-3 gap-2">
+                                <div className="space-y-1"><Label htmlFor="salon-w" className="text-xs">Ancho (m)</Label><Input id="salon-w" type="number" value={decoracion.salonWidth || ''} onChange={e => setDecoracion({...decoracion, salonWidth: Number(e.target.value)})} className="h-8"/></div>
+                                <div className="space-y-1"><Label htmlFor="salon-h" className="text-xs">Alto (m)</Label><Input id="salon-h" type="number" value={decoracion.salonHeight || ''} onChange={e => setDecoracion({...decoracion, salonHeight: Number(e.target.value)})} className="h-8"/></div>
+                                <div className="space-y-1"><Label htmlFor="salon-ppm" className="text-xs">Escala (px/m)</Label><Input id="salon-ppm" type="number" value={decoracion.pixelsPerMeter || ''} onChange={e => setDecoracion({...decoracion, pixelsPerMeter: Number(e.target.value)})} className="h-8"/></div>
+                            </div>
+                            <div className="space-y-1"><Label htmlFor="bg-upload" className="text-xs">Plano de Fondo (JPG/PNG)</Label><Input id="bg-upload" type="file" onChange={handleBackgroundImageUpload} disabled={isUploading} className="text-xs h-9"/></div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      </Accordion>
+                    </CardFooter>
                 </Card>
             </div>
           </div>
         </TabsContent>
       </Tabs>
+      <div className="flex justify-end pt-4 border-t">
+        <div className="flex gap-2">
+            <Button variant="secondary" onClick={handleLoadTemplate} disabled={isSaving || isTemplateActionLoading}>
+                {isTemplateActionLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <FolderUp className="w-4 h-4 mr-2"/>} Cargar Plantilla
+            </Button>
+            <Button variant="secondary" onClick={() => setIsSaveTemplateModalOpen(true)} disabled={isSaving}>
+                <FolderDown className="w-4 h-4 mr-2"/> Guardar como Plantilla
+            </Button>
+            <Button onClick={handleSaveAll} disabled={isSaving}>
+                {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>} Guardar Diseño
+            </Button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -625,6 +679,4 @@ export default function SalonLayoutPage() {
         </DndProvider>
     );
 }
-
-
 

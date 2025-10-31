@@ -156,12 +156,7 @@ function AsignacionMesasContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
-  
-  const [templates, setTemplates] = useState<SalonLayoutTemplate[]>([]);
-  const [isLoadTemplateModalOpen, setIsLoadTemplateModalOpen] = useState(false);
-  const [isTemplateActionLoading, setIsTemplateActionLoading] = useState(false);
   
   const [scale, setScale] = useState(1);
   const [guestSearchTerm, setGuestSearchTerm] = useState('');
@@ -190,28 +185,6 @@ function AsignacionMesasContent() {
   useEffect(() => {
     loadData();
   }, [loadData]);
-  
-  const handleLoadTemplate = async () => {
-    setIsTemplateActionLoading(true);
-    try {
-        const data = await getSalonLayoutTemplates();
-        setTemplates(data);
-        setIsLoadTemplateModalOpen(true);
-    } catch(e) {
-        toast({title: "Error", description: "No se pudieron cargar las plantillas."});
-    } finally {
-        setIsTemplateActionLoading(false);
-    }
-  };
-
-  const applyTemplate = (template: SalonLayoutTemplate) => {
-    if (decoracion) {
-        const newDecoracion = { ...decoracion, ...template.layoutData };
-        setDecoracion(newDecoracion);
-        setIsLoadTemplateModalOpen(false);
-        toast({title: "Plantilla aplicada", description: "El diseño del salón ha sido actualizado."});
-    }
-  };
 
   const handleSaveAll = async () => {
     if (!decoracion || !fiestaId) return;
@@ -271,7 +244,7 @@ function AsignacionMesasContent() {
     return (
       <div className="flex flex-col items-center justify-center text-center p-8">
         <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
-        <p className="text-lg text-muted-foreground">Buscando tu mesa...</p>
+        <p className="text-lg text-muted-foreground">Cargando diseñador de mesas...</p>
       </div>
     );
   }
@@ -289,103 +262,88 @@ function AsignacionMesasContent() {
   const pixelsPerMeter = decoracion.pixelsPerMeter || PIXELS_PER_METER_DEFAULT;
 
   return (
-    <div className="min-h-screen bg-muted/30 p-4">
-         <Dialog open={isLoadTemplateModalOpen} onOpenChange={setIsLoadTemplateModalOpen}>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Cargar Plantilla de Salón</DialogTitle>
-                <DialogDescription>Selecciona un diseño pre-guardado para empezar a organizar.</DialogDescription>
-              </DialogHeader>
-              {isTemplateActionLoading ? <div className="p-4 text-center"><Loader2 className="w-6 h-6 animate-spin"/></div> : templates.length === 0 ? <p className="text-muted-foreground p-4 text-center">No hay plantillas guardadas.</p> : <ScrollArea className="max-h-64"><div className="space-y-2 pr-4">{templates.map(t => <div key={t.name} className="flex items-center justify-between p-2 rounded-md border"><span className="font-medium text-sm">{t.name}</span><Button size="sm" onClick={() => applyTemplate(t)}>Cargar</Button></div>)}</div></ScrollArea>}
-            </DialogContent>
-        </Dialog>
+    <>
+      <Card className="max-w-6xl mx-auto shadow-xl">
+          <CardHeader className="text-center">
+              <PartyPopper className="w-10 h-10 mx-auto text-primary" />
+              <CardTitle className="font-headline text-3xl">Organiza tus Mesas</CardTitle>
+              <CardDescription>Arrastra los invitados a las mesas para asignar sus lugares.</CardDescription>
+          </CardHeader>
+          <CardContent>
+              <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 h-[calc(100vh-350px)] min-h-[500px]">
+                  <Card className="xl:col-span-3 flex flex-col">
+                      <CardHeader className="pb-3">
+                          <CardTitle>Invitados sin Mesa ({filteredGuests.sinMesa.length})</CardTitle>
+                          <div className="relative pt-2">
+                              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                              <Input placeholder="Buscar..." value={guestSearchTerm} onChange={(e) => setGuestSearchTerm(e.target.value)} className="w-full pl-10"/>
+                          </div>
+                      </CardHeader>
+                      <CardContent className="flex-grow min-h-0 p-3">
+                          <ScrollArea className="h-full">
+                              <div className="space-y-2 pr-4">
+                                  {filteredGuests.sinMesa.map(guest => <GuestCard key={guest.id} guest={guest} />)}
+                              </div>
+                          </ScrollArea>
+                      </CardContent>
+                  </Card>
+                  <div className="xl:col-span-9 bg-card flex flex-col">
+                      <Card className="h-full flex flex-col flex-grow">
+                          <CardHeader className="flex-row justify-between items-center p-3">
+                              <CardTitle className="text-md">Lienzo del Salón</CardTitle>
+                              <div className="flex items-center gap-1">
+                                  <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => setScale(s => s / 1.2)}><ZoomOut className="w-4 h-4"/></Button>
+                                  <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => setScale(s => s * 1.2)}><ZoomIn className="w-4 h-4"/></Button>
+                              </div>
+                          </CardHeader>
+                          <CardContent className="flex-grow p-1 overflow-auto">
+                          <div className="relative canvas-grid-background" style={{ width: `${(decoracion.salonWidth || 15) * pixelsPerMeter}px`, height: `${(decoracion.salonHeight || 15) * pixelsPerMeter}px`, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
+                              {decoracion.salonPlanBackgroundImageUrl && (<NextImage src={decoracion.salonPlanBackgroundImageUrl} alt="Plano del Salón" layout="fill" objectFit="contain" className="opacity-50"/>)}
+                              {(decoracion.salonElements || []).map(el => {
+                                  const assignedGuests = (fiesta?.invitados || []).filter(inv => inv.tableNumber === el.name);
+                                  const assignedSeatsCount = assignedGuests.reduce((sum, g) => sum + (g.partySize || 1), 0);
+                                  const isRound = el.shape === 'circle';
 
-        <Card className="max-w-6xl mx-auto shadow-xl">
-            <CardHeader className="text-center">
-                <PartyPopper className="w-10 h-10 mx-auto text-primary" />
-                <CardTitle className="font-headline text-3xl">Organiza tus Mesas</CardTitle>
-                <CardDescription>Arrastra los invitados a las mesas para asignar sus lugares.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 h-[calc(100vh-350px)] min-h-[500px]">
-                    <Card className="xl:col-span-3 flex flex-col">
-                        <CardHeader className="pb-3">
-                            <CardTitle>Invitados sin Mesa ({filteredGuests.sinMesa.length})</CardTitle>
-                            <div className="relative pt-2">
-                                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                                <Input placeholder="Buscar..." value={guestSearchTerm} onChange={(e) => setGuestSearchTerm(e.target.value)} className="w-full pl-10"/>
-                            </div>
-                        </CardHeader>
-                        <CardContent className="flex-grow min-h-0">
-                            <ScrollArea className="h-full">
-                                <div className="space-y-2 pr-4">
-                                    {filteredGuests.sinMesa.map(guest => <GuestCard key={guest.id} guest={guest} />)}
-                                </div>
-                            </ScrollArea>
-                        </CardContent>
-                    </Card>
-                    <div className="xl:col-span-9 bg-card flex flex-col">
-                        <Card className="h-full flex flex-col flex-grow">
-                            <CardHeader className="flex-row justify-between items-center">
-                                <div className="flex items-center gap-2">
-                                  <CardTitle>Lienzo del Salón</CardTitle>
-                                  <Button size="sm" variant="outline" onClick={handleLoadTemplate} disabled={isTemplateActionLoading}>
-                                    <FolderUp className="w-4 h-4 mr-2"/> Cargar Plantilla
-                                  </Button>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                    <Button size="icon" variant="outline" onClick={() => setScale(s => s / 1.2)}><ZoomOut className="w-4 h-4"/></Button>
-                                    <Button size="icon" variant="outline" onClick={() => setScale(s => s * 1.2)}><ZoomIn className="w-4 h-4"/></Button>
-                                </div>
-                            </CardHeader>
-                            <CardContent className="flex-grow p-1 overflow-auto">
-                            <div className="relative canvas-grid-background" style={{ width: `${(decoracion.salonWidth || 15) * pixelsPerMeter}px`, height: `${(decoracion.salonHeight || 15) * pixelsPerMeter}px`, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
-                                {decoracion.salonPlanBackgroundImageUrl && (<NextImage src={decoracion.salonPlanBackgroundImageUrl} alt="Plano del Salón" layout="fill" objectFit="contain" className="opacity-50"/>)}
-                                {(decoracion.salonElements || []).map(el => {
-                                    const assignedGuests = (fiesta?.invitados || []).filter(inv => inv.tableNumber === el.name);
-                                    const assignedSeatsCount = assignedGuests.reduce((sum, g) => sum + (g.partySize || 1), 0);
-                                    const isRound = el.shape === 'circle';
-
-                                    return (
-                                        <TableDropZone key={el.id} element={el} onDrop={handleAssignGuestToTable}>
-                                        <div id={el.id} className="absolute" style={{ left: el.x, top: el.y, width: el.width, height: el.height, transform: `rotate(${el.rotation}deg)` }}>
-                                             {el.seats && Array.from({ length: el.seats }).map((_, i) => (
-                                                <Seat key={i} index={i} total={el.seats!} isOccupied={i < assignedSeatsCount} isRound={isRound} width={el.width} height={el.height} />
-                                              ))}
-                                            <div className={cn('w-full h-full border flex flex-col p-1', selectedElementId === el.id ? 'border-primary shadow-lg z-10' : 'border-gray-500', isRound && 'rounded-full')}
-                                                style={{ backgroundColor: el.backgroundColor || 'rgba(255, 255, 255, 0.7)' }}
-                                                onClick={(e) => { e.stopPropagation(); setSelectedElementId(el.id); }}>
-                                                <p className="text-xs font-bold text-center truncate">{el.name}</p>
-                                                <p className="text-[10px] text-center text-muted-foreground">{assignedSeatsCount}/{el.seats || 'N/A'}</p>
-                                                <div className="text-[9px] space-y-0.5 overflow-y-auto flex-grow mt-1 text-center">
-                                                    {assignedGuests.map(g => (
-                                                        <div key={g.id} className="flex items-center justify-center gap-1 group relative">
-                                                            <span className="truncate">{g.nombre} ({g.partySize})</span>
-                                                            <button onClick={() => handleUnassignGuest(g.id)} className="hidden group-hover:block text-destructive">
-                                                                <X className="w-3 h-3"/>
-                                                            </button>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        </TableDropZone>
-                                    )
-                                })}
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
-                </div>
-            </CardContent>
-            <CardFooter className="flex justify-end">
-                <Button onClick={handleSaveAll} disabled={isSaving}>
-                    {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>}
-                    Guardar Cambios
-                </Button>
-            </CardFooter>
-        </Card>
-    </div>
+                                  return (
+                                      <TableDropZone key={el.id} element={el} onDrop={handleAssignGuestToTable}>
+                                      <div id={el.id} className="absolute" style={{ left: el.x, top: el.y, width: el.width, height: el.height, transform: `rotate(${el.rotation}deg)` }}>
+                                          {el.seats && Array.from({ length: el.seats }).map((_, i) => (
+                                              <Seat key={i} index={i} total={el.seats!} isOccupied={i < assignedSeatsCount} isRound={isRound} width={el.width} height={el.height} />
+                                          ))}
+                                          <div className={cn('w-full h-full border flex flex-col p-1', selectedElementId === el.id ? 'border-primary shadow-lg z-10' : 'border-gray-500', isRound && 'rounded-full')}
+                                              style={{ backgroundColor: el.backgroundColor || 'rgba(255, 255, 255, 0.7)' }}
+                                              onClick={(e) => { e.stopPropagation(); setSelectedElementId(el.id); }}>
+                                              <p className="text-xs font-bold text-center truncate">{el.name}</p>
+                                              <p className="text-[10px] text-center text-muted-foreground">{assignedSeatsCount}/{el.seats || 'N/A'}</p>
+                                              <div className="text-[9px] space-y-0.5 overflow-y-auto flex-grow mt-1 text-center">
+                                                  {assignedGuests.map(g => (
+                                                      <div key={g.id} className="flex items-center justify-center gap-1 group relative">
+                                                          <span className="truncate">{g.nombre} ({g.partySize})</span>
+                                                          <button onClick={() => handleUnassignGuest(g.id)} className="hidden group-hover:block text-destructive">
+                                                              <X className="w-3 h-3"/>
+                                                          </button>
+                                                      </div>
+                                                  ))}
+                                              </div>
+                                          </div>
+                                      </div>
+                                      </TableDropZone>
+                                  )
+                              })}
+                              </div>
+                          </CardContent>
+                      </Card>
+                  </div>
+              </div>
+          </CardContent>
+          <CardFooter className="flex justify-end">
+              <Button onClick={handleSaveAll} disabled={isSaving}>
+                  {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>}
+                  Guardar Cambios
+              </Button>
+          </CardFooter>
+      </Card>
+    </>
   );
 }
 
@@ -400,4 +358,9 @@ export default function MesaPage() {
                 </div>
             }>
                 <DndProvider backend={HTML5Backend}>
-                    <AsignacionMes
+                    <AsignacionMesasContent />
+                </DndProvider>
+            </Suspense>
+        </div>
+    );
+}
