@@ -64,8 +64,8 @@ const TableNumberComponent: React.FC<{
 function NumerosDeMesaContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
-  const fiestaId = searchParams.get('fiestaId');
   const router = useRouter();
+  const fiestaId = searchParams.get('fiestaId');
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [data, setData] = useState<NumerosMesaData>(defaultNumerosMesaData);
@@ -76,7 +76,6 @@ function NumerosDeMesaContent() {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [tableCount, setTableCount] = useState(0);
-  const printRef = useRef<HTMLDivElement>(null);
 
 
   const loadData = useCallback(async () => {
@@ -156,7 +155,7 @@ function NumerosDeMesaContent() {
   }
 
   const handlePrint = () => window.print();
-  
+
   if (isLoading || !fiesta) {
     return <div className="p-8 max-w-4xl mx-auto flex justify-center"><Loader2 className="w-8 h-8 animate-spin" /></div>;
   }
@@ -198,32 +197,32 @@ function NumerosDeMesaContent() {
             const tableNum2 = pageIndex * 2 + 2;
 
             return (
-                <div key={pageIndex} className="w-[210mm] h-[297mm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto print:break-after-page grid grid-cols-2 gap-0">
-                    {/* Column 1 */}
-                    <div className="flex flex-col border-r border-dashed border-gray-300">
-                      <div className="h-[30mm] border-b border-dashed border-gray-300"></div>
-                      <div className="h-[70mm] border-b border-dashed border-gray-300"></div>
-                      <div className="flex-1">
-                        <TableNumberComponent tableNumber={tableNum1} inverted fiesta={fiesta!} data={data} logoUrl={logoUrl}/>
-                      </div>
-                      <div className="flex-1 border-t border-dashed border-gray-300">
-                        <TableNumberComponent tableNumber={tableNum1} fiesta={fiesta!} data={data} logoUrl={logoUrl}/>
-                      </div>
-                    </div>
-                    {/* Column 2 */}
-                    <div>
-                      {tableNum2 <= tableCount ? (
-                        <div className="flex flex-col h-full">
-                          <div className="h-[30mm] border-b border-dashed border-gray-300"></div>
-                          <div className="h-[70mm] border-b border-dashed border-gray-300"></div>
-                          <div className="flex-1">
-                            <TableNumberComponent tableNumber={tableNum2} inverted fiesta={fiesta!} data={data} logoUrl={logoUrl}/>
-                          </div>
-                          <div className="flex-1 border-t border-dashed border-gray-300">
-                            <TableNumberComponent tableNumber={tableNum2} fiesta={fiesta!} data={data} logoUrl={logoUrl}/>
-                          </div>
+                <div key={pageIndex} className="w-[210mm] h-[297mm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto print:break-after-page p-4 flex flex-col">
+                    <div className="grid grid-cols-2 gap-4 flex-grow">
+                        {/* Column 1 */}
+                        <div className="h-full flex flex-col">
+                            <div className="h-[30mm] border border-dashed border-gray-300"></div>
+                            <div className="h-[70mm] border border-dashed border-gray-300 mt-[-1px]"></div>
+                            <div className="flex-1 border border-dashed border-gray-300 mt-[-1px]">
+                                <TableNumberComponent tableNumber={tableNum1} inverted fiesta={fiesta} data={data} logoUrl={logoUrl}/>
+                            </div>
+                            <div className="flex-1 border border-dashed border-gray-300 mt-[-1px]">
+                                <TableNumberComponent tableNumber={tableNum1} fiesta={fiesta} data={data} logoUrl={logoUrl}/>
+                            </div>
                         </div>
-                      ) : <div className="h-full"></div>}
+                        {/* Column 2 */}
+                        {tableNum2 <= tableCount && (
+                             <div className="h-full flex flex-col">
+                                <div className="h-[30mm] border border-dashed border-gray-300"></div>
+                                <div className="h-[70mm] border border-dashed border-gray-300 mt-[-1px]"></div>
+                                <div className="flex-1 border border-dashed border-gray-300 mt-[-1px]">
+                                    <TableNumberComponent tableNumber={tableNum2} inverted fiesta={fiesta} data={data} logoUrl={logoUrl}/>
+                                </div>
+                                <div className="flex-1 border border-dashed border-gray-300 mt-[-1px]">
+                                    <TableNumberComponent tableNumber={tableNum2} fiesta={fiesta} data={data} logoUrl={logoUrl}/>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             );
@@ -233,6 +232,7 @@ function NumerosDeMesaContent() {
              @media print {
                 body { -webkit-print-color-adjust: exact; color-adjust: exact; }
                 @page { size: A4 portrait; margin: 0; }
+                .border-dashed { border-style: solid; border-color: #eee; }
             }
         `}</style>
     </div>
