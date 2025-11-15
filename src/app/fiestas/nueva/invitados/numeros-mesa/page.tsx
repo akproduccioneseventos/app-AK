@@ -1,9 +1,10 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, Suspense, type ChangeEvent, useRef } from 'react';
 import Link from 'next/link';
 import NextImage from 'next/image';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Printer as PrinterIcon, Save, Loader2, Edit, Upload, Image as ImageIcon, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -74,9 +75,15 @@ function NumerosDeMesaContent() {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [tableCount, setTableCount] = useState(0);
+  const printRef = useRef<HTMLDivElement>(null);
+
 
   const loadData = useCallback(async () => {
-    if (!fiestaId) return;
+    if (!fiestaId) {
+      toast({ title: "Error", description: "No se encontró ID de evento.", variant: "destructive" });
+      router.push('/eventos');
+      return;
+    }
     setIsLoading(true);
     try {
       const [fiestaData, settings] = await Promise.all([getFiestaById(fiestaId), getInvoiceTemplateSettings()]);
@@ -101,11 +108,11 @@ function NumerosDeMesaContent() {
     } finally {
       setIsLoading(false);
     }
-  }, [toast, fiestaId]);
+  }, [toast, fiestaId, router]);
 
   useEffect(() => {
     loadData();
-  }, [fiestaId]);
+  }, [loadData]);
   
   const handleUpdate = (field: keyof NumerosMesaData, value: string) => {
     setData(prev => ({ ...prev, [field]: value }));
@@ -190,27 +197,27 @@ function NumerosDeMesaContent() {
             const tableNum2 = pageIndex * 2 + 2;
 
             return (
-                <div key={pageIndex} className="w-[210mm] h-[297mm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto print:break-after-page p-4 flex gap-4">
-                    {/* Columna Izquierda */}
-                    <div className="w-1/2 h-full flex flex-col gap-4">
-                       <div className="h-1/2">
+                <div key={pageIndex} className="w-[210mm] h-[297mm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto print:break-after-page p-4 flex flex-col gap-4">
+                    <div className="flex-1 grid grid-cols-2 gap-4">
+                        <div className="h-full">
                           <TableNumberComponent tableNumber={tableNum1} inverted fiesta={fiesta} data={data} logoUrl={logoUrl}/>
-                       </div>
-                       <div className="h-1/2">
-                          <TableNumberComponent tableNumber={tableNum1} fiesta={fiesta} data={data} logoUrl={logoUrl}/>
-                       </div>
+                        </div>
+                         {tableNum2 <= tableCount && (
+                            <div className="h-full">
+                                <TableNumberComponent tableNumber={tableNum2} inverted fiesta={fiesta} data={data} logoUrl={logoUrl}/>
+                            </div>
+                        )}
                     </div>
-                     {/* Columna Derecha */}
-                    {tableNum2 <= tableCount && (
-                       <div className="w-1/2 h-full flex flex-col gap-4">
-                           <div className="h-1/2">
-                               <TableNumberComponent tableNumber={tableNum2} inverted fiesta={fiesta} data={data} logoUrl={logoUrl}/>
-                           </div>
-                           <div className="h-1/2">
-                               <TableNumberComponent tableNumber={tableNum2} fiesta={fiesta} data={data} logoUrl={logoUrl}/>
-                           </div>
-                       </div>
-                    )}
+                    <div className="flex-1 grid grid-cols-2 gap-4">
+                         <div className="h-full">
+                            <TableNumberComponent tableNumber={tableNum1} fiesta={fiesta} data={data} logoUrl={logoUrl}/>
+                        </div>
+                        {tableNum2 <= tableCount && (
+                             <div className="h-full">
+                                <TableNumberComponent tableNumber={tableNum2} fiesta={fiesta} data={data} logoUrl={logoUrl}/>
+                            </div>
+                        )}
+                    </div>
                 </div>
             );
         })}
