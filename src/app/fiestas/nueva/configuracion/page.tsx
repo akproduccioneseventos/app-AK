@@ -15,7 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import type { TipoEvento } from '@/types/presupuesto';
 import type { ConfigEventoDataStorage } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
-import { getFiestaActual, updateConfiguracionFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaById, updateConfiguracionFiestaActual } from '@/app/actions/fiesta-actual';
 import { initialFiestaActualData } from '@/lib/fiesta-defaults'; 
 import { getCustomers, getCustomerById, syncCustomerFromFiestaConfig } from '@/app/actions/customers';
 import { Separator } from '@/components/ui/separator';
@@ -254,8 +254,21 @@ function ConfiguracionEventoContent() {
     return <div className="flex flex-col items-center justify-center min-h-[400px] text-center"><AlertTriangle className="w-12 h-12 text-destructive mb-4" /><h2 className="text-xl font-semibold mb-2">Error al Cargar Configuración</h2><p className="text-muted-foreground">No se pudieron cargar los datos. Por favor, intentá de nuevo más tarde.</p><Button onClick={() => window.location.reload()} className="mt-4">Recargar Página</Button></div>;
   }
   
+  const handleSelectTipoEventoChange = (value: string) => {
+    if (config) {
+      const newTipoEvento = value === "Otro" ? "" : value as TipoEvento;
+      handleChange('tipoCelebracion', newTipoEvento);
+      if (newTipoEvento !== 'Boda') handleChange('protagonista2Nombre', '');
+      if (newTipoEvento !== 'Evento corporativo') handleChange('nombreEmpresa', '');
+    }
+  };
+  
+  const handleCustomTipoEventoInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleChange('tipoCelebracion', e.target.value);
+  };
+  
   const finalEventType = config.tipoCelebracion.trim();
-  const showCustomTipoInput = !tiposEventoDisponibles.includes(finalEventType as TipoEvento) && finalEventType !== '';
+  const showCustomTipoInput = eventoTipoEnSelect === "Otro" || (finalEventType && !tiposEventoDisponibles.includes(finalEventType as TipoEvento));
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -331,7 +344,7 @@ function ConfiguracionEventoContent() {
             <div className="space-y-2">
                 <Label htmlFor="tipo-celebracion" className="text-base">Tipo de Celebración</Label>
                  <Select 
-                    value={tiposEventoDisponibles.includes(config.tipoCelebracion as TipoEvento) ? config.tipoCelebracion : "Otro"}
+                    value={eventoTipoEnSelect}
                     onValueChange={handleSelectTipoEventoChange}
                     disabled={isSaving}
                   >
