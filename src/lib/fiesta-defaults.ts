@@ -238,30 +238,41 @@ export const defaultBebidasCategorias: BebidaCategoria[] = [
   { id: 'jugos', nombreDisplay: 'Mesa de jugos naturales', activada: false, items: [], descripcion: 'Opciones frutales y refrescantes.' },
   { id: 'aguas_saborizadas', nombreDisplay: 'Aguas Saborizadas y Minerales', activada: false, items: [], descripcion: 'Con y sin gas, opciones saborizadas.' },
   { id: 'cervezas', nombreDisplay: 'Cervezas', activada: false, items: [], descripcion: 'Variedad de cervezas nacionales e importadas.' },
-  { id: 'vinos_espumantes', nombreDisplay: 'Vinos y Espumantes', activada: false, items: [], descripcion: 'Selección de tintos, blancos, rosados y espumosos.' },
   {
     id: 'barra_tragos',
     nombreDisplay: 'Barra de Tragos',
     activada: false,
-    items: [
-        { id: 'beb-licor-frutilla', nombre: 'Licor de Frutilla', cantidadNecesaria: 2, unidadCantidad: 'Litros', costoUnitario: 300, costoTotal: 600, proveedorHabitual: 'DISTRIBUIDORA SUR' },
-        { id: 'beb-licor-durazno', nombre: 'Licor de Durazno', cantidadNecesaria: 2, unidadCantidad: 'Litros', costoUnitario: 300, costoTotal: 600, proveedorHabitual: 'DISTRIBUIDORA SUR' },
-        { id: 'beb-licor-blue', nombre: 'Licor Blue Curaçao', cantidadNecesaria: 2, unidadCantidad: 'Litros', costoUnitario: 320, costoTotal: 640, proveedorHabitual: 'DISTRIBUIDORA SUR' },
-        { id: 'beb-fernet', nombre: 'Fernet', cantidadNecesaria: 5, unidadCantidad: 'Botellas 750ml', costoUnitario: 450, costoTotal: 2250, proveedorHabitual: 'PROVEEDOR LICORES' },
-        { id: 'beb-gancia', nombre: 'Gancia', cantidadNecesaria: 3, unidadCantidad: 'Botellas', costoUnitario: 250, costoTotal: 750, proveedorHabitual: 'PROVEEDOR LICORES' },
-        { id: 'beb-campari', nombre: 'Campari', cantidadNecesaria: 2, unidadCantidad: 'Botellas', costoUnitario: 380, costoTotal: 760, proveedorHabitual: 'PROVEEDOR LICORES' },
-        { id: 'beb-gin', nombre: 'Gin', cantidadNecesaria: 2, unidadCantidad: 'Botellas', costoUnitario: 350, costoTotal: 700, proveedorHabitual: 'PROVEEDOR LICORES' },
-        { id: 'beb-ron', nombre: 'Ron Blanco', cantidadNecesaria: 3, unidadCantidad: 'Botellas', costoUnitario: 320, costoTotal: 960, proveedorHabitual: 'PROVEEDOR LICORES' },
-        { id: 'beb-vodka', nombre: 'Vodka', cantidadNecesaria: 3, unidadCantidad: 'Botellas', costoUnitario: 290, costoTotal: 870, proveedorHabitual: 'PROVEEDOR LICORES' },
-        { id: 'beb-whisky', nombre: 'Whisky (Estándar)', cantidadNecesaria: 2, unidadCantidad: 'Botellas', costoUnitario: 600, costoTotal: 1200, proveedorHabitual: 'PROVEEDOR LICORES' },
-        { id: 'beb-jugo-naranja', nombre: 'Jugo de Naranja', cantidadNecesaria: 10, unidadCantidad: 'Litros', costoUnitario: 80, costoTotal: 800, proveedorHabitual: 'SUPERMERCADO' },
-        { id: 'beb-jugo-frutilla', nombre: 'Jugo de Frutilla', cantidadNecesaria: 5, unidadCantidad: 'Litros', costoUnitario: 80, costoTotal: 400, proveedorHabitual: 'SUPERMERCADO' },
-        { id: 'beb-tonica', nombre: 'Agua Tónica', cantidadNecesaria: 6, unidadCantidad: 'Litros', costoUnitario: 70, costoTotal: 420, proveedorHabitual: 'SUPERMERCADO' },
-        { id: 'beb-soda', nombre: 'Soda', cantidadNecesaria: 6, unidadCantidad: 'Litros', costoUnitario: 50, costoTotal: 300, proveedorHabitual: 'SUPERMERCADO' },
-        { id: 'beb-limon-barra', nombre: 'Limones para Barra', cantidadNecesaria: 2, unidadCantidad: 'Kg', costoUnitario: 80, costoTotal: 160, proveedorHabitual: 'VERDULERIA' },
-        { id: 'beb-menta', nombre: 'Menta Fresca', cantidadNecesaria: 2, unidadCantidad: 'Atados', costoUnitario: 50, costoTotal: 100, proveedorHabitual: 'VERDULERIA' }
+    items: [],
+    recetas: [
+      {
+        id: 'receta_barra_completa_100p',
+        nombre: 'Receta Barra de Tragos (100 Personas)',
+        capacidadBaseLt: 0,
+        porcionesBase: 100,
+        costoTotalReceta: 12545,
+        ingredientes: [
+          { id: 'bt_1', nombreInsumo: 'Licor de Frutilla', cantidad: 2, unidad: 'Litros', costoUnitario: 300, costoTotal: 600 },
+          { id: 'bt_2', nombreInsumo: 'Licor de Durazno', cantidad: 2, unidad: 'Litros', costoUnitario: 300, costoTotal: 600 },
+          { id: 'bt_3', nombreInsumo: 'Jugo de Durazno', cantidad: 2, unidad: 'Litros', costoUnitario: 50, costoTotal: 100 },
+          { id: 'bt_4', nombreInsumo: 'Licor Blue Curaçao', cantidad: 2, unidad: 'Litros', costoUnitario: 300, costoTotal: 600 },
+          { id: 'bt_5', nombreInsumo: 'Fernet', cantidad: 4, unidad: 'Litros', costoUnitario: 400, costoTotal: 1600 },
+          { id: 'bt_6', nombreInsumo: 'Granadina', cantidad: 1, unidad: 'Litro', costoUnitario: 220, costoTotal: 220 },
+          { id: 'bt_7', nombreInsumo: 'Lata de Durazno', cantidad: 3, unidad: 'Unidades', costoUnitario: 80, costoTotal: 240 },
+          { id: 'bt_8', nombreInsumo: 'Lata de Ananá', cantidad: 5, unidad: 'Unidades', costoUnitario: 117, costoTotal: 585 },
+          { id: 'bt_9', nombreInsumo: 'Pepsi', cantidad: 14, unidad: 'Litros', costoUnitario: 90, costoTotal: 1260 },
+          { id: 'bt_10', nombreInsumo: 'Vasos y Sorbitos', cantidad: 300, unidad: 'Unidades', costoUnitario: 2, costoTotal: 600 },
+          { id: 'bt_11', nombreInsumo: 'Refresco Lima', cantidad: 2, unidad: 'Litros', costoUnitario: 65, costoTotal: 130 },
+          { id: 'bt_12', nombreInsumo: 'Vodka', cantidad: 3, unidad: 'Litros', costoUnitario: 280, costoTotal: 840 },
+          { id: 'bt_13', nombreInsumo: 'Ron Blanco', cantidad: 2, unidad: 'Litros', costoUnitario: 300, costoTotal: 600 },
+          { id: 'bt_14', nombreInsumo: 'Limón', cantidad: 2000, unidad: 'Gramos', costoUnitario: 0.07, costoTotal: 140 },
+          { id: 'bt_15', nombreInsumo: 'Frutilla', cantidad: 2000, unidad: 'Gramos', costoUnitario: 0.12, costoTotal: 240 },
+          { id: 'bt_16', nombreInsumo: 'Azúcar', cantidad: 2000, unidad: 'Gramos', costoUnitario: 0.07, costoTotal: 140 },
+          { id: 'bt_17', nombreInsumo: 'Caña', cantidad: 2, unidad: 'Litros', costoUnitario: 300, costoTotal: 600 },
+          { id: 'bt_18', nombreInsumo: 'Jugo de Naranja', cantidad: 10, unidad: 'Litros', costoUnitario: 35, costoTotal: 350 },
+          { id: 'bt_19', nombreInsumo: 'Hielo', cantidad: 50, unidad: 'Kg', costoUnitario: 20, costoTotal: 1000 }
+        ]
+      }
     ],
-    recetas: [],
     descripcion: "Bebidas blancas y licores para la barra."
   },
   { id: 'cafeteria', nombreDisplay: 'Servicio de Cafetería', activada: false, items: [], descripcion: 'Café, té, infusiones.' },
@@ -418,3 +429,5 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
   // NEW UNIFIED OBJECT
   invitacionDigital: { ...defaultInvitacionDigitalData }
 };
+
+    
