@@ -1,7 +1,7 @@
 
 'use client';
 
-import type { InvitacionDigitalData, TextWithStyle } from '@/types/fiesta';
+import type { InvitacionDigitalData, TextWithStyle, TextStyle } from '@/types/fiesta';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { TextStyleEditor } from './TextStyleEditor';

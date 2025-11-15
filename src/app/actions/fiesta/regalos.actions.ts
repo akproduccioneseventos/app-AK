@@ -1,7 +1,7 @@
 
 'use server';
 
-import { initialFiestaActualData, defaultWebPageSettings } from '@/lib/fiesta-defaults';
+import { initialFiestaActualData } from '@/lib/fiesta-defaults';
 import type { FiestaEnPlanificacion, GiftItem } from '@/types/fiesta';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 
@@ -24,17 +24,22 @@ async function updateFiestaData(
 
 export async function updateGiftRegistry(fiestaId: string, giftList: GiftItem[]) {
     return updateFiestaData(fiestaId, data => {
-        // Use invitacionDigital if it exists, otherwise fall back to old webPageSettings
-        const target = data.invitacionDigital ? data.invitacionDigital.regalos : (data.webPageSettings || defaultWebPageSettings);
-        const updatedTarget = { ...target, items: giftList, giftRegistry: giftList }; // Update both for compatibility
+        // Ensure invitacionDigital and regalos exist
+        const invitacionDigital = data.invitacionDigital || initialFiestaActualData.invitacionDigital!;
+        const regalos = invitacionDigital.regalos || { visible: true, titulo: { text: '' }, texto: { text: '' }, datosBancarios: '', items: [] };
 
-        if (data.invitacionDigital) {
-            return { ...data, invitacionDigital: { ...data.invitacionDigital, regalos: updatedTarget as typeof data.invitacionDigital.regalos } };
-        } else {
-             return { ...data, webPageSettings: { ...(data.webPageSettings || defaultWebPageSettings), giftRegistry: giftList } };
-        }
+        const updatedRegalos = { ...regalos, items: giftList };
+
+        return {
+            ...data,
+            invitacionDigital: {
+                ...invitacionDigital,
+                regalos: updatedRegalos,
+            }
+        };
     });
 }
+
 
 export async function addGiftToRegistry(fiestaId: string, newGiftData: Omit<GiftItem, 'id' | 'isClaimed'>): Promise<{ success: boolean; error?: string }> {
     return updateFiestaData(fiestaId, data => {
@@ -44,47 +49,46 @@ export async function addGiftToRegistry(fiestaId: string, newGiftData: Omit<Gift
             isClaimed: false,
         };
 
-        if (data.invitacionDigital) {
-            const currentItems = data.invitacionDigital.regalos?.items || [];
-            const updatedItems = [...currentItems, newGift];
-            const updatedRegalos = { ...(data.invitacionDigital.regalos || {}), items: updatedItems };
-            return { ...data, invitacionDigital: { ...data.invitacionDigital, regalos: updatedRegalos as typeof data.invitacionDigital.regalos }};
-        } else {
-            // Fallback for old structure
-            const webPageSettings = data.webPageSettings || defaultWebPageSettings;
-            const giftList = webPageSettings.giftRegistry || [];
-            const updatedList = [...giftList, newGift];
-            return { ...data, webPageSettings: { ...webPageSettings, giftRegistry: updatedList } };
-        }
+        const invitacionDigital = data.invitacionDigital || initialFiestaActualData.invitacionDigital!;
+        const regalos = invitacionDigital.regalos || { visible: true, titulo: { text: '' }, texto: { text: '' }, datosBancarios: '', items: [] };
+
+        const currentItems = regalos.items || [];
+        const updatedItems = [...currentItems, newGift];
+        const updatedRegalos = { ...regalos, items: updatedItems };
+
+        return {
+            ...data,
+            invitacionDigital: {
+                ...invitacionDigital,
+                regalos: updatedRegalos,
+            }
+        };
     });
 }
 
 
 export async function claimGift(fiestaId: string, giftId: string, guestName: string): Promise<{ success: boolean; error?: string }> {
     return updateFiestaData(fiestaId, data => {
-        if (data.invitacionDigital) {
-             const currentItems = data.invitacionDigital.regalos?.items || [];
-             const updatedItems = currentItems.map(gift => {
-                if (gift.id === giftId && !gift.isClaimed) {
-                    return { ...gift, isClaimed: true, claimedBy: guestName };
-                }
-                return gift;
-            });
-            const updatedRegalos = { ...(data.invitacionDigital.regalos || {}), items: updatedItems };
-            return { ...data, invitacionDigital: { ...data.invitacionDigital, regalos: updatedRegalos as typeof data.invitacionDigital.regalos }};
+        const invitacionDigital = data.invitacionDigital || initialFiestaActualData.invitacionDigital!;
+        const regalos = invitacionDigital.regalos || { visible: true, titulo: { text: '' }, texto: { text: '' }, datosBancarios: '', items: [] };
+        
+        const currentItems = regalos.items || [];
+        const updatedItems = currentItems.map(gift => {
+            if (gift.id === giftId && !gift.isClaimed) {
+                return { ...gift, isClaimed: true, claimedBy: guestName };
+            }
+            return gift;
+        });
 
-        } else {
-            // Fallback
-            const webPageSettings = data.webPageSettings || defaultWebPageSettings;
-            const giftList = webPageSettings.giftRegistry || [];
-            const updatedList = giftList.map(gift => {
-                if (gift.id === giftId && !gift.isClaimed) {
-                    return { ...gift, isClaimed: true, claimedBy: guestName };
-                }
-                return gift;
-            });
-            return { ...data, webPageSettings: { ...webPageSettings, giftRegistry: updatedList } };
-        }
+        const updatedRegalos = { ...regalos, items: updatedItems };
+
+        return {
+            ...data,
+            invitacionDigital: {
+                ...invitacionDigital,
+                regalos: updatedRegalos
+            }
+        };
     });
 }
     

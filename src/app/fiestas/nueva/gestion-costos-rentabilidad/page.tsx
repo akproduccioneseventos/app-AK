@@ -13,7 +13,7 @@ import { ArrowLeft, Save, Loader2, AlertTriangle, BarChart3, PlusCircle, Trash2,
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, GestionCostosData, CostoItem, CostoCategoria } from '@/types/fiesta';
 import { getFiestaById, updateGestionCostosFiestaActual } from '@/app/actions/fiesta-actual';
-import { initialGestionCostosData } from '@/lib/fiesta-defaults';
+import { defaultGestionCostos } from '@/lib/fiesta-defaults';
 import { getMenuById } from '@/app/actions/menus-catering';
 import { Separator } from '@/components/ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -46,7 +46,7 @@ function GestionCostosRentabilidadContent() {
   const fiestaId = searchParams.get('fiestaId');
 
   const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
-  const [gestionCostos, setGestionCostos] = useState<GestionCostosData>(initialGestionCostosData);
+  const [gestionCostos, setGestionCostos] = useState<GestionCostosData>(defaultGestionCostos);
   const [costoTotalMenu, setCostoTotalMenu] = useState<number>(0);
   const [costoTotalReposteria, setCostoTotalReposteria] = useState<number>(0);
   const [costoTotalBebidas, setCostoTotalBebidas] = useState<number>(0);
@@ -74,7 +74,7 @@ function GestionCostosRentabilidadContent() {
       if (!fiesta) throw new Error("Fiesta no encontrada.");
 
       setFiestaActual(fiesta);
-      setGestionCostos(fiesta.gestionCostos || initialGestionCostosData);
+      setGestionCostos(fiesta.gestionCostos || defaultGestionCostos);
       const invitados = Number(fiesta.configuracion.invitadosEstimados) || 0;
 
       // Calculate Gastronomic Costs
@@ -299,5 +299,3 @@ export default function GestionCostosPage() {
         </Suspense>
     )
 }
-
-    

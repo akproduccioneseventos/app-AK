@@ -87,7 +87,7 @@ export const SeccionRegalosEditor: React.FC<Props> = ({ data, update, fiestaId }
             </div>
             <div className="space-y-1">
                 <Label htmlFor="regalos-banco">Datos Bancarios (o link)</Label>
-                <Textarea id="regalos-banco" value={data.datosBancarios || ''} onChange={(e) => handleFieldChange('datosBancarios', e.target.value)} rows={2} placeholder="Ej: Banco Itaú, C.A. $ 12345678"/>
+                <Textarea id="regalos-banco" value={data.datosBancarios || ''} onChange={(e) => handleFieldChange('datosBancarios', e.target.value)} rows={2} placeholder="Ej: Banco Itaú, C.A. Pesos: 12345678"/>
             </div>
             <div className="space-y-2">
                 <Label>Ítems de Regalo (Opcional)</Label>
