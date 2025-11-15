@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Palette, Save, Loader2, AlertTriangle, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, Settings2, StickyNote, CakeSlice, Building, Gift, Camera, Sparkles as SparklesIcon, ChevronDown, ListPlus, LayoutDashboard } from 'lucide-react';
+import { ArrowLeft, Palette, Save, Loader2, AlertTriangle, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, Settings2, StickyNote, CakeSlice, Building, Gift, Camera, Sparkles as SparklesIcon, ChevronDown, ListPlus, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion, DecoracionData, DecorationItem, ColorPalette, ZonaContratada } from '@/types/fiesta';
@@ -32,6 +32,7 @@ import { suggestPalette, type ColorPalette as SuggestedPalette } from '@/ai/flow
 import { Switch } from '@/components/ui/switch';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
+import { UploadButton } from '@/components/invitacion/edit/UploadButton';
 
 
 const ALL_DECORATION_ITEM_CATEGORIES = [
@@ -101,7 +102,6 @@ function DecoracionYDisenoEventoContent() {
 
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [currentItem, setCurrentItem] = useState<Partial<DecorationItem> | null>(null);
-  const [itemImagePreview, setItemImagePreview] = useState<string | null>(null);
   
   const [failedImageUrls, setFailedImageUrls] = useState<Record<string, boolean>>({});
 
@@ -212,13 +212,11 @@ function DecoracionYDisenoEventoContent() {
   
   const openItemModal = (prefillData?: Partial<DecorationItem>) => {
     setCurrentItem(prefillData?.id ? { ...prefillData } : { id: '', name: '', quantity: 1, category: prefillData?.category || 'Otro', ...prefillData });
-    setItemImagePreview(prefillData?.imageUrl || null);
     setIsItemModalOpen(true);
   };
 
   const handleItemModalChange = (field: keyof DecorationItem, value: string | number) => {
     setCurrentItem(prev => prev ? { ...prev, [field]: value } : null);
-    if (field === 'imageUrl') setItemImagePreview(value as string);
   };
 
   const handleItemModalSave = () => {
@@ -314,7 +312,12 @@ function DecoracionYDisenoEventoContent() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3"><Palette className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">🎨 Decoración y Diseño del Evento</h1></div>
-        <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
+        <div className="flex gap-2">
+            <Link href={`/fiestas/nueva/decoracion/pdf?fiestaId=${fiestaId}`} passHref>
+                <Button variant="outline" disabled={isSaving}><FileText className="w-4 h-4 mr-2"/>Ver PDF</Button>
+            </Link>
+            <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
+        </div>
       </div>
 
       <form onSubmit={handleSaveDecoracion}>
@@ -364,7 +367,13 @@ function DecoracionYDisenoEventoContent() {
               </div>
             </div>
             
-            <div className="space-y-2"><Label htmlFor="moodboard-url">URL de Moodboard/Imagen de Portada General</Label><Input id="moodboard-url" type="url" value={decoracionData.moodboardImageUrl || ''} onChange={e => handleInputChange('moodboardImageUrl', e.target.value)} placeholder="https://ejemplo.com/moodboard.jpg"/>
+            <div className="space-y-2">
+                <Label htmlFor="moodboard-url">URL de Moodboard/Imagen de Portada General</Label>
+                <UploadButton 
+                    currentUrl={decoracionData.moodboardImageUrl}
+                    onUrlChange={(url) => handleInputChange('moodboardImageUrl', url)}
+                    fiestaId={fiestaId}
+                />
              {decoracionData.moodboardImageUrl && !failedImageUrls['moodboardImageUrl'] && <NextImage src={decoracionData.moodboardImageUrl} alt="Moodboard Preview" width={200} height={120} className="mt-1 rounded border object-contain max-h-[120px]" data-ai-hint="event moodboard inspiration" onError={()=>setFailedImageUrls(p=>({...p, moodboardImageUrl:true}))}/>}
             </div>
             <div className="space-y-2"><Label htmlFor="general-notes-decoracion">Notas Generales de Decoración</Label><Textarea id="general-notes-decoracion" value={decoracionData.generalNotesDecoracion || ''} onChange={e => handleInputChange('generalNotesDecoracion', e.target.value)} rows={3} placeholder="Ideas, conceptos, elementos clave..."/></div>
@@ -375,7 +384,13 @@ function DecoracionYDisenoEventoContent() {
           <CardHeader><CardTitle className="font-headline text-xl flex items-center gap-2"><CakeSlice className="text-primary"/>Decoración de la Torta</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2"><Label htmlFor="torta-desc">Descripción</Label><Textarea id="torta-desc" value={decoracionData.decoracionTorta?.descripcion || ''} onChange={e => handleTortaChange('descripcion', e.target.value)} rows={2} placeholder="Estilo, colores, detalles especiales..." /></div>
-            <div className="space-y-2"><Label htmlFor="torta-img">URL Imagen de Referencia Torta</Label><Input id="torta-img" type="url" value={decoracionData.decoracionTorta?.imageUrl || ''} onChange={e => handleTortaChange('imageUrl', e.target.value)} placeholder="https://ejemplo.com/torta.jpg"/>
+            <div className="space-y-2">
+                <Label htmlFor="torta-img">Imagen de Referencia Torta</Label>
+                <UploadButton 
+                    currentUrl={decoracionData.decoracionTorta?.imageUrl}
+                    onUrlChange={(url) => handleTortaChange('imageUrl', url)}
+                    fiestaId={fiestaId}
+                />
             {decoracionData.decoracionTorta?.imageUrl && !failedImageUrls['tortaImageUrl'] && <NextImage src={decoracionData.decoracionTorta.imageUrl} alt="Torta Preview" width={150} height={100} className="mt-1 rounded border object-contain max-h-[100px]" data-ai-hint={decoracionData.decoracionTorta.dataAiHint || "cake design style"} onError={()=>setFailedImageUrls(p=>({...p, tortaImageUrl:true}))}/>}
             </div>
             <div className="space-y-2"><Label htmlFor="torta-aihint">AI Hint (para imagen en PDF)</Label><Input id="torta-aihint" value={decoracionData.decoracionTorta?.dataAiHint || ''} onChange={e => handleTortaChange('dataAiHint', e.target.value)} placeholder="Ej: wedding cake rustic flowers" /></div>
@@ -469,8 +484,14 @@ function DecoracionYDisenoEventoContent() {
                   <AccordionContent className="px-4 pt-2 pb-4 space-y-4 border-t">
                     {zona.activada && (<>
                         <div className="space-y-2 mt-2"><Label htmlFor={`zona-desc-${zona.id}`}>Descripción</Label><Textarea id={`zona-desc-${zona.id}`} value={zona.descripcion || ''} onChange={e => handleZonaChange(zona.id, 'descripcion', e.target.value)} rows={2} placeholder="Detalles de decoración para esta zona"/></div>
-                        <div className="space-y-2"><Label htmlFor={`zona-img-${zona.id}`}>URL Imagen de Referencia</Label><Input id={`zona-img-${zona.id}`} type="url" value={zona.imagenReferenciaUrl || ''} onChange={e => handleZonaChange(zona.id, 'imagenReferenciaUrl', e.target.value)} placeholder="https://ejemplo.com/imagen_zona.jpg"/>
-                        {zona.imagenReferenciaUrl && !failedImageUrls[zona.id] && <NextImage src={zona.imagenReferenciaUrl} alt={zona.nombreDisplay} width={150} height={100} className="mt-1 rounded border object-contain max-h-[100px]" data-ai-hint={zona.dataAiHint || "event zone decoration"} onError={()=>setFailedImageUrls(p=>({...p, [zona.id]: true}))}/>}
+                        <div className="space-y-2">
+                          <Label htmlFor={`zona-img-${zona.id}`}>Imagen de Referencia</Label>
+                          <UploadButton 
+                              currentUrl={zona.imagenReferenciaUrl}
+                              onUrlChange={url => handleZonaChange(zona.id, 'imagenReferenciaUrl', url)}
+                              fiestaId={fiestaId}
+                          />
+                          {zona.imagenReferenciaUrl && !failedImageUrls[zona.id] && <NextImage src={zona.imagenReferenciaUrl} alt={zona.nombreDisplay} width={150} height={100} className="mt-1 rounded border object-contain max-h-[100px]" data-ai-hint={zona.dataAiHint || "event zone decoration"} onError={()=>setFailedImageUrls(p=>({...p, [zona.id]: true}))}/>}
                         </div>
                         <div className="space-y-2"><Label htmlFor={`zona-aihint-${zona.id}`}>AI Hint (para imagen en PDF)</Label><Input id={`zona-aihint-${zona.id}`} value={zona.dataAiHint || ''} onChange={e => handleZonaChange(zona.id, 'dataAiHint', e.target.value)} placeholder="Ej: elegant wedding entrance" /></div>
                     </>)}
@@ -505,7 +526,14 @@ function DecoracionYDisenoEventoContent() {
               <div className="grid grid-cols-2 gap-3"><div className="space-y-1"><Label htmlFor="item-qty">Cantidad</Label><Input id="item-qty" type="number" value={currentItem.quantity ?? 1} onChange={e => handleItemModalChange('quantity', Number(e.target.value) || 1)} min="1"/></div><div className="space-y-1"><Label htmlFor="item-cost">Costo Est. ($)</Label><Input id="item-cost" type="number" value={currentItem.estimatedCost ?? ''} onChange={e => handleItemModalChange('estimatedCost', e.target.value === '' ? undefined : Number(e.target.value))} placeholder="0.00" min="0" step="any"/></div></div>
               <div className="space-y-1"><Label htmlFor="item-supplier">Proveedor (Opcional)</Label><Input id="item-supplier" value={currentItem.supplier || ''} onChange={e => handleItemModalChange('supplier', e.target.value)} /></div>
               <div className="space-y-1"><Label htmlFor="item-notes">Notas (Opcional)</Label><Textarea id="item-notes" value={currentItem.notes || ''} onChange={e => handleItemModalChange('notes', e.target.value)} rows={2}/></div>
-              <div className="space-y-1"><Label htmlFor="item-img-url">URL Imagen (Opcional)</Label><Input id="item-img-url" type="url" value={currentItem.imageUrl || ''} onChange={e => handleItemModalChange('imageUrl', e.target.value)} />{itemImagePreview && <NextImage src={itemImagePreview} alt="Preview" width={100} height={70} className="mt-1 rounded border object-contain max-h-[70px]" data-ai-hint={currentItem.dataAiHint || "decoration item photo"} onError={()=>setItemImagePreview(null)}/>}</div>
+              <div className="space-y-1">
+                  <Label htmlFor="item-img-url">Imagen (Opcional)</Label>
+                  <UploadButton 
+                    currentUrl={currentItem.imageUrl} 
+                    onUrlChange={(url) => handleItemModalChange('imageUrl', url)}
+                    fiestaId={fiestaId}
+                  />
+              </div>
               <div className="space-y-1"><Label htmlFor="item-aihint">AI Hint (para imagen en PDF)</Label><Input id="item-aihint" value={currentItem.dataAiHint || ''} onChange={e => handleItemModalChange('dataAiHint', e.target.value)} placeholder="Ej: vintage table centerpiece" /></div>
             </div>
           )}

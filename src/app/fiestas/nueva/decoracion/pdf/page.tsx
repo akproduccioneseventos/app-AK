@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, use } from 'react';
 import Link from 'next/link';
 import NextImage from 'next/image';
 import { useSearchParams } from 'next/navigation';
@@ -142,7 +142,7 @@ function DecorationPdfPageContent() {
               </section>
               {decoracion?.moodboardImageUrl && <section className="mb-2 print:break-inside-avoid"><h2 className="font-semibold text-gray-800 text-sm mb-1">Moodboard General</h2><img src={decoracion.moodboardImageUrl} alt="Moodboard" className="max-w-full h-auto rounded-md border" data-ai-hint="event moodboard inspiration"/></section>}
               {Object.entries(itemsAgrupados).map(([categoria, items]) => (
-                <section key={categoria} className="mb-2 print:break-inside-avoid"><h2 className="text-lg font-semibold text-gray-800 print:text-base border-b mb-2 pb-1">{categoria}</h2><ul className="space-y-1">{items.map(item => <li key={item.id} className="text-sm print:text-xs">{item.quantity}x {item.name} {item.notes ? `- ${item.notes}` : ''}</li>)}</ul></section>
+                <section key={categoria} className="mb-2 print:break-inside-avoid"><h2 className="text-lg font-semibold text-gray-800 print:text-base border-b mb-2 pb-1">{categoria}</h2><ul className="space-y-1 list-disc list-inside pl-2">{items.map(item => <li key={item.id} className="text-sm print:text-xs">{item.quantity}x {item.name} {item.notes ? `- ${item.notes}` : ''}</li>)}</ul></section>
               ))}
               {(decoracion?.zonasContratadas || []).filter(z => z.activada).length > 0 && <section className="mb-2 print:break-inside-avoid"><h2 className="text-lg font-semibold text-gray-800 print:text-base border-b mb-2 pb-1">Zonas Decorativas Específicas</h2>
                   <div className="space-y-2">{decoracion!.zonasContratadas!.filter(z => z.activada).map(zona => {
