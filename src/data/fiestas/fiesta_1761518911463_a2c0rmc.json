@@ -334,8 +334,7 @@
       "id": "inv_10",
       "nombre": "Mateo González",
       "rsvp": "Pendiente",
-      "partySize": 1,
-      "tableNumber": "Mesa Principal"
+      "partySize": 1
     }
   ],
   "clientPortalSettings": {
@@ -814,7 +813,7 @@
         "visible": true,
         "titulo": "La Fiesta",
         "nombreLugar": "Salón La Casona",
-        "hora": "21:00"
+        "hora": "21:30"
       }
     },
     "itinerario": {
@@ -892,7 +891,32 @@
         "text": "Con cariño, Sofía"
       }
     }
+  },
+  "modulosContratados": {
+    "tareas": true,
+    "invitados": true,
+    "paginaWeb": true,
+    "decoracion": true,
+    "catering": true,
+    "musica": true,
+    "personal": true,
+    "itinerario": true,
+    "documentos": true,
+    "costos": true,
+    "cargaOperativa": true,
+    "fotografia": true,
+    "videoVida": true,
+    "reuniones": true,
+    "muroSocial": false,
+    "regalos": false,
+    "feedback": false,
+    "menuMesa": false,
+    "cartaTragos": false,
+    "checkin": false,
+    "resumenImprimible": false,
+    "configuracion": true,
+    "disenoSalon": true,
+    "listaCompras": true,
+    "portalCliente": true
   }
 }
-
-    
