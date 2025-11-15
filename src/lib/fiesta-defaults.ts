@@ -86,7 +86,26 @@ const defaultBebidasCategorias: BebidaCategoria[] = [
       id: 'barra_tragos',
       nombreDisplay: 'Barra de Tragos',
       activada: false,
-      items: [],
+      items: [
+        { id: 'beb-1', nombre: 'Licor de Frutilla', cantidadNecesaria: 0.02, unidadCantidad: 'Litros', costoUnitario: 300, costoTotal: 6 },
+        { id: 'beb-2', nombre: 'Licor de Durazno', cantidadNecesaria: 0.02, unidadCantidad: 'Litros', costoUnitario: 300, costoTotal: 6 },
+        { id: 'beb-3', nombre: 'Jugo de Durazno', cantidadNecesaria: 0.02, unidadCantidad: 'Litros', costoUnitario: 50, costoTotal: 1 },
+        { id: 'beb-4', nombre: 'Licor blue', cantidadNecesaria: 0.02, unidadCantidad: 'Litros', costoUnitario: 300, costoTotal: 6 },
+        { id: 'beb-5', nombre: 'Fernet', cantidadNecesaria: 0.04, unidadCantidad: 'Litros', costoUnitario: 400, costoTotal: 16 },
+        { id: 'beb-6', nombre: 'Granadina', cantidadNecesaria: 0.01, unidadCantidad: 'Litros', costoUnitario: 220, costoTotal: 2.2 },
+        { id: 'beb-7', nombre: 'Lata durazno', cantidadNecesaria: 0.03, unidadCantidad: 'Unidades', costoUnitario: 80, costoTotal: 2.4 },
+        { id: 'beb-8', nombre: 'lata anana', cantidadNecesaria: 0.05, unidadCantidad: 'Unidades', costoUnitario: 117, costoTotal: 5.85 },
+        { id: 'beb-9', nombre: 'Pepsi', cantidadNecesaria: 0.14, unidadCantidad: 'Litros', costoUnitario: 90, costoTotal: 12.6 },
+        { id: 'beb-10', nombre: 'vasos y sorvitos', cantidadNecesaria: 3, unidadCantidad: 'Unidades', costoUnitario: 2, costoTotal: 6 },
+        { id: 'beb-11', nombre: 'Refresco lima barato', cantidadNecesaria: 0.02, unidadCantidad: 'Litros', costoUnitario: 65, costoTotal: 1.3 },
+        { id: 'beb-12', nombre: 'Vodka', cantidadNecesaria: 0.03, unidadCantidad: 'Litros', costoUnitario: 280, costoTotal: 8.4 },
+        { id: 'beb-13', nombre: 'Ron', cantidadNecesaria: 0.02, unidadCantidad: 'Litros', costoUnitario: 300, costoTotal: 6 },
+        { id: 'beb-14', nombre: 'Limon', cantidadNecesaria: 20, unidadCantidad: 'Gramos', costoUnitario: 70, costoTotal: 1.4 },
+        { id: 'beb-15', nombre: 'Frutilla', cantidadNecesaria: 20, unidadCantidad: 'Gramos', costoUnitario: 120, costoTotal: 2.4 },
+        { id: 'beb-16', nombre: 'Azucar', cantidadNecesaria: 20, unidadCantidad: 'Gramos', costoUnitario: 70, costoTotal: 1.4 },
+        { id: 'beb-17', nombre: 'Caña', cantidadNecesaria: 0.02, unidadCantidad: 'Litros', costoUnitario: 300, costoTotal: 6 },
+        { id: 'beb-18', nombre: 'Jugo de naranja', cantidadNecesaria: 0.1, unidadCantidad: 'Litros', costoUnitario: 35, costoTotal: 3.5 }
+      ],
       recetas: [],
       descripcion: 'Bebidas blancas y licores para la barra.'
     },
@@ -179,7 +198,7 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
   },
   dressCode: {
     visible: true,
-    texto: { text: 'Formal' },
+    tipo: 'Formal',
   },
    musica: {
     visible: true,
