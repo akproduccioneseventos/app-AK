@@ -239,13 +239,31 @@ export const defaultBebidasCategorias: BebidaCategoria[] = [
   { id: 'aguas_saborizadas', nombreDisplay: 'Aguas Saborizadas y Minerales', activada: false, items: [], descripcion: 'Con y sin gas, opciones saborizadas.' },
   { id: 'cervezas', nombreDisplay: 'Cervezas', activada: false, items: [], descripcion: 'Variedad de cervezas nacionales e importadas.' },
   { id: 'vinos_espumantes', nombreDisplay: 'Vinos y Espumantes', activada: false, items: [], descripcion: 'Selección de tintos, blancos, rosados y espumosos.' },
-  { id: 'barra_tragos', nombreDisplay: 'Barra de Tragos', activada: false, items: [
-      { id: 'beb-fernet', nombre: 'Fernet', cantidadNecesaria: 5, unidadCantidad: 'Botellas' },
-      { id: 'beb-whisky', nombre: 'Whisky', cantidadNecesaria: 3, unidadCantidad: 'Botellas' },
-      { id: 'beb-ron', nombre: 'Ron', cantidadNecesaria: 4, unidadCantidad: 'Botellas' },
-      { id: 'beb-gancia', nombre: 'Gancia', cantidadNecesaria: 3, unidadCantidad: 'Botellas' },
-      { id: 'beb-campari', nombre: 'Campari', cantidadNecesaria: 2, unidadCantidad: 'Botellas' },
-  ], recetas: [], descripcion: 'Bebidas blancas y licores para la barra.' },
+  {
+    id: 'barra_tragos',
+    nombreDisplay: 'Barra de Tragos',
+    activada: false,
+    items: [
+        { id: 'beb-licor-frutilla', nombre: 'Licor de Frutilla', cantidadNecesaria: 2, unidadCantidad: 'Litros', costoUnitario: 300, costoTotal: 600, proveedorHabitual: 'DISTRIBUIDORA SUR' },
+        { id: 'beb-licor-durazno', nombre: 'Licor de Durazno', cantidadNecesaria: 2, unidadCantidad: 'Litros', costoUnitario: 300, costoTotal: 600, proveedorHabitual: 'DISTRIBUIDORA SUR' },
+        { id: 'beb-licor-blue', nombre: 'Licor Blue Curaçao', cantidadNecesaria: 2, unidadCantidad: 'Litros', costoUnitario: 320, costoTotal: 640, proveedorHabitual: 'DISTRIBUIDORA SUR' },
+        { id: 'beb-fernet', nombre: 'Fernet', cantidadNecesaria: 5, unidadCantidad: 'Botellas 750ml', costoUnitario: 450, costoTotal: 2250, proveedorHabitual: 'PROVEEDOR LICORES' },
+        { id: 'beb-gancia', nombre: 'Gancia', cantidadNecesaria: 3, unidadCantidad: 'Botellas', costoUnitario: 250, costoTotal: 750, proveedorHabitual: 'PROVEEDOR LICORES' },
+        { id: 'beb-campari', nombre: 'Campari', cantidadNecesaria: 2, unidadCantidad: 'Botellas', costoUnitario: 380, costoTotal: 760, proveedorHabitual: 'PROVEEDOR LICORES' },
+        { id: 'beb-gin', nombre: 'Gin', cantidadNecesaria: 2, unidadCantidad: 'Botellas', costoUnitario: 350, costoTotal: 700, proveedorHabitual: 'PROVEEDOR LICORES' },
+        { id: 'beb-ron', nombre: 'Ron Blanco', cantidadNecesaria: 3, unidadCantidad: 'Botellas', costoUnitario: 320, costoTotal: 960, proveedorHabitual: 'PROVEEDOR LICORES' },
+        { id: 'beb-vodka', nombre: 'Vodka', cantidadNecesaria: 3, unidadCantidad: 'Botellas', costoUnitario: 290, costoTotal: 870, proveedorHabitual: 'PROVEEDOR LICORES' },
+        { id: 'beb-whisky', nombre: 'Whisky (Estándar)', cantidadNecesaria: 2, unidadCantidad: 'Botellas', costoUnitario: 600, costoTotal: 1200, proveedorHabitual: 'PROVEEDOR LICORES' },
+        { id: 'beb-jugo-naranja', nombre: 'Jugo de Naranja', cantidadNecesaria: 10, unidadCantidad: 'Litros', costoUnitario: 80, costoTotal: 800, proveedorHabitual: 'SUPERMERCADO' },
+        { id: 'beb-jugo-frutilla', nombre: 'Jugo de Frutilla', cantidadNecesaria: 5, unidadCantidad: 'Litros', costoUnitario: 80, costoTotal: 400, proveedorHabitual: 'SUPERMERCADO' },
+        { id: 'beb-tonica', nombre: 'Agua Tónica', cantidadNecesaria: 6, unidadCantidad: 'Litros', costoUnitario: 70, costoTotal: 420, proveedorHabitual: 'SUPERMERCADO' },
+        { id: 'beb-soda', nombre: 'Soda', cantidadNecesaria: 6, unidadCantidad: 'Litros', costoUnitario: 50, costoTotal: 300, proveedorHabitual: 'SUPERMERCADO' },
+        { id: 'beb-limon-barra', nombre: 'Limones para Barra', cantidadNecesaria: 2, unidadCantidad: 'Kg', costoUnitario: 80, costoTotal: 160, proveedorHabitual: 'VERDULERIA' },
+        { id: 'beb-menta', nombre: 'Menta Fresca', cantidadNecesaria: 2, unidadCantidad: 'Atados', costoUnitario: 50, costoTotal: 100, proveedorHabitual: 'VERDULERIA' }
+    ],
+    recetas: [],
+    descripcion: "Bebidas blancas y licores para la barra."
+  },
   { id: 'cafeteria', nombreDisplay: 'Servicio de Cafetería', activada: false, items: [], descripcion: 'Café, té, infusiones.' },
 ];
 
