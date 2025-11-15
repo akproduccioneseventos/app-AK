@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, type FormEvent, useEffect, useCallback, Suspense, use } from 'react';
+import { useState, type FormEvent, useEffect, useCallback, Suspense } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -120,16 +120,6 @@ function ConfiguracionEventoContent() {
     handleChange('fechaEvento', date);
   };
   
-  const handleTipoEventoChange = (value: string) => {
-    if (config) { 
-      if (value === "Otro") {
-        handleChange('tipoCelebracion', ''); 
-      } else {
-        handleChange('tipoCelebracion', value as TipoEvento);
-      }
-    }
-  };
-  
   const handleClienteChange = async (newClienteIdValue: string) => {
     const newClienteId = newClienteIdValue === "ninguno" || newClienteIdValue === "" ? undefined : newClienteIdValue;
     
@@ -245,7 +235,7 @@ function ConfiguracionEventoContent() {
       setIsSaving(false);
     }
   };
-
+  
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando configuración...</p></div>;
   }
@@ -253,7 +243,7 @@ function ConfiguracionEventoContent() {
   if (!config) {
     return <div className="flex flex-col items-center justify-center min-h-[400px] text-center"><AlertTriangle className="w-12 h-12 text-destructive mb-4" /><h2 className="text-xl font-semibold mb-2">Error al Cargar Configuración</h2><p className="text-muted-foreground">No se pudieron cargar los datos. Por favor, intentá de nuevo más tarde.</p><Button onClick={() => window.location.reload()} className="mt-4">Recargar Página</Button></div>;
   }
-  
+
   const handleSelectTipoEventoChange = (value: string) => {
     if (config) {
       const newTipoEvento = value === "Otro" ? "" : value as TipoEvento;
@@ -267,6 +257,11 @@ function ConfiguracionEventoContent() {
     handleChange('tipoCelebracion', e.target.value);
   };
   
+  const eventoTipoEnSelect =
+    config.tipoCelebracion && tiposEventoDisponibles.includes(config.tipoCelebracion as TipoEvento)
+      ? config.tipoCelebracion
+      : (config.tipoCelebracion && config.tipoCelebracion.trim() !== "" ? "Otro" : "");
+
   const finalEventType = config.tipoCelebracion.trim();
   const showCustomTipoInput = eventoTipoEnSelect === "Otro" || (finalEventType && !tiposEventoDisponibles.includes(finalEventType as TipoEvento));
 
