@@ -20,6 +20,8 @@ const ALL_DOC_TYPES: { value: DocumentoTipo; label: string }[] = [
   { value: 'contrato_salon', label: 'Contrato de Salón' },
   { value: 'presupuesto_firmado', label: 'Presupuesto Firmado' },
   { value: 'recibo_pago', label: 'Recibo de Pago (Seña, etc.)' },
+  { value: 'recibo_salon', label: 'Recibo de Salón' },
+  { value: 'recibo_agadu', label: 'Recibo de AGADU' },
   { value: 'otro', label: 'Otro Documento' },
 ];
 

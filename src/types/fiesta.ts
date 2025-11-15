@@ -335,7 +335,7 @@ export interface InvitacionDigitalData {
     visible: boolean;
     titulo: TextWithStyle;
     nombreEmpresa: TextWithStyle;
-  };
+  }
 }
 
 
@@ -603,7 +603,7 @@ export interface VideoVidaData {
   photoCount?: number;
 }
 
-export type DocumentoTipo = 'contrato_salon' | 'contrato_servicio' | 'presupuesto_firmado' | 'recibo_pago' | 'otro';
+export type DocumentoTipo = 'contrato_salon' | 'contrato_servicio' | 'presupuesto_firmado' | 'recibo_pago' | 'recibo_salon' | 'recibo_agadu' | 'otro';
 export interface OtroDocumento {
   id: string;
   nombre: string;
