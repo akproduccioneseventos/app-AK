@@ -16,11 +16,13 @@ import { useToast } from '@/hooks/use-toast';
 import { saveBebidasMasterTemplate } from '@/app/actions/bebidas.actions';
 import { getInsumos } from '@/app/actions/insumos';
 import type { ServicioEmpresa } from '@/types/empresa';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ScrollArea } from '../ui/scroll-area';
+import Link from 'next/link';
 
 interface GestionBebidasProps {
   initialData: BebidasData | null;
   onDataChange: (data: BebidasData) => void;
+  onSave?: (data: BebidasData) => Promise<any>;
   invitados: { adultos: number; ninos: number; adolescentes: number };
   isTemplateMode?: boolean;
 }
@@ -30,7 +32,7 @@ const formatCurrency = (amount?: number) => {
     return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
-export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onDataChange, invitados, isTemplateMode = false }) => {
+export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onDataChange, onSave, invitados, isTemplateMode = false }) => {
   const { toast } = useToast();
   const [bebidas, setBebidas] = useState<BebidasData>(initialData || defaultBebidasData);
   const [catalogoInsumos, setCatalogoInsumos] = useState<ServicioEmpresa[]>([]);
@@ -41,6 +43,11 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
   const [catalogSearchTerm, setCatalogSearchTerm] = useState('');
 
+  useEffect(() => {
+    if(initialData) {
+      setBebidas(initialData);
+    }
+  }, [initialData]);
 
   useEffect(() => {
     onDataChange(bebidas);
@@ -64,7 +71,9 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
   };
   
   const openEditModal = (category: BebidaCategoria) => {
-    setEditingCategory(JSON.parse(JSON.stringify(category))); // Deep copy
+    // Always use the latest data from the main state when opening the modal
+    const currentCategoryData = bebidas.categorias.find(c => c.id === category.id);
+    setEditingCategory(JSON.parse(JSON.stringify(currentCategoryData || category))); // Deep copy
     setIsEditModalOpen(true);
   };
 
@@ -123,8 +132,8 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
     setBebidas(newBebidasData);
     setIsEditModalOpen(false);
 
-    if(isTemplateMode) {
-        await saveBebidasMasterTemplate(newBebidasData);
+    if(onSave) {
+        await onSave(newBebidasData);
     }
     toast({title: "Cambios en Bebidas Guardados", description: `Se actualizaron los ítems de ${editingCategory.nombreDisplay}.`});
   };
@@ -185,7 +194,7 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
             <DialogHeader><DialogTitle>Seleccionar del Catálogo de Insumos</DialogTitle><DialogDescription>Añadiendo a: {editingCategory?.nombreDisplay}</DialogDescription></DialogHeader>
             <div className="py-2 space-y-2">
                 <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"/><Input placeholder="Buscar insumo..." value={catalogSearchTerm} onChange={e => setCatalogSearchTerm(e.target.value)} className="pl-9"/></div>
-                <ScrollArea className="h-64 border rounded-md p-1"><ul className="space-y-1">{filteredInsumos.map(insumo => (<li key={insumo.id}><Button type="button" variant="ghost" className="w-full justify-start text-left h-auto" onClick={() => addFromCatalog(insumo)}><div><p className="font-medium text-sm">{insumo.nombre}</p><p className="text-xs text-muted-foreground">{formatCurrency(insumo.valorUnitarioEstimado)} / {insumo.unidad}</p></div></Button></li>))}</ul></ScrollArea>
+                <ScrollArea className="h-64 border rounded-md p-1"><ul className="space-y-1">{filteredInsumos.map(insumo => (<li key={insumo.id}><Button type="button" variant="ghost" className="w-full justify-start text-left h-auto" onClick={() => { addFromCatalog(insumo); setIsCatalogModalOpen(false); }}><div><p className="font-medium text-sm">{insumo.nombre}</p><p className="text-xs text-muted-foreground">{formatCurrency(insumo.valorUnitarioEstimado)} / {insumo.unidad}</p></div></Button></li>))}</ul></ScrollArea>
             </div>
              <DialogFooter><DialogClose asChild><Button variant="outline">Cerrar</Button></DialogClose></DialogFooter>
         </DialogContent>
