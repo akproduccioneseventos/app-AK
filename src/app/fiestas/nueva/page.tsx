@@ -35,6 +35,7 @@ const modules = [
   { id: 'documentos', title: "Documentos", href: "gestion-documental", icon: Archive, description: "Contratos y archivos importantes.", category: 'Gestión Central' },
   { id: 'costos', title: "Costos", href: "gestion-costos-rentabilidad", icon: DollarSign, description: "Analiza la rentabilidad.", category: 'Gestión Central' },
   { id: 'resumenImprimible', title: "Resumen Imprimible", href: "resumen-imprimible", icon: Printer, description: "Genera un PDF con el resumen operativo del evento.", category: 'Gestión Central' },
+  { id: 'reuniones', title: "Reuniones", href: "reuniones", icon: MessageSquare, description: "Agenda y gestiona las reuniones con el cliente.", category: 'Gestión Central' },
   
   // Planificación del Evento
   { id: 'invitados', title: "Invitados", href: "invitados", icon: Users, description: "Gestiona tu lista de invitados.", category: 'Planificación del Evento' },
@@ -48,7 +49,7 @@ const modules = [
   { id: 'itinerario', title: "Itinerario", href: "itinerario", icon: Clock, description: "Organiza el cronograma del evento.", category: 'Planificación del Evento' },
   
   // Portal del Cliente
-  { id: 'reuniones', title: "Reuniones y Portal Cliente", href: "reuniones", icon: MessageSquare, description: "Gestiona reuniones y la experiencia del cliente.", category: 'Portal del Cliente' },
+  { id: 'portalCliente', title: "Portal del Cliente", href: "portal-cliente", icon: Globe, description: "Gestiona la experiencia del cliente.", category: 'Portal del Cliente' },
   { id: 'paginaWeb', title: "Página del Evento", href: "pagina-web", icon: Globe, description: "Personaliza la web que verán tus invitados.", category: 'Portal del Cliente' },
   { id: 'regalos', title: "Lista de Regalos", href: "regalos", icon: Gift, description: "Configura la lista de regalos para los invitados.", category: 'Portal del Cliente' },
   { id: 'videoVida', title: "Video de Vida", href: "video-vida", icon: Video, description: "Gestiona las fotos del cliente.", category: 'Portal del Cliente' },

@@ -4,7 +4,7 @@
 import { ReactNode, useState, useEffect } from 'react';
 import AppLogo from '@/components/app-logo';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlus2Icon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, Edit, BarChart3, PackagePlus, BellRing, UserCog, BrainCircuit, Link as LinkIcon, Camera, Gift, Star, QrCode, Clock, TrendingUp, HardDriveDownload, Wand2, Bot, Film } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlus2Icon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, Edit, BarChart3, PackagePlus, BellRing, UserCog, BrainCircuit, Link as LinkIcon, Camera, Gift, Star, QrCode, Clock, TrendingUp, HardDriveDownload, Wand2, Bot, Film, KeyRound } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -27,7 +27,7 @@ const getPageTitle = (pathname: string): string => {
   const idSegment = pathSegments[pathSegments.length -1];
 
   if (pathname === '/') return 'Menú Principal';
-  
+
   if (pathname === '/presupuestos/nuevo') return 'Central de Presupuestos';
   if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'editar' && pathSegments.length === 3) return `Editar Presupuesto #${idSegment?.substring(0,5)}`;
   if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'ver' && pathSegments.length === 3) return `Ver Presupuesto #${idSegment?.substring(0,5)}`;
@@ -46,8 +46,8 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/empresa') return 'Gestión de la Empresa';
   if (pathname === '/empresa/servicios') return 'Catálogo de Servicios';
   if (pathname === '/empresa/servicios/nuevo') return 'Añadir Nuevo Servicio';
-  if (pathname === '/empresa/servicios/reporte') return 'Reporte de Servicios';
   if (pathSegments[0] === 'empresa' && pathSegments[1] === 'servicios' && pathSegments[2] === 'editar') return `Editar Servicio`;
+  if (pathname === '/empresa/servicios/reporte') return 'Reporte de Servicios';
   if (pathname === '/empresa/contabilidad') return 'Panel Contable y Financiero';
   if (pathname === '/empresa/contabilidad/reportes') return 'Reporte de Ganancias y Pérdidas';
   if (pathname === '/proveedores') return 'Proveedores';
@@ -88,7 +88,8 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/catering/lista-compras') return 'Lista de Compras (Catering)';
   if (pathname === '/fiestas/nueva/personal') return 'Asignar Personal al Evento';
   if (pathname === '/fiestas/nueva/personal/recibos') return 'Recibos de Pago de Personal';
-  if (pathname === '/fiestas/nueva/reuniones') return 'Reuniones y Portal Cliente';
+  if (pathname === '/fiestas/nueva/reuniones') return 'Reuniones con Cliente';
+  if (pathname === '/fiestas/nueva/portal-cliente') return 'Portal del Cliente';
   if (pathname === '/fiestas/nueva/musica') return 'Música de la Fiesta';
   if (pathname === '/fiestas/nueva/musica/pdf') return 'PDF de Música';
   if (pathname === '/fiestas/nueva/fotografia') return 'Fotografía y Filmación';
@@ -102,6 +103,8 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/pagina-web') return 'Página Pública del Evento';
 
   if (pathname === '/contabilidad/crm') return 'Gestión de Prospectos (CRM)';
+  if (pathname === '/contabilidad/crm/agenda') return 'Agenda de Prospectos (CRM)';
+
 
   if (pathname === '/settings') return 'Configuración General';
   if (pathname === '/settings/templates') return 'Personalizar Plantillas';
@@ -135,12 +138,12 @@ const getPageTitle = (pathname: string): string => {
 
 const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/') return LayoutDashboard;
-  if (pathname === '/admin/aaiff') return LayoutDashboard;
   
   if (pathname.startsWith('/fiestas/nueva')) {
     if (pathname === '/fiestas/nueva/personal') return UserCheck;
     if (pathname === '/fiestas/nueva/personal/recibos') return Printer;
     if (pathname === '/fiestas/nueva/reuniones') return MessageSquareText;
+    if (pathname === '/fiestas/nueva/portal-cliente') return Globe;
     if (pathname === '/fiestas/nueva/decoracion') return Palette;
     if (pathname === '/fiestas/nueva/decoracion/pdf') return Printer;
     if (pathname === '/fiestas/nueva/catering') return ChefHat;
@@ -189,6 +192,8 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname.startsWith('/presupuestos')) return ListChecks;
   if (pathname === '/invoices') return FileText;
   if (pathname === '/contabilidad/crm') return KanbanSquare;
+  if (pathname === '/contabilidad/crm/agenda') return CalendarDaysIcon;
+
 
   if (pathname === '/settings') return SettingsIcon;
   if (pathname === '/settings/templates') return Palette;
@@ -213,7 +218,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname.startsWith('/video-vida')) return Camera;
   if (pathname.startsWith('/feedback')) return Star;
   if (pathname.startsWith('/acceso-personal')) return UserCog;
-  if (pathname.startsWith('/portal')) return Globe;
+  if (pathname.startsWith('/portal')) return KeyRound;
 
   return null;
 }

@@ -9,10 +9,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { DatePickerDemo } from '@/components/date-picker-demo';
-import { ArrowLeft, PlusCircle, Edit3, Trash2, Loader2, AlertTriangle, MessageSquareText, CalendarIcon, NotebookTextIcon, CalendarPlus, Palette, Music2, ChefHat, PackageSearch, Globe, KeyRound, ClipboardCopy } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Edit3, Trash2, Loader2, AlertTriangle, MessageSquareText, CalendarIcon, CalendarPlus, NotebookTextIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, Reunion, ClientPortalSettings } from '@/types/fiesta';
-import { getFiestaById, addReunionToFiestaActual, updateReunionInFiestaActual, deleteReunionFromFiestaActual, updatePortalSettingsFiestaActual } from '@/app/actions/fiesta-actual';
+import type { FiestaEnPlanificacion, Reunion } from '@/types/fiesta';
+import { getFiestaById, addReunionToFiestaActual, updateReunionInFiestaActual, deleteReunionFromFiestaActual } from '@/app/actions/fiesta-actual';
 import {
   Dialog,
   DialogContent,
@@ -34,11 +34,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { isToday, isWithinInterval, addDays, startOfDay, endOfDay } from 'date-fns';
-import { Separator } from '@/components/ui/separator';
+import { isToday, isWithinInterval, addDays, startOfDay } from 'date-fns';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Switch } from '@/components/ui/switch';
-import { defaultClientPortalSettings } from '@/lib/fiesta-defaults';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no especificada";
@@ -51,13 +48,6 @@ const formatDate = (dateString?: string) => {
   }
 };
 
-const moduleShortcuts = [
-    { name: 'Decoración', href: '/fiestas/nueva/decoracion', icon: Palette },
-    { name: 'Catering', href: '/fiestas/nueva/catering', icon: ChefHat },
-    { name: 'Música', href: '/fiestas/nueva/musica', icon: Music2 },
-    { name: 'Página del Evento', href: '/fiestas/nueva/pagina-web', icon: Globe },
-];
-
 const generateICSContent = (reunion: Reunion, fiestaNombre: string): string => {
   if (!reunion.fecha) return '';
   const startDate = new Date(reunion.fecha);
@@ -65,7 +55,7 @@ const generateICSContent = (reunion: Reunion, fiestaNombre: string): string => {
 
   const toUTC = (date: Date) => date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
 
-  const icsContent = [
+  return [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
     'PRODID:-//AKProducciones//App//EN',
@@ -75,26 +65,11 @@ const generateICSContent = (reunion: Reunion, fiestaNombre: string): string => {
     `DTSTART:${toUTC(startDate)}`,
     `DTEND:${toUTC(endDate)}`,
     `SUMMARY:Reunión: ${reunion.titulo}`,
-    `DESCRIPTION:Reunión para el evento "${fiestaNombre}". Notas: ${reunion.notas.replace(/\\n/g, '\\\\n')}`,
+    `DESCRIPTION:Reunión para el evento "${fiestaNombre}". Notas: ${reunion.notas.replace(/\n/g, '\\n')}`,
     'END:VEVENT',
     'END:VCALENDAR'
   ].join('\n');
-
-  return icsContent;
 };
-
-const portalModules: { id: keyof Omit<ClientPortalSettings, 'enabled' | 'accessKey'>, label: string }[] = [
-    { id: 'checklist', label: 'Checklist de Tareas del Cliente' },
-    { id: 'itinerario', label: 'Cronograma del Evento' },
-    { id: 'musica', label: 'Sugerencias Musicales' },
-    { id: 'videoVida', label: 'Carga de Fotos para Video' },
-    { id: 'listaRegalos', label: 'Ver Lista de Regalos' },
-    { id: 'documentos', label: 'Documentos' },
-    { id: 'notasCliente', label: 'Notas Compartidas' },
-    { id: 'invitados', label: 'Lista de Invitados y Asignación de Mesas' },
-    { id: 'paginaPublica', label: 'Acceso a Página Pública' },
-    { id: 'fotografiaYFilmacion', label: 'Seguimiento de Fotografía/Video' },
-];
 
 function GestionReunionesContent() {
   const { toast } = useToast();
@@ -104,7 +79,6 @@ function GestionReunionesContent() {
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [reuniones, setReuniones] = useState<Reunion[]>([]);
-  const [portalSettings, setPortalSettings] = useState<ClientPortalSettings>(defaultClientPortalSettings);
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -132,7 +106,6 @@ function GestionReunionesContent() {
       if (!fiestaData) throw new Error("No se encontró el evento.");
       setFiesta(fiestaData);
       setReuniones((fiestaData.reuniones || []).sort((a,b) => new Date(a.fecha || 0).getTime() - new Date(b.fecha || 0).getTime()));
-      setPortalSettings(fiestaData.clientPortalSettings || defaultClientPortalSettings);
     } catch (err: any) {
       console.error("Error loading meetings:", err);
       setError("No se pudieron cargar las reuniones.");
@@ -238,131 +211,139 @@ function GestionReunionesContent() {
     setIsFormModalOpen(true);
   };
   
-  const handleSavePortalSettings = async () => {
-    if (!portalSettings || !fiestaId) return;
-    setIsSaving(true);
+  const handleDeleteReunion = async (reunionId: string) => {
+    setDeletingReunionId(reunionId);
     try {
-      const result = await updatePortalSettingsFiestaActual(fiestaId, portalSettings);
+      const result = await deleteReunionFromFiestaActual(reunionId);
       if (result.success) {
-        toast({ title: "Configuración Guardada", description: "Los ajustes del portal del cliente se han actualizado." });
+        toast({ title: "Reunión Eliminada", variant: "destructive" });
+        await loadData();
       } else {
-        throw new Error(result.error);
+        throw new Error(result.error || "No se pudo eliminar la reunión.");
       }
-    } catch (e: any) {
-       toast({ title: "Error al Guardar", description: e.message, variant: "destructive" });
+    } catch (err: any) {
+      toast({ title: "Error al Eliminar", description: err.message, variant: "destructive" });
     } finally {
-       setIsSaving(false);
+      setDeletingReunionId(null);
     }
   };
-  
-  const handlePortalSwitch = (moduleId: keyof Omit<ClientPortalSettings, 'enabled' | 'accessKey'>, field: 'visible' | 'editable', value: boolean) => {
-    setPortalSettings(prev => {
-      if (!prev) return defaultClientPortalSettings;
-      const moduleSettings = prev[moduleId] || { visible: false };
-      return {
-        ...prev,
-        [moduleId]: { ...moduleSettings, [field]: value }
-      };
-    });
+
+  const downloadICS = (reunion: Reunion) => {
+    if (!fiesta) return;
+    const icsContent = generateICSContent(reunion, fiesta.configuracion.nombreEvento);
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `${reunion.titulo}.ics`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
-  if (isLoading || !fiestaId) { return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>; }
-  if (error || !fiesta) { return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>{error}</div>; }
-  
-  const portalLink = typeof window !== 'undefined' ? `${window.location.origin}/portal?fiestaId=${fiestaId}` : '';
+  if (isLoading || !fiestaId) {
+    return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  }
+  if (error || !fiesta) {
+    return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>{error}</div>;
+  }
+
+  const proximasReuniones = reuniones.filter(r => r.fecha && new Date(r.fecha) >= startOfDay(new Date()));
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      {/* ... (Dialogs for meetings) ... */}
-
+    <div className="max-w-3xl mx-auto space-y-6">
+      <Dialog open={isFormModalOpen} onOpenChange={setIsFormModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-headline text-xl">{currentReunion ? 'Editar Reunión' : 'Agendar Nueva Reunión'}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleFormSubmit} className="space-y-4 py-2">
+            <div className="space-y-1"><Label htmlFor="reunion-titulo">Título *</Label><Input id="reunion-titulo" value={formTitulo} onChange={e => setFormTitulo(e.target.value)} placeholder="Ej: Definir decoración, Degustación menú" required /></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1"><Label htmlFor="reunion-fecha">Fecha</Label><DatePickerDemo selectedDate={formFecha} onDateChange={setFormFecha} /></div>
+              <div className="space-y-1"><Label htmlFor="reunion-hora">Hora</Label><Input id="reunion-hora" type="time" value={formHora} onChange={(e) => setFormHora(e.target.value)} disabled={!formFecha}/></div>
+            </div>
+            {conflictWarning && <p className="text-xs text-amber-600">{conflictWarning}</p>}
+            <div className="space-y-1"><Label htmlFor="reunion-notas">Notas / Temas a tratar</Label><Textarea id="reunion-notas" value={formNotas} onChange={(e) => setFormNotas(e.target.value)} rows={4} placeholder="Puntos importantes para la reunión..."/></div>
+            <DialogFooter className="pt-3">
+              <DialogClose asChild><Button type="button" variant="outline" disabled={isSaving}>Cancelar</Button></DialogClose>
+              <Button type="submit" disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}{currentReunion ? 'Guardar Cambios' : 'Agendar Reunión'}</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <MessageSquareText className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline">Reuniones y Portal Cliente</h1>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">Reuniones</h1>
         </div>
-        <Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`} passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Planificador</Button></Link>
+        <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Planificador</Button></Link>
       </div>
-
-      <Card>
+      <Card className="shadow-md">
         <CardHeader>
-            <CardTitle>Accesos Rápidos</CardTitle>
-            <CardDescription>Accede directamente a los módulos más relevantes para la colaboración con tu cliente.</CardDescription>
+          <CardTitle>Planificación de Reuniones</CardTitle>
+          <CardDescription>Agenda y mantén un registro de las reuniones importantes con tu cliente.</CardDescription>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-2">
-            {moduleShortcuts.map(sc => (
-                <Link key={sc.href} href={`${sc.href}?fiestaId=${fiesta?.id}`} passHref>
-                    <Button variant="secondary" className="w-full h-full flex-col py-3 gap-1">
-                        <sc.icon className="w-5 h-5"/>
-                        <span className="text-xs">{sc.name}</span>
-                    </Button>
-                </Link>
-            ))}
+        <CardContent>
+          <Button onClick={() => openFormModal()}><CalendarPlus className="w-4 h-4 mr-2"/>Agendar Nueva Reunión</Button>
         </CardContent>
       </Card>
       
-      <Separator />
-
-      {/* Portal Cliente Section */}
       <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="font-headline text-xl flex items-center gap-2">
-              <KeyRound className="text-primary"/>Portal del Cliente
-            </CardTitle>
-            <CardDescription>Controla qué información puede ver y editar tu cliente en su portal privado.</CardDescription>
-          </CardHeader>
-           <CardContent className="space-y-6">
-              <div className="flex items-center justify-between p-4 border rounded-lg bg-muted/30">
-                <div>
-                  <Label htmlFor="portal-enabled" className="text-base font-medium">Habilitar Portal del Cliente</Label>
-                  <p className="text-sm text-muted-foreground">Permite el acceso del cliente a su portal personalizado.</p>
-                </div>
-                <Switch id="portal-enabled" checked={portalSettings.enabled} onCheckedChange={(val) => setPortalSettings(p => ({...(p || defaultClientPortalSettings), enabled: val}))} />
-              </div>
-              {portalSettings.enabled && (
-                <div className="space-y-4 animate-in fade-in-20">
-                  <div className="space-y-2">
-                    <Label htmlFor="portal-password">Contraseña de Acceso del Cliente</Label>
-                    <Input id="portal-password" value={portalSettings.accessKey || ''} onChange={(e) => setPortalSettings(p => ({...(p || defaultClientPortalSettings), accessKey: e.target.value}))} placeholder="Crear una contraseña segura..." />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Enlace para compartir con el cliente</Label>
-                    <div className="flex items-center gap-2">
-                      <Input value={portalLink} readOnly/>
-                      <Button type="button" size="icon" variant="outline" onClick={() => { navigator.clipboard.writeText(portalLink); toast({title: "Enlace copiado"}); }}><ClipboardCopy className="w-4 h-4"/></Button>
+        <CardHeader>
+          <CardTitle>Historial de Reuniones</CardTitle>
+          <CardDescription>
+            {proximasReuniones.length > 0 ? `Tienes ${proximasReuniones.length} reunión(es) próxima(s).` : "No hay reuniones futuras agendadas."}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {isLoading ? <div className="text-center p-4"><Loader2 className="w-6 h-6 animate-spin"/></div> : 
+           reuniones.length > 0 ? (
+            reuniones.map(reunion => (
+              <Card key={reunion.id} className="p-3 bg-muted/40">
+                 <div className="flex flex-col sm:flex-row justify-between items-start gap-2">
+                    <div className="flex-grow">
+                      <p className="font-semibold">{reunion.titulo}</p>
+                      <p className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
+                        <CalendarIcon className="w-4 h-4" /> 
+                        {formatDate(reunion.fecha)} 
+                        {reunion.fecha && <span className="font-medium">{new Date(reunion.fecha).toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'})} hs.</span>}
+                      </p>
+                      {reunion.notas && <p className="text-xs text-muted-foreground mt-2 border-l-2 pl-2 whitespace-pre-wrap">{reunion.notas}</p>}
                     </div>
-                  </div>
-                  <Separator/>
-                   <h4 className="text-md font-medium pt-2">Módulos Visibles para el Cliente</h4>
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {portalModules.map(mod => (
-                            <div key={mod.id} className="flex items-center space-x-2 p-3 border rounded-md">
-                                <Switch 
-                                    id={`switch-${mod.id}`}
-                                    checked={portalSettings[mod.id as keyof typeof settings]?.visible}
-                                    onCheckedChange={(v) => handlePortalSwitch(mod.id, 'visible', v)}
-                                />
-                                <Label htmlFor={`switch-${mod.id}`}>{mod.label}</Label>
-                            </div>
-                        ))}
-                   </div>
-                </div>
-              )}
-           </CardContent>
-          <CardFooter>
-            <Button onClick={handleSavePortalSettings} disabled={isSaving}>
-              {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin"/>} Guardar Configuración del Portal
-            </Button>
-          </CardFooter>
-        </Card>
-
+                    <div className="flex gap-1 self-start sm:self-center flex-shrink-0">
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openFormModal(reunion)}><Edit3 className="w-4 h-4"/></Button>
+                      <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" disabled={deletingReunionId === reunion.id}>
+                                  {deletingReunionId === reunion.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}
+                              </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                              <AlertDialogHeader><AlertDialogTitle>¿Eliminar esta reunión?</AlertDialogTitle><AlertDialogDescription>"{reunion.titulo}" será eliminada.</AlertDialogDescription></AlertDialogHeader>
+                              <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleDeleteReunion(reunion.id)} className="bg-destructive hover:bg-destructive/90">Eliminar</AlertDialogAction>
+                              </AlertDialogFooter>
+                          </AlertDialogContent>
+                      </AlertDialog>
+                      {reunion.fecha && <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => downloadICS(reunion)}><CalendarIcon className="w-4 h-4"/></Button>}
+                    </div>
+                 </div>
+              </Card>
+            ))
+           ) : <p className="text-center text-muted-foreground p-4">No hay reuniones agendadas.</p>
+          }
+        </CardContent>
+      </Card>
     </div>
   );
 }
 
 export default function GestionReunionesPageWrapper() {
   return (
-    <Suspense fallback={<div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
-      <GestionReunionesContent />
+    <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>}>
+        <GestionReunionesContent />
     </Suspense>
   )
 }
