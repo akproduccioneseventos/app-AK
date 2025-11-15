@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense, use } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -439,7 +439,7 @@ function SalonLayoutContent() {
     if (!fiesta?.invitados) return { conMesa: [], sinMesa: [] };
     
     const lowerCaseSearch = guestSearchTerm.toLowerCase();
-    const guestsToConsider = fiesta.invitados; // No filter by RSVP status anymore
+    const guestsToConsider = fiesta.invitados; // Show all guests regardless of RSVP
 
     const conMesa = guestsToConsider
       .filter(g => g.tableNumber && g.nombre.toLowerCase().includes(lowerCaseSearch))
