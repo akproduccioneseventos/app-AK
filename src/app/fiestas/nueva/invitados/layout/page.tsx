@@ -439,7 +439,7 @@ function SalonLayoutContent() {
     if (!fiesta?.invitados) return { conMesa: [], sinMesa: [] };
     
     const lowerCaseSearch = guestSearchTerm.toLowerCase();
-    const guestsToConsider = fiesta.invitados.filter(g => g.rsvp === 'Confirmado');
+    const guestsToConsider = fiesta.invitados; // No filter by RSVP status anymore
 
     const conMesa = guestsToConsider
       .filter(g => g.tableNumber && g.nombre.toLowerCase().includes(lowerCaseSearch))
