@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useCallback, use } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer, Share2, Save, Loader2 } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, Share2, Save, Loader2, Download } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaActual, updatePersonalFiestaActual } from '@/app/actions/fiesta-actual';
@@ -78,6 +78,11 @@ function RecibosDePagoContent() {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
+    if (!fiestaId) {
+        setError("Falta el ID del evento.");
+        setIsLoading(false);
+        return;
+    }
     setIsLoading(true);
     setError(null);
     try {
@@ -112,7 +117,7 @@ function RecibosDePagoContent() {
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, [toast, fiestaId]);
 
   useEffect(() => {
     loadData();
@@ -123,9 +128,9 @@ function RecibosDePagoContent() {
   };
 
   const handleShareWhatsApp = () => {
-    const message = `Te comparto los recibos de pago para el personal del evento.`;
-    const url = window.location.href;
-    window.open(`https://wa.me/?text=${encodeURIComponent(message + '\n' + url)}`, '_blank');
+      const message = `Te comparto los recibos de pago para el personal del evento.`;
+      const url = window.location.href;
+      window.open(`https://wa.me/?text=${encodeURIComponent(message + '\n' + url)}`, '_blank');
   };
   
   const handleSalaryChange = (empleadoId: string, newSalary: string) => {
@@ -171,16 +176,16 @@ function RecibosDePagoContent() {
   if (isLoading) {
     return <div className="p-8 max-w-4xl mx-auto bg-white"><Skeleton className="h-[80vh] w-full" /></div>;
   }
-
+  
   if (error || !fiesta) {
     return (
-      <div className="p-8 max-w-4xl mx-auto bg-white text-center">
-         <div className="flex justify-between items-center mb-6 print:hidden">
-             <Link href={`/fiestas/nueva/personal?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Asignar</Button></Link>
-        </div>
-        <AlertTriangle className="w-12 h-12 mx-auto text-destructive mb-3" />
-        <p className="font-semibold text-lg text-destructive">Error al Cargar</p>
-        <p className="text-sm text-muted-foreground">{error || "No se pudieron cargar los datos necesarios."}</p>
+      <div className="flex flex-col items-center justify-center h-screen text-center p-4">
+          <AlertTriangle className="w-16 h-16 text-destructive mb-4" />
+          <h1 className="text-2xl font-bold">Error al Generar Reporte</h1>
+          <p className="text-muted-foreground mt-2">{error || "No se encontró información del evento."}</p>
+          <Link href={`/fiestas/nueva/personal?fiestaId=${fiestaId}`} passHref>
+            <Button variant="outline" className="mt-4">Volver</Button>
+          </Link>
       </div>
     );
   }
@@ -189,14 +194,14 @@ function RecibosDePagoContent() {
     <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans">
       <div className="max-w-3xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2">
         <div className="flex justify-between items-center mb-6 print:hidden">
-            <Link href={`/fiestas/nueva/personal?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Asignar</Button></Link>
-            <div className="flex gap-2">
-              <Button onClick={handleSaveChanges} size="sm" variant="secondary" disabled={isSaving}>
+          <Link href={`/fiestas/nueva/personal?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Asignar</Button></Link>
+          <div className="flex gap-2">
+             <Button onClick={handleSaveChanges} size="sm" variant="secondary" disabled={isSaving}>
                 {isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}
               </Button>
-              <Button onClick={handleShareWhatsApp} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir</Button>
-              <Button onClick={handlePrint} size="sm"><Printer className="w-4 h-4 mr-1.5" />Imprimir</Button>
-            </div>
+            <Button onClick={handleShareWhatsApp} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir</Button>
+            <Button onClick={handlePrint} size="sm"><Download className="w-4 h-4 mr-1.5" />Descargar Todo (PDF)</Button>
+          </div>
         </div>
         
         <header className="mb-6 print:mb-4 text-center border-b pb-3 print:pb-2">
