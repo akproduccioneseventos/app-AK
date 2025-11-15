@@ -18,6 +18,7 @@ import { defaultNumerosMesaData } from '@/lib/fiesta-defaults';
 import { MenuMesaTemplate } from '@/components/invitacion/templates/MenuMesaTemplate';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import html2canvas from 'html2canvas';
+import { cn } from '@/lib/utils';
 
 
 const formatDate = (dateString?: string) => {
@@ -43,7 +44,7 @@ const TableNumberComponent: React.FC<{
   const eventDate = data.fechaEvento || formatDate(fiesta.configuracion.fechaEvento);
 
   return (
-    <div className={`border border-black relative bg-gray-100 overflow-hidden ${inverted ? 'transform rotate-180' : ''} h-full`}>
+    <div className={cn("w-full h-full relative bg-gray-100 overflow-hidden", inverted && 'transform rotate-180')}>
         {data.backgroundImageUrl && <NextImage src={data.backgroundImageUrl} layout="fill" objectFit="cover" className="opacity-40" alt="" data-ai-hint="floral background"/>}
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-1">
             <h2 className="font-['Dancing_Script',_cursive] text-6xl" style={{color: data.colorPrincipal}}>{`Mesa ${tableNumber}`}</h2>
@@ -51,7 +52,7 @@ const TableNumberComponent: React.FC<{
             <p className="font-['Belleza',_serif] text-lg opacity-80" style={{color: data.colorSecundario}}>{eventDate}</p>
         </div>
         {logoUrl && (
-             <div className={`absolute w-10 h-10 ${inverted ? 'bottom-2 left-2' : 'bottom-2 right-2'}`}>
+             <div className={`absolute w-10 h-10 ${inverted ? 'top-2 left-2' : 'bottom-2 right-2'}`}>
                 <NextImage src={logoUrl} alt="logo" layout="fill" className="object-contain" data-ai-hint="company logo"/>
              </div>
         )}
@@ -165,8 +166,8 @@ function NumerosDeMesaContent() {
   
   return (
     <div className="bg-gray-100 print:bg-white">
-        <div className="py-4 px-8 print:hidden flex flex-col md:flex-row justify-between items-center gap-4 bg-white shadow-sm sticky top-0 z-50">
-            <h1 className="font-headline text-xl">Editor de Números de Mesa</h1>
+        <div className="py-2 px-4 print:hidden flex flex-col md:flex-row justify-between items-center gap-4 bg-white shadow-sm sticky top-0 z-50">
+            <h1 className="font-headline text-lg">Editor de Números de Mesa</h1>
             <div className="flex flex-wrap gap-2 items-center">
               <div className="space-y-1">
                 <Label htmlFor="bg-image-upload" className="text-xs">Fondo</Label>
@@ -187,7 +188,7 @@ function NumerosDeMesaContent() {
                <div className="flex items-end gap-2">
                  <Button size="sm" onClick={handleSave} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}</Button>
                  <Button onClick={handlePrint} size="sm" variant="outline"><PrinterIcon className="w-4 h-4"/></Button>
-                 <Link href={`/fiestas/nueva/invitados?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4"/></Button></Link>
+                 <Link href={`/fiestas/nueva/invitados/layout?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4"/></Button></Link>
                </div>
             </div>
         </div>
@@ -197,33 +198,33 @@ function NumerosDeMesaContent() {
             const tableNum2 = pageIndex * 2 + 2;
 
             return (
-                <div key={pageIndex} className="w-[210mm] h-[297mm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto print:break-after-page grid grid-cols-2 grid-rows-4 gap-0">
-                    {/* Fila 1 - Rectángulos pequeños */}
-                    <div className="border border-black"></div>
-                    <div className="border border-black"></div>
-                    {/* Fila 2 - Rectángulos grandes */}
-                    <div className="border border-black"></div>
-                    <div className="border border-black"></div>
-                    {/* Fila 3 - Invertidos */}
-                    <div className="h-full">
-                        <TableNumberComponent tableNumber={tableNum1} inverted fiesta={fiesta} data={data} logoUrl={logoUrl}/>
+                <div key={pageIndex} className="w-[210mm] h-[297mm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto print:break-after-page grid grid-cols-2 gap-0">
+                    {/* Column 1 */}
+                    <div className="flex flex-col border-r border-dashed border-gray-300">
+                      <div className="h-[30mm] border-b border-dashed border-gray-300"></div>
+                      <div className="h-[70mm] border-b border-dashed border-gray-300"></div>
+                      <div className="flex-1">
+                        <TableNumberComponent tableNumber={tableNum1} inverted fiesta={fiesta!} data={data} logoUrl={logoUrl}/>
+                      </div>
+                      <div className="flex-1 border-t border-dashed border-gray-300">
+                        <TableNumberComponent tableNumber={tableNum1} fiesta={fiesta!} data={data} logoUrl={logoUrl}/>
+                      </div>
                     </div>
-                    {tableNum2 <= tableCount && (
-                        <div className="h-full">
-                            <TableNumberComponent tableNumber={tableNum2} inverted fiesta={fiesta} data={data} logoUrl={logoUrl}/>
+                    {/* Column 2 */}
+                    <div>
+                      {tableNum2 <= tableCount ? (
+                        <div className="flex flex-col h-full">
+                          <div className="h-[30mm] border-b border-dashed border-gray-300"></div>
+                          <div className="h-[70mm] border-b border-dashed border-gray-300"></div>
+                          <div className="flex-1">
+                            <TableNumberComponent tableNumber={tableNum2} inverted fiesta={fiesta!} data={data} logoUrl={logoUrl}/>
+                          </div>
+                          <div className="flex-1 border-t border-dashed border-gray-300">
+                            <TableNumberComponent tableNumber={tableNum2} fiesta={fiesta!} data={data} logoUrl={logoUrl}/>
+                          </div>
                         </div>
-                    )}
-                     {tableNum2 > tableCount && <div className="border border-black"></div>}
-                    {/* Fila 4 - Normales */}
-                    <div className="h-full">
-                        <TableNumberComponent tableNumber={tableNum1} fiesta={fiesta} data={data} logoUrl={logoUrl}/>
+                      ) : <div className="h-full"></div>}
                     </div>
-                    {tableNum2 <= tableCount && (
-                        <div className="h-full">
-                          <TableNumberComponent tableNumber={tableNum2} fiesta={fiesta} data={data} logoUrl={logoUrl}/>
-                        </div>
-                    )}
-                    {tableNum2 > tableCount && <div className="border border-black"></div>}
                 </div>
             );
         })}
