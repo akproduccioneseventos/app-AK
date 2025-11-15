@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, Save, Loader2, AlertTriangle, BarChart3, PlusCircle, Trash2, DollarSign, ShoppingCart, HardHat, ChefHat, Printer } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, GestionCostosData, CostoItem, CostoCategoria } from '@/types/fiesta';
-import { getFiestaActual, updateGestionCostosFiestaActual, getFiestaById } from '@/app/actions/fiesta-actual';
+import { getFiestaById, updateGestionCostosFiestaActual } from '@/app/actions/fiesta-actual';
 import { initialGestionCostosData } from '@/lib/fiesta-defaults';
 import { getMenuById } from '@/app/actions/menus-catering';
 import { Separator } from '@/components/ui/separator';
@@ -171,7 +171,7 @@ function GestionCostosRentabilidadContent() {
   const margenRentabilidad = useMemo(() => {
     if (gestionCostos.ingresosTotalesEstimados === 0) return 0;
     return (gananciaNetaEstimada / gestionCostos.ingresosTotalesEstimados) * 100;
-  }, [gananciaNetaEstimada, costoTotalEstimadoEvento, gestionCostos.ingresosTotalesEstimados]);
+  }, [gananciaNetaEstimada, gestionCostos.ingresosTotalesEstimados]);
 
 
   const handleSave = async () => {
@@ -221,10 +221,10 @@ function GestionCostosRentabilidadContent() {
       <Card className="shadow-md">
         <CardHeader><CardTitle className="font-headline text-xl">Resumen Financiero del Evento</CardTitle></CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-3 border rounded-md bg-blue-50"><p className="text-xs font-medium text-blue-700">COSTO TOTAL ESTIMADO</p><p className="text-xl font-bold text-blue-600">{formatCurrency(costoTotalEstimadoEvento)}</p></div>
-          <div className="p-3 border rounded-md bg-green-50"><p className="text-xs font-medium text-green-700">INGRESOS TOTALES</p><p className="text-xl font-bold text-green-600">{formatCurrency(gestionCostos.ingresosTotalesEstimados)}</p></div>
-          <div className="p-3 border rounded-md bg-purple-50"><p className="text-xs font-medium text-purple-700">GANANCIA NETA ESTIMADA</p><p className="text-xl font-bold text-purple-600">{formatCurrency(gananciaNetaEstimada)}</p></div>
-          <div className="p-3 border rounded-md bg-orange-50"><p className="text-xs font-medium text-orange-700">MARGEN RENTABILIDAD</p><p className="text-xl font-bold text-orange-600">{margenRentabilidad.toFixed(1)}%</p></div>
+          <div className="p-3 border rounded-lg bg-blue-50 dark:bg-blue-900/40"><p className="text-xs font-medium text-blue-700 dark:text-blue-300">COSTO TOTAL ESTIMADO</p><p className="text-xl font-bold text-blue-600 dark:text-blue-400">{formatCurrency(costoTotalEstimadoEvento)}</p></div>
+          <div className="p-3 border rounded-lg bg-green-50 dark:bg-green-900/40"><p className="text-xs font-medium text-green-700 dark:text-green-300">INGRESOS TOTALES</p><p className="text-xl font-bold text-green-600 dark:text-green-400">{formatCurrency(gestionCostos.ingresosTotalesEstimados)}</p></div>
+          <div className="p-3 border rounded-lg bg-purple-50 dark:bg-purple-900/40"><p className="text-xs font-medium text-purple-700 dark:text-purple-300">GANANCIA NETA ESTIMADA</p><p className="text-xl font-bold text-purple-600 dark:text-purple-400">{formatCurrency(gananciaNetaEstimada)}</p></div>
+          <div className="p-3 border rounded-lg bg-orange-50 dark:bg-orange-900/40"><p className="text-xs font-medium text-orange-700 dark:text-orange-300">MARGEN RENTABILIDAD</p><p className="text-xl font-bold text-orange-600 dark:text-orange-400">{margenRentabilidad.toFixed(1)}%</p></div>
         </CardContent>
         <CardFooter className="border-t pt-4">
             <div className="space-y-2 w-full max-w-sm">
@@ -234,7 +234,7 @@ function GestionCostosRentabilidadContent() {
         </CardFooter>
       </Card>
 
-      <Accordion type="multiple" defaultValue={['costos-manuales', 'costos-gastronomicos', 'otros-modulos']} className="w-full space-y-4">
+      <Accordion type="multiple" defaultValue={['costos-manuales', 'costos-modulos']} className="w-full space-y-4">
         <AccordionItem value="costos-manuales" className="border rounded-lg shadow-md bg-card">
           <AccordionTrigger className="px-4 py-3 hover:no-underline text-lg font-medium text-primary hover:bg-muted/50 rounded-t-lg">
             <div className="flex items-center gap-2"><HardHat className="w-5 h-5 text-primary/80"/>Costos Directos Manuales</div>
@@ -262,26 +262,15 @@ function GestionCostosRentabilidadContent() {
           </AccordionContent>
         </AccordionItem>
 
-        <AccordionItem value="costos-gastronomicos" className="border rounded-lg shadow-md bg-card">
+        <AccordionItem value="costos-modulos" className="border rounded-lg shadow-md bg-card">
             <AccordionTrigger className="px-4 py-3 hover:no-underline text-lg font-medium text-primary hover:bg-muted/50 rounded-t-lg">
-                <div className="flex items-center gap-2"><ChefHat className="w-5 h-5 text-primary/80"/>Resumen Costos Gastronómicos</div>
+                <div className="flex items-center gap-2"><DollarSign className="w-5 h-5 text-primary/80"/>Costos Automáticos por Módulo (Resumen)</div>
             </AccordionTrigger>
             <AccordionContent className="p-4 border-t space-y-3">
-                <div className="flex justify-between items-center p-2 border-b"><span>Costo Catering (Menú Principal):</span><span className="font-semibold">{formatCurrency(costoTotalMenu)}</span></div>
-                <div className="flex justify-between items-center p-2 border-b"><span>Costo Repostería:</span><span className="font-semibold">{formatCurrency(costoTotalReposteria)}</span></div>
-                <div className="flex justify-between items-center p-2"><span>Costo Bebidas:</span><span className="font-semibold">{formatCurrency(costoTotalBebidas)}</span></div>
-                <p className="text-xs text-muted-foreground">Estos costos se calculan y gestionan en los módulos de <Link href="/planner-costo-fiesta" className="underline">Planificador Gastronómico</Link>, <Link href="/fiestas/nueva/catering" className="underline">Catering</Link>, <Link href="/planner-costo-fiesta/reposteria" className="underline">Repostería</Link> y <Link href="/planner-costo-fiesta/bebidas" className="underline">Bebidas</Link>.</p>
-            </AccordionContent>
-        </AccordionItem>
-        
-        <AccordionItem value="otros-modulos" className="border rounded-lg shadow-md bg-card">
-            <AccordionTrigger className="px-4 py-3 hover:no-underline text-lg font-medium text-primary hover:bg-muted/50 rounded-t-lg">
-                <div className="flex items-center gap-2"><DollarSign className="w-5 h-5 text-primary/80"/>Costos de Otros Módulos (Resumen)</div>
-            </AccordionTrigger>
-            <AccordionContent className="p-4 border-t space-y-3">
+                 <div className="flex justify-between items-center p-2 border-b"><span>Costo Gastronómico (Menú, Bebidas, Repostería):</span><span className="font-semibold">{formatCurrency(costoTotalMenu + costoTotalReposteria + costoTotalBebidas)}</span></div>
                  <div className="flex justify-between items-center p-2 border-b"><span>Costo Personal Asignado:</span><span className="font-semibold">{formatCurrency(fiestaActual.personalAsignado.reduce((sum, p) => sum + p.eventSalary, 0))}</span></div>
-                 <div className="flex justify-between items-center p-2 border-b"><span>Costo Decoración (Ítems Específicos):</span><span className="font-semibold">{formatCurrency(fiestaActual.decoracion?.items?.reduce((s, i) => s + (i.estimatedCost || 0), 0) || 0)}</span></div>
-                 <p className="text-xs text-muted-foreground">Estos costos se gestionan en sus respectivos módulos (<Link href={`/fiestas/nueva/personal?fiestaId=${fiestaId}`} className="underline">Personal</Link>, <Link href={`/fiestas/nueva/decoracion?fiestaId=${fiestaId}`} className="underline">Decoración</Link>, etc.).</p>
+                 <div className="flex justify-between items-center p-2 border-b"><span>Costo Decoración (Ítems Estimados):</span><span className="font-semibold">{formatCurrency(fiestaActual.decoracion?.items?.reduce((s, i) => s + (i.estimatedCost || 0), 0) || 0)}</span></div>
+                 <p className="text-xs text-muted-foreground">Estos costos se gestionan en sus respectivos módulos (<Link href={`/fiestas/nueva/catering?fiestaId=${fiestaId}`} className="underline">Gastronomía</Link>, <Link href={`/fiestas/nueva/personal?fiestaId=${fiestaId}`} className="underline">Personal</Link>, <Link href={`/fiestas/nueva/decoracion?fiestaId=${fiestaId}`} className="underline">Decoración</Link>, etc.).</p>
             </AccordionContent>
         </AccordionItem>
       </Accordion>
@@ -310,3 +299,5 @@ export default function GestionCostosPage() {
         </Suspense>
     )
 }
+
+    
