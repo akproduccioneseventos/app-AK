@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, useMemo, type FormEvent, Suspense, use } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, type FormEvent, Suspense, use } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, Save, Loader2, AlertTriangle, BarChart3, PlusCircle, Trash2, DollarSign, ShoppingCart, HardHat, ChefHat, Printer } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, GestionCostosData, CostoItem, CostoCategoria } from '@/types/fiesta';
-import { getFiestaActual, updateGestionCostosFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaActual, updateGestionCostosFiestaActual, getFiestaById } from '@/app/actions/fiesta-actual';
 import { initialGestionCostosData } from '@/lib/fiesta-defaults';
 import { getMenuById } from '@/app/actions/menus-catering';
 import { Separator } from '@/components/ui/separator';
