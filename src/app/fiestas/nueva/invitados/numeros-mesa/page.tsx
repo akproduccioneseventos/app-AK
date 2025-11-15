@@ -197,10 +197,14 @@ function NumerosDeMesaContent() {
             const tableNum2 = pageIndex * 2 + 2;
 
             return (
-                <div key={pageIndex} className="w-[210mm] h-[297mm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto print:break-after-page grid grid-cols-2 grid-rows-3 gap-0">
+                <div key={pageIndex} className="w-[210mm] h-[297mm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto print:break-after-page grid grid-cols-2 grid-rows-4 gap-0">
+                    {/* Fila 1 - Rectángulos pequeños */}
                     <div className="border border-black"></div>
                     <div className="border border-black"></div>
-
+                    {/* Fila 2 - Rectángulos grandes */}
+                    <div className="border border-black"></div>
+                    <div className="border border-black"></div>
+                    {/* Fila 3 - Invertidos */}
                     <div className="h-full">
                         <TableNumberComponent tableNumber={tableNum1} inverted fiesta={fiesta} data={data} logoUrl={logoUrl}/>
                     </div>
@@ -209,7 +213,8 @@ function NumerosDeMesaContent() {
                             <TableNumberComponent tableNumber={tableNum2} inverted fiesta={fiesta} data={data} logoUrl={logoUrl}/>
                         </div>
                     )}
-
+                     {tableNum2 > tableCount && <div className="border border-black"></div>}
+                    {/* Fila 4 - Normales */}
                     <div className="h-full">
                         <TableNumberComponent tableNumber={tableNum1} fiesta={fiesta} data={data} logoUrl={logoUrl}/>
                     </div>
@@ -218,6 +223,7 @@ function NumerosDeMesaContent() {
                           <TableNumberComponent tableNumber={tableNum2} fiesta={fiesta} data={data} logoUrl={logoUrl}/>
                         </div>
                     )}
+                    {tableNum2 > tableCount && <div className="border border-black"></div>}
                 </div>
             );
         })}
