@@ -8,6 +8,8 @@ import type {
   MusicaFiesta,
   ReposteriaData,
   BebidasData,
+  BebidaCategoria,
+  BebidaItem,
   ListaDeCargaOperativa,
   GestionCostosData,
   VideoVidaData,
@@ -20,7 +22,12 @@ import type {
   DetalleEventoEspecifico,
   TextWithStyle,
   GiftItem,
+  ColorPalette,
+  NumerosMesaData,
+  CartaTragosData,
+  MenuMesaData,
 } from '@/types/fiesta';
+import type { PaqueteArmadoRapido, MenuArmadoRapido, ArmadoRapidoConfig } from '@/types/armado-rapido';
 
 export const defaultPrograma: ProgramaEventoItem[] = [
   { id: 'prog_1', hora: '22:00', titulo: 'Comienzo', descripcion: 'Recepción de invitados con música suave.', icono: 'PartyPopper' },
@@ -68,17 +75,45 @@ export const defaultReposteriaData: ReposteriaData = {
     ], notasGenerales: ''
 };
 
+const defaultBebidasCategorias: BebidaCategoria[] = [
+    { id: 'coctel_bienvenida', nombreDisplay: 'Cóctel de Bienvenida', activada: true, items: [], recetas: [], descripcion: 'El cóctel especial que se sirve al recibir a los invitados.' },
+    { id: 'refrescos_gaseosas', nombreDisplay: 'Refrescos / Gaseosas', activada: false, items: [], descripcion: 'Variedad de bebidas carbonatadas.' },
+    { id: 'jugos', nombreDisplay: 'Mesa de jugos naturales', activada: false, items: [], descripcion: 'Opciones frutales y refrescantes.' },
+    { id: 'aguas_saborizadas', nombreDisplay: 'Aguas Saborizadas y Minerales', activada: false, items: [], descripcion: 'Con y sin gas, opciones saborizadas.' },
+    { id: 'cervezas', nombreDisplay: 'Cervezas', activada: false, items: [], descripcion: 'Variedad de cervezas nacionales e importadas.' },
+    { id: 'vinos_espumantes', nombreDisplay: 'Vinos y Espumantes', activada: false, items: [], descripcion: 'Selección de tintos, blancos, rosados y espumosos.' },
+    {
+      id: 'barra_tragos',
+      nombreDisplay: 'Barra de Tragos',
+      activada: false,
+      items: [
+        { id: 'beb_licor_frutilla', nombre: 'Licor de Frutilla', cantidadNecesaria: 2, unidadCantidad: 'Litros', costoUnitario: 300, costoTotal: 600 },
+        { id: 'beb_licor_durazno', nombre: 'Licor de Durazno', cantidadNecesaria: 2, unidadCantidad: 'Litros', costoUnitario: 300, costoTotal: 600 },
+        { id: 'beb_jugo_durazno', nombre: 'Jugo de Durazno', cantidadNecesaria: 2, unidadCantidad: 'Litros', costoUnitario: 50, costoTotal: 100 },
+        { id: 'beb_licor_blue', nombre: 'Licor Blue Curaçao', cantidadNecesaria: 2, unidadCantidad: 'Litros', costoUnitario: 300, costoTotal: 600 },
+        { id: 'beb_fernet', nombre: 'Fernet', cantidadNecesaria: 4, unidadCantidad: 'Litros', costoUnitario: 400, costoTotal: 1600 },
+        { id: 'beb_granadina', nombre: 'Granadina', cantidadNecesaria: 1, unidadCantidad: 'Litro', costoUnitario: 220, costoTotal: 220 },
+        { id: 'beb_lata_durazno', nombre: 'Lata de Durazno', cantidadNecesaria: 3, unidadCantidad: 'Unidades', costoUnitario: 80, costoTotal: 240 },
+        { id: 'beb_lata_anana', nombre: 'Lata de Ananá', cantidadNecesaria: 5, unidadCantidad: 'Unidades', costoUnitario: 117, costoTotal: 585 },
+        { id: 'beb_pepsi', nombre: 'Pepsi', cantidadNecesaria: 14, unidadCantidad: 'Litros', costoUnitario: 90, costoTotal: 1260 },
+        { id: 'beb_vasos_sorbitos', nombre: 'Vasos y Sorbitos', cantidadNecesaria: 300, unidadCantidad: 'Unidades', costoUnitario: 2, costoTotal: 600 },
+        { id: 'beb_refresco_lima', nombre: 'Refresco Lima', cantidadNecesaria: 2, unidadCantidad: 'Litros', costoUnitario: 65, costoTotal: 130 },
+        { id: 'beb_vodka', nombre: 'Vodka', cantidadNecesaria: 3, unidadCantidad: 'Litros', costoUnitario: 280, costoTotal: 840 },
+        { id: 'beb_ron', nombre: 'Ron', cantidadNecesaria: 2, unidadCantidad: 'Litros', costoUnitario: 300, costoTotal: 600 },
+        { id: 'beb_limon', nombre: 'Limón', cantidadNecesaria: 2000, unidadCantidad: 'Gramos', costoUnitario: 0.07, costoTotal: 140 },
+        { id: 'beb_frutilla', nombre: 'Frutilla', cantidadNecesaria: 2000, unidadCantidad: 'Gramos', costoUnitario: 0.12, costoTotal: 240 },
+        { id: 'beb_azucar', nombre: 'Azúcar', cantidadNecesaria: 2000, unidadCantidad: 'Gramos', costoUnitario: 0.07, costoTotal: 140 },
+        { id: 'beb_cana', nombre: 'Caña', cantidadNecesaria: 2, unidadCantidad: 'Litros', costoUnitario: 300, costoTotal: 600 },
+        { id: 'beb_jugo_naranja', nombre: 'Jugo de Naranja', cantidadNecesaria: 10, unidadCantidad: 'Litros', costoUnitario: 35, costoTotal: 350 },
+      ],
+      recetas: [],
+      descripcion: 'Bebidas blancas y licores para la barra.'
+    },
+    { id: 'cafeteria', nombreDisplay: 'Servicio de Cafetería', activada: false, items: [], descripcion: 'Café, té, infusiones.' }
+];
+
 export const defaultBebidasData: BebidasData = {
-    categorias: [
-        { id: 'coctel_bienvenida', nombreDisplay: 'Cóctel de Bienvenida', activada: true, items: [], recetas: [], descripcion: 'El cóctel especial que se sirve al recibir a los invitados.' },
-        { id: 'refrescos_gaseosas', nombreDisplay: 'Refrescos / Gaseosas', activada: false, items: [], descripcion: 'Variedad de bebidas carbonatadas.' },
-        { id: 'jugos', nombreDisplay: 'Mesa de jugos naturales', activada: false, items: [], descripcion: 'Opciones frutales y refrescantes.' },
-        { id: 'aguas_saborizadas', nombreDisplay: 'Aguas Saborizadas y Minerales', activada: false, items: [], descripcion: 'Con y sin gas, opciones saborizadas.' },
-        { id: 'cervezas', nombreDisplay: 'Cervezas', activada: false, items: [], descripcion: 'Variedad de cervezas nacionales e importadas.' },
-        { id: 'vinos_espumantes', nombreDisplay: 'Vinos y Espumantes', activada: false, items: [], descripcion: 'Selección de tintos, blancos, rosados y espumosos.' },
-        { id: 'barra_tragos', nombreDisplay: 'Barra de Tragos', activada: false, items: [], recetas: [], descripcion: 'Bebidas blancas y licores para la barra.' },
-        { id: 'cafeteria', nombreDisplay: 'Servicio de Cafetería', activada: false, items: [], descripcion: 'Café, té, infusiones.' }
-    ], notasGenerales: ''
+    categorias: defaultBebidasCategorias, notasGenerales: ''
 };
 
 
@@ -123,23 +158,120 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
     titulo: { text: '¡Nos Casamos!', style: defaultTitleStyle },
     texto: { text: 'Después de un hermoso camino juntos, damos el siguiente paso. Queremos que seas parte de este día tan especial para nosotros, en una noche que promete ser inolvidable, llena de alegría, música y buenos momentos.', style: defaultTextStyle },
   },
-  cuentaRegresiva: { visible: true },
+  cuentaRegresiva: {
+      visible: true
+  },
   detallesEvento: {
     visible: true,
-    ceremoniaReligiosa: { ...defaultDetalleEvento, visible: true, titulo: 'Ceremonia', fecha: new Date().toISOString(), hora: '20:00', nombreLugar: 'Catedral de San Juan', direccionLugar: 'Calle Falsa 123, Ciudad', imagenUrl: 'https://picsum.photos/seed/ceremony/600/400' },
+    ceremoniaReligiosa: { ...defaultDetalleEvento, visible: true, titulo: 'Ceremonia', fecha: new Date().toISOString(), hora: '20:00', nombreLugar: 'Catedral de San Juan', direccionLugar: 'Calle Falsa 123, Ciudad', mapaUrl: '', imagenUrl: 'https://picsum.photos/seed/ceremony/600/400' },
     ceremoniaCivil: { ...defaultDetalleEvento, visible: false },
-    celebracion: { ...defaultDetalleEvento, visible: true, titulo: 'Fiesta', fecha: new Date().toISOString(), hora: '21:30', nombreLugar: 'Salón El Paraíso', direccionLugar: 'Ruta 1, Km 10', imagenUrl: 'https://picsum.photos/seed/reception/600/400' },
+    celebracion: { ...defaultDetalleEvento, visible: true, titulo: 'Fiesta', fecha: new Date().toISOString(), hora: '21:30', nombreLugar: 'Salón El Paraíso', direccionLugar: 'Ruta 1, Km 10', mapaUrl: '', imagenUrl: 'https://picsum.photos/seed/reception/600/400' },
   },
-  itinerario: { visible: true },
-  galeria: { visible: true, fotos: ["https://picsum.photos/seed/gallery1/800/600", "https://picsum.photos/seed/gallery2/800/600", "https://picsum.photos/seed/gallery3/800/600"] },
-  historia: { visible: true, titulo: { text: 'Nuestra Historia', style: defaultAccentTitleStyle }, texto: { text: 'Un breve relato de cómo llegamos hasta aquí.', style: defaultTextStyle } },
-  regalos: { visible: true, titulo: { text: 'Lista de Regalos', style: defaultTitleStyle }, texto: { text: 'Tu presencia es nuestro mejor regalo.', style: defaultTextStyle }, datosBancarios: 'Banco Itaú\nC.A. Pesos: 1234567\nTitular: Juan Pérez', items: defaultGiftItems },
-  dressCode: { visible: true, texto: { text: 'Formal' } },
-  musica: { visible: true, placeholder: 'Ej: Bohemian Rhapsody - Queen' },
-  redesSociales: { visible: true, hashtag: '#NuestraBoda', texto: { text: '¡Comparte tus momentos!', style: { ...defaultTitleStyle, fontSize: '2rem' } } },
-  confirmacion: { visible: true },
-  despedida: { visible: true, texto: { text: '¡Te esperamos!', style: { fontFamily: 'Dancing_Script', fontSize: '3rem', color: '#A2D2B0' } } },
-  footer: { visible: true, titulo: { text: 'Con cariño, María y Juan', style: defaultTextStyle }, nombreEmpresa: { text: 'AK Producciones', style: { fontFamily: 'Belleza', fontSize: '1.25rem', color: '#A2D2B0' } } }
+  itinerario: {
+    visible: true,
+    imagenFondoUrl: "https://picsum.photos/seed/itinerarybg/1200/800"
+  },
+  galeria: {
+    visible: true,
+    fotos: [
+        "https://picsum.photos/seed/gallery1/800/600",
+        "https://picsum.photos/seed/gallery2/800/600",
+        "https://picsum.photos/seed/gallery3/800/600",
+        "https://picsum.photos/seed/gallery4/800/600"
+    ],
+  },
+  historia: {
+    visible: true,
+    titulo: { text: 'Nuestra Historia', style: defaultAccentTitleStyle },
+    texto: { text: 'Desde el día que nos conocimos, supimos que nuestro camino era para recorrerlo juntos. Cada paso nos ha traído hasta aquí, y estamos emocionados por empezar este nuevo capítulo con ustedes como testigos.', style: defaultTextStyle },
+    imagenFondoUrl: "https://picsum.photos/seed/storybg/1200/800"
+  },
+  regalos: {
+    visible: true,
+    titulo: { text: 'Lista de Regalos', style: defaultTitleStyle },
+    texto: { text: 'Tu presencia es nuestro mejor regalo. Si aún así deseas obsequiarnos algo, puedes ayudarnos con nuestra luna de miel o elegir una de estas opciones.', style: defaultTextStyle },
+    datosBancarios: 'Banco Itaú\nC.A. Pesos: 1234567\nTitular: Juan Pérez',
+    items: defaultGiftItems,
+  },
+  dressCode: {
+    visible: true,
+    texto: { text: 'Formal' },
+  },
+   musica: {
+    visible: true,
+    placeholder: 'Ej: Bohemian Rhapsody - Queen'
+  },
+  redesSociales: {
+    visible: true,
+    hashtag: '#BodaJuanYMaria',
+    texto: { text: '¡Comparte tus momentos!', style: { ...defaultTitleStyle, fontSize: '2rem' } },
+  },
+  confirmacion: {
+    visible: true,
+  },
+  despedida: {
+    visible: true,
+    texto: { text: '¡Te esperamos!', style: { fontFamily: 'Dancing_Script', fontSize: '3rem', color: '#A2D2B0'} },
+  },
+  footer: {
+    visible: true,
+    titulo: { text: 'Con cariño, María y Juan', style: defaultTextStyle },
+    nombreEmpresa: { text: 'AK Producciones', style: { fontFamily: 'Belleza', fontSize: '1.25rem', color: '#A2D2B0' } },
+  }
+};
+
+export const defaultNumerosMesaData: NumerosMesaData = {
+  protagonistaNombre: "La Agasajada",
+  fechaEvento: "01/01/2025",
+  backgroundImageUrl: "https://picsum.photos/seed/floral-background/800/400",
+  colorPrincipal: "#9333ea",
+  colorSecundario: "#363636",
+};
+
+export const defaultCartaTragosData: CartaTragosData = {
+    titulo: 'CARTA DE TRAGOS',
+    protagonistaNombre: 'La Agasajada',
+    numeroPrincipal: 'Mis XV',
+    backgroundImageUrl: 'https://i.imgur.com/FwIe1tY.jpeg',
+    protagonistaFotoUrl: 'https://i.imgur.com/sC3a3gM.png',
+    paletaColores: {
+        primary: '#9333ea',
+        secondary: '#363636',
+        accent: '#ffffff',
+    },
+    backgroundColor: '#e9d5ff',
+    items: [
+        { id: 'trago_1', nombre: 'DAIQUIRI DE DURAZNO', imageUrl: 'https://i.imgur.com/kR1Z1zF.jpeg', aiHint: 'peach daiquiri' },
+        { id: 'trago_2', nombre: 'CAIPIRINHA', imageUrl: 'https://i.imgur.com/yqf1h7m.jpeg', aiHint: 'caipirinha cocktail' },
+        { id: 'trago_3', nombre: 'ARIZONA', imageUrl: 'https://i.imgur.com/eBf2j4G.jpeg', aiHint: 'arizona cocktail' },
+        { id: 'trago_4', nombre: 'DAIQUIRI DE ANANA', imageUrl: 'https://i.imgur.com/mS9z5sE.jpeg', aiHint: 'pineapple daiquiri' },
+        { id: 'trago_5', nombre: 'DAIQUIRI DE FRUTILLA', imageUrl: 'https://i.imgur.com/f9W9g7d.jpeg', aiHint: 'strawberry daiquiri' },
+        { id: 'trago_6', nombre: 'ATOMIC GREEN', imageUrl: 'https://i.imgur.com/1G6K2Vn.jpeg', aiHint: 'atomic green cocktail' },
+        { id: 'trago_7', nombre: 'DAIQUIRI PRIMAVERA', imageUrl: 'https://picsum.photos/seed/spring-daiquiri/400/600', aiHint: 'spring daiquiri' },
+        { id: 'trago_8', nombre: 'FERNET CON COCA', imageUrl: 'https://i.imgur.com/rMvJp3P.jpeg', aiHint: 'fernet with coke' },
+        { id: 'trago_9', nombre: 'ATARDECER', imageUrl: 'https://i.imgur.com/4l3F8tD.jpeg', aiHint: 'sunset cocktail' },
+        { id: 'trago_10', nombre: 'DESTORNILLADOR', imageUrl: 'https://i.imgur.com/sC3a3gM.png', aiHint: 'screwdriver cocktail' },
+    ],
+    empresa: {
+        linea1: 'AK PRODUCCIONES',
+        linea2: 'Servicio de fiestas integral\nTodos los servicios-un solo lugar',
+        contacto: '098 355 530'
+    }
+};
+
+export const defaultMenuMesaData: MenuMesaData = {
+    protagonistaFotoUrl: "https://picsum.photos/seed/quinceanera-main/300/300",
+    paletaColores: { primary: '#8b5cf6', secondary: '#4b5563', accent: '#3b82f6', background: '#ffffff' },
+    entrada: 'Sandwiches y saladitos\nTabla de fiambres',
+    platoPrincipal: 'Pollo y cerdo arrollado con mesa buffet',
+    adolescentes: 'Hamburguesa completa con fritas\nPanchos con fritas',
+    postres: 'Torta principal\nFuente de chocolate',
+    bebidas: 'Barra de tragos, cerveza y Refrescos',
+    empresa: {
+        linea1: 'AK PRODUCCIONES',
+        linea2: 'Servicio de fiestas integral\nTodos los servicios-un solo lugar',
+        contacto: '098 355 530'
+    }
 };
 
 export const defaultModulosContratados: ModulosContratados = {
@@ -172,6 +304,9 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
   decoracion: defaultDecoracion,
   invitados: [],
   invitacionDigital: defaultInvitacionDigitalData,
+  cartaTragos: defaultCartaTragosData,
+  menuMesa: defaultMenuMesaData,
+  numerosMesa: defaultNumerosMesaData,
   clientPortalSettings: defaultClientPortalSettings,
   socialGallerySettings: { enabled: false, allowLikes: true, allowComments: true, uploadsActive: true },
   musica: { cancionesTortaBrindis: [] },
@@ -186,3 +321,5 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
   pagosProveedores: [],
   estadosCompra: [],
 };
+
+    
