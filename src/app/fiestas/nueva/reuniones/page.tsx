@@ -3,13 +3,13 @@
 
 import React, { useState, useEffect, useCallback, type FormEvent, Suspense } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { DatePickerDemo } from '@/components/date-picker-demo';
-import { ArrowLeft, PlusCircle, Edit3, Trash2, Loader2, AlertTriangle, MessageSquareText, CalendarIcon, CalendarPlus, NotebookTextIcon } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Edit3, Trash2, Loader2, AlertTriangle, MessageSquareText, CalendarIcon, CalendarPlus, NotebookTextIcon, Printer, Share2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, Reunion } from '@/types/fiesta';
 import { getFiestaById, addReunionToFiestaActual, updateReunionInFiestaActual, deleteReunionFromFiestaActual } from '@/app/actions/fiesta-actual';
@@ -20,7 +20,6 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
 import {
@@ -34,7 +33,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { isToday, isWithinInterval, addDays, startOfDay } from 'date-fns';
 import { useSearchParams, useRouter } from 'next/navigation';
 
 const formatDate = (dateString?: string) => {
@@ -227,18 +225,11 @@ function GestionReunionesContent() {
       setDeletingReunionId(null);
     }
   };
-
-  const downloadICS = (reunion: Reunion) => {
+  
+  const handleShareWhatsApp = (reunion: Reunion) => {
     if (!fiesta) return;
-    const icsContent = generateICSContent(reunion, fiesta.configuracion.nombreEvento);
-    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `${reunion.titulo}.ics`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const message = `*Recordatorio de Reunión*\n\n*Evento:* ${fiesta.configuracion.nombreEvento}\n*Reunión:* ${reunion.titulo}\n*Fecha:* ${formatDate(reunion.fecha)}\n*Hora:* ${new Date(reunion.fecha!).toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'})} hs.\n\n*Notas:*\n${reunion.notas}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
   };
 
   if (isLoading || !fiestaId) {
@@ -248,7 +239,7 @@ function GestionReunionesContent() {
     return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>{error}</div>;
   }
 
-  const proximasReuniones = reuniones.filter(r => r.fecha && new Date(r.fecha) >= startOfDay(new Date()));
+  const proximasReuniones = reuniones.filter(r => r.fecha && new Date(r.fecha) >= new Date());
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -312,6 +303,10 @@ function GestionReunionesContent() {
                       {reunion.notas && <p className="text-xs text-muted-foreground mt-2 border-l-2 pl-2 whitespace-pre-wrap">{reunion.notas}</p>}
                     </div>
                     <div className="flex gap-1 self-start sm:self-center flex-shrink-0">
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleShareWhatsApp(reunion)}><Share2 className="w-4 h-4 text-green-600"/></Button>
+                      <Link href={`/fiestas/nueva/reuniones/imprimir?fiestaId=${fiestaId}&reunionId=${reunion.id}`} passHref>
+                          <Button variant="ghost" size="icon" className="h-8 w-8"><Printer className="w-4 h-4"/></Button>
+                      </Link>
                       <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openFormModal(reunion)}><Edit3 className="w-4 h-4"/></Button>
                       <AlertDialog>
                           <AlertDialogTrigger asChild>
@@ -321,13 +316,10 @@ function GestionReunionesContent() {
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                               <AlertDialogHeader><AlertDialogTitle>¿Eliminar esta reunión?</AlertDialogTitle><AlertDialogDescription>"{reunion.titulo}" será eliminada.</AlertDialogDescription></AlertDialogHeader>
-                              <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => handleDeleteReunion(reunion.id)} className="bg-destructive hover:bg-destructive/90">Eliminar</AlertDialogAction>
-                              </AlertDialogFooter>
+                              <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteReunion(reunion.id)} className="bg-destructive hover:bg-destructive/90">Eliminar</AlertDialogAction></AlertDialogFooter>
                           </AlertDialogContent>
                       </AlertDialog>
-                      {reunion.fecha && <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => downloadICS(reunion)}><CalendarIcon className="w-4 h-4"/></Button>}
+                      {reunion.fecha && <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => downloadICS(reunion, fiesta.configuracion.nombreEvento)}><CalendarIcon className="w-4 h-4"/></Button>}
                     </div>
                  </div>
               </Card>
