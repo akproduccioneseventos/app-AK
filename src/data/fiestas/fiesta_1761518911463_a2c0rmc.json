@@ -377,9 +377,37 @@
         "id": "candy_bar",
         "nombreDisplay": "Candy Bar Temático",
         "activada": true,
+        "items": [
+          {
+            "id": "cb_1",
+            "nombre": "Gomitas Varias",
+            "cantidad": 2,
+            "unidad": "kg",
+            "costoEstimado": 400
+          },
+          {
+            "id": "cb_2",
+            "nombre": "Chocolates personalizados",
+            "cantidad": 120,
+            "unidad": "unidad",
+            "costoEstimado": 25
+          }
+        ]
+      },
+      {
+        "id": "fuente_chocolate",
+        "nombreDisplay": "Fuente de Chocolate",
+        "activada": false,
+        "items": []
+      },
+      {
+        "id": "mesa_helada",
+        "nombreDisplay": "Mesa Helada",
+        "activada": false,
         "items": []
       }
-    ]
+    ],
+    "notasGenerales": "La torta principal está incluida en el presupuesto base."
   },
   "bebidas": {
     "categorias": [
@@ -387,15 +415,50 @@
         "id": "refrescos_gaseosas",
         "nombreDisplay": "Refrescos / Gaseosas",
         "activada": true,
-        "items": []
+        "items": [
+          {
+            "id": "beb_1",
+            "nombre": "Coca-Cola",
+            "cantidadNecesaria": 40,
+            "unidadCantidad": "Litros",
+            "costoUnitario": 90,
+            "costoTotal": 3600
+          },
+          {
+            "id": "beb_2",
+            "nombre": "Agua Mineral",
+            "cantidadNecesaria": 20,
+            "unidadCantidad": "Litros",
+            "costoUnitario": 50,
+            "costoTotal": 1000
+          }
+        ]
       },
       {
         "id": "barra_tragos",
         "nombreDisplay": "Barra de Tragos",
         "activada": true,
-        "items": []
+        "items": [
+          {
+            "id": "beb-fernet",
+            "nombre": "Fernet",
+            "cantidadNecesaria": 5,
+            "unidadCantidad": "Botellas",
+            "costoUnitario": 400,
+            "costoTotal": 2000
+          },
+          {
+            "id": "beb-vodka",
+            "nombre": "Vodka",
+            "cantidadNecesaria": 3,
+            "unidadCantidad": "Litros",
+            "costoUnitario": 280,
+            "costoTotal": 840
+          }
+        ]
       }
-    ]
+    ],
+    "notasGenerales": "El hielo corre por cuenta del salón."
   },
   "listaDeCargaOperativa": {
     "categorias": [
@@ -422,55 +485,55 @@
   "gestionCostos": {
     "costosItems": [
       {
-        "id": "cost_1",
+        "id": "cost_1762192131920",
         "nombre": "Alquiler de Salón 'La Casona'",
         "categoria": "Pago de Salón",
         "montoEstimado": 150000
       },
       {
-        "id": "cost_2",
+        "id": "cost_1762192147318",
         "nombre": "Fotografía y Video (Imágenes Inolvidables)",
         "categoria": "Servicio Proveedor",
         "montoEstimado": 95000
       },
       {
-        "id": "cost_3",
+        "id": "cost_1762192171545",
         "nombre": "Vestido de Quinceañera (Casa de Novias)",
         "categoria": "Servicio Proveedor",
         "montoEstimado": 45000
       },
       {
-        "id": "cost_4",
+        "id": "cost_1762192190367",
         "nombre": "Maquillaje y Peinado (Estudio Glam)",
         "categoria": "Servicio Proveedor",
         "montoEstimado": 8000
       },
       {
-        "id": "cost_5",
+        "id": "cost_1762192211623",
         "nombre": "Pauta publicitaria en Instagram",
         "categoria": "Marketing y Publicidad",
         "montoEstimado": 3000
       },
       {
-        "id": "cost_6",
+        "id": "cost_1762192233261",
         "nombre": "DJ (Adicional a equipo base)",
         "categoria": "Personal Evento",
         "montoEstimado": 15000
       },
       {
-        "id": "cost_7",
+        "id": "cost_1762192251347",
         "nombre": "Invitaciones Impresas (Imprenta Veloz)",
         "categoria": "Servicio Proveedor",
         "montoEstimado": 7500
       },
       {
-        "id": "cost_8",
+        "id": "cost_1762192271871",
         "nombre": "Plataforma 360",
         "categoria": "Servicio Proveedor",
         "montoEstimado": 12000
       },
       {
-        "id": "cost_9",
+        "id": "cost_1762192288009",
         "nombre": "Fondo para imprevistos",
         "categoria": "Imprevistos",
         "montoEstimado": 20000
@@ -604,12 +667,17 @@
   ],
   "pagosProveedores": [],
   "cartaTragos": {
-    "protagonistaFotoUrl": "https://picsum.photos/seed/quinceanera-main/300/300",
+    "protagonistaNombre": "Luciana",
+    "titulo": "CARTA DE TRAGOS",
+    "numeroPrincipal": "Mis XV",
+    "protagonistaFotoUrl": "https://i.imgur.com/sC3a3gM.png",
+    "backgroundImageUrl": "https://i.imgur.com/FwIe1tY.jpeg",
     "paletaColores": {
       "primary": "#9333ea",
       "secondary": "#363636",
-      "accent": "#facc15"
+      "accent": "#ffffff"
     },
+    "backgroundColor": "#e9d5ff",
     "items": [
       {
         "id": "trago_1",
@@ -671,7 +739,12 @@
         "imageUrl": "https://i.imgur.com/sC3a3gM.png",
         "aiHint": "screwdriver cocktail"
       }
-    ]
+    ],
+    "empresa": {
+      "linea1": "AK PRODUCCIONES",
+      "linea2": "Servicio de fiestas integral\nTodos los servicios-un solo lugar",
+      "contacto": "098 355 530"
+    }
   },
   "menuMesa": {
     "protagonistaFotoUrl": "https://picsum.photos/seed/quinceanera-main/300/300",
@@ -761,14 +834,13 @@
       "fotos": [
         "https://picsum.photos/seed/sofia1/600/400",
         "https://picsum.photos/seed/sofia2/600/400",
-        "https://picsum.photos/seed/sofia3/600/400"
+        "https://picsum.photos/seed/sofia3/600/400",
+        "https://picsum.photos/seed/sofia4/600/400"
       ]
     },
     "dressCode": {
       "visible": true,
-      "texto": {
-        "text": "Elegante Sport"
-      }
+      "tipo": "Elegante Sport"
     },
     "regalos": {
       "visible": true,
@@ -822,3 +894,5 @@
     }
   }
 }
+
+    
