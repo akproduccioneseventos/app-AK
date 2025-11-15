@@ -101,7 +101,7 @@ function NumerosDeMesaContent() {
 
   useEffect(() => {
     loadData();
-  }, [fiestaId, loadData]);
+  }, [loadData, fiestaId]);
   
   const handleUpdate = (field: keyof NumerosMesaData, value: string) => {
     setData(prev => ({ ...prev, [field]: value }));
@@ -173,7 +173,6 @@ function NumerosDeMesaContent() {
                  <Label className="text-xs">Nombre</Label>
                  <Input value={data.protagonistaNombre} onChange={e => handleUpdate('protagonistaNombre', e.target.value)} className="h-9 w-32"/>
               </div>
-               <Separator orientation="vertical" className="h-10 mx-2"/>
                <div className="flex items-end gap-2">
                  <Button size="sm" onClick={handleSave} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}</Button>
                  <Button onClick={handlePrint} size="sm" variant="outline"><PrinterIcon className="w-4 h-4"/></Button>
@@ -187,20 +186,18 @@ function NumerosDeMesaContent() {
             const tableNum2 = pageIndex * 2 + 2;
 
             return (
-                <div key={pageIndex} className="w-[210mm] h-[297mm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto print:break-after-page p-4 flex flex-col">
+                <div key={pageIndex} className="w-[210mm] h-[297mm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto print:break-after-page p-4 flex flex-col gap-4">
                     <div className="flex-1 grid grid-cols-2 gap-4">
-                        <div className="border border-black"></div>
-                        <div className="border border-black"></div>
+                         <TableNumberComponent tableNumber={tableNum1} fiesta={fiesta} data={data} logoUrl={logoUrl}/>
+                        {tableNum2 <= tableCount && (
+                             <TableNumberComponent tableNumber={tableNum2} fiesta={fiesta} data={data} logoUrl={logoUrl}/>
+                        )}
                     </div>
-                    <div className="flex-1 grid grid-cols-2 gap-4 mt-4">
+                    <div className="flex-1 grid grid-cols-2 gap-4">
                         <TableNumberComponent tableNumber={tableNum1} inverted fiesta={fiesta} data={data} logoUrl={logoUrl}/>
                         {tableNum2 <= tableCount && (
                             <TableNumberComponent tableNumber={tableNum2} inverted fiesta={fiesta} data={data} logoUrl={logoUrl}/>
                         )}
-                    </div>
-                    <div className="flex-1 grid grid-cols-2 gap-4 mt-4">
-                        <TableNumberComponent tableNumber={tableNum1} fiesta={fiesta} data={data} logoUrl={logoUrl}/>
-                        {tableNum2 <= tableCount && <TableNumberComponent tableNumber={tableNum2} fiesta={fiesta} data={data} logoUrl={logoUrl}/>}
                     </div>
                 </div>
             );
