@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, AlertTriangle, PartyPopper, Calendar, Users, Palette, ChefHat, Music2, ListChecks, DollarSign, Camera, Gift, FileText, UserCheck, Clock, Archive, PackageSearch, Video, Globe, MessageSquare, LayoutDashboard, Star, Calculator, GlassWater, ShoppingCart, ClipboardList, QrCode, Printer, Settings2 } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, PartyPopper, Calendar, Users, Palette, ChefHat, Music2, ListChecks, DollarSign, Camera, Gift, FileText, UserCheck, Clock, Archive, PackageSearch, Video, Globe, MessageSquare, LayoutDashboard, Star, Calculator, GlassWater, ShoppingCart, ClipboardList, QrCode, Printer, Settings2, KeyRound } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateModulosContratadosFiestaActual, type FiestaEnPlanificacion, type ModulosContratados } from '../../actions/fiesta-actual';
 import { KpiCard } from '@/components/dashboard/kpi-card';
@@ -49,7 +49,7 @@ const modules = [
   { id: 'itinerario', title: "Itinerario", href: "itinerario", icon: Clock, description: "Organiza el cronograma del evento.", category: 'Planificación del Evento' },
   
   // Portal del Cliente
-  { id: 'portalCliente', title: "Portal del Cliente", href: "portal-cliente", icon: Globe, description: "Gestiona la experiencia del cliente.", category: 'Portal del Cliente' },
+  { id: 'portalCliente', title: "Portal del Cliente", href: "portal-cliente", icon: KeyRound, description: "Gestiona la experiencia del cliente.", category: 'Portal del Cliente' },
   { id: 'paginaWeb', title: "Página del Evento", href: "pagina-web", icon: Globe, description: "Personaliza la web que verán tus invitados.", category: 'Portal del Cliente' },
   { id: 'regalos', title: "Lista de Regalos", href: "regalos", icon: Gift, description: "Configura la lista de regalos para los invitados.", category: 'Portal del Cliente' },
   { id: 'videoVida', title: "Video de Vida", href: "video-vida", icon: Video, description: "Gestiona las fotos del cliente.", category: 'Portal del Cliente' },
@@ -255,3 +255,5 @@ export default function PlannerDashboardPage() {
         </Suspense>
     );
 }
+
+    
