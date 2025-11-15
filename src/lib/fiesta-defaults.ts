@@ -26,6 +26,7 @@ import type {
   NumerosMesaData,
   CartaTragosData,
   MenuMesaData,
+  ModulosContratados,
 } from '@/types/fiesta';
 import type { PaqueteArmadoRapido, MenuArmadoRapido, ArmadoRapidoConfig } from '@/types/armado-rapido';
 
@@ -166,9 +167,9 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
   },
   detallesEvento: {
     visible: true,
-    ceremoniaReligiosa: { ...defaultDetalleEvento, visible: true, titulo: 'Ceremonia', fecha: new Date().toISOString(), hora: '20:00', nombreLugar: 'Catedral de San Juan', direccionLugar: 'Calle Falsa 123, Ciudad', mapaUrl: '', imagenUrl: 'https://picsum.photos/seed/ceremony/600/400' },
+    ceremoniaReligiosa: { ...defaultDetalleEvento, visible: true, titulo: 'Ceremonia', fecha: '2025-11-15T20:00:00.000Z', hora: '20:00', nombreLugar: 'Catedral de San Juan', direccionLugar: 'Calle Falsa 123, Ciudad', mapaUrl: '', imagenUrl: 'https://picsum.photos/seed/ceremony/600/400' },
     ceremoniaCivil: { ...defaultDetalleEvento, visible: false },
-    celebracion: { ...defaultDetalleEvento, visible: true, titulo: 'Fiesta', fecha: new Date().toISOString(), hora: '21:30', nombreLugar: 'Salón El Paraíso', direccionLugar: 'Ruta 1, Km 10', mapaUrl: '', imagenUrl: 'https://picsum.photos/seed/reception/600/400' },
+    celebracion: { ...defaultDetalleEvento, visible: true, titulo: 'Fiesta', fecha: '2025-11-15T21:30:00.000Z', hora: '21:30', nombreLugar: 'Salón El Paraíso', direccionLugar: 'Ruta 1, Km 10', mapaUrl: '', imagenUrl: 'https://picsum.photos/seed/reception/600/400' },
   },
   itinerario: {
     visible: true,
@@ -281,7 +282,7 @@ export const defaultModulosContratados: ModulosContratados = {
     tareas: true, invitados: true, paginaWeb: true, decoracion: true, catering: true, musica: true, personal: true,
     itinerario: true, documentos: true, costos: true, cargaOperativa: true, fotografia: true, videoVida: true,
     reuniones: true, muroSocial: false, regalos: false, feedback: false, menuMesa: false, cartaTragos: false,
-    checkin: false, resumenImprimible: false, configuracion: true, disenoSalon: true, listaCompras: true,
+    checkin: false, resumenImprimible: false, configuracion: true, disenoSalon: true, listaCompras: true, portalCliente: true,
 };
 
 export const initialFiestaActualData: FiestaEnPlanificacion = {

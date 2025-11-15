@@ -125,6 +125,7 @@ function PlannerDashboardContent() {
     if (!fiesta) return '#';
     const handlers: Record<string, () => string> = {
         "/fiestas/nueva/reuniones": () => `/fiestas/nueva/reuniones?fiestaId=${fiesta.id}`,
+        "/fiestas/nueva/portal-cliente": () => `/fiestas/nueva/portal-cliente?fiestaId=${fiesta.id}`,
         "/evento/social/[fiestaId]": () => `/evento/social/${fiesta.id}`,
         "/portal/mesas": () => `/portal/mesas?fiestaId=${fiesta.id}`
     };
@@ -255,5 +256,3 @@ export default function PlannerDashboardPage() {
         </Suspense>
     );
 }
-
-    
