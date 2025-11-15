@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, Suspense, type ChangeEvent } from 'react';
+import React, { useState, useEffect, useCallback, Suspense, type ChangeEvent, useRef } from 'react';
 import Link from 'next/link';
 import NextImage from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer as PrinterIcon, Share2, Edit, Upload, Loader2, Save } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, Save, Loader2, Edit, Upload, Image as ImageIcon, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, NumerosMesaData } from '@/types/fiesta';
 import { getFiestaById, updateNumerosMesa as updateNumerosMesaAction } from '@/app/actions/fiesta/fiesta.actions';
@@ -14,7 +14,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import { defaultNumerosMesaData } from '@/lib/fiesta-defaults';
-import { Separator } from '@/components/ui/separator';
+import { MenuMesaTemplate } from '@/components/invitacion/templates/MenuMesaTemplate';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
+import html2canvas from 'html2canvas';
+
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "____________";
@@ -60,6 +63,7 @@ function NumerosDeMesaContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const fiestaId = searchParams.get('fiestaId');
+  const router = useRouter();
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [data, setData] = useState<NumerosMesaData>(defaultNumerosMesaData);
@@ -101,7 +105,7 @@ function NumerosDeMesaContent() {
 
   useEffect(() => {
     loadData();
-  }, [loadData, fiestaId]);
+  }, [fiestaId]);
   
   const handleUpdate = (field: keyof NumerosMesaData, value: string) => {
     setData(prev => ({ ...prev, [field]: value }));
@@ -186,19 +190,27 @@ function NumerosDeMesaContent() {
             const tableNum2 = pageIndex * 2 + 2;
 
             return (
-                <div key={pageIndex} className="w-[210mm] h-[297mm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto print:break-after-page p-4 flex flex-col gap-4">
-                    <div className="flex-1 grid grid-cols-2 gap-4">
-                         <TableNumberComponent tableNumber={tableNum1} fiesta={fiesta} data={data} logoUrl={logoUrl}/>
-                        {tableNum2 <= tableCount && (
-                             <TableNumberComponent tableNumber={tableNum2} fiesta={fiesta} data={data} logoUrl={logoUrl}/>
-                        )}
+                <div key={pageIndex} className="w-[210mm] h-[297mm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto print:break-after-page p-4 flex gap-4">
+                    {/* Columna Izquierda */}
+                    <div className="w-1/2 h-full flex flex-col gap-4">
+                       <div className="h-1/2">
+                          <TableNumberComponent tableNumber={tableNum1} inverted fiesta={fiesta} data={data} logoUrl={logoUrl}/>
+                       </div>
+                       <div className="h-1/2">
+                          <TableNumberComponent tableNumber={tableNum1} fiesta={fiesta} data={data} logoUrl={logoUrl}/>
+                       </div>
                     </div>
-                    <div className="flex-1 grid grid-cols-2 gap-4">
-                        <TableNumberComponent tableNumber={tableNum1} inverted fiesta={fiesta} data={data} logoUrl={logoUrl}/>
-                        {tableNum2 <= tableCount && (
-                            <TableNumberComponent tableNumber={tableNum2} inverted fiesta={fiesta} data={data} logoUrl={logoUrl}/>
-                        )}
-                    </div>
+                     {/* Columna Derecha */}
+                    {tableNum2 <= tableCount && (
+                       <div className="w-1/2 h-full flex flex-col gap-4">
+                           <div className="h-1/2">
+                               <TableNumberComponent tableNumber={tableNum2} inverted fiesta={fiesta} data={data} logoUrl={logoUrl}/>
+                           </div>
+                           <div className="h-1/2">
+                               <TableNumberComponent tableNumber={tableNum2} fiesta={fiesta} data={data} logoUrl={logoUrl}/>
+                           </div>
+                       </div>
+                    )}
                 </div>
             );
         })}
