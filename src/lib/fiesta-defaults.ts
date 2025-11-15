@@ -87,24 +87,24 @@ const defaultBebidasCategorias: BebidaCategoria[] = [
       nombreDisplay: 'Barra de Tragos',
       activada: false,
       items: [
-        { id: 'beb_licor_frutilla', nombre: 'Licor de Frutilla', cantidadNecesaria: 2, unidadCantidad: 'Litros', costoUnitario: 300, costoTotal: 600 },
-        { id: 'beb_licor_durazno', nombre: 'Licor de Durazno', cantidadNecesaria: 2, unidadCantidad: 'Litros', costoUnitario: 300, costoTotal: 600 },
-        { id: 'beb_jugo_durazno', nombre: 'Jugo de Durazno', cantidadNecesaria: 2, unidadCantidad: 'Litros', costoUnitario: 50, costoTotal: 100 },
-        { id: 'beb_licor_blue', nombre: 'Licor Blue Curaçao', cantidadNecesaria: 2, unidadCantidad: 'Litros', costoUnitario: 300, costoTotal: 600 },
-        { id: 'beb_fernet', nombre: 'Fernet', cantidadNecesaria: 4, unidadCantidad: 'Litros', costoUnitario: 400, costoTotal: 1600 },
-        { id: 'beb_granadina', nombre: 'Granadina', cantidadNecesaria: 1, unidadCantidad: 'Litro', costoUnitario: 220, costoTotal: 220 },
-        { id: 'beb_lata_durazno', nombre: 'Lata de Durazno', cantidadNecesaria: 3, unidadCantidad: 'Unidades', costoUnitario: 80, costoTotal: 240 },
-        { id: 'beb_lata_anana', nombre: 'Lata de Ananá', cantidadNecesaria: 5, unidadCantidad: 'Unidades', costoUnitario: 117, costoTotal: 585 },
-        { id: 'beb_pepsi', nombre: 'Pepsi', cantidadNecesaria: 14, unidadCantidad: 'Litros', costoUnitario: 90, costoTotal: 1260 },
-        { id: 'beb_vasos_sorbitos', nombre: 'Vasos y Sorbitos', cantidadNecesaria: 300, unidadCantidad: 'Unidades', costoUnitario: 2, costoTotal: 600 },
-        { id: 'beb_refresco_lima', nombre: 'Refresco Lima', cantidadNecesaria: 2, unidadCantidad: 'Litros', costoUnitario: 65, costoTotal: 130 },
-        { id: 'beb_vodka', nombre: 'Vodka', cantidadNecesaria: 3, unidadCantidad: 'Litros', costoUnitario: 280, costoTotal: 840 },
-        { id: 'beb_ron', nombre: 'Ron', cantidadNecesaria: 2, unidadCantidad: 'Litros', costoUnitario: 300, costoTotal: 600 },
-        { id: 'beb_limon', nombre: 'Limón', cantidadNecesaria: 2000, unidadCantidad: 'Gramos', costoUnitario: 0.07, costoTotal: 140 },
-        { id: 'beb_frutilla', nombre: 'Frutilla', cantidadNecesaria: 2000, unidadCantidad: 'Gramos', costoUnitario: 0.12, costoTotal: 240 },
-        { id: 'beb_azucar', nombre: 'Azúcar', cantidadNecesaria: 2000, unidadCantidad: 'Gramos', costoUnitario: 0.07, costoTotal: 140 },
-        { id: 'beb_cana', nombre: 'Caña', cantidadNecesaria: 2, unidadCantidad: 'Litros', costoUnitario: 300, costoTotal: 600 },
-        { id: 'beb_jugo_naranja', nombre: 'Jugo de Naranja', cantidadNecesaria: 10, unidadCantidad: 'Litros', costoUnitario: 35, costoTotal: 350 },
+        { id: 'trago-1', nombre: 'Licor de Frutilla', cantidadNecesaria: 0.02, unidadCantidad: 'Litros', costoUnitario: 300 },
+        { id: 'trago-2', nombre: 'Licor de Durazno', cantidadNecesaria: 0.02, unidadCantidad: 'Litros', costoUnitario: 300 },
+        { id: 'trago-3', nombre: 'Jugo de Durazno', cantidadNecesaria: 0.02, unidadCantidad: 'Litros', costoUnitario: 50 },
+        { id: 'trago-4', nombre: 'Licor Blue', cantidadNecesaria: 0.02, unidadCantidad: 'Litros', costoUnitario: 300 },
+        { id: 'trago-5', nombre: 'Fernet', cantidadNecesaria: 0.04, unidadCantidad: 'Litros', costoUnitario: 400 },
+        { id: 'trago-6', nombre: 'Granadina', cantidadNecesaria: 0.01, unidadCantidad: 'Litros', costoUnitario: 220 },
+        { id: 'trago-7', nombre: 'Lata Durazno', cantidadNecesaria: 0.03, unidadCantidad: 'Unidades', costoUnitario: 80 },
+        { id: 'trago-8', nombre: 'Lata Anana', cantidadNecesaria: 0.05, unidadCantidad: 'Unidades', costoUnitario: 117 },
+        { id: 'trago-9', nombre: 'Pepsi', cantidadNecesaria: 0.14, unidadCantidad: 'Litros', costoUnitario: 90 },
+        { id: 'trago-10', nombre: 'Vasos y Sorbitos', cantidadNecesaria: 3, unidadCantidad: 'Unidades', costoUnitario: 2 },
+        { id: 'trago-11', nombre: 'Refresco Lima', cantidadNecesaria: 0.02, unidadCantidad: 'Litros', costoUnitario: 65 },
+        { id: 'trago-12', nombre: 'Vodka', cantidadNecesaria: 0.03, unidadCantidad: 'Litros', costoUnitario: 280 },
+        { id: 'trago-13', nombre: 'Ron', cantidadNecesaria: 0.02, unidadCantidad: 'Litros', costoUnitario: 300 },
+        { id: 'trago-14', nombre: 'Limon', cantidadNecesaria: 20, unidadCantidad: 'Gramos', costoUnitario: 70 },
+        { id: 'trago-15', nombre: 'Frutilla', cantidadNecesaria: 20, unidadCantidad: 'Gramos', costoUnitario: 120 },
+        { id: 'trago-16', nombre: 'Azucar', cantidadNecesaria: 20, unidadCantidad: 'Gramos', costoUnitario: 70 },
+        { id: 'trago-17', nombre: 'Caña', cantidadNecesaria: 0.02, unidadCantidad: 'Litros', costoUnitario: 300 },
+        { id: 'trago-18', nombre: 'Jugo de Naranja', cantidadNecesaria: 0.1, unidadCantidad: 'Litros', costoUnitario: 35 }
       ],
       recetas: [],
       descripcion: 'Bebidas blancas y licores para la barra.'
@@ -148,7 +148,10 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
   plantilla: 'Grazia', name: 'Plantilla Grazia por Defecto', category: 'Boda', musicaFondoUrl: '',
   secciones: [], // El array de secciones se construye dinámicamente en el editor.
   cabecera: {
-    visible: true, protagonista1: 'Novio/a 1', protagonista2: 'Novio/a 2',
+    visible: true,
+    logoUrl: '',
+    protagonista1: 'Novio/a 1',
+    protagonista2: 'Novio/a 2',
     subtitulo: { text: 'Nuestra Boda', style: { fontFamily: 'Inter', fontSize: '1.25rem', color: '#654321' } },
     paletaColores: { primary: '#6d8b74', secondary: '#e6d5b8', accent: '#a47e63' },
     videoFondoUrl: 'https://cdn.coverr.co/videos/coverr-a-man-and-a-woman-get-married-at-a-wedding-ceremony-2508/1080p.mp4'
@@ -321,5 +324,3 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
   pagosProveedores: [],
   estadosCompra: [],
 };
-
-    
