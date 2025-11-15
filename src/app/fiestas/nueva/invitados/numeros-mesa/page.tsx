@@ -197,27 +197,27 @@ function NumerosDeMesaContent() {
             const tableNum2 = pageIndex * 2 + 2;
 
             return (
-                <div key={pageIndex} className="w-[210mm] h-[297mm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto print:break-after-page p-4 flex flex-col gap-4">
-                    <div className="flex-1 grid grid-cols-2 gap-4">
+                <div key={pageIndex} className="w-[210mm] h-[297mm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto print:break-after-page grid grid-cols-2 grid-rows-3 gap-0">
+                    <div className="border border-black"></div>
+                    <div className="border border-black"></div>
+
+                    <div className="h-full">
+                        <TableNumberComponent tableNumber={tableNum1} inverted fiesta={fiesta} data={data} logoUrl={logoUrl}/>
+                    </div>
+                    {tableNum2 <= tableCount && (
                         <div className="h-full">
-                          <TableNumberComponent tableNumber={tableNum1} inverted fiesta={fiesta} data={data} logoUrl={logoUrl}/>
+                            <TableNumberComponent tableNumber={tableNum2} inverted fiesta={fiesta} data={data} logoUrl={logoUrl}/>
                         </div>
-                         {tableNum2 <= tableCount && (
-                            <div className="h-full">
-                                <TableNumberComponent tableNumber={tableNum2} inverted fiesta={fiesta} data={data} logoUrl={logoUrl}/>
-                            </div>
-                        )}
+                    )}
+
+                    <div className="h-full">
+                        <TableNumberComponent tableNumber={tableNum1} fiesta={fiesta} data={data} logoUrl={logoUrl}/>
                     </div>
-                    <div className="flex-1 grid grid-cols-2 gap-4">
-                         <div className="h-full">
-                            <TableNumberComponent tableNumber={tableNum1} fiesta={fiesta} data={data} logoUrl={logoUrl}/>
+                    {tableNum2 <= tableCount && (
+                        <div className="h-full">
+                          <TableNumberComponent tableNumber={tableNum2} fiesta={fiesta} data={data} logoUrl={logoUrl}/>
                         </div>
-                        {tableNum2 <= tableCount && (
-                             <div className="h-full">
-                                <TableNumberComponent tableNumber={tableNum2} fiesta={fiesta} data={data} logoUrl={logoUrl}/>
-                            </div>
-                        )}
-                    </div>
+                    )}
                 </div>
             );
         })}
