@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
-import { ArrowLeft, Save, Loader2, Edit3, AlertTriangle, Trash2 } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, Edit3, AlertTriangle, Trash2, FileText, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getEmpleadoById, saveEmpleado, deleteEmpleado as deleteEmpleadoAction } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
@@ -27,6 +27,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { MultiSelect } from '@/components/ui/multi-select';
+import { Separator } from '@/components/ui/separator';
 
 export default function EditarEmpleadoPage({ params: paramsProp }: { params: { id: string } }) {
   const params = use(paramsProp);
@@ -41,6 +42,7 @@ export default function EditarEmpleadoPage({ params: paramsProp }: { params: { i
   const [cedula, setCedula] = useState('');
   const [fechaNacimiento, setFechaNacimiento] = useState<Date | undefined>(undefined);
   const [rolIds, setRolIds] = useState<string[]>([]);
+  const [contractFile, setContractFile] = useState<File | null>(null);
   
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -91,16 +93,24 @@ export default function EditarEmpleadoPage({ params: paramsProp }: { params: { i
     }
 
     setIsSaving(true);
-    const empleadoData: Empleado = {
-      ...empleado,
-      nombre: nombre.trim(),
-      cedula: cedula.trim(),
-      fechaNacimiento: fechaNacimiento ? fechaNacimiento.toISOString() : '',
-      rolIds: rolIds,
-    };
+    
+    const formData = new FormData();
+    formData.append('id', empleado.id);
+    formData.append('nombre', nombre.trim());
+    formData.append('cedula', cedula.trim());
+    if (fechaNacimiento) {
+      formData.append('fechaNacimiento', fechaNacimiento.toISOString());
+    }
+    formData.append('rolIds', rolIds.join(','));
+    if (contractFile) {
+        formData.append('contract', contractFile);
+    } else if (empleado.contractFileName) {
+        formData.append('existingContract', empleado.contractFileName);
+    }
+
 
     try {
-      const result = await saveEmpleado(empleadoData);
+      const result = await saveEmpleado(formData);
       if (result.success && result.empleado) {
         toast({ title: "¡Empleado Actualizado!", description: `El empleado "${result.empleado.nombre}" ha sido actualizado.` });
         setEmpleado(result.empleado);
@@ -184,6 +194,19 @@ export default function EditarEmpleadoPage({ params: paramsProp }: { params: { i
               <Label htmlFor="empleado-fechaNacimiento" className="text-base">Fecha de Nacimiento</Label>
               <DatePickerDemo selectedDate={fechaNacimiento} onDateChange={setFechaNacimiento} className={isSaving || isDeleting ? "disabled:opacity-70" : ""} />
             </div>
+             <Separator/>
+             <div className="space-y-2">
+                <Label htmlFor="contract-file" className="text-base flex items-center gap-1"><FileText className="w-5 h-5 text-primary"/>Contrato (PDF)</Label>
+                {empleado?.contractFileName && (
+                    <div className="flex items-center gap-2">
+                        <a href={`/api/employee-contracts/${empleado.contractFileName}`} target="_blank" rel="noopener noreferrer">
+                            <Button variant="outline" type="button"><Eye className="w-4 h-4 mr-2"/> Ver Contrato Actual</Button>
+                        </a>
+                    </div>
+                )}
+                <Input id="contract-file" type="file" onChange={(e) => setContractFile(e.target.files?.[0] || null)} accept="application/pdf" disabled={isSaving || isDeleting} />
+                <p className="text-xs text-muted-foreground">Sube un nuevo archivo para reemplazar el existente.</p>
+             </div>
           </CardContent>
           <CardFooter className="border-t pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
             <Button type="submit" className="w-full sm:w-auto" disabled={isSaving || isDeleting}>

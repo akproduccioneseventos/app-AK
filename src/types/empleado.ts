@@ -4,12 +4,14 @@ export interface Empleado {
   nombre: string;
   cedula: string;
   fechaNacimiento: string;
-  rolIds?: string[]; // Changed from rolId: string
+  rolIds?: string[];
+  contractFileName?: string; // Nuevo campo para el contrato
 }
 
 export interface NuevoEmpleadoFormData {
   nombre: string;
   cedula?: string;
   fechaNacimiento?: string;
-  rolIds?: string[]; // Changed from rolId: string
+  rolIds?: string[];
+  contractFileName?: string; // Nuevo campo para el contrato
 }
