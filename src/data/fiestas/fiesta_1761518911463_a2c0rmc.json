@@ -1,3 +1,4 @@
+
 {
   "id": "fiesta_1761518911463_a2c0rmc",
   "configuracion": {
@@ -431,6 +432,48 @@
         "nombre": "Fotografía y Video (Imágenes Inolvidables)",
         "categoria": "Servicio Proveedor",
         "montoEstimado": 95000
+      },
+      {
+        "id": "cost_3",
+        "nombre": "Vestido de Quinceañera (Casa de Novias)",
+        "categoria": "Servicio Proveedor",
+        "montoEstimado": 45000
+      },
+      {
+        "id": "cost_4",
+        "nombre": "Maquillaje y Peinado (Estudio Glam)",
+        "categoria": "Servicio Proveedor",
+        "montoEstimado": 8000
+      },
+      {
+        "id": "cost_5",
+        "nombre": "Pauta publicitaria en Instagram",
+        "categoria": "Marketing y Publicidad",
+        "montoEstimado": 3000
+      },
+      {
+        "id": "cost_6",
+        "nombre": "DJ (Adicional a equipo base)",
+        "categoria": "Personal Evento",
+        "montoEstimado": 15000
+      },
+      {
+        "id": "cost_7",
+        "nombre": "Invitaciones Impresas (Imprenta Veloz)",
+        "categoria": "Servicio Proveedor",
+        "montoEstimado": 7500
+      },
+      {
+        "id": "cost_8",
+        "nombre": "Plataforma 360",
+        "categoria": "Servicio Proveedor",
+        "montoEstimado": 12000
+      },
+      {
+        "id": "cost_9",
+        "nombre": "Fondo para imprevistos",
+        "categoria": "Imprevistos",
+        "montoEstimado": 20000
       }
     ],
     "ingresosTotalesEstimados": 750000
@@ -571,37 +614,37 @@
       {
         "id": "trago_1",
         "nombre": "DAIQUIRI DE DURAZNO",
-        "imageUrl": "https://picsum.photos/seed/peach-daiquiri/400/600",
+        "imageUrl": "https://i.imgur.com/kR1Z1zF.jpeg",
         "aiHint": "peach daiquiri"
       },
       {
         "id": "trago_2",
         "nombre": "CAIPIRINHA",
-        "imageUrl": "https://picsum.photos/seed/caipirinha/400/600",
+        "imageUrl": "https://i.imgur.com/yqf1h7m.jpeg",
         "aiHint": "caipirinha cocktail"
       },
       {
         "id": "trago_3",
         "nombre": "ARIZONA",
-        "imageUrl": "https://picsum.photos/seed/arizona-cocktail/400/600",
+        "imageUrl": "https://i.imgur.com/eBf2j4G.jpeg",
         "aiHint": "arizona cocktail"
       },
       {
         "id": "trago_4",
         "nombre": "DAIQUIRI DE ANANA",
-        "imageUrl": "https://picsum.photos/seed/pineapple-daiquiri/400/600",
+        "imageUrl": "https://i.imgur.com/mS9z5sE.jpeg",
         "aiHint": "pineapple daiquiri"
       },
       {
         "id": "trago_5",
         "nombre": "DAIQUIRI DE FRUTILLA",
-        "imageUrl": "https://picsum.photos/seed/strawberry-daiquiri/400/600",
+        "imageUrl": "https://i.imgur.com/f9W9g7d.jpeg",
         "aiHint": "strawberry daiquiri"
       },
       {
         "id": "trago_6",
         "nombre": "ATOMIC GREEN",
-        "imageUrl": "https://picsum.photos/seed/atomic-green/400/600",
+        "imageUrl": "https://i.imgur.com/1G6K2Vn.jpeg",
         "aiHint": "atomic green cocktail"
       },
       {
@@ -613,19 +656,19 @@
       {
         "id": "trago_8",
         "nombre": "FERNET CON COCA",
-        "imageUrl": "https://picsum.photos/seed/fernet-coke/400/600",
+        "imageUrl": "https://i.imgur.com/rMvJp3P.jpeg",
         "aiHint": "fernet with coke"
       },
       {
         "id": "trago_9",
         "nombre": "ATARDECER",
-        "imageUrl": "https://picsum.photos/seed/sunset-cocktail/400/600",
+        "imageUrl": "https://i.imgur.com/4l3F8tD.jpeg",
         "aiHint": "sunset cocktail"
       },
       {
         "id": "trago_10",
         "nombre": "DESTORNILLADOR",
-        "imageUrl": "https://picsum.photos/seed/screwdriver/400/600",
+        "imageUrl": "https://i.imgur.com/sC3a3gM.png",
         "aiHint": "screwdriver cocktail"
       }
     ]
@@ -633,36 +676,21 @@
   "menuMesa": {
     "protagonistaFotoUrl": "https://picsum.photos/seed/quinceanera-main/300/300",
     "paletaColores": {
-      "primary": "#9333ea",
-      "secondary": "#363636",
-      "accent": "#facc15"
+      "primary": "#8b5cf6",
+      "secondary": "#4b5563",
+      "accent": "#3b82f6",
+      "background": "#ffffff"
     },
-    "items": [
-      {
-        "id": "plato_1",
-        "nombre": "Entrada Ligera",
-        "imageUrl": "https://picsum.photos/seed/light-appetizer/400/600",
-        "aiHint": "light appetizer"
-      },
-      {
-        "id": "plato_2",
-        "nombre": "Sopa Cremosa",
-        "imageUrl": "https://picsum.photos/seed/cream-soup/400/600",
-        "aiHint": "cream soup"
-      },
-      {
-        "id": "plato_3",
-        "nombre": "Plato Principal",
-        "imageUrl": "https://picsum.photos/seed/main-course/400/600",
-        "aiHint": "main course"
-      },
-      {
-        "id": "plato_4",
-        "nombre": "Postre",
-        "imageUrl": "https://picsum.photos/seed/dessert/400/600",
-        "aiHint": "dessert"
-      }
-    ]
+    "entrada": "Sandwiches y saladitos\nTabla de fiambres",
+    "platoPrincipal": "Pollo y cerdo arrollado con mesa buffet",
+    "adolescentes": "Hamburguesa completa con fritas\nPanchos con fritas",
+    "postres": "Torta principal\nFuente de chocolate",
+    "bebidas": "Barra de tragos, cerveza y Refrescos",
+    "empresa": {
+      "linea1": "AK PRODUCCIONES",
+      "linea2": "Servicio de fiestas integral\nTodos los servicios-un solo lugar",
+      "contacto": "098 355 530"
+    }
   },
   "numerosMesa": {
     "protagonistaNombre": "Sofía",
@@ -748,7 +776,7 @@
         "text": "Lista de Regalos"
       },
       "texto": {
-        "text": "Tu presencia es nuestro mejor regalo. Si aún así deseas obsequiarnos algo, aquí tienes algunas ideas."
+        "text": "Tu presencia es nuestro mejor regalo. Si aún así deseas obsequiarnos algo, puedes ayudarnos con nuestro viaje o elegir una de estas opciones."
       },
       "datosBancarios": "Colectivo Abitab/RedPagos: 'Los 15 de Sofi'",
       "items": [
@@ -792,31 +820,5 @@
         "text": "Con cariño, Sofía"
       }
     }
-  },
-  "modulosContratados": {
-    "tareas": true,
-    "invitados": true,
-    "paginaWeb": true,
-    "decoracion": true,
-    "catering": true,
-    "musica": true,
-    "personal": true,
-    "itinerario": true,
-    "documentos": true,
-    "costos": true,
-    "cargaOperativa": true,
-    "fotografia": true,
-    "videoVida": true,
-    "reuniones": true,
-    "muroSocial": true,
-    "regalos": true,
-    "feedback": true,
-    "menuMesa": true,
-    "cartaTragos": true,
-    "checkin": true,
-    "resumenImprimible": true,
-    "configuracion": true,
-    "disenoSalon": true,
-    "listaCompras": true
   }
 }
