@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense, use } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -557,33 +557,9 @@ function SalonLayoutContent() {
 
        <Tabs defaultValue="visual">
         <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="visual">Diseño Visual</TabsTrigger>
           <TabsTrigger value="list">Asignación por Lista</TabsTrigger>
-          <TabsTrigger value="visual">Diseño Visual del Salón</TabsTrigger>
         </TabsList>
-        <TabsContent value="list">
-             <Card>
-                 <CardHeader><CardTitle>Lista de Invitados Confirmados</CardTitle><div className="relative pt-2"><Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" /><Input placeholder="Buscar invitado..." value={guestSearchTerm} onChange={(e) => setGuestSearchTerm(e.target.value)} className="w-full max-w-sm pl-8"/></div></CardHeader>
-                <CardContent><Table>
-                    <TableHeader><TableRow><TableHead>Invitado</TableHead><TableHead>Personas</TableHead><TableHead>Mesa Asignada</TableHead></TableRow></TableHeader>
-                    <TableBody>
-                        {filteredGuests.sinMesa.map(guest => (
-                             <TableRow key={guest.id}>
-                                <TableCell className="font-medium">{guest.nombre}</TableCell>
-                                <TableCell>{guest.partySize}</TableCell>
-                                <TableCell><Select value={guest.tableNumber || ''} onValueChange={(val) => handleAssignGuestToTable(guest.id, val)}><SelectTrigger><SelectValue placeholder="Asignar mesa..." /></SelectTrigger><SelectContent>{(decoracion.salonElements || []).filter(el => el.category?.includes("Mesa")).map(t => <SelectItem key={t.id} value={t.name}>{t.name}</SelectItem>)}</SelectContent></Select></TableCell>
-                            </TableRow>
-                        ))}
-                        {filteredGuests.conMesa.map(guest => (
-                             <TableRow key={guest.id} className="bg-green-50/50">
-                                <TableCell className="font-medium">{guest.nombre}</TableCell>
-                                <TableCell>{guest.partySize}</TableCell>
-                                <TableCell><Select value={guest.tableNumber || 'sin-mesa'} onValueChange={(val) => val === 'sin-mesa' ? handleAssignGuestToTable(guest.id, null) : handleAssignGuestToTable(guest.id, val)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{(decoracion.salonElements || []).filter(el => el.category?.includes("Mesa")).map(t => <SelectItem key={t.id} value={t.name}>{t.name}</SelectItem>)}<Separator/><SelectItem value="sin-mesa" className="text-destructive">Quitar de mesa</SelectItem></SelectContent></Select></TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                 </Table></CardContent>
-            </Card>
-        </TabsContent>
         <TabsContent value="visual">
             <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 h-[calc(100vh-450px)] pt-4">
             <Card className="xl:col-span-3 flex flex-col">
@@ -653,7 +629,7 @@ function SalonLayoutContent() {
                                                 <div key={g.id} className="flex items-center justify-center gap-1 group relative">
                                                     <span className="truncate">{g.nombre} ({g.partySize})</span>
                                                     <button onClick={() => handleUnassignGuest(g.id)} className="hidden group-hover:block text-destructive">
-                                                        <X className="w-3 h-3"/>
+                                                        <UserMinus className="w-3 h-3"/>
                                                     </button>
                                                 </div>
                                             ))}
@@ -686,6 +662,30 @@ function SalonLayoutContent() {
             </div>
           </div>
         </TabsContent>
+        <TabsContent value="list">
+             <Card>
+                 <CardHeader><CardTitle>Lista de Invitados Confirmados</CardTitle><div className="relative pt-2"><Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" /><Input placeholder="Buscar invitado..." value={guestSearchTerm} onChange={(e) => setGuestSearchTerm(e.target.value)} className="w-full max-w-sm pl-8"/></div></CardHeader>
+                <CardContent><Table>
+                    <TableHeader><TableRow><TableHead>Invitado</TableHead><TableHead>Personas</TableHead><TableHead>Mesa Asignada</TableHead></TableRow></TableHeader>
+                    <TableBody>
+                        {filteredGuests.sinMesa.map(guest => (
+                             <TableRow key={guest.id}>
+                                <TableCell className="font-medium text-xs">{guest.nombre}</TableCell>
+                                <TableCell className="text-center text-xs">{guest.partySize}</TableCell>
+                                <TableCell><Select value={guest.tableNumber || ''} onValueChange={(val) => handleAssignGuestToTable(guest.id, val)}><SelectTrigger><SelectValue placeholder="Asignar mesa..." /></SelectTrigger><SelectContent>{(decoracion.salonElements || []).filter(el => el.category?.includes("Mesa")).map(t => <SelectItem key={t.id} value={t.name}>{t.name}</SelectItem>)}</SelectContent></Select></TableCell>
+                            </TableRow>
+                        ))}
+                        {filteredGuests.conMesa.map(guest => (
+                             <TableRow key={guest.id} className="bg-green-50/50">
+                                <TableCell className="font-medium text-xs">{guest.nombre}</TableCell>
+                                <TableCell className="text-center text-xs">{guest.partySize}</TableCell>
+                                <TableCell><Select value={guest.tableNumber || 'sin-mesa'} onValueChange={(val) => val === 'sin-mesa' ? handleAssignGuestToTable(guest.id, null) : handleAssignGuestToTable(guest.id, val)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{(decoracion.salonElements || []).filter(el => el.category?.includes("Mesa")).map(t => <SelectItem key={t.id} value={t.name}>{t.name}</SelectItem>)}<Separator/><SelectItem value="sin-mesa" className="text-destructive">Quitar de mesa</SelectItem></SelectContent></Select></TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                 </Table></CardContent>
+            </Card>
+        </TabsContent>
       </Tabs>
       <div className="flex justify-end pt-4 border-t">
         <div className="flex gap-2">
@@ -707,10 +707,10 @@ function SalonLayoutContent() {
 
 export default function SalonLayoutPage() {
     return (
-        <DndProvider backend={HTML5Backend}>
-            <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>}>
+        <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>}>
+            <DndProvider backend={HTML5Backend}>
                 <SalonLayoutContent />
-            </Suspense>
-        </DndProvider>
+            </DndProvider>
+        </Suspense>
     );
 }
