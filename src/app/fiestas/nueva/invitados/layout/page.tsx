@@ -227,7 +227,7 @@ function SalonLayoutContent() {
   useEffect(() => {
     if (!fiestaId) {
       toast({title: "Error", description: "No se ha especificado un ID de fiesta."});
-      router.push('/eventos');
+      router.replace('/eventos');
     } else {
         loadData();
     }
@@ -575,25 +575,33 @@ function SalonLayoutContent() {
             <div className={cn("xl:col-span-9 bg-card flex flex-col", isFullScreen ? 'fixed inset-0 z-40 p-4' : '')}>
                 <Card className="h-full flex flex-col flex-grow">
                     <CardHeader className="flex-row justify-between items-center p-3">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <CardTitle className="text-md">Lienzo del Salón</CardTitle>
                          <Button variant="outline" size="sm" onClick={() => setIsFullScreen(!isFullScreen)}><Maximize className="w-4 h-4"/></Button>
                          <div className="flex items-center gap-1"><Button size="icon" variant="outline" className="h-8 w-8" onClick={() => setScale(s => s / 1.2)}><ZoomOut className="w-4 h-4"/></Button><Button size="icon" variant="outline" className="h-8 w-8" onClick={() => setScale(s => s * 1.2)}><ZoomIn className="w-4 h-4"/></Button></div>
                       </div>
-                      <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                              <Button variant="secondary" size="sm"><PlusCircle className="w-4 h-4 mr-2"/>Añadir Elemento</Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent>
-                              <DropdownMenuItem onClick={() => addElement('Mesa Redonda')}><Circle className="w-4 h-4 mr-2"/>Mesa Redonda</DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => addElement('Mesa Rectangular')}><Square className="w-4 h-4 mr-2"/>Mesa Rectangular</DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => addElement('Pista de Baile', undefined, 'area')}><Disc className="w-4 h-4 mr-2"/>Pista de Baile</DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => addElement('Escenario', undefined, 'area')}><Clapperboard className="w-4 h-4 mr-2"/>Escenario</DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => addElement('Living', undefined, 'area')}><Sofa className="w-4 h-4 mr-2"/>Living</DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => addElement('Área de Fotos', undefined, 'area')}><CameraIcon className="w-4 h-4 mr-2"/>Área de Fotos</DropdownMenuItem>
-                               <DropdownMenuItem onClick={() => setIsCustomElementModalOpen(true)}><Armchair className="w-4 h-4 mr-2"/>Otro...</DropdownMenuItem>
-                          </DropdownMenuContent>
-                      </DropdownMenu>
+                      <div className="flex gap-2">
+                        <Button variant="secondary" size="sm" onClick={handleLoadTemplate} disabled={isSaving || isTemplateActionLoading}>
+                          {isTemplateActionLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <FolderUp className="w-4 h-4 mr-2"/>} Cargar Plantilla
+                        </Button>
+                        <Button variant="secondary" size="sm" onClick={() => setIsSaveTemplateModalOpen(true)} disabled={isSaving}>
+                            <FolderDown className="w-4 h-4 mr-2"/> Guardar como Plantilla
+                        </Button>
+                          <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                  <Button variant="default" size="sm"><PlusCircle className="w-4 h-4 mr-2"/>Añadir Elemento</Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent>
+                                  <DropdownMenuItem onClick={() => addElement('Mesa Redonda')}><Circle className="w-4 h-4 mr-2"/>Mesa Redonda</DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => addElement('Mesa Rectangular')}><Square className="w-4 h-4 mr-2"/>Mesa Rectangular</DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => addElement('Pista de Baile', undefined, 'area')}><Disc className="w-4 h-4 mr-2"/>Pista de Baile</DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => addElement('Escenario', undefined, 'area')}><Clapperboard className="w-4 h-4 mr-2"/>Escenario</DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => addElement('Living', undefined, 'area')}><Sofa className="w-4 h-4 mr-2"/>Living</DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => addElement('Área de Fotos', undefined, 'area')}><CameraIcon className="w-4 h-4 mr-2"/>Área de Fotos</DropdownMenuItem>
+                                   <DropdownMenuItem onClick={() => setIsCustomElementModalOpen(true)}><Armchair className="w-4 h-4 mr-2"/>Otro...</DropdownMenuItem>
+                              </DropdownMenuContent>
+                          </DropdownMenu>
+                      </div>
                     </CardHeader>
                     <CardContent className="flex-grow p-1 overflow-auto">
                     <div className="relative canvas-grid-background" ref={canvasRef} style={{ width: `${(decoracion.salonWidth || 15) * pixelsPerMeter}px`, height: `${(decoracion.salonHeight || 15) * pixelsPerMeter}px`, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
@@ -628,7 +636,7 @@ function SalonLayoutContent() {
                                             {assignedGuests.map(g => (
                                                 <div key={g.id} className="flex items-center justify-center gap-1 group relative">
                                                     <span className="truncate">{g.nombre} ({g.partySize})</span>
-                                                    <button onClick={() => handleUnassignGuest(g.id)} className="hidden group-hover:block text-destructive">
+                                                    <button onClick={() => handleAssignGuestToTable(g.id, null)} className="hidden group-hover:block text-destructive">
                                                         <UserMinus className="w-3 h-3"/>
                                                     </button>
                                                 </div>
@@ -664,9 +672,9 @@ function SalonLayoutContent() {
         </TabsContent>
         <TabsContent value="list">
              <Card>
-                 <CardHeader><CardTitle>Lista de Invitados Confirmados</CardTitle><div className="relative pt-2"><Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" /><Input placeholder="Buscar invitado..." value={guestSearchTerm} onChange={(e) => setGuestSearchTerm(e.target.value)} className="w-full max-w-sm pl-8"/></div></CardHeader>
+                 <CardHeader><CardTitle>Lista de Invitados</CardTitle><div className="relative pt-2"><Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" /><Input placeholder="Buscar invitado..." value={guestSearchTerm} onChange={(e) => setGuestSearchTerm(e.target.value)} className="w-full max-w-sm pl-8"/></div></CardHeader>
                 <CardContent><Table>
-                    <TableHeader><TableRow><TableHead>Invitado</TableHead><TableHead>Personas</TableHead><TableHead>Mesa Asignada</TableHead></TableRow></TableHeader>
+                    <TableHeader><TableRow><TableHead>Invitado</TableHead><TableHead className="text-center">Personas</TableHead><TableHead>Mesa Asignada</TableHead></TableRow></TableHeader>
                     <TableBody>
                         {filteredGuests.sinMesa.map(guest => (
                              <TableRow key={guest.id}>
@@ -688,17 +696,9 @@ function SalonLayoutContent() {
         </TabsContent>
       </Tabs>
       <div className="flex justify-end pt-4 border-t">
-        <div className="flex gap-2">
-            <Button variant="secondary" onClick={handleLoadTemplate} disabled={isSaving || isTemplateActionLoading}>
-                {isTemplateActionLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <FolderUp className="w-4 h-4 mr-2"/>} Cargar Plantilla
-            </Button>
-            <Button variant="secondary" onClick={() => setIsSaveTemplateModalOpen(true)} disabled={isSaving}>
-                <FolderDown className="w-4 h-4 mr-2"/> Guardar como Plantilla
-            </Button>
-            <Button onClick={handleSaveAll} disabled={isSaving}>
-                {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>} Guardar Diseño
-            </Button>
-        </div>
+        <Button onClick={handleSaveAll} disabled={isSaving} size="lg">
+            {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin"/> : <Save className="w-5 h-5 mr-2"/>} Guardar Diseño
+        </Button>
       </div>
     </div>
   );
