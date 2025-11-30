@@ -41,6 +41,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from '@/components/ui/badge';
 import { Suspense } from 'react';
+import { RsvpStatusBadge } from '@/components/presupuestos/rsvp-status-badge';
 
 export default function InvitadosEventoPage() {
   const { toast } = useToast();
@@ -371,7 +372,9 @@ export default function InvitadosEventoPage() {
                           <div className="flex-1 sm:flex-none sm:w-[120px] print:hidden">
                               <Label htmlFor={`rsvp-${invitado.id}`} className="sr-only">RSVP</Label>
                               <Select value={invitado.rsvp} onValueChange={(value: RsvpStatus) => handleFieldChange(invitado.id, 'rsvp', value)}>
-                                  <SelectTrigger id={`rsvp-${invitado.id}`} className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                                  <SelectTrigger id={`rsvp-${invitado.id}`} className="h-8 text-xs">
+                                    <RsvpStatusBadge status={invitado.rsvp} />
+                                  </SelectTrigger>
                                   <SelectContent>
                                   {(['Pendiente', 'Confirmado', 'Rechazado', 'Tal vez'] as RsvpStatus[]).map(status => (
                                       <SelectItem key={status} value={status} className="text-xs">{status}</SelectItem>
