@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Disc, Clapperboard, Sofa, Camera as CameraIcon, Search, Printer, Settings2, FolderDown, FolderUp, Maximize, ZoomIn, ZoomOut, Upload, Map, ChevronsUp, ChevronsDown, X, Armchair, PartyPopper, Ticket, UserMinus } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Disc, Clapperboard, Sofa, Camera as CameraIcon, Search, Printer, Settings2, FolderDown, FolderUp, Maximize, ZoomIn, ZoomOut, Upload, Map, ChevronsUp, ChevronsDown, X, Armchair, PartyPopper, Ticket, UserMinus, CookingPot, Beer } from 'lucide-react';
 import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData, LayoutElementType } from '@/types/fiesta';
@@ -33,6 +33,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu";
 
 const GUEST_ITEM_TYPE = 'guest';
@@ -251,11 +253,16 @@ function SalonLayoutContent() {
     else if (category === 'Escenario') { defaultProps = { width: 200, height: 100, seats: undefined, backgroundColor: 'rgba(139, 92, 246, 0.2)', shape: 'rectangle' }; }
     else if (category === 'Living') { defaultProps = { width: 180, height: 180, seats: undefined, backgroundColor: 'rgba(234, 179, 8, 0.2)', shape: 'rectangle' }; }
     else if (category === 'Área de Fotos') { defaultProps = { width: 160, height: 100, seats: undefined, backgroundColor: 'rgba(236, 72, 153, 0.2)', shape: 'rectangle' }; }
+    else if (category === 'Barra') { defaultProps = { width: 200, height: 60, seats: undefined, backgroundColor: 'rgba(16, 185, 129, 0.2)', shape: 'rectangle' }; }
+    else if (category === 'Cocina') { defaultProps = { width: 150, height: 150, seats: undefined, backgroundColor: 'rgba(249, 115, 22, 0.2)', shape: 'rectangle' }; }
+    else if (category === 'Patio') { defaultProps = { width: 200, height: 200, seats: undefined, backgroundColor: 'rgba(132, 204, 22, 0.2)', shape: 'rectangle' }; }
+    else if (category === 'Baños') { defaultProps = { width: 120, height: 80, seats: undefined, backgroundColor: 'rgba(107, 114, 128, 0.2)', shape: 'rectangle' }; }
 
     const newElement: LayoutElement = {
       id: `el_${Date.now()}`, 
       name: customProps?.name || `${category} ${ (decoracion.salonElements?.filter(e => e.category === category).length || 0) + 1}`,
-      x: 20, y: 20, rotation: 0, zIndex: (decoracion.salonElements?.length || 0) + 1,
+      x: 20, y: 20, rotation: 0, 
+      zIndex: type === 'area' ? 0 : (decoracion.salonElements?.length || 0) + 1,
       ...defaultProps, 
       ...customProps, 
       category, 
@@ -395,25 +402,31 @@ function SalonLayoutContent() {
   };
   
   const handleAssignGuestToTable = async (guestId: string, tableName: string | null) => {
-    const updatedInvitados = (fiesta?.invitados || []).map(inv => 
-      inv.id === guestId ? { ...inv, tableNumber: tableName === null ? undefined : tableName } : inv
-    );
-    if (fiesta && fiestaId) {
-      setFiesta({ ...fiesta, invitados: updatedInvitados });
-      const guestToUpdate = updatedInvitados.find(i => i.id === guestId);
-      if (guestToUpdate) await updateInvitadoFiestaActual(fiestaId, guestToUpdate);
+    const guestToUpdate = fiesta?.invitados?.find(inv => inv.id === guestId);
+    if (!guestToUpdate || !fiestaId) return;
+
+    // Optimistic UI update
+    setFiesta(prevFiesta => {
+        if (!prevFiesta) return null;
+        return {
+            ...prevFiesta,
+            invitados: (prevFiesta.invitados || []).map(inv =>
+                inv.id === guestId ? { ...inv, tableNumber: tableName === null ? undefined : tableName } : inv
+            ),
+        };
+    });
+
+    try {
+        const result = await updateInvitadoFiestaActual(fiestaId, { ...guestToUpdate, tableNumber: tableName === null ? undefined : tableName });
+        if (!result.success) throw new Error(result.error);
+    } catch (e: any) {
+       toast({ title: "Error", description: `No se pudo guardar la asignación: ${e.message}`, variant: "destructive"});
+       loadData(false); // Revert on error
     }
   };
 
   const handleUnassignGuest = async (guestId: string) => {
-    const updatedInvitados = (fiesta?.invitados || []).map(inv => 
-      inv.id === guestId ? { ...inv, tableNumber: undefined } : inv
-    );
-     if (fiesta && fiestaId) {
-      setFiesta({ ...fiesta, invitados: updatedInvitados });
-      const guestToUpdate = updatedInvitados.find(i => i.id === guestId);
-      if (guestToUpdate) await updateInvitadoFiestaActual(fiestaId, guestToUpdate);
-    }
+    handleAssignGuestToTable(guestId, null);
   };
   
   const handleBackgroundImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -592,13 +605,23 @@ function SalonLayoutContent() {
                                   <Button variant="default" size="sm"><PlusCircle className="w-4 h-4 mr-2"/>Añadir Elemento</Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent>
+                                <DropdownMenuGroup>
                                   <DropdownMenuItem onClick={() => addElement('Mesa Redonda')}><Circle className="w-4 h-4 mr-2"/>Mesa Redonda</DropdownMenuItem>
                                   <DropdownMenuItem onClick={() => addElement('Mesa Rectangular')}><Square className="w-4 h-4 mr-2"/>Mesa Rectangular</DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => addElement('Living')}><Sofa className="w-4 h-4 mr-2"/>Living</DropdownMenuItem>
+                                </DropdownMenuGroup>
+                                <DropdownMenuSeparator/>
+                                <DropdownMenuGroup>
                                   <DropdownMenuItem onClick={() => addElement('Pista de Baile', undefined, 'area')}><Disc className="w-4 h-4 mr-2"/>Pista de Baile</DropdownMenuItem>
                                   <DropdownMenuItem onClick={() => addElement('Escenario', undefined, 'area')}><Clapperboard className="w-4 h-4 mr-2"/>Escenario</DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => addElement('Living', undefined, 'area')}><Sofa className="w-4 h-4 mr-2"/>Living</DropdownMenuItem>
                                   <DropdownMenuItem onClick={() => addElement('Área de Fotos', undefined, 'area')}><CameraIcon className="w-4 h-4 mr-2"/>Área de Fotos</DropdownMenuItem>
-                                   <DropdownMenuItem onClick={() => setIsCustomElementModalOpen(true)}><Armchair className="w-4 h-4 mr-2"/>Otro...</DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => addElement('Barra', undefined, 'area')}><Beer className="w-4 h-4 mr-2"/>Barra</DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => addElement('Cocina', undefined, 'area')}><CookingPot className="w-4 h-4 mr-2"/>Cocina</DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => addElement('Patio', undefined, 'area')}><Map className="w-4 h-4 mr-2"/>Patio / Exterior</DropdownMenuItem>
+                                   <DropdownMenuItem onClick={() => addElement('Baños', undefined, 'area')}><Users className="w-4 h-4 mr-2"/>Baños</DropdownMenuItem>
+                                </DropdownMenuGroup>
+                                <DropdownMenuSeparator/>
+                                <DropdownMenuItem onClick={() => setIsCustomElementModalOpen(true)}><Armchair className="w-4 h-4 mr-2"/>Otro...</DropdownMenuItem>
                               </DropdownMenuContent>
                           </DropdownMenu>
                       </div>
@@ -714,3 +737,5 @@ export default function SalonLayoutPage() {
         </Suspense>
     );
 }
+
+    
