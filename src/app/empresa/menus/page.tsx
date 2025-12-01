@@ -1,428 +1,159 @@
-
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, type FormEvent, type ChangeEvent } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PlusCircle, Trash2, Loader2, Save, BookOpen, Search, Percent, DollarSign, Link as LinkIcon, Info, Image as ImageIconLucide, UploadCloud, Copy } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ArrowLeft, ChefHat, PlusCircle, Copy, Edit, Trash2, Loader2, DollarSign, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { saveMenu, duplicateMenu } from '@/app/actions/menus-catering';
-import { getInsumos, saveInsumo } from '@/app/actions/insumos';
-import type { FullMenu, MenuItem, Ingredient } from '@/types/catering';
-import type { ServicioEmpresa } from '@/types/empresa';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogDescription } from '@/components/ui/dialog';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { cn } from '@/lib/utils';
-import NextImage from 'next/image';
-
+import { getMenus, deleteMenu, duplicateMenu } from '@/app/actions/menus-catering';
+import type { FullMenu, MenuItem } from '@/types/catering';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Badge } from '@/components/ui/badge';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
-
-export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
-  const router = useRouter();
+export default function GestionMenusPage() {
   const { toast } = useToast();
-  const [menu, setMenu] = useState<Partial<FullMenu>>(
-    existingMenu || { name: '', description: '', items: [] }
-  );
-  const [isSaving, setIsSaving] = useState(false);
-  const [catalogoInsumos, setCatalogoInsumos] = useState<ServicioEmpresa[]>([]);
-  const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
-  const [currentItemIdForCatalog, setCurrentItemIdForCatalog] = useState<string | null>(null);
-  const [catalogSearchTerm, setCatalogSearchTerm] = useState('');
+  const [menus, setMenus] = useState<FullMenu[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [processingId, setProcessingId] = useState<string | null>(null);
 
-  const calculateIngredientCost = useCallback((ing: Partial<Ingredient>): number => {
-      const quantity = parseFloat(ing.quantityPerPerson || '0');
-      const unitCost = Number(ing.costoUnitario) || 0;
-      const unit = ing.unit?.toLowerCase();
-      if (unit === 'g' || unit === 'ml' || unit === 'gramos') {
-          return (quantity / 1000) * unitCost;
-      }
-      return quantity * unitCost;
-  }, []);
-  
-  const calculateTotalDishCost = useCallback((ingredients: Ingredient[]): number => {
-    return ingredients.reduce((sum, ing) => sum + (calculateIngredientCost(ing) || 0), 0);
-  }, [calculateIngredientCost]);
-
-  const calculatePrices = useCallback((item: MenuItem): MenuItem => {
-    const totalDishCost = calculateTotalDishCost(item.ingredients || []);
-    const profitMargin = item.profitMargin === undefined || isNaN(item.profitMargin) ? 100 : item.profitMargin;
-    const suggestedSellingPrice = totalDishCost * (1 + profitMargin / 100);
-    return { ...item, totalDishCost, suggestedSellingPrice, profitMargin };
-  }, [calculateTotalDishCost]);
-
-  const fetchInsumos = useCallback(async () => {
-      try {
-        const insumos = await getInsumos();
-        setCatalogoInsumos(insumos);
-      } catch (e) {
-        toast({ title: "Error", description: "No se pudo cargar el catálogo de insumos."});
-      }
-    }, [toast]);
+  const fetchMenus = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await getMenus();
+      setMenus(data);
+    } catch (e) {
+      toast({ title: 'Error', description: 'No se pudieron cargar los menús.', variant: 'destructive' });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [toast]);
 
   useEffect(() => {
-    if (existingMenu) {
-      const menuWithCalculatedPrices = {
-        ...existingMenu,
-        items: (existingMenu.items || []).map(item => {
-             const ingredientsWithCost = item.ingredients.map(ing => ({
-                ...ing,
-                costoTotalReceta: calculateIngredientCost(ing)
-            }));
-            return calculatePrices({...item, ingredients: ingredientsWithCost});
-        })
-      };
-      setMenu(menuWithCalculatedPrices);
-    }
-    fetchInsumos();
-  }, [existingMenu, calculatePrices, calculateIngredientCost, fetchInsumos]);
-  
-  const sortedItems = useMemo(() => {
-    return [...(menu.items || [])].sort((a, b) => (a.totalDishCost || 0) - (b.totalDishCost || 0));
-  }, [menu.items]);
+    fetchMenus();
+  }, [fetchMenus]);
 
-  const handleMenuChange = (field: keyof FullMenu, value: string | File | null) => {
-      if (field === 'imageUrl' && value instanceof File) {
-          const reader = new FileReader();
-          reader.onloadend = () => {
-              setMenu(prev => ({ ...prev, imageUrl: reader.result as string }));
-          };
-          reader.readAsDataURL(value);
-      } else {
-          setMenu(prev => ({ ...prev, [field]: value }));
-      }
-  };
-
-
-  const handleItemChange = (itemId: string, field: keyof MenuItem, value: any) => {
-    setMenu(prev => ({
-      ...prev,
-      items: (prev.items || []).map(item => {
-        if (item.id === itemId) {
-          const updatedItem = { ...item, [field]: value };
-           if (field === 'profitMargin') {
-            const margin = Number(value) || 0;
-            const newPrice = (item.totalDishCost || 0) * (1 + margin / 100);
-            return { ...updatedItem, suggestedSellingPrice: newPrice };
-          }
-          if (field === 'suggestedSellingPrice') {
-            const price = Number(value) || 0;
-            const cost = item.totalDishCost || 0;
-            const newMargin = cost > 0 ? ((price / cost) - 1) * 100 : item.profitMargin;
-            return { ...updatedItem, profitMargin: newMargin };
-          }
-          if (field === 'imageUrl' && value instanceof File) {
-              const reader = new FileReader();
-              reader.onloadend = () => {
-                   handleItemChange(itemId, 'imageUrl', reader.result as string);
-              };
-              reader.readAsDataURL(value);
-              return item; // Return original item for now, update will be triggered by onloadend
-          }
-          return calculatePrices(updatedItem);
-        }
-        return item;
-      }),
-    }));
-  };
-  
-  const handleIngredientChange = (itemId: string, ingId: string, field: keyof Ingredient, value: any) => {
-    setMenu(prev => {
-      if (!prev) return null;
-      const newItems = (prev.items || []).map(item => {
-        if (item.id === itemId) {
-            const newIngredients = item.ingredients.map(ing => {
-                if (ing.id === ingId) {
-                    const updatedIng = { ...ing, [field]: value };
-                    updatedIng.costoTotalReceta = calculateIngredientCost(updatedIng);
-                    return updatedIng;
-                }
-                return ing;
-            });
-            return calculatePrices({ ...item, ingredients: newIngredients });
-        }
-        return item;
-      });
-      return { ...prev, items: newItems };
-    });
-  };
-  
- const handleIngredientBlur = async (itemId: string, ing: Ingredient, field: 'costoUnitario') => {
-    if (!ing.origenId) return;
-
-    const catalogItem = catalogoInsumos.find(i => i.id === ing.origenId);
-    if (!catalogItem || catalogItem.valorUnitarioEstimado === ing.costoUnitario) return;
-    
+  const handleDelete = async (id: string, name: string) => {
+    setProcessingId(id);
     try {
-        const updatedInsumo = { ...catalogItem, valorUnitarioEstimado: Number(ing.costoUnitario) || 0 };
-        await saveInsumo(updatedInsumo);
-        toast({ title: 'Catálogo Actualizado', description: `Se actualizó el costo de "${ing.name}" en el catálogo.`});
-        await fetchInsumos();
-    } catch (e: any) {
-        toast({ title: "Error de Sincronización", description: e.message, variant: "destructive"});
-        setMenu(prev => {
-            if (!prev) return null;
-            const revertedItems = (prev.items || []).map(item => {
-                if (item.id === itemId) {
-                    const revertedIngredients = (item.ingredients || []).map(i =>
-                        i.id === ing.id ? { ...i, [field]: catalogItem.valorUnitarioEstimado } : i
-                    );
-                    return calculatePrices({ ...item, ingredients: revertedIngredients });
-                }
-                return item;
-            });
-            return { ...prev, items: revertedItems };
-        });
-    }
-  };
-
-
-  const addItem = () => {
-    const newItem: MenuItem = {
-      id: `new_item_${'' + Date.now()}`, name: '', type: 'Entrada', ingredients: [], totalDishCost: 0,
-      profitMargin: 100, suggestedSellingPrice: 0,
-    };
-    setMenu(prev => ({ ...prev, items: [...(prev.items || []), newItem] }));
-  };
-  
-  const duplicateItem = (itemId: string) => {
-    setMenu(prev => {
-      if (!prev || !prev.items) return prev;
-      const itemToDuplicate = prev.items.find(item => item.id === itemId);
-      if (!itemToDuplicate) return prev;
-      
-      const newIndex = prev.items.findIndex(item => item.id === itemId) + 1;
-
-      const duplicatedItem: MenuItem = {
-        ...JSON.parse(JSON.stringify(itemToDuplicate)),
-        id: `dupe_item_${'' + Date.now()}`,
-        name: `[COPIA] ${itemToDuplicate.name}`,
-      };
-      
-      const newItems = [...prev.items];
-      newItems.splice(newIndex, 0, duplicatedItem);
-      
-      return { ...prev, items: newItems };
-    });
-  };
-
-
-  const addIngredient = (itemId: string) => {
-    const newIngredient: Ingredient = {
-        id: `new_ing_${'' + Date.now()}`, name: '', quantityPerPerson: '0', unit: 'g', costoUnitario: 0, costoTotalReceta: 0
-    };
-     setMenu(prev => ({
-      ...prev,
-      items: (prev.items || []).map(item =>
-        item.id === itemId ? calculatePrices({ ...item, ingredients: [...(item.ingredients || []), newIngredient] }) : item
-      ),
-    }));
-  }
-
-  const addIngredientFromCatalog = (itemId: string, insumo: ServicioEmpresa) => {
-      const newIngredient: Ingredient = {
-        id: `new_ing_cat_${insumo.id}_${Date.now()}`,
-        origenId: insumo.id,
-        name: insumo.nombre,
-        quantityPerPerson: '0',
-        unit: insumo.unidad || 'g',
-        costoUnitario: insumo.valorUnitarioEstimado || 0,
-        costoTotalReceta: 0
-      };
-      setMenu(prev => ({
-      ...prev,
-      items: (prev.items || []).map(item =>
-        item.id === itemId ? calculatePrices({ ...item, ingredients: [...(item.ingredients || []), newIngredient] }) : item
-      ),
-    }));
-    toast({ description: `"${insumo.nombre}" añadido al plato.` });
-  };
-  
-  const openCatalogModal = (itemId: string) => {
-    setCurrentItemIdForCatalog(itemId);
-    setIsCatalogModalOpen(true);
-  };
-
-  const deleteItem = (itemId: string) => {
-    setMenu(prev => ({ ...prev, items: (prev.items || []).filter(item => item.id !== itemId) }));
-  };
-  
-  const deleteIngredient = (itemId: string, ingId: string) => {
-    setMenu(prev => ({
-        ...prev,
-        items: (prev.items || []).map(item =>
-         item.id === itemId ? calculatePrices({ ...item, ingredients: (item.ingredients || []).filter(ing => ing.id !== ingId) }) : item
-        ),
-    }))
-  }
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!menu.name?.trim()) {
-      toast({ title: 'Error', description: 'El nombre del menú es obligatorio.', variant: 'destructive' });
-      return;
-    }
-    setIsSaving(true);
-    
-    const menuToSave = { ...menu };
-    if (menuToSave.items) {
-      menuToSave.items = menuToSave.items.map(calculatePrices);
-    }
-    
-    try {
-      const result = await saveMenu(menuToSave as FullMenu);
+      const result = await deleteMenu(id);
       if (result.success) {
-        toast({ title: '¡Menú Guardado!', description: `El menú "${menu.name}" ha sido guardado.` });
-        router.push('/empresa/menus');
+        toast({ title: 'Menú Eliminado', description: `Se eliminó "${name}".` });
+        fetchMenus();
       } else {
-        throw new Error(result.error || 'Error desconocido');
+        throw new Error(result.error);
       }
-    } catch (error: any) {
-      toast({ title: 'Error al Guardar', description: error.message, variant: 'destructive' });
+    } catch (err: any) {
+      toast({ title: 'Error al Eliminar', description: err.message, variant: 'destructive' });
     } finally {
-      setIsSaving(false);
+      setProcessingId(null);
+    }
+  };
+
+  const handleDuplicate = async (id: string, name: string) => {
+    setProcessingId(id);
+    try {
+      const result = await duplicateMenu(id);
+      if (result.success) {
+        toast({ title: 'Menú Duplicado', description: `Se creó una copia de "${name}".` });
+        fetchMenus();
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (err: any) {
+      toast({ title: 'Error al Duplicar', description: err.message, variant: 'destructive' });
+    } finally {
+      setProcessingId(null);
     }
   };
   
-  const filteredInsumos = useMemo(() => {
-    if (!catalogSearchTerm) return catalogoInsumos;
-    return catalogoInsumos.filter(i => i.nombre.toLowerCase().includes(catalogSearchTerm.toLowerCase()));
-  }, [catalogSearchTerm, catalogoInsumos]);
+  const calculateTotalCostPerPerson = (items: MenuItem[]) => {
+    return items.reduce((total, item) => total + (item.totalDishCost || 0), 0);
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-       <Dialog open={isCatalogModalOpen} onOpenChange={setIsCatalogModalOpen}>
-        <DialogContent className="sm:max-w-md">
-            <DialogHeader><DialogTitle>Seleccionar Ingrediente del Catálogo</DialogTitle></DialogHeader>
-            <div className="py-2 space-y-2">
-                <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"/><Input placeholder="Buscar insumo..." value={catalogSearchTerm} onChange={e => setCatalogSearchTerm(e.target.value)} className="pl-9"/></div>
-                <ScrollArea className="h-72 border rounded-md p-1"><ul className="space-y-1">{filteredInsumos.length > 0 ? (filteredInsumos.map(insumo => (<li key={insumo.id}><Button type="button" variant="ghost" className="w-full justify-start text-left h-auto" onClick={() => { if (currentItemIdForCatalog) { addIngredientFromCatalog(currentItemIdForCatalog, insumo); } setIsCatalogModalOpen(false); }}><div><p className="font-medium text-sm">{insumo.nombre}</p><p className="text-xs text-muted-foreground">{formatCurrency(insumo.valorUnitarioEstimado)} / {insumo.unidad}</p></div></Button></li>))) : <li className="p-4 text-sm text-center text-muted-foreground">No se encontraron insumos. <Link href="/empresa/insumos/nuevo?from=gastronomia" className="text-primary underline">Añadir al catálogo</Link>.</li>}</ul></ScrollArea>
-            </div>
-             <DialogFooter><DialogClose asChild><Button variant="outline">Cerrar</Button></DialogClose></DialogFooter>
-        </DialogContent>
-       </Dialog>
-      <Card>
-        <CardHeader>
-          <CardTitle>Información del Menú</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2"><Label htmlFor="menu-name">Nombre del Menú</Label><Input id="menu-name" value={menu.name || ''} onChange={(e) => handleMenuChange('name', e.target.value)} required /></div>
-          <div className="space-y-2"><Label htmlFor="menu-description">Descripción</Label><Textarea id="menu-description" value={menu.description || ''} onChange={(e) => handleMenuChange('description', e.target.value)} /></div>
-           <div className="space-y-2">
-            <Label htmlFor="menu-image-upload">Imagen del Menú (General)</Label>
-            <div className="flex items-center gap-4">
-              <div className="w-24 h-24 border rounded-md flex items-center justify-center bg-muted overflow-hidden">
-                {menu.imageUrl ? <NextImage src={menu.imageUrl} alt="Preview" width={96} height={96} className="object-cover"/> : <ImageIconLucide className="w-8 h-8 text-muted-foreground"/>}
-              </div>
-              <Input id="menu-image-upload" type="file" accept="image/*" onChange={(e) => handleMenuChange('imageUrl', e.target.files?.[0] || null)} className="text-sm file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"/>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Platos del Menú</CardTitle>
-          <CardDescription>Añade o edita los platos que componen este menú.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {sortedItems.map((item) => (
-            <Card key={item.id} className={cn("p-4")}>
-                <CardHeader className="p-0 pb-4">
-                     <div className="flex justify-between items-start">
-                        <div className="flex gap-4 items-start flex-grow">
-                          <div className="w-24 h-24 border rounded-md flex-shrink-0 flex items-center justify-center bg-muted overflow-hidden relative group">
-                            {item.imageUrl ? <NextImage src={item.imageUrl} alt={item.name} layout='fill' objectFit='cover' /> : <ImageIconLucide className="w-8 h-8 text-muted-foreground"/>}
-                             <Label htmlFor={`item-image-${item.id}`} className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition-opacity">
-                                <UploadCloud className="w-6 h-6 text-white"/>
-                             </Label>
-                             <Input id={`item-image-${item.id}`} type="file" accept="image/*" className="hidden" onChange={(e) => handleItemChange(item.id, 'imageUrl', e.target.files?.[0] || null)} />
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-                            <div className="space-y-2"><Label htmlFor={`item-name-${item.id}`}>Nombre Plato</Label><Input id={`item-name-${item.id}`} value={item.name} onChange={(e) => handleItemChange(item.id, 'name', e.target.value)} /></div>
-                            <div className="space-y-2"><Label htmlFor={`item-type-${item.id}`}>Tipo</Label><Select value={item.type || ''} onValueChange={(value) => handleItemChange(item.id, 'type', value)}><SelectTrigger id={`item-type-${item.id}`}><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Entrada">Entrada</SelectItem><SelectItem value="Plato Principal">Plato Principal</SelectItem><SelectItem value="Postre">Postre</SelectItem><SelectItem value="Bebida">Bebida</SelectItem><SelectItem value="Menú Infantil/Adolescente">Menú Infantil/Adolescente</SelectItem></SelectContent></Select></div>
-                          </div>
-                        </div>
-                        <div className="flex flex-col gap-1">
-                          <Button type="button" variant="ghost" size="icon" className="h-8 w-8" onClick={() => duplicateItem(item.id)} title="Duplicar Plato"><Copy className="w-4 h-4"/></Button>
-                          <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive ml-2 flex-shrink-0" onClick={() => deleteItem(item.id)}><Trash2 className="w-4 h-4"/></Button>
-                        </div>
-                     </div>
-                </CardHeader>
-                 <CardContent className="p-0">
-                    <Accordion type="single" collapsible>
-                      <AccordionItem value="ingredients">
-                        <AccordionTrigger className="text-sm font-medium">Ingredientes</AccordionTrigger>
-                        <AccordionContent>
-                           <div className="mt-2 space-y-3 p-3 bg-muted/30 rounded-lg">
-                              {item.ingredients?.map(ing => (
-                                <div key={ing.id} className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-12 gap-2 items-end p-2 border-b last:border-b-0">
-                                    <div className="space-y-1 col-span-2 lg:col-span-3 relative">
-                                        <Label className="text-xs">Nombre</Label>
-                                        {ing.origenId && <LinkIcon className="w-3 h-3 absolute top-0.5 right-0.5 text-muted-foreground" title="Vinculado al catálogo de insumos"/>}
-                                        <Input value={ing.name || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'name', e.target.value)} className="h-8 text-sm" disabled={!!ing.origenId}/>
-                                    </div>
-                                    <div className="space-y-1 col-span-1 lg:col-span-2"><Label className="text-xs">Cant. p/p</Label><Input value={ing.quantityPerPerson || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'quantityPerPerson', e.target.value)} className="h-8 text-sm" /></div>
-                                    <div className="space-y-1 col-span-1 lg:col-span-1"><Label className="text-xs">Unidad</Label><Input value={ing.unit || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'unit', e.target.value)} className="h-8 text-sm" disabled={!!ing.origenId}/></div>
-                                    <div className="space-y-1 col-span-1 lg:col-span-2 relative"><Label className="text-xs">Costo p/ Kg, Lt, Un</Label><Input type="number" value={ing.costoUnitario || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'costoUnitario', Number(e.target.value))} onBlur={() => handleIngredientBlur(item.id, ing, 'costoUnitario')} className="h-8 pl-6 text-sm"/><span className="absolute left-2 top-1/2 mt-1 text-muted-foreground">$</span></div>
-                                    <div className="space-y-1 col-span-1 lg:col-span-2"><Label className="text-xs">Costo Total Ingrediente</Label><p className="h-8 flex items-center font-medium text-sm">{formatCurrency(ing.costoTotalReceta)}</p></div>
-                                    <div className="flex items-center justify-end col-span-2 lg:col-span-2">
-                                      <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteIngredient(item.id, ing.id)}><Trash2 className="w-3.5 h-3.5"/></Button>
-                                    </div>
-                                </div>
-                              ))}
-                              <div className="flex gap-2 mt-3">
-                                  <Button type="button" size="sm" variant="outline" onClick={() => addIngredient(item.id)}><PlusCircle className="w-4 h-4 mr-1.5"/>Añadir Manual</Button>
-                                  <Button type="button" size="sm" variant="outline" onClick={() => openCatalogModal(item.id)}><BookOpen className="w-4 h-4 mr-1.5"/>Desde Catálogo</Button>
-                              </div>
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    </Accordion>
-                 </CardContent>
-                 <CardFooter className="p-0 pt-4 mt-4 border-t">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
-                        <div className="p-3 rounded-md bg-blue-50 dark:bg-blue-900/40">
-                            <Label className="text-sm font-medium text-blue-800 dark:text-blue-200">Costo p/Persona</Label>
-                            <p className="font-bold text-lg text-blue-700 dark:text-blue-300">{formatCurrency(item.totalDishCost || 0)}</p>
-                        </div>
-                        <div className="p-3 rounded-md bg-green-50 dark:bg-green-900/40 space-y-1">
-                            <Label htmlFor={`profit-${item.id}`} className="text-sm font-medium text-green-800 dark:text-green-200 flex items-center gap-1"><Percent className="w-4 h-4"/>Margen (%)</Label>
-                            <Input id={`profit-${item.id}`} type="number" value={item.profitMargin?.toFixed(0) ?? ''} onChange={e => handleItemChange(item.id, 'profitMargin', Number(e.target.value) || 0)} className="bg-white dark:bg-background"/>
-                        </div>
-                        <div className="p-3 rounded-md bg-green-50 dark:bg-green-900/40 space-y-1">
-                             <Label htmlFor={`price-${item.id}`} className="text-sm font-medium text-green-800 dark:text-green-200 flex items-center gap-1"><DollarSign className="w-4 h-4"/>Precio Venta ($)</Label>
-                             <Input id={`price-${item.id}`} type="number" value={item.suggestedSellingPrice?.toFixed(0) ?? ''} onChange={e => handleItemChange(item.id, 'suggestedSellingPrice', Number(e.target.value) || 0)} className="bg-white dark:bg-background"/>
-                        </div>
-                    </div>
-                 </CardFooter>
-            </Card>
-          ))}
-          <Button type="button" variant="secondary" onClick={addItem}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Plato</Button>
-        </CardContent>
-      </Card>
-      
-      <div className="flex justify-end">
-        <Button type="submit" disabled={isSaving} size="lg">
-          {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Save className="w-5 h-5 mr-2" />}
-          {isSaving ? 'Guardando...' : (existingMenu ? 'Guardar Cambios en Menú' : 'Crear Menú')}
-        </Button>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <ChefHat className="w-8 h-8 text-primary" />
+          <h1 className="text-3xl font-bold tracking-tight font-headline">Planificador Gastronómico Maestro</h1>
+        </div>
+         <div className="flex gap-2">
+            <Link href="/empresa/menus/nuevo" passHref><Button><PlusCircle className="w-4 h-4 mr-2"/>Crear Menú</Button></Link>
+            <Link href="/empresa" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver a Empresa</Button></Link>
+        </div>
       </div>
-    </form>
+       <Card>
+        <CardHeader>
+          <CardTitle>Menús Guardados</CardTitle>
+          <CardDescription>Crea, edita y gestiona tus plantillas de menús para reutilizar en presupuestos y eventos.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {isLoading ? (
+            <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>
+          ) : menus.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {menus.map(menu => (
+              <Card key={menu.id} className="flex flex-col shadow-sm hover:shadow-md transition-shadow">
+                <CardHeader>
+                  <CardTitle className="font-headline text-lg">{menu.name}</CardTitle>
+                  <CardDescription className="text-xs line-clamp-2 h-8">{menu.description || 'Sin descripción.'}</CardDescription>
+                </CardHeader>
+                <CardContent className="flex-grow space-y-2">
+                   <div className="flex items-center gap-2 text-sm font-semibold">
+                      <DollarSign className="w-4 h-4 text-green-600"/>
+                      Costo p/p: {formatCurrency(calculateTotalCostPerPerson(menu.items))}
+                   </div>
+                   <div className="text-xs text-muted-foreground">{menu.items.length} plato(s)</div>
+                </CardContent>
+                <CardFooter className="flex justify-end gap-1 border-t pt-2 p-2">
+                   <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDuplicate(menu.id, menu.name)} disabled={!!processingId} title="Duplicar">
+                      {processingId === menu.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Copy className="w-4 h-4" />}
+                   </Button>
+                   <Link href={`/empresa/menus/${menu.id}/editar`} passHref>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" title="Editar"><Edit className="w-4 h-4"/></Button>
+                   </Link>
+                   <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" disabled={!!processingId} title="Eliminar">
+                          {processingId === menu.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4" />}
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader><AlertDialogTitle>¿Eliminar Menú?</AlertDialogTitle><AlertDialogDescription>Se eliminará la plantilla "{menu.name}".</AlertDialogDescription></AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => handleDelete(menu.id, menu.name)} className="bg-destructive hover:bg-destructive/80">Eliminar</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                   </AlertDialog>
+                </CardFooter>
+              </Card>
+            ))}
+            </div>
+          ) : (
+            <div className="text-center py-10 text-muted-foreground">
+                <Info className="w-10 h-10 mx-auto mb-2 opacity-50"/>
+                <p>No has creado ninguna plantilla de menú todavía.</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }
-
-export default MenuForm;
-    
-    
