@@ -38,24 +38,29 @@ export default function GestionMenusPage() {
   const [editableItems, setEditableItems] = useState<(MenuItem & { menuId: string })[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
 
+  const calculateIngredientCost = useCallback((ing: Partial<Ingredient>): number => {
+      const quantity = parseFloat(ing.quantityPerPerson || '0');
+      const unitCost = Number(ing.costoUnitario) || 0;
+      const unit = ing.unit?.toLowerCase();
+
+      if (isNaN(quantity) || isNaN(unitCost)) return 0;
+
+      if (unit === 'g' || unit === 'ml' || unit === 'gramos') {
+          return (quantity / 1000) * unitCost;
+      }
+      return quantity * unitCost;
+  }, []);
+  
+  const calculateTotalDishCost = useCallback((ingredients: Ingredient[]): number => {
+    return ingredients.reduce((sum, ing) => sum + (calculateIngredientCost(ing) || 0), 0);
+  }, [calculateIngredientCost]);
+
   const calculatePrices = useCallback((item: MenuItem): MenuItem => {
-    const totalDishCost = (item.ingredients || []).reduce((sum, ing) => {
-        const quantity = parseFloat(ing.quantityPerPerson || '0');
-        const unitCost = Number(ing.costoUnitario) || 0;
-        const unit = ing.unit?.toLowerCase();
-
-        if (isNaN(quantity) || isNaN(unitCost)) return sum;
-
-        if (unit === 'g' || unit === 'ml' || unit === 'gramos') {
-            return sum + (quantity / 1000) * unitCost;
-        }
-        return sum + quantity * unitCost;
-    }, 0);
-
+    const totalDishCost = calculateTotalDishCost(item.ingredients || []);
     const profitMargin = item.profitMargin === undefined || isNaN(item.profitMargin) ? 100 : item.profitMargin;
     const suggestedSellingPrice = totalDishCost * (1 + profitMargin / 100);
     return { ...item, totalDishCost, suggestedSellingPrice, profitMargin };
-  }, []);
+  }, [calculateTotalDishCost]);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -86,7 +91,7 @@ export default function GestionMenusPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [toast, calculatePrices]);
+  }, [toast]);
 
   useEffect(() => {
     loadData();
