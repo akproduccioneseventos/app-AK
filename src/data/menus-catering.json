@@ -1,3 +1,4 @@
+
 [
   {
     "id": "menu_entradas_predisenado",
@@ -2571,5 +2572,32 @@
         ]
       }
     ]
+  },
+  {
+    "id": "menu_barra_tragos",
+    "name": "Barra de Tragos",
+    "description": "Una selección de cócteles y bebidas para la barra.",
+    "templateType": "Servicio de bebidas",
+    "createdAt": "2025-10-29T19:30:00.000Z",
+    "updatedAt": "2025-10-29T19:30:00.000Z",
+    "items": []
+  },
+  {
+    "id": "menu_mesa_dulce",
+    "name": "Mesa Dulce",
+    "description": "Variedad de postres, tortas y dulces para el final de la fiesta.",
+    "templateType": "Servicio de repostería",
+    "createdAt": "2025-10-29T19:30:00.000Z",
+    "updatedAt": "2025-10-29T19:30:00.000Z",
+    "items": []
+  },
+  {
+    "id": "menu_fuente_chocolate",
+    "name": "Fuente de Chocolate",
+    "description": "Cascada de chocolate con deliciosos acompañamientos.",
+    "templateType": "Servicio de repostería",
+    "createdAt": "2025-10-29T19:30:00.000Z",
+    "updatedAt": "2025-10-29T19:30:00.000Z",
+    "items": []
   }
 ]
