@@ -1,9 +1,10 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { ArrowLeft, ChefHat, PlusCircle, Copy, Edit, Trash2, Loader2, DollarSign, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getMenus, deleteMenu, duplicateMenu } from '@/app/actions/menus-catering';
@@ -76,7 +77,7 @@ export default function GestionMenusPage() {
         throw new Error(result.error);
       }
     } catch (err: any) {
-      toast({ title: 'Error al Duplicar', description: err.message, variant: 'destructive' });
+      toast({ title: 'Error al Duplicar', description: err.message, variant: "destructive" });
     } finally {
       setProcessingId(null);
     }
