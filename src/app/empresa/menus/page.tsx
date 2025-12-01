@@ -190,7 +190,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
 
   const addItem = () => {
     const newItem: MenuItem = {
-      id: `new_item_${Date.now()}`, name: '', type: 'Entrada', ingredients: [], totalDishCost: 0,
+      id: `new_item_${'' + Date.now()}`, name: '', type: 'Entrada', ingredients: [], totalDishCost: 0,
       profitMargin: 100, suggestedSellingPrice: 0,
     };
     setMenu(prev => ({ ...prev, items: [...(prev.items || []), newItem] }));
@@ -206,7 +206,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
 
       const duplicatedItem: MenuItem = {
         ...JSON.parse(JSON.stringify(itemToDuplicate)),
-        id: `dupe_item_${Date.now()}`,
+        id: `dupe_item_${'' + Date.now()}`,
         name: `[COPIA] ${itemToDuplicate.name}`,
       };
       
@@ -220,7 +220,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
 
   const addIngredient = (itemId: string) => {
     const newIngredient: Ingredient = {
-        id: `new_ing_${Date.now()}`, name: '', quantityPerPerson: '0', unit: 'g', costoUnitario: 0, costoTotalReceta: 0
+        id: `new_ing_${'' + Date.now()}`, name: '', quantityPerPerson: '0', unit: 'g', costoUnitario: 0, costoTotalReceta: 0
     };
      setMenu(prev => ({
       ...prev,
@@ -423,7 +423,6 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
   );
 }
 
+export default MenuForm;
     
-
-
     
