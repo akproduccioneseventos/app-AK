@@ -7,6 +7,7 @@ import { readData, writeData } from '@/lib/data-service';
 import { savePresupuesto } from './presupuestos';
 import type { ItemPresupuestado, Presupuesto } from '@/types/presupuesto';
 import { createNotification } from './notifications';
+import { getCrmStages, moveCrmLead } from './crm';
 
 const CONFIG_FILE = 'armado-rapido-config.json';
 const defaultConfig: ArmadoRapidoConfig = {
@@ -80,6 +81,11 @@ export async function generateBudgetAndLeadFromSimulator(
       // The notification logic is correctly handled inside `addCrmLead`, 
       // which is called by `savePresupuesto`. No need to create another one here.
       // The key was awaiting the result to ensure the lead was created before finishing.
+      const stages = await getCrmStages();
+      const targetStage = stages.find(s => s.name.toLowerCase().includes('presupuesto'));
+      if(targetStage) {
+        await moveCrmLead(budgetResult.leadId, targetStage.id);
+      }
       return { success: true, presupuestoId: budgetResult.id, leadId: budgetResult.leadId };
     } else {
       return { success: false, error: budgetResult.error || "No se pudo procesar la solicitud." };
@@ -94,5 +100,3 @@ const formatCurrency = (amount?: number) => {
   if (amount === undefined) return 'N/A';
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
-
-    
