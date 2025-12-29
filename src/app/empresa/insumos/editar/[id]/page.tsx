@@ -51,7 +51,8 @@ export default function EditarInsumoPage({ params: paramsProp }: { params: { id:
       if (loadedItem) {
         setItem(loadedItem);
         setFormData({
-          ...loadedItem,
+            ...loadedItem,
+            valorUnitarioEstimado: loadedItem.valorUnitarioEstimado || 0,
         });
       } else {
         setNotFound(true);

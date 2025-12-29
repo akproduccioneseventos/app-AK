@@ -53,6 +53,7 @@ export default function EditarActivoFijoPage({ params: paramsProp }: { params: {
         setFormData({
           ...loadedItem,
           calculationMethod: loadedItem.calculationMethod || 'fijo',
+          valorUnitarioEstimado: loadedItem.valorUnitarioEstimado || 0,
         });
       } else {
         setNotFound(true);

@@ -48,7 +48,10 @@ export default function EditarServicioPage({ params: paramsProp }: { params: { i
       const loadedItem = await getServicioEmpresaById(itemId);
       if (loadedItem) {
         setItem(loadedItem);
-        setFormData(loadedItem);
+        setFormData({
+          ...loadedItem,
+          valorUnitarioEstimado: loadedItem.valorUnitarioEstimado || 0
+        });
       } else {
         setNotFound(true);
       }
@@ -141,7 +144,7 @@ export default function EditarServicioPage({ params: paramsProp }: { params: { i
              <div className="space-y-2"><Label htmlFor="item-nombre">Nombre del Servicio *</Label><Input id="item-nombre" value={formData.nombre || ''} onChange={(e) => handleFormChange('nombre', e.target.value)} required /></div>
              <div className="space-y-2"><Label htmlFor="item-categoria">Categoría *</Label><Select value={formData.categoria || ''} onValueChange={(value) => handleFormChange('categoria', value as CategoriaServicio)} required><SelectTrigger id="item-categoria"><SelectValue /></SelectTrigger><SelectContent>{ALL_CATEGORIAS_SERVICIO.map(cat => (<SelectItem key={cat} value={cat}>{cat}</SelectItem>))}</SelectContent></Select></div>
              <div className="space-y-2"><Label htmlFor="item-subcategoria">Subcategoría</Label><Input id="item-subcategoria" value={formData.subcategoria || ''} onChange={(e) => handleFormChange('subcategoria', e.target.value)} /></div>
-             <div className="space-y-2"><Label htmlFor="item-costo">Costo Interno (UYU)</Label><Input id="item-costo" type="number" value={formData.valorUnitarioEstimado ?? ''} onChange={(e) => handleFormChange('valorUnitarioEstimado', e.target.valueAsNumber)} /></div>
+             <div className="space-y-2"><Label htmlFor="item-costo">Costo Interno (UYU)</Label><Input id="item-costo" type="number" value={formData.valorUnitarioEstimado ?? ''} onChange={(e) => handleFormChange('valorUnitarioEstimado', e.target.valueAsNumber || 0)} /></div>
             
              <Separator/>
              
