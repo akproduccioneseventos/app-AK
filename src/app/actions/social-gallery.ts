@@ -85,14 +85,14 @@ export async function addLikeToPost(postId: string): Promise<{ success: boolean;
     return { success: true, post: allPosts[postIndex] };
 }
 
-export async function addCommentToPost(postId: string, text: string): Promise<{ success: boolean; comment?: SocialComment, error?: string }> {
+export async function addCommentToPost(postId: string, text: string, authorName: string = 'Anónimo'): Promise<{ success: boolean; comment?: SocialComment, error?: string }> {
     const allPosts = await getMetadata();
     const postIndex = allPosts.findIndex(p => p.id === postId);
     if (postIndex === -1) return { success: false, error: "Publicación no encontrada." };
 
     const newComment: SocialComment = {
         id: `comment_${Date.now()}`,
-        authorName: 'Anónimo',
+        authorName: authorName,
         text: text,
         timestamp: new Date().toISOString(),
     };

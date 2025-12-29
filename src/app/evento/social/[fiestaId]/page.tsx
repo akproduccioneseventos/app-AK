@@ -53,7 +53,8 @@ const PostCard: React.FC<{
   onComment: (postId: string, text: string) => Promise<void>; 
   onDelete?: (postId: string) => void;
   isAdminView: boolean;
-}> = ({ post, onLike, onComment, onDelete, isAdminView }) => {
+  authorName: string;
+}> = ({ post, onLike, onComment, onDelete, isAdminView, authorName }) => {
   const [commentText, setCommentText] = useState('');
   
   const handleCommentSubmit = async (e: FormEvent) => {
@@ -413,7 +414,7 @@ export default function SocialGalleryPage({ params: paramsProp }: { params: { fi
       </header>
 
       <main className="max-w-5xl mx-auto p-4 space-y-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{posts.length === 0 && isLoading ? Array.from({length:3}).map((_, i) => <Card key={i}><CardHeader><div className="flex items-center gap-2"><Loader2 className="w-5 h-5 animate-spin"/></div></CardHeader><CardContent className="aspect-square bg-muted rounded-md"></CardContent></Card>) : posts.map(post => <PostCard key={post.id} post={post} onLike={handleLike} onComment={handleComment} isAdminView={isAdminView} onDelete={handleDelete}/>)}</div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{posts.length === 0 && isLoading ? Array.from({length:3}).map((_, i) => <Card key={i}><CardHeader><div className="flex items-center gap-2"><Loader2 className="w-5 h-5 animate-spin"/></div></CardHeader><CardContent className="aspect-square bg-muted rounded-md"></CardContent></Card>) : posts.map(post => <PostCard key={post.id} post={post} onLike={handleLike} onComment={handleComment} isAdminView={isAdminView} onDelete={handleDelete} authorName={authorName} />)}</div>
         {posts.length === 0 && !isLoading && <div className="text-center py-20 text-muted-foreground bg-card p-8 rounded-lg shadow-inner"><h2 className="text-2xl font-semibold text-foreground mb-2">¡Sé el primero en compartir!</h2><p>La galería está vacía. Sube la primera foto para empezar a crear recuerdos.</p></div>}
         
         <Card>
