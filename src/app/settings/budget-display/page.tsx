@@ -120,34 +120,27 @@ export default function BudgetDisplaySettingsPage() {
   const [servicioSearchTerm, setServicioSearchTerm] = useState('');
   const [allMenus, setAllMenus] = useState<FullMenu[]>([]);
 
+  const enhanceWithPrice = useCallback((item: MenuItem): MenuItem & { precioVenta: number } => ({
+      ...item,
+      nombre: item.name,
+      precioVenta: item.suggestedSellingPrice ?? (item.totalDishCost ? item.totalDishCost * (1 + (item.profitMargin ?? 120) / 100) : 0),
+  }), []);
+
   const { entradas, platosPrincipales, menusInfantiles } = useMemo(() => {
     if (!allMenus || allMenus.length === 0) {
       return { entradas: [], platosPrincipales: [], menusInfantiles: [] };
     }
-    
-    const isPlatoVisible = (platoId: string) => {
-      if (!config || !config.platosVisibles) return true; // Default to visible if config is not loaded
-      const setting = config.platosVisibles.find(p => p.id === platoId);
-      return setting !== undefined ? setting.visible : true;
-    };
 
     const allDishes = allMenus.flatMap(m => m.items);
-    const visibleDishes = allDishes.filter(d => isPlatoVisible(d.id));
-    
-    const enhanceWithPrice = (item: MenuItem): MenuItem & { precioVenta: number } => ({
-      ...item,
-      nombre: item.name,
-      precioVenta: item.suggestedSellingPrice ?? (item.totalDishCost ? item.totalDishCost * (1 + (item.profitMargin ?? 120) / 100) : 0),
-    });
     
     const sortByPrice = (a: { precioVenta: number }, b: { precioVenta: number }) => a.precioVenta - b.precioVenta;
 
     return { 
-      entradas: visibleDishes.filter(s => s.type === 'Entrada').map(enhanceWithPrice).sort(sortByPrice), 
-      principales: visibleDishes.filter(s => s.type === 'Plato Principal').map(enhanceWithPrice).sort(sortByPrice), 
-      menusInfantiles: visibleDishes.filter(s => s.type === 'Menú Infantil/Adolescente').map(enhanceWithPrice).sort(sortByPrice)
+      entradas: allDishes.filter(s => s.type === 'Entrada').map(enhanceWithPrice).sort(sortByPrice), 
+      platosPrincipales: allDishes.filter(s => s.type === 'Plato Principal').map(enhanceWithPrice).sort(sortByPrice), 
+      menusInfantiles: allDishes.filter(s => s.type === 'Menú Infantil/Adolescente').map(enhanceWithPrice).sort(sortByPrice)
     };
-  }, [config, allMenus]);
+  }, [allMenus, enhanceWithPrice]);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -323,7 +316,7 @@ export default function BudgetDisplaySettingsPage() {
     return setting ? setting.visible : true; // Default to visible if not set
   };
 
-  const getVisibleDishes = (dishList: MenuItem[]): MenuItem[] => {
+  const getVisibleDishes = (dishList: (MenuItem & { precioVenta: number })[]): (MenuItem & { precioVenta: number })[] => {
     if (!config?.platosVisibles) return dishList;
     return dishList.filter(d => isPlatoVisible(d.id));
   };
@@ -359,8 +352,8 @@ export default function BudgetDisplaySettingsPage() {
   }
   
   const renderServiciosList = (servicios: ServicioIncluidoArmadoRapido[]) => {
+    const allDishes = [...entradas, ...platosPrincipales, ...menusInfantiles];
     const grouped = servicios.reduce((acc, s) => {
-      const allDishes = [...entradas, ...platosPrincipales, ...menusInfantiles];
       const fullItem = allDishes.find(item => item.id === s.id) || serviciosCatalogo.find(sc => sc.id === s.id);
       
       if (fullItem) {
@@ -371,7 +364,7 @@ export default function BudgetDisplaySettingsPage() {
         acc[categoria].push(fullItem);
       }
       return acc;
-    }, {} as Record<string, (ServicioEmpresa | MenuItem)[]>);
+    }, {} as Record<string, (ServicioEmpresa | (MenuItem & { precioVenta: number }))[]>);
 
     return Object.keys(grouped).sort().map(categoria => (
       <div key={categoria} className="mb-2">
@@ -507,9 +500,9 @@ export default function BudgetDisplaySettingsPage() {
                   <AccordionTrigger className="px-3 text-md font-medium hover:no-underline">Visibilidad de Platos</AccordionTrigger>
                   <AccordionContent className="p-3 border-t">
                        <Accordion type="multiple" defaultValue={['entradas', 'principales', 'infantiles']} className="w-full space-y-2">
-                        <AccordionItem value="entradas" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Entradas</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{entradas.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.name}</Label></div>))}</div></AccordionContent></AccordionItem>
-                        <AccordionItem value="principales" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Platos Principales</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{platosPrincipales.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.name}</Label></div>))}</div></AccordionContent></AccordionItem>
-                        <AccordionItem value="infantiles" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Menús Infantiles/Adolescentes</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{menusInfantiles.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.name}</Label></div>))}</div></AccordionContent></AccordionItem>
+                        <AccordionItem value="entradas" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Entradas</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{entradas.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.name} ({formatCurrency(plato.precioVenta)})</Label></div>))}</div></AccordionContent></AccordionItem>
+                        <AccordionItem value="principales" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Platos Principales</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{platosPrincipales.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.name} ({formatCurrency(plato.precioVenta)})</Label></div>))}</div></AccordionContent></AccordionItem>
+                        <AccordionItem value="infantiles" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Menús Infantiles/Adolescentes</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{menusInfantiles.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.name} ({formatCurrency(plato.precioVenta)})</Label></div>))}</div></AccordionContent></AccordionItem>
                       </Accordion>
                   </AccordionContent>
               </AccordionItem>
@@ -562,3 +555,5 @@ export default function BudgetDisplaySettingsPage() {
     </div>
   );
 }
+
+    
