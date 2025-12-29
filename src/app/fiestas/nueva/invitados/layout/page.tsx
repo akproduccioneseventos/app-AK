@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense, use } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -659,8 +659,8 @@ function SalonLayoutContent() {
                                             {assignedGuests.map(g => (
                                                 <div key={g.id} className="flex items-center justify-center gap-1 group relative">
                                                     <span className="truncate">{g.nombre} ({g.partySize})</span>
-                                                    <button onClick={() => handleAssignGuestToTable(g.id, null)} className="hidden group-hover:block text-destructive">
-                                                        <UserMinus className="w-3 h-3"/>
+                                                    <button onClick={() => handleUnassignGuest(g.id)} className="hidden group-hover:block text-destructive">
+                                                      <UserMinus className="w-3 h-3"/>
                                                     </button>
                                                 </div>
                                             ))}
@@ -738,4 +738,3 @@ export default function SalonLayoutPage() {
     );
 }
 
-    

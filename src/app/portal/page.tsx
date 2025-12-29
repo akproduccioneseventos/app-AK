@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Suspense, useEffect, useState, use } from 'react';
+import { Suspense, useEffect, useState, type FormEvent } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -52,8 +52,9 @@ function ClientPortalContent() {
                     setError("El portal para este evento no está habilitado o el evento no existe.");
                 } else {
                     setFiesta(fiestaData);
-                    // Check session storage for authentication
-                    if (sessionStorage.getItem(sessionKey) === 'true') {
+                    // Check session storage for the stored password hash (or plain password in this case)
+                    const storedAuthKey = sessionStorage.getItem(sessionKey);
+                    if (storedAuthKey === fiestaData.clientPortalSettings.accessKey) {
                         setIsAuthenticated(true);
                     }
                 }
@@ -69,7 +70,7 @@ function ClientPortalContent() {
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
         if (password === fiesta?.clientPortalSettings?.accessKey) {
-            sessionStorage.setItem(`${SESSION_KEY_PREFIX}${fiestaId}`, 'true');
+            sessionStorage.setItem(`${SESSION_KEY_PREFIX}${fiestaId}`, password);
             setIsAuthenticated(true);
             setError(null);
         } else {

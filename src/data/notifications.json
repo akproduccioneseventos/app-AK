@@ -1,5 +1,13 @@
 [
   {
+    "mensaje": "Nuevo prospecto y presupuesto de nico",
+    "href": "/contabilidad/crm?leadId=lead_1766972205848_1wsfdjs",
+    "icono": "KanbanSquare",
+    "id": "notif_1766972205849_ds0g73n",
+    "fecha": "2025-12-29T01:36:45.849Z",
+    "leida": false
+  },
+  {
     "mensaje": "Recordatorio: Tarea \"Confirmar lista de música con el DJ\" (XV Años de Sofía) vence en 2 día(s).",
     "href": "/fiestas/nueva/tareas?fiestaId=fiesta_1761518911463_a2c0rmc",
     "icono": "ListChecks",

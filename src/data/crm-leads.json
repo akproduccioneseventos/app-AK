@@ -1,5 +1,28 @@
 [
   {
+    "id": "lead_1766972205848_1wsfdjs",
+    "name": "nico",
+    "phone": "098355530",
+    "notes": "Presupuesto ID: pres_1766972205764_muzvkty\nCosto: $ 150.370,00",
+    "presupuestoId": "pres_1766972205764_muzvkty",
+    "currentStageId": "s3",
+    "createdAt": "2025-12-29T01:36:45.847Z",
+    "updatedAt": "2025-12-29T01:36:45.856Z",
+    "history": [
+      {
+        "stageId": "s1",
+        "stageName": "Consultó",
+        "timestamp": "2025-12-29T01:36:45.847Z"
+      },
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2025-12-29T01:36:45.856Z"
+      }
+    ],
+    "presupuestoEstado": "Enviado"
+  },
+  {
     "id": "lead_1761945635976_vzyu4j0",
     "name": "Ana García",
     "phone": "0999588945",
@@ -19,8 +42,7 @@
         "stageName": "Con presupuesto",
         "timestamp": "2025-10-31T21:20:36.007Z"
       }
-    ],
-    "presupuestoEstado": "Enviado"
+    ]
   },
   {
     "id": "lead_1761945384898_37o0vvf",
