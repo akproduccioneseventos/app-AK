@@ -1,13 +1,13 @@
 
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useState, use } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, AlertTriangle, KeyRound, LogIn, ArrowRight, NotebookTextIcon, ListChecks, Music, Camera, Gift, FileText, UserCheck, Users } from 'lucide-react';
+import { Loader2, AlertTriangle, KeyRound, LogIn, ArrowRight, NotebookTextIcon, ListChecks, Music, Camera, Gift, FileText, UserCheck, Users, Globe, MessageSquare } from 'lucide-react';
 import type { FiestaEnPlanificacion, ClientPortalSettings } from '@/types/fiesta';
 import { getFiestaById } from '@/app/actions/fiesta-actual';
 import Link from 'next/link';
@@ -22,7 +22,7 @@ const portalModules = [
     { id: 'listaRegalos', label: 'Configurar Regalos', href: '/fiestas/nueva/regalos', icon: Gift },
     { id: 'documentos', label: 'Mis Documentos', href: '/portal/[fiestaId]/documentos', icon: FileText },
     { id: 'notasCliente', label: 'Notas Compartidas', href: '/portal/[fiestaId]/notas', icon: NotebookTextIcon },
-    { id: 'paginaPublica', label: 'Acceso a Página Pública', href: '/evento/actual', icon: 'Globe' },
+    { id: 'paginaPublica', label: 'Acceso a Página Pública', href: '/evento/actual', icon: Globe },
     { id: 'fotografiaYFilmacion', label: 'Seguimiento de Fotografía/Video', href: '/portal/[fiestaId]/fotografia', icon: UserCheck },
 ];
 
