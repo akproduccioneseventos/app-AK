@@ -17,7 +17,8 @@ import {
     Users,
     CalendarClock,
     Archive,
-    CalendarDays
+    CalendarDays,
+    ArrowRight
 } from 'lucide-react';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { KpiCard } from '@/components/dashboard/kpi-card';
@@ -142,26 +143,35 @@ export default function MainDashboardPage() {
         <KpiCard title="Eventos Futuros" value={kpiData?.fiestasFuturas ?? '...'} icon={CalendarClock} isLoading={isLoading} description="Eventos en planificación activa."/>
       </div>
 
-      <Separator className="my-8"/>
-
-       <div className="grid gap-4 md:grid-cols-2">
-        <Link href="/presupuestos/nuevo/crear" passHref>
-          <Card className="h-full hover:shadow-lg hover:border-primary/50 transition-all cursor-pointer">
-            <CardHeader>
-              <CardTitle className="font-headline text-xl flex items-center gap-2"><ListChecks className="w-6 h-6 text-primary"/> Crear Presupuesto Detallado</CardTitle>
-              <CardDescription>Genera un presupuesto manual seleccionando servicios del catálogo.</CardDescription>
-            </CardHeader>
-          </Card>
-        </Link>
-        <Link href="/simulador-de-presupuesto" passHref>
-          <Card className="h-full hover:shadow-lg hover:border-primary/50 transition-all cursor-pointer">
-            <CardHeader>
-              <CardTitle className="font-headline text-xl flex items-center gap-2"><Wand2 className="w-6 h-6 text-primary"/> Ir al Simulador Rápido</CardTitle>
-              <CardDescription>Herramienta para que los clientes armen su presupuesto estimado.</CardDescription>
-            </CardHeader>
-          </Card>
-        </Link>
-      </div>
+      <Card>
+        <CardHeader>
+            <CardTitle className="font-headline text-xl">Herramientas Rápidas</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Link href="/presupuestos/nuevo/crear" passHref>
+                <div className="p-4 border rounded-lg hover:bg-muted cursor-pointer transition-colors h-full flex flex-col justify-between">
+                    <div>
+                        <h3 className="font-semibold flex items-center gap-2"><ListChecks className="w-5 h-5 text-primary"/>Crear Presupuesto Manual</h3>
+                        <p className="text-sm text-muted-foreground mt-1">Genera un presupuesto detallado seleccionando servicios del catálogo.</p>
+                    </div>
+                    <div className="flex justify-end mt-2">
+                        <Button variant="ghost" size="sm">Ir ahora <ArrowRight className="w-4 h-4 ml-1"/></Button>
+                    </div>
+                </div>
+            </Link>
+             <Link href="/simulador-de-presupuesto" passHref>
+                <div className="p-4 border rounded-lg hover:bg-muted cursor-pointer transition-colors h-full flex flex-col justify-between">
+                    <div>
+                        <h3 className="font-semibold flex items-center gap-2"><Wand2 className="w-5 h-5 text-primary"/>Abrir Simulador para Clientes</h3>
+                        <p className="text-sm text-muted-foreground mt-1">Herramienta para que los clientes armen su presupuesto estimado.</p>
+                    </div>
+                    <div className="flex justify-end mt-2">
+                         <Button variant="ghost" size="sm">Ir ahora <ArrowRight className="w-4 h-4 ml-1"/></Button>
+                    </div>
+                </div>
+            </Link>
+        </CardContent>
+      </Card>
       
       <Separator className="my-8"/>
 
