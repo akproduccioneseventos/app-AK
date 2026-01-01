@@ -53,15 +53,15 @@
       "serviciosIncluidos": [
         {
           "id": "item_1756940568854_u5m4prf",
-          "esRegalo": true
+          "esRegalo": false
         },
         {
           "id": "item_1757177422000_4ru2piy",
-          "esRegalo": true
+          "esRegalo": false
         },
         {
           "id": "item_1757282105396_39i6zkn",
-          "esRegalo": true
+          "esRegalo": false
         },
         {
           "id": "serv_invitaciones_digitales",
@@ -72,20 +72,12 @@
           "esRegalo": false
         },
         {
-          "id": "item_1757258437308_s0lgq1z",
-          "esRegalo": false
-        },
-        {
-          "id": "serv_mozos",
-          "esRegalo": false
-        },
-        {
           "id": "serv_mozo_cocina",
           "esRegalo": false
         },
         {
           "id": "item_1757281980225_3x3nbzo",
-          "esRegalo": false
+          "esRegalo": true
         },
         {
           "id": "item_1757280489194_y9qozwm",
@@ -124,7 +116,15 @@
           "esRegalo": false
         },
         {
-          "id": "item_1758320278460_yqzpq1h",
+          "id": "serv_mozos",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1759923651440_36zqo53",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1759923194347_kejmhn5",
           "esRegalo": false
         }
       ]
@@ -135,15 +135,15 @@
       "serviciosIncluidos": [
         {
           "id": "item_1756940568854_u5m4prf",
-          "esRegalo": true
+          "esRegalo": false
         },
         {
           "id": "item_1757177422000_4ru2piy",
-          "esRegalo": true
+          "esRegalo": false
         },
         {
           "id": "item_1757282105396_39i6zkn",
-          "esRegalo": true
+          "esRegalo": false
         },
         {
           "id": "serv_invitaciones_digitales",
@@ -151,10 +151,6 @@
         },
         {
           "id": "item_1757258361278_fs8ba4x",
-          "esRegalo": false
-        },
-        {
-          "id": "item_1757258437308_s0lgq1z",
           "esRegalo": false
         },
         {
@@ -167,10 +163,6 @@
         },
         {
           "id": "item_1757281980225_3x3nbzo",
-          "esRegalo": false
-        },
-        {
-          "id": "item_1757280489194_y9qozwm",
           "esRegalo": false
         },
         {
@@ -203,7 +195,7 @@
         },
         {
           "id": "item_1757539236109_vtqfjaz",
-          "esRegalo": true
+          "esRegalo": false
         },
         {
           "id": "item_1758320726157_k2ts7sy",
@@ -218,11 +210,31 @@
           "esRegalo": false
         },
         {
-          "id": "item_1758320278460_yqzpq1h",
+          "id": "item_1757456683585_bb9tztm",
           "esRegalo": false
         },
         {
-          "id": "item_1757456683585_bb9tztm",
+          "id": "serv_1759923651440_36zqo53",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1759925293936_stuxroz",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1759925142198_fbb8zf4",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1759924175890_gcepq1r",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757258437308_s0lgq1z",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1759924277833_nwc4khk",
           "esRegalo": false
         }
       ]

@@ -114,11 +114,13 @@
     "calculationMethod": "fijo"
   },
   {
+    "id": "serv_1759925293936_stuxroz",
     "nombre": "Album digital personalizado",
     "tipoItem": "Servicio",
     "categoria": "Regalo exclusivo",
-    "calculationMethod": "fijo",
+    "valorUnitarioEstimado": 0,
     "precioVenta": 3500,
+    "calculationMethod": "fijo",
     "tramosDePrecio": [
       {
         "id": "tramo_1",
@@ -126,9 +128,7 @@
         "hasta": 50,
         "precio": 0
       }
-    ],
-    "valorUnitarioEstimado": 0,
-    "id": "serv_1759925293936_stuxroz"
+    ]
   },
   {
     "id": "serv_invitaciones_digitales",
@@ -188,9 +188,9 @@
     "nombre": "Barra de tragos",
     "tipoItem": "Servicio",
     "categoria": "Servicio de bebidas",
-    "valorUnitarioEstimado": 160,
+    "valorUnitarioEstimado": 200,
     "calculationMethod": "porPersona",
-    "precioPorPersona": 380
+    "precioPorPersona": 399
   },
   {
     "id": "serv_1759924239222_wxgn1ro",
@@ -215,10 +215,10 @@
     "nombre": "Mesa de jugos naturales",
     "tipoItem": "Servicio",
     "categoria": "Servicio de bebidas",
-    "valorUnitarioEstimado": 70,
+    "valorUnitarioEstimado": 60,
     "precioVenta": 140,
     "calculationMethod": "porPersona",
-    "precioPorPersona": 140,
+    "precioPorPersona": 120,
     "tramosDePrecio": [
       {
         "id": "tramo_1",
@@ -316,7 +316,9 @@
     "categoria": "Servicio de decoración",
     "valorUnitarioEstimado": 300,
     "precioVenta": 690,
-    "calculationMethod": "fijo",
+    "calculationMethod": "ratio",
+    "precioBase": 790,
+    "invitadosPorUnidad": 8,
     "tramosDePrecio": [
       {
         "id": "tramo_1",
@@ -345,7 +347,7 @@
   },
   {
     "id": "item_1757282105396_39i6zkn",
-    "nombre": "Decoración",
+    "nombre": "Servicio de Decoración",
     "tipoItem": "Servicio",
     "categoria": "Servicio de decoración",
     "valorUnitarioEstimado": 5000,
@@ -392,7 +394,7 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de discoteca",
     "valorUnitarioEstimado": 0,
-    "precioVenta": 7490,
+    "precioVenta": 12900,
     "calculationMethod": "fijo",
     "tramosDePrecio": [
       {
@@ -421,12 +423,12 @@
       {
         "id": "tramo_1759920301189",
         "desde": 81,
-        "hasta": 140,
+        "hasta": 120,
         "precio": 18990
       },
       {
         "id": "tramo_1759920323087",
-        "desde": 141,
+        "desde": 121,
         "hasta": 250,
         "precio": 29900
       }
