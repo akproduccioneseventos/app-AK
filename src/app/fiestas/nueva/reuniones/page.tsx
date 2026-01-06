@@ -11,8 +11,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import { ArrowLeft, PlusCircle, Edit3, Trash2, Loader2, AlertTriangle, MessageSquareText, CalendarIcon, CalendarPlus, NotebookTextIcon, Printer, Share2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, Reunion } from '@/types/fiesta';
-import { getFiestaById, addReunionToFiestaActual, updateReunionInFiestaActual, deleteReunionFromFiestaActual } from '@/app/actions/fiesta-actual';
+import type { FiestaEnPlanificacion, Reunion, ClientTarea } from '@/types/fiesta';
+import { getFiestaById, addReunionToFiestaActual, updateReunionInFiestaActual, deleteReunionFromFiestaActual, updateClientChecklist, updateClientNotes } from '@/app/actions/fiesta-actual';
 import {
   Dialog,
   DialogContent,
@@ -34,6 +34,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useSearchParams, useRouter } from 'next/navigation';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Separator } from '@/components/ui/separator';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no especificada";
@@ -77,6 +79,8 @@ function GestionReunionesContent() {
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [reuniones, setReuniones] = useState<Reunion[]>([]);
+  const [clientChecklist, setClientChecklist] = useState<ClientTarea[]>([]);
+  const [clientNotes, setClientNotes] = useState<string>('');
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -91,6 +95,8 @@ function GestionReunionesContent() {
   const [deletingReunionId, setDeletingReunionId] = useState<string | null>(null);
   const [conflictWarning, setConflictWarning] = useState<string | null>(null);
 
+  const [newChecklistItem, setNewChecklistItem] = useState('');
+
   const loadData = useCallback(async () => {
     if (!fiestaId) {
       setError("No se ha especificado un evento. Serás redirigido.");
@@ -104,6 +110,8 @@ function GestionReunionesContent() {
       if (!fiestaData) throw new Error("No se encontró el evento.");
       setFiesta(fiestaData);
       setReuniones((fiestaData.reuniones || []).sort((a,b) => new Date(a.fecha || 0).getTime() - new Date(b.fecha || 0).getTime()));
+      setClientChecklist(fiestaData.clientChecklist || []);
+      setClientNotes(fiestaData.clientNotes || '');
     } catch (err: any) {
       console.error("Error loading meetings:", err);
       setError("No se pudieron cargar las reuniones.");
@@ -245,8 +253,8 @@ function GestionReunionesContent() {
         document.body.removeChild(link);
     }
   };
-
-  if (isLoading || !fiestaId) {
+  
+    if (isLoading || !fiestaId) {
     return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   }
   if (error || !fiesta) {
@@ -280,7 +288,7 @@ function GestionReunionesContent() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <MessageSquareText className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline">Reuniones</h1>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">Reuniones y Portal Cliente</h1>
         </div>
         <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Planificador</Button></Link>
       </div>

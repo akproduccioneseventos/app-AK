@@ -12,8 +12,11 @@ async function updateFiestaData(
     const currentData = await getFiestaById(fiestaId);
     if (!currentData) throw new Error("Fiesta no encontrada");
     const updatedData = updateFn(currentData);
-    await saveFiesta(updatedData);
-    return { success: true, updatedData: updatedData.fotografiaYFilmacion };
+    const result = await saveFiesta(updatedData);
+     if (!result.success) {
+      throw new Error(result.error);
+    }
+    return { success: true, updatedData: result.fiesta?.fotografiaYFilmacion };
   } catch (e: any) {
     return { success: false, error: e.message };
   }

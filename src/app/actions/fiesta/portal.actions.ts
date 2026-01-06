@@ -38,8 +38,6 @@ export async function updatePortalSettings(
   clientSettings: ClientPortalSettings
 ) {
   return updateFiestaData(fiestaId, async (currentData) => {
-    // Overwrite the settings properties with the complete new objects from the client form.
-    // This ensures all toggles (true/false) are respected.
     const updatedData = {
       ...currentData,
       clientPortalSettings: clientSettings,
