@@ -1,5 +1,12 @@
 
 
+export interface PromotionalDiscount {
+  id: string;
+  name: string;
+  type: 'percentage' | 'fixed';
+  value: number;
+}
+
 export interface BudgetDisplaySettings {
   showClientData: boolean;
   showEventTypeAndDate: boolean;
@@ -7,12 +14,7 @@ export interface BudgetDisplaySettings {
   showCompanyLogo: boolean;
   showPriceBreakdown: boolean; // Controls detailed item pricing visibility
   annualAdjustmentPercentage?: number; // Porcentaje de ajuste anual
-  promotionalDiscounts?: Array<{ 
-    name: string; 
-    type: 'percentage' | 'fixed'; 
-    value: number; 
-    isActive: boolean 
-  }>;
+  promotionalDiscounts?: PromotionalDiscount[];
 }
 
 export const defaultBudgetDisplaySettings: BudgetDisplaySettings = {
@@ -51,3 +53,21 @@ export interface SocialConnection {
   connectedAt?: string; // ISO Date String of when the connection was established
   phoneNumber?: string; // Specifically for WhatsApp
 }
+
+export interface CompanyInfo {
+    companyName: string;
+    companyAddress: string;
+    companyTaxId: string;
+    companyContact: string;
+    defaultDocumentNotes: string;
+    invoiceCustomFooter: string;
+}
+
+export const defaultCompanyInfo: CompanyInfo = {
+    companyName: "AK Producciones",
+    companyAddress: "Salto, Uruguay",
+    companyTaxId: "RUT Ejemplo 123456789012",
+    companyContact: "akproduccionessalto@gmail.com",
+    defaultDocumentNotes: "El presupuesto es válido por 30 días. Para asegurar el presupuesto debe abonar el 20% del total como seña.",
+    invoiceCustomFooter: "Información de pago: Banco X, Cuenta Y, Titular Z.\nConsulte por otros métodos de pago.",
+};

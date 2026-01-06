@@ -12,27 +12,14 @@ import React, { useState, type FormEvent, useEffect, useCallback, type ChangeEve
 import NextImage from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
-import { getInvoiceTemplateSettings, saveInvoiceTemplateSettings } from '@/app/actions/settings';
-import type { InvoiceTemplateSettings } from '@/types/settings';
+import { getInvoiceTemplateSettings, saveInvoiceTemplateSettings, getCompanyInfo, saveCompanyInfo } from '@/app/actions/settings';
+import type { InvoiceTemplateSettings, CompanyInfo } from '@/types/settings';
 
-
-// Placeholder function for future save logic
-async function saveCompanyInfo(info: any) {
-  console.log("Simulating save for company info:", info);
-  await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API delay
-  // In a real app, this would return success/failure based on the API call
-  return { success: true, data: info };
-}
 
 export default function CompanySettingsPage() {
   const { toast } = useToast();
   // Company Info State
-  const [companyName, setCompanyName] = useState("AK Producciones");
-  const [companyAddress, setCompanyAddress] = useState("Salto, Uruguay");
-  const [companyTaxId, setCompanyTaxId] = useState("RUT Ejemplo 123456789012");
-  const [companyContact, setCompanyContact] = useState("akproduccionessalto@gmail.com");
-  const [defaultDocumentNotes, setDefaultDocumentNotes] = useState("El presupuesto es válido por 30 días. Para asegurar el presupuesto debe abonar el 20% del total como seña.");
-  const [invoiceCustomFooter, setInvoiceCustomFooter] = useState("Información de pago: Banco X, Cuenta Y, Titular Z.\nConsulte por otros métodos de pago.");
+  const [companyInfo, setCompanyInfo] = useState<Partial<CompanyInfo>>({});
   
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
@@ -43,11 +30,15 @@ export default function CompanySettingsPage() {
   const loadSettings = useCallback(async () => {
     setIsLoading(true);
     try {
-      const fetchedSettings = await getInvoiceTemplateSettings();
-      setLogoUrl(fetchedSettings.logoUrl);
-      setLogoPreview(fetchedSettings.logoUrl);
+      const [invoiceSettings, companyData] = await Promise.all([
+        getInvoiceTemplateSettings(),
+        getCompanyInfo()
+      ]);
+      setLogoUrl(invoiceSettings.logoUrl);
+      setLogoPreview(invoiceSettings.logoUrl);
+      setCompanyInfo(companyData);
     } catch(e) {
-       toast({ title: "Error", description: "No se pudo cargar la configuración del logo.", variant: "destructive" });
+       toast({ title: "Error", description: "No se pudo cargar la configuración de la empresa.", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -57,6 +48,9 @@ export default function CompanySettingsPage() {
     loadSettings();
   }, [loadSettings]);
   
+  const handleInfoChange = (field: keyof CompanyInfo, value: string) => {
+    setCompanyInfo(prev => ({...prev, [field]: value}));
+  };
   
   const handleLogoFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -87,13 +81,13 @@ export default function CompanySettingsPage() {
     const settingsToSave: Partial<InvoiceTemplateSettings> = { logoUrl: logoUrl };
 
     try {
-      const result = await saveInvoiceTemplateSettings(settingsToSave as InvoiceTemplateSettings);
-      if (!result.success) {
-        throw new Error(result.error || "No se pudo guardar el logo.");
-      }
+      const [logoResult, infoResult] = await Promise.all([
+        saveInvoiceTemplateSettings(settingsToSave as InvoiceTemplateSettings),
+        saveCompanyInfo(companyInfo)
+      ]);
 
-      const companyInfo = { companyName, companyAddress, companyTaxId, companyContact, defaultDocumentNotes, invoiceCustomFooter };
-      await saveCompanyInfo(companyInfo);
+      if (!logoResult.success) throw new Error(logoResult.error || "No se pudo guardar el logo.");
+      if (!infoResult.success) throw new Error(infoResult.error || "No se pudo guardar la información.");
 
       toast({ title: "Información Guardada", description: "Los datos de la empresa y el logo han sido actualizados." });
     } catch (err: any) {
@@ -140,7 +134,7 @@ export default function CompanySettingsPage() {
                     </div>
                     <div className="space-y-2 flex-grow">
                       <Label htmlFor="logo-upload" className="text-sm">Subir nuevo logo</Label>
-                      <Input id="logo-upload" type="file" accept="image/png, image/jpeg" onChange={handleLogoFileChange} className="text-xs file:mr-2 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" disabled={isSaving} />
+                      <Input id="logo-upload" type="file" accept="image/png, image/jpeg" onChange={handleLogoFileChange} className="text-xs file:mr-2 file:py-1.5 file:px-2 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" disabled={isSaving} />
                        <p className="text-xs text-muted-foreground pt-1">O pega una URL directa:</p>
                        <Input id="logo-url" type="url" value={logoUrl || ''} onChange={handleLogoUrlChange} placeholder="https://ejemplo.com/logo.png" className="text-sm h-9" disabled={isSaving}/>
                     </div>
@@ -149,13 +143,13 @@ export default function CompanySettingsPage() {
 
                 <Separator />
             
-                <div className="space-y-2"><Label htmlFor="company-name">Nombre de la Empresa</Label><Input id="company-name" value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Tu Nombre Comercial" disabled={isSaving}/></div>
-                <div className="space-y-2"><Label htmlFor="company-taxid">RUT / NIF / Identificación Fiscal</Label><Input id="company-taxid" value={companyTaxId} onChange={(e) => setCompanyTaxId(e.target.value)} placeholder="Número de Identificación Fiscal" disabled={isSaving}/></div>
-                <div className="space-y-2"><Label htmlFor="company-address">Dirección Fiscal</Label><Textarea id="company-address" value={companyAddress} onChange={(e) => setCompanyAddress(e.target.value)} placeholder="Calle, Número, Ciudad, País" rows={2} disabled={isSaving}/></div>
-                <div className="space-y-2"><Label htmlFor="company-contact">Email de Contacto (para documentos)</Label><Input id="company-contact" type="email" value={companyContact} onChange={(e) => setCompanyContact(e.target.value)} placeholder="facturacion@tuempresa.com" disabled={isSaving}/></div>
-                 <div className="space-y-2"><Label htmlFor="default-document-notes">Notas por Defecto (Presupuestos/General)</Label><Textarea id="default-document-notes" value={defaultDocumentNotes} onChange={(e) => setDefaultDocumentNotes(e.target.value)} placeholder="Ej: Términos y condiciones, información de pago general." rows={3} disabled={isSaving}/></div>
+                <div className="space-y-2"><Label htmlFor="company-name">Nombre de la Empresa</Label><Input id="company-name" value={companyInfo.companyName || ''} onChange={(e) => handleInfoChange('companyName', e.target.value)} placeholder="Tu Nombre Comercial" disabled={isSaving}/></div>
+                <div className="space-y-2"><Label htmlFor="company-taxid">RUT / NIF / Identificación Fiscal</Label><Input id="company-taxid" value={companyInfo.companyTaxId || ''} onChange={(e) => handleInfoChange('companyTaxId', e.target.value)} placeholder="Número de Identificación Fiscal" disabled={isSaving}/></div>
+                <div className="space-y-2"><Label htmlFor="company-address">Dirección Fiscal</Label><Textarea id="company-address" value={companyInfo.companyAddress || ''} onChange={(e) => handleInfoChange('companyAddress', e.target.value)} placeholder="Calle, Número, Ciudad, País" rows={2} disabled={isSaving}/></div>
+                <div className="space-y-2"><Label htmlFor="company-contact">Email de Contacto (para documentos)</Label><Input id="company-contact" type="email" value={companyInfo.companyContact || ''} onChange={(e) => handleInfoChange('companyContact', e.target.value)} placeholder="facturacion@tuempresa.com" disabled={isSaving}/></div>
+                 <div className="space-y-2"><Label htmlFor="default-document-notes">Notas por Defecto (Presupuestos/General)</Label><Textarea id="default-document-notes" value={companyInfo.defaultDocumentNotes || ''} onChange={(e) => handleInfoChange('defaultDocumentNotes', e.target.value)} placeholder="Ej: Términos y condiciones, información de pago general." rows={3} disabled={isSaving}/></div>
                 <Separator />
-                <div className="space-y-2"><Label htmlFor="invoice-custom-footer" className="text-base font-medium">Pie de Página Personalizado para Facturas</Label><Textarea id="invoice-custom-footer" value={invoiceCustomFooter} onChange={(e) => setInvoiceCustomFooter(e.target.value)} placeholder="Ej: Datos bancarios para transferencias, agradecimiento especial, condiciones de pago específicas para facturas." rows={3} disabled={isSaving} className="text-sm"/></div>
+                <div className="space-y-2"><Label htmlFor="invoice-custom-footer" className="text-base font-medium">Pie de Página Personalizado para Facturas</Label><Textarea id="invoice-custom-footer" value={companyInfo.invoiceCustomFooter || ''} onChange={(e) => handleInfoChange('invoiceCustomFooter', e.target.value)} placeholder="Ej: Datos bancarios para transferencias, agradecimiento especial, condiciones de pago específicas para facturas." rows={3} disabled={isSaving} className="text-sm"/></div>
             </CardContent>
             <CardFooter className="border-t pt-6">
                  <Button type="submit" disabled={isSaving || isLoading}>

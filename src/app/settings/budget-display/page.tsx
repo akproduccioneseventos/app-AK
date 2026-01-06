@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { ArrowLeft, Save, Settings as SettingsIcon, Loader2, AlertTriangle, Percent, Info, Tag, Package, Bot, Sparkles, Code2, Wand2, PlusCircle, Trash2, ChevronDown, Edit, Gift, Search, ChefHat, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido, PlatoVisible } from '@/types/armado-rapido';
+import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido, PlatoVisible, PromotionalDiscount } from '@/types/armado-rapido';
 import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa, saveServicioEmpresa as saveServicioEmpresaAction } from '@/app/actions/servicios-empresa';
 import { Separator } from '@/components/ui/separator';
@@ -26,6 +26,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { getMenus } from '@/app/actions/menus-catering';
 import type { FullMenu, MenuItem } from '@/types/catering';
 import { MultiSelect } from '@/components/ui/multi-select'; 
+import { saveBudgetDisplaySettings, getBudgetDisplaySettings } from '@/app/actions/settings';
+import type { BudgetDisplaySettings } from '@/types/settings';
 
 
 const formatCurrency = (amount?: number) => {
@@ -104,6 +106,7 @@ const EditServicioForm: React.FC<{ servicioId: string | null; onUpdate: () => vo
 export default function BudgetDisplaySettingsPage() {
   const { toast } = useToast();
   const [config, setConfig] = useState<ArmadoRapidoConfig | null>(null);
+  const [budgetSettings, setBudgetSettings] = useState<BudgetDisplaySettings | null>(null);
   const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioEmpresa[]>([]);
   
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -126,31 +129,39 @@ export default function BudgetDisplaySettingsPage() {
       precioVenta: item.suggestedSellingPrice ?? (item.totalDishCost ? item.totalDishCost * (1 + (item.profitMargin ?? 120) / 100) : 0),
   }), []);
 
-  const { entradas, platosPrincipales, menusInfantiles } = useMemo(() => {
+  const { entradasDisponibles, platosPrincipales, menusInfantiles } = useMemo(() => {
     if (!allMenus || allMenus.length === 0) {
-      return { entradas: [], platosPrincipales: [], menusInfantiles: [] };
+      return { entradasDisponibles: [], platosPrincipales: [], menusInfantiles: [] };
     }
+    
+    const isPlatoVisible = (platoId: string) => {
+        const setting = config?.platosVisibles?.find(p => p.id === platoId);
+        return setting !== undefined ? setting.visible : true;
+    };
 
     const allDishes = allMenus.flatMap(m => m.items);
+    const visibleDishes = allDishes.filter(d => isPlatoVisible(d.id));
     
     const sortByPrice = (a: { precioVenta: number }, b: { precioVenta: number }) => a.precioVenta - b.precioVenta;
 
     return { 
-      entradas: allDishes.filter(s => s.type === 'Entrada').map(enhanceWithPrice).sort(sortByPrice), 
-      platosPrincipales: allDishes.filter(s => s.type === 'Plato Principal').map(enhanceWithPrice).sort(sortByPrice), 
-      menusInfantiles: allDishes.filter(s => s.type === 'Menú Infantil/Adolescente').map(enhanceWithPrice).sort(sortByPrice)
+      entradasDisponibles: visibleDishes.filter(s => s.type === 'Entrada').map(menuItemToServicioEmpresa).sort(sortByPrice), 
+      principalesDisponibles: visibleDishes.filter(s => s.type === 'Plato Principal').map(menuItemToServicioEmpresa).sort(sortByPrice), 
+      menusNinoDisponibles: visibleDishes.filter(s => s.type === 'Menú Infantil/Adolescente').map(menuItemToServicioEmpresa).sort(sortByPrice)
     };
-  }, [allMenus, enhanceWithPrice]);
+  }, [config, allMenus, enhanceWithPrice]);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [armadoConfig, serviciosData, menuData] = await Promise.all([
+      const [armadoConfig, budgetSettingsData, serviciosData, menuData] = await Promise.all([
         getArmadoRapidoConfig(),
+        getBudgetDisplaySettings(),
         getServiciosEmpresa(),
         getMenus()
       ]);
       setConfig(armadoConfig);
+      setBudgetSettings(budgetSettingsData);
       setServiciosCatalogo(serviciosData.filter(s => s.tipoItem === 'Servicio'));
       setAllMenus(menuData);
     } catch(e: any) {
@@ -263,29 +274,7 @@ export default function BudgetDisplaySettingsPage() {
       return { ...prev, serviciosIncluidos: (prev.serviciosIncluidos || []).map(s => s.id === servicioId ? {...s, esRegalo} : s) };
     });
   };
-  
-  const handleGastronomicSelectionChange = (type: 'entradas' | 'principal' | 'infantil', selectedIds: string | string[]) => {
-    setCurrentItem(prev => {
-        if(!prev) return null;
-        
-        const newServiciosIncluidos = prev.serviciosIncluidos ? [...prev.serviciosIncluidos] : [];
-        const itemsToUpdate = type === 'entradas' ? entradas : type === 'principal' ? platosPrincipales : menusInfantiles;
 
-        // Remove all items of this type first
-        const cleanedServicios = newServiciosIncluidos.filter(s => !itemsToUpdate.some(item => item.id === s.id));
-
-        // Add the new selections
-        const idsToAdd = Array.isArray(selectedIds) ? selectedIds : [selectedIds];
-        idsToAdd.forEach(id => {
-            if (!cleanedServicios.some(s => s.id === id)) {
-                cleanedServicios.push({ id, esRegalo: false });
-            }
-        });
-        
-        return { ...prev, serviciosIncluidos: cleanedServicios };
-    });
-  };
-  
   const handlePlatoVisibilityChange = async (platoId: string, visible: boolean) => {
     if (!config) return;
 
@@ -344,39 +333,50 @@ export default function BudgetDisplaySettingsPage() {
 
   const categoriasOrdenadasParaPaquetes = useMemo(() => Object.keys(serviciosAgrupadosParaPaquetes).sort(), [serviciosAgrupadosParaPaquetes]);
 
-  if (isLoading || !config) {
+  const handleSettingsSave = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!budgetSettings) return;
+    setIsSaving(true);
+    try {
+      const result = await saveBudgetDisplaySettings(budgetSettings);
+      if (result.success) {
+        toast({ title: "Configuración guardada" });
+        setBudgetSettings(result.settings || null);
+      } else throw new Error(result.error);
+    } catch(err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDiscountChange = (index: number, field: keyof PromotionalDiscount, value: any) => {
+    if (!budgetSettings) return;
+    const updatedDiscounts = [...(budgetSettings.promotionalDiscounts || [])];
+    updatedDiscounts[index] = { ...updatedDiscounts[index], [field]: value };
+    setBudgetSettings({ ...budgetSettings, promotionalDiscounts: updatedDiscounts });
+  };
+  
+  const addDiscount = () => {
+    if (!budgetSettings) return;
+    const newDiscount: PromotionalDiscount = { id: `promo_${Date.now()}`, name: '', type: 'percentage', value: 0 };
+    setBudgetSettings({ ...budgetSettings, promotionalDiscounts: [...(budgetSettings.promotionalDiscounts || []), newDiscount] });
+  };
+  
+  const removeDiscount = (index: number) => {
+    if (!budgetSettings) return;
+    const updatedDiscounts = (budgetSettings.promotionalDiscounts || []).filter((_, i) => i !== index);
+    setBudgetSettings({ ...budgetSettings, promotionalDiscounts: updatedDiscounts });
+  };
+
+
+  if (isLoading || !config || !budgetSettings) {
     return <div className="flex items-center justify-center min-h-[300px]"><Loader2 className="w-8 h-8 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando...</p></div>;
   }
   if (error) {
     return <div className="text-center text-destructive py-10"><AlertTriangle className="w-12 h-12 mx-auto mb-3" /><p className="font-semibold text-lg">{error}</p><Button onClick={loadData} className="mt-4" variant="outline">Reintentar</Button></div>;
   }
   
-  const renderServiciosList = (servicios: ServicioIncluidoArmadoRapido[]) => {
-    const allDishes = [...entradas, ...platosPrincipales, ...menusInfantiles];
-    const grouped = servicios.reduce((acc, s) => {
-      const fullItem = allDishes.find(item => item.id === s.id) || serviciosCatalogo.find(sc => sc.id === s.id);
-      
-      if (fullItem) {
-        const categoria = (fullItem as MenuItem).type || (fullItem as ServicioEmpresa).categoria || 'Varios';
-        if (!acc[categoria]) {
-          acc[categoria] = [];
-        }
-        acc[categoria].push(fullItem);
-      }
-      return acc;
-    }, {} as Record<string, (ServicioEmpresa | (MenuItem & { precioVenta: number }))[]>);
-
-    return Object.keys(grouped).sort().map(categoria => (
-      <div key={categoria} className="mb-2">
-        <h5 className="font-semibold text-xs uppercase text-muted-foreground">{categoria}</h5>
-        <ul className="text-xs text-muted-foreground list-disc pl-5 space-y-1 mt-1">
-          {grouped[categoria].map(servicio => <li key={servicio.id}>{servicio.nombre}</li>)}
-        </ul>
-      </div>
-    ));
-  };
-
-
   return (
     <div className="max-w-3xl mx-auto space-y-6">
        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
@@ -487,6 +487,40 @@ export default function BudgetDisplaySettingsPage() {
         <Link href="/empresa/contabilidad" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver al Panel Contable</Button></Link>
       </div>
 
+       <form onSubmit={handleSettingsSave}>
+        <Card className="shadow-lg">
+            <CardHeader><CardTitle>Ajustes Generales del Presupuestador</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+                <div className="space-y-2">
+                    <Label htmlFor="annual-adjustment" className="flex items-center gap-2"><Percent className="w-4 h-4"/>Porcentaje de Ajuste Anual de Precios</Label>
+                    <Input id="annual-adjustment" type="number" value={budgetSettings.annualAdjustmentPercentage ?? ''} onChange={(e) => setBudgetSettings({...budgetSettings, annualAdjustmentPercentage: parseFloat(e.target.value) || 0})} placeholder="Ej: 15" />
+                    <p className="text-xs text-muted-foreground">Este ajuste se aplicará automáticamente a los presupuestos de eventos en años futuros.</p>
+                </div>
+                <Separator/>
+                <div className="space-y-3">
+                    <Label className="text-base font-medium">Descuentos Promocionales Predefinidos</Label>
+                    <p className="text-sm text-muted-foreground">Crea descuentos que se puedan aplicar rápidamente en el Creador de Presupuestos.</p>
+                    <div className="space-y-2">
+                        {budgetSettings.promotionalDiscounts?.map((d, i) => (
+                             <div key={d.id} className="p-3 border rounded-md grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+                                <div className="space-y-1"><Label htmlFor={`promo-name-${i}`}>Nombre</Label><Input id={`promo-name-${i}`} value={d.name} onChange={e => handleDiscountChange(i, 'name', e.target.value)} /></div>
+                                <div className="space-y-1"><Label htmlFor={`promo-type-${i}`}>Tipo</Label><Select value={d.type} onValueChange={(v) => handleDiscountChange(i, 'type', v)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="percentage">%</SelectItem><SelectItem value="fixed">$</SelectItem></SelectContent></Select></div>
+                                <div className="flex items-end gap-2">
+                                <div className="space-y-1 flex-grow"><Label htmlFor={`promo-value-${i}`}>Valor</Label><Input id={`promo-value-${i}`} type="number" value={d.value} onChange={e => handleDiscountChange(i, 'value', e.target.value)} /></div>
+                                <Button type="button" variant="ghost" size="icon" className="h-9 w-9 text-destructive" onClick={() => removeDiscount(i)}><Trash2 className="w-4 h-4"/></Button>
+                                </div>
+                             </div>
+                        ))}
+                    </div>
+                     <Button type="button" variant="outline" size="sm" onClick={addDiscount}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Descuento</Button>
+                </div>
+            </CardContent>
+             <CardFooter>
+                 <Button type="submit" disabled={isSaving}>{isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin"/>} Guardar Ajustes</Button>
+            </CardFooter>
+        </Card>
+      </form>
+
       <Card>
         <CardHeader>
           <CardTitle className="font-headline text-xl">Gestión Gastronómica del Simulador</CardTitle>
@@ -499,10 +533,10 @@ export default function BudgetDisplaySettingsPage() {
               <AccordionItem value="visibility" className="border rounded-md shadow-sm">
                   <AccordionTrigger className="px-3 text-md font-medium hover:no-underline">Visibilidad de Platos</AccordionTrigger>
                   <AccordionContent className="p-3 border-t">
-                       <Accordion type="multiple" defaultValue={['entradas', 'principales', 'infantiles']} className="w-full space-y-2">
-                        <AccordionItem value="entradas" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Entradas</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{entradas.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.name} ({formatCurrency(plato.precioVenta)})</Label></div>))}</div></AccordionContent></AccordionItem>
-                        <AccordionItem value="principales" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Platos Principales</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{platosPrincipales.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.name} ({formatCurrency(plato.precioVenta)})</Label></div>))}</div></AccordionContent></AccordionItem>
-                        <AccordionItem value="infantiles" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Menús Infantiles/Adolescentes</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{menusInfantiles.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.name} ({formatCurrency(plato.precioVenta)})</Label></div>))}</div></AccordionContent></AccordionItem>
+                       <Accordion type="multiple" defaultValue={['entradas']} className="w-full space-y-2">
+                        <AccordionItem value="entradas" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Entradas</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{entradasDisponibles.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.nombre} ({formatCurrency(plato.precioVenta)})</Label></div>))}</div></AccordionContent></AccordionItem>
+                        <AccordionItem value="principales" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Platos Principales</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{principalesDisponibles.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.nombre} ({formatCurrency(plato.precioVenta)})</Label></div>))}</div></AccordionContent></AccordionItem>
+                        <AccordionItem value="infantiles" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Menús Infantiles/Adolescentes</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{menusInfantiles.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.nombre} ({formatCurrency(plato.precioVenta)})</Label></div>))}</div></AccordionContent></AccordionItem>
                       </Accordion>
                   </AccordionContent>
               </AccordionItem>
@@ -555,5 +589,3 @@ export default function BudgetDisplaySettingsPage() {
     </div>
   );
 }
-
-    
