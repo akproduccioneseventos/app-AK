@@ -33,11 +33,9 @@ export async function saveReposteriaMasterTemplate(
 
 
 // --- ACCIONES PARA LA FIESTA ESPECÍFICA (A TRAVÉS DE FIESTA-ACTUAL) ---
-// Estas acciones ahora se manejarán directamente en fiesta-actual.ts para mantener consistencia.
-// Se exporta esta función para mantener compatibilidad, pero su uso principal ahora es en el planificador de evento.
 import { getFiestaById, saveFiesta } from './fiesta/fiesta.actions';
 
-export async function updateReposteria(fiestaId: string, reposteria: ReposteriaData) {
+export async function updateReposteria(fiestaId: string, reposteria: ReposteriaData): Promise<{ success: boolean; updatedData?: ReposteriaData; error?: string }> {
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) throw new Error("Fiesta no encontrada");

@@ -210,9 +210,10 @@ function GestionReunionesContent() {
   };
   
   const handleDeleteReunion = async (reunionId: string) => {
+    if (!fiestaId) return;
     setDeletingReunionId(reunionId);
     try {
-      const result = await deleteReunionFromFiestaActual(reunionId);
+      const result = await deleteReunionFromFiestaActual(fiestaId, reunionId);
       if (result.success) {
         toast({ title: "Reunión Eliminada", variant: "destructive" });
         await loadData();
@@ -352,5 +353,3 @@ export default function GestionReunionesPageWrapper() {
     </Suspense>
   )
 }
-
-    

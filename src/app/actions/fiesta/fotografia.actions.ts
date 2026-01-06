@@ -1,26 +1,24 @@
 
 'use server';
 
-import { initialFiestaActualData } from '@/lib/fiesta-defaults';
 import type { FiestaEnPlanificacion, FotografiaYFilmacionData } from '@/types/fiesta';
-import { readData, writeData } from '@/lib/data-service';
-import path from 'path';
+import { getFiestaById, saveFiesta } from './fiesta.actions';
 
-const FIESTAS_DIR = 'fiestas';
-const FIESTA_ACTUAL_ID = "fiesta_1762181514757";
-const FIESTA_ACTUAL_FILE_PATH = path.join(FIESTAS_DIR, `${FIESTA_ACTUAL_ID}.json`);
-
-async function updateFiestaData(updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion): Promise<{ success: boolean; updatedData?: FotografiaYFilmacionData; error?: string }> {
+async function updateFiestaData(
+  fiestaId: string, 
+  updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion
+): Promise<{ success: boolean; updatedData?: FotografiaYFilmacionData; error?: string }> {
   try {
-    const currentData = await readData<FiestaEnPlanificacion>(FIESTA_ACTUAL_FILE_PATH, initialFiestaActualData);
+    const currentData = await getFiestaById(fiestaId);
+    if (!currentData) throw new Error("Fiesta no encontrada");
     const updatedData = updateFn(currentData);
-    await writeData(FIESTA_ACTUAL_FILE_PATH, updatedData);
+    await saveFiesta(updatedData);
     return { success: true, updatedData: updatedData.fotografiaYFilmacion };
   } catch (e: any) {
     return { success: false, error: e.message };
   }
 }
 
-export async function updateFotografiaYFilmacion(fotografia: FotografiaYFilmacionData) {
-    return updateFiestaData(data => ({ ...data, fotografiaYFilmacion: fotografia }));
+export async function updateFotografiaYFilmacion(fiestaId: string, fotografia: FotografiaYFilmacionData) {
+    return updateFiestaData(fiestaId, data => ({ ...data, fotografiaYFilmacion: fotografia }));
 }

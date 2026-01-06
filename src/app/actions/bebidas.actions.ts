@@ -32,10 +32,9 @@ export async function saveBebidasMasterTemplate(
 }
 
 // --- ACCIONES PARA LA FIESTA ESPECÍFICA (A TRAVÉS DE FIESTA-ACTUAL) ---
-// Se exporta esta función para mantener compatibilidad, pero su uso principal ahora es en el planificador de evento.
 import { getFiestaById, saveFiesta } from './fiesta/fiesta.actions';
 
-export async function updateBebidas(fiestaId: string, bebidas: BebidasData) {
+export async function updateBebidas(fiestaId: string, bebidas: BebidasData): Promise<{ success: boolean; updatedData?: BebidasData; error?: string }> {
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) throw new Error("Fiesta no encontrada");

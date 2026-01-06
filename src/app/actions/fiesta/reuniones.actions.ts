@@ -1,47 +1,51 @@
 
 'use server';
 
-import { initialFiestaActualData } from '@/lib/fiesta-defaults';
 import type { FiestaEnPlanificacion, Reunion } from '@/types/fiesta';
-import { readData, writeData } from '@/lib/data-service';
-import path from 'path';
+import { getFiestaById, saveFiesta } from './fiesta.actions';
 
-const FIESTAS_DIR = 'fiestas';
-const FIESTA_ACTUAL_ID = "fiesta_1762181514757";
-const FIESTA_ACTUAL_FILE_PATH = path.join(FIESTAS_DIR, `${FIESTA_ACTUAL_ID}.json`);
-
-async function updateFiestaData(updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion): Promise<{ success: boolean; error?: string }> {
+async function updateFiestaData(
+  fiestaId: string, 
+  updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion
+): Promise<{ success: boolean; updatedFiesta?: FiestaEnPlanificacion; error?: string }> {
   try {
-    const currentData = await readData<FiestaEnPlanificacion>(FIESTA_ACTUAL_FILE_PATH, initialFiestaActualData);
+    const currentData = await getFiestaById(fiestaId);
+    if (!currentData) {
+      throw new Error(`Fiesta con ID ${fiestaId} no encontrada.`);
+    }
     const updatedData = updateFn(currentData);
-    await writeData(FIESTA_ACTUAL_FILE_PATH, updatedData);
-    return { success: true };
+    await saveFiesta(updatedData);
+    return { success: true, updatedFiesta: updatedData };
   } catch (e: any) {
     return { success: false, error: e.message };
   }
 }
 
+
 export async function addReunion(reunionData: Omit<Reunion, 'id'>) {
-    const newReunion: Reunion = { ...reunionData, id: `reunion_${Date.now()}` };
-    const result = await updateFiestaData(data => ({
-        ...data,
-        reuniones: [...(data.reuniones || []), newReunion]
-    }));
+    if (!reunionData.fiestaId) return { success: false, error: "Fiesta ID es requerido."};
+    
+    let newReunion: Reunion | null = null;
+    const result = await updateFiestaData(reunionData.fiestaId, data => {
+        newReunion = { ...reunionData, id: `reunion_${Date.now()}` };
+        const reuniones = [...(data.reuniones || []), newReunion];
+        return { ...data, reuniones };
+    });
     return {...result, reunion: newReunion };
 }
 
 export async function updateReunion(updatedReunion: Reunion) {
-    const result = await updateFiestaData(data => ({
+    if (!updatedReunion.fiestaId) return { success: false, error: "Fiesta ID es requerido."};
+    const result = await updateFiestaData(updatedReunion.fiestaId, data => ({
         ...data,
         reuniones: (data.reuniones || []).map(r => r.id === updatedReunion.id ? updatedReunion : r)
     }));
     return {...result, reunion: updatedReunion };
 }
 
-export async function deleteReunion(reunionId: string) {
-    return updateFiestaData(data => ({
+export async function deleteReunion(fiestaId: string, reunionId: string) {
+    return updateFiestaData(fiestaId, data => ({
         ...data,
         reuniones: (data.reuniones || []).filter(r => r.id !== reunionId)
     }));
 }
-

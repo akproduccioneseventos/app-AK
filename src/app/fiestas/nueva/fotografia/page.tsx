@@ -67,7 +67,7 @@ function FotografiaContent() {
             const result = await updateFotografia(fiestaId, formData);
             if (result.success) {
                 toast({ title: "¡Guardado!", description: "La información de fotografía y filmación ha sido actualizada." });
-                await loadData();
+                if (result.updatedData) setFormData(result.updatedData);
             } else {
                 throw new Error(result.error);
             }
@@ -181,7 +181,7 @@ function FotografiaContent() {
                      <Button onClick={() => openItemModal()}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Servicio</Button>
                      <div className="space-y-3">
                         {(formData.servicios || []).map(servicio => (
-                            <Card key={servicio.id} className="p-3 bg-muted/30">
+                            <Card key={servicio.id} className="p-3 bg-muted/40">
                                <div className="flex justify-between items-start gap-2">
                                   <div>
                                       <p className="font-semibold">{servicio.nombre}</p>

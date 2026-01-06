@@ -17,8 +17,8 @@ import { format as formatDateFn, formatDistanceToNowStrict } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import type { Tarea } from '@/types/fiesta';
-import { getFiestaActual, updateTareasFiestaActual } from '@/app/actions/fiesta-actual';
-import { getTaskTemplates, deleteTaskTemplate, saveTaskTemplate, type TaskTemplate } from '@/app/actions/task-templates';
+import { getFiestaById, updateTareasFiestaActual, addTareaToFiestaActual, deleteTareaFromFiestaActual } from '@/app/actions/fiesta-actual';
+import { getTaskTemplates, saveTaskTemplate, deleteTaskTemplate, type TaskTemplate } from '@/app/actions/task-templates';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -40,10 +40,15 @@ import {
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
+import { Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 
-export default function TareasEventoPage() {
+function TareasEventoContent() {
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const fiestaId = searchParams.get('fiestaId');
+
   const [tareas, setTareas] = useState<Tarea[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -67,10 +72,12 @@ export default function TareasEventoPage() {
 
 
   const loadTareas = useCallback(async () => {
+    if (!fiestaId) return;
     setIsLoading(true);
     setError(null);
     try {
-      const fiestaData = await getFiestaActual();
+      const fiestaData = await getFiestaById(fiestaId);
+      if (!fiestaData) throw new Error("Fiesta no encontrada.");
       setTareas(fiestaData.tareas || []);
     } catch (err: any) {
       console.error("Error loading tasks:", err);
@@ -79,7 +86,7 @@ export default function TareasEventoPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, [fiestaId, toast]);
 
   useEffect(() => {
     loadTareas();
@@ -119,7 +126,8 @@ export default function TareasEventoPage() {
     setIsSaving(false);
   };
 
-  const handleLoadTemplate = (template: TaskTemplate) => {
+  const handleLoadTemplate = async (template: TaskTemplate) => {
+    if (!fiestaId) return;
     const newTasksFromTemplate = template.tasks.map(taskTemplate => ({
       ...taskTemplate,
       id: `task_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
@@ -127,7 +135,7 @@ export default function TareasEventoPage() {
     }));
     const updatedTareas = [...tareas, ...newTasksFromTemplate];
     setTareas(updatedTareas);
-    handleSaveChanges(updatedTareas); // Save immediately
+    await handleSaveChanges(updatedTareas); // Save immediately
     toast({title: "Plantilla de Tareas Cargada", description: `Se añadieron ${newTasksFromTemplate.length} tareas.`});
     setIsLoadTemplateModalOpen(false);
   };
@@ -145,9 +153,10 @@ export default function TareasEventoPage() {
   };
 
   const handleSaveChanges = async (updatedTareas: Tarea[]) => {
+    if (!fiestaId) return;
     setIsSaving(true);
     try {
-      const result = await updateTareasFiestaActual(updatedTareas);
+      const result = await updateTareasFiestaActual(fiestaId, updatedTareas);
       if (result.success && result.updatedData) {
         setTareas(result.updatedData);
       } else {
@@ -163,13 +172,12 @@ export default function TareasEventoPage() {
 
   const handleAddTask = async (e: FormEvent) => {
     e.preventDefault();
-    if (!newTaskText.trim()) {
+    if (!newTaskText.trim() || !fiestaId) {
         toast({ title: "Título Requerido", description: "El título de la tarea no puede estar vacío.", variant: "destructive" });
         return;
     }
 
-    const newTask: Tarea = {
-      id: `task_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+    const newTaskData: Omit<Tarea, 'id'> = {
       texto: newTaskText.trim(),
       descripcion: newTaskDescription.trim() || undefined,
       completada: false,
@@ -182,41 +190,24 @@ export default function TareasEventoPage() {
     
     setIsSaving(true);
     
-    // Add to current event's tasks
-    const updatedTareas = [newTask, ...tareas];
-    setTareas(updatedTareas);
-    await handleSaveChanges(updatedTareas);
+    const result = await addTareaToFiestaActual(fiestaId, newTaskData);
 
-    // If checkbox is checked, add to default template
-    if (newIsDefaultTask) {
-        try {
-            const defaultTemplate = (await getTaskTemplates()).find(t => t.name === 'Plantilla por Defecto');
-            const newTaskForTemplate = { ...newTask };
-            delete (newTaskForTemplate as any).id; 
-            delete (newTaskForTemplate as any).completada;
-
-            if (defaultTemplate) {
-                const updatedTasksForTemplate = [...defaultTemplate.tasks, newTaskForTemplate];
-                await saveTaskTemplate(defaultTemplate.name, updatedTasksForTemplate);
-            } else {
-                await saveTaskTemplate('Plantilla por Defecto', [newTaskForTemplate]);
-            }
-            toast({ title: "Tarea Añadida", description: `"${newTask.texto}" ha sido añadida al evento y a la plantilla por defecto.` });
-        } catch (templateError: any) {
-            toast({ title: "Error en Plantilla", description: `La tarea se añadió al evento, pero no se pudo guardar en la plantilla: ${templateError.message}`, variant: "destructive" });
-        }
+    if (result.success && result.tarea) {
+        setTareas(prev => [result.tarea!, ...prev]);
+        toast({ title: "Tarea Añadida" });
+        
+        // Reset form
+        setNewTaskText('');
+        setNewTaskDescription('');
+        setNewTaskDueDate(undefined);
+        setNewTaskDueTime('');
+        setNewTaskReminder('');
+        setNewTaskAssignedTo('');
+        setNewIsDefaultTask(false);
     } else {
-        toast({ title: "Tarea Añadida", description: `"${newTask.texto}" ha sido añadida al evento.` });
+        toast({ title: "Error", description: result.error, variant: 'destructive' });
     }
 
-    // Reset form
-    setNewTaskText('');
-    setNewTaskDescription('');
-    setNewTaskDueDate(undefined);
-    setNewTaskDueTime('');
-    setNewTaskReminder('');
-    setNewTaskAssignedTo('');
-    setNewIsDefaultTask(false);
     setIsSaving(false);
   };
 
@@ -229,13 +220,19 @@ export default function TareasEventoPage() {
   };
 
   const deleteTask = async (taskId: string) => {
+    if (!fiestaId) return;
     const tareaAEliminar = tareas.find(t => t.id === taskId);
-    const updatedTareas = tareas.filter(task => task.id !== taskId);
-    setTareas(updatedTareas);
-    await handleSaveChanges(updatedTareas);
-    if (tareaAEliminar) {
-        toast({ title: "Tarea Eliminada", description: `"${tareaAEliminar.texto}" ha sido eliminada.`, variant: "destructive" });
+    if (!tareaAEliminar) return;
+
+    setIsSaving(true);
+    const result = await deleteTareaFromFiestaActual(fiestaId, taskId);
+    if (result.success) {
+      setTareas(prev => prev.filter(t => t.id !== taskId));
+      toast({ title: "Tarea Eliminada", description: `"${tareaAEliminar.texto}" ha sido eliminada.`, variant: "destructive" });
+    } else {
+       toast({ title: "Error al Eliminar", description: result.error, variant: "destructive" });
     }
+    setIsSaving(false);
   };
 
   const formatDateDisplay = (dateString?: string, timeString?: string): string => {
@@ -280,7 +277,7 @@ export default function TareasEventoPage() {
   const progressPercentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
   if (isLoading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando tareas...</p></div>;
-  if (error) return <div className="py-10 text-center text-red-600"><AlertTriangle className="w-12 h-12 mx-auto mb-3" /><p className="font-semibold">Error al cargar tareas</p><p className="text-sm">{error}</p><Button onClick={loadTareas} className="mt-4">Reintentar</Button></div>;
+  if (error) return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>{error}</div>;
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -305,12 +302,8 @@ export default function TareasEventoPage() {
         </DialogContent>
       </Dialog>
       <Dialog open={isSaveTemplateModalOpen} onOpenChange={setIsSaveTemplateModalOpen}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Guardar Lista Actual como Plantilla</DialogTitle></DialogHeader>
-          <div className="py-2 space-y-2">
-            <Label htmlFor="template-name">Nombre de la Plantilla</Label>
-            <Input id="template-name" value={templateName} onChange={e => setTemplateName(e.target.value)} placeholder="Ej: Plantilla Boda Completa"/>
-          </div>
+        <DialogContent><DialogHeader><DialogTitle>Guardar Lista Actual como Plantilla</DialogTitle></DialogHeader>
+          <div className="py-2 space-y-2"><Label htmlFor="template-name">Nombre de la Plantilla</Label><Input id="template-name" value={templateName} onChange={e => setTemplateName(e.target.value)} placeholder="Ej: Plantilla Boda Completa"/></div>
           <DialogFooter><DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose><Button onClick={handleSaveTemplate} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : "Guardar"}</Button></DialogFooter>
         </DialogContent>
       </Dialog>
@@ -320,7 +313,7 @@ export default function TareasEventoPage() {
           <ListChecks className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">Gestión de Tareas del Evento</h1>
         </div>
-        <Link href="/fiestas/nueva" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
+        <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
       </div>
 
       <Card className="shadow-lg">
@@ -365,7 +358,7 @@ export default function TareasEventoPage() {
               </Label>
             </div>
             <Button type="submit" className="w-full sm:w-auto" disabled={isSaving}>
-              {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}<Plus className="w-4 h-4 mr-2" />Añadir Tarea
+              {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}<PlusCircle className="w-4 h-4 mr-2" />Añadir Tarea
             </Button>
           </form>
         </CardContent>
@@ -423,4 +416,12 @@ export default function TareasEventoPage() {
       </Card>
     </div>
   );
+}
+
+export function TareasEventoPageWrapper() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+      <TareasEventoContent/>
+    </Suspense>
+  )
 }

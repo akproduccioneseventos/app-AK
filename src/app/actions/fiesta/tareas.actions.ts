@@ -1,34 +1,43 @@
+
 'use server';
 
-import { initialFiestaActualData } from '@/lib/fiesta-defaults';
 import type { FiestaEnPlanificacion, Tarea } from '@/types/fiesta';
-import { readData, writeData } from '@/lib/data-service';
-import path from 'path';
+import { getFiestaById, saveFiesta } from './fiesta.actions';
 
-const FIESTAS_DIR = 'fiestas';
-const FIESTA_ACTUAL_ID = "fiesta_1762181514757";
-const FIESTA_ACTUAL_FILE_PATH = path.join(FIESTAS_DIR, `${FIESTA_ACTUAL_ID}.json`);
-
-async function updateFiestaData(updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion): Promise<{ success: boolean; updatedData?: Tarea[]; error?: string }> {
+async function updateFiestaData(
+  fiestaId: string, 
+  updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion
+): Promise<{ success: boolean; updatedData?: Tarea[]; error?: string }> {
   try {
-    const currentData = await readData<FiestaEnPlanificacion>(FIESTA_ACTUAL_FILE_PATH, initialFiestaActualData);
+    const currentData = await getFiestaById(fiestaId);
+    if (!currentData) {
+      throw new Error(`Fiesta con ID ${fiestaId} no encontrada.`);
+    }
     const updatedData = updateFn(currentData);
-    await writeData(FIESTA_ACTUAL_FILE_PATH, updatedData);
+    await saveFiesta(updatedData);
     return { success: true, updatedData: updatedData.tareas };
   } catch (e: any) {
     return { success: false, error: e.message };
   }
 }
 
-export async function updateTareas(tareas: Tarea[]) {
-  return updateFiestaData(data => ({ ...data, tareas }));
+export async function updateTareas(fiestaId: string, tareas: Tarea[]) {
+  return updateFiestaData(fiestaId, data => ({ ...data, tareas }));
 }
 
 export async function addTarea(fiestaId: string, tareaData: Omit<Tarea, 'id'>) {
-    const newTarea: Tarea = { ...tareaData, id: `task_${Date.now()}` };
-    const result = updateFiestaData(data => {
-        const tareas = [...(data.tareas || []), newTarea];
+    let newTarea: Tarea | null = null;
+    const result = await updateFiestaData(fiestaId, data => {
+        newTarea = { ...tareaData, id: `task_${Date.now()}` };
+        const tareas = [newTarea, ...(data.tareas || [])];
         return { ...data, tareas };
     });
     return {...result, tarea: newTarea };
+}
+
+export async function deleteTarea(fiestaId: string, tareaId: string) {
+    return updateFiestaData(fiestaId, data => {
+        const tareas = (data.tareas || []).filter(t => t.id !== tareaId);
+        return { ...data, tareas };
+    });
 }
