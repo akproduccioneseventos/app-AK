@@ -13,7 +13,7 @@ import { DatePickerDemo } from '@/components/date-picker-demo';
 import { ArrowLeft, PlusCircle, Edit3, Trash2, Loader2, AlertTriangle, MessageSquareText, CalendarIcon, CalendarPlus, NotebookTextIcon, Printer, Share2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, Reunion, ClientTarea } from '@/types/fiesta';
-import { getFiestaById, addReunionToFiestaActual, updateReunionInFiestaActual, deleteReunionFromFiestaActual, updateClientChecklist, updateClientNotes } from '@/app/actions/fiesta-actual';
+import { getFiestaById, addReunionToFiestaActual, updateReunionInFiestaActual, deleteReunionFromFiestaActual } from '@/app/actions/fiesta-actual';
 import {
   Dialog,
   DialogContent,
@@ -35,7 +35,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 
 const formatDate = (dateString?: string) => {
@@ -80,9 +79,7 @@ function GestionReunionesContent() {
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [reuniones, setReuniones] = useState<Reunion[]>([]);
-  const [clientChecklist, setClientChecklist] = useState<ClientTarea[]>([]);
-  const [clientNotes, setClientNotes] = useState<string>('');
-
+  
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -95,8 +92,6 @@ function GestionReunionesContent() {
   const [isSaving, setIsSaving] = useState(false);
   const [deletingReunionId, setDeletingReunionId] = useState<string | null>(null);
   const [conflictWarning, setConflictWarning] = useState<string | null>(null);
-
-  const [newChecklistItem, setNewChecklistItem] = useState('');
 
   const loadData = useCallback(async () => {
     if (!fiestaId) {
@@ -111,8 +106,6 @@ function GestionReunionesContent() {
       if (!fiestaData) throw new Error("No se encontró el evento.");
       setFiesta(fiestaData);
       setReuniones((fiestaData.reuniones || []).sort((a,b) => new Date(a.fecha || 0).getTime() - new Date(b.fecha || 0).getTime()));
-      setClientChecklist(fiestaData.clientChecklist || []);
-      setClientNotes(fiestaData.clientNotes || '');
     } catch (err: any) {
       console.error("Error loading meetings:", err);
       setError("No se pudieron cargar las reuniones.");
@@ -254,25 +247,9 @@ function GestionReunionesContent() {
         document.body.removeChild(link);
     }
   };
-  
-  const handleSaveNotesAndChecklist = async () => {
-    if (!fiestaId) return;
-    setIsSaving(true);
-    try {
-      await Promise.all([
-        updateClientChecklist(fiestaId, clientChecklist),
-        updateClientNotes(fiestaId, clientNotes)
-      ]);
-      toast({title: "Guardado", description: "Las notas y tareas del cliente han sido guardadas."});
-    } catch(e: any) {
-       toast({title: "Error", description: "No se pudieron guardar las notas y tareas.", variant: "destructive"});
-    } finally {
-      setIsSaving(false);
-    }
-  };
 
-    if (isLoading || !fiestaId) {
-    return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (isLoading) {
+    return <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>;
   }
   if (error || !fiesta) {
     return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>{error}</div>;
@@ -327,8 +304,7 @@ function GestionReunionesContent() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
-          {isLoading ? <div className="text-center p-4"><Loader2 className="w-6 h-6 animate-spin"/></div> : 
-           reuniones.length > 0 ? (
+          {reuniones.length > 0 ? (
             reuniones.map(reunion => (
               <Card key={reunion.id} className="p-3 bg-muted/40">
                  <div className="flex flex-col sm:flex-row justify-between items-start gap-2">
@@ -342,14 +318,11 @@ function GestionReunionesContent() {
                       {reunion.notas && <p className="text-xs text-muted-foreground mt-2 border-l-2 pl-2 whitespace-pre-wrap">{reunion.notas}</p>}
                     </div>
                     <div className="flex gap-1 self-start sm:self-center flex-shrink-0">
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleShareWhatsApp(reunion)}><Share2 className="w-4 h-4 text-green-600"/></Button>
-                      <Link href={`/fiestas/nueva/reuniones/imprimir?fiestaId=${fiestaId}&reunionId=${reunion.id}`} passHref>
-                          <Button variant="ghost" size="icon" className="h-8 w-8"><Printer className="w-4 h-4"/></Button>
-                      </Link>
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openFormModal(reunion)}><Edit3 className="w-4 h-4"/></Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleShareWhatsApp(reunion)} title="Compartir por WhatsApp"><Share2 className="w-4 h-4 text-green-600"/></Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openFormModal(reunion)} title="Editar"><Edit3 className="w-4 h-4"/></Button>
                       <AlertDialog>
                           <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" disabled={deletingReunionId === reunion.id}>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" disabled={deletingReunionId === reunion.id} title="Eliminar">
                                   {deletingReunionId === reunion.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}
                               </Button>
                           </AlertDialogTrigger>
@@ -358,7 +331,7 @@ function GestionReunionesContent() {
                               <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteReunion(reunion.id)} className="bg-destructive hover:bg-destructive/90">Eliminar</AlertDialogAction></AlertDialogFooter>
                           </AlertDialogContent>
                       </AlertDialog>
-                      {reunion.fecha && <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => downloadICS(reunion, fiesta.configuracion.nombreEvento)}><CalendarIcon className="w-4 h-4"/></Button>}
+                      {reunion.fecha && <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => downloadICS(reunion, fiesta.configuracion.nombreEvento)} title="Añadir a Calendario"><CalendarIcon className="w-4 h-4"/></Button>}
                     </div>
                  </div>
               </Card>
@@ -378,5 +351,3 @@ export default function GestionReunionesPageWrapper() {
     </Suspense>
   )
 }
-
-    
