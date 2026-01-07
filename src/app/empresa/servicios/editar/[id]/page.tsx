@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent, use } from 'react';
@@ -68,7 +69,17 @@ export default function EditarServicioPage({ params: paramsProp }: { params: { i
   }, [itemId, loadItem]);
 
   const handleFormChange = (field: keyof ServicioEmpresa, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    if (field === 'precioVenta') {
+      const numValue = Number(value) || 0;
+       setFormData(prev => ({ 
+        ...prev, 
+        precioVenta: numValue,
+        precioPorPersona: numValue,
+        precioBase: numValue
+      }));
+    } else {
+      setFormData(prev => ({ ...prev, [field]: value }));
+    }
   };
 
   const handleTramoChange = (index: number, field: keyof TramoDePrecio, value: string) => {
@@ -153,7 +164,7 @@ export default function EditarServicioPage({ params: paramsProp }: { params: { i
                  <Select value={formData.calculationMethod} onValueChange={(v) => handleFormChange('calculationMethod', v)} required><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="fijo">Precio Fijo</SelectItem><SelectItem value="porPersona">Por Persona</SelectItem><SelectItem value="ratio">Por Ratio de Invitados</SelectItem><SelectItem value="tramos">Por Tramos de Invitados</SelectItem></SelectContent></Select>
              </div>
              
-            {formData.calculationMethod === 'fijo' && (<div className="space-y-2"><Label htmlFor="precio-venta">Precio de Venta (Fijo)</Label><Input id="precio-venta" type="number" value={formData.precioVenta ?? ''} onChange={(e) => handleFormChange('precioVenta', e.target.valueAsNumber)} min="0" step="any"/></div>)}
+            {formData.calculationMethod === 'fijo' && (<div className="space-y-2"><Label htmlFor="precio-venta">Precio de Venta (Fijo)</Label><Input id="precio-venta" type="number" value={formData.precioVenta ?? ''} onChange={(e) => handleFormChange('precioVenta', e.target.value)} min="0" step="any"/></div>)}
             {formData.calculationMethod === 'porPersona' && (<div className="space-y-2"><Label htmlFor="precio-persona">Precio Por Persona</Label><Input id="precio-persona" type="number" value={formData.precioPorPersona ?? ''} onChange={(e) => handleFormChange('precioPorPersona', e.target.valueAsNumber)} min="0" step="any"/></div>)}
             {formData.calculationMethod === 'ratio' && (<div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label htmlFor="ratio-base">Precio Base (por unidad)</Label><Input id="ratio-base" type="number" value={formData.precioBase ?? ''} onChange={(e) => handleFormChange('precioBase', e.target.valueAsNumber)} min="0" step="any"/></div><div className="space-y-2"><Label htmlFor="ratio-invitados">Invitados por Unidad</Label><Input id="ratio-invitados" type="number" value={formData.invitadosPorUnidad ?? ''} onChange={(e) => handleFormChange('invitadosPorUnidad', e.target.valueAsNumber)} min="1"/></div></div>)}
             {formData.calculationMethod === 'tramos' && (
@@ -182,3 +193,5 @@ export default function EditarServicioPage({ params: paramsProp }: { params: { i
     </div>
   );
 }
+
+    

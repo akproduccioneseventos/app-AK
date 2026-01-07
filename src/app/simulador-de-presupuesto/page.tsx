@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -78,7 +79,9 @@ function calcularCostoServicio(servicio: ServicioEmpresa, cantidadInvitados: num
   }
 }
 
-const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): ServicioEmpresa => {
+// **FIX**: Correctly calculate the price for menu items.
+const menuItemToServicioEmpresa = (item: MenuItem): ServicioEmpresa => {
+    // Use suggestedSellingPrice if available, otherwise calculate it.
     const precioVenta = item.suggestedSellingPrice ?? ((item.totalDishCost || 0) * (1 + (item.profitMargin ?? 120) / 100));
     return {
         id: item.id,
@@ -88,8 +91,8 @@ const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): Se
         subcategoria: item.type,
         calculationMethod: 'porPersona',
         precioPorPersona: precioVenta,
-        precioVenta: precioVenta,
-        precioBase: precioVenta, 
+        precioVenta: precioVenta, // Ensure this is also populated for consistency
+        precioBase: precioVenta, // And this one
         valorUnitarioEstimado: item.totalDishCost,
     };
 };
@@ -145,12 +148,6 @@ export default function ArmadoRapidoPage() {
         const visibleDishes = allDishes.filter(d => isPlatoVisible(d.id));
         
         const sortByPrice = (a: { precioPorPersona?: number }, b: { precioPorPersona?: number }) => (a.precioPorPersona || 0) - (b.precioPorPersona || 0);
-
-        const enhanceWithPrice = (item: MenuItem): MenuItem & { precioVenta: number } => ({
-          ...item,
-          nombre: item.name,
-          precioVenta: item.suggestedSellingPrice ?? ((item.totalDishCost || 0) * (1 + (item.profitMargin ?? 120) / 100)),
-        });
     
         return { 
             entradasDisponibles: visibleDishes.filter(s => s.type === 'Entrada').map(menuItemToServicioEmpresa).sort(sortByPrice), 
@@ -470,7 +467,7 @@ export default function ArmadoRapidoPage() {
                                     const servicios = p.serviciosIncluidos.filter(s => !s.esRegalo);
                                     const regalos = p.serviciosIncluidos.filter(s => s.esRegalo);
                                     return (
-                                    <Label key={p.id} htmlFor={`pkg-${p.id}`} className="p-4 border rounded-lg cursor-pointer hover:border-primary has-[:checked]:border-primary/5 flex flex-col">
+                                    <Label key={p.id} htmlFor={`pkg-${p.id}`} className="p-4 border rounded-lg cursor-pointer hover:border-primary has-[:checked]:border-primary/50 has-[:checked]:ring-2 has-[:checked]:ring-primary flex flex-col">
                                         <div className="flex items-start gap-4">
                                             <RadioGroupItem value={p.id} id={`pkg-${p.id}`} className="mt-1"/>
                                             <div className="flex-grow">
@@ -621,3 +618,5 @@ export default function ArmadoRapidoPage() {
         </div>
     );
 }
+
+    

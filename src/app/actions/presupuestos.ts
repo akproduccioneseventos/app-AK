@@ -83,15 +83,16 @@ export async function savePresupuesto(
     leadId: options?.leadId, // Start with the provided leadId
   };
 
-  presupuestos.push(nuevoPresupuesto);
-  await writeData(PRESUPUESTOS_FILE, presupuestos, (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-
+  
+  // **FIX**: The lead needs to be created/found *before* saving the budget to get the leadId.
+  // However, the budget needs an ID to be linked. This creates a circular dependency.
+  // The best approach is to save the budget, then find/create the lead, and then *update* the budget with the leadId.
   let finalLeadId = options?.leadId;
-
-  // Post-save CRM logic
   try {
     const { lead, isNew } = await findLeadByBudgetOrCreate(nuevoPresupuesto);
     finalLeadId = lead.id;
+    // Now that we have the lead ID, add it to the budget object before saving.
+    nuevoPresupuesto.leadId = finalLeadId;
 
     if (isNew || options?.source === 'manual' || options?.source === 'simulator') {
         const stages = await getCrmStages();
@@ -101,8 +102,12 @@ export async function savePresupuesto(
         }
     }
   } catch (crmError: any) {
-    console.warn(`Presupuesto ${presupuestoId} guardado, pero falló la sincronización con el CRM: ${crmError.message}`);
+    console.warn(`Presupuesto ${presupuestoId} será guardado, pero falló la sincronización con el CRM: ${crmError.message}`);
   }
+  
+  presupuestos.push(nuevoPresupuesto);
+  await writeData(PRESUPUESTOS_FILE, presupuestos, (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
 
   return { success: true, id: nuevoPresupuesto.id, presupuesto: nuevoPresupuesto, leadId: finalLeadId };
 }
@@ -237,4 +242,4 @@ export async function activateAnnualAdjustmentForBudget(presupuestoId: string): 
 }
 
   
-
+    

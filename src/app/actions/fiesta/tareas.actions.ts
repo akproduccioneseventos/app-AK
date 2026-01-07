@@ -25,10 +25,10 @@ export async function updateTareas(fiestaId: string, tareas: Tarea[]) {
   return updateFiestaData(fiestaId, data => ({ ...data, tareas }));
 }
 
-export async function addTarea(fiestaId: string, tareaData: Omit<Tarea, 'id'>) {
+export async function addTarea(fiestaId: string, tareaData: Omit<Tarea, 'id' | 'completada'>): Promise<{ success: boolean; tarea?: Tarea; error?: string }> {
     let newTarea: Tarea | null = null;
     const result = await updateFiestaData(fiestaId, data => {
-        newTarea = { ...tareaData, id: `task_${Date.now()}` };
+        newTarea = { ...tareaData, id: `task_${Date.now()}`, completada: false };
         const tareas = [newTarea, ...(data.tareas || [])];
         return { ...data, tareas };
     });
@@ -41,3 +41,5 @@ export async function deleteTarea(fiestaId: string, tareaId: string) {
         return { ...data, tareas };
     });
 }
+
+    

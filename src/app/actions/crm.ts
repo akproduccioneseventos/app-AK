@@ -163,6 +163,7 @@ export async function findLeadByBudgetOrCreate(
     throw new Error('Failed to create a new lead for the budget.');
   }
 
+  // **CRUCIAL FIX**: Ensure the newly created lead's ID is saved back to the budget object.
   const newLead = result.lead;
   const updatedBudget: Presupuesto = { ...presupuestoData, leadId: newLead.id };
   await updatePresupuesto(updatedBudget);
@@ -389,3 +390,4 @@ export async function getCrmKpiData() {
 }
 
   
+    

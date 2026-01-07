@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent, Suspense } from 'react';
@@ -254,6 +255,22 @@ function GestionReunionesContent() {
     }
   };
   
+  const handleSaveNotesAndChecklist = async () => {
+    if (!fiestaId) return;
+    setIsSaving(true);
+    try {
+      await Promise.all([
+        updateClientChecklist(fiestaId, clientChecklist),
+        updateClientNotes(fiestaId, clientNotes)
+      ]);
+      toast({title: "Guardado", description: "Las notas y tareas del cliente han sido guardadas."});
+    } catch(e: any) {
+       toast({title: "Error", description: "No se pudieron guardar las notas y tareas.", variant: "destructive"});
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
     if (isLoading || !fiestaId) {
     return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   }
@@ -288,7 +305,7 @@ function GestionReunionesContent() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <MessageSquareText className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline">Reuniones y Portal Cliente</h1>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">Reuniones con Cliente</h1>
         </div>
         <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Planificador</Button></Link>
       </div>
@@ -361,3 +378,5 @@ export default function GestionReunionesPageWrapper() {
     </Suspense>
   )
 }
+
+    
