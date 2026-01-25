@@ -2,11 +2,12 @@
 
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 
 // This is a redirect component to maintain old URLs working after refactoring.
-export default function DeprecatedActivosFijosEditarPage({ params }: { params: { id: string } }) {
+export default function DeprecatedActivosFijosEditarPage({ params: paramsProp }: { params: { id: string } }) {
+    const params = use(paramsProp);
     const router = useRouter();
 
     useEffect(() => {
