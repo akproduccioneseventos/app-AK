@@ -271,15 +271,19 @@ export default function ArmadoRapidoPage() {
             });
         }
         
-        const asadoDishIds = ["dish_main_18", "dish_main_19"]; 
-        const asadorServiceId = 'serv_1759925142198_fbb8zf4';
-        
-        const needsAsador = selectedPrincipal && asadoDishIds.includes(selectedPrincipal);
-        if(needsAsador){
-            const asadorService = serviciosCatalogo.find(s => s.id === asadorServiceId);
-            if(asadorService){
-                addServicio(asadorService, false);
-            }
+        if (config.serviceDependencies && config.serviceDependencies.length > 0) {
+            const allSelectedDishIds = [selectedPrincipal, ...selectedEntradas, selectedMenuNino].filter(Boolean);
+      
+            config.serviceDependencies.forEach(dep => {
+              // If one of the selected dishes is a trigger for this dependency
+              if (allSelectedDishIds.includes(dep.triggerServiceId)) {
+                const requiredService = serviciosCatalogo.find(s => s.id === dep.requiredServiceId);
+                if (requiredService) {
+                  // The addServicio function already handles duplicates, so this is safe
+                  addServicio(requiredService, false);
+                }
+              }
+            });
         }
         
         let calculatedDescuento = 0;
@@ -645,5 +649,3 @@ export default function ArmadoRapidoPage() {
         </div>
     );
 }
-
-```

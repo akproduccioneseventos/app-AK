@@ -26,12 +26,19 @@ export interface PlatoVisible {
   visible: boolean;
 }
 
+export interface ServiceDependency {
+  id: string; // Unique ID for the dependency rule
+  triggerServiceId: string; // The service that triggers the dependency (e.g., a specific dish)
+  requiredServiceId: string; // The service that must be added (e.g., an asador)
+}
+
 export interface ArmadoRapidoConfig {
   menus: MenuArmadoRapido[];
   paquetes: PaqueteArmadoRapido[];
   descuentoGeneral?: number; 
   mostrarPrecios?: boolean;
-  platosVisibles?: PlatoVisible[]; // NEW: To control simulator dish visibility
+  platosVisibles?: PlatoVisible[]; // To control simulator dish visibility
+  serviceDependencies?: ServiceDependency[];
 }
 
 export interface LeadFromQuickBudget {

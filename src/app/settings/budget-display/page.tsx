@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { ArrowLeft, Save, Settings as SettingsIcon, Loader2, AlertTriangle, Percent, Info, Tag, Package, Bot, Sparkles, Code2, Wand2, PlusCircle, Trash2, ChevronDown, Edit, Gift, Search, ChefHat, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido, PlatoVisible, PromotionalDiscount } from '@/types/armado-rapido';
+import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido, PlatoVisible, PromotionalDiscount, ServiceDependency } from '@/types/armado-rapido';
 import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa, saveServicioEmpresa as saveServicioEmpresaAction } from '@/app/actions/servicios-empresa';
 import { Separator } from '@/components/ui/separator';
@@ -123,15 +123,71 @@ export default function BudgetDisplaySettingsPage() {
   const [servicioSearchTerm, setServicioSearchTerm] = useState('');
   const [allMenus, setAllMenus] = useState<FullMenu[]>([]);
 
+  const [newDependency, setNewDependency] = useState({ triggerServiceId: '', requiredServiceId: '' });
+
+  const handleAddDependency = async () => {
+    if (!newDependency.triggerServiceId || !newDependency.requiredServiceId || !config) return;
+    
+    const newDep: ServiceDependency = {
+      id: `dep_${Date.now()}`,
+      ...newDependency
+    };
+    
+    const newConfig: ArmadoRapidoConfig = {
+      ...config,
+      serviceDependencies: [...(config.serviceDependencies || []), newDep]
+    };
+    
+    setIsSaving(true);
+    try {
+      const result = await saveArmadoRapidoConfig(newConfig);
+      if (result.success) {
+        toast({ title: "Dependencia añadida" });
+        setNewDependency({ triggerServiceId: '', requiredServiceId: '' });
+        await loadData();
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDeleteDependency = async (dependencyId: string) => {
+    if (!config) return;
+
+    const newConfig: ArmadoRapidoConfig = {
+      ...config,
+      serviceDependencies: (config.serviceDependencies || []).filter(d => d.id !== dependencyId)
+    };
+
+    setIsSaving(true);
+    try {
+      const result = await saveArmadoRapidoConfig(newConfig);
+      if (result.success) {
+        toast({ title: "Dependencia eliminada" });
+        await loadData();
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const enhanceWithPrice = useCallback((item: MenuItem): MenuItem & { precioVenta: number } => ({
       ...item,
       nombre: item.name,
       precioVenta: item.suggestedSellingPrice ?? (item.totalDishCost ? item.totalDishCost * (1 + (item.profitMargin ?? 120) / 100) : 0),
   }), []);
 
-  const { entradasDisponibles, platosPrincipales, menusInfantiles } = useMemo(() => {
+  const { entradasDisponibles, principalesDisponibles, menusNinoDisponibles } = useMemo(() => {
     if (!allMenus || allMenus.length === 0) {
-      return { entradasDisponibles: [], platosPrincipales: [], menusInfantiles: [] };
+      return { entradasDisponibles: [], principalesDisponibles: [], menusNinoDisponibles: [] };
     }
     
     const isPlatoVisible = (platoId: string) => {
@@ -139,14 +195,20 @@ export default function BudgetDisplaySettingsPage() {
         return setting !== undefined ? setting.visible : true;
     };
 
-    const allDishes = allMenus.flatMap(m => m.items);
-    const visibleDishes = allDishes.filter(d => isPlatoVisible(d.id));
+    const enhanceWithPrice = (item: MenuItem): MenuItem & { precioVenta: number } => ({
+      ...item,
+      nombre: item.name,
+      precioVenta: item.suggestedSellingPrice ?? (item.totalDishCost ? item.totalDishCost * (1 + (item.profitMargin ?? 120) / 100) : 0),
+    });
     
     const sortByPrice = (a: { precioVenta: number }, b: { precioVenta: number }) => a.precioVenta - b.precioVenta;
+    
+    const allDishes = allMenus.flatMap(m => m.items);
+    const visibleDishes = allDishes.filter(d => isPlatoVisible(d.id));
 
     return { 
-      entradasDisponibles: visibleDishes.filter(s => s.type === 'Entrada').map(menuItemToServicioEmpresa).sort(sortByPrice), 
-      principalesDisponibles: visibleDishes.filter(s => s.type === 'Plato Principal').map(menuItemToServicioEmpresa).sort(sortByPrice), 
+      entradasDisponibles: visibleDishes.filter(item => item.type === 'Entrada').map(menuItemToServicioEmpresa).sort(sortByPrice), 
+      principalesDisponibles: visibleDishes.filter(item => item.type === 'Plato Principal').map(menuItemToServicioEmpresa).sort(sortByPrice), 
       menusNinoDisponibles: visibleDishes.filter(s => s.type === 'Menú Infantil/Adolescente').map(menuItemToServicioEmpresa).sort(sortByPrice)
     };
   }, [config, allMenus, enhanceWithPrice]);
@@ -536,11 +598,73 @@ export default function BudgetDisplaySettingsPage() {
                        <Accordion type="multiple" defaultValue={['entradas']} className="w-full space-y-2">
                         <AccordionItem value="entradas" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Entradas</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{entradasDisponibles.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.nombre} ({formatCurrency(plato.precioVenta)})</Label></div>))}</div></AccordionContent></AccordionItem>
                         <AccordionItem value="principales" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Platos Principales</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{principalesDisponibles.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.nombre} ({formatCurrency(plato.precioVenta)})</Label></div>))}</div></AccordionContent></AccordionItem>
-                        <AccordionItem value="infantiles" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Menús Infantiles/Adolescentes</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{menusInfantiles.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.nombre} ({formatCurrency(plato.precioVenta)})</Label></div>))}</div></AccordionContent></AccordionItem>
+                        <AccordionItem value="infantiles" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Menús Infantiles/Adolescentes</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{menusNinoDisponibles.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.nombre} ({formatCurrency(plato.precioVenta)})</Label></div>))}</div></AccordionContent></AccordionItem>
                       </Accordion>
                   </AccordionContent>
               </AccordionItem>
            </Accordion>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="font-headline text-xl">Dependencias de Servicios</CardTitle>
+          <CardDescription>
+            Configura reglas para que al seleccionar un servicio (ej. "Asado"), otro servicio (ej. "Asador") se añada automáticamente al presupuesto del simulador.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+            <div className="p-4 border rounded-md bg-muted/40 space-y-3">
+                <h4 className="font-medium">Añadir Nueva Dependencia</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+                    <div className="space-y-1">
+                        <Label htmlFor="trigger-service">Cuando se elija el plato...</Label>
+                        <Select value={newDependency.triggerServiceId} onValueChange={(val) => setNewDependency(p => ({ ...p, triggerServiceId: val }))}>
+                            <SelectTrigger id="trigger-service"><SelectValue placeholder="Seleccionar plato..." /></SelectTrigger>
+                            <SelectContent>
+                                {allMenus.flatMap(m => m.items).map(item => (
+                                    <SelectItem key={item.id} value={item.id}>{item.name}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="space-y-1">
+                        <Label htmlFor="required-service">Añadir automáticamente el servicio...</Label>
+                        <Select value={newDependency.requiredServiceId} onValueChange={(val) => setNewDependency(p => ({ ...p, requiredServiceId: val }))}>
+                            <SelectTrigger id="required-service"><SelectValue placeholder="Seleccionar servicio..." /></SelectTrigger>
+                            <SelectContent>
+                                {serviciosCatalogo.map(s => (
+                                    <SelectItem key={s.id} value={s.id}>{s.nombre}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+                <Button onClick={handleAddDependency} disabled={!newDependency.triggerServiceId || !newDependency.requiredServiceId || isSaving}>
+                    <PlusCircle className="w-4 h-4 mr-2" /> Añadir Dependencia
+                </Button>
+            </div>
+            <div className="space-y-2">
+                <h4 className="text-sm font-medium text-muted-foreground">Reglas Actuales:</h4>
+                {config?.serviceDependencies?.length > 0 ? (
+                    config.serviceDependencies.map(dep => {
+                        const trigger = allMenus.flatMap(m => m.items).find(i => i.id === dep.triggerServiceId);
+                        const required = serviciosCatalogo.find(s => s.id === dep.requiredServiceId);
+                        return (
+                            <div key={dep.id} className="flex items-center justify-between p-2 border rounded-md text-sm">
+                                <div className="flex items-center gap-2">
+                                    <span><span className="font-semibold">{trigger?.name || 'Plato no encontrado'}</span> activa a <span className="font-semibold">{required?.nombre || 'Servicio no encontrado'}</span></span>
+                                </div>
+                                <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteDependency(dep.id)} disabled={isSaving}>
+                                    <Trash2 className="w-4 h-4" />
+                                </Button>
+                            </div>
+                        )
+                    })
+                ) : (
+                    <p className="text-xs text-center text-muted-foreground py-2">No hay dependencias configuradas.</p>
+                )}
+            </div>
         </CardContent>
       </Card>
       
@@ -589,3 +713,4 @@ export default function BudgetDisplaySettingsPage() {
     </div>
   );
 }
+

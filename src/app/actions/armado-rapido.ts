@@ -2,7 +2,7 @@
 
 'use server';
 
-import type { ArmadoRapidoConfig, LeadFromQuickBudget } from '@/types/armado-rapido';
+import type { ArmadoRapidoConfig, LeadFromQuickBudget, ServiceDependency } from '@/types/armado-rapido';
 import { readData, writeData } from '@/lib/data-service';
 import { savePresupuesto } from './presupuestos';
 import type { ItemPresupuestado, Presupuesto } from '@/types/presupuesto';
@@ -15,6 +15,7 @@ const defaultConfig: ArmadoRapidoConfig = {
   paquetes: [],
   menus: [],
   platosVisibles: [],
+  serviceDependencies: [],
 };
 
 export async function getArmadoRapidoConfig(): Promise<ArmadoRapidoConfig> {
@@ -41,6 +42,11 @@ export async function saveArmadoRapidoConfig(
         serviciosIncluidos: menu.serviciosIncluidos.map(serv => ({ id: serv.id, esRegalo: serv.esRegalo || false })),
       })),
       platosVisibles: newConfigData.platosVisibles || [],
+      serviceDependencies: (newConfigData.serviceDependencies || []).map(dep => ({
+        id: dep.id,
+        triggerServiceId: dep.triggerServiceId,
+        requiredServiceId: dep.requiredServiceId,
+      })),
     };
     await writeData(CONFIG_FILE, sanitizedConfig);
     return { success: true };
