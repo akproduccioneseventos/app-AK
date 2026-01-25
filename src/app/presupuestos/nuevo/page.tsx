@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, PlusCircle, ArrowRight, Loader2, ListChecks, CheckCircle, FileClock, XCircle, FileText, Printer } from 'lucide-react';
+import { ArrowLeft, PlusCircle, ArrowRight, Loader2, ListChecks, CheckCircle, FileClock, XCircle, FileText, Printer, FileArchive } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Presupuesto } from '@/types/presupuesto';
 import { getPresupuestos } from '@/app/actions/presupuestos';
@@ -57,6 +57,9 @@ function PresupuestoDashboardContent() {
                 <div className="flex gap-2 flex-wrap">
                   <Link href="/presupuestos/reporte" passHref>
                     <Button variant="secondary"><Printer className="w-4 h-4 mr-2"/>Ver Reporte</Button>
+                  </Link>
+                  <Link href="/admin/carga-historicos" passHref>
+                    <Button variant="outline"><FileArchive className="w-4 h-4 mr-2"/>Cargar Históricos</Button>
                   </Link>
                   <Link href="/presupuestos/nuevo/crear" passHref>
                     <Button><PlusCircle className="w-4 h-4 mr-2"/>Crear Nuevo Presupuesto</Button>

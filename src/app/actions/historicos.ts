@@ -1,7 +1,6 @@
 'use server';
 
 import { readData, writeData } from '@/lib/data-service';
-import { randomUUID } from 'crypto';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -9,8 +8,10 @@ import type { Customer } from '@/types/customer';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Presupuesto } from '@/types/presupuesto';
 import { initialFiestaActualData } from '@/lib/fiesta-defaults';
-import { archiveFiesta, saveFiesta } from './fiesta/fiesta.actions';
+import { saveFiesta } from './fiesta/fiesta.actions';
 import { createNotification } from './notifications';
+import { saveInvoice } from './invoices';
+import type { Invoice, Payment } from '@/types/invoice';
 
 const CUSTOMERS_FILE = 'customers.json';
 const PRESUPUESTOS_FILE = 'presupuestos.json';
@@ -26,8 +27,8 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
     const montoTotalStr = formData.get('montoTotal') as string;
     const contractFile = formData.get('contractFile') as File | null;
 
-    if (!clienteNombre || !eventoFecha || !montoTotalStr || !contractFile) {
-        return { success: false, error: "Todos los campos son requeridos." };
+    if (!clienteNombre || !eventoFecha || !montoTotalStr) {
+        return { success: false, error: "Nombre, fecha y monto son requeridos." };
     }
 
     const montoTotal = parseFloat(montoTotalStr);
@@ -38,11 +39,14 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
     try {
         // 1. Create and Save Customer
         const customerId = `cust_hist_${Date.now()}`;
-        const uniqueFilename = `contract_${customerId}_${contractFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+        let uniqueFilename: string | undefined = undefined;
 
-        await ensureDirectoryExists(CONTRACTS_DIR);
-        const bytes = await contractFile.arrayBuffer();
-        await fs.writeFile(path.join(CONTRACTS_DIR, uniqueFilename), Buffer.from(bytes));
+        if (contractFile && contractFile.size > 0) {
+            await ensureDirectoryExists(CONTRACTS_DIR);
+            uniqueFilename = `contract_${customerId}_${contractFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+            const bytes = await contractFile.arrayBuffer();
+            await fs.writeFile(path.join(CONTRACTS_DIR, uniqueFilename), Buffer.from(bytes));
+        }
 
         const newCustomer: Customer = {
             id: customerId,
@@ -55,7 +59,7 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
         customers.push(newCustomer);
         await writeData(CUSTOMERS_FILE, customers, (a, b) => (a.name || '').localeCompare(b.name || ''));
 
-        // 2. Create Fiesta for the Customer
+        // 2. Create Fiesta Object (in memory)
         const fiestaId = `fiesta_hist_${Date.now()}`;
         const newFiesta: FiestaEnPlanificacion = {
             ...initialFiestaActualData,
@@ -91,30 +95,56 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
             }],
             costoTotalEstimado: montoTotal,
             estado: 'Facturado',
-            ajusteAnualActivo: true, // As requested by the user
+            ajusteAnualActivo: true,
             timestamp: new Date().toISOString(),
             notas: `Registro histórico cargado el ${new Date().toLocaleDateString()}. Contrato adjunto.`
         };
         
-        newFiesta.presupuestoId = presupuestoId;
         const presupuestos = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
         presupuestos.push(newPresupuesto);
         await writeData(PRESUPUESTOS_FILE, presupuestos);
 
-        // 4. Save Fiesta temporarily to be archived
-        const fiestaPath = path.join('fiestas', `${fiestaId}.json`);
-        await writeData(fiestaPath, newFiesta);
-        
-        // 5. Archive Fiesta
-        const archiveResult = await archiveFiesta(fiestaId);
-        if (!archiveResult.success) {
-            // This is not a critical failure, we can just warn about it.
-            console.warn(`Record histórico creado, pero no se pudo archivar el evento ${fiestaId}. Deberá archivarse manualmente.`);
+        // 4. Create a simplified, PAID Invoice
+        const newInvoice: Omit<Invoice, 'id'> = {
+            invoiceNumber: `HIST-${presupuestoId.slice(-5)}`,
+            customer: newCustomer,
+            issueDate: eventoFecha,
+            dueDate: eventoFecha,
+            items: [{
+                id: `item_hist_${Date.now()}`,
+                description: `Servicios históricos para ${clienteNombre}`,
+                quantity: 1, unitPrice: montoTotal, total: montoTotal,
+            }],
+            subtotal: montoTotal,
+            totalAmount: montoTotal,
+            status: 'Paid',
+            currency: 'UYU',
+            vendorName: 'AK Producciones', // Placeholder, consider moving to settings
+            payments: [{
+                id: `pay_hist_${Date.now()}`,
+                paymentDate: eventoFecha,
+                amount: montoTotal,
+                method: 'Otro',
+                notes: 'Pago registrado desde carga histórica'
+            }]
+        };
+        const invoiceResult = await saveInvoice(newInvoice, presupuestoId);
+        if (!invoiceResult.success || !invoiceResult.id) {
+            throw new Error('Fallo al crear la factura histórica.');
+        }
+
+        // 5. Save the Fiesta as an ACTIVE event
+        newFiesta.presupuestoId = presupuestoId;
+        newFiesta.invoiceIds = [invoiceResult.id];
+        const saveFiestaResult = await saveFiesta(newFiesta);
+        if (!saveFiestaResult.success) {
+            throw new Error(saveFiestaResult.error || "No se pudo guardar la nueva fiesta activa.");
         }
         
+        // 6. Notification
         await createNotification({
-          mensaje: `Se cargó un registro histórico para ${clienteNombre}.`,
-          href: `/customers/${customerId}`,
+          mensaje: `Se cargó el evento histórico de ${clienteNombre}.`,
+          href: `/fiestas/nueva?fiestaId=${fiestaId}`,
           icono: 'Archive',
         });
 
