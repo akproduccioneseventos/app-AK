@@ -1,13 +1,16 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { ArrowLeft, ChefHat, PlusCircle, Copy, Edit, Trash2, Loader2, DollarSign, Info } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { ArrowLeft, ChefHat, PlusCircle, Copy, Edit, Trash2, Loader2, DollarSign, Info, Percent } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getMenus, deleteMenu, duplicateMenu } from '@/app/actions/menus-catering';
+import { getMenus, deleteMenu, duplicateMenu, adjustAllDishMargins } from '@/app/actions/menus-catering';
 import type { FullMenu, MenuItem } from '@/types/catering';
 import {
   AlertDialog,
@@ -32,6 +35,9 @@ export default function GestionMenusPage() {
   const [menus, setMenus] = useState<FullMenu[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
+
+  const [adjustmentPercentage, setAdjustmentPercentage] = useState(10);
+  const [isAdjusting, setIsAdjusting] = useState(false);
 
   const fetchMenus = useCallback(async () => {
     setIsLoading(true);
@@ -63,6 +69,23 @@ export default function GestionMenusPage() {
       toast({ title: 'Error al Eliminar', description: err.message, variant: 'destructive' });
     } finally {
       setProcessingId(null);
+    }
+  };
+  
+  const handleAdjustMargins = async () => {
+    setIsAdjusting(true);
+    try {
+      const result = await adjustAllDishMargins(adjustmentPercentage);
+      if (result.success) {
+        toast({ title: "Márgenes ajustados", description: `Los márgenes de todos los platos fueron ajustados.` });
+        await fetchMenus(); // Refresh data
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (err: any) {
+      toast({ title: "Error al ajustar márgenes", description: err.message, variant: "destructive" });
+    } finally {
+      setIsAdjusting(false);
     }
   };
 
@@ -99,6 +122,50 @@ export default function GestionMenusPage() {
             <Link href="/empresa" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver a Empresa</Button></Link>
         </div>
       </div>
+       <Card>
+        <CardHeader>
+            <CardTitle className="font-headline text-lg">Ajuste de Márgenes Global</CardTitle>
+            <CardDescription>
+                Aplica un aumento o disminución a los márgenes de ganancia de **todos los platos** en **todos los menús**. El precio de venta se recalculará automáticamente.
+            </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col sm:flex-row gap-4 items-end">
+            <div className="space-y-2 flex-grow">
+                <Label htmlFor="percentage-adjust">Puntos Porcentuales a Ajustar</Label>
+                <Input
+                id="percentage-adjust"
+                type="number"
+                value={adjustmentPercentage}
+                onChange={(e) => setAdjustmentPercentage(Number(e.target.value))}
+                placeholder="Ej: 10 para aumentar, -5 para disminuir"
+                />
+            </div>
+            <AlertDialog>
+                <AlertDialogTrigger asChild>
+                <Button disabled={isAdjusting || adjustmentPercentage === 0}>
+                    {isAdjusting ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Percent className="w-4 h-4 mr-2"/>}
+                    Aplicar Ajuste de Margen
+                </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Esta acción modificará los márgenes de ganancia de TODOS los platos en un 
+                      <span className="font-bold"> {adjustmentPercentage} puntos porcentuales</span>. Esta acción es irreversible.
+                      ¿Deseas continuar?
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleAdjustMargins}>
+                    Aplicar ajuste del {adjustmentPercentage > 0 ? `+${adjustmentPercentage}`: adjustmentPercentage}%
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </CardContent>
+    </Card>
        <Card>
         <CardHeader>
           <CardTitle>Menús Guardados</CardTitle>

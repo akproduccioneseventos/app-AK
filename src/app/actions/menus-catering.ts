@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import type { FullMenu, MenuItem, Ingredient } from '@/types/catering';
@@ -258,4 +259,39 @@ export async function duplicateMenu(id: string): Promise<{ success: boolean; err
     return saveMenu(newMenu);
 }
 
+export async function adjustAllDishMargins(
+  percentage: number
+): Promise<{ success: boolean; error?: string }> {
+  if (isNaN(percentage)) {
+    return { success: false, error: "El porcentaje debe ser un número." };
+  }
+  
+  try {
+    const menus = await readMenusFile();
+    if (menus.length === 0) {
+      return { success: false, error: "No hay menús para ajustar." };
+    }
+
+    const updatedMenus = menus.map(menu => {
+      const updatedItems = menu.items.map(item => {
+        const newProfitMargin = (item.profitMargin ?? 100) + percentage;
+        const newSuggestedSellingPrice = (item.totalDishCost || 0) * (1 + newProfitMargin / 100);
+
+        return {
+          ...item,
+          profitMargin: newProfitMargin,
+          suggestedSellingPrice: newSuggestedSellingPrice
+        };
+      });
+      return { ...menu, items: updatedItems };
+    });
+
+    await writeMenusFile(updatedMenus);
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error adjusting dish margins:", error);
+    return { success: false, error: "Ocurrió un error al intentar ajustar los márgenes." };
+  }
+}
     
