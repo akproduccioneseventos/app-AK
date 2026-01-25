@@ -6,10 +6,10 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Sparkles, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, DollarSign, Printer } from 'lucide-react';
+import { ArrowLeft, Sparkles, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, DollarSign, Printer, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ServicioEmpresa } from '@/types/empresa';
-import { getServiciosEmpresa, deleteServicioEmpresa } from '@/app/actions/servicios-empresa';
+import { getServiciosEmpresa, deleteServicioEmpresa, duplicateServicioEmpresa } from '@/app/actions/servicios-empresa';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import {
   AlertDialog,
@@ -47,6 +47,7 @@ export default function CatalogoServiciosPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [duplicatingId, setDuplicatingId] = useState<string | null>(null);
 
   const fetchItems = useCallback(async () => {
     setIsLoading(true);
@@ -91,6 +92,23 @@ export default function CatalogoServiciosPage() {
       toast({ title: "Error al Eliminar", description: (err as Error).message, variant: "destructive" });
     } finally {
       setDeletingId(null);
+    }
+  };
+
+  const handleDuplicate = async (id: string, nombreItem?: string) => {
+    setDuplicatingId(id);
+    try {
+      const result = await duplicateServicioEmpresa(id);
+      if (result.success) {
+        toast({ title: "Servicio Duplicado", description: `Se creó una copia de "${nombreItem}".` });
+        fetchItems(); 
+      } else {
+        throw new Error(result.error || "Error desconocido al duplicar.");
+      }
+    } catch (err: any) {
+      toast({ title: "Error al Duplicar", description: (err as Error).message, variant: "destructive" });
+    } finally {
+      setDuplicatingId(null);
     }
   };
   
@@ -180,9 +198,14 @@ export default function CatalogoServiciosPage() {
                             <div className="flex justify-between items-start">
                               <CardTitle className="text-base font-semibold">{item.nombre}</CardTitle>
                               <div className="flex gap-1">
-                                  <Link href={`/empresa/servicios/editar/${item.id}`} passHref><Button variant="ghost" size="icon" className="h-7 w-7"><Edit className="w-3.5 h-3.5" /></Button></Link>
+                                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleDuplicate(item.id, item.nombre)} disabled={!!deletingId || !!duplicatingId} title="Duplicar Servicio">
+                                      {duplicatingId === item.id ? <Loader2 className="w-3.5 h-3.5 animate-spin"/> : <Copy className="w-3.5 h-3.5"/>}
+                                  </Button>
+                                  <Link href={`/empresa/servicios/editar/${item.id}`} passHref>
+                                      <Button variant="ghost" size="icon" className="h-7 w-7" disabled={!!deletingId || !!duplicatingId}><Edit className="w-3.5 h-3.5"/></Button>
+                                  </Link>
                                   <AlertDialog>
-                                    <AlertDialogTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" disabled={deletingId === item.id}><Trash2 className="w-3.5 h-3.5" /></Button></AlertDialogTrigger>
+                                    <AlertDialogTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" disabled={!!deletingId || !!duplicatingId}><Trash2 className="w-3.5 h-3.5" /></Button></AlertDialogTrigger>
                                     <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>¿Confirmar eliminación?</AlertDialogTitle><AlertDialogDescription>El servicio "{item.nombre}" será eliminado.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDelete(item.id, item.nombre)} disabled={deletingId === item.id} className="bg-destructive hover:bg-destructive/90">{deletingId === item.id && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin"/>}Eliminar</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
                                   </AlertDialog>
                               </div>

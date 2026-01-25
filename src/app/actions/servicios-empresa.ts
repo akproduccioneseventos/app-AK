@@ -14,13 +14,13 @@ export async function getServiciosEmpresa(): Promise<ServicioEmpresa[]> {
       tipoItem: 'Servicio',
       categoria: item.categoria,
       subcategoria: item.subcategoria || undefined,
-      valorUnitarioEstimado: item.valorUnitarioEstimado !== undefined && !isNaN(Number(item.valorUnitarioEstimado)) ? Number(item.valorUnitarioEstimado) : undefined,
+      valorUnitarioEstimado: item.valorUnitarioEstimado === undefined || item.valorUnitarioEstimado === null || isNaN(Number(item.valorUnitarioEstimado)) ? 0 : Number(item.valorUnitarioEstimado),
       notas: item.notas || undefined,
-      precioVenta: item.precioVenta !== undefined && !isNaN(Number(item.precioVenta)) ? Number(item.precioVenta) : undefined,
+      precioVenta: item.precioVenta === undefined || item.precioVenta === null || isNaN(Number(item.precioVenta)) ? undefined : Number(item.precioVenta),
       calculationMethod: item.calculationMethod,
-      precioBase: item.precioBase !== undefined && !isNaN(Number(item.precioBase)) ? Number(item.precioBase) : undefined,
-      precioPorPersona: item.precioPorPersona !== undefined && !isNaN(Number(item.precioPorPersona)) ? Number(item.precioPorPersona) : undefined,
-      invitadosPorUnidad: item.invitadosPorUnidad !== undefined && !isNaN(Number(item.invitadosPorUnidad)) ? Number(item.invitadosPorUnidad) : undefined,
+      precioBase: item.precioBase === undefined || item.precioBase === null || isNaN(Number(item.precioBase)) ? undefined : Number(item.precioBase),
+      precioPorPersona: item.precioPorPersona === undefined || item.precioPorPersona === null || isNaN(Number(item.precioPorPersona)) ? undefined : Number(item.precioPorPersona),
+      invitadosPorUnidad: item.invitadosPorUnidad === undefined || item.invitadosPorUnidad === null || isNaN(Number(item.invitadosPorUnidad)) ? undefined : Number(item.invitadosPorUnidad),
       tramosDePrecio: item.tramosDePrecio || undefined,
     }));
 }
@@ -79,4 +79,27 @@ export async function deleteServicioEmpresa(id: string): Promise<{ success: bool
   if (inventario.length === initialLength) return { success: false, error: `Servicio con ID ${id} no encontrado para eliminar.` };
   await writeData(SERVICIOS_EMPRESA_FILE, inventario);
   return { success: true };
+}
+
+export async function duplicateServicioEmpresa(
+  servicioId: string
+): Promise<{ success: boolean; servicio?: ServicioEmpresa; error?: string }> {
+  const inventario = await getServiciosEmpresa();
+  const servicioToDuplicate = inventario.find(s => s.id === servicioId);
+
+  if (!servicioToDuplicate) {
+    return { success: false, error: 'Servicio a duplicar no encontrado.' };
+  }
+
+  // Create a new object, omitting the id
+  const { id, ...originalData } = servicioToDuplicate;
+
+  const newServicioData: Omit<ServicioEmpresa, 'id'> = {
+    ...originalData,
+    nombre: `[COPIA] ${originalData.nombre}`,
+  };
+
+  // Use the existing save function to create the new service.
+  // It will generate a new ID and handle saving the file.
+  return saveServicioEmpresa(newServicioData);
 }
