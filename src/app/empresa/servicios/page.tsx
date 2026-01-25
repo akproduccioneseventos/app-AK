@@ -3,13 +3,13 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Sparkles, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, DollarSign, Printer, Copy } from 'lucide-react';
+import { ArrowLeft, Sparkles, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, DollarSign, Printer, Copy, Percent } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ServicioEmpresa } from '@/types/empresa';
-import { getServiciosEmpresa, deleteServicioEmpresa, duplicateServicioEmpresa } from '@/app/actions/servicios-empresa';
+import { getServiciosEmpresa, deleteServicioEmpresa, duplicateServicioEmpresa, adjustAllServicePrices } from '@/app/actions/servicios-empresa';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import {
   AlertDialog,
@@ -23,6 +23,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -48,6 +49,8 @@ export default function CatalogoServiciosPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [duplicatingId, setDuplicatingId] = useState<string | null>(null);
+  const [adjustmentPercentage, setAdjustmentPercentage] = useState(10);
+  const [isAdjusting, setIsAdjusting] = useState(false);
 
   const fetchItems = useCallback(async () => {
     setIsLoading(true);
@@ -92,6 +95,23 @@ export default function CatalogoServiciosPage() {
       toast({ title: "Error al Eliminar", description: (err as Error).message, variant: "destructive" });
     } finally {
       setDeletingId(null);
+    }
+  };
+  
+  const handleAdjustPrices = async () => {
+    setIsAdjusting(true);
+    try {
+      const result = await adjustAllServicePrices(adjustmentPercentage);
+      if (result.success) {
+        toast({ title: "Precios ajustados", description: `Todos los servicios fueron ajustados en un ${adjustmentPercentage}%.` });
+        await fetchItems(); // Refresh data
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (err: any) {
+      toast({ title: "Error al ajustar precios", description: err.message, variant: "destructive" });
+    } finally {
+      setIsAdjusting(false);
     }
   };
 
@@ -168,6 +188,52 @@ export default function CatalogoServiciosPage() {
       </div>
       <CardDescription>Define los servicios que vendes, sus precios y cómo se calculan para incluirlos en los presupuestos.</CardDescription>
       
+      <Card>
+        <CardHeader>
+          <CardTitle className="font-headline text-lg">Ajuste de Precios Global</CardTitle>
+          <CardDescription>
+            Aplica un aumento o disminución porcentual a todos los servicios del catálogo.
+            Esta acción es irreversible.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col sm:flex-row gap-4 items-end">
+          <div className="space-y-2 flex-grow">
+            <Label htmlFor="percentage-adjust">Porcentaje de Ajuste (%)</Label>
+            <Input
+              id="percentage-adjust"
+              type="number"
+              value={adjustmentPercentage}
+              onChange={(e) => setAdjustmentPercentage(Number(e.target.value))}
+              placeholder="Ej: 10 para aumentar, -5 para disminuir"
+            />
+          </div>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button disabled={isAdjusting || adjustmentPercentage === 0}>
+                {isAdjusting ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Percent className="w-4 h-4 mr-2"/>}
+                Aplicar Ajuste
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Esta acción modificará los precios de VENTA de TODOS los servicios en un 
+                  <span className="font-bold"> {adjustmentPercentage}%</span>. El cambio es irreversible.
+                  Los costos internos no serán modificados. ¿Deseas continuar?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={handleAdjustPrices}>
+                  Aplicar ajuste del {adjustmentPercentage}%
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </CardContent>
+      </Card>
+
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle>Listado de Servicios ({filteredItems.length})</CardTitle>
