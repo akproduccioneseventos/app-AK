@@ -55,9 +55,11 @@
     "nombre": "Asador profesional",
     "tipoItem": "Servicio",
     "categoria": "Personal",
-    "valorUnitarioEstimado": 3000,
-    "precioVenta": 3990,
+    "valorUnitarioEstimado": 3200,
+    "precioVenta": 4200,
     "calculationMethod": "fijo",
+    "precioBase": 4200,
+    "precioPorPersona": 4200,
     "tramosDePrecio": [
       {
         "id": "tramo_1",
@@ -89,9 +91,9 @@
     "nombre": "Mozo",
     "tipoItem": "Servicio",
     "categoria": "Personal",
-    "valorUnitarioEstimado": 2100,
+    "valorUnitarioEstimado": 2200,
     "calculationMethod": "ratio",
-    "precioBase": 2900,
+    "precioBase": 2990,
     "invitadosPorUnidad": 25
   },
   {

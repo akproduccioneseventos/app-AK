@@ -216,8 +216,32 @@ export async function resetFiestaActual(): Promise<{ success: boolean; error?: s
 }
 
 export async function getFiestaById(fiestaId: string): Promise<FiestaEnPlanificacion | null> {
-    const allFiestas = await getAllFiestas();
-    return allFiestas.find(f => f.id === fiestaId) || null;
+    // --- OPTIMIZATION START ---
+    // 1. Check active fiestas (fast path) by reading the file directly.
+    const activeFiestaPath = path.join(FIESTAS_DIR, `${fiestaId}.json`);
+    try {
+        // Assuming `readData` can handle file-not-found gracefully by returning the default value (null).
+        // This avoids reading the entire directory.
+        const activeFiesta = await readData<FiestaEnPlanificacion | null>(activeFiestaPath, null);
+        if (activeFiesta && activeFiesta.id === fiestaId) {
+            return activeFiesta;
+        }
+    } catch (e) {
+        // This catch block will handle any unexpected errors from readData/fs operations,
+        // but we'll proceed to check archives anyway.
+        console.warn(`Could not directly read active fiesta ${fiestaId}, checking archives. Error:`, e);
+    }
+
+    // 2. If not found in active, search the archived fiestas (slower path).
+    const archivadas = await getHistorialFiestas();
+    const foundInArchive = archivadas.find(f => f.id === fiestaId);
+    if (foundInArchive) {
+        return foundInArchive;
+    }
+    
+    // 3. Return null if not found in active or archived.
+    return null;
+    // --- OPTIMIZATION END ---
 }
 
 export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ success: boolean; fiesta?: FiestaEnPlanificacion; error?: string }> {
