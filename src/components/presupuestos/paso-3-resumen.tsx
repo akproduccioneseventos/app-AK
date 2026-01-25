@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { PresupuestoFormData, ItemPresupuestado } from '@/types/presupuesto';
@@ -17,7 +16,7 @@ interface Paso3ResumenProps {
   formData: PresupuestoFormData;
   setFormData: Dispatch<SetStateAction<PresupuestoFormData>>;
   totalCalculado: number;
-  totalInvitados: number; // Added to recalculate costs
+  totalInvitados: number;
 }
 
 const formatCurrency = (amount?: number) => {
@@ -25,7 +24,7 @@ const formatCurrency = (amount?: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
-// Re-defining calculation function locally if it's not exported from parent
+// Calculation function to ensure this component is self-contained
 function calcularCostoItem(item: ItemPresupuestado, invitados: number): number {
   if (item.esRegalo) return 0;
   
@@ -98,6 +97,14 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
     });
   };
 
+  const handleRemoveItem = (servicioId: string) => {
+    setFormData(prev => {
+      const newSelected = new Map(prev.serviciosSeleccionados);
+      newSelected.delete(servicioId);
+      return {...prev, serviciosSeleccionados: newSelected};
+    });
+  };
+
   const { descuentoAplicado, totalFinal } = useMemo(() => {
     let descuento = 0;
     const valor = parseFloat(formData.descuentoValor || '0');
@@ -128,7 +135,10 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
 
                 return (
                     <div key={id} className="p-3 border rounded-md">
-                        <p className="font-semibold">{servicio.nombreServicio}</p>
+                        <div className="flex justify-between items-start">
+                          <p className="font-semibold pr-2">{servicio.nombreServicio}</p>
+                          <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive -mt-1 -mr-2" onClick={() => handleRemoveItem(id)}><Trash2 className="w-4 h-4" /></Button>
+                        </div>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2 items-end">
                             <div className="space-y-1">
                                 <Label htmlFor={`qty-${id}`} className="text-xs">Cantidad</Label>
