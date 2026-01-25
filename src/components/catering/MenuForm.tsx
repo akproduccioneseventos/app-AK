@@ -39,6 +39,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
   const [currentItemIdForCatalog, setCurrentItemIdForCatalog] = useState<string | null>(null);
   const [catalogSearchTerm, setCatalogSearchTerm] = useState('');
+  const [dishSearchTerm, setDishSearchTerm] = useState('');
 
   const calculateIngredientCost = useCallback((ing: Partial<Ingredient>): number => {
       const quantity = parseFloat(ing.quantityPerPerson || '0');
@@ -87,9 +88,14 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     fetchInsumos();
   }, [existingMenu, calculatePrices, calculateIngredientCost, fetchInsumos]);
   
-  const sortedItems = useMemo(() => {
-    return [...(menu.items || [])].sort((a, b) => (a.totalDishCost || 0) - (b.totalDishCost || 0));
-  }, [menu.items]);
+  const sortedAndFilteredItems = useMemo(() => {
+    const sorted = [...(menu.items || [])].sort((a, b) => (a.totalDishCost || 0) - (b.totalDishCost || 0));
+    if (!dishSearchTerm.trim()) {
+        return sorted;
+    }
+    const lowerCaseSearch = dishSearchTerm.toLowerCase();
+    return sorted.filter(item => item.name.toLowerCase().includes(lowerCaseSearch));
+  }, [menu.items, dishSearchTerm]);
 
   const handleMenuChange = (field: keyof FullMenu, value: string | File | null) => {
       if (field === 'imageUrl' && value instanceof File) {
@@ -334,9 +340,19 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
         <CardHeader>
           <CardTitle>Platos del Menú</CardTitle>
           <CardDescription>Añade o edita los platos que componen este menú.</CardDescription>
+            <div className="relative pt-4">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                    placeholder="Buscar plato en este menú..."
+                    value={dishSearchTerm}
+                    onChange={(e) => setDishSearchTerm(e.target.value)}
+                    className="w-full max-w-sm pl-9"
+                />
+            </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          {sortedItems.map((item) => (
+          {sortedAndFilteredItems.length > 0 ? (
+            sortedAndFilteredItems.map((item) => (
             <Card key={item.id} className={cn("p-4")}>
                 <CardHeader className="p-0 pb-4">
                      <div className="flex justify-between items-start">
@@ -407,7 +423,12 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                     </div>
                  </CardFooter>
             </Card>
-          ))}
+          ))
+        ) : (
+            <div className="text-center py-6 text-muted-foreground">
+                <p>No se encontraron platos con el término "{dishSearchTerm}".</p>
+            </div>
+        )}
           <Button type="button" variant="secondary" onClick={addItem}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Plato</Button>
         </CardContent>
       </Card>
