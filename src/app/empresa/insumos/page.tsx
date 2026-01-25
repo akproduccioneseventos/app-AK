@@ -6,10 +6,10 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Package, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, Filter, Printer, BarChart3, Tag, DollarSign, StickyNote } from 'lucide-react';
+import { ArrowLeft, Package, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, Filter, Printer, BarChart3, Tag, DollarSign, StickyNote, Percent } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ServicioEmpresa, CategoriaInsumo } from '@/types/empresa';
-import { getInsumos, deleteInsumo } from '@/app/actions/insumos';
+import { getInsumos, deleteInsumo, adjustAllInsumoCosts } from '@/app/actions/insumos';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import {
   AlertDialog,
@@ -25,6 +25,7 @@ import {
 import { DropdownMenu, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
 import { useSearchParams } from 'next/navigation';
+import { Label } from '@/components/ui/label';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || amount === null || isNaN(amount)) return '$ 0';
@@ -43,6 +44,9 @@ function InventarioInsumosContent() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const [costAdjustmentPercentage, setCostAdjustmentPercentage] = useState(10);
+  const [isAdjustingCost, setIsAdjustingCost] = useState(false);
 
   const ALL_CATEGORIES = useMemo(() => {
     const categories = new Set(allItems.map(item => item.categoria as CategoriaInsumo));
@@ -113,6 +117,22 @@ function InventarioInsumosContent() {
     setFilteredItems(tempItems);
 }, [searchTerm, allItems, categoryFilter, ALL_CATEGORIES, categoriaParam, subcategoriaParam]);
 
+  const handleAdjustCosts = async () => {
+    setIsAdjustingCost(true);
+    try {
+      const result = await adjustAllInsumoCosts(costAdjustmentPercentage);
+      if (result.success) {
+        toast({ title: "Costos de Insumos Ajustados", description: `Todos los costos de insumos fueron ajustados en un ${costAdjustmentPercentage}%.` });
+        await fetchItems(); // Refresh data
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (err: any) {
+      toast({ title: "Error al ajustar costos", description: err.message, variant: "destructive" });
+    } finally {
+      setIsAdjustingCost(false);
+    }
+  };
 
   const handleDelete = async (id: string, nombreItem?: string) => {
     setDeletingId(id);
@@ -185,6 +205,51 @@ function InventarioInsumosContent() {
       </div>
       <CardDescription>Gestiona tu inventario de consumibles (ingredientes, bebidas, etc.) que se usarán en los menús.</CardDescription>
       
+       <Card>
+        <CardHeader>
+          <CardTitle className="font-headline text-lg">Ajuste de Costos Global</CardTitle>
+          <CardDescription>
+            Aplica un aumento o disminución porcentual a los costos de TODOS los insumos e ingredientes del catálogo.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col sm:flex-row gap-4 items-end">
+          <div className="space-y-2 flex-grow">
+            <Label htmlFor="cost-percentage-adjust">Porcentaje de Ajuste (%)</Label>
+            <Input
+              id="cost-percentage-adjust"
+              type="number"
+              value={costAdjustmentPercentage}
+              onChange={(e) => setCostAdjustmentPercentage(Number(e.target.value))}
+              placeholder="Ej: 10 para aumentar, -5 para disminuir"
+            />
+          </div>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button disabled={isAdjustingCost || costAdjustmentPercentage === 0}>
+                {isAdjustingCost ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Percent className="w-4 h-4 mr-2"/>}
+                Ajustar Costos
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Esta acción modificará los COSTOS de TODOS los insumos en un 
+                  <span className="font-bold"> {costAdjustmentPercentage}%</span>. El cambio es irreversible.
+                  ¿Deseas continuar?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={handleAdjustCosts}>
+                  Aplicar ajuste del {costAdjustmentPercentage > 0 ? `+${costAdjustmentPercentage}`: costAdjustmentPercentage}%
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </CardContent>
+      </Card>
+
        <Card className="shadow-lg print:shadow-none print:border-none">
         <CardHeader className="border-b print:border-b-2 print:border-gray-200">
           <CardTitle className="font-headline text-xl flex items-center gap-2"><DollarSign className="w-6 h-6 text-primary"/>Capital en Insumos</CardTitle>

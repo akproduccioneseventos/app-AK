@@ -75,3 +75,37 @@ export async function deleteInsumo(id: string): Promise<{ success: boolean; erro
   await writeData(INSUMOS_FILE, inventario);
   return { success: true };
 }
+
+export async function adjustAllInsumoCosts(
+  percentage: number
+): Promise<{ success: boolean; error?: string }> {
+  if (isNaN(percentage) || percentage === 0) {
+    return { success: false, error: "El porcentaje debe ser un número distinto de cero." };
+  }
+  
+  try {
+    const inventario = await getInsumos();
+    if (inventario.length === 0) {
+      return { success: false, error: "No hay insumos en el catálogo para ajustar." };
+    }
+
+    const multiplier = 1 + percentage / 100;
+
+    const updatedInventario = inventario.map(insumo => {
+      const newInsumo = { ...insumo };
+
+      if (newInsumo.valorUnitarioEstimado !== undefined) {
+        newInsumo.valorUnitarioEstimado = Math.round((newInsumo.valorUnitarioEstimado * multiplier));
+      }
+      
+      return newInsumo;
+    });
+
+    await writeData(INSUMOS_FILE, updatedInventario, (a, b) => (a.categoria || '').localeCompare(b.categoria || '') || (a.nombre || '').localeCompare(b.nombre || ''));
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error adjusting insumo costs:", error);
+    return { success: false, error: "Ocurrió un error al intentar ajustar los costos de los insumos." };
+  }
+}

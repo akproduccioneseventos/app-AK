@@ -126,6 +126,23 @@
     ]
   },
   {
+    "id": "serv_1759923390445_bebwdh9",
+    "nombre": "Fuegos frios",
+    "tipoItem": "Servicio",
+    "categoria": "Regalo exclusivo",
+    "valorUnitarioEstimado": 700,
+    "precioVenta": 3850,
+    "calculationMethod": "fijo",
+    "tramosDePrecio": [
+      {
+        "id": "tramo_1",
+        "desde": 0,
+        "hasta": 50,
+        "precio": 0
+      }
+    ]
+  },
+  {
     "id": "serv_invitaciones_digitales",
     "nombre": "Invitaciones Digitales",
     "tipoItem": "Servicio",
@@ -170,7 +187,7 @@
     "tipoItem": "Servicio",
     "categoria": "Regalo exclusivo",
     "valorUnitarioEstimado": 0,
-    "precioVenta": 2750,
+    "precioVenta": 2490,
     "calculationMethod": "fijo"
   },
   {
@@ -253,10 +270,28 @@
     "nombre": "Refrescos",
     "tipoItem": "Servicio",
     "categoria": "Servicio de bebidas",
-    "valorUnitarioEstimado": 70,
+    "valorUnitarioEstimado": 80,
     "precioVenta": 0,
     "calculationMethod": "porPersona",
-    "precioPorPersona": 154,
+    "precioPorPersona": 149,
+    "tramosDePrecio": [
+      {
+        "id": "tramo_1",
+        "desde": 0,
+        "hasta": 50,
+        "precio": 0
+      }
+    ]
+  },
+  {
+    "id": "serv_1769381611893_2z7o3n1",
+    "nombre": "Leña",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "valorUnitarioEstimado": 20,
+    "precioVenta": 0,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 35,
     "tramosDePrecio": [
       {
         "id": "tramo_1",
@@ -294,13 +329,31 @@
     "precioPorPersona": 79
   },
   {
+    "id": "serv_1769368631171_sur8t7y",
+    "nombre": "Mobiliario completo",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "valorUnitarioEstimado": 0,
+    "precioVenta": 0,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 79,
+    "tramosDePrecio": [
+      {
+        "id": "tramo_1",
+        "desde": 0,
+        "hasta": 50,
+        "precio": 0
+      }
+    ]
+  },
+  {
     "id": "item_1758319656786_6sjl431",
     "nombre": "Vajilla Completa",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "valorUnitarioEstimado": 0,
     "calculationMethod": "porPersona",
-    "precioPorPersona": 83
+    "precioPorPersona": 79
   },
   {
     "id": "item_1758320278460_yqzpq1h",
@@ -309,7 +362,7 @@
     "categoria": "Servicio de decoración",
     "valorUnitarioEstimado": 200,
     "calculationMethod": "ratio",
-    "precioBase": 649,
+    "precioBase": 599,
     "invitadosPorUnidad": 8
   },
   {
@@ -317,8 +370,8 @@
     "nombre": "Banner Gigantografia",
     "tipoItem": "Servicio",
     "categoria": "Servicio de decoración",
-    "valorUnitarioEstimado": 1400,
-    "precioVenta": 3289,
+    "valorUnitarioEstimado": 1500,
+    "precioVenta": 2990,
     "calculationMethod": "fijo",
     "tramosDePrecio": [
       {
@@ -354,7 +407,7 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de decoración",
     "valorUnitarioEstimado": 1400,
-    "precioVenta": 3190,
+    "precioVenta": 2990,
     "calculationMethod": "fijo",
     "tramosDePrecio": [
       {
@@ -366,21 +419,55 @@
     ]
   },
   {
+    "nombre": "Decoración Básica",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "calculationMethod": "fijo",
+    "precioVenta": 7990,
+    "tramosDePrecio": [
+      {
+        "id": "tramo_1",
+        "desde": 0,
+        "hasta": 50,
+        "precio": 0
+      }
+    ],
+    "valorUnitarioEstimado": 1500,
+    "id": "serv_1769382445833_rmonr5f"
+  },
+  {
     "id": "item_1757282105396_39i6zkn",
     "nombre": "Servicio de Decoración",
     "tipoItem": "Servicio",
     "categoria": "Servicio de decoración",
     "valorUnitarioEstimado": 5000,
-    "precioVenta": 15950,
+    "precioVenta": 14990,
     "calculationMethod": "fijo"
   },
   {
     "id": "serv_1759923136982_tn3pwnz",
-    "nombre": "Zona de fotografía con sillón diván y mural personalizado",
+    "nombre": "Zona de fotografía con sillón diván",
     "tipoItem": "Servicio",
     "categoria": "Servicio de decoración",
-    "valorUnitarioEstimado": 1000,
-    "precioVenta": 5489,
+    "valorUnitarioEstimado": 0,
+    "precioVenta": 4990,
+    "calculationMethod": "fijo",
+    "tramosDePrecio": [
+      {
+        "id": "tramo_1",
+        "desde": 0,
+        "hasta": 50,
+        "precio": 0
+      }
+    ]
+  },
+  {
+    "id": "serv_1769381652387_1scarks",
+    "nombre": "Pista Led chica",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de discoteca",
+    "valorUnitarioEstimado": 0,
+    "precioVenta": 7900,
     "calculationMethod": "fijo",
     "tramosDePrecio": [
       {
@@ -393,11 +480,11 @@
   },
   {
     "id": "serv_1759924175890_gcepq1r",
-    "nombre": "Pista Led",
+    "nombre": "Pista Led grande",
     "tipoItem": "Servicio",
     "categoria": "Servicio de discoteca",
     "valorUnitarioEstimado": 0,
-    "precioVenta": 14190,
+    "precioVenta": 12900,
     "calculationMethod": "fijo",
     "tramosDePrecio": [
       {
@@ -421,19 +508,19 @@
         "id": "tramo_1759920281582",
         "desde": 1,
         "hasta": 80,
-        "precio": 10989
+        "precio": 9990
       },
       {
         "id": "tramo_1759920301189",
         "desde": 81,
         "hasta": 120,
-        "precio": 20889
+        "precio": 19900
       },
       {
         "id": "tramo_1759920323087",
         "desde": 121,
-        "hasta": 250,
-        "precio": 32890
+        "hasta": 300,
+        "precio": 29990
       }
     ]
   },
@@ -443,7 +530,7 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de entretenimiento",
     "valorUnitarioEstimado": 1500,
-    "precioVenta": 3839,
+    "precioVenta": 2990,
     "calculationMethod": "fijo",
     "tramosDePrecio": [
       {
@@ -460,7 +547,7 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de entretenimiento",
     "valorUnitarioEstimado": 1500,
-    "precioVenta": 4290,
+    "precioVenta": 3490,
     "calculationMethod": "fijo",
     "tramosDePrecio": [
       {
@@ -476,26 +563,9 @@
     "nombre": "Fotocabina",
     "tipoItem": "Servicio",
     "categoria": "Servicio de entretenimiento",
-    "valorUnitarioEstimado": 1000,
-    "precioVenta": 3190,
+    "valorUnitarioEstimado": 1500,
+    "precioVenta": 2990,
     "calculationMethod": "fijo"
-  },
-  {
-    "id": "serv_1759923390445_bebwdh9",
-    "nombre": "Fuegos frios",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de entretenimiento",
-    "valorUnitarioEstimado": 700,
-    "precioVenta": 3850,
-    "calculationMethod": "fijo",
-    "tramosDePrecio": [
-      {
-        "id": "tramo_1",
-        "desde": 0,
-        "hasta": 50,
-        "precio": 0
-      }
-    ]
   },
   {
     "id": "serv_1759923896617_ezkio4w",
@@ -520,8 +590,8 @@
     "nombre": "Plataforma 360",
     "tipoItem": "Servicio",
     "categoria": "Servicio de entretenimiento",
-    "valorUnitarioEstimado": 1000,
-    "precioVenta": 4290,
+    "valorUnitarioEstimado": 1500,
+    "precioVenta": 3490,
     "calculationMethod": "fijo"
   },
   {
@@ -530,7 +600,7 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de filmación",
     "valorUnitarioEstimado": 2000,
-    "precioVenta": 4389,
+    "precioVenta": 3990,
     "calculationMethod": "fijo",
     "tramosDePrecio": [
       {
@@ -547,7 +617,7 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de filmación",
     "valorUnitarioEstimado": 3500,
-    "precioVenta": 9889,
+    "precioVenta": 9990,
     "calculationMethod": "fijo"
   },
   {
@@ -555,8 +625,8 @@
     "nombre": "Filmacion de la iglesia",
     "tipoItem": "Servicio",
     "categoria": "Servicio de filmación",
-    "valorUnitarioEstimado": 2000,
-    "precioVenta": 4389,
+    "valorUnitarioEstimado": 1650,
+    "precioVenta": 3990,
     "calculationMethod": "fijo",
     "tramosDePrecio": [
       {
@@ -573,7 +643,7 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de filmación",
     "valorUnitarioEstimado": 2000,
-    "precioVenta": 4389,
+    "precioVenta": 3990,
     "calculationMethod": "fijo",
     "tramosDePrecio": [
       {
@@ -589,8 +659,8 @@
     "nombre": "Filmacion del civil",
     "tipoItem": "Servicio",
     "categoria": "Servicio de filmación",
-    "valorUnitarioEstimado": 2000,
-    "precioVenta": 4389,
+    "valorUnitarioEstimado": 1650,
+    "precioVenta": 3990,
     "calculationMethod": "fijo",
     "tramosDePrecio": [
       {
@@ -606,8 +676,8 @@
     "nombre": "Fotografía de exteriores",
     "tipoItem": "Servicio",
     "categoria": "Servicio de fotografía",
-    "valorUnitarioEstimado": 1500,
-    "precioVenta": 4290,
+    "valorUnitarioEstimado": 1650,
+    "precioVenta": 3990,
     "calculationMethod": "fijo"
   },
   {
@@ -615,8 +685,8 @@
     "nombre": "Fotografia de la fiesta",
     "tipoItem": "Servicio",
     "categoria": "Servicio de fotografía",
-    "valorUnitarioEstimado": 3000,
-    "precioVenta": 9889,
+    "valorUnitarioEstimado": 3300,
+    "precioVenta": 9990,
     "calculationMethod": "fijo",
     "tramosDePrecio": [
       {
@@ -632,8 +702,8 @@
     "nombre": "Fotografia de la Iglesia",
     "tipoItem": "Servicio",
     "categoria": "Servicio de fotografía",
-    "valorUnitarioEstimado": 1500,
-    "precioVenta": 4279,
+    "valorUnitarioEstimado": 1800,
+    "precioVenta": 3990,
     "calculationMethod": "fijo",
     "tramosDePrecio": [
       {
@@ -649,8 +719,8 @@
     "nombre": "Fotografia de la pintada",
     "tipoItem": "Servicio",
     "categoria": "Servicio de fotografía",
-    "valorUnitarioEstimado": 1500,
-    "precioVenta": 4279,
+    "valorUnitarioEstimado": 1650,
+    "precioVenta": 3990,
     "calculationMethod": "fijo",
     "tramosDePrecio": [
       {
@@ -666,8 +736,8 @@
     "nombre": "Fotografia del civil",
     "tipoItem": "Servicio",
     "categoria": "Servicio de fotografía",
-    "valorUnitarioEstimado": 1500,
-    "precioVenta": 4279,
+    "valorUnitarioEstimado": 1650,
+    "precioVenta": 3990,
     "calculationMethod": "fijo",
     "tramosDePrecio": [
       {
@@ -693,10 +763,10 @@
     "nombre": "Mesa dulce con fuente de chocolate",
     "tipoItem": "Servicio",
     "categoria": "Servicio de repostería",
-    "valorUnitarioEstimado": 60,
+    "valorUnitarioEstimado": 65,
     "precioVenta": 0,
     "calculationMethod": "porPersona",
-    "precioPorPersona": 132,
+    "precioPorPersona": 129,
     "tramosDePrecio": [
       {
         "id": "tramo_1",
@@ -711,8 +781,8 @@
     "nombre": "Postre Chaja",
     "tipoItem": "Servicio",
     "categoria": "Servicio de repostería",
-    "valorUnitarioEstimado": 1100,
-    "precioVenta": 1639,
+    "valorUnitarioEstimado": 1200,
+    "precioVenta": 1590,
     "calculationMethod": "fijo",
     "tramosDePrecio": [
       {
@@ -728,8 +798,8 @@
     "nombre": "Postre Chesecake",
     "tipoItem": "Servicio",
     "categoria": "Servicio de repostería",
-    "valorUnitarioEstimado": 1000,
-    "precioVenta": 1419,
+    "valorUnitarioEstimado": 1100,
+    "precioVenta": 1500,
     "calculationMethod": "fijo",
     "tramosDePrecio": [
       {
@@ -779,8 +849,8 @@
     "nombre": "Postre Imperial Ruso",
     "tipoItem": "Servicio",
     "categoria": "Servicio de repostería",
-    "valorUnitarioEstimado": 1000,
-    "precioVenta": 1419,
+    "valorUnitarioEstimado": 1100,
+    "precioVenta": 1390,
     "calculationMethod": "fijo",
     "tramosDePrecio": [
       {
@@ -858,6 +928,6 @@
     "valorUnitarioEstimado": 60,
     "precioVenta": 6600,
     "calculationMethod": "porPersona",
-    "precioPorPersona": 110
+    "precioPorPersona": 109
   }
 ]
