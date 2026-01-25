@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText, BrainCircuit, Link as LinkIcon, Star, HardDriveDownload, PartyPopper, Sparkles as SparklesIcon, Wand2, UserCog, ListChecks, PackageSearch, Palette } from 'lucide-react';
+import { Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText, BrainCircuit, Link as LinkIcon, Star, HardDriveDownload, PartyPopper, Sparkles as SparklesIcon, Wand2, UserCog, ListChecks, PackageSearch, Palette, FileArchive } from 'lucide-react';
 
 const settingsCards = [
    {
@@ -40,6 +40,13 @@ const settingsCards = [
     href: "/settings/accesos-personal",
     icon: UserCog,
     buttonLabel: "Gestionar Accesos"
+  },
+  {
+    title: "Carga de Históricos",
+    description: "Sube rápidamente contratos y presupuestos de años anteriores para mantener un registro completo.",
+    href: "/admin/carga-historicos",
+    icon: FileArchive,
+    buttonLabel: "Cargar Datos"
   },
   {
     title: "Notificaciones",
