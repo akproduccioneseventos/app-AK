@@ -144,14 +144,20 @@ export default function ArmadoRapidoPage() {
             return setting !== undefined ? setting.visible : true;
         };
 
-        const allDishes = allMenus.flatMap(m => m.items);
-        const visibleDishes = allDishes.filter(d => isPlatoVisible(d.id));
+        const enhanceWithPrice = (item: MenuItem): MenuItem & { precioVenta: number } => ({
+          ...item,
+          nombre: item.name,
+          precioVenta: item.suggestedSellingPrice ?? (item.totalDishCost ? item.totalDishCost * (1 + (item.profitMargin ?? 120) / 100) : 0),
+        });
         
         const sortByPrice = (a: { precioPorPersona?: number }, b: { precioPorPersona?: number }) => (a.precioPorPersona || 0) - (b.precioPorPersona || 0);
     
+        const allDishes = allMenus.flatMap(m => m.items);
+        const visibleDishes = allDishes.filter(d => isPlatoVisible(d.id));
+
         return { 
-            entradasDisponibles: visibleDishes.filter(s => s.type === 'Entrada').map(menuItemToServicioEmpresa).sort(sortByPrice), 
-            principalesDisponibles: visibleDishes.filter(s => s.type === 'Plato Principal').map(menuItemToServicioEmpresa).sort(sortByPrice), 
+            entradasDisponibles: visibleDishes.filter(item => item.type === 'Entrada').map(menuItemToServicioEmpresa).sort(sortByPrice), 
+            principalesDisponibles: visibleDishes.filter(item => item.type === 'Plato Principal').map(menuItemToServicioEmpresa).sort(sortByPrice), 
             menusNinoDisponibles: visibleDishes.filter(s => s.type === 'Menú Infantil/Adolescente').map(menuItemToServicioEmpresa).sort(sortByPrice)
         };
     }, [config, allMenus]);
@@ -206,9 +212,11 @@ export default function ArmadoRapidoPage() {
         const includedServicesList: ServicioDetallado[] = [];
 
         const allSimuladorServices = [...entradasDisponibles, ...principalesDisponibles, ...menusNinoDisponibles, ...serviciosCatalogo];
-
+        
         const addServicio = (servicio: ServicioEmpresa | undefined, esRegalo: boolean, nota?: string, cantidadEspecifica?: number) => {
             if (!servicio) return;
+             if (includedServicesList.some(s => s.id === servicio.id)) return;
+
             const cantidadParaCalculo = cantidadEspecifica ?? (servicio.calculationMethod === 'porPersona' || servicio.calculationMethod === 'ratio' ? totalInvitados : 1);
             const costoItem = calcularCostoServicio(servicio, cantidadParaCalculo);
             
@@ -222,6 +230,8 @@ export default function ArmadoRapidoPage() {
             if (servicio.calculationMethod === 'porPersona') {
                 unidadDisplay = 'personas';
             } else if (servicio.calculationMethod === 'ratio' && servicio.unidad) {
+                unidadDisplay = servicio.unidad;
+            } else if (servicio.unidad) {
                 unidadDisplay = servicio.unidad;
             }
 
@@ -255,6 +265,17 @@ export default function ArmadoRapidoPage() {
             });
         }
         
+        const asadoDishIds = ["dish_main_18", "dish_main_19"]; 
+        const asadorServiceId = 'serv_1759925142198_fbb8zf4';
+        
+        const needsAsador = selectedPrincipal && asadoDishIds.includes(selectedPrincipal);
+        if(needsAsador){
+            const asadorService = serviciosCatalogo.find(s => s.id === asadorServiceId);
+            if(asadorService){
+                addServicio(asadorService, false);
+            }
+        }
+        
         let calculatedDescuento = 0;
         if (config.descuentoGeneral && config.descuentoGeneral > 0) {
             calculatedDescuento = calculatedSubtotal * (config.descuentoGeneral / 100);
@@ -263,7 +284,7 @@ export default function ArmadoRapidoPage() {
         const calculatedCostoTotal = calculatedSubtotal - calculatedDescuento;
 
         return { costoTotal: calculatedCostoTotal, subtotal: calculatedSubtotal, descuento: calculatedDescuento, serviciosDetallados: includedServicesList, totalRegalos: calculatedTotalRegalos };
-    }, [config, serviciosCatalogo, entradasDisponibles, principalesDisponibles, menusNinoDisponibles, adultos, ninos, selectedEntradas, selectedPrincipal, selectedMenuNino, selectedPaqueteId]);
+    }, [config, serviciosCatalogo, allMenus, entradasDisponibles, principalesDisponibles, menusNinoDisponibles, adultos, ninos, selectedEntradas, selectedPrincipal, selectedMenuNino, selectedPaqueteId]);
 
     const serviciosAgrupados = useMemo(() => {
         const serviciosSinRegalo = serviciosDetallados.filter(s => !s.esRegalo);
@@ -619,4 +640,4 @@ export default function ArmadoRapidoPage() {
     );
 }
 
-    
+```
