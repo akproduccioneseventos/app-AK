@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent, use } from 'react';
@@ -11,11 +12,22 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DatePickerDemo } from '@/components/date-picker-demo';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Edit3, Tag, Percent, Sparkles } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Edit3, Tag, Percent, Sparkles, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Presupuesto, TipoEvento, ItemPresupuestado } from '@/types/presupuesto';
-import { getPresupuestoById, updatePresupuesto } from '@/app/actions/presupuestos';
+import { getPresupuestoById, updatePresupuesto, recalculatePresupuestoFromCatalog } from '@/app/actions/presupuestos';
 import { ALL_TIPOS_EVENTO } from '@/types/presupuesto';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function EditarPresupuestoPage({ params: paramsProp }: { params: { id: string } }) {
   const params = use(paramsProp);
@@ -43,6 +55,7 @@ export default function EditarPresupuestoPage({ params: paramsProp }: { params: 
   
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isRecalculating, setIsRecalculating] = useState(false);
   const [notFound, setNotFound] = useState(false);
 
   const loadPresupuesto = useCallback(async () => {
@@ -147,6 +160,24 @@ export default function EditarPresupuestoPage({ params: paramsProp }: { params: 
     }
   };
 
+  const handleRecalculate = async () => {
+    if (!presupuesto) return;
+    setIsRecalculating(true);
+    try {
+      const result = await recalculatePresupuestoFromCatalog(presupuesto.id);
+      if (result.success) {
+        toast({ title: "Precios Actualizados", description: "Los precios del presupuesto se han sincronizado con el catálogo actual." });
+        await loadPresupuesto();
+      } else {
+        throw new Error(result.error || "Ocurrió un error desconocido.");
+      }
+    } catch (error: any) {
+      toast({ title: "Error al Actualizar Precios", description: error.message, variant: "destructive" });
+    } finally {
+      setIsRecalculating(false);
+    }
+  };
+
   if (isLoading) return <div className="flex items-center justify-center h-screen"><Loader2 className="w-16 h-16 animate-spin text-primary" /><p className="ml-4 text-xl">Cargando...</p></div>;
   if (notFound) return <div className="flex flex-col items-center justify-center h-screen text-center"><AlertTriangle className="w-16 h-16 text-destructive mb-4" /><h1 className="text-2xl font-bold">Presupuesto No Encontrado</h1><Link href="/presupuestos/nuevo"><Button variant="outline" className="mt-4"><ArrowLeft />Volver</Button></Link></div>;
 
@@ -218,6 +249,36 @@ export default function EditarPresupuestoPage({ params: paramsProp }: { params: 
               </Link>
             </div>
 
+            <div className="pt-6 border-t">
+              <h3 className="text-lg font-medium font-headline text-primary mb-2">Sincronizar Precios</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Si has actualizado los precios de tus servicios en el catálogo, puedes usar este botón para actualizar todos los precios en este presupuesto a sus valores más recientes. Esta acción no se puede deshacer.
+              </p>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" type="button" disabled={isSaving || isRecalculating}>
+                    {isRecalculating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+                    Actualizar Precios desde Catálogo
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>¿Actualizar todos los precios?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Esta acción buscará el precio más reciente para cada servicio de este presupuesto en tu catálogo y lo actualizará. Los ítems sin un equivalente en el catálogo no cambiarán. Esta acción es irreversible.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleRecalculate} disabled={isRecalculating}>
+                      {isRecalculating && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                      Sí, actualizar precios
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+
           </CardContent>
           <CardFooter className="border-t pt-6">
             <Button type="submit" className="w-full sm:w-auto" disabled={isSaving}>
@@ -230,5 +291,4 @@ export default function EditarPresupuestoPage({ params: paramsProp }: { params: 
     </div>
   );
 }
-
     

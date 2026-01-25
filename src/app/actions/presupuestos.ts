@@ -8,6 +8,10 @@ import { getInvoiceById, saveInvoice } from './invoices';
 import type { Invoice, InvoiceItem } from '@/types/invoice';
 import { findLeadByBudgetOrCreate, getCrmStages, moveCrmLead } from './crm';
 import { createNotification } from './notifications';
+import { getServiciosEmpresa } from './servicios-empresa';
+import { getMenus } from './menus-catering';
+import type { ServicioEmpresa } from '@/types/empresa';
+import type { FullMenu, MenuItem } from '@/types/catering';
 
 const PRESUPUESTOS_FILE = 'presupuestos.json';
 
@@ -84,14 +88,10 @@ export async function savePresupuesto(
   };
 
   
-  // **FIX**: The lead needs to be created/found *before* saving the budget to get the leadId.
-  // However, the budget needs an ID to be linked. This creates a circular dependency.
-  // The best approach is to save the budget, then find/create the lead, and then *update* the budget with the leadId.
   let finalLeadId = options?.leadId;
   try {
     const { lead, isNew } = await findLeadByBudgetOrCreate(nuevoPresupuesto);
     finalLeadId = lead.id;
-    // Now that we have the lead ID, add it to the budget object before saving.
     nuevoPresupuesto.leadId = finalLeadId;
 
     if (isNew || options?.source === 'manual' || options?.source === 'simulator') {
@@ -241,5 +241,83 @@ export async function activateAnnualAdjustmentForBudget(presupuestoId: string): 
   return { success: true };
 }
 
+export async function recalculatePresupuestoFromCatalog(presupuestoId: string): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
+  const presupuesto = await getPresupuestoById(presupuestoId);
+  if (!presupuesto) {
+    return { success: false, error: 'Presupuesto no encontrado.' };
+  }
+
+  try {
+    const [serviciosCatalogo, menusCatalogo] = await Promise.all([
+      getServiciosEmpresa(),
+      getMenus(),
+    ]);
+
+    const menuItemToServicio = (item: MenuItem): Partial<ServicioEmpresa> => ({
+        id: item.id,
+        nombre: item.name,
+        calculationMethod: 'porPersona',
+        precioPorPersona: item.suggestedSellingPrice ?? ((item.totalDishCost || 0) * (1 + (item.profitMargin ?? 100) / 100)),
+    });
+
+    const allCatalogItems: Map<string, Partial<ServicioEmpresa>> = new Map();
+    serviciosCatalogo.forEach(s => allCatalogItems.set(s.id, s));
+    menusCatalogo.forEach(m => m.items.forEach(i => allCatalogItems.set(i.id, menuItemToServicio(i))));
+
+    let needsUpdate = false;
+
+    const updatedItems = presupuesto.itemsPresupuestados.map(item => {
+      const catalogItem = allCatalogItems.get(item.idServicioCatalogo);
+      if (!catalogItem) {
+        return item; // Keep item as is if catalog source not found
+      }
+      
+      let currentPrice: number;
+      switch (item.calculationMethod) {
+          case 'porPersona':
+            currentPrice = catalogItem.precioPorPersona ?? catalogItem.precioVenta ?? 0;
+            break;
+          case 'ratio':
+            currentPrice = catalogItem.precioBase ?? catalogItem.precioVenta ?? 0;
+            break;
+          case 'tramos':
+            currentPrice = item.precioUnitarioPresupuesto; // No se actualiza el precio de tramos automáticamente
+             break;
+          case 'fijo':
+          default:
+             currentPrice = catalogItem.precioVenta ?? 0;
+            break;
+      }
+      
+      const updatedTramos = item.calculationMethod === 'tramos' ? catalogItem.tramosDePrecio : item.tramosDePrecio;
+
+      if (item.precioUnitarioPresupuesto !== currentPrice || JSON.stringify(item.tramosDePrecio) !== JSON.stringify(updatedTramos)) {
+        needsUpdate = true;
+        return {
+          ...item,
+          precioUnitarioPresupuesto: currentPrice,
+          precioUnitario: currentPrice, 
+          precioBase: catalogItem.precioBase,
+          precioPorPersona: catalogItem.precioPorPersona,
+          tramosDePrecio: updatedTramos,
+        };
+      }
+      
+      return item;
+    });
+    
+    if (!needsUpdate) {
+      return { success: true, presupuesto, id: presupuesto.id };
+    }
+
+    const updatedPresupuestoData: Presupuesto = { ...presupuesto, itemsPresupuestados: updatedItems };
+    
+    return await updatePresupuesto(updatedPresupuestoData);
+
+  } catch (error: any) {
+    console.error("Error recalculating budget from catalog:", error);
+    return { success: false, error: "No se pudieron actualizar los precios desde el catálogo." };
+  }
+}
   
     

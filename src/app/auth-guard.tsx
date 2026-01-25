@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, type ReactNode } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 
 const SESSION_KEY = 'ak_producciones_auth_session';
@@ -25,7 +25,6 @@ interface AuthGuardProps {
 }
 
 export function AuthGuard({ children }: AuthGuardProps) {
-  const router = useRouter();
   const pathname = usePathname();
   const [isVerified, setIsVerified] = useState(false);
 
@@ -59,12 +58,12 @@ export function AuthGuard({ children }: AuthGuardProps) {
     const isAuthenticated = sessionStorage.getItem(SESSION_KEY) === 'true';
     
     if (!isAuthenticated) {
-      router.push('/login');
+      window.location.href = '/login';
     } else {
       setIsVerified(true);
     }
 
-  }, [pathname, router]);
+  }, [pathname]);
 
   if (!isVerified) {
     // Render a loading state to avoid flashes of content
