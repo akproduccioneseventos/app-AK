@@ -1,5 +1,31 @@
-
 [
+  {
+    "id": "menu_barra_tragos",
+    "name": "Barra de Tragos",
+    "description": "Una selección de cócteles y bebidas para la barra.",
+    "templateType": "Servicio de bebidas",
+    "createdAt": "2025-10-29T19:30:00.000Z",
+    "updatedAt": "2025-10-29T19:30:00.000Z",
+    "items": []
+  },
+  {
+    "id": "menu_mesa_dulce",
+    "name": "Mesa Dulce",
+    "description": "Variedad de postres, tortas y dulces para el final de la fiesta.",
+    "templateType": "Servicio de repostería",
+    "createdAt": "2025-10-29T19:30:00.000Z",
+    "updatedAt": "2025-10-29T19:30:00.000Z",
+    "items": []
+  },
+  {
+    "id": "menu_fuente_chocolate",
+    "name": "Fuente de Chocolate",
+    "description": "Cascada de chocolate con deliciosos acompañamientos.",
+    "templateType": "Servicio de repostería",
+    "createdAt": "2025-10-29T19:30:00.000Z",
+    "updatedAt": "2025-10-29T19:30:00.000Z",
+    "items": []
+  },
   {
     "id": "menu_entradas_predisenado",
     "name": "Menú de Entradas",
@@ -15,8 +41,8 @@
         "name": "Buñuelos de Algas",
         "type": "Entrada",
         "totalDishCost": 45.2,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 90.4,
+        "profitMargin": 220,
+        "suggestedSellingPrice": 144.64000000000001,
         "ingredients": [
           {
             "id": "ing_1_1",
@@ -78,8 +104,8 @@
         "name": "Arrolladitos Primavera",
         "type": "Entrada",
         "totalDishCost": 40,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 80,
+        "profitMargin": 220,
+        "suggestedSellingPrice": 128,
         "ingredients": [
           {
             "id": "ing_2_1",
@@ -115,8 +141,8 @@
         "name": "Tapas Saborizadas",
         "type": "Entrada",
         "totalDishCost": 48.4,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 96.8,
+        "profitMargin": 220,
+        "suggestedSellingPrice": 154.88,
         "ingredients": [
           {
             "id": "ing_3_1",
@@ -206,8 +232,8 @@
         "name": "Papas fritas con Cheddar",
         "type": "Entrada",
         "totalDishCost": 50,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 100,
+        "profitMargin": 220,
+        "suggestedSellingPrice": 160,
         "ingredients": [
           {
             "id": "ing_pc_1",
@@ -243,8 +269,8 @@
         "name": "Planchas Calientes",
         "type": "Entrada",
         "totalDishCost": 54.2,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 108.4,
+        "profitMargin": 220,
+        "suggestedSellingPrice": 173.44000000000003,
         "ingredients": [
           {
             "id": "ing_4_1",
@@ -297,8 +323,8 @@
         "name": "Empanadas",
         "type": "Entrada",
         "totalDishCost": 57.2,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 114.4,
+        "profitMargin": 220,
+        "suggestedSellingPrice": 183.04000000000002,
         "ingredients": [
           {
             "id": "ing_10_1",
@@ -360,8 +386,8 @@
         "name": "Salpicón de Pollo",
         "type": "Entrada",
         "totalDishCost": 71.2,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 142.4,
+        "profitMargin": 220,
+        "suggestedSellingPrice": 227.84000000000003,
         "ingredients": [
           {
             "id": "ing_9_1",
@@ -432,8 +458,8 @@
         "name": "Kebabs",
         "type": "Entrada",
         "totalDishCost": 76,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 152,
+        "profitMargin": 220,
+        "suggestedSellingPrice": 243.20000000000002,
         "ingredients": [
           {
             "id": "ing_8_1",
@@ -495,8 +521,8 @@
         "name": "Mini Chivitos",
         "type": "Entrada",
         "totalDishCost": 80,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 160,
+        "profitMargin": 220,
+        "suggestedSellingPrice": 256,
         "ingredients": [
           {
             "id": "ing_11_1",
@@ -576,8 +602,8 @@
         "name": "Arepas",
         "type": "Entrada",
         "totalDishCost": 84.8,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 169.6,
+        "profitMargin": 220,
+        "suggestedSellingPrice": 271.36,
         "ingredients": [
           {
             "id": "ing_14_1",
@@ -666,8 +692,8 @@
         "name": "Empanaditas y Pizzetitas",
         "type": "Entrada",
         "totalDishCost": 89,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 178,
+        "profitMargin": 220,
+        "suggestedSellingPrice": 284.8,
         "ingredients": [
           {
             "id": "ing_17_1",
@@ -702,8 +728,8 @@
         "name": "Calzonne",
         "type": "Entrada",
         "totalDishCost": 96,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 192,
+        "profitMargin": 220,
+        "suggestedSellingPrice": 307.20000000000005,
         "ingredients": [
           {
             "id": "ing_15_1",
@@ -783,8 +809,8 @@
         "name": "Picada Caliente",
         "type": "Entrada",
         "totalDishCost": 98.48,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 196.96,
+        "profitMargin": 220,
+        "suggestedSellingPrice": 315.136,
         "ingredients": [
           {
             "id": "ing_19_1",
@@ -918,8 +944,8 @@
         "name": "Picada de Mar",
         "type": "Entrada",
         "totalDishCost": 100.22,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 200.44,
+        "profitMargin": 220,
+        "suggestedSellingPrice": 320.704,
         "ingredients": [
           {
             "id": "ing_21_1",
@@ -1026,8 +1052,8 @@
         "name": "Picada Criolla",
         "type": "Entrada",
         "totalDishCost": 102.119,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 204.238,
+        "profitMargin": 220,
+        "suggestedSellingPrice": 326.7808,
         "ingredients": [
           {
             "id": "ing_20_1",
@@ -1116,8 +1142,8 @@
         "name": "Tacos Mexicanos",
         "type": "Entrada",
         "totalDishCost": 92.45,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 184.9,
+        "profitMargin": 220,
+        "suggestedSellingPrice": 295.84000000000003,
         "ingredients": [
           {
             "id": "ing_16_1",
@@ -1254,8 +1280,8 @@
         "name": "Mesa Buffet",
         "type": "Plato Principal",
         "totalDishCost": 52.2272,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 104.4544,
+        "profitMargin": 220,
+        "suggestedSellingPrice": 167.12704000000002,
         "ingredients": [
           {
             "id": "ing_mb_1",
@@ -1448,8 +1474,8 @@
         "name": "Ravioles a la Crema",
         "type": "Plato Principal",
         "totalDishCost": 115.5,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 231,
+        "profitMargin": 220,
+        "suggestedSellingPrice": 369.6,
         "ingredients": [
           {
             "id": "ing_m6_1",
@@ -1506,8 +1532,8 @@
         "name": "Pollo Arrollado C/ Guarnición",
         "type": "Plato Principal",
         "totalDishCost": 150,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 300,
+        "profitMargin": 220,
+        "suggestedSellingPrice": 480,
         "ingredients": [
           {
             "id": "ing_m3_1",
@@ -1532,8 +1558,8 @@
         "name": "Cerdo Arrollado C/ Guarnición",
         "type": "Plato Principal",
         "totalDishCost": 150,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 300,
+        "profitMargin": 220,
+        "suggestedSellingPrice": 480,
         "ingredients": [
           {
             "id": "ing_m8_1",
@@ -1558,8 +1584,8 @@
         "name": "Ñoquis al Queso",
         "type": "Plato Principal",
         "totalDishCost": 155.5,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 311,
+        "profitMargin": 220,
+        "suggestedSellingPrice": 497.6,
         "ingredients": [
           {
             "id": "ing_m7_1",
@@ -1640,8 +1666,8 @@
         "name": "Napolitana C/ Fritas",
         "type": "Plato Principal",
         "totalDishCost": 169.7,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 339.4,
+        "profitMargin": 220,
+        "suggestedSellingPrice": 543.04,
         "ingredients": [
           {
             "id": "ing_m12_1",
@@ -1722,8 +1748,8 @@
         "name": "Sorrentinos C/ Salsa Rosa",
         "type": "Plato Principal",
         "totalDishCost": 170.25,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 340.5,
+        "profitMargin": 220,
+        "suggestedSellingPrice": 544.8000000000001,
         "ingredients": [
           {
             "id": "ing_m10_1",
@@ -1780,8 +1806,8 @@
         "name": "Pollo a la Crema C/ Guarnición",
         "type": "Plato Principal",
         "totalDishCost": 175.6,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 351.2,
+        "profitMargin": 220,
+        "suggestedSellingPrice": 561.92,
         "ingredients": [
           {
             "id": "ing_m9_1",
@@ -1846,8 +1872,8 @@
         "name": "Bauru C/ Fritas",
         "type": "Plato Principal",
         "totalDishCost": 179.6,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 359.2,
+        "profitMargin": 220,
+        "suggestedSellingPrice": 574.72,
         "ingredients": [
           {
             "id": "ing_m13_1",
@@ -1952,8 +1978,8 @@
         "name": "Strogonoff de Pollo C/ Guarnición",
         "type": "Plato Principal",
         "totalDishCost": 186.1,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 372.2,
+        "profitMargin": 220,
+        "suggestedSellingPrice": 595.52,
         "ingredients": [
           {
             "id": "ing_m14_1",
@@ -2018,8 +2044,8 @@
         "name": "Merluza a la Crema C/ Guarnición",
         "type": "Plato Principal",
         "totalDishCost": 202.35,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 404.7,
+        "profitMargin": 220,
+        "suggestedSellingPrice": 647.52,
         "ingredients": [
           {
             "id": "ing_m15_1",
@@ -2092,8 +2118,8 @@
         "name": "Bife al Champiñon C/ Guarnición",
         "type": "Plato Principal",
         "totalDishCost": 225.1,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 450.2,
+        "profitMargin": 220,
+        "suggestedSellingPrice": 720.32,
         "ingredients": [
           {
             "id": "ing_m17_1",
@@ -2158,8 +2184,8 @@
         "name": "Cordero Asado C/ Guarnición",
         "type": "Plato Principal",
         "totalDishCost": 255,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 510,
+        "profitMargin": 220,
+        "suggestedSellingPrice": 816,
         "ingredients": [
           {
             "id": "ing_m18_1",
@@ -2184,8 +2210,8 @@
         "name": "Asado Completo C/ Guarnición",
         "type": "Plato Principal",
         "totalDishCost": 279.88,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 559.76,
+        "profitMargin": 220,
+        "suggestedSellingPrice": 895.616,
         "ingredients": [
           {
             "id": "ing_m19_1",
@@ -2226,8 +2252,8 @@
         "name": "Sushi C/ Guarnición",
         "type": "Plato Principal",
         "totalDishCost": 152.35,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 304.7,
+        "profitMargin": 220,
+        "suggestedSellingPrice": 487.52,
         "ingredients": []
       }
     ]
@@ -2247,8 +2273,8 @@
         "name": "Panchos C/ Fritas",
         "type": "Menú Infantil/Adolescente",
         "totalDishCost": 93.2,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 186.4,
+        "profitMargin": 220,
+        "suggestedSellingPrice": 298.24,
         "ingredients": [
           {
             "id": "ing_c2_1",
@@ -2305,8 +2331,8 @@
         "name": "Hamburguesa C/ Fritas",
         "type": "Menú Infantil/Adolescente",
         "totalDishCost": 134.3,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 268.6,
+        "profitMargin": 220,
+        "suggestedSellingPrice": 429.76000000000005,
         "ingredients": [
           {
             "id": "ing_c3_1",
@@ -2494,16 +2520,16 @@
           }
         ],
         "totalDishCost": 168.14600000000002,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 336.29200000000003
+        "profitMargin": 220,
+        "suggestedSellingPrice": 538.0672000000001
       },
       {
         "id": "dish_child_1",
         "name": "Panchos Medio Metro C/ Fritas",
         "type": "Menú Infantil/Adolescente",
         "totalDishCost": 164.3,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 328.6,
+        "profitMargin": 220,
+        "suggestedSellingPrice": 525.7600000000001,
         "ingredients": [
           {
             "id": "ing_c1_1",
@@ -2572,32 +2598,5 @@
         ]
       }
     ]
-  },
-  {
-    "id": "menu_barra_tragos",
-    "name": "Barra de Tragos",
-    "description": "Una selección de cócteles y bebidas para la barra.",
-    "templateType": "Servicio de bebidas",
-    "createdAt": "2025-10-29T19:30:00.000Z",
-    "updatedAt": "2025-10-29T19:30:00.000Z",
-    "items": []
-  },
-  {
-    "id": "menu_mesa_dulce",
-    "name": "Mesa Dulce",
-    "description": "Variedad de postres, tortas y dulces para el final de la fiesta.",
-    "templateType": "Servicio de repostería",
-    "createdAt": "2025-10-29T19:30:00.000Z",
-    "updatedAt": "2025-10-29T19:30:00.000Z",
-    "items": []
-  },
-  {
-    "id": "menu_fuente_chocolate",
-    "name": "Fuente de Chocolate",
-    "description": "Cascada de chocolate con deliciosos acompañamientos.",
-    "templateType": "Servicio de repostería",
-    "createdAt": "2025-10-29T19:30:00.000Z",
-    "updatedAt": "2025-10-29T19:30:00.000Z",
-    "items": []
   }
 ]

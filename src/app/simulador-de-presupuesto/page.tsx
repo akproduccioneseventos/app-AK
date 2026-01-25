@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, Package, ChefHat, FileText, Send, CheckCircle, Gift, User, Phone, MessageSquare, Share2, Printer } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, Package, ChefHat, FileText, Send, CheckCircle, Gift, User, Phone, MessageSquare, Share2, Printer, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
@@ -130,6 +130,8 @@ export default function ArmadoRapidoPage() {
     const [selectedMenuNino, setSelectedMenuNino] = useState<string>('');
     const [selectedPaqueteId, setSelectedPaqueteId] = useState<string>('');
     
+    const [gastronomiaSearchTerm, setGastronomiaSearchTerm] = useState('');
+
     const [isLoading, setIsLoading] = useState(true);
     const [isGeneratingLead, setIsGeneratingLead] = useState(false);
     
@@ -142,24 +144,23 @@ export default function ArmadoRapidoPage() {
             const setting = config.platosVisibles?.find(p => p.id === platoId);
             return setting !== undefined ? setting.visible : true;
         };
-
-        const enhanceWithPrice = (item: MenuItem): MenuItem & { precioVenta: number } => ({
-          ...item,
-          nombre: item.name,
-          precioVenta: item.suggestedSellingPrice ?? (item.totalDishCost ? item.totalDishCost * (1 + (item.profitMargin ?? 120) / 100) : 0),
-        });
         
         const sortByPrice = (a: { precioPorPersona?: number }, b: { precioPorPersona?: number }) => (a.precioPorPersona || 0) - (b.precioPorPersona || 0);
     
         const allDishes = allMenus.flatMap(m => m.items);
         const visibleDishes = allDishes.filter(d => isPlatoVisible(d.id));
 
+        const lowerCaseSearch = gastronomiaSearchTerm.toLowerCase();
+        const filteredDishes = gastronomiaSearchTerm.trim() === ''
+            ? visibleDishes 
+            : visibleDishes.filter(d => d.name.toLowerCase().includes(lowerCaseSearch));
+
         return { 
-            entradasDisponibles: visibleDishes.filter(item => item.type === 'Entrada').map(menuItemToServicioEmpresa).sort(sortByPrice), 
-            principalesDisponibles: visibleDishes.filter(item => item.type === 'Plato Principal').map(menuItemToServicioEmpresa).sort(sortByPrice), 
-            menusNinoDisponibles: visibleDishes.filter(s => s.type === 'Menú Infantil/Adolescente').map(menuItemToServicioEmpresa).sort(sortByPrice)
+            entradasDisponibles: filteredDishes.filter(item => item.type === 'Entrada').map(menuItemToServicioEmpresa).sort(sortByPrice), 
+            principalesDisponibles: filteredDishes.filter(item => item.type === 'Plato Principal').map(menuItemToServicioEmpresa).sort(sortByPrice), 
+            menusNinoDisponibles: filteredDishes.filter(s => s.type === 'Menú Infantil/Adolescente').map(menuItemToServicioEmpresa).sort(sortByPrice)
         };
-    }, [config, allMenus]);
+    }, [config, allMenus, gastronomiaSearchTerm]);
     
     useEffect(() => {
         const loadInitialData = async () => {
@@ -266,8 +267,8 @@ export default function ArmadoRapidoPage() {
 
         const paqueteSeleccionado = config.paquetes.find(p => p.id === selectedPaqueteId);
         if (paqueteSeleccionado) {
-            paqueteSeleccionado.serviciosIncluidos.forEach(servicioInfo => {
-                addServicio(serviciosCatalogo.find(s => s.id === servicioInfo.id), servicioInfo.esRegalo || false);
+            paqueteSeleccionado.serviciosIncluidos.forEach(servicioEnPaquete => {
+                addServicio(serviciosCatalogo.find(s => s.id === servicioEnPaquete.id), servicioEnPaquete.esRegalo || false);
             });
         }
         
@@ -479,13 +480,34 @@ export default function ArmadoRapidoPage() {
                     {step === 2 && (
                         <div className="space-y-6 animate-in fade-in-20">
                             <h3 className="font-semibold text-lg flex items-center gap-2"><ChefHat className="text-primary w-5 h-5"/>Elige tu menú gastronómico</h3>
+                            <div className="relative">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                                <Input 
+                                    placeholder="Buscar plato..."
+                                    value={gastronomiaSearchTerm}
+                                    onChange={e => setGastronomiaSearchTerm(e.target.value)}
+                                    className="pl-9"
+                                />
+                            </div>
                             <div className="space-y-4">
                                 <Label>Debes elegir {maxEntradas} entrada{maxEntradas > 1 ? 's' : ''} ({duracionHoras > 4 ? 'Fiesta larga' : 'Fiesta corta'})</Label>
                                 {entradasFaltantes > 0 && <p className="text-sm text-amber-600">Te falta seleccionar {entradasFaltantes} entrada{entradasFaltantes > 1 ? 's' : ''}.</p>}
-                                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">{entradasDisponibles.map(s => (<div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><Checkbox id={`e-${s.id}`} checked={selectedEntradas.includes(s.id)} onCheckedChange={(checked) => handleEntradaChange(s.id, !!checked)}/><Label htmlFor={`e-${s.id}`} className="text-sm font-normal">{s.nombre} <span className="text-xs text-muted-foreground">({formatCurrency(s.precioPorPersona || 0, true)})</span></Label></div>))}</div>
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                                  {entradasDisponibles.length > 0 ? (
+                                    entradasDisponibles.map(s => (<div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><Checkbox id={`e-${s.id}`} checked={selectedEntradas.includes(s.id)} onCheckedChange={(checked) => handleEntradaChange(s.id, !!checked)}/><Label htmlFor={`e-${s.id}`} className="text-sm font-normal">{s.nombre} <span className="text-xs text-muted-foreground">({formatCurrency(s.precioPorPersona || 0, true)})</span></Label></div>))
+                                  ) : (
+                                    <p className="col-span-full text-center text-sm text-muted-foreground py-4">No se encontraron entradas.</p>
+                                  )}
+                                </div>
                             </div>
                             <div className="space-y-4"><Label>Plato Principal (elige 1)</Label>
-                                <RadioGroup value={selectedPrincipal} onValueChange={setSelectedPrincipal} className="grid grid-cols-1 md:grid-cols-2 gap-2">{principalesDisponibles.map(s => <div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><RadioGroupItem value={s.id} id={`p-${s.id}`}/><Label htmlFor={`p-${s.id}`} className="text-sm font-normal">{s.nombre} ({formatCurrency(s.precioPorPersona || 0, true)})</Label></div>)}</RadioGroup>
+                                <RadioGroup value={selectedPrincipal} onValueChange={setSelectedPrincipal} className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                  {principalesDisponibles.length > 0 ? (
+                                    principalesDisponibles.map(s => <div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><RadioGroupItem value={s.id} id={`p-${s.id}`}/><Label htmlFor={`p-${s.id}`} className="text-sm font-normal">{s.nombre} ({formatCurrency(s.precioPorPersona || 0, true)})</Label></div>)
+                                  ) : (
+                                    <p className="md:col-span-2 text-center text-sm text-muted-foreground py-4">No se encontraron platos principales.</p>
+                                  )}
+                                </RadioGroup>
                             </div>
                             <div className="space-y-2"><Label>Menú Niños/Adolescentes (elige 1)</Label><Select value={selectedMenuNino} onValueChange={setSelectedMenuNino} disabled={ninos === 0}><SelectTrigger><SelectValue placeholder={ninos > 0 ? "Selecciona un menú..." : "Añade niños en Paso 1"}/></SelectTrigger><SelectContent>{menusNinoDisponibles.map(s=><SelectItem key={s.id} value={s.id}>{s.nombre} ({formatCurrency(s.precioPorPersona || 0, true)})</SelectItem>)}</SelectContent></Select></div>
                         </div>
