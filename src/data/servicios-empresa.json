@@ -5,8 +5,10 @@
     "tipoItem": "Servicio",
     "categoria": "Otros servicios",
     "valorUnitarioEstimado": 500,
-    "precioVenta": 3850,
+    "precioVenta": 3500,
     "calculationMethod": "fijo",
+    "precioBase": 3500,
+    "precioPorPersona": 3500,
     "tramosDePrecio": [
       {
         "id": "tramo_1",
@@ -36,32 +38,15 @@
     ]
   },
   {
-    "id": "serv_1759924853028_gvkfj6e",
-    "nombre": "Postre Selva negra",
-    "tipoItem": "Servicio",
-    "categoria": "Otros servicios",
-    "valorUnitarioEstimado": 1100,
-    "precioVenta": 1529,
-    "calculationMethod": "fijo",
-    "tramosDePrecio": [
-      {
-        "id": "tramo_1",
-        "desde": 0,
-        "hasta": 50,
-        "precio": 0
-      }
-    ]
-  },
-  {
     "id": "serv_1759925173262_6sba1mh",
     "nombre": "Asador profesional",
     "tipoItem": "Servicio",
     "categoria": "Personal",
     "valorUnitarioEstimado": 3200,
-    "precioVenta": 4620,
+    "precioVenta": 4200,
     "calculationMethod": "fijo",
-    "precioBase": 4620,
-    "precioPorPersona": 4620,
+    "precioBase": 4200,
+    "precioPorPersona": 4200,
     "tramosDePrecio": [
       {
         "id": "tramo_1",
@@ -76,9 +61,11 @@
     "nombre": "Cheff",
     "tipoItem": "Servicio",
     "categoria": "Personal",
-    "valorUnitarioEstimado": 2500,
-    "precioVenta": 3850,
+    "valorUnitarioEstimado": 2200,
+    "precioVenta": 3490,
     "calculationMethod": "fijo",
+    "precioBase": 3490,
+    "precioPorPersona": 3490,
     "tramosDePrecio": [
       {
         "id": "tramo_1",
@@ -95,7 +82,7 @@
     "categoria": "Personal",
     "valorUnitarioEstimado": 2200,
     "calculationMethod": "ratio",
-    "precioBase": 3289,
+    "precioBase": 2990,
     "invitadosPorUnidad": 25
   },
   {
@@ -113,9 +100,11 @@
     "nombre": "Portero/Seguridad",
     "tipoItem": "Servicio",
     "categoria": "Personal",
-    "valorUnitarioEstimado": 1600,
-    "precioVenta": 2750,
-    "calculationMethod": "fijo"
+    "valorUnitarioEstimado": 1700,
+    "precioVenta": 2590,
+    "calculationMethod": "fijo",
+    "precioBase": 2590,
+    "precioPorPersona": 2590
   },
   {
     "id": "serv_1759925293936_stuxroz",
@@ -123,8 +112,10 @@
     "tipoItem": "Servicio",
     "categoria": "Regalo exclusivo",
     "valorUnitarioEstimado": 0,
-    "precioVenta": 3850,
+    "precioVenta": 3500,
     "calculationMethod": "fijo",
+    "precioBase": 3500,
+    "precioPorPersona": 3500,
     "tramosDePrecio": [
       {
         "id": "tramo_1",
@@ -140,15 +131,36 @@
     "tipoItem": "Servicio",
     "categoria": "Regalo exclusivo",
     "valorUnitarioEstimado": 0,
-    "precioVenta": 2750,
-    "calculationMethod": "fijo"
+    "precioVenta": 2500,
+    "calculationMethod": "fijo",
+    "precioBase": 2500,
+    "precioPorPersona": 2500
+  },
+  {
+    "id": "serv_1759923441060_acfb5f5",
+    "nombre": "Lluvia de burbujas",
+    "tipoItem": "Servicio",
+    "categoria": "Regalo exclusivo",
+    "valorUnitarioEstimado": 100,
+    "precioVenta": 1800,
+    "calculationMethod": "fijo",
+    "precioBase": 1800,
+    "precioPorPersona": 1800,
+    "tramosDePrecio": [
+      {
+        "id": "tramo_1",
+        "desde": 0,
+        "hasta": 50,
+        "precio": 0
+      }
+    ]
   },
   {
     "id": "item_1757281980225_3x3nbzo",
     "nombre": "Organizador de la Fiesta",
     "tipoItem": "Servicio",
     "categoria": "Regalo exclusivo",
-    "valorUnitarioEstimado": 8000,
+    "valorUnitarioEstimado": 0,
     "precioVenta": 11000,
     "calculationMethod": "fijo"
   },
@@ -167,8 +179,10 @@
     "tipoItem": "Servicio",
     "categoria": "Regalo exclusivo",
     "valorUnitarioEstimado": 1500,
-    "precioVenta": 3850,
+    "precioVenta": 3000,
     "calculationMethod": "fijo",
+    "precioBase": 3000,
+    "precioPorPersona": 3000,
     "tramosDePrecio": [
       {
         "id": "tramo_1",
@@ -184,8 +198,10 @@
     "tipoItem": "Servicio",
     "categoria": "Regalo exclusivo",
     "valorUnitarioEstimado": 0,
-    "precioVenta": 2750,
-    "calculationMethod": "fijo"
+    "precioVenta": 2500,
+    "calculationMethod": "fijo",
+    "precioBase": 2500,
+    "precioPorPersona": 2500
   },
   {
     "id": "serv_1752489600086_barlib",
@@ -194,17 +210,17 @@
     "categoria": "Servicio de bebidas",
     "valorUnitarioEstimado": 200,
     "calculationMethod": "porPersona",
-    "precioPorPersona": 439
+    "precioPorPersona": 399
   },
   {
     "id": "serv_1759924239222_wxgn1ro",
     "nombre": "Cerveza",
     "tipoItem": "Servicio",
     "categoria": "Servicio de bebidas",
-    "valorUnitarioEstimado": 400,
+    "valorUnitarioEstimado": 350,
     "precioVenta": 539,
     "calculationMethod": "porPersona",
-    "precioPorPersona": 539,
+    "precioPorPersona": 499,
     "tramosDePrecio": [
       {
         "id": "tramo_1",
@@ -219,10 +235,10 @@
     "nombre": "Mesa de jugos naturales",
     "tipoItem": "Servicio",
     "categoria": "Servicio de bebidas",
-    "valorUnitarioEstimado": 60,
+    "valorUnitarioEstimado": 70,
     "precioVenta": 154,
     "calculationMethod": "porPersona",
-    "precioPorPersona": 132,
+    "precioPorPersona": 140,
     "tramosDePrecio": [
       {
         "id": "tramo_1",
@@ -273,9 +289,9 @@
     "nombre": "Mantelería Completa",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "valorUnitarioEstimado": 35,
+    "valorUnitarioEstimado": 40,
     "calculationMethod": "porPersona",
-    "precioPorPersona": 83
+    "precioPorPersona": 79
   },
   {
     "id": "item_1758319656786_6sjl431",
@@ -365,23 +381,6 @@
     "categoria": "Servicio de decoración",
     "valorUnitarioEstimado": 1000,
     "precioVenta": 5489,
-    "calculationMethod": "fijo",
-    "tramosDePrecio": [
-      {
-        "id": "tramo_1",
-        "desde": 0,
-        "hasta": 50,
-        "precio": 0
-      }
-    ]
-  },
-  {
-    "id": "serv_1759923441060_acfb5f5",
-    "nombre": "Lluvia de burbujas",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de discoteca",
-    "valorUnitarioEstimado": 100,
-    "precioVenta": 1650,
     "calculationMethod": "fijo",
     "tramosDePrecio": [
       {
@@ -830,6 +829,25 @@
     "precioVenta": 1749,
     "calculationMethod": "fijo",
     "precioPorPersona": 187
+  },
+  {
+    "id": "serv_1759924853028_gvkfj6e",
+    "nombre": "Postre Selva negra",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "valorUnitarioEstimado": 1200,
+    "precioVenta": 1590,
+    "calculationMethod": "fijo",
+    "precioBase": 1590,
+    "precioPorPersona": 1590,
+    "tramosDePrecio": [
+      {
+        "id": "tramo_1",
+        "desde": 0,
+        "hasta": 50,
+        "precio": 0
+      }
+    ]
   },
   {
     "id": "item_1757539236109_vtqfjaz",
