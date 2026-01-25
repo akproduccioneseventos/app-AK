@@ -312,7 +312,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
             <DialogHeader><DialogTitle>Seleccionar Ingrediente del Catálogo</DialogTitle></DialogHeader>
             <div className="py-2 space-y-2">
                 <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"/><Input placeholder="Buscar insumo..." value={catalogSearchTerm} onChange={e => setCatalogSearchTerm(e.target.value)} className="pl-9"/></div>
-                <ScrollArea className="h-72 border rounded-md p-1"><ul className="space-y-1">{filteredInsumos.length > 0 ? (filteredInsumos.map(insumo => (<li key={insumo.id}><Button type="button" variant="ghost" className="w-full justify-start text-left h-auto" onClick={() => { if (currentItemIdForCatalog) { addIngredientFromCatalog(currentItemIdForCatalog, insumo); } setIsCatalogModalOpen(false); }}><div><p className="font-medium text-sm">{insumo.nombre}</p><p className="text-xs text-muted-foreground">{formatCurrency(insumo.valorUnitarioEstimado)} / {insumo.unidad}</p></div></Button></li>))) : <li className="p-4 text-sm text-center text-muted-foreground">No se encontraron insumos. <Link href="/empresa/insumos/nuevo?from=gastronomia" className="text-primary underline">Añadir al catálogo</Link>.</li>}</ul></ScrollArea>
+                <ScrollArea className="h-64 border rounded-md p-1"><ul className="space-y-1">{filteredInsumos.length > 0 ? (filteredInsumos.map(insumo => (<li key={insumo.id}><Button type="button" variant="ghost" className="w-full justify-start text-left h-auto" onClick={() => { if (currentItemIdForCatalog) { addIngredientFromCatalog(currentItemIdForCatalog, insumo); } setIsCatalogModalOpen(false); }}><div><p className="font-medium text-sm">{insumo.nombre}</p><p className="text-xs text-muted-foreground">{formatCurrency(insumo.valorUnitarioEstimado)} / {insumo.unidad}</p></div></Button></li>))) : <li className="p-4 text-sm text-center text-muted-foreground">No se encontraron insumos. <Link href="/empresa/insumos/nuevo?from=gastronomia" className="text-primary underline">Añadir al catálogo</Link>.</li>}</ul></ScrollArea>
             </div>
              <DialogFooter><DialogClose asChild><Button variant="outline">Cerrar</Button></DialogClose></DialogFooter>
         </DialogContent>
@@ -322,16 +322,9 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
           <CardTitle>Información del Menú</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2"><Label htmlFor="menu-name">Nombre del Menú</Label><Input id="menu-name" value={menu.name || ''} onChange={(e) => handleMenuChange('name', e.target.value)} required /></div>
-          <div className="space-y-2"><Label htmlFor="menu-description">Descripción</Label><Textarea id="menu-description" value={menu.description || ''} onChange={(e) => handleMenuChange('description', e.target.value)} /></div>
-           <div className="space-y-2">
-            <Label htmlFor="menu-image-upload">Imagen del Menú (General)</Label>
-            <div className="flex items-center gap-4">
-              <div className="w-24 h-24 border rounded-md flex items-center justify-center bg-muted overflow-hidden">
-                {menu.imageUrl ? <NextImage src={menu.imageUrl} alt="Preview" width={96} height={96} className="object-cover"/> : <ImageIconLucide className="w-8 h-8 text-muted-foreground"/>}
-              </div>
-              <Input id="menu-image-upload" type="file" accept="image/*" onChange={(e) => handleMenuChange('imageUrl', e.target.files?.[0] || null)} className="text-sm file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"/>
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="menu-name">Nombre del Menú</Label>
+            <Input id="menu-name" value={menu.name || ''} onChange={(e) => handleMenuChange('name', e.target.value)} required />
           </div>
         </CardContent>
       </Card>
