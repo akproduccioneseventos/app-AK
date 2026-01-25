@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -215,7 +214,14 @@ export default function ArmadoRapidoPage() {
         
         const addServicio = (servicio: ServicioEmpresa | undefined, esRegalo: boolean, nota?: string, cantidadEspecifica?: number) => {
             if (!servicio) return;
-             if (includedServicesList.some(s => s.id === servicio.id)) return;
+             if (includedServicesList.some(s => s.id === servicio.id)) {
+                toast({
+                    description: `El servicio '${servicio.nombre}' ya está incluido y no se añadirá de nuevo.`,
+                    variant: "default",
+                    duration: 2000,
+                });
+                return;
+             }
 
             const cantidadParaCalculo = cantidadEspecifica ?? (servicio.calculationMethod === 'porPersona' || servicio.calculationMethod === 'ratio' ? totalInvitados : 1);
             const costoItem = calcularCostoServicio(servicio, cantidadParaCalculo);
@@ -284,7 +290,7 @@ export default function ArmadoRapidoPage() {
         const calculatedCostoTotal = calculatedSubtotal - calculatedDescuento;
 
         return { costoTotal: calculatedCostoTotal, subtotal: calculatedSubtotal, descuento: calculatedDescuento, serviciosDetallados: includedServicesList, totalRegalos: calculatedTotalRegalos };
-    }, [config, serviciosCatalogo, allMenus, entradasDisponibles, principalesDisponibles, menusNinoDisponibles, adultos, ninos, selectedEntradas, selectedPrincipal, selectedMenuNino, selectedPaqueteId]);
+    }, [config, serviciosCatalogo, allMenus, entradasDisponibles, principalesDisponibles, menusNinoDisponibles, adultos, ninos, selectedEntradas, selectedPrincipal, selectedMenuNino, selectedPaqueteId, toast]);
 
     const serviciosAgrupados = useMemo(() => {
         const serviciosSinRegalo = serviciosDetallados.filter(s => !s.esRegalo);
