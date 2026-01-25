@@ -5,6 +5,7 @@ import type { Customer, CustomerStatus } from '@/types/customer';
 import { readData, writeData } from '@/lib/data-service';
 import fs from 'fs/promises';
 import path from 'path';
+import { createNewFiestaForCustomer } from './fiesta/fiesta.actions';
 
 const CUSTOMERS_FILE = 'customers.json';
 const DATA_DIR = path.join(process.cwd(), 'src', 'data');
@@ -43,6 +44,7 @@ export async function saveCustomer(
   let customers = await getCustomers();
   let customerId: string;
   let customerToSave: Partial<Customer> = {}; 
+  let isNewCustomer = false;
 
   let contractFile: File | null = null;
   let budgetFile: File | null = null; 
@@ -98,6 +100,7 @@ export async function saveCustomer(
     };
     customerToSave = customers[index]; 
   } else { // Create
+    isNewCustomer = true;
     customerId = `cust_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const newCustomerBase: Omit<Customer, 'id'> = {
         ...(customerToSave as Omit<Customer, 'id'>), 
@@ -168,6 +171,16 @@ export async function saveCustomer(
   if (finalIndex !== -1) customers[finalIndex] = customerToSave as Customer;
   
   await writeData(CUSTOMERS_FILE, customers, (a, b) => (a.companyName || a.name || '').localeCompare(b.companyName || b.name || ''));
+
+  if (isNewCustomer) {
+    try {
+      await createNewFiestaForCustomer(customerToSave as Customer);
+    } catch (e: any) {
+      // Don't fail the whole operation if fiesta creation fails, but log it.
+      console.warn(`Customer ${customerId} created, but failed to create associated event: ${e.message}`);
+    }
+  }
+  
   return { success: true, id: customerId, customer: customerToSave as Customer };
 }
 
@@ -308,6 +321,8 @@ export async function addDocumentReferenceToCustomer(customerId: string, documen
     await writeData(CUSTOMERS_FILE, customers);
     return { success: true };
 }
+
+    
 
     
 
