@@ -21,9 +21,11 @@
     "nombre": "Peluqueria, maquillaje y uñas",
     "tipoItem": "Servicio",
     "categoria": "Otros servicios",
-    "valorUnitarioEstimado": 2300,
-    "precioVenta": 3839,
+    "valorUnitarioEstimado": 2500,
+    "precioVenta": 3800,
     "calculationMethod": "fijo",
+    "precioBase": 3800,
+    "precioPorPersona": 3800,
     "tramosDePrecio": [
       {
         "id": "tramo_1",

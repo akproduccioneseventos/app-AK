@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { ArrowLeft, Sparkles, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, DollarSign, Printer, Copy, Percent } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ServicioEmpresa } from '@/types/empresa';
-import { getServiciosEmpresa, deleteServicioEmpresa, duplicateServicioEmpresa, adjustAllServicePrices } from '@/app/actions/servicios-empresa';
+import { getServiciosEmpresa, deleteServicioEmpresa, duplicateServicioEmpresa, adjustAllServicePrices, adjustAllServiceCosts } from '@/app/actions/servicios-empresa';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import {
   AlertDialog,
@@ -51,6 +51,9 @@ export default function CatalogoServiciosPage() {
   const [duplicatingId, setDuplicatingId] = useState<string | null>(null);
   const [adjustmentPercentage, setAdjustmentPercentage] = useState(10);
   const [isAdjusting, setIsAdjusting] = useState(false);
+  
+  const [costAdjustmentPercentage, setCostAdjustmentPercentage] = useState(10);
+  const [isAdjustingCost, setIsAdjustingCost] = useState(false);
 
   const fetchItems = useCallback(async () => {
     setIsLoading(true);
@@ -112,6 +115,23 @@ export default function CatalogoServiciosPage() {
       toast({ title: "Error al ajustar precios", description: err.message, variant: "destructive" });
     } finally {
       setIsAdjusting(false);
+    }
+  };
+
+  const handleAdjustCosts = async () => {
+    setIsAdjustingCost(true);
+    try {
+      const result = await adjustAllServiceCosts(costAdjustmentPercentage);
+      if (result.success) {
+        toast({ title: "Costos ajustados", description: `Todos los costos de servicios fueron ajustados en un ${costAdjustmentPercentage}%.` });
+        await fetchItems(); // Refresh data
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (err: any) {
+      toast({ title: "Error al ajustar costos", description: err.message, variant: "destructive" });
+    } finally {
+      setIsAdjustingCost(false);
     }
   };
 
@@ -188,51 +208,97 @@ export default function CatalogoServiciosPage() {
       </div>
       <CardDescription>Define los servicios que vendes, sus precios y cómo se calculan para incluirlos en los presupuestos.</CardDescription>
       
-      <Card>
-        <CardHeader>
-          <CardTitle className="font-headline text-lg">Ajuste de Precios Global</CardTitle>
-          <CardDescription>
-            Aplica un aumento o disminución porcentual a todos los servicios del catálogo.
-            Esta acción es irreversible.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col sm:flex-row gap-4 items-end">
-          <div className="space-y-2 flex-grow">
-            <Label htmlFor="percentage-adjust">Porcentaje de Ajuste (%)</Label>
-            <Input
-              id="percentage-adjust"
-              type="number"
-              value={adjustmentPercentage}
-              onChange={(e) => setAdjustmentPercentage(Number(e.target.value))}
-              placeholder="Ej: 10 para aumentar, -5 para disminuir"
-            />
-          </div>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button disabled={isAdjusting || adjustmentPercentage === 0}>
-                {isAdjusting ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Percent className="w-4 h-4 mr-2"/>}
-                Aplicar Ajuste
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Esta acción modificará los precios de VENTA de TODOS los servicios en un 
-                  <span className="font-bold"> {adjustmentPercentage}%</span>. El cambio es irreversible.
-                  Los costos internos no serán modificados. ¿Deseas continuar?
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction onClick={handleAdjustPrices}>
-                  Aplicar ajuste del {adjustmentPercentage}%
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="font-headline text-lg">Ajuste de Precios Global</CardTitle>
+            <CardDescription>
+              Aplica un aumento o disminución porcentual a los precios de VENTA de todos los servicios.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col sm:flex-row gap-4 items-end">
+            <div className="space-y-2 flex-grow">
+              <Label htmlFor="percentage-adjust">Porcentaje de Ajuste (%)</Label>
+              <Input
+                id="percentage-adjust"
+                type="number"
+                value={adjustmentPercentage}
+                onChange={(e) => setAdjustmentPercentage(Number(e.target.value))}
+                placeholder="Ej: 10 para aumentar, -5 para disminuir"
+              />
+            </div>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button disabled={isAdjusting || adjustmentPercentage === 0}>
+                  {isAdjusting ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Percent className="w-4 h-4 mr-2"/>}
+                  Ajustar Precios
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Esta acción modificará los PRECIOS DE VENTA de TODOS los servicios en un 
+                    <span className="font-bold"> {adjustmentPercentage}%</span>. El cambio es irreversible.
+                    Los costos internos no serán modificados. ¿Deseas continuar?
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleAdjustPrices}>
+                    Aplicar ajuste del {adjustmentPercentage > 0 ? `+${adjustmentPercentage}`: adjustmentPercentage}%
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle className="font-headline text-lg">Ajuste de Costos Global</CardTitle>
+            <CardDescription>
+              Aplica un aumento o disminución porcentual a los COSTOS INTERNOS de todos los servicios.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col sm:flex-row gap-4 items-end">
+            <div className="space-y-2 flex-grow">
+              <Label htmlFor="cost-percentage-adjust">Porcentaje de Ajuste (%)</Label>
+              <Input
+                id="cost-percentage-adjust"
+                type="number"
+                value={costAdjustmentPercentage}
+                onChange={(e) => setCostAdjustmentPercentage(Number(e.target.value))}
+                placeholder="Ej: 10 para aumentar, -5 para disminuir"
+              />
+            </div>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button disabled={isAdjustingCost || costAdjustmentPercentage === 0} variant="secondary">
+                  {isAdjustingCost ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Percent className="w-4 h-4 mr-2"/>}
+                  Ajustar Costos
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Esta acción modificará los COSTOS INTERNOS de TODOS los servicios en un 
+                    <span className="font-bold"> {costAdjustmentPercentage}%</span>. El cambio es irreversible.
+                    Los precios de venta no serán modificados automáticamente. ¿Deseas continuar?
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleAdjustCosts}>
+                    Aplicar ajuste del {costAdjustmentPercentage > 0 ? `+${costAdjustmentPercentage}`: costAdjustmentPercentage}%
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </CardContent>
+        </Card>
+      </div>
 
       <Card className="shadow-lg">
         <CardHeader>

@@ -1,4 +1,3 @@
-
 'use server';
 
 import type { ServicioEmpresa } from '@/types/empresa';
@@ -148,5 +147,39 @@ export async function adjustAllServicePrices(
   } catch (error: any) {
     console.error("Error adjusting service prices:", error);
     return { success: false, error: "Ocurrió un error al intentar ajustar los precios." };
+  }
+}
+
+export async function adjustAllServiceCosts(
+  percentage: number
+): Promise<{ success: boolean; error?: string }> {
+  if (isNaN(percentage) || percentage === 0) {
+    return { success: false, error: "El porcentaje debe ser un número distinto de cero." };
+  }
+  
+  try {
+    const inventario = await getServiciosEmpresa();
+    if (inventario.length === 0) {
+      return { success: false, error: "No hay servicios en el catálogo para ajustar." };
+    }
+
+    const multiplier = 1 + percentage / 100;
+
+    const updatedInventario = inventario.map(servicio => {
+      const newServicio = { ...servicio };
+
+      if (newServicio.valorUnitarioEstimado !== undefined) {
+        newServicio.valorUnitarioEstimado = Math.round((newServicio.valorUnitarioEstimado * multiplier));
+      }
+      
+      return newServicio;
+    });
+
+    await writeData(SERVICIOS_EMPRESA_FILE, updatedInventario, (a, b) => (a.categoria || '').localeCompare(b.categoria || '') || (a.nombre || '').localeCompare(b.nombre || ''));
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error adjusting service costs:", error);
+    return { success: false, error: "Ocurrió un error al intentar ajustar los costos." };
   }
 }
