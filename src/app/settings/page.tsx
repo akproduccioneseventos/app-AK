@@ -25,7 +25,8 @@ const settingsCards = [
     title: "Simulador de Presupuestos",
     description: "Configura los paquetes y opciones disponibles en el simulador para clientes.",
     href: "/settings/budget-display",
-    icon: Wand2
+    icon: Wand2,
+    buttonLabel: "Gestionar Paquetes"
   },
    {
     title: "Cuentas Sociales Vinculadas",

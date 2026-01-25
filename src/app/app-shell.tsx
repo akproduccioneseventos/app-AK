@@ -4,7 +4,7 @@
 import { ReactNode, useState, useEffect } from 'react';
 import AppLogo from '@/components/app-logo';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlus2Icon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, Edit, BarChart3, PackagePlus, BellRing, UserCog, BrainCircuit, Link as LinkIcon, Camera, Gift, Star, QrCode, Clock, TrendingUp, HardDriveDownload, Wand2, Bot, Film } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlus2Icon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, Edit, BarChart3, PackagePlus, BellRing, UserCog, BrainCircuit, Link as LinkIcon, Camera, Gift, Star, QrCode, Clock, TrendingUp, HardDriveDownload, Wand2, Bot, Film, FileArchive } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -117,6 +117,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/admin/aaiff-fiesta') return 'Análisis de Evento con IA';
   if (pathname === '/admin/asistente-ak') return 'Asistente de Marketing IA';
   if (pathname === '/settings/backup') return 'Backup y Restauración';
+  if (pathname === '/admin/carga-historicos') return 'Carga Rápida de Históricos';
   
   if (pathname === '/simulador-de-presupuesto') return 'Simulador de Presupuesto';
   
@@ -205,6 +206,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/admin/aaiff-fiesta') return PartyPopper;
   if (pathname === '/admin/asistente-ak') return Bot;
   if (pathname === '/settings/backup') return HardDriveDownload;
+  if (pathname === '/admin/carga-historicos') return FileArchive;
   if (pathname === '/settings/task-templates') return ListChecks;
   if (pathname === '/settings/accesos-personal') return UserCog;
   
