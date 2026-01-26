@@ -43,7 +43,7 @@ const getCalculationMethodLabel = (method?: string): string => {
         case 'tramos': return 'Por Tramos de Invitados';
         default: return 'No definido';
     }
-}
+};
 
 // Sub-component for editing a single service, to be used inside the Sheet
 const EditServicioForm: React.FC<{ servicioId: string | null; onUpdate: () => void, onClose: () => void }> = ({ servicioId, onUpdate, onClose }) => {
@@ -102,7 +102,7 @@ const EditServicioForm: React.FC<{ servicioId: string | null; onUpdate: () => vo
     );
 };
 
-const menuItemToServicioEmpresa = (item: MenuItem): ServicioEmpresa => {
+const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): ServicioEmpresa => {
     // Use suggestedSellingPrice if available, otherwise calculate it.
     const precioVenta = item.suggestedSellingPrice ?? ((item.totalDishCost || 0) * (1 + (item.profitMargin ?? 120) / 100));
     return {
@@ -231,28 +231,25 @@ export default function BudgetDisplaySettingsPage() {
     }
   };
 
-
   const { entradasDisponibles, principalesDisponibles, menusNinoDisponibles } = useMemo(() => {
     if (!config || !allMenus.length) {
       return { entradasDisponibles: [], principalesDisponibles: [], menusNinoDisponibles: [] };
     }
     
-    const isPlatoVisible = (platoId: string) => {
-        const setting = config.platosVisibles?.find(p => p.id === platoId);
-        return setting !== undefined ? setting.visible : true;
-    };
-    
     const sortByPrice = (a: { precioPorPersona?: number }, b: { precioPorPersona?: number }) => (a.precioPorPersona || 0) - (b.precioPorPersona || 0);
-    
-    const allDishes = allMenus.flatMap(m => m.items);
-    const visibleDishes = allDishes.filter(d => isPlatoVisible(d.id));
 
-    return { 
-      entradasDisponibles: visibleDishes.filter(item => item.type === 'Entrada').map(menuItemToServicioEmpresa).sort(sortByPrice), 
-      principalesDisponibles: visibleDishes.filter(item => item.type === 'Plato Principal').map(menuItemToServicioEmpresa).sort(sortByPrice), 
-      menusNinoDisponibles: visibleDishes.filter(s => s.type === 'Menú Infantil/Adolescente').map(menuItemToServicioEmpresa).sort(sortByPrice)
+    const allDishes = allMenus.flatMap(m => m.items).map(item => ({
+        ...item,
+        precioVenta: item.suggestedSellingPrice ?? ((item.totalDishCost || 0) * (1 + (item.profitMargin ?? 120) / 100)),
+    }));
+
+    return {
+        entradasDisponibles: allDishes.filter(item => item.type === 'Entrada').map(menuItemToServicioEmpresa).sort(sortByPrice),
+        principalesDisponibles: allDishes.filter(item => item.type === 'Plato Principal').map(menuItemToServicioEmpresa).sort(sortByPrice),
+        menusNinoDisponibles: allDishes.filter(s => s.type === 'Menú Infantil/Adolescente').map(menuItemToServicioEmpresa).sort(sortByPrice),
     };
   }, [config, allMenus]);
+  
 
   useEffect(() => {
     loadData();
@@ -728,3 +725,5 @@ export default function BudgetDisplaySettingsPage() {
     </div>
   );
 }
+
+    

@@ -425,14 +425,22 @@
     {
       "id": "dish_main_11",
       "visible": false
+    },
+    {
+      "id": "dish_entrada_4",
+      "visible": false
+    },
+    {
+      "id": "dish_entrada_19",
+      "visible": false
     }
   ],
-  "mostrarPrecios": true,
   "serviceDependencies": [
     {
       "id": "dep_asado_asador",
       "triggerServiceId": "dish_main_19",
       "requiredServiceId": "serv_1759925173262_6sba1mh"
     }
-  ]
+  ],
+  "mostrarPrecios": true
 }
