@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent, type ChangeEvent } from 'react';
@@ -20,8 +21,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { cn } from '@/lib/utils';
 import NextImage from 'next/image';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -229,7 +228,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
   }
 
   const addIngredientFromCatalog = (itemId: string, insumo: ServicioEmpresa) => {
-      const newIngredient: Ingredient = {
+      const newItem: Ingredient = {
         id: `new_ing_cat_${insumo.id}_${Date.now()}`,
         origenId: insumo.id,
         name: insumo.nombre,
@@ -241,7 +240,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
       setMenu(prev => ({
       ...prev,
       items: (prev.items || []).map(item =>
-        item.id === itemId ? calculatePrices({ ...item, ingredients: [...(item.ingredients || []), newIngredient] }) : item
+        item.id === itemId ? calculatePrices({ ...item, ingredients: [...(item.ingredients || []), newItem] }) : item
       ),
     }));
     toast({ description: `"${insumo.nombre}" añadido al plato.` });
@@ -337,17 +336,6 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
             </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Alert>
-              <Sparkles className="h-4 w-4" />
-              <AlertTitle className="font-semibold">Dependencias de Servicios</AlertTitle>
-              <AlertDescription>
-                ¿Necesitas que un plato añada automáticamente un servicio (ej. Asado -> Asador)? Puedes configurar estas reglas en la{' '}
-                <Link href="/settings/budget-display" className="font-medium underline hover:text-primary">
-                  Configuración del Simulador
-                </Link>
-                .
-              </AlertDescription>
-          </Alert>
           {sortedAndFilteredItems.length > 0 ? (
             sortedAndFilteredItems.map((item) => (
             <Card key={item.id} className={cn("p-4")}>
@@ -439,5 +427,3 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     </form>
   );
 }
-
-    
