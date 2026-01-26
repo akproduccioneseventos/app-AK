@@ -404,7 +404,7 @@
     },
     {
       "id": "dish_papas_cheddar",
-      "visible": false
+      "visible": true
     },
     {
       "id": "dish_entrada_21",
@@ -412,7 +412,7 @@
     },
     {
       "id": "dish_entrada_10",
-      "visible": false
+      "visible": true
     },
     {
       "id": "dish_main_1",
@@ -440,9 +440,24 @@
     },
     {
       "id": "dish_entrada_19",
+      "visible": true
+    },
+    {
+      "id": "dish_entrada_17",
       "visible": false
     }
   ],
-  "serviceDependencies": [],
+  "serviceDependencies": [
+    {
+      "id": "dep_1769458885564",
+      "triggerServiceId": "dish_main_19",
+      "requiredServiceId": "serv_1759925173262_6sba1mh"
+    },
+    {
+      "id": "dep_1769458902278",
+      "triggerServiceId": "dish_main_18",
+      "requiredServiceId": "serv_1759925173262_6sba1mh"
+    }
+  ],
   "mostrarPrecios": true
 }
