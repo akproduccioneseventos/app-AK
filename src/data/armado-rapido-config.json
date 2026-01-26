@@ -440,6 +440,11 @@
       "id": "dep_asado_asador",
       "triggerServiceId": "dish_main_19",
       "requiredServiceId": "serv_1759925173262_6sba1mh"
+    },
+    {
+      "id": "dep_1769458228159",
+      "triggerServiceId": "dish_main_18",
+      "requiredServiceId": "serv_1759925173262_6sba1mh"
     }
   ],
   "mostrarPrecios": true

@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -242,13 +241,13 @@ export default function BudgetDisplaySettingsPage() {
         ...item,
         precioVenta: item.suggestedSellingPrice ?? ((item.totalDishCost || 0) * (1 + (item.profitMargin ?? 120) / 100)),
     }));
-
+    
     return {
         entradasDisponibles: allDishes.filter(item => item.type === 'Entrada').map(menuItemToServicioEmpresa).sort(sortByPrice),
         principalesDisponibles: allDishes.filter(item => item.type === 'Plato Principal').map(menuItemToServicioEmpresa).sort(sortByPrice),
         menusNinoDisponibles: allDishes.filter(s => s.type === 'Menú Infantil/Adolescente').map(menuItemToServicioEmpresa).sort(sortByPrice),
     };
-  }, [config, allMenus]);
+}, [config, allMenus]);
   
 
   useEffect(() => {
@@ -385,8 +384,7 @@ export default function BudgetDisplaySettingsPage() {
   };
 
   const getVisibleDishes = (dishList: (MenuItem & { precioVenta: number })[]): (MenuItem & { precioVenta: number })[] => {
-    if (!config?.platosVisibles) return dishList;
-    return dishList.filter(d => isPlatoVisible(d.id));
+    return dishList; // Show all dishes, visibility is handled by the switch
   };
   
   const serviciosFiltrados = useMemo(() => {
@@ -603,7 +601,7 @@ export default function BudgetDisplaySettingsPage() {
         <CardHeader>
           <CardTitle className="font-headline text-xl">Dependencias de Servicios</CardTitle>
           <CardDescription>
-            Configura reglas para que al seleccionar un servicio (ej. "Asado"), otro servicio (ej. "Asador") se añada automáticamente al presupuesto del simulador.
+            Configura reglas para que al seleccionar un plato, otro servicio (ej. "Asador") se añada automáticamente.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -646,7 +644,7 @@ export default function BudgetDisplaySettingsPage() {
                         return (
                             <div key={dep.id} className="flex items-center justify-between p-2 border rounded-md text-sm">
                                 <div className="flex items-center gap-2">
-                                    <span><span className="font-semibold">{trigger?.nombre || 'Plato no encontrado'}</span> activa a <span className="font-semibold">{required?.nombre || 'Servicio no encontrado'}</span></span>
+                                    <span><span className="font-semibold">{trigger?.nombre || `Plato no encontrado (ID: ${dep.triggerServiceId})`}</span> activa a <span className="font-semibold">{required?.nombre || `Servicio no encontrado (ID: ${dep.requiredServiceId})`}</span></span>
                                 </div>
                                 <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteDependency(dep.id)} disabled={isSaving}>
                                     <Trash2 className="w-4 h-4" />
@@ -675,9 +673,9 @@ export default function BudgetDisplaySettingsPage() {
                   <AccordionTrigger className="px-3 text-md font-medium hover:no-underline">Visibilidad de Platos</AccordionTrigger>
                   <AccordionContent className="p-3 border-t">
                        <Accordion type="multiple" defaultValue={['entradas']} className="w-full space-y-2">
-                        <AccordionItem value="entradas" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Entradas</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{entradasDisponibles.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.nombre} ({formatCurrency(plato.precioPorPersona || 0)})</Label></div>))}</div></AccordionContent></AccordionItem>
-                        <AccordionItem value="principales" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Platos Principales</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{principalesDisponibles.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.nombre} ({formatCurrency(plato.precioPorPersona || 0)})</Label></div>))}</div></AccordionContent></AccordionItem>
-                        <AccordionItem value="infantiles" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Menús Infantiles/Adolescentes</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{menusNinoDisponibles.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.nombre} ({formatCurrency(plato.precioPorPersona || 0)})</Label></div>))}</div></AccordionContent></AccordionItem>
+                        <AccordionItem value="entradas" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Entradas</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{getVisibleDishes(entradasDisponibles).map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.nombre} ({formatCurrency(plato.precioPorPersona || 0)})</Label></div>))}</div></AccordionContent></AccordionItem>
+                        <AccordionItem value="principales" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Platos Principales</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{getVisibleDishes(principalesDisponibles).map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.nombre} ({formatCurrency(plato.precioPorPersona || 0)})</Label></div>))}</div></AccordionContent></AccordionItem>
+                        <AccordionItem value="infantiles" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Menús Infantiles/Adolescentes</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{getVisibleDishes(menusNinoDisponibles).map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.nombre} ({formatCurrency(plato.precioPorPersona || 0)})</Label></div>))}</div></AccordionContent></AccordionItem>
                       </Accordion>
                   </AccordionContent>
               </AccordionItem>
@@ -725,5 +723,3 @@ export default function BudgetDisplaySettingsPage() {
     </div>
   );
 }
-
-    
