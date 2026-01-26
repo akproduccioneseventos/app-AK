@@ -102,6 +102,23 @@ const EditServicioForm: React.FC<{ servicioId: string | null; onUpdate: () => vo
     );
 };
 
+const menuItemToServicioEmpresa = (item: MenuItem): ServicioEmpresa => {
+    // Use suggestedSellingPrice if available, otherwise calculate it.
+    const precioVenta = item.suggestedSellingPrice ?? ((item.totalDishCost || 0) * (1 + (item.profitMargin ?? 120) / 100));
+    return {
+        id: item.id,
+        nombre: item.name,
+        tipoItem: 'Servicio',
+        categoria: 'Servicio de catering',
+        subcategoria: item.type,
+        calculationMethod: 'porPersona',
+        precioPorPersona: precioVenta,
+        precioVenta: precioVenta, // Ensure this is also populated for consistency
+        precioBase: precioVenta, // And this one
+        valorUnitarioEstimado: item.totalDishCost,
+    };
+};
+
 
 export default function BudgetDisplaySettingsPage() {
   const { toast } = useToast();
@@ -199,31 +216,14 @@ export default function BudgetDisplaySettingsPage() {
       setIsLoading(false);
     }
   }, [toast]);
-  
-  const menuItemToServicioEmpresa = (item: MenuItem): ServicioEmpresa => {
-    // Use suggestedSellingPrice if available, otherwise calculate it.
-    const precioVenta = item.suggestedSellingPrice ?? ((item.totalDishCost || 0) * (1 + (item.profitMargin ?? 120) / 100));
-    return {
-        id: item.id,
-        nombre: item.name,
-        tipoItem: 'Servicio',
-        categoria: 'Servicio de catering',
-        subcategoria: item.type,
-        calculationMethod: 'porPersona',
-        precioPorPersona: precioVenta,
-        precioVenta: precioVenta, // Ensure this is also populated for consistency
-        precioBase: precioVenta, // And this one
-        valorUnitarioEstimado: item.totalDishCost,
-    };
-  };
 
   const { entradasDisponibles, principalesDisponibles, menusNinoDisponibles } = useMemo(() => {
-    if (!allMenus || allMenus.length === 0) {
+    if (!config || !allMenus.length) {
       return { entradasDisponibles: [], principalesDisponibles: [], menusNinoDisponibles: [] };
     }
     
     const isPlatoVisible = (platoId: string) => {
-        const setting = config?.platosVisibles?.find(p => p.id === platoId);
+        const setting = config.platosVisibles?.find(p => p.id === platoId);
         return setting !== undefined ? setting.visible : true;
     };
     
@@ -434,6 +434,20 @@ export default function BudgetDisplaySettingsPage() {
     if (!budgetSettings) return;
     const updatedDiscounts = (budgetSettings.promotionalDiscounts || []).filter((_, i) => i !== index);
     setBudgetSettings({ ...budgetSettings, promotionalDiscounts: updatedDiscounts });
+  };
+
+  const renderServiciosList = (servicios: ServicioIncluidoArmadoRapido[]) => {
+    if (servicios.length === 0) {
+      return <p className="text-xs text-muted-foreground italic">No hay servicios base en este paquete.</p>;
+    }
+    return (
+      <ul className="text-xs text-muted-foreground list-disc pl-5 space-y-1">
+        {servicios.map(servicio => {
+          const fullServicio = serviciosCatalogo.find(s => s.id === servicio.id);
+          return <li key={servicio.id}>{fullServicio?.nombre || `ID: ${servicio.id} (no encontrado)`}</li>;
+        })}
+      </ul>
+    );
   };
 
 
@@ -658,7 +672,7 @@ export default function BudgetDisplaySettingsPage() {
                         return (
                             <div key={dep.id} className="flex items-center justify-between p-2 border rounded-md text-sm">
                                 <div className="flex items-center gap-2">
-                                    <span><span className="font-semibold">{trigger?.name || 'Plato no encontrado'}</span> activa a <span className="font-semibold">{required?.nombre || 'Servicio no encontrado'}</span></span>
+                                    <span><span className="font-semibold">{trigger?.nombre || 'Plato no encontrado'}</span> activa a <span className="font-semibold">{required?.nombre || 'Servicio no encontrado'}</span></span>
                                 </div>
                                 <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteDependency(dep.id)} disabled={isSaving}>
                                     <Trash2 className="w-4 h-4" />
@@ -718,5 +732,3 @@ export default function BudgetDisplaySettingsPage() {
     </div>
   );
 }
-
-    
