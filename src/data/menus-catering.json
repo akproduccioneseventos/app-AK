@@ -1,33 +1,6 @@
 
 [
   {
-    "id": "menu_barra_tragos",
-    "name": "Barra de Tragos",
-    "description": "Una selección de cócteles y bebidas para la barra.",
-    "templateType": "Servicio de bebidas",
-    "createdAt": "2025-10-29T19:30:00.000Z",
-    "updatedAt": "2025-10-29T19:30:00.000Z",
-    "items": []
-  },
-  {
-    "id": "menu_mesa_dulce",
-    "name": "Mesa Dulce",
-    "description": "Variedad de postres, tortas y dulces para el final de la fiesta.",
-    "templateType": "Servicio de repostería",
-    "createdAt": "2025-10-29T19:30:00.000Z",
-    "updatedAt": "2025-10-29T19:30:00.000Z",
-    "items": []
-  },
-  {
-    "id": "menu_fuente_chocolate",
-    "name": "Fuente de Chocolate",
-    "description": "Cascada de chocolate con deliciosos acompañamientos.",
-    "templateType": "Servicio de repostería",
-    "createdAt": "2025-10-29T19:30:00.000Z",
-    "updatedAt": "2025-10-29T19:30:00.000Z",
-    "items": []
-  },
-  {
     "id": "menu_entradas_predisenado",
     "name": "Menú de Entradas",
     "description": "Una selección de entradas frías y calientes para comenzar el evento.",
@@ -40,16 +13,13 @@
         "name": "Buñuelos de Algas",
         "type": "Entrada",
         "totalDishCost": 45.2,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 90.4,
         "ingredients": [
           {
             "id": "ing_1_1",
             "name": "Harina",
             "quantityPerPerson": "40",
             "unit": "g",
-            "costoUnitario": 180,
-            "costoTotalReceta": 7.2,
+            "cost": 7.2,
             "proveedor": "CALSAL"
           },
           {
@@ -57,8 +27,7 @@
             "name": "Algas",
             "quantityPerPerson": "10",
             "unit": "g",
-            "costoUnitario": 2000,
-            "costoTotalReceta": 20,
+            "cost": 20,
             "proveedor": "MONTEVIDEO"
           },
           {
@@ -66,8 +35,7 @@
             "name": "Salsa de soja",
             "quantityPerPerson": "10",
             "unit": "ml",
-            "costoUnitario": 500,
-            "costoTotalReceta": 5,
+            "cost": 5,
             "proveedor": "UNIPLAS"
           },
           {
@@ -75,8 +43,7 @@
             "name": "Aceite",
             "quantityPerPerson": "100",
             "unit": "ml",
-            "costoUnitario": 70,
-            "costoTotalReceta": 7,
+            "cost": 7,
             "proveedor": "DK MAYORISTA"
           },
           {
@@ -84,16 +51,14 @@
             "name": "Gas",
             "quantityPerPerson": "5",
             "unit": "min",
-            "costoUnitario": 1,
-            "costoTotalReceta": 5
+            "cost": 5
           },
           {
             "id": "ing_1_6",
             "name": "Huevo",
             "quantityPerPerson": "0.1",
             "unit": "Unidad",
-            "costoUnitario": 10,
-            "costoTotalReceta": 1,
+            "cost": 1,
             "proveedor": "VERDULERIA"
           }
         ]
@@ -103,16 +68,13 @@
         "name": "Arrolladitos Primavera",
         "type": "Entrada",
         "totalDishCost": 40,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 80,
         "ingredients": [
           {
             "id": "ing_2_1",
             "name": "Salsa de soja",
             "quantityPerPerson": "10",
             "unit": "g",
-            "costoUnitario": 300,
-            "costoTotalReceta": 3,
+            "cost": 3,
             "proveedor": "UNIPLAS"
           },
           {
@@ -120,8 +82,7 @@
             "name": "Aceite",
             "quantityPerPerson": "100",
             "unit": "ml",
-            "costoUnitario": 70,
-            "costoTotalReceta": 7,
+            "cost": 7,
             "proveedor": "DK MAYORISTA"
           },
           {
@@ -129,8 +90,7 @@
             "name": "Arrolladitos primavera",
             "quantityPerPerson": "5",
             "unit": "Unidad",
-            "costoUnitario": 6,
-            "costoTotalReceta": 30,
+            "cost": 30,
             "proveedor": "DOPACA"
           }
         ]
@@ -1620,60 +1580,60 @@
     "updatedAt": "2025-10-28T22:10:31.817Z",
     "items": [
       {
-        "id": "dish_main_10",
-        "name": "Sorrentinos C/ Salsa Rosa",
+        "id": "dish_main_1",
+        "name": "Mini Brochetas",
         "type": "Plato Principal",
-        "totalDishCost": 170.75,
+        "totalDishCost": 57.2,
         "profitMargin": 100,
-        "suggestedSellingPrice": 341.5,
+        "suggestedSellingPrice": 114.4,
         "ingredients": [
           {
-            "id": "ing_m10_1",
-            "name": "Crema de leche",
-            "quantityPerPerson": "100",
-            "unit": "ml",
-            "costoUnitario": 200,
+            "id": "ing_m1_1",
+            "name": "Carnes",
+            "quantityPerPerson": "60",
+            "unit": "g",
+            "costoUnitario": 380,
+            "costoTotalReceta": 22.8
+          },
+          {
+            "id": "ing_m1_2",
+            "name": "Panceta",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 400,
             "costoTotalReceta": 20
           },
           {
-            "id": "ing_m10_2",
-            "name": "Ketchup",
-            "quantityPerPerson": "50",
+            "id": "ing_m1_3",
+            "name": "Morron rojo",
+            "quantityPerPerson": "30",
             "unit": "g",
-            "costoUnitario": 200,
-            "costoTotalReceta": 10
-          },
-          {
-            "id": "ing_m10_3",
-            "name": "Cebolla",
-            "quantityPerPerson": "50",
-            "unit": "g",
-            "costoUnitario": 200,
-            "costoTotalReceta": 10
-          },
-          {
-            "id": "ing_m10_4",
-            "name": "Sorrentinos",
-            "quantityPerPerson": "250",
-            "unit": "g",
-            "costoUnitario": 465,
-            "costoTotalReceta": 116.25
-          },
-          {
-            "id": "ing_m10_5",
-            "name": "Queso rallado",
-            "quantityPerPerson": "10",
-            "unit": "g",
-            "costoUnitario": 450,
+            "costoUnitario": 150,
             "costoTotalReceta": 4.5
           },
           {
-            "id": "ing_m10_6",
-            "name": "Gas",
-            "quantityPerPerson": "10",
-            "unit": "min",
-            "costoUnitario": 1,
-            "costoTotalReceta": 10
+            "id": "ing_m1_4",
+            "name": "Tomate cherry",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 150,
+            "costoTotalReceta": 4.5
+          },
+          {
+            "id": "ing_m1_5",
+            "name": "Morron verde",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 100,
+            "costoTotalReceta": 3
+          },
+          {
+            "id": "ing_m1_6",
+            "name": "Cebollas",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 80,
+            "costoTotalReceta": 2.4
           }
         ]
       },
@@ -1740,6 +1700,64 @@
             "unit": "min",
             "costoUnitario": 1,
             "costoTotalReceta": 20
+          }
+        ]
+      },
+      {
+        "id": "dish_main_10",
+        "name": "Sorrentinos C/ Salsa Rosa",
+        "type": "Plato Principal",
+        "totalDishCost": 170.75,
+        "profitMargin": 100,
+        "suggestedSellingPrice": 341.5,
+        "ingredients": [
+          {
+            "id": "ing_m10_1",
+            "name": "Crema de leche",
+            "quantityPerPerson": "100",
+            "unit": "ml",
+            "costoUnitario": 200,
+            "costoTotalReceta": 20
+          },
+          {
+            "id": "ing_m10_2",
+            "name": "Ketchup",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 200,
+            "costoTotalReceta": 10
+          },
+          {
+            "id": "ing_m10_3",
+            "name": "Cebolla",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 200,
+            "costoTotalReceta": 10
+          },
+          {
+            "id": "ing_m10_4",
+            "name": "Sorrentinos",
+            "quantityPerPerson": "250",
+            "unit": "g",
+            "costoUnitario": 465,
+            "costoTotalReceta": 116.25
+          },
+          {
+            "id": "ing_m10_5",
+            "name": "Queso rallado",
+            "quantityPerPerson": "10",
+            "unit": "g",
+            "costoUnitario": 450,
+            "costoTotalReceta": 4.5
+          },
+          {
+            "id": "ing_m10_6",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 10
           }
         ]
       },
@@ -2488,6 +2506,463 @@
             "costoTotalReceta": 3
           }
         ]
+      },
+      {
+        "id": "dish_main_pollo_arrollado",
+        "name": "Pollo Arrollado C/ Guarnición",
+        "type": "Plato Principal",
+        "totalDishCost": 189.4,
+        "profitMargin": 100,
+        "suggestedSellingPrice": 378.8,
+        "ingredients": [
+          {
+            "id": "ing_pa_1",
+            "name": "Pollo arrollado",
+            "quantityPerPerson": "250",
+            "unit": "g",
+            "costoUnitario": 500,
+            "costoTotalReceta": 125,
+            "proveedor": "NICO"
+          },
+          {
+            "id": "ing_pa_2",
+            "name": "Ensalada rusa congelada",
+            "quantityPerPerson": "230",
+            "unit": "g",
+            "costoUnitario": 280,
+            "costoTotalReceta": 64.4,
+            "proveedor": "DOPACA"
+          }
+        ]
+      },
+      {
+        "id": "dish_main_cerdo_mostaza",
+        "name": "Cerdo Braseado a la Mostaza C/ Guarnición",
+        "type": "Plato Principal",
+        "totalDishCost": 146.7,
+        "profitMargin": 100,
+        "suggestedSellingPrice": 293.4,
+        "ingredients": [
+          {
+            "id": "ing_cbm_1",
+            "name": "Bondiola",
+            "quantityPerPerson": "250",
+            "unit": "g",
+            "costoUnitario": 190,
+            "costoTotalReceta": 47.5,
+            "proveedor": "CARNICERIA"
+          },
+          {
+            "id": "ing_cbm_2",
+            "name": "Crema de leche",
+            "quantityPerPerson": "80",
+            "unit": "ml",
+            "costoUnitario": 200,
+            "costoTotalReceta": 16,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_cbm_3",
+            "name": "condimentos",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "costoUnitario": 120,
+            "costoTotalReceta": 9.6,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_cbm_4",
+            "name": "miel",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 120,
+            "costoTotalReceta": 3.6,
+            "proveedor": "CASA DE LA MIEL"
+          },
+          {
+            "id": "ing_cbm_5",
+            "name": "mostaza",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "costoUnitario": 250,
+            "costoTotalReceta": 20,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_cbm_6",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 10
+          },
+          {
+            "id": "ing_cbm_7",
+            "name": "guarnicion",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "costoUnitario": 40,
+            "costoTotalReceta": 40
+          }
+        ]
+      },
+      {
+        "id": "dish_main_cerdo_bbq",
+        "name": "Cerdo Braseado a la Barbacoa C/ Guarnición",
+        "type": "Plato Principal",
+        "totalDishCost": 142.1,
+        "profitMargin": 100,
+        "suggestedSellingPrice": 284.2,
+        "ingredients": [
+          {
+            "id": "ing_cbbq_1",
+            "name": "bondiola",
+            "quantityPerPerson": "250",
+            "unit": "g",
+            "costoUnitario": 190,
+            "costoTotalReceta": 47.5,
+            "proveedor": "CARNICERIA"
+          },
+          {
+            "id": "ing_cbbq_2",
+            "name": "Salsa Barbacoa",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "costoUnitario": 300,
+            "costoTotalReceta": 24,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_cbbq_3",
+            "name": "condimentos",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "costoUnitario": 120,
+            "costoTotalReceta": 9.6,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_cbbq_4",
+            "name": "Cebolla",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 100,
+            "costoTotalReceta": 3,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_cbbq_5",
+            "name": "ajo",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "costoUnitario": 100,
+            "costoTotalReceta": 8,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_cbbq_6",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 10
+          },
+          {
+            "id": "ing_cbbq_7",
+            "name": "guarnicion",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "costoUnitario": 40,
+            "costoTotalReceta": 40
+          }
+        ]
+      },
+      {
+        "id": "dish_main_ravioles_crema",
+        "name": "Ravioles a la Crema",
+        "type": "Plato Principal",
+        "totalDishCost": 116,
+        "profitMargin": 100,
+        "suggestedSellingPrice": 232,
+        "ingredients": [
+          {
+            "id": "ing_rc_1",
+            "name": "Crema de leche",
+            "quantityPerPerson": "130",
+            "unit": "ml",
+            "costoUnitario": 200,
+            "costoTotalReceta": 26,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_rc_2",
+            "name": "paleta",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 200,
+            "costoTotalReceta": 10,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_rc_3",
+            "name": "queso dambo",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 200,
+            "costoTotalReceta": 10,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_rc_4",
+            "name": "ravioles",
+            "quantityPerPerson": "250",
+            "unit": "g",
+            "costoUnitario": 220,
+            "costoTotalReceta": 55,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_rc_5",
+            "name": "Queso rallado",
+            "quantityPerPerson": "10",
+            "unit": "g",
+            "costoUnitario": 450,
+            "costoTotalReceta": 4.5
+          },
+          {
+            "id": "ing_rc_6",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 10
+          }
+        ]
+      },
+      {
+        "id": "dish_main_noquis_queso",
+        "name": "Ñoquis al Queso",
+        "type": "Plato Principal",
+        "totalDishCost": 145.5,
+        "profitMargin": 100,
+        "suggestedSellingPrice": 291,
+        "ingredients": [
+          {
+            "id": "ing_nq_1",
+            "name": "Crema de leche",
+            "quantityPerPerson": "50",
+            "unit": "ml",
+            "costoUnitario": 190,
+            "costoTotalReceta": 9.5,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_nq_2",
+            "name": "Noquis congelados",
+            "quantityPerPerson": "200",
+            "unit": "g",
+            "costoUnitario": 160,
+            "costoTotalReceta": 32,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_nq_3",
+            "name": "Queso colonial",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 420,
+            "costoTotalReceta": 21,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_nq_4",
+            "name": "Queso rallado",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 200,
+            "costoTotalReceta": 10,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_nq_5",
+            "name": "Queso crema",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 500,
+            "costoTotalReceta": 25,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_nq_6",
+            "name": "Manteca",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 500,
+            "costoTotalReceta": 25,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_nq_7",
+            "name": "Queso muzzarella",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 310,
+            "costoTotalReceta": 15.5,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_nq_8",
+            "name": "condimentos",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 250,
+            "costoTotalReceta": 7.5,
+            "proveedor": "UNIPLAS"
+          },
+          {
+            "id": "ing_nq_9",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 10
+          }
+        ]
+      },
+      {
+        "id": "dish_main_cerdo_arrollado",
+        "name": "Cerdo Arrollado C/ Guarnición",
+        "type": "Plato Principal",
+        "totalDishCost": 150,
+        "profitMargin": 100,
+        "suggestedSellingPrice": 300,
+        "ingredients": [
+          {
+            "id": "ing_ca_1",
+            "name": "Cerdo arrollado",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "costoUnitario": 110,
+            "costoTotalReceta": 110,
+            "proveedor": "CARNICERIA"
+          },
+          {
+            "id": "ing_ca_2",
+            "name": "guarnicion",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "costoUnitario": 40,
+            "costoTotalReceta": 40
+          }
+        ]
+      },
+      {
+        "id": "dish_main_brochetas_fritas",
+        "name": "Brochetas C/ Fritas",
+        "type": "Plato Principal",
+        "totalDishCost": 178.8,
+        "profitMargin": 100,
+        "suggestedSellingPrice": 357.6,
+        "ingredients": [
+          {
+            "id": "ing_bf_1",
+            "name": "Carne",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "costoUnitario": 380,
+            "costoTotalReceta": 30.4,
+            "proveedor": "CARNICERIA"
+          },
+          {
+            "id": "ing_bf_2",
+            "name": "Suprema de pollo",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "costoUnitario": 300,
+            "costoTotalReceta": 24,
+            "proveedor": "CARNICERIA"
+          },
+          {
+            "id": "ing_bf_3",
+            "name": "Bondiola",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "costoUnitario": 190,
+            "costoTotalReceta": 15.2,
+            "proveedor": "CARNICERIA"
+          },
+          {
+            "id": "ing_bf_4",
+            "name": "Panceta",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "costoUnitario": 400,
+            "costoTotalReceta": 32,
+            "proveedor": "EL TROPERO"
+          },
+          {
+            "id": "ing_bf_5",
+            "name": "Morron rojo",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "costoUnitario": 150,
+            "costoTotalReceta": 12,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_bf_6",
+            "name": "Tomate cherry",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "costoUnitario": 150,
+            "costoTotalReceta": 12,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_bf_7",
+            "name": "Papas para freir",
+            "quantityPerPerson": "200",
+            "unit": "g",
+            "costoUnitario": 120,
+            "costoTotalReceta": 24,
+            "proveedor": "DOPACA"
+          },
+          {
+            "id": "ing_bf_8",
+            "name": "aceite",
+            "quantityPerPerson": "80",
+            "unit": "ml",
+            "costoUnitario": 60,
+            "costoTotalReceta": 4.8,
+            "proveedor": "DK MOYORISTA"
+          },
+          {
+            "id": "ing_bf_9",
+            "name": "Morron verde",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "costoUnitario": 100,
+            "costoTotalReceta": 8,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_bf_10",
+            "name": "Cebollas",
+            "quantityPerPerson": "80",
+            "unit": "g",
+            "costoUnitario": 80,
+            "costoTotalReceta": 6.4,
+            "proveedor": "VERDULERIA"
+          },
+          {
+            "id": "ing_bf_11",
+            "name": "Gas",
+            "quantityPerPerson": "10",
+            "unit": "min",
+            "costoUnitario": 1,
+            "costoTotalReceta": 10
+          }
+        ]
       }
     ]
   },
@@ -2745,5 +3220,32 @@
         ]
       }
     ]
+  },
+  {
+    "id": "menu_barra_tragos",
+    "name": "Barra de Tragos",
+    "description": "Una selección de cócteles y bebidas para la barra.",
+    "templateType": "Servicio de bebidas",
+    "createdAt": "2025-10-29T19:30:00.000Z",
+    "updatedAt": "2025-10-29T19:30:00.000Z",
+    "items": []
+  },
+  {
+    "id": "menu_mesa_dulce",
+    "name": "Mesa Dulce",
+    "description": "Variedad de postres, tortas y dulces para el final de la fiesta.",
+    "templateType": "Servicio de repostería",
+    "createdAt": "2025-10-29T19:30:00.000Z",
+    "updatedAt": "2025-10-29T19:30:00.000Z",
+    "items": []
+  },
+  {
+    "id": "menu_fuente_chocolate",
+    "name": "Fuente de Chocolate",
+    "description": "Cascada de chocolate con deliciosos acompañamientos.",
+    "templateType": "Servicio de repostería",
+    "createdAt": "2025-10-29T19:30:00.000Z",
+    "updatedAt": "2025-10-29T19:30:00.000Z",
+    "items": []
   }
 ]

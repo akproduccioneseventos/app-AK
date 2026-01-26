@@ -10,10 +10,6 @@
           "esRegalo": false
         },
         {
-          "id": "item_1757282105396_39i6zkn",
-          "esRegalo": false
-        },
-        {
           "id": "serv_invitaciones_digitales",
           "esRegalo": true
         },
@@ -27,11 +23,7 @@
         },
         {
           "id": "item_1757281980225_3x3nbzo",
-          "esRegalo": false
-        },
-        {
-          "id": "item_1757280489194_y9qozwm",
-          "esRegalo": false
+          "esRegalo": true
         },
         {
           "id": "item_1758319049180_rrpf3lf",
@@ -47,6 +39,18 @@
         },
         {
           "id": "item_1757539236109_vtqfjaz",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1769368631171_sur8t7y",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1769382445833_rmonr5f",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1759923194347_kejmhn5",
           "esRegalo": false
         }
       ]
@@ -424,7 +428,7 @@
     },
     {
       "id": "dish_main_15",
-      "visible": false
+      "visible": true
     },
     {
       "id": "dish_main_13",
@@ -444,6 +448,10 @@
     },
     {
       "id": "dish_entrada_17",
+      "visible": false
+    },
+    {
+      "id": "dish_main_20",
       "visible": false
     }
   ],
