@@ -23,7 +23,7 @@ const settingsCards = [
   },
   {
     title: "Simulador de Presupuestos",
-    description: "Configura los paquetes y opciones disponibles en el simulador para clientes.",
+    description: "Configura los paquetes, opciones y dependencias automáticas (ej. asado -> asador) disponibles en el simulador para clientes.",
     href: "/settings/budget-display",
     icon: Wand2,
     buttonLabel: "Gestionar Paquetes"
