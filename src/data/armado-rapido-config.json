@@ -27,7 +27,7 @@
         },
         {
           "id": "item_1757281980225_3x3nbzo",
-          "esRegalo": true
+          "esRegalo": false
         },
         {
           "id": "item_1758319049180_rrpf3lf",
@@ -154,6 +154,10 @@
           "esRegalo": false
         },
         {
+          "id": "item_1757258437308_s0lgq1z",
+          "esRegalo": false
+        },
+        {
           "id": "serv_mozos",
           "esRegalo": false
         },
@@ -195,7 +199,7 @@
         },
         {
           "id": "item_1757539236109_vtqfjaz",
-          "esRegalo": false
+          "esRegalo": true
         },
         {
           "id": "item_1758320726157_k2ts7sy",
@@ -423,5 +427,12 @@
       "visible": false
     }
   ],
-  "mostrarPrecios": true
+  "mostrarPrecios": true,
+  "serviceDependencies": [
+    {
+      "id": "dep_asado_asador",
+      "triggerServiceId": "dish_main_19",
+      "requiredServiceId": "serv_1759925173262_6sba1mh"
+    }
+  ]
 }
