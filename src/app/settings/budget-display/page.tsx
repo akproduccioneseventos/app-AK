@@ -179,40 +179,6 @@ export default function BudgetDisplaySettingsPage() {
     }
   };
 
-  const enhanceWithPrice = useCallback((item: MenuItem): MenuItem & { precioVenta: number } => ({
-      ...item,
-      nombre: item.name,
-      precioVenta: item.suggestedSellingPrice ?? (item.totalDishCost ? item.totalDishCost * (1 + (item.profitMargin ?? 120) / 100) : 0),
-  }), []);
-
-  const { entradasDisponibles, principalesDisponibles, menusNinoDisponibles } = useMemo(() => {
-    if (!allMenus || allMenus.length === 0) {
-      return { entradasDisponibles: [], principalesDisponibles: [], menusNinoDisponibles: [] };
-    }
-    
-    const isPlatoVisible = (platoId: string) => {
-        const setting = config?.platosVisibles?.find(p => p.id === platoId);
-        return setting !== undefined ? setting.visible : true;
-    };
-
-    const enhanceWithPrice = (item: MenuItem): MenuItem & { precioVenta: number } => ({
-      ...item,
-      nombre: item.name,
-      precioVenta: item.suggestedSellingPrice ?? (item.totalDishCost ? item.totalDishCost * (1 + (item.profitMargin ?? 120) / 100) : 0),
-    });
-    
-    const sortByPrice = (a: { precioVenta: number }, b: { precioVenta: number }) => a.precioVenta - b.precioVenta;
-    
-    const allDishes = allMenus.flatMap(m => m.items);
-    const visibleDishes = allDishes.filter(d => isPlatoVisible(d.id));
-
-    return { 
-      entradasDisponibles: visibleDishes.filter(item => item.type === 'Entrada').map(menuItemToServicioEmpresa).sort(sortByPrice), 
-      principalesDisponibles: visibleDishes.filter(item => item.type === 'Plato Principal').map(menuItemToServicioEmpresa).sort(sortByPrice), 
-      menusNinoDisponibles: visibleDishes.filter(s => s.type === 'Menú Infantil/Adolescente').map(menuItemToServicioEmpresa).sort(sortByPrice)
-    };
-  }, [config, allMenus, enhanceWithPrice]);
-
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -233,6 +199,45 @@ export default function BudgetDisplaySettingsPage() {
       setIsLoading(false);
     }
   }, [toast]);
+  
+  const menuItemToServicioEmpresa = (item: MenuItem): ServicioEmpresa => {
+    // Use suggestedSellingPrice if available, otherwise calculate it.
+    const precioVenta = item.suggestedSellingPrice ?? ((item.totalDishCost || 0) * (1 + (item.profitMargin ?? 120) / 100));
+    return {
+        id: item.id,
+        nombre: item.name,
+        tipoItem: 'Servicio',
+        categoria: 'Servicio de catering',
+        subcategoria: item.type,
+        calculationMethod: 'porPersona',
+        precioPorPersona: precioVenta,
+        precioVenta: precioVenta, // Ensure this is also populated for consistency
+        precioBase: precioVenta, // And this one
+        valorUnitarioEstimado: item.totalDishCost,
+    };
+  };
+
+  const { entradasDisponibles, principalesDisponibles, menusNinoDisponibles } = useMemo(() => {
+    if (!allMenus || allMenus.length === 0) {
+      return { entradasDisponibles: [], principalesDisponibles: [], menusNinoDisponibles: [] };
+    }
+    
+    const isPlatoVisible = (platoId: string) => {
+        const setting = config?.platosVisibles?.find(p => p.id === platoId);
+        return setting !== undefined ? setting.visible : true;
+    };
+    
+    const sortByPrice = (a: { precioPorPersona?: number }, b: { precioPorPersona?: number }) => (a.precioPorPersona || 0) - (b.precioPorPersona || 0);
+    
+    const allDishes = allMenus.flatMap(m => m.items);
+    const visibleDishes = allDishes.filter(d => isPlatoVisible(d.id));
+
+    return { 
+      entradasDisponibles: visibleDishes.filter(item => item.type === 'Entrada').map(menuItemToServicioEmpresa).sort(sortByPrice), 
+      principalesDisponibles: visibleDishes.filter(item => item.type === 'Plato Principal').map(menuItemToServicioEmpresa).sort(sortByPrice), 
+      menusNinoDisponibles: visibleDishes.filter(s => s.type === 'Menú Infantil/Adolescente').map(menuItemToServicioEmpresa).sort(sortByPrice)
+    };
+  }, [config, allMenus]);
 
   useEffect(() => {
     loadData();
@@ -596,9 +601,9 @@ export default function BudgetDisplaySettingsPage() {
                   <AccordionTrigger className="px-3 text-md font-medium hover:no-underline">Visibilidad de Platos</AccordionTrigger>
                   <AccordionContent className="p-3 border-t">
                        <Accordion type="multiple" defaultValue={['entradas']} className="w-full space-y-2">
-                        <AccordionItem value="entradas" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Entradas</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{entradasDisponibles.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.nombre} ({formatCurrency(plato.precioVenta)})</Label></div>))}</div></AccordionContent></AccordionItem>
-                        <AccordionItem value="principales" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Platos Principales</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{principalesDisponibles.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.nombre} ({formatCurrency(plato.precioVenta)})</Label></div>))}</div></AccordionContent></AccordionItem>
-                        <AccordionItem value="infantiles" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Menús Infantiles/Adolescentes</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{menusNinoDisponibles.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.nombre} ({formatCurrency(plato.precioVenta)})</Label></div>))}</div></AccordionContent></AccordionItem>
+                        <AccordionItem value="entradas" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Entradas</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{entradasDisponibles.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.nombre} ({formatCurrency(plato.precioPorPersona || 0)})</Label></div>))}</div></AccordionContent></AccordionItem>
+                        <AccordionItem value="principales" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Platos Principales</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{principalesDisponibles.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.nombre} ({formatCurrency(plato.precioPorPersona || 0)})</Label></div>))}</div></AccordionContent></AccordionItem>
+                        <AccordionItem value="infantiles" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Menús Infantiles/Adolescentes</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{menusNinoDisponibles.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.nombre} ({formatCurrency(plato.precioPorPersona || 0)})</Label></div>))}</div></AccordionContent></AccordionItem>
                       </Accordion>
                   </AccordionContent>
               </AccordionItem>
@@ -714,3 +719,4 @@ export default function BudgetDisplaySettingsPage() {
   );
 }
 
+    
