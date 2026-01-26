@@ -30,6 +30,10 @@
           "esRegalo": false
         },
         {
+          "id": "item_1757280489194_y9qozwm",
+          "esRegalo": false
+        },
+        {
           "id": "item_1758319049180_rrpf3lf",
           "esRegalo": false
         },
@@ -69,6 +73,14 @@
         },
         {
           "id": "item_1757258361278_fs8ba4x",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757258437308_s0lgq1z",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_mozos",
           "esRegalo": false
         },
         {
@@ -113,10 +125,6 @@
         },
         {
           "id": "serv_manteleria_completa",
-          "esRegalo": false
-        },
-        {
-          "id": "serv_mozos",
           "esRegalo": false
         },
         {
@@ -435,17 +443,6 @@
       "visible": false
     }
   ],
-  "serviceDependencies": [
-    {
-      "id": "dep_asado_asador",
-      "triggerServiceId": "dish_main_19",
-      "requiredServiceId": "serv_1759925173262_6sba1mh"
-    },
-    {
-      "id": "dep_1769458228159",
-      "triggerServiceId": "dish_main_18",
-      "requiredServiceId": "serv_1759925173262_6sba1mh"
-    }
-  ],
+  "serviceDependencies": [],
   "mostrarPrecios": true
 }
