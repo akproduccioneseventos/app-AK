@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PlusCircle, Trash2, Loader2, Save, BookOpen, Search, Percent, DollarSign, Link as LinkIcon, Info, Image as ImageIconLucide, UploadCloud, Copy } from 'lucide-react';
+import { PlusCircle, Trash2, Loader2, Save, BookOpen, Search, Percent, DollarSign, Link as LinkIcon, Info, Image as ImageIconLucide, UploadCloud, Copy, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveMenu } from '@/app/actions/menus-catering';
 import { getInsumos, saveInsumo } from '@/app/actions/insumos';
@@ -20,6 +20,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { cn } from '@/lib/utils';
 import NextImage from 'next/image';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 
 const formatCurrency = (amount?: number) => {
@@ -32,7 +33,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
   const router = useRouter();
   const { toast } = useToast();
   const [menu, setMenu] = useState<Partial<FullMenu>>(
-    existingMenu || { name: '', description: '', items: [] }
+    existingMenu || { name: '', items: [] }
   );
   const [isSaving, setIsSaving] = useState(false);
   const [catalogoInsumos, setCatalogoInsumos] = useState<ServicioEmpresa[]>([]);
@@ -98,15 +99,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
   }, [menu.items, dishSearchTerm]);
 
   const handleMenuChange = (field: keyof FullMenu, value: string | File | null) => {
-      if (field === 'imageUrl' && value instanceof File) {
-          const reader = new FileReader();
-          reader.onloadend = () => {
-              setMenu(prev => ({ ...prev, imageUrl: reader.result as string }));
-          };
-          reader.readAsDataURL(value);
-      } else {
-          setMenu(prev => ({ ...prev, [field]: value }));
-      }
+      setMenu(prev => ({ ...prev, [field]: value }));
   };
 
 
@@ -333,7 +326,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
         <CardHeader>
           <CardTitle>Platos del Menú</CardTitle>
           <CardDescription>Añade o edita los platos que componen este menú.</CardDescription>
-            <div className="relative pt-4">
+             <div className="relative pt-4">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                     placeholder="Buscar plato en este menú..."
@@ -344,6 +337,17 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
             </div>
         </CardHeader>
         <CardContent className="space-y-4">
+          <Alert>
+              <Sparkles className="h-4 w-4" />
+              <AlertTitle className="font-semibold">Dependencias de Servicios</AlertTitle>
+              <AlertDescription>
+                ¿Necesitas que un plato añada automáticamente un servicio (ej. Asado -> Asador)? Puedes configurar estas reglas en la{' '}
+                <Link href="/settings/budget-display" className="font-medium underline hover:text-primary">
+                  Configuración del Simulador
+                </Link>
+                .
+              </AlertDescription>
+          </Alert>
           {sortedAndFilteredItems.length > 0 ? (
             sortedAndFilteredItems.map((item) => (
             <Card key={item.id} className={cn("p-4")}>
@@ -435,3 +439,5 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     </form>
   );
 }
+
+    
