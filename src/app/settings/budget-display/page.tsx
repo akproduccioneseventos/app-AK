@@ -119,6 +119,20 @@ const menuItemToServicioEmpresa = (item: MenuItem): ServicioEmpresa => {
     };
 };
 
+const renderServiciosList = (servicios: ServicioIncluidoArmadoRapido[], catalogo: ServicioEmpresa[]) => {
+    if (servicios.length === 0) {
+      return <p className="text-xs text-muted-foreground italic">No hay servicios base en este paquete.</p>;
+    }
+    return (
+      <ul className="text-xs text-muted-foreground list-disc pl-5 space-y-1">
+        {servicios.map(servicio => {
+          const fullServicio = catalogo.find(s => s.id === servicio.id);
+          return <li key={servicio.id}>{fullServicio?.nombre || `ID: ${servicio.id} (no encontrado)`}</li>;
+        })}
+      </ul>
+    );
+  };
+
 
 export default function BudgetDisplaySettingsPage() {
   const { toast } = useToast();
@@ -142,7 +156,28 @@ export default function BudgetDisplaySettingsPage() {
 
   const [newDependency, setNewDependency] = useState({ triggerServiceId: '', requiredServiceId: '' });
 
-  const handleAddDependency = async () => {
+  const loadData = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const [armadoConfig, budgetSettingsData, serviciosData, menuData] = await Promise.all([
+        getArmadoRapidoConfig(),
+        getBudgetDisplaySettings(),
+        getServiciosEmpresa(),
+        getMenus()
+      ]);
+      setConfig(armadoConfig);
+      setBudgetSettings(budgetSettingsData);
+      setServiciosCatalogo(serviciosData.filter(s => s.tipoItem === 'Servicio'));
+      setAllMenus(menuData);
+    } catch(e: any) {
+      setError("No se pudieron cargar los datos de configuración.");
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [toast]);
+  
+    const handleAddDependency = async () => {
     if (!newDependency.triggerServiceId || !newDependency.requiredServiceId || !config) return;
     
     const newDep: ServiceDependency = {
@@ -196,26 +231,6 @@ export default function BudgetDisplaySettingsPage() {
     }
   };
 
-  const loadData = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const [armadoConfig, budgetSettingsData, serviciosData, menuData] = await Promise.all([
-        getArmadoRapidoConfig(),
-        getBudgetDisplaySettings(),
-        getServiciosEmpresa(),
-        getMenus()
-      ]);
-      setConfig(armadoConfig);
-      setBudgetSettings(budgetSettingsData);
-      setServiciosCatalogo(serviciosData.filter(s => s.tipoItem === 'Servicio'));
-      setAllMenus(menuData);
-    } catch(e: any) {
-      setError("No se pudieron cargar los datos de configuración.");
-      toast({ title: "Error", description: e.message, variant: "destructive" });
-    } finally {
-      setIsLoading(false);
-    }
-  }, [toast]);
 
   const { entradasDisponibles, principalesDisponibles, menusNinoDisponibles } = useMemo(() => {
     if (!config || !allMenus.length) {
@@ -436,21 +451,6 @@ export default function BudgetDisplaySettingsPage() {
     setBudgetSettings({ ...budgetSettings, promotionalDiscounts: updatedDiscounts });
   };
 
-  const renderServiciosList = (servicios: ServicioIncluidoArmadoRapido[]) => {
-    if (servicios.length === 0) {
-      return <p className="text-xs text-muted-foreground italic">No hay servicios base en este paquete.</p>;
-    }
-    return (
-      <ul className="text-xs text-muted-foreground list-disc pl-5 space-y-1">
-        {servicios.map(servicio => {
-          const fullServicio = serviciosCatalogo.find(s => s.id === servicio.id);
-          return <li key={servicio.id}>{fullServicio?.nombre || `ID: ${servicio.id} (no encontrado)`}</li>;
-        })}
-      </ul>
-    );
-  };
-
-
   if (isLoading || !config || !budgetSettings) {
     return <div className="flex items-center justify-center min-h-[300px]"><Loader2 className="w-8 h-8 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando...</p></div>;
   }
@@ -601,30 +601,7 @@ export default function BudgetDisplaySettingsPage() {
             </CardFooter>
         </Card>
       </form>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="font-headline text-xl">Gestión Gastronómica del Simulador</CardTitle>
-          <CardDescription>
-            Activa o desactiva los platos que estarán disponibles en el simulador. Los platos se gestionan en el <Link href="/empresa/menus" className="text-primary underline hover:text-primary/80">Planificador Gastronómico Maestro</Link>.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-           <Accordion type="multiple" defaultValue={['visibility']} className="w-full space-y-4">
-              <AccordionItem value="visibility" className="border rounded-md shadow-sm">
-                  <AccordionTrigger className="px-3 text-md font-medium hover:no-underline">Visibilidad de Platos</AccordionTrigger>
-                  <AccordionContent className="p-3 border-t">
-                       <Accordion type="multiple" defaultValue={['entradas']} className="w-full space-y-2">
-                        <AccordionItem value="entradas" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Entradas</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{entradasDisponibles.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.nombre} ({formatCurrency(plato.precioPorPersona || 0)})</Label></div>))}</div></AccordionContent></AccordionItem>
-                        <AccordionItem value="principales" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Platos Principales</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{principalesDisponibles.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.nombre} ({formatCurrency(plato.precioPorPersona || 0)})</Label></div>))}</div></AccordionContent></AccordionItem>
-                        <AccordionItem value="infantiles" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Menús Infantiles/Adolescentes</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{menusNinoDisponibles.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.nombre} ({formatCurrency(plato.precioPorPersona || 0)})</Label></div>))}</div></AccordionContent></AccordionItem>
-                      </Accordion>
-                  </AccordionContent>
-              </AccordionItem>
-           </Accordion>
-        </CardContent>
-      </Card>
-
+      
       <Card>
         <CardHeader>
           <CardTitle className="font-headline text-xl">Dependencias de Servicios</CardTitle>
@@ -686,8 +663,32 @@ export default function BudgetDisplaySettingsPage() {
             </div>
         </CardContent>
       </Card>
-      
-       <Card className="shadow-lg">
+
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="font-headline text-xl">Gestión Gastronómica del Simulador</CardTitle>
+          <CardDescription>
+            Activa o desactiva los platos que estarán disponibles en el simulador. Los platos se gestionan en el <Link href="/empresa/menus" className="text-primary underline hover:text-primary/80">Planificador Gastronómico Maestro</Link>.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+           <Accordion type="multiple" defaultValue={['visibility']} className="w-full space-y-4">
+              <AccordionItem value="visibility" className="border rounded-md shadow-sm">
+                  <AccordionTrigger className="px-3 text-md font-medium hover:no-underline">Visibilidad de Platos</AccordionTrigger>
+                  <AccordionContent className="p-3 border-t">
+                       <Accordion type="multiple" defaultValue={['entradas']} className="w-full space-y-2">
+                        <AccordionItem value="entradas" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Entradas</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{entradasDisponibles.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.nombre} ({formatCurrency(plato.precioPorPersona || 0)})</Label></div>))}</div></AccordionContent></AccordionItem>
+                        <AccordionItem value="principales" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Platos Principales</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{principalesDisponibles.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.nombre} ({formatCurrency(plato.precioPorPersona || 0)})</Label></div>))}</div></AccordionContent></AccordionItem>
+                        <AccordionItem value="infantiles" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Menús Infantiles/Adolescentes</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{menusNinoDisponibles.map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.nombre} ({formatCurrency(plato.precioPorPersona || 0)})</Label></div>))}</div></AccordionContent></AccordionItem>
+                      </Accordion>
+                  </AccordionContent>
+              </AccordionItem>
+           </Accordion>
+        </CardContent>
+      </Card>
+
+      <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="font-headline text-xl flex items-center gap-2"><Package className="text-primary"/>Paquetes de Servicios para Simulador</CardTitle>
             <CardDescription>Crea y gestiona paquetes de servicios predefinidos (discoteca, decoración, etc.) para el simulador de clientes.</CardDescription>
@@ -709,17 +710,12 @@ export default function BudgetDisplaySettingsPage() {
                         </div>
                     </div>
                     <AccordionContent className="p-3 border-t">
-                      {renderServiciosList(serviciosNormales)}
+                      {renderServiciosList(serviciosNormales, serviciosCatalogo)}
                       {serviciosRegalo.length > 0 && (
                         <>
                           <Separator className="my-2"/>
                           <h5 className="font-semibold text-xs uppercase text-green-600 flex items-center gap-1.5"><Gift className="w-3.5 h-3.5"/>Regalos</h5>
-                          <ul className="text-xs text-green-700 list-disc pl-5 space-y-1 mt-1">
-                            {serviciosRegalo.map(servicio => {
-                                const fullServicio = serviciosCatalogo.find(s => s.id === servicio.id);
-                                return <li key={servicio.id} className="font-medium">{fullServicio?.nombre || `ID: ${servicio.id} (no encontrado)`}</li>;
-                            })}
-                          </ul>
+                          {renderServiciosList(serviciosRegalo, serviciosCatalogo)}
                         </>
                       )}
                     </AccordionContent>
