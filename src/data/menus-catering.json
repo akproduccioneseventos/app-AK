@@ -1,5 +1,31 @@
-
 [
+  {
+    "id": "menu_barra_tragos",
+    "name": "Barra de Tragos",
+    "description": "Una selección de cócteles y bebidas para la barra.",
+    "templateType": "Servicio de bebidas",
+    "createdAt": "2025-10-29T19:30:00.000Z",
+    "updatedAt": "2025-10-29T19:30:00.000Z",
+    "items": []
+  },
+  {
+    "id": "menu_mesa_dulce",
+    "name": "Mesa Dulce",
+    "description": "Variedad de postres, tortas y dulces para el final de la fiesta.",
+    "templateType": "Servicio de repostería",
+    "createdAt": "2025-10-29T19:30:00.000Z",
+    "updatedAt": "2025-10-29T19:30:00.000Z",
+    "items": []
+  },
+  {
+    "id": "menu_fuente_chocolate",
+    "name": "Fuente de Chocolate",
+    "description": "Cascada de chocolate con deliciosos acompañamientos.",
+    "templateType": "Servicio de repostería",
+    "createdAt": "2025-10-29T19:30:00.000Z",
+    "updatedAt": "2025-10-29T19:30:00.000Z",
+    "items": []
+  },
   {
     "id": "menu_entradas_predisenado",
     "name": "Menú de Entradas",
@@ -19,47 +45,53 @@
             "name": "Harina",
             "quantityPerPerson": "40",
             "unit": "g",
-            "cost": 7.2,
-            "proveedor": "CALSAL"
+            "proveedor": "CALSAL",
+            "costoUnitario": 0,
+            "costoTotalReceta": 0
           },
           {
             "id": "ing_1_2",
             "name": "Algas",
             "quantityPerPerson": "10",
             "unit": "g",
-            "cost": 20,
-            "proveedor": "MONTEVIDEO"
+            "proveedor": "MONTEVIDEO",
+            "costoUnitario": 0,
+            "costoTotalReceta": 0
           },
           {
             "id": "ing_1_3",
             "name": "Salsa de soja",
             "quantityPerPerson": "10",
             "unit": "ml",
-            "cost": 5,
-            "proveedor": "UNIPLAS"
+            "proveedor": "UNIPLAS",
+            "costoUnitario": 0,
+            "costoTotalReceta": 0
           },
           {
             "id": "ing_1_4",
             "name": "Aceite",
             "quantityPerPerson": "100",
             "unit": "ml",
-            "cost": 7,
-            "proveedor": "DK MAYORISTA"
+            "proveedor": "DK MAYORISTA",
+            "costoUnitario": 0,
+            "costoTotalReceta": 0
           },
           {
             "id": "ing_1_5",
             "name": "Gas",
             "quantityPerPerson": "5",
             "unit": "min",
-            "cost": 5
+            "costoUnitario": 0,
+            "costoTotalReceta": 0
           },
           {
             "id": "ing_1_6",
             "name": "Huevo",
             "quantityPerPerson": "0.1",
             "unit": "Unidad",
-            "cost": 1,
-            "proveedor": "VERDULERIA"
+            "proveedor": "VERDULERIA",
+            "costoUnitario": 0,
+            "costoTotalReceta": 0
           }
         ]
       },
@@ -74,24 +106,27 @@
             "name": "Salsa de soja",
             "quantityPerPerson": "10",
             "unit": "g",
-            "cost": 3,
-            "proveedor": "UNIPLAS"
+            "proveedor": "UNIPLAS",
+            "costoUnitario": 0,
+            "costoTotalReceta": 0
           },
           {
             "id": "ing_2_2",
             "name": "Aceite",
             "quantityPerPerson": "100",
             "unit": "ml",
-            "cost": 7,
-            "proveedor": "DK MAYORISTA"
+            "proveedor": "DK MAYORISTA",
+            "costoUnitario": 0,
+            "costoTotalReceta": 0
           },
           {
             "id": "ing_2_3",
             "name": "Arrolladitos primavera",
             "quantityPerPerson": "5",
             "unit": "Unidad",
-            "cost": 30,
-            "proveedor": "DOPACA"
+            "proveedor": "DOPACA",
+            "costoUnitario": 0,
+            "costoTotalReceta": 0
           }
         ]
       },
@@ -3220,32 +3255,5 @@
         ]
       }
     ]
-  },
-  {
-    "id": "menu_barra_tragos",
-    "name": "Barra de Tragos",
-    "description": "Una selección de cócteles y bebidas para la barra.",
-    "templateType": "Servicio de bebidas",
-    "createdAt": "2025-10-29T19:30:00.000Z",
-    "updatedAt": "2025-10-29T19:30:00.000Z",
-    "items": []
-  },
-  {
-    "id": "menu_mesa_dulce",
-    "name": "Mesa Dulce",
-    "description": "Variedad de postres, tortas y dulces para el final de la fiesta.",
-    "templateType": "Servicio de repostería",
-    "createdAt": "2025-10-29T19:30:00.000Z",
-    "updatedAt": "2025-10-29T19:30:00.000Z",
-    "items": []
-  },
-  {
-    "id": "menu_fuente_chocolate",
-    "name": "Fuente de Chocolate",
-    "description": "Cascada de chocolate con deliciosos acompañamientos.",
-    "templateType": "Servicio de repostería",
-    "createdAt": "2025-10-29T19:30:00.000Z",
-    "updatedAt": "2025-10-29T19:30:00.000Z",
-    "items": []
   }
 ]

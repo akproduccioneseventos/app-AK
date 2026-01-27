@@ -80,10 +80,6 @@
           "esRegalo": false
         },
         {
-          "id": "item_1757258437308_s0lgq1z",
-          "esRegalo": false
-        },
-        {
           "id": "serv_mozos",
           "esRegalo": false
         },
@@ -94,10 +90,6 @@
         {
           "id": "item_1757281980225_3x3nbzo",
           "esRegalo": true
-        },
-        {
-          "id": "item_1757280489194_y9qozwm",
-          "esRegalo": false
         },
         {
           "id": "serv_pantalla_proyector",
@@ -133,11 +125,27 @@
         },
         {
           "id": "serv_1759923651440_36zqo53",
-          "esRegalo": false
+          "esRegalo": true
         },
         {
           "id": "serv_1759923194347_kejmhn5",
           "esRegalo": false
+        },
+        {
+          "id": "serv_1759925115155_zlsf240",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1769368631171_sur8t7y",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1759923390445_bebwdh9",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_1759923441060_acfb5f5",
+          "esRegalo": true
         }
       ]
     },
@@ -147,15 +155,15 @@
       "serviciosIncluidos": [
         {
           "id": "item_1756940568854_u5m4prf",
-          "esRegalo": false
+          "esRegalo": true
         },
         {
           "id": "item_1757177422000_4ru2piy",
-          "esRegalo": false
+          "esRegalo": true
         },
         {
           "id": "item_1757282105396_39i6zkn",
-          "esRegalo": false
+          "esRegalo": true
         },
         {
           "id": "serv_invitaciones_digitales",
@@ -179,6 +187,10 @@
         },
         {
           "id": "item_1757281980225_3x3nbzo",
+          "esRegalo": false
+        },
+        {
+          "id": "item_1757280489194_y9qozwm",
           "esRegalo": false
         },
         {
@@ -243,10 +255,6 @@
         },
         {
           "id": "serv_1759924175890_gcepq1r",
-          "esRegalo": false
-        },
-        {
-          "id": "item_1757258437308_s0lgq1z",
           "esRegalo": false
         },
         {
