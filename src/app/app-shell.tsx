@@ -143,6 +143,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/personal') return UserCheck;
     if (pathname === '/fiestas/nueva/personal/recibos') return Printer;
     if (pathname === '/fiestas/nueva/reuniones') return MessageSquareText;
+    if (pathname === '/fiestas/nueva/portal-cliente') return Globe;
     if (pathname === '/fiestas/nueva/decoracion') return Palette;
     if (pathname === '/fiestas/nueva/decoracion/pdf') return Printer;
     if (pathname === '/fiestas/nueva/catering') return ChefHat;
@@ -219,7 +220,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname.startsWith('/video-vida')) return Camera;
   if (pathname.startsWith('/feedback')) return Star;
   if (pathname.startsWith('/acceso-personal')) return UserCog;
-  if (pathname.startsWith('/portal')) return Globe;
+  if (pathname.startsWith('/portal')) return KeyRound;
 
   return null;
 }

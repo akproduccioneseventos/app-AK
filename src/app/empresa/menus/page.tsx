@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -118,6 +117,7 @@ export default function GestionMenusPage() {
           <h1 className="text-3xl font-bold tracking-tight font-headline">Planificador Gastronómico Maestro</h1>
         </div>
          <div className="flex gap-2">
+            <Link href="/empresa/menus/catalogo" passHref><Button variant="secondary">Catálogo de Platos</Button></Link>
             <Link href="/empresa/menus/nuevo" passHref><Button><PlusCircle className="w-4 h-4 mr-2"/>Crear Menú</Button></Link>
             <Link href="/empresa" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver a Empresa</Button></Link>
         </div>

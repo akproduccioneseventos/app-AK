@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ChefHat, Loader2, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -109,7 +109,7 @@ export default function CatalogoPlatosPage() {
                                         <p className="font-medium">{plato.name}</p>
                                         <p className="text-xs text-muted-foreground">Del menú: "{plato.menuName}"</p>
                                       </div>
-                                      <p className="font-semibold text-primary">{formatCurrency((plato.totalDishCost || 0) * 2)}</p>
+                                      <p className="font-semibold text-primary">{formatCurrency(plato.suggestedSellingPrice)}</p>
                                     </li>
                                 ))}
                                 </ul>
