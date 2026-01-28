@@ -92,7 +92,7 @@
     "categoria": "Personal",
     "valorUnitarioEstimado": 2100,
     "calculationMethod": "ratio",
-    "precioBase": 3190,
+    "precioBase": 2990,
     "invitadosPorUnidad": 25
   },
   {
@@ -419,11 +419,13 @@
     ]
   },
   {
+    "id": "serv_1769382445833_rmonr5f",
     "nombre": "Decoración Básica",
     "tipoItem": "Servicio",
     "categoria": "Servicio de decoración",
-    "calculationMethod": "fijo",
+    "valorUnitarioEstimado": 1500,
     "precioVenta": 7990,
+    "calculationMethod": "fijo",
     "tramosDePrecio": [
       {
         "id": "tramo_1",
@@ -431,9 +433,7 @@
         "hasta": 50,
         "precio": 0
       }
-    ],
-    "valorUnitarioEstimado": 1500,
-    "id": "serv_1769382445833_rmonr5f"
+    ]
   },
   {
     "id": "item_1757282105396_39i6zkn",

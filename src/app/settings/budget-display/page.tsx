@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -102,7 +103,6 @@ const EditServicioForm: React.FC<{ servicioId: string | null; onUpdate: () => vo
 };
 
 const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): ServicioEmpresa => {
-    // Use suggestedSellingPrice if available, otherwise calculate it.
     const precioVenta = item.suggestedSellingPrice ?? ((item.totalDishCost || 0) * (1 + (item.profitMargin ?? 120) / 100));
     return {
         id: item.id,
@@ -112,8 +112,8 @@ const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): Se
         subcategoria: item.type,
         calculationMethod: 'porPersona',
         precioPorPersona: precioVenta,
-        precioVenta: precioVenta, // Ensure this is also populated for consistency
-        precioBase: precioVenta, // And this one
+        precioVenta: precioVenta,
+        precioBase: precioVenta,
         valorUnitarioEstimado: item.totalDishCost,
     };
 };
@@ -130,7 +130,7 @@ const renderServiciosList = (servicios: ServicioIncluidoArmadoRapido[], catalogo
         })}
       </ul>
     );
-  };
+};
 
 
 export default function BudgetDisplaySettingsPage() {
@@ -235,6 +235,11 @@ export default function BudgetDisplaySettingsPage() {
       return { entradasDisponibles: [], principalesDisponibles: [], menusNinoDisponibles: [] };
     }
     
+    const isPlatoVisible = (platoId: string) => {
+        const setting = config.platosVisibles?.find(p => p.id === platoId);
+        return setting !== undefined ? setting.visible : true;
+    };
+    
     const sortByPrice = (a: { precioPorPersona?: number }, b: { precioPorPersona?: number }) => (a.precioPorPersona || 0) - (b.precioPorPersona || 0);
 
     const allDishes = allMenus.flatMap(m => m.items).map(item => ({
@@ -242,10 +247,10 @@ export default function BudgetDisplaySettingsPage() {
         precioVenta: item.suggestedSellingPrice ?? ((item.totalDishCost || 0) * (1 + (item.profitMargin ?? 120) / 100)),
     }));
     
-    return {
-        entradasDisponibles: allDishes.filter(item => item.type === 'Entrada').map(menuItemToServicioEmpresa).sort(sortByPrice),
-        principalesDisponibles: allDishes.filter(item => item.type === 'Plato Principal').map(menuItemToServicioEmpresa).sort(sortByPrice),
-        menusNinoDisponibles: allDishes.filter(s => s.type === 'Menú Infantil/Adolescente').map(menuItemToServicioEmpresa).sort(sortByPrice),
+    return { 
+        entradasDisponibles: allDishes.filter(item => item.type === 'Entrada').map(menuItemToServicioEmpresa).sort(sortByPrice), 
+        principalesDisponibles: allDishes.filter(item => item.type === 'Plato Principal').map(menuItemToServicioEmpresa).sort(sortByPrice), 
+        menusNinoDisponibles: allDishes.filter(s => s.type === 'Menú Infantil/Adolescente').map(menuItemToServicioEmpresa).sort(sortByPrice)
     };
 }, [config, allMenus]);
   
@@ -383,7 +388,7 @@ export default function BudgetDisplaySettingsPage() {
     return setting ? setting.visible : true; // Default to visible if not set
   };
 
-  const getVisibleDishes = (dishList: (MenuItem & { precioVenta: number })[]): (MenuItem & { precioVenta: number })[] => {
+  const getVisibleDishes = (dishList: (ServicioEmpresa)[]) => {
     return dishList; // Show all dishes, visibility is handled by the switch
   };
   

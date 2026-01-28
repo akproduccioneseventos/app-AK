@@ -146,6 +146,10 @@
         {
           "id": "serv_1759923441060_acfb5f5",
           "esRegalo": true
+        },
+        {
+          "id": "serv_1759924277833_nwc4khk",
+          "esRegalo": false
         }
       ]
     },
@@ -155,15 +159,15 @@
       "serviciosIncluidos": [
         {
           "id": "item_1756940568854_u5m4prf",
-          "esRegalo": true
+          "esRegalo": false
         },
         {
           "id": "item_1757177422000_4ru2piy",
-          "esRegalo": true
+          "esRegalo": false
         },
         {
           "id": "item_1757282105396_39i6zkn",
-          "esRegalo": true
+          "esRegalo": false
         },
         {
           "id": "serv_invitaciones_digitales",
@@ -187,11 +191,7 @@
         },
         {
           "id": "item_1757281980225_3x3nbzo",
-          "esRegalo": false
-        },
-        {
-          "id": "item_1757280489194_y9qozwm",
-          "esRegalo": false
+          "esRegalo": true
         },
         {
           "id": "serv_pantalla_proyector",
@@ -223,7 +223,7 @@
         },
         {
           "id": "item_1757539236109_vtqfjaz",
-          "esRegalo": true
+          "esRegalo": false
         },
         {
           "id": "item_1758320726157_k2ts7sy",
@@ -243,11 +243,11 @@
         },
         {
           "id": "serv_1759923651440_36zqo53",
-          "esRegalo": false
+          "esRegalo": true
         },
         {
           "id": "serv_1759925293936_stuxroz",
-          "esRegalo": false
+          "esRegalo": true
         },
         {
           "id": "serv_1759925142198_fbb8zf4",
@@ -259,6 +259,38 @@
         },
         {
           "id": "serv_1759924277833_nwc4khk",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1759923441060_acfb5f5",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_1759923390445_bebwdh9",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_1759924611990_ma1cebl",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_1759923851267_rg4j7cm",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1769368631171_sur8t7y",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1759925115155_zlsf240",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1759925085277_cvm1a0v",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1759923136982_tn3pwnz",
           "esRegalo": false
         }
       ]

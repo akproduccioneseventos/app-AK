@@ -1,1 +1,30 @@
-[]
+[
+  {
+    "id": "lead_1769634389285_sr8ja12",
+    "name": "nico k",
+    "phone": "098355530",
+    "notes": "Presupuesto ID: pres_1769634389244_hil96xe\nCosto: $ 1.427.710,00",
+    "presupuestoId": "pres_1769634389244_hil96xe",
+    "currentStageId": "s3",
+    "createdAt": "2026-01-28T21:06:29.285Z",
+    "updatedAt": "2026-01-28T21:06:29.297Z",
+    "history": [
+      {
+        "stageId": "s1",
+        "stageName": "Consultó",
+        "timestamp": "2026-01-28T21:06:29.285Z"
+      },
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2026-01-28T21:06:29.291Z"
+      },
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2026-01-28T21:06:29.297Z"
+      }
+    ],
+    "presupuestoEstado": "Enviado"
+  }
+]
