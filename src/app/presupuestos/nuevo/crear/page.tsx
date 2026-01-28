@@ -61,33 +61,53 @@ function formStateInitializer(initialState: PresupuestoFormData): PresupuestoFor
     return initialState;
 }
 
-function calcularCostoItem(item: ItemPresupuestado, invitados: number): number {
+// Helper function to decide which guest count to use for an item
+function getGuestCountForItem(item: { nombreServicio: string }, invitados: number, invitadosAdultos?: number, invitadosNinos?: number): number {
+  const nombre = item.nombreServicio.toLowerCase();
+  const hayNinos = (invitadosNinos ?? 0) > 0;
+
+  if (nombre.includes('infantil') || nombre.includes('hamburguesa') || nombre.includes('pancho')) {
+    return invitadosNinos ?? 0;
+  }
+  // If there are kids, main courses like asado are assumed to be for adults only.
+  if (hayNinos && (nombre.includes('asado') || nombre.includes('cordero') || nombre.includes('principal'))) {
+    return invitadosAdultos ?? invitados;
+  }
+  // Default to total guests
+  return invitados;
+};
+
+function calcularCostoItem(item: ItemPresupuestado, invitados: number, invitadosAdultos?: number, invitadosNinos?: number): number {
   if (item.esRegalo) return 0;
   
+  const cantidadInvitados = getGuestCountForItem(item, invitados, invitadosAdultos, invitadosNinos);
+  if (cantidadInvitados === 0 && (item.calculationMethod === 'porPersona' || item.calculationMethod === 'ratio')) {
+    return 0;
+  }
+
   let itemTotal = 0;
   const precioUnitario = item.precioUnitarioPresupuesto ?? item.precioUnitario;
 
   switch (item.calculationMethod) {
-    case 'fijo':
-      itemTotal = item.precioBase ?? precioUnitario;
+    case 'fijo': 
+      itemTotal = item.precioBase ?? precioUnitario; 
       break;
-    case 'porPersona':
-      itemTotal = (item.precioPorPersona ?? precioUnitario) * invitados;
+    case 'porPersona': 
+      itemTotal = (item.precioPorPersona ?? precioUnitario) * cantidadInvitados; 
       break;
     case 'ratio':
       const invitadosPorUnidadNum = Number(item.invitadosPorUnidad);
       if (invitadosPorUnidadNum > 0) {
-        const basePrice = item.precioBase ?? precioUnitario;
-        itemTotal = Math.ceil(invitados / invitadosPorUnidadNum) * basePrice;
+        itemTotal = Math.ceil(cantidadInvitados / invitadosPorUnidadNum) * (item.precioBase ?? precioUnitario);
       } else {
-        itemTotal = item.precioBase ?? precioUnitario; // Fallback
+        itemTotal = item.precioBase ?? precioUnitario;
       }
       break;
     case 'tramos':
-      const tramo = item.tramosDePrecio?.find(t => invitados >= t.desde && invitados <= t.hasta);
+      const tramo = item.tramosDePrecio?.find(t => cantidadInvitados >= t.desde && cantidadInvitados <= t.hasta);
       itemTotal = tramo?.precio || 0;
       break;
-    default: // Fallback to simple calculation
+    default: 
       itemTotal = item.cantidad * precioUnitario;
   }
   return itemTotal;
@@ -210,9 +230,9 @@ function CrearPresupuestoContent() {
         const itemDataForCalc: ItemPresupuestado = {
           idServicioCatalogo: '', ...item, precioUnitario: item.precioUnitarioOriginal, costoTotalItem: 0 // dummy for calc
         };
-        return sum + calcularCostoItem(itemDataForCalc, totalInvitados);
+        return sum + calcularCostoItem(itemDataForCalc, totalInvitados, formData.invitadosAdultos || undefined, formData.invitadosNinos || undefined);
       }, 0);
-    }, [formData.serviciosSeleccionados, totalInvitados]);
+    }, [formData.serviciosSeleccionados, totalInvitados, formData.invitadosAdultos, formData.invitadosNinos]);
 
     const handleSave = async () => {
         const presupuestoData: Omit<Presupuesto, 'id'> = {
@@ -227,23 +247,37 @@ function CrearPresupuestoContent() {
             protagonista1Nombre: formData.protagonista1Nombre,
             protagonista2Nombre: formData.protagonista2Nombre,
             nombreEmpresa: formData.nombreEmpresa,
-            itemsPresupuestados: Array.from(formData.serviciosSeleccionados.entries()).map(([id, serv]) => ({
-              idServicioCatalogo: id,
-              nombreServicio: serv.nombreServicio,
-              cantidad: serv.cantidad,
-              unidad: serv.unidad,
-              precioUnitario: serv.precioUnitarioOriginal,
-              precioUnitarioPresupuesto: serv.precioUnitarioPresupuesto,
-              costoTotalItem: 0, // Será recalculado en el servidor
-              esRegalo: serv.esRegalo,
-              categoriaServicio: serv.categoriaServicio,
-              calculationMethod: serv.calculationMethod,
-              precioBase: serv.precioBase,
-              precioPorPersona: serv.precioPorPersona,
-              invitadosPorUnidad: serv.invitadosPorUnidad,
-              tramosDePrecio: serv.tramosDePrecio,
-            })),
-            costoTotalEstimado: 0, // Será recalculado
+            itemsPresupuestados: Array.from(formData.serviciosSeleccionados.entries()).map(([id, serv]) => {
+              const invitadosParaItem = getGuestCountForItem(serv, totalInvitados, formData.invitadosAdultos || 0, formData.invitadosNinos || 0);
+              let cantidad = 1;
+              switch (serv.calculationMethod) {
+                case 'porPersona':
+                  cantidad = invitadosParaItem;
+                  break;
+                case 'ratio':
+                  cantidad = Math.ceil(invitadosParaItem / (serv.invitadosPorUnidad || 1));
+                  break;
+                default:
+                  cantidad = serv.cantidad;
+              }
+              return {
+                idServicioCatalogo: id,
+                nombreServicio: serv.nombreServicio,
+                cantidad: cantidad,
+                unidad: serv.unidad,
+                precioUnitario: serv.precioUnitarioOriginal,
+                precioUnitarioPresupuesto: serv.precioUnitarioPresupuesto,
+                costoTotalItem: 0, // Recalculated on server
+                esRegalo: serv.esRegalo,
+                categoriaServicio: serv.categoriaServicio,
+                calculationMethod: serv.calculationMethod,
+                precioBase: serv.precioBase,
+                precioPorPersona: serv.precioPorPersona,
+                invitadosPorUnidad: serv.invitadosPorUnidad,
+                tramosDePrecio: serv.tramosDePrecio,
+              };
+            }),
+            costoTotalEstimado: 0, // Will be recalculated on the server
             nombrePromocion: formData.nombrePromocion,
             descuentoTipo: formData.descuentoTipo,
             descuentoValor: parseFloat(formData.descuentoValor || '0') || undefined,
