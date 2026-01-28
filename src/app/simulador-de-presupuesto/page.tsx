@@ -50,37 +50,59 @@ const BUDGET_VALIDITY_DAYS_PDF = 30;
 const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos los servicios, se requiere una seña de $5.000. El presupuesto es válido por 30 días.";
 
 
-function calcularCostoServicio(servicio: ServicioEmpresa, cantidadInvitados: number): number {
-  if (!servicio || cantidadInvitados < 0) return 0;
-  
-  if (servicio.precioVenta !== undefined && servicio.calculationMethod === 'fijo') {
-      return servicio.precioVenta;
-  }
-   if (servicio.precioPorPersona !== undefined && servicio.calculationMethod === 'porPersona') {
-      return servicio.precioPorPersona * cantidadInvitados;
-  }
+// Helper function to decide which guest count to use for an item
+function getGuestCountForItem(servicio: ServicioEmpresa, adultos: number, ninos: number): number {
+  const nombre = servicio.nombre.toLowerCase();
+  const hayNinos = ninos > 0;
 
+  if (nombre.includes('infantil') || nombre.includes('hamburguesa') || nombre.includes('pancho')) {
+    return ninos;
+  }
+  // If there are kids, main courses like asado are assumed to be for adults only.
+  if (hayNinos && (nombre.includes('asado') || nombre.includes('cordero') || nombre.includes('principal'))) {
+    return adultos;
+  }
+  // Default to total guests
+  return adultos + ninos;
+};
+
+function calcularCostoServicio(servicio: ServicioEmpresa, adultos: number, ninos: number): number {
+  if (!servicio) return 0;
+  
+  const cantidadInvitados = getGuestCountForItem(servicio, adultos, ninos);
+  
+  if (cantidadInvitados === 0 && (servicio.calculationMethod === 'porPersona' || servicio.calculationMethod === 'ratio')) {
+    return 0;
+  }
+  
+  let itemTotal = 0;
 
   switch (servicio.calculationMethod) {
-    case 'porPersona':
-      return (servicio.precioPorPersona || 0) * cantidadInvitados;
+    case 'fijo': 
+      itemTotal = servicio.precioVenta ?? servicio.precioBase ?? 0; 
+      break;
+    case 'porPersona': 
+      itemTotal = (servicio.precioPorPersona ?? 0) * cantidadInvitados; 
+      break;
     case 'ratio':
-      if (servicio.invitadosPorUnidad && servicio.invitadosPorUnidad > 0 && servicio.precioBase) {
-        return Math.ceil(cantidadInvitados / servicio.invitadosPorUnidad) * servicio.precioBase;
+      const invitadosPorUnidadNum = Number(servicio.invitadosPorUnidad);
+      if (invitadosPorUnidadNum > 0) {
+        itemTotal = Math.ceil(cantidadInvitados / invitadosPorUnidadNum) * (servicio.precioBase ?? 0);
+      } else {
+        itemTotal = servicio.precioBase ?? 0; // Fallback if unit ratio is not set
       }
-      return servicio.precioBase || 0;
+      break;
     case 'tramos':
       const tramo = servicio.tramosDePrecio?.find(t => cantidadInvitados >= t.desde && cantidadInvitados <= t.hasta);
-      return tramo?.precio || 0;
-    case 'fijo':
-    default:
-      return servicio.precioVenta || servicio.precioBase || 0;
+      itemTotal = tramo?.precio || 0;
+      break;
+    default: 
+      itemTotal = servicio.precioVenta ?? 0;
   }
+  return itemTotal;
 }
 
-// **FIX**: Correctly calculate the price for menu items.
-const menuItemToServicioEmpresa = (item: MenuItem): ServicioEmpresa => {
-    // Use suggestedSellingPrice if available, otherwise calculate it.
+const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): ServicioEmpresa => {
     const precioVenta = item.suggestedSellingPrice ?? ((item.totalDishCost || 0) * (1 + (item.profitMargin ?? 120) / 100));
     return {
         id: item.id,
@@ -90,8 +112,8 @@ const menuItemToServicioEmpresa = (item: MenuItem): ServicioEmpresa => {
         subcategoria: item.type,
         calculationMethod: 'porPersona',
         precioPorPersona: precioVenta,
-        precioVenta: precioVenta, // Ensure this is also populated for consistency
-        precioBase: precioVenta, // And this one
+        precioVenta: precioVenta,
+        precioBase: precioVenta,
         valorUnitarioEstimado: item.totalDishCost,
     };
 };
@@ -203,29 +225,22 @@ export default function ArmadoRapidoPage() {
         }
     };
     
+    const allSimuladorServices = useMemo(() => {
+        return [...entradasDisponibles, ...principalesDisponibles, ...menusNinoDisponibles, ...serviciosCatalogo];
+    }, [entradasDisponibles, principalesDisponibles, menusNinoDisponibles, serviciosCatalogo]);
+
     const { costoTotal, subtotal, descuento, serviciosDetallados, totalRegalos } = useMemo(() => {
         if (!config || !serviciosCatalogo.length) return { costoTotal: 0, subtotal: 0, descuento: 0, serviciosDetallados: [], totalRegalos: 0 };
         
         let calculatedSubtotal = 0;
         let calculatedTotalRegalos = 0;
-        const totalInvitados = adultos + ninos;
         const includedServicesList: ServicioDetallado[] = [];
-
-        const allSimuladorServices = [...entradasDisponibles, ...principalesDisponibles, ...menusNinoDisponibles, ...serviciosCatalogo];
         
-        const addServicio = (servicio: ServicioEmpresa | undefined, esRegalo: boolean, nota?: string, cantidadEspecifica?: number) => {
+        const addServicio = (servicio: ServicioEmpresa | undefined, esRegalo: boolean, nota?: string) => {
             if (!servicio) return;
-             if (includedServicesList.some(s => s.id === servicio.id)) {
-                toast({
-                    description: `El servicio '${servicio.nombre}' ya está incluido y no se añadirá de nuevo.`,
-                    variant: "default",
-                    duration: 2000,
-                });
-                return;
-             }
+             if (includedServicesList.some(s => s.id === servicio.id)) { return; }
 
-            const cantidadParaCalculo = cantidadEspecifica ?? (servicio.calculationMethod === 'porPersona' || servicio.calculationMethod === 'ratio' ? totalInvitados : 1);
-            const costoItem = calcularCostoServicio(servicio, cantidadParaCalculo);
+            const costoItem = calcularCostoServicio(servicio, adultos, ninos);
             
             if (!esRegalo) {
                 calculatedSubtotal += costoItem;
@@ -233,13 +248,23 @@ export default function ArmadoRapidoPage() {
                 calculatedTotalRegalos += costoItem;
             }
             
+            const cantidadInvitadosRelevante = getGuestCountForItem(servicio, adultos, ninos);
+            let cantidadDisplay = 1;
             let unidadDisplay = 'evento';
-            if (servicio.calculationMethod === 'porPersona') {
-                unidadDisplay = 'personas';
-            } else if (servicio.calculationMethod === 'ratio' && servicio.unidad) {
-                unidadDisplay = servicio.unidad;
-            } else if (servicio.unidad) {
-                unidadDisplay = servicio.unidad;
+
+            switch (servicio.calculationMethod) {
+                case 'porPersona':
+                    cantidadDisplay = cantidadInvitadosRelevante;
+                    unidadDisplay = 'personas';
+                    break;
+                case 'ratio':
+                    cantidadDisplay = Math.ceil(cantidadInvitadosRelevante / (servicio.invitadosPorUnidad || 1));
+                    unidadDisplay = servicio.unidad || 'Uds.';
+                    break;
+                default:
+                    cantidadDisplay = 1;
+                    unidadDisplay = servicio.unidad || 'evento';
+                    break;
             }
 
             includedServicesList.push({ 
@@ -249,7 +274,7 @@ export default function ArmadoRapidoPage() {
                 costo: costoItem,
                 categoria: servicio.categoria || 'Varios',
                 precioUnitario: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
-                cantidad: cantidadParaCalculo,
+                cantidad: cantidadDisplay,
                 unidad: unidadDisplay
             });
         };
@@ -262,7 +287,7 @@ export default function ArmadoRapidoPage() {
             addServicio(allSimuladorServices.find(s => s.id === selectedPrincipal), false);
         }
         if (selectedMenuNino && ninos > 0) {
-            addServicio(allSimuladorServices.find(s => s.id === selectedMenuNino), false, '(Niños/Adol.)', ninos);
+            addServicio(allSimuladorServices.find(s => s.id === selectedMenuNino), false, '(Niños/Adol.)');
         }
 
         const paqueteSeleccionado = config.paquetes.find(p => p.id === selectedPaqueteId);
@@ -276,11 +301,9 @@ export default function ArmadoRapidoPage() {
             const allSelectedDishIds = [selectedPrincipal, ...selectedEntradas, selectedMenuNino].filter(Boolean);
       
             config.serviceDependencies.forEach(dep => {
-              // If one of the selected dishes is a trigger for this dependency
               if (allSelectedDishIds.includes(dep.triggerServiceId)) {
                 const requiredService = serviciosCatalogo.find(s => s.id === dep.requiredServiceId);
                 if (requiredService) {
-                  // The addServicio function already handles duplicates, so this is safe
                   addServicio(requiredService, false);
                 }
               }
@@ -295,7 +318,7 @@ export default function ArmadoRapidoPage() {
         const calculatedCostoTotal = calculatedSubtotal - calculatedDescuento;
 
         return { costoTotal: calculatedCostoTotal, subtotal: calculatedSubtotal, descuento: calculatedDescuento, serviciosDetallados: includedServicesList, totalRegalos: calculatedTotalRegalos };
-    }, [config, serviciosCatalogo, allMenus, entradasDisponibles, principalesDisponibles, menusNinoDisponibles, adultos, ninos, selectedEntradas, selectedPrincipal, selectedMenuNino, selectedPaqueteId, toast]);
+    }, [config, serviciosCatalogo, allSimuladorServices, adultos, ninos, selectedEntradas, selectedPrincipal, selectedMenuNino, selectedPaqueteId]);
 
     const serviciosAgrupados = useMemo(() => {
         const serviciosSinRegalo = serviciosDetallados.filter(s => !s.esRegalo);
@@ -323,7 +346,7 @@ export default function ArmadoRapidoPage() {
 
     const generarTextoWhatsApp = useCallback(() => {
         if (typeof window === 'undefined') return '';
-        const url = window.location.href; // The URL to the simulator for them to see.
+        const url = window.location.href;
         let message = `¡Hola! He generado un presupuesto estimado a través del simulador y quisiera más información. Puedes ver mi resumen aquí: ${url}`;
         return message;
     }, []);
@@ -353,16 +376,25 @@ export default function ArmadoRapidoPage() {
             ninos,
             costoEstimado: costoTotal,
             paqueteNombre: config?.paquetes.find(p => p.id === selectedPaqueteId)?.nombre,
-            items: serviciosDetallados.map(s => ({
-                idServicioCatalogo: s.id,
-                nombreServicio: s.nombre,
-                cantidad: s.cantidad,
-                unidad: s.unidad,
-                precioUnitario: s.precioUnitario,
-                precioUnitarioPresupuesto: s.precioUnitario,
-                esRegalo: s.esRegalo,
-                categoriaServicio: s.categoria
-            })) as Omit<ItemPresupuestado, 'costoTotalItem'>[]
+            items: serviciosDetallados.map(s => {
+                const originalServicio = allSimuladorServices.find(os => os.id === s.id);
+                return {
+                    idServicioCatalogo: s.id,
+                    nombreServicio: s.nombre,
+                    cantidad: s.cantidad,
+                    unidad: s.unidad,
+                    precioUnitario: s.precioUnitario,
+                    precioUnitarioPresupuesto: s.precioUnitario,
+                    esRegalo: s.esRegalo,
+                    categoriaServicio: s.categoria,
+                    // Pass all calculation fields to the backend
+                    calculationMethod: originalServicio?.calculationMethod,
+                    precioBase: originalServicio?.precioBase,
+                    precioPorPersona: originalServicio?.precioPorPersona,
+                    invitadosPorUnidad: originalServicio?.invitadosPorUnidad,
+                    tramosDePrecio: originalServicio?.tramosDePrecio,
+                };
+            }) as Omit<ItemPresupuestado, 'id' | 'costoTotalItem'>[]
         };
 
         try {
@@ -377,7 +409,7 @@ export default function ArmadoRapidoPage() {
         } finally {
             setIsGeneratingLead(false);
         }
-    }, [clienteNombre, clienteContacto, adultos, ninos, costoTotal, config?.paquetes, selectedPaqueteId, serviciosDetallados, toast, isGeneratingLead]);
+    }, [clienteNombre, clienteContacto, adultos, ninos, costoTotal, config?.paquetes, selectedPaqueteId, serviciosDetallados, toast, isGeneratingLead, allSimuladorServices]);
     
     const isStepTwoInvalid = useMemo(() => {
         const requiredEntradas = duracionHoras > 4 ? 2 : 1;

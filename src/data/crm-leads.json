@@ -1,28 +1,28 @@
 [
   {
-    "id": "lead_1769634389285_sr8ja12",
+    "id": "lead_1769635997402_sye1l5b",
     "name": "nico k",
     "phone": "098355530",
-    "notes": "Presupuesto ID: pres_1769634389244_hil96xe\nCosto: $ 1.427.710,00",
-    "presupuestoId": "pres_1769634389244_hil96xe",
+    "notes": "Presupuesto ID: pres_1769635997395_uthnvx4\nCosto: $ 1.429.224,28",
+    "presupuestoId": "pres_1769635997395_uthnvx4",
     "currentStageId": "s3",
-    "createdAt": "2026-01-28T21:06:29.285Z",
-    "updatedAt": "2026-01-28T21:06:29.297Z",
+    "createdAt": "2026-01-28T21:33:17.402Z",
+    "updatedAt": "2026-01-28T21:33:17.417Z",
     "history": [
       {
         "stageId": "s1",
         "stageName": "Consultó",
-        "timestamp": "2026-01-28T21:06:29.285Z"
+        "timestamp": "2026-01-28T21:33:17.402Z"
       },
       {
         "stageId": "s3",
         "stageName": "Con presupuesto",
-        "timestamp": "2026-01-28T21:06:29.291Z"
+        "timestamp": "2026-01-28T21:33:17.410Z"
       },
       {
         "stageId": "s3",
         "stageName": "Con presupuesto",
-        "timestamp": "2026-01-28T21:06:29.297Z"
+        "timestamp": "2026-01-28T21:33:17.417Z"
       }
     ],
     "presupuestoEstado": "Enviado"
