@@ -541,7 +541,25 @@ export default function ArmadoRapidoPage() {
                                   )}
                                 </RadioGroup>
                             </div>
-                            <div className="space-y-2"><Label>Menú Niños/Adolescentes (elige 1)</Label><Select value={selectedMenuNino} onValueChange={setSelectedMenuNino} disabled={ninos === 0}><SelectTrigger><SelectValue placeholder={ninos > 0 ? "Selecciona un menú..." : "Añade niños en Paso 1"}/></SelectTrigger><SelectContent>{menusNinoDisponibles.map(s=><SelectItem key={s.id} value={s.id}>{s.nombre} ({formatCurrency(s.precioPorPersona || 0, true)})</SelectItem>)}</SelectContent></Select></div>
+                            <div className="space-y-4">
+                                <Label>Menú Niños/Adolescentes (elige 1)</Label>
+                                <RadioGroup value={selectedMenuNino} onValueChange={setSelectedMenuNino} className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                    {ninos > 0 ? (
+                                        menusNinoDisponibles.length > 0 ? (
+                                            menusNinoDisponibles.map(s => (
+                                                <div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md">
+                                                    <RadioGroupItem value={s.id} id={`nino-${s.id}`} />
+                                                    <Label htmlFor={`nino-${s.id}`} className="text-sm font-normal">{s.nombre} ({formatCurrency(s.precioPorPersona || 0, true)})</Label>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <p className="md:col-span-2 text-center text-sm text-muted-foreground py-4">No se encontraron menús infantiles/adolescentes.</p>
+                                        )
+                                    ) : (
+                                        <p className="md:col-span-2 text-center text-sm text-muted-foreground py-4">Añade niños/adolescentes en el Paso 1 para ver las opciones.</p>
+                                    )}
+                                </RadioGroup>
+                            </div>
                         </div>
                     )}
                      {step === 3 && (
@@ -703,3 +721,5 @@ export default function ArmadoRapidoPage() {
         </div>
     );
 }
+
+    

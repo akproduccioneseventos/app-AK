@@ -1,5 +1,61 @@
 [
   {
+    "id": "lead_1769712334280_kbhncr5",
+    "name": "nico k",
+    "phone": "098255208",
+    "notes": "Presupuesto ID: pres_1769712334275_1tqcq2h\nCosto: $ 160.620,00",
+    "presupuestoId": "pres_1769712334275_1tqcq2h",
+    "currentStageId": "s3",
+    "createdAt": "2026-01-29T18:45:34.280Z",
+    "updatedAt": "2026-01-29T18:45:34.294Z",
+    "history": [
+      {
+        "stageId": "s1",
+        "stageName": "Consultó",
+        "timestamp": "2026-01-29T18:45:34.280Z"
+      },
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2026-01-29T18:45:34.286Z"
+      },
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2026-01-29T18:45:34.294Z"
+      }
+    ],
+    "presupuestoEstado": "Enviado"
+  },
+  {
+    "id": "lead_1769712258117_aiprgca",
+    "name": "nico k",
+    "phone": "098255208",
+    "notes": "Presupuesto ID: pres_1769712258110_tj5awh5\nCosto: $ 160.620,00",
+    "presupuestoId": "pres_1769712258110_tj5awh5",
+    "currentStageId": "s3",
+    "createdAt": "2026-01-29T18:44:18.117Z",
+    "updatedAt": "2026-01-29T18:44:18.131Z",
+    "history": [
+      {
+        "stageId": "s1",
+        "stageName": "Consultó",
+        "timestamp": "2026-01-29T18:44:18.117Z"
+      },
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2026-01-29T18:44:18.125Z"
+      },
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2026-01-29T18:44:18.131Z"
+      }
+    ],
+    "presupuestoEstado": "Enviado"
+  },
+  {
     "id": "lead_1769635997402_sye1l5b",
     "name": "nico k",
     "phone": "098355530",
