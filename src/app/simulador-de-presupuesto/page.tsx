@@ -51,7 +51,7 @@ const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos l
 
 
 // Helper function to decide which guest count to use for an item
-function getGuestCountForItem(servicio: ServicioEmpresa, adultos: number, ninos: number): number {
+function getGuestCountForItem(servicio: { nombre: string }, adultos: number, ninos: number): number {
   const nombre = servicio.nombre.toLowerCase();
   const hayNinos = ninos > 0;
 
@@ -118,6 +118,35 @@ const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): Se
     };
 };
 
+type ServicioSeleccionadoValue = {
+    cantidad: number;
+    precioUnitarioOriginal: number;
+    precioUnitarioPresupuesto: number;
+    nombreServicio: string;
+    unidad?: string;
+    categoriaServicio?: string;
+    esRegalo: boolean;
+    calculationMethod?: 'fijo' | 'porPersona' | 'ratio' | 'tramos';
+    precioBase?: number;
+    precioPorPersona?: number;
+    invitadosPorUnidad?: number;
+    tramosDePrecio?: { id: string; desde: number; hasta: number; precio: number }[];
+};
+
+const menuItemToServicioSeleccionado = (item: ServicioEmpresa, invitados: number): ServicioSeleccionadoValue => {
+    return {
+        cantidad: invitados,
+        precioUnitarioOriginal: item.precioPorPersona || 0,
+        precioUnitarioPresupuesto: item.precioPorPersona || 0,
+        nombreServicio: item.nombre,
+        unidad: 'personas',
+        categoriaServicio: 'Servicio de catering',
+        esRegalo: false,
+        calculationMethod: 'porPersona',
+        precioPorPersona: item.precioPorPersona || 0,
+    };
+};
+
 
 interface ServicioDetallado {
   id: string;
@@ -148,14 +177,14 @@ export default function ArmadoRapidoPage() {
     const [ninos, setNinos] = useState<number>(0);
     const [duracionHoras, setDuracionHoras] = useState<number>(5);
     const [selectedEntradas, setSelectedEntradas] = useState<string[]>([]);
-    const [selectedPrincipal, setSelectedPrincipal] = useState<string>('');
-    const [selectedMenuNino, setSelectedMenuNino] = useState<string>('');
     const [selectedPaqueteId, setSelectedPaqueteId] = useState<string>('');
     
     const [gastronomiaSearchTerm, setGastronomiaSearchTerm] = useState('');
 
     const [isLoading, setIsLoading] = useState(true);
     const [isGeneratingLead, setIsGeneratingLead] = useState(false);
+
+    const [formData, setFormData] = useState({serviciosSeleccionados: new Map()});
     
     const { entradasDisponibles, principalesDisponibles, menusNinoDisponibles } = useMemo(() => {
         if (!config || !allMenus.length) {
@@ -214,15 +243,45 @@ export default function ArmadoRapidoPage() {
     
     const handleEntradaChange = (servicioId: string, checked: boolean) => {
         const maxEntradas = duracionHoras > 4 ? 2 : 1;
+        
+        let newSelectedEntradas;
         if (checked) {
             if (selectedEntradas.length >= maxEntradas) {
                 toast({ title: "Límite alcanzado", description: `Puedes seleccionar hasta ${maxEntradas} entrada(s).`, variant: "default" });
                 return; // Do not update state
             }
-            setSelectedEntradas(prev => [...prev, servicioId]);
+            newSelectedEntradas = [...selectedEntradas, servicioId];
         } else {
-            setSelectedEntradas(prev => prev.filter(id => id !== servicioId));
+            newSelectedEntradas = selectedEntradas.filter(id => id !== servicioId);
         }
+        setSelectedEntradas(newSelectedEntradas);
+        handleGastronomicSelectionChange('entradas', newSelectedEntradas);
+    };
+
+    const handleGastronomicSelectionChange = (type: 'entradas' | 'principal' | 'infantil', selectedIds: string | string[]) => {
+      setFormData(prev => {
+        const newSelected = new Map(prev.serviciosSeleccionados);
+        
+        const allDishes = [...entradasDisponibles, ...principalesDisponibles, ...menusNinoDisponibles];
+        const itemsToClear = type === 'entradas' ? entradasDisponibles : type === 'principal' ? principalesDisponibles : menusNinoDisponibles;
+
+        itemsToClear.forEach(item => {
+            if (newSelected.has(item.id)) {
+                newSelected.delete(item.id);
+            }
+        });
+
+        const idsToAdd = Array.isArray(selectedIds) ? selectedIds : [selectedIds];
+        idsToAdd.forEach(id => {
+            const dishToAdd = allDishes.find(d => d.id === id);
+            if (dishToAdd) {
+                const invitados = type === 'infantil' ? ninos : adultos;
+                newSelected.set(dishToAdd.id, menuItemToServicioSeleccionado(dishToAdd, invitados));
+            }
+        });
+        
+        return { ...prev, serviciosSeleccionados: newSelected };
+      });
     };
     
     const allSimuladorServices = useMemo(() => {
@@ -279,16 +338,9 @@ export default function ArmadoRapidoPage() {
             });
         };
         
-        selectedEntradas.forEach(id => {
+        Array.from(formData.serviciosSeleccionados.keys()).forEach(id => {
             addServicio(allSimuladorServices.find(s => s.id === id), false);
         });
-
-        if (selectedPrincipal) {
-            addServicio(allSimuladorServices.find(s => s.id === selectedPrincipal), false);
-        }
-        if (selectedMenuNino && ninos > 0) {
-            addServicio(allSimuladorServices.find(s => s.id === selectedMenuNino), false, '(Niños/Adol.)');
-        }
 
         const paqueteSeleccionado = config.paquetes.find(p => p.id === selectedPaqueteId);
         if (paqueteSeleccionado) {
@@ -298,7 +350,7 @@ export default function ArmadoRapidoPage() {
         }
         
         if (config.serviceDependencies && config.serviceDependencies.length > 0) {
-            const allSelectedDishIds = [selectedPrincipal, ...selectedEntradas, selectedMenuNino].filter(Boolean);
+            const allSelectedDishIds = Array.from(formData.serviciosSeleccionados.keys());
       
             config.serviceDependencies.forEach(dep => {
               if (allSelectedDishIds.includes(dep.triggerServiceId)) {
@@ -318,7 +370,7 @@ export default function ArmadoRapidoPage() {
         const calculatedCostoTotal = calculatedSubtotal - calculatedDescuento;
 
         return { costoTotal: calculatedCostoTotal, subtotal: calculatedSubtotal, descuento: calculatedDescuento, serviciosDetallados: includedServicesList, totalRegalos: calculatedTotalRegalos };
-    }, [config, serviciosCatalogo, allSimuladorServices, adultos, ninos, selectedEntradas, selectedPrincipal, selectedMenuNino, selectedPaqueteId]);
+    }, [config, serviciosCatalogo, allSimuladorServices, adultos, ninos, selectedPaqueteId, formData.serviciosSeleccionados]);
 
     const serviciosAgrupados = useMemo(() => {
         const serviciosSinRegalo = serviciosDetallados.filter(s => !s.esRegalo);
@@ -411,10 +463,12 @@ export default function ArmadoRapidoPage() {
         }
     }, [clienteNombre, clienteContacto, adultos, ninos, costoTotal, config?.paquetes, selectedPaqueteId, serviciosDetallados, toast, isGeneratingLead, allSimuladorServices]);
     
+    const selectedPrincipalId = useMemo(() => Array.from(formData.serviciosSeleccionados.keys()).find(id => principalesDisponibles.some(p => p.id === id)) || '', [formData.serviciosSeleccionados, principalesDisponibles]);
+
     const isStepTwoInvalid = useMemo(() => {
         const requiredEntradas = duracionHoras > 4 ? 2 : 1;
-        return !selectedPrincipal || selectedEntradas.length !== requiredEntradas;
-    }, [duracionHoras, selectedPrincipal, selectedEntradas]);
+        return !selectedPrincipalId || selectedEntradas.length !== requiredEntradas;
+    }, [duracionHoras, selectedPrincipalId, selectedEntradas]);
 
     const nextStep = () => {
         if (step === 1 && (!clienteNombre.trim() || !/^\d{9}$/.test(clienteContacto.trim()) || adultos <= 0)) {
@@ -533,7 +587,10 @@ export default function ArmadoRapidoPage() {
                                 </div>
                             </div>
                             <div className="space-y-4"><Label>Plato Principal (elige 1)</Label>
-                                <RadioGroup value={selectedPrincipal} onValueChange={setSelectedPrincipal} className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                <RadioGroup 
+                                    value={selectedPrincipalId} 
+                                    onValueChange={(value) => handleGastronomicSelectionChange('principal', value)} 
+                                    className="grid grid-cols-1 md:grid-cols-2 gap-2">
                                   {principalesDisponibles.length > 0 ? (
                                     principalesDisponibles.map(s => <div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><RadioGroupItem value={s.id} id={`p-${s.id}`}/><Label htmlFor={`p-${s.id}`} className="text-sm font-normal">{s.nombre} ({formatCurrency(s.precioPorPersona || 0, true)})</Label></div>)
                                   ) : (
@@ -543,8 +600,12 @@ export default function ArmadoRapidoPage() {
                             </div>
                             <div className="space-y-4">
                                 <Label>Menú Niños/Adolescentes (elige 1)</Label>
-                                <RadioGroup value={selectedMenuNino} onValueChange={setSelectedMenuNino} className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                    {ninos > 0 ? (
+                                <RadioGroup
+                                    value={Array.from(formData.serviciosSeleccionados.keys()).find(id => menusNinoDisponibles.some(m => m.id === id)) || ''}
+                                    onValueChange={(value) => handleGastronomicSelectionChange('infantil', value)}
+                                    className="grid grid-cols-1 md:grid-cols-2 gap-2"
+                                >
+                                    {(ninos || 0) > 0 ? (
                                         menusNinoDisponibles.length > 0 ? (
                                             menusNinoDisponibles.map(s => (
                                                 <div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md">
@@ -582,7 +643,7 @@ export default function ArmadoRapidoPage() {
                                                     <>
                                                         <Separator className="my-2"/>
                                                         <ul className="text-xs list-disc pl-4 space-y-1">
-                                                        {regalos.map(s => { const serv = serviciosCatalogo.find(sc => sc.id === s.id); return serv && <li key={s.id} className="font-medium flex items-center gap-1.5 text-red-600"><Gift className="w-3 h-3"/>{serv.nombre} (REGALO)</li> })}
+                                                        {regalos.map(s => { const serv = serviciosCatalogo.find(sc => sc.id === s.id); return serv && <li key={s.id} className="font-medium flex items-center gap-1.5 text-red-600"><Gift className="w-3.5 h-3.5"/>{serv.nombre} (REGALO)</li> })}
                                                         </ul>
                                                     </>
                                                 )}
@@ -721,5 +782,3 @@ export default function ArmadoRapidoPage() {
         </div>
     );
 }
-
-    
