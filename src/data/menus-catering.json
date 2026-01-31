@@ -32,7 +32,7 @@
     "description": "Una selección de entradas frías y calientes para comenzar el evento.",
     "templateType": "Menú de Entradas",
     "createdAt": "2025-07-28T10:00:00.000Z",
-    "updatedAt": "2026-01-31T13:45:08.442Z",
+    "updatedAt": "2026-01-31T13:49:04.701Z",
     "items": [
       {
         "id": "dish_entrada_1",
@@ -230,8 +230,8 @@
         "name": "Papas fritas con Cheddar",
         "type": "Entrada",
         "totalDishCost": 50,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 100,
+        "profitMargin": 200,
+        "suggestedSellingPrice": 150,
         "ingredients": [
           {
             "id": "ing_pc_1",
@@ -267,8 +267,8 @@
         "name": "Planchas Calientes",
         "type": "Entrada",
         "totalDishCost": 54.2,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 108.4,
+        "profitMargin": 324.3542435424354,
+        "suggestedSellingPrice": 230,
         "ingredients": [
           {
             "id": "ing_4_1",
@@ -384,8 +384,8 @@
         "name": "Salpicón de Pollo",
         "type": "Entrada",
         "totalDishCost": 71.19999999999999,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 142.39999999999998,
+        "profitMargin": 166.85393258426973,
+        "suggestedSellingPrice": 190.00000000000003,
         "ingredients": [
           {
             "id": "ing_9_1",
@@ -924,8 +924,8 @@
         "name": "Picada de Mar",
         "type": "Entrada",
         "totalDishCost": 100.22,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 200.44,
+        "profitMargin": 149.45120734384355,
+        "suggestedSellingPrice": 249.99999999999997,
         "ingredients": [
           {
             "id": "ing_21_1",
@@ -1032,8 +1032,8 @@
         "name": "Tacos Mexicanos",
         "type": "Entrada",
         "totalDishCost": 98.05000000000001,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 196.10000000000002,
+        "profitMargin": 124.37531871494132,
+        "suggestedSellingPrice": 220,
         "ingredients": [
           {
             "id": "ing_16_1",
@@ -1158,8 +1158,8 @@
         "name": "Tabla de Fiambre Gourmet",
         "type": "Entrada",
         "totalDishCost": 119.705,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 239.41,
+        "profitMargin": 125.55448811662005,
+        "suggestedSellingPrice": 270,
         "ingredients": [
           {
             "id": "pfg_1",
@@ -1312,8 +1312,8 @@
         "name": "Picada Snack",
         "type": "Entrada",
         "totalDishCost": 45.5,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 91,
+        "profitMargin": 295.6043956043956,
+        "suggestedSellingPrice": 180,
         "ingredients": [
           {
             "id": "ing_5_1",
@@ -1367,8 +1367,8 @@
         "name": "Sandwiches y Saladitos",
         "type": "Entrada",
         "totalDishCost": 74.8,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 149.6,
+        "profitMargin": 220.85561497326202,
+        "suggestedSellingPrice": 240,
         "ingredients": [
           {
             "id": "ing_23_1",

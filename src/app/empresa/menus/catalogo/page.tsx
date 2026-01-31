@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -79,7 +78,17 @@ export default function CatalogoPlatosPage() {
   const handlePriceFormChange = (field: 'suggestedSellingPrice' | 'profitMargin', value: string) => {
     if (!editingDish) return;
     const numValue = parseFloat(value);
-    if (isNaN(numValue)) return;
+    if (isNaN(numValue)) {
+        // Allow the user to clear the field, which will result in NaN, and handle it gracefully
+        let updatedDish = { ...editingDish };
+        if (field === 'suggestedSellingPrice') {
+            updatedDish.suggestedSellingPrice = undefined;
+        } else {
+            updatedDish.profitMargin = undefined;
+        }
+        setEditingDish(updatedDish);
+        return;
+    };
     
     let updatedDish = { ...editingDish };
     if (field === 'suggestedSellingPrice') {
@@ -142,11 +151,11 @@ export default function CatalogoPlatosPage() {
             <div className="space-y-4 py-2">
                 <div className="space-y-1">
                     <Label htmlFor="edit-profitMargin" className="flex items-center gap-1"><Percent className="w-4 h-4"/>Margen de Ganancia (%)</Label>
-                    <Input id="edit-profitMargin" type="number" value={editingDish?.profitMargin?.toFixed(2) ?? ''} onChange={e => handlePriceFormChange('profitMargin', e.target.value)} />
+                    <Input id="edit-profitMargin" type="text" inputMode="decimal" value={editingDish?.profitMargin?.toFixed(2) ?? ''} onChange={e => handlePriceFormChange('profitMargin', e.target.value)} />
                 </div>
                  <div className="space-y-1">
                     <Label htmlFor="edit-sellingPrice" className="flex items-center gap-1"><DollarSign className="w-4 h-4"/>Precio de Venta Final ($)</Label>
-                    <Input id="edit-sellingPrice" type="number" value={editingDish?.suggestedSellingPrice?.toFixed(2) ?? ''} onChange={e => handlePriceFormChange('suggestedSellingPrice', e.target.value)} />
+                    <Input id="edit-sellingPrice" type="text" inputMode="decimal" value={editingDish?.suggestedSellingPrice?.toFixed(2) ?? ''} onChange={e => handlePriceFormChange('suggestedSellingPrice', e.target.value)} />
                 </div>
             </div>
             <DialogFooter>
