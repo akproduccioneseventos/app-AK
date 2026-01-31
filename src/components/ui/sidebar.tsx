@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -532,7 +531,7 @@ type SidebarMenuButtonProps = Omit<React.ComponentPropsWithoutRef<"button"> & Re
   href?: string;
   isActive?: boolean;
   tooltip?: string | React.ComponentProps<typeof TooltipContent>;
-} & VariantProps<typeof sidebarMenuButtonVariants> & { asChild?: boolean };
+} & VariantProps<typeof sidebarMenuButtonVariants> & { asChild?: boolean; isSubmenu?: boolean; };
 
 
 const SidebarMenuButton = React.forwardRef<SidebarMenuButtonElement, SidebarMenuButtonProps>(
@@ -546,6 +545,7 @@ const SidebarMenuButton = React.forwardRef<SidebarMenuButtonElement, SidebarMenu
       href,
       children,
       asChild,
+      isSubmenu,
       ...props
     },
     ref
@@ -757,6 +757,25 @@ const SidebarMenuSubButton = React.forwardRef<
   }
 )
 SidebarMenuSubButton.displayName = "SidebarMenuSubButton"
+
+const SidebarMenuShortcut = React.forwardRef<
+  HTMLSpanElement,
+  React.ComponentProps<"span">
+>(({ className, ...props }, ref) => {
+  return (
+    <span
+      ref={ref}
+      data-sidebar="menu-shortcut"
+      className={cn(
+        "ml-auto text-xs tracking-widest text-sidebar-foreground/70",
+        "group-data-[collapsible=icon]:hidden",
+        className
+      )}
+      {...props}
+    />
+  )
+})
+SidebarMenuShortcut.displayName = "SidebarMenuShortcut"
 
 
 export {

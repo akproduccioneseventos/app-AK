@@ -1,8 +1,7 @@
+"use client";
 
-'use client';
-
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   Sidebar,
   SidebarHeader,
@@ -17,7 +16,7 @@ import {
   SidebarSeparator,
   SidebarGroup,
   SidebarGroupLabel,
-} from '@/components/ui/sidebar';
+} from "@/components/ui/sidebar";
 import {
   LayoutDashboard,
   CalendarClock,
@@ -33,29 +32,28 @@ import {
   FileText,
   ListChecks,
   CalendarDays,
-} from 'lucide-react';
-import AppLogo from './app-logo';
+} from "lucide-react";
+import AppLogo from "./app-logo";
 
 export function MainNav() {
   const pathname = usePathname();
   const isActive = (path: string) => pathname.startsWith(path);
   const isExactly = (path: string) => pathname === path;
 
-
   return (
     <Sidebar className="border-r">
       <SidebarHeader>
         <Link href="/" passHref>
-            <div className="flex items-center gap-2 cursor-pointer">
-                <AppLogo />
-            </div>
+          <div className="flex items-center gap-2 cursor-pointer">
+            <AppLogo />
+          </div>
         </Link>
       </SidebarHeader>
       <SidebarContent className="p-2">
         <SidebarMenu>
           <SidebarMenuItem>
             <Link href="/" passHref>
-              <SidebarMenuButton isActive={isExactly('/')} tooltip="Menú Principal">
+              <SidebarMenuButton isActive={isExactly("/")} tooltip="Menú Principal">
                 <LayoutDashboard />
                 Menú Principal
               </SidebarMenuButton>
@@ -69,7 +67,7 @@ export function MainNav() {
             <SidebarMenu>
               <SidebarMenuItem>
                 <Link href="/eventos" passHref>
-                  <SidebarMenuButton isActive={isActive('/eventos')}>
+                  <SidebarMenuButton isActive={isActive("/eventos")}>
                     <CalendarClock />
                     Eventos
                   </SidebarMenuButton>
@@ -77,7 +75,7 @@ export function MainNav() {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <Link href="/calendario" passHref>
-                  <SidebarMenuButton isActive={isActive('/calendario')}>
+                  <SidebarMenuButton isActive={isActive("/calendario")}>
                     <CalendarDays />
                     Calendario General
                   </SidebarMenuButton>
@@ -91,14 +89,19 @@ export function MainNav() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton isActive={isActive('/empresa')} isSubmenu>
+                <SidebarMenuButton
+                  isActive={isActive("/empresa")}
+                  isSubmenu
+                >
                   <Building2 />
                   Empresa
                 </SidebarMenuButton>
                 <SidebarMenuSub>
                   <SidebarMenuSubItem>
                     <Link href="/empresa/servicios" passHref>
-                      <SidebarMenuSubButton isActive={isActive('/empresa/servicios')}>
+                      <SidebarMenuSubButton
+                        isActive={isActive("/empresa/servicios")}
+                      >
                         <Sparkles />
                         Servicios
                       </SidebarMenuSubButton>
@@ -106,7 +109,7 @@ export function MainNav() {
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
                     <Link href="/empresa/menus" passHref>
-                      <SidebarMenuSubButton isActive={isActive('/empresa/menus')}>
+                      <SidebarMenuSubButton isActive={isActive("/empresa/menus")}>
                         <ChefHat />
                         Gastronomía
                       </SidebarMenuSubButton>
@@ -114,15 +117,19 @@ export function MainNav() {
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
                     <Link href="/empresa/activos-fijos" passHref>
-                      <SidebarMenuSubButton isActive={isActive('/empresa/activos-fijos')}>
+                      <SidebarMenuSubButton
+                        isActive={isActive("/empresa/activos-fijos")}
+                      >
                         <Package />
                         Activos Fijos
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
-                   <SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
                     <Link href="/empresa/insumos" passHref>
-                      <SidebarMenuSubButton isActive={isActive('/empresa/insumos')}>
+                      <SidebarMenuSubButton
+                        isActive={isActive("/empresa/insumos")}
+                      >
                         <Package />
                         Insumos
                       </SidebarMenuSubButton>
@@ -130,7 +137,7 @@ export function MainNav() {
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
                     <Link href="/empleados" passHref>
-                      <SidebarMenuSubButton isActive={isActive('/empleados')}>
+                      <SidebarMenuSubButton isActive={isActive("/empleados")}>
                         <Users />
                         Personal
                       </SidebarMenuSubButton>
@@ -138,7 +145,9 @@ export function MainNav() {
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
                     <Link href="/proveedores" passHref>
-                      <SidebarMenuSubButton isActive={isActive('/proveedores')}>
+                      <SidebarMenuSubButton
+                        isActive={isActive("/proveedores")}
+                      >
                         <Briefcase />
                         Proveedores
                       </SidebarMenuSubButton>
@@ -147,40 +156,51 @@ export function MainNav() {
                 </SidebarMenuSub>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton isActive={isActive('/contabilidad') || isActive('/presupuestos') || isActive('/invoices')} isSubmenu>
+                <SidebarMenuButton
+                  isActive={
+                    isActive("/contabilidad") ||
+                    isActive("/presupuestos") ||
+                    isActive("/invoices")
+                  }
+                  isSubmenu
+                >
                   <BarChart3 />
                   Contabilidad
                 </SidebarMenuButton>
                 <SidebarMenuSub>
-                    <SidebarMenuSubItem>
-                        <Link href="/contabilidad/crm" passHref>
-                        <SidebarMenuSubButton isActive={isActive('/contabilidad/crm')}>
-                            <KanbanSquare />
-                            CRM
-                        </SidebarMenuSubButton>
-                        </Link>
-                    </SidebarMenuSubItem>
-                    <SidebarMenuSubItem>
-                        <Link href="/presupuestos/nuevo" passHref>
-                        <SidebarMenuSubButton isActive={isActive('/presupuestos')}>
-                            <ListChecks />
-                            Presupuestos
-                        </SidebarMenuSubButton>
-                        </Link>
-                    </SidebarMenuSubItem>
-                    <SidebarMenuSubItem>
-                        <Link href="/invoices" passHref>
-                        <SidebarMenuSubButton isActive={isActive('/invoices')}>
-                            <FileText />
-                            Facturas
-                        </SidebarMenuSubButton>
-                        </Link>
-                    </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <Link href="/contabilidad/crm" passHref>
+                      <SidebarMenuSubButton
+                        isActive={isActive("/contabilidad/crm")}
+                      >
+                        <KanbanSquare />
+                        CRM
+                      </SidebarMenuSubButton>
+                    </Link>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <Link href="/presupuestos/nuevo" passHref>
+                      <SidebarMenuSubButton
+                        isActive={isActive("/presupuestos")}
+                      >
+                        <ListChecks />
+                        Presupuestos
+                      </SidebarMenuSubButton>
+                    </Link>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <Link href="/invoices" passHref>
+                      <SidebarMenuSubButton isActive={isActive("/invoices")}>
+                        <FileText />
+                        Facturas
+                      </SidebarMenuSubButton>
+                    </Link>
+                  </SidebarMenuSubItem>
                 </SidebarMenuSub>
               </SidebarMenuItem>
-               <SidebarMenuItem>
+              <SidebarMenuItem>
                 <Link href="/customers" passHref>
-                  <SidebarMenuButton isActive={isActive('/customers')}>
+                  <SidebarMenuButton isActive={isActive("/customers")}>
                     <Users />
                     Clientes
                   </SidebarMenuButton>
@@ -194,7 +214,7 @@ export function MainNav() {
         <SidebarMenu>
           <SidebarMenuItem>
             <Link href="/settings" passHref>
-              <SidebarMenuButton isActive={isActive('/settings')}>
+              <SidebarMenuButton isActive={isActive("/settings")}>
                 <Settings />
                 Configuración
               </SidebarMenuButton>

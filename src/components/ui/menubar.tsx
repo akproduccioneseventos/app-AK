@@ -161,7 +161,7 @@ const MenubarCheckboxItem = React.forwardRef<
     <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
       <MenubarPrimitive.ItemIndicator>
         <Check className="h-4 w-4" />
-      </MenubarPrimitive.ItemIndicator>
+      </DropdownMenuPrimitive.ItemIndicator>
     </span>
     {children}
   </MenubarPrimitive.CheckboxItem>
@@ -183,7 +183,7 @@ const MenubarRadioItem = React.forwardRef<
     <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
       <MenubarPrimitive.ItemIndicator>
         <Circle className="h-2 w-2 fill-current" />
-      </MenubarPrimitive.ItemIndicator>
+      </DropdownMenuPrimitive.ItemIndicator>
     </span>
     {children}
   </MenubarPrimitive.RadioItem>
@@ -234,7 +234,7 @@ const MenubarShortcut = ({
     />
   )
 }
-MenubarShortcut.displayname = "MenubarShortcut"
+MenubarShortcut.displayName = "MenubarShortcut"
 
 export {
   Menubar,
