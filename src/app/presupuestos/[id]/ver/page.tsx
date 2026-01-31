@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, use } from 'react';
@@ -17,14 +16,17 @@ import { getBudgetDisplaySettings } from '@/app/actions/settings';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
-import { getArmadoRapidoConfig } from '@/app/actions/armado-rapido'; 
 
 const formatCurrency = (amount?: number, includeSymbol = true, useNUS = false) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
-  const options = { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 };
-  const formatted = new Intl.NumberFormat('es-UY', options).format(amount);
-  if (!includeSymbol) return formatted;
-  return useNUS ? `NU$ ${formatted}` : `$ ${formatted}`;
+  // Use toLocaleString which handles rounding and formatting according to locale rules.
+  // Using maximumFractionDigits: 0 will effectively round to the nearest integer.
+  return new Intl.NumberFormat('es-UY', {
+    style: 'currency',
+    currency: 'UYU',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
 };
 
 const formatDate = (dateString?: string, shortMonth = false) => {
@@ -79,7 +81,6 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
 
   const [presupuesto, setPresupuesto] = useState<Presupuesto | null>(null);
   const [displaySettings, setDisplaySettings] = useState<BudgetDisplaySettings | null>(null);
-  const [armadoRapidoConfig, setArmadoRapidoConfig] = useState<{ descuentoGeneral?: number } | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -88,15 +89,13 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
     if (!presupuestoId) { setError("ID de presupuesto no válido."); setIsLoading(false); return; }
     setIsLoading(true); setError(null);
     try {
-      const [fetchedPresupuesto, fetchedSettings, templateSettings, armadoConfig] = await Promise.all([
+      const [fetchedPresupuesto, fetchedSettings, templateSettings] = await Promise.all([
         getPresupuestoById(presupuestoId),
         getBudgetDisplaySettings(),
-        getInvoiceTemplateSettings(),
-        getArmadoRapidoConfig()
+        getInvoiceTemplateSettings()
       ]);
       setDisplaySettings(fetchedSettings);
       setLogoUrl(templateSettings.logoUrl);
-      setArmadoRapidoConfig(armadoConfig);
       if (fetchedPresupuesto) {
         setPresupuesto(fetchedPresupuesto);
       } else {
@@ -141,7 +140,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
   
   const getDisplayQuantity = (item: ItemPresupuestado): string => {
     if (!presupuesto) return 'N/A';
-    const cantidadInvitados = getGuestCountForItem(item, presupuesto.invitadosCantidad, presupuesto.invitadosAdultos, presupuesto.invitadosNinos);
+    const cantidadInvitados = getGuestCountForItem(item, presupuesto.invitadosCantidad, presupuesto.invitadosAdultos || undefined, presupuesto.invitadosNinos || undefined);
     
     switch (item.calculationMethod) {
         case 'porPersona':
@@ -159,9 +158,9 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
   };
 
 
-  const { itemsAgrupados, costoTotalRegalos, subtotalBruto, descuentoPromocional, totalConDescuento, ajustesAnuales, totalFinal } = useMemo(() => {
+  const { itemsAgrupados, costoTotalRegalos, subtotalBruto, descuentoPromocional, totalConDescuento, ajustesAnuales, totalFinal, showAnnualAdjustmentLegend } = useMemo(() => {
     if (!presupuesto || !displaySettings) {
-      return { itemsAgrupados: {}, costoTotalRegalos: 0, subtotalBruto: 0, descuentoPromocional: 0, totalConDescuento: 0, ajustesAnuales: [], totalFinal: 0 };
+      return { itemsAgrupados: {}, costoTotalRegalos: 0, subtotalBruto: 0, descuentoPromocional: 0, totalConDescuento: 0, ajustesAnuales: [], totalFinal: 0, showAnnualAdjustmentLegend: false };
     }
     
     const itemsRegulares = presupuesto.itemsPresupuestados.filter(item => !item.esRegalo);
@@ -186,7 +185,6 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
     const bruto = presupuesto.costoTotalEstimado;
     
     let descAplicado = 0;
-    // The discount is now derived from the difference between subtotal and discounted total
     if (presupuesto.totalConDescuento !== undefined) {
       descAplicado = Math.max(0, bruto - presupuesto.totalConDescuento);
     }
@@ -196,15 +194,20 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
     let ajustes: { anio: number; monto: number; totalAcumulado: number }[] = [];
     let montoAjustable = totalDescuentoCalculado;
     let totalAjustado = totalDescuentoCalculado;
-
-    if (presupuesto.ajusteAnualActivo && presupuesto.eventoFecha && displaySettings.annualAdjustmentPercentage && displaySettings.annualAdjustmentPercentage > 0) {
-        const anioCreacion = new Date(presupuesto.timestamp).getFullYear();
-        const anioEvento = new Date(presupuesto.eventoFecha).getFullYear();
-        for (let anio = anioCreacion + 1; anio <= anioEvento; anio++) {
-            const ajuste = montoAjustable * (displaySettings.annualAdjustmentPercentage / 100);
-            montoAjustable += ajuste;
-            totalAjustado = montoAjustable;
-            ajustes.push({ anio, monto: ajuste, totalAcumulado: montoAjustable });
+    
+    const anioCreacion = new Date(presupuesto.timestamp).getFullYear();
+    const anioEvento = presupuesto.eventoFecha ? new Date(presupuesto.eventoFecha).getFullYear() : anioCreacion;
+    
+    let shouldShowAdjustmentLegend = false;
+    if (displaySettings.annualAdjustmentPercentage && displaySettings.annualAdjustmentPercentage > 0 && anioEvento > anioCreacion) {
+        shouldShowAdjustmentLegend = true; // Preview is needed
+        if (presupuesto.ajusteAnualActivo) { // Only calculate if active
+            for (let anio = anioCreacion + 1; anio <= anioEvento; anio++) {
+                const ajuste = montoAjustable * (displaySettings.annualAdjustmentPercentage / 100);
+                montoAjustable += ajuste;
+                totalAjustado = montoAjustable;
+                ajustes.push({ anio, monto: ajuste, totalAcumulado: montoAjustable });
+            }
         }
     }
     
@@ -216,9 +219,10 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
       totalConDescuento: totalDescuentoCalculado,
       ajustesAnuales: ajustes,
       totalFinal: totalAjustado,
+      showAnnualAdjustmentLegend: shouldShowAdjustmentLegend
     };
 
-  }, [presupuesto, displaySettings, armadoRapidoConfig]);
+  }, [presupuesto, displaySettings]);
   
 
   if (isLoading || !displaySettings) {
@@ -232,7 +236,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
   fechaValidoHasta.setDate(fechaValidoHasta.getDate() + BUDGET_VALIDITY_DAYS_PDF);
     
   const protagonistas = [presupuesto.protagonista1Nombre, presupuesto.protagonista2Nombre].filter(Boolean).join(' y ');
-  const showAnnualAdjustmentLegend = ajustesAnuales.length > 0;
+  
 
   return (
     <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans text-gray-800 print:text-black">
@@ -284,7 +288,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
               </thead>
               <tbody>
                 <tr>
-                  <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">Nº {presupuesto.id.split('_')[1] || presupuesto.id}</td>
+                  <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">Nº {presupuesto.id.split('_').pop()?.substring(0,6)}</td>
                   <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(presupuesto.timestamp, true)}</td>
                   <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(fechaValidoHasta.toISOString(), true)}</td>
                 </tr>
@@ -335,8 +339,8 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
                                   {item.esRegalo ? <span className="text-red-600 font-semibold flex items-center gap-1"><Gift className="w-3 h-3"/> {item.nombreServicio} (REGALO)</span> : item.nombreServicio}
                                 </td>
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{getDisplayQuantity(item)} {item.unidad && `(${item.unidad})`}</td>
-                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through text-gray-500">{formatCurrency(item.precioUnitario, true)}</span> : formatCurrency(item.precioUnitarioPresupuesto, true)}</td>
-                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top font-semibold">{item.esRegalo ? formatCurrency(0, true) : formatCurrency(item.costoTotalItem, true)}</td>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through text-gray-500">{formatCurrency(item.precioUnitario)}</span> : formatCurrency(item.precioUnitarioPresupuesto)}</td>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top font-semibold">{item.esRegalo ? formatCurrency(0) : formatCurrency(item.costoTotalItem)}</td>
                             </tr>
                         ))}
                      </React.Fragment>
@@ -350,35 +354,35 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
           <div className="w-full max-w-xs print:max-w-[220px] space-y-0.5">
               <div className="flex justify-between">
                 <span>Subtotal:</span>
-                <span>{formatCurrency(subtotalBruto, true, true)}</span>
+                <span>{formatCurrency(subtotalBruto)}</span>
               </div>
               {descuentoPromocional > 0 && (
                   <div className="flex justify-between text-destructive">
                     <span>Descuento{presupuesto.nombrePromocion ? ` (${presupuesto.nombrePromocion})` : ''}:</span>
-                    <span>-{formatCurrency(descuentoPromocional, true, true)}</span>
+                    <span>-{formatCurrency(descuentoPromocional)}</span>
                   </div>
               )}
                {costoTotalRegalos > 0 && (
                  <div className="flex justify-between text-green-600">
                     <span>Ahorro en Regalos:</span>
-                    <span>{formatCurrency(costoTotalRegalos, true, true)}</span>
+                    <span>{formatCurrency(costoTotalRegalos)}</span>
                   </div>
                )}
                {descuentoPromocional > 0 && (
                  <div className="flex justify-between font-semibold pt-1 border-t">
                     <span>Subtotal con Descuento:</span>
-                    <span>{formatCurrency(totalConDescuento, true)}</span>
+                    <span>{formatCurrency(totalConDescuento)}</span>
                   </div>
                )}
                {ajustesAnuales.map((ajuste, index) => (
                  <div key={ajuste.anio} className="flex justify-between text-orange-600">
                     <span>Ajuste anual {ajuste.anio} ({displaySettings.annualAdjustmentPercentage}%):</span>
-                    <span>+{formatCurrency(ajuste.monto, true, true)}</span>
+                    <span>+{formatCurrency(ajuste.monto)}</span>
                  </div>
                ))}
               <div className="flex justify-between font-bold pt-1 border-t-2 border-gray-600 print:border-gray-700">
                 <span className="text-base">Importe total</span>
-                <span className="text-base">{formatCurrency(totalFinal, true)}</span>
+                <span className="text-base">{formatCurrency(totalFinal)}</span>
               </div>
             </div>
         </section>
