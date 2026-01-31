@@ -1,14 +1,9 @@
 
-
 'use server';
 
-import { initialFiestaActualData } from '@/lib/fiesta-defaults';
 import type { FiestaEnPlanificacion, Invitado, RsvpStatus } from '@/types/fiesta';
-import { readData, writeData } from '@/lib/data-service';
-import path from 'path';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 
-const FIESTAS_DIR = 'fiestas';
 
 async function updateFiestaData(
   fiestaId: string, 
@@ -20,8 +15,11 @@ async function updateFiestaData(
       throw new Error(`Fiesta con ID ${fiestaId} no encontrada.`);
     }
     const updatedData = updateFn(currentData);
-    await saveFiesta(updatedData);
-    return { success: true, updatedFiesta: updatedData };
+    const result = await saveFiesta(updatedData);
+    if (!result.success || !result.fiesta) {
+        throw new Error(result.error || "No se pudo guardar la fiesta después de actualizar los invitados.");
+    }
+    return { success: true, updatedFiesta: result.fiesta };
   } catch (e: any) {
     return { success: false, error: e.message };
   }

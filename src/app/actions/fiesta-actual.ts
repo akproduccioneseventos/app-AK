@@ -1,5 +1,4 @@
 
-
 'use server';
 
 // This file is a central hub for all actions related to the "current event".
@@ -28,7 +27,7 @@ import {
 
 import { updateConfiguracion } from './fiesta/configuracion.actions';
 import { updateTareas, addTarea as addTareaToFiesta, deleteTarea as deleteTareaFromFiesta } from './fiesta/tareas.actions';
-import { addInvitado, deleteInvitado, updateInvitado, handleRsvpSubmission, getInvitados, checkInGuest } from './invitados.actions';
+import { addInvitado, deleteInvitado, updateInvitado, handleRsvpSubmission, getInvitados, checkInGuest } from './fiesta/invitados.actions';
 import { updateDecoracion } from './fiesta/decoracion.actions';
 import { updatePrograma } from './fiesta/itinerario.actions';
 import { updatePersonal } from './fiesta/personal.actions';

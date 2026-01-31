@@ -14,8 +14,7 @@ import { ArrowLeft, Plus, Trash2, Users, Mail, Phone, Edit3, Save, Loader2, Aler
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import type { Invitado, RsvpStatus, NuevoInvitadoData } from '@/types/invitado';
-import { getFiestaById } from '@/app/actions/fiesta-actual';
-import { addInvitado, updateInvitado, deleteInvitado } from '@/app/actions/invitados.actions';
+import { getFiestaById, addInvitadoFiestaActual, updateInvitadoFiestaActual, deleteInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
 import QRCodeStylized from 'qrcode.react';
 
 import {
@@ -141,7 +140,7 @@ export default function InvitadosEventoPage() {
       notes: undefined, 
       companionNames: [],
     };
-    const result = await addInvitado(fiestaId, nuevoInvitadoData);
+    const result = await addInvitadoFiestaActual(fiestaId, nuevoInvitadoData);
     if (result.success && result.invitado) {
       await fetchInvitados(); 
       setNuevoNombre('');
@@ -170,7 +169,7 @@ export default function InvitadosEventoPage() {
        invitadoActualizado[field] = undefined;
      }
     
-    const result = await updateInvitado(fiestaId, invitadoActualizado);
+    const result = await updateInvitadoFiestaActual(fiestaId, invitadoActualizado);
     if (!result.success) {
       toast({ title: "Error al Actualizar", description: result.error || `No se pudo actualizar ${field}.`, variant: "destructive" });
       setInvitados(prev => prev.map(inv => (inv.id === invitadoId ? invitadoOriginal : inv))); 
@@ -181,7 +180,7 @@ export default function InvitadosEventoPage() {
     const invitadoAEliminar = invitados.find(inv => inv.id === invitadoId);
     if (!invitadoAEliminar || !fiestaId) return;
 
-    const result = await deleteInvitado(fiestaId, invitadoId);
+    const result = await deleteInvitadoFiestaActual(fiestaId, invitadoId);
     if (result.success) {
       await fetchInvitados();
       toast({ title: "Invitado Eliminado", description: `${invitadoAEliminar.nombre} ha sido eliminado.`, variant: "destructive" });
@@ -236,7 +235,7 @@ export default function InvitadosEventoPage() {
       tableNumber: editingInvitado.tableNumber === 'sin-mesa' ? undefined : editingInvitado.tableNumber,
       companionNames: (editingInvitado.companionNames || []).filter(name => name && name.trim() !== '')
     };
-    const result = await updateInvitado(fiestaId, dataToSave);
+    const result = await updateInvitadoFiestaActual(fiestaId, dataToSave);
     if (result.success && result.invitado) {
       await fetchInvitados(); 
       setIsEditModalOpen(false);
