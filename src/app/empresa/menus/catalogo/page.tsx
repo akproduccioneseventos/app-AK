@@ -5,11 +5,14 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ChefHat, Loader2, Info } from 'lucide-react';
+import { ArrowLeft, ChefHat, Loader2, Info, Edit, Percent, DollarSign } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FullMenu, MenuItem } from '@/types/catering';
-import { getMenus } from '@/app/actions/menus-catering';
+import { getMenus, saveMenu } from '@/app/actions/menus-catering';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 
 interface PlatoConMenu extends MenuItem {
   menuId: string;
@@ -26,6 +29,10 @@ export default function CatalogoPlatosPage() {
   const { toast } = useToast();
   const [allMenus, setAllMenus] = useState<FullMenu[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  
+  const [editingDish, setEditingDish] = useState<PlatoConMenu | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -63,6 +70,55 @@ export default function CatalogoPlatosPage() {
       return acc;
     }, {} as Record<string, PlatoConMenu[]>);
   }, [todosLosPlatos]);
+  
+  const handleEditClick = (plato: PlatoConMenu) => {
+    setEditingDish(plato);
+    setIsEditModalOpen(true);
+  };
+
+  const handlePriceFormChange = (field: 'suggestedSellingPrice' | 'profitMargin', value: string) => {
+    if (!editingDish) return;
+    const numValue = parseFloat(value);
+    if (isNaN(numValue)) return;
+    
+    let updatedDish = { ...editingDish };
+    if (field === 'suggestedSellingPrice') {
+        updatedDish.suggestedSellingPrice = numValue;
+        if (updatedDish.totalDishCost > 0) {
+            updatedDish.profitMargin = ((numValue / updatedDish.totalDishCost) - 1) * 100;
+        }
+    } else { // profitMargin
+        updatedDish.profitMargin = numValue;
+        updatedDish.suggestedSellingPrice = (updatedDish.totalDishCost || 0) * (1 + numValue / 100);
+    }
+    setEditingDish(updatedDish);
+  };
+
+  const handleSavePrice = async () => {
+    if (!editingDish) return;
+    setIsSaving(true);
+    try {
+        const menuToUpdate = allMenus.find(m => m.id === editingDish.menuId);
+        if (!menuToUpdate) throw new Error("Menú original no encontrado.");
+
+        const updatedItems = menuToUpdate.items.map(item =>
+            item.id === editingDish.id ? { ...item, suggestedSellingPrice: editingDish.suggestedSellingPrice, profitMargin: editingDish.profitMargin } : item
+        );
+
+        const result = await saveMenu({ ...menuToUpdate, items: updatedItems });
+        if (result.success) {
+            toast({ title: "Precio actualizado" });
+            setIsEditModalOpen(false);
+            await loadData();
+        } else {
+            throw new Error(result.error);
+        }
+    } catch (e: any) {
+        toast({ title: "Error", description: e.message, variant: 'destructive' });
+    } finally {
+        setIsSaving(false);
+    }
+  };
 
 
   if (isLoading) {
@@ -75,6 +131,30 @@ export default function CatalogoPlatosPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
+       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Editar Precio: {editingDish?.name}</DialogTitle>
+                <DialogDescription>
+                    Costo p/persona: {formatCurrency(editingDish?.totalDishCost)}. Ajusta el margen o el precio de venta final.
+                </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-2">
+                <div className="space-y-1">
+                    <Label htmlFor="edit-profitMargin" className="flex items-center gap-1"><Percent className="w-4 h-4"/>Margen de Ganancia (%)</Label>
+                    <Input id="edit-profitMargin" type="number" value={editingDish?.profitMargin?.toFixed(2) ?? ''} onChange={e => handlePriceFormChange('profitMargin', e.target.value)} />
+                </div>
+                 <div className="space-y-1">
+                    <Label htmlFor="edit-sellingPrice" className="flex items-center gap-1"><DollarSign className="w-4 h-4"/>Precio de Venta Final ($)</Label>
+                    <Input id="edit-sellingPrice" type="number" value={editingDish?.suggestedSellingPrice?.toFixed(2) ?? ''} onChange={e => handlePriceFormChange('suggestedSellingPrice', e.target.value)} />
+                </div>
+            </div>
+            <DialogFooter>
+                <DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose>
+                <Button onClick={handleSavePrice} disabled={isSaving}>{isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin"/>} Guardar Precio</Button>
+            </DialogFooter>
+        </DialogContent>
+       </Dialog>
        <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <ChefHat className="w-8 h-8 text-primary" />
@@ -104,12 +184,20 @@ export default function CatalogoPlatosPage() {
                             <AccordionContent className="p-2">
                                 <ul className="space-y-1">
                                 {platosAgrupados[categoria].map(plato => (
-                                    <li key={plato.id} className="p-2 border-b text-sm flex justify-between items-center">
+                                    <li key={plato.id} className="p-2 border-b last:border-b-0 text-sm flex justify-between items-center">
                                       <div>
                                         <p className="font-medium">{plato.name}</p>
                                         <p className="text-xs text-muted-foreground">Del menú: "{plato.menuName}"</p>
                                       </div>
-                                      <p className="font-semibold text-primary">{formatCurrency(plato.suggestedSellingPrice)}</p>
+                                      <div className="flex items-center gap-2">
+                                        <p className="font-semibold text-primary">{formatCurrency(plato.suggestedSellingPrice)}</p>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEditClick(plato)}>
+                                            <Edit className="w-4 h-4" />
+                                        </Button>
+                                        <Link href={`/empresa/menus/${plato.menuId}/editar`} passHref>
+                                          <Button variant="outline" size="sm" className="text-xs h-8">Ir al Menú</Button>
+                                        </Link>
+                                      </div>
                                     </li>
                                 ))}
                                 </ul>

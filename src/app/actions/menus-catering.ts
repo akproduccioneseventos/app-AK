@@ -70,6 +70,23 @@ async function writeMenusFile(data: FullMenu[]): Promise<void> {
   }
 }
 
+function calculateIngredientCost(ing: Partial<Ingredient>): number {
+    const quantity = parseFloat(ing.quantityPerPerson || '0');
+    const unitCost = Number(ing.costoUnitario) || 0;
+    const unit = ing.unit?.toLowerCase();
+    if (isNaN(quantity) || isNaN(unitCost)) return 0;
+    if (unit === 'g' || unit === 'ml' || unit === 'gramos') {
+      return (quantity / 1000) * unitCost;
+    }
+    return quantity * unitCost;
+}
+
+// Helper to calculate totalDishCost for a MenuItem based on its ingredients
+function calculateDishCostPerPerson(ingredients: Ingredient[]): number {
+  return ingredients.reduce((sum, ing) => sum + calculateIngredientCost(ing), 0);
+}
+
+
 async function initializeLocalMenusFile() {
   const menus = await readMenusFile();
   let needsResave = menus.some(menu => 
@@ -122,28 +139,36 @@ initializeLocalMenusFile();
 
 
 export async function getMenus(): Promise<FullMenu[]> {
-  return readMenusFile();
+  const menus = await readMenusFile();
+  // Add price calculation logic here for every item to fix N/A issues.
+  return menus.map(menu => ({
+    ...menu,
+    items: menu.items.map(item => {
+      const ingredientsWithCost = (item.ingredients || []).map(ingredient => ({
+          ...ingredient,
+          costoTotalReceta: calculateIngredientCost(ingredient),
+      }));
+      const totalDishCost = calculateDishCostPerPerson(ingredientsWithCost);
+      const profitMargin = item.profitMargin === undefined || isNaN(Number(item.profitMargin)) ? 100 : Number(item.profitMargin);
+      
+      const suggestedSellingPrice = item.suggestedSellingPrice !== undefined
+          ? item.suggestedSellingPrice
+          : totalDishCost * (1 + profitMargin / 100);
+
+      return {
+        ...item,
+        ingredients: ingredientsWithCost,
+        totalDishCost: totalDishCost,
+        profitMargin: profitMargin,
+        suggestedSellingPrice: suggestedSellingPrice,
+      };
+    })
+  }));
 }
 
 export async function getMenuById(id: string): Promise<FullMenu | null> {
-  const menus = await readMenusFile();
+  const menus = await getMenus(); // Use getMenus to get calculated prices
   return menus.find(menu => menu.id === id) || null;
-}
-
-function calculateIngredientCost(ing: Ingredient): number {
-    const quantity = parseFloat(ing.quantityPerPerson || '0');
-    const unitCost = Number(ing.costoUnitario) || 0;
-    const unit = ing.unit?.toLowerCase();
-    if (isNaN(quantity) || isNaN(unitCost)) return 0;
-    if (unit === 'g' || unit === 'ml' || unit === 'gramos') {
-      return (quantity / 1000) * unitCost;
-    }
-    return quantity * unitCost;
-}
-
-// Helper to calculate totalDishCost for a MenuItem based on its ingredients
-function calculateDishCostPerPerson(ingredients: Ingredient[]): number {
-  return ingredients.reduce((sum, ing) => sum + calculateIngredientCost(ing), 0);
 }
 
 async function processMenuForSave(menuData: Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'> | FullMenu): Promise<FullMenu> {
