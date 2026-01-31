@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -93,9 +94,6 @@ export default function CatalogoPlatosPage() {
 
     const numValue = parseFloat(value);
     if (isNaN(numValue)) {
-        // If the value is not a valid number (e.g., just a "-"), don't update the numeric state yet
-        // but let the input show what the user is typing. This part is tricky without a separate string state.
-        // For simplicity, we can just ignore invalid characters for now.
         return;
     };
     
@@ -104,12 +102,12 @@ export default function CatalogoPlatosPage() {
         updatedDish.suggestedSellingPrice = numValue;
         if (updatedDish.totalDishCost > 0) {
             const newMargin = ((numValue / updatedDish.totalDishCost) - 1) * 100;
-            updatedDish.profitMargin = Math.round(newMargin * 100) / 100; // Round for cleaner display
+            updatedDish.profitMargin = Math.round(newMargin); // Round for cleaner display
         }
     } else { // profitMargin
         updatedDish.profitMargin = numValue;
         const newPrice = (updatedDish.totalDishCost || 0) * (1 + numValue / 100);
-        updatedDish.suggestedSellingPrice = Math.round(newPrice * 100) / 100; // Round for cleaner display
+        updatedDish.suggestedSellingPrice = Math.round(newPrice); // Round for cleaner display
     }
     setEditingDish(updatedDish);
   };

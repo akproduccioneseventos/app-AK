@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent, type ChangeEvent } from 'react';
@@ -107,17 +108,17 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
       ...prev,
       items: (prev.items || []).map(item => {
         if (item.id === itemId) {
-          const updatedItem = { ...item, [field]: value };
+          let updatedItem = { ...item, [field]: value };
            if (field === 'profitMargin') {
             const margin = Number(value) || 0;
             const newPrice = (item.totalDishCost || 0) * (1 + margin / 100);
-            return { ...updatedItem, suggestedSellingPrice: newPrice };
+            updatedItem = { ...updatedItem, suggestedSellingPrice: Math.round(newPrice) };
           }
           if (field === 'suggestedSellingPrice') {
             const price = Number(value) || 0;
             const cost = item.totalDishCost || 0;
             const newMargin = cost > 0 ? ((price / cost) - 1) * 100 : item.profitMargin;
-            return { ...updatedItem, profitMargin: newMargin };
+            updatedItem = { ...updatedItem, profitMargin: Math.round(newMargin || 0) };
           }
           if (field === 'imageUrl' && value instanceof File) {
               const reader = new FileReader();

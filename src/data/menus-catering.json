@@ -1526,7 +1526,7 @@
     "dataAiHint": "main course dishes",
     "templateType": "Menú de Platos Principales",
     "createdAt": "2025-07-28T10:00:00.000Z",
-    "updatedAt": "2026-01-31T13:52:06.331Z",
+    "updatedAt": "2026-01-31T13:55:05.245Z",
     "items": [
       {
         "id": "dish_main_1",
@@ -1715,8 +1715,8 @@
         "name": "Napolitana C/ Fritas",
         "type": "Plato Principal",
         "totalDishCost": 174.2,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 348.4,
+        "profitMargin": 129.05,
+        "suggestedSellingPrice": 399.0051,
         "ingredients": [
           {
             "id": "ing_m12_1",
@@ -2125,8 +2125,8 @@
         "name": "Bife al Champiñon C/ Guarnición",
         "type": "Plato Principal",
         "totalDishCost": 225.1,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 450.2,
+        "profitMargin": 112.79,
+        "suggestedSellingPrice": 478.9902900000001,
         "ingredients": [
           {
             "id": "ing_m17_1",
@@ -2489,8 +2489,8 @@
         "name": "Cerdo Braseado a la Mostaza C/ Guarnición",
         "type": "Plato Principal",
         "totalDishCost": 146.7,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 293.4,
+        "profitMargin": 171.98,
+        "suggestedSellingPrice": 398.99466,
         "ingredients": [
           {
             "id": "ing_cbm_1",
@@ -2560,8 +2560,8 @@
         "name": "Cerdo Braseado a la Barbacoa C/ Guarnición",
         "type": "Plato Principal",
         "totalDishCost": 142.1,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 284.2,
+        "profitMargin": 180.79,
+        "suggestedSellingPrice": 399.00259,
         "ingredients": [
           {
             "id": "ing_cbbq_1",
@@ -2810,8 +2810,8 @@
         "name": "Brochetas C/ Fritas",
         "type": "Plato Principal",
         "totalDishCost": 178.80000000000004,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 357.6000000000001,
+        "profitMargin": 123.15,
+        "suggestedSellingPrice": 398.9922000000001,
         "ingredients": [
           {
             "id": "ing_bf_1",
