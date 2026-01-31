@@ -201,7 +201,12 @@ export default function ArmadoRapidoPage() {
     
         const allDishes = Array.from(
             allMenus.flatMap(m => m.items)
-            .reduce((map, dish) => map.set(dish.id, dish), new Map<string, MenuItem>())
+            .reduce((map, dish) => {
+                if (!map.has(dish.id)) {
+                    map.set(dish.id, dish);
+                }
+                return map;
+            }, new Map<string, MenuItem>())
             .values()
         );
         
