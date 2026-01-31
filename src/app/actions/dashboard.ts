@@ -1,4 +1,3 @@
-
 'use server';
 
 import { getCustomers } from './customers';
@@ -8,6 +7,7 @@ import { getAllFiestas } from './fiesta/fiesta.actions';
 import { checkAndCreateTaskReminders, checkAndCreateReunionReminders } from './notifications';
 import { subMonths, format, startOfMonth } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { getCrmKpiData } from './crm';
 
 export interface MonthlyChartData {
   month: string;
@@ -26,18 +26,20 @@ export async function getDashboardKpiData() {
       presupuestosData,
       invoicesData,
       fiestasData,
+      crmKpis,
     ] = await Promise.all([
       getCustomers(),
       getPresupuestos(),
       getInvoices(),
       getAllFiestas(),
+      getCrmKpiData(),
     ]);
     
     const now = new Date();
     const ventasTotales = invoicesData.reduce((total, inv) => total + inv.totalAmount, 0);
     const montoPagado = invoicesData.reduce((total, inv) => total + (inv.payments?.reduce((sum, p) => sum + p.amount, 0) || 0), 0);
     const totalPendiente = ventasTotales - montoPagado;
-    const prospectosActivos = presupuestosData.filter(p => p.estado === 'Borrador' || p.estado === 'Enviado').length;
+    const prospectosActivos = crmKpis.success ? crmKpis.data.activeLeads : 0;
     
     const activeCustomerIds = new Set(fiestasData.filter(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) >= now).map(f => f.configuracion.clienteId));
     const clientesActivos = activeCustomerIds.size;
