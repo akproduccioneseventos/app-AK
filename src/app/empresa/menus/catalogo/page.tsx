@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -202,7 +201,7 @@ export default function CatalogoPlatosPage() {
                             <AccordionContent className="p-2">
                                 <ul className="space-y-1">
                                 {platosAgrupados[categoria].map(plato => (
-                                    <li key={plato.id} className="p-2 border-b last:border-b-0 text-sm flex justify-between items-center">
+                                    <li key={`${plato.menuId}-${plato.id}`} className="p-2 border-b last:border-b-0 text-sm flex justify-between items-center">
                                       <div>
                                         <p className="font-medium">{plato.name}</p>
                                         <p className="text-xs text-muted-foreground">Del menú: "{plato.menuName}"</p>
