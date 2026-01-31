@@ -1,11 +1,10 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, CalendarClock, Archive, Loader2, AlertTriangle, PlusCircle, Info, Users, DollarSign, FileText, PartyPopper, Printer, Edit, Calculator, ArrowRight, Share2, CalendarDays, Trash2, Copy } from 'lucide-react';
+import { ArrowLeft, CalendarClock, Archive, Loader2, AlertTriangle, PlusCircle, Info, Users, DollarSign, FileText, PartyPopper, Printer, Edit, Calculator, ArrowRight, Share2, CalendarDays, Trash2, Copy, Search } from 'lucide-react';
 import { getFiestas, archiveFiesta, getHistorialFiestas, deleteFiestaArchivada, resetFiestaActual, duplicateFiesta, deleteFiesta as deleteFiestaAction } from '@/app/actions/fiesta-actual';
 import { getDashboardKpiData } from '@/app/actions/dashboard';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -22,6 +21,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no definida";
@@ -29,7 +29,9 @@ const formatDate = (dateString?: string) => {
     return new Date(dateString).toLocaleDateString('es-ES', {
       day: 'numeric', month: 'long', year: 'numeric'
     });
-  } catch (e) { return "Fecha inválida"; }
+  } catch (e) {
+    return "Fecha inválida";
+  }
 };
 
 export default function GestorFiestasPage() {
@@ -45,6 +47,7 @@ export default function GestorFiestasPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -77,6 +80,16 @@ export default function GestorFiestasPage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  const filteredFiestasActivas = React.useMemo(() => 
+    fiestasActivas.filter(fiesta => 
+      fiesta.configuracion.nombreEvento.toLowerCase().includes(searchTerm.toLowerCase())
+    ), [fiestasActivas, searchTerm]);
+
+  const filteredFiestasArchivadas = React.useMemo(() => 
+    fiestasArchivadas.filter(fiesta => 
+      fiesta.configuracion.nombreEvento.toLowerCase().includes(searchTerm.toLowerCase())
+    ), [fiestasArchivadas, searchTerm]);
 
   const handleDeleteFiesta = async (fiestaId: string, nombreFiesta: string) => {
     setIsProcessing(fiestaId);
@@ -143,7 +156,7 @@ export default function GestorFiestasPage() {
         toast({title: "Error al Eliminar", description: error.message, variant: "destructive"});
       } finally {
         setIsProcessing(null);
-      }
+    }
   }
 
   const handleDuplicate = async (fiestaId: string) => {
@@ -230,7 +243,13 @@ export default function GestorFiestasPage() {
        <Separator className="my-6 print:my-3"/>
 
         <div className="print:break-before-page">
-            <h2 className="text-xl font-semibold font-headline mb-4 text-foreground print:text-lg">Eventos Activos en Planificación</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold font-headline text-foreground print:text-lg">Eventos Activos en Planificación</h2>
+              <div className="relative w-full max-w-xs print:hidden">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"/>
+                <Input placeholder="Buscar evento activo..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-9"/>
+              </div>
+            </div>
             {isLoading ? (
                 <div className="flex items-center justify-center py-10"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
             ) : error ? (
@@ -239,9 +258,9 @@ export default function GestorFiestasPage() {
                     <p className="font-semibold text-lg">Error al Cargar Eventos</p>
                     <p className="text-sm">{error}</p>
                 </Card>
-            ) : fiestasActivas.length > 0 ? (
+            ) : filteredFiestasActivas.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {fiestasActivas.map((fiesta) => (
+                {filteredFiestasActivas.map((fiesta) => (
                   <Card key={fiesta.id} className="bg-card hover:shadow-md transition-shadow print:shadow-none print:border print:break-inside-avoid flex flex-col">
                     <CardHeader className="pb-3 pt-4 px-4 print:pb-1 print:pt-1 print:px-2">
                       <CardTitle className="text-md font-semibold text-primary/90 print:text-sm">{fiesta.configuracion.nombreEvento}</CardTitle>
@@ -293,7 +312,7 @@ export default function GestorFiestasPage() {
             ) : (
               <div className="py-6 text-center text-muted-foreground bg-muted/20 rounded-md print:hidden">
                 <Info className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                <p>No hay fiestas activas. Crea un nuevo cliente o un evento manual para empezar a planificar.</p>
+                <p>No hay fiestas activas que coincidan con tu búsqueda.</p>
               </div>
             )}
         </div>
@@ -304,9 +323,9 @@ export default function GestorFiestasPage() {
             <h2 className="text-xl font-semibold font-headline mb-4 text-foreground print:text-lg">Eventos Pasados y Archivados</h2>
             {isLoading ? (
                 <div className="flex items-center justify-center py-10"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
-            ) : fiestasArchivadas.length > 0 ? (
+            ) : filteredFiestasArchivadas.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {fiestasArchivadas.map(fiesta => (
+                    {filteredFiestasArchivadas.map(fiesta => (
                         <Card key={fiesta.id} className="bg-muted/40 print:border print:shadow-none">
                             <CardHeader className="p-4 flex-row justify-between items-start">
                                 <div>
@@ -337,12 +356,10 @@ export default function GestorFiestasPage() {
             ) : (
                 <div className="py-6 text-center text-muted-foreground bg-muted/20 rounded-md print:hidden">
                     <Info className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                    <p>No hay eventos en el archivo histórico.</p>
+                    <p>{searchTerm ? 'No hay eventos archivados que coincidan con tu búsqueda.' : 'No hay eventos en el archivo histórico.'}</p>
                 </div>
             )}
         </div>
     </div>
   );
 }
-
-    
