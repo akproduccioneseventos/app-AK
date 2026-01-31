@@ -99,7 +99,7 @@ export function MainNav() {
                 </SidebarMenuButton>
                 <SidebarMenuSub>
                   <SidebarMenuSubItem>
-                    <Link href="/empresa/servicios" passHref>
+                    <Link href="/empresa/servicios" passHref asChild>
                       <SidebarMenuSubButton
                         isActive={isActive("/empresa/servicios")}
                       >
@@ -109,7 +109,7 @@ export function MainNav() {
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
-                    <Link href="/empresa/menus" passHref>
+                    <Link href="/empresa/menus" passHref asChild>
                       <SidebarMenuSubButton isActive={isActive("/empresa/menus")}>
                         <ChefHat />
                         Gastronomía
@@ -117,7 +117,7 @@ export function MainNav() {
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
-                    <Link href="/empresa/activos-fijos" passHref>
+                    <Link href="/empresa/activos-fijos" passHref asChild>
                       <SidebarMenuSubButton
                         isActive={isActive("/empresa/activos-fijos")}
                       >
@@ -127,7 +127,7 @@ export function MainNav() {
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
-                    <Link href="/empresa/insumos" passHref>
+                    <Link href="/empresa/insumos" passHref asChild>
                       <SidebarMenuSubButton
                         isActive={isActive("/empresa/insumos")}
                       >
@@ -137,7 +137,7 @@ export function MainNav() {
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
-                    <Link href="/empleados" passHref>
+                    <Link href="/empleados" passHref asChild>
                       <SidebarMenuSubButton isActive={isActive("/empleados")}>
                         <Users />
                         Personal
@@ -145,7 +145,7 @@ export function MainNav() {
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
-                    <Link href="/proveedores" passHref>
+                    <Link href="/proveedores" passHref asChild>
                       <SidebarMenuSubButton
                         isActive={isActive("/proveedores")}
                       >
@@ -170,7 +170,7 @@ export function MainNav() {
                 </SidebarMenuButton>
                 <SidebarMenuSub>
                   <SidebarMenuSubItem>
-                    <Link href="/contabilidad/crm" passHref>
+                    <Link href="/contabilidad/crm" passHref asChild>
                       <SidebarMenuSubButton
                         isActive={isActive("/contabilidad/crm")}
                       >
@@ -180,7 +180,7 @@ export function MainNav() {
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
-                    <Link href="/presupuestos/nuevo" passHref>
+                    <Link href="/presupuestos/nuevo" passHref asChild>
                       <SidebarMenuSubButton
                         isActive={isActive("/presupuestos")}
                       >
@@ -190,7 +190,7 @@ export function MainNav() {
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
-                    <Link href="/invoices" passHref>
+                    <Link href="/invoices" passHref asChild>
                       <SidebarMenuSubButton isActive={isActive("/invoices")}>
                         <FileText />
                         Facturas
