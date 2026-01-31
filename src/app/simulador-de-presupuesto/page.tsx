@@ -199,7 +199,12 @@ export default function ArmadoRapidoPage() {
         
         const sortByPrice = (a: { precioPorPersona?: number }, b: { precioPorPersona?: number }) => (a.precioPorPersona || 0) - (b.precioPorPersona || 0);
     
-        const allDishes = allMenus.flatMap(m => m.items);
+        const allDishes = Array.from(
+            allMenus.flatMap(m => m.items)
+            .reduce((map, dish) => map.set(dish.id, dish), new Map<string, MenuItem>())
+            .values()
+        );
+        
         const visibleDishes = allDishes.filter(d => isPlatoVisible(d.id));
 
         const lowerCaseSearch = gastronomiaSearchTerm.toLowerCase();
