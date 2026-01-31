@@ -1,3 +1,4 @@
+
 [
   {
     "id": "menu_barra_tragos",
@@ -46,8 +47,8 @@
             "quantityPerPerson": "40",
             "unit": "g",
             "proveedor": "CALSAL",
-            "costoUnitario": 0,
-            "costoTotalReceta": 0
+            "costoUnitario": 180,
+            "costoTotalReceta": 7.2
           },
           {
             "id": "ing_1_2",
@@ -55,8 +56,8 @@
             "quantityPerPerson": "10",
             "unit": "g",
             "proveedor": "MONTEVIDEO",
-            "costoUnitario": 0,
-            "costoTotalReceta": 0
+            "costoUnitario": 2000,
+            "costoTotalReceta": 20
           },
           {
             "id": "ing_1_3",
@@ -64,8 +65,8 @@
             "quantityPerPerson": "10",
             "unit": "ml",
             "proveedor": "UNIPLAS",
-            "costoUnitario": 0,
-            "costoTotalReceta": 0
+            "costoUnitario": 500,
+            "costoTotalReceta": 5
           },
           {
             "id": "ing_1_4",
@@ -73,16 +74,16 @@
             "quantityPerPerson": "100",
             "unit": "ml",
             "proveedor": "DK MAYORISTA",
-            "costoUnitario": 0,
-            "costoTotalReceta": 0
+            "costoUnitario": 70,
+            "costoTotalReceta": 7
           },
           {
             "id": "ing_1_5",
             "name": "Gas",
             "quantityPerPerson": "5",
             "unit": "min",
-            "costoUnitario": 0,
-            "costoTotalReceta": 0
+            "costoUnitario": 1,
+            "costoTotalReceta": 5
           },
           {
             "id": "ing_1_6",
@@ -90,8 +91,8 @@
             "quantityPerPerson": "0.1",
             "unit": "Unidad",
             "proveedor": "VERDULERIA",
-            "costoUnitario": 0,
-            "costoTotalReceta": 0
+            "costoUnitario": 10,
+            "costoTotalReceta": 1
           }
         ]
       },
@@ -105,10 +106,10 @@
             "id": "ing_2_1",
             "name": "Salsa de soja",
             "quantityPerPerson": "10",
-            "unit": "g",
+            "unit": "ml",
             "proveedor": "UNIPLAS",
-            "costoUnitario": 0,
-            "costoTotalReceta": 0
+            "costoUnitario": 500,
+            "costoTotalReceta": 5
           },
           {
             "id": "ing_2_2",
@@ -116,8 +117,8 @@
             "quantityPerPerson": "100",
             "unit": "ml",
             "proveedor": "DK MAYORISTA",
-            "costoUnitario": 0,
-            "costoTotalReceta": 0
+            "costoUnitario": 70,
+            "costoTotalReceta": 7
           },
           {
             "id": "ing_2_3",
@@ -125,8 +126,8 @@
             "quantityPerPerson": "5",
             "unit": "Unidad",
             "proveedor": "DOPACA",
-            "costoUnitario": 0,
-            "costoTotalReceta": 0
+            "costoUnitario": 5.6,
+            "costoTotalReceta": 28
           }
         ]
       },
@@ -251,7 +252,7 @@
             "id": "ing_pc_3",
             "name": "Aceite",
             "quantityPerPerson": "100",
-            "unit": "g",
+            "unit": "ml",
             "costoUnitario": 70,
             "costoTotalReceta": 7,
             "proveedor": "DK MAYORISTA"
@@ -1150,96 +1151,6 @@
         ]
       },
       {
-        "id": "dish_entrada_20",
-        "name": "Picada Criolla",
-        "type": "Entrada",
-        "totalDishCost": 102.119,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 204.238,
-        "ingredients": [
-          {
-            "id": "ing_20_1",
-            "name": "Aceitunas",
-            "quantityPerPerson": "30",
-            "unit": "g",
-            "costoUnitario": 220,
-            "costoTotalReceta": 6.6,
-            "proveedor": "UNIPLAS"
-          },
-          {
-            "id": "ing_20_2",
-            "name": "Salsa criolla",
-            "quantityPerPerson": "53",
-            "unit": "g",
-            "costoUnitario": 200,
-            "costoTotalReceta": 10.6,
-            "proveedor": "UNIPLAS"
-          },
-          {
-            "id": "ing_20_3",
-            "name": "Queso colonia ",
-            "quantityPerPerson": "30",
-            "unit": "g",
-            "costoUnitario": 180,
-            "costoTotalReceta": 5.4,
-            "proveedor": "EL TROPERO"
-          },
-          {
-            "id": "ing_20_4",
-            "name": "Ravioles Fritos",
-            "quantityPerPerson": "51",
-            "unit": "g",
-            "costoUnitario": 209,
-            "costoTotalReceta": 10.659,
-            "proveedor": "DOPACA"
-          },
-          {
-            "id": "ing_20_5",
-            "name": "Papas rústicas",
-            "quantityPerPerson": "52",
-            "unit": "g",
-            "costoUnitario": 180,
-            "costoTotalReceta": 9.36,
-            "proveedor": "DOPACA"
-          },
-          {
-            "id": "ing_20_6",
-            "name": "Chorizos",
-            "quantityPerPerson": "50",
-            "unit": "g",
-            "costoUnitario": 250,
-            "costoTotalReceta": 12.5,
-            "proveedor": "CARNICERIA"
-          },
-          {
-            "id": "ing_20_7",
-            "name": "Morcilla",
-            "quantityPerPerson": "50",
-            "unit": "g",
-            "costoUnitario": 360,
-            "costoTotalReceta": 18,
-            "proveedor": "CARNICERIA"
-          },
-          {
-            "id": "ing_20_8",
-            "name": "Pan de campo",
-            "quantityPerPerson": "0.2",
-            "unit": "Unidad",
-            "costoUnitario": 120,
-            "costoTotalReceta": 24,
-            "proveedor": "PANONO"
-          },
-          {
-            "id": "ing_20_9",
-            "name": "Gas",
-            "quantityPerPerson": "5",
-            "unit": "min",
-            "costoUnitario": 1,
-            "costoTotalReceta": 5
-          }
-        ]
-      },
-      {
         "id": "dish_entrada_18",
         "name": "Tabla de Fiambre Gourmet",
         "type": "Entrada",
@@ -1494,7 +1405,7 @@
           },
           {
             "id": "ing_23_5",
-            "name": "Pizzetitas con muzzarella",
+            "name": "pizzetitas con muzzarella",
             "quantityPerPerson": "1",
             "unit": "Unidad",
             "costoUnitario": 11,
