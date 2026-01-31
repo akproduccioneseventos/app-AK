@@ -16,7 +16,7 @@ import type { FullMenu, MenuItem } from '@/types/catering';
 const PRESUPUESTOS_FILE = 'presupuestos.json';
 
 // Helper function to decide which guest count to use for an item
-function getGuestCountForItem(item: ItemPresupuestado, invitados: number, invitadosAdultos?: number, invitadosNinos?: number): number {
+function getGuestCountForItem(item: { nombreServicio: string }, invitados: number, invitadosAdultos?: number, invitadosNinos?: number): number {
   const nombre = item.nombreServicio.toLowerCase();
   const hayNinos = (invitadosNinos ?? 0) > 0;
 
@@ -36,34 +36,42 @@ function recalcularCostoItem(item: ItemPresupuestado, invitados: number, invitad
   if (item.esRegalo) return 0;
   
   const cantidadInvitados = getGuestCountForItem(item, invitados, invitadosAdultos, invitadosNinos);
+  
+  // Si no hay invitados para este ítem y el cálculo depende de ellos, el costo es 0.
   if (cantidadInvitados === 0 && (item.calculationMethod === 'porPersona' || item.calculationMethod === 'ratio')) {
     return 0;
   }
   
   let itemTotal = 0;
-  const precioUnitario = item.precioUnitarioPresupuesto ?? item.precioUnitario;
 
   switch (item.calculationMethod) {
-    case 'fijo': 
-      itemTotal = item.precioBase ?? precioUnitario; 
+    case 'fijo':
+      // Para cantidad fija, el precio es el base, multiplicado por la cantidad (si es mayor a 1, ej. 2 Djs)
+      itemTotal = (item.precioBase ?? item.precioVenta ?? item.precioUnitario) * (item.cantidad > 0 ? item.cantidad : 1);
       break;
-    case 'porPersona': 
-      itemTotal = (item.precioPorPersona ?? precioUnitario) * cantidadInvitados; 
+    case 'porPersona':
+      // Siempre usa precioPorPersona si existe, si no, el unitario, multiplicado por los invitados correspondientes.
+      itemTotal = (item.precioPorPersona ?? item.precioUnitario) * cantidadInvitados;
       break;
     case 'ratio':
       const invitadosPorUnidadNum = Number(item.invitadosPorUnidad);
       if (invitadosPorUnidadNum > 0) {
-        itemTotal = Math.ceil(cantidadInvitados / invitadosPorUnidadNum) * (item.precioBase ?? precioUnitario);
+        const basePrice = item.precioBase ?? item.precioUnitario;
+        // La cantidad de unidades (ej: mozos) se calcula y se multiplica por el precio base de cada uno.
+        itemTotal = Math.ceil(cantidadInvitados / invitadosPorUnidadNum) * basePrice;
       } else {
-        itemTotal = item.precioBase ?? precioUnitario;
+        // Fallback si el ratio no está definido, se cobra una sola vez el precio base.
+        itemTotal = item.precioBase ?? item.precioUnitario;
       }
       break;
     case 'tramos':
       const tramo = item.tramosDePrecio?.find(t => cantidadInvitados >= t.desde && cantidadInvitados <= t.hasta);
+      // El total es el precio definido para el tramo encontrado.
       itemTotal = tramo?.precio || 0;
       break;
-    default: 
-      itemTotal = item.cantidad * precioUnitario;
+    default:
+      // Si el método no está definido, se usa la cantidad guardada (generalmente 1).
+      itemTotal = item.cantidad * item.precioUnitario;
   }
   return itemTotal;
 }

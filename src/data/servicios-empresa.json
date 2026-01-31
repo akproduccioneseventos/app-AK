@@ -496,33 +496,33 @@
     ]
   },
   {
-    "id": "item_1756940568854_u5m4prf",
     "nombre": "Servicio de discoteca",
     "tipoItem": "Servicio",
     "categoria": "Servicio de discoteca",
-    "valorUnitarioEstimado": 3000,
-    "precioVenta": 22000,
     "calculationMethod": "tramos",
+    "precioVenta": 0,
     "tramosDePrecio": [
       {
-        "id": "tramo_1759920281582",
+        "id": "tramo_1",
         "desde": 1,
         "hasta": 80,
         "precio": 9990
       },
       {
-        "id": "tramo_1759920301189",
+        "id": "tramo_1769814206042",
         "desde": 81,
         "hasta": 120,
         "precio": 19900
       },
       {
-        "id": "tramo_1759920323087",
+        "id": "tramo_1769814223607",
         "desde": 121,
-        "hasta": 300,
-        "precio": 29990
+        "hasta": 250,
+        "precio": 29900
       }
-    ]
+    ],
+    "valorUnitarioEstimado": 4000,
+    "id": "serv_1769814244362_v1rorq7"
   },
   {
     "id": "serv_1759923784963_5gbv94n",
@@ -920,14 +920,21 @@
     ]
   },
   {
-    "id": "item_1757539236109_vtqfjaz",
+    "id": "serv_1769814137199_pwamegp",
     "nombre": "Torta Principal",
     "tipoItem": "Servicio",
     "categoria": "Servicio de repostería",
-    "subcategoria": "Torta Principal",
     "valorUnitarioEstimado": 60,
-    "precioVenta": 6600,
+    "precioVenta": 0,
     "calculationMethod": "porPersona",
-    "precioPorPersona": 109
+    "precioPorPersona": 109,
+    "tramosDePrecio": [
+      {
+        "id": "tramo_1",
+        "desde": 0,
+        "hasta": 50,
+        "precio": 0
+      }
+    ]
   }
 ]

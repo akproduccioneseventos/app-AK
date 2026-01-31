@@ -57,6 +57,20 @@ const COMPANY_WEBSITE_PDF = "www.akproduccioneseventos.com";
 const BUDGET_VALIDITY_DAYS_PDF = 30;
 const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos los servicios, se requiere una seña de $5.000. El presupuesto es válido por 30 días.";
 
+function getGuestCountForItem(item: { nombreServicio: string }, invitados: number, invitadosAdultos?: number, invitadosNinos?: number): number {
+  const nombre = item.nombreServicio.toLowerCase();
+  const hayNinos = (invitadosNinos ?? 0) > 0;
+
+  if (nombre.includes('infantil') || nombre.includes('hamburguesa') || nombre.includes('pancho')) {
+    return invitadosNinos ?? 0;
+  }
+  if (hayNinos && (nombre.includes('asado') || nombre.includes('cordero') || nombre.includes('principal'))) {
+    return invitadosAdultos ?? invitados;
+  }
+  return invitados;
+};
+
+
 export default function VerPresupuestoPage({ params: paramsProp }: { params: { id: string } }) {
   const params = use(paramsProp);
   const router = useRouter();
@@ -124,6 +138,26 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
   const handleShareWhatsApp = () => {
     window.open(`https://wa.me/?text=${encodeURIComponent(generarTextoWhatsApp())}`, '_blank');
   };
+  
+  const getDisplayQuantity = (item: ItemPresupuestado): string => {
+    if (!presupuesto) return 'N/A';
+    const cantidadInvitados = getGuestCountForItem(item, presupuesto.invitadosCantidad, presupuesto.invitadosAdultos, presupuesto.invitadosNinos);
+    
+    switch (item.calculationMethod) {
+        case 'porPersona':
+            return `${cantidadInvitados}`;
+        case 'ratio':
+            if (item.invitadosPorUnidad && item.invitadosPorUnidad > 0) {
+              return `${Math.ceil(cantidadInvitados / item.invitadosPorUnidad)}`;
+            }
+            return `${item.cantidad}`; // Fallback a la cantidad guardada
+        case 'fijo':
+        case 'tramos':
+        default:
+            return `${item.cantidad}`;
+    }
+  };
+
 
   const { itemsAgrupados, costoTotalRegalos, subtotalBruto, descuentoPromocional, totalConDescuento, ajustesAnuales, totalFinal } = useMemo(() => {
     if (!presupuesto || !displaySettings) {
@@ -185,34 +219,7 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
     };
 
   }, [presupuesto, displaySettings, armadoRapidoConfig]);
-
-  const getDisplayQuantity = (item: ItemPresupuestado): string => {
-    if (!presupuesto) return 'N/A';
-    const nombre = item.nombreServicio.toLowerCase();
-    const hayNinos = (presupuesto.invitadosNinos ?? 0) > 0;
-    
-    let cantidadInvitados = presupuesto.invitadosCantidad;
-
-    if (nombre.includes('infantil') || nombre.includes('hamburguesa') || nombre.includes('pancho')) {
-        cantidadInvitados = presupuesto.invitadosNinos ?? 0;
-    } else if (hayNinos && (nombre.includes('asado') || nombre.includes('cordero') || nombre.includes('principal'))) {
-        cantidadInvitados = presupuesto.invitadosAdultos ?? presupuesto.invitadosCantidad;
-    }
-    
-    switch (item.calculationMethod) {
-        case 'porPersona':
-            return `${cantidadInvitados}`;
-        case 'ratio':
-            if (item.invitadosPorUnidad && item.invitadosPorUnidad > 0) {
-              return `${Math.ceil(cantidadInvitados / item.invitadosPorUnidad)}`;
-            }
-            return `${item.cantidad}`;
-        case 'fijo':
-        case 'tramos':
-        default:
-            return `${item.cantidad}`;
-    }
-  };
+  
 
   if (isLoading || !displaySettings) {
     return <div className="flex items-center justify-center h-screen"><Loader2 className="w-16 h-16 animate-spin text-primary" /><p className="ml-4 text-xl">Cargando...</p></div>;

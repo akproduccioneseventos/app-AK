@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -51,18 +52,16 @@ const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos l
 
 
 // Helper function to decide which guest count to use for an item
-function getGuestCountForItem(servicio: { nombre: string }, adultos: number, ninos: number): number {
-  const nombre = servicio.nombre.toLowerCase();
+function getGuestCountForItem(item: { nombre: string }, adultos: number, ninos: number): number {
+  const nombre = item.nombre.toLowerCase();
   const hayNinos = ninos > 0;
 
   if (nombre.includes('infantil') || nombre.includes('hamburguesa') || nombre.includes('pancho')) {
     return ninos;
   }
-  // If there are kids, main courses like asado are assumed to be for adults only.
   if (hayNinos && (nombre.includes('asado') || nombre.includes('cordero') || nombre.includes('principal'))) {
     return adultos;
   }
-  // Default to total guests
   return adultos + ninos;
 };
 
@@ -184,7 +183,7 @@ export default function ArmadoRapidoPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [isGeneratingLead, setIsGeneratingLead] = useState(false);
 
-    const [formData, setFormData] = useState({serviciosSeleccionados: new Map()});
+    const [formData, setFormData] = useState<{serviciosSeleccionados: Map<string, ServicioSeleccionadoValue>}>({serviciosSeleccionados: new Map()});
     
     const { entradasDisponibles, principalesDisponibles, menusNinoDisponibles } = useMemo(() => {
         if (!config || !allMenus.length) {
@@ -205,11 +204,16 @@ export default function ArmadoRapidoPage() {
         const filteredDishes = gastronomiaSearchTerm.trim() === ''
             ? visibleDishes 
             : visibleDishes.filter(d => d.name.toLowerCase().includes(lowerCaseSearch));
+        
+        const enhancedDishes = filteredDishes.map(item => ({
+            ...item,
+            precioVenta: item.suggestedSellingPrice ?? ((item.totalDishCost || 0) * (1 + (item.profitMargin ?? 120) / 100)),
+        }));
 
         return { 
-            entradasDisponibles: filteredDishes.filter(item => item.type === 'Entrada').map(menuItemToServicioEmpresa).sort(sortByPrice), 
-            principalesDisponibles: filteredDishes.filter(item => item.type === 'Plato Principal').map(menuItemToServicioEmpresa).sort(sortByPrice), 
-            menusNinoDisponibles: filteredDishes.filter(s => s.type === 'Menú Infantil/Adolescente').map(menuItemToServicioEmpresa).sort(sortByPrice)
+            entradasDisponibles: enhancedDishes.filter(item => item.type === 'Entrada').map(menuItemToServicioEmpresa).sort(sortByPrice), 
+            principalesDisponibles: enhancedDishes.filter(item => item.type === 'Plato Principal').map(menuItemToServicioEmpresa).sort(sortByPrice), 
+            menusNinoDisponibles: enhancedDishes.filter(s => s.type === 'Menú Infantil/Adolescente').map(menuItemToServicioEmpresa).sort(sortByPrice)
         };
     }, [config, allMenus, gastronomiaSearchTerm]);
     
@@ -263,9 +267,9 @@ export default function ArmadoRapidoPage() {
         const newSelected = new Map(prev.serviciosSeleccionados);
         
         const allDishes = [...entradasDisponibles, ...principalesDisponibles, ...menusNinoDisponibles];
-        const itemsToClear = type === 'entradas' ? entradasDisponibles : type === 'principal' ? principalesDisponibles : menusNinoDisponibles;
+        const itemsToClear = type === 'entradas' ? (entradasDisponibles || []) : type === 'principal' ? (principalesDisponibles || []) : (menusNinoDisponibles || []);
 
-        itemsToClear.forEach(item => {
+        (itemsToClear || []).forEach(item => {
             if (newSelected.has(item.id)) {
                 newSelected.delete(item.id);
             }
@@ -308,7 +312,7 @@ export default function ArmadoRapidoPage() {
             }
             
             const cantidadInvitadosRelevante = getGuestCountForItem(servicio, adultos, ninos);
-            let cantidadDisplay = 1;
+            let cantidadDisplay: number = 1;
             let unidadDisplay = 'evento';
 
             switch (servicio.calculationMethod) {
