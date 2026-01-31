@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -29,7 +30,7 @@ interface GestionBebidasProps {
 
 const formatCurrency = (amount?: number) => {
     if (amount === undefined || isNaN(amount)) return 'N/A';
-    return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
+    return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 };
 
 export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onDataChange, onSave, invitados, isTemplateMode = false }) => {
@@ -221,9 +222,7 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
             {bebidas.categorias.map(cat => (
               <AccordionItem key={cat.id} value={cat.id} className="border rounded-lg shadow-sm">
                 <div className="flex items-center p-3">
-                  <AccordionTrigger className="hover:no-underline flex-1">
-                    <span className="font-semibold text-primary">{cat.nombreDisplay}</span>
-                  </AccordionTrigger>
+                  <AccordionTrigger className="hover:no-underline flex-1"><span className="font-semibold text-primary">{cat.nombreDisplay}</span></AccordionTrigger>
                   {!isTemplateMode && (
                     <Switch
                       checked={cat.activada}

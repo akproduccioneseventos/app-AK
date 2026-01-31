@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -61,8 +62,8 @@ export default function ReporteEmpleadosPage() {
         console.error("Error al compartir:", err);
       }
     } else {
-      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareData.text + '\n' + shareData.url)}`;
-      window.open(whatsappUrl, '_blank');
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareData.text + '\n' + shareData.url)}`;
+        window.open(whatsappUrl, '_blank');
     }
   };
 

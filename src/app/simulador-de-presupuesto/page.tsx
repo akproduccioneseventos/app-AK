@@ -31,7 +31,7 @@ import { DatePickerDemo } from '@/components/date-picker-demo';
 
 const formatCurrency = (amount: number, includeSymbol = true) => {
     if (isNaN(amount)) return 'N/A';
-    const options = { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 };
+    const options = { style: 'decimal', minimumFractionDigits: 0, maximumFractionDigits: 0 };
     const formatted = new Intl.NumberFormat('es-UY', options).format(amount);
     return includeSymbol ? `$ ${formatted}` : formatted;
 };

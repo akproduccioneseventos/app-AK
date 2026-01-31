@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -15,7 +16,7 @@ import { Separator } from '@/components/ui/separator';
 
 const formatCurrency = (value?: number) => {
     if (value === undefined) return 'N/A';
-    return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(value);
+    return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
 };
 
 const financialHubItems = [

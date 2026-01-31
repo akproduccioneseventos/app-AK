@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -16,7 +17,7 @@ import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-st
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
-  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
+  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 };
 
 const formatDate = (dateString?: string) => {

@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import Link from 'next/link';
@@ -31,7 +32,7 @@ import { useToast } from '@/hooks/use-toast';
 
 const formatCurrency = (value?: number) => {
     if (value === undefined) return 'N/A';
-    return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(value);
+    return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
 };
 
 const mainHubItems = [
