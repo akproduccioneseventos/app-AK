@@ -32,7 +32,7 @@
     "description": "Una selección de entradas frías y calientes para comenzar el evento.",
     "templateType": "Menú de Entradas",
     "createdAt": "2025-07-28T10:00:00.000Z",
-    "updatedAt": "2026-01-31T13:49:04.701Z",
+    "updatedAt": "2026-01-31T13:50:16.924Z",
     "items": [
       {
         "id": "dish_entrada_1",
@@ -139,8 +139,8 @@
         "name": "Tapas Saborizadas",
         "type": "Entrada",
         "totalDishCost": 64.4,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 128.8,
+        "profitMargin": 86.33540372670805,
+        "suggestedSellingPrice": 120,
         "ingredients": [
           {
             "id": "ing_3_1",
@@ -1526,15 +1526,15 @@
     "dataAiHint": "main course dishes",
     "templateType": "Menú de Platos Principales",
     "createdAt": "2025-07-28T10:00:00.000Z",
-    "updatedAt": "2025-10-28T22:10:31.817Z",
+    "updatedAt": "2026-01-31T13:52:06.331Z",
     "items": [
       {
         "id": "dish_main_1",
         "name": "Mini Brochetas",
         "type": "Plato Principal",
-        "totalDishCost": 57.2,
+        "totalDishCost": 57.199999999999996,
         "profitMargin": 100,
-        "suggestedSellingPrice": 114.4,
+        "suggestedSellingPrice": 114.39999999999999,
         "ingredients": [
           {
             "id": "ing_m1_1",
@@ -1632,7 +1632,7 @@
             "quantityPerPerson": "20",
             "unit": "g",
             "costoUnitario": 380,
-            "costoTotalReceta": 7.6
+            "costoTotalReceta": 7.6000000000000005
           },
           {
             "id": "ing_m9_6",
@@ -1714,9 +1714,9 @@
         "id": "dish_main_12",
         "name": "Napolitana C/ Fritas",
         "type": "Plato Principal",
-        "totalDishCost": 175,
+        "totalDishCost": 174.2,
         "profitMargin": 100,
-        "suggestedSellingPrice": 350,
+        "suggestedSellingPrice": 348.4,
         "ingredients": [
           {
             "id": "ing_m12_1",
@@ -1732,7 +1732,7 @@
             "quantityPerPerson": "250",
             "unit": "g",
             "costoUnitario": 350,
-            "costoTotalReceta": 88
+            "costoTotalReceta": 87.5
           },
           {
             "id": "ing_m12_3",
@@ -1764,7 +1764,7 @@
             "quantityPerPerson": "60",
             "unit": "g",
             "costoUnitario": 70,
-            "costoTotalReceta": 4
+            "costoTotalReceta": 4.2
           },
           {
             "id": "ing_m12_7",
@@ -1772,7 +1772,7 @@
             "quantityPerPerson": "100",
             "unit": "g",
             "costoUnitario": 45,
-            "costoTotalReceta": 5
+            "costoTotalReceta": 4.5
           },
           {
             "id": "ing_m12_8",
@@ -1804,9 +1804,9 @@
         "id": "dish_main_13",
         "name": "Bauru C/ Fritas",
         "type": "Plato Principal",
-        "totalDishCost": 180,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 360,
+        "totalDishCost": 179.6,
+        "profitMargin": 99.88864142538975,
+        "suggestedSellingPrice": 359,
         "ingredients": [
           {
             "id": "ing_m13_1",
@@ -1878,7 +1878,7 @@
             "quantityPerPerson": "100",
             "unit": "g",
             "costoUnitario": 45,
-            "costoTotalReceta": 5
+            "costoTotalReceta": 4.5
           },
           {
             "id": "ing_m13_10",
@@ -1894,7 +1894,7 @@
             "quantityPerPerson": "100",
             "unit": "ml",
             "costoUnitario": 121,
-            "costoTotalReceta": 12
+            "costoTotalReceta": 12.100000000000001
           },
           {
             "id": "ing_m13_12",
@@ -1910,9 +1910,9 @@
         "id": "dish_main_14",
         "name": "Strogonoff de Pollo C/ Guarnición",
         "type": "Plato Principal",
-        "totalDishCost": 191,
+        "totalDishCost": 190.1,
         "profitMargin": 100,
-        "suggestedSellingPrice": 382,
+        "suggestedSellingPrice": 380.2,
         "ingredients": [
           {
             "id": "ing_m14_1",
@@ -1936,7 +1936,7 @@
             "quantityPerPerson": "80",
             "unit": "g",
             "costoUnitario": 120,
-            "costoTotalReceta": 10
+            "costoTotalReceta": 9.6
           },
           {
             "id": "ing_m14_4",
@@ -1944,7 +1944,7 @@
             "quantityPerPerson": "50",
             "unit": "g",
             "costoUnitario": 90,
-            "costoTotalReceta": 5
+            "costoTotalReceta": 4.5
           },
           {
             "id": "ing_m14_5",
@@ -1976,9 +1976,9 @@
         "id": "dish_main_15",
         "name": "Merluza a la Crema C/ Guarnición",
         "type": "Plato Principal",
-        "totalDishCost": 198,
+        "totalDishCost": 197.35,
         "profitMargin": 100,
-        "suggestedSellingPrice": 396,
+        "suggestedSellingPrice": 394.7,
         "ingredients": [
           {
             "id": "ing_m15_1",
@@ -1986,7 +1986,7 @@
             "quantityPerPerson": "250",
             "unit": "g",
             "costoUnitario": 345,
-            "costoTotalReceta": 86
+            "costoTotalReceta": 86.25
           },
           {
             "id": "ing_m15_2",
@@ -2002,7 +2002,7 @@
             "quantityPerPerson": "80",
             "unit": "g",
             "costoUnitario": 120,
-            "costoTotalReceta": 10
+            "costoTotalReceta": 9.6
           },
           {
             "id": "ing_m15_4",
@@ -2018,7 +2018,7 @@
             "quantityPerPerson": "50",
             "unit": "g",
             "costoUnitario": 90,
-            "costoTotalReceta": 5
+            "costoTotalReceta": 4.5
           },
           {
             "id": "ing_m15_6",
@@ -2050,9 +2050,9 @@
         "id": "dish_main_16",
         "name": "Sushi C/ Guarnición",
         "type": "Plato Principal",
-        "totalDishCost": 203,
+        "totalDishCost": 202.35,
         "profitMargin": 100,
-        "suggestedSellingPrice": 406,
+        "suggestedSellingPrice": 404.7,
         "ingredients": [
           {
             "id": "ing_m16_1",
@@ -2076,7 +2076,7 @@
             "quantityPerPerson": "150",
             "unit": "g",
             "costoUnitario": 135,
-            "costoTotalReceta": 20
+            "costoTotalReceta": 20.25
           },
           {
             "id": "ing_m16_4",
@@ -2084,7 +2084,7 @@
             "quantityPerPerson": "30",
             "unit": "g",
             "costoUnitario": 120,
-            "costoTotalReceta": 4
+            "costoTotalReceta": 3.5999999999999996
           },
           {
             "id": "ing_m16_5",
@@ -2100,7 +2100,7 @@
             "quantityPerPerson": "50",
             "unit": "g",
             "costoUnitario": 90,
-            "costoTotalReceta": 5
+            "costoTotalReceta": 4.5
           },
           {
             "id": "ing_m16_7",
@@ -2124,9 +2124,9 @@
         "id": "dish_main_17",
         "name": "Bife al Champiñon C/ Guarnición",
         "type": "Plato Principal",
-        "totalDishCost": 226,
+        "totalDishCost": 225.1,
         "profitMargin": 100,
-        "suggestedSellingPrice": 452,
+        "suggestedSellingPrice": 450.2,
         "ingredients": [
           {
             "id": "ing_m17_1",
@@ -2150,7 +2150,7 @@
             "quantityPerPerson": "80",
             "unit": "g",
             "costoUnitario": 120,
-            "costoTotalReceta": 10
+            "costoTotalReceta": 9.6
           },
           {
             "id": "ing_m17_4",
@@ -2158,7 +2158,7 @@
             "quantityPerPerson": "50",
             "unit": "g",
             "costoUnitario": 90,
-            "costoTotalReceta": 5
+            "costoTotalReceta": 4.5
           },
           {
             "id": "ing_m17_5",
@@ -2216,9 +2216,9 @@
         "id": "dish_main_19",
         "name": "Asado Completo C/ Guarnición",
         "type": "Plato Principal",
-        "totalDishCost": 298,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 596,
+        "totalDishCost": 296.88,
+        "profitMargin": 101.76502290487738,
+        "suggestedSellingPrice": 599,
         "ingredients": [
           {
             "id": "ing_m19_1",
@@ -2226,7 +2226,7 @@
             "quantityPerPerson": "500",
             "unit": "g",
             "costoUnitario": 383,
-            "costoTotalReceta": 192
+            "costoTotalReceta": 191.5
           },
           {
             "id": "ing_m19_2",
@@ -2234,7 +2234,7 @@
             "quantityPerPerson": "120",
             "unit": "g",
             "costoUnitario": 299,
-            "costoTotalReceta": 36
+            "costoTotalReceta": 35.879999999999995
           },
           {
             "id": "ing_m19_3",
@@ -2258,7 +2258,7 @@
             "quantityPerPerson": "3500",
             "unit": "g",
             "costoUnitario": 3,
-            "costoTotalReceta": 11
+            "costoTotalReceta": 10.5
           }
         ]
       },
@@ -2266,9 +2266,9 @@
         "id": "dish_main_20",
         "name": "Mesa Buffet",
         "type": "Plato Principal",
-        "totalDishCost": 53.426,
+        "totalDishCost": 52.227199999999996,
         "profitMargin": 100,
-        "suggestedSellingPrice": 106.852,
+        "suggestedSellingPrice": 104.45439999999999,
         "ingredients": [
           {
             "id": "ing_mb_1",
@@ -2292,15 +2292,15 @@
             "quantityPerPerson": "0.01",
             "unit": "g",
             "costoUnitario": 120,
-            "costoTotalReceta": 0.0012
+            "costoTotalReceta": 0.0012000000000000001
           },
           {
             "id": "ing_mb_4",
-            "name": "Tomate ",
+            "name": "Tomate",
             "quantityPerPerson": "18",
             "unit": "g",
             "costoUnitario": 180,
-            "costoTotalReceta": 3.24
+            "costoTotalReceta": 3.2399999999999998
           },
           {
             "id": "ing_mb_5",
@@ -2308,7 +2308,7 @@
             "quantityPerPerson": "7",
             "unit": "g",
             "costoUnitario": 100,
-            "costoTotalReceta": 0.7
+            "costoTotalReceta": 0.7000000000000001
           },
           {
             "id": "ing_mb_6",
@@ -2412,7 +2412,7 @@
             "quantityPerPerson": "3",
             "unit": "g",
             "costoUnitario": 190,
-            "costoTotalReceta": 0.57
+            "costoTotalReceta": 0.5700000000000001
           },
           {
             "id": "ing_mb_19",
@@ -2525,7 +2525,7 @@
             "quantityPerPerson": "30",
             "unit": "g",
             "costoUnitario": 120,
-            "costoTotalReceta": 3.6,
+            "costoTotalReceta": 3.5999999999999996,
             "proveedor": "CASA DE LA MIEL"
           },
           {
@@ -2630,9 +2630,9 @@
         "id": "dish_main_ravioles_crema",
         "name": "Ravioles a la Crema",
         "type": "Plato Principal",
-        "totalDishCost": 116,
+        "totalDishCost": 115.5,
         "profitMargin": 100,
-        "suggestedSellingPrice": 232,
+        "suggestedSellingPrice": 231,
         "ingredients": [
           {
             "id": "ing_rc_1",
@@ -2692,9 +2692,9 @@
         "id": "dish_main_noquis_queso",
         "name": "Ñoquis al Queso",
         "type": "Plato Principal",
-        "totalDishCost": 145.5,
+        "totalDishCost": 155.5,
         "profitMargin": 100,
-        "suggestedSellingPrice": 291,
+        "suggestedSellingPrice": 311,
         "ingredients": [
           {
             "id": "ing_nq_1",
@@ -2809,9 +2809,9 @@
         "id": "dish_main_brochetas_fritas",
         "name": "Brochetas C/ Fritas",
         "type": "Plato Principal",
-        "totalDishCost": 178.8,
+        "totalDishCost": 178.80000000000004,
         "profitMargin": 100,
-        "suggestedSellingPrice": 357.6,
+        "suggestedSellingPrice": 357.6000000000001,
         "ingredients": [
           {
             "id": "ing_bf_1",
@@ -2819,7 +2819,7 @@
             "quantityPerPerson": "80",
             "unit": "g",
             "costoUnitario": 380,
-            "costoTotalReceta": 30.4,
+            "costoTotalReceta": 30.400000000000002,
             "proveedor": "CARNICERIA"
           },
           {
@@ -2837,7 +2837,7 @@
             "quantityPerPerson": "80",
             "unit": "g",
             "costoUnitario": 190,
-            "costoTotalReceta": 15.2,
+            "costoTotalReceta": 15.200000000000001,
             "proveedor": "CARNICERIA"
           },
           {
@@ -2923,15 +2923,15 @@
     "dataAiHint": "kids menu fun food",
     "templateType": "Menú para Niños",
     "createdAt": "2025-07-28T10:00:00.000Z",
-    "updatedAt": "2025-10-28T22:29:14.825Z",
+    "updatedAt": "2026-01-31T13:51:31.358Z",
     "items": [
       {
         "id": "dish_child_2",
         "name": "Panchos C/ Fritas",
         "type": "Menú Infantil/Adolescente",
         "totalDishCost": 93.2,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 186.4,
+        "profitMargin": 113.51931330472102,
+        "suggestedSellingPrice": 199,
         "ingredients": [
           {
             "id": "ing_c2_1",
@@ -2993,8 +2993,8 @@
         "name": "Hamburguesa C/ Fritas",
         "type": "Menú Infantil/Adolescente",
         "totalDishCost": 134.3,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 268.6,
+        "profitMargin": 122.63588979895755,
+        "suggestedSellingPrice": 299,
         "ingredients": [
           {
             "id": "ing_c3_1",
@@ -3092,8 +3092,8 @@
         "name": "Panchos Medio Metro C/ Fritas",
         "type": "Menú Infantil/Adolescente",
         "totalDishCost": 164.3,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 328.6,
+        "profitMargin": 94.76567255021303,
+        "suggestedSellingPrice": 320,
         "ingredients": [
           {
             "id": "ing_c1_1",

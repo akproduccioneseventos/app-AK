@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -77,9 +78,9 @@ export default function CatalogoPlatosPage() {
 
   const handlePriceFormChange = (field: 'suggestedSellingPrice' | 'profitMargin', value: string) => {
     if (!editingDish) return;
-    const numValue = parseFloat(value);
-    if (isNaN(numValue)) {
-        // Allow the user to clear the field, which will result in NaN, and handle it gracefully
+
+    // Allow the user to clear the input
+    if (value.trim() === '') {
         let updatedDish = { ...editingDish };
         if (field === 'suggestedSellingPrice') {
             updatedDish.suggestedSellingPrice = undefined;
@@ -88,17 +89,27 @@ export default function CatalogoPlatosPage() {
         }
         setEditingDish(updatedDish);
         return;
+    }
+
+    const numValue = parseFloat(value);
+    if (isNaN(numValue)) {
+        // If the value is not a valid number (e.g., just a "-"), don't update the numeric state yet
+        // but let the input show what the user is typing. This part is tricky without a separate string state.
+        // For simplicity, we can just ignore invalid characters for now.
+        return;
     };
     
     let updatedDish = { ...editingDish };
     if (field === 'suggestedSellingPrice') {
         updatedDish.suggestedSellingPrice = numValue;
         if (updatedDish.totalDishCost > 0) {
-            updatedDish.profitMargin = ((numValue / updatedDish.totalDishCost) - 1) * 100;
+            const newMargin = ((numValue / updatedDish.totalDishCost) - 1) * 100;
+            updatedDish.profitMargin = Math.round(newMargin * 100) / 100; // Round for cleaner display
         }
     } else { // profitMargin
         updatedDish.profitMargin = numValue;
-        updatedDish.suggestedSellingPrice = (updatedDish.totalDishCost || 0) * (1 + numValue / 100);
+        const newPrice = (updatedDish.totalDishCost || 0) * (1 + numValue / 100);
+        updatedDish.suggestedSellingPrice = Math.round(newPrice * 100) / 100; // Round for cleaner display
     }
     setEditingDish(updatedDish);
   };
@@ -151,11 +162,11 @@ export default function CatalogoPlatosPage() {
             <div className="space-y-4 py-2">
                 <div className="space-y-1">
                     <Label htmlFor="edit-profitMargin" className="flex items-center gap-1"><Percent className="w-4 h-4"/>Margen de Ganancia (%)</Label>
-                    <Input id="edit-profitMargin" type="text" inputMode="decimal" value={editingDish?.profitMargin?.toFixed(2) ?? ''} onChange={e => handlePriceFormChange('profitMargin', e.target.value)} />
+                    <Input id="edit-profitMargin" type="text" inputMode="decimal" value={editingDish?.profitMargin ?? ''} onChange={e => handlePriceFormChange('profitMargin', e.target.value)} />
                 </div>
                  <div className="space-y-1">
                     <Label htmlFor="edit-sellingPrice" className="flex items-center gap-1"><DollarSign className="w-4 h-4"/>Precio de Venta Final ($)</Label>
-                    <Input id="edit-sellingPrice" type="text" inputMode="decimal" value={editingDish?.suggestedSellingPrice?.toFixed(2) ?? ''} onChange={e => handlePriceFormChange('suggestedSellingPrice', e.target.value)} />
+                    <Input id="edit-sellingPrice" type="text" inputMode="decimal" value={editingDish?.suggestedSellingPrice ?? ''} onChange={e => handlePriceFormChange('suggestedSellingPrice', e.target.value)} />
                 </div>
             </div>
             <DialogFooter>
