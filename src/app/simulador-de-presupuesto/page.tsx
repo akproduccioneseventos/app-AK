@@ -27,6 +27,7 @@ import Image from 'next/image';
 import type { ItemPresupuestado } from '@/types/presupuesto';
 import type { FullMenu, MenuItem } from '@/types/catering'; // Import MenuItem
 import { getMenus } from '@/app/actions/menus-catering'; // Import getMenus
+import { DatePickerDemo } from '@/components/date-picker-demo';
 
 const formatCurrency = (amount: number, includeSymbol = true) => {
     if (isNaN(amount)) return 'N/A';
@@ -175,6 +176,7 @@ export default function ArmadoRapidoPage() {
     const [adultos, setAdultos] = useState<number>(50);
     const [ninos, setNinos] = useState<number>(0);
     const [duracionHoras, setDuracionHoras] = useState<number>(5);
+    const [eventoFecha, setEventoFecha] = useState<Date | undefined>(undefined);
     const [selectedEntradas, setSelectedEntradas] = useState<string[]>([]);
     const [selectedPaqueteId, setSelectedPaqueteId] = useState<string>('');
     
@@ -213,7 +215,7 @@ export default function ArmadoRapidoPage() {
         return { 
             entradasDisponibles: enhancedDishes.filter(item => item.type === 'Entrada').map(menuItemToServicioEmpresa).sort(sortByPrice), 
             principalesDisponibles: enhancedDishes.filter(item => item.type === 'Plato Principal').map(menuItemToServicioEmpresa).sort(sortByPrice), 
-            menusNinoDisponibles: enhancedDishes.filter(s => s.type === 'Menú Infantil/Adolescente').map(menuItemToServicioEmpresa).sort(sortByPrice)
+            menusNinoDisponibles: enhancedDishes.filter(item => item.type === 'Menú Infantil/Adolescente').map(menuItemToServicioEmpresa).sort(sortByPrice)
         };
     }, [config, allMenus, gastronomiaSearchTerm]);
     
@@ -428,6 +430,7 @@ export default function ArmadoRapidoPage() {
         const data = {
             clienteNombre,
             clienteContacto,
+            eventoFecha: eventoFecha ? eventoFecha.toISOString() : undefined,
             adultos,
             ninos,
             costoEstimado: costoTotal,
@@ -465,7 +468,7 @@ export default function ArmadoRapidoPage() {
         } finally {
             setIsGeneratingLead(false);
         }
-    }, [clienteNombre, clienteContacto, adultos, ninos, costoTotal, config?.paquetes, selectedPaqueteId, serviciosDetallados, toast, isGeneratingLead, allSimuladorServices]);
+    }, [clienteNombre, clienteContacto, eventoFecha, adultos, ninos, costoTotal, config?.paquetes, selectedPaqueteId, serviciosDetallados, toast, isGeneratingLead, allSimuladorServices]);
     
     const selectedPrincipalId = useMemo(() => Array.from(formData.serviciosSeleccionados.keys()).find(id => principalesDisponibles.some(p => p.id === id)) || '', [formData.serviciosSeleccionados, principalesDisponibles]);
 
@@ -560,10 +563,11 @@ export default function ArmadoRapidoPage() {
                                     <p className="text-xs text-muted-foreground">Debe tener 9 dígitos. Sin espacios ni guiones.</p>
                                 </div>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2"><Label htmlFor="num-adultos">Cantidad de Adultos *</Label><Input id="num-adultos" type="number" value={adultos} onChange={e => setAdultos(Number(e.target.value) || 0)} min="1" required/></div>
                                 <div className="space-y-2"><Label htmlFor="num-ninos">Cantidad de Niños/Adolescentes</Label><Input id="num-ninos" type="number" value={ninos} onChange={e => setNinos(Number(e.target.value) || 0)} min="0"/></div>
                                 <div className="space-y-2"><Label htmlFor="duracion-horas">Duración (hs)</Label><Input id="duracion-horas" type="number" value={duracionHoras} onChange={(e) => setDuracionHoras(Number(e.target.value) || 1)} min="1"/></div>
+                                <div className="space-y-2"><Label htmlFor="evento-fecha">Fecha Estimada del Evento</Label><DatePickerDemo selectedDate={eventoFecha} onDateChange={setEventoFecha} /></div>
                             </div>
                         </div>
                     )}

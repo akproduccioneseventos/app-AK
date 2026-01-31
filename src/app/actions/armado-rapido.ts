@@ -7,7 +7,6 @@ import { readData, writeData } from '@/lib/data-service';
 import { savePresupuesto } from './presupuestos';
 import type { ItemPresupuestado, Presupuesto } from '@/types/presupuesto';
 import { createNotification } from './notifications';
-import { getCrmStages, moveCrmLead } from './crm';
 
 const CONFIG_FILE = 'armado-rapido-config.json';
 const defaultConfig: ArmadoRapidoConfig = {
@@ -63,7 +62,7 @@ export async function generateBudgetAndLeadFromSimulator(
       clienteNombre: data.clienteNombre,
       clienteContacto: data.clienteContacto,
       eventoTipo: 'Evento (desde Simulador)',
-      eventoFecha: new Date().toISOString(), // Placeholder
+      eventoFecha: data.eventoFecha || new Date().toISOString(),
       invitadosCantidad: (data.adultos || 0) + (data.ninos || 0),
       invitadosAdultos: data.adultos,
       invitadosNinos: data.ninos,
@@ -78,16 +77,10 @@ export async function generateBudgetAndLeadFromSimulator(
       source: 'simulator',
       leadId: undefined, 
     });
-
+    
+    // The logic in savePresupuesto now handles moving the lead to the correct stage.
+    // This removes the redundant call that was here.
     if (budgetResult.success && budgetResult.id && budgetResult.leadId) {
-      const stages = await getCrmStages();
-      const targetStage = stages.find(s => s.name.toLowerCase().includes('presupuesto')) || stages.find(s => s.order === 1);
-      
-      if(targetStage) {
-        // **FIX**: Ensure the lead is moved to the correct stage after creation.
-        await moveCrmLead(budgetResult.leadId, targetStage.id);
-      }
-      
       return { success: true, presupuestoId: budgetResult.id, leadId: budgetResult.leadId };
     } else {
       return { success: false, error: budgetResult.error || "No se pudo procesar la solicitud." };
@@ -102,5 +95,3 @@ const formatCurrency = (amount?: number) => {
   if (amount === undefined) return 'N/A';
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
-
-    

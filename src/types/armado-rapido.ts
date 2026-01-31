@@ -44,6 +44,7 @@ export interface ArmadoRapidoConfig {
 export interface LeadFromQuickBudget {
   clienteNombre: string;
   clienteContacto?: string;
+  eventoFecha?: string; // ISO string
   adultos: number;
   ninos: number;
   costoEstimado: number;
