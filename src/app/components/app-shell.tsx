@@ -4,7 +4,7 @@
 import { ReactNode, useState, useEffect } from 'react';
 import AppLogo from '@/components/app-logo';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlus2Icon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, Edit, BarChart3, PackagePlus, BellRing, UserCog, BrainCircuit, Link as LinkIcon, Camera, Gift, Star, QrCode, Clock, TrendingUp, HardDriveDownload, Wand2, Bot, Film } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlus2Icon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, Edit, BarChart3, PackagePlus, BellRing, UserCog, BrainCircuit, Link as LinkIcon, Camera, Gift, Star, QrCode, Clock, TrendingUp, HardDriveDownload, Wand2, Film, FileArchive, KeyRound } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -21,13 +21,16 @@ import { triggerAppLogout } from '@/components/auth-guard';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Skeleton } from '@/components/ui/skeleton';
 import { NotificationsHub } from '@/components/notifications-hub';
+import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
+import { MainNav } from './main-nav';
+
 
 const getPageTitle = (pathname: string): string => {
   const pathSegments = pathname.split('/').filter(Boolean);
   const idSegment = pathSegments[pathSegments.length -1];
 
   if (pathname === '/') return 'Menú Principal';
-
+  
   if (pathname === '/presupuestos/nuevo') return 'Central de Presupuestos';
   if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'editar' && pathSegments.length === 3) return `Editar Presupuesto #${idSegment?.substring(0,5)}`;
   if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'ver' && pathSegments.length === 3) return `Ver Presupuesto #${idSegment?.substring(0,5)}`;
@@ -46,8 +49,8 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/empresa') return 'Gestión de la Empresa';
   if (pathname === '/empresa/servicios') return 'Catálogo de Servicios';
   if (pathname === '/empresa/servicios/nuevo') return 'Añadir Nuevo Servicio';
-  if (pathSegments[0] === 'empresa' && pathSegments[1] === 'servicios' && pathSegments[2] === 'editar') return `Editar Servicio`;
   if (pathname === '/empresa/servicios/reporte') return 'Reporte de Servicios';
+  if (pathSegments[0] === 'empresa' && pathSegments[1] === 'servicios' && pathSegments[2] === 'editar') return `Editar Servicio`;
   if (pathname === '/empresa/contabilidad') return 'Panel Contable y Financiero';
   if (pathname === '/empresa/contabilidad/reportes') return 'Reporte de Ganancias y Pérdidas';
   if (pathname === '/proveedores') return 'Proveedores';
@@ -103,6 +106,8 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
 
   if (pathname === '/contabilidad/crm') return 'Gestión de Prospectos (CRM)';
+  if (pathname === '/contabilidad/crm/agenda') return 'Agenda de Prospectos (CRM)';
+
 
   if (pathname === '/settings') return 'Configuración General';
   if (pathname === '/settings/templates') return 'Personalizar Plantillas';
@@ -113,8 +118,8 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/settings/account') return 'Cuenta y Seguridad';
   if (pathname === '/settings/feedback') return 'Feedback y Testimonios';
   if (pathname === '/admin/aaiff-fiesta') return 'Análisis de Evento con IA';
-  if (pathname === '/admin/asistente-ak') return 'Asistente de Marketing IA';
   if (pathname === '/settings/backup') return 'Backup y Restauración';
+  if (pathname === '/admin/carga-historicos') return 'Carga Rápida de Históricos';
   
   if (pathname === '/simulador-de-presupuesto') return 'Simulador de Presupuesto';
   
@@ -140,6 +145,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/personal') return UserCheck;
     if (pathname === '/fiestas/nueva/personal/recibos') return Printer;
     if (pathname === '/fiestas/nueva/reuniones') return MessageSquareText;
+    if (pathname === '/fiestas/nueva/portal-cliente') return Globe;
     if (pathname === '/fiestas/nueva/decoracion') return Palette;
     if (pathname === '/fiestas/nueva/decoracion/pdf') return Printer;
     if (pathname === '/fiestas/nueva/catering') return ChefHat;
@@ -189,6 +195,8 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname.startsWith('/presupuestos')) return ListChecks;
   if (pathname === '/invoices') return FileText;
   if (pathname === '/contabilidad/crm') return KanbanSquare;
+  if (pathname === '/contabilidad/crm/agenda') return CalendarDaysIcon;
+
 
   if (pathname === '/settings') return SettingsIcon;
   if (pathname === '/settings/templates') return Palette;
@@ -199,8 +207,8 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/settings/account') return UserCog;
   if (pathname === '/settings/feedback') return Star;
   if (pathname === '/admin/aaiff-fiesta') return PartyPopper;
-  if (pathname === '/admin/asistente-ak') return Bot;
   if (pathname === '/settings/backup') return HardDriveDownload;
+  if (pathname === '/admin/carga-historicos') return FileArchive;
   if (pathname === '/settings/task-templates') return ListChecks;
   if (pathname === '/settings/accesos-personal') return UserCog;
   
@@ -213,7 +221,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname.startsWith('/video-vida')) return Camera;
   if (pathname.startsWith('/feedback')) return Star;
   if (pathname.startsWith('/acceso-personal')) return UserCog;
-  if (pathname.startsWith('/portal')) return Globe;
+  if (pathname.startsWith('/portal')) return KeyRound;
 
   return null;
 }
@@ -268,53 +276,66 @@ export function AppShell({ children }: { children: ReactNode }) {
   };
 
   return (
-    <div className="flex min-h-screen w-full flex-col">
-      <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:px-6 print:hidden">
-        <div className="flex items-center gap-2">
-          {PageIcon && <PageIcon className="h-6 w-6 text-primary" />}
-          <h1 className="text-lg md:text-xl font-semibold text-foreground">{pageTitle}</h1>
+    <SidebarProvider>
+      <MainNav />
+      <SidebarInset>
+        <div className="flex min-h-screen w-full flex-col">
+          <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:px-6 print:hidden">
+            <div className="flex items-center gap-2">
+              <SidebarTrigger className="md:hidden" />
+              {PageIcon && <PageIcon className="h-6 w-6 text-primary" />}
+              <h1 className="text-lg md:text-xl font-semibold text-foreground">
+                {pageTitle}
+              </h1>
+            </div>
+            <div className="flex items-center gap-4">
+              <NotificationsHub />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="relative h-10 w-10 rounded-full"
+                  >
+                    <Avatar className="h-9 w-9">
+                      {logoUrl === undefined ? (
+                        <Skeleton className="h-9 w-9 rounded-full" />
+                      ) : logoUrl ? (
+                        <AvatarImage src={logoUrl} alt="Logo de la Empresa" />
+                      ) : (
+                        <AvatarFallback className="bg-primary text-primary-foreground">
+                          AK
+                        </AvatarFallback>
+                      )}
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem disabled>
+                    <UserCircle className="mr-2 h-4 w-4" />
+                    <span>Perfil</span>
+                  </DropdownMenuItem>
+                  <Link href="/settings" passHref>
+                    <DropdownMenuItem>
+                      <SettingsIcon className="mr-2 h-4 w-4" />
+                      <span>Configuración</span>
+                    </DropdownMenuItem>
+                  </Link>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogoutClick}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Cerrar Sesión</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </header>
+          <main className="flex-1 p-4 sm:p-6 lg:p-8 bg-background">
+            {children}
+          </main>
         </div>
-        <div className="flex items-center gap-4">
-          <NotificationsHub />
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                <Avatar className="h-9 w-9">
-                  {logoUrl === undefined ? (
-                    <Skeleton className="h-9 w-9 rounded-full" />
-                  ) : logoUrl ? (
-                    <AvatarImage src={logoUrl} alt="Logo de la Empresa" />
-                  ) : (
-                    <AvatarFallback className="bg-primary text-primary-foreground">AK</AvatarFallback>
-                  )}
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem disabled>
-                <UserCircle className="mr-2 h-4 w-4" />
-                <span>Perfil</span>
-              </DropdownMenuItem>
-              <Link href="/settings" passHref>
-                <DropdownMenuItem>
-                  <SettingsIcon className="mr-2 h-4 w-4" />
-                  <span>Configuración</span>
-                </DropdownMenuItem>
-              </Link>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogoutClick}>
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Cerrar Sesión</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </header>
-      <main className="flex-1 p-4 sm:p-6 lg:p-8 bg-background">
-        {children}
-      </main>
-    </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }
