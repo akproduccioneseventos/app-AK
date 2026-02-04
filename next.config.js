@@ -1,7 +1,5 @@
-
-import type {NextConfig} from 'next';
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   /* config options here */
   typescript: {
     ignoreBuildErrors: true,
@@ -34,4 +32,4 @@ const nextConfig: NextConfig = {
 };
 
 // Triggering a rebuild to solve chunk loading issues.
-export default nextConfig;
+module.exports = nextConfig;
