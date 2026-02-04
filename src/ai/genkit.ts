@@ -1,10 +1,2 @@
-
-import 'dotenv/config';
-import {genkit} from 'genkit';
-import {googleAI} from '@genkit-ai/google-genai';
-
-export const ai = genkit({
-  plugins: [googleAI()],
-  // This model will be used by default in all flows unless overridden.
-  model: 'gemini-pro', 
-});
+// El contenido de Genkit ha sido desactivado temporalmente para estabilizar el proyecto.
+// Se puede reactivar una vez que las dependencias de Next.js y React sean compatibles.

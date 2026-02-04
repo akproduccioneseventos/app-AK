@@ -4,8 +4,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Bot } from "lucide-react";
-import { AkAssistant } from '@/components/asistente-ak/AkAssistant';
+import { ArrowLeft, Bot, AlertTriangle } from "lucide-react";
 
 export default function AsistenteAkPage() {
   return (
@@ -19,7 +18,18 @@ export default function AsistenteAkPage() {
           <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button>
         </Link>
       </div>
-      <AkAssistant/>
+      <Card className="text-center">
+        <CardHeader>
+          <AlertTriangle className="w-12 h-12 mx-auto text-amber-500"/>
+          <CardTitle>En Mantenimiento</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground">
+            El Asistente de IA está temporalmente desactivado para resolver conflictos de dependencias.
+            Volverá a estar disponible en una futura actualización.
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 }
