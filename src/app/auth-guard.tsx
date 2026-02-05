@@ -1,8 +1,7 @@
-
 'use client';
 
 import { useState, useEffect, type ReactNode } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 
 const SESSION_KEY = 'ak_producciones_auth_session';
@@ -25,6 +24,7 @@ interface AuthGuardProps {
 }
 
 export function AuthGuard({ children }: AuthGuardProps) {
+  const router = useRouter();
   const pathname = usePathname();
   const [isVerified, setIsVerified] = useState(false);
 
@@ -46,7 +46,12 @@ export function AuthGuard({ children }: AuthGuardProps) {
       '/acceso-personal',
     ];
     
-    const isPublic = publicPaths.some(publicPath => pathname.startsWith(publicPath));
+    // Special check for public budget view pages (e.g., /presupuestos/pres_xyz)
+    // This allows clients to see their budget without logging in, but keeps
+    // other /presupuestos routes (like /edit, /nuevo) private.
+    const isPublicPresupuestoView = /^\/presupuestos\/pres_[a-zA-Z0-9]+$/.test(pathname);
+    
+    const isPublic = publicPaths.some(publicPath => pathname.startsWith(publicPath)) || isPublicPresupuestoView;
 
     // If the path is public, we can verify immediately and let the user through.
     if (isPublic) {
@@ -58,12 +63,12 @@ export function AuthGuard({ children }: AuthGuardProps) {
     const isAuthenticated = sessionStorage.getItem(SESSION_KEY) === 'true';
     
     if (!isAuthenticated) {
-      window.location.href = '/login';
+      router.push('/login');
     } else {
       setIsVerified(true);
     }
 
-  }, [pathname]);
+  }, [pathname, router]);
 
   if (!isVerified) {
     // Render a loading state to avoid flashes of content
