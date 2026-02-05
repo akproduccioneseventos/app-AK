@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, Plus, Trash2, Loader2, AlertTriangle, ListChecks, Clock, Bell, FolderOpen, Save } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Trash2, Loader2, AlertTriangle, ListChecks, Clock, Bell, FolderOpen, Save } from 'lucide-react';
 import Link from 'next/link';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { format as formatDateFn, formatDistanceToNowStrict } from 'date-fns';
@@ -41,7 +41,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 
 function TareasEventoContent() {
@@ -357,12 +357,6 @@ function TareasEventoContent() {
                 <Input id="task-assigned" value={newTaskAssignedTo} onChange={(e) => setNewTaskAssignedTo(e.target.value)} placeholder="Ej: Juan Pérez, Equipo Decoración" disabled={isSaving} />
               </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox id="is-default-task" checked={newIsDefaultTask} onCheckedChange={(checked) => setNewIsDefaultTask(!!checked)} disabled={isSaving}/>
-              <Label htmlFor="is-default-task" className="text-sm font-normal">
-                Añadir a la plantilla de tareas por defecto
-              </Label>
-            </div>
             <Button type="submit" className="w-full sm:w-auto" disabled={isSaving}>
               {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}<PlusCircle className="w-4 h-4 mr-2" />Añadir Tarea
             </Button>
@@ -418,7 +412,6 @@ function TareasEventoContent() {
             <div className="text-center py-8 bg-muted/30 rounded-md"><ListChecks className="w-12 h-12 mx-auto text-muted-foreground/40 mb-3" /><p className="text-muted-foreground">Comienza añadiendo tu primera tarea para el evento.</p></div>
           )}
         </CardContent>
-        {tareas.length > 0 && (<CardFooter className="text-sm text-muted-foreground border-t pt-4">Organiza tus pendientes y asegúrate de que nada se te escape.</CardFooter>)}
       </Card>
     </div>
   );

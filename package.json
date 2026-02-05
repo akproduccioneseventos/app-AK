@@ -47,7 +47,7 @@
     "jszip": "^3.10.1",
     "lodash": "^4.17.21",
     "lucide-react": "^0.480.0",
-    "next": "14.2.5",
+    "next": "14.2.35",
     "qrcode.react": "^3.1.0",
     "react": "^18.3.1",
     "react-day-picker": "^8.10.1",
