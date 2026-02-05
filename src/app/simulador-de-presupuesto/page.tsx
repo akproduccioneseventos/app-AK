@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -426,14 +425,9 @@ export default function ArmadoRapidoPage() {
 
     const generarTextoWhatsApp = useCallback(() => {
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
-        if (!baseUrl) return '';
+        if (!baseUrl || !generatedPresupuestoId) return '';
         
-        if (!generatedPresupuestoId) {
-            const simulatorUrl = `${baseUrl}/simulador-de-presupuesto`;
-            return `¡Hola! He generado un presupuesto estimado a través del simulador y quisiera más información. Puedes ver mi resumen aquí: ${simulatorUrl}`;
-        }
-        
-        const url = `${baseUrl}/presupuestos/${generatedPresupuestoId}/ver`;
+        const url = `${baseUrl}/presupuestos/${generatedPresupuestoId}`;
         let message = `¡Hola! He generado un presupuesto estimado a través del simulador y quisiera más información. Puedes ver mi resumen aquí: ${url}`;
         return message;
     }, [generatedPresupuestoId]);
@@ -773,7 +767,7 @@ export default function ArmadoRapidoPage() {
                                 <div className="flex justify-between font-bold text-lg pt-2 border-t"><span className="text-primary">Importe total</span><span className="text-primary">{formatCurrency(costoTotal)}</span></div>
                             </div>
                              <footer className="mt-6 pt-3 border-t border-gray-300 print:mt-2 print:pt-1.5 print:border-gray-400 text-xs print:text-[8pt] text-gray-600 print:text-black">
-                              <p className="text-red-600 font-bold text-lg">{BUDGET_DEPOSIT_NOTE_PDF}</p>
+                              <p>{BUDGET_DEPOSIT_NOTE_PDF}</p>
                             </footer>
                         </div>
                     )}

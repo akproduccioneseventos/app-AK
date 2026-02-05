@@ -2,7 +2,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, use } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'; 
@@ -192,7 +192,7 @@ export default function VerPresupuestoPage({ params }: { params: { id: string } 
   const generarTextoWhatsApp = () => {
     if (!presupuesto) return '';
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
-    const pageUrl = `${baseUrl}/presupuestos/${presupuesto.id}/ver`;
+    const pageUrl = `${baseUrl}/presupuestos/${presupuesto.id}`;
     let texto = `🎉 *¡Hola ${presupuesto.clienteNombre}!* 🎉\n\n`;
     texto += `Gracias por considerar a *${COMPANY_NAME_BRAND}*.`;
     texto += ` Hemos preparado un presupuesto para tu *${presupuesto.eventoTipo}*.\n\n`;

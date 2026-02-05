@@ -64,17 +64,14 @@ function formStateInitializer(initialState: PresupuestoFormData): PresupuestoFor
 
 // Helper function to decide which guest count to use for an item
 function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?: string }, adultos: number, adolescentes: number, ninos: number): number {
-  const nombre = item.nombreServicio.toLowerCase();
+  const categoria = (item.categoriaServicio || '').toLowerCase();
   
-  // If it's a child-specific item, count only children
-  if (nombre.includes('infantil') || nombre.includes('hamburguesa') || nombre.includes('pancho')) {
-    return ninos;
+  if (categoria.includes('infantil') || categoria.includes('adolescente')) {
+    return ninos + adolescentes;
   }
   
-  // For most other food items, count adults and teens
-  const cateringCategories = ['servicio de catering', 'servicio de repostería', 'servicio de bebidas'];
-  if (cateringCategories.some(cat => (item.categoriaServicio || '').toLowerCase().includes(cat))) {
-    return adultos + adolescentes;
+  if (categoria.includes('plato principal')) {
+    return adultos;
   }
 
   // Default to total guests for general services (DJ, decor, etc.)
@@ -306,7 +303,7 @@ function CrearPresupuestoContent() {
           if (result.success && result.id) {
             toast({ title: `Presupuesto ${editingPresupuestoId ? 'Actualizado' : 'Guardado'}` });
             sessionStorage.removeItem(SESSION_STORAGE_KEY);
-            router.push(`/presupuestos/${result.id}/ver`);
+            router.push(`/presupuestos/${result.id}`);
           } else { throw new Error(result.error || "Error al guardar"); }
         } catch (error: any) {
           toast({ title: "Error al Guardar", description: error.message, variant: "destructive" });

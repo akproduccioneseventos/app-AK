@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import type { Presupuesto } from '@/types/presupuesto';
@@ -131,7 +132,7 @@ export default function PresupuestoCard({
           </Link>
         )}
         <div className="flex justify-end gap-2 pt-2 border-t w-full">
-          <Link href={`/presupuestos/${presupuesto.id}/ver`} passHref>
+          <Link href={`/presupuestos/${presupuesto.id}`} passHref>
             <Button variant="outline" size="sm"><Eye className="mr-1"/> Ver</Button>
           </Link>
           <Link href={`/presupuestos/${presupuesto.id}/editar`} passHref>
