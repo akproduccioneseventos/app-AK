@@ -33,5 +33,5 @@ const nextConfig = {
   },
 };
 
-// Forcing a clean rebuild and deployment to fix public URL and routing issues.
+// Forcing a clean rebuild to apply the new public base URL environment variable.
 module.exports = nextConfig;
