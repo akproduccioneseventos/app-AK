@@ -19,20 +19,17 @@ const PRESUPUESTOS_FILE = 'presupuestos.json';
 function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?: string }, adultos: number, adolescentes: number, ninos: number): number {
   const categoria = (item.categoriaServicio || '').toLowerCase();
   
-  if (categoria.includes('infantil') || categoria.includes('adolescente')) {
-    return ninos;
+  const isMenuInfantil = categoria.includes('infantil') || categoria.includes('adolescente');
+  if (isMenuInfantil) {
+    return ninos + adolescentes;
   }
   
-  if (categoria.includes('plato principal')) {
-    return adultos + adolescentes;
+  const isPlatoPrincipal = categoria.includes('plato principal');
+  if (isPlatoPrincipal) {
+    return adultos;
   }
   
-  const otherCatering = ['servicio de catering', 'servicio de repostería', 'servicio de bebidas', 'entrada'];
-  if (otherCatering.some(cat => categoria.includes(cat))) {
-    return adultos + adolescentes;
-  }
-
-  // Default to total guests for general services (DJ, decor, etc.)
+  // For all other services (entradas, bebidas, DJ, decor, etc.), count everyone.
   return adultos + adolescentes + ninos;
 };
 

@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -52,36 +53,30 @@ const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos l
 
 
 // Helper function to decide which guest count to use for an item
-function getGuestCountForItem(servicio: ServicioEmpresa, adultos: number, ninos: number, adolescentes: number): number {
-    const categoria = (servicio.categoria || '').toLowerCase();
-    const subcategoria = (servicio.subcategoria || '').toLowerCase();
-  
-    // For specific child/teen menu
-    if (categoria.includes('infantil') || categoria.includes('adolescente') || subcategoria.includes('infantil') || subcategoria.includes('adolescente')) {
-      return ninos;
-    }
-    
-    // For main dish
-    if (categoria.includes('plato principal') || subcategoria.includes('plato principal')) {
-      return adultos + adolescentes;
-    }
-  
-    // For other catering (appetizers, desserts, drinks) count adults and teens
-    const otherCatering = ['servicio de catering', 'servicio de repostería', 'servicio de bebidas', 'entrada'];
-    if (otherCatering.some(cat => categoria.includes(cat) || subcategoria.includes(cat))) {
-      return adultos + adolescentes;
-    }
-  
-    // Default for non-catering services (DJ, decor, etc.) -> total guests
-    return adultos + ninos + adolescentes;
-  };
+function getGuestCountForItem(servicio: ServicioEmpresa, adultos: number, ninosYAdolescentes: number): number {
+  const categoria = (servicio.categoria || '').toLowerCase();
+  const subcategoria = (servicio.subcategoria || '').toLowerCase();
 
-function calcularCostoServicio(servicio: ServicioEmpresa, adultos: number, ninos: number, adolescentes: number): number {
+  const isMenuInfantil = categoria.includes('infantil') || categoria.includes('adolescente') || subcategoria.includes('infantil') || subcategoria.includes('adolescente');
+  if (isMenuInfantil) {
+    return ninosYAdolescentes;
+  }
+  
+  const isPlatoPrincipal = categoria.includes('plato principal') || subcategoria.includes('plato principal');
+  if (isPlatoPrincipal) {
+    return adultos;
+  }
+
+  // For all other services (entradas, bebidas, DJ, decor, etc.), count everyone.
+  return adultos + ninosYAdolescentes;
+};
+
+function calcularCostoServicio(servicio: ServicioEmpresa, adultos: number, ninosYAdolescentes: number): number {
   if (!servicio) return 0;
   
-  const cantidadInvitados = getGuestCountForItem(servicio, adultos, ninos, adolescentes);
+  const cantidadInvitados = getGuestCountForItem(servicio, adultos, ninosYAdolescentes);
+  const totalInvitados = adultos + ninosYAdolescentes;
   
-  // Si no hay invitados para este ítem y el cálculo depende de ellos, el costo es 0.
   if (cantidadInvitados === 0 && (servicio.calculationMethod === 'porPersona' || servicio.calculationMethod === 'ratio')) {
     return 0;
   }
@@ -104,8 +99,7 @@ function calcularCostoServicio(servicio: ServicioEmpresa, adultos: number, ninos
       }
       break;
     case 'tramos':
-      const totalGuestsForTramos = adultos + ninos + adolescentes;
-      const tramo = servicio.tramosDePrecio?.find(t => totalGuestsForTramos >= t.desde && totalGuestsForTramos <= t.hasta);
+      const tramo = servicio.tramosDePrecio?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta);
       itemTotal = tramo?.precio || 0;
       break;
     default: 
@@ -186,8 +180,7 @@ export default function ArmadoRapidoPage() {
     const [clienteNombre, setClienteNombre] = useState('');
     const [clienteContacto, setClienteContacto] = useState('');
     const [adultos, setAdultos] = useState<number>(50);
-    const [adolescentes, setAdolescentes] = useState<number>(0);
-    const [ninos, setNinos] = useState<number>(0);
+    const [ninosYAdolescentes, setNinosYAdolescentes] = useState<number>(0);
     const [duracionHoras, setDuracionHoras] = useState<number>(5);
     const [eventoFecha, setEventoFecha] = useState<Date | undefined>(undefined);
     const [selectedEntradas, setSelectedEntradas] = useState<string[]>([]);
@@ -304,7 +297,7 @@ export default function ArmadoRapidoPage() {
         idsToAdd.forEach(id => {
             const dishToAdd = allDishes.find(d => d.id === id);
             if (dishToAdd) {
-                const invitados = getGuestCountForItem(dishToAdd, adultos, ninos, adolescentes);
+                const invitados = getGuestCountForItem(dishToAdd, adultos, ninosYAdolescentes);
                 newSelected.set(dishToAdd.id, menuItemToServicioSeleccionado(dishToAdd, invitados));
             }
         });
@@ -328,7 +321,7 @@ export default function ArmadoRapidoPage() {
             if (!servicio) return;
              if (includedServicesList.some(s => s.id === servicio.id)) { return; }
 
-            const costoItem = calcularCostoServicio(servicio, adultos, ninos, adolescentes);
+            const costoItem = calcularCostoServicio(servicio, adultos, ninosYAdolescentes);
             
             if (!esRegalo) {
                 calculatedSubtotal += costoItem;
@@ -336,7 +329,7 @@ export default function ArmadoRapidoPage() {
                 calculatedTotalRegalos += costoItem;
             }
             
-            const cantidadInvitadosRelevante = getGuestCountForItem(servicio, adultos, ninos, adolescentes);
+            const cantidadInvitadosRelevante = getGuestCountForItem(servicio, adultos, ninosYAdolescentes);
             let cantidadDisplay: number = 1;
             let unidadDisplay = 'evento';
 
@@ -392,7 +385,7 @@ export default function ArmadoRapidoPage() {
         }
         
         return { costoTotal: calculatedSubtotal, subtotal: calculatedSubtotal, serviciosDetallados: includedServicesList, totalRegalos: calculatedTotalRegalos };
-    }, [config, serviciosCatalogo, allSimuladorServices, adultos, ninos, adolescentes, selectedPaqueteId, formData.serviciosSeleccionados]);
+    }, [config, serviciosCatalogo, allSimuladorServices, adultos, ninosYAdolescentes, selectedPaqueteId, formData.serviciosSeleccionados]);
 
     const serviciosAgrupados = useMemo(() => {
         const serviciosSinRegalo = serviciosDetallados.filter(s => !s.esRegalo);
@@ -448,8 +441,8 @@ export default function ArmadoRapidoPage() {
             clienteContacto,
             eventoFecha: eventoFecha ? eventoFecha.toISOString() : undefined,
             adultos,
-            ninos,
-            adolescentes,
+            adolescentes: 0,
+            ninos: ninosYAdolescentes,
             costoEstimado: costoTotal,
             paqueteNombre: config?.paquetes.find(p => p.id === selectedPaqueteId)?.nombre,
             items: serviciosDetallados.map(s => {
@@ -485,7 +478,7 @@ export default function ArmadoRapidoPage() {
         } finally {
             setIsGeneratingLead(false);
         }
-    }, [clienteNombre, clienteContacto, eventoFecha, adultos, ninos, adolescentes, costoTotal, config?.paquetes, selectedPaqueteId, serviciosDetallados, toast, isGeneratingLead, allSimuladorServices]);
+    }, [clienteNombre, clienteContacto, eventoFecha, adultos, ninosYAdolescentes, costoTotal, config?.paquetes, selectedPaqueteId, serviciosDetallados, toast, isGeneratingLead, allSimuladorServices]);
     
     const selectedPrincipalId = useMemo(() => Array.from(formData.serviciosSeleccionados.keys()).find(id => principalesDisponibles.some(p => p.id === id)) || '', [formData.serviciosSeleccionados, principalesDisponibles]);
 
@@ -582,11 +575,9 @@ export default function ArmadoRapidoPage() {
                                     <p className="text-xs text-muted-foreground">Debe tener 9 dígitos. Sin espacios ni guiones.</p>
                                 </div>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2"><Label htmlFor="num-adultos">Cantidad de Adultos *</Label><Input id="num-adultos" type="number" value={adultos} onChange={e => setAdultos(Number(e.target.value) || 0)} min="1" required/></div>
-                                <div className="space-y-2"><Label htmlFor="num-adolescentes">Nº Adolescentes</Label><Input id="num-adolescentes" type="number" value={adolescentes} onChange={e => setAdolescentes(Number(e.target.value) || 0)} min="0"/></div>
-                                <div className="space-y-2"><Label htmlFor="num-ninos">Nº Niños</Label><Input id="num-ninos" type="number" value={ninos} onChange={e => setNinos(Number(e.target.value) || 0)} min="0"/></div>
-                                
+                                <div className="space-y-2"><Label htmlFor="num-ninos-y-adolescentes">Nº Niños y Adolescentes</Label><Input id="num-ninos-y-adolescentes" type="number" value={ninosYAdolescentes} onChange={e => setNinosYAdolescentes(Number(e.target.value) || 0)} min="0"/></div>
                             </div>
                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2"><Label htmlFor="duracion-horas">Duración (hs)</Label><Input id="duracion-horas" type="number" value={duracionHoras} onChange={(e) => setDuracionHoras(Number(e.target.value) || 1)} min="1"/></div>
@@ -636,7 +627,7 @@ export default function ArmadoRapidoPage() {
                                     onValueChange={(value) => handleGastronomicSelectionChange('infantil', value)}
                                     className="grid grid-cols-1 md:grid-cols-2 gap-2"
                                 >
-                                    {(ninos > 0 || adolescentes > 0) ? (
+                                    {(ninosYAdolescentes > 0) ? (
                                         menusNinoDisponibles.length > 0 ? (
                                             menusNinoDisponibles.map(s => (
                                                 <div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md">
@@ -710,7 +701,7 @@ export default function ArmadoRapidoPage() {
                             <h3 className="font-headline text-2xl text-center mb-4">Resumen de tu Presupuesto</h3>
                             <p className="text-center text-muted-foreground mb-6">Esta es una estimación basada en tus selecciones. Un asesor se pondrá en contacto para confirmar todos los detalles y ajustar el presupuesto a tus necesidades.</p>
                             
-                             <div className="hidden md:block">
+                             <div className="block">
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
