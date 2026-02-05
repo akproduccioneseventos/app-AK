@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, type ReactNode } from 'react';
@@ -46,10 +47,10 @@ export function AuthGuard({ children }: AuthGuardProps) {
       '/acceso-personal',
     ];
     
-    // Special check for public budget view pages (e.g., /presupuestos/pres_xyz)
+    // Special check for public budget view pages (e.g., /presupuestos/pres_xyz or /presupuestos/pres_xyz/)
     // This allows clients to see their budget without logging in, but keeps
     // other /presupuestos routes (like /edit, /nuevo) private.
-    const isPublicPresupuestoView = /^\/presupuestos\/pres_[a-zA-Z0-9]+$/.test(pathname);
+    const isPublicPresupuestoView = /^\/presupuestos\/pres_[a-zA-Z0-9_]+\/?$/.test(pathname);
     
     const isPublic = publicPaths.some(publicPath => pathname.startsWith(publicPath)) || isPublicPresupuestoView;
 
