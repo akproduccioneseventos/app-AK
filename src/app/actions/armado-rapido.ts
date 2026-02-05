@@ -10,11 +10,12 @@ import { createNotification } from './notifications';
 
 const CONFIG_FILE = 'armado-rapido-config.json';
 const defaultConfig: ArmadoRapidoConfig = {
-  descuentoGeneral: 0,
+  descuentoGeneral: 15,
   paquetes: [],
   menus: [],
   platosVisibles: [],
   serviceDependencies: [],
+  mostrarPrecios: true,
 };
 
 export async function getArmadoRapidoConfig(): Promise<ArmadoRapidoConfig> {
@@ -63,7 +64,7 @@ export async function generateBudgetAndLeadFromSimulator(
       clienteContacto: data.clienteContacto,
       eventoTipo: 'Evento (desde Simulador)',
       eventoFecha: data.eventoFecha || new Date().toISOString(),
-      invitadosCantidad: (data.adultos || 0) + (data.ninos || 0) + (data.adolescentes || 0),
+      invitadosCantidad: (data.adultos || 0) + (data.ninos || 0),
       invitadosAdultos: data.adultos,
       invitadosAdolescentes: data.adolescentes,
       invitadosNinos: data.ninos,
