@@ -33,6 +33,7 @@ const initialFormData: PresupuestoFormData = {
   invitadosCantidad: 50,
   invitadosAdultos: 50,
   invitadosNinos: 0,
+  invitadosAdolescentes: 0,
   salonFiestas: '',
   protagonista1Nombre: '',
   protagonista2Nombre: '',
@@ -62,25 +63,20 @@ function formStateInitializer(initialState: PresupuestoFormData): PresupuestoFor
 }
 
 // Helper function to decide which guest count to use for an item
-function getGuestCountForItem(item: { nombreServicio: string }, invitados: number, invitadosAdultos?: number, invitadosNinos?: number): number {
+function getGuestCountForItem(item: { nombreServicio: string }, adultos: number, adolescentes: number, ninos: number): number {
   const nombre = item.nombreServicio.toLowerCase();
-  const hayNinos = (invitadosNinos ?? 0) > 0;
 
   if (nombre.includes('infantil') || nombre.includes('hamburguesa') || nombre.includes('pancho')) {
-    return invitadosNinos ?? 0;
+    return ninos;
   }
-  // If there are kids, main courses like asado are assumed to be for adults only.
-  if (hayNinos && (nombre.includes('asado') || nombre.includes('cordero') || nombre.includes('principal'))) {
-    return invitadosAdultos ?? invitados;
-  }
-  // Default to total guests
-  return invitados;
+  // For all other items, assume they are for adults and adolescents.
+  return adultos + adolescentes;
 };
 
-function calcularCostoItem(item: ItemPresupuestado, invitados: number, invitadosAdultos?: number, invitadosNinos?: number): number {
+function calcularCostoItem(item: ItemPresupuestado, adultos: number, adolescentes: number, ninos: number): number {
   if (item.esRegalo) return 0;
   
-  const cantidadInvitados = getGuestCountForItem(item, invitados, invitadosAdultos, invitadosNinos);
+  const cantidadInvitados = getGuestCountForItem(item, adultos, adolescentes, ninos);
   if (cantidadInvitados === 0 && (item.calculationMethod === 'porPersona' || item.calculationMethod === 'ratio')) {
     return 0;
   }
@@ -222,17 +218,17 @@ function CrearPresupuestoContent() {
     };
     
     const handlePrev = () => { if (paso > 1) setPaso(p => p - 1); };
-
-    const totalInvitados = (formData.invitadosAdultos || 0) + (formData.invitadosNinos || 0);
+    
+    const totalInvitados = (formData.invitadosAdultos || 0) + (formData.invitadosNinos || 0) + (formData.invitadosAdolescentes || 0);
 
     const totalCalculado = useMemo(() => {
       return Array.from(formData.serviciosSeleccionados.values()).reduce((sum, item) => {
         const itemDataForCalc: ItemPresupuestado = {
           idServicioCatalogo: '', ...item, precioUnitario: item.precioUnitarioOriginal, costoTotalItem: 0 // dummy for calc
         };
-        return sum + calcularCostoItem(itemDataForCalc, totalInvitados, formData.invitadosAdultos || undefined, formData.invitadosNinos || undefined);
+        return sum + calcularCostoItem(itemDataForCalc, formData.invitadosAdultos || 0, formData.invitadosAdolescentes || 0, formData.invitadosNinos || 0);
       }, 0);
-    }, [formData.serviciosSeleccionados, totalInvitados, formData.invitadosAdultos, formData.invitadosNinos]);
+    }, [formData]);
 
     const handleSave = async () => {
         const presupuestoData: Omit<Presupuesto, 'id'> = {
@@ -243,12 +239,13 @@ function CrearPresupuestoContent() {
             invitadosCantidad: totalInvitados,
             invitadosAdultos: formData.invitadosAdultos || 0,
             invitadosNinos: formData.invitadosNinos || 0,
+            invitadosAdolescentes: formData.invitadosAdolescentes || 0,
             salonFiestas: formData.salonFiestas,
             protagonista1Nombre: formData.protagonista1Nombre,
             protagonista2Nombre: formData.protagonista2Nombre,
             nombreEmpresa: formData.nombreEmpresa,
             itemsPresupuestados: Array.from(formData.serviciosSeleccionados.entries()).map(([id, serv]) => {
-              const invitadosParaItem = getGuestCountForItem(serv, totalInvitados, formData.invitadosAdultos || 0, formData.invitadosNinos || 0);
+              const invitadosParaItem = getGuestCountForItem(serv, formData.invitadosAdultos || 0, formData.invitadosAdolescentes || 0, formData.invitadosNinos || 0);
               let cantidad = 1;
               switch (serv.calculationMethod) {
                 case 'porPersona':

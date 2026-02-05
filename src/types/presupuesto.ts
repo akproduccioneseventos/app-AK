@@ -36,9 +36,10 @@ export interface Presupuesto {
   clienteContacto?: string;
   eventoTipo: TipoEvento | string;
   eventoFecha: string; // ISO String
-  invitadosCantidad: number; // Total de invitados (adultos + ninos)
+  invitadosCantidad: number; // Total de invitados (adultos + ninos + adolescentes)
   invitadosAdultos?: number;
   invitadosNinos?: number;
+  invitadosAdolescentes?: number;
   salonFiestas: string;
   nombreEmpresa?: string;
   protagonista1Nombre?: string;
@@ -55,6 +56,7 @@ export interface Presupuesto {
   notas?: string;
   invoiceId?: string;
   ajusteAnualActivo?: boolean; // NEW: Controls visibility of annual adjustment
+  leadId?: string;
 }
 
 // FormData for the new unified builder.
@@ -66,6 +68,7 @@ export interface PresupuestoFormData {
   invitadosCantidad: number | null; // Total, se mantiene para consistencia general
   invitadosAdultos: number | null;
   invitadosNinos: number | null;
+  invitadosAdolescentes: number | null;
   salonFiestas: string;
   nombreEmpresa?: string;
   protagonista1Nombre?: string;
@@ -95,4 +98,8 @@ export interface PresupuestoFormData {
   descuentoValor?: string;
   vigenciaPromocion?: string;
   notas: string;
+  // Campos que no están en el form pero se necesitan para la lógica
+  id?: string;
+  estado: Presupuesto['estado'];
+  invoiceId?: string;
 }
