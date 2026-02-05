@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -59,12 +58,12 @@ function getGuestCountForItem(servicio: ServicioEmpresa, adultos: number, ninos:
   
     // For specific child/teen menu
     if (categoria.includes('infantil') || categoria.includes('adolescente') || subcategoria.includes('infantil') || subcategoria.includes('adolescente')) {
-      return ninos + adolescentes;
+      return ninos;
     }
     
     // For main dish
     if (categoria.includes('plato principal') || subcategoria.includes('plato principal')) {
-      return adultos;
+      return adultos + adolescentes;
     }
   
     // For other catering (appetizers, desserts, drinks) count adults and teens
@@ -105,7 +104,8 @@ function calcularCostoServicio(servicio: ServicioEmpresa, adultos: number, ninos
       }
       break;
     case 'tramos':
-      const tramo = servicio.tramosDePrecio?.find(t => cantidadInvitados >= t.desde && cantidadInvitados <= t.hasta);
+      const totalGuestsForTramos = adultos + ninos + adolescentes;
+      const tramo = servicio.tramosDePrecio?.find(t => totalGuestsForTramos >= t.desde && totalGuestsForTramos <= t.hasta);
       itemTotal = tramo?.precio || 0;
       break;
     default: 
@@ -304,7 +304,7 @@ export default function ArmadoRapidoPage() {
         idsToAdd.forEach(id => {
             const dishToAdd = allDishes.find(d => d.id === id);
             if (dishToAdd) {
-                const invitados = (dishToAdd.categoria?.includes('infantil') || dishToAdd.categoria?.includes('adolescente')) ? ninos + adolescentes : adultos;
+                const invitados = getGuestCountForItem(dishToAdd, adultos, ninos, adolescentes);
                 newSelected.set(dishToAdd.id, menuItemToServicioSeleccionado(dishToAdd, invitados));
             }
         });
@@ -478,10 +478,10 @@ export default function ArmadoRapidoPage() {
             if(!result.success) { 
                 throw new Error(result.error); 
             } else {
-                 toast({ title: "Prospecto Creado", description: "Se ha registrado un nuevo prospecto en el CRM.", variant: 'default' });
+                 toast({ title: "¡Solicitud Enviada!", description: "Gracias por tu interés. Un asesor se pondrá en contacto a la brevedad.", variant: 'default' });
             }
         } catch(e: any) {
-             toast({ title: "Error al registrar prospecto", description: e.message, variant: "destructive" });
+             toast({ title: "Error al registrar", description: e.message, variant: "destructive" });
         } finally {
             setIsGeneratingLead(false);
         }
@@ -511,7 +511,7 @@ export default function ArmadoRapidoPage() {
         
         if (step < 4) {
             if (step === 3) {
-                handleGenerateLead(); // Generate lead when moving to step 4
+                handleGenerateLead();
             }
             setStep(s => s + 1);
         }
@@ -561,11 +561,13 @@ export default function ArmadoRapidoPage() {
                 <CardHeader className="text-center print:hidden">
                     <Wand2 className="w-12 h-12 mx-auto text-primary mb-2"/>
                     <CardTitle className="font-headline text-3xl">Simulador de Presupuesto</CardTitle>
-                    {step < 4 && (
+                    {step < 4 ? (
                         <>
                             <CardDescription className="text-lg">Paso {step} de 4: {['Tus Datos', 'Menú Gastronómico', 'Paquete de Servicios', 'Resumen'][step-1]}</CardDescription>
                             <Progress value={(step / 4) * 100} className="w-full h-2 mt-4" />
                         </>
+                    ) : (
+                        <CardDescription className="text-lg">¡Gracias! Hemos generado un resumen de tu selección.</CardDescription>
                     )}
                 </CardHeader>
                 <CardContent className="min-h-[350px] py-6 px-4 sm:px-8 print:p-2">
@@ -764,7 +766,7 @@ export default function ArmadoRapidoPage() {
                     </Button>
                     {step < 4 ? (
                         <Button onClick={nextStep} disabled={isGeneratingLead || (step === 2 && isStepTwoInvalid) || (step === 3 && !selectedPaqueteId) }>
-                            {step === 3 ? "Ver Resumen" : "Siguiente"}
+                            {step === 3 ? "Ver Resumen y Finalizar" : "Siguiente"}
                             {step < 3 && <ArrowRight className="w-4 h-4 ml-2" />}
                         </Button>
                     ) : (
@@ -780,6 +782,3 @@ export default function ArmadoRapidoPage() {
         </div>
     );
 }
-
-
-  

@@ -18,6 +18,7 @@ export interface ItemPresupuestado {
   cantidad: number;
   unidad?: string;
   precioUnitario: number; // The price used for calculation in this budget (can be overridden)
+  precioUnitarioPresupuesto: number; // The price at the moment the budget was created/last updated
   costoTotalItem: number; // Final calculated cost for this line item
   categoriaServicio?: string;
   esRegalo?: boolean;
@@ -69,7 +70,10 @@ export interface PresupuestoFormData {
   invitadosAdultos: number | null;
   invitadosNinos: number | null;
   invitadosAdolescentes: number | null;
-
+  salonFiestas: string;
+  protagonista1Nombre?: string;
+  protagonista2Nombre?: string;
+  nombreEmpresa?: string;
   serviciosSeleccionados: Map<string, {
     cantidad: number;
     precioUnitarioOriginal: number; // Price from catalog, for reference

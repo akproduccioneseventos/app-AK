@@ -1,3 +1,4 @@
+
 export type CategoriaServicio =
   | 'Servicio de catering'
   | 'Servicio de filmación'
@@ -13,6 +14,7 @@ export type CategoriaServicio =
   | 'Entrada'
   | 'Plato Principal'
   | 'Postre'
+  | 'Menú Infantil'
   | 'Menú Infantil/Adolescente';
 
 export const ALL_CATEGORIAS_SERVICIO: CategoriaServicio[] = [
@@ -30,6 +32,7 @@ export const ALL_CATEGORIAS_SERVICIO: CategoriaServicio[] = [
   'Entrada',
   'Plato Principal',
   'Postre',
+  'Menú Infantil',
   'Menú Infantil/Adolescente'
 ];
 

@@ -16,73 +16,61 @@ import type { FullMenu, MenuItem } from '@/types/catering';
 const PRESUPUESTOS_FILE = 'presupuestos.json';
 
 // Helper function to decide which guest count to use for an item
-function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?: string }, invitados: number, invitadosAdultos?: number, invitadosNinos?: number, invitadosAdolescentes?: number): number {
+function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?: string }, adultos: number, adolescentes: number, ninos: number): number {
   const categoria = (item.categoriaServicio || '').toLowerCase();
-  const adultos = invitadosAdultos || 0;
-  const ninos = invitadosNinos || 0;
-  const adolescentes = invitadosAdolescentes || 0;
-
-  // For specific child/teen menu
+  
   if (categoria.includes('infantil') || categoria.includes('adolescente')) {
-    return ninos + adolescentes;
+    return ninos;
   }
   
-  // For main dish
   if (categoria.includes('plato principal')) {
-    return adultos;
+    return adultos + adolescentes;
   }
-
-  // For other catering (appetizers, desserts, drinks) count adults and teens
+  
   const otherCatering = ['servicio de catering', 'servicio de repostería', 'servicio de bebidas', 'entrada'];
   if (otherCatering.some(cat => categoria.includes(cat))) {
     return adultos + adolescentes;
   }
 
   // Default to total guests for general services (DJ, decor, etc.)
-  return invitados;
+  return adultos + adolescentes + ninos;
 };
 
 
-function recalcularCostoItem(item: ItemPresupuestado, invitados: number, invitadosAdultos?: number, invitadosNinos?: number, invitadosAdolescentes?: number): number {
+function recalcularCostoItem(item: ItemPresupuestado, adultos: number, adolescentes: number, ninos: number): number {
   if (item.esRegalo) return 0;
   
-  const cantidadInvitados = getGuestCountForItem(item, invitados, invitadosAdultos, invitadosNinos, invitadosAdolescentes);
+  const cantidadInvitados = getGuestCountForItem(item, adultos, adolescentes, ninos);
+  const totalInvitados = adultos + adolescentes + ninos;
   
-  // Si no hay invitados para este ítem y el cálculo depende de ellos, el costo es 0.
   if (cantidadInvitados === 0 && (item.calculationMethod === 'porPersona' || item.calculationMethod === 'ratio')) {
     return 0;
   }
   
   let itemTotal = 0;
+  const precioUnitario = item.precioUnitarioPresupuesto ?? item.precioUnitario;
 
   switch (item.calculationMethod) {
     case 'fijo':
-      // Para cantidad fija, el precio es el base, multiplicado por la cantidad (si es mayor a 1, ej. 2 Djs)
-      itemTotal = (item.precioBase ?? item.precioVenta ?? item.precioUnitario) * (item.cantidad > 0 ? item.cantidad : 1);
+      itemTotal = (item.precioBase ?? precioUnitario) * (item.cantidad > 0 ? item.cantidad : 1);
       break;
     case 'porPersona':
-      // Siempre usa precioPorPersona si existe, si no, el unitario, multiplicado por los invitados correspondientes.
-      itemTotal = (item.precioPorPersona ?? item.precioUnitario) * cantidadInvitados;
+      itemTotal = (item.precioPorPersona ?? precioUnitario) * cantidadInvitados;
       break;
     case 'ratio':
       const invitadosPorUnidadNum = Number(item.invitadosPorUnidad);
       if (invitadosPorUnidadNum > 0) {
-        const basePrice = item.precioBase ?? item.precioUnitario;
-        // La cantidad de unidades (ej: mozos) se calcula y se multiplica por el precio base de cada uno.
-        itemTotal = Math.ceil(cantidadInvitados / invitadosPorUnidadNum) * basePrice;
+        itemTotal = Math.ceil(cantidadInvitados / invitadosPorUnidadNum) * (item.precioBase ?? precioUnitario);
       } else {
-        // Fallback si el ratio no está definido, se cobra una sola vez el precio base.
-        itemTotal = item.precioBase ?? item.precioUnitario;
+        itemTotal = item.precioBase ?? precioUnitario;
       }
       break;
     case 'tramos':
-      const tramo = item.tramosDePrecio?.find(t => cantidadInvitados >= t.desde && cantidadInvitados <= t.hasta);
-      // El total es el precio definido para el tramo encontrado.
+      const tramo = item.tramosDePrecio?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta);
       itemTotal = tramo?.precio || 0;
       break;
     default:
-      // Si el método no está definido, se usa la cantidad guardada (generalmente 1).
-      itemTotal = item.cantidad * item.precioUnitario;
+      itemTotal = item.cantidad * precioUnitario;
   }
   return itemTotal;
 }
@@ -104,7 +92,7 @@ export async function savePresupuesto(
   
   const validItems = presupuestoData.itemsPresupuestados.map(item => ({
     ...item,
-    costoTotalItem: recalcularCostoItem(item, presupuestoData.invitadosCantidad, presupuestoData.invitadosAdultos, presupuestoData.invitadosNinos, presupuestoData.invitadosAdolescentes),
+    costoTotalItem: recalcularCostoItem(item, presupuestoData.invitadosAdultos || 0, presupuestoData.invitadosAdolescentes || 0, presupuestoData.invitadosNinos || 0),
   }));
 
   const costoTotalEstimadoRecalculado = validItems
@@ -174,7 +162,7 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
 
     const validItems = presupuestoData.itemsPresupuestados.map(item => ({
         ...item,
-        costoTotalItem: recalcularCostoItem(item, presupuestoData.invitadosCantidad, presupuestoData.invitadosAdultos, presupuestoData.invitadosNinos, presupuestoData.invitadosAdolescentes),
+        costoTotalItem: recalcularCostoItem(item, presupuestoData.invitadosAdultos || 0, presupuestoData.invitadosAdolescentes || 0, presupuestoData.invitadosNinos || 0),
     }));
 
     const costoTotalEstimadoRecalculado = validItems
