@@ -1547,6 +1547,24 @@
             "costoTotalReceta": 2.4
           }
         ]
+      },
+      {
+        "id": "dish_entrada_show_pizzas",
+        "name": "Show de Pizzas",
+        "type": "Entrada",
+        "totalDishCost": 120,
+        "profitMargin": 83,
+        "suggestedSellingPrice": 220,
+        "ingredients": [
+          {
+            "id": "ing_pizza_1",
+            "name": "Pizzas prehechas",
+            "quantityPerPerson": "2",
+            "unit": "Unidad",
+            "costoUnitario": 60,
+            "costoTotalReceta": 120
+          }
+        ]
       }
     ]
   },
@@ -1802,6 +1820,88 @@
             "costoTotalReceta": 3
           }
         ]
+      },
+      {
+        "id": "dish_child_chivito",
+        "name": "Chivitos Completos C/ Fritas",
+        "type": "Menú Infantil/Adolescente",
+        "totalDishCost": 186,
+        "profitMargin": 104,
+        "suggestedSellingPrice": 380,
+        "ingredients": [
+          {
+            "id": "ing_chivito_1",
+            "name": "Carne para chivito",
+            "quantityPerPerson": "150",
+            "unit": "g",
+            "costoUnitario": 400,
+            "costoTotalReceta": 60
+          },
+          {
+            "id": "ing_chivito_2",
+            "name": "Pan de Chivito",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "costoUnitario": 16,
+            "costoTotalReceta": 16
+          },
+          {
+            "id": "ing_chivito_3",
+            "name": "Papas fritas",
+            "quantityPerPerson": "200",
+            "unit": "g",
+            "costoUnitario": 130,
+            "costoTotalReceta": 26
+          },
+          {
+            "id": "ing_chivito_4",
+            "name": "Huevo",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "costoUnitario": 10,
+            "costoTotalReceta": 10
+          },
+          {
+            "id": "ing_chivito_5",
+            "name": "Jamon",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 330,
+            "costoTotalReceta": 16.5
+          },
+          {
+            "id": "ing_chivito_6",
+            "name": "queso sandwich",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 400,
+            "costoTotalReceta": 20
+          },
+          {
+            "id": "ing_chivito_7",
+            "name": "Panceta",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 400,
+            "costoTotalReceta": 20
+          },
+          {
+            "id": "ing_chivito_8",
+            "name": "Lechuga",
+            "quantityPerPerson": "0.2",
+            "unit": "Unidad",
+            "costoUnitario": 50,
+            "costoTotalReceta": 10
+          },
+          {
+            "id": "ing_chivito_9",
+            "name": "Tomate",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 150,
+            "costoTotalReceta": 7.5
+          }
+        ]
       }
     ]
   },
@@ -1815,7 +1915,7 @@
     "createdAt": "2025-07-28T10:00:00.000Z",
     "updatedAt": "2026-02-02T13:00:00.000Z",
     "items": [
-        {
+      {
         "id": "dish_main_1",
         "name": "Pollo Arrollado C/ Guarnición",
         "type": "Plato Principal",
@@ -1901,7 +2001,7 @@
         "suggestedSellingPrice": 300,
         "ingredients": [
           { "id": "ing_ca_1", "name": "Cerdo arrollado", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 110, "costoTotalReceta": 110 },
-          { "id": "ing_ca_2", "name": "guarnición", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 40, "costoTotalReceta": 40 }
+          { "id": "ing_ca_2", "name": "guarnicion", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 40, "costoTotalReceta": 40 }
         ]
       },
       {
@@ -1913,11 +2013,11 @@
         "suggestedSellingPrice": 311.2,
         "ingredients": [
           { "id": "ing_pcg1_1", "name": "Muslos", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 70, "costoTotalReceta": 70 },
-          { "id": "ing_pcg1_2", "name": "guarnición", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 40, "costoTotalReceta": 40 },
+          { "id": "ing_pcg1_2", "name": "guarnicion", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 40, "costoTotalReceta": 40 },
           { "id": "ing_pcg1_3", "name": "Crema de leche", "quantityPerPerson": "100", "unit": "ml", "costoUnitario": 200, "costoTotalReceta": 20 },
           { "id": "ing_pcg1_4", "name": "paleta", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 9 },
           { "id": "ing_pcg1_5", "name": "queso dambo", "quantityPerPerson": "20", "unit": "g", "costoUnitario": 380, "costoTotalReceta": 7.6 },
-          { "id": "ing_pcg1_6", "name": "Cebolla", "quantityPerPerson": "100", "unit": "g", "costoUnitario": 90, "costoTotalReceta": 9 }
+          { "id": "ing_pcg1_6", "name": "Cebolla", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 90, "costoTotalReceta": 4.5 }
         ]
       },
       {
