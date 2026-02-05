@@ -1,10 +1,11 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useCallback, Suspense, use } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Loader2, ArrowLeft, Save, Sparkles, PlusCircle, AlertTriangle, GripVertical, Settings2, Eye, LayoutGrid, X, Link as LinkIcon, QrCode, Music, Camera, Gift, CheckCircle, PartyPopper, Download, Ticket, ClipboardCopy, Check } from 'lucide-react';
+import { Loader2, ArrowLeft, Save, Sparkles, PlusCircle, AlertTriangle, GripVertical, Settings2, Eye, LayoutGrid, X, Link as LinkIcon, QrCode, ClipboardCopy, Camera, Gift, CheckCircle, PartyPopper, Download, Ticket } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion, InvitacionDigitalData, SeccionInvitacion } from '@/types/fiesta';
@@ -138,8 +139,9 @@ function PaginaWebPageContent() {
   };
   
   const getFullLink = (path: string, hash?: string) => {
-    if (typeof window === 'undefined' || !fiestaId) return '';
-    return `${window.location.origin}${path.replace('[fiestaId]', fiestaId)}${hash ? `#${hash}` : ''}`;
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
+    if (!baseUrl || !fiestaId) return '';
+    return `${baseUrl}${path.replace('[fiestaId]', fiestaId)}${hash ? `#${hash}` : ''}`;
   }
 
   const handleCopyToClipboard = (url: string) => {
@@ -150,13 +152,13 @@ function PaginaWebPageContent() {
   const downloadQR = (id: string, name: string) => {
     const canvas = document.getElementById(id) as HTMLCanvasElement;
     if (canvas) {
-      const pngUrl = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
-      let downloadLink = document.createElement("a");
-      downloadLink.href = pngUrl;
-      downloadLink.download = `${name}.png`;
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
+        const pngUrl = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+        let downloadLink = document.createElement("a");
+        downloadLink.href = pngUrl;
+        downloadLink.download = `${name}.png`;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
     }
   };
 
@@ -206,6 +208,8 @@ function PaginaWebPageContent() {
                 <SectionEditorPanel
                     data={invitacionData}
                     update={handleUpdate}
+                    addSection={addSection}
+                    removeSection={removeSection}
                     selectedSectionId={selectedSectionId}
                     fiestaId={fiestaId}
                     onClose={() => setSelectedSectionId(null)}
@@ -260,8 +264,8 @@ function PaginaWebPageContent() {
                                         <Button size="icon" variant="outline" onClick={() => handleCopyToClipboard(getFullLink('/evento/social/[fiestaId]'))}><ClipboardCopy className="h-4 w-4" /></Button>
                                     </div>
                                     <div className="text-center mt-3">
-                                        <QRCodeStylized id="qr-social" value={getFullLink('/evento/social/[fiestaId]')} size={80} level="M" />
-                                        <Button size="sm" variant="link" onClick={() => downloadQR('qr-social', 'qr-muro-social')}>Descargar QR</Button>
+                                        <QRCodeStylized id="qr-social-panel" value={getFullLink('/evento/social/[fiestaId]')} size={80} level="M" />
+                                        <Button size="sm" variant="link" onClick={() => downloadQR('qr-social-panel', 'qr-muro-social')}>Descargar QR</Button>
                                     </div>
                                 </Card>
                              )}

@@ -62,17 +62,16 @@ const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos l
 
 function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?: string }, adultos: number, adolescentes: number, ninos: number): number {
   const categoria = (item.categoriaServicio || '').toLowerCase();
-  const ninosYAdolescentes = ninos + adolescentes;
   
   if (categoria.includes('infantil') || categoria.includes('adolescente')) {
-    return ninosYAdolescentes;
+    return ninos + adolescentes;
   }
   
   if (categoria.includes('plato principal')) {
     return adultos;
   }
   
-  return adultos + ninosYAdolescentes;
+  return adultos + adolescentes + ninos;
 };
 
 function calcularCostoItem(item: ItemPresupuestado, adultos: number, adolescentes: number, ninos: number): number {
@@ -192,7 +191,8 @@ export default function VerPresupuestoPage({ params }: { params: { id: string } 
   
   const generarTextoWhatsApp = () => {
     if (!presupuesto) return '';
-    const pageUrl = window.location.href;
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
+    const pageUrl = `${baseUrl}/presupuestos/${presupuesto.id}/ver`;
     let texto = `🎉 *¡Hola ${presupuesto.clienteNombre}!* 🎉\n\n`;
     texto += `Gracias por considerar a *${COMPANY_NAME_BRAND}*.`;
     texto += ` Hemos preparado un presupuesto para tu *${presupuesto.eventoTipo}*.\n\n`;
@@ -389,8 +389,8 @@ export default function VerPresupuestoPage({ params }: { params: { id: string } 
              </table>
           </section>
 
-        {displaySettings.showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0 && (
-          <section className="mb-6 print:mb-3">
+          {displaySettings.showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0 && (
+            <section className="mb-6 print:mb-3">
               <table className="w-full text-xs print:text-[7pt] border-collapse">
                   <thead className="print:bg-gray-100">
                   <tr>
@@ -420,11 +420,11 @@ export default function VerPresupuestoPage({ params }: { params: { id: string } 
                   ))}
                   </tbody>
               </table>
-          </section>
-        )}
-        
-        <section className="flex justify-end mb-6 print:mb-3 text-sm print:text-xs">
-          <div className="w-full max-w-xs print:max-w-[220px] space-y-0.5">
+            </section>
+          )}
+          
+          <section className="flex justify-end mb-6 print:mb-3 text-sm print:text-xs">
+            <div className="w-full max-w-xs print:max-w-[220px] space-y-0.5">
               <div className="flex justify-between">
                 <span>Subtotal:</span>
                 <span>{formatCurrency(subtotalBruto, true, true)}</span>
@@ -446,8 +446,8 @@ export default function VerPresupuestoPage({ params }: { params: { id: string } 
                 <span className="text-base">{formatCurrency(totalFinal, true)}</span>
               </div>
             </div>
-        </section>
-        
+          </section>
+          
            <footer className="mt-6 pt-3 border-t border-gray-300 print:mt-2 print:pt-1.5 print:border-gray-400 text-xs print:text-[8pt] text-gray-600 print:text-black">
             <p>{BUDGET_DEPOSIT_NOTE_PDF}</p>
             {presupuesto.notas && displaySettings.showPaymentMethodNotes && <p className="mt-1 print:mt-0.5 whitespace-pre-line">{presupuesto.notas}</p>}

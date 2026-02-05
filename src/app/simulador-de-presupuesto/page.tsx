@@ -52,34 +52,32 @@ const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos l
 
 
 // Helper function to decide which guest count to use for an item
-function getGuestCountForItem(servicio: { categoriaServicio?: string }, adultos: number, ninosYAdolescentes: number): number {
+function getGuestCountForItem(servicio: { categoriaServicio?: string }, adultos: number, ninos: number): number {
   const categoria = (servicio.categoriaServicio || '').toLowerCase();
-
-  const isMenuInfantil = categoria.includes('infantil') || categoria.includes('adolescente');
-  if (isMenuInfantil) {
-    return ninosYAdolescentes;
+  
+  if (categoria.includes('infantil') || categoria.includes('adolescente')) {
+    return ninos;
   }
   
-  const isPlatoPrincipal = categoria.includes('plato principal');
-  if (isPlatoPrincipal) {
+  if (categoria.includes('plato principal')) {
     return adultos;
   }
   
   // For most other food items, count adults and teens
   const cateringCategories = ['entrada', 'postre', 'bebida', 'catering', 'repostería'];
   if (cateringCategories.some(cat => categoria.includes(cat))) {
-    return adultos + ninosYAdolescentes;
+    return adultos;
   }
   
   // Default to total guests for general services (DJ, decor, etc.)
-  return adultos + ninosYAdolescentes;
+  return adultos + ninos;
 };
 
-function calcularCostoServicio(servicio: ServicioEmpresa, adultos: number, ninosYAdolescentes: number): number {
+function calcularCostoServicio(servicio: ServicioEmpresa, adultos: number, ninos: number): number {
   if (!servicio) return 0;
   
-  const cantidadInvitados = getGuestCountForItem(servicio, adultos, ninosYAdolescentes);
-  const totalInvitados = adultos + ninosYAdolescentes;
+  const cantidadInvitados = getGuestCountForItem(servicio, adultos, ninos);
+  const totalInvitados = adultos + ninos;
   
   if (cantidadInvitados === 0 && (servicio.calculationMethod === 'porPersona' || servicio.calculationMethod === 'ratio')) {
     return 0;
@@ -427,11 +425,15 @@ export default function ArmadoRapidoPage() {
 
 
     const generarTextoWhatsApp = useCallback(() => {
-        if (typeof window === 'undefined') return '';
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
+        if (!baseUrl) return '';
+        
         if (!generatedPresupuestoId) {
-            return `¡Hola! He generado un presupuesto estimado a través del simulador y quisiera más información. Puedes ver mi resumen aquí: ${window.location.href}`;
+            const simulatorUrl = `${baseUrl}/simulador-de-presupuesto`;
+            return `¡Hola! He generado un presupuesto estimado a través del simulador y quisiera más información. Puedes ver mi resumen aquí: ${simulatorUrl}`;
         }
-        const url = `${window.location.origin}/presupuestos/${generatedPresupuestoId}/ver`;
+        
+        const url = `${baseUrl}/presupuestos/${generatedPresupuestoId}/ver`;
         let message = `¡Hola! He generado un presupuesto estimado a través del simulador y quisiera más información. Puedes ver mi resumen aquí: ${url}`;
         return message;
     }, [generatedPresupuestoId]);
@@ -600,7 +602,7 @@ export default function ArmadoRapidoPage() {
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2"><Label htmlFor="num-adultos">Cantidad de Adultos *</Label><Input id="num-adultos" type="number" value={adultos} onChange={e => setAdultos(Number(e.target.value) || 0)} min="1" required/></div>
-                                <div className="space-y-2"><Label htmlFor="num-ninos-y-adolescentes">Nº Niños y Adolescentes</Label><Input id="num-ninos-y-adolescentes" type="number" value={ninosYAdolescentes} onChange={e => setNinosYAdolescentes(Number(e.target.value) || 0)} min="0"/></div>
+                                <div className="space-y-2"><Label htmlFor="num-ninos">Nº Niños y Adolescentes</Label><Input id="num-ninos" type="number" value={ninosYAdolescentes} onChange={e => setNinosYAdolescentes(Number(e.target.value) || 0)} min="0"/></div>
                             </div>
                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2"><Label htmlFor="duracion-horas">Duración (hs)</Label><Input id="duracion-horas" type="number" value={duracionHoras} onChange={(e) => setDuracionHoras(Number(e.target.value) || 1)} min="1"/></div>
@@ -799,5 +801,3 @@ export default function ArmadoRapidoPage() {
         </div>
     );
 }
-
-    

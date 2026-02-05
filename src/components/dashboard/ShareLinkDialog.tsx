@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, type ReactNode } from 'react';
@@ -30,9 +31,9 @@ export function ShareLinkDialog({ children, relativePath, title, description }: 
   const [fullLink, setFullLink] = useState('');
 
   useEffect(() => {
-    if (isOpen && typeof window !== 'undefined') {
-      const origin = window.location.origin;
-      setFullLink(`${origin}${relativePath}`);
+    if (isOpen) {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
+      setFullLink(`${baseUrl}${relativePath}`);
     }
   }, [isOpen, relativePath]);
 

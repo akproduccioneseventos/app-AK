@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, type FormEvent, useEffect, useCallback } from 'react';
@@ -270,10 +271,10 @@ export default function InvitadosEventoPage() {
                         Este es el código de acceso único para tu invitado. Puede ser escaneado en la entrada del evento.
                     </DialogDescription>
                 </DialogHeader>
-                {selectedGuestForQr && (
+                {selectedGuestForQr && fiestaId && (
                     <div className="flex flex-col items-center justify-center py-4">
                         <div className="p-4 bg-white rounded-lg border">
-                           <QRCodeStylized id="guest-qr-code" value={`${window.location.origin}/evento/actual/checkin?fiestaId=${fiestaId}&guestId=${selectedGuestForQr.id}`} size={200} />
+                           <QRCodeStylized id="guest-qr-code" value={`${process.env.NEXT_PUBLIC_BASE_URL || window.location.origin}/evento/actual/checkin?fiestaId=${fiestaId}&guestId=${selectedGuestForQr.id}`} size={200} />
                         </div>
                     </div>
                 )}
