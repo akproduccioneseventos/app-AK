@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -533,12 +532,6 @@ export default function ArmadoRapidoPage() {
     const maxEntradas = duracionHoras > 4 ? 2 : 1;
     const entradasFaltantes = maxEntradas - selectedEntradas.length;
 
-    if (isLoading) { return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>; }
-
-    const today = new Date();
-    const validUntil = new Date(today);
-    validUntil.setDate(today.getDate() + 30);
-
     const selectedPrincipalId = useMemo(() => Array.from(formData.serviciosSeleccionados.keys()).find(id => principalesDisponibles.some(p => p.id === id)) || '', [formData.serviciosSeleccionados, principalesDisponibles]);
 
     const isStepTwoInvalid = useMemo(() => {
@@ -546,6 +539,12 @@ export default function ArmadoRapidoPage() {
         return !selectedPrincipalId || selectedEntradas.length !== requiredEntradas;
     }, [duracionHoras, selectedPrincipalId, selectedEntradas]);
 
+    if (isLoading) { return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>; }
+
+    const today = new Date();
+    const validUntil = new Date(today);
+    validUntil.setDate(today.getDate() + 30);
+    
     return (
         <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4 print:bg-white print:p-0 print:items-start">
             <style jsx global>{`
@@ -800,3 +799,5 @@ export default function ArmadoRapidoPage() {
         </div>
     );
 }
+
+    
