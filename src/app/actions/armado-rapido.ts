@@ -66,13 +66,16 @@ export async function generateBudgetAndLeadFromSimulator(
       eventoFecha: data.eventoFecha || new Date().toISOString(),
       invitadosCantidad: (data.adultos || 0) + (data.ninos || 0),
       invitadosAdultos: data.adultos,
-      invitadosAdolescentes: data.adolescentes,
+      invitadosAdolescentes: 0, // adolescents are grouped with kids in simulator
       invitadosNinos: data.ninos,
       salonFiestas: 'A definir',
       itemsPresupuestados: data.items,
       timestamp: new Date().toISOString(),
-      notas: `Presupuesto generado desde el Simulador. Paquete: ${data.paqueteNombre || 'N/A'}. Costo estimado: ${formatCurrency(data.costoEstimado)}`,
-      costoTotalEstimado: data.costoEstimado,
+      notas: `Presupuesto generado desde el Simulador. Paquete: ${data.paqueteNombre || 'N/A'}.`,
+      costoTotalEstimado: data.subtotal, // Use subtotal before discount
+      descuentoTipo: data.descuentoGeneral && data.descuentoGeneral > 0 ? 'porcentaje' : undefined,
+      descuentoValor: data.descuentoGeneral,
+      totalConDescuento: data.costoEstimado // This is the final value after discount
     };
 
     const budgetResult = await savePresupuesto(presupuestoData, {
@@ -80,8 +83,6 @@ export async function generateBudgetAndLeadFromSimulator(
       leadId: undefined, 
     });
     
-    // The logic in savePresupuesto now handles moving the lead to the correct stage.
-    // This removes the redundant call that was here.
     if (budgetResult.success && budgetResult.id && budgetResult.leadId) {
       return { success: true, presupuestoId: budgetResult.id, leadId: budgetResult.leadId };
     } else {

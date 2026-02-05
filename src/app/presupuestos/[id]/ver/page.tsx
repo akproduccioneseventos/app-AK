@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -59,19 +60,65 @@ const COMPANY_WEBSITE_PDF = "www.akproduccioneseventos.com";
 const BUDGET_VALIDITY_DAYS_PDF = 30;
 const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos los servicios, se requiere una seña de $5.000. El presupuesto es válido por 30 días.";
 
-function getGuestCountForItem(item: { nombreServicio: string }, invitados: number, invitadosAdultos?: number, invitadosNinos?: number): number {
-  const nombre = item.nombreServicio.toLowerCase();
-  const hayNinos = (invitadosNinos ?? 0) > 0;
+function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?: string }, adultos: number, ninosYAdolescentes: number): number {
+  const categoria = (item.categoriaServicio || '').toLowerCase();
+  
+  const isMenuInfantil = categoria.includes('infantil') || categoria.includes('adolescente');
+  if (isMenuInfantil) {
+    return ninosYAdolescentes;
+  }
+  
+  const isPlatoPrincipal = categoria.includes('plato principal');
+  if (isPlatoPrincipal) {
+    return adultos;
+  }
 
-  if (nombre.includes('infantil') || nombre.includes('hamburguesa') || nombre.includes('pancho')) {
-    return invitadosNinos ?? 0;
+  // For entrees, desserts, and drinks, count adults + adolescents
+  if(categoria.includes('entrada') || categoria.includes('postre') || categoria.includes('bebida')) {
+    return adultos + ninosYAdolescentes;
   }
-  if (hayNinos && (nombre.includes('asado') || nombre.includes('cordero') || nombre.includes('principal'))) {
-    return invitadosAdultos ?? invitados;
-  }
-  return invitados;
+
+  // For all other services (DJ, decor, etc.), count everyone.
+  return adultos + ninosYAdolescentes;
 };
 
+function calcularCostoItem(item: ItemPresupuestado, adultos: number, ninos: number): number {
+  if (item.esRegalo) return 0;
+  
+  const cantidadInvitados = getGuestCountForItem(item, adultos, ninos);
+  const totalInvitados = adultos + ninos;
+  
+  if (cantidadInvitados === 0 && (item.calculationMethod === 'porPersona' || item.calculationMethod === 'ratio')) {
+    return 0;
+  }
+
+  let itemTotal = 0;
+  const precioUnitario = item.precioUnitarioPresupuesto ?? item.precioUnitario;
+
+  switch (item.calculationMethod) {
+    case 'fijo': 
+      itemTotal = (item.precioBase ?? precioUnitario) * (item.cantidad > 0 ? item.cantidad : 1); 
+      break;
+    case 'porPersona': 
+      itemTotal = (item.precioPorPersona ?? precioUnitario) * cantidadInvitados; 
+      break;
+    case 'ratio':
+      const invitadosPorUnidadNum = Number(item.invitadosPorUnidad);
+      if (invitadosPorUnidadNum > 0) {
+        itemTotal = Math.ceil(cantidadInvitados / invitadosPorUnidadNum) * (item.precioBase ?? precioUnitario);
+      } else {
+        itemTotal = item.precioBase ?? precioUnitario; // Fallback
+      }
+      break;
+    case 'tramos':
+      const tramo = item.tramosDePrecio?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta);
+      itemTotal = tramo?.precio || 0;
+      break;
+    default: // Fallback to simple calculation
+      itemTotal = item.cantidad * precioUnitario;
+  }
+  return itemTotal;
+}
 
 export default function VerPresupuestoPage({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -139,7 +186,9 @@ export default function VerPresupuestoPage({ params }: { params: { id: string } 
   
   const getDisplayQuantity = (item: ItemPresupuestado): string => {
     if (!presupuesto) return 'N/A';
-    const cantidadInvitados = getGuestCountForItem(item, presupuesto.invitadosCantidad, presupuesto.invitadosAdultos || undefined, presupuesto.invitadosNinos || undefined);
+    const adultos = presupuesto.invitadosAdultos || presupuesto.invitadosCantidad;
+    const ninosYAdolescentes = (presupuesto.invitadosNinos || 0) + (presupuesto.invitadosAdolescentes || 0);
+    const cantidadInvitados = getGuestCountForItem(item, adultos, ninosYAdolescentes);
     
     switch (item.calculationMethod) {
         case 'porPersona':
@@ -157,15 +206,22 @@ export default function VerPresupuestoPage({ params }: { params: { id: string } 
   };
 
 
-  const { itemsAgrupados, costoTotalRegalos, subtotalBruto, descuentoPromocional, totalConDescuento, ajustesAnuales, totalFinal, showAnnualAdjustmentLegend } = useMemo(() => {
+  const { itemsAgrupados, costoTotalRegalos, subtotalBruto, descuentoPromocional, totalFinal, showAnnualAdjustmentLegend } = useMemo(() => {
     if (!presupuesto || !displaySettings) {
-      return { itemsAgrupados: {}, costoTotalRegalos: 0, subtotalBruto: 0, descuentoPromocional: 0, totalConDescuento: 0, ajustesAnuales: [], totalFinal: 0, showAnnualAdjustmentLegend: false };
+      return { itemsAgrupados: {}, costoTotalRegalos: 0, subtotalBruto: 0, descuentoPromocional: 0, totalFinal: 0, showAnnualAdjustmentLegend: false };
     }
     
-    const itemsRegulares = presupuesto.itemsPresupuestados.filter(item => !item.esRegalo);
     const itemsRegalo = presupuesto.itemsPresupuestados.filter(item => item.esRegalo);
+    
+    // Recalculate item totals on the fly for display
+    const itemsRecalculados = presupuesto.itemsPresupuestados.map(item => ({
+      ...item,
+      costoTotalItem: calcularCostoItem(item, presupuesto.invitadosAdultos || presupuesto.invitadosCantidad, (presupuesto.invitadosNinos || 0) + (presupuesto.invitadosAdolescentes || 0))
+    }));
 
-    const agrupados: Record<string, ItemPresupuestado[]> = itemsRegulares.reduce((acc, item) => {
+    const itemsRegularesRecalculados = itemsRecalculados.filter(item => !item.esRegalo);
+
+    const agrupados: Record<string, ItemPresupuestado[]> = itemsRegularesRecalculados.reduce((acc, item) => {
         const categoria = item.categoriaServicio || 'Otros Servicios';
         if (!acc[categoria]) acc[categoria] = [];
         acc[categoria].push(item);
@@ -181,18 +237,22 @@ export default function VerPresupuestoPage({ params }: { params: { id: string } 
     }
     
     const costoRegalos = itemsRegalo.reduce((sum, item) => sum + (item.precioUnitario * item.cantidad), 0);
-    const bruto = presupuesto.costoTotalEstimado;
+    const brutoRecalculado = itemsRegularesRecalculados.reduce((sum, item) => sum + item.costoTotalItem, 0);
     
     let descAplicado = 0;
-    if (presupuesto.totalConDescuento !== undefined) {
-      descAplicado = Math.max(0, bruto - presupuesto.totalConDescuento);
+    if (presupuesto.descuentoTipo && presupuesto.descuentoValor) {
+        if (presupuesto.descuentoTipo === 'porcentaje') {
+            descAplicado = (brutoRecalculado * presupuesto.descuentoValor) / 100;
+        } else {
+            descAplicado = presupuesto.descuentoValor;
+        }
     }
 
-    const totalDescuentoCalculado = bruto - descAplicado;
-
-    let ajustes: { anio: number; monto: number; totalAcumulado: number }[] = [];
-    let montoAjustable = totalDescuentoCalculado;
-    let totalAjustado = totalDescuentoCalculado;
+    const totalConDescuento = brutoRecalculado - descAplicado;
+    
+    let ajustesAnuales: { anio: number; monto: number; totalAcumulado: number }[] = [];
+    let montoAjustable = totalConDescuento;
+    let totalFinalAjustado = totalConDescuento;
     
     const anioCreacion = new Date(presupuesto.timestamp).getFullYear();
     const anioEvento = presupuesto.eventoFecha ? new Date(presupuesto.eventoFecha).getFullYear() : anioCreacion;
@@ -204,8 +264,8 @@ export default function VerPresupuestoPage({ params }: { params: { id: string } 
             for (let anio = anioCreacion + 1; anio <= anioEvento; anio++) {
                 const ajuste = montoAjustable * (displaySettings.annualAdjustmentPercentage / 100);
                 montoAjustable += ajuste;
-                totalAjustado = montoAjustable;
-                ajustes.push({ anio, monto: ajuste, totalAcumulado: montoAjustable });
+                totalFinalAjustado = montoAjustable;
+                ajustesAnuales.push({ anio, monto: ajuste, totalAcumulado: montoAjustable });
             }
         }
     }
@@ -213,18 +273,16 @@ export default function VerPresupuestoPage({ params }: { params: { id: string } 
     return {
       itemsAgrupados: sortedAgrupados,
       costoTotalRegalos: costoRegalos,
-      subtotalBruto: bruto,
+      subtotalBruto: brutoRecalculado,
       descuentoPromocional: descAplicado,
-      totalConDescuento: totalDescuentoCalculado,
-      ajustesAnuales: ajustes,
-      totalFinal: totalAjustado,
+      totalFinal: totalFinalAjustado,
       showAnnualAdjustmentLegend: shouldShowAdjustmentLegend
     };
 
   }, [presupuesto, displaySettings]);
   
 
-  if (isLoading || !displaySettings) {
+  if (isLoading) {
     return <div className="flex items-center justify-center h-screen"><Loader2 className="w-16 h-16 animate-spin text-primary" /><p className="ml-4 text-xl">Cargando...</p></div>;
   }
   if (error || !presupuesto) {
