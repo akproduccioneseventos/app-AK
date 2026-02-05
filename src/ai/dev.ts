@@ -1,3 +1,4 @@
+
 // AI Flujos desactivados temporalmente para estabilizar el proyecto.
 // import '@/ai/flows/extract-receipt-data.ts';
 // import '@/ai/flows/suggest-palette-flow.ts';
