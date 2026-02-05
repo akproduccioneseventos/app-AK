@@ -152,8 +152,8 @@ export async function getMenus(): Promise<FullMenu[]> {
       const profitMargin = item.profitMargin === undefined || isNaN(Number(item.profitMargin)) ? 100 : Number(item.profitMargin);
       
       const suggestedSellingPrice = item.suggestedSellingPrice !== undefined
-          ? item.suggestedSellingPrice
-          : totalDishCost * (1 + profitMargin / 100);
+          ? Math.round(item.suggestedSellingPrice)
+          : Math.round(totalDishCost * (1 + profitMargin / 100));
 
       return {
         ...item,
@@ -197,10 +197,28 @@ async function processMenuForSave(menuData: Omit<FullMenu, 'id' | 'createdAt' | 
         fecha_actualizacion: ing.fecha_actualizacion?.trim() ? new Date(ing.fecha_actualizacion.trim()).toISOString() : undefined,
       };
     });
-    // totalDishCost is now the cost per person for the dish
-    const totalDishCost = calculateDishCostPerPerson(ingredients);
-    const profitMargin = item.profitMargin === undefined ? 100 : item.profitMargin;
     
+    const totalDishCost = calculateDishCostPerPerson(ingredients);
+    
+    let finalProfitMargin: number;
+    let finalSuggestedSellingPrice: number;
+
+    // Prioritize suggestedSellingPrice if it's a valid number provided by the user.
+    if (item.suggestedSellingPrice !== undefined && !isNaN(Number(item.suggestedSellingPrice))) {
+        finalSuggestedSellingPrice = Math.round(Number(item.suggestedSellingPrice));
+        // Recalculate margin based on the final price
+        if (totalDishCost > 0) {
+            finalProfitMargin = Math.round(((finalSuggestedSellingPrice / totalDishCost) - 1) * 100);
+        } else {
+            // Can't calculate margin from 0 cost, so keep the existing margin or default
+            finalProfitMargin = item.profitMargin === undefined ? 100 : Number(item.profitMargin);
+        }
+    } else {
+        // Fallback to calculating price from margin if price isn't set
+        finalProfitMargin = item.profitMargin === undefined ? 100 : Number(item.profitMargin);
+        finalSuggestedSellingPrice = Math.round(totalDishCost * (1 + finalProfitMargin / 100));
+    }
+
     return {
       ...item,
       name: item.name.trim(),
@@ -208,8 +226,8 @@ async function processMenuForSave(menuData: Omit<FullMenu, 'id' | 'createdAt' | 
       totalDishCost, // This is now the cost per person for the dish
       allergens: item.allergens?.trim() || undefined,
       notes: item.notes?.trim() || undefined,
-      profitMargin: Number(profitMargin),
-      suggestedSellingPrice: totalDishCost * (1 + Number(profitMargin) / 100),
+      profitMargin: finalProfitMargin,
+      suggestedSellingPrice: finalSuggestedSellingPrice,
     };
   });
   
@@ -300,7 +318,7 @@ export async function adjustAllDishMargins(
     const updatedMenus = menus.map(menu => {
       const updatedItems = menu.items.map(item => {
         const newProfitMargin = (item.profitMargin ?? 100) + percentage;
-        const newSuggestedSellingPrice = (item.totalDishCost || 0) * (1 + newProfitMargin / 100);
+        const newSuggestedSellingPrice = Math.round((item.totalDishCost || 0) * (1 + newProfitMargin / 100));
 
         return {
           ...item,

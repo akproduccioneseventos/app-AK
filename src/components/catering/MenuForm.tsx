@@ -25,7 +25,7 @@ import NextImage from 'next/image';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
-  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
+  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 };
 
 
@@ -58,9 +58,22 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
 
   const calculatePrices = useCallback((item: MenuItem): MenuItem => {
     const totalDishCost = calculateTotalDishCost(item.ingredients || []);
-    const profitMargin = item.profitMargin === undefined || isNaN(item.profitMargin) ? 100 : item.profitMargin;
-    const suggestedSellingPrice = totalDishCost * (1 + profitMargin / 100);
-    return { ...item, totalDishCost, suggestedSellingPrice, profitMargin };
+    let finalProfitMargin: number;
+    let finalSuggestedSellingPrice: number;
+
+    if (item.suggestedSellingPrice !== undefined && !isNaN(Number(item.suggestedSellingPrice))) {
+        finalSuggestedSellingPrice = Math.round(Number(item.suggestedSellingPrice));
+        if (totalDishCost > 0) {
+            finalProfitMargin = Math.round(((finalSuggestedSellingPrice / totalDishCost) - 1) * 100);
+        } else {
+            finalProfitMargin = item.profitMargin === undefined ? 100 : Number(item.profitMargin);
+        }
+    } else {
+        finalProfitMargin = item.profitMargin === undefined ? 100 : Number(item.profitMargin);
+        finalSuggestedSellingPrice = Math.round(totalDishCost * (1 + finalProfitMargin / 100));
+    }
+    
+    return { ...item, totalDishCost, suggestedSellingPrice: finalSuggestedSellingPrice, profitMargin: finalProfitMargin };
   }, [calculateTotalDishCost]);
 
   const fetchInsumos = useCallback(async () => {
@@ -352,7 +365,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                             <div className="space-y-2"><Label htmlFor={`item-name-${item.id}`}>Nombre Plato</Label><Input id={`item-name-${item.id}`} value={item.name} onChange={(e) => handleItemChange(item.id, 'name', e.target.value)} /></div>
-                            <div className="space-y-2"><Label htmlFor={`item-type-${item.id}`}>Tipo</Label><Select value={item.type || ''} onValueChange={(value) => handleItemChange(item.id, 'type', value)}><SelectTrigger id={`item-type-${item.id}`}><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Entrada">Entrada</SelectItem><SelectItem value="Plato Principal">Plato Principal</SelectItem><SelectItem value="Postre">Postre</SelectItem><SelectItem value="Bebida">Bebida</SelectItem><SelectItem value="Menú Infantil/Adolescente">Menú Infantil/Adolescente</SelectItem></SelectContent></Select></div>
+                            <div className="space-y-2"><Label htmlFor={`item-type-${item.id}`}>Tipo</Label><Select value={item.type || ''} onValueChange={(value) => handleItemChange(item.id, 'type', value)}><SelectTrigger id={`item-type-${item.id}`}><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Entrada">Entrada</SelectItem><SelectItem value="Plato Principal">Plato Principal</SelectItem><SelectItem value="Postre">Postre</SelectItem><SelectItem value="Bebida">Bebida</SelectItem><SelectItem value="Menú Infantil">Menú Infantil</SelectItem><SelectItem value="Menú Infantil/Adolescente">Menú Infantil/Adolescente</SelectItem></SelectContent></Select></div>
                           </div>
                         </div>
                         <div className="flex flex-col gap-1">

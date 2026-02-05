@@ -21,7 +21,7 @@ interface PlatoConMenu extends MenuItem {
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
-  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
+  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 };
 
 
@@ -79,7 +79,6 @@ export default function CatalogoPlatosPage() {
   const handlePriceFormChange = (field: 'suggestedSellingPrice' | 'profitMargin', value: string) => {
     if (!editingDish) return;
 
-    // Allow the user to clear the input
     if (value.trim() === '') {
         let updatedDish = { ...editingDish };
         if (field === 'suggestedSellingPrice') {
@@ -98,15 +97,15 @@ export default function CatalogoPlatosPage() {
     
     let updatedDish = { ...editingDish };
     if (field === 'suggestedSellingPrice') {
-        updatedDish.suggestedSellingPrice = numValue;
+        updatedDish.suggestedSellingPrice = Math.round(numValue);
         if (updatedDish.totalDishCost > 0) {
-            const newMargin = ((numValue / updatedDish.totalDishCost) - 1) * 100;
-            updatedDish.profitMargin = Math.round(newMargin); // Round for cleaner display
+            const newMargin = ((Math.round(numValue) / updatedDish.totalDishCost) - 1) * 100;
+            updatedDish.profitMargin = Math.round(newMargin);
         }
     } else { // profitMargin
         updatedDish.profitMargin = numValue;
         const newPrice = (updatedDish.totalDishCost || 0) * (1 + numValue / 100);
-        updatedDish.suggestedSellingPrice = Math.round(newPrice); // Round for cleaner display
+        updatedDish.suggestedSellingPrice = Math.round(newPrice);
     }
     setEditingDish(updatedDish);
   };
