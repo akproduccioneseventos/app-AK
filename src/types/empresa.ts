@@ -1,5 +1,3 @@
-
-
 export type CategoriaServicio =
   | 'Servicio de catering'
   | 'Servicio de filmación'
@@ -11,7 +9,11 @@ export type CategoriaServicio =
   | 'Servicio de repostería'
   | 'Regalo exclusivo'
   | 'Personal'
-  | 'Otros servicios';
+  | 'Otros servicios'
+  | 'Entrada'
+  | 'Plato Principal'
+  | 'Postre'
+  | 'Menú Infantil/Adolescente';
 
 export const ALL_CATEGORIAS_SERVICIO: CategoriaServicio[] = [
   'Servicio de catering',
@@ -25,6 +27,10 @@ export const ALL_CATEGORIAS_SERVICIO: CategoriaServicio[] = [
   'Regalo exclusivo',
   'Personal',
   'Otros servicios',
+  'Entrada',
+  'Plato Principal',
+  'Postre',
+  'Menú Infantil/Adolescente'
 ];
 
 export type CategoriaInsumo =
@@ -104,4 +110,3 @@ export interface ServicioEmpresa {
 
   contactoPrincipal?: string;
 }
-

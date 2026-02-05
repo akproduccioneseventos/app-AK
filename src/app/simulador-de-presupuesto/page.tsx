@@ -17,7 +17,7 @@ import { getSocialConnections } from '@/app/actions/social-connections';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import type { SocialConnection } from '@/types/settings';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido } from '@/types/armado-rapido';
-import type { ServicioEmpresa } from '@/types/empresa';
+import type { ServicioEmpresa, CategoriaServicio } from '@/types/empresa';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -53,21 +53,36 @@ const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos l
 
 
 // Helper function to decide which guest count to use for an item
-function getGuestCountForItem(item: { nombre: string }, adultos: number, ninos: number, adolescentes: number): number {
-  const nombre = item.nombre.toLowerCase();
+function getGuestCountForItem(servicio: ServicioEmpresa, adultos: number, ninos: number, adolescentes: number): number {
+    const categoria = (servicio.categoria || '').toLowerCase();
+    const subcategoria = (servicio.subcategoria || '').toLowerCase();
   
-  if (nombre.includes('infantil') || nombre.includes('hamburguesa') || nombre.includes('pancho')) {
-    return ninos;
-  }
-  // For most other food items, and general services, count adults + adolescents
-  return adultos + adolescentes;
-};
+    // For specific child/teen menu
+    if (categoria.includes('infantil') || categoria.includes('adolescente') || subcategoria.includes('infantil') || subcategoria.includes('adolescente')) {
+      return ninos + adolescentes;
+    }
+    
+    // For main dish
+    if (categoria.includes('plato principal') || subcategoria.includes('plato principal')) {
+      return adultos;
+    }
+  
+    // For other catering (appetizers, desserts, drinks) count adults and teens
+    const otherCatering = ['servicio de catering', 'servicio de repostería', 'servicio de bebidas', 'entrada'];
+    if (otherCatering.some(cat => categoria.includes(cat) || subcategoria.includes(cat))) {
+      return adultos + adolescentes;
+    }
+  
+    // Default for non-catering services (DJ, decor, etc.) -> total guests
+    return adultos + ninos + adolescentes;
+  };
 
 function calcularCostoServicio(servicio: ServicioEmpresa, adultos: number, ninos: number, adolescentes: number): number {
   if (!servicio) return 0;
   
   const cantidadInvitados = getGuestCountForItem(servicio, adultos, ninos, adolescentes);
   
+  // Si no hay invitados para este ítem y el cálculo depende de ellos, el costo es 0.
   if (cantidadInvitados === 0 && (servicio.calculationMethod === 'porPersona' || servicio.calculationMethod === 'ratio')) {
     return 0;
   }
@@ -105,7 +120,7 @@ const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): Se
         id: item.id,
         nombre: item.name,
         tipoItem: 'Servicio',
-        categoria: 'Servicio de catering',
+        categoria: item.type as CategoriaServicio, // Using item.type as the main category
         subcategoria: item.type,
         calculationMethod: 'porPersona',
         precioPorPersona: precioVenta,
@@ -137,7 +152,7 @@ const menuItemToServicioSeleccionado = (item: ServicioEmpresa, invitados: number
         precioUnitarioPresupuesto: item.precioPorPersona || 0,
         nombreServicio: item.nombre,
         unidad: 'personas',
-        categoriaServicio: 'Servicio de catering',
+        categoriaServicio: item.categoria,
         esRegalo: false,
         calculationMethod: 'porPersona',
         precioPorPersona: item.precioPorPersona || 0,
@@ -289,7 +304,7 @@ export default function ArmadoRapidoPage() {
         idsToAdd.forEach(id => {
             const dishToAdd = allDishes.find(d => d.id === id);
             if (dishToAdd) {
-                const invitados = type === 'infantil' ? ninos : adultos + adolescentes;
+                const invitados = (dishToAdd.categoria?.includes('infantil') || dishToAdd.categoria?.includes('adolescente')) ? ninos + adolescentes : adultos;
                 newSelected.set(dishToAdd.id, menuItemToServicioSeleccionado(dishToAdd, invitados));
             }
         });
@@ -619,7 +634,7 @@ export default function ArmadoRapidoPage() {
                                     onValueChange={(value) => handleGastronomicSelectionChange('infantil', value)}
                                     className="grid grid-cols-1 md:grid-cols-2 gap-2"
                                 >
-                                    {(ninos || 0) > 0 ? (
+                                    {(ninos > 0 || adolescentes > 0) ? (
                                         menusNinoDisponibles.length > 0 ? (
                                             menusNinoDisponibles.map(s => (
                                                 <div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md">
@@ -765,3 +780,6 @@ export default function ArmadoRapidoPage() {
         </div>
     );
 }
+
+
+  

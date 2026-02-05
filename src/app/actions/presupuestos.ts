@@ -17,18 +17,25 @@ const PRESUPUESTOS_FILE = 'presupuestos.json';
 
 // Helper function to decide which guest count to use for an item
 function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?: string }, invitados: number, invitadosAdultos?: number, invitadosNinos?: number, invitadosAdolescentes?: number): number {
-  const nombre = item.nombreServicio.toLowerCase();
   const categoria = (item.categoriaServicio || '').toLowerCase();
-  
-  // Child-specific menus/items
-  if (nombre.includes('infantil') || nombre.includes('hamburguesa') || nombre.includes('pancho') || categoria.includes('infantil')) {
-    return invitadosNinos ?? 0;
+  const adultos = invitadosAdultos || 0;
+  const ninos = invitadosNinos || 0;
+  const adolescentes = invitadosAdolescentes || 0;
+
+  // For specific child/teen menu
+  if (categoria.includes('infantil') || categoria.includes('adolescente')) {
+    return ninos + adolescentes;
   }
   
-  // Adult/Main course items (assume this covers most catering)
-  const cateringCategories = ['servicio de catering', 'servicio de repostería', 'servicio de bebidas'];
-  if (cateringCategories.some(cat => categoria.includes(cat))) {
-    return (invitadosAdultos || 0) + (invitadosAdolescentes || 0);
+  // For main dish
+  if (categoria.includes('plato principal')) {
+    return adultos;
+  }
+
+  // For other catering (appetizers, desserts, drinks) count adults and teens
+  const otherCatering = ['servicio de catering', 'servicio de repostería', 'servicio de bebidas', 'entrada'];
+  if (otherCatering.some(cat => categoria.includes(cat))) {
+    return adultos + adolescentes;
   }
 
   // Default to total guests for general services (DJ, decor, etc.)
@@ -364,3 +371,5 @@ export async function recalculatePresupuestoFromCatalog(presupuestoId: string): 
     
 
     
+
+  
