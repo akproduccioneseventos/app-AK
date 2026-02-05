@@ -35,32 +35,37 @@ export function AuthGuard({ children }: AuthGuardProps) {
       return;
     }
     
-    // Define public paths that don't require authentication
-    const publicPaths = [
+    // Define prefixes for all public-facing sections of the app that do not require admin login.
+    const publicPathPrefixes = [
       '/login',
-      '/evento/actual',
-      '/evento/social',
-      '/video-vida',
-      '/feedback',
-      '/portal',
+      '/evento/actual', // Covers the main event page and sub-pages like /checkin, /mesa
+      '/evento/social', // Covers the live social wall
+      '/video-vida',    // Covers the client photo upload page
+      '/feedback',      // Covers the client feedback form
+      '/portal',        // Covers the client portal login and its internal pages (which have their own auth)
       '/simulador-de-presupuesto',
-      '/acceso-personal',
+      '/acceso-personal', // Covers links for external staff/partners
     ];
     
-    // Special check for public budget view pages (e.g., /presupuestos/pres_xyz or /presupuestos/pres_xyz/)
-    // This allows clients to see their budget without logging in, but keeps
-    // other /presupuestos routes (like /edit, /nuevo) private.
-    const isPublicPresupuestoView = /^\/presupuestos\/pres_[a-zA-Z0-9_]+\/?$/.test(pathname);
-    
-    const isPublic = publicPaths.some(publicPath => pathname.startsWith(publicPath)) || isPublicPresupuestoView;
+    // Check if the current path starts with any of the public prefixes
+    let isPublic = publicPathPrefixes.some(prefix => pathname.startsWith(prefix));
 
-    // If the path is public, we can verify immediately and let the user through.
+    // Add a specific rule for public budget summary pages, which are also public.
+    // e.g., /presupuestos/pres_12345, but NOT /presupuestos/nuevo or /presupuestos/123/edit
+    if (!isPublic) {
+      const budgetRegex = /^\/presupuestos\/pres_[a-zA-Z0-9_]+\/?$/;
+      if (budgetRegex.test(pathname)) {
+        isPublic = true;
+      }
+    }
+    
+    // If the path is determined to be public, allow access immediately.
     if (isPublic) {
       setIsVerified(true);
       return;
     }
     
-    // If the path is not public, then check for authentication.
+    // If the path is not public, then check for admin authentication.
     const isAuthenticated = sessionStorage.getItem(SESSION_KEY) === 'true';
     
     if (!isAuthenticated) {
