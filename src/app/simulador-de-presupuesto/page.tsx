@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, Package, ChefHat, FileText, Send, CheckCircle, Gift, User, Phone, MessageSquare, Share2, Printer, Search } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, Package, ChefHat, FileText, Send, CheckCircle, Gift, User, Phone, MessageSquare, Share2, Printer, Search, ClipboardCopy, Edit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
@@ -40,7 +40,7 @@ const formatDate = (date = new Date()) => {
   return date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
 };
 
-// CONSTANTS FROM PDF - To be moved to a settings file eventually
+// CONSTANTS FROM PDF
 const COMPANY_MAIN_TITLE = "Presupuesto para fiestas o eventos - AK PRODUCCIONES";
 const COMPANY_NAME_BRAND = "AK PRODUCCIONES";
 const COMPANY_CONTACT_PERSON = "SR. Alexander Knuth";
@@ -53,7 +53,7 @@ const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos l
 
 
 // Helper function to decide which guest count to use for an item
-function getGuestCountForItem(servicio: { categoriaServicio?: string, nombreServicio: string }, adultos: number, ninosYAdolescentes: number): number {
+function getGuestCountForItem(servicio: { categoriaServicio?: string }, adultos: number, ninosYAdolescentes: number): number {
   const categoria = (servicio.categoriaServicio || '').toLowerCase();
 
   const isMenuInfantil = categoria.includes('infantil') || categoria.includes('adolescente');
@@ -66,11 +66,13 @@ function getGuestCountForItem(servicio: { categoriaServicio?: string, nombreServ
     return adultos;
   }
   
-  const isCateringRelated = ['entrada', 'postre', 'bebida', 'catering', 'repostería'].some(cat => categoria.includes(cat));
-  if (isCateringRelated) {
+  // For most other food items, count adults and teens
+  const cateringCategories = ['entrada', 'postre', 'bebida', 'catering', 'repostería'];
+  if (cateringCategories.some(cat => categoria.includes(cat))) {
     return adultos + ninosYAdolescentes;
   }
   
+  // Default to total guests for general services (DJ, decor, etc.)
   return adultos + ninosYAdolescentes;
 };
 
@@ -427,7 +429,6 @@ export default function ArmadoRapidoPage() {
     const generarTextoWhatsApp = useCallback(() => {
         if (typeof window === 'undefined') return '';
         if (!generatedPresupuestoId) {
-            // Fallback if the ID isn't set yet
             return `¡Hola! He generado un presupuesto estimado a través del simulador y quisiera más información. Puedes ver mi resumen aquí: ${window.location.href}`;
         }
         const url = `${window.location.origin}/presupuestos/${generatedPresupuestoId}/ver`;
@@ -462,8 +463,8 @@ export default function ArmadoRapidoPage() {
             clienteContacto,
             eventoFecha: eventoFecha ? eventoFecha.toISOString() : undefined,
             adultos,
-            adolescentes: 0,
             ninos: ninosYAdolescentes,
+            adolescentes: 0,
             subtotal,
             costoEstimado: costoTotal, // Send final cost
             descuentoGeneral: config?.descuentoGeneral,
@@ -794,10 +795,11 @@ export default function ArmadoRapidoPage() {
                         </Button>
                     ) : (
                         <div className="flex flex-col sm:flex-row gap-2">
+                             <Button type="button" onClick={() => setStep(1)} variant="outline"><Edit className="w-4 h-4 mr-2"/>Editar Selección</Button>
                              <Button type="button" onClick={handleShareWhatsApp} variant="secondary" className="bg-green-500 hover:bg-green-600">
                                 <Share2 className="w-4 h-4 mr-2"/>Enviar por WhatsApp
                              </Button>
-                             <Button type="button" onClick={handleDownloadPdf} variant="outline"><Printer className="w-4 h-4 mr-2"/>Guardar o Imprimir PDF</Button>
+                             <Button type="button" onClick={handleDownloadPdf}><Printer className="w-4 h-4 mr-2"/>Guardar o Imprimir PDF</Button>
                         </div>
                     )}
                 </CardFooter>
