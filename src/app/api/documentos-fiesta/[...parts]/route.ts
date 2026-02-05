@@ -4,7 +4,6 @@ import fs from 'fs/promises';
 import path from 'path';
 import JSZip from 'jszip';
 import { getFiestaActual } from '@/app/actions/fiesta/fiesta.actions';
-import { use } from 'react';
 
 const DOCS_DIR = path.resolve(process.cwd(), 'src', 'data', 'documentos-varios-fiesta');
 
@@ -21,9 +20,8 @@ async function addFileToZip(zip: JSZip, filePath: string, zipPath: string) {
 
 export async function GET(
   request: NextRequest,
-  { params: paramsProp }: { params: { parts: string[] } }
+  { params }: { params: { parts: string[] } }
 ) {
-  const params = use(paramsProp);
   const [fiestaId, filename] = params.parts;
 
   // Handle the special 'download-all' command

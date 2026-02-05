@@ -3,15 +3,13 @@ import { NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
 import JSZip from 'jszip';
-import { use } from 'react';
 
 const DATA_DIR = path.join(process.cwd(), 'src', 'data', 'video-vida-photos');
 
 export async function GET(
   request: Request,
-  { params: paramsProp }: { params: { fiestaId: string } }
+  { params }: { params: { fiestaId: string } }
 ) {
-  const params = use(paramsProp);
   const { fiestaId } = params;
 
   if (!fiestaId) {
