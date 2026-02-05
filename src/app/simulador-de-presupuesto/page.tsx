@@ -53,26 +53,24 @@ const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos l
 
 
 // Helper function to decide which guest count to use for an item
-function getGuestCountForItem(servicio: ServicioEmpresa, adultos: number, ninosYAdolescentes: number): number {
-  const categoria = (servicio.categoria || '').toLowerCase();
-  const subcategoria = (servicio.subcategoria || '').toLowerCase();
+function getGuestCountForItem(servicio: { categoriaServicio?: string, nombreServicio: string }, adultos: number, ninosYAdolescentes: number): number {
+  const categoria = (servicio.categoriaServicio || '').toLowerCase();
 
-  const isMenuInfantil = categoria.includes('infantil') || categoria.includes('adolescente') || subcategoria.includes('infantil') || subcategoria.includes('adolescente');
+  const isMenuInfantil = categoria.includes('infantil') || categoria.includes('adolescente');
   if (isMenuInfantil) {
     return ninosYAdolescentes;
   }
   
-  const isPlatoPrincipal = categoria.includes('plato principal') || subcategoria.includes('plato principal');
+  const isPlatoPrincipal = categoria.includes('plato principal');
   if (isPlatoPrincipal) {
     return adultos;
   }
-
-  const isCateringRelated = ['entrada', 'postre', 'bebida', 'catering', 'repostería'].some(cat => categoria.includes(cat) || subcategoria.includes(cat));
+  
+  const isCateringRelated = ['entrada', 'postre', 'bebida', 'catering', 'repostería'].some(cat => categoria.includes(cat));
   if (isCateringRelated) {
-      return adultos;
+    return adultos + ninosYAdolescentes;
   }
   
-  // For all other services (DJ, decor, etc.), count everyone.
   return adultos + ninosYAdolescentes;
 };
 
@@ -119,7 +117,7 @@ const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): Se
         id: item.id,
         nombre: item.name,
         tipoItem: 'Servicio',
-        categoria: item.type as CategoriaServicio, // Using item.type as the main category
+        categoria: 'Servicio de catering',
         subcategoria: item.type,
         calculationMethod: 'porPersona',
         precioPorPersona: precioVenta,
@@ -195,6 +193,7 @@ export default function ArmadoRapidoPage() {
 
     const [isLoading, setIsLoading] = useState(true);
     const [isGeneratingLead, setIsGeneratingLead] = useState(false);
+    const [generatedPresupuestoId, setGeneratedPresupuestoId] = useState<string | null>(null);
 
     const [formData, setFormData] = useState<{serviciosSeleccionados: Map<string, ServicioSeleccionadoValue>}>({serviciosSeleccionados: new Map()});
     
@@ -427,15 +426,23 @@ export default function ArmadoRapidoPage() {
 
     const generarTextoWhatsApp = useCallback(() => {
         if (typeof window === 'undefined') return '';
-        const url = window.location.href;
+        if (!generatedPresupuestoId) {
+            // Fallback if the ID isn't set yet
+            return `¡Hola! He generado un presupuesto estimado a través del simulador y quisiera más información. Puedes ver mi resumen aquí: ${window.location.href}`;
+        }
+        const url = `${window.location.origin}/presupuestos/${generatedPresupuestoId}/ver`;
         let message = `¡Hola! He generado un presupuesto estimado a través del simulador y quisiera más información. Puedes ver mi resumen aquí: ${url}`;
         return message;
-    }, []);
+    }, [generatedPresupuestoId]);
 
     const handleShareWhatsApp = () => {
         if (!whatsappNumber) {
             toast({title: "Número no configurado", description: "El número de WhatsApp no ha sido configurado en los ajustes.", variant: "destructive"});
             return;
+        }
+        if (isGeneratingLead || !generatedPresupuestoId) {
+             toast({title: "Procesando...", description: "Espera a que el presupuesto se guarde antes de compartir.", variant: "default"});
+             return;
         }
         const message = generarTextoWhatsApp();
         window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank');
@@ -445,9 +452,9 @@ export default function ArmadoRapidoPage() {
         window.print();
     };
 
-    const handleGenerateLead = useCallback(async () => {
+    const handleGenerateLead = useCallback(async (): Promise<boolean> => {
         if (!clienteNombre.trim() || !clienteContacto.trim() || isGeneratingLead) {
-            return;
+            return false;
         }
         setIsGeneratingLead(true);
         const data = {
@@ -484,13 +491,16 @@ export default function ArmadoRapidoPage() {
 
         try {
             const result = await generateBudgetAndLeadFromSimulator(data);
-            if(!result.success) { 
-                throw new Error(result.error); 
+            if(!result.success || !result.presupuestoId) { 
+                throw new Error(result.error || "No se recibió un ID para el presupuesto generado."); 
             } else {
-                 toast({ title: "¡Solicitud Enviada!", description: "Gracias por tu interés. Un asesor se pondrá en contacto a la brevedad.", variant: 'default' });
+                 setGeneratedPresupuestoId(result.presupuestoId);
+                 toast({ title: "¡Solicitud Enviada!", description: "Gracias por tu interés. Se generó un resumen de tu selección.", variant: 'default' });
+                 return true;
             }
         } catch(e: any) {
              toast({ title: "Error al registrar", description: e.message, variant: "destructive" });
+             return false;
         } finally {
             setIsGeneratingLead(false);
         }
@@ -503,7 +513,7 @@ export default function ArmadoRapidoPage() {
         return !selectedPrincipalId || selectedEntradas.length !== requiredEntradas;
     }, [duracionHoras, selectedPrincipalId, selectedEntradas]);
 
-    const nextStep = () => {
+    const nextStep = async () => {
         if (step === 1 && (!clienteNombre.trim() || !/^\d{9}$/.test(clienteContacto.trim()) || adultos <= 0)) {
             toast({ title: "Datos incompletos", description: "Por favor, ingresa un nombre, un celular válido de 9 dígitos y la cantidad de adultos.", variant: "destructive" });
             return;
@@ -520,9 +530,13 @@ export default function ArmadoRapidoPage() {
         
         if (step < 4) {
             if (step === 3) {
-                handleGenerateLead();
+                const success = await handleGenerateLead();
+                if (success) {
+                    setStep(s => s + 1);
+                }
+            } else {
+                setStep(s => s + 1);
             }
-            setStep(s => s + 1);
         }
     };
 
@@ -758,8 +772,9 @@ export default function ArmadoRapidoPage() {
 
                             <Separator className="my-4"/>
                             <div className="w-full md:max-w-xs ml-auto space-y-1 text-sm">
+                                <div className="flex justify-between"><span>Subtotal:</span><span>{formatCurrency(subtotal)}</span></div>
+                                {descuento > 0 && <div className="flex justify-between text-destructive"><span>Descuento ({config?.descuentoGeneral || 0}%):</span><span>-{formatCurrency(descuento)}</span></div>}
                                 {totalRegalos > 0 && <div className="flex justify-between text-green-600"><span>Ahorro en Regalos:</span><span>{formatCurrency(totalRegalos)}</span></div>}
-                                <div className="flex justify-between text-destructive"><span>Descuento ({config?.descuentoGeneral || 0}%):</span><span>-{formatCurrency(descuento)}</span></div>
                                 <div className="flex justify-between font-bold text-lg pt-2 border-t"><span className="text-primary">Importe total</span><span className="text-primary">{formatCurrency(costoTotal)}</span></div>
                             </div>
                              <footer className="mt-6 pt-3 border-t border-gray-300 print:mt-2 print:pt-1.5 print:border-gray-400 text-xs print:text-[8pt] text-gray-600 print:text-black">
@@ -774,7 +789,7 @@ export default function ArmadoRapidoPage() {
                     </Button>
                     {step < 4 ? (
                         <Button onClick={nextStep} disabled={isGeneratingLead || (step === 2 && isStepTwoInvalid) || (step === 3 && !selectedPaqueteId) }>
-                            {step === 3 ? "Ver Resumen y Finalizar" : "Siguiente"}
+                            {step === 3 ? isGeneratingLead ? <><Loader2 className="w-4 h-4 mr-2 animate-spin"/> Generando...</> : "Ver Resumen y Enviar" : "Siguiente"}
                             {step < 3 && <ArrowRight className="w-4 h-4 ml-2" />}
                         </Button>
                     ) : (

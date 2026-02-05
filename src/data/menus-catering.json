@@ -19,7 +19,7 @@
     "description": "Una selección de entradas frías y calientes para comenzar el evento.",
     "templateType": "Menú de Entradas",
     "createdAt": "2025-07-28T10:00:00.000Z",
-    "updatedAt": "2026-02-05T15:13:59.841Z",
+    "updatedAt": "2026-02-05T15:16:31.825Z",
     "items": [
       {
         "id": "dish_entrada_1",
@@ -82,7 +82,7 @@
           }
         ],
         "profitMargin": 121,
-        "suggestedSellingPrice": 99.89200000000001
+        "suggestedSellingPrice": 100
       },
       {
         "id": "dish_entrada_2",
@@ -127,7 +127,7 @@
         "type": "Entrada",
         "totalDishCost": 64.4,
         "profitMargin": 86,
-        "suggestedSellingPrice": 119.784,
+        "suggestedSellingPrice": 120,
         "ingredients": [
           {
             "id": "ing_3_1",
@@ -255,7 +255,7 @@
         "type": "Entrada",
         "totalDishCost": 54.2,
         "profitMargin": 324,
-        "suggestedSellingPrice": 229.80800000000002,
+        "suggestedSellingPrice": 230,
         "ingredients": [
           {
             "id": "ing_4_1",
@@ -309,7 +309,7 @@
         "type": "Entrada",
         "totalDishCost": 57.2,
         "profitMargin": 180,
-        "suggestedSellingPrice": 160.16,
+        "suggestedSellingPrice": 160,
         "ingredients": [
           {
             "id": "ing_10_1",
@@ -372,7 +372,7 @@
         "type": "Entrada",
         "totalDishCost": 71.19999999999999,
         "profitMargin": 167,
-        "suggestedSellingPrice": 190.10399999999996,
+        "suggestedSellingPrice": 190,
         "ingredients": [
           {
             "id": "ing_9_1",
@@ -507,7 +507,7 @@
         "type": "Entrada",
         "totalDishCost": 90.84,
         "profitMargin": 109,
-        "suggestedSellingPrice": 189.85559999999998,
+        "suggestedSellingPrice": 190,
         "ingredients": [
           {
             "id": "ing_11_1",
@@ -587,8 +587,8 @@
         "name": "Arepas",
         "type": "Entrada",
         "totalDishCost": 84.8,
-        "profitMargin": 112,
-        "suggestedSellingPrice": 179.776,
+        "profitMargin": 123,
+        "suggestedSellingPrice": 189,
         "ingredients": [
           {
             "id": "ing_14_1",
@@ -678,7 +678,7 @@
         "type": "Entrada",
         "totalDishCost": 89,
         "profitMargin": 113,
-        "suggestedSellingPrice": 189.57,
+        "suggestedSellingPrice": 190,
         "ingredients": [
           {
             "id": "ing_17_1",
@@ -714,7 +714,7 @@
         "type": "Entrada",
         "totalDishCost": 96,
         "profitMargin": 107,
-        "suggestedSellingPrice": 198.72000000000003,
+        "suggestedSellingPrice": 199,
         "ingredients": [
           {
             "id": "ing_15_1",
@@ -794,8 +794,8 @@
         "name": "Picada Caliente",
         "type": "Entrada",
         "totalDishCost": 60.34,
-        "profitMargin": 264,
-        "suggestedSellingPrice": 219.63760000000002,
+        "profitMargin": 265,
+        "suggestedSellingPrice": 220,
         "ingredients": [
           {
             "id": "ing_19_1",
@@ -912,7 +912,7 @@
         "type": "Entrada",
         "totalDishCost": 100.22,
         "profitMargin": 149,
-        "suggestedSellingPrice": 249.54780000000002,
+        "suggestedSellingPrice": 250,
         "ingredients": [
           {
             "id": "ing_21_1",
@@ -1020,7 +1020,7 @@
         "type": "Entrada",
         "totalDishCost": 98.05000000000001,
         "profitMargin": 124,
-        "suggestedSellingPrice": 219.63200000000003,
+        "suggestedSellingPrice": 220,
         "ingredients": [
           {
             "id": "ing_16_1",
@@ -1146,7 +1146,7 @@
         "type": "Entrada",
         "totalDishCost": 119.705,
         "profitMargin": 126,
-        "suggestedSellingPrice": 270.5333,
+        "suggestedSellingPrice": 271,
         "ingredients": [
           {
             "id": "pfg_1",
@@ -1300,7 +1300,7 @@
         "type": "Entrada",
         "totalDishCost": 45.5,
         "profitMargin": 296,
-        "suggestedSellingPrice": 180.18,
+        "suggestedSellingPrice": 180,
         "ingredients": [
           {
             "id": "ing_5_1",
@@ -1355,7 +1355,7 @@
         "type": "Entrada",
         "totalDishCost": 74.8,
         "profitMargin": 221,
-        "suggestedSellingPrice": 240.10799999999998,
+        "suggestedSellingPrice": 240,
         "ingredients": [
           {
             "id": "ing_23_1",
@@ -1509,7 +1509,7 @@
         "type": "Entrada",
         "totalDishCost": 57.199999999999996,
         "profitMargin": 215,
-        "suggestedSellingPrice": 180.17999999999998,
+        "suggestedSellingPrice": 180,
         "ingredients": [
           {
             "id": "ing_m1_1",
@@ -1567,7 +1567,7 @@
         "type": "Entrada",
         "totalDishCost": 120,
         "profitMargin": 66,
-        "suggestedSellingPrice": 199.20000000000002,
+        "suggestedSellingPrice": 199,
         "ingredients": [
           {
             "id": "ing_pizza_1",
@@ -1926,7 +1926,7 @@
     "dataAiHint": "main course dishes",
     "templateType": "Menú de Platos Principales",
     "createdAt": "2025-07-28T10:00:00.000Z",
-    "updatedAt": "2026-02-05T15:13:41.059Z",
+    "updatedAt": "2026-02-05T15:18:26.634Z",
     "items": [
       {
         "id": "dish_main_1",
@@ -1934,7 +1934,7 @@
         "type": "Plato Principal",
         "totalDishCost": 189.4,
         "profitMargin": 163,
-        "suggestedSellingPrice": 498.122,
+        "suggestedSellingPrice": 499,
         "ingredients": [
           {
             "id": "ing_pa1_1",
@@ -1959,8 +1959,8 @@
         "name": "Cerdo Braseado a la Mostaza C/ Guarnición",
         "type": "Plato Principal",
         "totalDishCost": 136.7,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 273.4,
+        "profitMargin": 192,
+        "suggestedSellingPrice": 399,
         "ingredients": [
           {
             "id": "ing_cm1_1",
@@ -2017,8 +2017,8 @@
         "name": "Cerdo Braseado a la Barbacoa C/ Guarnición",
         "type": "Plato Principal",
         "totalDishCost": 132.1,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 264.2,
+        "profitMargin": 202,
+        "suggestedSellingPrice": 399,
         "ingredients": [
           {
             "id": "ing_cb1_1",
@@ -2076,7 +2076,7 @@
         "type": "Plato Principal",
         "totalDishCost": 105.5,
         "profitMargin": 278,
-        "suggestedSellingPrice": 398.78999999999996,
+        "suggestedSellingPrice": 399,
         "ingredients": [
           {
             "id": "ing_rc1_1",
@@ -2126,7 +2126,7 @@
         "type": "Plato Principal",
         "totalDishCost": 145.5,
         "profitMargin": 174,
-        "suggestedSellingPrice": 398.67,
+        "suggestedSellingPrice": 399,
         "ingredients": [
           {
             "id": "ing_nq1_1",
@@ -2200,7 +2200,7 @@
         "type": "Plato Principal",
         "totalDishCost": 150,
         "profitMargin": 199,
-        "suggestedSellingPrice": 448.50000000000006,
+        "suggestedSellingPrice": 449,
         "ingredients": [
           {
             "id": "ing_ca_1",
@@ -2226,7 +2226,7 @@
         "type": "Plato Principal",
         "totalDishCost": 151.1,
         "profitMargin": 197,
-        "suggestedSellingPrice": 448.76699999999994,
+        "suggestedSellingPrice": 449,
         "ingredients": [
           {
             "id": "ing_pcg1_1",
@@ -2284,7 +2284,7 @@
         "type": "Plato Principal",
         "totalDishCost": 160.75,
         "profitMargin": 148,
-        "suggestedSellingPrice": 398.66,
+        "suggestedSellingPrice": 399,
         "ingredients": [
           {
             "id": "ing_sr1_1",
@@ -2333,8 +2333,8 @@
         "name": "Brochetas C/ Fritas",
         "type": "Plato Principal",
         "totalDishCost": 168.80000000000004,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 337.6000000000001,
+        "profitMargin": 136,
+        "suggestedSellingPrice": 399,
         "ingredients": [
           {
             "id": "ing_bf1_1",
@@ -2424,7 +2424,7 @@
         "type": "Plato Principal",
         "totalDishCost": 169.2,
         "profitMargin": 165,
-        "suggestedSellingPrice": 448.37999999999994,
+        "suggestedSellingPrice": 449,
         "ingredients": [
           {
             "id": "ing_nf1_1",
@@ -2506,7 +2506,7 @@
         "type": "Plato Principal",
         "totalDishCost": 171.6,
         "profitMargin": 121,
-        "suggestedSellingPrice": 379.236,
+        "suggestedSellingPrice": 379,
         "ingredients": [
           {
             "id": "ing_bf2_1",
@@ -2604,7 +2604,7 @@
         "type": "Plato Principal",
         "totalDishCost": 180.1,
         "profitMargin": 122,
-        "suggestedSellingPrice": 399.82199999999995,
+        "suggestedSellingPrice": 399,
         "ingredients": [
           {
             "id": "ing_sp1_1",
@@ -2662,7 +2662,7 @@
         "type": "Plato Principal",
         "totalDishCost": 187.35,
         "profitMargin": 140,
-        "suggestedSellingPrice": 449.64,
+        "suggestedSellingPrice": 449,
         "ingredients": [
           {
             "id": "ing_mc1_1",
@@ -2728,7 +2728,7 @@
         "type": "Plato Principal",
         "totalDishCost": 192.35,
         "profitMargin": 211,
-        "suggestedSellingPrice": 598.2085,
+        "suggestedSellingPrice": 599,
         "ingredients": [
           {
             "id": "ing_sg1_1",
@@ -2794,7 +2794,7 @@
         "type": "Plato Principal",
         "totalDishCost": 215.1,
         "profitMargin": 100,
-        "suggestedSellingPrice": 430.2,
+        "suggestedSellingPrice": 430,
         "ingredients": [
           {
             "id": "ing_bc1_1",
@@ -2851,8 +2851,8 @@
         "name": "Cordero Asado C/ Guarnición",
         "type": "Plato Principal",
         "totalDishCost": 255,
-        "profitMargin": 96,
-        "suggestedSellingPrice": 499.8,
+        "profitMargin": 115,
+        "suggestedSellingPrice": 549,
         "ingredients": [
           {
             "id": "ing_cag1_1",
@@ -2878,7 +2878,7 @@
         "type": "Plato Principal",
         "totalDishCost": 287.4,
         "profitMargin": 108,
-        "suggestedSellingPrice": 597.7919999999999,
+        "suggestedSellingPrice": 599,
         "ingredients": [
           {
             "id": "ing_acg1_1",
@@ -2928,7 +2928,7 @@
         "type": "Plato Principal",
         "totalDishCost": 177.22719999999998,
         "profitMargin": 182,
-        "suggestedSellingPrice": 499.780704,
+        "suggestedSellingPrice": 499,
         "ingredients": [
           {
             "id": "ing_pa_1",
@@ -3129,8 +3129,8 @@
         "name": "Asado Completo con Mesa Buffet",
         "type": "Plato Principal",
         "totalDishCost": 299.6272,
-        "profitMargin": 126,
-        "suggestedSellingPrice": 677.157472,
+        "profitMargin": 150,
+        "suggestedSellingPrice": 749,
         "ingredients": [
           {
             "id": "ing_acg1_1",
@@ -3355,8 +3355,8 @@
         "name": "Cordero Asado con Mesa Buffet",
         "type": "Plato Principal",
         "totalDishCost": 262.2272,
-        "profitMargin": 147,
-        "suggestedSellingPrice": 647.7011839999999,
+        "profitMargin": 163,
+        "suggestedSellingPrice": 689,
         "ingredients": [
           {
             "id": "ing_cag1_1",
