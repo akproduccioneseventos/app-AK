@@ -53,23 +53,20 @@ const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos l
 
 
 // Helper function to decide which guest count to use for an item
-function getGuestCountForItem(item: { nombre: string }, adultos: number, ninos: number): number {
+function getGuestCountForItem(item: { nombre: string }, adultos: number, ninos: number, adolescentes: number): number {
   const nombre = item.nombre.toLowerCase();
-  const hayNinos = ninos > 0;
-
+  
   if (nombre.includes('infantil') || nombre.includes('hamburguesa') || nombre.includes('pancho')) {
     return ninos;
   }
-  if (hayNinos && (nombre.includes('asado') || nombre.includes('cordero') || nombre.includes('principal'))) {
-    return adultos;
-  }
-  return adultos + ninos;
+  // For most other food items, and general services, count adults + adolescents
+  return adultos + adolescentes;
 };
 
-function calcularCostoServicio(servicio: ServicioEmpresa, adultos: number, ninos: number): number {
+function calcularCostoServicio(servicio: ServicioEmpresa, adultos: number, ninos: number, adolescentes: number): number {
   if (!servicio) return 0;
   
-  const cantidadInvitados = getGuestCountForItem(servicio, adultos, ninos);
+  const cantidadInvitados = getGuestCountForItem(servicio, adultos, ninos, adolescentes);
   
   if (cantidadInvitados === 0 && (servicio.calculationMethod === 'porPersona' || servicio.calculationMethod === 'ratio')) {
     return 0;
@@ -174,6 +171,7 @@ export default function ArmadoRapidoPage() {
     const [clienteNombre, setClienteNombre] = useState('');
     const [clienteContacto, setClienteContacto] = useState('');
     const [adultos, setAdultos] = useState<number>(50);
+    const [adolescentes, setAdolescentes] = useState<number>(0);
     const [ninos, setNinos] = useState<number>(0);
     const [duracionHoras, setDuracionHoras] = useState<number>(5);
     const [eventoFecha, setEventoFecha] = useState<Date | undefined>(undefined);
@@ -291,7 +289,7 @@ export default function ArmadoRapidoPage() {
         idsToAdd.forEach(id => {
             const dishToAdd = allDishes.find(d => d.id === id);
             if (dishToAdd) {
-                const invitados = type === 'infantil' ? ninos : adultos;
+                const invitados = type === 'infantil' ? ninos : adultos + adolescentes;
                 newSelected.set(dishToAdd.id, menuItemToServicioSeleccionado(dishToAdd, invitados));
             }
         });
@@ -304,8 +302,8 @@ export default function ArmadoRapidoPage() {
         return [...entradasDisponibles, ...principalesDisponibles, ...menusNinoDisponibles, ...serviciosCatalogo];
     }, [entradasDisponibles, principalesDisponibles, menusNinoDisponibles, serviciosCatalogo]);
 
-    const { costoTotal, subtotal, descuento, serviciosDetallados, totalRegalos } = useMemo(() => {
-        if (!config || !serviciosCatalogo.length) return { costoTotal: 0, subtotal: 0, descuento: 0, serviciosDetallados: [], totalRegalos: 0 };
+    const { costoTotal, subtotal, serviciosDetallados, totalRegalos } = useMemo(() => {
+        if (!config || !serviciosCatalogo.length) return { costoTotal: 0, subtotal: 0, serviciosDetallados: [], totalRegalos: 0 };
         
         let calculatedSubtotal = 0;
         let calculatedTotalRegalos = 0;
@@ -315,7 +313,7 @@ export default function ArmadoRapidoPage() {
             if (!servicio) return;
              if (includedServicesList.some(s => s.id === servicio.id)) { return; }
 
-            const costoItem = calcularCostoServicio(servicio, adultos, ninos);
+            const costoItem = calcularCostoServicio(servicio, adultos, ninos, adolescentes);
             
             if (!esRegalo) {
                 calculatedSubtotal += costoItem;
@@ -323,7 +321,7 @@ export default function ArmadoRapidoPage() {
                 calculatedTotalRegalos += costoItem;
             }
             
-            const cantidadInvitadosRelevante = getGuestCountForItem(servicio, adultos, ninos);
+            const cantidadInvitadosRelevante = getGuestCountForItem(servicio, adultos, ninos, adolescentes);
             let cantidadDisplay: number = 1;
             let unidadDisplay = 'evento';
 
@@ -378,15 +376,8 @@ export default function ArmadoRapidoPage() {
             });
         }
         
-        let calculatedDescuento = 0;
-        if (config.descuentoGeneral && config.descuentoGeneral > 0) {
-            calculatedDescuento = calculatedSubtotal * (config.descuentoGeneral / 100);
-        }
-
-        const calculatedCostoTotal = calculatedSubtotal - calculatedDescuento;
-
-        return { costoTotal: calculatedCostoTotal, subtotal: calculatedSubtotal, descuento: calculatedDescuento, serviciosDetallados: includedServicesList, totalRegalos: calculatedTotalRegalos };
-    }, [config, serviciosCatalogo, allSimuladorServices, adultos, ninos, selectedPaqueteId, formData.serviciosSeleccionados]);
+        return { costoTotal: calculatedSubtotal, subtotal: calculatedSubtotal, serviciosDetallados: includedServicesList, totalRegalos: calculatedTotalRegalos };
+    }, [config, serviciosCatalogo, allSimuladorServices, adultos, ninos, adolescentes, selectedPaqueteId, formData.serviciosSeleccionados]);
 
     const serviciosAgrupados = useMemo(() => {
         const serviciosSinRegalo = serviciosDetallados.filter(s => !s.esRegalo);
@@ -443,6 +434,7 @@ export default function ArmadoRapidoPage() {
             eventoFecha: eventoFecha ? eventoFecha.toISOString() : undefined,
             adultos,
             ninos,
+            adolescentes,
             costoEstimado: costoTotal,
             paqueteNombre: config?.paquetes.find(p => p.id === selectedPaqueteId)?.nombre,
             items: serviciosDetallados.map(s => {
@@ -478,7 +470,7 @@ export default function ArmadoRapidoPage() {
         } finally {
             setIsGeneratingLead(false);
         }
-    }, [clienteNombre, clienteContacto, eventoFecha, adultos, ninos, costoTotal, config?.paquetes, selectedPaqueteId, serviciosDetallados, toast, isGeneratingLead, allSimuladorServices]);
+    }, [clienteNombre, clienteContacto, eventoFecha, adultos, ninos, adolescentes, costoTotal, config?.paquetes, selectedPaqueteId, serviciosDetallados, toast, isGeneratingLead, allSimuladorServices]);
     
     const selectedPrincipalId = useMemo(() => Array.from(formData.serviciosSeleccionados.keys()).find(id => principalesDisponibles.some(p => p.id === id)) || '', [formData.serviciosSeleccionados, principalesDisponibles]);
 
@@ -573,9 +565,13 @@ export default function ArmadoRapidoPage() {
                                     <p className="text-xs text-muted-foreground">Debe tener 9 dígitos. Sin espacios ni guiones.</p>
                                 </div>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div className="space-y-2"><Label htmlFor="num-adultos">Cantidad de Adultos *</Label><Input id="num-adultos" type="number" value={adultos} onChange={e => setAdultos(Number(e.target.value) || 0)} min="1" required/></div>
-                                <div className="space-y-2"><Label htmlFor="num-ninos">Cantidad de Niños/Adolescentes</Label><Input id="num-ninos" type="number" value={ninos} onChange={e => setNinos(Number(e.target.value) || 0)} min="0"/></div>
+                                <div className="space-y-2"><Label htmlFor="num-adolescentes">Nº Adolescentes</Label><Input id="num-adolescentes" type="number" value={adolescentes} onChange={e => setAdolescentes(Number(e.target.value) || 0)} min="0"/></div>
+                                <div className="space-y-2"><Label htmlFor="num-ninos">Nº Niños</Label><Input id="num-ninos" type="number" value={ninos} onChange={e => setNinos(Number(e.target.value) || 0)} min="0"/></div>
+                                
+                            </div>
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2"><Label htmlFor="duracion-horas">Duración (hs)</Label><Input id="duracion-horas" type="number" value={duracionHoras} onChange={(e) => setDuracionHoras(Number(e.target.value) || 1)} min="1"/></div>
                                 <div className="space-y-2"><Label htmlFor="evento-fecha">Fecha Estimada del Evento</Label><DatePickerDemo selectedDate={eventoFecha} onDateChange={setEventoFecha} /></div>
                             </div>
@@ -697,35 +693,6 @@ export default function ArmadoRapidoPage() {
                             <h3 className="font-headline text-2xl text-center mb-4">Resumen de tu Presupuesto</h3>
                             <p className="text-center text-muted-foreground mb-6">Esta es una estimación basada en tus selecciones. Un asesor se pondrá en contacto para confirmar todos los detalles y ajustar el presupuesto a tus necesidades.</p>
                             
-                             <div className="md:hidden space-y-3">
-                                {Object.entries(serviciosAgrupados).map(([categoria, items]) =>(
-                                    <div key={categoria}>
-                                        <h4 className="font-bold text-primary border-b pb-1 mb-2">{categoria}</h4>
-                                        {items.map(item => (
-                                            <div key={item.id} className="p-2 border-b text-sm">
-                                                <div className="flex justify-between font-medium">
-                                                    <span>{item.nombre}</span>
-                                                    <span>{formatCurrency(item.costo)}</span>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ))}
-                                {Object.keys(regalosAgrupados).length > 0 && (
-                                  <div>
-                                    <h4 className="font-bold text-red-600 border-b border-red-300 pb-1 mb-2 flex items-center gap-1.5"><Gift className="w-4 h-4"/> Regalos Incluidos</h4>
-                                    {Object.entries(regalosAgrupados).map(([categoria, items]) => items.map(item => (
-                                      <div key={item.id} className="p-2 border-b text-sm text-red-600">
-                                        <div className="flex justify-between font-medium">
-                                          <span>{item.nombre}</span>
-                                          <span className="line-through">{formatCurrency(item.costo)}</span>
-                                        </div>
-                                      </div>
-                                    )))}
-                                  </div>
-                                )}
-                             </div>
-
                              <div className="hidden md:block">
                                 <Table>
                                     <TableHeader>
@@ -767,9 +734,7 @@ export default function ArmadoRapidoPage() {
 
                             <Separator className="my-4"/>
                             <div className="w-full md:max-w-xs ml-auto space-y-1 text-sm">
-                                {descuento > 0 && <div className="flex justify-between"><span>Subtotal:</span><span>{formatCurrency(subtotal)}</span></div>}
                                 {totalRegalos > 0 && <div className="flex justify-between text-green-600"><span>Ahorro en Regalos:</span><span>{formatCurrency(totalRegalos)}</span></div>}
-                                {descuento > 0 && <div className="flex justify-between text-destructive"><span>Descuento ({config?.descuentoGeneral}%):</span><span>-${formatCurrency(descuento)}</span></div>}
                                 <div className="flex justify-between font-bold text-lg pt-2 border-t"><span className="text-primary">Importe total</span><span className="text-primary">{formatCurrency(costoTotal)}</span></div>
                             </div>
                              <footer className="mt-6 pt-3 border-t border-gray-300 print:mt-2 print:pt-1.5 print:border-gray-400 text-xs print:text-[8pt] text-gray-600 print:text-black">

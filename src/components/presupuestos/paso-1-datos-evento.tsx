@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { PresupuestoFormData, TipoEvento } from '@/types/presupuesto';
@@ -187,8 +188,8 @@ export function Paso1DatosEvento({ formData, setFormData, occupiedDates }: Paso1
       <Separator className="my-4" />
 
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="space-y-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="space-y-2 lg:col-span-2">
           <Label htmlFor="eventoFecha" className="text-base">Fecha del Evento*</Label>
           <DatePickerDemo
             selectedDate={formData.eventoFecha}

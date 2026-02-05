@@ -69,10 +69,6 @@ export interface PresupuestoFormData {
   invitadosAdultos: number | null;
   invitadosNinos: number | null;
   invitadosAdolescentes: number | null;
-  salonFiestas: string;
-  nombreEmpresa?: string;
-  protagonista1Nombre?: string;
-  protagonista2Nombre?: string;
 
   serviciosSeleccionados: Map<string, {
     cantidad: number;

@@ -63,20 +63,30 @@ function formStateInitializer(initialState: PresupuestoFormData): PresupuestoFor
 }
 
 // Helper function to decide which guest count to use for an item
-function getGuestCountForItem(item: { nombreServicio: string }, adultos: number, adolescentes: number, ninos: number): number {
+function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?: string }, adultos: number, adolescentes: number, ninos: number): number {
   const nombre = item.nombreServicio.toLowerCase();
-
+  
+  // If it's a child-specific item, count only children
   if (nombre.includes('infantil') || nombre.includes('hamburguesa') || nombre.includes('pancho')) {
     return ninos;
   }
-  // For all other items, assume they are for adults and adolescents.
-  return adultos + adolescentes;
+  
+  // For most other food items, count adults and teens
+  const cateringCategories = ['servicio de catering', 'servicio de repostería', 'servicio de bebidas'];
+  if (cateringCategories.some(cat => (item.categoriaServicio || '').toLowerCase().includes(cat))) {
+    return adultos + adolescentes;
+  }
+
+  // Default to total guests for general services (DJ, decor, etc.)
+  return adultos + adolescentes + ninos;
 };
 
 function calcularCostoItem(item: ItemPresupuestado, adultos: number, adolescentes: number, ninos: number): number {
   if (item.esRegalo) return 0;
   
+  const totalInvitados = adultos + adolescentes + ninos;
   const cantidadInvitados = getGuestCountForItem(item, adultos, adolescentes, ninos);
+  
   if (cantidadInvitados === 0 && (item.calculationMethod === 'porPersona' || item.calculationMethod === 'ratio')) {
     return 0;
   }
@@ -100,10 +110,10 @@ function calcularCostoItem(item: ItemPresupuestado, adultos: number, adolescente
       }
       break;
     case 'tramos':
-      const tramo = item.tramosDePrecio?.find(t => cantidadInvitados >= t.desde && cantidadInvitados <= t.hasta);
+      const tramo = item.tramosDePrecio?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta);
       itemTotal = tramo?.precio || 0;
       break;
-    default: 
+    default: // Fallback to simple calculation
       itemTotal = item.cantidad * precioUnitario;
   }
   return itemTotal;
