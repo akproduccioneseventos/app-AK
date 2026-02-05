@@ -2,9 +2,9 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, use } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'; 
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextIcon, CalendarDays, Users, Coins, StickyNote, FileSignature, MessageSquare, Mail, Percent, Tag, Phone, Globe as GlobeIcon, Share2, Gift } from 'lucide-react';
@@ -62,20 +62,17 @@ const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos l
 
 function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?: string }, adultos: number, adolescentes: number, ninos: number): number {
   const categoria = (item.categoriaServicio || '').toLowerCase();
+  const ninosYAdolescentes = ninos + adolescentes;
   
-  const isMenuInfantil = categoria.includes('infantil') || categoria.includes('adolescente');
-  if (isMenuInfantil) {
-    return ninos;
+  if (categoria.includes('infantil') || categoria.includes('adolescente')) {
+    return ninosYAdolescentes;
   }
   
-  const isCateringAdulto = ['entrada', 'postre', 'bebida', 'catering', 'repostería'].some(cat => categoria.includes(cat));
-  const isPlatoPrincipal = categoria.includes('plato principal');
-  if (isPlatoPrincipal || isCateringAdulto) {
-      return adultos + adolescentes;
+  if (categoria.includes('plato principal')) {
+    return adultos;
   }
   
-  // For all other services (DJ, decor, etc.), count everyone.
-  return adultos + adolescentes + ninos;
+  return adultos + ninosYAdolescentes;
 };
 
 function calcularCostoItem(item: ItemPresupuestado, adultos: number, adolescentes: number, ninos: number): number {
@@ -107,6 +104,7 @@ function calcularCostoItem(item: ItemPresupuestado, adultos: number, adolescente
       }
       break;
     case 'tramos':
+      // Para tramos, SIEMPRE usar el total de invitados.
       const tramo = item.tramosDePrecio?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta);
       itemTotal = tramo?.precio || 0;
       break;

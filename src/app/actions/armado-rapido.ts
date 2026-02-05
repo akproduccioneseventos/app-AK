@@ -71,7 +71,7 @@ export async function generateBudgetAndLeadFromSimulator(
       salonFiestas: 'A definir',
       itemsPresupuestados: data.items,
       timestamp: new Date().toISOString(),
-      notas: `Presupuesto generado desde el Simulador. Paquete: ${data.paqueteNombre || 'N/A'}.`,
+      notas: `Presupuesto generado desde el Simulador. Paquete: ${data.paqueteNombre || 'N/A'}. Costo estimado: ${formatCurrency(data.costoEstimado)}`,
       costoTotalEstimado: data.subtotal, // Use subtotal before discount
       descuentoTipo: data.descuentoGeneral && data.descuentoGeneral > 0 ? 'porcentaje' : undefined,
       descuentoValor: data.descuentoGeneral,

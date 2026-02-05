@@ -1,47 +1,24 @@
 [
   {
-    "id": "lead_1770301568588_i5a95ut",
-    "name": "Ake",
+    "id": "lead_1770303210054_o3xerte",
+    "name": "Pepe",
     "phone": "098355530",
-    "notes": "Presupuesto ID: pres_1770301568575_ulycd38\nCosto: $ 310.727,00",
-    "presupuestoId": "pres_1770301568575_ulycd38",
+    "notes": "Presupuesto ID: pres_1770303210045_ehq546s\nCosto: $ 216.271,45",
+    "presupuestoId": "pres_1770303210045_ehq546s",
     "currentStageId": "s3",
-    "createdAt": "2026-02-05T14:26:08.588Z",
-    "updatedAt": "2026-02-05T14:26:08.608Z",
+    "createdAt": "2026-02-05T14:53:30.054Z",
+    "updatedAt": "2026-02-05T14:53:30.072Z",
     "history": [
       {
         "stageId": "s1",
         "stageName": "Consultó",
-        "timestamp": "2026-02-05T14:26:08.588Z"
+        "timestamp": "2026-02-05T14:53:30.054Z"
       },
       {
         "stageId": "s3",
         "stageName": "Con presupuesto",
-        "timestamp": "2026-02-05T14:26:08.608Z"
+        "timestamp": "2026-02-05T14:53:30.072Z"
       }
     ]
-  },
-  {
-    "id": "lead_1770300414472_b1zpaet",
-    "name": "Nicolas",
-    "phone": "098355530",
-    "notes": "Presupuesto ID: pres_1770300414463_9tkkas0\nCosto: $ 321.737,00",
-    "presupuestoId": "pres_1770300414463_9tkkas0",
-    "currentStageId": "s3",
-    "createdAt": "2026-02-05T14:06:54.472Z",
-    "updatedAt": "2026-02-05T14:06:54.494Z",
-    "history": [
-      {
-        "stageId": "s1",
-        "stageName": "Consultó",
-        "timestamp": "2026-02-05T14:06:54.472Z"
-      },
-      {
-        "stageId": "s3",
-        "stageName": "Con presupuesto",
-        "timestamp": "2026-02-05T14:06:54.494Z"
-      }
-    ],
-    "presupuestoEstado": "Enviado"
   }
 ]
