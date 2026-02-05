@@ -2,9 +2,9 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'; 
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextIcon, CalendarDays, Users, Coins, StickyNote, FileSignature, MessageSquare, Mail, Percent, Tag, Phone, Globe as GlobeIcon, Share2, Gift } from 'lucide-react';
@@ -113,7 +113,7 @@ function calcularCostoItem(item: ItemPresupuestado, adultos: number, adolescente
   return itemTotal;
 }
 
-export default function VerPresupuestoPage({ params }: { params: { id: string } }) {
+function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const router = useRouter();
   const presupuestoId = params.id as string;
   const { toast } = useToast();
@@ -456,4 +456,12 @@ export default function VerPresupuestoPage({ params }: { params: { id: string } 
       </div>
     </div>
   );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>}>
+      <VerPresupuestoContent params={useSearchParams() as any} />
+    </Suspense>
+  )
 }
