@@ -1,3 +1,4 @@
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
@@ -33,4 +34,5 @@ const nextConfig = {
 };
 
 // Triggering a rebuild to solve chunk loading issues.
+// A new comment to force a clean deployment and fix dynamic routing issues.
 module.exports = nextConfig;
