@@ -401,7 +401,7 @@ export default function ArmadoRapidoPage() {
           costoTotal: totalConDescuento,
         };
     }, [config, serviciosCatalogo, allSimuladorServices, adultos, ninosYAdolescentes, selectedPaqueteId, formData.serviciosSeleccionados]);
-
+    
     const serviciosAgrupados = useMemo(() => {
         const serviciosSinRegalo = serviciosDetallados.filter(s => !s.esRegalo);
         return serviciosSinRegalo.reduce((acc, servicio) => {
@@ -425,6 +425,7 @@ export default function ArmadoRapidoPage() {
             return acc;
         }, {} as Record<string, ServicioDetallado[]>);
     }, [serviciosDetallados]);
+
 
     const generarTextoWhatsApp = useCallback(() => {
         if (typeof window === 'undefined') return '';
@@ -453,74 +454,13 @@ export default function ArmadoRapidoPage() {
         window.print();
     };
 
-    const handleGenerateLead = useCallback(async (): Promise<boolean> => {
-        if (!clienteNombre.trim() || !clienteContacto.trim() || isGeneratingLead) {
-            return false;
-        }
-        setIsGeneratingLead(true);
-        const data = {
-            clienteNombre,
-            clienteContacto,
-            eventoFecha: eventoFecha ? eventoFecha.toISOString() : undefined,
-            adultos,
-            ninos: ninosYAdolescentes,
-            adolescentes: 0,
-            subtotal,
-            costoEstimado: costoTotal, // Send final cost
-            descuentoGeneral: config?.descuentoGeneral,
-            serviciosIncluidos: serviciosDetallados.map(s => s.id),
-            paqueteNombre: config?.paquetes.find(p => p.id === selectedPaqueteId)?.nombre,
-            items: serviciosDetallados.map(s => {
-                const originalServicio = allSimuladorServices.find(os => os.id === s.id);
-                return {
-                    idServicioCatalogo: s.id,
-                    nombreServicio: s.nombre,
-                    cantidad: s.cantidad,
-                    unidad: s.unidad,
-                    precioUnitario: s.precioUnitario,
-                    precioUnitarioPresupuesto: s.precioUnitario,
-                    esRegalo: s.esRegalo,
-                    categoriaServicio: s.categoria,
-                    calculationMethod: originalServicio?.calculationMethod,
-                    precioBase: originalServicio?.precioBase,
-                    precioPorPersona: originalServicio?.precioPorPersona,
-                    invitadosPorUnidad: originalServicio?.invitadosPorUnidad,
-                    tramosDePrecio: originalServicio?.tramosDePrecio,
-                };
-            }) as Omit<ItemPresupuestado, 'id' | 'costoTotalItem'>[]
-        };
-
-        try {
-            const result = await generateBudgetAndLeadFromSimulator(data);
-            if(!result.success || !result.presupuestoId) { 
-                throw new Error(result.error || "No se recibió un ID para el presupuesto generado."); 
-            } else {
-                 setGeneratedPresupuestoId(result.presupuestoId);
-                 toast({ title: "¡Solicitud Enviada!", description: "Gracias por tu interés. Se generó un resumen de tu selección.", variant: 'default' });
-                 return true;
-            }
-        } catch(e: any) {
-             toast({ title: "Error al registrar", description: e.message, variant: "destructive" });
-             return false;
-        } finally {
-            setIsGeneratingLead(false);
-        }
-    }, [clienteNombre, clienteContacto, eventoFecha, adultos, ninosYAdolescentes, costoTotal, subtotal, config?.descuentoGeneral, config?.paquetes, selectedPaqueteId, serviciosDetallados, toast, isGeneratingLead, allSimuladorServices]);
-    
-    const selectedPrincipalId = useMemo(() => Array.from(formData.serviciosSeleccionados.keys()).find(id => principalesDisponibles.some(p => p.id === id)) || '', [formData.serviciosSeleccionados, principalesDisponibles]);
-
-    const isStepTwoInvalid = useMemo(() => {
-        const requiredEntradas = duracionHoras > 4 ? 2 : 1;
-        return !selectedPrincipalId || selectedEntradas.length !== requiredEntradas;
-    }, [duracionHoras, selectedPrincipalId, selectedEntradas]);
-
     const nextStep = async () => {
         if (step === 1 && (!clienteNombre.trim() || !/^\d{9}$/.test(clienteContacto.trim()) || adultos <= 0)) {
             toast({ title: "Datos incompletos", description: "Por favor, ingresa un nombre, un celular válido de 9 dígitos y la cantidad de adultos.", variant: "destructive" });
             return;
         }
-        if (step === 2 && isStepTwoInvalid) {
-            const requiredEntradas = duracionHoras > 4 ? 2 : 1;
+        const requiredEntradas = duracionHoras > 4 ? 2 : 1;
+        if (step === 2 && (!selectedPrincipalId || selectedEntradas.length !== requiredEntradas)) {
             toast({ title: "Selección de Menú Incompleta", description: `Debes elegir un plato principal y exactamente ${requiredEntradas} entrada(s).`, variant: "destructive" });
             return;
         }
@@ -531,16 +471,62 @@ export default function ArmadoRapidoPage() {
         
         if (step < 4) {
             if (step === 3) {
-                const success = await handleGenerateLead();
-                if (success) {
-                    setStep(s => s + 1);
+                 if (!clienteNombre.trim() || !clienteContacto.trim()) {
+                    toast({ title: "Datos de contacto requeridos para continuar", variant: "destructive" });
+                    return;
+                }
+                setIsGeneratingLead(true);
+                const data = {
+                    clienteNombre,
+                    clienteContacto,
+                    eventoFecha: eventoFecha ? eventoFecha.toISOString() : undefined,
+                    adultos,
+                    ninos: ninosYAdolescentes,
+                    adolescentes: 0,
+                    subtotal,
+                    costoEstimado: costoTotal,
+                    descuentoGeneral: config?.descuentoGeneral,
+                    serviciosIncluidos: serviciosDetallados.map(s => s.id),
+                    paqueteNombre: config?.paquetes.find(p => p.id === selectedPaqueteId)?.nombre,
+                    items: serviciosDetallados.map(s => {
+                        const originalServicio = allSimuladorServices.find(os => os.id === s.id);
+                        return {
+                            idServicioCatalogo: s.id,
+                            nombreServicio: s.nombre,
+                            cantidad: s.cantidad,
+                            unidad: s.unidad,
+                            precioUnitario: s.precioUnitario,
+                            precioUnitarioPresupuesto: s.precioUnitario,
+                            esRegalo: s.esRegalo,
+                            categoriaServicio: s.categoria,
+                            calculationMethod: originalServicio?.calculationMethod,
+                            precioBase: originalServicio?.precioBase,
+                            precioPorPersona: originalServicio?.precioPorPersona,
+                            invitadosPorUnidad: originalServicio?.invitadosPorUnidad,
+                            tramosDePrecio: originalServicio?.tramosDePrecio,
+                        };
+                    }) as Omit<ItemPresupuestado, 'id' | 'costoTotalItem'>[]
+                };
+                
+                try {
+                    const result = await generateBudgetAndLeadFromSimulator(data);
+                    if (result.success && result.presupuestoId) {
+                        setGeneratedPresupuestoId(result.presupuestoId);
+                        toast({ title: "¡Solicitud Enviada!", description: "Gracias por tu interés. Se generó un resumen de tu selección.", variant: 'default' });
+                        setStep(s => s + 1);
+                    } else {
+                        throw new Error(result.error || "No se recibió un ID para el presupuesto generado.");
+                    }
+                } catch (e: any) {
+                    toast({ title: "Error al registrar", description: e.message, variant: "destructive" });
+                } finally {
+                    setIsGeneratingLead(false);
                 }
             } else {
                 setStep(s => s + 1);
             }
         }
     };
-
 
     const prevStep = () => setStep(s => s > 1 ? s - 1 : s);
     
@@ -552,6 +538,13 @@ export default function ArmadoRapidoPage() {
     const today = new Date();
     const validUntil = new Date(today);
     validUntil.setDate(today.getDate() + 30);
+
+    const selectedPrincipalId = useMemo(() => Array.from(formData.serviciosSeleccionados.keys()).find(id => principalesDisponibles.some(p => p.id === id)) || '', [formData.serviciosSeleccionados, principalesDisponibles]);
+
+    const isStepTwoInvalid = useMemo(() => {
+        const requiredEntradas = duracionHoras > 4 ? 2 : 1;
+        return !selectedPrincipalId || selectedEntradas.length !== requiredEntradas;
+    }, [duracionHoras, selectedPrincipalId, selectedEntradas]);
 
     return (
         <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4 print:bg-white print:p-0 print:items-start">
