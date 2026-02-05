@@ -33,6 +33,5 @@ const nextConfig = {
   },
 };
 
-// Triggering a rebuild to solve chunk loading issues.
-// A new comment to force a clean deployment and fix dynamic routing issues.
+// Forcing a clean rebuild and deployment to fix public URL and routing issues.
 module.exports = nextConfig;
