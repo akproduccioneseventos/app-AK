@@ -1,1 +1,1 @@
-// El Asistente de IA ha sido desactivado temporalmente.
+// Temporarily disabled to ensure stable build

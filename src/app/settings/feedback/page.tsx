@@ -13,7 +13,6 @@ import { ArrowLeft, Loader2, AlertTriangle, Star, Wand2, Trash2, ClipboardCopy, 
 import { useToast } from '@/hooks/use-toast';
 import type { FeedbackSubmission, Testimonial } from '@/types/feedback';
 import { getFeedback, getTestimonials, saveTestimonial, updateTestimonialApproval, deleteTestimonial } from '@/app/actions/feedback';
-import { generateTestimonial } from '@/ai/flows/generate-testimonial-flow';
 import {
   Dialog,
   DialogContent,
@@ -38,13 +37,6 @@ export default function FeedbackPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [fiestaIdActual, setFiestaIdActual] = useState<string>('');
   
-  // State for AI generation modal
-  const [isGeneratorOpen, setIsGeneratorOpen] = useState(false);
-  const [currentFeedback, setCurrentFeedback] = useState<FeedbackSubmission | null>(null);
-  const [generatedText, setGeneratedText] = useState('');
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [isSavingTestimonial, setIsSavingTestimonial] = useState(false);
-
   // State for post creation dialog
   const [postToCreate, setPostToCreate] = useState<Partial<SocialPost> | null>(null);
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
@@ -73,30 +65,6 @@ export default function FeedbackPage() {
     toast({ title: "Enlace Copiado" });
   };
 
-  const handleSaveTestimonial = async () => {
-    if (!currentFeedback || !generatedText.trim()) return;
-    setIsSavingTestimonial(true);
-    try {
-      const result = await saveTestimonial({
-        feedbackId: currentFeedback.id,
-        fiestaId: currentFeedback.fiestaId,
-        fiestaNombre: currentFeedback.fiestaNombre,
-        clientName: currentFeedback.clientName,
-        testimonialText: generatedText,
-      });
-      if (result.success) {
-        toast({ title: "Testimonio Guardado" });
-        setIsGeneratorOpen(false);
-        await loadData();
-      } else {
-        throw new Error(result.error || "No se pudo guardar el testimonio.");
-      }
-    } catch (e: any) {
-      toast({ title: "Error al Guardar", description: e.message, variant: "destructive" });
-    } finally {
-      setIsSavingTestimonial(false);
-    }
-  };
 
   const handleToggleApproval = async (id: string, currentStatus: boolean) => {
     await updateTestimonialApproval(id, !currentStatus);
@@ -133,30 +101,7 @@ export default function FeedbackPage() {
           }}
           postToDuplicate={postToCreate} // Using duplicate to pre-fill text
       />
-      <Dialog open={isGeneratorOpen} onOpenChange={setIsGeneratorOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="font-headline text-xl">Generar Testimonio con IA</DialogTitle>
-            <DialogDescription>Revisa el texto generado y edítalo si es necesario antes de guardarlo.</DialogDescription>
-          </DialogHeader>
-          {isGenerating ? <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div> :
-            <div className="space-y-3 py-2">
-              <div className="text-sm p-3 border rounded-md bg-muted/50">
-                <p><strong>Cliente:</strong> {currentFeedback?.clientName}</p>
-                <p><strong>Evento:</strong> {currentFeedback?.fiestaNombre}</p>
-              </div>
-              <Label htmlFor="testimonial-text">Texto del Testimonio</Label>
-              <Textarea id="testimonial-text" value={generatedText} onChange={e => setGeneratedText(e.target.value)} rows={8}/>
-            </div>
-          }
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsGeneratorOpen(false)}>Cancelar</Button>
-            <Button onClick={handleSaveTestimonial} disabled={isGenerating || isSavingTestimonial}>
-              {isSavingTestimonial ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : null} Guardar Testimonio
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+     
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Star className="w-8 h-8 text-primary" />

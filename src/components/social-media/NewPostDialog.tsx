@@ -30,9 +30,6 @@ import { Switch } from '@/components/ui/switch';
 
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { getFiestaActual, getHistorialFiestas } from '@/app/actions/fiesta-actual';
-import { generateSocialPost, type GenerateSocialPostInput } from '@/ai/flows/generate-social-post-flow';
-import { generateImage } from '@/ai/flows/generate-image-flow';
-
 
 interface NewPostDialogProps {
     onPostCreated: () => void;
@@ -41,23 +38,6 @@ interface NewPostDialogProps {
     isOpen?: boolean;
     onOpenChange?: (open: boolean) => void;
     children?: React.ReactNode;
-}
-
-// Helper function to convert data URI to File
-function dataURLtoFile(dataurl: string, filename: string): File {
-    const arr = dataurl.split(',');
-    const mimeMatch = arr[0].match(/:(.*?);/);
-    if (!mimeMatch) {
-        throw new Error('Invalid data URI');
-    }
-    const mime = mimeMatch[1];
-    const bstr = atob(arr[1]);
-    let n = bstr.length;
-    const u8arr = new Uint8Array(n);
-    while (n--) {
-        u8arr[n] = bstr.charCodeAt(n);
-    }
-    return new File([u8arr], filename, { type: mime });
 }
 
 
@@ -91,18 +71,6 @@ export function NewPostDialog({
     
     const [sendToWhatsApp, setSendToWhatsApp] = useState(false);
 
-    // AI State
-    const [isAiPanelOpen, setIsAiPanelOpen] = useState(false);
-    const [isGeneratingText, setIsGeneratingText] = useState(false);
-    const [aiSelectedEventId, setAiSelectedEventId] = useState<string>('');
-    const [aiStyle, setAiStyle] = useState<'promocional' | 'elegante' | 'divertida'>('promocional');
-
-    // AI Image Generation State
-    const [isImageGenModalOpen, setIsImageGenModalOpen] = useState(false);
-    const [imageGenPrompt, setImageGenPrompt] = useState('');
-    const [isGeneratingImage, setIsGeneratingImage] = useState(false);
-
-
     // Data for selectors
     const [allEvents, setAllEvents] = useState<FiestaEnPlanificacion[]>([]);
     
@@ -123,8 +91,6 @@ export function NewPostDialog({
         setPromotionCost(isDuplicating ? '' : (activePost?.promotionCost?.toString() || ''));
         setPerformanceLikes(isDuplicating ? '' : (activePost?.performance?.likes?.toString() || ''));
         setSendToWhatsApp(false);
-        setIsAiPanelOpen(false);
-        setAiSelectedEventId('');
     }, [activePost, postToDuplicate]);
 
     useEffect(() => {
@@ -134,15 +100,10 @@ export function NewPostDialog({
                 const [actual, historial] = await Promise.all([getFiestaActual(), getHistorialFiestas()]);
                 const all = [actual, ...historial].filter(Boolean) as FiestaEnPlanificacion[];
                 setAllEvents(all);
-                 if (activePost?.eventId) {
-                    setAiSelectedEventId(activePost.eventId);
-                } else {
-                    setAiSelectedEventId('general'); // Default to general campaign
-                }
             };
             fetchInitialData();
         }
-    }, [isOpen, resetForm, activePost]);
+    }, [isOpen, resetForm]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -151,59 +112,6 @@ export function NewPostDialog({
             setMediaPreview(URL.createObjectURL(file));
         }
     };
-    
-    const handleGenerateWithAI = async () => {
-        setIsGeneratingText(true);
-        try {
-            let input: GenerateSocialPostInput = { style: aiStyle };
-            const selectedEvent = allEvents.find(e => e.id === aiSelectedEventId);
-
-            if (selectedEvent) {
-                input = {
-                    ...input,
-                    eventName: selectedEvent.configuracion.nombreEvento,
-                    eventType: typeof selectedEvent.configuracion.tipoCelebracion === 'string' ? selectedEvent.configuracion.tipoCelebracion : 'Evento',
-                    eventDate: selectedEvent.configuracion.fechaEvento ? new Date(selectedEvent.configuracion.fechaEvento).toLocaleDateString('es-ES') : 'Próximamente',
-                };
-            }
-            
-            const result = await generateSocialPost(input);
-            setText(result.postText);
-            toast({ title: "¡Texto Generado!", description: "El texto se ha insertado en el campo de la publicación."});
-            setIsAiPanelOpen(false);
-        } catch(e: any) {
-            toast({ title: "Error de IA", description: e.message, variant: "destructive" });
-        } finally {
-            setIsGeneratingText(false);
-        }
-    };
-
-    const handleGenerateImage = async () => {
-        if (!imageGenPrompt.trim()) {
-            toast({ title: "Descripción requerida", description: "Escribe qué imagen quieres generar.", variant: "destructive" });
-            return;
-        }
-        setIsGeneratingImage(true);
-        try {
-            const result = await generateImage({ prompt: imageGenPrompt });
-            if (result.imageUrl) {
-                setMediaPreview(result.imageUrl);
-                // Convert data URI to a File object to be saved
-                const generatedFile = dataURLtoFile(result.imageUrl, `ai-generated-${Date.now()}.png`);
-                setMediaFile(generatedFile);
-                toast({ title: "¡Imagen Generada!", description: "La imagen ha sido añadida a tu publicación." });
-                setIsImageGenModalOpen(false);
-                setImageGenPrompt('');
-            } else {
-                throw new Error("La IA no pudo generar la imagen.");
-            }
-        } catch (e: any) {
-            toast({ title: "Error de IA", description: e.message, variant: "destructive" });
-        } finally {
-            setIsGeneratingImage(false);
-        }
-    };
-
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
@@ -270,27 +178,6 @@ export function NewPostDialog({
                     <DialogDescription>Completa los detalles de tu post para redes sociales.</DialogDescription>
                 </DialogHeader>
 
-                {/* AI Image Generation Modal */}
-                <Dialog open={isImageGenModalOpen} onOpenChange={setIsImageGenModalOpen}>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Generar Imagen con IA</DialogTitle>
-                            <DialogDescription>Describe detalladamente la imagen que quieres crear. Sé específico con los colores, estilo y elementos.</DialogDescription>
-                        </DialogHeader>
-                        <div className="py-2 space-y-2">
-                            <Label htmlFor="image-prompt">Descripción (en inglés preferentemente):</Label>
-                            <Textarea id="image-prompt" value={imageGenPrompt} onChange={e => setImageGenPrompt(e.target.value)} placeholder="Ej: a luxurious wedding reception with gold and white decorations, cinematic lighting" rows={4} />
-                        </div>
-                        <DialogFooter>
-                            <Button variant="outline" onClick={() => setIsImageGenModalOpen(false)}>Cancelar</Button>
-                            <Button onClick={handleGenerateImage} disabled={isGeneratingImage}>
-                                {isGeneratingImage ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Sparkles className="w-4 h-4 mr-2"/>}
-                                {isGeneratingImage ? 'Generando...' : 'Generar Imagen'}
-                            </Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
-
                 <form onSubmit={handleSubmit} className="space-y-4 py-2 max-h-[80vh] overflow-y-auto pr-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1"><Label htmlFor="platform">Plataforma</Label><Select value={platform} onValueChange={(val) => setPlatform(val as SocialPlatform | 'WhatsApp')}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Instagram">Instagram</SelectItem><SelectItem value="Facebook">Facebook</SelectItem><SelectItem value="TikTok">TikTok</SelectItem><SelectItem value="WhatsApp">WhatsApp</SelectItem></SelectContent></Select></div>
@@ -305,38 +192,6 @@ export function NewPostDialog({
                     )}
                     <div className="space-y-1"><Label htmlFor="text">Texto de la Publicación</Label><Textarea id="text" value={text} onChange={e => setText(e.target.value)} rows={6} placeholder="Escribe tu post aquí..." required /></div>
                     
-                    <Card className="bg-muted/50 border-dashed">
-                        <CardHeader className="p-3">
-                            <div className="flex justify-between items-center">
-                                <CardTitle className="text-md font-medium flex items-center gap-2"><Sparkles className="w-5 h-5 text-primary"/>Asistente de Redacción IA</CardTitle>
-                                <Button type="button" variant="secondary" size="sm" onClick={() => setIsAiPanelOpen(!isAiPanelOpen)}>
-                                    {isAiPanelOpen ? 'Cerrar Asistente' : 'Redactar con IA'}
-                                </Button>
-                            </div>
-                        </CardHeader>
-                        {isAiPanelOpen && (
-                            <CardContent className="p-3 pt-0 space-y-3">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                    <div className="space-y-1"><Label htmlFor="ai-event">Basado en:</Label>
-                                        <Select value={aiSelectedEventId} onValueChange={setAiSelectedEventId}>
-                                            <SelectTrigger><SelectValue placeholder="Seleccionar..."/></SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="general">Campaña General (sin evento)</SelectItem>
-                                                <Separator/>
-                                                {allEvents.map(e => <SelectItem key={e.id} value={e.id}>{e.configuracion.nombreEvento}</SelectItem>)}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="space-y-1"><Label htmlFor="ai-style">Estilo del Post:</Label><Select value={aiStyle} onValueChange={(v) => setAiStyle(v as any)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="promocional">Promocional</SelectItem><SelectItem value="elegante">Elegante</SelectItem><SelectItem value="divertida">Divertido</SelectItem></SelectContent></Select></div>
-                                </div>
-                                <Button type="button" className="w-full" onClick={handleGenerateWithAI} disabled={isGeneratingText}>
-                                    {isGeneratingText ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Wand2 className="w-4 h-4 mr-2"/>}
-                                    {isGeneratingText ? 'Generando...' : 'Generar Texto'}
-                                </Button>
-                            </CardContent>
-                        )}
-                    </Card>
-
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1"><Label htmlFor="link">Enlace (Opcional)</Label><Input id="link" value={link} onChange={e => setLink(e.target.value)} placeholder="https://ejemplo.com" /></div>
                         <div className="space-y-1"><Label htmlFor="status">Estado</Label><Select value={status} onValueChange={(val) => setStatus(val as PostStatus)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Programado">Programado</SelectItem><SelectItem value="Publicado">Publicado</SelectItem></SelectContent></Select></div>
@@ -345,9 +200,6 @@ export function NewPostDialog({
                         <Label>Imagen o Video</Label>
                         <div className="flex gap-2">
                            <Input id="mediaFile" type="file" accept="image/*,video/*" onChange={handleFileChange} className="flex-grow"/>
-                           <Button type="button" variant="outline" onClick={() => setIsImageGenModalOpen(true)}>
-                               <Sparkles className="w-4 h-4 mr-2" /> Generar con IA
-                           </Button>
                         </div>
                      {mediaPreview && <div className="mt-2"><NextImage src={mediaPreview} alt="Vista previa" width={150} height={150} className="rounded-md object-cover"/></div>}
                      </div>

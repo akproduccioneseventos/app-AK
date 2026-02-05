@@ -28,7 +28,6 @@ import {
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { Accordion, AccordionContent, AccordionItem } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
-import { suggestPalette, type ColorPalette as SuggestedPalette } from '@/ai/flows/suggest-palette-flow';
 import { Switch } from '@/components/ui/switch';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
@@ -105,11 +104,6 @@ function DecoracionYDisenoEventoContent() {
   
   const [failedImageUrls, setFailedImageUrls] = useState<Record<string, boolean>>({});
 
-  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
-  const [aiThemeInput, setAiThemeInput] = useState('');
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [suggestedPalette, setSuggestedPalette] = useState<SuggestedPalette | null>(null);
-  const [aiError, setAiError] = useState<string | null>(null);
   
   const loadDecoracionData = useCallback(async () => {
     if (!fiestaId) {
@@ -269,38 +263,7 @@ function DecoracionYDisenoEventoContent() {
     }
   };
 
-  const handleGeneratePalette = async () => {
-    if (!aiThemeInput.trim()) {
-      setAiError("Por favor, ingresa un tema o descripción.");
-      return;
-    }
-    setIsGenerating(true);
-    setAiError(null);
-    setSuggestedPalette(null);
-    try {
-      const result = await suggestPalette({ themeDescription: aiThemeInput });
-      if (result) {
-        setSuggestedPalette(result);
-      } else {
-        throw new Error("La IA no pudo generar una paleta. Intenta con otra descripción.");
-      }
-    } catch (err: any) {
-      console.error("Error generating palette:", err);
-      setAiError(err.message || "Ocurrió un error inesperado.");
-    } finally {
-      setIsGenerating(false);
-    }
-  };
 
-  const handleApplySuggestedPalette = () => {
-    if (suggestedPalette) {
-      handleSelectPalette(suggestedPalette);
-      setIsAiModalOpen(false);
-      setSuggestedPalette(null);
-      setAiThemeInput('');
-    }
-  };
-  
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando decoración...</p></div>;
   }
@@ -481,7 +444,7 @@ function DecoracionYDisenoEventoContent() {
                         aria-label={`Activar ${zona.nombreDisplay}`}
                     />
                   </AccordionPrimitive.Header>
-                  <AccordionContent className="px-4 pt-2 pb-4 space-y-4 border-t">
+                  <AccordionContent className="px-4 pb-4 space-y-4 border-t">
                     {zona.activada && (<>
                         <div className="space-y-2 mt-2"><Label htmlFor={`zona-desc-${zona.id}`}>Descripción</Label><Textarea id={`zona-desc-${zona.id}`} value={zona.descripcion || ''} onChange={e => handleZonaChange(zona.id, 'descripcion', e.target.value)} rows={2} placeholder="Detalles de decoración para esta zona"/></div>
                         <div className="space-y-2">
