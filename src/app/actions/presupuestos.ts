@@ -16,29 +16,29 @@ import type { FullMenu, MenuItem } from '@/types/catering';
 const PRESUPUESTOS_FILE = 'presupuestos.json';
 
 // Helper function to decide which guest count to use for an item
-function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?: string }, adultos: number, adolescentes: number, ninos: number): number {
+function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?: string }, adultos: number, ninosYAdolescentes: number): number {
   const categoria = (item.categoriaServicio || '').toLowerCase();
   
   const isMenuInfantil = categoria.includes('infantil') || categoria.includes('adolescente');
   if (isMenuInfantil) {
-    return ninos + adolescentes;
+    return ninosYAdolescentes;
   }
   
-  const isPlatoPrincipal = categoria.includes('plato principal');
-  if (isPlatoPrincipal) {
+  const isCateringAdulto = categoria.includes('plato principal') || categoria.includes('entrada') || categoria.includes('postre') || categoria.includes('bebida');
+  if (isCateringAdulto) {
     return adultos;
   }
   
-  // For all other services (entradas, bebidas, DJ, decor, etc.), count everyone.
-  return adultos + adolescentes + ninos;
+  // For all other services (DJ, decor, etc.), count everyone.
+  return adultos + ninosYAdolescentes;
 };
 
 
-function recalcularCostoItem(item: ItemPresupuestado, adultos: number, adolescentes: number, ninos: number): number {
+function recalcularCostoItem(item: ItemPresupuestado, adultos: number, ninosYAdolescentes: number): number {
   if (item.esRegalo) return 0;
   
-  const cantidadInvitados = getGuestCountForItem(item, adultos, adolescentes, ninos);
-  const totalInvitados = adultos + adolescentes + ninos;
+  const totalInvitados = adultos + ninosYAdolescentes;
+  const cantidadInvitados = getGuestCountForItem(item, adultos, ninosYAdolescentes);
   
   if (cantidadInvitados === 0 && (item.calculationMethod === 'porPersona' || item.calculationMethod === 'ratio')) {
     return 0;
@@ -87,9 +87,11 @@ export async function savePresupuesto(
 ): Promise<{ success: boolean, id?: string, error?: string, presupuesto?: Presupuesto, leadId?: string }> {
   let presupuestos = await getPresupuestos();
   
+  const ninosYAdolescentes = (presupuestoData.invitadosNinos || 0) + (presupuestoData.invitadosAdolescentes || 0);
+
   const validItems = presupuestoData.itemsPresupuestados.map(item => ({
     ...item,
-    costoTotalItem: recalcularCostoItem(item, presupuestoData.invitadosAdultos || 0, presupuestoData.invitadosAdolescentes || 0, presupuestoData.invitadosNinos || 0),
+    costoTotalItem: recalcularCostoItem(item, presupuestoData.invitadosAdultos || 0, ninosYAdolescentes),
   }));
 
   const costoTotalEstimadoRecalculado = validItems
@@ -156,10 +158,12 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
     const isNowAcceptedOrBilled = ['Aceptado', 'Facturado'].includes(presupuestoData.estado);
     const wasNotAcceptedOrBilled = !['Aceptado', 'Facturado'].includes(presupuestos[index].estado);
     const activateAdjustment = isNowAcceptedOrBilled && wasNotAcceptedOrBilled;
+    
+    const ninosYAdolescentes = (presupuestoData.invitadosNinos || 0) + (presupuestoData.invitadosAdolescentes || 0);
 
     const validItems = presupuestoData.itemsPresupuestados.map(item => ({
         ...item,
-        costoTotalItem: recalcularCostoItem(item, presupuestoData.invitadosAdultos || 0, presupuestoData.invitadosAdolescentes || 0, presupuestoData.invitadosNinos || 0),
+        costoTotalItem: recalcularCostoItem(item, presupuestoData.invitadosAdultos || 0, ninosYAdolescentes),
     }));
 
     const costoTotalEstimadoRecalculado = validItems

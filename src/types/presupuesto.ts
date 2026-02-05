@@ -1,4 +1,5 @@
 
+
 import type { ServicioEmpresa } from './empresa';
 
 export type TipoEvento =
@@ -68,8 +69,8 @@ export interface PresupuestoFormData {
   eventoFecha: Date | undefined;
   invitadosCantidad: number | null; // Total, se mantiene para consistencia general
   invitadosAdultos: number | null;
-  invitadosNinos: number | null;
-  invitadosAdolescentes: number | null;
+  invitadosNinos: number | null; // Represents children + teenagers
+  invitadosAdolescentes: number | null; // Deprecated for new forms, but kept for type safety
   salonFiestas: string;
   protagonista1Nombre?: string;
   protagonista2Nombre?: string;

@@ -67,7 +67,12 @@ function getGuestCountForItem(servicio: ServicioEmpresa, adultos: number, ninosY
     return adultos;
   }
 
-  // For all other services (entradas, bebidas, DJ, decor, etc.), count everyone.
+  const isCateringRelated = ['entrada', 'postre', 'bebida', 'catering', 'repostería'].some(cat => categoria.includes(cat) || subcategoria.includes(cat));
+  if (isCateringRelated) {
+      return adultos;
+  }
+  
+  // For all other services (DJ, decor, etc.), count everyone.
   return adultos + ninosYAdolescentes;
 };
 
@@ -310,8 +315,8 @@ export default function ArmadoRapidoPage() {
         return [...entradasDisponibles, ...principalesDisponibles, ...menusNinoDisponibles, ...serviciosCatalogo];
     }, [entradasDisponibles, principalesDisponibles, menusNinoDisponibles, serviciosCatalogo]);
 
-    const { costoTotal, subtotal, serviciosDetallados, totalRegalos } = useMemo(() => {
-        if (!config || !serviciosCatalogo.length) return { costoTotal: 0, subtotal: 0, serviciosDetallados: [], totalRegalos: 0 };
+    const { subtotal, serviciosDetallados, totalRegalos, costoTotal, descuento } = useMemo(() => {
+        if (!config || !serviciosCatalogo.length) return { costoTotal: 0, subtotal: 0, serviciosDetallados: [], totalRegalos: 0, descuento: 0 };
         
         let calculatedSubtotal = 0;
         let calculatedTotalRegalos = 0;
@@ -384,7 +389,16 @@ export default function ArmadoRapidoPage() {
             });
         }
         
-        return { costoTotal: calculatedSubtotal, subtotal: calculatedSubtotal, serviciosDetallados: includedServicesList, totalRegalos: calculatedTotalRegalos };
+        const descuentoCalculado = config.descuentoGeneral ? (calculatedSubtotal * config.descuentoGeneral) / 100 : 0;
+        const totalConDescuento = calculatedSubtotal - descuentoCalculado;
+        
+        return { 
+          subtotal: calculatedSubtotal, 
+          serviciosDetallados: includedServicesList, 
+          totalRegalos: calculatedTotalRegalos,
+          descuento: descuentoCalculado,
+          costoTotal: totalConDescuento,
+        };
     }, [config, serviciosCatalogo, allSimuladorServices, adultos, ninosYAdolescentes, selectedPaqueteId, formData.serviciosSeleccionados]);
 
     const serviciosAgrupados = useMemo(() => {
@@ -443,7 +457,10 @@ export default function ArmadoRapidoPage() {
             adultos,
             adolescentes: 0,
             ninos: ninosYAdolescentes,
-            costoEstimado: costoTotal,
+            subtotal,
+            costoEstimado: costoTotal, // Send final cost
+            descuentoGeneral: config?.descuentoGeneral,
+            serviciosIncluidos: serviciosDetallados.map(s => s.id),
             paqueteNombre: config?.paquetes.find(p => p.id === selectedPaqueteId)?.nombre,
             items: serviciosDetallados.map(s => {
                 const originalServicio = allSimuladorServices.find(os => os.id === s.id);
@@ -456,7 +473,6 @@ export default function ArmadoRapidoPage() {
                     precioUnitarioPresupuesto: s.precioUnitario,
                     esRegalo: s.esRegalo,
                     categoriaServicio: s.categoria,
-                    // Pass all calculation fields to the backend
                     calculationMethod: originalServicio?.calculationMethod,
                     precioBase: originalServicio?.precioBase,
                     precioPorPersona: originalServicio?.precioPorPersona,
@@ -478,7 +494,7 @@ export default function ArmadoRapidoPage() {
         } finally {
             setIsGeneratingLead(false);
         }
-    }, [clienteNombre, clienteContacto, eventoFecha, adultos, ninosYAdolescentes, costoTotal, config?.paquetes, selectedPaqueteId, serviciosDetallados, toast, isGeneratingLead, allSimuladorServices]);
+    }, [clienteNombre, clienteContacto, eventoFecha, adultos, ninosYAdolescentes, costoTotal, subtotal, config?.descuentoGeneral, config?.paquetes, selectedPaqueteId, serviciosDetallados, toast, isGeneratingLead, allSimuladorServices]);
     
     const selectedPrincipalId = useMemo(() => Array.from(formData.serviciosSeleccionados.keys()).find(id => principalesDisponibles.some(p => p.id === id)) || '', [formData.serviciosSeleccionados, principalesDisponibles]);
 
@@ -743,6 +759,7 @@ export default function ArmadoRapidoPage() {
                             <Separator className="my-4"/>
                             <div className="w-full md:max-w-xs ml-auto space-y-1 text-sm">
                                 {totalRegalos > 0 && <div className="flex justify-between text-green-600"><span>Ahorro en Regalos:</span><span>{formatCurrency(totalRegalos)}</span></div>}
+                                <div className="flex justify-between text-destructive"><span>Descuento ({config?.descuentoGeneral || 0}%):</span><span>-{formatCurrency(descuento)}</span></div>
                                 <div className="flex justify-between font-bold text-lg pt-2 border-t"><span className="text-primary">Importe total</span><span className="text-primary">{formatCurrency(costoTotal)}</span></div>
                             </div>
                              <footer className="mt-6 pt-3 border-t border-gray-300 print:mt-2 print:pt-1.5 print:border-gray-400 text-xs print:text-[8pt] text-gray-600 print:text-black">

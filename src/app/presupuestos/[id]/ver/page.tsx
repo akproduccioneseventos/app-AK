@@ -2,9 +2,9 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, use } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'; 
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextIcon, CalendarDays, Users, Coins, StickyNote, FileSignature, MessageSquare, Mail, Percent, Tag, Phone, Globe as GlobeIcon, Share2, Gift } from 'lucide-react';
@@ -68,15 +68,13 @@ function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?
     return ninos;
   }
   
+  const isCateringAdulto = ['entrada', 'postre', 'bebida', 'catering', 'repostería'].some(cat => categoria.includes(cat));
   const isPlatoPrincipal = categoria.includes('plato principal');
-  if (isPlatoPrincipal) {
-    return adultos;
+  if (isPlatoPrincipal || isCateringAdulto) {
+      return adultos + adolescentes;
   }
   
-  if(categoria.includes('entrada') || categoria.includes('postre') || categoria.includes('bebida')) {
-    return adultos + adolescentes;
-  }
-
+  // For all other services (DJ, decor, etc.), count everyone.
   return adultos + adolescentes + ninos;
 };
 
@@ -141,7 +139,35 @@ export default function VerPresupuestoPage({ params }: { params: { id: string } 
       setDisplaySettings(fetchedSettings);
       setLogoUrl(templateSettings.logoUrl);
       if (fetchedPresupuesto) {
-        setPresupuesto(fetchedPresupuesto);
+        // Recalculate costs on load
+        const adultos = fetchedPresupuesto.invitadosAdultos || 0;
+        const adolescentes = fetchedPresupuesto.invitadosAdolescentes || 0;
+        const ninos = fetchedPresupuesto.invitadosNinos || 0;
+
+        const itemsRecalculados = fetchedPresupuesto.itemsPresupuestados.map(item => ({
+            ...item,
+            costoTotalItem: calcularCostoItem(item, adultos, adolescentes, ninos)
+        }));
+
+        const subtotal = itemsRecalculados.filter(item => !item.esRegalo).reduce((sum, item) => sum + item.costoTotalItem, 0);
+
+        let totalConDescuento = subtotal;
+        if (fetchedPresupuesto.descuentoTipo && fetchedPresupuesto.descuentoValor) {
+            const descuento = fetchedPresupuesto.descuentoTipo === 'porcentaje' 
+                ? (subtotal * fetchedPresupuesto.descuentoValor) / 100 
+                : fetchedPresupuesto.descuentoValor;
+            totalConDescuento = subtotal - descuento;
+        }
+        
+        const presupuestoActualizado = {
+            ...fetchedPresupuesto,
+            itemsPresupuestados: itemsRecalculados,
+            costoTotalEstimado: subtotal,
+            totalConDescuento: totalConDescuento !== subtotal ? totalConDescuento : undefined,
+        };
+
+        setPresupuesto(presupuestoActualizado);
+
       } else {
         setError(`Presupuesto con ID ${presupuestoId} no encontrado.`);
         toast({ title: "Error", description: `Presupuesto no encontrado.`, variant: "destructive"});
@@ -184,7 +210,7 @@ export default function VerPresupuestoPage({ params }: { params: { id: string } 
   
   const getDisplayQuantity = (item: ItemPresupuestado): string => {
     if (!presupuesto) return 'N/A';
-    const adultos = presupuesto.invitadosAdultos || presupuesto.invitadosCantidad;
+    const adultos = presupuesto.invitadosAdultos || 0;
     const adolescentes = presupuesto.invitadosAdolescentes || 0;
     const ninos = presupuesto.invitadosNinos || 0;
     const cantidadInvitados = getGuestCountForItem(item, adultos, adolescentes, ninos);
@@ -196,7 +222,7 @@ export default function VerPresupuestoPage({ params }: { params: { id: string } 
             if (item.invitadosPorUnidad && item.invitadosPorUnidad > 0) {
               return `${Math.ceil(cantidadInvitados / item.invitadosPorUnidad)}`;
             }
-            return `${item.cantidad}`; // Fallback a la cantidad guardada
+            return `${item.cantidad}`; // Fallback
         case 'fijo':
         case 'tramos':
         default:
@@ -210,13 +236,8 @@ export default function VerPresupuestoPage({ params }: { params: { id: string } 
       return { itemsAgrupados: {}, costoTotalRegalos: 0, subtotalBruto: 0, descuentoPromocional: 0, totalFinal: 0, showAnnualAdjustmentLegend: false };
     }
     
-    const itemsRecalculados = presupuesto.itemsPresupuestados.map(item => ({
-      ...item,
-      costoTotalItem: calcularCostoItem(item, presupuesto.invitadosAdultos || presupuesto.invitadosCantidad, presupuesto.invitadosAdolescentes || 0, presupuesto.invitadosNinos || 0)
-    }));
-    
-    const itemsRegulares = itemsRecalculados.filter(item => !item.esRegalo);
-    const itemsRegalo = itemsRecalculados.filter(item => item.esRegalo);
+    const itemsRegulares = presupuesto.itemsPresupuestados.filter(item => !item.esRegalo);
+    const itemsRegalo = presupuesto.itemsPresupuestados.filter(item => item.esRegalo);
 
     const agrupados: Record<string, ItemPresupuestado[]> = itemsRegulares.reduce((acc, item) => {
         const categoria = item.categoriaServicio || 'Otros Servicios';
@@ -234,18 +255,18 @@ export default function VerPresupuestoPage({ params }: { params: { id: string } 
     }
     
     const costoRegalos = itemsRegalo.reduce((sum, item) => sum + (item.precioUnitario * item.cantidad), 0);
-    const brutoRecalculado = itemsRegulares.reduce((sum, item) => sum + item.costoTotalItem, 0);
+    const bruto = presupuesto.costoTotalEstimado;
     
     let descAplicado = 0;
     if (presupuesto.descuentoTipo && presupuesto.descuentoValor) {
         if (presupuesto.descuentoTipo === 'porcentaje') {
-            descAplicado = (brutoRecalculado * presupuesto.descuentoValor) / 100;
+            descAplicado = (bruto * presupuesto.descuentoValor) / 100;
         } else {
             descAplicado = presupuesto.descuentoValor;
         }
     }
 
-    const totalConDescuento = brutoRecalculado - descAplicado;
+    const totalConDescuento = bruto - descAplicado;
     
     let ajustesAnuales: { anio: number; monto: number; totalAcumulado: number }[] = [];
     let montoAjustable = totalConDescuento;
@@ -270,7 +291,7 @@ export default function VerPresupuestoPage({ params }: { params: { id: string } 
     return {
       itemsAgrupados: sortedAgrupados,
       costoTotalRegalos: costoRegalos,
-      subtotalBruto: brutoRecalculado,
+      subtotalBruto: bruto,
       descuentoPromocional: descAplicado,
       totalFinal: totalFinalAjustado,
       showAnnualAdjustmentLegend: shouldShowAdjustmentLegend
@@ -438,7 +459,3 @@ export default function VerPresupuestoPage({ params }: { params: { id: string } 
     </div>
   );
 }
-
-```
-- src/app/simulador-de-presupuesto/page.tsx
-- `src/app/presupuestos/[id]/ver/page.tsx`

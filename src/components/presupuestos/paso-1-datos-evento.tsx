@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import type { PresupuestoFormData, TipoEvento } from '@/types/presupuesto';
@@ -23,12 +24,12 @@ export function Paso1DatosEvento({ formData, setFormData, occupiedDates }: Paso1
   const [isDateOccupied, setIsDateOccupied] = useState(false);
   
   useEffect(() => {
-    // Update total guest count whenever adults, ninos, or adolescentes change
-    const total = (formData.invitadosAdultos || 0) + (formData.invitadosNinos || 0) + (formData.invitadosAdolescentes || 0);
+    // Update total guest count whenever adults or ninos change
+    const total = (formData.invitadosAdultos || 0) + (formData.invitadosNinos || 0);
     if (formData.invitadosCantidad !== total) {
       setFormData(prev => ({...prev, invitadosCantidad: total}));
     }
-  }, [formData.invitadosAdultos, formData.invitadosNinos, formData.invitadosAdolescentes, formData.invitadosCantidad, setFormData]);
+  }, [formData.invitadosAdultos, formData.invitadosNinos, formData.invitadosCantidad, setFormData]);
 
   const handleChange = (field: keyof PresupuestoFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -188,8 +189,8 @@ export function Paso1DatosEvento({ formData, setFormData, occupiedDates }: Paso1
       <Separator className="my-4" />
 
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="space-y-2 lg:col-span-2">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="space-y-2 md:col-span-1">
           <Label htmlFor="eventoFecha" className="text-base">Fecha del Evento*</Label>
           <DatePickerDemo
             selectedDate={formData.eventoFecha}
@@ -216,20 +217,8 @@ export function Paso1DatosEvento({ formData, setFormData, occupiedDates }: Paso1
             required
           />
         </div>
-         <div className="space-y-2">
-          <Label htmlFor="invitadosAdolescentes" className="text-base">Nº Adolescentes</Label>
-          <Input
-            id="invitadosAdolescentes"
-            type="number"
-            placeholder="Ej: 20"
-            value={formData.invitadosAdolescentes ?? ''}
-            onChange={(e) => handleChange('invitadosAdolescentes', e.target.value ? parseInt(e.target.value) : null)}
-            min="0"
-            className="text-base p-3"
-          />
-        </div>
-         <div className="space-y-2">
-          <Label htmlFor="invitadosNinos" className="text-base">Nº Niños</Label>
+        <div className="space-y-2">
+          <Label htmlFor="invitadosNinos" className="text-base">Nº Niños y Adolescentes</Label>
           <Input
             id="invitadosNinos"
             type="number"
