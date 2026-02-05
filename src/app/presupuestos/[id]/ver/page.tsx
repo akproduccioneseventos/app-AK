@@ -2,7 +2,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, use } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'; 
@@ -60,33 +60,31 @@ const COMPANY_WEBSITE_PDF = "www.akproduccioneseventos.com";
 const BUDGET_VALIDITY_DAYS_PDF = 30;
 const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos los servicios, se requiere una seña de $5.000. El presupuesto es válido por 30 días.";
 
-function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?: string }, adultos: number, ninosYAdolescentes: number): number {
+function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?: string }, adultos: number, adolescentes: number, ninos: number): number {
   const categoria = (item.categoriaServicio || '').toLowerCase();
   
   const isMenuInfantil = categoria.includes('infantil') || categoria.includes('adolescente');
   if (isMenuInfantil) {
-    return ninosYAdolescentes;
+    return ninos;
   }
   
   const isPlatoPrincipal = categoria.includes('plato principal');
   if (isPlatoPrincipal) {
     return adultos;
   }
-
-  // For entrees, desserts, and drinks, count adults + adolescents
+  
   if(categoria.includes('entrada') || categoria.includes('postre') || categoria.includes('bebida')) {
-    return adultos + ninosYAdolescentes;
+    return adultos + adolescentes;
   }
 
-  // For all other services (DJ, decor, etc.), count everyone.
-  return adultos + ninosYAdolescentes;
+  return adultos + adolescentes + ninos;
 };
 
-function calcularCostoItem(item: ItemPresupuestado, adultos: number, ninos: number): number {
+function calcularCostoItem(item: ItemPresupuestado, adultos: number, adolescentes: number, ninos: number): number {
   if (item.esRegalo) return 0;
   
-  const cantidadInvitados = getGuestCountForItem(item, adultos, ninos);
-  const totalInvitados = adultos + ninos;
+  const totalInvitados = adultos + adolescentes + ninos;
+  const cantidadInvitados = getGuestCountForItem(item, adultos, adolescentes, ninos);
   
   if (cantidadInvitados === 0 && (item.calculationMethod === 'porPersona' || item.calculationMethod === 'ratio')) {
     return 0;
@@ -97,7 +95,7 @@ function calcularCostoItem(item: ItemPresupuestado, adultos: number, ninos: numb
 
   switch (item.calculationMethod) {
     case 'fijo': 
-      itemTotal = (item.precioBase ?? precioUnitario) * (item.cantidad > 0 ? item.cantidad : 1); 
+      itemTotal = item.precioBase ?? precioUnitario; 
       break;
     case 'porPersona': 
       itemTotal = (item.precioPorPersona ?? precioUnitario) * cantidadInvitados; 
@@ -187,8 +185,9 @@ export default function VerPresupuestoPage({ params }: { params: { id: string } 
   const getDisplayQuantity = (item: ItemPresupuestado): string => {
     if (!presupuesto) return 'N/A';
     const adultos = presupuesto.invitadosAdultos || presupuesto.invitadosCantidad;
-    const ninosYAdolescentes = (presupuesto.invitadosNinos || 0) + (presupuesto.invitadosAdolescentes || 0);
-    const cantidadInvitados = getGuestCountForItem(item, adultos, ninosYAdolescentes);
+    const adolescentes = presupuesto.invitadosAdolescentes || 0;
+    const ninos = presupuesto.invitadosNinos || 0;
+    const cantidadInvitados = getGuestCountForItem(item, adultos, adolescentes, ninos);
     
     switch (item.calculationMethod) {
         case 'porPersona':
@@ -211,17 +210,15 @@ export default function VerPresupuestoPage({ params }: { params: { id: string } 
       return { itemsAgrupados: {}, costoTotalRegalos: 0, subtotalBruto: 0, descuentoPromocional: 0, totalFinal: 0, showAnnualAdjustmentLegend: false };
     }
     
-    const itemsRegalo = presupuesto.itemsPresupuestados.filter(item => item.esRegalo);
-    
-    // Recalculate item totals on the fly for display
     const itemsRecalculados = presupuesto.itemsPresupuestados.map(item => ({
       ...item,
-      costoTotalItem: calcularCostoItem(item, presupuesto.invitadosAdultos || presupuesto.invitadosCantidad, (presupuesto.invitadosNinos || 0) + (presupuesto.invitadosAdolescentes || 0))
+      costoTotalItem: calcularCostoItem(item, presupuesto.invitadosAdultos || presupuesto.invitadosCantidad, presupuesto.invitadosAdolescentes || 0, presupuesto.invitadosNinos || 0)
     }));
+    
+    const itemsRegulares = itemsRecalculados.filter(item => !item.esRegalo);
+    const itemsRegalo = itemsRecalculados.filter(item => item.esRegalo);
 
-    const itemsRegularesRecalculados = itemsRecalculados.filter(item => !item.esRegalo);
-
-    const agrupados: Record<string, ItemPresupuestado[]> = itemsRegularesRecalculados.reduce((acc, item) => {
+    const agrupados: Record<string, ItemPresupuestado[]> = itemsRegulares.reduce((acc, item) => {
         const categoria = item.categoriaServicio || 'Otros Servicios';
         if (!acc[categoria]) acc[categoria] = [];
         acc[categoria].push(item);
@@ -237,7 +234,7 @@ export default function VerPresupuestoPage({ params }: { params: { id: string } 
     }
     
     const costoRegalos = itemsRegalo.reduce((sum, item) => sum + (item.precioUnitario * item.cantidad), 0);
-    const brutoRecalculado = itemsRegularesRecalculados.reduce((sum, item) => sum + item.costoTotalItem, 0);
+    const brutoRecalculado = itemsRegulares.reduce((sum, item) => sum + item.costoTotalItem, 0);
     
     let descAplicado = 0;
     if (presupuesto.descuentoTipo && presupuesto.descuentoValor) {
@@ -441,3 +438,7 @@ export default function VerPresupuestoPage({ params }: { params: { id: string } 
     </div>
   );
 }
+
+```
+- src/app/simulador-de-presupuesto/page.tsx
+- `src/app/presupuestos/[id]/ver/page.tsx`
