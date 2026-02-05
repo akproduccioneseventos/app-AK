@@ -19,8 +19,7 @@ const MODULO_DETAILS: Record<ModuloPermiso, { label: string; href: string; icon:
   'crm': { label: 'Gestión de Prospectos (CRM)', href: '/contabilidad/crm', icon: KanbanSquare },
 };
 
-export default function PortalPersonalPage({ params: paramsProp }: { params: { tokenId: string } }) {
-  const params = use(paramsProp);
+export default function PortalPersonalPage({ params }: { params: { tokenId: string } }) {
   const { toast } = useToast();
   const [acceso, setAcceso] = useState<AccesoPersonal | null>(null);
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);

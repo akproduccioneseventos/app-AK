@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, use } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'; 
@@ -73,8 +73,7 @@ function getGuestCountForItem(item: { nombreServicio: string }, invitados: numbe
 };
 
 
-export default function VerPresupuestoPage({ params: paramsProp }: { params: { id: string } }) {
-  const params = use(paramsProp);
+export default function VerPresupuestoPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const presupuestoId = params.id as string;
   const { toast } = useToast();
@@ -339,8 +338,8 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
                                   {item.esRegalo ? <span className="text-red-600 font-semibold flex items-center gap-1"><Gift className="w-3 h-3"/> {item.nombreServicio} (REGALO)</span> : item.nombreServicio}
                                 </td>
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{getDisplayQuantity(item)} {item.unidad && `(${item.unidad})`}</td>
-                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through text-gray-500">{formatCurrency(item.precioUnitario)}</span> : formatCurrency(item.precioUnitarioPresupuesto)}</td>
-                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top font-semibold">{item.esRegalo ? formatCurrency(0) : formatCurrency(item.costoTotalItem)}</td>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through text-gray-500">{formatCurrency(item.precioUnitario, true)}</span> : formatCurrency(item.precioUnitarioPresupuesto, true)}</td>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top font-semibold">{item.esRegalo ? formatCurrency(0, true) : formatCurrency(item.costoTotalItem, true)}</td>
                             </tr>
                         ))}
                      </React.Fragment>
@@ -354,35 +353,23 @@ export default function VerPresupuestoPage({ params: paramsProp }: { params: { i
           <div className="w-full max-w-xs print:max-w-[220px] space-y-0.5">
               <div className="flex justify-between">
                 <span>Subtotal:</span>
-                <span>{formatCurrency(subtotalBruto)}</span>
+                <span>{formatCurrency(subtotalBruto, true, true)}</span>
               </div>
               {descuentoPromocional > 0 && (
                   <div className="flex justify-between text-destructive">
                     <span>Descuento{presupuesto.nombrePromocion ? ` (${presupuesto.nombrePromocion})` : ''}:</span>
-                    <span>-{formatCurrency(descuentoPromocional)}</span>
+                    <span>-{formatCurrency(descuentoPromocional, true, true)}</span>
                   </div>
               )}
                {costoTotalRegalos > 0 && (
                  <div className="flex justify-between text-green-600">
                     <span>Ahorro en Regalos:</span>
-                    <span>{formatCurrency(costoTotalRegalos)}</span>
+                    <span>{formatCurrency(costoTotalRegalos, true, true)}</span>
                   </div>
                )}
-               {descuentoPromocional > 0 && (
-                 <div className="flex justify-between font-semibold pt-1 border-t">
-                    <span>Subtotal con Descuento:</span>
-                    <span>{formatCurrency(totalConDescuento)}</span>
-                  </div>
-               )}
-               {ajustesAnuales.map((ajuste, index) => (
-                 <div key={ajuste.anio} className="flex justify-between text-orange-600">
-                    <span>Ajuste anual {ajuste.anio} ({displaySettings.annualAdjustmentPercentage}%):</span>
-                    <span>+{formatCurrency(ajuste.monto)}</span>
-                 </div>
-               ))}
               <div className="flex justify-between font-bold pt-1 border-t-2 border-gray-600 print:border-gray-700">
                 <span className="text-base">Importe total</span>
-                <span className="text-base">{formatCurrency(totalFinal)}</span>
+                <span className="text-base">{formatCurrency(totalFinal, true)}</span>
               </div>
             </div>
         </section>
