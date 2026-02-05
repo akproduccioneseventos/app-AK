@@ -18,15 +18,16 @@ const PRESUPUESTOS_FILE = 'presupuestos.json';
 // Helper function to decide which guest count to use for an item
 function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?: string }, invitados: number, invitadosAdultos?: number, invitadosNinos?: number, invitadosAdolescentes?: number): number {
   const nombre = item.nombreServicio.toLowerCase();
+  const categoria = (item.categoriaServicio || '').toLowerCase();
   
-  // Child-specific items
-  if (nombre.includes('infantil') || nombre.includes('hamburguesa') || nombre.includes('pancho')) {
+  // Child-specific menus/items
+  if (nombre.includes('infantil') || nombre.includes('hamburguesa') || nombre.includes('pancho') || categoria.includes('infantil')) {
     return invitadosNinos ?? 0;
   }
   
   // Adult/Main course items (assume this covers most catering)
   const cateringCategories = ['servicio de catering', 'servicio de repostería', 'servicio de bebidas'];
-  if (cateringCategories.some(cat => (item.categoriaServicio || '').toLowerCase().includes(cat))) {
+  if (cateringCategories.some(cat => categoria.includes(cat))) {
     return (invitadosAdultos || 0) + (invitadosAdolescentes || 0);
   }
 
@@ -360,4 +361,6 @@ export async function recalculatePresupuestoFromCatalog(presupuestoId: string): 
   }
 }
   
+    
+
     
