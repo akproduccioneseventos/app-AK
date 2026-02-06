@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'; 
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextIcon, CalendarDays, Users, Coins, StickyNote, FileSignature, MessageSquare, Mail, Percent, Tag, Phone, Globe as GlobeIcon, Share2, Gift } from 'lucide-react';
@@ -61,17 +61,16 @@ const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos l
 
 function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?: string }, adultos: number, adolescentes: number, ninos: number): number {
   const categoria = (item.categoriaServicio || '').toLowerCase();
-  const ninosYAdolescentes = ninos + adolescentes;
   
   if (categoria.includes('infantil') || categoria.includes('adolescente')) {
-    return ninosYAdolescentes;
+    return ninos + adolescentes;
   }
   
   if (categoria.includes('plato principal')) {
     return adultos;
   }
 
-  return adultos + ninosYAdolescentes;
+  return adultos + adolescentes + ninos;
 };
 
 function calcularCostoItem(item: ItemPresupuestado, adultos: number, adolescentes: number, ninos: number): number {
@@ -457,10 +456,10 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   );
 }
 
-export default function Page() {
+export default function Page({ params }: { params: { id: string } }) {
   return (
     <Suspense fallback={<div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>}>
-      <VerPresupuestoContent params={useSearchParams() as any} />
+      <VerPresupuestoContent params={params} />
     </Suspense>
   )
 }
