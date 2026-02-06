@@ -152,7 +152,7 @@ export async function findLeadByBudgetOrCreate(
   const newLeadData: NewCrmLeadData = {
     name: presupuestoData.clienteNombre,
     phone: presupuestoData.clienteContacto,
-    notes: `Presupuesto ID: ${presupuestoData.id}\nCosto: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(presupuestoData.totalConDescuento ?? presupuestoData.costoTotalEstimado)}`,
+    notes: `Presupuesto Nº ${presupuestoData.numero || presupuestoData.id.slice(-5)}\nCosto: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(presupuestoData.totalConDescuento ?? presupuestoData.costoTotalEstimado)}`,
     currentStageId: 's1', 
     presupuestoId: presupuestoData.id,
   };

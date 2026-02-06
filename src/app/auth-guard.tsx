@@ -30,42 +30,37 @@ export function AuthGuard({ children }: AuthGuardProps) {
   const [isVerified, setIsVerified] = useState(false);
 
   useEffect(() => {
-    // This check ensures sessionStorage is only accessed on the client-side.
     if (typeof window === 'undefined') {
       return;
     }
     
-    // Define prefixes for all public-facing sections of the app that do not require admin login.
     const publicPathPrefixes = [
       '/login',
-      '/evento/actual', // Covers the main event page and sub-pages like /checkin, /mesa
-      '/evento/social', // Covers the live social wall
-      '/video-vida',    // Covers the client photo upload page
-      '/feedback',      // Covers the client feedback form
-      '/portal',        // Covers the client portal login and its internal pages (which have their own auth)
+      '/evento/actual',
+      '/evento/social',
+      '/video-vida',
+      '/feedback',
+      '/portal',
       '/simulador-de-presupuesto',
-      '/acceso-personal', // Covers links for external staff/partners
+      '/acceso-personal',
     ];
     
-    // Check if the current path starts with any of the public prefixes
     let isPublic = publicPathPrefixes.some(prefix => pathname.startsWith(prefix));
 
     // Add a specific rule for public budget summary pages, which are also public.
-    // e.g., /presupuestos/pres_12345, but NOT /presupuestos/nuevo or /presupuestos/123/edit
+    // e.g., /presupuestos/pres_12345 or /presupuestos/pres_12345/ver
     if (!isPublic) {
-      const budgetRegex = /^\/presupuestos\/pres_[a-zA-Z0-9_]+\/?$/;
+      const budgetRegex = /^\/presupuestos\/pres_[a-zA-Z0-9_]+(\/ver)?\/?$/;
       if (budgetRegex.test(pathname)) {
         isPublic = true;
       }
     }
     
-    // If the path is determined to be public, allow access immediately.
     if (isPublic) {
       setIsVerified(true);
       return;
     }
     
-    // If the path is not public, then check for admin authentication.
     const isAuthenticated = sessionStorage.getItem(SESSION_KEY) === 'true';
     
     if (!isAuthenticated) {

@@ -148,7 +148,7 @@ export default function EditarPresupuestoPage({ params }: { params: { id: string
       const result = await updatePresupuesto(updatedData);
       if (result.success && result.presupuesto) {
         toast({ title: "¡Presupuesto Actualizado!", description: `El presupuesto para "${result.presupuesto.clienteNombre}" ha sido actualizado.` });
-        router.push(`/presupuestos/${presupuestoId}`); // Redirect to summary view
+        router.push(`/presupuestos/${presupuestoId}/ver`); // Redirect to summary view
       } else {
         throw new Error(result.error || "Error desconocido al actualizar.");
       }
@@ -183,8 +183,8 @@ export default function EditarPresupuestoPage({ params }: { params: { id: string
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3"><Edit3 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Editar Presupuesto #{presupuesto?.id.split('_').pop()?.substring(0,5)}</h1></div>
-        <Link href={`/presupuestos/${presupuestoId}`} passHref><Button variant="outline" disabled={isSaving}><ArrowLeft />Volver al Resumen</Button></Link>
+        <div className="flex items-center gap-3"><Edit3 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Editar Presupuesto #{presupuesto?.numero || presupuesto?.id.split('_').pop()?.substring(0,5)}</h1></div>
+        <Link href={`/presupuestos/${presupuestoId}/ver`} passHref><Button variant="outline" disabled={isSaving}><ArrowLeft />Volver al Resumen</Button></Link>
       </div>
       
       <Card className="shadow-lg">

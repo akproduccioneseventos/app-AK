@@ -1,7 +1,8 @@
 
+
 'use client';
 
-import { useState, useEffect, type FormEvent, Suspense } from 'react';
+import React, { useState, useEffect, type FormEvent, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link'; 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -75,26 +76,27 @@ function NewInvoicePageContent() {
         if (fromPresupuestoIdParam) {
           const presupuesto = await getPresupuestoById(fromPresupuestoIdParam);
           if (presupuesto) {
+            const displayId = presupuesto.numero || presupuesto.id.split('_').pop()?.substring(0,5);
             if (presupuesto.clienteNombre) {
               const matchingCustomer = fetchedCustomers.find(c => c.name === presupuesto.clienteNombre || c.companyName === presupuesto.clienteNombre);
               if (matchingCustomer) setSelectedCustomerId(matchingCustomer.id);
               else toast({ title: "Cliente no encontrado", description: `El cliente "${presupuesto.clienteNombre}" del presupuesto no fue encontrado. Por favor, selecciónalo o créalo.`, variant: "default", duration: 7000 });
             }
-            setInvoiceNumber(`FACT-PRE${presupuesto.id.split('_').pop()?.substring(0,5)}`);
+            setInvoiceNumber(`FACT-PRE${displayId}`);
             
             // Simplified item pre-fill: one item for the total budget amount
             // More detailed itemization from budget is a future enhancement
             setItems([{ 
               tempId: `item_pres_${Date.now()}`, 
-              description: `Servicios según Presupuesto #${presupuesto.id.split('_').pop()?.substring(0,5)} (${presupuesto.eventoTipo} para ${presupuesto.clienteNombre})`, 
+              description: `Servicios según Presupuesto #${displayId} (${presupuesto.eventoTipo} para ${presupuesto.clienteNombre})`, 
               quantity: 1, 
-              unitPrice: presupuesto.costoTotalEstimado 
+              unitPrice: presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado 
             }]);
             
-            setNotes(presupuesto.notas || `Factura generada a partir del presupuesto #${presupuesto.id.split('_').pop()?.substring(0,5)}.`);
+            setNotes(presupuesto.notas || `Factura generada a partir del presupuesto #${displayId}.`);
             if (presupuesto.eventoFecha) setIssueDate(new Date(presupuesto.eventoFecha));
             setStatus('Draft'); // Default status when creating from budget
-            toast({ title: "Datos Cargados", description: `Datos del presupuesto #${presupuesto.id.split('_').pop()?.substring(0,5)} pre-cargados en la nueva factura.`});
+            toast({ title: "Datos Cargados", description: `Datos del presupuesto #${displayId} pre-cargados en la nueva factura.`});
           } else {
             toast({ title: "Presupuesto no encontrado", description: `No se pudo cargar el presupuesto ID ${fromPresupuestoIdParam}.`, variant: "destructive" });
           }
@@ -211,7 +213,7 @@ function NewInvoicePageContent() {
           <FilePlus2 className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
             Crear Nueva Factura
-            {sourcePresupuestoId && <span className="text-base font-normal text-muted-foreground"> (Desde Presupuesto #{sourcePresupuestoId.split('_').pop()?.substring(0,5)})</span>}
+            {sourcePresupuestoId && <span className="text-base font-normal text-muted-foreground"> (Desde Presupuesto)</span>}
           </h1>
         </div>
         <Link href="/invoices" passHref>

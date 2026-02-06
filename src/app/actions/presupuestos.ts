@@ -86,6 +86,9 @@ export async function savePresupuesto(
 ): Promise<{ success: boolean, id?: string, error?: string, presupuesto?: Presupuesto, leadId?: string }> {
   let presupuestos = await getPresupuestos();
   
+  const maxNumero = presupuestos.reduce((max, p) => Math.max(max, p.numero || 0), 0);
+  const nuevoNumero = maxNumero + 1;
+  
   const adultos = presupuestoData.invitadosAdultos || 0;
   const adolescentes = presupuestoData.invitadosAdolescentes || 0;
   const ninos = presupuestoData.invitadosNinos || 0;
@@ -113,6 +116,7 @@ export async function savePresupuesto(
   const nuevoPresupuesto: Presupuesto = {
     ...presupuestoData,
     id: presupuestoId,
+    numero: nuevoNumero,
     itemsPresupuestados: validItems,
     costoTotalEstimado: costoTotalEstimadoRecalculado,
     totalConDescuento: descuentoAplicado > 0 ? finalTotalWithDiscount : undefined,
@@ -215,7 +219,7 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
 
                 if (Math.abs(budgetTotal - invoiceItemTotal) > 0.01) {
                     const summaryItem: Omit<InvoiceItem, 'id'> = {
-                        description: `Servicios según presupuesto #${updatedPresupuesto.id.split('_').pop()?.substring(0,5)} (actualizado)`,
+                        description: `Servicios según presupuesto #${updatedPresupuesto.numero || updatedPresupuesto.id.slice(-5)} (actualizado)`,
                         quantity: 1,
                         unitPrice: budgetTotal,
                         total: budgetTotal,

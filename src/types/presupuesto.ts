@@ -34,6 +34,7 @@ export interface ItemPresupuestado {
 
 export interface Presupuesto {
   id: string;
+  numero?: number;
   clienteNombre: string;
   clienteContacto?: string;
   eventoTipo: TipoEvento | string;
@@ -101,6 +102,7 @@ export interface PresupuestoFormData {
   notas: string;
   // Campos que no están en el form pero se necesitan para la lógica
   id?: string;
+  numero?: number;
   estado: Presupuesto['estado'];
   invoiceId?: string;
 }

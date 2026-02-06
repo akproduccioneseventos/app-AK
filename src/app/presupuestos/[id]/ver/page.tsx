@@ -2,9 +2,9 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'; 
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextIcon, CalendarDays, Users, Coins, StickyNote, FileSignature, MessageSquare, Mail, Percent, Tag, Phone, Globe as GlobeIcon, Share2, Gift } from 'lucide-react';
@@ -113,7 +113,7 @@ function calcularCostoItem(item: ItemPresupuestado, adultos: number, adolescente
   return itemTotal;
 }
 
-export default function VerPresupuestoPage({ params }: { params: { id: string } }) {
+function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const router = useRouter();
   const presupuestoId = params.id as string;
   const { toast } = useToast();
@@ -192,7 +192,7 @@ export default function VerPresupuestoPage({ params }: { params: { id: string } 
   const generarTextoWhatsApp = () => {
     if (!presupuesto) return '';
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
-    const pageUrl = `${baseUrl}/presupuestos/${presupuesto.id}`;
+    const pageUrl = `${baseUrl}/presupuestos/${presupuesto.id}/ver`;
     let texto = `🎉 *¡Hola ${presupuesto.clienteNombre}!* 🎉\n\n`;
     texto += `Gracias por considerar a *${COMPANY_NAME_BRAND}*.`;
     texto += ` Hemos preparado un presupuesto para tu *${presupuesto.eventoTipo}*.\n\n`;
@@ -309,7 +309,7 @@ export default function VerPresupuestoPage({ params }: { params: { id: string } 
   fechaValidoHasta.setDate(fechaValidoHasta.getDate() + BUDGET_VALIDITY_DAYS_PDF);
     
   const protagonistas = [presupuesto.protagonista1Nombre, presupuesto.protagonista2Nombre].filter(Boolean).join(' y ');
-  
+  const displayId = presupuesto.numero || presupuesto.id.split('_').pop()?.substring(0,6);
 
   return (
     <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans text-gray-800 print:text-black">
@@ -361,7 +361,7 @@ export default function VerPresupuestoPage({ params }: { params: { id: string } 
               </thead>
               <tbody>
                 <tr>
-                  <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">Nº {presupuesto.id.split('_').pop()?.substring(0,6)}</td>
+                  <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">Nº {displayId}</td>
                   <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(presupuesto.timestamp, true)}</td>
                   <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(fechaValidoHasta.toISOString(), true)}</td>
                 </tr>
@@ -456,4 +456,12 @@ export default function VerPresupuestoPage({ params }: { params: { id: string } 
       </div>
     </div>
   );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>}>
+      <VerPresupuestoContent params={useSearchParams() as any} />
+    </Suspense>
+  )
 }
