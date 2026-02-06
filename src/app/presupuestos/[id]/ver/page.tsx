@@ -62,17 +62,16 @@ const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos l
 
 function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?: string }, adultos: number, adolescentes: number, ninos: number): number {
   const categoria = (item.categoriaServicio || '').toLowerCase();
-  const ninosYAdolescentes = ninos + adolescentes;
   
   if (categoria.includes('infantil') || categoria.includes('adolescente')) {
-    return ninosYAdolescentes;
+    return ninos + adolescentes;
   }
   
   if (categoria.includes('plato principal')) {
     return adultos;
   }
-  
-  return adultos + ninosYAdolescentes;
+
+  return adultos + adolescentes + ninos;
 };
 
 function calcularCostoItem(item: ItemPresupuestado, adultos: number, adolescentes: number, ninos: number): number {
@@ -229,11 +228,15 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   };
 
 
-  const { itemsAgrupados, costoTotalRegalos, subtotalBruto, descuentoPromocional, totalFinal, showAnnualAdjustmentLegend } = useMemo(() => {
+  const { itemsAgrupados, costoTotalRegalos, subtotalBruto, descuentoPromocional, totalFinal, showAnnualAdjustmentLegend, subtotalInflado } = useMemo(() => {
     if (!presupuesto || !displaySettings) {
-      return { itemsAgrupados: {}, costoTotalRegalos: 0, subtotalBruto: 0, descuentoPromocional: 0, totalFinal: 0, showAnnualAdjustmentLegend: false };
+      return { itemsAgrupados: {}, costoTotalRegalos: 0, subtotalBruto: 0, descuentoPromocional: 0, totalFinal: 0, showAnnualAdjustmentLegend: false, subtotalInflado: 0 };
     }
     
+    const adultos = presupuesto.invitadosAdultos || 0;
+    const adolescentes = presupuesto.invitadosAdolescentes || 0;
+    const ninos = presupuesto.invitadosNinos || 0;
+
     const itemsRegulares = presupuesto.itemsPresupuestados.filter(item => !item.esRegalo);
     const itemsRegalo = presupuesto.itemsPresupuestados.filter(item => item.esRegalo);
 
@@ -252,8 +255,14 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
       sortedAgrupados['Regalos Incluidos'] = itemsRegalo;
     }
     
-    const costoRegalos = itemsRegalo.reduce((sum, item) => sum + (item.precioUnitario * item.cantidad), 0);
+    const costoRegalos = itemsRegalo.reduce((sum, item) => {
+      const tempItem = {...item, esRegalo: false};
+      return sum + calcularCostoItem(tempItem, adultos, adolescentes, ninos);
+    }, 0);
+    
     const bruto = presupuesto.costoTotalEstimado;
+    
+    const subtotalInflado = (bruto * 1.15) + costoRegalos;
     
     let descAplicado = 0;
     if (presupuesto.descuentoTipo && presupuesto.descuentoValor) {
@@ -266,8 +275,6 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
 
     const totalConDescuento = bruto - descAplicado;
     
-    let ajustesAnuales: { anio: number; monto: number; totalAcumulado: number }[] = [];
-    let montoAjustable = totalConDescuento;
     let totalFinalAjustado = totalConDescuento;
     
     const anioCreacion = new Date(presupuesto.timestamp).getFullYear();
@@ -278,10 +285,8 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
         shouldShowAdjustmentLegend = true; // Preview is needed
         if (presupuesto.ajusteAnualActivo) { // Only calculate if active
             for (let anio = anioCreacion + 1; anio <= anioEvento; anio++) {
-                const ajuste = montoAjustable * (displaySettings.annualAdjustmentPercentage / 100);
-                montoAjustable += ajuste;
-                totalFinalAjustado = montoAjustable;
-                ajustesAnuales.push({ anio, monto: ajuste, totalAcumulado: montoAjustable });
+                const ajuste = totalFinalAjustado * (displaySettings.annualAdjustmentPercentage / 100);
+                totalFinalAjustado += ajuste;
             }
         }
     }
@@ -292,7 +297,8 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
       subtotalBruto: bruto,
       descuentoPromocional: descAplicado,
       totalFinal: totalFinalAjustado,
-      showAnnualAdjustmentLegend: shouldShowAdjustmentLegend
+      showAnnualAdjustmentLegend: shouldShowAdjustmentLegend,
+      subtotalInflado: subtotalInflado
     };
 
   }, [presupuesto, displaySettings]);
@@ -427,20 +433,20 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
             <div className="w-full max-w-xs print:max-w-[220px] space-y-0.5">
               <div className="flex justify-between">
                 <span>Subtotal:</span>
-                <span>{formatCurrency(subtotalBruto, true, true)}</span>
+                <span>{formatCurrency(subtotalInflado, true, true)}</span>
               </div>
+               {costoTotalRegalos > 0 && (
+                 <div className="flex justify-between text-green-600">
+                    <span>Ahorro en Regalos:</span>
+                    <span>-{formatCurrency(costoTotalRegalos, true, true)}</span>
+                  </div>
+               )}
               {descuentoPromocional > 0 && (
                   <div className="flex justify-between text-destructive">
                     <span>Descuento{presupuesto.nombrePromocion ? ` (${presupuesto.nombrePromocion})` : ''}:</span>
                     <span>-{formatCurrency(descuentoPromocional, true, true)}</span>
                   </div>
               )}
-               {costoTotalRegalos > 0 && (
-                 <div className="flex justify-between text-green-600">
-                    <span>Ahorro en Regalos:</span>
-                    <span>{formatCurrency(costoTotalRegalos, true, true)}</span>
-                  </div>
-               )}
               <div className="flex justify-between font-bold pt-1 border-t-2 border-gray-600 print:border-gray-700">
                 <span className="text-base">Importe total</span>
                 <span className="text-base">{formatCurrency(totalFinal, true)}</span>
@@ -458,10 +464,10 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   );
 }
 
-export default function Page() {
+export default function Page({ params }: { params: { id: string } }) {
   return (
     <Suspense fallback={<div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>}>
-      <VerPresupuestoContent params={useSearchParams() as any} />
+      <VerPresupuestoContent params={params} />
     </Suspense>
   )
 }

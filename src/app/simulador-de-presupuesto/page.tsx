@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -316,13 +317,13 @@ export default function ArmadoRapidoPage() {
     const { subtotal, serviciosDetallados, totalRegalos, costoTotal, descuento } = useMemo(() => {
         if (!config || !serviciosCatalogo.length) return { costoTotal: 0, subtotal: 0, serviciosDetallados: [], totalRegalos: 0, descuento: 0 };
         
-        let calculatedSubtotal = 0;
-        let calculatedTotalRegalos = 0;
+        let calculatedSubtotal = 0; // sum of paid items
+        let calculatedTotalRegalos = 0; // sum of gift items
         const includedServicesList: ServicioDetallado[] = [];
         
         const addServicio = (servicio: ServicioEmpresa | undefined, esRegalo: boolean, nota?: string) => {
             if (!servicio) return;
-             if (includedServicesList.some(s => s.id === servicio.id)) { return; }
+            if (includedServicesList.some(s => s.id === servicio.id)) { return; }
 
             const costoItem = calcularCostoServicio(servicio, adultos, ninosYAdolescentes);
             
@@ -387,13 +388,17 @@ export default function ArmadoRapidoPage() {
             });
         }
         
-        const descuentoCalculado = config.descuentoGeneral ? (calculatedSubtotal * config.descuentoGeneral) / 100 : 0;
-        const totalConDescuento = calculatedSubtotal - descuentoCalculado;
+        const subtotalBruto = calculatedSubtotal;
+        const ahorroEnRegalos = calculatedTotalRegalos;
+        const subtotalInflado = (subtotalBruto * 1.15) + ahorroEnRegalos; // Inflated subtotal
+
+        const descuentoCalculado = config.descuentoGeneral ? (subtotalBruto * config.descuentoGeneral) / 100 : 0;
+        const totalConDescuento = subtotalBruto - descuentoCalculado;
         
         return { 
-          subtotal: calculatedSubtotal, 
+          subtotal: subtotalInflado, 
           serviciosDetallados: includedServicesList, 
-          totalRegalos: calculatedTotalRegalos,
+          totalRegalos: ahorroEnRegalos,
           descuento: descuentoCalculado,
           costoTotal: totalConDescuento,
         };
@@ -698,7 +703,7 @@ export default function ArmadoRapidoPage() {
                     )}
                     {step === 4 && (
                         <div className="animate-in fade-in-20" id="budget-summary-printable">
-                            <header className="mb-6 print:mb-4 hidden print:block">
+                             <header className="mb-6 print:mb-4 hidden print:block">
                                 <div className="flex justify-between items-start">
                                     <h1 className="text-xl font-bold text-left mb-4 print:text-base leading-tight">{COMPANY_MAIN_TITLE}</h1>
                                     {logoUrl && (
@@ -717,7 +722,7 @@ export default function ArmadoRapidoPage() {
                                 <p><span className="font-semibold">Cliente:</span> {clienteNombre}</p>
                                 </section>
                             </header>
-                            
+
                             <h3 className="font-headline text-2xl text-center mb-4">Resumen de tu Presupuesto</h3>
                             <p className="text-center text-muted-foreground mb-6">Esta es una estimación basada en tus selecciones. Un asesor se pondrá en contacto para confirmar todos los detalles y ajustar el presupuesto a tus necesidades.</p>
                             
@@ -763,8 +768,8 @@ export default function ArmadoRapidoPage() {
                             <Separator className="my-4"/>
                             <div className="w-full md:max-w-xs ml-auto space-y-1 text-sm">
                                 <div className="flex justify-between"><span>Subtotal:</span><span>{formatCurrency(subtotal)}</span></div>
+                                {totalRegalos > 0 && <div className="flex justify-between text-green-600"><span>Ahorro en Regalos:</span><span>-{formatCurrency(totalRegalos)}</span></div>}
                                 {descuento > 0 && <div className="flex justify-between text-destructive"><span>Descuento ({config?.descuentoGeneral || 0}%):</span><span>-{formatCurrency(descuento)}</span></div>}
-                                {totalRegalos > 0 && <div className="flex justify-between text-green-600"><span>Ahorro en Regalos:</span><span>{formatCurrency(totalRegalos)}</span></div>}
                                 <div className="flex justify-between font-bold text-lg pt-2 border-t"><span className="text-primary">Importe total</span><span className="text-primary">{formatCurrency(costoTotal)}</span></div>
                             </div>
                              <footer className="mt-6 pt-3 border-t border-gray-300 print:mt-2 print:pt-1.5 print:border-gray-400 text-xs print:text-[8pt] text-gray-600 print:text-black">
