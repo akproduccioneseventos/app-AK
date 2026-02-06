@@ -49,6 +49,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
 
     // Add a specific rule for public budget summary pages, which are also public.
     // e.g., /presupuestos/pres_12345 or /presupuestos/pres_12345/ver
+    // This regex now allows for an optional trailing slash.
     if (!isPublic) {
       const budgetRegex = /^\/presupuestos\/pres_[a-zA-Z0-9_]+(\/ver)?\/?$/;
       if (budgetRegex.test(pathname)) {

@@ -29,8 +29,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-export default function EditarPresupuestoPage({ params: paramsProp }: { params: { id: string } }) {
-  const params = use(paramsProp);
+export default function EditarPresupuestoPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const presupuestoId = params.id as string;
   const { toast } = useToast();
@@ -184,7 +183,7 @@ export default function EditarPresupuestoPage({ params: paramsProp }: { params: 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3"><Edit3 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Editar Presupuesto #{presupuesto?.id.split('_').pop()?.substring(0,5)}</h1></div>
+        <div className="flex items-center gap-3"><Edit3 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Editar Presupuesto #{presupuesto?.numero || presupuesto?.id.split('_').pop()?.substring(0,5)}</h1></div>
         <Link href={`/presupuestos/${presupuestoId}/ver`} passHref><Button variant="outline" disabled={isSaving}><ArrowLeft />Volver al Resumen</Button></Link>
       </div>
       

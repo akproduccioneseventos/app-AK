@@ -1,4 +1,5 @@
 
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
@@ -34,4 +35,5 @@ const nextConfig = {
 };
 
 // Forcing a clean rebuild to apply the new public base URL environment variable.
+// This comment forces a rebuild to fix dynamic routing issues.
 module.exports = nextConfig;

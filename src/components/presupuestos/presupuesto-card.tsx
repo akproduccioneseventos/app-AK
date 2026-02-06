@@ -54,6 +54,7 @@ export default function PresupuestoCard({
   const [isDeleting, setIsDeleting] = useState(false);
 
   const totalFinal = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
+  const displayId = presupuesto.numero ? `#${presupuesto.numero}` : `#${presupuesto.id.split('_').pop()?.substring(0,5)}`;
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -76,7 +77,10 @@ export default function PresupuestoCard({
   return (
     <Card className="shadow-md hover:shadow-lg transition-shadow flex flex-col justify-between">
       <CardHeader>
-        <CardTitle className="font-headline text-xl text-primary">{presupuesto.clienteNombre}</CardTitle>
+        <div className="flex justify-between items-start">
+            <CardTitle className="font-headline text-xl text-primary">{presupuesto.clienteNombre}</CardTitle>
+            <span className="text-xs font-mono text-muted-foreground">{displayId}</span>
+        </div>
         <CardDescription>
           {presupuesto.eventoTipo} - {formatDate(presupuesto.eventoFecha)}
         </CardDescription>
@@ -132,7 +136,7 @@ export default function PresupuestoCard({
           </Link>
         )}
         <div className="flex justify-end gap-2 pt-2 border-t w-full">
-          <Link href={`/presupuestos/${presupuesto.id}`} passHref>
+          <Link href={`/presupuestos/${presupuesto.id}/ver`} passHref>
             <Button variant="outline" size="sm"><Eye className="mr-1"/> Ver</Button>
           </Link>
           <Link href={`/presupuestos/${presupuesto.id}/editar`} passHref>

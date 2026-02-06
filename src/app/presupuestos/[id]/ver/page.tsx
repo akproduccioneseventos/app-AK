@@ -62,16 +62,17 @@ const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos l
 
 function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?: string }, adultos: number, adolescentes: number, ninos: number): number {
   const categoria = (item.categoriaServicio || '').toLowerCase();
+  const ninosYAdolescentes = ninos + adolescentes;
   
   if (categoria.includes('infantil') || categoria.includes('adolescente')) {
-    return ninos + adolescentes;
+    return ninosYAdolescentes;
   }
   
   if (categoria.includes('plato principal')) {
     return adultos;
   }
   
-  return adultos + adolescentes + ninos;
+  return adultos + ninosYAdolescentes;
 };
 
 function calcularCostoItem(item: ItemPresupuestado, adultos: number, adolescentes: number, ninos: number): number {
@@ -89,7 +90,7 @@ function calcularCostoItem(item: ItemPresupuestado, adultos: number, adolescente
 
   switch (item.calculationMethod) {
     case 'fijo': 
-      itemTotal = item.precioBase ?? precioUnitario; 
+      itemTotal = (item.precioBase ?? precioUnitario) * (item.cantidad > 0 ? item.cantidad : 1);
       break;
     case 'porPersona': 
       itemTotal = (item.precioPorPersona ?? precioUnitario) * cantidadInvitados; 
@@ -103,7 +104,6 @@ function calcularCostoItem(item: ItemPresupuestado, adultos: number, adolescente
       }
       break;
     case 'tramos':
-      // Para tramos, SIEMPRE usar el total de invitados.
       const tramo = item.tramosDePrecio?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta);
       itemTotal = tramo?.precio || 0;
       break;
@@ -192,13 +192,13 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const generarTextoWhatsApp = () => {
     if (!presupuesto) return '';
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
-    const pageUrl = `${baseUrl}/presupuestos/${presupuesto.id}/ver`;
+    const pageUrl = `${baseUrl}/presupuestos/${presupuesto.id}`;
     let texto = `🎉 *¡Hola ${presupuesto.clienteNombre}!* 🎉\n\n`;
     texto += `Gracias por considerar a *${COMPANY_NAME_BRAND}*.`;
     texto += ` Hemos preparado un presupuesto para tu *${presupuesto.eventoTipo}*.\n\n`;
     texto += `Puedes ver todos los detalles en el siguiente enlace:\n`;
     texto += pageUrl;
-    texto += `\n\n¡Esperamos tu consulta!\n*El equipo de AK PRODUCCIONES*`;
+    texto += `\n\n¡Esperamos tu consulta!\n*El equipo de ${COMPANY_NAME_BRAND}*`;
     return texto;
   };
   
@@ -309,7 +309,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   fechaValidoHasta.setDate(fechaValidoHasta.getDate() + BUDGET_VALIDITY_DAYS_PDF);
     
   const protagonistas = [presupuesto.protagonista1Nombre, presupuesto.protagonista2Nombre].filter(Boolean).join(' y ');
-  const displayId = presupuesto.numero || presupuesto.id.split('_').pop()?.substring(0,6);
+  const displayId = presupuesto.numero ? `#${presupuesto.numero}` : `#${presupuesto.id.split('_').pop()?.substring(0,6)}`;
 
   return (
     <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans text-gray-800 print:text-black">
@@ -319,7 +319,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
           <Button variant="outline" size="sm" onClick={handleShareWhatsApp}><Share2 className="mr-2 h-4 w-4"/>WhatsApp</Button>
           <Button onClick={handlePrint} size="sm"><Printer className="mr-2 h-4 w-4"/>Imprimir/PDF</Button>
           {presupuesto.estado !== 'Facturado' ? 
-            (<Button onClick={handleCreateInvoice} variant='default' size="sm"><FileTextIcon className="mr-2 h-4 w-4"/>Crear Factura</Button>) : 
+            (<Link href={`/invoices/new?fromPresupuesto=${presupuesto.id}`} passHref><Button variant='default' size="sm"><FileTextIcon className="mr-2 h-4 w-4"/>Crear Factura</Button></Link>) : 
             presupuesto.invoiceId ? 
             (<Link href={`/invoices/${presupuesto.invoiceId}`} passHref><Button variant="secondary" size="sm" className="bg-green-100 text-green-700 hover:bg-green-200"><FileSignature className="mr-2 h-4 w-4"/>Ver Factura</Button></Link>) : 
             (<Button variant="secondary" size="sm" disabled>Facturado</Button>)}
@@ -361,7 +361,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
               </thead>
               <tbody>
                 <tr>
-                  <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">Nº {displayId}</td>
+                  <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{displayId}</td>
                   <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(presupuesto.timestamp, true)}</td>
                   <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(fechaValidoHasta.toISOString(), true)}</td>
                 </tr>
