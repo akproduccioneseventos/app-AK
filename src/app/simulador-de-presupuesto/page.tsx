@@ -271,7 +271,7 @@ export default function ArmadoRapidoPage() {
         let newSelectedEntradas;
         if (checked) {
             if (selectedEntradas.length >= maxEntradas) {
-                toast({ title: "Límite alcanzado", description: \`Puedes seleccionar hasta \${maxEntradas} entrada(s).\`, variant: "default" });
+                toast({ title: "Límite alcanzado", description: `Puedes seleccionar hasta ${maxEntradas} entrada(s).`, variant: "default" });
                 return; // Do not update state
             }
             newSelectedEntradas = [...selectedEntradas, servicioId];
@@ -474,79 +474,80 @@ export default function ArmadoRapidoPage() {
     const selectedPrincipalId = useMemo(() => Array.from(formData.serviciosSeleccionados.keys()).find(id => principalesDisponibles.some(p => p.id === id)) || '', [formData.serviciosSeleccionados, principalesDisponibles]);
 
     const nextStep = async () => {
-        if (step === 1 && (!clienteNombre.trim() || !/^\d{9}$/.test(clienteContacto.trim()) || adultos <= 0)) {
-            toast({ title: "Datos incompletos", description: "Por favor, ingresa un nombre, un celular válido de 9 dígitos y la cantidad de adultos.", variant: "destructive" });
-            return;
-        }
-        const requiredEntradas = duracionHoras > 4 ? 2 : 1;
-        if (step === 2 && (!selectedPrincipalId || selectedEntradas.length !== requiredEntradas)) {
-            toast({ title: "Selección de Menú Incompleta", description: `Debes elegir un plato principal y exactamente ${requiredEntradas} entrada(s).`, variant: "destructive" });
-            return;
-        }
-        if (step === 3 && !selectedPaqueteId) {
-            toast({ title: "Paquete Requerido", description: "Por favor, elige un paquete de servicios para continuar.", variant: "destructive" });
-            return;
-        }
-        
-        if (step < 4) {
-            if (step === 3) {
-                if (!clienteNombre.trim() || !clienteContacto.trim()) {
-                    toast({ title: "Datos de contacto requeridos para continuar", variant: "destructive" });
-                    return;
-                }
-                setIsGeneratingLead(true);
-                const allServices = Object.values(serviciosAgrupados).flat();
-                const data = {
-                    clienteNombre,
-                    clienteContacto,
-                    eventoFecha: eventoFecha ? eventoFecha.toISOString() : undefined,
-                    adultos,
-                    ninos: ninosYAdolescentes,
-                    adolescentes: 0,
-                    subtotal,
-                    costoEstimado: costoTotal,
-                    descuentoGeneral: config?.descuentoGeneral,
-                    serviciosIncluidos: allServices.map(s => s.id),
-                    paqueteNombre: config?.paquetes.find(p => p.id === selectedPaqueteId)?.nombre,
-                    items: allServices.map(s => {
-                        const originalServicio = allSimuladorServices.find(os => os.id === s.id);
-                        return {
-                            idServicioCatalogo: s.id,
-                            nombreServicio: s.nombre,
-                            cantidad: s.cantidad,
-                            unidad: s.unidad,
-                            precioUnitario: s.precioUnitario,
-                            precioUnitarioPresupuesto: s.precioUnitario,
-                            esRegalo: s.esRegalo,
-                            categoriaServicio: s.categoria,
-                            calculationMethod: originalServicio?.calculationMethod,
-                            precioBase: originalServicio?.precioBase,
-                            precioPorPersona: originalServicio?.precioPorPersona,
-                            invitadosPorUnidad: originalServicio?.invitadosPorUnidad,
-                            tramosDePrecio: originalServicio?.tramosDePrecio,
-                        };
-                    }) as Omit<ItemPresupuestado, 'id' | 'costoTotalItem'>[]
-                };
-                
-                try {
-                    const result = await generateBudgetAndLeadFromSimulator(data);
-                    if (result.success && result.presupuestoId) {
-                        setGeneratedPresupuestoId(result.presupuestoId);
-                        toast({ title: "¡Solicitud Enviada!", description: "Gracias por tu interés. Se generó un resumen de tu selección.", variant: 'default' });
-                        setStep(s => s + 1);
-                    } else {
-                        throw new Error(result.error || "No se recibió un ID para el presupuesto generado.");
-                    }
-                } catch (e: any) {
-                    toast({ title: "Error al registrar", description: e.message, variant: "destructive" });
-                } finally {
-                    setIsGeneratingLead(false);
-                }
-            } else {
-                setStep(s => s + 1);
+      if (step === 1 && (!clienteNombre.trim() || !/^\d{9}$/.test(clienteContacto.trim()) || adultos <= 0)) {
+          toast({ title: "Datos incompletos", description: "Por favor, ingresa un nombre, un celular válido de 9 dígitos y la cantidad de adultos.", variant: "destructive" });
+          return;
+      }
+      const requiredEntradas = duracionHoras > 4 ? 2 : 1;
+      if (step === 2 && (!selectedPrincipalId || selectedEntradas.length !== requiredEntradas)) {
+          toast({ title: "Selección de Menú Incompleta", description: `Debes elegir un plato principal y exactamente ${requiredEntradas} entrada(s).`, variant: "destructive" });
+          return;
+      }
+      if (step === 3 && !selectedPaqueteId) {
+          toast({ title: "Paquete Requerido", description: "Por favor, elige un paquete de servicios para continuar.", variant: "destructive" });
+          return;
+      }
+      
+      if (step < 4) {
+        if (step === 3) {
+            if (!clienteNombre.trim() || !clienteContacto.trim()) {
+                toast({ title: "Datos de contacto requeridos para continuar", variant: "destructive" });
+                return;
             }
+            setIsGeneratingLead(true);
+            const allServices = Object.values(serviciosAgrupados).flat();
+            const data = {
+                clienteNombre,
+                clienteContacto,
+                eventoFecha: eventoFecha ? eventoFecha.toISOString() : undefined,
+                adultos,
+                ninos: ninosYAdolescentes,
+                adolescentes: 0,
+                subtotal,
+                costoEstimado: costoTotal,
+                descuentoGeneral: config?.descuentoGeneral,
+                serviciosIncluidos: allServices.map(s => s.id),
+                paqueteNombre: config?.paquetes.find(p => p.id === selectedPaqueteId)?.nombre,
+                items: allServices.map(s => {
+                    const originalServicio = allSimuladorServices.find(os => os.id === s.id);
+                    return {
+                        idServicioCatalogo: s.id,
+                        nombreServicio: s.nombre,
+                        cantidad: s.cantidad,
+                        unidad: s.unidad,
+                        precioUnitario: s.precioUnitario,
+                        precioUnitarioPresupuesto: s.precioUnitario,
+                        esRegalo: s.esRegalo,
+                        categoriaServicio: s.categoria,
+                        calculationMethod: originalServicio?.calculationMethod,
+                        precioBase: originalServicio?.precioBase,
+                        precioPorPersona: originalServicio?.precioPorPersona,
+                        invitadosPorUnidad: originalServicio?.invitadosPorUnidad,
+                        tramosDePrecio: originalServicio?.tramosDePrecio,
+                    };
+                }) as Omit<ItemPresupuestado, 'id' | 'costoTotalItem'>[]
+            };
+            
+            try {
+                const result = await generateBudgetAndLeadFromSimulator(data);
+                if (result.success && result.presupuestoId) {
+                    setGeneratedPresupuestoId(result.presupuestoId);
+                    toast({ title: "¡Solicitud Enviada!", description: "Gracias por tu interés. Se generó un resumen de tu selección.", variant: 'default' });
+                    setStep(s => s + 1);
+                } else {
+                    throw new Error(result.error || "No se recibió un ID para el presupuesto generado.");
+                }
+            } catch (e: any) {
+                toast({ title: "Error al registrar", description: e.message, variant: "destructive" });
+            } finally {
+                setIsGeneratingLead(false);
+            }
+        } else {
+            setStep(s => s + 1);
         }
+      }
     };
+
 
     const prevStep = () => setStep(s => s > 1 ? s - 1 : s);
     
@@ -569,7 +570,7 @@ export default function ArmadoRapidoPage() {
     if (step === 4 && generatedPresupuestoId) {
         return (
             <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4 print:bg-white print:p-0 print:items-start">
-                 <style jsx global>{`
+                <style jsx global>{`
                     @media print {
                         body { background-color: white !important; }
                         .print-hidden { display: none !important; }
@@ -655,7 +656,6 @@ export default function ArmadoRapidoPage() {
     }
 
     return (
-        <div className="min-h-screen bg-muted/30 flex items-center justify-center p-4">
         <Card className="w-full max-w-3xl shadow-xl print:hidden">
             <CardHeader className="text-center">
                 <Wand2 className="w-12 h-12 mx-auto text-primary mb-2"/>
@@ -706,7 +706,7 @@ export default function ArmadoRapidoPage() {
                             {entradasFaltantes > 0 && <p className="text-sm text-amber-600">Te falta seleccionar {entradasFaltantes} entrada{entradasFaltantes > 1 ? 's' : ''}.</p>}
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                               {entradasDisponibles.length > 0 ? (
-                                entradasDisponibles.map(s => (<div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><Checkbox id={`e-${s.id}`} checked={selectedEntradas.includes(s.id)} onCheckedChange={(checked) => handleEntradaChange(s.id, !!checked)}/><Label htmlFor={`e-${s.id}`} className="text-sm font-normal">{s.nombre} ({formatNumber(s.precioPorPersona || 0)})</Label></div>))
+                                entradasDisponibles.map(s => (<div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><Checkbox id={`e-${s.id}`} checked={selectedEntradas.includes(s.id)} onCheckedChange={(checked) => handleEntradaChange(s.id, !!checked)}/><Label htmlFor={`e-${s.id}`} className="text-sm font-normal">{s.nombre} ({formatCurrency(s.precioPorPersona || 0)})</Label></div>))
                               ) : (
                                 <p className="col-span-full text-center text-sm text-muted-foreground py-4">No se encontraron entradas.</p>
                               )}
@@ -718,7 +718,7 @@ export default function ArmadoRapidoPage() {
                                 onValueChange={(value) => handleGastronomicSelectionChange('principal', value)} 
                                 className="grid grid-cols-1 md:grid-cols-2 gap-2">
                               {principalesDisponibles.length > 0 ? (
-                                principalesDisponibles.map(s => <div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><RadioGroupItem value={s.id} id={`p-${s.id}`}/><Label htmlFor={`p-${s.id}`} className="text-sm font-normal">{s.nombre} ({formatNumber(s.precioPorPersona || 0)})</Label></div>)
+                                principalesDisponibles.map(s => <div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><RadioGroupItem value={s.id} id={`p-${s.id}`}/><Label htmlFor={`p-${s.id}`} className="text-sm font-normal">{s.nombre} ({formatCurrency(s.precioPorPersona || 0)})</Label></div>)
                               ) : (
                                 <p className="md:col-span-2 text-center text-sm text-muted-foreground py-4">No se encontraron platos principales.</p>
                               )}
@@ -736,7 +736,7 @@ export default function ArmadoRapidoPage() {
                                         menusNinoDisponibles.map(s => (
                                             <div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md">
                                                 <RadioGroupItem value={s.id} id={`nino-${s.id}`} />
-                                                <Label htmlFor={`nino-${s.id}`} className="text-sm font-normal">{s.nombre} ({formatNumber(s.precioPorPersona || 0)})</Label>
+                                                <Label htmlFor={`nino-${s.id}`} className="text-sm font-normal">{s.nombre} ({formatCurrency(s.precioPorPersona || 0)})</Label>
                                             </div>
                                         ))
                                     ) : (
