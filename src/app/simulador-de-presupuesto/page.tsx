@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -59,14 +60,15 @@ const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos l
 
 
 // Helper function to decide which guest count to use for an item
-function getGuestCountForItem(servicio: { categoriaServicio?: string }, adultos: number, ninos: number): number {
+function getGuestCountForItem(servicio: { categoriaServicio?: string; subcategoria?: string }, adultos: number, ninos: number): number {
   const categoria = (servicio.categoriaServicio || '').toLowerCase();
+  const subcategoria = (servicio.subcategoria || '').toLowerCase();
   
-  if (categoria.includes('infantil') || categoria.includes('adolescente')) {
+  if (categoria.includes('infantil') || categoria.includes('adolescente') || subcategoria.includes('infantil') || subcategoria.includes('adolescente')) {
     return ninos;
   }
   
-  if (categoria.includes('plato principal')) {
+  if (categoria.includes('plato principal') || subcategoria.includes('plato principal')) {
     return adultos;
   }
   
@@ -133,6 +135,7 @@ type ServicioSeleccionadoValue = {
     nombreServicio: string;
     unidad?: string;
     categoriaServicio?: string;
+    subcategoria?: string;
     esRegalo: boolean;
     calculationMethod?: 'fijo' | 'porPersona' | 'ratio' | 'tramos';
     precioBase?: number;
@@ -149,6 +152,7 @@ const menuItemToServicioSeleccionado = (item: ServicioEmpresa, invitados: number
         nombreServicio: item.nombre,
         unidad: 'personas',
         categoriaServicio: item.categoria,
+        subcategoria: item.subcategoria,
         esRegalo: false,
         calculationMethod: 'porPersona',
         precioPorPersona: item.precioPorPersona || 0,
@@ -512,6 +516,7 @@ export default function ArmadoRapidoPage() {
                         precioUnitarioPresupuesto: s.precioUnitario,
                         esRegalo: s.esRegalo,
                         categoriaServicio: s.categoria,
+                        subcategoria: originalServicio?.subcategoria,
                         calculationMethod: originalServicio?.calculationMethod,
                         precioBase: originalServicio?.precioBase,
                         precioPorPersona: originalServicio?.precioPorPersona,
@@ -616,7 +621,7 @@ export default function ArmadoRapidoPage() {
                                         </TableRow>
                                         {items.map((item) => (
                                             <TableRow key={item.id}>
-                                                <TableCell className={`font-medium ${item.esRegalo ? 'text-red-600' : ''}`}>{item.nombre}</TableCell>
+                                                <TableCell className="font-medium">{item.nombre}</TableCell>
                                                 <TableCell className={`text-right font-semibold ${item.esRegalo ? 'text-red-600 line-through' : ''}`}>{formatCurrency(item.costo)}</TableCell>
                                             </TableRow>
                                         ))}

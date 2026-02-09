@@ -22,6 +22,7 @@ export interface ItemPresupuestado {
   precioUnitarioPresupuesto: number; // The price at the moment the budget was created/last updated
   costoTotalItem: number; // Final calculated cost for this line item
   categoriaServicio?: string;
+  subcategoria?: string;
   esRegalo?: boolean;
   
   // Fields to support complex calculations, copied from catalog or overridden
@@ -83,6 +84,7 @@ export interface PresupuestoFormData {
     nombreServicio: string;
     unidad?: string;
     categoriaServicio?: string;
+    subcategoria?: string;
     esRegalo: boolean;
     // Calculation details from catalog, can be overridden
     calculationMethod?: 'fijo' | 'porPersona' | 'ratio' | 'tramos';

@@ -1926,7 +1926,7 @@
     "dataAiHint": "main course dishes",
     "templateType": "Menú de Platos Principales",
     "createdAt": "2025-07-28T10:00:00.000Z",
-    "updatedAt": "2026-02-09T19:01:08.673Z",
+    "updatedAt": "2026-02-09T19:09:07.680Z",
     "items": [
       {
         "id": "dish_main_1",
@@ -1951,64 +1951,6 @@
             "unit": "g",
             "costoUnitario": 280,
             "costoTotalReceta": 64.4
-          }
-        ]
-      },
-      {
-        "id": "dish_main_2",
-        "name": "Cerdo Braseado a la Mostaza C/ Guarnición",
-        "type": "Plato Principal",
-        "totalDishCost": 136.7,
-        "profitMargin": 192,
-        "suggestedSellingPrice": 399,
-        "ingredients": [
-          {
-            "id": "ing_cm1_1",
-            "name": "Bondiola",
-            "quantityPerPerson": "250",
-            "unit": "g",
-            "costoUnitario": 190,
-            "costoTotalReceta": 47.5
-          },
-          {
-            "id": "ing_cm1_2",
-            "name": "Crema de leche",
-            "quantityPerPerson": "80",
-            "unit": "ml",
-            "costoUnitario": 200,
-            "costoTotalReceta": 16
-          },
-          {
-            "id": "ing_cm1_3",
-            "name": "condimentos",
-            "quantityPerPerson": "80",
-            "unit": "g",
-            "costoUnitario": 120,
-            "costoTotalReceta": 9.6
-          },
-          {
-            "id": "ing_cm1_4",
-            "name": "miel",
-            "quantityPerPerson": "30",
-            "unit": "g",
-            "costoUnitario": 120,
-            "costoTotalReceta": 3.5999999999999996
-          },
-          {
-            "id": "ing_cm1_5",
-            "name": "mostaza",
-            "quantityPerPerson": "80",
-            "unit": "g",
-            "costoUnitario": 250,
-            "costoTotalReceta": 20
-          },
-          {
-            "id": "ing_cm1_7",
-            "name": "guarnicion",
-            "quantityPerPerson": "1",
-            "unit": "Unidad",
-            "costoUnitario": 40,
-            "costoTotalReceta": 40
           }
         ]
       },

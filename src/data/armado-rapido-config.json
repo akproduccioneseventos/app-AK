@@ -328,6 +328,18 @@
         {
           "id": "serv_1770303166345_otyi3h5",
           "esRegalo": false
+        },
+        {
+          "id": "serv_1759923194347_kejmhn5",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1759924018105_br98ayd",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1759923896617_ezkio4w",
+          "esRegalo": false
         }
       ]
     }
@@ -512,7 +524,7 @@
     },
     {
       "id": "dish_main_11",
-      "visible": false
+      "visible": true
     },
     {
       "id": "dish_entrada_4",

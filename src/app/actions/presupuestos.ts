@@ -16,15 +16,16 @@ import type { FullMenu, MenuItem } from '@/types/catering';
 const PRESUPUESTOS_FILE = 'presupuestos.json';
 
 // Helper function to decide which guest count to use for an item
-function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?: string }, adultos: number, adolescentes: number, ninos: number): number {
+function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?: string, subcategoria?: string }, adultos: number, adolescentes: number, ninos: number): number {
   const categoria = (item.categoriaServicio || '').toLowerCase();
+  const subcategoria = (item.subcategoria || '').toLowerCase();
   const ninosYAdolescentes = ninos + adolescentes;
   
-  if (categoria.includes('infantil') || categoria.includes('adolescente')) {
+  if (categoria.includes('infantil') || categoria.includes('adolescente') || subcategoria.includes('infantil') || subcategoria.includes('adolescente')) {
     return ninosYAdolescentes;
   }
   
-  if (categoria.includes('plato principal')) {
+  if (categoria.includes('plato principal') || subcategoria.includes('plato principal')) {
     return adultos;
   }
   

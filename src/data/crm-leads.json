@@ -1,5 +1,27 @@
 [
   {
+    "id": "lead_1770663855661_l8gevb3",
+    "name": "Prueba",
+    "phone": "098355569",
+    "notes": "Presupuesto Nº 12\nCosto: $ 315.296,45",
+    "presupuestoId": "pres_1770663855649_zub68mr",
+    "currentStageId": "s3",
+    "createdAt": "2026-02-09T19:04:15.661Z",
+    "updatedAt": "2026-02-09T19:04:15.685Z",
+    "history": [
+      {
+        "stageId": "s1",
+        "stageName": "Consultó",
+        "timestamp": "2026-02-09T19:04:15.661Z"
+      },
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2026-02-09T19:04:15.685Z"
+      }
+    ]
+  },
+  {
     "id": "lead_1770663753019_3o4qs2g",
     "name": "Ff",
     "phone": "098355560",
@@ -19,6 +41,7 @@
         "stageName": "Con presupuesto",
         "timestamp": "2026-02-09T19:02:33.045Z"
       }
-    ]
+    ],
+    "presupuestoEstado": "Enviado"
   }
 ]
