@@ -5,12 +5,29 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ChefHat, Loader2, Info, Edit, Percent, DollarSign } from 'lucide-react';
+import { ArrowLeft, ChefHat, Loader2, Info, Edit, Percent, DollarSign, Copy, Trash2, MoreVertical } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FullMenu, MenuItem } from '@/types/catering';
-import { getMenus, saveMenu } from '@/app/actions/menus-catering';
+import { getMenus, saveMenu, deleteMenu, duplicateMenu } from '@/app/actions/menus-catering';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 
@@ -33,6 +50,8 @@ export default function CatalogoPlatosPage() {
   const [editingDish, setEditingDish] = useState<PlatoConMenu | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  const [processingMenuId, setProcessingMenuId] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -136,6 +155,40 @@ export default function CatalogoPlatosPage() {
     }
   };
 
+  const handleDeleteMenu = async (menuId: string, menuName: string) => {
+    setProcessingMenuId(menuId);
+    try {
+      const result = await deleteMenu(menuId);
+      if (result.success) {
+        toast({ title: "Menú Eliminado", description: `Se eliminó "${menuName}".`, variant: "destructive" });
+        await loadData();
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (err: any) {
+      toast({ title: "Error al Eliminar", description: err.message, variant: "destructive" });
+    } finally {
+      setProcessingMenuId(null);
+    }
+  };
+
+  const handleDuplicateMenu = async (menuId: string, menuName: string) => {
+    setProcessingMenuId(menuId);
+    try {
+      const result = await duplicateMenu(menuId);
+      if (result.success) {
+        toast({ title: "Menú Duplicado", description: `Se creó una copia de "${menuName}".` });
+        await loadData();
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (err: any) {
+      toast({ title: "Error al Duplicar", description: err.message, variant: "destructive" });
+    } finally {
+      setProcessingMenuId(null);
+    }
+  };
+
 
   if (isLoading) {
     return (
@@ -205,14 +258,50 @@ export default function CatalogoPlatosPage() {
                                         <p className="font-medium">{plato.name}</p>
                                         <p className="text-xs text-muted-foreground">Del menú: "{plato.menuName}"</p>
                                       </div>
-                                      <div className="flex items-center gap-2">
+                                      <div className="flex items-center gap-1">
                                         <p className="font-semibold text-primary">{formatCurrency(plato.suggestedSellingPrice)}</p>
-                                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEditClick(plato)}>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEditClick(plato)} title="Editar precio del plato">
                                             <Edit className="w-4 h-4" />
                                         </Button>
-                                        <Link href={`/empresa/menus/${plato.menuId}/editar`} passHref>
-                                          <Button variant="outline" size="sm" className="text-xs h-8">Ir al Menú</Button>
-                                        </Link>
+                                         <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!!processingMenuId && processingMenuId === plato.menuId} title="Opciones del Menú">
+                                                    {processingMenuId === plato.menuId ? <Loader2 className="w-4 h-4 animate-spin"/> : <MoreVertical className="w-4 h-4" />}
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent>
+                                                <DropdownMenuItem asChild>
+                                                    <Link href={`/empresa/menus/${plato.menuId}/editar`}>
+                                                        <Edit className="w-4 h-4 mr-2" />
+                                                        Editar Menú
+                                                    </Link>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => handleDuplicateMenu(plato.menuId, plato.menuName)}>
+                                                    <Copy className="w-4 h-4 mr-2" />
+                                                    Duplicar Menú
+                                                </DropdownMenuItem>
+                                                <AlertDialog>
+                                                    <AlertDialogTrigger asChild>
+                                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:bg-destructive/10 focus:text-destructive-foreground">
+                                                        <Trash2 className="w-4 h-4 mr-2" />
+                                                        Eliminar Menú
+                                                    </DropdownMenuItem>
+                                                    </AlertDialogTrigger>
+                                                    <AlertDialogContent>
+                                                        <AlertDialogHeader>
+                                                            <AlertDialogTitle>¿Eliminar Menú?</AlertDialogTitle>
+                                                            <AlertDialogDescription>Se eliminará permanentemente la plantilla de menú "{plato.menuName}". Esta acción no se puede deshacer.</AlertDialogDescription>
+                                                        </AlertDialogHeader>
+                                                        <AlertDialogFooter>
+                                                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                            <AlertDialogAction onClick={() => handleDeleteMenu(plato.menuId, plato.menuName)} className="bg-destructive hover:bg-destructive/80">
+                                                                Eliminar
+                                                            </AlertDialogAction>
+                                                        </AlertDialogFooter>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
                                       </div>
                                     </li>
                                 ))}
