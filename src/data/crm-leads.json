@@ -1,5 +1,27 @@
 [
   {
+    "id": "lead_1770658218744_s54upe0",
+    "name": "nico k",
+    "phone": "098344578",
+    "notes": "Presupuesto Nº 10\nCosto: $ 320.141,45",
+    "presupuestoId": "pres_1770658218731_62u1yfp",
+    "currentStageId": "s3",
+    "createdAt": "2026-02-09T17:30:18.744Z",
+    "updatedAt": "2026-02-09T17:30:18.766Z",
+    "history": [
+      {
+        "stageId": "s1",
+        "stageName": "Consultó",
+        "timestamp": "2026-02-09T17:30:18.744Z"
+      },
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2026-02-09T17:30:18.766Z"
+      }
+    ]
+  },
+  {
     "id": "lead_1770657770472_et642y5",
     "name": "nico k",
     "phone": "098765543",
@@ -19,7 +41,8 @@
         "stageName": "Con presupuesto",
         "timestamp": "2026-02-09T17:22:50.486Z"
       }
-    ]
+    ],
+    "presupuestoEstado": "Enviado"
   },
   {
     "id": "lead_1770656875351_u1ruvkq",

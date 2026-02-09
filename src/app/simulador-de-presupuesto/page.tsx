@@ -369,10 +369,12 @@ export default function ArmadoRapidoPage() {
     
         allSelectedServices.forEach(({ servicio, esRegalo }) => {
             const costoItem = calcularCostoServicio(servicio, adultos, ninosYAdolescentes);
-             if (esRegalo) {
+            
+            // This is the correct logic as per user request
+            // Subtotal includes gifts, then gifts are shown as savings.
+            subtotalBruto += costoItem;
+            if (esRegalo) {
                 costoTotalRegalos += costoItem;
-            } else {
-                subtotalBruto += costoItem;
             }
     
             const cantidadInvitadosRelevante = getGuestCountForItem(servicio, adultos, ninosYAdolescentes);
@@ -397,9 +399,9 @@ export default function ArmadoRapidoPage() {
             });
         });
         
-        const subtotalFicticio = subtotalBruto + costoTotalRegalos;
-        const descuentoCalculado = config.descuentoGeneral ? (subtotalBruto * config.descuentoGeneral) / 100 : 0;
-        const totalFinal = subtotalBruto - descuentoCalculado;
+        const subtotalSinRegalos = subtotalBruto - costoTotalRegalos;
+        const descuentoCalculado = config.descuentoGeneral ? (subtotalSinRegalos * config.descuentoGeneral) / 100 : 0;
+        const totalFinal = subtotalSinRegalos - descuentoCalculado;
         
         const agrupados = includedServicesList.reduce((acc, item) => {
           const categoria = item.esRegalo ? 'Regalos Incluidos' : (item.categoria || 'Varios');
@@ -409,7 +411,7 @@ export default function ArmadoRapidoPage() {
         }, {} as Record<string, ServicioDetallado[]>);
     
         return { 
-          subtotal: subtotalFicticio, 
+          subtotal: subtotalBruto, 
           serviciosDetallados: includedServicesList,
           serviciosAgrupados: agrupados, 
           totalRegalos: costoTotalRegalos,
@@ -633,7 +635,7 @@ export default function ArmadoRapidoPage() {
                                         {serviciosAgrupados['Regalos Incluidos'].map(item => (
                                             <TableRow key={item.id}>
                                                 <TableCell className="font-medium text-red-600">{item.nombre}</TableCell>
-                                                <TableCell className="text-right font-semibold text-red-600">{formatCurrency(0)}</TableCell>
+                                                <TableCell className="text-right font-semibold text-red-600 line-through">{formatCurrency(item.costo)}</TableCell>
                                             </TableRow>
                                         ))}
                                     </React.Fragment>
@@ -804,4 +806,3 @@ export default function ArmadoRapidoPage() {
         </Card>
     );
 }
-
