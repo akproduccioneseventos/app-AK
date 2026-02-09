@@ -1,4 +1,3 @@
-
 {
   "descuentoGeneral": 15,
   "paquetes": [
@@ -497,7 +496,7 @@
     },
     {
       "id": "dish_main_1",
-      "visible": false
+      "visible": true
     },
     {
       "id": "dish_main_2",
@@ -534,18 +533,13 @@
   ],
   "serviceDependencies": [
     {
-      "id": "dep_1769458885564",
+      "id": "dep_1770658872072",
       "triggerServiceId": "dish_main_19",
       "requiredServiceId": "serv_1759925173262_6sba1mh"
     },
     {
-      "id": "dep_1769458902278",
+      "id": "dep_1770658884913",
       "triggerServiceId": "dish_main_18",
-      "requiredServiceId": "serv_1759925173262_6sba1mh"
-    },
-    {
-      "id": "dep_1769869274711",
-      "triggerServiceId": "dish_main_asado_completo-buffet",
       "requiredServiceId": "serv_1759925173262_6sba1mh"
     }
   ],

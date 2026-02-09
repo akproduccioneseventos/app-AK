@@ -314,111 +314,103 @@ export default function ArmadoRapidoPage() {
     }, [entradasDisponibles, principalesDisponibles, menusNinoDisponibles, serviciosCatalogo]);
 
     const { subtotal, serviciosDetallados, serviciosAgrupados, totalRegalos, costoTotal, descuento } = useMemo(() => {
-        if (!config || !allSimuladorServices.length) {
+      if (!config || !allSimuladorServices.length) {
           return { subtotal: 0, serviciosDetallados: [], serviciosAgrupados: {}, totalRegalos: 0, costoTotal: 0, descuento: 0 };
-        }
-    
-        const allSelectedServices = new Map<string, { servicio: ServicioEmpresa, esRegalo: boolean }>();
-        const addedServiceIds = new Set<string>();
-    
-        const addOrUpdateService = (servicio: ServicioEmpresa, esRegalo: boolean) => {
-            if (!addedServiceIds.has(servicio.id)) {
-                allSelectedServices.set(servicio.id, { servicio, esRegalo });
-                addedServiceIds.add(servicio.id);
-            }
-        };
-    
-        // 1. Add services from the selected package
-        const paqueteSeleccionado = config.paquetes.find(p => p.id === selectedPaqueteId);
-        if (paqueteSeleccionado) {
-            paqueteSeleccionado.serviciosIncluidos.forEach(servicioEnPaquete => {
-                const servicioCompleto = allSimuladorServices.find(s => s.id === servicioEnPaquete.id);
-                if (servicioCompleto) {
-                    addOrUpdateService(servicioCompleto, servicioEnPaquete.esRegalo || false);
-                }
-            });
-        }
-    
-        // 2. Add services selected from the gastronomic section
-        formData.serviciosSeleccionados.forEach((selectedData, serviceId) => {
-            const servicioCatalogo = allSimuladorServices.find(s => s.id === serviceId);
-            if (servicioCatalogo) {
-                const servicioConPrecioGuardado: ServicioEmpresa = {
-                    ...servicioCatalogo,
-                    precioPorPersona: selectedData.precioUnitarioPresupuesto
-                };
-                addOrUpdateService(servicioConPrecioGuardado, selectedData.esRegalo);
-            }
-        });
-        
-        // 3. Add services from dependencies
-        if (config.serviceDependencies) {
-            config.serviceDependencies.forEach(dep => {
-                if (addedServiceIds.has(dep.triggerServiceId)) {
-                    const servicioRequerido = allSimuladorServices.find(s => s.id === dep.requiredServiceId);
-                    if (servicioRequerido) {
-                        addOrUpdateService(servicioRequerido, false);
-                    }
-                }
-            });
-        }
-    
-        let subtotalBruto = 0;
-        let costoTotalRegalos = 0;
-        const includedServicesList: ServicioDetallado[] = [];
-    
-        allSelectedServices.forEach(({ servicio, esRegalo }) => {
-            const costoItem = calcularCostoServicio(servicio, adultos, ninosYAdolescentes);
-            
-            // This is the correct logic as per user request
-            // Subtotal includes gifts, then gifts are shown as savings.
-            subtotalBruto += costoItem;
-            if (esRegalo) {
-                costoTotalRegalos += costoItem;
-            }
-    
-            const cantidadInvitadosRelevante = getGuestCountForItem(servicio, adultos, ninosYAdolescentes);
-            let cantidadDisplay: number = 1;
-            let unidadDisplay = 'evento';
-    
-            switch (servicio.calculationMethod) {
-                case 'porPersona': cantidadDisplay = cantidadInvitadosRelevante; unidadDisplay = 'personas'; break;
-                case 'ratio':
-                    const invitadosPorUnidad = servicio.invitadosPorUnidad || 1;
-                    cantidadDisplay = invitadosPorUnidad > 0 ? Math.ceil(cantidadInvitadosRelevante / invitadosPorUnidad) : 1;
-                    unidadDisplay = servicio.unidad || 'Uds.';
-                    break;
-                default: cantidadDisplay = 1; unidadDisplay = servicio.unidad || 'evento'; break;
-            }
+      }
+  
+      const allSelectedServicesMap = new Map<string, { servicio: ServicioEmpresa, esRegalo: boolean }>();
+  
+      // Step 1: Add services from the selected package
+      const paqueteSeleccionado = config.paquetes.find(p => p.id === selectedPaqueteId);
+      if (paqueteSeleccionado) {
+          paqueteSeleccionado.serviciosIncluidos.forEach(servicioEnPaquete => {
+              const servicioCompleto = allSimuladorServices.find(s => s.id === servicioEnPaquete.id);
+              if (servicioCompleto) {
+                  allSelectedServicesMap.set(servicioCompleto.id, { servicio: servicioCompleto, esRegalo: servicioEnPaquete.esRegalo || false });
+              }
+          });
+      }
+  
+      // Step 2: Add services selected from the gastronomic section
+      formData.serviciosSeleccionados.forEach((selectedData, serviceId) => {
+          const servicioCatalogo = allSimuladorServices.find(s => s.id === serviceId);
+          if (servicioCatalogo) {
+              const servicioConPrecioGuardado: ServicioEmpresa = {
+                  ...servicioCatalogo,
+                  precioPorPersona: selectedData.precioUnitarioPresupuesto
+              };
+              allSelectedServicesMap.set(servicioCatalogo.id, { servicio: servicioConPrecioGuardado, esRegalo: selectedData.esRegalo });
+          }
+      });
       
-            includedServicesList.push({ 
-              id: servicio.id, nombre: servicio.nombre, esRegalo, costo: costoItem,
-              categoria: servicio.categoria || 'Varios',
-              precioUnitario: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
-              cantidad: cantidadDisplay, unidad: unidadDisplay
-            });
-        });
-        
-        const subtotalSinRegalos = subtotalBruto - costoTotalRegalos;
-        const descuentoCalculado = config.descuentoGeneral ? (subtotalSinRegalos * config.descuentoGeneral) / 100 : 0;
-        const totalFinal = subtotalSinRegalos - descuentoCalculado;
-        
-        const agrupados = includedServicesList.reduce((acc, item) => {
-          const categoria = item.esRegalo ? 'Regalos Incluidos' : (item.categoria || 'Varios');
-          if (!acc[categoria]) acc[categoria] = [];
-          acc[categoria].push(item);
-          return acc;
-        }, {} as Record<string, ServicioDetallado[]>);
+      // Step 3: Add services from dependencies based on the current selection
+      if (config.serviceDependencies) {
+          config.serviceDependencies.forEach(dep => {
+              if (allSelectedServicesMap.has(dep.triggerServiceId)) {
+                  if (!allSelectedServicesMap.has(dep.requiredServiceId)) {
+                      const servicioRequerido = allSimuladorServices.find(s => s.id === dep.requiredServiceId);
+                      if (servicioRequerido) {
+                          allSelectedServicesMap.set(servicioRequerido.id, { servicio: servicioRequerido, esRegalo: false });
+                      }
+                  }
+              }
+          });
+      }
+  
+      let subtotalBruto = 0;
+      let costoTotalRegalos = 0;
+      const includedServicesList: ServicioDetallado[] = [];
+  
+      allSelectedServicesMap.forEach(({ servicio, esRegalo }) => {
+          const costoItem = calcularCostoServicio(servicio, adultos, ninosYAdolescentes);
+          
+          subtotalBruto += costoItem;
+          if (esRegalo) {
+              costoTotalRegalos += costoItem;
+          }
+  
+          const cantidadInvitadosRelevante = getGuestCountForItem(servicio, adultos, ninosYAdolescentes);
+          let cantidadDisplay: number = 1;
+          let unidadDisplay = 'evento';
+  
+          switch (servicio.calculationMethod) {
+              case 'porPersona': cantidadDisplay = cantidadInvitadosRelevante; unidadDisplay = 'personas'; break;
+              case 'ratio':
+                  const invitadosPorUnidad = servicio.invitadosPorUnidad || 1;
+                  cantidadDisplay = invitadosPorUnidad > 0 ? Math.ceil(cantidadInvitadosRelevante / invitadosPorUnidad) : 1;
+                  unidadDisplay = servicio.unidad || 'Uds.';
+                  break;
+              default: cantidadDisplay = 1; unidadDisplay = servicio.unidad || 'evento'; break;
+          }
     
-        return { 
-          subtotal: subtotalBruto, 
-          serviciosDetallados: includedServicesList,
-          serviciosAgrupados: agrupados, 
-          totalRegalos: costoTotalRegalos,
-          descuento: descuentoCalculado, 
-          costoTotal: totalFinal,
-        };
-    }, [config, allSimuladorServices, adultos, ninosYAdolescentes, selectedPaqueteId, formData.serviciosSeleccionados]);
+          includedServicesList.push({ 
+            id: servicio.id, nombre: servicio.nombre, esRegalo, costo: costoItem,
+            categoria: servicio.categoria || 'Varios',
+            precioUnitario: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
+            cantidad: cantidadDisplay, unidad: unidadDisplay
+          });
+      });
+      
+      const subtotalSinRegalos = subtotalBruto - costoTotalRegalos;
+      const descuentoCalculado = config.descuentoGeneral ? (subtotalSinRegalos * config.descuentoGeneral) / 100 : 0;
+      const totalFinal = subtotalSinRegalos - descuentoCalculado;
+      
+      const agrupados = includedServicesList.reduce((acc, item) => {
+        const categoria = item.esRegalo ? 'Regalos Incluidos' : (item.categoria || 'Varios');
+        if (!acc[categoria]) acc[categoria] = [];
+        acc[categoria].push(item);
+        return acc;
+      }, {} as Record<string, ServicioDetallado[]>);
+  
+      return { 
+        subtotal: subtotalBruto, 
+        serviciosDetallados: includedServicesList,
+        serviciosAgrupados: agrupados, 
+        totalRegalos: costoTotalRegalos,
+        descuento: descuentoCalculado, 
+        costoTotal: totalFinal,
+      };
+  }, [config, allSimuladorServices, adultos, ninosYAdolescentes, selectedPaqueteId, formData.serviciosSeleccionados]);
     
     const generarTextoWhatsApp = useCallback(() => {
         let texto = `*Resumen de Presupuesto Simulado*\n`;
@@ -431,6 +423,7 @@ export default function ArmadoRapidoPage() {
         texto += `*Servicios Seleccionados:*\n`;
 
         Object.entries(serviciosAgrupados).sort(([catA], [catB]) => catA === 'Regalos Incluidos' ? 1 : catB === 'Regalos Incluidos' ? -1 : catA.localeCompare(catB)).forEach(([categoria, items]) => {
+          if (items.length === 0) return;
           texto += `\n*${categoria}*\n`;
           items.forEach(item => {
             texto += `- ${item.nombre}`;
@@ -503,7 +496,7 @@ export default function ArmadoRapidoPage() {
                 adultos,
                 ninos: ninosYAdolescentes,
                 adolescentes: 0,
-                subtotal,
+                subtotal: subtotal - totalRegalos,
                 costoEstimado: costoTotal,
                 descuentoGeneral: config?.descuentoGeneral,
                 serviciosIncluidos: allServices.map(s => s.id),
@@ -614,38 +607,27 @@ export default function ArmadoRapidoPage() {
                                  </TableRow>
                              </TableHeader>
                              <TableBody>
-                                {Object.entries(serviciosAgrupados).filter(([cat]) => cat !== 'Regalos Incluidos').map(([categoria, items]) => (
+                                {Object.entries(serviciosAgrupados).sort(([catA], [catB]) => catA === 'Regalos Incluidos' ? 1 : catB === 'Regalos Incluidos' ? -1 : catA.localeCompare(catB)).map(([categoria, items]) => (
                                     <React.Fragment key={categoria}>
                                         <TableRow className="bg-muted/30 print:bg-gray-50">
-                                            <TableCell colSpan={2} className="font-bold text-primary">{categoria}</TableCell>
+                                            <TableCell colSpan={2} className={`font-bold ${categoria === 'Regalos Incluidos' ? 'text-red-600' : 'text-primary'}`}>
+                                                {categoria === 'Regalos Incluidos' ? <div className='flex items-center gap-2'><Gift className="inline-block w-4 h-4"/>{categoria}</div> : categoria}
+                                            </TableCell>
                                         </TableRow>
                                         {items.map((item) => (
                                             <TableRow key={item.id}>
-                                                <TableCell className="font-medium">{item.nombre}</TableCell>
-                                                <TableCell className="text-right font-semibold">{formatCurrency(item.costo)}</TableCell>
+                                                <TableCell className={`font-medium ${item.esRegalo ? 'text-red-600' : ''}`}>{item.nombre}</TableCell>
+                                                <TableCell className={`text-right font-semibold ${item.esRegalo ? 'text-red-600 line-through' : ''}`}>{formatCurrency(item.costo)}</TableCell>
                                             </TableRow>
                                         ))}
                                     </React.Fragment>
                                 ))}
-                                {serviciosAgrupados['Regalos Incluidos'] && (
-                                    <React.Fragment>
-                                        <TableRow className="bg-muted/30 print:bg-gray-50">
-                                            <TableCell colSpan={2} className="font-bold text-red-600 flex items-center gap-2"><Gift className="inline-block w-4 h-4"/>Regalos Incluidos</TableCell>
-                                        </TableRow>
-                                        {serviciosAgrupados['Regalos Incluidos'].map(item => (
-                                            <TableRow key={item.id}>
-                                                <TableCell className="font-medium text-red-600">{item.nombre}</TableCell>
-                                                <TableCell className="text-right font-semibold text-red-600 line-through">{formatCurrency(item.costo)}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </React.Fragment>
-                                )}
                              </TableBody>
                          </Table>
                          <Separator className="my-4"/>
                           <div className="w-full md:max-w-xs ml-auto space-y-1 text-sm">
                             <div className="flex justify-between"><span>Subtotal:</span><span className="font-medium">{formatCurrency(subtotal)}</span></div>
-                            {totalRegalos > 0 && <div className="flex justify-between text-green-600"><span>Ahorro en Regalos:</span><span>-{formatCurrency(totalRegalos)}</span></div>}
+                            {totalRegalos > 0 && <div className="flex justify-between text-destructive"><span>Ahorro en Regalos:</span><span>-{formatCurrency(totalRegalos)}</span></div>}
                             {descuento > 0 && <div className="flex justify-between text-destructive"><span>Descuento ({config?.descuentoGeneral || 0}%):</span><span>-{formatCurrency(descuento)}</span></div>}
                             <div className="flex justify-between font-bold text-lg pt-2 border-t"><span className="text-primary">Importe total</span><span className="text-primary">{formatCurrency(costoTotal)}</span></div>
                         </div>

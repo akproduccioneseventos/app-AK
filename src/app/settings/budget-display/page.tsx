@@ -415,14 +415,31 @@ export default function BudgetDisplaySettingsPage() {
 
   const categoriasOrdenadasParaPaquetes = useMemo(() => Object.keys(serviciosAgrupadosParaPaquetes).sort(), [serviciosAgrupadosParaPaquetes]);
 
-  const handleSettingsSave = async (e: FormEvent) => {
+  const handleConfigSave = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!config) return;
+    setIsSaving(true);
+    try {
+      const result = await saveArmadoRapidoConfig(config);
+      if (result.success) {
+        toast({ title: "Configuración guardada" });
+        await loadData();
+      } else throw new Error(result.error);
+    } catch(err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+  
+  const handleBudgetSettingsSave = async (e: FormEvent) => {
     e.preventDefault();
     if (!budgetSettings) return;
     setIsSaving(true);
     try {
       const result = await saveBudgetDisplaySettings(budgetSettings);
       if (result.success) {
-        toast({ title: "Configuración guardada" });
+        toast({ title: "Configuración de Presupuestos guardada" });
         setBudgetSettings(result.settings || null);
       } else throw new Error(result.error);
     } catch(err: any) {
@@ -568,36 +585,32 @@ export default function BudgetDisplaySettingsPage() {
         <Link href="/empresa/contabilidad" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver al Panel Contable</Button></Link>
       </div>
 
-       <form onSubmit={handleSettingsSave}>
+       <form onSubmit={handleConfigSave}>
         <Card className="shadow-lg">
-            <CardHeader><CardTitle>Ajustes Generales del Presupuestador</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="font-headline">Ajustes Generales del Simulador</CardTitle></CardHeader>
             <CardContent className="space-y-4">
-                <div className="space-y-2">
-                    <Label htmlFor="annual-adjustment" className="flex items-center gap-2"><Percent className="w-4 h-4"/>Porcentaje de Ajuste Anual de Precios</Label>
-                    <Input id="annual-adjustment" type="number" value={budgetSettings.annualAdjustmentPercentage ?? ''} onChange={(e) => setBudgetSettings({...budgetSettings, annualAdjustmentPercentage: parseFloat(e.target.value) || 0})} placeholder="Ej: 15" />
-                    <p className="text-xs text-muted-foreground">Este ajuste se aplicará automáticamente a los presupuestos de eventos en años futuros.</p>
+                 <div className="space-y-2">
+                    <Label htmlFor="descuento-general" className="flex items-center gap-2"><Percent className="w-4 h-4"/>Descuento Promocional General (%)</Label>
+                    <Input
+                        id="descuento-general"
+                        type="number"
+                        value={config?.descuentoGeneral ?? ''}
+                        onChange={e => setConfig(c => c ? {...c, descuentoGeneral: Number(e.target.value)} : null)}
+                        placeholder="Ej: 15"
+                    />
+                    <p className="text-xs text-muted-foreground">Este descuento se aplicará al total en el resumen del simulador.</p>
                 </div>
-                <Separator/>
-                <div className="space-y-3">
-                    <Label className="text-base font-medium">Descuentos Promocionales Predefinidos</Label>
-                    <p className="text-sm text-muted-foreground">Crea descuentos que se puedan aplicar rápidamente en el Creador de Presupuestos.</p>
-                    <div className="space-y-2">
-                        {budgetSettings.promotionalDiscounts?.map((d, i) => (
-                             <div key={d.id} className="p-3 border rounded-md grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
-                                <div className="space-y-1"><Label htmlFor={`promo-name-${i}`}>Nombre</Label><Input id={`promo-name-${i}`} value={d.name} onChange={e => handleDiscountChange(i, 'name', e.target.value)} /></div>
-                                <div className="space-y-1"><Label htmlFor={`promo-type-${i}`}>Tipo</Label><Select value={d.type} onValueChange={(v) => handleDiscountChange(i, 'type', v)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="percentage">%</SelectItem><SelectItem value="fixed">$</SelectItem></SelectContent></Select></div>
-                                <div className="flex items-end gap-2">
-                                <div className="space-y-1 flex-grow"><Label htmlFor={`promo-value-${i}`}>Valor</Label><Input id={`promo-value-${i}`} type="number" value={d.value} onChange={e => handleDiscountChange(i, 'value', e.target.value)} /></div>
-                                <Button type="button" variant="ghost" size="icon" className="h-9 w-9 text-destructive" onClick={() => removeDiscount(i)}><Trash2 className="w-4 h-4"/></Button>
-                                </div>
-                             </div>
-                        ))}
-                    </div>
-                     <Button type="button" variant="outline" size="sm" onClick={addDiscount}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Descuento</Button>
+                <div className="flex items-center space-x-2">
+                    <Switch 
+                        id="mostrar-precios"
+                        checked={config?.mostrarPrecios ?? true}
+                        onCheckedChange={checked => setConfig(c => c ? { ...c, mostrarPrecios: checked } : null)}
+                    />
+                    <Label htmlFor="mostrar-precios">Mostrar precios individuales en la selección de gastronomía</Label>
                 </div>
             </CardContent>
              <CardFooter>
-                 <Button type="submit" disabled={isSaving}>{isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin"/>} Guardar Ajustes</Button>
+                 <Button type="submit" disabled={isSaving}>{isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin"/>} Guardar Ajustes Generales</Button>
             </CardFooter>
         </Card>
       </form>
@@ -606,7 +619,7 @@ export default function BudgetDisplaySettingsPage() {
         <CardHeader>
           <CardTitle className="font-headline text-xl">Dependencias de Servicios</CardTitle>
           <CardDescription>
-            Configura reglas para que al seleccionar un plato, otro servicio (ej. "Asador") se añada automáticamente.
+            Configura reglas para que al seleccionar un plato, otro servicio (ej. "Asado" → "Asador") se añada automáticamente.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -649,7 +662,9 @@ export default function BudgetDisplaySettingsPage() {
                         return (
                             <div key={dep.id} className="flex items-center justify-between p-2 border rounded-md text-sm">
                                 <div className="flex items-center gap-2">
-                                    <span><span className="font-semibold">{trigger?.nombre || `Plato no encontrado (ID: ${dep.triggerServiceId})`}</span> activa a <span className="font-semibold">{required?.nombre || `Servicio no encontrado (ID: ${dep.requiredServiceId})`}</span></span>
+                                    <span>
+                                        <span className="font-semibold">{trigger?.name || <span className='text-destructive'>Plato no encontrado</span>}</span> activa a <span className="font-semibold">{required?.name || <span className='text-destructive'>Servicio no encontrado</span>}</span>
+                                    </span>
                                 </div>
                                 <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteDependency(dep.id)} disabled={isSaving}>
                                     <Trash2 className="w-4 h-4" />
