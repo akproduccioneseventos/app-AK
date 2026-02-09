@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent, use } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -27,8 +27,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Separator } from '@/components/ui/separator';
 
-export default function EditarActivoFijoPage({ params: paramsProp }: { params: { id: string } }) {
-  const params = use(paramsProp);
+export default function EditarActivoFijoPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const { toast } = useToast();
   
