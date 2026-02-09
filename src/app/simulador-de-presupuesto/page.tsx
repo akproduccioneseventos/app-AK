@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -368,7 +367,9 @@ export default function ArmadoRapidoPage() {
       allSelectedServicesMap.forEach(({ servicio, esRegalo }) => {
           const costoItem = calcularCostoServicio(servicio, adultos, ninosYAdolescentes);
           
-          subtotalBruto += costoItem;
+          if (!esRegalo) {
+            subtotalBruto += costoItem;
+          }
           if (esRegalo) {
               costoTotalRegalos += costoItem;
           }
@@ -395,7 +396,7 @@ export default function ArmadoRapidoPage() {
           });
       });
       
-      const subtotalSinRegalos = subtotalBruto - costoTotalRegalos;
+      const subtotalSinRegalos = subtotalBruto;
       const descuentoCalculado = config.descuentoGeneral ? (subtotalSinRegalos * config.descuentoGeneral) / 100 : 0;
       const totalFinal = subtotalSinRegalos - descuentoCalculado;
       
@@ -432,7 +433,7 @@ export default function ArmadoRapidoPage() {
           items.forEach(item => {
             texto += `- ${item.nombre}`;
             if (item.esRegalo) {
-              texto += " *(REGALO)*\n";
+              texto += ` (REGALO - valor ${formatCurrency(item.costo)})\n`;
             } else {
               texto += `\n`;
             }
@@ -492,7 +493,7 @@ export default function ArmadoRapidoPage() {
                 return;
             }
             setIsGeneratingLead(true);
-            const allServices = Object.values(serviciosAgrupados).flat();
+            
             const data = {
                 clienteNombre,
                 clienteContacto,
@@ -500,12 +501,12 @@ export default function ArmadoRapidoPage() {
                 adultos,
                 ninos: ninosYAdolescentes,
                 adolescentes: 0,
-                subtotal: subtotal - totalRegalos,
+                subtotal: subtotal,
                 costoEstimado: costoTotal,
                 descuentoGeneral: config?.descuentoGeneral,
-                serviciosIncluidos: allServices.map(s => s.id),
+                serviciosIncluidos: serviciosDetallados.map(s => s.id),
                 paqueteNombre: config?.paquetes.find(p => p.id === selectedPaqueteId)?.nombre,
-                items: allServices.map(s => {
+                items: serviciosDetallados.map(s => {
                     const originalServicio = allSimuladorServices.find(os => os.id === s.id);
                     return {
                         idServicioCatalogo: s.id,
@@ -622,7 +623,9 @@ export default function ArmadoRapidoPage() {
                                         {items.map((item) => (
                                             <TableRow key={item.id}>
                                                 <TableCell className="font-medium">{item.nombre}</TableCell>
-                                                <TableCell className={`text-right font-semibold ${item.esRegalo ? 'text-red-600 line-through' : ''}`}>{formatCurrency(item.costo)}</TableCell>
+                                                <TableCell className={`text-right font-semibold ${item.esRegalo ? 'text-muted-foreground line-through' : ''}`}>
+                                                    {formatCurrency(item.costo)}
+                                                </TableCell>
                                             </TableRow>
                                         ))}
                                     </React.Fragment>
@@ -630,11 +633,14 @@ export default function ArmadoRapidoPage() {
                              </TableBody>
                          </Table>
                          <Separator className="my-4"/>
-                          <div className="w-full md:max-w-xs ml-auto space-y-1 text-sm">
-                            <div className="flex justify-between"><span>Subtotal:</span><span className="font-medium">{formatCurrency(subtotal)}</span></div>
-                            {totalRegalos > 0 && <div className="flex justify-between text-destructive"><span>Ahorro en Regalos:</span><span>-{formatCurrency(totalRegalos)}</span></div>}
-                            {descuento > 0 && <div className="flex justify-between text-destructive"><span>Descuento ({config?.descuentoGeneral || 0}%):</span><span>-{formatCurrency(descuento)}</span></div>}
-                            <div className="flex justify-between font-bold text-lg pt-2 border-t"><span className="text-primary">Importe total</span><span className="text-primary">{formatCurrency(costoTotal)}</span></div>
+                         <div className="w-full md:max-w-xs ml-auto space-y-1 text-sm">
+                            <div className="flex justify-between"><span>Valor de servicios:</span><span className="font-medium">{formatCurrency(subtotal + totalRegalos)}</span></div>
+                            {totalRegalos > 0 && <div className="flex justify-between"><span>Ahorro por regalos:</span><span>-{formatCurrency(totalRegalos)}</span></div>}
+                             <Separator className="my-2"/>
+                            <div className="flex justify-between font-semibold"><span>Subtotal:</span><span>{formatCurrency(subtotal)}</span></div>
+                            {descuento > 0 && <div className="flex justify-between text-destructive"><span>Descuento Promocional ({config?.descuentoGeneral || 0}%):</span><span>-{formatCurrency(descuento)}</span></div>}
+                             <Separator className="my-2"/>
+                            <div className="flex justify-between font-bold text-lg pt-1"><span className="text-primary">TOTAL ESTIMADO:</span><span className="text-primary">{formatCurrency(costoTotal)}</span></div>
                         </div>
                     </CardContent>
                     <CardFooter className="flex-col sm:flex-row gap-2 pt-6 print:hidden">
