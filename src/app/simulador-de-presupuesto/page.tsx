@@ -35,6 +35,12 @@ const formatCurrency = (amount?: number) => {
     return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 };
 
+const formatNumber = (amount?: number) => {
+    if (amount === undefined || isNaN(amount)) return 'N/A';
+    return new Intl.NumberFormat('es-UY', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
+};
+
+
 const formatDate = (date = new Date()) => {
   return date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
 };
@@ -90,7 +96,7 @@ function calcularCostoServicio(servicio: ServicioEmpresa, adultos: number, ninos
       if (invitadosPorUnidadNum > 0) {
         itemTotal = Math.ceil(cantidadInvitados / invitadosPorUnidadNum) * (servicio.precioBase ?? 0);
       } else {
-        itemTotal = servicio.precioBase ?? 0; // Fallback if unit ratio is not set
+        itemTotal = servicio.precioBase ?? 0; // Fallback
       }
       break;
     case 'tramos':
@@ -306,9 +312,9 @@ export default function ArmadoRapidoPage() {
         return [...entradasDisponibles, ...principalesDisponibles, ...menusNinoDisponibles, ...serviciosCatalogo];
     }, [entradasDisponibles, principalesDisponibles, menusNinoDisponibles, serviciosCatalogo]);
 
-    const { subtotal, serviciosAgrupados, totalRegalos, costoTotal, descuento } = useMemo(() => {
+    const { subtotal, serviciosDetallados, serviciosAgrupados, totalRegalos, costoTotal, descuento } = useMemo(() => {
         if (!config || !serviciosCatalogo.length) {
-          return { costoTotal: 0, subtotal: 0, serviciosAgrupados: {}, totalRegalos: 0, descuento: 0 };
+          return { subtotal: 0, serviciosDetallados: [], serviciosAgrupados: {}, totalRegalos: 0, costoTotal: 0, descuento: 0 };
         }
     
         let calculatedSubtotal = 0;
@@ -381,10 +387,9 @@ export default function ArmadoRapidoPage() {
           });
         }
     
-        const subtotalBruto = calculatedSubtotal;
-        const descuentoCalculado = config.descuentoGeneral ? (subtotalBruto * config.descuentoGeneral) / 100 : 0;
+        const descuentoCalculado = config.descuentoGeneral ? (calculatedSubtotal * config.descuentoGeneral) / 100 : 0;
         
-        const serviciosAgrupados = includedServicesList.reduce((acc, item) => {
+        const agrupados = includedServicesList.reduce((acc, item) => {
           const categoria = item.categoria || 'Varios';
           if (!acc[categoria]) {
             acc[categoria] = [];
@@ -394,23 +399,58 @@ export default function ArmadoRapidoPage() {
         }, {} as Record<string, ServicioDetallado[]>);
     
         return { 
-          subtotal: subtotalBruto, 
-          serviciosAgrupados,
+          subtotal: calculatedSubtotal, 
+          serviciosDetallados: includedServicesList,
+          serviciosAgrupados: agrupados,
           totalRegalos: calculatedTotalRegalos,
           descuento: descuentoCalculado,
-          costoTotal: subtotalBruto - descuentoCalculado,
+          costoTotal: calculatedSubtotal - descuentoCalculado,
         };
       }, [config, serviciosCatalogo, allSimuladorServices, adultos, ninosYAdolescentes, selectedPaqueteId, formData.serviciosSeleccionados]);
     
-
     const generarTextoWhatsApp = useCallback(() => {
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
-        if (!baseUrl || !generatedPresupuestoId) return '';
+        const pageUrl = generatedPresupuestoId ? `${baseUrl}/presupuestos/${generatedPresupuestoId}/ver` : '';
+
+        let texto = `*Resumen de Presupuesto Simulado*\n`;
+        texto += `-----------------\n`;
+        texto += `*Cliente:* ${clienteNombre}\n`;
+        texto += `*Invitados:* ${adultos + ninosYAdolescentes} (Adultos: ${adultos}, Niños/Adolescentes: ${ninosYAdolescentes})\n`;
+        if(eventoFecha) texto += `*Fecha:* ${formatDate(eventoFecha)}\n`;
+        texto += `-----------------\n`;
         
-        const url = `${baseUrl}/presupuestos/${generatedPresupuestoId}/ver`;
-        let message = `¡Hola! He generado un presupuesto estimado a través del simulador y quisiera más información. Puedes ver mi resumen aquí: ${url}`;
-        return message;
-    }, [generatedPresupuestoId]);
+        texto += `*Servicios Seleccionados:*\n`;
+
+        Object.entries(serviciosAgrupados).forEach(([categoria, items]) => {
+          texto += `\n*${categoria}*\n`;
+          items.forEach(item => {
+            texto += `- ${item.nombre}`;
+            if (item.esRegalo) {
+              texto += " *(REGALO)*\n";
+            } else {
+              texto += `\n`;
+            }
+          });
+        });
+
+        texto += `-----------------\n`;
+        texto += `*Subtotal:* ${formatCurrency(subtotal)}\n`;
+        if (totalRegalos > 0) {
+            texto += `*Ahorro en Regalos:* ${formatCurrency(totalRegalos)}\n`;
+        }
+        if (descuento > 0) {
+            texto += `*Descuento Promocional:* -${formatCurrency(descuento)}\n`;
+        }
+        texto += `*TOTAL ESTIMADO:* *${formatCurrency(costoTotal)}*\n`;
+        texto += `-----------------\n`;
+        texto += `Este presupuesto es una estimación y no incluye todos los posibles adicionales. Válido por 30 días.\n\n`;
+        
+        if (pageUrl) {
+            texto += `Para ver el presupuesto detallado online y confirmar, visita el siguiente enlace:\n${pageUrl}`;
+        }
+
+        return texto;
+    }, [clienteNombre, adultos, ninosYAdolescentes, eventoFecha, serviciosAgrupados, subtotal, totalRegalos, descuento, costoTotal, generatedPresupuestoId]);
 
     const handleShareWhatsApp = () => {
         if (!whatsappNumber) {
@@ -448,7 +488,7 @@ export default function ArmadoRapidoPage() {
         
         if (step < 4) {
             if (step === 3) {
-                 if (!clienteNombre.trim() || !clienteContacto.trim()) {
+                if (!clienteNombre.trim() || !clienteContacto.trim()) {
                     toast({ title: "Datos de contacto requeridos para continuar", variant: "destructive" });
                     return;
                 }
@@ -520,246 +560,259 @@ export default function ArmadoRapidoPage() {
     const validUntil = new Date(today);
     validUntil.setDate(today.getDate() + 30);
     
-    if (isLoading) { return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>; }
+    if (isLoading) {
+        return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
+    }
     
+    if (step === 4 && generatedPresupuestoId) {
+        const presupuestoParaPdf = {
+            id: generatedPresupuestoId,
+            clienteNombre,
+            eventoTipo: 'Evento Simulado',
+            eventoFecha: eventoFecha?.toISOString() || '',
+            salonFiestas: 'A definir',
+            invitadosCantidad: adultos + ninosYAdolescentes,
+            itemsPresupuestados: serviciosDetallados.map(s => ({
+                idServicioCatalogo: s.id,
+                nombreServicio: s.nombre,
+                cantidad: s.cantidad,
+                unidad: s.unidad,
+                precioUnitario: s.precioUnitario,
+                precioUnitarioPresupuesto: s.precioUnitario,
+                costoTotalItem: s.esRegalo ? 0 : s.costo,
+                esRegalo: s.esRegalo,
+                categoriaServicio: s.categoria,
+            })),
+            costoTotalEstimado: subtotal,
+            descuentoPromocional: descuento,
+            totalConDescuento: costoTotal,
+            timestamp: new Date().toISOString()
+        };
+        return (
+            <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4 print:bg-white print:p-0 print:items-start">
+                 <style jsx global>{`
+                    @media print {
+                        body { background-color: white !important; }
+                        .print-hidden { display: none !important; }
+                        .print-visible { display: block !important; }
+                        .print-p-0 { padding: 0 !important; }
+                        .print-shadow-none { box-shadow: none !important; }
+                        .print-border-none { border: none !important; }
+                    }
+                `}</style>
+                <Card className="w-full max-w-3xl shadow-xl print:shadow-none print:border-none">
+                    <CardHeader className="text-center">
+                        <CheckCircle className="w-16 h-16 mx-auto text-green-500" />
+                        <CardTitle className="font-headline text-3xl">¡Resumen Generado!</CardTitle>
+                        <CardDescription className="text-lg print:hidden">Gracias por tu interés. Un asesor se comunicará contigo a la brevedad.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="print:p-2" id="budget-summary-printable">
+                        {/* Contenido imprimible */}
+                         <header className="mb-6 print:mb-4 hidden print:block">
+                            <div className="flex justify-between items-start">
+                                <h1 className="text-xl font-bold text-left mb-4 print:text-base leading-tight">{COMPANY_MAIN_TITLE}</h1>
+                                {logoUrl && (
+                                    <div className="w-24 h-20 print:w-20 print:h-16 flex-shrink-0">
+                                        <Image src={logoUrl} alt={`${COMPANY_NAME_BRAND} Logo`} width={100} height={80} className="object-contain" data-ai-hint="company logo"/>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="text-xs print:text-[8pt] gap-2 text-left">
+                                <p className="font-semibold">${COMPANY_CONTACT_PERSON}</p>
+                                <p>${COMPANY_ADDRESS_LINE1_PDF}, ${COMPANY_ADDRESS_LINE2_PDF}</p>
+                                <p>${COMPANY_CONTACT_EMAIL_PDF} | ${COMPANY_WEBSITE_PDF}</p>
+                            </div>
+                            <Separator className="my-3"/>
+                            <section className="text-sm print:text-[9pt] text-left">
+                            <p><span className="font-semibold">Cliente:</span> ${clienteNombre}</p>
+                            </section>
+                        </header>
+                         <h3 className="font-headline text-2xl text-center mb-4 print:hidden">Resumen de tu Presupuesto</h3>
+                         <Table>
+                             <TableHeader>
+                                 <TableRow>
+                                     <TableHead>Artículo</TableHead>
+                                     <TableHead className="text-right">Importe</TableHead>
+                                 </TableRow>
+                             </TableHeader>
+                             <TableBody>
+                                 {Object.entries(serviciosAgrupados).map(([categoria, items]) => (
+                                     <React.Fragment key={categoria}>
+                                         <TableRow className="bg-muted/30 print:bg-gray-50">
+                                             <TableCell colSpan={2} className="font-bold text-primary">{categoria}</TableCell>
+                                         </TableRow>
+                                         {items.map((item) => (
+                                             <TableRow key={item.id}>
+                                                 <TableCell className="font-medium">{item.nombre}</TableCell>
+                                                 <TableCell className="text-right font-semibold">{item.esRegalo ? 'REGALO' : formatCurrency(item.costo)}</TableCell>
+                                             </TableRow>
+                                         ))}
+                                     </React.Fragment>
+                                 ))}
+                             </TableBody>
+                         </Table>
+                         <Separator className="my-4"/>
+                          <div className="w-full md:max-w-xs ml-auto space-y-1 text-sm">
+                            <div className="flex justify-between"><span>Subtotal:</span><span className="font-medium">{formatCurrency(subtotal)}</span></div>
+                            {totalRegalos > 0 && <div className="flex justify-between text-green-600"><span>Ahorro en Regalos:</span><span>{formatCurrency(totalRegalos)}</span></div>}
+                            {descuento > 0 && <div className="flex justify-between text-destructive"><span>Descuento ({config?.descuentoGeneral || 0}%):</span><span>-{formatCurrency(descuento)}</span></div>}
+                            <div className="flex justify-between font-bold text-lg pt-2 border-t"><span className="text-primary">Importe total</span><span className="text-primary">{formatCurrency(costoTotal)}</span></div>
+                        </div>
+                    </CardContent>
+                    <CardFooter className="flex-col sm:flex-row gap-2 pt-6 print:hidden">
+                        <Button type="button" onClick={handleShareWhatsApp} variant="secondary" className="w-full bg-green-500 hover:bg-green-600">
+                            <Share2 className="w-4 h-4 mr-2"/>Contactar por WhatsApp
+                        </Button>
+                        <Button type="button" onClick={handleDownloadPdf} className="w-full">
+                            <Printer className="w-4 h-4 mr-2"/>Guardar o Imprimir PDF
+                        </Button>
+                        <Button type="button" onClick={() => setStep(1)} variant="outline" className="w-full">
+                            <Edit className="w-4 h-4 mr-2"/>Editar Selección
+                        </Button>
+                    </CardFooter>
+                </Card>
+            </div>
+        );
+    }
+
     return (
-        <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4 print:bg-white print:p-0 print:items-start">
-            <style jsx global>{`
-                @media print {
-                    body { background-color: white !important; }
-                    .print-hidden { display: none !important; }
-                    .print-visible { display: block !important; }
-                    .print-p-0 { padding: 0 !important; }
-                    .print-shadow-none { box-shadow: none !important; }
-                    .print-border-none { border: none !important; }
-                    .print-text-xs { font-size: 0.75rem; }
-                    .print-text-sm { font-size: 0.875rem; }
-                    .print-text-base { font-size: 1rem; }
-                    .print-p-2 { padding: 0.5rem; }
-                    .print-bg-transparent { background-color: transparent !important; }
-                    .print-mb-4 { margin-bottom: 1rem; }
-                    .print-border-b { border-bottom-width: 1px; }
-                    .print-pb-2 { padding-bottom: 0.5rem; }
-                    .print-max-w-none { max-width: none !important; }
-                    .print-space-y-3 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.75rem; }
-                    .print-mt-2 { margin-top: 0.5rem; }
-                    .print-py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
-                    .print-px-1-5 { padding-left: 0.375rem; padding-right: 0.375rem; }
-                    .print-border-gray-400 { border-color: #9ca3af; }
-                    .print-bg-gray-50 { background-color: #f9fafb; }
-                    .print-text-black { color: #000; }
-                }
-            `}</style>
-            <Card className="w-full max-w-3xl shadow-xl print:shadow-none print:border-none">
-                <CardHeader className="text-center print:hidden">
-                    <Wand2 className="w-12 h-12 mx-auto text-primary mb-2"/>
-                    <CardTitle className="font-headline text-3xl">Simulador de Presupuesto</CardTitle>
-                    {step < 4 ? (
-                        <>
-                            <CardDescription className="text-lg">Paso ${step} de 4: ${['Tus Datos', 'Menú Gastronómico', 'Paquete de Servicios', 'Resumen'][step-1]}</CardDescription>
-                            <Progress value={(step / 4) * 100} className="w-full h-2 mt-4" />
-                        </>
-                    ) : (
-                        <CardDescription className="text-lg">¡Gracias! Hemos generado un resumen de tu selección.</CardDescription>
-                    )}
-                </CardHeader>
-                <CardContent className="min-h-[350px] py-6 px-4 sm:px-8 print:p-2">
-                    {step === 1 && (
-                        <div className="space-y-6 animate-in fade-in-20">
-                            <h3 className="font-semibold text-lg flex items-center gap-2"><User className="text-primary w-5 h-5"/>Define tu evento</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2"><Label htmlFor="cliente-nombre">Tu Nombre Completo *</Label><Input id="cliente-nombre" value={clienteNombre} onChange={e => setClienteNombre(e.target.value)} placeholder="Ingresa tu nombre" required/></div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="cliente-contacto">Tu Celular *</Label>
-                                    <Input id="cliente-contacto" type="tel" value={clienteContacto} onChange={e => setClienteContacto(e.target.value)} placeholder="Ej: 098355530" required/>
-                                    <p className="text-xs text-muted-foreground">Debe tener 9 dígitos. Sin espacios ni guiones.</p>
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2"><Label htmlFor="num-adultos">Cantidad de Adultos *</Label><Input id="num-adultos" type="number" value={adultos} onChange={e => setAdultos(Number(e.target.value) || 0)} min="1" required/></div>
-                                <div className="space-y-2"><Label htmlFor="num-ninos">Nº Niños y Adolescentes</Label><Input id="num-ninos" type="number" value={ninosYAdolescentes} onChange={e => setNinosYAdolescentes(Number(e.target.value) || 0)} min="0"/></div>
-                            </div>
-                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2"><Label htmlFor="duracion-horas">Duración (hs)</Label><Input id="duracion-horas" type="number" value={duracionHoras} onChange={(e) => setDuracionHoras(Number(e.target.value) || 1)} min="1"/></div>
-                                <div className="space-y-2"><Label htmlFor="evento-fecha">Fecha Estimada del Evento</Label><DatePickerDemo selectedDate={eventoFecha} onDateChange={setEventoFecha} /></div>
+        <Card className="w-full max-w-3xl shadow-xl print:hidden">
+            <CardHeader className="text-center">
+                <Wand2 className="w-12 h-12 mx-auto text-primary mb-2"/>
+                <CardTitle className="font-headline text-3xl">Simulador de Presupuesto</CardTitle>
+                {step < 4 ? (
+                    <>
+                        <CardDescription className="text-lg">Paso ${step} de 4: ${['Tus Datos', 'Menú Gastronómico', 'Paquete de Servicios', 'Resumen'][step-1]}</CardDescription>
+                        <Progress value={(step / 4) * 100} className="w-full h-2 mt-4" />
+                    </>
+                ) : null}
+            </CardHeader>
+            <CardContent className="min-h-[350px] py-6 px-4 sm:px-8">
+                {step === 1 && (
+                    <div className="space-y-6 animate-in fade-in-20">
+                        <h3 className="font-semibold text-lg flex items-center gap-2"><User className="text-primary w-5 h-5"/>Define tu evento</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2"><Label htmlFor="cliente-nombre">Tu Nombre Completo *</Label><Input id="cliente-nombre" value={clienteNombre} onChange={e => setClienteNombre(e.target.value)} placeholder="Ingresa tu nombre" required/></div>
+                            <div className="space-y-2">
+                                <Label htmlFor="cliente-contacto">Tu Celular *</Label>
+                                <Input id="cliente-contacto" type="tel" value={clienteContacto} onChange={e => setClienteContacto(e.target.value)} placeholder="Ej: 098355530" required/>
+                                <p className="text-xs text-muted-foreground">Debe tener 9 dígitos. Sin espacios ni guiones.</p>
                             </div>
                         </div>
-                    )}
-                    {step === 2 && (
-                        <div className="space-y-6 animate-in fade-in-20">
-                            <h3 className="font-semibold text-lg flex items-center gap-2"><ChefHat className="text-primary w-5 h-5"/>Elige tu menú gastronómico</h3>
-                            <div className="relative">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                                <Input 
-                                    placeholder="Buscar plato..."
-                                    value={gastronomiaSearchTerm}
-                                    onChange={e => setGastronomiaSearchTerm(e.target.value)}
-                                    className="pl-9"
-                                />
-                            </div>
-                            <div className="space-y-4">
-                                <Label>Debes elegir ${maxEntradas} entrada${maxEntradas > 1 ? 's' : ''} (${duracionHoras > 4 ? 'Fiesta larga' : 'Fiesta corta'})</Label>
-                                {entradasFaltantes > 0 && <p className="text-sm text-amber-600">Te falta seleccionar ${entradasFaltantes} entrada${entradasFaltantes > 1 ? 's' : ''}.</p>}
-                                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                                  {entradasDisponibles.length > 0 ? (
-                                    entradasDisponibles.map(s => (<div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><Checkbox id={`e-${s.id}`} checked={selectedEntradas.includes(s.id)} onCheckedChange={(checked) => handleEntradaChange(s.id, !!checked)}/><Label htmlFor={`e-${s.id}`} className="text-sm font-normal">${s.nombre} <span className="text-xs text-muted-foreground">(${formatCurrency(s.precioPorPersona || 0)})</span></Label></div>))
-                                  ) : (
-                                    <p className="col-span-full text-center text-sm text-muted-foreground py-4">No se encontraron entradas.</p>
-                                  )}
-                                </div>
-                            </div>
-                            <div className="space-y-4"><Label>Plato Principal (elige 1)</Label>
-                                <RadioGroup 
-                                    value={selectedPrincipalId} 
-                                    onValueChange={(value) => handleGastronomicSelectionChange('principal', value)} 
-                                    className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                  {principalesDisponibles.length > 0 ? (
-                                    principalesDisponibles.map(s => <div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><RadioGroupItem value={s.id} id={`p-${s.id}`}/><Label htmlFor={`p-${s.id}`} className="text-sm font-normal">${s.nombre} (${formatCurrency(s.precioPorPersona || 0)})</Label></div>)
-                                  ) : (
-                                    <p className="md:col-span-2 text-center text-sm text-muted-foreground py-4">No se encontraron platos principales.</p>
-                                  )}
-                                </RadioGroup>
-                            </div>
-                            <div className="space-y-4">
-                                <Label>Menú Niños/Adolescentes (elige 1)</Label>
-                                <RadioGroup
-                                    value={Array.from(formData.serviciosSeleccionados.keys()).find(id => menusNinoDisponibles.some(m => m.id === id)) || ''}
-                                    onValueChange={(value) => handleGastronomicSelectionChange('infantil', value)}
-                                    className="grid grid-cols-1 md:grid-cols-2 gap-2"
-                                >
-                                    {(ninosYAdolescentes > 0) ? (
-                                        menusNinoDisponibles.length > 0 ? (
-                                            menusNinoDisponibles.map(s => (
-                                                <div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md">
-                                                    <RadioGroupItem value={s.id} id={`nino-${s.id}`} />
-                                                    <Label htmlFor={`nino-${s.id}`} className="text-sm font-normal">${s.nombre} (${formatCurrency(s.precioPorPersona || 0)})</Label>
-                                                </div>
-                                            ))
-                                        ) : (
-                                            <p className="md:col-span-2 text-center text-sm text-muted-foreground py-4">No se encontraron menús infantiles/adolescentes.</p>
-                                        )
-                                    ) : (
-                                        <p className="md:col-span-2 text-center text-sm text-muted-foreground py-4">Añade niños/adolescentes en el Paso 1 para ver las opciones.</p>
-                                    )}
-                                </RadioGroup>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2"><Label htmlFor="num-adultos">Cantidad de Adultos *</Label><Input id="num-adultos" type="number" value={adultos} onChange={e => setAdultos(Number(e.target.value) || 0)} min="1" required/></div>
+                            <div className="space-y-2"><Label htmlFor="num-ninos">Nº Niños y Adolescentes</Label><Input id="num-ninos" type="number" value={ninosYAdolescentes} onChange={e => setNinosYAdolescentes(Number(e.target.value) || 0)} min="0"/></div>
+                        </div>
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2"><Label htmlFor="duracion-horas">Duración (hs)</Label><Input id="duracion-horas" type="number" value={duracionHoras} onChange={(e) => setDuracionHoras(Number(e.target.value) || 1)} min="1"/></div>
+                            <div className="space-y-2"><Label htmlFor="evento-fecha">Fecha Estimada del Evento</Label><DatePickerDemo selectedDate={eventoFecha} onDateChange={setEventoFecha} /></div>
+                        </div>
+                    </div>
+                )}
+                {step === 2 && (
+                    <div className="space-y-6 animate-in fade-in-20">
+                        <h3 className="font-semibold text-lg flex items-center gap-2"><ChefHat className="text-primary w-5 h-5"/>Elige tu menú gastronómico</h3>
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <Input 
+                                placeholder="Buscar plato..."
+                                value={gastronomiaSearchTerm}
+                                onChange={e => setGastronomiaSearchTerm(e.target.value)}
+                                className="pl-9"
+                            />
+                        </div>
+                        <div className="space-y-4">
+                            <Label>Debes elegir ${maxEntradas} entrada${maxEntradas > 1 ? 's' : ''} (${duracionHoras > 4 ? 'Fiesta larga' : 'Fiesta corta'})</Label>
+                            {entradasFaltantes > 0 && <p className="text-sm text-amber-600">Te falta seleccionar ${entradasFaltantes} entrada${entradasFaltantes > 1 ? 's' : ''}.</p>}
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                              {entradasDisponibles.length > 0 ? (
+                                entradasDisponibles.map(s => (<div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><Checkbox id={`e-${s.id}`} checked={selectedEntradas.includes(s.id)} onCheckedChange={(checked) => handleEntradaChange(s.id, !!checked)}/><Label htmlFor={`e-${s.id}`} className="text-sm font-normal">${s.nombre} <span className="text-xs text-muted-foreground">(${formatNumber(s.precioPorPersona || 0)})</span></Label></div>))
+                              ) : (
+                                <p className="col-span-full text-center text-sm text-muted-foreground py-4">No se encontraron entradas.</p>
+                              )}
                             </div>
                         </div>
-                    )}
-                     {step === 3 && (
-                        <div className="space-y-6 animate-in fade-in-20">
-                            <h3 className="font-semibold text-lg flex items-center gap-2"><Package className="text-primary w-5 h-5"/>Elige tu Paquete de Servicios</h3>
-                            <RadioGroup value={selectedPaqueteId} onValueChange={setSelectedPaqueteId} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {config?.paquetes.map(p => {
-                                    const servicios = p.serviciosIncluidos.filter(s => !s.esRegalo);
-                                    const regalos = p.serviciosIncluidos.filter(s => s.esRegalo);
-                                    return (
-                                    <Label key={p.id} htmlFor={`pkg-${p.id}`} className="p-4 border rounded-lg cursor-pointer hover:border-primary has-[:checked]:border-primary/50 has-[:checked]:ring-2 has-[:checked]:ring-primary flex flex-col">
-                                        <div className="flex items-start gap-4">
-                                            <RadioGroupItem value={p.id} id={`pkg-${p.id}`} className="mt-1"/>
-                                            <div className="flex-grow">
-                                                <p className="font-semibold">${p.nombre}</p>
-                                                <ul className="text-xs text-muted-foreground list-disc pl-4 mt-2 space-y-1">
-                                                    {servicios.map(s => { const serv = serviciosCatalogo.find(sc => sc.id === s.id); return serv && <li key={s.id}>${serv.nombre}</li> })}
-                                                </ul>
-                                                {regalos.length > 0 && (
-                                                    <>
-                                                        <Separator className="my-2"/>
-                                                        <ul className="text-xs list-disc pl-4 space-y-1">
-                                                        {regalos.map(s => { const serv = serviciosCatalogo.find(sc => sc.id === s.id); return serv && <li key={s.id} className="font-medium flex items-center gap-1.5 text-red-600"><Gift className="w-3.5 h-3.5"/>${serv.nombre} (REGALO)</li> })}
-                                                        </ul>
-                                                    </>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </Label>
-                                )})}
+                        <div className="space-y-4"><Label>Plato Principal (elige 1)</Label>
+                            <RadioGroup 
+                                value={selectedPrincipalId} 
+                                onValueChange={(value) => handleGastronomicSelectionChange('principal', value)} 
+                                className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                              {principalesDisponibles.length > 0 ? (
+                                principalesDisponibles.map(s => <div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><RadioGroupItem value={s.id} id={`p-${s.id}`}/><Label htmlFor={`p-${s.id}`} className="text-sm font-normal">${s.nombre} (${formatNumber(s.precioPorPersona || 0)})</Label></div>)
+                              ) : (
+                                <p className="md:col-span-2 text-center text-sm text-muted-foreground py-4">No se encontraron platos principales.</p>
+                              )}
                             </RadioGroup>
                         </div>
-                    )}
-                    {step === 4 && (
-                        <div className="animate-in fade-in-20" id="budget-summary-printable">
-                             <header className="mb-6 print:mb-4 hidden print:block">
-                                <div className="flex justify-between items-start">
-                                    <h1 className="text-xl font-bold text-left mb-4 print:text-base leading-tight">${COMPANY_MAIN_TITLE}</h1>
-                                    {logoUrl && (
-                                        <div className="w-24 h-20 print:w-20 print:h-16 flex-shrink-0">
-                                            <Image src={logoUrl} alt={`${COMPANY_NAME_BRAND} Logo`} width={100} height={80} className="object-contain" data-ai-hint="company logo"/>
+                        <div className="space-y-4">
+                            <Label>Menú Niños/Adolescentes (elige 1)</Label>
+                            <RadioGroup
+                                value={Array.from(formData.serviciosSeleccionados.keys()).find(id => menusNinoDisponibles.some(m => m.id === id)) || ''}
+                                onValueChange={(value) => handleGastronomicSelectionChange('infantil', value)}
+                                className="grid grid-cols-1 md:grid-cols-2 gap-2"
+                            >
+                                {(ninosYAdolescentes > 0) ? (
+                                    menusNinoDisponibles.length > 0 ? (
+                                        menusNinoDisponibles.map(s => (
+                                            <div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md">
+                                                <RadioGroupItem value={s.id} id={`nino-${s.id}`} />
+                                                <Label htmlFor={`nino-${s.id}`} className="text-sm font-normal">${s.nombre} (${formatNumber(s.precioPorPersona || 0)})</Label>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="md:col-span-2 text-center text-sm text-muted-foreground py-4">No se encontraron menús infantiles/adolescentes.</p>
+                                    )
+                                ) : (
+                                    <p className="md:col-span-2 text-center text-sm text-muted-foreground py-4">Añade niños/adolescentes en el Paso 1 para ver las opciones.</p>
+                                )}
+                            </RadioGroup>
+                        </div>
+                    </div>
+                )}
+                 {step === 3 && (
+                    <div className="space-y-6 animate-in fade-in-20">
+                        <h3 className="font-semibold text-lg flex items-center gap-2"><Package className="text-primary w-5 h-5"/>Elige tu Paquete de Servicios</h3>
+                        <RadioGroup value={selectedPaqueteId} onValueChange={setSelectedPaqueteId} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {config?.paquetes.map(p => {
+                                const servicios = p.serviciosIncluidos.filter(s => !s.esRegalo);
+                                const regalos = p.serviciosIncluidos.filter(s => s.esRegalo);
+                                return (
+                                <Label key={p.id} htmlFor={`pkg-${p.id}`} className="p-4 border rounded-lg cursor-pointer hover:border-primary has-[:checked]:border-primary/50 has-[:checked]:ring-2 has-[:checked]:ring-primary flex flex-col">
+                                    <div className="flex items-start gap-4">
+                                        <RadioGroupItem value={p.id} id={`pkg-${p.id}`} className="mt-1"/>
+                                        <div className="flex-grow">
+                                            <p className="font-semibold">${p.nombre}</p>
+                                            <ul className="text-xs text-muted-foreground list-disc pl-4 mt-2 space-y-1">
+                                                {servicios.map(s => { const serv = serviciosCatalogo.find(sc => sc.id === s.id); return serv && <li key={s.id}>${serv.nombre}</li> })}
+                                            </ul>
+                                            {regalos.length > 0 && (
+                                                <>
+                                                    <Separator className="my-2"/>
+                                                    <ul className="text-xs list-disc pl-4 space-y-1">
+                                                    {regalos.map(s => { const serv = serviciosCatalogo.find(sc => sc.id === s.id); return serv && <li key={s.id} className="font-medium flex items-center gap-1.5 text-red-600"><Gift className="w-3.5 h-3.5"/>${serv.nombre} (REGALO)</li> })}
+                                                    </ul>
+                                                </>
+                                            )}
                                         </div>
-                                    )}
-                                </div>
-                                <div className="text-xs print:text-[8pt] gap-2 text-left">
-                                    <p className="font-semibold">${COMPANY_CONTACT_PERSON}</p>
-                                    <p>${COMPANY_ADDRESS_LINE1_PDF}, ${COMPANY_ADDRESS_LINE2_PDF}</p>
-                                    <p>${COMPANY_CONTACT_EMAIL_PDF} | ${COMPANY_WEBSITE_PDF}</p>
-                                </div>
-                                <Separator className="my-3"/>
-                                <section className="text-sm print:text-[9pt] text-left">
-                                <p><span className="font-semibold">Cliente:</span> ${clienteNombre}</p>
-                                </section>
-                            </header>
-
-                            <h3 className="font-headline text-2xl text-center mb-4">Resumen de tu Presupuesto</h3>
-                            <p className="text-center text-muted-foreground mb-6">Esta es una estimación basada en tus selecciones. Un asesor se pondrá en contacto para confirmar todos los detalles y ajustar el presupuesto a tus necesidades.</p>
-                            
-                             <div className="block">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead>Artículo</TableHead>
-                                            <TableHead className="text-right">Importe</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {Object.entries(serviciosAgrupados).map(([categoria, items]) => (
-                                            <React.Fragment key={categoria}>
-                                                <TableRow className="bg-muted/30 print:bg-gray-50">
-                                                    <TableCell colSpan={2} className="font-bold text-primary">{categoria}</TableCell>
-                                                </TableRow>
-                                                {items.map((item) => (
-                                                    <TableRow key={item.id}>
-                                                        <TableCell className="font-medium">{item.nombre}</TableCell>
-                                                        <TableCell className="text-right font-semibold">{formatCurrency(item.costo)}</TableCell>
-                                                    </TableRow>
-                                                ))}
-                                            </React.Fragment>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                             </div>
-
-                            <Separator className="my-4"/>
-                            <div className="w-full md:max-w-xs ml-auto space-y-1 text-sm">
-                                <div className="flex justify-between"><span>Subtotal:</span><span>{formatCurrency(subtotal)}</span></div>
-                                {totalRegalos > 0 && <div className="flex justify-between text-green-600"><span>Ahorro en Regalos:</span><span>-{formatCurrency(totalRegalos)}</span></div>}
-                                {descuento > 0 && <div className="flex justify-between text-destructive"><span>Descuento ({config?.descuentoGeneral || 0}%):</span><span>-{formatCurrency(descuento)}</span></div>}
-                                <div className="flex justify-between font-bold text-lg pt-2 border-t"><span className="text-primary">Importe total</span><span className="text-primary">{formatCurrency(costoTotal)}</span></div>
-                            </div>
-                             <footer className="mt-6 pt-3 border-t border-gray-300 print:mt-2 print:pt-1.5 print:border-gray-400 text-xs print:text-[8pt] text-gray-600 print:text-black">
-                              <p>${BUDGET_DEPOSIT_NOTE_PDF}</p>
-                            </footer>
-                        </div>
-                    )}
-                </CardContent>
-                <CardFooter className="flex justify-between border-t pt-4 print:hidden">
-                    <Button variant="outline" onClick={prevStep} disabled={step === 1 || isGeneratingLead}>
-                        <ArrowLeft className="w-4 h-4 mr-2"/>Anterior
+                                    </div>
+                                </Label>
+                            )})}
+                        </RadioGroup>
+                    </div>
+                )}
+            </CardContent>
+            <CardFooter className="flex justify-between border-t pt-4 print:hidden">
+                <Button variant="outline" onClick={prevStep} disabled={step === 1 || isGeneratingLead}>
+                    <ArrowLeft className="w-4 h-4 mr-2"/>Anterior
+                </Button>
+                {step < 4 ? (
+                    <Button onClick={nextStep} disabled={isGeneratingLead || (step === 2 && isStepTwoInvalid) || (step === 3 && !selectedPaqueteId) }>
+                        ${step === 3 ? (isGeneratingLead ? <><Loader2 className="w-4 h-4 mr-2 animate-spin"/> Generando...</> : "Ver Resumen y Enviar") : "Siguiente"}
+                        {step < 3 && <ArrowRight className="w-4 h-4 ml-2" />}
                     </Button>
-                    {step < 4 ? (
-                        <Button onClick={nextStep} disabled={isGeneratingLead || (step === 2 && isStepTwoInvalid) || (step === 3 && !selectedPaqueteId) }>
-                            ${step === 3 ? isGeneratingLead ? <><Loader2 className="w-4 h-4 mr-2 animate-spin"/> Generando...</> : "Ver Resumen y Enviar" : "Siguiente"}
-                            {step < 3 && <ArrowRight className="w-4 h-4 ml-2" />}
-                        </Button>
-                    ) : (
-                        <div className="flex flex-col sm:flex-row gap-2">
-                             <Button type="button" onClick={() => setStep(1)} variant="outline"><Edit className="w-4 h-4 mr-2"/>Editar Selección</Button>
-                             <Button type="button" onClick={handleShareWhatsApp} variant="secondary" className="bg-green-500 hover:bg-green-600">
-                                <Share2 className="w-4 h-4 mr-2"/>Contactar por WhatsApp
-                             </Button>
-                             <Button type="button" onClick={handleDownloadPdf}><Printer className="w-4 h-4 mr-2"/>Guardar o Imprimir PDF</Button>
-                        </div>
-                    )}
-                </CardFooter>
-            </Card>
+                ) : null}
+            </CardFooter>
+        </Card>
         </div>
     );
 }
