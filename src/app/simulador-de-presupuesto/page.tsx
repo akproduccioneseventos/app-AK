@@ -58,14 +58,14 @@ function getGuestCountForItem(servicio: { categoriaServicio?: string }, adultos:
   const categoria = (servicio.categoriaServicio || '').toLowerCase();
   
   if (categoria.includes('infantil') || categoria.includes('adolescente')) {
-    return ninosYAdolescentes;
+    return ninos;
   }
   
   if (categoria.includes('plato principal')) {
     return adultos;
   }
   
-  return adultos + ninosYAdolescentes;
+  return adultos + ninos;
 };
 
 function calcularCostoServicio(servicio: ServicioEmpresa, adultos: number, ninos: number): number {
@@ -765,5 +765,3 @@ export default function ArmadoRapidoPage() {
         </div>
     );
 }
-
-    
