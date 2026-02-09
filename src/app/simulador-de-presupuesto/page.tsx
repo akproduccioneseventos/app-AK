@@ -28,6 +28,7 @@ import type { ItemPresupuestado } from '@/types/presupuesto';
 import type { FullMenu, MenuItem } from '@/types/catering'; // Import MenuItem
 import { getMenus } from '@/app/actions/menus-catering'; // Import getMenus
 import { DatePickerDemo } from '@/components/date-picker-demo';
+import { getPresupuestoById } from '@/app/actions/presupuestos';
 
 const formatCurrency = (amount: number, includeSymbol = true) => {
     if (isNaN(amount)) return 'N/A';
@@ -390,7 +391,7 @@ export default function ArmadoRapidoPage() {
         
         const subtotalBruto = calculatedSubtotal;
         const ahorroEnRegalos = calculatedTotalRegalos;
-        const subtotalInflado = (subtotalBruto * 1.15) + ahorroEnRegalos; // Inflated subtotal
+        const subtotalInflado = subtotalBruto;
 
         const descuentoCalculado = config.descuentoGeneral ? (subtotalBruto * config.descuentoGeneral) / 100 : 0;
         const totalConDescuento = subtotalBruto - descuentoCalculado;
@@ -404,30 +405,6 @@ export default function ArmadoRapidoPage() {
         };
     }, [config, serviciosCatalogo, allSimuladorServices, adultos, ninosYAdolescentes, selectedPaqueteId, formData.serviciosSeleccionados]);
     
-    const serviciosAgrupados = useMemo(() => {
-        const serviciosSinRegalo = serviciosDetallados.filter(s => !s.esRegalo);
-        return serviciosSinRegalo.reduce((acc, servicio) => {
-            const categoria = servicio.categoria || 'Otros Servicios';
-            if (!acc[categoria]) {
-                acc[categoria] = [];
-            }
-            acc[categoria].push(servicio);
-            return acc;
-        }, {} as Record<string, ServicioDetallado[]>);
-    }, [serviciosDetallados]);
-
-    const regalosAgrupados = useMemo(() => {
-        const serviciosDeRegalo = serviciosDetallados.filter(s => s.esRegalo);
-        return serviciosDeRegalo.reduce((acc, servicio) => {
-            const categoria = servicio.categoria || 'Otros Servicios';
-            if (!acc[categoria]) {
-                acc[categoria] = [];
-            }
-            acc[categoria].push(servicio);
-            return acc;
-        }, {} as Record<string, ServicioDetallado[]>);
-    }, [serviciosDetallados]);
-
 
     const generarTextoWhatsApp = useCallback(() => {
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
@@ -581,7 +558,7 @@ export default function ArmadoRapidoPage() {
                     <CardTitle className="font-headline text-3xl">Simulador de Presupuesto</CardTitle>
                     {step < 4 ? (
                         <>
-                            <CardDescription className="text-lg">Paso {step} de 4: {['Tus Datos', 'Menú Gastronómico', 'Paquete de Servicios', 'Resumen'][step-1]}</CardDescription>
+                            <CardDescription className="text-lg">Paso ${step} de 4: ${['Tus Datos', 'Menú Gastronómico', 'Paquete de Servicios', 'Resumen'][step-1]}</CardDescription>
                             <Progress value={(step / 4) * 100} className="w-full h-2 mt-4" />
                         </>
                     ) : (
@@ -623,11 +600,11 @@ export default function ArmadoRapidoPage() {
                                 />
                             </div>
                             <div className="space-y-4">
-                                <Label>Debes elegir {maxEntradas} entrada{maxEntradas > 1 ? 's' : ''} ({duracionHoras > 4 ? 'Fiesta larga' : 'Fiesta corta'})</Label>
-                                {entradasFaltantes > 0 && <p className="text-sm text-amber-600">Te falta seleccionar {entradasFaltantes} entrada{entradasFaltantes > 1 ? 's' : ''}.</p>}
+                                <Label>Debes elegir ${maxEntradas} entrada{maxEntradas > 1 ? 's' : ''} (${duracionHoras > 4 ? 'Fiesta larga' : 'Fiesta corta'})</Label>
+                                {entradasFaltantes > 0 && <p className="text-sm text-amber-600">Te falta seleccionar ${entradasFaltantes} entrada{entradasFaltantes > 1 ? 's' : ''}.</p>}
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                                   {entradasDisponibles.length > 0 ? (
-                                    entradasDisponibles.map(s => (<div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><Checkbox id={`e-${s.id}`} checked={selectedEntradas.includes(s.id)} onCheckedChange={(checked) => handleEntradaChange(s.id, !!checked)}/><Label htmlFor={`e-${s.id}`} className="text-sm font-normal">{s.nombre} <span className="text-xs text-muted-foreground">({formatCurrency(s.precioPorPersona || 0, true)})</span></Label></div>))
+                                    entradasDisponibles.map(s => (<div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><Checkbox id={\`e-\${s.id}\`} checked={selectedEntradas.includes(s.id)} onCheckedChange={(checked) => handleEntradaChange(s.id, !!checked)}/><Label htmlFor={\`e-\${s.id}\`} className="text-sm font-normal">{s.nombre} <span className="text-xs text-muted-foreground">({formatCurrency(s.precioPorPersona || 0, true)})</span></Label></div>))
                                   ) : (
                                     <p className="col-span-full text-center text-sm text-muted-foreground py-4">No se encontraron entradas.</p>
                                   )}
@@ -639,7 +616,7 @@ export default function ArmadoRapidoPage() {
                                     onValueChange={(value) => handleGastronomicSelectionChange('principal', value)} 
                                     className="grid grid-cols-1 md:grid-cols-2 gap-2">
                                   {principalesDisponibles.length > 0 ? (
-                                    principalesDisponibles.map(s => <div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><RadioGroupItem value={s.id} id={`p-${s.id}`}/><Label htmlFor={`p-${s.id}`} className="text-sm font-normal">{s.nombre} ({formatCurrency(s.precioPorPersona || 0, true)})</Label></div>)
+                                    principalesDisponibles.map(s => <div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><RadioGroupItem value={s.id} id={\`p-\${s.id}\`}/><Label htmlFor={\`p-\${s.id}\`} className="text-sm font-normal">{s.nombre} ({formatCurrency(s.precioPorPersona || 0, true)})</Label></div>)
                                   ) : (
                                     <p className="md:col-span-2 text-center text-sm text-muted-foreground py-4">No se encontraron platos principales.</p>
                                   )}
@@ -656,8 +633,8 @@ export default function ArmadoRapidoPage() {
                                         menusNinoDisponibles.length > 0 ? (
                                             menusNinoDisponibles.map(s => (
                                                 <div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md">
-                                                    <RadioGroupItem value={s.id} id={`nino-${s.id}`} />
-                                                    <Label htmlFor={`nino-${s.id}`} className="text-sm font-normal">{s.nombre} ({formatCurrency(s.precioPorPersona || 0, true)})</Label>
+                                                    <RadioGroupItem value={s.id} id={\`nino-\${s.id}\`} />
+                                                    <Label htmlFor={\`nino-\${s.id}\`} className="text-sm font-normal">{s.nombre} ({formatCurrency(s.precioPorPersona || 0, true)})</Label>
                                                 </div>
                                             ))
                                         ) : (
@@ -678,9 +655,9 @@ export default function ArmadoRapidoPage() {
                                     const servicios = p.serviciosIncluidos.filter(s => !s.esRegalo);
                                     const regalos = p.serviciosIncluidos.filter(s => s.esRegalo);
                                     return (
-                                    <Label key={p.id} htmlFor={`pkg-${p.id}`} className="p-4 border rounded-lg cursor-pointer hover:border-primary has-[:checked]:border-primary/50 has-[:checked]:ring-2 has-[:checked]:ring-primary flex flex-col">
+                                    <Label key={p.id} htmlFor={\`pkg-\${p.id}\`} className="p-4 border rounded-lg cursor-pointer hover:border-primary has-[:checked]:border-primary/50 has-[:checked]:ring-2 has-[:checked]:ring-primary flex flex-col">
                                         <div className="flex items-start gap-4">
-                                            <RadioGroupItem value={p.id} id={`pkg-${p.id}`} className="mt-1"/>
+                                            <RadioGroupItem value={p.id} id={\`pkg-\${p.id}\`} className="mt-1"/>
                                             <div className="flex-grow">
                                                 <p className="font-semibold">{p.nombre}</p>
                                                 <ul className="text-xs text-muted-foreground list-disc pl-4 mt-2 space-y-1">
@@ -708,7 +685,7 @@ export default function ArmadoRapidoPage() {
                                     <h1 className="text-xl font-bold text-left mb-4 print:text-base leading-tight">{COMPANY_MAIN_TITLE}</h1>
                                     {logoUrl && (
                                         <div className="w-24 h-20 print:w-20 print:h-16 flex-shrink-0">
-                                            <Image src={logoUrl} alt={`${COMPANY_NAME_BRAND} Logo`} width={100} height={80} className="object-contain" data-ai-hint="company logo"/>
+                                            <Image src={logoUrl} alt={\`\${COMPANY_NAME_BRAND} Logo\`} width={100} height={80} className="object-contain" data-ai-hint="company logo"/>
                                         </div>
                                     )}
                                 </div>
@@ -791,7 +768,7 @@ export default function ArmadoRapidoPage() {
                         <div className="flex flex-col sm:flex-row gap-2">
                              <Button type="button" onClick={() => setStep(1)} variant="outline"><Edit className="w-4 h-4 mr-2"/>Editar Selección</Button>
                              <Button type="button" onClick={handleShareWhatsApp} variant="secondary" className="bg-green-500 hover:bg-green-600">
-                                <Share2 className="w-4 h-4 mr-2"/>Enviar por WhatsApp
+                                <Share2 className="w-4 h-4 mr-2"/>Contactar por WhatsApp
                              </Button>
                              <Button type="button" onClick={handleDownloadPdf}><Printer className="w-4 h-4 mr-2"/>Guardar o Imprimir PDF</Button>
                         </div>
