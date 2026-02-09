@@ -1,7 +1,6 @@
-
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, type FormEvent, type ChangeEvent } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -22,7 +21,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup, SelectLabel } from '@/components/ui/select';
 import { getMenus } from '@/app/actions/menus-catering';
 import type { FullMenu, MenuItem } from '@/types/catering';
 import { MultiSelect } from '@/components/ui/multi-select'; 
@@ -241,7 +240,7 @@ export default function BudgetDisplaySettingsPage() {
     };
     
     const sortByPrice = (a: { precioPorPersona?: number }, b: { precioPorPersona?: number }) => (a.precioPorPersona || 0) - (b.precioPorPersona || 0);
-
+    
     const allDishes = allMenus.flatMap(m => m.items).map(item => ({
         ...item,
         precioVenta: item.suggestedSellingPrice ?? ((item.totalDishCost || 0) * (1 + (item.profitMargin ?? 120) / 100)),
@@ -631,8 +630,13 @@ export default function BudgetDisplaySettingsPage() {
                         <Select value={newDependency.triggerServiceId} onValueChange={(val) => setNewDependency(p => ({ ...p, triggerServiceId: val }))}>
                             <SelectTrigger id="trigger-service"><SelectValue placeholder="Seleccionar plato..." /></SelectTrigger>
                             <SelectContent>
-                                {allMenus.flatMap(m => m.items).map(item => (
-                                    <SelectItem key={item.id} value={item.id}>{item.name}</SelectItem>
+                                {allMenus.map(menu => (
+                                    <SelectGroup key={menu.id}>
+                                        <SelectLabel>{menu.name}</SelectLabel>
+                                        {menu.items.map(item => (
+                                            <SelectItem key={item.id} value={item.id}>{item.name}</SelectItem>
+                                        ))}
+                                    </SelectGroup>
                                 ))}
                             </SelectContent>
                         </Select>
