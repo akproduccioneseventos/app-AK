@@ -271,7 +271,7 @@ export default function ArmadoRapidoPage() {
         let newSelectedEntradas;
         if (checked) {
             if (selectedEntradas.length >= maxEntradas) {
-                toast({ title: "Límite alcanzado", description: `Puedes seleccionar hasta ${maxEntradas} entrada(s).`, variant: "default" });
+                toast({ title: "Límite alcanzado", description: \`Puedes seleccionar hasta \${maxEntradas} entrada(s).\`, variant: "default" });
                 return; // Do not update state
             }
             newSelectedEntradas = [...selectedEntradas, servicioId];
@@ -313,87 +313,94 @@ export default function ArmadoRapidoPage() {
     }, [entradasDisponibles, principalesDisponibles, menusNinoDisponibles, serviciosCatalogo]);
 
     const { subtotal, serviciosDetallados, serviciosAgrupados, totalRegalos, costoTotal, descuento } = useMemo(() => {
-        if (!config || !serviciosCatalogo.length) {
+        if (!config || !allSimuladorServices.length) {
           return { subtotal: 0, serviciosDetallados: [], serviciosAgrupados: {}, totalRegalos: 0, costoTotal: 0, descuento: 0 };
+        }
+    
+        const allSelectedServices = new Map<string, { servicio: ServicioEmpresa, esRegalo: boolean }>();
+        const addedServiceIds = new Set<string>();
+    
+        const addOrUpdateService = (servicio: ServicioEmpresa, esRegalo: boolean) => {
+            if (!addedServiceIds.has(servicio.id)) {
+                allSelectedServices.set(servicio.id, { servicio, esRegalo });
+                addedServiceIds.add(servicio.id);
+            }
+        };
+    
+        // 1. Add services from the selected package
+        const paqueteSeleccionado = config.paquetes.find(p => p.id === selectedPaqueteId);
+        if (paqueteSeleccionado) {
+            paqueteSeleccionado.serviciosIncluidos.forEach(servicioEnPaquete => {
+                const servicioCompleto = allSimuladorServices.find(s => s.id === servicioEnPaquete.id);
+                if (servicioCompleto) {
+                    addOrUpdateService(servicioCompleto, servicioEnPaquete.esRegalo || false);
+                }
+            });
+        }
+    
+        // 2. Add services selected from the gastronomic section (these have price priority)
+        formData.serviciosSeleccionados.forEach((selectedData, serviceId) => {
+            const servicioCatalogo = allSimuladorServices.find(s => s.id === serviceId);
+            if (servicioCatalogo) {
+                const servicioConPrecioGuardado: ServicioEmpresa = {
+                    ...servicioCatalogo,
+                    precioPorPersona: selectedData.precioUnitarioPresupuesto
+                };
+                addOrUpdateService(servicioConPrecioGuardado, selectedData.esRegalo);
+            }
+        });
+        
+        // 3. Add services from dependencies
+        if (config.serviceDependencies) {
+            config.serviceDependencies.forEach(dep => {
+                if (addedServiceIds.has(dep.triggerServiceId)) {
+                    const servicioRequerido = allSimuladorServices.find(s => s.id === dep.requiredServiceId);
+                    if (servicioRequerido) {
+                        addOrUpdateService(servicioRequerido, false);
+                    }
+                }
+            });
         }
     
         let calculatedSubtotal = 0;
         let calculatedTotalRegalos = 0;
         const includedServicesList: ServicioDetallado[] = [];
     
-        const addServicio = (servicio: ServicioEmpresa | undefined, esRegalo: boolean, nota?: string) => {
-          if (!servicio || includedServicesList.some(s => s.id === servicio.id)) return;
-    
-          const costoItem = calcularCostoServicio(servicio, adultos, ninosYAdolescentes);
-          
-          if (!esRegalo) {
-            calculatedSubtotal += costoItem;
-          } else {
-            calculatedTotalRegalos += costoItem;
-          }
-          
-          const cantidadInvitadosRelevante = getGuestCountForItem(servicio, adultos, ninosYAdolescentes);
-          let cantidadDisplay: number = 1;
-          let unidadDisplay = 'evento';
-    
-          switch (servicio.calculationMethod) {
-            case 'porPersona':
-              cantidadDisplay = cantidadInvitadosRelevante;
-              unidadDisplay = 'personas';
-              break;
-            case 'ratio':
-              const invitadosPorUnidad = servicio.invitadosPorUnidad || 1;
-              cantidadDisplay = invitadosPorUnidad > 0 ? Math.ceil(cantidadInvitadosRelevante / invitadosPorUnidad) : 1;
-              unidadDisplay = servicio.unidad || 'Uds.';
-              break;
-            default:
-              cantidadDisplay = 1;
-              unidadDisplay = servicio.unidad || 'evento';
-              break;
-          }
-    
-          includedServicesList.push({ 
-            id: servicio.id,
-            nombre: servicio.nombre + (nota ? ` ${nota}` : ''), 
-            esRegalo, 
-            costo: costoItem,
-            categoria: servicio.categoria || 'Varios',
-            precioUnitario: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
-            cantidad: cantidadDisplay,
-            unidad: unidadDisplay
-          });
-        };
-    
-        const paqueteSeleccionado = config.paquetes.find(p => p.id === selectedPaqueteId);
-        if (paqueteSeleccionado) {
-          paqueteSeleccionado.serviciosIncluidos.forEach(servicioEnPaquete => {
-            const servicioCompleto = serviciosCatalogo.find(s => s.id === servicioEnPaquete.id);
-            if (servicioCompleto) {
-              addServicio(servicioCompleto, servicioEnPaquete.esRegalo || false);
+        allSelectedServices.forEach(({ servicio, esRegalo }) => {
+            const costoItem = calcularCostoServicio(servicio, adultos, ninosYAdolescentes);
+            if (!esRegalo) {
+                calculatedSubtotal += costoItem;
+            } else {
+                calculatedTotalRegalos += costoItem;
             }
-          });
-        }
     
-        Array.from(formData.serviciosSeleccionados.keys()).forEach(id => {
-          addServicio(allSimuladorServices.find(s => s.id === id), false);
+            const cantidadInvitadosRelevante = getGuestCountForItem(servicio, adultos, ninosYAdolescentes);
+            let cantidadDisplay: number = 1;
+            let unidadDisplay = 'evento';
+    
+            switch (servicio.calculationMethod) {
+                case 'porPersona': cantidadDisplay = cantidadInvitadosRelevante; unidadDisplay = 'personas'; break;
+                case 'ratio':
+                    const invitadosPorUnidad = servicio.invitadosPorUnidad || 1;
+                    cantidadDisplay = invitadosPorUnidad > 0 ? Math.ceil(cantidadInvitadosRelevante / invitadosPorUnidad) : 1;
+                    unidadDisplay = servicio.unidad || 'Uds.';
+                    break;
+                default: cantidadDisplay = 1; unidadDisplay = servicio.unidad || 'evento'; break;
+            }
+      
+            includedServicesList.push({ 
+              id: servicio.id, nombre: servicio.nombre, esRegalo, costo: costoItem,
+              categoria: servicio.categoria || 'Varios',
+              precioUnitario: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
+              cantidad: cantidadDisplay, unidad: unidadDisplay
+            });
         });
-    
-        if (config.serviceDependencies) {
-          const allSelectedDishIds = Array.from(formData.serviciosSeleccionados.keys());
-          config.serviceDependencies.forEach(dep => {
-            if (allSelectedDishIds.includes(dep.triggerServiceId)) {
-              addServicio(serviciosCatalogo.find(s => s.id === dep.requiredServiceId), false);
-            }
-          });
-        }
-    
+        
         const descuentoCalculado = config.descuentoGeneral ? (calculatedSubtotal * config.descuentoGeneral) / 100 : 0;
         
         const agrupados = includedServicesList.reduce((acc, item) => {
           const categoria = item.categoria || 'Varios';
-          if (!acc[categoria]) {
-            acc[categoria] = [];
-          }
+          if (!acc[categoria]) acc[categoria] = [];
           acc[categoria].push(item);
           return acc;
         }, {} as Record<string, ServicioDetallado[]>);
@@ -401,17 +408,14 @@ export default function ArmadoRapidoPage() {
         return { 
           subtotal: calculatedSubtotal, 
           serviciosDetallados: includedServicesList,
-          serviciosAgrupados: agrupados,
+          serviciosAgrupados: agrupados, 
           totalRegalos: calculatedTotalRegalos,
-          descuento: descuentoCalculado,
+          descuento: descuentoCalculado, 
           costoTotal: calculatedSubtotal - descuentoCalculado,
         };
-      }, [config, serviciosCatalogo, allSimuladorServices, adultos, ninosYAdolescentes, selectedPaqueteId, formData.serviciosSeleccionados]);
+    }, [config, allSimuladorServices, adultos, ninosYAdolescentes, selectedPaqueteId, formData.serviciosSeleccionados]);
     
     const generarTextoWhatsApp = useCallback(() => {
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
-        const pageUrl = generatedPresupuestoId ? `${baseUrl}/presupuestos/${generatedPresupuestoId}/ver` : '';
-
         let texto = `*Resumen de Presupuesto Simulado*\n`;
         texto += `-----------------\n`;
         texto += `*Cliente:* ${clienteNombre}\n`;
@@ -444,13 +448,11 @@ export default function ArmadoRapidoPage() {
         texto += `*TOTAL ESTIMADO:* *${formatCurrency(costoTotal)}*\n`;
         texto += `-----------------\n`;
         texto += `Este presupuesto es una estimación y no incluye todos los posibles adicionales. Válido por 30 días.\n\n`;
+        texto += `¡Gracias por tu interés! Un asesor se comunicará contigo a la brevedad.`;
         
-        if (pageUrl) {
-            texto += `Para ver el presupuesto detallado online y confirmar, visita el siguiente enlace:\n${pageUrl}`;
-        }
-
         return texto;
-    }, [clienteNombre, adultos, ninosYAdolescentes, eventoFecha, serviciosAgrupados, subtotal, totalRegalos, descuento, costoTotal, generatedPresupuestoId]);
+    }, [clienteNombre, adultos, ninosYAdolescentes, eventoFecha, serviciosAgrupados, subtotal, totalRegalos, descuento, costoTotal]);
+
 
     const handleShareWhatsApp = () => {
         if (!whatsappNumber) {
@@ -565,28 +567,6 @@ export default function ArmadoRapidoPage() {
     }
     
     if (step === 4 && generatedPresupuestoId) {
-        const presupuestoParaPdf = {
-            id: generatedPresupuestoId,
-            clienteNombre,
-            eventoTipo: 'Evento Simulado',
-            eventoFecha: eventoFecha?.toISOString() || '',
-            salonFiestas: 'A definir',
-            invitadosCantidad: adultos + ninosYAdolescentes,
-            itemsPresupuestados: serviciosDetallados.map(s => ({
-                idServicioCatalogo: s.id,
-                nombreServicio: s.nombre,
-                cantidad: s.cantidad,
-                unidad: s.unidad,
-                precioUnitario: s.precioUnitario,
-                precioUnitarioPresupuesto: s.precioUnitario,
-                esRegalo: s.esRegalo,
-                categoriaServicio: s.categoria,
-            })),
-            costoTotalEstimado: subtotal,
-            descuentoPromocional: descuento,
-            totalConDescuento: costoTotal,
-            timestamp: new Date().toISOString()
-        };
         return (
             <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4 print:bg-white print:p-0 print:items-start">
                  <style jsx global>{`
@@ -682,7 +662,7 @@ export default function ArmadoRapidoPage() {
                 <CardTitle className="font-headline text-3xl">Simulador de Presupuesto</CardTitle>
                 {step < 4 ? (
                     <>
-                        <CardDescription className="text-lg">Paso ${step} de 3: ${['Tus Datos', 'Menú Gastronómico', 'Paquete de Servicios'][step-1]}</CardDescription>
+                        <CardDescription className="text-lg">Paso {step} de 3: {['Tus Datos', 'Menú Gastronómico', 'Paquete de Servicios'][step-1]}</CardDescription>
                         <Progress value={(step / 3) * 100} className="w-full h-2 mt-4" />
                     </>
                 ) : null}
@@ -722,11 +702,11 @@ export default function ArmadoRapidoPage() {
                             />
                         </div>
                         <div className="space-y-4">
-                            <Label>Debes elegir ${maxEntradas} entrada${maxEntradas > 1 ? 's' : ''} (${duracionHoras > 4 ? 'Fiesta larga' : 'Fiesta corta'})</Label>
-                            {entradasFaltantes > 0 && <p className="text-sm text-amber-600">Te falta seleccionar ${entradasFaltantes} entrada${entradasFaltantes > 1 ? 's' : ''}.</p>}
+                            <Label>Debes elegir {maxEntradas} entrada{maxEntradas > 1 ? 's' : ''} ({duracionHoras > 4 ? 'Fiesta larga' : 'Fiesta corta'})</Label>
+                            {entradasFaltantes > 0 && <p className="text-sm text-amber-600">Te falta seleccionar {entradasFaltantes} entrada{entradasFaltantes > 1 ? 's' : ''}.</p>}
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                               {entradasDisponibles.length > 0 ? (
-                                entradasDisponibles.map(s => (<div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><Checkbox id={`e-${s.id}`} checked={selectedEntradas.includes(s.id)} onCheckedChange={(checked) => handleEntradaChange(s.id, !!checked)}/><Label htmlFor={`e-${s.id}`} className="text-sm font-normal">{s.nombre} ({formatCurrency(s.precioPorPersona || 0)})</Label></div>))
+                                entradasDisponibles.map(s => (<div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><Checkbox id={`e-${s.id}`} checked={selectedEntradas.includes(s.id)} onCheckedChange={(checked) => handleEntradaChange(s.id, !!checked)}/><Label htmlFor={`e-${s.id}`} className="text-sm font-normal">{s.nombre} ({formatNumber(s.precioPorPersona || 0)})</Label></div>))
                               ) : (
                                 <p className="col-span-full text-center text-sm text-muted-foreground py-4">No se encontraron entradas.</p>
                               )}
@@ -738,7 +718,7 @@ export default function ArmadoRapidoPage() {
                                 onValueChange={(value) => handleGastronomicSelectionChange('principal', value)} 
                                 className="grid grid-cols-1 md:grid-cols-2 gap-2">
                               {principalesDisponibles.length > 0 ? (
-                                principalesDisponibles.map(s => <div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><RadioGroupItem value={s.id} id={`p-${s.id}`}/><Label htmlFor={`p-${s.id}`} className="text-sm font-normal">{s.nombre} ({formatCurrency(s.precioPorPersona || 0)})</Label></div>)
+                                principalesDisponibles.map(s => <div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><RadioGroupItem value={s.id} id={`p-${s.id}`}/><Label htmlFor={`p-${s.id}`} className="text-sm font-normal">{s.nombre} ({formatNumber(s.precioPorPersona || 0)})</Label></div>)
                               ) : (
                                 <p className="md:col-span-2 text-center text-sm text-muted-foreground py-4">No se encontraron platos principales.</p>
                               )}
@@ -756,7 +736,7 @@ export default function ArmadoRapidoPage() {
                                         menusNinoDisponibles.map(s => (
                                             <div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md">
                                                 <RadioGroupItem value={s.id} id={`nino-${s.id}`} />
-                                                <Label htmlFor={`nino-${s.id}`} className="text-sm font-normal">{s.nombre} ({formatCurrency(s.precioPorPersona || 0)})</Label>
+                                                <Label htmlFor={`nino-${s.id}`} className="text-sm font-normal">{s.nombre} ({formatNumber(s.precioPorPersona || 0)})</Label>
                                             </div>
                                         ))
                                     ) : (
@@ -816,5 +796,3 @@ export default function ArmadoRapidoPage() {
         </div>
     );
 }
-
-    
