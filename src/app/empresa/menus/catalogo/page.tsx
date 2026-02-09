@@ -155,23 +155,6 @@ export default function CatalogoPlatosPage() {
     }
   };
 
-  const handleDeleteMenu = async (menuId: string, menuName: string) => {
-    setProcessingMenuId(menuId);
-    try {
-      const result = await deleteMenu(menuId);
-      if (result.success) {
-        toast({ title: "Menú Eliminado", description: `Se eliminó "${menuName}".`, variant: "destructive" });
-        await loadData();
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (err: any) {
-      toast({ title: "Error al Eliminar", description: err.message, variant: "destructive" });
-    } finally {
-      setProcessingMenuId(null);
-    }
-  };
-
   const handleDuplicateMenu = async (menuId: string, menuName: string) => {
     setProcessingMenuId(menuId);
     try {
@@ -242,7 +225,7 @@ export default function CatalogoPlatosPage() {
       <Card>
         <CardHeader>
             <CardTitle>Todos los Platos Disponibles</CardTitle>
-            <CardDescription>Aquí puedes ver todos los platos de todos tus menús, agrupados por tipo. Para editar un plato, edita su menú correspondiente.</CardDescription>
+            <CardDescription>Aquí puedes ver todos los platos de todos tus menús, agrupados por tipo. Para editar un plato o eliminarlo, edita su menú correspondiente.</CardDescription>
         </CardHeader>
         <CardContent>
             {todosLosPlatos.length > 0 ? (
@@ -280,26 +263,6 @@ export default function CatalogoPlatosPage() {
                                                     <Copy className="w-4 h-4 mr-2" />
                                                     Duplicar Menú
                                                 </DropdownMenuItem>
-                                                <AlertDialog>
-                                                    <AlertDialogTrigger asChild>
-                                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:bg-destructive/10 focus:text-destructive-foreground">
-                                                        <Trash2 className="w-4 h-4 mr-2" />
-                                                        Eliminar Menú
-                                                    </DropdownMenuItem>
-                                                    </AlertDialogTrigger>
-                                                    <AlertDialogContent>
-                                                        <AlertDialogHeader>
-                                                            <AlertDialogTitle>¿Eliminar Menú?</AlertDialogTitle>
-                                                            <AlertDialogDescription>Se eliminará permanentemente la plantilla de menú "{plato.menuName}". Esta acción no se puede deshacer.</AlertDialogDescription>
-                                                        </AlertDialogHeader>
-                                                        <AlertDialogFooter>
-                                                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                                            <AlertDialogAction onClick={() => handleDeleteMenu(plato.menuId, plato.menuName)} className="bg-destructive hover:bg-destructive/80">
-                                                                Eliminar
-                                                            </AlertDialogAction>
-                                                        </AlertDialogFooter>
-                                                    </AlertDialogContent>
-                                                </AlertDialog>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                       </div>
