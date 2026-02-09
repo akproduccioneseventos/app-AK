@@ -553,6 +553,16 @@
       "id": "dep_1770658884913",
       "triggerServiceId": "dish_main_18",
       "requiredServiceId": "serv_1759925173262_6sba1mh"
+    },
+    {
+      "id": "dep_1770667784725",
+      "triggerServiceId": "dish_main_asado_completo-buffet",
+      "requiredServiceId": "serv_1759925173262_6sba1mh"
+    },
+    {
+      "id": "dep_1770667795393",
+      "triggerServiceId": "dish_main_cordero_asado-buffet",
+      "requiredServiceId": "serv_1759925173262_6sba1mh"
     }
   ],
   "mostrarPrecios": true

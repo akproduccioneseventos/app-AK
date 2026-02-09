@@ -441,14 +441,11 @@ export default function ArmadoRapidoPage() {
         });
 
         texto += `-----------------\n`;
-        texto += `*Subtotal:* ${formatCurrency(subtotal)}\n`;
-        if (totalRegalos > 0) {
-            texto += `*Ahorro en Regalos:* ${formatCurrency(totalRegalos)}\n`;
+        texto += `*Valor de servicios:* ${formatCurrency(subtotal + totalRegalos)}\n`;
+        if (totalRegalos + descuento > 0) {
+            texto += `*Ahorro Total:* -${formatCurrency(totalRegalos + descuento)}\n`;
         }
-        if (descuento > 0) {
-            texto += `*Descuento Promocional:* -${formatCurrency(descuento)}\n`;
-        }
-        texto += `*TOTAL ESTIMADO:* *${formatCurrency(costoTotal)}*\n`;
+        texto += `*TOTAL A PAGAR:* *${formatCurrency(costoTotal)}*\n`;
         texto += `-----------------\n`;
         texto += `Este presupuesto es una estimación y no incluye todos los posibles adicionales. Válido por 30 días.\n\n`;
         texto += `¡Gracias por tu interés! Un asesor se comunicará contigo a la brevedad.`;
@@ -634,13 +631,21 @@ export default function ArmadoRapidoPage() {
                          </Table>
                          <Separator className="my-4"/>
                          <div className="w-full md:max-w-xs ml-auto space-y-1 text-sm">
-                            <div className="flex justify-between"><span>Valor de servicios:</span><span className="font-medium">{formatCurrency(subtotal + totalRegalos)}</span></div>
-                            {totalRegalos > 0 && <div className="flex justify-between"><span>Ahorro por regalos:</span><span>-{formatCurrency(totalRegalos)}</span></div>}
-                             <Separator className="my-2"/>
-                            <div className="flex justify-between font-semibold"><span>Subtotal:</span><span>{formatCurrency(subtotal)}</span></div>
-                            {descuento > 0 && <div className="flex justify-between text-destructive"><span>Descuento Promocional ({config?.descuentoGeneral || 0}%):</span><span>-{formatCurrency(descuento)}</span></div>}
-                             <Separator className="my-2"/>
-                            <div className="flex justify-between font-bold text-lg pt-1"><span className="text-primary">TOTAL ESTIMADO:</span><span className="text-primary">{formatCurrency(costoTotal)}</span></div>
+                            <div className="flex justify-between">
+                                <span className="text-muted-foreground">Valor de servicios:</span>
+                                <span className="font-medium">{formatCurrency(subtotal + totalRegalos)}</span>
+                            </div>
+                            {(totalRegalos + descuento) > 0 && (
+                              <div className="flex justify-between text-destructive">
+                                  <span>Ahorro Total (Regalos + Descuento):</span>
+                                  <span>-{formatCurrency(totalRegalos + descuento)}</span>
+                              </div>
+                            )}
+                            <Separator className="my-2"/>
+                            <div className="flex justify-between font-bold text-lg pt-1">
+                                <span className="text-primary">TOTAL A PAGAR:</span>
+                                <span className="text-primary">{formatCurrency(costoTotal)}</span>
+                            </div>
                         </div>
                     </CardContent>
                     <CardFooter className="flex-col sm:flex-row gap-2 pt-6 print:hidden">
@@ -799,3 +804,5 @@ export default function ArmadoRapidoPage() {
         </Card>
     );
 }
+
+    

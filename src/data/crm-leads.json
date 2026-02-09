@@ -1,1 +1,24 @@
-[]
+[
+  {
+    "id": "lead_1770668022155_koac7ni",
+    "name": "Prueba",
+    "phone": "098355560",
+    "notes": "Presupuesto Nº 13\nCosto: $ 307.977,95",
+    "presupuestoId": "pres_1770668022144_h5tyu9q",
+    "currentStageId": "s3",
+    "createdAt": "2026-02-09T20:13:42.155Z",
+    "updatedAt": "2026-02-09T20:13:42.179Z",
+    "history": [
+      {
+        "stageId": "s1",
+        "stageName": "Consultó",
+        "timestamp": "2026-02-09T20:13:42.155Z"
+      },
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2026-02-09T20:13:42.179Z"
+      }
+    ]
+  }
+]
