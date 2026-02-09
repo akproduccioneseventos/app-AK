@@ -1,5 +1,27 @@
 [
   {
+    "id": "lead_1770647648944_cwir3gg",
+    "name": "nico k",
+    "phone": "098355530",
+    "notes": "Presupuesto Nº 1\nCosto: $ 240.731,05",
+    "presupuestoId": "pres_1770647648933_b3b02g5",
+    "currentStageId": "s3",
+    "createdAt": "2026-02-09T14:34:08.944Z",
+    "updatedAt": "2026-02-09T14:34:08.957Z",
+    "history": [
+      {
+        "stageId": "s1",
+        "stageName": "Consultó",
+        "timestamp": "2026-02-09T14:34:08.944Z"
+      },
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2026-02-09T14:34:08.957Z"
+      }
+    ]
+  },
+  {
     "id": "lead_1770312082329_l7xrriz",
     "name": "Nicolas",
     "phone": "098355530",
@@ -19,7 +41,8 @@
         "stageName": "Con presupuesto",
         "timestamp": "2026-02-05T17:21:22.340Z"
       }
-    ]
+    ],
+    "presupuestoEstado": "Enviado"
   },
   {
     "id": "lead_1770311601642_ry1oliw",

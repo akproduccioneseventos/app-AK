@@ -51,7 +51,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
     // e.g., /presupuestos/pres_12345 or /presupuestos/pres_12345/ver
     // This regex now allows for an optional trailing slash.
     if (!isPublic) {
-      const budgetRegex = /^\/presupuestos\/pres_[a-zA-Z0-9_]+(\/ver)?\/?$/;
+      const budgetRegex = /^\/presupuestos\/[^/]+\/ver\/?$/;
       if (budgetRegex.test(pathname)) {
         isPublic = true;
       }
@@ -83,3 +83,5 @@ export function AuthGuard({ children }: AuthGuardProps) {
 
   return <>{children}</>;
 }
+
+    

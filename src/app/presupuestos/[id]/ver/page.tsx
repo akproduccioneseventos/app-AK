@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
@@ -191,7 +190,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const generarTextoWhatsApp = () => {
     if (!presupuesto) return '';
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
-    const pageUrl = `${baseUrl}/presupuestos/${presupuesto.id}`;
+    const pageUrl = `${baseUrl}/presupuestos/${presupuesto.id}/ver`;
     let texto = `🎉 *¡Hola ${presupuesto.clienteNombre}!* 🎉\n\n`;
     texto += `Gracias por considerar a *${COMPANY_NAME_BRAND}*.`;
     texto += ` Hemos preparado un presupuesto para tu *${presupuesto.eventoTipo}*.\n\n`;
@@ -471,3 +470,5 @@ export default function Page({ params }: { params: { id: string } }) {
     </Suspense>
   )
 }
+
+    
