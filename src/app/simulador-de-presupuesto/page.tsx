@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -57,21 +58,14 @@ function getGuestCountForItem(servicio: { categoriaServicio?: string }, adultos:
   const categoria = (servicio.categoriaServicio || '').toLowerCase();
   
   if (categoria.includes('infantil') || categoria.includes('adolescente')) {
-    return ninos;
+    return ninosYAdolescentes;
   }
   
   if (categoria.includes('plato principal')) {
     return adultos;
   }
   
-  // For most other food items, count adults and teens
-  const cateringCategories = ['entrada', 'postre', 'bebida', 'catering', 'repostería'];
-  if (cateringCategories.some(cat => categoria.includes(cat))) {
-    return adultos;
-  }
-  
-  // Default to total guests for general services (DJ, decor, etc.)
-  return adultos + ninos;
+  return adultos + ninosYAdolescentes;
 };
 
 function calcularCostoServicio(servicio: ServicioEmpresa, adultos: number, ninos: number): number {
@@ -771,3 +765,5 @@ export default function ArmadoRapidoPage() {
         </div>
     );
 }
+
+    
