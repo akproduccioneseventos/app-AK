@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, Package, ChefHat, FileText, Send, CheckCircle, Gift, User, Phone, MessageSquare, Share2, Printer, Search, ClipboardCopy, Edit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido';
-import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
+import { getServiciosEmpresa, saveServicioEmpresa as saveServicioEmpresaAction } from '@/app/actions/servicios-empresa';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import type { SocialConnection } from '@/types/settings';
@@ -579,7 +579,6 @@ export default function ArmadoRapidoPage() {
                 unidad: s.unidad,
                 precioUnitario: s.precioUnitario,
                 precioUnitarioPresupuesto: s.precioUnitario,
-                costoTotalItem: s.esRegalo ? 0 : s.costo,
                 esRegalo: s.esRegalo,
                 categoriaServicio: s.categoria,
             })),
@@ -618,13 +617,13 @@ export default function ArmadoRapidoPage() {
                                 )}
                             </div>
                             <div className="text-xs print:text-[8pt] gap-2 text-left">
-                                <p className="font-semibold">${COMPANY_CONTACT_PERSON}</p>
-                                <p>${COMPANY_ADDRESS_LINE1_PDF}, ${COMPANY_ADDRESS_LINE2_PDF}</p>
-                                <p>${COMPANY_CONTACT_EMAIL_PDF} | ${COMPANY_WEBSITE_PDF}</p>
+                                <p className="font-semibold">{COMPANY_CONTACT_PERSON}</p>
+                                <p>{COMPANY_ADDRESS_LINE1_PDF}, {COMPANY_ADDRESS_LINE2_PDF}</p>
+                                <p>{COMPANY_CONTACT_EMAIL_PDF} | {COMPANY_WEBSITE_PDF}</p>
                             </div>
                             <Separator className="my-3"/>
                             <section className="text-sm print:text-[9pt] text-left">
-                            <p><span className="font-semibold">Cliente:</span> ${clienteNombre}</p>
+                            <p><span className="font-semibold">Cliente:</span> {clienteNombre}</p>
                             </section>
                         </header>
                          <h3 className="font-headline text-2xl text-center mb-4 print:hidden">Resumen de tu Presupuesto</h3>
@@ -676,14 +675,15 @@ export default function ArmadoRapidoPage() {
     }
 
     return (
+        <div className="min-h-screen bg-muted/30 flex items-center justify-center p-4">
         <Card className="w-full max-w-3xl shadow-xl print:hidden">
             <CardHeader className="text-center">
                 <Wand2 className="w-12 h-12 mx-auto text-primary mb-2"/>
                 <CardTitle className="font-headline text-3xl">Simulador de Presupuesto</CardTitle>
                 {step < 4 ? (
                     <>
-                        <CardDescription className="text-lg">Paso ${step} de 4: ${['Tus Datos', 'Menú Gastronómico', 'Paquete de Servicios', 'Resumen'][step-1]}</CardDescription>
-                        <Progress value={(step / 4) * 100} className="w-full h-2 mt-4" />
+                        <CardDescription className="text-lg">Paso ${step} de 3: ${['Tus Datos', 'Menú Gastronómico', 'Paquete de Servicios'][step-1]}</CardDescription>
+                        <Progress value={(step / 3) * 100} className="w-full h-2 mt-4" />
                     </>
                 ) : null}
             </CardHeader>
@@ -726,7 +726,7 @@ export default function ArmadoRapidoPage() {
                             {entradasFaltantes > 0 && <p className="text-sm text-amber-600">Te falta seleccionar ${entradasFaltantes} entrada${entradasFaltantes > 1 ? 's' : ''}.</p>}
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                               {entradasDisponibles.length > 0 ? (
-                                entradasDisponibles.map(s => (<div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><Checkbox id={`e-${s.id}`} checked={selectedEntradas.includes(s.id)} onCheckedChange={(checked) => handleEntradaChange(s.id, !!checked)}/><Label htmlFor={`e-${s.id}`} className="text-sm font-normal">${s.nombre} <span className="text-xs text-muted-foreground">(${formatNumber(s.precioPorPersona || 0)})</span></Label></div>))
+                                entradasDisponibles.map(s => (<div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><Checkbox id={`e-${s.id}`} checked={selectedEntradas.includes(s.id)} onCheckedChange={(checked) => handleEntradaChange(s.id, !!checked)}/><Label htmlFor={`e-${s.id}`} className="text-sm font-normal">{s.nombre} ({formatCurrency(s.precioPorPersona || 0)})</Label></div>))
                               ) : (
                                 <p className="col-span-full text-center text-sm text-muted-foreground py-4">No se encontraron entradas.</p>
                               )}
@@ -738,7 +738,7 @@ export default function ArmadoRapidoPage() {
                                 onValueChange={(value) => handleGastronomicSelectionChange('principal', value)} 
                                 className="grid grid-cols-1 md:grid-cols-2 gap-2">
                               {principalesDisponibles.length > 0 ? (
-                                principalesDisponibles.map(s => <div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><RadioGroupItem value={s.id} id={`p-${s.id}`}/><Label htmlFor={`p-${s.id}`} className="text-sm font-normal">${s.nombre} (${formatNumber(s.precioPorPersona || 0)})</Label></div>)
+                                principalesDisponibles.map(s => <div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><RadioGroupItem value={s.id} id={`p-${s.id}`}/><Label htmlFor={`p-${s.id}`} className="text-sm font-normal">{s.nombre} ({formatCurrency(s.precioPorPersona || 0)})</Label></div>)
                               ) : (
                                 <p className="md:col-span-2 text-center text-sm text-muted-foreground py-4">No se encontraron platos principales.</p>
                               )}
@@ -756,7 +756,7 @@ export default function ArmadoRapidoPage() {
                                         menusNinoDisponibles.map(s => (
                                             <div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md">
                                                 <RadioGroupItem value={s.id} id={`nino-${s.id}`} />
-                                                <Label htmlFor={`nino-${s.id}`} className="text-sm font-normal">${s.nombre} (${formatNumber(s.precioPorPersona || 0)})</Label>
+                                                <Label htmlFor={`nino-${s.id}`} className="text-sm font-normal">{s.nombre} ({formatCurrency(s.precioPorPersona || 0)})</Label>
                                             </div>
                                         ))
                                     ) : (
@@ -781,15 +781,15 @@ export default function ArmadoRapidoPage() {
                                     <div className="flex items-start gap-4">
                                         <RadioGroupItem value={p.id} id={`pkg-${p.id}`} className="mt-1"/>
                                         <div className="flex-grow">
-                                            <p className="font-semibold">${p.nombre}</p>
+                                            <p className="font-semibold">{p.nombre}</p>
                                             <ul className="text-xs text-muted-foreground list-disc pl-4 mt-2 space-y-1">
-                                                {servicios.map(s => { const serv = serviciosCatalogo.find(sc => sc.id === s.id); return serv && <li key={s.id}>${serv.nombre}</li> })}
+                                                {servicios.map(s => { const serv = serviciosCatalogo.find(sc => sc.id === s.id); return serv && <li key={s.id}>{serv.nombre}</li> })}
                                             </ul>
                                             {regalos.length > 0 && (
                                                 <>
                                                     <Separator className="my-2"/>
                                                     <ul className="text-xs list-disc pl-4 space-y-1">
-                                                    {regalos.map(s => { const serv = serviciosCatalogo.find(sc => sc.id === s.id); return serv && <li key={s.id} className="font-medium flex items-center gap-1.5 text-red-600"><Gift className="w-3.5 h-3.5"/>${serv.nombre} (REGALO)</li> })}
+                                                    {regalos.map(s => { const serv = serviciosCatalogo.find(sc => sc.id === s.id); return serv && <li key={s.id} className="font-medium flex items-center gap-1.5 text-red-600"><Gift className="w-3.5 h-3.5"/>{serv.nombre} (REGALO)</li> })}
                                                     </ul>
                                                 </>
                                             )}
@@ -807,7 +807,7 @@ export default function ArmadoRapidoPage() {
                 </Button>
                 {step < 4 ? (
                     <Button onClick={nextStep} disabled={isGeneratingLead || (step === 2 && isStepTwoInvalid) || (step === 3 && !selectedPaqueteId) }>
-                        ${step === 3 ? (isGeneratingLead ? <><Loader2 className="w-4 h-4 mr-2 animate-spin"/> Generando...</> : "Ver Resumen y Enviar") : "Siguiente"}
+                        {step === 3 ? (isGeneratingLead ? <><Loader2 className="w-4 h-4 mr-2 animate-spin"/> Generando...</> : "Ver Resumen y Enviar") : "Siguiente"}
                         {step < 3 && <ArrowRight className="w-4 h-4 ml-2" />}
                     </Button>
                 ) : null}
@@ -816,3 +816,5 @@ export default function ArmadoRapidoPage() {
         </div>
     );
 }
+
+    
