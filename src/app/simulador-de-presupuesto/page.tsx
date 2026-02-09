@@ -435,7 +435,10 @@ export default function ArmadoRapidoPage() {
             if (item.esRegalo) {
               texto += ` (REGALO - valor ${formatCurrency(item.costo)})\n`;
             } else {
-              texto += `\n`;
+              if (item.cantidad > 1 && item.precioUnitario > 0) {
+                 texto += ` (${item.cantidad} ${item.unidad} x ${formatCurrency(item.precioUnitario)} c/u)`;
+              }
+              texto += ` = ${formatCurrency(item.costo)}\n`;
             }
           });
         });
@@ -443,7 +446,7 @@ export default function ArmadoRapidoPage() {
         texto += `-----------------\n`;
         texto += `*Valor de servicios:* ${formatCurrency(subtotal + totalRegalos)}\n`;
         if (totalRegalos + descuento > 0) {
-            texto += `*Ahorro Total:* -${formatCurrency(totalRegalos + descuento)}\n`;
+            texto += `*Total de Ahorro:* -${formatCurrency(totalRegalos + descuento)}\n`;
         }
         texto += `*TOTAL A PAGAR:* *${formatCurrency(costoTotal)}*\n`;
         texto += `-----------------\n`;
@@ -631,13 +634,13 @@ export default function ArmadoRapidoPage() {
                          </Table>
                          <Separator className="my-4"/>
                          <div className="w-full md:max-w-xs ml-auto space-y-1 text-sm">
-                            <div className="flex justify-between">
+                           <div className="flex justify-between">
                                 <span className="text-muted-foreground">Valor de servicios:</span>
                                 <span className="font-medium">{formatCurrency(subtotal + totalRegalos)}</span>
                             </div>
                             {(totalRegalos + descuento) > 0 && (
                               <div className="flex justify-between text-destructive">
-                                  <span>Ahorro Total (Regalos + Descuento):</span>
+                                  <span>Total de Ahorro:</span>
                                   <span>-{formatCurrency(totalRegalos + descuento)}</span>
                               </div>
                             )}
@@ -804,5 +807,3 @@ export default function ArmadoRapidoPage() {
         </Card>
     );
 }
-
-    
