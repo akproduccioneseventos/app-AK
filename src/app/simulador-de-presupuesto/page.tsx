@@ -1,9 +1,9 @@
 
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -274,7 +274,7 @@ export default function ArmadoRapidoPage() {
         let newSelectedEntradas;
         if (checked) {
             if (selectedEntradas.length >= maxEntradas) {
-                toast({ title: "Límite alcanzado", description: `Puedes seleccionar hasta ${maxEntradas} entrada(s).`, variant: "default" });
+                toast({ title: "Límite alcanzado", description: \`Puedes seleccionar hasta \${maxEntradas} entrada(s).\`, variant: "default" });
                 return; // Do not update state
             }
             newSelectedEntradas = [...selectedEntradas, servicioId];
@@ -315,16 +315,15 @@ export default function ArmadoRapidoPage() {
         return [...entradasDisponibles, ...principalesDisponibles, ...menusNinoDisponibles, ...serviciosCatalogo];
     }, [entradasDisponibles, principalesDisponibles, menusNinoDisponibles, serviciosCatalogo]);
 
-    const { subtotal, serviciosDetallados, totalRegalos, costoTotal, descuento } = useMemo(() => {
-        if (!config || !serviciosCatalogo.length) return { costoTotal: 0, subtotal: 0, serviciosDetallados: [], totalRegalos: 0, descuento: 0 };
+    const { subtotal, serviciosAgrupados, totalRegalos, costoTotal, descuento } = useMemo(() => {
+        if (!config || !serviciosCatalogo.length) return { costoTotal: 0, subtotal: 0, serviciosAgrupados: {}, totalRegalos: 0, descuento: 0 };
         
-        let calculatedSubtotal = 0; // sum of paid items
-        let calculatedTotalRegalos = 0; // sum of gift items
+        let calculatedSubtotal = 0;
+        let calculatedTotalRegalos = 0;
         const includedServicesList: ServicioDetallado[] = [];
         
         const addServicio = (servicio: ServicioEmpresa | undefined, esRegalo: boolean, nota?: string) => {
-            if (!servicio) return;
-            if (includedServicesList.some(s => s.id === servicio.id)) { return; }
+            if (!servicio || includedServicesList.some(s => s.id === servicio.id)) return;
 
             const costoItem = calcularCostoServicio(servicio, adultos, ninosYAdolescentes);
             
@@ -355,7 +354,7 @@ export default function ArmadoRapidoPage() {
 
             includedServicesList.push({ 
                 id: servicio.id,
-                nombre: servicio.nombre + (nota ? ` ${nota}` : ''), 
+                nombre: servicio.nombre + (nota ? \` \${nota}\` : ''), 
                 esRegalo, 
                 costo: costoItem,
                 categoria: servicio.categoria || 'Varios',
@@ -392,13 +391,22 @@ export default function ArmadoRapidoPage() {
         const subtotalBruto = calculatedSubtotal;
         const ahorroEnRegalos = calculatedTotalRegalos;
         const subtotalInflado = subtotalBruto;
-
+        
         const descuentoCalculado = config.descuentoGeneral ? (subtotalBruto * config.descuentoGeneral) / 100 : 0;
         const totalConDescuento = subtotalBruto - descuentoCalculado;
+
+        const serviciosAgrupados = includedServicesList.reduce((acc, item) => {
+            const categoria = item.categoria || 'Varios';
+            if (!acc[categoria]) {
+                acc[categoria] = [];
+            }
+            acc[categoria].push(item);
+            return acc;
+        }, {} as Record<string, ServicioDetallado[]>);
         
         return { 
           subtotal: subtotalInflado, 
-          serviciosDetallados: includedServicesList, 
+          serviciosAgrupados: serviciosAgrupados,
           totalRegalos: ahorroEnRegalos,
           descuento: descuentoCalculado,
           costoTotal: totalConDescuento,
@@ -410,8 +418,8 @@ export default function ArmadoRapidoPage() {
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
         if (!baseUrl || !generatedPresupuestoId) return '';
         
-        const url = `${baseUrl}/presupuestos/${generatedPresupuestoId}`;
-        let message = `¡Hola! He generado un presupuesto estimado a través del simulador y quisiera más información. Puedes ver mi resumen aquí: ${url}`;
+        const url = \`\${baseUrl}/presupuestos/\${generatedPresupuestoId}/ver\`;
+        let message = \`¡Hola! He generado un presupuesto estimado a través del simulador y quisiera más información. Puedes ver mi resumen aquí: \${url}\`;
         return message;
     }, [generatedPresupuestoId]);
 
@@ -425,7 +433,7 @@ export default function ArmadoRapidoPage() {
              return;
         }
         const message = generarTextoWhatsApp();
-        window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank');
+        window.open(\`https://wa.me/\${whatsappNumber}?text=\${encodeURIComponent(message)}\`, '_blank');
     };
 
     const handleDownloadPdf = () => {
@@ -439,7 +447,7 @@ export default function ArmadoRapidoPage() {
         }
         const requiredEntradas = duracionHoras > 4 ? 2 : 1;
         if (step === 2 && (!selectedPrincipalId || selectedEntradas.length !== requiredEntradas)) {
-            toast({ title: "Selección de Menú Incompleta", description: `Debes elegir un plato principal y exactamente ${requiredEntradas} entrada(s).`, variant: "destructive" });
+            toast({ title: "Selección de Menú Incompleta", description: \`Debes elegir un plato principal y exactamente \${requiredEntradas} entrada(s).\`, variant: "destructive" });
             return;
         }
         if (step === 3 && !selectedPaqueteId) {
@@ -454,6 +462,7 @@ export default function ArmadoRapidoPage() {
                     return;
                 }
                 setIsGeneratingLead(true);
+                const allServices = Object.values(serviciosAgrupados).flat();
                 const data = {
                     clienteNombre,
                     clienteContacto,
@@ -464,9 +473,9 @@ export default function ArmadoRapidoPage() {
                     subtotal,
                     costoEstimado: costoTotal,
                     descuentoGeneral: config?.descuentoGeneral,
-                    serviciosIncluidos: serviciosDetallados.map(s => s.id),
+                    serviciosIncluidos: allServices.map(s => s.id),
                     paqueteNombre: config?.paquetes.find(p => p.id === selectedPaqueteId)?.nombre,
-                    items: serviciosDetallados.map(s => {
+                    items: allServices.map(s => {
                         const originalServicio = allSimuladorServices.find(os => os.id === s.id);
                         return {
                             idServicioCatalogo: s.id,
@@ -519,14 +528,14 @@ export default function ArmadoRapidoPage() {
     }, [duracionHoras, selectedPrincipalId, selectedEntradas]);
 
     if (isLoading) { return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>; }
-
+    
     const today = new Date();
     const validUntil = new Date(today);
     validUntil.setDate(today.getDate() + 30);
     
     return (
         <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4 print:bg-white print:p-0 print:items-start">
-            <style jsx global>{`
+            <style jsx global>{\`
                 @media print {
                     body { background-color: white !important; }
                     .print-hidden { display: none !important; }
@@ -551,14 +560,14 @@ export default function ArmadoRapidoPage() {
                     .print-bg-gray-50 { background-color: #f9fafb; }
                     .print-text-black { color: #000; }
                 }
-            `}</style>
+            \`}</style>
             <Card className="w-full max-w-3xl shadow-xl print:shadow-none print:border-none">
                 <CardHeader className="text-center print:hidden">
                     <Wand2 className="w-12 h-12 mx-auto text-primary mb-2"/>
                     <CardTitle className="font-headline text-3xl">Simulador de Presupuesto</CardTitle>
                     {step < 4 ? (
                         <>
-                            <CardDescription className="text-lg">Paso ${step} de 4: ${['Tus Datos', 'Menú Gastronómico', 'Paquete de Servicios', 'Resumen'][step-1]}</CardDescription>
+                            <CardDescription className="text-lg">Paso \${step} de 4: \${['Tus Datos', 'Menú Gastronómico', 'Paquete de Servicios', 'Resumen'][step-1]}</CardDescription>
                             <Progress value={(step / 4) * 100} className="w-full h-2 mt-4" />
                         </>
                     ) : (
@@ -600,11 +609,11 @@ export default function ArmadoRapidoPage() {
                                 />
                             </div>
                             <div className="space-y-4">
-                                <Label>Debes elegir ${maxEntradas} entrada{maxEntradas > 1 ? 's' : ''} (${duracionHoras > 4 ? 'Fiesta larga' : 'Fiesta corta'})</Label>
-                                {entradasFaltantes > 0 && <p className="text-sm text-amber-600">Te falta seleccionar ${entradasFaltantes} entrada{entradasFaltantes > 1 ? 's' : ''}.</p>}
+                                <Label>Debes elegir \${maxEntradas} entrada\${maxEntradas > 1 ? 's' : ''} (\${duracionHoras > 4 ? 'Fiesta larga' : 'Fiesta corta'})</Label>
+                                {entradasFaltantes > 0 && <p className="text-sm text-amber-600">Te falta seleccionar \${entradasFaltantes} entrada\${entradasFaltantes > 1 ? 's' : ''}.</p>}
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                                   {entradasDisponibles.length > 0 ? (
-                                    entradasDisponibles.map(s => (<div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><Checkbox id={\`e-\${s.id}\`} checked={selectedEntradas.includes(s.id)} onCheckedChange={(checked) => handleEntradaChange(s.id, !!checked)}/><Label htmlFor={\`e-\${s.id}\`} className="text-sm font-normal">{s.nombre} <span className="text-xs text-muted-foreground">({formatCurrency(s.precioPorPersona || 0, true)})</span></Label></div>))
+                                    entradasDisponibles.map(s => (<div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><Checkbox id={\`e-\${s.id}\`} checked={selectedEntradas.includes(s.id)} onCheckedChange={(checked) => handleEntradaChange(s.id, !!checked)}/><Label htmlFor={\`e-\${s.id}\`} className="text-sm font-normal">\${s.nombre} <span className="text-xs text-muted-foreground">(\${formatCurrency(s.precioPorPersona || 0, true)})</span></Label></div>))
                                   ) : (
                                     <p className="col-span-full text-center text-sm text-muted-foreground py-4">No se encontraron entradas.</p>
                                   )}
@@ -616,7 +625,7 @@ export default function ArmadoRapidoPage() {
                                     onValueChange={(value) => handleGastronomicSelectionChange('principal', value)} 
                                     className="grid grid-cols-1 md:grid-cols-2 gap-2">
                                   {principalesDisponibles.length > 0 ? (
-                                    principalesDisponibles.map(s => <div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><RadioGroupItem value={s.id} id={\`p-\${s.id}\`}/><Label htmlFor={\`p-\${s.id}\`} className="text-sm font-normal">{s.nombre} ({formatCurrency(s.precioPorPersona || 0, true)})</Label></div>)
+                                    principalesDisponibles.map(s => <div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><RadioGroupItem value={s.id} id={\`p-\${s.id}\`}/><Label htmlFor={\`p-\${s.id}\`} className="text-sm font-normal">\${s.nombre} (\${formatCurrency(s.precioPorPersona || 0, true)})</Label></div>)
                                   ) : (
                                     <p className="md:col-span-2 text-center text-sm text-muted-foreground py-4">No se encontraron platos principales.</p>
                                   )}
@@ -634,7 +643,7 @@ export default function ArmadoRapidoPage() {
                                             menusNinoDisponibles.map(s => (
                                                 <div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md">
                                                     <RadioGroupItem value={s.id} id={\`nino-\${s.id}\`} />
-                                                    <Label htmlFor={\`nino-\${s.id}\`} className="text-sm font-normal">{s.nombre} ({formatCurrency(s.precioPorPersona || 0, true)})</Label>
+                                                    <Label htmlFor={\`nino-\${s.id}\`} className="text-sm font-normal">\${s.nombre} (\${formatCurrency(s.precioPorPersona || 0, true)})</Label>
                                                 </div>
                                             ))
                                         ) : (
@@ -659,15 +668,15 @@ export default function ArmadoRapidoPage() {
                                         <div className="flex items-start gap-4">
                                             <RadioGroupItem value={p.id} id={\`pkg-\${p.id}\`} className="mt-1"/>
                                             <div className="flex-grow">
-                                                <p className="font-semibold">{p.nombre}</p>
+                                                <p className="font-semibold">\${p.nombre}</p>
                                                 <ul className="text-xs text-muted-foreground list-disc pl-4 mt-2 space-y-1">
-                                                    {servicios.map(s => { const serv = serviciosCatalogo.find(sc => sc.id === s.id); return serv && <li key={s.id}>{serv.nombre}</li> })}
+                                                    {servicios.map(s => { const serv = serviciosCatalogo.find(sc => sc.id === s.id); return serv && <li key={s.id}>\${serv.nombre}</li> })}
                                                 </ul>
                                                 {regalos.length > 0 && (
                                                     <>
                                                         <Separator className="my-2"/>
                                                         <ul className="text-xs list-disc pl-4 space-y-1">
-                                                        {regalos.map(s => { const serv = serviciosCatalogo.find(sc => sc.id === s.id); return serv && <li key={s.id} className="font-medium flex items-center gap-1.5 text-red-600"><Gift className="w-3.5 h-3.5"/>{serv.nombre} (REGALO)</li> })}
+                                                        {regalos.map(s => { const serv = serviciosCatalogo.find(sc => sc.id === s.id); return serv && <li key={s.id} className="font-medium flex items-center gap-1.5 text-red-600"><Gift className="w-3.5 h-3.5"/>\${serv.nombre} (REGALO)</li> })}
                                                         </ul>
                                                     </>
                                                 )}
@@ -682,7 +691,7 @@ export default function ArmadoRapidoPage() {
                         <div className="animate-in fade-in-20" id="budget-summary-printable">
                              <header className="mb-6 print:mb-4 hidden print:block">
                                 <div className="flex justify-between items-start">
-                                    <h1 className="text-xl font-bold text-left mb-4 print:text-base leading-tight">{COMPANY_MAIN_TITLE}</h1>
+                                    <h1 className="text-xl font-bold text-left mb-4 print:text-base leading-tight">\${COMPANY_MAIN_TITLE}</h1>
                                     {logoUrl && (
                                         <div className="w-24 h-20 print:w-20 print:h-16 flex-shrink-0">
                                             <Image src={logoUrl} alt={\`\${COMPANY_NAME_BRAND} Logo\`} width={100} height={80} className="object-contain" data-ai-hint="company logo"/>
@@ -690,13 +699,13 @@ export default function ArmadoRapidoPage() {
                                     )}
                                 </div>
                                 <div className="text-xs print:text-[8pt] gap-2 text-left">
-                                    <p className="font-semibold">{COMPANY_CONTACT_PERSON}</p>
-                                    <p>{COMPANY_ADDRESS_LINE1_PDF}, {COMPANY_ADDRESS_LINE2_PDF}</p>
-                                    <p>{COMPANY_CONTACT_EMAIL_PDF} | {COMPANY_WEBSITE_PDF}</p>
+                                    <p className="font-semibold">\${COMPANY_CONTACT_PERSON}</p>
+                                    <p>\${COMPANY_ADDRESS_LINE1_PDF}, \${COMPANY_ADDRESS_LINE2_PDF}</p>
+                                    <p>\${COMPANY_CONTACT_EMAIL_PDF} | \${COMPANY_WEBSITE_PDF}</p>
                                 </div>
                                 <Separator className="my-3"/>
                                 <section className="text-sm print:text-[9pt] text-left">
-                                <p><span className="font-semibold">Cliente:</span> {clienteNombre}</p>
+                                <p><span className="font-semibold">Cliente:</span> \${clienteNombre}</p>
                                 </section>
                             </header>
 
@@ -715,27 +724,27 @@ export default function ArmadoRapidoPage() {
                                         {Object.entries(serviciosAgrupados).map(([categoria, items]) => (
                                             <React.Fragment key={categoria}>
                                                 <TableRow className="bg-muted/30 print:bg-gray-50">
-                                                    <TableCell colSpan={2} className="font-bold text-primary">{categoria}</TableCell>
+                                                    <TableCell colSpan={2} className="font-bold text-primary">\${categoria}</TableCell>
                                                 </TableRow>
                                                 {items.map((item) => (
                                                     <TableRow key={item.id}>
-                                                        <TableCell className="font-medium">{item.nombre}</TableCell>
-                                                        <TableCell className="text-right font-semibold">{formatCurrency(item.costo)}</TableCell>
+                                                        <TableCell className="font-medium">\${item.nombre}</TableCell>
+                                                        <TableCell className="text-right font-semibold">\${formatCurrency(item.costo)}</TableCell>
                                                     </TableRow>
                                                 ))}
                                             </React.Fragment>
                                         ))}
-                                        {Object.keys(regalosAgrupados).length > 0 && (
+                                        {Object.keys(serviciosAgrupados).length > 0 && Object.values(serviciosAgrupados).flat().filter(i => i.esRegalo).length > 0 && (
                                             <React.Fragment>
                                                 <TableRow className="bg-red-50 print:bg-red-100/50">
                                                     <TableCell colSpan={2} className="font-bold text-red-600 flex items-center gap-1.5"><Gift className="w-4 h-4"/>Regalos Incluidos</TableCell>
                                                 </TableRow>
-                                                {Object.entries(regalosAgrupados).map(([_, items]) => items.map(item => (
+                                                {Object.values(serviciosAgrupados).flat().filter(item => item.esRegalo).map(item => (
                                                     <TableRow key={item.id}>
-                                                        <TableCell className="font-medium text-red-600">{item.nombre}</TableCell>
-                                                        <TableCell className="text-right font-semibold text-red-600 line-through">{formatCurrency(item.costo)}</TableCell>
+                                                        <TableCell className="font-medium text-red-600">\${item.nombre}</TableCell>
+                                                        <TableCell className="text-right font-semibold text-red-600 line-through">\${formatCurrency(item.costo)}</TableCell>
                                                     </TableRow>
-                                                )))}
+                                                ))}
                                             </React.Fragment>
                                         )}
                                     </TableBody>
@@ -744,13 +753,13 @@ export default function ArmadoRapidoPage() {
 
                             <Separator className="my-4"/>
                             <div className="w-full md:max-w-xs ml-auto space-y-1 text-sm">
-                                <div className="flex justify-between"><span>Subtotal:</span><span>{formatCurrency(subtotal)}</span></div>
-                                {totalRegalos > 0 && <div className="flex justify-between text-green-600"><span>Ahorro en Regalos:</span><span>-{formatCurrency(totalRegalos)}</span></div>}
-                                {descuento > 0 && <div className="flex justify-between text-destructive"><span>Descuento ({config?.descuentoGeneral || 0}%):</span><span>-{formatCurrency(descuento)}</span></div>}
-                                <div className="flex justify-between font-bold text-lg pt-2 border-t"><span className="text-primary">Importe total</span><span className="text-primary">{formatCurrency(costoTotal)}</span></div>
+                                <div className="flex justify-between"><span>Subtotal:</span><span>\${formatCurrency(subtotal)}</span></div>
+                                {totalRegalos > 0 && <div className="flex justify-between text-green-600"><span>Ahorro en Regalos:</span><span>-\${formatCurrency(totalRegalos)}</span></div>}
+                                {descuento > 0 && <div className="flex justify-between text-destructive"><span>Descuento (\${config?.descuentoGeneral || 0}%):</span><span>-\${formatCurrency(descuento)}</span></div>}
+                                <div className="flex justify-between font-bold text-lg pt-2 border-t"><span className="text-primary">Importe total</span><span className="text-primary">\${formatCurrency(costoTotal)}</span></div>
                             </div>
                              <footer className="mt-6 pt-3 border-t border-gray-300 print:mt-2 print:pt-1.5 print:border-gray-400 text-xs print:text-[8pt] text-gray-600 print:text-black">
-                              <p>{BUDGET_DEPOSIT_NOTE_PDF}</p>
+                              <p>\${BUDGET_DEPOSIT_NOTE_PDF}</p>
                             </footer>
                         </div>
                     )}
@@ -761,7 +770,7 @@ export default function ArmadoRapidoPage() {
                     </Button>
                     {step < 4 ? (
                         <Button onClick={nextStep} disabled={isGeneratingLead || (step === 2 && isStepTwoInvalid) || (step === 3 && !selectedPaqueteId) }>
-                            {step === 3 ? isGeneratingLead ? <><Loader2 className="w-4 h-4 mr-2 animate-spin"/> Generando...</> : "Ver Resumen y Enviar" : "Siguiente"}
+                            \${step === 3 ? isGeneratingLead ? <><Loader2 className="w-4 h-4 mr-2 animate-spin"/> Generando...</> : "Ver Resumen y Enviar" : "Siguiente"}
                             {step < 3 && <ArrowRight className="w-4 h-4 ml-2" />}
                         </Button>
                     ) : (
