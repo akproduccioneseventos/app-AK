@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -438,6 +437,8 @@ export default function ArmadoRapidoPage() {
         window.print();
     };
 
+    const selectedPrincipalId = useMemo(() => Array.from(formData.serviciosSeleccionados.keys()).find(id => principalesDisponibles.some(p => p.id === id)) || '', [formData.serviciosSeleccionados, principalesDisponibles]);
+
     const nextStep = async () => {
         if (step === 1 && (!clienteNombre.trim() || !/^\d{9}$/.test(clienteContacto.trim()) || adultos <= 0)) {
             toast({ title: "Datos incompletos", description: "Por favor, ingresa un nombre, un celular válido de 9 dígitos y la cantidad de adultos.", variant: "destructive" });
@@ -517,8 +518,6 @@ export default function ArmadoRapidoPage() {
     
     const maxEntradas = duracionHoras > 4 ? 2 : 1;
     const entradasFaltantes = maxEntradas - selectedEntradas.length;
-
-    const selectedPrincipalId = useMemo(() => Array.from(formData.serviciosSeleccionados.keys()).find(id => principalesDisponibles.some(p => p.id === id)) || '', [formData.serviciosSeleccionados, principalesDisponibles]);
 
     const isStepTwoInvalid = useMemo(() => {
         const requiredEntradas = duracionHoras > 4 ? 2 : 1;
@@ -772,5 +771,3 @@ export default function ArmadoRapidoPage() {
         </div>
     );
 }
-
-    
