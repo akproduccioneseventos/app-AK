@@ -30,11 +30,9 @@ import { getMenus } from '@/app/actions/menus-catering'; // Import getMenus
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 
-const formatCurrency = (amount: number, includeSymbol = true) => {
-    if (isNaN(amount)) return 'N/A';
-    const options = { style: 'decimal', minimumFractionDigits: 0, maximumFractionDigits: 0 };
-    const formatted = new Intl.NumberFormat('es-UY', options).format(amount);
-    return includeSymbol ? `$ ${formatted}` : formatted;
+const formatCurrency = (amount?: number) => {
+    if (amount === undefined || isNaN(amount)) return 'N/A';
+    return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 };
 
 const formatDate = (date = new Date()) => {
@@ -604,7 +602,7 @@ export default function ArmadoRapidoPage() {
                                 {entradasFaltantes > 0 && <p className="text-sm text-amber-600">Te falta seleccionar ${entradasFaltantes} entrada${entradasFaltantes > 1 ? 's' : ''}.</p>}
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                                   {entradasDisponibles.length > 0 ? (
-                                    entradasDisponibles.map(s => (<div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><Checkbox id={`e-${s.id}`} checked={selectedEntradas.includes(s.id)} onCheckedChange={(checked) => handleEntradaChange(s.id, !!checked)}/><Label htmlFor={`e-${s.id}`} className="text-sm font-normal">${s.nombre} <span className="text-xs text-muted-foreground">(${formatCurrency(s.precioPorPersona || 0, true)})</span></Label></div>))
+                                    entradasDisponibles.map(s => (<div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><Checkbox id={`e-${s.id}`} checked={selectedEntradas.includes(s.id)} onCheckedChange={(checked) => handleEntradaChange(s.id, !!checked)}/><Label htmlFor={`e-${s.id}`} className="text-sm font-normal">${s.nombre} <span className="text-xs text-muted-foreground">(${formatCurrency(s.precioPorPersona || 0)})</span></Label></div>))
                                   ) : (
                                     <p className="col-span-full text-center text-sm text-muted-foreground py-4">No se encontraron entradas.</p>
                                   )}
@@ -616,7 +614,7 @@ export default function ArmadoRapidoPage() {
                                     onValueChange={(value) => handleGastronomicSelectionChange('principal', value)} 
                                     className="grid grid-cols-1 md:grid-cols-2 gap-2">
                                   {principalesDisponibles.length > 0 ? (
-                                    principalesDisponibles.map(s => <div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><RadioGroupItem value={s.id} id={`p-${s.id}`}/><Label htmlFor={`p-${s.id}`} className="text-sm font-normal">${s.nombre} (${formatCurrency(s.precioPorPersona || 0, true)})</Label></div>)
+                                    principalesDisponibles.map(s => <div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><RadioGroupItem value={s.id} id={`p-${s.id}`}/><Label htmlFor={`p-${s.id}`} className="text-sm font-normal">${s.nombre} (${formatCurrency(s.precioPorPersona || 0)})</Label></div>)
                                   ) : (
                                     <p className="md:col-span-2 text-center text-sm text-muted-foreground py-4">No se encontraron platos principales.</p>
                                   )}
@@ -634,7 +632,7 @@ export default function ArmadoRapidoPage() {
                                             menusNinoDisponibles.map(s => (
                                                 <div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md">
                                                     <RadioGroupItem value={s.id} id={`nino-${s.id}`} />
-                                                    <Label htmlFor={`nino-${s.id}`} className="text-sm font-normal">${s.nombre} (${formatCurrency(s.precioPorPersona || 0, true)})</Label>
+                                                    <Label htmlFor={`nino-${s.id}`} className="text-sm font-normal">${s.nombre} (${formatCurrency(s.precioPorPersona || 0)})</Label>
                                                 </div>
                                             ))
                                         ) : (
@@ -715,12 +713,12 @@ export default function ArmadoRapidoPage() {
                                         {Object.entries(serviciosAgrupados).map(([categoria, items]) => (
                                             <React.Fragment key={categoria}>
                                                 <TableRow className="bg-muted/30 print:bg-gray-50">
-                                                    <TableCell colSpan={2} className="font-bold text-primary">${categoria}</TableCell>
+                                                    <TableCell colSpan={2} className="font-bold text-primary">{categoria}</TableCell>
                                                 </TableRow>
                                                 {items.map((item) => (
                                                     <TableRow key={item.id}>
-                                                        <TableCell className="font-medium">${item.nombre}</TableCell>
-                                                        <TableCell className="text-right font-semibold">${formatCurrency(item.costo)}</TableCell>
+                                                        <TableCell className="font-medium">{item.nombre}</TableCell>
+                                                        <TableCell className="text-right font-semibold">{formatCurrency(item.costo)}</TableCell>
                                                     </TableRow>
                                                 ))}
                                             </React.Fragment>
@@ -731,10 +729,10 @@ export default function ArmadoRapidoPage() {
 
                             <Separator className="my-4"/>
                             <div className="w-full md:max-w-xs ml-auto space-y-1 text-sm">
-                                <div className="flex justify-between"><span>Subtotal:</span><span>${formatCurrency(subtotal)}</span></div>
-                                {totalRegalos > 0 && <div className="flex justify-between text-green-600"><span>Ahorro en Regalos:</span><span>-${formatCurrency(totalRegalos)}</span></div>}
-                                {descuento > 0 && <div className="flex justify-between text-destructive"><span>Descuento (${config?.descuentoGeneral || 0}%):</span><span>-${formatCurrency(descuento)}</span></div>}
-                                <div className="flex justify-between font-bold text-lg pt-2 border-t"><span className="text-primary">Importe total</span><span className="text-primary">${formatCurrency(costoTotal)}</span></div>
+                                <div className="flex justify-between"><span>Subtotal:</span><span>{formatCurrency(subtotal)}</span></div>
+                                {totalRegalos > 0 && <div className="flex justify-between text-green-600"><span>Ahorro en Regalos:</span><span>-{formatCurrency(totalRegalos)}</span></div>}
+                                {descuento > 0 && <div className="flex justify-between text-destructive"><span>Descuento ({config?.descuentoGeneral || 0}%):</span><span>-{formatCurrency(descuento)}</span></div>}
+                                <div className="flex justify-between font-bold text-lg pt-2 border-t"><span className="text-primary">Importe total</span><span className="text-primary">{formatCurrency(costoTotal)}</span></div>
                             </div>
                              <footer className="mt-6 pt-3 border-t border-gray-300 print:mt-2 print:pt-1.5 print:border-gray-400 text-xs print:text-[8pt] text-gray-600 print:text-black">
                               <p>${BUDGET_DEPOSIT_NOTE_PDF}</p>
