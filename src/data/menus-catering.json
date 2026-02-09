@@ -1926,7 +1926,7 @@
     "dataAiHint": "main course dishes",
     "templateType": "Menú de Platos Principales",
     "createdAt": "2025-07-28T10:00:00.000Z",
-    "updatedAt": "2026-02-09T17:44:29.834Z",
+    "updatedAt": "2026-02-09T19:01:08.673Z",
     "items": [
       {
         "id": "dish_main_1",
@@ -2927,8 +2927,8 @@
         "name": "Pollo Arrollado con Mesa Buffet",
         "type": "Plato Principal",
         "totalDishCost": 177.22719999999998,
-        "profitMargin": 182,
-        "suggestedSellingPrice": 499,
+        "profitMargin": 210,
+        "suggestedSellingPrice": 549,
         "ingredients": [
           {
             "id": "ing_pa_1",

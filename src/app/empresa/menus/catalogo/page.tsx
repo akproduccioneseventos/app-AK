@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -15,6 +14,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -51,7 +51,7 @@ export default function CatalogoPlatosPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  const [processingMenuId, setProcessingMenuId] = useState<string | null>(null);
+  const [processingId, setProcessingId] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -156,7 +156,7 @@ export default function CatalogoPlatosPage() {
   };
 
   const handleDuplicateMenu = async (menuId: string, menuName: string) => {
-    setProcessingMenuId(menuId);
+    setProcessingId(menuId);
     try {
       const result = await duplicateMenu(menuId);
       if (result.success) {
@@ -168,7 +168,31 @@ export default function CatalogoPlatosPage() {
     } catch (err: any) {
       toast({ title: "Error al Duplicar", description: err.message, variant: "destructive" });
     } finally {
-      setProcessingMenuId(null);
+      setProcessingId(null);
+    }
+  };
+
+  const handleDeleteDish = async (menuId: string, dishId: string, dishName: string) => {
+    setProcessingId(dishId);
+    try {
+      const menuToUpdate = allMenus.find(m => m.id === menuId);
+      if (!menuToUpdate) {
+        throw new Error("No se encontró el menú original para eliminar el plato.");
+      }
+
+      const updatedItems = menuToUpdate.items.filter(item => item.id !== dishId);
+      const result = await saveMenu({ ...menuToUpdate, items: updatedItems });
+
+      if (result.success) {
+        toast({ title: "Plato Eliminado", description: `Se eliminó "${dishName}" del menú.` });
+        await loadData();
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (err: any) {
+      toast({ title: "Error al Eliminar Plato", description: err.message, variant: "destructive" });
+    } finally {
+      setProcessingId(null);
     }
   };
 
@@ -225,7 +249,7 @@ export default function CatalogoPlatosPage() {
       <Card>
         <CardHeader>
             <CardTitle>Todos los Platos Disponibles</CardTitle>
-            <CardDescription>Aquí puedes ver todos los platos de todos tus menús, agrupados por tipo. Para editar un plato o eliminarlo, edita su menú correspondiente.</CardDescription>
+            <CardDescription>Aquí puedes ver y editar el precio de todos los platos. Para editar un plato en detalle, o eliminarlo, edita su menú correspondiente.</CardDescription>
         </CardHeader>
         <CardContent>
             {todosLosPlatos.length > 0 ? (
@@ -248,8 +272,8 @@ export default function CatalogoPlatosPage() {
                                         </Button>
                                          <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!!processingMenuId && processingMenuId === plato.menuId} title="Opciones del Menú">
-                                                    {processingMenuId === plato.menuId ? <Loader2 className="w-4 h-4 animate-spin"/> : <MoreVertical className="w-4 h-4" />}
+                                                <Button variant="ghost" size="icon" className="h-8 w-8" disabled={processingId === plato.id || processingId === plato.menuId} title="Opciones">
+                                                    {(processingId === plato.id || processingId === plato.menuId) ? <Loader2 className="w-4 h-4 animate-spin"/> : <MoreVertical className="w-4 h-4" />}
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent>
@@ -263,6 +287,29 @@ export default function CatalogoPlatosPage() {
                                                     <Copy className="w-4 h-4 mr-2" />
                                                     Duplicar Menú
                                                 </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                                <AlertDialog>
+                                                  <AlertDialogTrigger asChild>
+                                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
+                                                        <Trash2 className="w-4 h-4 mr-2" />
+                                                        Eliminar Plato
+                                                    </DropdownMenuItem>
+                                                  </AlertDialogTrigger>
+                                                  <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                      <AlertDialogTitle>¿Eliminar este plato?</AlertDialogTitle>
+                                                      <AlertDialogDescription>
+                                                        Se eliminará "{plato.name}" del menú "{plato.menuName}". Esta acción no se puede deshacer.
+                                                      </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                      <AlertDialogAction onClick={() => handleDeleteDish(plato.menuId, plato.id, plato.name)} className="bg-destructive hover:bg-destructive/90">
+                                                        Eliminar Plato
+                                                      </AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                  </AlertDialogContent>
+                                                </AlertDialog>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                       </div>
