@@ -1,3 +1,4 @@
+
 {
   "descuentoGeneral": 15,
   "paquetes": [
@@ -544,12 +545,7 @@
     },
     {
       "id": "dep_1769869274711",
-      "triggerServiceId": "dish_main_19-buffet",
-      "requiredServiceId": "serv_1759925173262_6sba1mh"
-    },
-    {
-      "id": "dep_1769869293083",
-      "triggerServiceId": "dish_main_18-buffet",
+      "triggerServiceId": "dish_main_asado_completo-buffet",
       "requiredServiceId": "serv_1759925173262_6sba1mh"
     }
   ],
