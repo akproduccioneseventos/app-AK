@@ -446,7 +446,7 @@ export default function ArmadoRapidoPage() {
         texto += `-----------------\n`;
         texto += `*Valor de servicios:* ${formatCurrency(subtotal + totalRegalos)}\n`;
         if (totalRegalos + descuento > 0) {
-            texto += `*Total de Ahorro:* -${formatCurrency(totalRegalos + descuento)}\n`;
+            texto += `*Ahorro Total:* -${formatCurrency(totalRegalos + descuento)}\n`;
         }
         texto += `*TOTAL A PAGAR:* *${formatCurrency(costoTotal)}*\n`;
         texto += `-----------------\n`;
@@ -616,7 +616,7 @@ export default function ArmadoRapidoPage() {
                                 {Object.entries(serviciosAgrupados).sort(([catA], [catB]) => catA === 'Regalos Incluidos' ? 1 : catB === 'Regalos Incluidos' ? -1 : catA.localeCompare(catB)).map(([categoria, items]) => (
                                     <React.Fragment key={categoria}>
                                         <TableRow className="bg-muted/30 print:bg-gray-50">
-                                            <TableCell colSpan={2} className={`font-bold ${categoria === 'Regalos Incluidos' ? 'text-red-600' : 'text-primary'}`}>
+                                            <TableCell colSpan={2} className={`font-bold ${categoria === 'Regalos Incluidos' ? 'text-destructive' : 'text-primary'}`}>
                                                 {categoria === 'Regalos Incluidos' ? <div className='flex items-center gap-2'><Gift className="inline-block w-4 h-4"/>{categoria}</div> : categoria}
                                             </TableCell>
                                         </TableRow>
@@ -640,7 +640,7 @@ export default function ArmadoRapidoPage() {
                             </div>
                             {(totalRegalos + descuento) > 0 && (
                               <div className="flex justify-between text-destructive">
-                                  <span>Total de Ahorro:</span>
+                                  <span>Ahorro Total:</span>
                                   <span>-{formatCurrency(totalRegalos + descuento)}</span>
                               </div>
                             )}
@@ -718,7 +718,7 @@ export default function ArmadoRapidoPage() {
                             {entradasFaltantes > 0 && <p className="text-sm text-amber-600">Te falta seleccionar {entradasFaltantes} entrada{entradasFaltantes > 1 ? 's' : ''}.</p>}
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                               {entradasDisponibles.length > 0 ? (
-                                entradasDisponibles.map(s => (<div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><Checkbox id={`e-${s.id}`} checked={selectedEntradas.includes(s.id)} onCheckedChange={(checked) => handleEntradaChange(s.id, !!checked)}/><Label htmlFor={`e-${s.id}`} className="text-xs font-normal">{s.nombre}</Label></div>))
+                                entradasDisponibles.map(s => (<div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><Checkbox id={`e-${s.id}`} checked={selectedEntradas.includes(s.id)} onCheckedChange={(checked) => handleEntradaChange(s.id, !!checked)}/><Label htmlFor={`e-${s.id}`} className="text-xs font-normal">{s.nombre} ({formatCurrency(s.precioPorPersona)})</Label></div>))
                               ) : (
                                 <p className="col-span-full text-center text-sm text-muted-foreground py-4">No se encontraron entradas.</p>
                               )}
@@ -730,7 +730,7 @@ export default function ArmadoRapidoPage() {
                                 onValueChange={(value) => handleGastronomicSelectionChange('principal', value)} 
                                 className="grid grid-cols-1 md:grid-cols-2 gap-2">
                               {principalesDisponibles.length > 0 ? (
-                                principalesDisponibles.map(s => <div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><RadioGroupItem value={s.id} id={`p-${s.id}`}/><Label htmlFor={`p-${s.id}`} className="text-sm font-normal">{s.nombre}</Label></div>)
+                                principalesDisponibles.map(s => <div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><RadioGroupItem value={s.id} id={`p-${s.id}`}/><Label htmlFor={`p-${s.id}`} className="text-sm font-normal">{s.nombre} ({formatCurrency(s.precioPorPersona)})</Label></div>)
                               ) : (
                                 <p className="md:col-span-2 text-center text-sm text-muted-foreground py-4">No se encontraron platos principales.</p>
                               )}
@@ -748,7 +748,7 @@ export default function ArmadoRapidoPage() {
                                         menusNinoDisponibles.map(s => (
                                             <div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md">
                                                 <RadioGroupItem value={s.id} id={`nino-${s.id}`} />
-                                                <Label htmlFor={`nino-${s.id}`} className="text-sm font-normal">{s.nombre}</Label>
+                                                <Label htmlFor={`nino-${s.id}`} className="text-sm font-normal">{s.nombre} ({formatCurrency(s.precioPorPersona)})</Label>
                                             </div>
                                         ))
                                     ) : (
