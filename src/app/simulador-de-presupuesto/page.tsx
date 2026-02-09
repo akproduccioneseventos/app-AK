@@ -338,7 +338,7 @@ export default function ArmadoRapidoPage() {
             });
         }
     
-        // 2. Add services selected from the gastronomic section (these have price priority)
+        // 2. Add services selected from the gastronomic section
         formData.serviciosSeleccionados.forEach((selectedData, serviceId) => {
             const servicioCatalogo = allSimuladorServices.find(s => s.id === serviceId);
             if (servicioCatalogo) {
@@ -488,63 +488,61 @@ export default function ArmadoRapidoPage() {
             return;
         }
 
-        if (step < 4) {
-            if (step === 3) {
-                if (!clienteNombre.trim() || !clienteContacto.trim()) {
-                    toast({ title: "Datos de contacto requeridos para continuar", variant: "destructive" });
-                    return;
-                }
-                setIsGeneratingLead(true);
-                const allServices = Object.values(serviciosAgrupados).flat();
-                const data = {
-                    clienteNombre,
-                    clienteContacto,
-                    eventoFecha: eventoFecha ? eventoFecha.toISOString() : undefined,
-                    adultos,
-                    ninos: ninosYAdolescentes,
-                    adolescentes: 0,
-                    subtotal,
-                    costoEstimado: costoTotal,
-                    descuentoGeneral: config?.descuentoGeneral,
-                    serviciosIncluidos: allServices.map(s => s.id),
-                    paqueteNombre: config?.paquetes.find(p => p.id === selectedPaqueteId)?.nombre,
-                    items: allServices.map(s => {
-                        const originalServicio = allSimuladorServices.find(os => os.id === s.id);
-                        return {
-                            idServicioCatalogo: s.id,
-                            nombreServicio: s.nombre,
-                            cantidad: s.cantidad,
-                            unidad: s.unidad,
-                            precioUnitario: s.precioUnitario,
-                            precioUnitarioPresupuesto: s.precioUnitario,
-                            esRegalo: s.esRegalo,
-                            categoriaServicio: s.categoria,
-                            calculationMethod: originalServicio?.calculationMethod,
-                            precioBase: originalServicio?.precioBase,
-                            precioPorPersona: originalServicio?.precioPorPersona,
-                            invitadosPorUnidad: originalServicio?.invitadosPorUnidad,
-                            tramosDePrecio: originalServicio?.tramosDePrecio,
-                        };
-                    }) as Omit<ItemPresupuestado, 'id' | 'costoTotalItem'>[]
-                };
-                
-                try {
-                    const result = await generateBudgetAndLeadFromSimulator(data);
-                    if (result.success && result.presupuestoId) {
-                        setGeneratedPresupuestoId(result.presupuestoId);
-                        toast({ title: "¡Solicitud Enviada!", description: "Gracias por tu interés. Se generó un resumen de tu selección.", variant: 'default' });
-                        setStep(s => s + 1);
-                    } else {
-                        throw new Error(result.error || "No se recibió un ID para el presupuesto generado.");
-                    }
-                } catch (e: any) {
-                    toast({ title: "Error al registrar", description: e.message, variant: "destructive" });
-                } finally {
-                    setIsGeneratingLead(false);
-                }
-            } else {
-                setStep(s => s + 1);
+        if (step === 3) {
+            if (!clienteNombre.trim() || !clienteContacto.trim()) {
+                toast({ title: "Datos de contacto requeridos para continuar", variant: "destructive" });
+                return;
             }
+            setIsGeneratingLead(true);
+            const allServices = Object.values(serviciosAgrupados).flat();
+            const data = {
+                clienteNombre,
+                clienteContacto,
+                eventoFecha: eventoFecha ? eventoFecha.toISOString() : undefined,
+                adultos,
+                ninos: ninosYAdolescentes,
+                adolescentes: 0,
+                subtotal,
+                costoEstimado: costoTotal,
+                descuentoGeneral: config?.descuentoGeneral,
+                serviciosIncluidos: allServices.map(s => s.id),
+                paqueteNombre: config?.paquetes.find(p => p.id === selectedPaqueteId)?.nombre,
+                items: allServices.map(s => {
+                    const originalServicio = allSimuladorServices.find(os => os.id === s.id);
+                    return {
+                        idServicioCatalogo: s.id,
+                        nombreServicio: s.nombre,
+                        cantidad: s.cantidad,
+                        unidad: s.unidad,
+                        precioUnitario: s.precioUnitario,
+                        precioUnitarioPresupuesto: s.precioUnitario,
+                        esRegalo: s.esRegalo,
+                        categoriaServicio: s.categoria,
+                        calculationMethod: originalServicio?.calculationMethod,
+                        precioBase: originalServicio?.precioBase,
+                        precioPorPersona: originalServicio?.precioPorPersona,
+                        invitadosPorUnidad: originalServicio?.invitadosPorUnidad,
+                        tramosDePrecio: originalServicio?.tramosDePrecio,
+                    };
+                }) as Omit<ItemPresupuestado, 'id' | 'costoTotalItem'>[]
+            };
+            
+            try {
+                const result = await generateBudgetAndLeadFromSimulator(data);
+                if (result.success && result.presupuestoId) {
+                    setGeneratedPresupuestoId(result.presupuestoId);
+                    toast({ title: "¡Solicitud Enviada!", description: "Gracias por tu interés. Se generó un resumen de tu selección.", variant: 'default' });
+                    setStep(s => s + 1);
+                } else {
+                    throw new Error(result.error || "No se recibió un ID para el presupuesto generado.");
+                }
+            } catch (e: any) {
+                toast({ title: "Error al registrar", description: e.message, variant: "destructive" });
+            } finally {
+                setIsGeneratingLead(false);
+            }
+        } else {
+            setStep(s => s + 1);
         }
     };
 
@@ -624,7 +622,13 @@ export default function ArmadoRapidoPage() {
                                          {items.map((item) => (
                                              <TableRow key={item.id}>
                                                  <TableCell className="font-medium">{item.nombre}</TableCell>
-                                                 <TableCell className="text-right font-semibold">{item.esRegalo ? 'REGALO' : formatCurrency(item.costo)}</TableCell>
+                                                 <TableCell className="text-right font-semibold">
+                                                    {item.esRegalo ? (
+                                                        <span className="text-green-600 line-through">{formatCurrency(item.costo)}</span>
+                                                    ) : (
+                                                        formatCurrency(item.costo)
+                                                    )}
+                                                 </TableCell>
                                              </TableRow>
                                          ))}
                                      </React.Fragment>
@@ -634,7 +638,7 @@ export default function ArmadoRapidoPage() {
                          <Separator className="my-4"/>
                           <div className="w-full md:max-w-xs ml-auto space-y-1 text-sm">
                             <div className="flex justify-between"><span>Subtotal:</span><span className="font-medium">{formatCurrency(subtotal)}</span></div>
-                            {totalRegalos > 0 && <div className="flex justify-between text-green-600"><span>Ahorro en Regalos:</span><span>{formatCurrency(totalRegalos)}</span></div>}
+                            {totalRegalos > 0 && <div className="flex justify-between text-green-600"><span>Ahorro en Regalos:</span><span>-{formatCurrency(totalRegalos)}</span></div>}
                             {descuento > 0 && <div className="flex justify-between text-destructive"><span>Descuento ({config?.descuentoGeneral || 0}%):</span><span>-{formatCurrency(descuento)}</span></div>}
                             <div className="flex justify-between font-bold text-lg pt-2 border-t"><span className="text-primary">Importe total</span><span className="text-primary">{formatCurrency(costoTotal)}</span></div>
                         </div>
