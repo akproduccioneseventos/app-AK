@@ -231,10 +231,10 @@ export default function CatalogoPlatosPage() {
             Catálogo de Platos
           </h1>
         </div>
-        <Link href="/empresa" passHref>
+        <Link href="/empresa/menus" passHref>
           <Button variant="outline">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver a Empresa
+            Volver a Menús
           </Button>
         </Link>
       </div>
@@ -273,7 +273,7 @@ export default function CatalogoPlatosPage() {
                                                 <DropdownMenuItem asChild>
                                                     <Link href={`/empresa/menus/${plato.menuId}/editar`}>
                                                         <Edit className="w-4 h-4 mr-2" />
-                                                        Editar Menú
+                                                        Editar Menú Completo
                                                     </Link>
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem onClick={() => handleDuplicateMenu(plato.menuId, plato.menuName)}>
