@@ -7,7 +7,7 @@ import type { ServicioEmpresa } from '@/types/empresa';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Sparkles, PackageSearch, PlusCircle, Search, Trash2, ChefHat } from 'lucide-react';
+import { Sparkles, PackageSearch, PlusCircle, Search, Trash2, ChefHat, Check, ChevronDown } from 'lucide-react';
 import type { Dispatch, SetStateAction } from 'react';
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Separator } from '@/components/ui/separator';
@@ -23,6 +23,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 import type { FullMenu, MenuItem } from '@/types/catering';
 import { MultiSelect } from '@/components/ui/multi-select'; 
 import { useToast } from '@/hooks/use-toast';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { cn } from '@/lib/utils';
 
 interface Paso2ServiciosProps {
   formData: PresupuestoFormData;
@@ -42,30 +45,36 @@ const formatCurrency = (amount?: number) => {
 
 type ServicioSeleccionadoValue = PresupuestoFormData['serviciosSeleccionados'] extends Map<any, infer V> ? V : never;
 
-function calcularCostoItem(item: ItemPresupuestado, invitados: number): number {
+function calcularCostoItem(item: ItemPresupuestado, adultos: number, adolescentes: number, ninos: number): number {
   if (item.esRegalo) return 0;
   
+  const totalInvitados = adultos + adolescentes + ninos;
+  const cantidadInvitados = getGuestCountForItem(item, adultos, adolescentes, ninos);
+  
+  if (cantidadInvitados === 0 && (item.calculationMethod === 'porPersona' || item.calculationMethod === 'ratio')) {
+    return 0;
+  }
+
   let itemTotal = 0;
   const precioUnitario = item.precioUnitarioPresupuesto ?? item.precioUnitario;
 
   switch (item.calculationMethod) {
-    case 'fijo':
-      itemTotal = item.precioBase ?? precioUnitario;
+    case 'fijo': 
+      itemTotal = (item.precioBase ?? precioUnitario) * (item.cantidad > 0 ? item.cantidad : 1);
       break;
-    case 'porPersona':
-      itemTotal = (item.precioPorPersona ?? precioUnitario) * invitados;
+    case 'porPersona': 
+      itemTotal = (item.precioPorPersona ?? precioUnitario) * cantidadInvitados; 
       break;
     case 'ratio':
       const invitadosPorUnidadNum = Number(item.invitadosPorUnidad);
       if (invitadosPorUnidadNum > 0) {
-        const basePrice = item.precioBase ?? precioUnitario;
-        itemTotal = Math.ceil(invitados / invitadosPorUnidadNum) * basePrice;
+        itemTotal = Math.ceil(cantidadInvitados / invitadosPorUnidadNum) * (item.precioBase ?? precioUnitario);
       } else {
         itemTotal = item.precioBase ?? precioUnitario; // Fallback
       }
       break;
     case 'tramos':
-      const tramo = item.tramosDePrecio?.find(t => invitados >= t.desde && invitados <= t.hasta);
+      const tramo = item.tramosDePrecio?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta);
       itemTotal = tramo?.precio || 0;
       break;
     default: // Fallback to simple calculation
@@ -82,6 +91,7 @@ const menuItemToServicioSeleccionado = (item: MenuItem & { precioVenta: number }
         nombreServicio: item.name,
         unidad: 'Por Persona',
         categoriaServicio: 'Servicio de catering',
+        subcategoria: item.type,
         esRegalo: false,
         calculationMethod: 'porPersona',
         precioPorPersona: item.precioVenta,
@@ -103,12 +113,31 @@ const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): Se
     };
 };
 
+// Helper function to decide which guest count to use for an item
+function getGuestCountForItem(servicio: { categoriaServicio?: string; subcategoria?: string }, adultos: number, ninosYAdolescentes: number): number {
+  const categoria = (servicio.categoriaServicio || '').toLowerCase();
+  const subcategoria = (servicio.subcategoria || '').toLowerCase();
+  
+  if (categoria.includes('infantil') || categoria.includes('adolescente') || subcategoria.includes('infantil') || subcategoria.includes('adolescente')) {
+    return ninosYAdolescentes;
+  }
+  
+  if (categoria.includes('plato principal') || subcategoria.includes('plato principal')) {
+    return adultos;
+  }
+  
+  return adultos + ninosYAdolescentes;
+};
+
 
 export default function Paso2Servicios({ formData, setFormData, serviciosCatalogo, paquetesBase, allMenus, onCatalogUpdate, totalInvitados, config }: Paso2ServiciosProps) {
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [gastronomiaSearchTerm, setGastronomiaSearchTerm] = useState('');
   const { toast } = useToast();
+  
+  const [openPrincipal, setOpenPrincipal] = useState(false);
+  const [openInfantil, setOpenInfantil] = useState(false);
 
   const handleServicioToggle = (servicio: ServicioEmpresa) => {
     setFormData(prev => {
@@ -178,7 +207,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
 
    const { entradasDisponibles, principalesDisponibles, menusNinoDisponibles } = useMemo(() => {
     if (!config || !allMenus.length) {
-      return { entradasDisponibles: [], principalesDisponibles: [], menusNinoDisponibles: [] };
+        return { entradasDisponibles: [], principalesDisponibles: [], menusNinoDisponibles: [] };
     }
     
     const isPlatoVisible = (platoId: string) => {
@@ -200,13 +229,8 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
     );
     
     const visibleDishes = allDishes.filter(d => isPlatoVisible(d.id));
-
-    const lowerCaseSearch = gastronomiaSearchTerm.toLowerCase();
-    const filteredDishes = gastronomiaSearchTerm.trim() === ''
-        ? visibleDishes 
-        : visibleDishes.filter(d => d.name.toLowerCase().includes(lowerCaseSearch));
     
-    const enhancedDishes = filteredDishes.map(item => ({
+    const enhancedDishes = visibleDishes.map(item => ({
         ...item,
         precioVenta: item.suggestedSellingPrice ?? ((item.totalDishCost || 0) * (1 + (item.profitMargin ?? 120) / 100)),
     }));
@@ -216,7 +240,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
         principalesDisponibles: enhancedDishes.filter(item => item.type === 'Plato Principal').map(menuItemToServicioEmpresa).sort(sortByPrice), 
         menusNinoDisponibles: enhancedDishes.filter(item => item.type === 'Menú Infantil/Adolescente').map(menuItemToServicioEmpresa).sort(sortByPrice)
     };
-  }, [config, allMenus, gastronomiaSearchTerm]);
+  }, [config, allMenus]);
   
   const handleGastronomicSelectionChange = (type: 'entradas' | 'principal' | 'infantil', selectedIds: string | string[]) => {
       setFormData(prev => {
@@ -235,7 +259,8 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
         idsToAdd.forEach(id => {
             const dishToAdd = allDishes.find(d => d.id === id);
             if (dishToAdd) {
-                newSelected.set(dishToAdd.id, menuItemToServicioSeleccionado(dishToAdd, totalInvitados));
+                const invitados = getGuestCountForItem(dishToAdd, formData.invitadosAdultos || 0, (formData.invitadosNinos || 0) + (formData.invitadosAdolescentes || 0));
+                newSelected.set(dishToAdd.id, menuItemToServicioSeleccionado(dishToAdd, invitados));
             }
         });
         
@@ -276,6 +301,19 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
       });
       return total;
     }, [formData, totalInvitados]);
+
+  const selectedPrincipalId = useMemo(() => Array.from(formData.serviciosSeleccionados.keys()).find(id => (principalesDisponibles || []).some(p => p.id === id)) || '', [formData.serviciosSeleccionados, principalesDisponibles]);
+  const selectedInfantilId = useMemo(() => Array.from(formData.serviciosSeleccionados.keys()).find(id => (menusNinoDisponibles || []).some(m => m.id === id)) || '', [formData.serviciosSeleccionados, menusNinoDisponibles]);
+  
+  const gastronomiaFiltrada = useMemo(() => {
+      const lowerCaseSearch = gastronomiaSearchTerm.toLowerCase();
+      if (!lowerCaseSearch) return { entradas: entradasDisponibles, principales: principalesDisponibles, infantiles: menusNinoDisponibles };
+      return {
+          entradas: entradasDisponibles.filter(e => e.nombre.toLowerCase().includes(lowerCaseSearch)),
+          principales: principalesDisponibles.filter(p => p.nombre.toLowerCase().includes(lowerCaseSearch)),
+          infantiles: menusNinoDisponibles.filter(m => m.nombre.toLowerCase().includes(lowerCaseSearch))
+      };
+  }, [gastronomiaSearchTerm, entradasDisponibles, principalesDisponibles, menusNinoDisponibles]);
 
   return (
     <div className="space-y-6">
@@ -357,45 +395,72 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                 <div className='space-y-2'>
                   <Label>Entradas (Selección múltiple)</Label>
                   <MultiSelect
-                    options={(entradasDisponibles || []).map(e => ({ value: e.id, label: `${e.nombre} (${formatCurrency(e.precioVenta)})` }))}
-                    selected={Array.from(formData.serviciosSeleccionados.keys()).filter(id => (entradasDisponibles || []).some(e => e.id === id))}
+                    options={(gastronomiaFiltrada.entradas || []).map(e => ({ value: e.id, label: `${e.nombre} (${formatCurrency(e.precioVenta)})` }))}
+                    selected={Array.from(formData.serviciosSeleccionados.keys()).filter(id => (gastronomiaFiltrada.entradas || []).some(e => e.id === id))}
                     onValueChange={(selected) => handleGastronomicSelectionChange('entradas', selected)}
                     placeholder="Selecciona las entradas..."
                     className="w-full"
                   />
                 </div>
                  <div className='space-y-2'>
-                  <Label>Plato Principal (Selección única)</Label>
-                  <Select
-                    onValueChange={(value) => handleGastronomicSelectionChange('principal', value)}
-                    value={Array.from(formData.serviciosSeleccionados.keys()).find(id => (principalesDisponibles || []).some(p => p.id === id)) || ''}
-                  >
-                    <SelectTrigger><SelectValue placeholder="Selecciona un plato principal..."/></SelectTrigger>
-                    <SelectContent>
-                      {(principalesDisponibles || []).map(p => (
-                        <SelectItem key={p.id} value={p.id}>
-                          {p.nombre} ({formatCurrency(p.precioVenta)})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                    <Label>Plato Principal (Selección única)</Label>
+                    <Popover open={openPrincipal} onOpenChange={setOpenPrincipal}>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" role="combobox" aria-expanded={openPrincipal} className="w-full justify-between font-normal">
+                          {selectedPrincipalId ? (gastronomiaFiltrada.principales.find(p => p.id === selectedPrincipalId)?.nombre) + ` (${formatCurrency(gastronomiaFiltrada.principales.find(p => p.id === selectedPrincipalId)?.precioVenta)})` : "Selecciona un plato principal..."}
+                          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                        <Command>
+                          <CommandInput placeholder="Buscar plato principal..." />
+                          <CommandList>
+                            <CommandEmpty>No se encontraron platos.</CommandEmpty>
+                            <CommandGroup>
+                              {(gastronomiaFiltrada.principales || []).map(p => (
+                                <CommandItem key={p.id} value={p.nombre} onSelect={() => { handleGastronomicSelectionChange('principal', p.id); setOpenPrincipal(false); }}>
+                                  <Check className={cn("mr-2 h-4 w-4", selectedPrincipalId === p.id ? "opacity-100" : "opacity-0")} />
+                                  {p.nombre} ({formatCurrency(p.precioVenta)})
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                  <div className='space-y-2'>
-                  <Label>Menú Infantil/Adolescente</Label>
-                   <Select
-                    onValueChange={(value) => handleGastronomicSelectionChange('infantil', value)}
-                    value={Array.from(formData.serviciosSeleccionados.keys()).find(id => (menusNinoDisponibles || []).some(m => m.id === id)) || ''}
-                    disabled={(formData.invitadosNinos || 0) === 0}
-                  >
-                    <SelectTrigger><SelectValue placeholder={(formData.invitadosNinos || 0) > 0 ? "Selecciona un menú..." : "Añade niños/adolescentes en Paso 1"}/></SelectTrigger>
-                    <SelectContent>
-                      {(menusNinoDisponibles || []).map(m => (
-                        <SelectItem key={m.id} value={m.id}>
-                           {m.nombre} ({formatCurrency(m.precioVenta)})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    <Label>Menú Infantil/Adolescente</Label>
+                    <Popover open={openInfantil} onOpenChange={setOpenInfantil}>
+                      <PopoverTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          role="combobox" 
+                          aria-expanded={openInfantil} 
+                          className="w-full justify-between font-normal"
+                          disabled={(formData.invitadosNinos || 0) + (formData.invitadosAdolescentes || 0) === 0}
+                        >
+                          {selectedInfantilId ? (gastronomiaFiltrada.infantiles.find(m => m.id === selectedInfantilId)?.nombre) + ` (${formatCurrency(gastronomiaFiltrada.infantiles.find(m => m.id === selectedInfantilId)?.precioVenta)})` : ((formData.invitadosNinos || 0) + (formData.invitadosAdolescentes || 0) > 0 ? "Selecciona un menú..." : "Añade niños/adolescentes en Paso 1")}
+                          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                        <Command>
+                          <CommandInput placeholder="Buscar menú infantil..." />
+                          <CommandList>
+                            <CommandEmpty>No se encontraron menús.</CommandEmpty>
+                            <CommandGroup>
+                              {(gastronomiaFiltrada.infantiles || []).map(m => (
+                                <CommandItem key={m.id} value={m.nombre} onSelect={() => { handleGastronomicSelectionChange('infantil', m.id); setOpenInfantil(false); }}>
+                                  <Check className={cn("mr-2 h-4 w-4", selectedInfantilId === m.id ? "opacity-100" : "opacity-0")} />
+                                   {m.nombre} ({formatCurrency(m.precioVenta)})
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                 </div>
             </div>
           </AccordionContent>
