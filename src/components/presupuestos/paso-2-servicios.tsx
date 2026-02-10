@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { PresupuestoFormData, ItemPresupuestado } from '@/types/presupuesto';
@@ -413,7 +412,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                     <Popover open={openPrincipal} onOpenChange={setOpenPrincipal}>
                       <PopoverTrigger asChild>
                         <Button variant="outline" role="combobox" aria-expanded={openPrincipal} className="w-full justify-between font-normal">
-                          {selectedPrincipalId ? (gastronomiaFiltrada.principales.find(p => p.id === selectedPrincipalId)?.nombre) + ` (${formatCurrency(gastronomiaFiltrada.principales.find(p => p.id === selectedPrincipalId)?.precioVenta)})` : "Selecciona un plato principal..."}
+                          {selectedPrincipalId ? (principalesDisponibles.find(p => p.id === selectedPrincipalId)?.nombre) + ` (${formatCurrency(principalesDisponibles.find(p => p.id === selectedPrincipalId)?.precioVenta)})` : "Selecciona un plato principal..."}
                           <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                       </PopoverTrigger>
@@ -446,7 +445,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                           className="w-full justify-between font-normal"
                           disabled={(formData.invitadosNinos || 0) + (formData.invitadosAdolescentes || 0) === 0}
                         >
-                          {selectedInfantilId ? (gastronomiaFiltrada.infantiles.find(m => m.id === selectedInfantilId)?.nombre) + ` (${formatCurrency(gastronomiaFiltrada.infantiles.find(m => m.id === selectedInfantilId)?.precioVenta)})` : ((formData.invitadosNinos || 0) + (formData.invitadosAdolescentes || 0) > 0 ? "Selecciona un menú..." : "Añade niños/adolescentes en Paso 1")}
+                          {selectedInfantilId ? (menusNinoDisponibles.find(m => m.id === selectedInfantilId)?.nombre) + ` (${formatCurrency(menusNinoDisponibles.find(m => m.id === selectedInfantilId)?.precioVenta)})` : ((formData.invitadosNinos || 0) + (formData.invitadosAdolescentes || 0) > 0 ? "Selecciona un menú..." : "Añade niños/adolescentes en Paso 1")}
                           <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                       </PopoverTrigger>

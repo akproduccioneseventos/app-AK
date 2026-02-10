@@ -1,3 +1,5 @@
+
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent, type ChangeEvent } from 'react';
@@ -604,7 +606,9 @@ export default function BudgetDisplaySettingsPage() {
 
        <form onSubmit={handleConfigSave}>
         <Card className="shadow-lg">
-            <CardHeader><CardTitle className="font-headline">Ajustes Generales del Simulador</CardTitle></CardHeader>
+            <CardHeader>
+                <CardTitle className="font-headline">Ajustes Generales del Simulador</CardTitle>
+            </CardHeader>
             <CardContent className="space-y-4">
                  <div className="space-y-2">
                     <Label htmlFor="descuento-general" className="flex items-center gap-2"><Percent className="w-4 h-4"/>Porcentaje de Descuento Ficticio (Ancla) (%)</Label>
@@ -760,8 +764,3 @@ export default function BudgetDisplaySettingsPage() {
                 )
               })}
             </Accordion>
-          </CardContent>
-      </Card>
-    </div>
-  );
-}

@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import type { PresupuestoFormData, ItemPresupuestado, Presupuesto } from '@/types/presupuesto';
@@ -126,12 +127,12 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
     });
   };
   
-  const { valorServicios, ahorroTotal, totalFinal, descuentoPromocional } = useMemo(() => {
+  const { subtotalBruto, ahorroTotal, totalFinal, descuentoPromocional } = useMemo(() => {
     const adultos = formData.invitadosAdultos || 0;
     const adolescentes = formData.invitadosAdolescentes || 0;
     const ninos = formData.invitadosNinos || 0;
 
-    const subtotalBruto = Array.from(formData.serviciosSeleccionados.values())
+    const bruto = Array.from(formData.serviciosSeleccionados.values())
       .filter(item => !item.esRegalo)
       .reduce((sum, item) => {
         const itemDataForCalc: ItemPresupuestado = {
@@ -140,7 +141,7 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
         return sum + calcularCostoItem(itemDataForCalc, adultos, adolescentes, ninos);
       }, 0);
 
-    const costoTotalRegalos = Array.from(formData.serviciosSeleccionados.values())
+    const costoRegalos = Array.from(formData.serviciosSeleccionados.values())
       .filter(item => item.esRegalo)
       .reduce((sum, item) => {
         const itemDataForCalc: ItemPresupuestado = {
@@ -154,20 +155,19 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
     
     if (formData.descuentoTipo && valorDescuentoNum > 0) {
       if (formData.descuentoTipo === 'porcentaje') {
-        descPromo = (subtotalBruto * valorDescuentoNum) / 100;
+        descPromo = (bruto * valorDescuentoNum) / 100;
       } else {
         descPromo = valorDescuentoNum;
       }
     }
     
-    const valorServicios = subtotalBruto + costoTotalRegalos + descPromo;
-    const ahorroTotal = descPromo + costoTotalRegalos;
-    const totalFinal = subtotalBruto;
+    const ahorro = descPromo + costoRegalos;
+    const total = bruto - descPromo;
 
     return {
-      valorServicios,
-      ahorroTotal,
-      totalFinal,
+      subtotalBruto: bruto,
+      ahorroTotal: ahorro,
+      totalFinal: total,
       descuentoPromocional: descPromo,
     };
   }, [formData]);
@@ -256,8 +256,8 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
             <h3 className="text-lg font-medium font-headline text-primary">Resumen Final</h3>
             <div className="p-4 border rounded-lg bg-primary/5 space-y-2">
                  <div className="flex justify-between text-md">
-                    <span className="text-muted-foreground">Valor de servicios:</span>
-                    <span className="font-medium">{formatCurrency(valorServicios)}</span>
+                    <span className="text-muted-foreground">Subtotal de servicios:</span>
+                    <span className="font-medium">{formatCurrency(subtotalBruto)}</span>
                 </div>
                 {ahorroTotal > 0 && (
                   <div className="flex justify-between text-md text-destructive">

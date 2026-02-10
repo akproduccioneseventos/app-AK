@@ -231,9 +231,9 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   };
 
 
-  const { itemsAgrupados, valorServicios, ahorroTotal, totalFinal, showAnnualAdjustmentLegend } = useMemo(() => {
+  const { itemsAgrupados, subtotalBruto, costoTotalRegalos, descuentoPromocional, totalFinal, showAnnualAdjustmentLegend } = useMemo(() => {
     if (!presupuesto || !displaySettings) {
-      return { itemsAgrupados: {}, valorServicios: 0, ahorroTotal: 0, totalFinal: 0, showAnnualAdjustmentLegend: false };
+      return { itemsAgrupados: {}, subtotalBruto: 0, costoTotalRegalos: 0, descuentoPromocional: 0, totalFinal: 0, showAnnualAdjustmentLegend: false };
     }
     
     const adultos = presupuesto.invitadosAdultos || 0;
@@ -241,11 +241,10 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     const ninos = presupuesto.invitadosNinos || 0;
 
     const allItems = presupuesto.itemsPresupuestados;
+    const itemsRegulares = allItems.filter(item => !item.esRegalo);
     const itemsRegalo = allItems.filter(item => item.esRegalo);
 
-    const agrupados: Record<string, ItemPresupuestado[]> = allItems
-    .filter(item => !item.esRegalo)
-    .reduce((acc, item) => {
+    const agrupados: Record<string, ItemPresupuestado[]> = itemsRegulares.reduce((acc, item) => {
         const categoria = item.subcategoria || item.categoriaServicio || 'Otros Servicios';
         if (!acc[categoria]) acc[categoria] = [];
         acc[categoria].push(item);
@@ -271,27 +270,25 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
       sortedAgrupados['Regalos Incluidos'] = itemsRegalo;
     }
     
+    const bruto = presupuesto.costoTotalEstimado;
+    
     const costoRegalos = itemsRegalo.reduce((sum, item) => {
       const tempItem = {...item, esRegalo: false}; // Calculate its value as if it wasn't a gift
       return sum + calcularCostoItem(tempItem, adultos, adolescentes, ninos);
     }, 0);
     
-    const subtotalBruto = presupuesto.costoTotalEstimado;
-    const valorServicios = subtotalBruto + costoRegalos;
-    
-    let descuentoPromocional = 0;
+    let descPromo = 0;
     if (presupuesto.descuentoTipo && presupuesto.descuentoValor) {
         if (presupuesto.descuentoTipo === 'porcentaje') {
-            descuentoPromocional = (subtotalBruto * presupuesto.descuentoValor) / 100;
+            descPromo = (bruto * presupuesto.descuentoValor) / 100;
         } else {
-            descuentoPromocional = presupuesto.descuentoValor;
+            descPromo = presupuesto.descuentoValor;
         }
     }
     
-    const ahorroTotal = descuentoPromocional + costoRegalos;
-    const totalFinalCalculado = subtotalBruto - descuentoPromocional;
+    const totalAPagar = bruto - descPromo;
     
-    let totalFinalAjustado = totalFinalCalculado;
+    let totalFinalAjustado = totalAPagar;
     
     const anioCreacion = new Date(presupuesto.timestamp).getFullYear();
     const anioEvento = presupuesto.eventoFecha ? new Date(presupuesto.eventoFecha).getFullYear() : anioCreacion;
@@ -310,10 +307,11 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     
     return {
       itemsAgrupados: sortedAgrupados,
-      valorServicios,
-      ahorroTotal,
+      subtotalBruto: bruto,
+      costoTotalRegalos: costoRegalos,
+      descuentoPromocional: Math.max(0, descPromo),
       totalFinal: totalFinalAjustado,
-      showAnnualAdjustmentLegend: shouldShowAdjustmentLegend,
+      showAnnualAdjustmentLegend,
     };
 
   }, [presupuesto, displaySettings]);
@@ -417,7 +415,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                   <tr>
                       <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50 w-3/5">Artículo</th>
                       <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center font-medium bg-gray-50">Cantidad</th>
-                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right font-medium bg-gray-50">Precio</th>
+                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right font-medium bg-gray-50">Precio Unitario</th>
                       <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right font-medium bg-gray-50">Importe total</th>
                   </tr>
                   </thead>
@@ -433,8 +431,8 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                                   {item.esRegalo ? <span className="text-red-600 font-semibold flex items-center gap-1"><Gift className="w-3 h-3"/> {item.nombreServicio} (REGALO)</span> : item.nombreServicio}
                                 </td>
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{getDisplayQuantity(item)} {item.unidad && `(${item.unidad})`}</td>
-                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through text-gray-500">{formatCurrency(item.precioUnitario, true)}</span> : formatCurrency(item.precioUnitarioPresupuesto, true)}</td>
-                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top font-semibold">{item.esRegalo ? formatCurrency(0, true) : formatCurrency(item.costoTotalItem, true)}</td>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through text-gray-500">{formatCurrency(item.precioUnitario)}</span> : formatCurrency(item.precioUnitarioPresupuesto)}</td>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top font-semibold">{item.esRegalo ? formatCurrency(0) : formatCurrency(item.costoTotalItem)}</td>
                             </tr>
                         ))}
                      </React.Fragment>
@@ -447,18 +445,24 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
           <section className="flex justify-end mb-6 print:mb-3 text-sm print:text-xs">
             <div className="w-full max-w-xs print:max-w-[220px] space-y-0.5">
               <div className="flex justify-between">
-                <span>Valor de servicios:</span>
-                <span>{formatCurrency(valorServicios, true, true)}</span>
+                <span>Subtotal de servicios:</span>
+                <span className="font-medium">{formatCurrency(subtotalBruto)}</span>
               </div>
-              {ahorroTotal > 0 && (
+              {descuentoPromocional > 0 && (
                   <div className="flex justify-between text-destructive">
-                    <span>Descuento Promocional + Regalos:</span>
-                    <span>-{formatCurrency(ahorroTotal, true, true)}</span>
+                    <span>Descuento{presupuesto.nombrePromocion ? ` (${presupuesto.nombrePromocion})` : ''}:</span>
+                    <span className="font-medium">-{formatCurrency(descuentoPromocional)}</span>
                   </div>
               )}
+               {costoTotalRegalos > 0 && (
+                 <div className="flex justify-between text-green-600">
+                    <span>Ahorro en Regalos:</span>
+                    <span className="font-medium">{formatCurrency(costoTotalRegalos)}</span>
+                  </div>
+               )}
               <div className="flex justify-between font-bold pt-1 border-t-2 border-gray-600 print:border-gray-700">
                 <span className="text-base">TOTAL A PAGAR:</span>
-                <span className="text-base">{formatCurrency(totalFinal, true)}</span>
+                <span className="text-base">{formatCurrency(totalFinal)}</span>
               </div>
             </div>
           </section>

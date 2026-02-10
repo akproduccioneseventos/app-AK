@@ -1,18 +1,10 @@
 [
   {
-    "mensaje": "Nuevo prospecto y presupuesto de nico",
-    "href": "/contabilidad/crm?leadId=lead_1770741002584_1irsndc",
+    "mensaje": "Nuevo prospecto y presupuesto de 1",
+    "href": "/contabilidad/crm?leadId=lead_1770743566465_8iurfg8",
     "icono": "KanbanSquare",
-    "id": "notif_1770741002587_otgdzms",
-    "fecha": "2026-02-10T16:30:02.587Z",
-    "leida": false
-  },
-  {
-    "mensaje": "Nuevo prospecto y presupuesto de PRUEBA 2",
-    "href": "/contabilidad/crm?leadId=lead_1770740479222_ehgngc5",
-    "icono": "KanbanSquare",
-    "id": "notif_1770740479226_ciyh2i7",
-    "fecha": "2026-02-10T16:21:19.226Z",
+    "id": "notif_1770743566467_c46pryw",
+    "fecha": "2026-02-10T17:12:46.467Z",
     "leida": false
   }
 ]

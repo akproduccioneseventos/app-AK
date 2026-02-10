@@ -185,6 +185,7 @@ function CrearPresupuestoContent() {
                                 nombreServicio: item.nombreServicio,
                                 unidad: item.unidad,
                                 categoriaServicio: item.categoriaServicio,
+                                subcategoria: item.subcategoria,
                                 esRegalo: item.esRegalo,
                                 calculationMethod: item.calculationMethod,
                                 precioBase: item.precioBase,
@@ -233,12 +234,17 @@ function CrearPresupuestoContent() {
     const totalInvitados = (formData.invitadosAdultos || 0) + (formData.invitadosNinos || 0) + (formData.invitadosAdolescentes || 0);
 
     const totalCalculado = useMemo(() => {
-      return Array.from(formData.serviciosSeleccionados.values()).reduce((sum, item) => {
+      let total = 0;
+      formData.serviciosSeleccionados.forEach((item, id) => {
         const itemDataForCalc: ItemPresupuestado = {
-          idServicioCatalogo: '', ...item, precioUnitario: item.precioUnitarioOriginal, costoTotalItem: 0 // dummy for calc
+          idServicioCatalogo: id,
+          ...item,
+          precioUnitario: item.precioUnitarioPresupuesto,
+          costoTotalItem: 0,
         };
-        return sum + calcularCostoItem(itemDataForCalc, formData.invitadosAdultos || 0, formData.invitadosAdolescentes || 0, formData.invitadosNinos || 0);
-      }, 0);
+        total += calcularCostoItem(itemDataForCalc, formData.invitadosAdultos || 0, formData.invitadosAdolescentes || 0, formData.invitadosNinos || 0);
+      });
+      return total;
     }, [formData]);
 
     const handleSave = async () => {

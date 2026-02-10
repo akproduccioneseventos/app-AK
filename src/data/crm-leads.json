@@ -1,5 +1,27 @@
 [
   {
+    "id": "lead_1770743566465_8iurfg8",
+    "name": "1",
+    "notes": "Presupuesto Nº 1\nCosto: $ 138.847,50",
+    "presupuestoId": "pres_1770743566460_mbmigd8",
+    "currentStageId": "s3",
+    "createdAt": "2026-02-10T17:12:46.465Z",
+    "updatedAt": "2026-02-10T17:12:46.473Z",
+    "history": [
+      {
+        "stageId": "s1",
+        "stageName": "Consultó",
+        "timestamp": "2026-02-10T17:12:46.465Z"
+      },
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2026-02-10T17:12:46.473Z"
+      }
+    ],
+    "budgetSource": "manual"
+  },
+  {
     "id": "lead_1770741002584_1irsndc",
     "name": "nico",
     "phone": "09",
