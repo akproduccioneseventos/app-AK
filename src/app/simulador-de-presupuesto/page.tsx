@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -375,21 +374,31 @@ export default function ArmadoRapidoPage() {
           const cantidadInvitadosRelevante = getGuestCountForItem(servicio, adultos, ninosYAdolescentes);
           let cantidadDisplay: number = 1;
           let unidadDisplay = 'evento';
+          let precioUnitarioDisplay = servicio.precioVenta || servicio.precioBase || servicio.precioPorPersona || 0;
   
           switch (servicio.calculationMethod) {
-              case 'porPersona': cantidadDisplay = cantidadInvitadosRelevante; unidadDisplay = 'personas'; break;
+              case 'porPersona': 
+                cantidadDisplay = cantidadInvitadosRelevante; 
+                unidadDisplay = 'personas'; 
+                precioUnitarioDisplay = servicio.precioPorPersona || 0;
+                break;
               case 'ratio':
                   const invitadosPorUnidad = servicio.invitadosPorUnidad || 1;
                   cantidadDisplay = invitadosPorUnidad > 0 ? Math.ceil(cantidadInvitadosRelevante / invitadosPorUnidad) : 1;
                   unidadDisplay = servicio.unidad || 'Uds.';
+                  precioUnitarioDisplay = servicio.precioBase || 0;
                   break;
-              default: cantidadDisplay = 1; unidadDisplay = servicio.unidad || 'evento'; break;
+              default: 
+                cantidadDisplay = 1; 
+                unidadDisplay = servicio.unidad || 'evento'; 
+                precioUnitarioDisplay = servicio.precioVenta || 0;
+                break;
           }
     
           includedServicesList.push({ 
             id: servicio.id, nombre: servicio.nombre, esRegalo, costo: costoItem,
             categoria: servicio.categoria || 'Varios',
-            precioUnitario: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
+            precioUnitario: precioUnitarioDisplay,
             cantidad: cantidadDisplay, unidad: unidadDisplay
           });
       });
@@ -607,20 +616,28 @@ export default function ArmadoRapidoPage() {
                              <TableHeader>
                                  <TableRow>
                                      <TableHead>Artículo</TableHead>
-                                     <TableHead className="text-right">Importe</TableHead>
+                                     <TableHead className="text-right">Detalle</TableHead>
+                                     <TableHead className="text-right font-semibold">Importe</TableHead>
                                  </TableRow>
                              </TableHeader>
                              <TableBody>
                                 {Object.entries(serviciosAgrupados).sort(([catA], [catB]) => catA === 'Regalos Incluidos' ? 1 : catB === 'Regalos Incluidos' ? -1 : catA.localeCompare(catB)).map(([categoria, items]) => (
                                     <React.Fragment key={categoria}>
                                         <TableRow className="bg-muted/30 print:bg-gray-50">
-                                            <TableCell colSpan={2} className={`font-bold ${categoria === 'Regalos Incluidos' ? 'text-destructive' : 'text-primary'}`}>
+                                            <TableCell colSpan={3} className={`font-bold ${categoria === 'Regalos Incluidos' ? 'text-destructive' : 'text-primary'}`}>
                                                 {categoria === 'Regalos Incluidos' ? <div className='flex items-center gap-2'><Gift className="inline-block w-4 h-4"/>{categoria}</div> : categoria}
                                             </TableCell>
                                         </TableRow>
                                         {items.map((item) => (
                                             <TableRow key={item.id}>
                                                 <TableCell className="font-medium">{item.nombre}</TableCell>
+                                                <TableCell className="text-right text-muted-foreground text-xs">
+                                                  {item.esRegalo 
+                                                    ? `(Regalo)` 
+                                                    : (item.cantidad > 1 && item.precioUnitario > 0)
+                                                    ? `(${item.cantidad} ${item.unidad} x ${formatCurrency(item.precioUnitario)})`
+                                                    : ''}
+                                                </TableCell>
                                                 <TableCell className={`text-right font-semibold ${item.esRegalo ? 'text-muted-foreground line-through' : ''}`}>
                                                     {formatCurrency(item.costo)}
                                                 </TableCell>

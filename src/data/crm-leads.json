@@ -1,47 +1,24 @@
 [
   {
-    "id": "lead_1770669575338_a3z6apt",
-    "name": "G",
+    "id": "lead_1770682003629_83zmep4",
+    "name": "Gg",
     "phone": "098355530",
-    "notes": "Presupuesto Nº 14\nCosto: $ 305.427,95",
-    "presupuestoId": "pres_1770669575323_zjlg58d",
+    "notes": "Presupuesto Nº 16\nCosto: $ 318.117,60",
+    "presupuestoId": "pres_1770682003621_1foeltb",
     "currentStageId": "s3",
-    "createdAt": "2026-02-09T20:39:35.338Z",
-    "updatedAt": "2026-02-09T20:39:35.365Z",
+    "createdAt": "2026-02-10T00:06:43.629Z",
+    "updatedAt": "2026-02-10T00:06:43.644Z",
     "history": [
       {
         "stageId": "s1",
         "stageName": "Consultó",
-        "timestamp": "2026-02-09T20:39:35.338Z"
+        "timestamp": "2026-02-10T00:06:43.629Z"
       },
       {
         "stageId": "s3",
         "stageName": "Con presupuesto",
-        "timestamp": "2026-02-09T20:39:35.365Z"
+        "timestamp": "2026-02-10T00:06:43.644Z"
       }
     ]
-  },
-  {
-    "id": "lead_1770668022155_koac7ni",
-    "name": "Prueba",
-    "phone": "098355560",
-    "notes": "Presupuesto Nº 13\nCosto: $ 307.977,95",
-    "presupuestoId": "pres_1770668022144_h5tyu9q",
-    "currentStageId": "s3",
-    "createdAt": "2026-02-09T20:13:42.155Z",
-    "updatedAt": "2026-02-09T20:13:42.179Z",
-    "history": [
-      {
-        "stageId": "s1",
-        "stageName": "Consultó",
-        "timestamp": "2026-02-09T20:13:42.155Z"
-      },
-      {
-        "stageId": "s3",
-        "stageName": "Con presupuesto",
-        "timestamp": "2026-02-09T20:13:42.179Z"
-      }
-    ],
-    "presupuestoEstado": "Enviado"
   }
 ]
