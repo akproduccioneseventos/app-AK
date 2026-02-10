@@ -95,8 +95,22 @@ export async function savePresupuesto(
   const ninos = presupuestoData.invitadosNinos || 0;
 
   const validItems = presupuestoData.itemsPresupuestados.map(item => ({
-    ...item,
+    idServicioCatalogo: item.idServicioCatalogo,
+    nombreServicio: item.nombreServicio,
+    descripcionServicio: item.descripcionServicio,
+    cantidad: item.cantidad,
+    unidad: item.unidad,
+    precioUnitario: item.precioUnitario,
+    precioUnitarioPresupuesto: item.precioUnitarioPresupuesto,
     costoTotalItem: recalcularCostoItem(item, adultos, adolescentes, ninos),
+    categoriaServicio: item.categoriaServicio,
+    subcategoria: item.subcategoria,
+    esRegalo: item.esRegalo,
+    calculationMethod: item.calculationMethod,
+    precioBase: item.precioBase,
+    precioPorPersona: item.precioPorPersona,
+    invitadosPorUnidad: item.invitadosPorUnidad,
+    tramosDePrecio: item.tramosDePrecio,
   }));
 
   const costoTotalEstimadoRecalculado = validItems
@@ -171,8 +185,22 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
     const ninos = presupuestoData.invitadosNinos || 0;
 
     const validItems = presupuestoData.itemsPresupuestados.map(item => ({
-        ...item,
+        idServicioCatalogo: item.idServicioCatalogo,
+        nombreServicio: item.nombreServicio,
+        descripcionServicio: item.descripcionServicio,
+        cantidad: item.cantidad,
+        unidad: item.unidad,
+        precioUnitario: item.precioUnitario,
+        precioUnitarioPresupuesto: item.precioUnitarioPresupuesto,
         costoTotalItem: recalcularCostoItem(item, adultos, adolescentes, ninos),
+        categoriaServicio: item.categoriaServicio,
+        subcategoria: item.subcategoria,
+        esRegalo: item.esRegalo,
+        calculationMethod: item.calculationMethod,
+        precioBase: item.precioBase,
+        precioPorPersona: item.precioPorPersona,
+        invitadosPorUnidad: item.invitadosPorUnidad,
+        tramosDePrecio: item.tramosDePrecio,
     }));
 
     const costoTotalEstimadoRecalculado = validItems
@@ -371,3 +399,4 @@ export async function recalculatePresupuestoFromCatalog(presupuestoId: string): 
     
 
   
+

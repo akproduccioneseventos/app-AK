@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
@@ -242,11 +243,10 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     const allItems = presupuesto.itemsPresupuestados;
     const itemsRegalo = allItems.filter(item => item.esRegalo);
 
-    const agrupados: Record<string, ItemPresupuestado[]> = allItems.reduce((acc, item) => {
-        let categoria = item.esRegalo ? 'Regalos Incluidos' : (item.categoriaServicio || 'Otros Servicios');
-        if (categoria === 'Servicio de catering' && item.subcategoria) {
-            categoria = item.subcategoria;
-        }
+    const agrupados: Record<string, ItemPresupuestado[]> = allItems
+    .filter(item => !item.esRegalo)
+    .reduce((acc, item) => {
+        const categoria = item.subcategoria || item.categoriaServicio || 'Otros Servicios';
         if (!acc[categoria]) acc[categoria] = [];
         acc[categoria].push(item);
         return acc;
@@ -267,6 +267,10 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
         sortedAgrupados[key] = agrupados[key];
     });
 
+    if (itemsRegalo.length > 0) {
+      sortedAgrupados['Regalos Incluidos'] = itemsRegalo;
+    }
+    
     const costoRegalos = itemsRegalo.reduce((sum, item) => {
       const tempItem = {...item, esRegalo: false}; // Calculate its value as if it wasn't a gift
       return sum + calcularCostoItem(tempItem, adultos, adolescentes, ninos);
@@ -333,7 +337,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
       <div className="flex justify-between items-center mb-6 print:hidden max-w-3xl mx-auto">
         <Link href="/presupuestos/nuevo" passHref><Button variant="outline" size="sm"><ArrowLeft className="mr-2 h-4 w-4"/>Volver al Creador</Button></Link>
         <div className="flex gap-2 flex-wrap justify-end">
-          <Button variant="outline" size="sm" onClick={handleShareWhatsApp}><Share2 className="mr-2 h-4 w-4"/>WhatsApp</Button>
+          <Button variant="outline" size="sm" onClick={handleShareWhatsApp}><Share2 className="w-4 h-4 mr-2"/>WhatsApp</Button>
           <Button onClick={handlePrint} size="sm"><Printer className="mr-2 h-4 w-4"/>Imprimir/PDF</Button>
           {presupuesto.estado !== 'Facturado' ? 
             (<Link href={`/invoices/new?fromPresupuesto=${presupuesto.id}`} passHref><Button variant='default' size="sm"><FileTextIcon className="mr-2 h-4 w-4"/>Crear Factura</Button></Link>) : 

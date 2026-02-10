@@ -1,5 +1,28 @@
 [
   {
+    "id": "lead_1770741002584_1irsndc",
+    "name": "nico",
+    "phone": "09",
+    "notes": "Presupuesto Nº 1\nCosto: $ 167.620,00",
+    "presupuestoId": "pres_1770741002576_qdcz39r",
+    "currentStageId": "s3",
+    "createdAt": "2026-02-10T16:30:02.584Z",
+    "updatedAt": "2026-02-10T16:30:02.595Z",
+    "history": [
+      {
+        "stageId": "s1",
+        "stageName": "Consultó",
+        "timestamp": "2026-02-10T16:30:02.584Z"
+      },
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2026-02-10T16:30:02.595Z"
+      }
+    ],
+    "budgetSource": "manual"
+  },
+  {
     "id": "lead_1770740491019_04qn2sw",
     "name": "PRUEBA 2",
     "phone": "09366304",
@@ -43,7 +66,6 @@
         "timestamp": "2026-02-10T16:21:19.233Z"
       }
     ],
-    "budgetSource": "manual",
-    "presupuestoEstado": "Enviado"
+    "budgetSource": "manual"
   }
 ]
