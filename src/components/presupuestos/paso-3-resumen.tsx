@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Tag, Percent, Trash2 } from 'lucide-react';
+import { Tag, Percent, Trash2, Gift } from 'lucide-react';
 import type { Dispatch, SetStateAction } from 'react';
 import { useMemo } from 'react';
 
@@ -131,21 +131,41 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
     });
   };
 
-  const { descuentoAplicado, totalFinal } = useMemo(() => {
-    let descuento = 0;
-    const valor = parseFloat(formData.descuentoValor || '0');
-    if (formData.descuentoTipo && valor > 0) {
-      if (formData.descuentoTipo === 'porcentaje') {
-        descuento = (totalCalculado * valor) / 100;
-      } else {
-        descuento = valor;
-      }
+  const { valorServicios, ahorroTotal, totalFinal } = useMemo(() => {
+    const adultos = formData.invitadosAdultos || 0;
+    const adolescentes = formData.invitadosAdolescentes || 0;
+    const ninos = formData.invitadosNinos || 0;
+
+    const costoTotalRegalos = Array.from(formData.serviciosSeleccionados.values())
+      .filter(item => item.esRegalo)
+      .reduce((sum, item) => {
+        const tempItem: ItemPresupuestado = {
+          idServicioCatalogo: '', ...item, esRegalo: false, // temporarily unset to calculate real value
+          precioUnitario: item.precioUnitarioOriginal, costoTotalItem: 0
+        };
+        return sum + calcularCostoItem(tempItem, adultos, adolescentes, ninos);
+      }, 0);
+      
+    const subtotalBruto = totalCalculado;
+    const valorServicios = subtotalBruto + costoTotalRegalos;
+
+    let descuentoPromocional = 0;
+    const valorDescuento = parseFloat(formData.descuentoValor || '0');
+    if (formData.descuentoTipo && valorDescuento > 0) {
+      descuentoPromocional = formData.descuentoTipo === 'porcentaje'
+        ? (subtotalBruto * valorDescuento) / 100
+        : valorDescuento;
     }
+    
+    const ahorroTotal = descuentoPromocional + costoTotalRegalos;
+    const totalFinal = subtotalBruto - descuentoPromocional;
+
     return {
-      descuentoAplicado: descuento,
-      totalFinal: totalCalculado - descuento,
+      valorServicios,
+      ahorroTotal,
+      totalFinal,
     };
-  }, [formData.descuentoTipo, formData.descuentoValor, totalCalculado]);
+  }, [formData, totalCalculado]);
 
   return (
     <div className="space-y-6">
@@ -156,12 +176,9 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
                 const item: ItemPresupuestado = {
                     idServicioCatalogo: id, ...servicio, 
                     precioUnitario: servicio.precioUnitarioOriginal, costoTotalItem: 0,
-                    invitadosAdultos: formData.invitadosAdultos,
-                    invitadosNinos: formData.invitadosNinos,
-                    invitadosAdolescentes: formData.invitadosAdolescentes,
-                    invitadosCantidad: totalInvitados,
                 };
                 const costoItem = calcularCostoItem(item, formData.invitadosAdultos || 0, formData.invitadosAdolescentes || 0, formData.invitadosNinos || 0);
+                const costoItemSiNoFueraRegalo = calcularCostoItem({...item, esRegalo: false }, formData.invitadosAdultos || 0, formData.invitadosAdolescentes || 0, formData.invitadosNinos || 0);
 
                 return (
                     <div key={id} className="p-3 border rounded-md">
@@ -184,7 +201,14 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
                             </div>
                              <div className="text-right">
                                 <p className="text-xs text-muted-foreground">Total Item</p>
-                                <p className="font-semibold">{formatCurrency(costoItem)}</p>
+                                {servicio.esRegalo ? (
+                                  <>
+                                    <p className="font-semibold text-green-600 flex items-center justify-end gap-1"><Gift className="w-4 h-4"/>REGALO</p>
+                                    {costoItemSiNoFueraRegalo > 0 && <p className="text-xs text-muted-foreground line-through">{formatCurrency(costoItemSiNoFueraRegalo)}</p>}
+                                  </>
+                                ) : (
+                                  <p className="font-semibold">{formatCurrency(costoItem)}</p>
+                                )}
                              </div>
                         </div>
                     </div>
@@ -224,9 +248,20 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
         <div className="space-y-2">
             <h3 className="text-lg font-medium font-headline text-primary">Resumen Final</h3>
             <div className="p-4 border rounded-lg bg-primary/5 space-y-2">
-                 <div className="flex justify-between text-md"><span className="text-muted-foreground">Subtotal Servicios:</span><span className="font-medium">{formatCurrency(totalCalculado)}</span></div>
-                 {descuentoAplicado > 0 && <div className="flex justify-between text-md text-destructive"><span className="text-destructive">Descuento:</span><span className="font-medium">-{formatCurrency(descuentoAplicado)}</span></div>}
-                 <div className="flex justify-between text-xl font-bold pt-2 border-t"><span className="text-primary">TOTAL FINAL:</span><span className="text-primary">{formatCurrency(totalFinal)}</span></div>
+                 <div className="flex justify-between text-md">
+                    <span className="text-muted-foreground">Valor de servicios:</span>
+                    <span className="font-medium">{formatCurrency(valorServicios)}</span>
+                </div>
+                {ahorroTotal > 0 && (
+                  <div className="flex justify-between text-md text-destructive">
+                      <span>Descuento Promocional + Regalos:</span>
+                      <span className="font-medium">-{formatCurrency(ahorroTotal)}</span>
+                  </div>
+                )}
+                 <div className="flex justify-between text-xl font-bold pt-2 border-t">
+                    <span className="text-primary">TOTAL A PAGAR:</span>
+                    <span className="text-primary">{formatCurrency(totalFinal)}</span>
+                 </div>
             </div>
         </div>
         
@@ -246,3 +281,4 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
     </div>
   );
 }
+
