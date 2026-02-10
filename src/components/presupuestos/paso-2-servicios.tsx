@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import type { PresupuestoFormData, ItemPresupuestado } from '@/types/presupuesto';
@@ -83,18 +82,18 @@ function calcularCostoItem(item: ItemPresupuestado, adultos: number, adolescente
   return itemTotal;
 }
 
-const menuItemToServicioSeleccionado = (item: MenuItem & { precioVenta: number }, invitados: number): ServicioSeleccionadoValue => {
+const menuItemToServicioSeleccionado = (item: ServicioEmpresa, invitados: number): ServicioSeleccionadoValue => {
     return {
         cantidad: invitados,
-        precioUnitarioOriginal: item.precioVenta,
-        precioUnitarioPresupuesto: item.precioVenta,
-        nombreServicio: item.name,
-        unidad: 'Por Persona',
-        categoriaServicio: 'Servicio de catering',
-        subcategoria: item.type,
+        precioUnitarioOriginal: item.precioPorPersona || 0,
+        precioUnitarioPresupuesto: item.precioPorPersona || 0,
+        nombreServicio: item.nombre,
+        unidad: 'personas',
+        categoriaServicio: item.categoria,
+        subcategoria: item.subcategoria,
         esRegalo: false,
         calculationMethod: 'porPersona',
-        precioPorPersona: item.precioVenta,
+        precioPorPersona: item.precioPorPersona || 0,
     };
 };
 
@@ -152,6 +151,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
           nombreServicio: servicio.nombre,
           unidad: servicio.unidad,
           categoriaServicio: servicio.categoria,
+          subcategoria: servicio.subcategoria,
           esRegalo: false,
           calculationMethod: servicio.calculationMethod,
           precioBase: servicio.precioBase,
@@ -191,6 +191,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                       nombreServicio: servicioCompleto.nombre,
                       unidad: servicioCompleto.unidad,
                       categoriaServicio: servicioCompleto.categoria,
+                      subcategoria: servicioCompleto.subcategoria,
                       esRegalo: esRegalo,
                       calculationMethod: servicioCompleto.calculationMethod,
                       precioBase: servicioCompleto.precioBase,
@@ -247,15 +248,24 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
         const newSelected = new Map(prev.serviciosSeleccionados);
         
         const allDishes = [...entradasDisponibles, ...principalesDisponibles, ...menusNinoDisponibles];
-        const itemsToClear = type === 'entradas' ? (entradasDisponibles || []) : type === 'principal' ? (principalesDisponibles || []) : (menusNinoDisponibles || []);
-
-        (itemsToClear || []).forEach(item => {
-            if (newSelected.has(item.id)) {
-                newSelected.delete(item.id);
-            }
-        });
-
+        
+        // Define which items to clear based on the type of change
+        let itemsToClear: ServicioEmpresa[] = [];
+        if (type === 'entradas') {
+            // For multi-select, we only remove items that are no longer in `selectedIds`
+            const currentEntradas = Array.from(newSelected.keys()).filter(id => entradasDisponibles.some(e => e.id === id));
+            const removedEntradas = currentEntradas.filter(id => !selectedIds.includes(id));
+            removedEntradas.forEach(id => newSelected.delete(id));
+        } else if (type === 'principal') {
+            itemsToClear = principalesDisponibles || [];
+            itemsToClear.forEach(item => newSelected.delete(item.id));
+        } else if (type === 'infantil') {
+            itemsToClear = menusNinoDisponibles || [];
+            itemsToClear.forEach(item => newSelected.delete(item.id));
+        }
+        
         const idsToAdd = Array.isArray(selectedIds) ? selectedIds : [selectedIds];
+        
         idsToAdd.forEach(id => {
             const dishToAdd = allDishes.find(d => d.id === id);
             if (dishToAdd) {
@@ -290,17 +300,13 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
         const itemDataForCalc: ItemPresupuestado = {
           idServicioCatalogo: id,
           ...item,
-          precioUnitario: item.precioUnitarioOriginal,
+          precioUnitario: item.precioUnitarioPresupuesto,
           costoTotalItem: 0,
-          invitadosAdultos: formData.invitadosAdultos,
-          invitadosNinos: formData.invitadosNinos,
-          invitadosAdolescentes: formData.invitadosAdolescentes,
-          invitadosCantidad: totalInvitados,
         };
         total += calcularCostoItem(itemDataForCalc, formData.invitadosAdultos || 0, formData.invitadosAdolescentes || 0, formData.invitadosNinos || 0);
       });
       return total;
-    }, [formData, totalInvitados]);
+    }, [formData]);
 
   const selectedPrincipalId = useMemo(() => Array.from(formData.serviciosSeleccionados.keys()).find(id => (principalesDisponibles || []).some(p => p.id === id)) || '', [formData.serviciosSeleccionados, principalesDisponibles]);
   const selectedInfantilId = useMemo(() => Array.from(formData.serviciosSeleccionados.keys()).find(id => (menusNinoDisponibles || []).some(m => m.id === id)) || '', [formData.serviciosSeleccionados, menusNinoDisponibles]);

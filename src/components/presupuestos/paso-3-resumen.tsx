@@ -143,30 +143,26 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
     const costoTotalRegalos = Array.from(formData.serviciosSeleccionados.values())
       .filter(item => item.esRegalo)
       .reduce((sum, item) => {
-        const tempItem: ItemPresupuestado = {
+        const itemDataForCalc: ItemPresupuestado = {
           idServicioCatalogo: '', ...item, esRegalo: false, precioUnitario: item.precioUnitarioOriginal, costoTotalItem: 0
         };
-        return sum + calcularCostoItem(tempItem, adultos, adolescentes, ninos);
+        return sum + calcularCostoItem(itemDataForCalc, adultos, adolescentes, ninos);
       }, 0);
 
-    const totalFinal = subtotalBruto;
-    
     let descPromo = 0;
-    const valorDescuentoNum = parseFloat(formData.descuentoValor || '15');
+    const valorDescuentoNum = parseFloat(formData.descuentoValor || '0') || 0;
     
     if (formData.descuentoTipo && valorDescuentoNum > 0) {
       if (formData.descuentoTipo === 'porcentaje') {
-        if (valorDescuentoNum < 100) {
-           const subtotalInflado = subtotalBruto / (1 - (valorDescuentoNum / 100));
-           descPromo = subtotalInflado - subtotalBruto;
-        }
+        descPromo = (subtotalBruto * valorDescuentoNum) / 100;
       } else {
         descPromo = valorDescuentoNum;
       }
     }
     
+    const valorServicios = subtotalBruto + costoTotalRegalos + descPromo;
     const ahorroTotal = descPromo + costoTotalRegalos;
-    const valorServicios = subtotalBruto + ahorroTotal;
+    const totalFinal = subtotalBruto;
 
     return {
       valorServicios,
@@ -183,12 +179,12 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
             <h3 className="text-lg font-medium font-headline text-primary mb-2">Servicios Seleccionados</h3>
             <div className="space-y-3">
             {Array.from(formData.serviciosSeleccionados.entries()).map(([id, servicio]) => {
-                const item: ItemPresupuestado = {
+                const itemDataForCalc: ItemPresupuestado = {
                     idServicioCatalogo: id, ...servicio, 
                     precioUnitario: servicio.precioUnitarioOriginal, costoTotalItem: 0,
                 };
-                const costoItem = calcularCostoItem(item, formData.invitadosAdultos || 0, formData.invitadosAdolescentes || 0, formData.invitadosNinos || 0);
-                const costoItemSiNoFueraRegalo = calcularCostoItem({...item, esRegalo: false }, formData.invitadosAdultos || 0, formData.invitadosAdolescentes || 0, formData.invitadosNinos || 0);
+                const costoItem = calcularCostoItem(itemDataForCalc, formData.invitadosAdultos || 0, formData.invitadosAdolescentes || 0, formData.invitadosNinos || 0);
+                const costoItemSiNoFueraRegalo = calcularCostoItem({...itemDataForCalc, esRegalo: false }, formData.invitadosAdultos || 0, formData.invitadosAdolescentes || 0, formData.invitadosNinos || 0);
 
                 return (
                     <div key={id} className="p-3 border rounded-md">
@@ -230,7 +226,7 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
         <Separator />
         
          <div className="pt-4 border-t mt-4 space-y-4">
-            <h3 className="text-md font-medium flex items-center gap-2"><Tag className="w-5 h-5 text-primary"/>Promoción / Descuento</h3>
+            <h3 className="text-md font-medium flex items-center gap-2"><Tag className="w-5 h-5 text-primary"/>Promoción / Descuento (Opcional)</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1"><Label htmlFor="promo-nombre">Nombre Promoción</Label><Input id="promo-nombre" value={formData.nombrePromocion || ''} onChange={e => setFormData(prev => ({...prev, nombrePromocion: e.target.value}))} placeholder="Ej: Descuento Amigos"/></div>
               <div className="space-y-1"><Label htmlFor="promo-vigencia">Vigencia</Label><Input id="promo-vigencia" value={formData.vigenciaPromocion || ''} onChange={e => setFormData(prev => ({...prev, vigenciaPromocion: e.target.value}))} placeholder="Ej: Hasta 31/12"/></div>
@@ -251,7 +247,7 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
                   {formData.descuentoTipo === 'porcentaje' ? <Percent className="w-4 h-4 text-muted-foreground"/> : <span className="text-muted-foreground font-bold text-sm">$</span>}
                   Valor Descuento
                 </Label>
-                <Input id="descuento-valor" type="number" value={formData.descuentoValor ?? '15'} onChange={e => setFormData(prev => ({...prev, descuentoValor: e.target.value}))} min="0" step="any" placeholder="Ej: 15 o 5000"/>
+                <Input id="descuento-valor" type="number" value={formData.descuentoValor ?? ''} onChange={e => setFormData(prev => ({...prev, descuentoValor: e.target.value}))} min="0" step="any" placeholder="Ej: 15 o 5000"/>
               </div>
             </div>
         </div>
