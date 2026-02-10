@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
@@ -160,7 +161,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
         const presupuestoActualizado = {
             ...fetchedPresupuesto,
             itemsPresupuestados: itemsRecalculados,
-            costoTotalEstimado: subtotal,
+            costoTotalEstimado: subtotal, // Correctly updated here
             totalConDescuento: totalConDescuento !== subtotal ? totalConDescuento : undefined,
         };
 
@@ -230,9 +231,9 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   };
 
 
-  const { itemsAgrupados, subtotalBruto, costoTotalRegalos, descuentoPromocional, totalFinal, showAnnualAdjustmentLegend } = useMemo(() => {
+  const { itemsAgrupados, costoTotalRegalos, subtotalBruto, descuentoPromocional, totalFinal, showAnnualAdjustmentLegend } = useMemo(() => {
     if (!presupuesto || !displaySettings) {
-      return { itemsAgrupados: {}, subtotalBruto: 0, costoTotalRegalos: 0, descuentoPromocional: 0, totalFinal: 0, showAnnualAdjustmentLegend: false };
+      return { itemsAgrupados: {}, costoTotalRegalos: 0, subtotalBruto: 0, descuentoPromocional: 0, totalFinal: 0, showAnnualAdjustmentLegend: false };
     }
     
     const adultos = presupuesto.invitadosAdultos || 0;
@@ -269,10 +270,12 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
       sortedAgrupados['Regalos Incluidos'] = itemsRegalo;
     }
     
-    const bruto = presupuesto.costoTotalEstimado;
-    
+    // START OF FIX: Recalculate subtotal from the items array.
+    const bruto = itemsRegulares.reduce((sum, item) => sum + item.costoTotalItem, 0);
+
     const costoRegalos = itemsRegalo.reduce((sum, item) => {
-      const tempItem = {...item, esRegalo: false}; // Calculate its value as if it wasn't a gift
+      // To get the "value" of the gift, we calculate its cost as if it were not a gift
+      const tempItem = {...item, esRegalo: false}; 
       return sum + calcularCostoItem(tempItem, adultos, adolescentes, ninos);
     }, 0);
     
@@ -286,18 +289,19 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     }
     
     const totalAPagar = bruto - descPromo;
-    
+    // END OF FIX
+
     let totalFinalAjustado = totalAPagar;
     
     const anioCreacion = new Date(presupuesto.timestamp).getFullYear();
     const anioEvento = presupuesto.eventoFecha ? new Date(presupuesto.eventoFecha).getFullYear() : anioCreacion;
     
-    const shouldShowAdjustmentLegend = 
+    const showAnnualAdjustmentLegend = 
         displaySettings.annualAdjustmentPercentage && 
         displaySettings.annualAdjustmentPercentage > 0 && 
         anioEvento > anioCreacion;
 
-    if (shouldShowAdjustmentLegend && presupuesto.ajusteAnualActivo) {
+    if (showAnnualAdjustmentLegend && presupuesto.ajusteAnualActivo) {
         for (let anio = anioCreacion + 1; anio <= anioEvento; anio++) {
             const ajuste = totalFinalAjustado * (displaySettings.annualAdjustmentPercentage / 100);
             totalFinalAjustado += ajuste;
@@ -310,7 +314,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
       costoTotalRegalos: costoRegalos,
       descuentoPromocional: Math.max(0, descPromo),
       totalFinal: totalFinalAjustado,
-      showAnnualAdjustmentLegend: shouldShowAdjustmentLegend,
+      showAnnualAdjustmentLegend,
     };
 
   }, [presupuesto, displaySettings]);
@@ -484,4 +488,59 @@ export default function Page({ params }: { params: { id: string } }) {
   )
 }
 
-    
+```
+- src/types/invitado.ts:
+```ts
+
+
+export type RsvpStatus = 'Pendiente' | 'Confirmado' | 'Rechazado' | 'Tal vez';
+
+export interface Invitado {
+  id: string;
+  nombre: string;
+  contacto?: string; // Email o teléfono
+  rsvp: RsvpStatus;
+  partySize?: number; // Cuántas personas vienen con esta invitación (incluyendo el principal)
+  tableNumber?: string; // Número de mesa asignado
+  notes?: string; // Notas adicionales (alergias, comentarios)
+  companionNames?: string[]; // Nombres de los acompañantes
+  checkedIn?: boolean; // Has this guest been checked in?
+  checkInTimestamp?: string; // ISO date string of when they were checked in
+}
+
+// Para el formulario de añadir nuevo invitado, antes de tener ID
+export type NuevoInvitadoData = Omit<Invitado, 'id' | 'checkedIn' | 'checkInTimestamp'>;
+
+```
+- tsconfig.json:
+```json
+
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/types/invitado.ts"],
+  "exclude": ["node_modules"]
+}
+
+```
