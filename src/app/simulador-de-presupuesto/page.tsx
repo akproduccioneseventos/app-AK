@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -58,26 +59,26 @@ const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos l
 
 
 // Helper function to decide which guest count to use for an item
-function getGuestCountForItem(servicio: { categoriaServicio?: string; subcategoria?: string }, adultos: number, ninos: number): number {
+function getGuestCountForItem(servicio: { categoriaServicio?: string; subcategoria?: string }, adultos: number, ninosYAdolescentes: number): number {
   const categoria = (servicio.categoriaServicio || '').toLowerCase();
   const subcategoria = (servicio.subcategoria || '').toLowerCase();
   
   if (categoria.includes('infantil') || categoria.includes('adolescente') || subcategoria.includes('infantil') || subcategoria.includes('adolescente')) {
-    return ninos;
+    return ninosYAdolescentes;
   }
   
   if (categoria.includes('plato principal') || subcategoria.includes('plato principal')) {
     return adultos;
   }
   
-  return adultos + ninos;
+  return adultos + ninosYAdolescentes;
 };
 
-function calcularCostoServicio(servicio: ServicioEmpresa, adultos: number, ninos: number): number {
+function calcularCostoServicio(servicio: ServicioEmpresa, adultos: number, ninosYAdolescentes: number): number {
   if (!servicio) return 0;
   
-  const cantidadInvitados = getGuestCountForItem(servicio, adultos, ninos);
-  const totalInvitados = adultos + ninos;
+  const cantidadInvitados = getGuestCountForItem(servicio, adultos, ninosYAdolescentes);
+  const totalInvitados = adultos + ninosYAdolescentes;
   
   if (cantidadInvitados === 0 && (servicio.calculationMethod === 'porPersona' || servicio.calculationMethod === 'ratio')) {
     return 0;
@@ -366,9 +367,10 @@ export default function ArmadoRapidoPage() {
       allSelectedServicesMap.forEach(({ servicio, esRegalo }) => {
           const costoItem = calcularCostoServicio(servicio, adultos, ninosYAdolescentes);
           
-          subtotalBruto += costoItem;
-          if (esRegalo) {
-              costoTotalRegalos += costoItem;
+          if (!esRegalo) {
+            subtotalBruto += costoItem;
+          } else {
+            costoTotalRegalos += costoItem;
           }
   
           const cantidadInvitadosRelevante = getGuestCountForItem(servicio, adultos, ninosYAdolescentes);
@@ -403,7 +405,7 @@ export default function ArmadoRapidoPage() {
           });
       });
       
-      const subtotalReal = subtotalBruto - costoTotalRegalos;
+      const subtotalReal = subtotalBruto;
       const descuentoCalculado = config.descuentoGeneral ? (subtotalReal * config.descuentoGeneral) / 100 : 0;
       const totalFinal = subtotalReal - descuentoCalculado;
       
@@ -415,7 +417,7 @@ export default function ArmadoRapidoPage() {
       }, {} as Record<string, ServicioDetallado[]>);
   
       return { 
-        subtotal: subtotalBruto, 
+        subtotal: subtotalBruto + costoTotalRegalos, 
         serviciosDetallados: includedServicesList,
         serviciosAgrupados: agrupados, 
         totalRegalos: costoTotalRegalos,
@@ -443,7 +445,7 @@ export default function ArmadoRapidoPage() {
               texto += ` (REGALO - valor ${formatCurrency(item.costo)})\n`;
             } else {
               if (item.cantidad > 1 && item.precioUnitario > 0) {
-                 texto += ` (${item.cantidad} ${item.unidad} x ${formatCurrency(item.precioUnitario)} c/u)`;
+                 texto += ` (${item.cantidad} ${item.unidad} x ${formatCurrency(item.precioUnitario)})`;
               }
               texto += ` = ${formatCurrency(item.costo)}\n`;
             }
