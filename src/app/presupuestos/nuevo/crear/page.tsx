@@ -40,10 +40,6 @@ const initialFormData: PresupuestoFormData = {
   nombreEmpresa: '',
   serviciosSeleccionados: new Map(),
   selectedMenuId: '',
-  nombrePromocion: '',
-  descuentoTipo: undefined,
-  descuentoValor: '',
-  vigenciaPromocion: '',
   notas: '',
   estado: 'Borrador',
 };
@@ -287,9 +283,9 @@ function CrearPresupuestoContent() {
               };
             }),
             costoTotalEstimado: 0, // Will be recalculated on the server
-            nombrePromocion: formData.nombrePromocion,
-            descuentoTipo: formData.descuentoTipo,
-            descuentoValor: parseFloat(formData.descuentoValor || '0') || undefined,
+            nombrePromocion: "Descuento Promocional",
+            descuentoTipo: 'porcentaje',
+            descuentoValor: 15,
             vigenciaPromocion: formData.vigenciaPromocion,
             notas: formData.notas,
             estado: formData.estado,

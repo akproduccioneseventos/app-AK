@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import type { PresupuestoFormData, ItemPresupuestado } from '@/types/presupuesto';
@@ -8,9 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Tag, Percent, Trash2, Gift } from 'lucide-react';
+import { Trash2, Gift } from 'lucide-react';
 import type { Dispatch, SetStateAction } from 'react';
 import { useMemo } from 'react';
 
@@ -85,10 +82,6 @@ function calcularCostoItem(item: ItemPresupuestado, adultos: number, adolescente
 
 export default function Paso3Resumen({ formData, setFormData, totalCalculado, totalInvitados }: Paso3ResumenProps) {
 
-  const handleDiscountChange = (field: keyof Pick<PresupuestoFormData, 'nombrePromocion' | 'descuentoTipo' | 'descuentoValor' | 'vigenciaPromocion'>, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
   const handleServicioDetailChange = (
     servicioId: string,
     field: 'cantidad' | 'precioUnitarioPresupuesto' | 'esRegalo',
@@ -149,13 +142,7 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
     const subtotalBruto = totalCalculado;
     const valorServicios = subtotalBruto + costoTotalRegalos;
 
-    let descuentoPromocional = 0;
-    const valorDescuento = parseFloat(formData.descuentoValor || '0');
-    if (formData.descuentoTipo && valorDescuento > 0) {
-      descuentoPromocional = formData.descuentoTipo === 'porcentaje'
-        ? (subtotalBruto * valorDescuento) / 100
-        : valorDescuento;
-    }
+    const descuentoPromocional = subtotalBruto * 0.15; // Hardcoded 15% discount
     
     const ahorroTotal = descuentoPromocional + costoTotalRegalos;
     const totalFinal = subtotalBruto - descuentoPromocional;
@@ -165,7 +152,7 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
       ahorroTotal,
       totalFinal,
     };
-  }, [formData, totalCalculado]);
+  }, [formData.serviciosSeleccionados, formData.invitadosAdultos, formData.invitadosAdolescentes, formData.invitadosNinos, totalCalculado]);
 
   return (
     <div className="space-y-6">
@@ -218,32 +205,6 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
         </div>
 
         <Separator />
-
-        <div className="space-y-3">
-            <h3 className="text-lg font-medium font-headline text-primary">Descuento / Promoción (Opcional)</h3>
-            <div className="p-4 border rounded-md bg-muted/40 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1"><Label htmlFor="promo-nombre">Nombre Promoción</Label><Input id="promo-nombre" value={formData.nombrePromocion || ''} onChange={e => handleDiscountChange('nombrePromocion', e.target.value)} placeholder="Ej: Descuento Amigos"/></div>
-                <div className="space-y-1"><Label htmlFor="promo-vigencia">Vigencia</Label><Input id="promo-vigencia" value={formData.vigenciaPromocion || ''} onChange={e => handleDiscountChange('vigenciaPromocion', e.target.value)} placeholder="Ej: Hasta 31/12"/></div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <Label htmlFor="descuento-tipo">Tipo Descuento</Label>
-                  <Select value={formData.descuentoTipo || ''} onValueChange={val => handleDiscountChange('descuentoTipo', val as PresupuestoFormData['descuentoTipo'])}>
-                    <SelectTrigger id="descuento-tipo"><SelectValue placeholder="Seleccionar..."/></SelectTrigger>
-                    <SelectContent><SelectItem value="porcentaje">Porcentaje (%)</SelectItem><SelectItem value="fijo">Monto Fijo ($)</SelectItem></SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="descuento-valor" className="flex items-center gap-1">
-                    {formData.descuentoTipo === 'porcentaje' ? <Percent className="w-4 h-4 text-muted-foreground"/> : <span className="text-muted-foreground font-bold text-sm">$</span>}
-                    Valor Descuento
-                  </Label>
-                  <Input id="descuento-valor" type="number" value={formData.descuentoValor || ''} onChange={e => handleDiscountChange('descuentoValor', e.target.value)} min="0" step="any" disabled={!formData.descuentoTipo} placeholder="Ej: 10 o 5000"/>
-                </div>
-              </div>
-            </div>
-
-        <Separator/>
         
         <div className="space-y-2">
             <h3 className="text-lg font-medium font-headline text-primary">Resumen Final</h3>
@@ -281,4 +242,3 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
     </div>
   );
 }
-
