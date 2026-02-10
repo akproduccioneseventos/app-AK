@@ -59,18 +59,21 @@ const COMPANY_WEBSITE_PDF = "www.akproduccioneseventos.com";
 const BUDGET_VALIDITY_DAYS_PDF = 30;
 const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos los servicios, se requiere una seña de $5.000. El presupuesto es válido por 30 días.";
 
-function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?: string }, adultos: number, adolescentes: number, ninos: number): number {
+function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?: string, subcategoria?: string }, adultos: number, adolescentes: number, ninos: number): number {
   const categoria = (item.categoriaServicio || '').toLowerCase();
+  const subcategoria = (item.subcategoria || '').toLowerCase();
+  const ninosYAdolescentes = ninos + adolescentes;
   
-  if (categoria.includes('infantil') || categoria.includes('adolescente')) {
-    return ninos + adolescentes;
+  if (categoria.includes('infantil') || categoria.includes('adolescente') || subcategoria.includes('infantil') || subcategoria.includes('adolescente')) {
+    return ninosYAdolescentes;
   }
   
-  if (categoria.includes('plato principal')) {
+  if (categoria.includes('plato principal') || subcategoria.includes('plato principal')) {
     return adultos;
   }
-
-  return adultos + adolescentes + ninos;
+  
+  // For ALL OTHER services (Entradas, Postres, Bebidas, Vajilla, DJ, decor, etc.), count everyone.
+  return adultos + ninosYAdolescentes;
 };
 
 function calcularCostoItem(item: ItemPresupuestado, adultos: number, adolescentes: number, ninos: number): number {
@@ -87,18 +90,18 @@ function calcularCostoItem(item: ItemPresupuestado, adultos: number, adolescente
   const precioUnitario = item.precioUnitarioPresupuesto ?? item.precioUnitario;
 
   switch (item.calculationMethod) {
-    case 'fijo': 
+    case 'fijo':
       itemTotal = (item.precioBase ?? precioUnitario) * (item.cantidad > 0 ? item.cantidad : 1);
       break;
-    case 'porPersona': 
-      itemTotal = (item.precioPorPersona ?? precioUnitario) * cantidadInvitados; 
+    case 'porPersona':
+      itemTotal = (item.precioPorPersona ?? precioUnitario) * cantidadInvitados;
       break;
     case 'ratio':
       const invitadosPorUnidadNum = Number(item.invitadosPorUnidad);
       if (invitadosPorUnidadNum > 0) {
         itemTotal = Math.ceil(cantidadInvitados / invitadosPorUnidadNum) * (item.precioBase ?? precioUnitario);
       } else {
-        itemTotal = item.precioBase ?? precioUnitario; // Fallback
+        itemTotal = item.precioBase ?? precioUnitario;
       }
       break;
     case 'tramos':
@@ -432,7 +435,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
             <div className="w-full max-w-xs print:max-w-[220px] space-y-0.5">
               <div className="flex justify-between">
                 <span>Subtotal:</span>
-                <span>{formatCurrency(subtotalInflado, true, true)}</span>
+                <span>{displaySettings.useInflatedTotal ? formatCurrency(subtotalInflado, true, true) : formatCurrency(subtotalBruto, true, true)}</span>
               </div>
                {costoTotalRegalos > 0 && (
                  <div className="flex justify-between text-green-600">
@@ -471,4 +474,3 @@ export default function Page({ params }: { params: { id: string } }) {
   )
 }
 
-    
