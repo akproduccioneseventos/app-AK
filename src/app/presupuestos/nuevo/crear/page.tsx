@@ -42,6 +42,10 @@ const initialFormData: PresupuestoFormData = {
   selectedMenuId: '',
   notas: '',
   estado: 'Borrador',
+  nombrePromocion: 'Descuento Promocional',
+  descuentoTipo: 'porcentaje',
+  descuentoValor: '15',
+  vigenciaPromocion: 'Válido por 30 días',
 };
 
 function formStateInitializer(initialState: PresupuestoFormData): PresupuestoFormData {
@@ -238,6 +242,7 @@ function CrearPresupuestoContent() {
     }, [formData]);
 
     const handleSave = async () => {
+        const descuentoValorNum = parseFloat(formData.descuentoValor || '0') || 0;
         const presupuestoData: Omit<Presupuesto, 'id'> = {
             clienteNombre: formData.clienteNombre,
             clienteContacto: formData.clienteContacto,
@@ -283,9 +288,9 @@ function CrearPresupuestoContent() {
               };
             }),
             costoTotalEstimado: 0, // Will be recalculated on the server
-            nombrePromocion: "Descuento Promocional",
-            descuentoTipo: 'porcentaje',
-            descuentoValor: 15,
+            nombrePromocion: formData.nombrePromocion,
+            descuentoTipo: formData.descuentoTipo,
+            descuentoValor: descuentoValorNum > 0 ? descuentoValorNum : undefined,
             vigenciaPromocion: formData.vigenciaPromocion,
             notas: formData.notas,
             estado: formData.estado,

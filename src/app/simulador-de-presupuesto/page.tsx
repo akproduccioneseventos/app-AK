@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -658,7 +659,7 @@ export default function ArmadoRapidoPage() {
                             {(totalRegalos + descuento) > 0 && (
                               <div className="flex justify-between text-destructive">
                                   <span>Descuento Promocional + Regalos:</span>
-                                  <span>-{formatCurrency(totalRegalos + descuento)}</span>
+                                  <span className="font-medium">-{formatCurrency(totalRegalos + descuento)}</span>
                               </div>
                             )}
                             <Separator className="my-2"/>
