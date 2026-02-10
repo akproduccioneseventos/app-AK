@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "mensaje": "Nuevo prospecto y presupuesto de PRUEBA 2",
+    "href": "/contabilidad/crm?leadId=lead_1770740479222_ehgngc5",
+    "icono": "KanbanSquare",
+    "id": "notif_1770740479226_ciyh2i7",
+    "fecha": "2026-02-10T16:21:19.226Z",
+    "leida": false
+  }
+]

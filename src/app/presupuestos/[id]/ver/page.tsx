@@ -101,7 +101,7 @@ function calcularCostoItem(item: ItemPresupuestado, adultos: number, adolescente
       if (invitadosPorUnidadNum > 0) {
         itemTotal = Math.ceil(cantidadInvitados / invitadosPorUnidadNum) * (item.precioBase ?? precioUnitario);
       } else {
-        itemTotal = item.precioBase ?? precioUnitario;
+        itemTotal = item.precioBase ?? precioUnitario; // Fallback
       }
       break;
     case 'tramos':
@@ -243,16 +243,30 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     const itemsRegalo = allItems.filter(item => item.esRegalo);
 
     const agrupados: Record<string, ItemPresupuestado[]> = allItems.reduce((acc, item) => {
-        const categoria = item.esRegalo ? 'Regalos Incluidos' : (item.categoriaServicio || 'Otros Servicios');
+        let categoria = item.esRegalo ? 'Regalos Incluidos' : (item.categoriaServicio || 'Otros Servicios');
+        if (categoria === 'Servicio de catering' && item.subcategoria) {
+            categoria = item.subcategoria;
+        }
         if (!acc[categoria]) acc[categoria] = [];
         acc[categoria].push(item);
         return acc;
     }, {} as Record<string, ItemPresupuestado[]>);
     
-    const sortedKeys = Object.keys(agrupados).sort((a,b) => a === 'Regalos Incluidos' ? 1 : b === 'Regalos Incluidos' ? -1 : a.localeCompare(b));
+    const categoriaOrder = ['Entrada', 'Plato Principal', 'Menú Infantil/Adolescente', 'Postre', 'Servicio de catering', 'Servicio de bebidas', 'Personal', 'Servicio de decoración', 'Servicio de discoteca', 'Servicio de fotografía', 'Servicio de filmación', 'Servicio de entretenimiento', 'Otros servicios', 'Regalo exclusivo', 'Regalos Incluidos'];
+    const sortedKeys = Object.keys(agrupados).sort((a,b) => {
+        const indexA = categoriaOrder.indexOf(a);
+        const indexB = categoriaOrder.indexOf(b);
+        if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+        if (indexA !== -1) return -1;
+        if (indexB !== -1) return 1;
+        return a.localeCompare(b);
+    });
+
     const sortedAgrupados: Record<string, ItemPresupuestado[]> = {};
-    sortedKeys.forEach(key => sortedAgrupados[key] = agrupados[key]);
-    
+    sortedKeys.forEach(key => {
+        sortedAgrupados[key] = agrupados[key];
+    });
+
     const costoRegalos = itemsRegalo.reduce((sum, item) => {
       const tempItem = {...item, esRegalo: false}; // Calculate its value as if it wasn't a gift
       return sum + calcularCostoItem(tempItem, adultos, adolescentes, ninos);
@@ -278,14 +292,15 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     const anioCreacion = new Date(presupuesto.timestamp).getFullYear();
     const anioEvento = presupuesto.eventoFecha ? new Date(presupuesto.eventoFecha).getFullYear() : anioCreacion;
     
-    let shouldShowAdjustmentLegend = false;
-    if (displaySettings.annualAdjustmentPercentage && displaySettings.annualAdjustmentPercentage > 0 && anioEvento > anioCreacion) {
-        shouldShowAdjustmentLegend = true;
-        if (presupuesto.ajusteAnualActivo) {
-            for (let anio = anioCreacion + 1; anio <= anioEvento; anio++) {
-                const ajuste = totalFinalAjustado * (displaySettings.annualAdjustmentPercentage / 100);
-                totalFinalAjustado += ajuste;
-            }
+    const shouldShowAdjustmentLegend = 
+        displaySettings.annualAdjustmentPercentage && 
+        displaySettings.annualAdjustmentPercentage > 0 && 
+        anioEvento > anioCreacion;
+
+    if (shouldShowAdjustmentLegend && presupuesto.ajusteAnualActivo) {
+        for (let anio = anioCreacion + 1; anio <= anioEvento; anio++) {
+            const ajuste = totalFinalAjustado * (displaySettings.annualAdjustmentPercentage / 100);
+            totalFinalAjustado += ajuste;
         }
     }
     
@@ -461,5 +476,3 @@ export default function Page({ params }: { params: { id: string } }) {
     </Suspense>
   )
 }
-
-    

@@ -1,1 +1,49 @@
-[]
+[
+  {
+    "id": "lead_1770740491019_04qn2sw",
+    "name": "PRUEBA 2",
+    "phone": "09366304",
+    "notes": "Presupuesto Nº 2\nCosto: $ 154.436,50",
+    "presupuestoId": "pres_1770740491008_qxwbrut",
+    "currentStageId": "s3",
+    "createdAt": "2026-02-10T16:21:31.019Z",
+    "updatedAt": "2026-02-10T16:21:31.028Z",
+    "history": [
+      {
+        "stageId": "s1",
+        "stageName": "Consultó",
+        "timestamp": "2026-02-10T16:21:31.019Z"
+      },
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2026-02-10T16:21:31.028Z"
+      }
+    ],
+    "budgetSource": "manual"
+  },
+  {
+    "id": "lead_1770740479222_ehgngc5",
+    "name": "PRUEBA 2",
+    "phone": "09366304",
+    "notes": "Presupuesto Nº 1\nCosto: $ 154.436,50",
+    "presupuestoId": "pres_1770740479099_anmg4et",
+    "currentStageId": "s3",
+    "createdAt": "2026-02-10T16:21:19.222Z",
+    "updatedAt": "2026-02-10T16:21:19.233Z",
+    "history": [
+      {
+        "stageId": "s1",
+        "stageName": "Consultó",
+        "timestamp": "2026-02-10T16:21:19.222Z"
+      },
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2026-02-10T16:21:19.233Z"
+      }
+    ],
+    "budgetSource": "manual",
+    "presupuestoEstado": "Enviado"
+  }
+]
