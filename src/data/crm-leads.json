@@ -1,5 +1,27 @@
 [
   {
+    "id": "lead_1770746605950_r3uxt41",
+    "name": "PRUEBA 3",
+    "notes": "Presupuesto Nº 2\nCosto: $ 226.941,50",
+    "presupuestoId": "pres_1770746605940_ainde57",
+    "currentStageId": "s3",
+    "createdAt": "2026-02-10T18:03:25.949Z",
+    "updatedAt": "2026-02-10T18:03:25.964Z",
+    "history": [
+      {
+        "stageId": "s1",
+        "stageName": "Consultó",
+        "timestamp": "2026-02-10T18:03:25.949Z"
+      },
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2026-02-10T18:03:25.964Z"
+      }
+    ],
+    "budgetSource": "manual"
+  },
+  {
     "id": "lead_1770744838610_hucd4kl",
     "name": "manual 1",
     "notes": "Presupuesto Nº 1\nCosto: $ 140.080,00",
@@ -19,7 +41,8 @@
         "timestamp": "2026-02-10T17:33:58.623Z"
       }
     ],
-    "budgetSource": "manual"
+    "budgetSource": "manual",
+    "presupuestoEstado": "Enviado"
   },
   {
     "id": "lead_1770743566465_8iurfg8",
