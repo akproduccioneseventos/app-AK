@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import type { Presupuesto } from '@/types/presupuesto';
@@ -20,8 +21,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import { deletePresupuesto } from '@/app/actions/presupuestos';
 import { useToast } from '@/hooks/use-toast';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { FiestaEnPlanificacion } from '@/types/fiesta';
+import { Badge } from '@/components/ui/badge';
 
 interface PresupuestoCardProps {
   presupuesto: Presupuesto;
@@ -63,6 +65,22 @@ export default function PresupuestoCard({
 
   const totalFinal = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
   const displayId = presupuesto.numero ? `#${presupuesto.numero}` : `#${presupuesto.id.split('_').pop()?.substring(0,5)}`;
+  
+  const budgetSource = useMemo(() => {
+    if (presupuesto.source === 'simulator') {
+      return { text: 'Simulador', className: 'bg-blue-100 text-blue-800' };
+    }
+    if (presupuesto.source === 'manual') {
+      return { text: 'Manual', className: 'bg-gray-200 text-gray-800' };
+    }
+    // Fallback for older leads/budgets that might not have the source property
+    if (presupuesto.notas?.toLowerCase().includes('simulador')) {
+        return { text: 'Simulador', className: 'bg-blue-100 text-blue-800' };
+    }
+    // If there's a budget but no source, assume manual.
+    return { text: 'Manual', className: 'bg-gray-200 text-gray-800' };
+  }, [presupuesto.source, presupuesto.notas]);
+
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -95,7 +113,10 @@ export default function PresupuestoCard({
       </CardHeader>
       <CardContent className="space-y-2">
         <div className="flex justify-between items-center">
-            <p className="text-sm text-muted-foreground">Invitados: {presupuesto.invitadosCantidad}</p>
+            <div className="flex items-center gap-2">
+                <p className="text-sm text-muted-foreground">Invitados: {presupuesto.invitadosCantidad}</p>
+                {budgetSource && <Badge variant="secondary" className={`${budgetSource.className} px-1.5 py-0 text-[10px]`}>{budgetSource.text}</Badge>}
+            </div>
             {presupuesto.estado && <PresupuestoStatusBadge status={presupuesto.estado} />}
         </div>
         <p className="text-lg font-semibold">{formatCurrency(totalFinal)}</p>
