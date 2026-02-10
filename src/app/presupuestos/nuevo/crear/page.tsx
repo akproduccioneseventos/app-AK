@@ -105,7 +105,7 @@ function calcularCostoItem(item: ItemPresupuestado, adultos: number, adolescente
       if (invitadosPorUnidadNum > 0) {
         itemTotal = Math.ceil(cantidadInvitados / invitadosPorUnidadNum) * (item.precioBase ?? precioUnitario);
       } else {
-        itemTotal = item.precioBase ?? precioUnitario;
+        itemTotal = item.precioBase ?? precioUnitario; // Fallback
       }
       break;
     case 'tramos':
@@ -218,8 +218,8 @@ function CrearPresupuestoContent() {
 
     const handleNext = () => {
         if (paso === 1) {
-             if (!formData.clienteNombre.trim() || !formData.eventoTipo.trim() || !formData.salonFiestas.trim() || !formData.eventoFecha || (formData.invitadosAdultos ?? 0) < 0) {
-                 toast({ title: "Requerido", description: "Por favor, completa Cliente, Salón, Tipo de Evento, Fecha y Nº de Adultos.", variant: "destructive" });
+             if (!formData.clienteNombre.trim()) {
+                 toast({ title: "Requerido", description: "Por favor, completa el nombre del cliente para continuar.", variant: "destructive" });
                  return;
              }
         }

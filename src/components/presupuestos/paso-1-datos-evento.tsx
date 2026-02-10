@@ -96,23 +96,21 @@ export function Paso1DatosEvento({ formData, setFormData, occupiedDates }: Paso1
         </div>
       </div>
        <div className="space-y-2">
-          <Label htmlFor="salonFiestas" className="text-base">Salón de Fiestas*</Label>
+          <Label htmlFor="salonFiestas" className="text-base">Salón de Fiestas</Label>
           <Input
             id="salonFiestas"
             placeholder="Ej: Salón El Paraíso"
             value={formData.salonFiestas}
             onChange={(e) => handleChange('salonFiestas', e.target.value)}
             className="text-base p-3"
-            required
           />
         </div>
 
       <div className="space-y-2">
-        <Label htmlFor="eventoTipoSelect" className="text-base">Tipo de Evento*</Label>
+        <Label htmlFor="eventoTipoSelect" className="text-base">Tipo de Evento</Label>
         <Select
           value={eventoTipoEnSelect}
           onValueChange={handleSelectTipoEventoChange}
-          required
         >
           <SelectTrigger id="eventoTipoSelect" className="text-base p-3 h-auto">
             <SelectValue placeholder="Seleccioná un tipo" />
@@ -130,7 +128,6 @@ export function Paso1DatosEvento({ formData, setFormData, occupiedDates }: Paso1
             value={finalEventType !== "Otro" ? finalEventType : ""}
             onChange={handleCustomTipoEventoInputChange}
             className="text-base p-3 mt-2"
-            required={showCustomTipoInput}
           />
         )}
       </div>
@@ -191,7 +188,7 @@ export function Paso1DatosEvento({ formData, setFormData, occupiedDates }: Paso1
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="space-y-2 md:col-span-1">
-          <Label htmlFor="eventoFecha" className="text-base">Fecha del Evento*</Label>
+          <Label htmlFor="eventoFecha" className="text-base">Fecha del Evento</Label>
           <DatePickerDemo
             selectedDate={formData.eventoFecha}
             onDateChange={handleDateChange}
@@ -205,7 +202,7 @@ export function Paso1DatosEvento({ formData, setFormData, occupiedDates }: Paso1
           )}
         </div>
         <div className="space-y-2">
-          <Label htmlFor="invitadosAdultos" className="text-base">Nº Adultos*</Label>
+          <Label htmlFor="invitadosAdultos" className="text-base">Nº Adultos</Label>
           <Input
             id="invitadosAdultos"
             type="number"
@@ -214,7 +211,6 @@ export function Paso1DatosEvento({ formData, setFormData, occupiedDates }: Paso1
             onChange={(e) => handleChange('invitadosAdultos', e.target.value ? parseInt(e.target.value) : null)}
             min="0"
             className="text-base p-3"
-            required
           />
         </div>
         <div className="space-y-2">
