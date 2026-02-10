@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import type { Presupuesto } from '@/types/presupuesto';
@@ -37,10 +36,19 @@ const formatCurrency = (amount?: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
-const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString('es-UY', {
-    day: '2-digit', month: 'short', year: 'numeric'
-  });
+const formatDate = (dateString?: string) => {
+  if (!dateString) return "Fecha no definida";
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+        return "Fecha no definida";
+    }
+    return date.toLocaleDateString('es-UY', {
+      day: '2-digit', month: 'short', year: 'numeric'
+    });
+  } catch (e) {
+    return "Fecha inválida";
+  }
 };
 
 export default function PresupuestoCard({ 
