@@ -1,5 +1,13 @@
 [
   {
+    "mensaje": "Nuevo prospecto y presupuesto de G",
+    "href": "/contabilidad/crm?leadId=lead_1770684892746_mw3nt4t",
+    "icono": "KanbanSquare",
+    "id": "notif_1770684892751_h2um2vw",
+    "fecha": "2026-02-10T00:54:52.751Z",
+    "leida": false
+  },
+  {
     "mensaje": "Nuevo prospecto y presupuesto de Nico",
     "href": "/contabilidad/crm?leadId=lead_1770683762549_lhs6bal",
     "icono": "KanbanSquare",

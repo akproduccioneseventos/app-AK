@@ -73,7 +73,7 @@ function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?
   }
   
   // For ALL OTHER services (Entradas, Postres, Bebidas, Vajilla, DJ, decor, etc.), count everyone.
-  return adultos + ninosYAdolescentes;
+  return adultos + adolescentes + ninos;
 };
 
 function calcularCostoItem(item: ItemPresupuestado, adultos: number, adolescentes: number, ninos: number): number {
@@ -90,11 +90,11 @@ function calcularCostoItem(item: ItemPresupuestado, adultos: number, adolescente
   const precioUnitario = item.precioUnitarioPresupuesto ?? item.precioUnitario;
 
   switch (item.calculationMethod) {
-    case 'fijo':
+    case 'fijo': 
       itemTotal = (item.precioBase ?? precioUnitario) * (item.cantidad > 0 ? item.cantidad : 1);
       break;
-    case 'porPersona':
-      itemTotal = (item.precioPorPersona ?? precioUnitario) * cantidadInvitados;
+    case 'porPersona': 
+      itemTotal = (item.precioPorPersona ?? precioUnitario) * cantidadInvitados; 
       break;
     case 'ratio':
       const invitadosPorUnidadNum = Number(item.invitadosPorUnidad);
@@ -294,7 +294,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
       valorServicios,
       ahorroTotal,
       totalFinal: totalFinalAjustado,
-      showAnnualAdjustmentLegend,
+      showAnnualAdjustmentLegend: shouldShowAdjustmentLegend,
     };
 
   }, [presupuesto, displaySettings]);
@@ -461,3 +461,5 @@ export default function Page({ params }: { params: { id: string } }) {
     </Suspense>
   )
 }
+
+    

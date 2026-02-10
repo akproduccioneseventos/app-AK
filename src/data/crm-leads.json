@@ -1,23 +1,23 @@
 [
   {
-    "id": "lead_1770684500969_d9gan8f",
-    "name": "Nico",
-    "phone": "098325538",
-    "notes": "Presupuesto Nº 18\nCosto: $ 169.107,50",
-    "presupuestoId": "pres_1770684500953_9uv0ci9",
+    "id": "lead_1770684892746_mw3nt4t",
+    "name": "G",
+    "phone": "098355530",
+    "notes": "Presupuesto Nº 19\nCosto: $ 171.742,50",
+    "presupuestoId": "pres_1770684892737_gmpixmq",
     "currentStageId": "s3",
-    "createdAt": "2026-02-10T00:48:20.969Z",
-    "updatedAt": "2026-02-10T00:48:20.989Z",
+    "createdAt": "2026-02-10T00:54:52.746Z",
+    "updatedAt": "2026-02-10T00:54:52.769Z",
     "history": [
       {
         "stageId": "s1",
         "stageName": "Consultó",
-        "timestamp": "2026-02-10T00:48:20.969Z"
+        "timestamp": "2026-02-10T00:54:52.746Z"
       },
       {
         "stageId": "s3",
         "stageName": "Con presupuesto",
-        "timestamp": "2026-02-10T00:48:20.989Z"
+        "timestamp": "2026-02-10T00:54:52.769Z"
       }
     ]
   }
