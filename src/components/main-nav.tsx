@@ -1,4 +1,3 @@
-
 "use client"
 
 import Link from "next/link";
@@ -21,7 +20,6 @@ import {
 } from "@/components/ui/sidebar";
 import {
   LayoutDashboard,
-  CalendarClock,
   Building2,
   BarChart3,
   Settings,
@@ -34,6 +32,9 @@ import {
   FileText,
   ListChecks,
   CalendarDays,
+  Wand2,
+  ShoppingCart,
+  PartyPopper,
 } from "lucide-react";
 import AppLogo from "./app-logo";
 
@@ -63,15 +64,16 @@ export function MainNav() {
           </SidebarMenuItem>
         </SidebarMenu>
         <SidebarSeparator />
+
         <SidebarGroup>
           <SidebarGroupLabel>Planificación</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
                 <Link href="/eventos" passHref>
-                  <SidebarMenuButton isActive={isActive("/eventos")}>
-                    <CalendarClock />
-                    Eventos
+                  <SidebarMenuButton isActive={isActive("/eventos") || isActive("/fiestas/nueva")}>
+                    <PartyPopper />
+                    Planificador de Eventos
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>
@@ -86,13 +88,14 @@ export function MainNav() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
         <SidebarGroup>
           <SidebarGroupLabel>Gestión</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  isActive={isActive("/empresa") || isActive('/empleados') || isActive('/proveedores')}
+                  isActive={(isActive("/empresa") && !isActive('/empresa/redes-sociales')) || isActive('/empleados') || isActive('/proveedores')}
                   isSubmenu
                 >
                   <Building2 />
@@ -157,6 +160,7 @@ export function MainNav() {
                   </SidebarMenuSubItem>
                 </SidebarMenuSub>
               </SidebarMenuItem>
+
               <SidebarMenuItem>
                 <SidebarMenuButton
                   isActive={
@@ -212,6 +216,39 @@ export function MainNav() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Herramientas</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <Link href="/simulador-de-presupuesto" passHref>
+                  <SidebarMenuButton isActive={isActive("/simulador-de-presupuesto")}>
+                    <Wand2 />
+                    Simulador
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/empresa/redes-sociales" passHref>
+                  <SidebarMenuButton isActive={isActive("/empresa/redes-sociales")}>
+                    <Sparkles />
+                    Redes Sociales
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/compras" passHref>
+                  <SidebarMenuButton isActive={isActive("/compras")}>
+                    <ShoppingCart />
+                    Compras
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
