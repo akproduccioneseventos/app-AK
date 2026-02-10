@@ -318,114 +318,86 @@ export default function ArmadoRapidoPage() {
     }, [entradasDisponibles, principalesDisponibles, menusNinoDisponibles, serviciosCatalogo]);
 
     const { subtotal, serviciosDetallados, serviciosAgrupados, totalRegalos, costoTotal, descuento } = useMemo(() => {
-      if (!config || !allSimuladorServices.length) {
-          return { subtotal: 0, serviciosDetallados: [], serviciosAgrupados: {}, totalRegalos: 0, costoTotal: 0, descuento: 0 };
-      }
-  
-      const allSelectedServicesMap = new Map<string, { servicio: ServicioEmpresa, esRegalo: boolean }>();
-  
-      // Step 1: Add services from the selected package
-      const paqueteSeleccionado = config.paquetes.find(p => p.id === selectedPaqueteId);
-      if (paqueteSeleccionado) {
-          paqueteSeleccionado.serviciosIncluidos.forEach(servicioEnPaquete => {
-              const servicioCompleto = allSimuladorServices.find(s => s.id === servicioEnPaquete.id);
-              if (servicioCompleto) {
-                  allSelectedServicesMap.set(servicioCompleto.id, { servicio: servicioCompleto, esRegalo: servicioEnPaquete.esRegalo || false });
-              }
-          });
-      }
-  
-      // Step 2: Add services selected from the gastronomic section
-      formData.serviciosSeleccionados.forEach((selectedData, serviceId) => {
-          const servicioCatalogo = allSimuladorServices.find(s => s.id === serviceId);
-          if (servicioCatalogo) {
-              const servicioConPrecioGuardado: ServicioEmpresa = {
-                  ...servicioCatalogo,
-                  precioPorPersona: selectedData.precioUnitarioPresupuesto
-              };
-              allSelectedServicesMap.set(servicioCatalogo.id, { servicio: servicioConPrecioGuardado, esRegalo: selectedData.esRegalo });
-          }
-      });
-      
-      // Step 3: Add services from dependencies based on the current selection
-      if (config.serviceDependencies) {
-          config.serviceDependencies.forEach(dep => {
-              if (allSelectedServicesMap.has(dep.triggerServiceId)) {
-                  if (!allSelectedServicesMap.has(dep.requiredServiceId)) {
-                      const servicioRequerido = allSimuladorServices.find(s => s.id === dep.requiredServiceId);
-                      if (servicioRequerido) {
-                          allSelectedServicesMap.set(servicioRequerido.id, { servicio: servicioRequerido, esRegalo: false });
-                      }
-                  }
-              }
-          });
-      }
-  
-      let subtotalBruto = 0;
-      let costoTotalRegalos = 0;
-      const includedServicesList: ServicioDetallado[] = [];
-  
-      allSelectedServicesMap.forEach(({ servicio, esRegalo }) => {
-          const costoItem = calcularCostoServicio(servicio, adultos, ninosYAdolescentes);
-          
-          if (!esRegalo) {
-            subtotalBruto += costoItem;
-          } else {
-            costoTotalRegalos += costoItem;
-          }
-  
-          const cantidadInvitadosRelevante = getGuestCountForItem(servicio, adultos, ninosYAdolescentes);
-          let cantidadDisplay: number = 1;
-          let unidadDisplay = 'evento';
-          let precioUnitarioDisplay = servicio.precioVenta || servicio.precioBase || servicio.precioPorPersona || 0;
-  
-          switch (servicio.calculationMethod) {
-              case 'porPersona': 
-                cantidadDisplay = cantidadInvitadosRelevante; 
-                unidadDisplay = 'personas'; 
-                precioUnitarioDisplay = servicio.precioPorPersona || 0;
-                break;
-              case 'ratio':
-                  const invitadosPorUnidad = servicio.invitadosPorUnidad || 1;
-                  cantidadDisplay = invitadosPorUnidad > 0 ? Math.ceil(cantidadInvitadosRelevante / invitadosPorUnidad) : 1;
-                  unidadDisplay = servicio.unidad || 'Uds.';
-                  precioUnitarioDisplay = servicio.precioBase || 0;
-                  break;
-              default: 
-                cantidadDisplay = 1; 
-                unidadDisplay = servicio.unidad || 'evento'; 
-                precioUnitarioDisplay = servicio.precioVenta || 0;
-                break;
-          }
-    
-          includedServicesList.push({ 
-            id: servicio.id, nombre: servicio.nombre, esRegalo, costo: costoItem,
-            categoria: servicio.categoria || 'Varios',
-            precioUnitario: precioUnitarioDisplay,
-            cantidad: cantidadDisplay, unidad: unidadDisplay
-          });
-      });
-      
-      const subtotalReal = subtotalBruto;
-      const descuentoCalculado = config.descuentoGeneral ? (subtotalReal * config.descuentoGeneral) / 100 : 0;
-      const totalFinal = subtotalReal - descuentoCalculado;
-      
-      const agrupados = includedServicesList.reduce((acc, item) => {
-        const categoria = item.categoria || 'Varios';
-        if (!acc[categoria]) acc[categoria] = [];
-        acc[categoria].push(item);
-        return acc;
-      }, {} as Record<string, ServicioDetallado[]>);
-  
-      return { 
-        subtotal: subtotalBruto + costoTotalRegalos, 
-        serviciosDetallados: includedServicesList,
-        serviciosAgrupados: agrupados, 
-        totalRegalos: costoTotalRegalos,
-        descuento: descuentoCalculado, 
-        costoTotal: totalFinal,
-      };
-  }, [config, allSimuladorServices, adultos, ninosYAdolescentes, selectedPaqueteId, formData.serviciosSeleccionados]);
+        if (!config || !allSimuladorServices.length) {
+            return { subtotal: 0, serviciosDetallados: [], serviciosAgrupados: {}, totalRegalos: 0, costoTotal: 0, descuento: 0 };
+        }
+
+        const allSelectedServicesMap = new Map<string, { servicio: ServicioEmpresa, esRegalo: boolean }>();
+        const paqueteSeleccionado = config.paquetes.find(p => p.id === selectedPaqueteId);
+        if (paqueteSeleccionado) {
+            paqueteSeleccionado.serviciosIncluidos.forEach(s => {
+                const serv = allSimuladorServices.find(cat => cat.id === s.id);
+                if (serv) allSelectedServicesMap.set(serv.id, { servicio: serv, esRegalo: s.esRegalo || false });
+            });
+        }
+        formData.serviciosSeleccionados.forEach((data, id) => {
+            const serv = allSimuladorServices.find(cat => cat.id === id);
+            if (serv) allSelectedServicesMap.set(serv.id, { servicio: serv, esRegalo: data.esRegalo });
+        });
+        if (config.serviceDependencies) {
+            config.serviceDependencies.forEach(dep => {
+                if (allSelectedServicesMap.has(dep.triggerServiceId) && !allSelectedServicesMap.has(dep.requiredServiceId)) {
+                    const serv = allSimuladorServices.find(s => s.id === dep.requiredServiceId);
+                    if (serv) allSelectedServicesMap.set(serv.id, { servicio: serv, esRegalo: false });
+                }
+            });
+        }
+
+        let subtotalBrutoReal = 0;
+        let costoTotalRegalosReal = 0;
+        const includedServicesList: ServicioDetallado[] = [];
+        
+        allSelectedServicesMap.forEach(({ servicio, esRegalo }) => {
+            const costoRealItem = calcularCostoServicio(servicio, adultos, ninosYAdolescentes);
+            if (!esRegalo) {
+                subtotalBrutoReal += costoRealItem;
+            } else {
+                costoTotalRegalosReal += costoRealItem;
+            }
+            const cantidadInvitadosRelevante = getGuestCountForItem(servicio, adultos, ninosYAdolescentes);
+            let cantidadDisplay: number = 1;
+            let unidadDisplay = 'evento';
+            let precioUnitarioDisplay = servicio.precioVenta || servicio.precioBase || servicio.precioPorPersona || 0;
+            switch (servicio.calculationMethod) {
+                case 'porPersona': cantidadDisplay = cantidadInvitadosRelevante; unidadDisplay = 'personas'; precioUnitarioDisplay = servicio.precioPorPersona || 0; break;
+                case 'ratio': const por = servicio.invitadosPorUnidad || 1; cantidadDisplay = por > 0 ? Math.ceil(cantidadInvitadosRelevante / por) : 1; unidadDisplay = servicio.unidad || 'Uds.'; precioUnitarioDisplay = servicio.precioBase || 0; break;
+                default: cantidadDisplay = 1; unidadDisplay = servicio.unidad || 'evento'; precioUnitarioDisplay = servicio.precioVenta || 0; break;
+            }
+            includedServicesList.push({ id: servicio.id, nombre: servicio.nombre, esRegalo, costo: costoRealItem, categoria: servicio.categoria || 'Varios', precioUnitario: precioUnitarioDisplay, cantidad: cantidadDisplay, unidad: unidadDisplay });
+        });
+        
+        const descuentoPorcentajeFicticio = config.descuentoGeneral || 0;
+        const totalFinalAPagar = subtotalBrutoReal;
+        
+        const subtotalInflado = (descuentoPorcentajeFicticio > 0 && descuentoPorcentajeFicticio < 100) 
+            ? subtotalBrutoReal / (1 - (descuentoPorcentajeFicticio / 100))
+            : subtotalBrutoReal;
+        
+        const descuentoPromocional = subtotalInflado - subtotalBrutoReal;
+        const valorTotalServiciosMostrado = subtotalInflado + costoTotalRegalosReal;
+        const ahorroTotalMostrado = descuentoPromocional + costoTotalRegalosReal;
+
+        const serviciosDetalladosActualizados = includedServicesList.map(item => ({
+            ...item,
+            costo: item.esRegalo ? item.costo : item.costo * (1 + (descuentoPorcentajeFicticio / 100))
+        }));
+
+        const agrupados = serviciosDetalladosActualizados.reduce((acc, item) => {
+            const categoria = item.esRegalo ? 'Regalos Incluidos' : (item.categoria || 'Varios');
+            if (!acc[categoria]) acc[categoria] = [];
+            acc[categoria].push(item);
+            return acc;
+        }, {} as Record<string, ServicioDetallado[]>);
+
+        return { 
+            subtotal: valorTotalServiciosMostrado,
+            serviciosDetallados: serviciosDetalladosActualizados,
+            serviciosAgrupados: agrupados, 
+            totalRegalos: costoTotalRegalosReal,
+            descuento: ahorroTotalMostrado, 
+            costoTotal: totalFinalAPagar,
+        };
+    }, [config, allSimuladorServices, adultos, ninosYAdolescentes, selectedPaqueteId, formData.serviciosSeleccionados]);
     
     const generarTextoWhatsApp = useCallback(() => {
         let texto = `*Resumen de Presupuesto Simulado*\n`;
@@ -455,8 +427,8 @@ export default function ArmadoRapidoPage() {
 
         texto += `-----------------\n`;
         texto += `*Valor de servicios:* ${formatCurrency(subtotal)}\n`;
-        if (totalRegalos + descuento > 0) {
-            texto += `*Descuento Promocional + Regalos:* -${formatCurrency(totalRegalos + descuento)}\n`;
+        if (descuento > 0) {
+            texto += `*Descuento Promocional + Regalos:* -${formatCurrency(descuento)}\n`;
         }
         texto += `*TOTAL A PAGAR:* *${formatCurrency(costoTotal)}*\n`;
         texto += `-----------------\n`;
@@ -464,7 +436,7 @@ export default function ArmadoRapidoPage() {
         texto += `¡Gracias por tu interés! Un asesor se comunicará contigo a la brevedad.`;
         
         return texto;
-    }, [clienteNombre, adultos, ninosYAdolescentes, eventoFecha, serviciosAgrupados, subtotal, totalRegalos, descuento, costoTotal]);
+    }, [clienteNombre, adultos, ninosYAdolescentes, eventoFecha, serviciosAgrupados, subtotal, descuento, costoTotal]);
 
 
     const handleShareWhatsApp = () => {
@@ -656,10 +628,10 @@ export default function ArmadoRapidoPage() {
                                 <span className="text-muted-foreground">Valor de servicios:</span>
                                 <span className="font-medium">{formatCurrency(subtotal)}</span>
                             </div>
-                            {(totalRegalos + descuento) > 0 && (
+                            {descuento > 0 && (
                               <div className="flex justify-between text-destructive">
                                   <span>Descuento Promocional + Regalos:</span>
-                                  <span className="font-medium">-{formatCurrency(totalRegalos + descuento)}</span>
+                                  <span className="font-medium">-{formatCurrency(descuento)}</span>
                               </div>
                             )}
                             <Separator className="my-2"/>

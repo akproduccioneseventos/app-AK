@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { PresupuestoFormData, ItemPresupuestado, Presupuesto } from '@/types/presupuesto';
@@ -124,37 +125,48 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
       return {...prev, serviciosSeleccionados: newSelected};
     });
   };
-
+  
   const { valorServicios, ahorroTotal, totalFinal, descuentoPromocional } = useMemo(() => {
     const adultos = formData.invitadosAdultos || 0;
     const adolescentes = formData.invitadosAdolescentes || 0;
     const ninos = formData.invitadosNinos || 0;
 
+    const subtotalBruto = Array.from(formData.serviciosSeleccionados.values())
+      .filter(item => !item.esRegalo)
+      .reduce((sum, item) => {
+        const itemDataForCalc: ItemPresupuestado = {
+          idServicioCatalogo: '', ...item, precioUnitario: item.precioUnitarioPresupuesto, costoTotalItem: 0
+        };
+        return sum + calcularCostoItem(itemDataForCalc, adultos, adolescentes, ninos);
+      }, 0);
+
     const costoTotalRegalos = Array.from(formData.serviciosSeleccionados.values())
       .filter(item => item.esRegalo)
       .reduce((sum, item) => {
         const tempItem: ItemPresupuestado = {
-          idServicioCatalogo: '', ...item, esRegalo: false, // temporarily unset to calculate real value
-          precioUnitario: item.precioUnitarioOriginal, costoTotalItem: 0
+          idServicioCatalogo: '', ...item, esRegalo: false, precioUnitario: item.precioUnitarioOriginal, costoTotalItem: 0
         };
         return sum + calcularCostoItem(tempItem, adultos, adolescentes, ninos);
       }, 0);
-      
-    const subtotalBruto = totalCalculado;
-    const valorServicios = subtotalBruto + costoTotalRegalos;
 
+    const totalFinal = subtotalBruto;
+    
     let descPromo = 0;
-    if (formData.descuentoTipo && formData.descuentoValor) {
-        const valorNum = parseFloat(formData.descuentoValor) || 0;
-        if (formData.descuentoTipo === 'porcentaje') {
-            descPromo = (subtotalBruto * valorNum) / 100;
-        } else {
-            descPromo = valorNum;
+    const valorDescuentoNum = parseFloat(formData.descuentoValor || '15');
+    
+    if (formData.descuentoTipo && valorDescuentoNum > 0) {
+      if (formData.descuentoTipo === 'porcentaje') {
+        if (valorDescuentoNum < 100) {
+           const subtotalInflado = subtotalBruto / (1 - (valorDescuentoNum / 100));
+           descPromo = subtotalInflado - subtotalBruto;
         }
+      } else {
+        descPromo = valorDescuentoNum;
+      }
     }
     
     const ahorroTotal = descPromo + costoTotalRegalos;
-    const totalFinal = subtotalBruto - descPromo;
+    const valorServicios = subtotalBruto + ahorroTotal;
 
     return {
       valorServicios,
@@ -162,7 +174,8 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
       totalFinal,
       descuentoPromocional: descPromo,
     };
-  }, [formData, totalCalculado]);
+  }, [formData]);
+
 
   return (
     <div className="space-y-6">
@@ -225,7 +238,7 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1">
                 <Label htmlFor="descuento-tipo">Tipo Descuento</Label>
-                <Select value={formData.descuentoTipo || ''} onValueChange={val => setFormData(prev => ({...prev, descuentoTipo: val as Presupuesto['descuentoTipo']}))}>
+                <Select value={formData.descuentoTipo || 'porcentaje'} onValueChange={val => setFormData(prev => ({...prev, descuentoTipo: val as Presupuesto['descuentoTipo']}))}>
                   <SelectTrigger id="descuento-tipo"><SelectValue placeholder="Seleccionar..."/></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="porcentaje">Porcentaje (%)</SelectItem>
@@ -238,7 +251,7 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
                   {formData.descuentoTipo === 'porcentaje' ? <Percent className="w-4 h-4 text-muted-foreground"/> : <span className="text-muted-foreground font-bold text-sm">$</span>}
                   Valor Descuento
                 </Label>
-                <Input id="descuento-valor" type="number" value={formData.descuentoValor ?? ''} onChange={e => setFormData(prev => ({...prev, descuentoValor: e.target.value}))} min="0" step="any" disabled={!formData.descuentoTipo} placeholder="Ej: 15 o 5000"/>
+                <Input id="descuento-valor" type="number" value={formData.descuentoValor ?? '15'} onChange={e => setFormData(prev => ({...prev, descuentoValor: e.target.value}))} min="0" step="any" placeholder="Ej: 15 o 5000"/>
               </div>
             </div>
         </div>
