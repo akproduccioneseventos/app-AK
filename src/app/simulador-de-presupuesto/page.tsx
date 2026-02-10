@@ -10,10 +10,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, Package, ChefHat, FileText, Send, CheckCircle, Gift, User, Phone, MessageSquare, Share2, Printer, Search, ClipboardCopy, Edit } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, Package, ChefHat, FileText, Send, CheckCircle, Gift, User, Phone, MessageSquare, Share2, Printer } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido';
-import { getServiciosEmpresa, saveServicioEmpresa as saveServicioEmpresaAction } from '@/app/actions/servicios-empresa';
+import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import type { SocialConnection } from '@/types/settings';
@@ -30,7 +30,6 @@ import type { FullMenu, MenuItem } from '@/types/catering'; // Import MenuItem
 import { getMenus } from '@/app/actions/menus-catering'; // Import getMenus
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
-import { cn } from '@/lib/utils';
 
 const formatCurrency = (amount?: number) => {
     if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -130,32 +129,21 @@ const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): Se
 
 type ServicioSeleccionadoValue = {
     cantidad: number;
-    precioUnitarioOriginal: number;
-    precioUnitarioPresupuesto: number;
+    precioUnitario: number;
     nombreServicio: string;
     unidad?: string;
     categoriaServicio?: string;
-    subcategoria?: string;
     esRegalo: boolean;
-    calculationMethod?: 'fijo' | 'porPersona' | 'ratio' | 'tramos';
-    precioBase?: number;
-    precioPorPersona?: number;
-    invitadosPorUnidad?: number;
-    tramosDePrecio?: { id: string; desde: number; hasta: number; precio: number }[];
 };
 
 const menuItemToServicioSeleccionado = (item: ServicioEmpresa, invitados: number): ServicioSeleccionadoValue => {
     return {
         cantidad: invitados,
-        precioUnitarioOriginal: item.precioPorPersona || 0,
-        precioUnitarioPresupuesto: item.precioPorPersona || 0,
+        precioUnitario: item.precioPorPersona || 0,
         nombreServicio: item.nombre,
         unidad: 'personas',
         categoriaServicio: item.categoria,
-        subcategoria: item.subcategoria,
         esRegalo: false,
-        calculationMethod: 'porPersona',
-        precioPorPersona: item.precioPorPersona || 0,
     };
 };
 
@@ -166,9 +154,6 @@ interface ServicioDetallado {
   esRegalo: boolean;
   costo: number;
   categoria: string;
-  precioUnitario: number;
-  cantidad: number;
-  unidad: string;
 }
 
 export default function ArmadoRapidoPage() {
@@ -190,6 +175,8 @@ export default function ArmadoRapidoPage() {
     const [duracionHoras, setDuracionHoras] = useState<number>(5);
     const [eventoFecha, setEventoFecha] = useState<Date | undefined>(undefined);
     const [selectedEntradas, setSelectedEntradas] = useState<string[]>([]);
+    const [selectedPrincipal, setSelectedPrincipal] = useState<string>('');
+    const [selectedInfantil, setSelectedInfantil] = useState<string>('');
     const [selectedPaqueteId, setSelectedPaqueteId] = useState<string>('');
     
     const [gastronomiaSearchTerm, setGastronomiaSearchTerm] = useState('');
@@ -354,16 +341,7 @@ export default function ArmadoRapidoPage() {
             } else {
                 costoTotalRegalosReal += costoRealItem;
             }
-            const cantidadInvitadosRelevante = getGuestCountForItem(servicio, adultos, ninosYAdolescentes);
-            let cantidadDisplay: number = 1;
-            let unidadDisplay = 'evento';
-            let precioUnitarioDisplay = servicio.precioVenta || servicio.precioBase || servicio.precioPorPersona || 0;
-            switch (servicio.calculationMethod) {
-                case 'porPersona': cantidadDisplay = cantidadInvitadosRelevante; unidadDisplay = 'personas'; precioUnitarioDisplay = servicio.precioPorPersona || 0; break;
-                case 'ratio': const por = servicio.invitadosPorUnidad || 1; cantidadDisplay = por > 0 ? Math.ceil(cantidadInvitadosRelevante / por) : 1; unidadDisplay = servicio.unidad || 'Uds.'; precioUnitarioDisplay = servicio.precioBase || 0; break;
-                default: cantidadDisplay = 1; unidadDisplay = servicio.unidad || 'evento'; precioUnitarioDisplay = servicio.precioVenta || 0; break;
-            }
-            includedServicesList.push({ id: servicio.id, nombre: servicio.nombre, esRegalo, costo: costoRealItem, categoria: servicio.categoria || 'Varios', precioUnitario: precioUnitarioDisplay, cantidad: cantidadDisplay, unidad: unidadDisplay });
+            includedServicesList.push({ id: servicio.id, nombre: servicio.nombre, esRegalo, costo: costoRealItem, categoria: servicio.categoria || 'Varios' });
         });
         
         const descuentoPorcentajeFicticio = config.descuentoGeneral || 0;
@@ -377,12 +355,7 @@ export default function ArmadoRapidoPage() {
         const valorTotalServiciosMostrado = subtotalInflado + costoTotalRegalosReal;
         const ahorroTotalMostrado = descuentoPromocional + costoTotalRegalosReal;
 
-        const serviciosDetalladosActualizados = includedServicesList.map(item => ({
-            ...item,
-            costo: item.esRegalo ? item.costo : item.costo * (1 + (descuentoPorcentajeFicticio / 100))
-        }));
-
-        const agrupados = serviciosDetalladosActualizados.reduce((acc, item) => {
+        const agrupados = includedServicesList.reduce((acc, item) => {
             const categoria = item.esRegalo ? 'Regalos Incluidos' : (item.categoria || 'Varios');
             if (!acc[categoria]) acc[categoria] = [];
             acc[categoria].push(item);
@@ -391,7 +364,7 @@ export default function ArmadoRapidoPage() {
 
         return { 
             subtotal: valorTotalServiciosMostrado,
-            serviciosDetallados: serviciosDetalladosActualizados,
+            serviciosDetallados: includedServicesList,
             serviciosAgrupados: agrupados, 
             totalRegalos: costoTotalRegalosReal,
             descuento: ahorroTotalMostrado, 
@@ -417,9 +390,6 @@ export default function ArmadoRapidoPage() {
             if (item.esRegalo) {
               texto += ` (REGALO - valor ${formatCurrency(item.costo)})\n`;
             } else {
-              if (item.cantidad > 1 && item.precioUnitario > 0) {
-                 texto += ` (${item.cantidad} ${item.unidad} x ${formatCurrency(item.precioUnitario)})`;
-              }
               texto += ` = ${formatCurrency(item.costo)}\n`;
             }
           });
@@ -452,15 +422,13 @@ export default function ArmadoRapidoPage() {
         window.print();
     };
 
-    const selectedPrincipalId = useMemo(() => Array.from(formData.serviciosSeleccionados.keys()).find(id => principalesDisponibles.some(p => p.id === id)) || '', [formData.serviciosSeleccionados, principalesDisponibles]);
-
     const nextStep = async () => {
         if (step === 1 && (!clienteNombre.trim() || !/^\d{9}$/.test(clienteContacto.trim()) || adultos <= 0)) {
             toast({ title: "Datos incompletos", description: "Por favor, ingresa un nombre, un celular válido de 9 dígitos y la cantidad de adultos.", variant: "destructive" });
             return;
         }
         const requiredEntradas = duracionHoras > 4 ? 2 : 1;
-        if (step === 2 && (!selectedPrincipalId || selectedEntradas.length !== requiredEntradas)) {
+        if (step === 2 && (!selectedPrincipal || selectedEntradas.length !== requiredEntradas)) {
             toast({ title: "Selección de Menú Incompleta", description: `Debes elegir un plato principal y exactamente ${requiredEntradas} entrada(s).`, variant: "destructive" });
             return;
         }
@@ -493,10 +461,10 @@ export default function ArmadoRapidoPage() {
                     return {
                         idServicioCatalogo: s.id,
                         nombreServicio: s.nombre,
-                        cantidad: s.cantidad,
-                        unidad: s.unidad,
-                        precioUnitario: s.precioUnitario,
-                        precioUnitarioPresupuesto: s.precioUnitario,
+                        cantidad: 1, // Simplified for now
+                        unidad: originalServicio?.unidad,
+                        precioUnitario: s.costo,
+                        precioUnitarioPresupuesto: s.costo,
                         esRegalo: s.esRegalo,
                         categoriaServicio: s.categoria,
                         subcategoria: originalServicio?.subcategoria,
@@ -536,8 +504,8 @@ export default function ArmadoRapidoPage() {
 
     const isStepTwoInvalid = useMemo(() => {
         const requiredEntradas = duracionHoras > 4 ? 2 : 1;
-        return !selectedPrincipalId || selectedEntradas.length !== requiredEntradas;
-    }, [duracionHoras, selectedPrincipalId, selectedEntradas]);
+        return !selectedPrincipal || selectedEntradas.length !== requiredEntradas;
+    }, [duracionHoras, selectedPrincipal, selectedEntradas]);
 
     const today = new Date();
     const validUntil = new Date(today);
@@ -591,7 +559,6 @@ export default function ArmadoRapidoPage() {
                              <TableHeader>
                                  <TableRow>
                                      <TableHead>Artículo</TableHead>
-                                     <TableHead className="text-right">Detalle</TableHead>
                                      <TableHead className="text-right font-semibold">Importe</TableHead>
                                  </TableRow>
                              </TableHeader>
@@ -599,23 +566,14 @@ export default function ArmadoRapidoPage() {
                                 {Object.entries(serviciosAgrupados).sort(([catA], [catB]) => catA === 'Regalos Incluidos' ? 1 : catB === 'Regalos Incluidos' ? -1 : catA.localeCompare(catB)).map(([categoria, items]) => (
                                     <React.Fragment key={categoria}>
                                         <TableRow className="bg-muted/30 print:bg-gray-50">
-                                            <TableCell colSpan={3} className={`font-bold ${categoria === 'Regalos Incluidos' ? 'text-destructive' : 'text-primary'}`}>
+                                            <TableCell colSpan={2} className={`font-bold ${categoria === 'Regalos Incluidos' ? 'text-destructive' : 'text-primary'}`}>
                                                 {categoria === 'Regalos Incluidos' ? <div className='flex items-center gap-2'><Gift className="inline-block w-4 h-4"/>{categoria}</div> : categoria}
                                             </TableCell>
                                         </TableRow>
                                         {items.map((item) => (
                                             <TableRow key={item.id}>
                                                 <TableCell className="font-medium">{item.nombre}</TableCell>
-                                                <TableCell className="text-right text-muted-foreground text-xs">
-                                                  {item.esRegalo 
-                                                    ? `(Regalo)` 
-                                                    : (item.cantidad > 1 && item.precioUnitario > 0)
-                                                    ? `(${item.cantidad} ${item.unidad} x ${formatCurrency(item.precioUnitario)})`
-                                                    : ''}
-                                                </TableCell>
-                                                <TableCell className={`text-right font-semibold ${item.esRegalo ? 'text-muted-foreground line-through' : ''}`}>
-                                                    {formatCurrency(item.costo)}
-                                                </TableCell>
+                                                <TableCell className={`text-right font-semibold ${item.esRegalo ? 'text-muted-foreground line-through' : ''}`}>{formatCurrency(item.costo)}</TableCell>
                                             </TableRow>
                                         ))}
                                     </React.Fragment>
@@ -715,10 +673,7 @@ export default function ArmadoRapidoPage() {
                             </div>
                         </div>
                         <div className="space-y-4"><Label>Plato Principal (elige 1)</Label>
-                            <RadioGroup 
-                                value={selectedPrincipalId} 
-                                onValueChange={(value) => handleGastronomicSelectionChange('principal', value)} 
-                                className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <RadioGroup value={selectedPrincipal} onValueChange={(value) => { setSelectedPrincipal(value); handleGastronomicSelectionChange('principal', value); }} className="grid grid-cols-1 md:grid-cols-2 gap-2">
                               {principalesDisponibles.length > 0 ? (
                                 principalesDisponibles.map(s => <div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><RadioGroupItem value={s.id} id={`p-${s.id}`}/><Label htmlFor={`p-${s.id}`} className="text-sm font-normal">{s.nombre} ({formatCurrency(s.precioPorPersona)})</Label></div>)
                               ) : (
@@ -728,11 +683,7 @@ export default function ArmadoRapidoPage() {
                         </div>
                         <div className="space-y-4">
                             <Label>Menú Niños/Adolescentes (elige 1)</Label>
-                            <RadioGroup
-                                value={Array.from(formData.serviciosSeleccionados.keys()).find(id => menusNinoDisponibles.some(m => m.id === id)) || ''}
-                                onValueChange={(value) => handleGastronomicSelectionChange('infantil', value)}
-                                className="grid grid-cols-1 md:grid-cols-2 gap-2"
-                            >
+                             <RadioGroup value={selectedInfantil} onValueChange={(value) => { setSelectedInfantil(value); handleGastronomicSelectionChange('infantil', value); }} className="grid grid-cols-1 md:grid-cols-2 gap-2">
                                 {(ninosYAdolescentes > 0) ? (
                                     menusNinoDisponibles.length > 0 ? (
                                         menusNinoDisponibles.map(s => (
@@ -797,3 +748,4 @@ export default function ArmadoRapidoPage() {
         </Card>
     );
 }
+
