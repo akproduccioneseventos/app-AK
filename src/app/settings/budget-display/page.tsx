@@ -239,17 +239,35 @@ export default function BudgetDisplaySettingsPage() {
         return setting !== undefined ? setting.visible : true;
     };
     
-    const sortByPrice = (a: { precioPorPersona?: number }, b: { precioPorPersona?: number }) => (a.precioPorPersona || 0) - (b.precioPorPersona || 0);
+    const sortByPrice = (a: { precioVenta: number }, b: { precioVenta: number }) => a.precioVenta - b.precioVenta;
     
-    const allDishes = allMenus.flatMap(m => m.items).map(item => ({
+    const allDishes = Array.from(
+        allMenus.flatMap(m => m.items)
+        .reduce((map, dish) => {
+            if (!map.has(dish.id)) {
+                map.set(dish.id, dish);
+            }
+            return map;
+        }, new Map<string, MenuItem>())
+        .values()
+    );
+    
+    const visibleDishes = allDishes.filter(d => isPlatoVisible(d.id));
+
+    const lowerCaseSearch = gastronomiaSearchTerm.toLowerCase();
+    const filteredDishes = gastronomiaSearchTerm.trim() === ''
+        ? visibleDishes 
+        : visibleDishes.filter(d => d.name.toLowerCase().includes(lowerCaseSearch));
+    
+    const enhancedDishes = filteredDishes.map(item => ({
         ...item,
         precioVenta: item.suggestedSellingPrice ?? ((item.totalDishCost || 0) * (1 + (item.profitMargin ?? 120) / 100)),
     }));
-    
+
     return { 
-        entradasDisponibles: allDishes.filter(item => item.type === 'Entrada').map(menuItemToServicioEmpresa).sort(sortByPrice), 
-        principalesDisponibles: allDishes.filter(item => item.type === 'Plato Principal').map(menuItemToServicioEmpresa).sort(sortByPrice), 
-        menusNinoDisponibles: allDishes.filter(s => s.type === 'Menú Infantil/Adolescente').map(menuItemToServicioEmpresa).sort(sortByPrice)
+        entradasDisponibles: enhancedDishes.filter(item => item.type === 'Entrada').map(menuItemToServicioEmpresa).sort(sortByPrice), 
+        principalesDisponibles: enhancedDishes.filter(item => item.type === 'Plato Principal').map(menuItemToServicioEmpresa).sort(sortByPrice), 
+        menusNinoDisponibles: enhancedDishes.filter(item => item.type === 'Menú Infantil/Adolescente').map(menuItemToServicioEmpresa).sort(sortByPrice)
     };
 }, [config, allMenus]);
   
@@ -589,7 +607,7 @@ export default function BudgetDisplaySettingsPage() {
             <CardHeader><CardTitle className="font-headline">Ajustes Generales del Simulador</CardTitle></CardHeader>
             <CardContent className="space-y-4">
                  <div className="space-y-2">
-                    <Label htmlFor="descuento-general" className="flex items-center gap-2"><Percent className="w-4 h-4"/>Descuento Promocional General (%)</Label>
+                    <Label htmlFor="descuento-general" className="flex items-center gap-2"><Percent className="w-4 h-4"/>Porcentaje de Descuento Ficticio (Ancla) (%)</Label>
                     <Input
                         id="descuento-general"
                         type="number"
@@ -597,7 +615,7 @@ export default function BudgetDisplaySettingsPage() {
                         onChange={e => setConfig(c => c ? {...c, descuentoGeneral: Number(e.target.value)} : null)}
                         placeholder="Ej: 15"
                     />
-                    <p className="text-xs text-muted-foreground">Este descuento se aplicará al total en el resumen del simulador.</p>
+                    <p className="text-xs text-muted-foreground">Este es el porcentaje que se mostrará como 'descuento' en el simulador. El sistema aumentará el 'Valor de servicios' para que, tras aplicar este descuento, el total a pagar sea el precio real del catálogo.</p>
                 </div>
                 <div className="flex items-center space-x-2">
                     <Switch 
