@@ -1,3 +1,4 @@
+
 "use client"
 
 import Link from "next/link";
@@ -91,7 +92,7 @@ export function MainNav() {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  isActive={isActive("/empresa")}
+                  isActive={isActive("/empresa") || isActive('/empleados') || isActive('/proveedores')}
                   isSubmenu
                 >
                   <Building2 />
@@ -161,7 +162,8 @@ export function MainNav() {
                   isActive={
                     isActive("/contabilidad") ||
                     isActive("/presupuestos") ||
-                    isActive("/invoices")
+                    isActive("/invoices") ||
+                    isActive("/customers")
                   }
                   isSubmenu
                 >
@@ -176,6 +178,14 @@ export function MainNav() {
                       >
                         <KanbanSquare />
                         CRM
+                      </SidebarMenuSubButton>
+                    </Link>
+                  </SidebarMenuSubItem>
+                   <SidebarMenuSubItem>
+                    <Link href="/customers" passHref asChild>
+                      <SidebarMenuSubButton isActive={isActive("/customers")}>
+                        <Users />
+                        Clientes
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
@@ -198,14 +208,6 @@ export function MainNav() {
                     </Link>
                   </SidebarMenuSubItem>
                 </SidebarMenuSub>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <Link href="/customers" passHref>
-                  <SidebarMenuButton isActive={isActive("/customers")}>
-                    <Users />
-                    Clientes
-                  </SidebarMenuButton>
-                </Link>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
