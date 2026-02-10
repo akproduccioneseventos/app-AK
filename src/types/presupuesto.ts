@@ -61,6 +61,7 @@ export interface Presupuesto {
   invoiceId?: string;
   ajusteAnualActivo?: boolean; // NEW: Controls visibility of annual adjustment
   leadId?: string;
+  source?: 'manual' | 'simulator';
 }
 
 // FormData for the new unified builder.

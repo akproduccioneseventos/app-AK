@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
+import { useMemo } from 'react';
 
 interface CrmLeadCardProps {
   lead: CrmLead;
@@ -69,6 +70,23 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting, isMobile, onMove }
     return { type: 'text', content: nonStructuralNotes };
   };
 
+  const budgetSource = useMemo(() => {
+    if (!lead.presupuestoId) return null;
+
+    if (lead.budgetSource === 'simulator') {
+      return { text: 'Simulador', className: 'bg-blue-100 text-blue-800' };
+    }
+    if (lead.budgetSource === 'manual') {
+      return { text: 'Manual', className: 'bg-gray-200 text-gray-800' };
+    }
+    // Fallback for older leads that might not have the source property
+    if (lead.notes?.toLowerCase().includes('simulador')) {
+        return { text: 'Simulador', className: 'bg-blue-100 text-blue-800' };
+    }
+    // If there's a budget but no source, assume manual.
+    return { text: 'Manual', className: 'bg-gray-200 text-gray-800' };
+  }, [lead.presupuestoId, lead.budgetSource, lead.notes]);
+
   const displayNotes = getDisplayNotes(lead.notes);
   const hasBudget = !!lead.presupuestoId;
   const isBudgetFacturado = lead.presupuestoEstado === 'Facturado' && !!lead.invoiceId;
@@ -89,6 +107,7 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting, isMobile, onMove }
             </div>
         </CardHeader>
         <CardContent className="p-2 flex-grow min-h-0 text-xs text-muted-foreground space-y-1.5">
+          {budgetSource && <Badge variant="outline" className={budgetSource.className}>{budgetSource.text}</Badge>}
           {lead.followUpDate && (
              <div className="flex items-center gap-1.5 font-medium text-amber-700">
                 <Clock className="w-3.5 h-3.5 flex-shrink-0"/>

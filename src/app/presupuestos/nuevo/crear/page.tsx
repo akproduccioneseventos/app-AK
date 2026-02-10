@@ -63,14 +63,16 @@ function formStateInitializer(initialState: PresupuestoFormData): PresupuestoFor
 }
 
 // Helper function to decide which guest count to use for an item
-function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?: string }, adultos: number, adolescentes: number, ninos: number): number {
+function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?: string, subcategoria?: string }, adultos: number, adolescentes: number, ninos: number): number {
   const categoria = (item.categoriaServicio || '').toLowerCase();
+  const subcategoria = (item.subcategoria || '').toLowerCase();
+  const ninosYAdolescentes = ninos + adolescentes;
   
-  if (categoria.includes('infantil') || categoria.includes('adolescente')) {
-    return ninos + adolescentes;
+  if (categoria.includes('infantil') || categoria.includes('adolescente') || subcategoria.includes('infantil') || subcategoria.includes('adolescente')) {
+    return ninosYAdolescentes;
   }
   
-  if (categoria.includes('plato principal')) {
+  if (categoria.includes('plato principal') || subcategoria.includes('plato principal')) {
     return adultos;
   }
 
@@ -93,7 +95,7 @@ function calcularCostoItem(item: ItemPresupuestado, adultos: number, adolescente
 
   switch (item.calculationMethod) {
     case 'fijo': 
-      itemTotal = item.precioBase ?? precioUnitario; 
+      itemTotal = (item.precioBase ?? precioUnitario) * (item.cantidad > 0 ? item.cantidad : 1);
       break;
     case 'porPersona': 
       itemTotal = (item.precioPorPersona ?? precioUnitario) * cantidadInvitados; 
@@ -274,6 +276,7 @@ function CrearPresupuestoContent() {
                 costoTotalItem: 0, // Recalculated on server
                 esRegalo: serv.esRegalo,
                 categoriaServicio: serv.categoriaServicio,
+                subcategoria: serv.subcategoria,
                 calculationMethod: serv.calculationMethod,
                 precioBase: serv.precioBase,
                 precioPorPersona: serv.precioPorPersona,
@@ -303,7 +306,7 @@ function CrearPresupuestoContent() {
           if (result.success && result.id) {
             toast({ title: `Presupuesto ${editingPresupuestoId ? 'Actualizado' : 'Guardado'}` });
             sessionStorage.removeItem(SESSION_STORAGE_KEY);
-            router.push(`/presupuestos/${result.id}`);
+            router.push(`/presupuestos/${result.id}/ver`);
           } else { throw new Error(result.error || "Error al guardar"); }
         } catch (error: any) {
           toast({ title: "Error al Guardar", description: error.message, variant: "destructive" });

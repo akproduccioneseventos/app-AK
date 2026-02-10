@@ -37,8 +37,7 @@ export interface CrmLead {
   presupuestoId?: string; // ID of the linked budget
   presupuestoEstado?: 'Borrador' | 'Enviado' | 'Aceptado' | 'Rechazado' | 'Facturado'; // Denormalized status
   invoiceId?: string; // If the budget was invoiced
+  budgetSource?: 'manual' | 'simulator';
 }
 
 export type NewCrmLeadData = Omit<CrmLead, 'id' | 'createdAt' | 'updatedAt' | 'history' | 'presupuestoEstado' | 'invoiceId' >;
-
-

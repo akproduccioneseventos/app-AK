@@ -92,6 +92,7 @@ export async function addCrmLead(
     createdAt: now,
     updatedAt: now,
     history: [{ stageId: stageId, stageName, timestamp: now }],
+    budgetSource: leadData.budgetSource,
   };
   leads.push(newLead);
   await writeData(LEADS_FILE, leads);
@@ -136,6 +137,10 @@ export async function findLeadByBudgetOrCreate(
         updates.phone = presupuestoData.clienteContacto;
         leadNeedsUpdate = true;
     }
+    if (presupuestoData.source && !existingLead.budgetSource) {
+      updates.budgetSource = presupuestoData.source;
+      leadNeedsUpdate = true;
+    }
 
     if (leadNeedsUpdate) {
         const leadIndex = allLeads.findIndex(l => l.id === existingLead!.id);
@@ -152,9 +157,10 @@ export async function findLeadByBudgetOrCreate(
   const newLeadData: NewCrmLeadData = {
     name: presupuestoData.clienteNombre,
     phone: presupuestoData.clienteContacto,
-    notes: `Presupuesto Nº ${presupuestoData.numero || presupuestoData.id.slice(-5)}\nCosto: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(presupuestoData.totalConDescuento ?? presupuestoData.costoTotalEstimado)}`,
+    notes: presupuestoData.notas || `Presupuesto Nº ${presupuestoData.numero || presupuestoData.id.slice(-5)}\nCosto: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(presupuestoData.totalConDescuento ?? presupuestoData.costoTotalEstimado)}`,
     currentStageId: 's1', 
     presupuestoId: presupuestoData.id,
+    budgetSource: presupuestoData.source,
   };
 
   const result = await addCrmLead(newLeadData, { preventDuplicateCheck: true });
