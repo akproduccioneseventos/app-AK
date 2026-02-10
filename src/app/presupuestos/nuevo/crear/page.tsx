@@ -11,7 +11,7 @@ import { ArrowLeft, Save, Loader2, PlusCircle, ArrowRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Presupuesto, PresupuestoFormData, ItemPresupuestado } from '@/types/presupuesto';
 import type { ServicioEmpresa } from '@/types/empresa';
-import type { PaqueteArmadoRapido, MenuArmadoRapido } from '@/types/armado-rapido';
+import type { PaqueteArmadoRapido, MenuArmadoRapido, ArmadoRapidoConfig } from '@/types/armado-rapido';
 import { savePresupuesto, getPresupuestoById, updatePresupuesto } from '@/app/actions/presupuestos';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
@@ -132,6 +132,7 @@ function CrearPresupuestoContent() {
     const [formData, setFormData] = useState<PresupuestoFormData>(() => formStateInitializer(initialFormData));
     const [editingPresupuestoId, setEditingPresupuestoId] = useState<string | null>(null);
     const [occupiedDates, setOccupiedDates] = useState<Date[]>([]);
+    const [armadoConfig, setArmadoConfig] = useState<ArmadoRapidoConfig | null>(null);
     
     const leadIdFromParams = searchParams.get('leadId');
 
@@ -160,15 +161,16 @@ function CrearPresupuestoContent() {
                 const editId = searchParams.get('editId');
                 setEditingPresupuestoId(editId);
 
-                const [armadoConfig, menuData, services, occupiedDatesStrings] = await Promise.all([
+                const [config, menuData, services, occupiedDatesStrings] = await Promise.all([
                     getArmadoRapidoConfig(), 
                     getMenus(), 
                     getServiciosEmpresa(),
                     getOcupiedDates()
                 ]);
+                setArmadoConfig(config);
                 setOccupiedDates(occupiedDatesStrings.map(d => new Date(d)));
                 setServiciosCatalogo(services.filter(s => s.tipoItem === 'Servicio'));
-                setPaquetesBase(armadoConfig.paquetes || []);
+                setPaquetesBase(config.paquetes || []);
                 setAllMenus(menuData || []);
 
                 if (editId) {
@@ -330,7 +332,7 @@ function CrearPresupuestoContent() {
                     {isLoadingInitialData ? <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div> : (
                         <>
                             {paso === 1 && <Paso1DatosEvento formData={formData} setFormData={setFormData} occupiedDates={occupiedDates} />}
-                            {paso === 2 && <Paso2Servicios formData={formData} setFormData={setFormData} serviciosCatalogo={serviciosCatalogo} paquetesBase={paquetesBase} allMenus={allMenus} onCatalogUpdate={fetchServicios} totalInvitados={totalInvitados} />}
+                            {paso === 2 && <Paso2Servicios formData={formData} setFormData={setFormData} serviciosCatalogo={serviciosCatalogo} paquetesBase={paquetesBase} allMenus={allMenus} onCatalogUpdate={fetchServicios} totalInvitados={totalInvitados} config={armadoConfig} />}
                             {paso === 3 && <Paso3Resumen formData={formData} setFormData={setFormData} totalCalculado={totalCalculado} totalInvitados={totalInvitados} />}
                         </>
                     )}

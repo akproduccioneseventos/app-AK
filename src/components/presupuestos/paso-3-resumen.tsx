@@ -26,31 +26,55 @@ const formatCurrency = (amount?: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 };
 
+// Helper function to decide which guest count to use for an item
+function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?: string, subcategoria?: string }, adultos: number, adolescentes: number, ninos: number): number {
+  const categoria = (item.categoriaServicio || '').toLowerCase();
+  const subcategoria = (item.subcategoria || '').toLowerCase();
+  const ninosYAdolescentes = ninos + adolescentes;
+  
+  if (categoria.includes('infantil') || categoria.includes('adolescente') || subcategoria.includes('infantil') || subcategoria.includes('adolescente')) {
+    return ninosYAdolescentes;
+  }
+  
+  if (categoria.includes('plato principal') || subcategoria.includes('plato principal')) {
+    return adultos;
+  }
+  
+  // For ALL OTHER services (Entradas, Postres, Bebidas, Vajilla, DJ, decor, etc.), count everyone.
+  return adultos + adolescentes + ninos;
+};
+
 // Calculation function to ensure this component is self-contained
-function calcularCostoItem(item: ItemPresupuestado, invitados: number): number {
+function calcularCostoItem(item: ItemPresupuestado, adultos: number, adolescentes: number, ninos: number): number {
   if (item.esRegalo) return 0;
   
+  const totalInvitados = adultos + adolescentes + ninos;
+  const cantidadInvitados = getGuestCountForItem(item, adultos, adolescentes, ninos);
+  
+  if (cantidadInvitados === 0 && (item.calculationMethod === 'porPersona' || item.calculationMethod === 'ratio')) {
+    return 0;
+  }
+
   let itemTotal = 0;
   const precioUnitario = item.precioUnitarioPresupuesto ?? item.precioUnitario;
 
   switch (item.calculationMethod) {
-    case 'fijo':
-      itemTotal = item.precioBase ?? precioUnitario;
+    case 'fijo': 
+      itemTotal = (item.precioBase ?? precioUnitario) * (item.cantidad > 0 ? item.cantidad : 1);
       break;
-    case 'porPersona':
-      itemTotal = (item.precioPorPersona ?? precioUnitario) * invitados;
+    case 'porPersona': 
+      itemTotal = (item.precioPorPersona ?? precioUnitario) * cantidadInvitados; 
       break;
     case 'ratio':
       const invitadosPorUnidadNum = Number(item.invitadosPorUnidad);
       if (invitadosPorUnidadNum > 0) {
-        const basePrice = item.precioBase ?? precioUnitario;
-        itemTotal = Math.ceil(invitados / invitadosPorUnidadNum) * basePrice;
+        itemTotal = Math.ceil(cantidadInvitados / invitadosPorUnidadNum) * (item.precioBase ?? precioUnitario);
       } else {
         itemTotal = item.precioBase ?? precioUnitario; // Fallback
       }
       break;
     case 'tramos':
-      const tramo = item.tramosDePrecio?.find(t => invitados >= t.desde && invitados <= t.hasta);
+      const tramo = item.tramosDePrecio?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta);
       itemTotal = tramo?.precio || 0;
       break;
     default: // Fallback to simple calculation
@@ -131,9 +155,13 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
             {Array.from(formData.serviciosSeleccionados.entries()).map(([id, servicio]) => {
                 const item: ItemPresupuestado = {
                     idServicioCatalogo: id, ...servicio, 
-                    precioUnitario: servicio.precioUnitarioOriginal, costoTotalItem: 0 // dummy for calc
+                    precioUnitario: servicio.precioUnitarioOriginal, costoTotalItem: 0,
+                    invitadosAdultos: formData.invitadosAdultos,
+                    invitadosNinos: formData.invitadosNinos,
+                    invitadosAdolescentes: formData.invitadosAdolescentes,
+                    invitadosCantidad: totalInvitados,
                 };
-                const costoItem = calcularCostoItem(item, totalInvitados);
+                const costoItem = calcularCostoItem(item, formData.invitadosAdultos || 0, formData.invitadosAdolescentes || 0, formData.invitadosNinos || 0);
 
                 return (
                     <div key={id} className="p-3 border rounded-md">

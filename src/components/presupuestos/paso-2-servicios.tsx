@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import type { PresupuestoFormData, ItemPresupuestado } from '@/types/presupuesto';
@@ -10,7 +11,7 @@ import { Sparkles, PackageSearch, PlusCircle, Search, Trash2, ChefHat } from 'lu
 import type { Dispatch, SetStateAction } from 'react';
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Separator } from '@/components/ui/separator';
-import type { PaqueteArmadoRapido } from '@/types/armado-rapido';
+import type { PaqueteArmadoRapido, ArmadoRapidoConfig } from '@/types/armado-rapido';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '../ui/sheet';
 import EditServicioForm from '@/components/presupuestos/EditServicioForm';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -31,6 +32,7 @@ interface Paso2ServiciosProps {
   allMenus: FullMenu[];
   onCatalogUpdate: () => Promise<void>;
   totalInvitados: number;
+  config: ArmadoRapidoConfig | null;
 }
 
 const formatCurrency = (amount?: number) => {
@@ -86,36 +88,27 @@ const menuItemToServicioSeleccionado = (item: MenuItem & { precioVenta: number }
     };
 };
 
+const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): ServicioEmpresa => {
+    return {
+        id: item.id,
+        nombre: item.name,
+        tipoItem: 'Servicio',
+        categoria: 'Servicio de catering',
+        subcategoria: item.type,
+        calculationMethod: 'porPersona',
+        precioPorPersona: item.precioVenta,
+        precioVenta: item.precioVenta,
+        precioBase: item.precioVenta,
+        valorUnitarioEstimado: item.totalDishCost,
+    };
+};
 
-export default function Paso2Servicios({ formData, setFormData, serviciosCatalogo, paquetesBase, allMenus, onCatalogUpdate, totalInvitados }: Paso2ServiciosProps) {
+
+export default function Paso2Servicios({ formData, setFormData, serviciosCatalogo, paquetesBase, allMenus, onCatalogUpdate, totalInvitados, config }: Paso2ServiciosProps) {
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [gastronomiaSearchTerm, setGastronomiaSearchTerm] = useState('');
   const { toast } = useToast();
-
- const { entradasDisponibles, principalesDisponibles, menusNinoDisponibles } = useMemo(() => {
-    if (!allMenus || allMenus.length === 0) {
-      return { entradasDisponibles: [], principalesDisponibles: [], menusNinoDisponibles: [] };
-    }
-    
-    const isPlatoVisible = (platoId: string) => true;
-
-    const enhanceWithPrice = (item: MenuItem): MenuItem & { precioVenta: number } => ({
-      ...item,
-      nombre: item.name,
-      precioVenta: item.suggestedSellingPrice ?? (item.totalDishCost ? item.totalDishCost * (1 + (item.profitMargin ?? 120) / 100) : 0),
-    });
-    
-    const sortByPrice = (a: { precioVenta: number }, b: { precioVenta: number }) => a.precioVenta - b.precioVenta;
-    
-    const allDishes = allMenus.flatMap(m => m.items);
-    const visibleDishes = allDishes.filter(d => isPlatoVisible(d.id));
-
-    return {
-      entradasDisponibles: visibleDishes.filter(item => item.type === 'Entrada').map(enhanceWithPrice).sort(sortByPrice),
-      principalesDisponibles: visibleDishes.filter(item => item.type === 'Plato Principal').map(enhanceWithPrice).sort(sortByPrice),
-      menusNinoDisponibles: visibleDishes.filter(item => item.type === 'Menú Infantil/Adolescente').map(enhanceWithPrice).sort(sortByPrice),
-    }
-  }, [allMenus]);
 
   const handleServicioToggle = (servicio: ServicioEmpresa) => {
     setFormData(prev => {
@@ -182,12 +175,54 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
       return { ...prev, serviciosSeleccionados: newSelected };
     });
   };
+
+   const { entradasDisponibles, principalesDisponibles, menusNinoDisponibles } = useMemo(() => {
+    if (!config || !allMenus.length) {
+      return { entradasDisponibles: [], principalesDisponibles: [], menusNinoDisponibles: [] };
+    }
+    
+    const isPlatoVisible = (platoId: string) => {
+        const setting = config.platosVisibles?.find(p => p.id === platoId);
+        return setting !== undefined ? setting.visible : true;
+    };
+    
+    const sortByPrice = (a: { precioVenta: number }, b: { precioVenta: number }) => a.precioVenta - b.precioVenta;
+
+    const allDishes = Array.from(
+      allMenus.flatMap(m => m.items)
+      .reduce((map, dish) => {
+          if (!map.has(dish.id)) {
+              map.set(dish.id, dish);
+          }
+          return map;
+      }, new Map<string, MenuItem>())
+      .values()
+    );
+    
+    const visibleDishes = allDishes.filter(d => isPlatoVisible(d.id));
+
+    const lowerCaseSearch = gastronomiaSearchTerm.toLowerCase();
+    const filteredDishes = gastronomiaSearchTerm.trim() === ''
+        ? visibleDishes 
+        : visibleDishes.filter(d => d.name.toLowerCase().includes(lowerCaseSearch));
+    
+    const enhancedDishes = filteredDishes.map(item => ({
+        ...item,
+        precioVenta: item.suggestedSellingPrice ?? ((item.totalDishCost || 0) * (1 + (item.profitMargin ?? 120) / 100)),
+    }));
+
+    return { 
+        entradasDisponibles: enhancedDishes.filter(item => item.type === 'Entrada').map(menuItemToServicioEmpresa).sort(sortByPrice), 
+        principalesDisponibles: enhancedDishes.filter(item => item.type === 'Plato Principal').map(menuItemToServicioEmpresa).sort(sortByPrice), 
+        menusNinoDisponibles: enhancedDishes.filter(item => item.type === 'Menú Infantil/Adolescente').map(menuItemToServicioEmpresa).sort(sortByPrice)
+    };
+  }, [config, allMenus, gastronomiaSearchTerm]);
   
   const handleGastronomicSelectionChange = (type: 'entradas' | 'principal' | 'infantil', selectedIds: string | string[]) => {
       setFormData(prev => {
         const newSelected = new Map(prev.serviciosSeleccionados);
         
-        const allDishes = [...(entradasDisponibles || []), ...(principalesDisponibles || []), ...(menusNinoDisponibles || [])];
+        const allDishes = [...entradasDisponibles, ...principalesDisponibles, ...menusNinoDisponibles];
         const itemsToClear = type === 'entradas' ? (entradasDisponibles || []) : type === 'principal' ? (principalesDisponibles || []) : (menusNinoDisponibles || []);
 
         (itemsToClear || []).forEach(item => {
@@ -231,12 +266,16 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
           idServicioCatalogo: id,
           ...item,
           precioUnitario: item.precioUnitarioOriginal,
-          costoTotalItem: 0 // dummy for calc
+          costoTotalItem: 0,
+          invitadosAdultos: formData.invitadosAdultos,
+          invitadosNinos: formData.invitadosNinos,
+          invitadosAdolescentes: formData.invitadosAdolescentes,
+          invitadosCantidad: totalInvitados,
         };
-        total += calcularCostoItem(itemDataForCalc, totalInvitados);
+        total += calcularCostoItem(itemDataForCalc, formData.invitadosAdultos || 0, formData.invitadosAdolescentes || 0, formData.invitadosNinos || 0);
       });
       return total;
-    }, [formData.serviciosSeleccionados, totalInvitados]);
+    }, [formData, totalInvitados]);
 
   return (
     <div className="space-y-6">
@@ -306,6 +345,15 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
           </AccordionTrigger>
           <AccordionContent className="pt-2">
             <div className="p-4 border rounded-md bg-muted/30 space-y-6">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input 
+                    placeholder="Buscar plato..."
+                    value={gastronomiaSearchTerm}
+                    onChange={e => setGastronomiaSearchTerm(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
                 <div className='space-y-2'>
                   <Label>Entradas (Selección múltiple)</Label>
                   <MultiSelect
@@ -368,23 +416,12 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
             {Array.from(formData.serviciosSeleccionados.entries()).filter(([id, serv]) => serv.categoriaServicio !== 'Servicio de catering').length > 0 ? (
                 Array.from(formData.serviciosSeleccionados.entries())
                   .filter(([id, serv]) => serv.categoriaServicio !== 'Servicio de catering')
-                  .map(([id, servicio]) => {
-                    const item: ItemPresupuestado = {
-                        idServicioCatalogo: id, ...servicio, 
-                        precioUnitario: servicio.precioUnitarioOriginal, costoTotalItem: 0 // dummy for calc
-                    };
-                    const costoItem = calcularCostoItem(item, totalInvitados);
-
-                    return (
+                  .map(([id, servicio]) => (
                         <div key={id} className="flex justify-between items-center p-2 border-b last:border-b-0">
-                           <div className="flex-grow">
-                                <p className="font-semibold text-sm">{servicio.nombreServicio}</p>
-                                <p className="text-xs text-muted-foreground">{formatCurrency(costoItem)}</p>
-                           </div>
+                           <p className="font-semibold text-sm">{servicio.nombreServicio}</p>
                            <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleRemoveServicio(id)}><Trash2 className="w-4 h-4" /></Button>
                         </div>
-                    );
-                })
+                    ))
             ) : (
                 <div className="text-center py-6">
                     <p className="text-muted-foreground">No hay servicios adicionales seleccionados.</p>
