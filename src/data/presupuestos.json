@@ -1,6 +1,6 @@
 [
   {
-    "clienteNombre": "1",
+    "clienteNombre": "manual 1",
     "clienteContacto": "",
     "eventoTipo": "",
     "eventoFecha": "",
@@ -42,32 +42,32 @@
         "precioPorPersona": 160
       },
       {
-        "idServicioCatalogo": "dish_main_12",
-        "nombreServicio": "Strogonoff de Pollo C/ Guarnición",
+        "idServicioCatalogo": "dish_main_1",
+        "nombreServicio": "Pollo Arrollado C/ Guarnición",
         "cantidad": 50,
         "unidad": "personas",
-        "precioUnitario": 399,
-        "precioUnitarioPresupuesto": 399,
-        "costoTotalItem": 19950,
+        "precioUnitario": 449,
+        "precioUnitarioPresupuesto": 449,
+        "costoTotalItem": 22450,
         "categoriaServicio": "Servicio de catering",
         "subcategoria": "Plato Principal",
         "esRegalo": false,
         "calculationMethod": "porPersona",
-        "precioPorPersona": 399
+        "precioPorPersona": 449
       },
       {
-        "idServicioCatalogo": "dish_child_1",
-        "nombreServicio": "Panchos Medio Metro C/ Fritas",
+        "idServicioCatalogo": "dish_child_3",
+        "nombreServicio": "Hamburguesa C/ Fritas",
         "cantidad": 50,
         "unidad": "personas",
-        "precioUnitario": 320,
-        "precioUnitarioPresupuesto": 320,
-        "costoTotalItem": 16000,
+        "precioUnitario": 299,
+        "precioUnitarioPresupuesto": 299,
+        "costoTotalItem": 14950,
         "categoriaServicio": "Servicio de catering",
         "subcategoria": "Menú Infantil/Adolescente",
         "esRegalo": false,
         "calculationMethod": "porPersona",
-        "precioPorPersona": 320
+        "precioPorPersona": 299
       },
       {
         "idServicioCatalogo": "serv_invitaciones_digitales",
@@ -253,19 +253,19 @@
         ]
       }
     ],
-    "costoTotalEstimado": 163350,
+    "costoTotalEstimado": 164800,
     "nombrePromocion": "Descuento Promocional",
     "descuentoTipo": "porcentaje",
     "descuentoValor": 15,
     "vigenciaPromocion": "Válido por 30 días",
     "notas": "",
     "estado": "Enviado",
-    "id": "pres_1770743566460_mbmigd8",
+    "id": "pres_1770744838603_8zea920",
     "numero": 1,
-    "totalConDescuento": 138847.5,
-    "timestamp": "2026-02-10T17:12:46.460Z",
+    "totalConDescuento": 140080,
+    "timestamp": "2026-02-10T17:33:58.603Z",
     "ajusteAnualActivo": false,
-    "leadId": "lead_1770743566465_8iurfg8",
+    "leadId": "lead_1770744838610_hucd4kl",
     "source": "manual"
   }
 ]

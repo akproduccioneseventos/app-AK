@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
@@ -311,7 +310,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
       costoTotalRegalos: costoRegalos,
       descuentoPromocional: Math.max(0, descPromo),
       totalFinal: totalFinalAjustado,
-      showAnnualAdjustmentLegend,
+      showAnnualAdjustmentLegend: shouldShowAdjustmentLegend,
     };
 
   }, [presupuesto, displaySettings]);
@@ -431,8 +430,8 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                                   {item.esRegalo ? <span className="text-red-600 font-semibold flex items-center gap-1"><Gift className="w-3 h-3"/> {item.nombreServicio} (REGALO)</span> : item.nombreServicio}
                                 </td>
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{getDisplayQuantity(item)} {item.unidad && `(${item.unidad})`}</td>
-                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through text-gray-500">{formatCurrency(item.precioUnitario)}</span> : formatCurrency(item.precioUnitarioPresupuesto)}</td>
-                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top font-semibold">{item.esRegalo ? formatCurrency(0) : formatCurrency(item.costoTotalItem)}</td>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through text-gray-500">{formatCurrency(item.precioUnitario, true)}</span> : formatCurrency(item.precioUnitarioPresupuesto, true)}</td>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top font-semibold">{item.esRegalo ? formatCurrency(0, true) : formatCurrency(item.costoTotalItem, true)}</td>
                             </tr>
                         ))}
                      </React.Fragment>
@@ -484,3 +483,5 @@ export default function Page({ params }: { params: { id: string } }) {
     </Suspense>
   )
 }
+
+    
