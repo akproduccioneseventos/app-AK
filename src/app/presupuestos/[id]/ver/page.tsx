@@ -1,11 +1,10 @@
 
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
-import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'; 
+import Link from 'next/link';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextIcon, CalendarDays, Users, Coins, StickyNote, FileSignature, MessageSquare, Mail, Percent, Tag, Phone, Globe as GlobeIcon, Share2, Gift } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
@@ -64,15 +63,15 @@ function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?
   const categoria = (item.categoriaServicio || '').toLowerCase();
   const subcategoria = (item.subcategoria || '').toLowerCase();
   const ninosYAdolescentes = ninos + adolescentes;
-  
+
   if (categoria.includes('infantil') || categoria.includes('adolescente') || subcategoria.includes('infantil') || subcategoria.includes('adolescente')) {
     return ninosYAdolescentes;
   }
-  
+
   if (categoria.includes('plato principal') || subcategoria.includes('plato principal')) {
     return adultos;
   }
-  
+
   // For ALL OTHER services (Entradas, Postres, Bebidas, Vajilla, DJ, decor, etc.), count everyone.
   return adultos + adolescentes + ninos;
 };
@@ -152,12 +151,12 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
 
         let totalConDescuento = subtotal;
         if (fetchedPresupuesto.descuentoTipo && fetchedPresupuesto.descuentoValor) {
-            const descuento = fetchedPresupuesto.descuentoTipo === 'porcentaje' 
-                ? (subtotal * fetchedPresupuesto.descuentoValor) / 100 
+            const descuento = fetchedPresupuesto.descuentoTipo === 'porcentaje'
+                ? (subtotal * fetchedPresupuesto.descuentoValor) / 100
                 : fetchedPresupuesto.descuentoValor;
             totalConDescuento = subtotal - descuento;
         }
-        
+
         const presupuestoActualizado = {
             ...fetchedPresupuesto,
             itemsPresupuestados: itemsRecalculados,
@@ -177,7 +176,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     } finally {
       setIsLoading(false);
     }
-  }, [presupuestoId, toast]); 
+  }, [presupuestoId, toast]);
 
   useEffect(() => {
     fetchPresupuestoAndSettings();
@@ -186,11 +185,11 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const handleCreateInvoice = () => {
     if (presupuesto) router.push(`/invoices/new?fromPresupuesto=${presupuesto.id}`);
   };
-  
+
   const handlePrint = () => {
     window.print();
   };
-  
+
   const generarTextoWhatsApp = () => {
     if (!presupuesto) return '';
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
@@ -203,21 +202,21 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     texto += `\n\n¡Esperamos tu consulta!\n*El equipo de ${COMPANY_NAME_BRAND}*`;
     return texto;
   };
-  
+
   const handleShareWhatsApp = () => {
     window.open(`https://wa.me/?text=${encodeURIComponent(generarTextoWhatsApp())}`, '_blank');
   };
-  
+
   const getDisplayQuantity = (item: ItemPresupuestado): string => {
     if (!presupuesto) return 'N/A';
     const adultos = presupuesto.invitadosAdultos || 0;
     const adolescentes = presupuesto.invitadosAdolescentes || 0;
     const ninos = presupuesto.invitadosNinos || 0;
     const cantidadInvitados = getGuestCountForItem(item, adultos, adolescentes, ninos);
-    
+
     switch (item.calculationMethod) {
         case 'porPersona':
-            return `${cantidadInvitados}`;
+            return `${cantidadInvitados} (personas)`;
         case 'ratio':
             if (item.invitadosPorUnidad && item.invitadosPorUnidad > 0) {
               return `${Math.ceil(cantidadInvitados / item.invitadosPorUnidad)}`;
@@ -231,15 +230,11 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   };
 
 
-  const { itemsAgrupados, costoTotalRegalos, subtotalBruto, descuentoPromocional, totalFinal, showAnnualAdjustmentLegend } = useMemo(() => {
+  const { itemsAgrupados, costoTotalRegalos, subtotalBruto, descuentoPromocional, totalFinal } = useMemo(() => {
     if (!presupuesto || !displaySettings) {
-      return { itemsAgrupados: {}, costoTotalRegalos: 0, subtotalBruto: 0, descuentoPromocional: 0, totalFinal: 0, showAnnualAdjustmentLegend: false };
+      return { itemsAgrupados: {}, costoTotalRegalos: 0, subtotalBruto: 0, descuentoPromocional: 0, totalFinal: 0 };
     }
     
-    const adultos = presupuesto.invitadosAdultos || 0;
-    const adolescentes = presupuesto.invitadosAdolescentes || 0;
-    const ninos = presupuesto.invitadosNinos || 0;
-
     const allItems = presupuesto.itemsPresupuestados;
     const itemsRegulares = allItems.filter(item => !item.esRegalo);
     const itemsRegalo = allItems.filter(item => item.esRegalo);
@@ -250,7 +245,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
         acc[categoria].push(item);
         return acc;
     }, {} as Record<string, ItemPresupuestado[]>);
-    
+
     const categoriaOrder = ['Entrada', 'Plato Principal', 'Menú Infantil/Adolescente', 'Postre', 'Servicio de catering', 'Servicio de bebidas', 'Personal', 'Servicio de decoración', 'Servicio de discoteca', 'Servicio de fotografía', 'Servicio de filmación', 'Servicio de entretenimiento', 'Otros servicios', 'Regalo exclusivo', 'Regalos Incluidos'];
     const sortedKeys = Object.keys(agrupados).sort((a,b) => {
         const indexA = categoriaOrder.indexOf(a);
@@ -269,63 +264,52 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     if (itemsRegalo.length > 0) {
       sortedAgrupados['Regalos Incluidos'] = itemsRegalo;
     }
-    
-    // START OF FIX: Recalculate subtotal from the items array.
-    const bruto = itemsRegulares.reduce((sum, item) => sum + item.costoTotalItem, 0);
 
-    const costoRegalos = itemsRegalo.reduce((sum, item) => {
-      // To get the "value" of the gift, we calculate its cost as if it were not a gift
-      const tempItem = {...item, esRegalo: false}; 
-      return sum + calcularCostoItem(tempItem, adultos, adolescentes, ninos);
-    }, 0);
+    const subtotalReal = presupuesto.costoTotalEstimado;
+    const descPromo = subtotalReal - (presupuesto.totalConDescuento ?? subtotalReal);
+    const costoRegalos = itemsRegalo.reduce((sum, item) => sum + (item.precioUnitario * item.cantidad), 0);
     
-    let descPromo = 0;
-    if (presupuesto.descuentoTipo && presupuesto.descuentoValor) {
-        if (presupuesto.descuentoTipo === 'porcentaje') {
-            descPromo = (bruto * presupuesto.descuentoValor) / 100;
-        } else {
-            descPromo = presupuesto.descuentoValor;
-        }
+    // START: Anchor Pricing Logic
+    const descuentoPorcentajeFicticio = displaySettings.promotionalDiscounts?.[0]?.value || 0;
+    const esPorcentaje = displaySettings.promotionalDiscounts?.[0]?.type === 'percentage';
+
+    let subtotalInflado = subtotalReal;
+    if (esPorcentaje && descuentoPorcentajeFicticio > 0 && descuentoPorcentajeFicticio < 100) {
+        subtotalInflado = subtotalReal / (1 - (descuentoPorcentajeFicticio / 100));
+    } else if (!esPorcentaje && descuentoPorcentajeFicticio > 0) {
+        subtotalInflado = subtotalReal + descuentoPorcentajeFicticio;
     }
     
-    const totalAPagar = bruto - descPromo;
-    // END OF FIX
-
-    let totalFinalAjustado = totalAPagar;
-    
-    const anioCreacion = new Date(presupuesto.timestamp).getFullYear();
-    const anioEvento = presupuesto.eventoFecha ? new Date(presupuesto.eventoFecha).getFullYear() : anioCreacion;
-    
-    const showAnnualAdjustmentLegend = 
-        displaySettings.annualAdjustmentPercentage && 
-        displaySettings.annualAdjustmentPercentage > 0 && 
-        anioEvento > anioCreacion;
-
-    if (showAnnualAdjustmentLegend && presupuesto.ajusteAnualActivo) {
-        for (let anio = anioCreacion + 1; anio <= anioEvento; anio++) {
-            const ajuste = totalFinalAjustado * (displaySettings.annualAdjustmentPercentage / 100);
-            totalFinalAjustado += ajuste;
-        }
-    }
+    const valorTotalServiciosMostrado = subtotalInflado + costoRegalos;
+    const descuentoPromocionalFicticio = valorTotalServiciosMostrado - totalFinal;
+    // END: Anchor Pricing Logic
     
     return {
       itemsAgrupados: sortedAgrupados,
-      subtotalBruto: bruto,
       costoTotalRegalos: costoRegalos,
-      descuentoPromocional: Math.max(0, descPromo),
-      totalFinal: totalFinalAjustado,
-      showAnnualAdjustmentLegend,
+      subtotalBruto: valorTotalServiciosMostrado,
+      descuentoPromocional: descuentoPromocionalFicticio,
+      totalFinal: presupuesto.totalConDescuento ?? subtotalReal
     };
 
   }, [presupuesto, displaySettings]);
-  
 
   if (isLoading) {
     return <div className="flex items-center justify-center h-screen"><Loader2 className="w-16 h-16 animate-spin text-primary" /><p className="ml-4 text-xl">Cargando...</p></div>;
   }
-  if (error || !presupuesto) {
-    return <div className="max-w-2xl mx-auto text-center py-10"><AlertTriangle className="w-16 h-16 mx-auto text-destructive mb-4" /><h1 className="text-2xl font-bold">Error</h1><p className="text-muted-foreground">{error || "Presupuesto no encontrado."}</p><Link href="/presupuestos/nuevo" passHref><Button variant="outline" className="mt-6"><ArrowLeft className="mr-2 h-4 w-4"/>Volver</Button></Link></div>;
+  if (error || !presupuesto || !displaySettings) {
+    return <div className="max-w-2xl mx-auto text-center py-10"><AlertTriangle className="w-16 h-16 mx-auto text-destructive mb-4" /><h1 className="text-2xl font-bold">Error</h1><p className="text-muted-foreground">{error || "Presupuesto no encontrado o configuración faltante."}</p><Link href="/presupuestos/nuevo" passHref><Button variant="outline" className="mt-6"><ArrowLeft className="mr-2 h-4 w-4"/>Volver</Button></Link></div>;
   }
+  
+  const anioCreacion = new Date(presupuesto.timestamp).getFullYear();
+  const anioEvento = presupuesto.eventoFecha ? new Date(presupuesto.eventoFecha).getFullYear() : anioCreacion;
+  
+  const showAnnualAdjustmentLegend = 
+      displaySettings.annualAdjustmentPercentage && 
+      displaySettings.annualAdjustmentPercentage > 0 && 
+      anioEvento > anioCreacion &&
+      presupuesto.estado !== 'Facturado' &&
+      !presupuesto.ajusteAnualActivo;
   
   const fechaValidoHasta = new Date(presupuesto.timestamp);
   fechaValidoHasta.setDate(fechaValidoHasta.getDate() + BUDGET_VALIDITY_DAYS_PDF);
@@ -433,7 +417,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 align-top">
                                   {item.esRegalo ? <span className="text-red-600 font-semibold flex items-center gap-1"><Gift className="w-3 h-3"/> {item.nombreServicio} (REGALO)</span> : item.nombreServicio}
                                 </td>
-                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{getDisplayQuantity(item)} {item.unidad && `(${item.unidad})`}</td>
+                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{getDisplayQuantity(item)}</td>
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through text-gray-500">{formatCurrency(item.precioUnitario, true)}</span> : formatCurrency(item.precioUnitarioPresupuesto, true)}</td>
                                 <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top font-semibold">{item.esRegalo ? formatCurrency(0, true) : formatCurrency(item.costoTotalItem, true)}</td>
                             </tr>
@@ -460,7 +444,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                {costoTotalRegalos > 0 && (
                  <div className="flex justify-between text-green-600">
                     <span>Ahorro en Regalos:</span>
-                    <span className="font-medium">{formatCurrency(costoTotalRegalos)}</span>
+                    <span>{formatCurrency(costoTotalRegalos)}</span>
                   </div>
                )}
               <div className="flex justify-between font-bold pt-1 border-t-2 border-gray-600 print:border-gray-700">
@@ -487,60 +471,3 @@ export default function Page({ params }: { params: { id: string } }) {
     </Suspense>
   )
 }
-
-```
-- src/types/invitado.ts:
-```ts
-
-
-export type RsvpStatus = 'Pendiente' | 'Confirmado' | 'Rechazado' | 'Tal vez';
-
-export interface Invitado {
-  id: string;
-  nombre: string;
-  contacto?: string; // Email o teléfono
-  rsvp: RsvpStatus;
-  partySize?: number; // Cuántas personas vienen con esta invitación (incluyendo el principal)
-  tableNumber?: string; // Número de mesa asignado
-  notes?: string; // Notas adicionales (alergias, comentarios)
-  companionNames?: string[]; // Nombres de los acompañantes
-  checkedIn?: boolean; // Has this guest been checked in?
-  checkInTimestamp?: string; // ISO date string of when they were checked in
-}
-
-// Para el formulario de añadir nuevo invitado, antes de tener ID
-export type NuevoInvitadoData = Omit<Invitado, 'id' | 'checkedIn' | 'checkInTimestamp'>;
-
-```
-- tsconfig.json:
-```json
-
-{
-  "compilerOptions": {
-    "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
-    "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
-    "paths": {
-      "@/*": ["./src/*"]
-    }
-  },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/types/invitado.ts"],
-  "exclude": ["node_modules"]
-}
-
-```
