@@ -103,11 +103,13 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting, isMobile, onMove }
         >
            {!isMobile && <GripVertical className="w-5 h-5 text-muted-foreground/70 flex-shrink-0 mt-0.5" />}
             <div className="flex-grow min-w-0">
-               <p className="font-semibold text-sm break-words line-clamp-2" title={lead.name}>{lead.name}</p>
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <p className="font-semibold text-sm break-words line-clamp-2" title={lead.name}>{lead.name}</p>
+                    {budgetSource && <Badge variant="secondary" className={`${budgetSource.className} px-1.5 py-0 text-[10px]`}>{budgetSource.text}</Badge>}
+                </div>
             </div>
         </CardHeader>
         <CardContent className="p-2 flex-grow min-h-0 text-xs text-muted-foreground space-y-1.5">
-          {budgetSource && <Badge variant="outline" className={budgetSource.className}>{budgetSource.text}</Badge>}
           {lead.followUpDate && (
              <div className="flex items-center gap-1.5 font-medium text-amber-700">
                 <Clock className="w-3.5 h-3.5 flex-shrink-0"/>

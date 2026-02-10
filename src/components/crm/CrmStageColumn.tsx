@@ -50,8 +50,8 @@ export function CrmStageColumn({
                 />
                 ))
             ) : (
-                <div className="flex items-center justify-center h-full p-6">
-                    <p className={`text-sm ${stage.textColor} opacity-70`}>Arrastra un prospecto aquí</p>
+                <div className="flex items-center justify-center h-24 p-6">
+                    <p className={`text-sm ${stage.textColor} opacity-70`}>No hay prospectos en esta etapa.</p>
                 </div>
             )}
             </SortableContext>
