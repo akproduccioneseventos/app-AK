@@ -1,5 +1,27 @@
 [
   {
+    "id": "lead_1770669575338_a3z6apt",
+    "name": "G",
+    "phone": "098355530",
+    "notes": "Presupuesto Nº 14\nCosto: $ 305.427,95",
+    "presupuestoId": "pres_1770669575323_zjlg58d",
+    "currentStageId": "s3",
+    "createdAt": "2026-02-09T20:39:35.338Z",
+    "updatedAt": "2026-02-09T20:39:35.365Z",
+    "history": [
+      {
+        "stageId": "s1",
+        "stageName": "Consultó",
+        "timestamp": "2026-02-09T20:39:35.338Z"
+      },
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2026-02-09T20:39:35.365Z"
+      }
+    ]
+  },
+  {
     "id": "lead_1770668022155_koac7ni",
     "name": "Prueba",
     "phone": "098355560",
@@ -19,6 +41,7 @@
         "stageName": "Con presupuesto",
         "timestamp": "2026-02-09T20:13:42.179Z"
       }
-    ]
+    ],
+    "presupuestoEstado": "Enviado"
   }
 ]

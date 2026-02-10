@@ -209,7 +209,7 @@ export default function ArmadoRapidoPage() {
             return setting !== undefined ? setting.visible : true;
         };
         
-        const sortByPrice = (a: { precioPorPersona?: number }, b: { precioPorPersona?: number }) => (a.precioPorPersona || 0) - (b.precioPorPersona || 0);
+        const sortByPrice = (a: { precioVenta: number }, b: { precioVenta: number }) => a.precioVenta - b.precioVenta;
     
         const allDishes = Array.from(
             allMenus.flatMap(m => m.items)
@@ -367,9 +367,7 @@ export default function ArmadoRapidoPage() {
       allSelectedServicesMap.forEach(({ servicio, esRegalo }) => {
           const costoItem = calcularCostoServicio(servicio, adultos, ninosYAdolescentes);
           
-          if (!esRegalo) {
-            subtotalBruto += costoItem;
-          }
+          subtotalBruto += costoItem;
           if (esRegalo) {
               costoTotalRegalos += costoItem;
           }
@@ -396,12 +394,12 @@ export default function ArmadoRapidoPage() {
           });
       });
       
-      const subtotalSinRegalos = subtotalBruto;
-      const descuentoCalculado = config.descuentoGeneral ? (subtotalSinRegalos * config.descuentoGeneral) / 100 : 0;
-      const totalFinal = subtotalSinRegalos - descuentoCalculado;
+      const subtotalReal = subtotalBruto - costoTotalRegalos;
+      const descuentoCalculado = config.descuentoGeneral ? (subtotalReal * config.descuentoGeneral) / 100 : 0;
+      const totalFinal = subtotalReal - descuentoCalculado;
       
       const agrupados = includedServicesList.reduce((acc, item) => {
-        const categoria = item.esRegalo ? 'Regalos Incluidos' : (item.categoria || 'Varios');
+        const categoria = item.categoria || 'Varios';
         if (!acc[categoria]) acc[categoria] = [];
         acc[categoria].push(item);
         return acc;
@@ -444,9 +442,9 @@ export default function ArmadoRapidoPage() {
         });
 
         texto += `-----------------\n`;
-        texto += `*Valor de servicios:* ${formatCurrency(subtotal + totalRegalos)}\n`;
+        texto += `*Valor de servicios:* ${formatCurrency(subtotal)}\n`;
         if (totalRegalos + descuento > 0) {
-            texto += `*Ahorro Total:* -${formatCurrency(totalRegalos + descuento)}\n`;
+            texto += `*Descuento Promocional + Regalos:* -${formatCurrency(totalRegalos + descuento)}\n`;
         }
         texto += `*TOTAL A PAGAR:* *${formatCurrency(costoTotal)}*\n`;
         texto += `-----------------\n`;
@@ -636,11 +634,11 @@ export default function ArmadoRapidoPage() {
                          <div className="w-full md:max-w-xs ml-auto space-y-1 text-sm">
                            <div className="flex justify-between">
                                 <span className="text-muted-foreground">Valor de servicios:</span>
-                                <span className="font-medium">{formatCurrency(subtotal + totalRegalos)}</span>
+                                <span className="font-medium">{formatCurrency(subtotal)}</span>
                             </div>
                             {(totalRegalos + descuento) > 0 && (
                               <div className="flex justify-between text-destructive">
-                                  <span>Ahorro Total:</span>
+                                  <span>Descuento Promocional + Regalos:</span>
                                   <span>-{formatCurrency(totalRegalos + descuento)}</span>
                               </div>
                             )}
