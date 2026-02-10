@@ -230,62 +230,58 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   };
 
 
-  const { itemsAgrupados, costoTotalRegalos, subtotalBruto, descuentoPromocional, totalFinal, showAnnualAdjustmentLegend, subtotalInflado } = useMemo(() => {
+  const { itemsAgrupados, valorServicios, ahorroTotal, totalFinal, showAnnualAdjustmentLegend } = useMemo(() => {
     if (!presupuesto || !displaySettings) {
-      return { itemsAgrupados: {}, costoTotalRegalos: 0, subtotalBruto: 0, descuentoPromocional: 0, totalFinal: 0, showAnnualAdjustmentLegend: false, subtotalInflado: 0 };
+      return { itemsAgrupados: {}, valorServicios: 0, ahorroTotal: 0, totalFinal: 0, showAnnualAdjustmentLegend: false };
     }
     
     const adultos = presupuesto.invitadosAdultos || 0;
     const adolescentes = presupuesto.invitadosAdolescentes || 0;
     const ninos = presupuesto.invitadosNinos || 0;
 
-    const itemsRegulares = presupuesto.itemsPresupuestados.filter(item => !item.esRegalo);
-    const itemsRegalo = presupuesto.itemsPresupuestados.filter(item => item.esRegalo);
+    const allItems = presupuesto.itemsPresupuestados;
+    const itemsRegalo = allItems.filter(item => item.esRegalo);
 
-    const agrupados: Record<string, ItemPresupuestado[]> = itemsRegulares.reduce((acc, item) => {
-        const categoria = item.categoriaServicio || 'Otros Servicios';
+    const agrupados: Record<string, ItemPresupuestado[]> = allItems.reduce((acc, item) => {
+        const categoria = item.esRegalo ? 'Regalos Incluidos' : (item.categoriaServicio || 'Otros Servicios');
         if (!acc[categoria]) acc[categoria] = [];
         acc[categoria].push(item);
         return acc;
     }, {} as Record<string, ItemPresupuestado[]>);
     
-    const sortedKeys = Object.keys(agrupados).sort((a,b) => a.localeCompare(b));
+    const sortedKeys = Object.keys(agrupados).sort((a,b) => a === 'Regalos Incluidos' ? 1 : b === 'Regalos Incluidos' ? -1 : a.localeCompare(b));
     const sortedAgrupados: Record<string, ItemPresupuestado[]> = {};
     sortedKeys.forEach(key => sortedAgrupados[key] = agrupados[key]);
-
-    if (itemsRegalo.length > 0) {
-      sortedAgrupados['Regalos Incluidos'] = itemsRegalo;
-    }
     
     const costoRegalos = itemsRegalo.reduce((sum, item) => {
-      const tempItem = {...item, esRegalo: false};
+      const tempItem = {...item, esRegalo: false}; // Calculate its value as if it wasn't a gift
       return sum + calcularCostoItem(tempItem, adultos, adolescentes, ninos);
     }, 0);
     
-    const bruto = presupuesto.costoTotalEstimado;
+    const subtotalBruto = presupuesto.costoTotalEstimado;
+    const valorServicios = subtotalBruto + costoRegalos;
     
-    const subtotalInflado = (bruto * 1.15) + costoRegalos;
-    
-    let descAplicado = 0;
+    let descuentoPromocional = 0;
     if (presupuesto.descuentoTipo && presupuesto.descuentoValor) {
         if (presupuesto.descuentoTipo === 'porcentaje') {
-            descAplicado = (bruto * presupuesto.descuentoValor) / 100;
+            descuentoPromocional = (subtotalBruto * presupuesto.descuentoValor) / 100;
         } else {
-            descAplicado = presupuesto.descuentoValor;
+            descuentoPromocional = presupuesto.descuentoValor;
         }
     }
-
-    const totalConDescuento = bruto - descAplicado;
     
-    let totalFinalAjustado = totalConDescuento;
+    const ahorroTotal = descuentoPromocional + costoRegalos;
+    const totalFinalCalculado = subtotalBruto - descuentoPromocional;
+    
+    let totalFinalAjustado = totalFinalCalculado;
     
     const anioCreacion = new Date(presupuesto.timestamp).getFullYear();
     const anioEvento = presupuesto.eventoFecha ? new Date(presupuesto.eventoFecha).getFullYear() : anioCreacion;
     
     let shouldShowAdjustmentLegend = false;
     if (displaySettings.annualAdjustmentPercentage && displaySettings.annualAdjustmentPercentage > 0 && anioEvento > anioCreacion) {
-        shouldShowAdjustmentLegend = true; // Preview is needed
-        if (presupuesto.ajusteAnualActivo) { // Only calculate if active
+        shouldShowAdjustmentLegend = true;
+        if (presupuesto.ajusteAnualActivo) {
             for (let anio = anioCreacion + 1; anio <= anioEvento; anio++) {
                 const ajuste = totalFinalAjustado * (displaySettings.annualAdjustmentPercentage / 100);
                 totalFinalAjustado += ajuste;
@@ -295,12 +291,10 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     
     return {
       itemsAgrupados: sortedAgrupados,
-      costoTotalRegalos: costoRegalos,
-      subtotalBruto: bruto,
-      descuentoPromocional: descAplicado,
+      valorServicios,
+      ahorroTotal,
       totalFinal: totalFinalAjustado,
-      showAnnualAdjustmentLegend: shouldShowAdjustmentLegend,
-      subtotalInflado: subtotalInflado
+      showAnnualAdjustmentLegend,
     };
 
   }, [presupuesto, displaySettings]);
@@ -434,23 +428,17 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
           <section className="flex justify-end mb-6 print:mb-3 text-sm print:text-xs">
             <div className="w-full max-w-xs print:max-w-[220px] space-y-0.5">
               <div className="flex justify-between">
-                <span>Subtotal:</span>
-                <span>{displaySettings.useInflatedTotal ? formatCurrency(subtotalInflado, true, true) : formatCurrency(subtotalBruto, true, true)}</span>
+                <span>Valor de servicios:</span>
+                <span>{formatCurrency(valorServicios, true, true)}</span>
               </div>
-               {costoTotalRegalos > 0 && (
-                 <div className="flex justify-between text-green-600">
-                    <span>Ahorro en Regalos:</span>
-                    <span>-{formatCurrency(costoTotalRegalos, true, true)}</span>
-                  </div>
-               )}
-              {descuentoPromocional > 0 && (
+              {ahorroTotal > 0 && (
                   <div className="flex justify-between text-destructive">
-                    <span>Descuento{presupuesto.nombrePromocion ? ` (${presupuesto.nombrePromocion})` : ''}:</span>
-                    <span>-{formatCurrency(descuentoPromocional, true, true)}</span>
+                    <span>Descuento Promocional + Regalos:</span>
+                    <span>-{formatCurrency(ahorroTotal, true, true)}</span>
                   </div>
               )}
               <div className="flex justify-between font-bold pt-1 border-t-2 border-gray-600 print:border-gray-700">
-                <span className="text-base">Importe total</span>
+                <span className="text-base">TOTAL A PAGAR:</span>
                 <span className="text-base">{formatCurrency(totalFinal, true)}</span>
               </div>
             </div>
@@ -473,4 +461,3 @@ export default function Page({ params }: { params: { id: string } }) {
     </Suspense>
   )
 }
-
