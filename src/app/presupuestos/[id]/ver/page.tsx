@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
@@ -73,7 +72,6 @@ function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?
     return adultos;
   }
   
-  // For ALL OTHER services (Entradas, Postres, Bebidas, Vajilla, DJ, decor, etc.), count everyone.
   return adultos + adolescentes + ninos;
 };
 
@@ -138,7 +136,6 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
       setDisplaySettings(fetchedSettings);
       setLogoUrl(templateSettings.logoUrl);
       if (fetchedPresupuesto) {
-        // Recalculate costs on load
         const adultos = fetchedPresupuesto.invitadosAdultos || 0;
         const adolescentes = fetchedPresupuesto.invitadosAdolescentes || 0;
         const ninos = fetchedPresupuesto.invitadosNinos || 0;
@@ -148,24 +145,13 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
             costoTotalItem: calcularCostoItem(item, adultos, adolescentes, ninos)
         }));
 
-        const subtotal = itemsRecalculados.filter(item => !item.esRegalo).reduce((sum, item) => sum + item.costoTotalItem, 0);
+        const subtotalReal = itemsRecalculados.filter(item => !item.esRegalo).reduce((sum, item) => sum + item.costoTotalItem, 0);
 
-        let totalConDescuento = subtotal;
-        if (fetchedPresupuesto.descuentoTipo && fetchedPresupuesto.descuentoValor) {
-            const descuento = fetchedPresupuesto.descuentoTipo === 'porcentaje'
-                ? (subtotal * fetchedPresupuesto.descuentoValor) / 100
-                : fetchedPresupuesto.descuentoValor;
-            totalConDescuento = subtotal - descuento;
-        }
-
-        const presupuestoActualizado = {
+        setPresupuesto({
             ...fetchedPresupuesto,
             itemsPresupuestados: itemsRecalculados,
-            costoTotalEstimado: subtotal, // Correctly updated here
-            totalConDescuento: totalConDescuento !== subtotal ? totalConDescuento : undefined,
-        };
-
-        setPresupuesto(presupuestoActualizado);
+            costoTotalEstimado: subtotalReal,
+        });
 
       } else {
         setError(`Presupuesto con ID ${presupuestoId} no encontrado.`);
@@ -188,16 +174,23 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
       return { itemsAgrupados: {}, valorServicios: 0, ahorroTotal: 0, totalAPagar: 0, showAnnualAdjustmentLegend: false };
     }
     
-    const allItems = presupuesto.itemsPresupuestados;
-    const itemsRegalo = allItems.filter(item => item.esRegalo);
-
-    const agrupados: Record<string, ItemPresupuestado[]> = allItems.reduce((acc, item) => {
+    const totalRealServicios = presupuesto.costoTotalEstimado;
+    const valorServiciosInflado = Math.round(totalRealServicios * 1.15);
+    const ahorroCalculado = valorServiciosInflado - totalRealServicios;
+    const totalAPagarCalculado = totalRealServicios;
+    
+    const anioCreacion = new Date(presupuesto.timestamp).getFullYear();
+    const anioEvento = presupuesto.eventoFecha ? new Date(presupuesto.eventoFecha).getFullYear() : anioCreacion;
+    const currentYear = new Date().getFullYear();
+    const showAdj = anioEvento > currentYear && presupuesto?.estado !== 'Facturado' && !presupuesto.ajusteAnualActivo;
+    
+    const agrupados: Record<string, ItemPresupuestado[]> = presupuesto.itemsPresupuestados.reduce((acc, item) => {
         const categoria = item.subcategoria || item.categoriaServicio || 'Otros Servicios';
         if (!acc[categoria]) acc[categoria] = [];
         acc[categoria].push(item);
         return acc;
     }, {} as Record<string, ItemPresupuestado[]>);
-
+    
     const categoriaOrder = ['Entrada', 'Plato Principal', 'Menú Infantil/Adolescente', 'Postre', 'Servicio de catering', 'Servicio de bebidas', 'Personal', 'Servicio de decoración', 'Servicio de discoteca', 'Servicio de fotografía', 'Servicio de filmación', 'Servicio de entretenimiento', 'Otros servicios', 'Regalo exclusivo', 'Regalos Incluidos'];
     const sortedKeys = Object.keys(agrupados).sort((a,b) => {
         const indexA = categoriaOrder.indexOf(a);
@@ -209,37 +202,12 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     });
 
     const sortedAgrupados: Record<string, ItemPresupuestado[]> = {};
-    sortedKeys.forEach(key => {
-        sortedAgrupados[key] = agrupados[key];
-    });
-
-    const totalRealServicios = presupuesto.costoTotalEstimado;
-    const valorServiciosInflado = Math.round(totalRealServicios * 1.15);
-    
-    const costoTotalRegalos = itemsRegalo.reduce((sum, item) => {
-        const itemDataForCalc: ItemPresupuestado = { ...item, esRegalo: false, costoTotalItem: 0 };
-        return sum + calcularCostoItem(itemDataForCalc, presupuesto.invitadosAdultos || 0, presupuesto.invitadosAdolescentes || 0, presupuesto.invitadosNinos || 0);
-    }, 0);
-    const descuentoPorInflado = valorServiciosInflado - totalRealServicios;
-    const ahorroTotalCalculado = descuentoPorInflado + costoTotalRegalos;
-    
-    const totalAPagarCalculado = totalRealServicios;
-
-    const anioCreacion = new Date(presupuesto.timestamp).getFullYear();
-    const anioEvento = presupuesto.eventoFecha ? new Date(presupuesto.eventoFecha).getFullYear() : anioCreacion;
-    const currentYear = new Date().getFullYear();
-  
-    const showAdj = 
-      displaySettings?.annualAdjustmentPercentage && 
-      displaySettings.annualAdjustmentPercentage > 0 && 
-      anioEvento > currentYear &&
-      presupuesto?.estado !== 'Facturado' &&
-      !presupuesto.ajusteAnualActivo;
+    sortedKeys.forEach(key => sortedAgrupados[key] = agrupados[key]);
 
     return {
       itemsAgrupados: sortedAgrupados,
       valorServicios: valorServiciosInflado,
-      ahorroTotal: ahorroTotalCalculado,
+      ahorroTotal: ahorroCalculado,
       totalAPagar: totalAPagarCalculado,
       showAnnualAdjustmentLegend: showAdj
     };
@@ -274,7 +242,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     texto += `-----------------\n`;
     texto += `*Valor de servicios:* ${formatCurrency(valorServicios)}\n`;
     if (ahorroTotal > 0) {
-      texto += `*Ahorro Total (Descuento + Regalos):* -${formatCurrency(ahorroTotal)}\n`;
+      texto += `*Ahorro Total (Descuento Promocional):* -${formatCurrency(ahorroTotal)}\n`;
     }
     texto += `*TOTAL A PAGAR:* *${formatCurrency(totalAPagar)}*\n`;
     texto += `-----------------\n`;
@@ -349,7 +317,9 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
           <Link href={`/presupuestos/${presupuestoId}/editar`} passHref><Button variant="outline" size="sm"><Edit className="mr-2 h-4 w-4"/>Editar</Button></Link>
         </div>
       </div>
-      <div className="max-w-3xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2" id="invoice-to-print">
+
+      <div className="max-w-3xl mx-auto">
+        <div className="bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2" id="invoice-to-print">
             <header className="mb-6 print:mb-4">
               <div className="flex justify-between items-start">
                 <h1 className="text-xl font-bold text-left mb-4 print:text-base leading-tight">{COMPANY_MAIN_TITLE}</h1>
@@ -390,14 +360,14 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                     </tr>
                   </tbody>
                 </table>
-                <table className="w-full text-xs print:text-[7pt] border-collapse mt-2">
+                 <table className="w-full text-xs print:text-[7pt] border-collapse mt-2">
                     <thead className="print:bg-gray-100">
                         <tr>
-                            <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Tipo de Evento</th>
-                            <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Protagonista(s)</th>
-                            <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Fecha del Evento</th>
-                            <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Lugar</th>
-                            <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Nº Invitados</th>
+                             <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Tipo de Evento</th>
+                             <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Protagonista(s)</th>
+                             <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Fecha del Evento</th>
+                             <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Lugar</th>
+                             <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Nº Invitados</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -409,7 +379,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                             <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.invitadosCantidad}</td>
                         </tr>
                     </tbody>
-                </table>
+                 </table>
               </section>
 
               {displaySettings.showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0 && (
@@ -435,7 +405,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                                     {item.esRegalo ? <span className="text-red-600 font-semibold flex items-center gap-1"><Gift className="w-3 h-3"/> {item.nombreServicio} (REGALO)</span> : item.nombreServicio}
                                   </td>
                                   <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{getDisplayQuantity(item)}</td>
-                                  <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through text-gray-500">{formatCurrency(item.precioUnitario, true)}</span> : formatCurrency(item.precioUnitarioPresupuesto, true)}</td>
+                                  <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through text-gray-500">{formatCurrency(item.precioUnitarioOriginal, true)}</span> : formatCurrency(item.precioUnitarioPresupuesto, true)}</td>
                                   <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top font-semibold">{item.esRegalo ? formatCurrency(0, true) : formatCurrency(item.costoTotalItem, true)}</td>
                               </tr>
                           ))}
@@ -454,7 +424,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                   </div>
                   {ahorroTotal > 0 && (
                     <div className="flex justify-between text-destructive">
-                        <span>Ahorro Total (Descuento + Regalos):</span>
+                        <span>Ahorro Promocional:</span>
                         <span className="font-medium">-{formatCurrency(ahorroTotal, true, true)}</span>
                     </div>
                   )}
@@ -468,21 +438,20 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
              <footer className="mt-6 pt-3 border-t border-gray-300 print:mt-2 print:pt-1.5 print:border-gray-400 text-xs print:text-[8pt] text-gray-600 print:text-black">
                 <p>{BUDGET_DEPOSIT_NOTE_PDF}</p>
                 {presupuesto.notas && displaySettings.showPaymentMethodNotes && <p className="mt-1 print:mt-0.5 whitespace-pre-line">{presupuesto.notas}</p>}
-                {showAnnualAdjustmentLegend && (<p className="mt-1 print:mt-0.5 text-orange-600 font-medium">Nota: Este presupuesto podría estar sujeto a un ajuste anual del {displaySettings.annualAdjustmentPercentage}% si el evento se realiza en un año posterior al actual.</p>)}
+                {showAnnualAdjustmentLegend && (<p className="mt-1 print:mt-0.5 text-orange-600 font-medium">Nota: Este presupuesto podría estar sujeto a un ajuste anual del 15% si el evento se realiza en un año posterior al actual.</p>)}
               </footer>
           </div>
-        <div className="print:hidden max-w-3xl mx-auto">
-            <Card className="shadow-md border-primary/20">
-                <CardHeader className="bg-primary/5 p-4 md:p-6"><CardTitle className="font-headline text-lg md:text-xl text-primary">Acciones y Compartir</CardTitle></CardHeader>
-                <CardContent className="p-4 md:p-6 flex flex-col sm:flex-row gap-3">
-                    <Button variant="outline" onClick={handlePrint} className="w-full"><Printer className="w-4 h-4 mr-2"/>Imprimir o Guardar como PDF</Button>
-                    <Button variant="secondary" onClick={handleShareWhatsApp} className="w-full"><Share2 className="w-4 h-4 mr-2"/>Enviar por WhatsApp</Button>
-                    <Button variant="secondary" onClick={handleCopyToClipboard} className="w-full"><ClipboardCopy className="w-4 h-4 mr-2"/>Copiar Resumen</Button>
-                </CardContent>
-            </Card>
-        </div>
+        
+          <Card className="shadow-md border-primary/20 print:hidden mt-6">
+              <CardHeader className="bg-primary/5 p-4 md:p-6"><CardTitle className="font-headline text-lg md:text-xl text-primary">Acciones y Compartir</CardTitle></CardHeader>
+              <CardContent className="p-4 md:p-6 flex flex-col sm:flex-row gap-3">
+                  <Button variant="outline" onClick={handlePrint} className="w-full"><Printer className="w-4 h-4 mr-2"/>Imprimir o Guardar como PDF</Button>
+                  <Button variant="secondary" onClick={handleShareWhatsApp} className="w-full"><Share2 className="w-4 h-4 mr-2"/>Enviar por WhatsApp</Button>
+                  <Button variant="secondary" onClick={handleCopyToClipboard} className="w-full"><ClipboardCopy className="w-4 h-4 mr-2"/>Copiar Resumen</Button>
+              </CardContent>
+          </Card>
       </div>
-    </>
+    </div>
   );
 }
 
