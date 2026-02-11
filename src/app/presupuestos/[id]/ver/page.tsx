@@ -19,8 +19,6 @@ import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 
 const formatCurrency = (amount?: number, includeSymbol = true, useNUS = false) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
-  // Use toLocaleString which handles rounding and formatting according to locale rules.
-  // Using maximumFractionDigits: 0 will effectively round to the nearest integer.
   return new Intl.NumberFormat('es-UY', {
     style: 'currency',
     currency: 'UYU',
@@ -123,67 +121,6 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
-  const calculatedValues = useMemo(() => {
-    if (!presupuesto) {
-      return { itemsAgrupados: {}, valorServiciosAntesDeDescuento: 0, costoTotalRegalos: 0, descuentoPromocional: 0, totalAPagar: 0 };
-    }
-    
-    const totalReal = presupuesto.itemsPresupuestados
-      .filter(item => !item.esRegalo)
-      .reduce((sum, item) => sum + item.costoTotalItem, 0);
-
-    const porcentajeDescuento = (presupuesto.descuentoValor && presupuesto.descuentoTipo === 'porcentaje') ? presupuesto.descuentoValor : 0;
-    
-    // Invert calculation for display value
-    const valorServiciosCalc = (porcentajeDescuento > 0 && porcentajeDescuento < 100)
-      ? totalReal / (1 - (porcentajeDescuento / 100))
-      : totalReal;
-      
-    const descuentoCalculado = valorServiciosCalc - totalReal;
-    
-    const costoRegalosCalc = presupuesto.itemsPresupuestados
-      .filter(item => item.esRegalo)
-      .reduce((sum, item) => {
-        const itemSinRegalo = { ...item, esRegalo: false };
-        // Use precioUnitarioOriginal which should hold the real price before it was gifted
-        const originalPriceItem = { ...itemSinRegalo, precioUnitarioPresupuesto: item.precioUnitarioOriginal || item.precioUnitario };
-        return sum + calcularCostoItem(originalPriceItem, presupuesto.invitadosAdultos || 0, presupuesto.invitadosAdolescentes || 0, presupuesto.invitadosNinos || 0);
-      }, 0);
-
-    const agrupados: Record<string, ItemPresupuestado[]> = presupuesto.itemsPresupuestados.reduce((acc, item) => {
-        const categoria = item.subcategoria || item.categoriaServicio || 'Otros Servicios';
-        if (!acc[categoria]) acc[categoria] = [];
-        acc[categoria].push(item);
-        return acc;
-    }, {} as Record<string, ItemPresupuestado[]>);
-    
-    const categoriaOrder = ['Entrada', 'Plato Principal', 'Menú Infantil/Adolescente', 'Postre', 'Servicio de catering', 'Servicio de bebidas', 'Personal', 'Servicio de decoración', 'Servicio de discoteca', 'Servicio de fotografía', 'Servicio de filmación', 'Servicio de entretenimiento', 'Otros servicios', 'Regalo exclusivo', 'Regalos Incluidos'];
-    const sortedKeys = Object.keys(agrupados).sort((a,b) => {
-        const indexA = categoriaOrder.indexOf(a);
-        const indexB = categoriaOrder.indexOf(b);
-        if (indexA !== -1 && indexB !== -1) return indexA - indexB;
-        if (indexA !== -1) return -1;
-        if (indexB !== -1) return 1;
-        return a.localeCompare(b);
-    });
-    const sortedAgrupados: Record<string, ItemPresupuestado[]> = {};
-    sortedKeys.forEach(key => sortedAgrupados[key] = agrupados[key]);
-
-    // Ensure gifts are always last if they exist
-    if (presupuesto.itemsPresupuestados.some(item => item.esRegalo)) {
-      sortedAgrupados['Regalos Incluidos'] = presupuesto.itemsPresupuestados.filter(item => item.esRegalo);
-    }
-    
-    return {
-      itemsAgrupados: sortedAgrupados,
-      valorServiciosAntesDeDescuento: Math.round(valorServiciosCalc),
-      costoTotalRegalos: Math.round(costoRegalosCalc),
-      descuentoPromocional: Math.round(descuentoCalculado),
-      totalAPagar: Math.round(totalReal)
-    };
-  }, [presupuesto]);
-
 
   const fetchPresupuestoAndSettings = useCallback(async () => {
     if (!presupuestoId) { setError("ID de presupuesto no válido."); setIsLoading(false); return; }
@@ -201,12 +138,27 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
         const adolescentes = fetchedPresupuesto.invitadosAdolescentes || 0;
         const ninos = fetchedPresupuesto.invitadosNinos || 0;
 
-        // Recalculate costs on load to ensure they are up-to-date with logic
         const itemsRecalculados = fetchedPresupuesto.itemsPresupuestados.map(item => ({
             ...item,
             costoTotalItem: calcularCostoItem(item, adultos, adolescentes, ninos)
         }));
-        setPresupuesto({...fetchedPresupuesto, itemsPresupuestados: itemsRecalculados});
+        
+        const costoTotalEstimadoRecalculado = itemsRecalculados.filter(item => !item.esRegalo).reduce((sum, item) => sum + item.costoTotalItem, 0);
+
+        let finalTotalWithDiscount = costoTotalEstimadoRecalculado;
+        if (fetchedPresupuesto.descuentoTipo && fetchedPresupuesto.descuentoValor && fetchedPresupuesto.descuentoValor > 0) {
+            const descuentoAplicado = fetchedPresupuesto.descuentoTipo === 'porcentaje'
+                ? (costoTotalEstimadoRecalculado * fetchedPresupuesto.descuentoValor) / 100
+                : fetchedPresupuesto.descuentoValor;
+            finalTotalWithDiscount = costoTotalEstimadoRecalculado - descuentoAplicado;
+        }
+
+        setPresupuesto({
+            ...fetchedPresupuesto, 
+            itemsPresupuestados: itemsRecalculados,
+            costoTotalEstimado: costoTotalEstimadoRecalculado,
+            totalConDescuento: finalTotalWithDiscount !== costoTotalEstimadoRecalculado ? finalTotalWithDiscount : undefined,
+        });
 
       } else {
         setError(`Presupuesto con ID ${presupuestoId} no encontrado.`);
@@ -224,12 +176,55 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     fetchPresupuestoAndSettings();
   }, [fetchPresupuestoAndSettings]);
   
-  const showAnnualAdjustmentLegend = useMemo(() => {
-    if (!presupuesto || !displaySettings) return false;
-    const anioCreacion = new Date(presupuesto.timestamp).getFullYear();
-    const anioEvento = presupuesto.eventoFecha ? new Date(presupuesto.eventoFecha).getFullYear() : anioCreacion;
-    const currentYear = new Date().getFullYear();
-    return anioEvento > currentYear && presupuesto?.estado !== 'Facturado' && !presupuesto.ajusteAnualActivo;
+  const calculatedValues = useMemo(() => {
+    if (!presupuesto || !displaySettings) {
+      return { itemsAgrupados: {}, valorServiciosAntesDeDescuento: 0, costoTotalRegalos: 0, descuentoPromocional: 0, totalAPagar: 0 };
+    }
+
+    const TOTAL_REAL = presupuesto.costoTotalEstimado;
+    const PORCENTAJE_DESCUENTO = (presupuesto.descuentoTipo === 'porcentaje' ? presupuesto.descuentoValor || 0 : displaySettings.promotionalDiscounts?.find(d => d.type === 'percentage')?.value || 0) / 100;
+    
+    const VALOR_SERVICIOS = PORCENTAJE_DESCUENTO > 0 ? TOTAL_REAL / (1 - PORCENTAJE_DESCUENTO) : TOTAL_REAL;
+    const DESCUENTO = VALOR_SERVICIOS - TOTAL_REAL;
+
+    const costoRegalos = presupuesto.itemsPresupuestados
+      .filter(item => item.esRegalo)
+      .reduce((sum, item) => {
+        const itemSinRegalo = { ...item, esRegalo: false };
+        const originalPriceItem = { ...itemSinRegalo, precioUnitarioPresupuesto: item.precioUnitarioOriginal || item.precioUnitario };
+        return sum + calcularCostoItem(originalPriceItem, presupuesto.invitadosAdultos || 0, presupuesto.invitadosAdolescentes || 0, presupuesto.invitadosNinos || 0);
+      }, 0);
+
+    const agrupados: Record<string, ItemPresupuestado[]> = presupuesto.itemsPresupuestados.reduce((acc, item) => {
+        const categoria = item.categoriaServicio || 'Otros Servicios';
+        if (!acc[categoria]) acc[categoria] = [];
+        acc[categoria].push(item);
+        return acc;
+    }, {} as Record<string, ItemPresupuestado[]>);
+    
+    const categoriaOrder = ['Entrada', 'Plato Principal', 'Menú Infantil/Adolescente', 'Postre', 'Servicio de catering', 'Servicio de bebidas', 'Personal', 'Servicio de decoración', 'Servicio de discoteca', 'Servicio de fotografía', 'Servicio de filmación', 'Servicio de entretenimiento', 'Otros servicios', 'Regalo exclusivo', 'Regalos Incluidos'];
+    const sortedKeys = Object.keys(agrupados).sort((a,b) => {
+        const indexA = categoriaOrder.indexOf(a);
+        const indexB = categoriaOrder.indexOf(b);
+        if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+        if (indexA !== -1) return -1;
+        if (indexB !== -1) return 1;
+        return a.localeCompare(b);
+    });
+    const sortedAgrupados: Record<string, ItemPresupuestado[]> = {};
+    sortedKeys.forEach(key => sortedAgrupados[key] = agrupados[key]);
+
+    if (presupuesto.itemsPresupuestados.some(item => item.esRegalo)) {
+      sortedAgrupados['Regalos Incluidos'] = presupuesto.itemsPresupuestados.filter(item => item.esRegalo);
+    }
+    
+    return {
+      itemsAgrupados: sortedAgrupados,
+      valorServiciosAntesDeDescuento: Math.round(VALOR_SERVICIOS),
+      costoTotalRegalos: Math.round(costoRegalos),
+      descuentoPromocional: Math.round(DESCUENTO),
+      totalAPagar: Math.round(TOTAL_REAL)
+    };
   }, [presupuesto, displaySettings]);
 
 
@@ -324,155 +319,169 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     
   const protagonistas = [presupuesto.protagonista1Nombre, presupuesto.protagonista2Nombre].filter(Boolean).join(' y ');
   const displayId = presupuesto.numero ? `#${presupuesto.numero}` : `#${presupuesto.id.split('_').pop()?.substring(0,6)}`;
+  
+  const showAnnualAdjustmentLegend = useMemo(() => {
+    if (!presupuesto || !displaySettings) return false;
+    const anioCreacion = new Date(presupuesto.timestamp).getFullYear();
+    const anioEvento = presupuesto.eventoFecha ? new Date(presupuesto.eventoFecha).getFullYear() : anioCreacion;
+    const currentYear = new Date().getFullYear();
+    return anioEvento > currentYear && presupuesto?.estado !== 'Facturado' && !presupuesto.ajusteAnualActivo;
+  }, [presupuesto, displaySettings]);
+
 
   return (
-    <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans text-gray-800 print:text-black">
-      <div className="flex justify-between items-center mb-6 print:hidden max-w-3xl mx-auto">
-        <Link href="/presupuestos/nuevo" passHref><Button variant="outline" size="sm"><ArrowLeft className="mr-2 h-4 w-4"/>Volver al Creador</Button></Link>
-        <div className="flex gap-2 flex-wrap justify-end">
-          <Button variant="outline" size="sm" onClick={handleShareWhatsApp}><Share2 className="w-4 h-4 mr-2"/>WhatsApp</Button>
-          <Button variant="outline" size="sm" onClick={handleCopyToClipboard}><ClipboardCopy className="w-4 h-4 mr-2"/>Copiar Texto</Button>
-          <Button onClick={handlePrint} size="sm"><Printer className="mr-2 h-4 w-4"/>Imprimir/PDF</Button>
-          {presupuesto.estado !== 'Facturado' ? 
-            (<Link href={`/invoices/new?fromPresupuesto=${presupuesto.id}`} passHref><Button variant='default' size="sm"><FileTextIcon className="mr-2 h-4 w-4"/>Crear Factura</Button></Link>) : 
-            presupuesto.invoiceId ? 
-            (<Link href={`/invoices/${presupuesto.invoiceId}`} passHref><Button variant="secondary" size="sm" className="bg-green-100 text-green-700 hover:bg-green-200"><FileSignature className="mr-2 h-4 w-4"/>Ver Factura</Button></Link>) : 
-            (<Button variant="secondary" size="sm" disabled>Facturado</Button>)}
-          <Link href={`/presupuestos/${presupuestoId}/editar`} passHref><Button variant="outline" size="sm"><Edit className="mr-2 h-4 w-4"/>Editar</Button></Link>
+    <>
+      <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans text-gray-800 print:text-black">
+        <div className="flex justify-between items-center mb-6 print:hidden max-w-3xl mx-auto">
+          <Link href="/presupuestos/nuevo" passHref><Button variant="outline" size="sm"><ArrowLeft className="mr-2 h-4 w-4"/>Volver al Creador</Button></Link>
+          <div className="flex gap-2 flex-wrap justify-end">
+            <Button variant="outline" size="sm" onClick={handleShareWhatsApp}><Share2 className="w-4 h-4 mr-2"/>WhatsApp</Button>
+            <Button variant="outline" size="sm" onClick={handleCopyToClipboard}><ClipboardCopy className="w-4 h-4 mr-2"/>Copiar Texto</Button>
+            <Button onClick={handlePrint} size="sm"><Printer className="mr-2 h-4 w-4"/>Imprimir/PDF</Button>
+            {presupuesto.estado !== 'Facturado' ? 
+              (<Link href={`/invoices/new?fromPresupuesto=${presupuesto.id}`} passHref><Button variant='default' size="sm"><FileTextIcon className="mr-2 h-4 w-4"/>Crear Factura</Button></Link>) : 
+              presupuesto.invoiceId ? 
+              (<Link href={`/invoices/${presupuesto.invoiceId}`} passHref><Button variant="secondary" size="sm" className="bg-green-100 text-green-700 hover:bg-green-200"><FileSignature className="mr-2 h-4 w-4"/>Ver Factura</Button></Link>) : 
+              (<Button variant="secondary" size="sm" disabled>Facturado</Button>)}
+            <Link href={`/presupuestos/${presupuestoId}/editar`} passHref><Button variant="outline" size="sm"><Edit className="mr-2 h-4 w-4"/>Editar</Button></Link>
+          </div>
         </div>
-      </div>
 
-      <div className="bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2 max-w-3xl mx-auto" id="invoice-to-print">
-            <header className="mb-6 print:mb-4">
-              <div className="flex justify-between items-start">
-                <h1 className="text-xl font-bold text-left mb-4 print:text-base leading-tight">{COMPANY_MAIN_TITLE}</h1>
-                {displaySettings.showCompanyLogo && logoUrl && (
-                    <div className="w-24 h-20 print:w-20 print:h-16 flex-shrink-0">
-                        <Image src={logoUrl} alt={`${COMPANY_NAME_BRAND} Logo`} width={100} height={80} className="object-contain" data-ai-hint="company logo"/>
-                    </div>
-                )}
-              </div>
-              <div className="text-xs print:text-[8pt] gap-2 text-left">
-                <p className="font-semibold">{COMPANY_CONTACT_PERSON}</p>
-                <p>{COMPANY_ADDRESS_LINE1_PDF}, {COMPANY_ADDRESS_LINE2_PDF}</p>
-                <p>{COMPANY_CONTACT_EMAIL_PDF} | {COMPANY_WEBSITE_PDF}</p>
-              </div>
-            </header>
+        <div className="bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2 max-w-3xl mx-auto" id="invoice-to-print">
+              <header className="mb-6 print:mb-4">
+                <div className="flex justify-between items-start">
+                  <h1 className="text-xl font-bold text-left mb-4 print:text-base leading-tight">{COMPANY_MAIN_TITLE}</h1>
+                  {displaySettings.showCompanyLogo && logoUrl && (
+                      <div className="w-24 h-20 print:w-20 print:h-16 flex-shrink-0">
+                          <Image src={logoUrl} alt={`${COMPANY_NAME_BRAND} Logo`} width={100} height={80} className="object-contain" data-ai-hint="company logo"/>
+                      </div>
+                  )}
+                </div>
+                <div className="text-xs print:text-[8pt] gap-2 text-left">
+                  <p className="font-semibold">{COMPANY_CONTACT_PERSON}</p>
+                  <p>{COMPANY_ADDRESS_LINE1_PDF}, {COMPANY_ADDRESS_LINE2_PDF}</p>
+                  <p>{COMPANY_CONTACT_EMAIL_PDF} | {COMPANY_WEBSITE_PDF}</p>
+                </div>
+              </header>
 
-            {displaySettings.showClientData && (
-              <section className="mb-4 print:mb-2 text-sm print:text-[9pt] border-y py-2 print:py-1">
-                <p><span className="font-semibold">Cliente:</span> {presupuesto.clienteNombre}</p>
-                {presupuesto.clienteContacto && <p><span className="font-semibold">Contacto:</span> {presupuesto.clienteContacto}</p>}
-              </section>
-            )}
-            
-              <section className="mb-4 print:mb-2">
-                <table className="w-full text-xs print:text-[7pt] border-collapse">
-                  <thead className="print:bg-gray-100">
-                    <tr>
-                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Número de Presupuesto</th>
-                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Fecha</th>
-                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Válido hasta</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{displayId}</td>
-                      <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(presupuesto.timestamp, true)}</td>
-                      <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(fechaValidoHasta.toISOString(), true)}</td>
-                    </tr>
-                  </tbody>
-                </table>
-                 <table className="w-full text-xs print:text-[7pt] border-collapse mt-2">
-                    <thead className="print:bg-gray-100">
-                        <tr>
-                             <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Tipo de Evento</th>
-                             <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Protagonista(s)</th>
-                             <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Fecha del Evento</th>
-                             <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Lugar</th>
-                             <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Nº Invitados</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.eventoTipo}</td>
-                            <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{protagonistas || 'N/A'}</td>
-                            <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(presupuesto.eventoFecha)}</td>
-                            <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.salonFiestas}</td>
-                            <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.invitadosCantidad}</td>
-                        </tr>
-                    </tbody>
-                 </table>
-              </section>
-
-              {displaySettings.showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0 && (
-                <section className="mb-6 print:mb-3">
-                  <table className="w-full text-xs print:text-[7pt] border-collapse">
-                      <thead className="print:bg-gray-100">
-                      <tr>
-                          <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50 w-3/5">Artículo</th>
-                          <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center font-medium bg-gray-50">Cantidad</th>
-                          <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right font-medium bg-gray-50">Precio Unitario</th>
-                          <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right font-medium bg-gray-50">Importe total</th>
-                      </tr>
-                      </thead>
-                      <tbody>
-                      {Object.entries(calculatedValues.itemsAgrupados).map(([categoria, items]) => (
-                       <React.Fragment key={categoria}>
-                          <tr className="bg-gray-50 print:bg-gray-100">
-                            <td colSpan={4} className="border border-gray-300 print:border-gray-400 px-1.5 py-1 font-bold text-gray-600">{categoria}</td>
-                          </tr>
-                          {items.map((item) => (
-                              <tr key={item.idServicioCatalogo}>
-                                  <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 align-top">
-                                    {item.esRegalo ? <span className="text-destructive font-semibold flex items-center gap-1"><Gift className="w-3 h-3"/> {item.nombreServicio} (REGALO)</span> : item.nombreServicio}
-                                  </td>
-                                  <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{getDisplayQuantity(item)}</td>
-                                  <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through text-gray-500">{formatCurrency(item.precioUnitarioOriginal, true)}</span> : formatCurrency(item.precioUnitarioPresupuesto, true)}</td>
-                                  <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top font-semibold">{item.esRegalo ? formatCurrency(0, true) : formatCurrency(item.costoTotalItem, true)}</td>
-                              </tr>
-                          ))}
-                       </React.Fragment>
-                    ))}
-                      </tbody>
-                  </table>
+              {displaySettings.showClientData && (
+                <section className="mb-4 print:mb-2 text-sm print:text-[9pt] border-y py-2 print:py-1">
+                  <p><span className="font-semibold">Cliente:</span> {presupuesto.clienteNombre}</p>
+                  {presupuesto.clienteContacto && <p><span className="font-semibold">Contacto:</span> {presupuesto.clienteContacto}</p>}
                 </section>
               )}
               
-             <section className="flex justify-end mb-6 print:mb-3 text-sm print:text-xs">
-                <div className="w-full max-w-xs print:max-w-[220px] space-y-0.5">
-                    <div className="flex justify-between">
-                        <span className="text-muted-foreground">Valor de servicios:</span>
-                        <span className="font-medium">{formatCurrency(calculatedValues.valorServiciosAntesDeDescuento, true)}</span>
-                    </div>
-                    {calculatedValues.descuentoPromocional > 0 && (
-                        <div className="flex justify-between text-destructive">
-                        <span>Descuento{presupuesto.nombrePromocion ? ` (${presupuesto.nombrePromocion})` : ''}:</span>
-                        <span className="font-medium">-{formatCurrency(calculatedValues.descuentoPromocional, true)}</span>
-                        </div>
-                    )}
-                    {calculatedValues.costoTotalRegalos > 0 && (
-                        <div className="flex justify-between text-green-600">
-                        <span className="flex items-center gap-1"><Gift className="w-3.5 h-3.5"/>Ahorro en Regalos:</span>
-                        <span className="font-medium">{formatCurrency(calculatedValues.costoTotalRegalos, true)}</span>
-                        </div>
-                    )}
-                    <Separator className="my-2"/>
-                    <div className="flex justify-between font-bold text-lg pt-1">
-                        <span className="text-primary">TOTAL A PAGAR:</span>
-                        <span className="text-primary">{formatCurrency(calculatedValues.totalAPagar, true)}</span>
-                    </div>
-                </div>
-              </section>
-              
-             <footer className="mt-6 pt-3 border-t border-gray-300 print:mt-2 print:pt-1.5 print:border-gray-400 text-xs print:text-[8pt] text-gray-600 print:text-black">
-                <p>{BUDGET_DEPOSIT_NOTE_PDF}</p>
-                {presupuesto.notas && displaySettings.showPaymentMethodNotes && <p className="mt-1 print:mt-0.5 whitespace-pre-line">{presupuesto.notas}</p>}
-                {showAnnualAdjustmentLegend && (<p className="mt-1 print:mt-0.5 text-orange-600 font-medium">Nota: Este presupuesto podría estar sujeto a un ajuste anual del {displaySettings.annualAdjustmentPercentage}% si el evento se realiza en un año posterior al actual.</p>)}
-              </footer>
-          </div>
-      </div>
-    </div>
+                <section className="mb-4 print:mb-2">
+                  <table className="w-full text-xs print:text-[7pt] border-collapse">
+                    <thead className="print:bg-gray-100">
+                      <tr>
+                        <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Número de Presupuesto</th>
+                        <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Fecha</th>
+                        <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Válido hasta</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{displayId}</td>
+                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(presupuesto.timestamp, true)}</td>
+                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(fechaValidoHasta.toISOString(), true)}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                   <table className="w-full text-xs print:text-[7pt] border-collapse mt-2">
+                      <thead className="print:bg-gray-100">
+                          <tr>
+                               <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Tipo de Evento</th>
+                               <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Protagonista(s)</th>
+                               <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Fecha del Evento</th>
+                               <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Lugar</th>
+                               <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Nº Invitados</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          <tr>
+                              <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.eventoTipo}</td>
+                              <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{protagonistas || 'N/A'}</td>
+                              <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(presupuesto.eventoFecha)}</td>
+                              <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.salonFiestas}</td>
+                              <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.invitadosCantidad}</td>
+                          </tr>
+                      </tbody>
+                   </table>
+                </section>
+
+                {displaySettings.showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0 && (
+                  <section className="mb-6 print:mb-3">
+                    <table className="w-full text-xs print:text-[7pt] border-collapse">
+                        <thead className="print:bg-gray-100">
+                        <tr>
+                            <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50 w-3/5">Artículo</th>
+                            <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center font-medium bg-gray-50">Cantidad</th>
+                            <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right font-medium bg-gray-50">Precio Unitario</th>
+                            <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right font-medium bg-gray-50">Importe total</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {Object.entries(calculatedValues.itemsAgrupados).map(([categoria, items]) => (
+                         <React.Fragment key={categoria}>
+                            <tr className="bg-gray-50 print:bg-gray-100">
+                              <td colSpan={4} className="border border-gray-300 print:border-gray-400 px-1.5 py-1 font-bold text-gray-600">{categoria}</td>
+                            </tr>
+                            {items.map((item) => (
+                                <tr key={item.idServicioCatalogo}>
+                                    <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 align-top">
+                                      {item.esRegalo ? <span className="text-red-600 font-semibold flex items-center gap-1"><Gift className="w-3 h-3"/> {item.nombreServicio} (REGALO)</span> : item.nombreServicio}
+                                    </td>
+                                    <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{getDisplayQuantity(item)}</td>
+                                    <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through text-gray-500">{formatCurrency(item.precioUnitarioOriginal, true)}</span> : formatCurrency(item.precioUnitarioPresupuesto, true)}</td>
+                                    <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top font-semibold">{item.esRegalo ? formatCurrency(0, true) : formatCurrency(item.costoTotalItem, true)}</td>
+                                </tr>
+                            ))}
+                         </React.Fragment>
+                      ))}
+                        </tbody>
+                    </table>
+                  </section>
+                )}
+                
+               <section className="flex justify-end mb-6 print:mb-3 text-sm print:text-xs">
+                  <div className="w-full max-w-xs print:max-w-[220px] space-y-0.5">
+                      <div className="flex justify-between">
+                          <span className="text-muted-foreground">Valor de servicios:</span>
+                          <span className="font-medium">{formatCurrency(calculatedValues.valorServiciosAntesDeDescuento, true, true)}</span>
+                      </div>
+                      {calculatedValues.descuentoPromocional > 0 && (
+                          <div className="flex justify-between text-destructive">
+                          <span>Descuento{presupuesto.nombrePromocion ? ` (${presupuesto.nombrePromocion})` : ''}:</span>
+                          <span className="font-medium">-{formatCurrency(calculatedValues.descuentoPromocional, true, true)}</span>
+                          </div>
+                      )}
+                       {calculatedValues.costoTotalRegalos > 0 && (
+                          <div className="flex justify-between text-green-600">
+                          <span className="flex items-center gap-1"><Gift className="w-3.5 h-3.5"/>Ahorro en Regalos:</span>
+                          <span className="font-medium">{formatCurrency(calculatedValues.costoTotalRegalos, true, true)}</span>
+                          </div>
+                       )}
+                      <div className="flex justify-between font-semibold">
+                        <span className="text-muted-foreground">Ahorro total (Descuento + Regalos):</span>
+                        <span className="font-medium">-{formatCurrency(calculatedValues.descuentoPromocional + calculatedValues.costoTotalRegalos, true, true)}</span>
+                      </div>
+                      <Separator className="my-2"/>
+                      <div className="flex justify-between font-bold text-lg pt-1">
+                          <span className="text-primary">TOTAL A PAGAR:</span>
+                          <span className="text-primary">{formatCurrency(calculatedValues.totalAPagar, true)}</span>
+                      </div>
+                  </div>
+                </section>
+                
+               <footer className="mt-6 pt-3 border-t border-gray-300 print:mt-2 print:pt-1.5 print:border-gray-400 text-xs print:text-[8pt] text-gray-600 print:text-black">
+                  <p>{BUDGET_DEPOSIT_NOTE_PDF}</p>
+                  {presupuesto.notas && displaySettings.showPaymentMethodNotes && <p className="mt-1 print:mt-0.5 whitespace-pre-line">{presupuesto.notas}</p>}
+                  {showAnnualAdjustmentLegend && (<p className="mt-1 print:mt-0.5 text-orange-600 font-medium">Nota: Este presupuesto podría estar sujeto a un ajuste anual del {displaySettings.annualAdjustmentPercentage}% si el evento se realiza en un año posterior al actual.</p>)}
+                </footer>
+            </div>
+        </div>
+    </>
   );
 }
 
@@ -483,3 +492,5 @@ export default function Page({ params }: { params: { id: string } }) {
     </Suspense>
   )
 }
+
+    
