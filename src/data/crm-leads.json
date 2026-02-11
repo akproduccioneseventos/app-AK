@@ -1,5 +1,28 @@
 [
   {
+    "id": "lead_1770833095400_367gohi",
+    "name": "Aa",
+    "phone": "098355389",
+    "notes": "Presupuesto generado desde el Simulador. Paquete: Paquete Básico. Costo estimado: $ 344.820,00",
+    "presupuestoId": "pres_1770833095392_smp7qp6",
+    "currentStageId": "s3",
+    "createdAt": "2026-02-11T18:04:55.400Z",
+    "updatedAt": "2026-02-11T18:04:55.419Z",
+    "history": [
+      {
+        "stageId": "s1",
+        "stageName": "Consultó",
+        "timestamp": "2026-02-11T18:04:55.400Z"
+      },
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2026-02-11T18:04:55.419Z"
+      }
+    ],
+    "budgetSource": "simulator"
+  },
+  {
     "id": "lead_1770830965826_ldcvqf2",
     "name": "A",
     "phone": "098355530",
@@ -20,7 +43,8 @@
         "timestamp": "2026-02-11T17:29:25.837Z"
       }
     ],
-    "budgetSource": "simulator"
+    "budgetSource": "simulator",
+    "presupuestoEstado": "Enviado"
   },
   {
     "id": "lead_1770830467169_b7s3rfa",
