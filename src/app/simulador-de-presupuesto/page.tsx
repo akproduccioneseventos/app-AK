@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -8,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, Package, ChefHat, FileText, Send, CheckCircle, Gift, User, Phone, MessageSquare, Share2, Printer, Search, Edit } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, Package, ChefHat, FileText, Send, CheckCircle, Gift, User, Phone, MessageSquare, Share2, Printer, Edit, CalendarDays, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
@@ -114,7 +115,7 @@ const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): Se
         id: item.id,
         nombre: item.name,
         tipoItem: 'Servicio',
-        categoria: 'Servicio de catering',
+        categoria: 'Servicio de catering', // Explicitly set category
         subcategoria: item.type,
         calculationMethod: 'porPersona',
         precioPorPersona: item.precioVenta,
@@ -314,9 +315,9 @@ export default function ArmadoRapidoPage() {
         return [...entradasDisponibles, ...principalesDisponibles, ...menusNinoDisponibles, ...serviciosCatalogo];
     }, [entradasDisponibles, principalesDisponibles, menusNinoDisponibles, serviciosCatalogo]);
 
-    const { valorServiciosInflado, descuentoPromocional, costoTotalRegalos, totalAPagar, serviciosDetallados, serviciosAgrupados } = useMemo(() => {
+    const { valorServiciosAntesDeDescuento, descuentoPromocional, costoTotalRegalos, totalAPagar, serviciosDetallados, serviciosAgrupados } = useMemo(() => {
         if (!config || !allSimuladorServices.length) {
-            return { valorServiciosInflado: 0, descuentoPromocional: 0, costoTotalRegalos: 0, totalAPagar: 0, serviciosDetallados: [], serviciosAgrupados: {} };
+            return { valorServiciosAntesDeDescuento: 0, descuentoPromocional: 0, costoTotalRegalos: 0, totalAPagar: 0, serviciosDetallados: [], serviciosAgrupados: {} };
         }
 
         const allSelectedServicesMap = new Map<string, { servicio: ServicioEmpresa, esRegalo: boolean }>();
@@ -341,7 +342,7 @@ export default function ArmadoRapidoPage() {
         }
 
         let subtotalReal = 0;
-        let costoRegalos = 0;
+        let costoRegalosCalc = 0;
         const includedServicesList: ServicioDetallado[] = [];
         
         allSelectedServicesMap.forEach(({ servicio, esRegalo }) => {
@@ -349,13 +350,19 @@ export default function ArmadoRapidoPage() {
             if (!esRegalo) {
                 subtotalReal += costoRealItem;
             } else {
-                costoRegalos += costoRealItem;
+                costoRegalosCalc += costoRealItem;
             }
             includedServicesList.push({ id: servicio.id, nombre: servicio.nombre, esRegalo, costo: costoRealItem, categoria: servicio.categoria || 'Varios' });
         });
         
-        const valorInflado = Math.round(subtotalReal * 1.15);
-        const descPromo = valorInflado - subtotalReal;
+        const totalReal = subtotalReal;
+        const descuentoPorcentaje = (config.descuentoGeneral || 0) / 100;
+        let valorServiciosCalc = totalReal;
+        let descuentoCalculado = 0;
+        if (descuentoPorcentaje > 0 && descuentoPorcentaje < 1) {
+            valorServiciosCalc = totalReal / (1 - descuentoPorcentaje);
+            descuentoCalculado = valorServiciosCalc - totalReal;
+        }
 
         const agrupados = includedServicesList.reduce((acc, item) => {
             const categoria = item.esRegalo ? 'Regalos Incluidos' : (item.categoria || 'Varios');
@@ -365,10 +372,10 @@ export default function ArmadoRapidoPage() {
         }, {} as Record<string, ServicioDetallado[]>);
 
         return { 
-            valorServiciosInflado: valorInflado,
-            descuentoPromocional: descPromo,
-            costoTotalRegalos: costoRegalos,
-            totalAPagar: subtotalReal,
+            valorServiciosAntesDeDescuento: valorServiciosCalc,
+            descuentoPromocional: descuentoCalculado,
+            costoTotalRegalos: costoRegalosCalc,
+            totalAPagar: totalReal,
             serviciosDetallados: includedServicesList,
             serviciosAgrupados: agrupados
         };
@@ -398,7 +405,7 @@ export default function ArmadoRapidoPage() {
         });
 
         texto += `-----------------\n`;
-        texto += `*Valor de servicios:* ${formatCurrency(valorServiciosInflado)}\n`;
+        texto += `*Valor de servicios:* ${formatCurrency(valorServiciosAntesDeDescuento)}\n`;
         if (descuentoPromocional > 0) {
             texto += `*Descuento Promocional:* -${formatCurrency(descuentoPromocional)}\n`;
         }
@@ -411,7 +418,7 @@ export default function ArmadoRapidoPage() {
         texto += `¡Gracias por tu interés! Un asesor se comunicará contigo a la brevedad.`;
         
         return texto;
-    }, [clienteNombre, adultos, ninosYAdolescentes, eventoFecha, serviciosAgrupados, valorServiciosInflado, descuentoPromocional, costoTotalRegalos, totalAPagar]);
+    }, [clienteNombre, adultos, ninosYAdolescentes, eventoFecha, serviciosAgrupados, valorServiciosAntesDeDescuento, descuentoPromocional, costoTotalRegalos, totalAPagar]);
 
 
     const handleShareWhatsApp = () => {
@@ -456,7 +463,7 @@ export default function ArmadoRapidoPage() {
                 adultos,
                 ninos: ninosYAdolescentes,
                 adolescentes: 0,
-                subtotal: valorServiciosInflado,
+                subtotal: valorServiciosAntesDeDescuento,
                 costoEstimado: totalAPagar,
                 descuentoGeneral: config?.descuentoGeneral,
                 serviciosIncluidos: serviciosDetallados.map(s => s.id),
@@ -579,7 +586,7 @@ export default function ArmadoRapidoPage() {
                          <div className="w-full md:max-w-xs ml-auto space-y-1 text-sm">
                            <div className="flex justify-between">
                                 <span className="text-muted-foreground">Valor de servicios:</span>
-                                <span className="font-medium">{formatCurrency(valorServiciosInflado)}</span>
+                                <span className="font-medium">{formatCurrency(valorServiciosAntesDeDescuento)}</span>
                             </div>
                             {descuentoPromocional > 0 && (
                                 <div className="flex justify-between text-destructive">
@@ -654,7 +661,6 @@ export default function ArmadoRapidoPage() {
                     <div className="space-y-6 animate-in fade-in-20">
                         <h3 className="font-semibold text-lg flex items-center gap-2"><ChefHat className="text-primary w-5 h-5"/>Elige tu menú gastronómico</h3>
                         <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                             <Input 
                                 placeholder="Buscar plato..."
                                 value={gastronomiaSearchTerm}

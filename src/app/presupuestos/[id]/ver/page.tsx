@@ -123,6 +123,69 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  const calculatedValues = useMemo(() => {
+    if (!presupuesto || !displaySettings) {
+      return { itemsAgrupados: {}, costoTotalRegalos: 0, totalRealServicios: 0, descuentoPromocional: 0, valorServiciosAntesDeDescuento: 0, totalAPagar: 0, ahorroTotal: 0 };
+    }
+    
+    const agrupados: Record<string, ItemPresupuestado[]> = presupuesto.itemsPresupuestados.reduce((acc, item) => {
+        const categoria = item.subcategoria || item.categoriaServicio || 'Otros Servicios';
+        if (!acc[categoria]) acc[categoria] = [];
+        acc[categoria].push(item);
+        return acc;
+    }, {} as Record<string, ItemPresupuestado[]>);
+    
+    const categoriaOrder = ['Entrada', 'Plato Principal', 'Menú Infantil/Adolescente', 'Postre', 'Servicio de catering', 'Servicio de bebidas', 'Personal', 'Servicio de decoración', 'Servicio de discoteca', 'Servicio de fotografía', 'Servicio de filmación', 'Servicio de entretenimiento', 'Otros servicios', 'Regalo exclusivo', 'Regalos Incluidos'];
+    const sortedKeys = Object.keys(agrupados).sort((a,b) => {
+        const indexA = categoriaOrder.indexOf(a);
+        const indexB = categoriaOrder.indexOf(b);
+        if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+        if (indexA !== -1) return -1;
+        if (indexB !== -1) return 1;
+        return a.localeCompare(b);
+    });
+    const sortedAgrupados: Record<string, ItemPresupuestado[]> = {};
+    sortedKeys.forEach(key => sortedAgrupados[key] = agrupados[key]);
+
+    if (presupuesto.itemsPresupuestados.some(item => item.esRegalo)) {
+      sortedAgrupados['Regalos Incluidos'] = presupuesto.itemsPresupuestados.filter(item => item.esRegalo);
+    }
+    
+    const totalReal = presupuesto.itemsPresupuestados.filter(item => !item.esRegalo).reduce((sum, item) => sum + item.costoTotalItem, 0);
+    
+    const costoRegalos = presupuesto.itemsPresupuestados
+      .filter(item => item.esRegalo)
+      .reduce((sum, item) => {
+        const itemSinRegalo = { ...item, esRegalo: false };
+        const originalPriceItem = { ...itemSinRegalo, precioUnitarioPresupuesto: item.precioUnitarioOriginal || item.precioUnitario };
+        return sum + calcularCostoItem(originalPriceItem, presupuesto.invitadosAdultos || 0, presupuesto.invitadosAdolescentes || 0, presupuesto.invitadosNinos || 0);
+      }, 0);
+    
+    const descuentoPorcentaje = presupuesto.descuentoTipo === 'porcentaje' && presupuesto.descuentoValor ? presupuesto.descuentoValor / 100 : 0;
+    
+    let valorServicios = totalReal;
+    let descPromo = 0;
+    
+    if (descuentoPorcentaje > 0 && descuentoPorcentaje < 1) {
+        valorServicios = totalReal / (1 - descuentoPorcentaje);
+        descPromo = valorServicios - totalReal;
+    } else if (presupuesto.descuentoTipo === 'fijo' && presupuesto.descuentoValor) {
+        descPromo = presupuesto.descuentoValor;
+        valorServicios = totalReal + descPromo;
+    }
+    
+    return {
+      itemsAgrupados: sortedAgrupados,
+      costoTotalRegalos: costoRegalos,
+      totalRealServicios: totalReal,
+      descuentoPromocional: descPromo,
+      valorServiciosAntesDeDescuento: valorServicios,
+      totalAPagar: totalReal,
+      ahorroTotal: descPromo + costoRegalos
+    };
+  }, [presupuesto, displaySettings]);
+
 
   const fetchPresupuestoAndSettings = useCallback(async () => {
     if (!presupuestoId) { setError("ID de presupuesto no válido."); setIsLoading(false); return; }
@@ -144,24 +207,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
             ...item,
             costoTotalItem: calcularCostoItem(item, adultos, adolescentes, ninos)
         }));
-
-        const subtotalReal = itemsRecalculados.filter(item => !item.esRegalo).reduce((sum, item) => sum + item.costoTotalItem, 0);
-        
-        let totalFinalConDescuento = subtotalReal;
-        if(fetchedPresupuesto.descuentoTipo && fetchedPresupuesto.descuentoValor) {
-            if(fetchedPresupuesto.descuentoTipo === 'porcentaje') {
-                totalFinalConDescuento = subtotalReal * (1 - (fetchedPresupuesto.descuentoValor / 100));
-            } else {
-                totalFinalConDescuento = subtotalReal - fetchedPresupuesto.descuentoValor;
-            }
-        }
-
-        setPresupuesto({
-            ...fetchedPresupuesto,
-            itemsPresupuestados: itemsRecalculados,
-            costoTotalEstimado: subtotalReal,
-            totalConDescuento: totalFinalConDescuento
-        });
+        setPresupuesto({...fetchedPresupuesto, itemsPresupuestados: itemsRecalculados});
 
       } else {
         setError(`Presupuesto con ID ${presupuestoId} no encontrado.`);
@@ -179,40 +225,6 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     fetchPresupuestoAndSettings();
   }, [fetchPresupuestoAndSettings]);
 
-  // --- LÓGICA DE CÁLCULO ---
-  const {
-    totalRealServicios,
-    costoTotalRegalos,
-    valorServiciosInflado,
-    ahorroPromocional,
-    totalAPagar
-  } = useMemo(() => {
-    if (!presupuesto || !displaySettings) {
-      return { totalRealServicios: 0, costoTotalRegalos: 0, valorServiciosInflado: 0, ahorroPromocional: 0, totalAPagar: 0 };
-    }
-    
-    const TOTAL_REAL = presupuesto.costoTotalEstimado;
-    
-    const VALOR_INFLADO = Math.round(TOTAL_REAL * 1.15);
-    
-    const AHORRO_INFLADO = VALOR_INFLADO - TOTAL_REAL;
-
-    const costoRegalos = presupuesto.itemsPresupuestados
-      .filter(item => item.esRegalo)
-      .reduce((sum, item) => {
-        const itemSinRegalo = { ...item, esRegalo: false };
-        return sum + calcularCostoItem(itemSinRegalo, presupuesto.invitadosAdultos || 0, presupuesto.invitadosAdolescentes || 0, presupuesto.invitadosNinos || 0);
-      }, 0);
-
-    return {
-      totalRealServicios: TOTAL_REAL,
-      costoTotalRegalos: costoRegalos,
-      valorServiciosInflado: VALOR_INFLADO,
-      ahorroPromocional: AHORRO_INFLADO,
-      totalAPagar: TOTAL_REAL,
-    };
-  }, [presupuesto, displaySettings]);
-  
   const showAnnualAdjustmentLegend = useMemo(() => {
     if (!presupuesto || !displaySettings) return false;
     const anioCreacion = new Date(presupuesto.timestamp).getFullYear();
@@ -221,38 +233,9 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     return anioEvento > currentYear && presupuesto?.estado !== 'Facturado' && !presupuesto.ajusteAnualActivo;
   }, [presupuesto, displaySettings]);
 
-  const itemsAgrupados = useMemo(() => {
-    if (!presupuesto) return {};
-    
-    const agrupados: Record<string, ItemPresupuestado[]> = presupuesto.itemsPresupuestados.reduce((acc, item) => {
-        const categoria = item.subcategoria || item.categoriaServicio || 'Otros Servicios';
-        if (!acc[categoria]) acc[categoria] = [];
-        acc[categoria].push(item);
-        return acc;
-    }, {} as Record<string, ItemPresupuestado[]>);
-    
-    const categoriaOrder = ['Entrada', 'Plato Principal', 'Menú Infantil/Adolescente', 'Postre', 'Servicio de catering', 'Servicio de bebidas', 'Personal', 'Servicio de decoración', 'Servicio de discoteca', 'Servicio de fotografía', 'Servicio de filmación', 'Servicio de entretenimiento', 'Otros servicios', 'Regalo exclusivo', 'Regalos Incluidos'];
-    const sortedKeys = Object.keys(agrupados).sort((a,b) => {
-        const indexA = categoriaOrder.indexOf(a);
-        const indexB = categoriaOrder.indexOf(b);
-        if (indexA !== -1 && indexB !== -1) return indexA - indexB;
-        if (indexA !== -1) return -1;
-        if (indexB !== -1) return 1;
-        return a.localeCompare(b);
-    });
-
-    const sortedAgrupados: Record<string, ItemPresupuestado[]> = {};
-    sortedKeys.forEach(key => sortedAgrupados[key] = agrupados[key]);
-
-    if (presupuesto.itemsPresupuestados.some(item => item.esRegalo)) {
-      sortedAgrupados['Regalos Incluidos'] = presupuesto.itemsPresupuestados.filter(item => item.esRegalo);
-    }
-    
-    return sortedAgrupados;
-  }, [presupuesto]);
-  
   const generarTextoWhatsApp = useCallback(() => {
     if (!presupuesto) return '';
+    const { itemsAgrupados, valorServiciosAntesDeDescuento, descuentoPromocional, costoTotalRegalos, totalAPagar } = calculatedValues;
     const pageUrl = `${window.location.origin}/presupuestos/${presupuesto.id}/ver`;
     let texto = `*Resumen de Presupuesto - ${COMPANY_NAME_BRAND}*\n`;
     texto += `-----------------\n`;
@@ -278,9 +261,9 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     });
 
     texto += `-----------------\n`;
-    texto += `*Valor de servicios:* ${formatCurrency(valorServiciosInflado)}\n`;
-    if (ahorroPromocional > 0) {
-        texto += `*Descuento Promocional (15%):* -${formatCurrency(ahorroPromocional)}\n`;
+    texto += `*Valor de servicios:* ${formatCurrency(valorServiciosAntesDeDescuento)}\n`;
+    if (descuentoPromocional > 0) {
+        texto += `*Descuento Promocional:* -${formatCurrency(descuentoPromocional)}\n`;
     }
     if (costoTotalRegalos > 0) {
         texto += `*Ahorro en Regalos:* ${formatCurrency(costoTotalRegalos)}\n`;
@@ -291,7 +274,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     texto += `Puedes ver el presupuesto detallado en el siguiente enlace:\n${pageUrl}`;
     
     return texto;
-  }, [presupuesto, itemsAgrupados, valorServiciosInflado, ahorroPromocional, costoTotalRegalos, totalAPagar]);
+  }, [presupuesto, calculatedValues]);
   
   const handleCopyToClipboard = () => {
     navigator.clipboard.writeText(generarTextoWhatsApp())
@@ -345,21 +328,21 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
 
   return (
     <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans text-gray-800 print:text-black">
-      <div className="flex justify-between items-center mb-6 print:hidden max-w-3xl mx-auto">
-        <Link href="/presupuestos/nuevo" passHref><Button variant="outline" size="sm"><ArrowLeft className="mr-2 h-4 w-4"/>Volver al Creador</Button></Link>
-        <div className="flex gap-2 flex-wrap justify-end">
-          <Button variant="outline" size="sm" onClick={handleShareWhatsApp}><Share2 className="w-4 h-4 mr-2"/>WhatsApp</Button>
-          <Button onClick={handlePrint} size="sm"><Printer className="mr-2 h-4 w-4"/>Imprimir/PDF</Button>
-          {presupuesto.estado !== 'Facturado' ? 
-            (<Link href={`/invoices/new?fromPresupuesto=${presupuesto.id}`} passHref><Button variant='default' size="sm"><FileTextIcon className="mr-2 h-4 w-4"/>Crear Factura</Button></Link>) : 
-            presupuesto.invoiceId ? 
-            (<Link href={`/invoices/${presupuesto.invoiceId}`} passHref><Button variant="secondary" size="sm" className="bg-green-100 text-green-700 hover:bg-green-200"><FileSignature className="mr-2 h-4 w-4"/>Ver Factura</Button></Link>) : 
-            (<Button variant="secondary" size="sm" disabled>Facturado</Button>)}
-          <Link href={`/presupuestos/${presupuestoId}/editar`} passHref><Button variant="outline" size="sm"><Edit className="mr-2 h-4 w-4"/>Editar</Button></Link>
-        </div>
-      </div>
-
       <div className="max-w-3xl mx-auto">
+        <div className="flex justify-between items-center mb-6 print:hidden">
+          <Link href="/presupuestos/nuevo" passHref><Button variant="outline" size="sm"><ArrowLeft className="mr-2 h-4 w-4"/>Volver al Creador</Button></Link>
+          <div className="flex gap-2 flex-wrap justify-end">
+            <Button variant="outline" size="sm" onClick={handleShareWhatsApp}><Share2 className="w-4 h-4 mr-2"/>WhatsApp</Button>
+            <Button onClick={handlePrint} size="sm"><Printer className="mr-2 h-4 w-4"/>Imprimir/PDF</Button>
+            {presupuesto.estado !== 'Facturado' ? 
+              (<Link href={`/invoices/new?fromPresupuesto=${presupuesto.id}`} passHref><Button variant='default' size="sm"><FileTextIcon className="mr-2 h-4 w-4"/>Crear Factura</Button></Link>) : 
+              presupuesto.invoiceId ? 
+              (<Link href={`/invoices/${presupuesto.invoiceId}`} passHref><Button variant="secondary" size="sm" className="bg-green-100 text-green-700 hover:bg-green-200"><FileSignature className="mr-2 h-4 w-4"/>Ver Factura</Button></Link>) : 
+              (<Button variant="secondary" size="sm" disabled>Facturado</Button>)}
+            <Link href={`/presupuestos/${presupuestoId}/editar`} passHref><Button variant="outline" size="sm"><Edit className="mr-2 h-4 w-4"/>Editar</Button></Link>
+          </div>
+        </div>
+
         <div className="bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2" id="invoice-to-print">
             <header className="mb-6 print:mb-4">
               <div className="flex justify-between items-start">
@@ -461,19 +444,13 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 <div className="w-full max-w-xs print:max-w-[220px] space-y-0.5">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Valor de servicios:</span>
-                    <span className="font-medium">{formatCurrency(valorServiciosInflado, true)}</span>
+                    <span className="font-medium">{formatCurrency(valorServiciosAntesDeDescuento, true, true)}</span>
                   </div>
-                  {ahorroPromocional > 0 && (
+                  {ahorroTotal > 0 && (
                       <div className="flex justify-between text-destructive">
-                        <span>Descuento Promocional:</span>
-                        <span className="font-medium">-{formatCurrency(ahorroPromocional, true)}</span>
+                        <span>Ahorro total (Descuento + Regalos):</span>
+                        <span className="font-medium">-{formatCurrency(ahorroTotal, true, true)}</span>
                       </div>
-                  )}
-                  {costoTotalRegalos > 0 && (
-                    <div className="flex justify-between text-green-600">
-                        <span className="flex items-center gap-1"><Gift className="w-3.5 h-3.5"/> Ahorro en Regalos:</span>
-                        <span className="font-medium">{formatCurrency(costoTotalRegalos, true)}</span>
-                    </div>
                   )}
                   <div className="flex justify-between font-bold pt-1 border-t-2 border-gray-600 print:border-gray-700">
                     <span className="text-base">TOTAL A PAGAR:</span>
@@ -488,15 +465,6 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 {showAnnualAdjustmentLegend && (<p className="mt-1 print:mt-0.5 text-orange-600 font-medium">Nota: Este presupuesto podría estar sujeto a un ajuste anual del {displaySettings.annualAdjustmentPercentage}% si el evento se realiza en un año posterior al actual.</p>)}
               </footer>
           </div>
-        
-          <Card className="shadow-md border-primary/20 print:hidden mt-6">
-              <CardHeader className="bg-primary/5 p-4 md:p-6"><CardTitle className="font-headline text-lg md:text-xl text-primary">Acciones y Compartir</CardTitle></CardHeader>
-              <CardContent className="p-4 md:p-6 flex flex-col sm:flex-row gap-3">
-                  <Button variant="outline" onClick={handlePrint} className="w-full"><Printer className="w-4 h-4 mr-2"/>Imprimir o Guardar como PDF</Button>
-                  <Button variant="secondary" onClick={handleShareWhatsApp} className="w-full"><Share2 className="w-4 h-4 mr-2"/>Enviar por WhatsApp</Button>
-                  <Button variant="secondary" onClick={handleCopyToClipboard} className="w-full"><ClipboardCopy className="w-4 h-4 mr-2"/>Copiar Resumen</Button>
-              </CardContent>
-          </Card>
       </div>
     </div>
   );

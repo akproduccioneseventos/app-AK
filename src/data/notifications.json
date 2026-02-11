@@ -1,5 +1,13 @@
 [
   {
+    "mensaje": "Nuevo prospecto y presupuesto de Manual 2",
+    "href": "/contabilidad/crm?leadId=lead_1770848556824_z3vtn4a",
+    "icono": "KanbanSquare",
+    "id": "notif_1770848556825_9v03j1f",
+    "fecha": "2026-02-11T22:22:36.825Z",
+    "leida": false
+  },
+  {
     "mensaje": "Nuevo prospecto y presupuesto de Manual1",
     "href": "/contabilidad/crm?leadId=lead_1770848152457_fue21cf",
     "icono": "KanbanSquare",
