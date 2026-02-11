@@ -139,6 +139,49 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
   const [openPrincipal, setOpenPrincipal] = useState(false);
   const [openInfantil, setOpenInfantil] = useState(false);
 
+  useEffect(() => {
+    if (!config?.serviceDependencies || !config.serviceDependencies.length) {
+      return;
+    }
+  
+    const currentSelectedIds = new Set(formData.serviciosSeleccionados.keys());
+    const newSelected = new Map(formData.serviciosSeleccionados);
+    let wasModified = false;
+  
+    config.serviceDependencies.forEach(dep => {
+      if (currentSelectedIds.has(dep.triggerServiceId) && !currentSelectedIds.has(dep.requiredServiceId)) {
+        const servicioRequerido = serviciosCatalogo.find(s => s.id === dep.requiredServiceId);
+        if (servicioRequerido) {
+          wasModified = true;
+          newSelected.set(servicioRequerido.id, {
+            cantidad: 1,
+            precioUnitarioOriginal: servicioRequerido.precioVenta || servicioRequerido.precioPorPersona || servicioRequerido.precioBase || 0,
+            precioUnitarioPresupuesto: servicioRequerido.precioVenta || servicioRequerido.precioPorPersona || servicioRequerido.precioBase || 0,
+            nombreServicio: servicioRequerido.nombre,
+            unidad: servicioRequerido.unidad,
+            categoriaServicio: servicioRequerido.categoria,
+            subcategoria: servicioRequerido.subcategoria,
+            esRegalo: false,
+            calculationMethod: servicioRequerido.calculationMethod,
+            precioBase: servicioRequerido.precioBase,
+            precioPorPersona: servicioRequerido.precioPorPersona,
+            invitadosPorUnidad: servicioRequerido.invitadosPorUnidad,
+            tramosDePrecio: servicioRequerido.tramosDePrecio,
+          });
+          toast({
+            title: "Servicio añadido automáticamente",
+            description: `Se añadió "${servicioRequerido.nombre}" debido a una dependencia.`,
+          });
+        }
+      }
+    });
+  
+    if (wasModified) {
+      setFormData(prev => ({ ...prev, serviciosSeleccionados: newSelected }));
+    }
+  }, [formData.serviciosSeleccionados, config, serviciosCatalogo, setFormData, toast]);
+
+
   const handleServicioToggle = (servicio: ServicioEmpresa) => {
     setFormData(prev => {
       const newSelected = new Map(prev.serviciosSeleccionados);
