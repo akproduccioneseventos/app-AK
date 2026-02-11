@@ -1,5 +1,75 @@
 [
   {
+    "id": "lead_1770830467169_b7s3rfa",
+    "name": "Gg",
+    "phone": "098355530",
+    "notes": "Presupuesto generado desde el Simulador. Paquete: Paquete Básico. Costo estimado: $ 263.760,00",
+    "presupuestoId": "pres_1770830467164_0fz9rk7",
+    "currentStageId": "s3",
+    "createdAt": "2026-02-11T17:21:07.169Z",
+    "updatedAt": "2026-02-11T17:21:07.179Z",
+    "history": [
+      {
+        "stageId": "s1",
+        "stageName": "Consultó",
+        "timestamp": "2026-02-11T17:21:07.169Z"
+      },
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2026-02-11T17:21:07.179Z"
+      }
+    ],
+    "budgetSource": "simulator"
+  },
+  {
+    "id": "lead_1770830283079_y8a5evd",
+    "name": "A",
+    "notes": "Presupuesto Nº 8\nCosto: $ 403.750,85",
+    "presupuestoId": "pres_1770830283008_5fi89ol",
+    "currentStageId": "s3",
+    "createdAt": "2026-02-11T17:18:03.079Z",
+    "updatedAt": "2026-02-11T17:18:03.090Z",
+    "history": [
+      {
+        "stageId": "s1",
+        "stageName": "Consultó",
+        "timestamp": "2026-02-11T17:18:03.079Z"
+      },
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2026-02-11T17:18:03.090Z"
+      }
+    ],
+    "budgetSource": "manual",
+    "presupuestoEstado": "Enviado"
+  },
+  {
+    "id": "lead_1770777093063_o30dsrg",
+    "name": "Nico",
+    "phone": "095355530",
+    "notes": "Presupuesto generado desde el Simulador. Paquete: Paquete Básico. Costo estimado: $ 210.390,00",
+    "presupuestoId": "pres_1770777093049_xbsozq5",
+    "currentStageId": "s3",
+    "createdAt": "2026-02-11T02:31:33.063Z",
+    "updatedAt": "2026-02-11T02:31:33.075Z",
+    "history": [
+      {
+        "stageId": "s1",
+        "stageName": "Consultó",
+        "timestamp": "2026-02-11T02:31:33.063Z"
+      },
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2026-02-11T02:31:33.075Z"
+      }
+    ],
+    "budgetSource": "simulator",
+    "presupuestoEstado": "Enviado"
+  },
+  {
     "id": "lead_1770776175657_hq24fqt",
     "name": "Nico",
     "phone": "098355530",
@@ -20,7 +90,8 @@
         "timestamp": "2026-02-11T02:16:15.670Z"
       }
     ],
-    "budgetSource": "simulator"
+    "budgetSource": "simulator",
+    "presupuestoEstado": "Enviado"
   },
   {
     "id": "lead_1770774194116_xrcojlc",

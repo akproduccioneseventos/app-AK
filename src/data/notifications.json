@@ -1,5 +1,21 @@
 [
   {
+    "mensaje": "Nuevo prospecto y presupuesto de Gg",
+    "href": "/contabilidad/crm?leadId=lead_1770830467169_b7s3rfa",
+    "icono": "KanbanSquare",
+    "id": "notif_1770830467172_erlmoom",
+    "fecha": "2026-02-11T17:21:07.172Z",
+    "leida": false
+  },
+  {
+    "mensaje": "Nuevo prospecto y presupuesto de A",
+    "href": "/contabilidad/crm?leadId=lead_1770830283079_y8a5evd",
+    "icono": "KanbanSquare",
+    "id": "notif_1770830283081_j5icqz6",
+    "fecha": "2026-02-11T17:18:03.081Z",
+    "leida": false
+  },
+  {
     "mensaje": "Nuevo prospecto y presupuesto de Nico",
     "href": "/contabilidad/crm?leadId=lead_1770776175657_hq24fqt",
     "icono": "KanbanSquare",
