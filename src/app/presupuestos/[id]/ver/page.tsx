@@ -181,62 +181,8 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     fetchPresupuestoAndSettings();
   }, [fetchPresupuestoAndSettings]);
 
-  const handleCreateInvoice = () => {
-    if (presupuesto) router.push(`/invoices/new?fromPresupuesto=${presupuesto.id}`);
-  };
-
-  const handlePrint = () => {
-    window.print();
-  };
-
-  const generarTextoWhatsApp = () => {
-    if (!presupuesto) return '';
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
-    const pageUrl = `${baseUrl}/presupuestos/${presupuesto.id}/ver`;
-    let texto = `🎉 *¡Hola ${presupuesto.clienteNombre}!* 🎉\n\n`;
-    texto += `Gracias por considerar a *${COMPANY_NAME_BRAND}*.`;
-    texto += ` Hemos preparado un presupuesto para tu *${presupuesto.eventoTipo}*.\n\n`;
-    texto += `Puedes ver todos los detalles en el siguiente enlace:\n`;
-    texto += pageUrl;
-    texto += `\n\n¡Esperamos tu consulta!\n*El equipo de ${COMPANY_NAME_BRAND}*`;
-    return texto;
-  };
-
-  const handleShareWhatsApp = () => {
-    window.open(`https://wa.me/?text=${encodeURIComponent(generarTextoWhatsApp())}`, '_blank');
-  };
-
-  const handleCopyToClipboard = () => {
-    navigator.clipboard.writeText(generarTextoWhatsApp())
-      .then(() => toast({ title: "¡Texto Copiado!", description: "Resumen copiado para WhatsApp." }))
-      .catch(() => toast({ title: "Error al Copiar", variant: "destructive" }));
-  };
-  
-  const getDisplayQuantity = (item: ItemPresupuestado): string => {
-    if (!presupuesto) return 'N/A';
-    const adultos = presupuesto.invitadosAdultos || 0;
-    const adolescentes = presupuesto.invitadosAdolescentes || 0;
-    const ninos = presupuesto.invitadosNinos || 0;
-    const cantidadInvitados = getGuestCountForItem(item, adultos, adolescentes, ninos);
-
-    switch (item.calculationMethod) {
-        case 'porPersona':
-            return `${cantidadInvitados} (personas)`;
-        case 'ratio':
-            if (item.invitadosPorUnidad && item.invitadosPorUnidad > 0) {
-              return `${Math.ceil(cantidadInvitados / item.invitadosPorUnidad)}`;
-            }
-            return `${item.cantidad}`; // Fallback
-        case 'fijo':
-        case 'tramos':
-        default:
-            return `${item.cantidad}`;
-    }
-  };
-
-
   const { itemsAgrupados, costoTotalRegalos, subtotalBruto, descuentoPromocional, totalFinal, showAnnualAdjustmentLegend } = useMemo(() => {
-    if (!presupuesto) {
+    if (!presupuesto || !displaySettings) {
       return { itemsAgrupados: {}, costoTotalRegalos: 0, subtotalBruto: 0, descuentoPromocional: 0, totalFinal: 0, showAnnualAdjustmentLegend: false };
     }
     
@@ -299,6 +245,84 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
       showAnnualAdjustmentLegend: showAdj
     };
   }, [presupuesto, displaySettings]);
+
+
+  const generarTextoWhatsApp = () => {
+    if (!presupuesto) return '';
+    let texto = `*Resumen de Presupuesto - ${COMPANY_NAME_BRAND}*\n`;
+    texto += `-----------------\n`;
+    texto += `*Cliente:* ${presupuesto.clienteNombre}\n`;
+    texto += `*Evento:* ${presupuesto.eventoTipo} el ${formatDate(presupuesto.eventoFecha)}\n`;
+    texto += `*Invitados:* ${presupuesto.invitadosCantidad}\n`;
+    texto += `-----------------\n\n`;
+    
+    texto += `*Servicios Presupuestados:*\n`;
+
+    Object.entries(itemsAgrupados).forEach(([categoria, items]) => {
+      if (items.length === 0) return;
+      texto += `\n*${categoria}*\n`;
+      items.forEach(item => {
+        texto += `- ${item.nombreServicio}`;
+        if (item.esRegalo) {
+          texto += ` (REGALO)\n`;
+        } else {
+          texto += ` = ${formatCurrency(item.costoTotalItem)}\n`;
+        }
+      });
+    });
+
+    texto += `\n-----------------\n`;
+    texto += `*Subtotal:* ${formatCurrency(subtotalBruto)}\n`;
+    if (descuentoPromocional > 0) {
+        texto += `*Descuento Promocional:* -${formatCurrency(descuentoPromocional)}\n`;
+    }
+    if (costoTotalRegalos > 0) {
+        texto += `*Ahorro en Regalos:* ${formatCurrency(costoTotalRegalos)}\n`;
+    }
+    texto += `*TOTAL A PAGAR:* *${formatCurrency(totalFinal)}*\n`;
+    texto += `-----------------\n\n`;
+    texto += `Este presupuesto es válido por ${BUDGET_VALIDITY_DAYS_PDF} días. Para confirmar se requiere una seña.\n\n`;
+    texto += `¡Gracias por tu consulta!`;
+    
+    return texto;
+  };
+
+  const handleShareWhatsApp = () => {
+    const message = generarTextoWhatsApp();
+    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+  };
+
+  const handleCopyToClipboard = () => {
+    navigator.clipboard.writeText(generarTextoWhatsApp())
+      .then(() => toast({ title: "¡Texto Copiado!", description: "Resumen copiado para WhatsApp." }))
+      .catch(() => toast({ title: "Error al Copiar", variant: "destructive" }));
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+  
+  const getDisplayQuantity = (item: ItemPresupuestado): string => {
+    if (!presupuesto) return 'N/A';
+    const adultos = presupuesto.invitadosAdultos || 0;
+    const adolescentes = presupuesto.invitadosAdolescentes || 0;
+    const ninos = presupuesto.invitadosNinos || 0;
+    const cantidadInvitados = getGuestCountForItem(item, adultos, adolescentes, ninos);
+
+    switch (item.calculationMethod) {
+        case 'porPersona':
+            return `${cantidadInvitados} (personas)`;
+        case 'ratio':
+            if (item.invitadosPorUnidad && item.invitadosPorUnidad > 0) {
+              return `${Math.ceil(cantidadInvitados / item.invitadosPorUnidad)}`;
+            }
+            return `${item.cantidad}`; // Fallback
+        case 'fijo':
+        case 'tramos':
+        default:
+            return `${item.cantidad}`;
+    }
+  };
 
 
   if (isLoading) {
@@ -431,24 +455,24 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
               <div className="w-full max-w-xs print:max-w-[220px] space-y-0.5">
                 <div className="flex justify-between">
                   <span>Subtotal de servicios:</span>
-                  <span className="font-medium">{formatCurrency(subtotalBruto, true)}</span>
+                  <span className="font-medium">{formatCurrency(subtotalBruto, true, true)}</span>
                 </div>
                 {descuentoPromocional > 0 && (
                     <div className="flex justify-between text-destructive">
                       <span>Descuento{presupuesto.nombrePromocion ? ` (${presupuesto.nombrePromocion})` : ''}:</span>
-                      <span className="font-medium">-{formatCurrency(descuentoPromocional, true)}</span>
+                      <span className="font-medium">-{formatCurrency(descuentoPromocional, true, true)}</span>
                     </div>
                 )}
                {costoTotalRegalos > 0 && (
                  <div className="flex justify-between text-green-600">
                     <span>Ahorro en Regalos:</span>
-                    <span>{formatCurrency(costoTotalRegalos, true)}</span>
+                    <span>{formatCurrency(costoTotalRegalos, true, true)}</span>
                   </div>
                )}
-                <div className="flex justify-between font-bold pt-1 border-t-2 border-gray-600 print:border-gray-700">
-                  <span className="text-base">TOTAL A PAGAR:</span>
-                  <span className="text-base">{formatCurrency(totalFinal, true)}</span>
-                </div>
+              <div className="flex justify-between font-bold pt-1 border-t-2 border-gray-600 print:border-gray-700">
+                <span className="text-base">TOTAL A PAGAR:</span>
+                <span className="text-base">{formatCurrency(totalFinal, true)}</span>
+              </div>
               </div>
             </section>
             
@@ -463,7 +487,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
         <CardHeader className="bg-primary/5 p-4 md:p-6"><CardTitle className="font-headline text-lg md:text-xl text-primary">Acciones y Compartir</CardTitle></CardHeader>
         <CardContent className="p-4 md:p-6 flex flex-col sm:flex-row gap-3">
             <Button variant="outline" onClick={handlePrint} className="w-full"><Printer className="w-4 h-4 mr-2"/>Imprimir o Guardar como PDF</Button>
-            <Button variant="secondary" onClick={handleShareWhatsApp} className="w-full"><Share2 className="w-4 h-4 mr-2"/>Enviar por WhatsApp</Button>
+            <Button variant="secondary" onClick={handleShareWhatsApp} className="w-full bg-green-500 hover:bg-green-600"><Share2 className="w-4 h-4 mr-2"/>Enviar por WhatsApp</Button>
             <Button variant="secondary" onClick={handleCopyToClipboard} className="w-full"><ClipboardCopy className="w-4 h-4 mr-2"/>Copiar Resumen</Button>
         </CardContent>
       </Card>

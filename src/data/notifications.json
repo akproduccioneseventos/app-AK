@@ -1,5 +1,13 @@
 [
   {
+    "mensaje": "Nuevo prospecto y presupuesto de Buen",
+    "href": "/contabilidad/crm?leadId=lead_1770773785401_vomij3x",
+    "icono": "KanbanSquare",
+    "id": "notif_1770773785406_cfncbjy",
+    "fecha": "2026-02-11T01:36:25.406Z",
+    "leida": false
+  },
+  {
     "mensaje": "Nuevo prospecto y presupuesto de PRUEBA 3",
     "href": "/contabilidad/crm?leadId=lead_1770768967557_jtflupn",
     "icono": "KanbanSquare",
