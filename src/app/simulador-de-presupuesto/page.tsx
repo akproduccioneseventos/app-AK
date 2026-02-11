@@ -341,28 +341,26 @@ export default function ArmadoRapidoPage() {
             });
         }
 
-        let subtotalReal = 0;
+        let totalReal = 0;
         let costoRegalosCalc = 0;
         const includedServicesList: ServicioDetallado[] = [];
         
         allSelectedServicesMap.forEach(({ servicio, esRegalo }) => {
             const costoRealItem = calcularCostoServicio(servicio, adultos, ninosYAdolescentes);
             if (!esRegalo) {
-                subtotalReal += costoRealItem;
+                totalReal += costoRealItem;
             } else {
                 costoRegalosCalc += costoRealItem;
             }
             includedServicesList.push({ id: servicio.id, nombre: servicio.nombre, esRegalo, costo: costoRealItem, categoria: servicio.categoria || 'Varios' });
         });
         
-        const totalReal = subtotalReal;
         const descuentoPorcentaje = (config.descuentoGeneral || 0) / 100;
         let valorServiciosCalc = totalReal;
-        let descuentoCalculado = 0;
         if (descuentoPorcentaje > 0 && descuentoPorcentaje < 1) {
             valorServiciosCalc = totalReal / (1 - descuentoPorcentaje);
-            descuentoCalculado = valorServiciosCalc - totalReal;
         }
+        const descuentoCalculado = valorServiciosCalc - totalReal;
 
         const agrupados = includedServicesList.reduce((acc, item) => {
             const categoria = item.esRegalo ? 'Regalos Incluidos' : (item.categoria || 'Varios');
@@ -372,10 +370,10 @@ export default function ArmadoRapidoPage() {
         }, {} as Record<string, ServicioDetallado[]>);
 
         return { 
-            valorServiciosAntesDeDescuento: valorServiciosCalc,
-            descuentoPromocional: descuentoCalculado,
-            costoTotalRegalos: costoRegalosCalc,
-            totalAPagar: totalReal,
+            valorServiciosAntesDeDescuento: Math.round(valorServiciosCalc),
+            descuentoPromocional: Math.round(descuentoCalculado),
+            costoTotalRegalos: Math.round(costoRegalosCalc),
+            totalAPagar: Math.round(totalReal),
             serviciosDetallados: includedServicesList,
             serviciosAgrupados: agrupados
         };
@@ -596,7 +594,7 @@ export default function ArmadoRapidoPage() {
                             )}
                             {costoTotalRegalos > 0 && (
                                 <div className="flex justify-between text-green-600">
-                                    <span>Ahorro en Regalos:</span>
+                                    <span className="flex items-center gap-1"><Gift className="w-3.5 h-3.5"/>Ahorro en Regalos:</span>
                                     <span className="font-medium">{formatCurrency(costoTotalRegalos)}</span>
                                 </div>
                             )}
@@ -661,6 +659,7 @@ export default function ArmadoRapidoPage() {
                     <div className="space-y-6 animate-in fade-in-20">
                         <h3 className="font-semibold text-lg flex items-center gap-2"><ChefHat className="text-primary w-5 h-5"/>Elige tu menú gastronómico</h3>
                         <div className="relative">
+                            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground"/>
                             <Input 
                                 placeholder="Buscar plato..."
                                 value={gastronomiaSearchTerm}

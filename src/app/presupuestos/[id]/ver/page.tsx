@@ -129,11 +129,14 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
       return { itemsAgrupados: {}, valorServiciosAntesDeDescuento: 0, costoTotalRegalos: 0, descuentoPromocional: 0, totalAPagar: 0 };
     }
     
-    const totalReal = presupuesto.itemsPresupuestados.filter(item => !item.esRegalo).reduce((sum, item) => sum + item.costoTotalItem, 0);
+    const totalReal = presupuesto.itemsPresupuestados
+      .filter(item => !item.esRegalo)
+      .reduce((sum, item) => sum + item.costoTotalItem, 0);
 
     const porcentajeDescuento = (presupuesto.descuentoValor && presupuesto.descuentoTipo === 'porcentaje') ? presupuesto.descuentoValor : 0;
     
-    const valorServiciosCalc = porcentajeDescuento > 0 && porcentajeDescuento < 100 
+    // Invert calculation for display value
+    const valorServiciosCalc = (porcentajeDescuento > 0 && porcentajeDescuento < 100)
       ? totalReal / (1 - (porcentajeDescuento / 100))
       : totalReal;
       
@@ -143,6 +146,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
       .filter(item => item.esRegalo)
       .reduce((sum, item) => {
         const itemSinRegalo = { ...item, esRegalo: false };
+        // Use precioUnitarioOriginal which should hold the real price before it was gifted
         const originalPriceItem = { ...itemSinRegalo, precioUnitarioPresupuesto: item.precioUnitarioOriginal || item.precioUnitario };
         return sum + calcularCostoItem(originalPriceItem, presupuesto.invitadosAdultos || 0, presupuesto.invitadosAdolescentes || 0, presupuesto.invitadosNinos || 0);
       }, 0);
@@ -166,6 +170,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     const sortedAgrupados: Record<string, ItemPresupuestado[]> = {};
     sortedKeys.forEach(key => sortedAgrupados[key] = agrupados[key]);
 
+    // Ensure gifts are always last if they exist
     if (presupuesto.itemsPresupuestados.some(item => item.esRegalo)) {
       sortedAgrupados['Regalos Incluidos'] = presupuesto.itemsPresupuestados.filter(item => item.esRegalo);
     }
@@ -196,6 +201,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
         const adolescentes = fetchedPresupuesto.invitadosAdolescentes || 0;
         const ninos = fetchedPresupuesto.invitadosNinos || 0;
 
+        // Recalculate costs on load to ensure they are up-to-date with logic
         const itemsRecalculados = fetchedPresupuesto.itemsPresupuestados.map(item => ({
             ...item,
             costoTotalItem: calcularCostoItem(item, adultos, adolescentes, ninos)
@@ -223,7 +229,6 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     const anioCreacion = new Date(presupuesto.timestamp).getFullYear();
     const anioEvento = presupuesto.eventoFecha ? new Date(presupuesto.eventoFecha).getFullYear() : anioCreacion;
     const currentYear = new Date().getFullYear();
-    // Logic as per user: if the event year is LATER than the current year, and it's not yet billed/adjustment not manually activated, show legend.
     return anioEvento > currentYear && presupuesto?.estado !== 'Facturado' && !presupuesto.ajusteAnualActivo;
   }, [presupuesto, displaySettings]);
 
@@ -322,22 +327,22 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
 
   return (
     <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans text-gray-800 print:text-black">
-      <div className="max-w-3xl mx-auto">
-        <div className="flex justify-between items-center mb-6 print:hidden">
-          <Link href="/presupuestos/nuevo" passHref><Button variant="outline" size="sm"><ArrowLeft className="mr-2 h-4 w-4"/>Volver al Creador</Button></Link>
-          <div className="flex gap-2 flex-wrap justify-end">
-            <Button variant="outline" size="sm" onClick={handleShareWhatsApp}><Share2 className="w-4 h-4 mr-2"/>WhatsApp</Button>
-            <Button onClick={handlePrint} size="sm"><Printer className="mr-2 h-4 w-4"/>Imprimir/PDF</Button>
-            {presupuesto.estado !== 'Facturado' ? 
-              (<Link href={`/invoices/new?fromPresupuesto=${presupuesto.id}`} passHref><Button variant='default' size="sm"><FileTextIcon className="mr-2 h-4 w-4"/>Crear Factura</Button></Link>) : 
-              presupuesto.invoiceId ? 
-              (<Link href={`/invoices/${presupuesto.invoiceId}`} passHref><Button variant="secondary" size="sm" className="bg-green-100 text-green-700 hover:bg-green-200"><FileSignature className="mr-2 h-4 w-4"/>Ver Factura</Button></Link>) : 
-              (<Button variant="secondary" size="sm" disabled>Facturado</Button>)}
-            <Link href={`/presupuestos/${presupuestoId}/editar`} passHref><Button variant="outline" size="sm"><Edit className="mr-2 h-4 w-4"/>Editar</Button></Link>
-          </div>
+      <div className="flex justify-between items-center mb-6 print:hidden max-w-3xl mx-auto">
+        <Link href="/presupuestos/nuevo" passHref><Button variant="outline" size="sm"><ArrowLeft className="mr-2 h-4 w-4"/>Volver al Creador</Button></Link>
+        <div className="flex gap-2 flex-wrap justify-end">
+          <Button variant="outline" size="sm" onClick={handleShareWhatsApp}><Share2 className="w-4 h-4 mr-2"/>WhatsApp</Button>
+          <Button variant="outline" size="sm" onClick={handleCopyToClipboard}><ClipboardCopy className="w-4 h-4 mr-2"/>Copiar Texto</Button>
+          <Button onClick={handlePrint} size="sm"><Printer className="mr-2 h-4 w-4"/>Imprimir/PDF</Button>
+          {presupuesto.estado !== 'Facturado' ? 
+            (<Link href={`/invoices/new?fromPresupuesto=${presupuesto.id}`} passHref><Button variant='default' size="sm"><FileTextIcon className="mr-2 h-4 w-4"/>Crear Factura</Button></Link>) : 
+            presupuesto.invoiceId ? 
+            (<Link href={`/invoices/${presupuesto.invoiceId}`} passHref><Button variant="secondary" size="sm" className="bg-green-100 text-green-700 hover:bg-green-200"><FileSignature className="mr-2 h-4 w-4"/>Ver Factura</Button></Link>) : 
+            (<Button variant="secondary" size="sm" disabled>Facturado</Button>)}
+          <Link href={`/presupuestos/${presupuestoId}/editar`} passHref><Button variant="outline" size="sm"><Edit className="mr-2 h-4 w-4"/>Editar</Button></Link>
         </div>
+      </div>
 
-        <div className="bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2" id="invoice-to-print">
+      <div className="bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2 max-w-3xl mx-auto" id="invoice-to-print">
             <header className="mb-6 print:mb-4">
               <div className="flex justify-between items-start">
                 <h1 className="text-xl font-bold text-left mb-4 print:text-base leading-tight">{COMPANY_MAIN_TITLE}</h1>
@@ -434,22 +439,29 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 </section>
               )}
               
-              <section className="flex justify-end mb-6 print:mb-3 text-sm print:text-xs">
+             <section className="flex justify-end mb-6 print:mb-3 text-sm print:text-xs">
                 <div className="w-full max-w-xs print:max-w-[220px] space-y-0.5">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Valor de servicios:</span>
-                    <span className="font-medium">{formatCurrency(calculatedValues.valorServiciosAntesDeDescuento, true)}</span>
-                  </div>
-                  {calculatedValues.descuentoPromocional + calculatedValues.costoTotalRegalos > 0 && (
-                      <div className="flex justify-between text-destructive">
-                        <span>Ahorro total (Descuento + Regalos):</span>
-                        <span className="font-medium">-{formatCurrency(calculatedValues.descuentoPromocional + calculatedValues.costoTotalRegalos, true)}</span>
-                      </div>
-                  )}
-                  <div className="flex justify-between font-bold pt-1 border-t-2 border-gray-600 print:border-gray-700">
-                    <span className="text-base">TOTAL A PAGAR:</span>
-                    <span className="text-base">{formatCurrency(calculatedValues.totalAPagar, true)}</span>
-                  </div>
+                    <div className="flex justify-between">
+                        <span className="text-muted-foreground">Valor de servicios:</span>
+                        <span className="font-medium">{formatCurrency(calculatedValues.valorServiciosAntesDeDescuento, true)}</span>
+                    </div>
+                    {calculatedValues.descuentoPromocional > 0 && (
+                        <div className="flex justify-between text-destructive">
+                        <span>Descuento{presupuesto.nombrePromocion ? ` (${presupuesto.nombrePromocion})` : ''}:</span>
+                        <span className="font-medium">-{formatCurrency(calculatedValues.descuentoPromocional, true)}</span>
+                        </div>
+                    )}
+                    {calculatedValues.costoTotalRegalos > 0 && (
+                        <div className="flex justify-between text-green-600">
+                        <span className="flex items-center gap-1"><Gift className="w-3.5 h-3.5"/>Ahorro en Regalos:</span>
+                        <span className="font-medium">{formatCurrency(calculatedValues.costoTotalRegalos, true)}</span>
+                        </div>
+                    )}
+                    <Separator className="my-2"/>
+                    <div className="flex justify-between font-bold text-lg pt-1">
+                        <span className="text-primary">TOTAL A PAGAR:</span>
+                        <span className="text-primary">{formatCurrency(calculatedValues.totalAPagar, true)}</span>
+                    </div>
                 </div>
               </section>
               
@@ -459,9 +471,9 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 {showAnnualAdjustmentLegend && (<p className="mt-1 print:mt-0.5 text-orange-600 font-medium">Nota: Este presupuesto podría estar sujeto a un ajuste anual del {displaySettings.annualAdjustmentPercentage}% si el evento se realiza en un año posterior al actual.</p>)}
               </footer>
           </div>
-        </div>
       </div>
-    );
+    </div>
+  );
 }
 
 export default function Page({ params }: { params: { id: string } }) {
@@ -471,5 +483,3 @@ export default function Page({ params }: { params: { id: string } }) {
     </Suspense>
   )
 }
-
-    
