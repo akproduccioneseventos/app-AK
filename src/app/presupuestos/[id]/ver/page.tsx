@@ -182,16 +182,20 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     }
 
     const TOTAL_REAL = presupuesto.costoTotalEstimado;
-    const PORCENTAJE_DESCUENTO = (presupuesto.descuentoTipo === 'porcentaje' ? presupuesto.descuentoValor || 0 : displaySettings.promotionalDiscounts?.find(d => d.type === 'percentage')?.value || 0) / 100;
+    const PORCENTAJE_DESCUENTO_CONFIG = displaySettings.promotionalDiscounts?.find(d => d.type === 'percentage')?.value || 15;
+    const PORCENTAJE_DESCUENTO = (presupuesto.descuentoTipo === 'porcentaje' ? presupuesto.descuentoValor || PORCENTAJE_DESCUENTO_CONFIG : 0) / 100;
     
-    const VALOR_SERVICIOS = PORCENTAJE_DESCUENTO > 0 ? TOTAL_REAL / (1 - PORCENTAJE_DESCUENTO) : TOTAL_REAL;
-    const DESCUENTO = VALOR_SERVICIOS - TOTAL_REAL;
+    const VALOR_SERVICIOS = PORCENTAJE_DESCUENTO > 0 && PORCENTAJE_DESCUENTO < 1
+      ? TOTAL_REAL / (1 - PORCENTAJE_DESCUENTO)
+      : TOTAL_REAL + (presupuesto.descuentoTipo === 'fijo' ? presupuesto.descuentoValor || 0 : 0);
+
+    const DESCUENTO_PROMO = VALOR_SERVICIOS - TOTAL_REAL;
 
     const costoRegalos = presupuesto.itemsPresupuestados
       .filter(item => item.esRegalo)
       .reduce((sum, item) => {
         const itemSinRegalo = { ...item, esRegalo: false };
-        const originalPriceItem = { ...itemSinRegalo, precioUnitarioPresupuesto: item.precioUnitarioOriginal || item.precioUnitario };
+        const originalPriceItem = { ...itemSinRegalo, precioUnitarioPresupuesto: item.precioUnitario };
         return sum + calcularCostoItem(originalPriceItem, presupuesto.invitadosAdultos || 0, presupuesto.invitadosAdolescentes || 0, presupuesto.invitadosNinos || 0);
       }, 0);
 
@@ -222,12 +226,11 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
       itemsAgrupados: sortedAgrupados,
       valorServiciosAntesDeDescuento: Math.round(VALOR_SERVICIOS),
       costoTotalRegalos: Math.round(costoRegalos),
-      descuentoPromocional: Math.round(DESCUENTO),
+      descuentoPromocional: Math.round(DESCUENTO_PROMO),
       totalAPagar: Math.round(TOTAL_REAL)
     };
   }, [presupuesto, displaySettings]);
-
-
+  
   const generarTextoWhatsApp = useCallback(() => {
     if (!presupuesto) return '';
     const { itemsAgrupados, valorServiciosAntesDeDescuento, descuentoPromocional, costoTotalRegalos, totalAPagar } = calculatedValues;
@@ -307,19 +310,6 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     }
   };
 
-  if (isLoading) {
-    return <div className="flex items-center justify-center h-screen"><Loader2 className="w-16 h-16 animate-spin text-primary" /><p className="ml-4 text-xl">Cargando...</p></div>;
-  }
-  if (error || !presupuesto || !displaySettings) {
-    return <div className="max-w-2xl mx-auto text-center py-10"><AlertTriangle className="w-16 h-16 mx-auto text-destructive mb-4" /><h1 className="text-2xl font-bold">Error</h1><p className="text-muted-foreground">{error || "Presupuesto no encontrado o configuración faltante."}</p><Link href="/presupuestos/nuevo" passHref><Button variant="outline" className="mt-6"><ArrowLeft className="mr-2 h-4 w-4"/>Volver</Button></Link></div>;
-  }
-  
-  const fechaValidoHasta = new Date(presupuesto.timestamp);
-  fechaValidoHasta.setDate(fechaValidoHasta.getDate() + BUDGET_VALIDITY_DAYS_PDF);
-    
-  const protagonistas = [presupuesto.protagonista1Nombre, presupuesto.protagonista2Nombre].filter(Boolean).join(' y ');
-  const displayId = presupuesto.numero ? `#${presupuesto.numero}` : `#${presupuesto.id.split('_').pop()?.substring(0,6)}`;
-  
   const showAnnualAdjustmentLegend = useMemo(() => {
     if (!presupuesto || !displaySettings) return false;
     const anioCreacion = new Date(presupuesto.timestamp).getFullYear();
@@ -328,6 +318,19 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     return anioEvento > currentYear && presupuesto?.estado !== 'Facturado' && !presupuesto.ajusteAnualActivo;
   }, [presupuesto, displaySettings]);
 
+
+  if (isLoading) {
+    return <div className="flex items-center justify-center h-screen"><Loader2 className="w-16 h-16 animate-spin text-primary" /><p className="ml-4 text-xl">Cargando...</p></div>;
+  }
+  if (error || !presupuesto || !displaySettings) {
+    return <div className="max-w-2xl mx-auto text-center py-10"><AlertTriangle className="w-16 h-16 mx-auto text-destructive mb-4" /><h1 className="text-2xl font-bold">Error</h1><p className="text-muted-foreground">{error || "Presupuesto no encontrado o configuración faltante."}</p><Link href="/presupuestos/nuevo" passHref><Button variant="outline" className="mt-6"><ArrowLeft className="mr-2 h-4 w-4"/>Volver</Button></Link></div>;
+  }
+  
+  const { itemsAgrupados, valorServiciosAntesDeDescuento, costoTotalRegalos, descuentoPromocional, totalAPagar } = calculatedValues;
+  const fechaValidoHasta = new Date(presupuesto.timestamp);
+  fechaValidoHasta.setDate(fechaValidoHasta.getDate() + BUDGET_VALIDITY_DAYS_PDF);
+  const protagonistas = [presupuesto.protagonista1Nombre, presupuesto.protagonista2Nombre].filter(Boolean).join(' y ');
+  const displayId = presupuesto.numero ? `#${presupuesto.numero}` : `#${presupuesto.id.split('_').pop()?.substring(0,6)}`;
 
   return (
     <>
@@ -422,7 +425,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                         </tr>
                         </thead>
                         <tbody>
-                        {Object.entries(calculatedValues.itemsAgrupados).map(([categoria, items]) => (
+                        {Object.entries(itemsAgrupados).map(([categoria, items]) => (
                          <React.Fragment key={categoria}>
                             <tr className="bg-gray-50 print:bg-gray-100">
                               <td colSpan={4} className="border border-gray-300 print:border-gray-400 px-1.5 py-1 font-bold text-gray-600">{categoria}</td>
@@ -433,7 +436,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                                       {item.esRegalo ? <span className="text-red-600 font-semibold flex items-center gap-1"><Gift className="w-3 h-3"/> {item.nombreServicio} (REGALO)</span> : item.nombreServicio}
                                     </td>
                                     <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{getDisplayQuantity(item)}</td>
-                                    <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through text-gray-500">{formatCurrency(item.precioUnitarioOriginal, true)}</span> : formatCurrency(item.precioUnitarioPresupuesto, true)}</td>
+                                    <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through text-gray-500">{formatCurrency(item.precioUnitario, true)}</span> : formatCurrency(item.precioUnitarioPresupuesto, true)}</td>
                                     <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top font-semibold">{item.esRegalo ? formatCurrency(0, true) : formatCurrency(item.costoTotalItem, true)}</td>
                                 </tr>
                             ))}
@@ -448,28 +451,28 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                   <div className="w-full max-w-xs print:max-w-[220px] space-y-0.5">
                       <div className="flex justify-between">
                           <span className="text-muted-foreground">Valor de servicios:</span>
-                          <span className="font-medium">{formatCurrency(calculatedValues.valorServiciosAntesDeDescuento, true, true)}</span>
+                          <span className="font-medium">{formatCurrency(valorServiciosAntesDeDescuento, true, true)}</span>
                       </div>
-                      {calculatedValues.descuentoPromocional > 0 && (
+                      {descuentoPromocional > 0 && (
                           <div className="flex justify-between text-destructive">
                           <span>Descuento{presupuesto.nombrePromocion ? ` (${presupuesto.nombrePromocion})` : ''}:</span>
-                          <span className="font-medium">-{formatCurrency(calculatedValues.descuentoPromocional, true, true)}</span>
+                          <span className="font-medium">-{formatCurrency(descuentoPromocional, true, true)}</span>
                           </div>
                       )}
-                       {calculatedValues.costoTotalRegalos > 0 && (
-                          <div className="flex justify-between text-green-600">
-                          <span className="flex items-center gap-1"><Gift className="w-3.5 h-3.5"/>Ahorro en Regalos:</span>
-                          <span className="font-medium">{formatCurrency(calculatedValues.costoTotalRegalos, true, true)}</span>
+                       {costoTotalRegalos > 0 && (
+                         <div className="flex justify-between text-green-600">
+                            <span className="flex items-center gap-1"><Gift className="w-3.5 h-3.5"/>Ahorro en Regalos:</span>
+                            <span className="font-medium">{formatCurrency(costoTotalRegalos, true, true)}</span>
                           </div>
                        )}
                       <div className="flex justify-between font-semibold">
                         <span className="text-muted-foreground">Ahorro total (Descuento + Regalos):</span>
-                        <span className="font-medium">-{formatCurrency(calculatedValues.descuentoPromocional + calculatedValues.costoTotalRegalos, true, true)}</span>
+                        <span className="font-medium">-{formatCurrency(descuentoPromocional + costoTotalRegalos, true, true)}</span>
                       </div>
                       <Separator className="my-2"/>
                       <div className="flex justify-between font-bold text-lg pt-1">
                           <span className="text-primary">TOTAL A PAGAR:</span>
-                          <span className="text-primary">{formatCurrency(calculatedValues.totalAPagar, true)}</span>
+                          <span className="text-primary">{formatCurrency(totalAPagar, true)}</span>
                       </div>
                   </div>
                 </section>
