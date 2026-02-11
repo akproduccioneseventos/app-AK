@@ -15,5 +15,3 @@ export interface Invitado {
 
 // Para el formulario de añadir nuevo invitado, antes de tener ID
 export type NuevoInvitadoData = Omit<Invitado, 'id' | 'checkedIn' | 'checkInTimestamp'>;
-
-    
