@@ -1,5 +1,27 @@
 [
   {
+    "id": "lead_1770774194116_xrcojlc",
+    "name": "Buen",
+    "notes": "Presupuesto Nº 5\nCosto: $ 125.655,50",
+    "presupuestoId": "pres_1770774194110_fysfkw6",
+    "currentStageId": "s3",
+    "createdAt": "2026-02-11T01:43:14.115Z",
+    "updatedAt": "2026-02-11T01:43:14.124Z",
+    "history": [
+      {
+        "stageId": "s1",
+        "stageName": "Consultó",
+        "timestamp": "2026-02-11T01:43:14.115Z"
+      },
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2026-02-11T01:43:14.124Z"
+      }
+    ],
+    "budgetSource": "manual"
+  },
+  {
     "id": "lead_1770773800629_dtqoisf",
     "name": "Buen",
     "notes": "Presupuesto Nº 4\nCosto: $ 153.960,50",
@@ -19,7 +41,8 @@
         "timestamp": "2026-02-11T01:36:40.639Z"
       }
     ],
-    "budgetSource": "manual"
+    "budgetSource": "manual",
+    "presupuestoEstado": "Enviado"
   },
   {
     "id": "lead_1770773785401_vomij3x",
