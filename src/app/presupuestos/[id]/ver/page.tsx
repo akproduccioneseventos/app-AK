@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
@@ -7,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextIcon, CalendarDays, Users, Coins, StickyNote, FileSignature, MessageSquare, Mail, Percent, Tag, Phone, Globe as GlobeIcon, Share2, Gift } from 'lucide-react';
+import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextIcon, CalendarDays, Users, Coins, StickyNote, FileSignature, MessageSquare, Mail, Percent, Tag, Phone, Globe as GlobeIcon, Share2, Gift, ClipboardCopy } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge';
 import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto';
@@ -208,6 +207,12 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     window.open(`https://wa.me/?text=${encodeURIComponent(generarTextoWhatsApp())}`, '_blank');
   };
 
+  const handleCopyToClipboard = () => {
+    navigator.clipboard.writeText(generarTextoWhatsApp())
+      .then(() => toast({ title: "¡Texto Copiado!", description: "Resumen copiado para WhatsApp." }))
+      .catch(() => toast({ title: "Error al Copiar", variant: "destructive" }));
+  };
+  
   const getDisplayQuantity = (item: ItemPresupuestado): string => {
     if (!presupuesto) return 'N/A';
     const adultos = presupuesto.invitadosAdultos || 0;
@@ -267,30 +272,36 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     }
     
     const subtotalReal = presupuesto.costoTotalEstimado;
-    const costoRegalos = itemsRegalo.reduce((sum, item) => sum + (item.precioUnitario * item.cantidad), 0);
+    const costoRegalos = itemsRegalo.reduce((sum, item) => {
+        const itemDataForCalc: ItemPresupuestado = { ...item, esRegalo: false, costoTotalItem: 0 };
+        return sum + calcularCostoItem(itemDataForCalc, presupuesto.invitadosAdultos || 0, presupuesto.invitadosAdolescentes || 0, presupuesto.invitadosNinos || 0);
+    }, 0);
+
+    
     const totalFinalAjustado = presupuesto.totalConDescuento ?? subtotalReal;
     const descPromo = subtotalReal - totalFinalAjustado;
     
     const anioCreacion = new Date(presupuesto.timestamp).getFullYear();
     const anioEvento = presupuesto.eventoFecha ? new Date(presupuesto.eventoFecha).getFullYear() : anioCreacion;
+    const currentYear = new Date().getFullYear();
   
     const showAnnualAdj = 
       displaySettings.annualAdjustmentPercentage && 
       displaySettings.annualAdjustmentPercentage > 0 && 
-      anioEvento > anioCreacion &&
-      presupuesto.estado !== 'Facturado' &&
+      anioEvento > currentYear &&
+      presupuesto?.estado !== 'Facturado' &&
       !presupuesto.ajusteAnualActivo;
 
     return {
       itemsAgrupados: sortedAgrupados,
       costoTotalRegalos: costoRegalos,
       subtotalBruto: subtotalReal,
-      descuentoPromocional: descPromo,
+      descuentoPromocional: Math.max(0, descPromo),
       totalFinal: totalFinalAjustado,
       showAnnualAdjustmentLegend: showAnnualAdj,
     };
-
   }, [presupuesto, displaySettings]);
+
 
   if (isLoading) {
     return <div className="flex items-center justify-center h-screen"><Loader2 className="w-16 h-16 animate-spin text-primary" /><p className="ml-4 text-xl">Cargando...</p></div>;
@@ -421,23 +432,23 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
             <div className="w-full max-w-xs print:max-w-[220px] space-y-0.5">
               <div className="flex justify-between">
                 <span>Subtotal de servicios:</span>
-                <span className="font-medium">{formatCurrency(subtotalBruto)}</span>
+                <span className="font-medium">{formatCurrency(subtotalBruto, true)}</span>
               </div>
               {descuentoPromocional > 0 && (
                   <div className="flex justify-between text-destructive">
                     <span>Descuento{presupuesto.nombrePromocion ? ` (${presupuesto.nombrePromocion})` : ''}:</span>
-                    <span className="font-medium">-{formatCurrency(descuentoPromocional)}</span>
+                    <span className="font-medium">-{formatCurrency(descuentoPromocional, true)}</span>
                   </div>
               )}
                {costoTotalRegalos > 0 && (
                  <div className="flex justify-between text-green-600">
                     <span>Ahorro en Regalos:</span>
-                    <span>{formatCurrency(costoTotalRegalos)}</span>
+                    <span>{formatCurrency(costoTotalRegalos, true)}</span>
                   </div>
                )}
               <div className="flex justify-between font-bold pt-1 border-t-2 border-gray-600 print:border-gray-700">
                 <span className="text-base">TOTAL A PAGAR:</span>
-                <span className="text-base">{formatCurrency(totalFinal)}</span>
+                <span className="text-base">{formatCurrency(totalFinal, true)}</span>
               </div>
             </div>
           </section>
@@ -447,8 +458,8 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
             {presupuesto.notas && displaySettings.showPaymentMethodNotes && <p className="mt-1 print:mt-0.5 whitespace-pre-line">{presupuesto.notas}</p>}
             {showAnnualAdjustmentLegend && (<p className="mt-1 print:mt-0.5 text-orange-600 font-medium">Nota: Este presupuesto podría estar sujeto a un ajuste anual del {displaySettings.annualAdjustmentPercentage}% si el evento se realiza en un año posterior al actual.</p>)}
           </footer>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
       
       <Card className="shadow-md border-primary/20 print:hidden mt-6">
         <CardHeader className="bg-primary/5 p-4 md:p-6"><CardTitle className="font-headline text-lg md:text-xl text-primary">Acciones y Compartir</CardTitle></CardHeader>

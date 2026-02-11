@@ -1,6 +1,8 @@
+
+
 'use client';
 
-import type { PresupuestoFormData, ItemPresupuestado } from '@/types/presupuesto';
+import type { PresupuestoFormData, ItemPresupuestado, Presupuesto } from '@/types/presupuesto';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -88,7 +90,7 @@ const menuItemToServicioSeleccionado = (item: ServicioEmpresa, invitados: number
         precioUnitarioPresupuesto: item.precioPorPersona || 0,
         nombreServicio: item.nombre,
         unidad: 'personas',
-        categoriaServicio: item.categoria,
+        categoriaServicio: 'Servicio de catering', // Explicitly set category
         subcategoria: item.subcategoria,
         esRegalo: false,
         calculationMethod: 'porPersona',
@@ -101,7 +103,7 @@ const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): Se
         id: item.id,
         nombre: item.name,
         tipoItem: 'Servicio',
-        categoria: 'Servicio de catering',
+        categoria: 'Servicio de catering', // Explicitly set category
         subcategoria: item.type,
         calculationMethod: 'porPersona',
         precioPorPersona: item.precioVenta,
