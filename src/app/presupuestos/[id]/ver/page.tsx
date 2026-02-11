@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
@@ -146,11 +145,22 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
         }));
 
         const subtotalReal = itemsRecalculados.filter(item => !item.esRegalo).reduce((sum, item) => sum + item.costoTotalItem, 0);
+        
+        let totalFinalConDescuento = subtotalReal;
+        if(fetchedPresupuesto.descuentoTipo && fetchedPresupuesto.descuentoValor) {
+            if(fetchedPresupuesto.descuentoTipo === 'porcentaje') {
+                totalFinalConDescuento = subtotalReal * (1 - (fetchedPresupuesto.descuentoValor / 100));
+            } else {
+                totalFinalConDescuento = subtotalReal - fetchedPresupuesto.descuentoValor;
+            }
+        }
+
 
         setPresupuesto({
             ...fetchedPresupuesto,
             itemsPresupuestados: itemsRecalculados,
             costoTotalEstimado: subtotalReal,
+            totalConDescuento: totalFinalConDescuento
         });
 
       } else {
@@ -169,15 +179,21 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     fetchPresupuestoAndSettings();
   }, [fetchPresupuestoAndSettings]);
 
-  const { itemsAgrupados, valorServicios, ahorroTotal, totalAPagar, showAnnualAdjustmentLegend } = useMemo(() => {
+  const { itemsAgrupados, valorServiciosInflado, descuentoPromocional, costoTotalRegalos, totalAPagar, showAnnualAdjustmentLegend } = useMemo(() => {
     if (!presupuesto || !displaySettings) {
-      return { itemsAgrupados: {}, valorServicios: 0, ahorroTotal: 0, totalAPagar: 0, showAnnualAdjustmentLegend: false };
+      return { itemsAgrupados: {}, valorServiciosInflado: 0, descuentoPromocional: 0, costoTotalRegalos: 0, totalAPagar: 0, showAnnualAdjustmentLegend: false };
     }
     
     const totalRealServicios = presupuesto.costoTotalEstimado;
-    const valorServiciosInflado = Math.round(totalRealServicios * 1.15);
-    const ahorroCalculado = valorServiciosInflado - totalRealServicios;
-    const totalAPagarCalculado = totalRealServicios;
+    const costoRegalos = presupuesto.itemsPresupuestados
+      .filter(item => item.esRegalo)
+      .reduce((sum, item) => {
+        const itemSinRegalo = { ...item, esRegalo: false };
+        return sum + calcularCostoItem(itemSinRegalo, presupuesto.invitadosAdultos || 0, presupuesto.invitadosAdolescentes || 0, presupuesto.invitadosNinos || 0);
+      }, 0);
+    
+    const valorInflado = Math.round(totalRealServicios * 1.15);
+    const descPromo = valorInflado - totalRealServicios;
     
     const anioCreacion = new Date(presupuesto.timestamp).getFullYear();
     const anioEvento = presupuesto.eventoFecha ? new Date(presupuesto.eventoFecha).getFullYear() : anioCreacion;
@@ -206,9 +222,10 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
 
     return {
       itemsAgrupados: sortedAgrupados,
-      valorServicios: valorServiciosInflado,
-      ahorroTotal: ahorroCalculado,
-      totalAPagar: totalAPagarCalculado,
+      valorServiciosInflado: valorInflado,
+      descuentoPromocional: descPromo,
+      costoTotalRegalos: costoRegalos,
+      totalAPagar: totalRealServicios,
       showAnnualAdjustmentLegend: showAdj
     };
   }, [presupuesto, displaySettings]);
@@ -216,7 +233,8 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
 
   const generarTextoWhatsApp = useCallback(() => {
     if (!presupuesto) return '';
-    let texto = `*Resumen de Presupuesto Simulado*\n`;
+    const pageUrl = `${window.location.origin}/presupuestos/${presupuesto.id}/ver`;
+    let texto = `*Resumen de Presupuesto - ${COMPANY_NAME_BRAND}*\n`;
     texto += `-----------------\n`;
     texto += `*Cliente:* ${presupuesto.clienteNombre}\n`;
     const totalInvitados = (presupuesto.invitadosAdultos || 0) + (presupuesto.invitadosNinos || 0) + (presupuesto.invitadosAdolescentes || 0);
@@ -226,7 +244,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     
     texto += `*Servicios Seleccionados:*\n`;
 
-    Object.entries(itemsAgrupados).sort(([catA], [catB]) => catA === 'Regalos Incluidos' ? 1 : catB === 'Regalos Incluidos' ? -1 : catA.localeCompare(catB)).forEach(([categoria, items]) => {
+    Object.entries(itemsAgrupados).forEach(([categoria, items]) => {
       if (items.length === 0) return;
       texto += `\n*${categoria}*\n`;
       items.forEach(item => {
@@ -240,17 +258,20 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     });
 
     texto += `-----------------\n`;
-    texto += `*Valor de servicios:* ${formatCurrency(valorServicios)}\n`;
-    if (ahorroTotal > 0) {
-      texto += `*Ahorro Total (Descuento Promocional):* -${formatCurrency(ahorroTotal)}\n`;
+    texto += `*Subtotal:* ${formatCurrency(subtotalBruto)}\n`;
+    if (descuentoPromocional > 0) {
+      texto += `*Descuento Promocional:* -${formatCurrency(descuentoPromocional)}\n`;
+    }
+     if (costoTotalRegalos > 0) {
+      texto += `*Ahorro en Regalos:* ${formatCurrency(costoTotalRegalos)}\n`;
     }
     texto += `*TOTAL A PAGAR:* *${formatCurrency(totalAPagar)}*\n`;
     texto += `-----------------\n`;
-    texto += `Este presupuesto es una estimación y no incluye todos los posibles adicionales. Válido por 30 días.\n\n`;
-    texto += `¡Gracias por tu interés! Un asesor se comunicará contigo a la brevedad.`;
+    texto += `Presupuesto válido por 30 días. Para confirmar se requiere una seña.\n\n`;
+    texto += `Puedes ver el presupuesto detallado en el siguiente enlace:\n${pageUrl}`;
     
     return texto;
-  }, [presupuesto, itemsAgrupados, valorServicios, ahorroTotal, totalAPagar]);
+  }, [presupuesto, itemsAgrupados, subtotalBruto, descuentoPromocional, costoTotalRegalos, totalAPagar]);
   
   const handleCopyToClipboard = () => {
     navigator.clipboard.writeText(generarTextoWhatsApp())
@@ -419,26 +440,32 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
               <section className="flex justify-end mb-6 print:mb-3 text-sm print:text-xs">
                 <div className="w-full max-w-xs print:max-w-[220px] space-y-0.5">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Valor de servicios:</span>
-                    <span className="font-medium">{formatCurrency(valorServicios, true, true)}</span>
+                    <span className="text-muted-foreground">Subtotal servicios:</span>
+                    <span className="font-medium">{formatCurrency(subtotalBruto, true, true)}</span>
                   </div>
-                  {ahorroTotal > 0 && (
-                    <div className="flex justify-between text-destructive">
-                        <span>Ahorro Promocional:</span>
-                        <span className="font-medium">-{formatCurrency(ahorroTotal, true, true)}</span>
+                  {descuentoPromocional > 0 && (
+                      <div className="flex justify-between text-destructive">
+                        <span>Descuento Promocional:</span>
+                        <span className="font-medium">-{formatCurrency(descuentoPromocional, true, true)}</span>
+                      </div>
+                  )}
+                  {costoTotalRegalos > 0 && (
+                    <div className="flex justify-between text-green-600">
+                        <span>Ahorro en Regalos:</span>
+                        <span className="font-medium">{formatCurrency(costoTotalRegalos, true, true)}</span>
                     </div>
                   )}
-                <div className="flex justify-between font-bold pt-1 border-t-2 border-gray-600 print:border-gray-700">
-                  <span className="text-base">TOTAL A PAGAR:</span>
-                  <span className="text-base">{formatCurrency(totalAPagar, true)}</span>
-                </div>
+                  <div className="flex justify-between font-bold pt-1 border-t-2 border-gray-600 print:border-gray-700">
+                    <span className="text-base">TOTAL A PAGAR:</span>
+                    <span className="text-base">{formatCurrency(totalAPagar, true)}</span>
+                  </div>
                 </div>
               </section>
               
              <footer className="mt-6 pt-3 border-t border-gray-300 print:mt-2 print:pt-1.5 print:border-gray-400 text-xs print:text-[8pt] text-gray-600 print:text-black">
                 <p>{BUDGET_DEPOSIT_NOTE_PDF}</p>
                 {presupuesto.notas && displaySettings.showPaymentMethodNotes && <p className="mt-1 print:mt-0.5 whitespace-pre-line">{presupuesto.notas}</p>}
-                {showAnnualAdjustmentLegend && (<p className="mt-1 print:mt-0.5 text-orange-600 font-medium">Nota: Este presupuesto podría estar sujeto a un ajuste anual del 15% si el evento se realiza en un año posterior al actual.</p>)}
+                {showAnnualAdjustmentLegend && (<p className="mt-1 print:mt-0.5 text-orange-600 font-medium">Nota: Este presupuesto podría estar sujeto a un ajuste anual del {displaySettings.annualAdjustmentPercentage}% si el evento se realiza en un año posterior al actual.</p>)}
               </footer>
           </div>
         

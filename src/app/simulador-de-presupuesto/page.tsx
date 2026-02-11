@@ -130,6 +130,7 @@ type ServicioSeleccionadoValue = {
     nombreServicio: string;
     unidad?: string;
     categoriaServicio?: string;
+    subcategoria?: string;
     esRegalo: boolean;
 };
 
@@ -313,9 +314,9 @@ export default function ArmadoRapidoPage() {
         return [...entradasDisponibles, ...principalesDisponibles, ...menusNinoDisponibles, ...serviciosCatalogo];
     }, [entradasDisponibles, principalesDisponibles, menusNinoDisponibles, serviciosCatalogo]);
 
-    const { subtotal, serviciosDetallados, serviciosAgrupados, totalRegalos, costoTotal, descuento } = useMemo(() => {
+    const { valorServiciosInflado, descuentoPromocional, costoTotalRegalos, totalAPagar, serviciosDetallados, serviciosAgrupados } = useMemo(() => {
         if (!config || !allSimuladorServices.length) {
-            return { subtotal: 0, serviciosDetallados: [], serviciosAgrupados: {}, totalRegalos: 0, costoTotal: 0, descuento: 0 };
+            return { valorServiciosInflado: 0, descuentoPromocional: 0, costoTotalRegalos: 0, totalAPagar: 0, serviciosDetallados: [], serviciosAgrupados: {} };
         }
 
         const allSelectedServicesMap = new Map<string, { servicio: ServicioEmpresa, esRegalo: boolean }>();
@@ -339,29 +340,22 @@ export default function ArmadoRapidoPage() {
             });
         }
 
-        let subtotalBrutoReal = 0;
-        let costoTotalRegalosReal = 0;
+        let subtotalReal = 0;
+        let costoRegalos = 0;
         const includedServicesList: ServicioDetallado[] = [];
         
         allSelectedServicesMap.forEach(({ servicio, esRegalo }) => {
             const costoRealItem = calcularCostoServicio(servicio, adultos, ninosYAdolescentes);
             if (!esRegalo) {
-                subtotalBrutoReal += costoRealItem;
+                subtotalReal += costoRealItem;
             } else {
-                costoTotalRegalosReal += costoRealItem;
+                costoRegalos += costoRealItem;
             }
             includedServicesList.push({ id: servicio.id, nombre: servicio.nombre, esRegalo, costo: costoRealItem, categoria: servicio.categoria || 'Varios' });
         });
         
-        const totalFinalAPagar = subtotalBrutoReal;
-        
-        const INFLATION_RATE = 1.15;
-        const valorServiciosInflado = Math.round(subtotalBrutoReal * INFLATION_RATE);
-        
-        const descuentoPromocional = valorServiciosInflado - subtotalBrutoReal;
-        const ahorroTotalMostrado = descuentoPromocional + costoTotalRegalosReal;
-        
-        const valorTotalServiciosMostrado = valorServiciosInflado + costoTotalRegalosReal;
+        const valorInflado = Math.round(subtotalReal * 1.15);
+        const descPromo = valorInflado - subtotalReal;
 
         const agrupados = includedServicesList.reduce((acc, item) => {
             const categoria = item.esRegalo ? 'Regalos Incluidos' : (item.categoria || 'Varios');
@@ -371,12 +365,12 @@ export default function ArmadoRapidoPage() {
         }, {} as Record<string, ServicioDetallado[]>);
 
         return { 
-            subtotal: valorTotalServiciosMostrado,
+            valorServiciosInflado: valorInflado,
+            descuentoPromocional: descPromo,
+            costoTotalRegalos: costoRegalos,
+            totalAPagar: subtotalReal,
             serviciosDetallados: includedServicesList,
-            serviciosAgrupados: agrupados, 
-            totalRegalos: costoTotalRegalosReal,
-            descuento: ahorroTotalMostrado, 
-            costoTotal: totalFinalAPagar,
+            serviciosAgrupados: agrupados
         };
     }, [config, allSimuladorServices, adultos, ninosYAdolescentes, selectedPaqueteId, formData.serviciosSeleccionados]);
     
@@ -404,17 +398,20 @@ export default function ArmadoRapidoPage() {
         });
 
         texto += `-----------------\n`;
-        texto += `*Valor de servicios:* ${formatCurrency(subtotal)}\n`;
-        if (descuento > 0) {
-            texto += `*Ahorro Total (Descuento + Regalos):* -${formatCurrency(descuento)}\n`;
+        texto += `*Valor de servicios:* ${formatCurrency(valorServiciosInflado)}\n`;
+        if (descuentoPromocional > 0) {
+            texto += `*Descuento Promocional:* -${formatCurrency(descuentoPromocional)}\n`;
         }
-        texto += `*TOTAL A PAGAR:* *${formatCurrency(costoTotal)}*\n`;
+        if (costoTotalRegalos > 0) {
+            texto += `*Ahorro en Regalos:* ${formatCurrency(costoTotalRegalos)}\n`;
+        }
+        texto += `*TOTAL A PAGAR:* *${formatCurrency(totalAPagar)}*\n`;
         texto += `-----------------\n`;
         texto += `Este presupuesto es una estimación y no incluye todos los posibles adicionales. Válido por 30 días.\n\n`;
         texto += `¡Gracias por tu interés! Un asesor se comunicará contigo a la brevedad.`;
         
         return texto;
-    }, [clienteNombre, adultos, ninosYAdolescentes, eventoFecha, serviciosAgrupados, subtotal, descuento, costoTotal]);
+    }, [clienteNombre, adultos, ninosYAdolescentes, eventoFecha, serviciosAgrupados, valorServiciosInflado, descuentoPromocional, costoTotalRegalos, totalAPagar]);
 
 
     const handleShareWhatsApp = () => {
@@ -459,8 +456,8 @@ export default function ArmadoRapidoPage() {
                 adultos,
                 ninos: ninosYAdolescentes,
                 adolescentes: 0,
-                subtotal: subtotal,
-                costoEstimado: costoTotal,
+                subtotal: valorServiciosInflado,
+                costoEstimado: totalAPagar,
                 descuentoGeneral: config?.descuentoGeneral,
                 serviciosIncluidos: serviciosDetallados.map(s => s.id),
                 paqueteNombre: config?.paquetes.find(p => p.id === selectedPaqueteId)?.nombre,
@@ -526,16 +523,6 @@ export default function ArmadoRapidoPage() {
     if (step === 4 && generatedPresupuestoId) {
         return (
             <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4 print:bg-white print:p-0 print:items-start">
-                {/*<style jsx global>{`
-                    @media print {
-                        body { background-color: white !important; }
-                        .print-hidden { display: none !important; }
-                        .print-visible { display: block !important; }
-                        .print-p-0 { padding: 0 !important; }
-                        .print-shadow-none { box-shadow: none !important; }
-                        .print-border-none { border: none !important; }
-                    }
-                `}</style>*/}
                 <Card className="w-full max-w-3xl shadow-xl print:shadow-none print:border-none">
                     <CardHeader className="text-center">
                         <CheckCircle className="w-16 h-16 mx-auto text-green-500" />
@@ -592,18 +579,24 @@ export default function ArmadoRapidoPage() {
                          <div className="w-full md:max-w-xs ml-auto space-y-1 text-sm">
                            <div className="flex justify-between">
                                 <span className="text-muted-foreground">Valor de servicios:</span>
-                                <span className="font-medium">{formatCurrency(subtotal)}</span>
+                                <span className="font-medium">{formatCurrency(valorServiciosInflado)}</span>
                             </div>
-                            {descuento > 0 && (
-                              <div className="flex justify-between text-destructive">
-                                  <span>Descuento Promocional + Regalos:</span>
-                                  <span className="font-medium">-{formatCurrency(descuento)}</span>
-                              </div>
+                            {descuentoPromocional > 0 && (
+                                <div className="flex justify-between text-destructive">
+                                    <span>Descuento Promocional:</span>
+                                    <span className="font-medium">-{formatCurrency(descuentoPromocional)}</span>
+                                </div>
+                            )}
+                            {costoTotalRegalos > 0 && (
+                                <div className="flex justify-between text-green-600">
+                                    <span>Ahorro en Regalos:</span>
+                                    <span className="font-medium">{formatCurrency(costoTotalRegalos)}</span>
+                                </div>
                             )}
                             <Separator className="my-2"/>
                             <div className="flex justify-between font-bold text-lg pt-1">
                                 <span className="text-primary">TOTAL A PAGAR:</span>
-                                <span className="text-primary">{formatCurrency(costoTotal)}</span>
+                                <span className="text-primary">{formatCurrency(totalAPagar)}</span>
                             </div>
                         </div>
                     </CardContent>
