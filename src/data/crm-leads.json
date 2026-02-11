@@ -1,5 +1,27 @@
 [
   {
+    "id": "lead_1770847693864_akpcpm3",
+    "name": "Ab",
+    "notes": "Presupuesto Nº 12\nCosto: $ 237.923,50",
+    "presupuestoId": "pres_1770847693812_unu5anq",
+    "currentStageId": "s3",
+    "createdAt": "2026-02-11T22:08:13.864Z",
+    "updatedAt": "2026-02-11T22:08:13.884Z",
+    "history": [
+      {
+        "stageId": "s1",
+        "stageName": "Consultó",
+        "timestamp": "2026-02-11T22:08:13.864Z"
+      },
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2026-02-11T22:08:13.884Z"
+      }
+    ],
+    "budgetSource": "manual"
+  },
+  {
     "id": "lead_1770833095400_367gohi",
     "name": "Aa",
     "phone": "098355389",
@@ -20,7 +42,8 @@
         "timestamp": "2026-02-11T18:04:55.419Z"
       }
     ],
-    "budgetSource": "simulator"
+    "budgetSource": "simulator",
+    "presupuestoEstado": "Enviado"
   },
   {
     "id": "lead_1770830965826_ldcvqf2",

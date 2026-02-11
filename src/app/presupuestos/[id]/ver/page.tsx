@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
@@ -155,7 +156,6 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
             }
         }
 
-
         setPresupuesto({
             ...fetchedPresupuesto,
             itemsPresupuestados: itemsRecalculados,
@@ -179,26 +179,53 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     fetchPresupuestoAndSettings();
   }, [fetchPresupuestoAndSettings]);
 
-  const { itemsAgrupados, valorServiciosInflado, descuentoPromocional, costoTotalRegalos, totalAPagar, showAnnualAdjustmentLegend } = useMemo(() => {
+  // --- LÓGICA DE CÁLCULO ---
+  const { 
+    totalRealServicios, 
+    costoTotalRegalos, 
+    valorServiciosInflado,
+    ahorroPromocional, 
+    ahorroTotal, 
+    totalAPagar 
+  } = useMemo(() => {
     if (!presupuesto || !displaySettings) {
-      return { itemsAgrupados: {}, valorServiciosInflado: 0, descuentoPromocional: 0, costoTotalRegalos: 0, totalAPagar: 0, showAnnualAdjustmentLegend: false };
+      return { totalRealServicios: 0, costoTotalRegalos: 0, valorServiciosInflado: 0, ahorroPromocional: 0, ahorroTotal: 0, totalAPagar: 0 };
     }
     
-    const totalRealServicios = presupuesto.costoTotalEstimado;
+    const TOTAL_REAL_SERVICIOS = presupuesto.costoTotalEstimado;
+    
     const costoRegalos = presupuesto.itemsPresupuestados
       .filter(item => item.esRegalo)
       .reduce((sum, item) => {
         const itemSinRegalo = { ...item, esRegalo: false };
         return sum + calcularCostoItem(itemSinRegalo, presupuesto.invitadosAdultos || 0, presupuesto.invitadosAdolescentes || 0, presupuesto.invitadosNinos || 0);
       }, 0);
-    
-    const valorInflado = Math.round(totalRealServicios * 1.15);
-    const descPromo = valorInflado - totalRealServicios;
-    
+
+    // Lógica del 15% de inflado
+    const VALOR_SERVICIOS = Math.round(TOTAL_REAL_SERVICIOS * 1.15);
+    const AHORRO_PROMOCIONAL = VALOR_SERVICIOS - TOTAL_REAL_SERVICIOS;
+
+    return {
+      totalRealServicios: TOTAL_REAL_SERVICIOS,
+      costoTotalRegalos: costoRegalos,
+      valorServiciosInflado: VALOR_SERVICIOS,
+      ahorroPromocional: AHORRO_PROMOCIONAL,
+      ahorroTotal: AHORRO_PROMOCIONAL + costoRegalos,
+      totalAPagar: TOTAL_REAL_SERVICIOS,
+    };
+  }, [presupuesto, displaySettings]);
+  
+  const showAnnualAdjustmentLegend = useMemo(() => {
+    if (!presupuesto || !displaySettings) return false;
     const anioCreacion = new Date(presupuesto.timestamp).getFullYear();
     const anioEvento = presupuesto.eventoFecha ? new Date(presupuesto.eventoFecha).getFullYear() : anioCreacion;
     const currentYear = new Date().getFullYear();
-    const showAdj = anioEvento > currentYear && presupuesto?.estado !== 'Facturado' && !presupuesto.ajusteAnualActivo;
+    return anioEvento > currentYear && presupuesto?.estado !== 'Facturado' && !presupuesto.ajusteAnualActivo;
+  }, [presupuesto, displaySettings]);
+
+
+  const itemsAgrupados = useMemo(() => {
+    if (!presupuesto) return {};
     
     const agrupados: Record<string, ItemPresupuestado[]> = presupuesto.itemsPresupuestados.reduce((acc, item) => {
         const categoria = item.subcategoria || item.categoriaServicio || 'Otros Servicios';
@@ -220,17 +247,13 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     const sortedAgrupados: Record<string, ItemPresupuestado[]> = {};
     sortedKeys.forEach(key => sortedAgrupados[key] = agrupados[key]);
 
-    return {
-      itemsAgrupados: sortedAgrupados,
-      valorServiciosInflado: valorInflado,
-      descuentoPromocional: descPromo,
-      costoTotalRegalos: costoRegalos,
-      totalAPagar: totalRealServicios,
-      showAnnualAdjustmentLegend: showAdj
-    };
-  }, [presupuesto, displaySettings]);
-
-
+    if (presupuesto.itemsPresupuestados.some(item => item.esRegalo)) {
+      sortedAgrupados['Regalos Incluidos'] = presupuesto.itemsPresupuestados.filter(item => item.esRegalo);
+    }
+    
+    return sortedAgrupados;
+  }, [presupuesto]);
+  
   const generarTextoWhatsApp = useCallback(() => {
     if (!presupuesto) return '';
     const pageUrl = `${window.location.origin}/presupuestos/${presupuesto.id}/ver`;
@@ -258,20 +281,17 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     });
 
     texto += `-----------------\n`;
-    texto += `*Subtotal:* ${formatCurrency(subtotalBruto)}\n`;
-    if (descuentoPromocional > 0) {
-      texto += `*Descuento Promocional:* -${formatCurrency(descuentoPromocional)}\n`;
-    }
-     if (costoTotalRegalos > 0) {
-      texto += `*Ahorro en Regalos:* ${formatCurrency(costoTotalRegalos)}\n`;
+    texto += `*Valor de servicios:* ${formatCurrency(valorServiciosInflado)}\n`;
+    if (ahorroTotal > 0) {
+        texto += `*Ahorro total (Descuento + Regalos):* -${formatCurrency(ahorroTotal)}\n`;
     }
     texto += `*TOTAL A PAGAR:* *${formatCurrency(totalAPagar)}*\n`;
     texto += `-----------------\n`;
-    texto += `Presupuesto válido por 30 días. Para confirmar se requiere una seña.\n\n`;
+    texto += `Este presupuesto es una estimación y no incluye todos los posibles adicionales. Válido por 30 días.\n\n`;
     texto += `Puedes ver el presupuesto detallado en el siguiente enlace:\n${pageUrl}`;
     
     return texto;
-  }, [presupuesto, itemsAgrupados, subtotalBruto, descuentoPromocional, costoTotalRegalos, totalAPagar]);
+  }, [presupuesto, itemsAgrupados, valorServiciosInflado, ahorroTotal, totalAPagar]);
   
   const handleCopyToClipboard = () => {
     navigator.clipboard.writeText(generarTextoWhatsApp())
@@ -423,7 +443,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                           {items.map((item) => (
                               <tr key={item.idServicioCatalogo}>
                                   <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 align-top">
-                                    {item.esRegalo ? <span className="text-red-600 font-semibold flex items-center gap-1"><Gift className="w-3 h-3"/> {item.nombreServicio} (REGALO)</span> : item.nombreServicio}
+                                    {item.esRegalo ? <span className="text-destructive font-semibold flex items-center gap-1"><Gift className="w-3 h-3"/> {item.nombreServicio} (REGALO)</span> : item.nombreServicio}
                                   </td>
                                   <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-center align-top">{getDisplayQuantity(item)}</td>
                                   <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through text-gray-500">{formatCurrency(item.precioUnitarioOriginal, true)}</span> : formatCurrency(item.precioUnitarioPresupuesto, true)}</td>
@@ -440,20 +460,14 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
               <section className="flex justify-end mb-6 print:mb-3 text-sm print:text-xs">
                 <div className="w-full max-w-xs print:max-w-[220px] space-y-0.5">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Subtotal servicios:</span>
-                    <span className="font-medium">{formatCurrency(subtotalBruto, true, true)}</span>
+                    <span className="text-muted-foreground">Valor de servicios:</span>
+                    <span className="font-medium">{formatCurrency(valorServiciosInflado, true, true)}</span>
                   </div>
-                  {descuentoPromocional > 0 && (
+                  {ahorroTotal > 0 && (
                       <div className="flex justify-between text-destructive">
-                        <span>Descuento Promocional:</span>
-                        <span className="font-medium">-{formatCurrency(descuentoPromocional, true, true)}</span>
+                        <span>Ahorro total (Descuento + Regalos):</span>
+                        <span className="font-medium">-{formatCurrency(ahorroTotal, true, true)}</span>
                       </div>
-                  )}
-                  {costoTotalRegalos > 0 && (
-                    <div className="flex justify-between text-green-600">
-                        <span>Ahorro en Regalos:</span>
-                        <span className="font-medium">{formatCurrency(costoTotalRegalos, true, true)}</span>
-                    </div>
                   )}
                   <div className="flex justify-between font-bold pt-1 border-t-2 border-gray-600 print:border-gray-700">
                     <span className="text-base">TOTAL A PAGAR:</span>
@@ -489,3 +503,5 @@ export default function Page({ params }: { params: { id: string } }) {
     </Suspense>
   )
 }
+
+    
