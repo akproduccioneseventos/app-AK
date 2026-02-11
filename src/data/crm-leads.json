@@ -1,136 +1,22 @@
 [
   {
-    "id": "lead_1770746605950_r3uxt41",
-    "name": "PRUEBA 3",
-    "notes": "Presupuesto Nº 2\nCosto: $ 226.941,50",
-    "presupuestoId": "pres_1770746605940_ainde57",
-    "currentStageId": "s3",
-    "createdAt": "2026-02-10T18:03:25.949Z",
-    "updatedAt": "2026-02-10T18:03:25.964Z",
-    "history": [
-      {
-        "stageId": "s1",
-        "stageName": "Consultó",
-        "timestamp": "2026-02-10T18:03:25.949Z"
-      },
-      {
-        "stageId": "s3",
-        "stageName": "Con presupuesto",
-        "timestamp": "2026-02-10T18:03:25.964Z"
-      }
-    ],
-    "budgetSource": "manual"
-  },
-  {
-    "id": "lead_1770744838610_hucd4kl",
-    "name": "manual 1",
-    "notes": "Presupuesto Nº 1\nCosto: $ 140.080,00",
-    "presupuestoId": "pres_1770744838603_8zea920",
-    "currentStageId": "s3",
-    "createdAt": "2026-02-10T17:33:58.610Z",
-    "updatedAt": "2026-02-10T17:33:58.623Z",
-    "history": [
-      {
-        "stageId": "s1",
-        "stageName": "Consultó",
-        "timestamp": "2026-02-10T17:33:58.610Z"
-      },
-      {
-        "stageId": "s3",
-        "stageName": "Con presupuesto",
-        "timestamp": "2026-02-10T17:33:58.623Z"
-      }
-    ],
-    "budgetSource": "manual",
-    "presupuestoEstado": "Enviado"
-  },
-  {
-    "id": "lead_1770743566465_8iurfg8",
-    "name": "1",
-    "notes": "Presupuesto Nº 1\nCosto: $ 138.847,50",
-    "presupuestoId": "pres_1770743566460_mbmigd8",
-    "currentStageId": "s3",
-    "createdAt": "2026-02-10T17:12:46.465Z",
-    "updatedAt": "2026-02-10T17:12:46.473Z",
-    "history": [
-      {
-        "stageId": "s1",
-        "stageName": "Consultó",
-        "timestamp": "2026-02-10T17:12:46.465Z"
-      },
-      {
-        "stageId": "s3",
-        "stageName": "Con presupuesto",
-        "timestamp": "2026-02-10T17:12:46.473Z"
-      }
-    ],
-    "budgetSource": "manual"
-  },
-  {
-    "id": "lead_1770741002584_1irsndc",
-    "name": "nico",
-    "phone": "09",
-    "notes": "Presupuesto Nº 1\nCosto: $ 167.620,00",
-    "presupuestoId": "pres_1770741002576_qdcz39r",
-    "currentStageId": "s3",
-    "createdAt": "2026-02-10T16:30:02.584Z",
-    "updatedAt": "2026-02-10T16:30:02.595Z",
-    "history": [
-      {
-        "stageId": "s1",
-        "stageName": "Consultó",
-        "timestamp": "2026-02-10T16:30:02.584Z"
-      },
-      {
-        "stageId": "s3",
-        "stageName": "Con presupuesto",
-        "timestamp": "2026-02-10T16:30:02.595Z"
-      }
-    ],
-    "budgetSource": "manual"
-  },
-  {
-    "id": "lead_1770740491019_04qn2sw",
+    "id": "lead_1770768110055_hamalzp",
     "name": "PRUEBA 2",
-    "phone": "09366304",
-    "notes": "Presupuesto Nº 2\nCosto: $ 154.436,50",
-    "presupuestoId": "pres_1770740491008_qxwbrut",
+    "notes": "Presupuesto Nº 1\nCosto: $ 163.149,00",
+    "presupuestoId": "pres_1770768109997_zicv1o8",
     "currentStageId": "s3",
-    "createdAt": "2026-02-10T16:21:31.019Z",
-    "updatedAt": "2026-02-10T16:21:31.028Z",
+    "createdAt": "2026-02-11T00:01:50.055Z",
+    "updatedAt": "2026-02-11T00:01:50.065Z",
     "history": [
       {
         "stageId": "s1",
         "stageName": "Consultó",
-        "timestamp": "2026-02-10T16:21:31.019Z"
+        "timestamp": "2026-02-11T00:01:50.055Z"
       },
       {
         "stageId": "s3",
         "stageName": "Con presupuesto",
-        "timestamp": "2026-02-10T16:21:31.028Z"
-      }
-    ],
-    "budgetSource": "manual"
-  },
-  {
-    "id": "lead_1770740479222_ehgngc5",
-    "name": "PRUEBA 2",
-    "phone": "09366304",
-    "notes": "Presupuesto Nº 1\nCosto: $ 154.436,50",
-    "presupuestoId": "pres_1770740479099_anmg4et",
-    "currentStageId": "s3",
-    "createdAt": "2026-02-10T16:21:19.222Z",
-    "updatedAt": "2026-02-10T16:21:19.233Z",
-    "history": [
-      {
-        "stageId": "s1",
-        "stageName": "Consultó",
-        "timestamp": "2026-02-10T16:21:19.222Z"
-      },
-      {
-        "stageId": "s3",
-        "stageName": "Con presupuesto",
-        "timestamp": "2026-02-10T16:21:19.233Z"
+        "timestamp": "2026-02-11T00:01:50.065Z"
       }
     ],
     "budgetSource": "manual"

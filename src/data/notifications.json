@@ -1,26 +1,10 @@
 [
   {
-    "mensaje": "Nuevo prospecto y presupuesto de PRUEBA 3",
-    "href": "/contabilidad/crm?leadId=lead_1770746605950_r3uxt41",
+    "mensaje": "Nuevo prospecto y presupuesto de PRUEBA 2",
+    "href": "/contabilidad/crm?leadId=lead_1770768110055_hamalzp",
     "icono": "KanbanSquare",
-    "id": "notif_1770746605955_g9yfi5g",
-    "fecha": "2026-02-10T18:03:25.955Z",
-    "leida": false
-  },
-  {
-    "mensaje": "Nuevo prospecto y presupuesto de manual 1",
-    "href": "/contabilidad/crm?leadId=lead_1770744838610_hucd4kl",
-    "icono": "KanbanSquare",
-    "id": "notif_1770744838613_odm07pb",
-    "fecha": "2026-02-10T17:33:58.613Z",
-    "leida": false
-  },
-  {
-    "mensaje": "Nuevo prospecto y presupuesto de 1",
-    "href": "/contabilidad/crm?leadId=lead_1770743566465_8iurfg8",
-    "icono": "KanbanSquare",
-    "id": "notif_1770743566467_c46pryw",
-    "fecha": "2026-02-10T17:12:46.467Z",
+    "id": "notif_1770768110061_2tv8tfk",
+    "fecha": "2026-02-11T00:01:50.061Z",
     "leida": false
   }
 ]
