@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, Package, ChefHat, FileText, Send, CheckCircle, Gift, User, Phone, MessageSquare, Share2, Printer, Search } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, Package, ChefHat, FileText, Send, CheckCircle, Gift, User, Phone, MessageSquare, Share2, Printer, Search, Edit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
@@ -677,7 +677,7 @@ export default function ArmadoRapidoPage() {
                             {entradasFaltantes > 0 && <p className="text-sm text-amber-600">Te falta seleccionar {entradasFaltantes} entrada{entradasFaltantes > 1 ? 's' : ''}.</p>}
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                               {entradasDisponibles.length > 0 ? (
-                                entradasDisponibles.map(s => (<div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><Checkbox id={`e-${s.id}`} checked={selectedEntradas.includes(s.id)} onCheckedChange={(checked) => handleEntradaChange(s.id, !!checked)}/><Label htmlFor={`e-${s.id}`} className="text-xs font-normal">{s.nombre} ({formatCurrency(s.precioPorPersona)})</Label></div>))
+                                entradasDisponibles.map(s => (<div key={s.id} className="flex items-center space-x-2 p-2 border rounded-md"><Checkbox id={`e-${s.id}`} checked={selectedEntradas.includes(s.id)} onCheckedChange={(checked) => handleEntradaChange(s.id, !!checked)}/><Label htmlFor={`e-${s.id}`} className="text-xs font-normal">{s.nombre} ({formatCurrency(s.precioPorPersona || 0)})</Label></div>))
                               ) : (
                                 <p className="col-span-full text-center text-sm text-muted-foreground py-4">No se encontraron entradas.</p>
                               )}
@@ -760,4 +760,3 @@ export default function ArmadoRapidoPage() {
     );
 }
 
-    

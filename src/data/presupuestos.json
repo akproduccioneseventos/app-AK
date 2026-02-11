@@ -1,5 +1,269 @@
 [
   {
+    "clienteNombre": "Nico",
+    "clienteContacto": "098355530",
+    "eventoTipo": "Evento (desde Simulador)",
+    "eventoFecha": "2026-02-11T02:16:15.637Z",
+    "invitadosCantidad": 100,
+    "invitadosAdultos": 50,
+    "invitadosAdolescentes": 0,
+    "invitadosNinos": 50,
+    "salonFiestas": "A definir",
+    "itemsPresupuestados": [
+      {
+        "idServicioCatalogo": "serv_invitaciones_digitales",
+        "nombreServicio": "Invitaciones Digitales",
+        "cantidad": 1,
+        "precioUnitario": 2500,
+        "precioUnitarioPresupuesto": 2500,
+        "costoTotalItem": 0,
+        "categoriaServicio": "Regalo exclusivo",
+        "esRegalo": true,
+        "calculationMethod": "fijo",
+        "precioBase": 2500,
+        "precioPorPersona": 2500
+      },
+      {
+        "idServicioCatalogo": "serv_mozos",
+        "nombreServicio": "Mozo",
+        "cantidad": 1,
+        "precioUnitario": 11960,
+        "precioUnitarioPresupuesto": 11960,
+        "costoTotalItem": 11960,
+        "categoriaServicio": "Personal",
+        "esRegalo": false,
+        "calculationMethod": "ratio",
+        "precioBase": 2990,
+        "invitadosPorUnidad": 25
+      },
+      {
+        "idServicioCatalogo": "serv_mozo_cocina",
+        "nombreServicio": "Mozo de Cocina",
+        "cantidad": 1,
+        "precioUnitario": 11960,
+        "precioUnitarioPresupuesto": 11960,
+        "costoTotalItem": 11960,
+        "categoriaServicio": "Personal",
+        "esRegalo": false,
+        "calculationMethod": "ratio",
+        "precioBase": 2990,
+        "invitadosPorUnidad": 25
+      },
+      {
+        "idServicioCatalogo": "item_1757281980225_3x3nbzo",
+        "nombreServicio": "Organizador de la Fiesta",
+        "cantidad": 1,
+        "precioUnitario": 11000,
+        "precioUnitarioPresupuesto": 11000,
+        "costoTotalItem": 0,
+        "categoriaServicio": "Regalo exclusivo",
+        "esRegalo": true,
+        "calculationMethod": "fijo"
+      },
+      {
+        "idServicioCatalogo": "item_1758319656786_6sjl431",
+        "nombreServicio": "Vajilla Completa",
+        "cantidad": 1,
+        "precioUnitario": 7900,
+        "precioUnitarioPresupuesto": 7900,
+        "costoTotalItem": 7900,
+        "categoriaServicio": "Servicio de catering",
+        "esRegalo": false,
+        "calculationMethod": "porPersona",
+        "precioPorPersona": 79
+      },
+      {
+        "idServicioCatalogo": "serv_manteleria_completa",
+        "nombreServicio": "Mantelería Completa",
+        "cantidad": 1,
+        "precioUnitario": 7900,
+        "precioUnitarioPresupuesto": 7900,
+        "costoTotalItem": 7900,
+        "categoriaServicio": "Servicio de catering",
+        "esRegalo": false,
+        "calculationMethod": "porPersona",
+        "precioPorPersona": 79
+      },
+      {
+        "idServicioCatalogo": "serv_1769368631171_sur8t7y",
+        "nombreServicio": "Mobiliario completo",
+        "cantidad": 1,
+        "precioUnitario": 7900,
+        "precioUnitarioPresupuesto": 7900,
+        "costoTotalItem": 7900,
+        "categoriaServicio": "Servicio de catering",
+        "esRegalo": false,
+        "calculationMethod": "porPersona",
+        "precioPorPersona": 79,
+        "tramosDePrecio": [
+          {
+            "id": "tramo_1",
+            "desde": 0,
+            "hasta": 50,
+            "precio": 0
+          }
+        ]
+      },
+      {
+        "idServicioCatalogo": "serv_1769382445833_rmonr5f",
+        "nombreServicio": "Decoración Básica",
+        "cantidad": 1,
+        "precioUnitario": 7990,
+        "precioUnitarioPresupuesto": 7990,
+        "costoTotalItem": 7990,
+        "categoriaServicio": "Servicio de decoración",
+        "esRegalo": false,
+        "calculationMethod": "fijo",
+        "tramosDePrecio": [
+          {
+            "id": "tramo_1",
+            "desde": 0,
+            "hasta": 50,
+            "precio": 0
+          }
+        ]
+      },
+      {
+        "idServicioCatalogo": "serv_1759923194347_kejmhn5",
+        "nombreServicio": "Fotografia de la fiesta",
+        "cantidad": 1,
+        "precioUnitario": 9990,
+        "precioUnitarioPresupuesto": 9990,
+        "costoTotalItem": 9990,
+        "categoriaServicio": "Servicio de fotografía",
+        "esRegalo": false,
+        "calculationMethod": "fijo",
+        "tramosDePrecio": [
+          {
+            "id": "tramo_1",
+            "desde": 0,
+            "hasta": 50,
+            "precio": 0
+          }
+        ]
+      },
+      {
+        "idServicioCatalogo": "serv_1769814137199_pwamegp",
+        "nombreServicio": "Torta Principal",
+        "cantidad": 1,
+        "precioUnitario": 10900,
+        "precioUnitarioPresupuesto": 10900,
+        "costoTotalItem": 10900,
+        "categoriaServicio": "Servicio de repostería",
+        "esRegalo": false,
+        "calculationMethod": "porPersona",
+        "precioPorPersona": 109,
+        "tramosDePrecio": [
+          {
+            "id": "tramo_1",
+            "desde": 0,
+            "hasta": 50,
+            "precio": 0
+          }
+        ]
+      },
+      {
+        "idServicioCatalogo": "serv_1770303166345_otyi3h5",
+        "nombreServicio": "Servicio de discoteca",
+        "cantidad": 1,
+        "precioUnitario": 19900,
+        "precioUnitarioPresupuesto": 19900,
+        "costoTotalItem": 19900,
+        "categoriaServicio": "Servicio de discoteca",
+        "esRegalo": false,
+        "calculationMethod": "tramos",
+        "tramosDePrecio": [
+          {
+            "id": "tramo_1",
+            "desde": 0,
+            "hasta": 70,
+            "precio": 99000
+          },
+          {
+            "id": "tramo_1770303125956",
+            "desde": 71,
+            "hasta": 130,
+            "precio": 19900
+          },
+          {
+            "id": "tramo_1770303143119",
+            "desde": 131,
+            "hasta": 300,
+            "precio": 29900
+          }
+        ]
+      },
+      {
+        "idServicioCatalogo": "dish_entrada_19",
+        "nombreServicio": "Picada Caliente",
+        "cantidad": 1,
+        "precioUnitario": 22000,
+        "precioUnitarioPresupuesto": 22000,
+        "costoTotalItem": 22000,
+        "categoriaServicio": "Servicio de catering",
+        "subcategoria": "Entrada",
+        "esRegalo": false,
+        "calculationMethod": "porPersona",
+        "precioBase": 220,
+        "precioPorPersona": 220
+      },
+      {
+        "idServicioCatalogo": "dish_entrada_4",
+        "nombreServicio": "Planchas Calientes",
+        "cantidad": 1,
+        "precioUnitario": 23000,
+        "precioUnitarioPresupuesto": 23000,
+        "costoTotalItem": 23000,
+        "categoriaServicio": "Servicio de catering",
+        "subcategoria": "Entrada",
+        "esRegalo": false,
+        "calculationMethod": "porPersona",
+        "precioBase": 230,
+        "precioPorPersona": 230
+      },
+      {
+        "idServicioCatalogo": "dish_main_9",
+        "nombreServicio": "Brochetas C/ Fritas",
+        "cantidad": 1,
+        "precioUnitario": 19950,
+        "precioUnitarioPresupuesto": 19950,
+        "costoTotalItem": 19950,
+        "categoriaServicio": "Servicio de catering",
+        "subcategoria": "Plato Principal",
+        "esRegalo": false,
+        "calculationMethod": "porPersona",
+        "precioBase": 399,
+        "precioPorPersona": 399
+      },
+      {
+        "idServicioCatalogo": "dish_child_3",
+        "nombreServicio": "Hamburguesa C/ Fritas",
+        "cantidad": 1,
+        "precioUnitario": 14950,
+        "precioUnitarioPresupuesto": 14950,
+        "costoTotalItem": 14950,
+        "categoriaServicio": "Servicio de catering",
+        "subcategoria": "Menú Infantil/Adolescente",
+        "esRegalo": false,
+        "calculationMethod": "porPersona",
+        "precioBase": 299,
+        "precioPorPersona": 299
+      }
+    ],
+    "timestamp": "2026-02-11T02:16:15.645Z",
+    "notas": "Presupuesto generado desde el Simulador. Paquete: Paquete Básico. Costo estimado: $ 176.300,00",
+    "costoTotalEstimado": 176300,
+    "descuentoTipo": "porcentaje",
+    "descuentoValor": 15,
+    "totalConDescuento": 149855,
+    "id": "pres_1770776175645_dg3ebyk",
+    "numero": 6,
+    "estado": "Enviado",
+    "ajusteAnualActivo": false,
+    "leadId": "lead_1770776175657_hq24fqt",
+    "source": "simulator"
+  },
+  {
     "clienteNombre": "Buen ",
     "clienteContacto": "",
     "eventoTipo": "",
