@@ -217,11 +217,13 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
       sortedAgrupados['Regalos Incluidos'] = itemsRegalo;
     }
     
+    // This calculation is just for display, it doesn't affect the final total.
     const costoRegalos = itemsRegalo.reduce((sum, item) => {
         const itemDataForCalc: ItemPresupuestado = { ...item, esRegalo: false, costoTotalItem: 0 };
         return sum + calcularCostoItem(itemDataForCalc, presupuesto.invitadosAdultos || 0, presupuesto.invitadosAdolescentes || 0, presupuesto.invitadosNinos || 0);
     }, 0);
 
+    // --- CORRECT LOGIC ---
     const subtotalReal = presupuesto.costoTotalEstimado;
     const totalFinalReal = presupuesto.totalConDescuento ?? subtotalReal;
     const descPromoReal = subtotalReal - totalFinalReal;
@@ -250,13 +252,42 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
 
   const generarTextoWhatsApp = () => {
     if (!presupuesto) return '';
-    const pageUrl = `${window.location.origin}/presupuestos/${presupuesto.id}/ver`;
-    let texto = `🎉 *¡Hola ${presupuesto.clienteNombre}!* 🎉\n\n`;
-    texto += `Gracias por considerar a *${COMPANY_NAME_BRAND}*.`;
-    texto += ` Hemos preparado un presupuesto para tu *${presupuesto.eventoTipo}*.\n\n`;
-    texto += `Puedes ver todos los detalles en el siguiente enlace:\n`;
-    texto += pageUrl;
-    texto += `\n\n¡Esperamos tu consulta!\n*El equipo de ${COMPANY_NAME_BRAND}*`;
+    let texto = `*Resumen de Presupuesto Simulado*\n`;
+    texto += `-----------------\n`;
+    texto += `*Cliente:* ${presupuesto.clienteNombre}\n`;
+    const totalInvitados = (presupuesto.invitadosAdultos || 0) + (presupuesto.invitadosNinos || 0) + (presupuesto.invitadosAdolescentes || 0);
+    texto += `*Invitados:* ${totalInvitados}\n`;
+    if(presupuesto.eventoFecha) texto += `*Fecha:* ${formatDate(presupuesto.eventoFecha)}\n`;
+    texto += `-----------------\n`;
+    
+    texto += `*Servicios Seleccionados:*\n`;
+
+    Object.entries(itemsAgrupados).sort(([catA], [catB]) => catA === 'Regalos Incluidos' ? 1 : catB === 'Regalos Incluidos' ? -1 : catA.localeCompare(catB)).forEach(([categoria, items]) => {
+      if (items.length === 0) return;
+      texto += `\n*${categoria}*\n`;
+      items.forEach(item => {
+        texto += `- ${item.nombreServicio}`;
+        if (item.esRegalo) {
+          texto += ` (REGALO)\n`;
+        } else {
+          texto += ` = ${formatCurrency(item.costoTotalItem)}\n`;
+        }
+      });
+    });
+
+    texto += `-----------------\n`;
+    texto += `*Subtotal de servicios:* ${formatCurrency(subtotalBruto)}\n`;
+    if (descuentoPromocional > 0) {
+        texto += `*Descuento Promocional:* -${formatCurrency(descuentoPromocional)}\n`;
+    }
+    if (costoTotalRegalos > 0) {
+        texto += `*Ahorro en Regalos:* ${formatCurrency(costoTotalRegalos)}\n`;
+    }
+    texto += `*TOTAL A PAGAR:* *${formatCurrency(totalFinal)}*\n`;
+    texto += `-----------------\n`;
+    texto += `Este presupuesto es una estimación y no incluye todos los posibles adicionales. Válido por 30 días.\n\n`;
+    texto += `¡Gracias por tu interés! Un asesor se comunicará contigo a la brevedad.`;
+    
     return texto;
   };
   
@@ -313,21 +344,20 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   return (
     <>
       <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans text-gray-800 print:text-black">
-        <div className="max-w-3xl mx-auto">
-            <div className="flex justify-between items-center mb-6 print:hidden">
-              <Link href="/presupuestos/nuevo" passHref><Button variant="outline" size="sm"><ArrowLeft className="mr-2 h-4 w-4"/>Volver al Creador</Button></Link>
-              <div className="flex gap-2 flex-wrap justify-end">
-                <Button variant="outline" size="sm" onClick={handleShareWhatsApp}><Share2 className="w-4 h-4 mr-2"/>WhatsApp</Button>
-                <Button onClick={handlePrint} size="sm"><Printer className="mr-2 h-4 w-4"/>Imprimir/PDF</Button>
-                {presupuesto.estado !== 'Facturado' ? 
-                  (<Link href={`/invoices/new?fromPresupuesto=${presupuesto.id}`} passHref><Button variant='default' size="sm"><FileTextIcon className="mr-2 h-4 w-4"/>Crear Factura</Button></Link>) : 
-                  presupuesto.invoiceId ? 
-                  (<Link href={`/invoices/${presupuesto.invoiceId}`} passHref><Button variant="secondary" size="sm" className="bg-green-100 text-green-700 hover:bg-green-200"><FileSignature className="mr-2 h-4 w-4"/>Ver Factura</Button></Link>) : 
-                  (<Button variant="secondary" size="sm" disabled>Facturado</Button>)}
-                <Link href={`/presupuestos/${presupuestoId}/editar`} passHref><Button variant="outline" size="sm"><Edit className="mr-2 h-4 w-4"/>Editar</Button></Link>
-              </div>
-            </div>
-            <div className="bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2" id="invoice-to-print">
+        <div className="flex justify-between items-center mb-6 print:hidden max-w-3xl mx-auto">
+          <Link href="/presupuestos/nuevo" passHref><Button variant="outline" size="sm"><ArrowLeft className="mr-2 h-4 w-4"/>Volver al Creador</Button></Link>
+          <div className="flex gap-2 flex-wrap justify-end">
+            <Button variant="outline" size="sm" onClick={handleShareWhatsApp}><Share2 className="w-4 h-4 mr-2"/>WhatsApp</Button>
+            <Button onClick={handlePrint} size="sm"><Printer className="mr-2 h-4 w-4"/>Imprimir/PDF</Button>
+            {presupuesto.estado !== 'Facturado' ? 
+              (<Link href={`/invoices/new?fromPresupuesto=${presupuesto.id}`} passHref><Button variant='default' size="sm"><FileTextIcon className="mr-2 h-4 w-4"/>Crear Factura</Button></Link>) : 
+              presupuesto.invoiceId ? 
+              (<Link href={`/invoices/${presupuesto.invoiceId}`} passHref><Button variant="secondary" size="sm" className="bg-green-100 text-green-700 hover:bg-green-200"><FileSignature className="mr-2 h-4 w-4"/>Ver Factura</Button></Link>) : 
+              (<Button variant="secondary" size="sm" disabled>Facturado</Button>)}
+            <Link href={`/presupuestos/${presupuestoId}/editar`} passHref><Button variant="outline" size="sm"><Edit className="mr-2 h-4 w-4"/>Editar</Button></Link>
+          </div>
+        </div>
+        <div className="max-w-3xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2" id="invoice-to-print">
               <header className="mb-6 print:mb-4">
                 <div className="flex justify-between items-start">
                   <h1 className="text-xl font-bold text-left mb-4 print:text-base leading-tight">{COMPANY_MAIN_TITLE}</h1>
@@ -427,7 +457,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 <section className="flex justify-end mb-6 print:mb-3 text-sm print:text-xs">
                   <div className="w-full max-w-xs print:max-w-[220px] space-y-0.5">
                     <div className="flex justify-between">
-                      <span>Subtotal de servicios:</span>
+                      <span className="text-muted-foreground">Subtotal de servicios:</span>
                       <span className="font-medium">{formatCurrency(subtotalBruto, true, true)}</span>
                     </div>
                     {descuentoPromocional > 0 && (
@@ -455,14 +485,13 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                   {showAnnualAdjustmentLegend && (<p className="mt-1 print:mt-0.5 text-orange-600 font-medium">Nota: Este presupuesto podría estar sujeto a un ajuste anual del {displaySettings.annualAdjustmentPercentage}% si el evento se realiza en un año posterior al actual.</p>)}
                 </footer>
             </div>
-        </div>
       </div>
       <div className="print:hidden max-w-3xl mx-auto">
         <Card className="shadow-md border-primary/20">
             <CardHeader className="bg-primary/5 p-4 md:p-6"><CardTitle className="font-headline text-lg md:text-xl text-primary">Acciones y Compartir</CardTitle></CardHeader>
             <CardContent className="p-4 md:p-6 flex flex-col sm:flex-row gap-3">
                 <Button variant="outline" onClick={handlePrint} className="w-full"><Printer className="w-4 h-4 mr-2"/>Imprimir o Guardar como PDF</Button>
-                <Button variant="secondary" onClick={handleShareWhatsApp} className="w-full bg-green-500 hover:bg-green-600"><Share2 className="w-4 h-4 mr-2"/>Enviar por WhatsApp</Button>
+                <Button variant="secondary" onClick={handleShareWhatsApp} className="w-full"><Share2 className="w-4 h-4 mr-2"/>Enviar por WhatsApp</Button>
                 <Button variant="secondary" onClick={handleCopyToClipboard} className="w-full"><ClipboardCopy className="w-4 h-4 mr-2"/>Copiar Resumen</Button>
             </CardContent>
         </Card>
@@ -478,3 +507,5 @@ export default function Page({ params }: { params: { id: string } }) {
     </Suspense>
   )
 }
+
+    
