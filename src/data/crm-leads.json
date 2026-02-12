@@ -1,5 +1,98 @@
 [
   {
+    "id": "lead_1770907489833_du1rvzh",
+    "name": "1111",
+    "phone": "098355530",
+    "notes": "Presupuesto generado desde el Simulador. Paquete: Paquete Premium. Costo estimado: $ 645.675,00",
+    "presupuestoId": "pres_1770907489824_yfkvty9",
+    "currentStageId": "s3",
+    "createdAt": "2026-02-12T14:44:49.832Z",
+    "updatedAt": "2026-02-12T14:44:49.853Z",
+    "history": [
+      {
+        "stageId": "s1",
+        "stageName": "Consultó",
+        "timestamp": "2026-02-12T14:44:49.832Z"
+      },
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2026-02-12T14:44:49.853Z"
+      }
+    ],
+    "budgetSource": "simulator"
+  },
+  {
+    "id": "lead_1770907263311_5jfa88w",
+    "name": "1111",
+    "notes": "Presupuesto Nº 19\nCosto: $ 532.291,25",
+    "presupuestoId": "pres_1770907263252_izudx9f",
+    "currentStageId": "s3",
+    "createdAt": "2026-02-12T14:41:03.311Z",
+    "updatedAt": "2026-02-12T14:41:03.326Z",
+    "history": [
+      {
+        "stageId": "s1",
+        "stageName": "Consultó",
+        "timestamp": "2026-02-12T14:41:03.311Z"
+      },
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2026-02-12T14:41:03.326Z"
+      }
+    ],
+    "budgetSource": "manual",
+    "presupuestoEstado": "Enviado"
+  },
+  {
+    "id": "lead_1770854439433_ed77igj",
+    "name": "nico k",
+    "phone": "098345566",
+    "notes": "Presupuesto generado desde el Simulador. Paquete: Paquete Premium. Costo estimado: $ 515.651,00",
+    "presupuestoId": "pres_1770854439422_c7jb5ex",
+    "currentStageId": "s3",
+    "createdAt": "2026-02-12T00:00:39.433Z",
+    "updatedAt": "2026-02-12T00:00:39.450Z",
+    "history": [
+      {
+        "stageId": "s1",
+        "stageName": "Consultó",
+        "timestamp": "2026-02-12T00:00:39.433Z"
+      },
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2026-02-12T00:00:39.450Z"
+      }
+    ],
+    "budgetSource": "simulator",
+    "presupuestoEstado": "Enviado"
+  },
+  {
+    "id": "lead_1770854339362_r3lut98",
+    "name": "nico",
+    "notes": "Presupuesto Nº 17\nCosto: $ 234.867,75",
+    "presupuestoId": "pres_1770854339350_wljrr4j",
+    "currentStageId": "s3",
+    "createdAt": "2026-02-11T23:58:59.362Z",
+    "updatedAt": "2026-02-11T23:58:59.374Z",
+    "history": [
+      {
+        "stageId": "s1",
+        "stageName": "Consultó",
+        "timestamp": "2026-02-11T23:58:59.362Z"
+      },
+      {
+        "stageId": "s3",
+        "stageName": "Con presupuesto",
+        "timestamp": "2026-02-11T23:58:59.374Z"
+      }
+    ],
+    "budgetSource": "manual",
+    "presupuestoEstado": "Enviado"
+  },
+  {
     "id": "lead_1770853974968_8wh0wtl",
     "name": "nico",
     "notes": "Presupuesto Nº 16\nCosto: $ 179.103,50",
@@ -19,7 +112,8 @@
         "timestamp": "2026-02-11T23:52:54.980Z"
       }
     ],
-    "budgetSource": "manual"
+    "budgetSource": "manual",
+    "presupuestoEstado": "Enviado"
   },
   {
     "id": "lead_1770852143224_rxgfsrp",
