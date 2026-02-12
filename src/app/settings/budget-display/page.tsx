@@ -29,6 +29,7 @@ import type { FullMenu, MenuItem } from '@/types/catering';
 import { MultiSelect } from '@/components/ui/multi-select'; 
 import { saveBudgetDisplaySettings, getBudgetDisplaySettings } from '@/app/actions/settings';
 import type { BudgetDisplaySettings } from '@/types/settings';
+import { ConfigFormItem } from '@/components/settings/ConfigFormItem';
 
 
 const formatCurrency = (amount?: number) => {
@@ -104,17 +105,16 @@ const EditServicioForm: React.FC<{ servicioId: string | null; onUpdate: () => vo
 };
 
 const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): ServicioEmpresa => {
-    const precioVenta = item.suggestedSellingPrice ?? ((item.totalDishCost || 0) * (1 + (item.profitMargin ?? 120) / 100));
     return {
         id: item.id,
         nombre: item.name,
         tipoItem: 'Servicio',
-        categoria: 'Servicio de catering',
+        categoria: 'Servicio de catering', // Explicitly set category
         subcategoria: item.type,
         calculationMethod: 'porPersona',
-        precioPorPersona: precioVenta,
-        precioVenta: precioVenta,
-        precioBase: precioVenta,
+        precioPorPersona: item.precioVenta,
+        precioVenta: item.precioVenta,
+        precioBase: item.precioVenta,
         valorUnitarioEstimado: item.totalDishCost,
     };
 };
@@ -177,7 +177,7 @@ export default function BudgetDisplaySettingsPage() {
     }
   }, [toast]);
   
-    const handleAddDependency = async () => {
+  const handleAddDependency = async () => {
     if (!newDependency.triggerServiceId || !newDependency.requiredServiceId || !config) return;
     
     const newDep: ServiceDependency = {
@@ -487,6 +487,17 @@ export default function BudgetDisplaySettingsPage() {
     setBudgetSettings({ ...budgetSettings, promotionalDiscounts: updatedDiscounts });
   };
 
+  const gastronomiaFiltrada = useMemo(() => {
+      const lowerCaseSearch = gastronomiaSearchTerm.toLowerCase();
+      if (!lowerCaseSearch) return { entradas: entradasDisponibles, principales: principalesDisponibles, infantiles: menusNinoDisponibles };
+      return {
+          entradas: entradasDisponibles.filter(e => e.nombre.toLowerCase().includes(lowerCaseSearch)),
+          principales: principalesDisponibles.filter(p => p.nombre.toLowerCase().includes(lowerCaseSearch)),
+          infantiles: menusNinoDisponibles.filter(m => m.nombre.toLowerCase().includes(lowerCaseSearch))
+      };
+  }, [gastronomiaSearchTerm, entradasDisponibles, principalesDisponibles, menusNinoDisponibles]);
+
+
   if (isLoading || !config || !budgetSettings) {
     return <div className="flex items-center justify-center min-h-[300px]"><Loader2 className="w-8 h-8 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando...</p></div>;
   }
@@ -604,10 +615,51 @@ export default function BudgetDisplaySettingsPage() {
         <Link href="/empresa/contabilidad" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver al Panel Contable</Button></Link>
       </div>
 
-       <form onSubmit={handleConfigSave}>
+       <form onSubmit={handleBudgetSettingsSave}>
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle className="font-headline text-xl">Ajustes Generales de Presupuestos</CardTitle>
+            <CardDescription>Configura el comportamiento global de los presupuestos finales.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="annualAdjustmentPercentage" className="flex items-center gap-2">
+                <Percent className="w-4 h-4" />Porcentaje de Ajuste Anual (%)
+              </Label>
+              <Input
+                id="annualAdjustmentPercentage"
+                type="number"
+                value={budgetSettings?.annualAdjustmentPercentage ?? ''}
+                onChange={e => setBudgetSettings(s => s ? { ...s, annualAdjustmentPercentage: Number(e.target.value) } : null)}
+                placeholder="Ej: 15"
+              />
+              <p className="text-xs text-muted-foreground">Este ajuste se aplica a presupuestos aceptados si el evento es en un año posterior a la firma.</p>
+            </div>
+            <Separator />
+            <div className="space-y-4">
+              <h4 className="font-medium">Descuentos Promocionales Predefinidos</h4>
+              {(budgetSettings.promotionalDiscounts || []).map((discount, index) => (
+                <ConfigFormItem key={discount.id} title={`Descuento: ${discount.name || 'Nuevo'}`} onDelete={() => removeDiscount(index)}>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+                    <div className="space-y-1"><Label htmlFor={`promo-name-${index}`}>Nombre</Label><Input id={`promo-name-${index}`} value={discount.name} onChange={(e) => handleDiscountChange(index, 'name', e.target.value)} /></div>
+                    <div className="space-y-1"><Label htmlFor={`promo-type-${index}`}>Tipo</Label><Select value={discount.type} onValueChange={(val) => handleDiscountChange(index, 'type', val)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="percentage">Porcentaje</SelectItem><SelectItem value="fixed">Monto Fijo</SelectItem></SelectContent></Select></div>
+                    <div className="space-y-1"><Label htmlFor={`promo-value-${index}`}>Valor</Label><Input id={`promo-value-${index}`} type="number" value={discount.value} onChange={(e) => handleDiscountChange(index, 'value', Number(e.target.value))}/></div>
+                  </div>
+                </ConfigFormItem>
+              ))}
+              <Button type="button" variant="outline" size="sm" onClick={addDiscount}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Descuento</Button>
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button type="submit" disabled={isSaving}>{isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin"/>} Guardar Ajustes de Presupuesto</Button>
+          </CardFooter>
+        </Card>
+      </form>
+
+      <form onSubmit={handleConfigSave}>
         <Card className="shadow-lg">
             <CardHeader>
-                <CardTitle className="font-headline">Ajustes Generales del Simulador</CardTitle>
+                <CardTitle className="font-headline">Ajustes del Simulador</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
                  <div className="space-y-2">
@@ -631,7 +683,7 @@ export default function BudgetDisplaySettingsPage() {
                 </div>
             </CardContent>
              <CardFooter>
-                 <Button type="submit" disabled={isSaving}>{isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin"/>} Guardar Ajustes Generales</Button>
+                 <Button type="submit" disabled={isSaving}>{isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin"/>} Guardar Ajustes del Simulador</Button>
             </CardFooter>
         </Card>
       </form>
@@ -764,3 +816,9 @@ export default function BudgetDisplaySettingsPage() {
                 )
               })}
             </Accordion>
+          </CardContent>
+      </Card>
+      
+    </div>
+  );
+}

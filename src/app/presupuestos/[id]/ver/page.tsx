@@ -1,7 +1,8 @@
 
+
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense, use } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -125,92 +126,45 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchPresupuestoAndSettings = useCallback(async () => {
-    if (!presupuestoId) { setError("ID de presupuesto no válido."); setIsLoading(false); return; }
-    setIsLoading(true); setError(null);
-    try {
-      const [fetchedPresupuesto, fetchedSettings, templateSettings] = await Promise.all([
-        getPresupuestoById(presupuestoId),
-        getBudgetDisplaySettings(),
-        getInvoiceTemplateSettings()
-      ]);
-      setDisplaySettings(fetchedSettings);
-      setLogoUrl(templateSettings.logoUrl);
-
-      if (fetchedPresupuesto) {
-        const adultos = fetchedPresupuesto.invitadosAdultos || 0;
-        const adolescentes = fetchedPresupuesto.invitadosAdolescentes || 0;
-        const ninos = fetchedPresupuesto.invitadosNinos || 0;
-
-        const itemsRecalculados = fetchedPresupuesto.itemsPresupuestados.map(item => ({
-            ...item,
-            costoTotalItem: calcularCostoItem(item, adultos, adolescentes, ninos)
-        }));
-        
-        const costoTotalEstimadoRecalculado = itemsRecalculados.filter(item => !item.esRegalo).reduce((sum, item) => sum + item.costoTotalItem, 0);
-
-        let finalTotalWithDiscount = costoTotalEstimadoRecalculado;
-        const PORCENTAJE_DESCUENTO = (fetchedSettings.promotionalDiscounts?.find(d => d.type === 'percentage')?.value || 15) / 100;
-        
-        if (fetchedPresupuesto.descuentoTipo && fetchedPresupuesto.descuentoValor && fetchedPresupuesto.descuentoValor > 0) {
-            const descuentoAplicado = fetchedPresupuesto.descuentoTipo === 'porcentaje'
-                ? (costoTotalEstimadoRecalculado * (fetchedPresupuesto.descuentoValor / 100))
-                : fetchedPresupuesto.descuentoValor;
-            finalTotalWithDiscount = costoTotalEstimadoRecalculado - descuentoAplicado;
-        }
-
-        const finalPresupuesto = {
-            ...fetchedPresupuesto, 
-            itemsPresupuestados: itemsRecalculados,
-            costoTotalEstimado: costoTotalEstimadoRecalculado,
-            totalConDescuento: finalTotalWithDiscount,
-        };
-        setPresupuesto(finalPresupuesto);
-        
-        if (finalPresupuesto.clienteId) {
-            const clienteData = await getCustomerById(finalPresupuesto.clienteId);
-            setCliente(clienteData);
-        }
-
-      } else {
-        setError(`Presupuesto con ID ${presupuestoId} no encontrado.`);
-        toast({ title: "Error", description: `Presupuesto no encontrado.`, variant: "destructive"});
-      }
-    } catch (err: any) {
-      setError(err.message || "No se pudo cargar el presupuesto.");
-      toast({ title: "Error al Cargar", variant: "destructive"});
-    } finally {
-      setIsLoading(false);
-    }
-  }, [presupuestoId, toast]);
-
-  useEffect(() => {
-    fetchPresupuestoAndSettings();
-  }, [fetchPresupuestoAndSettings]);
-  
   const calculatedValues = useMemo(() => {
     if (!presupuesto || !displaySettings) {
       return { itemsAgrupados: {}, valorServiciosAntesDeDescuento: 0, costoTotalRegalos: 0, descuentoPromocional: 0, totalAPagar: 0, ajusteAnual: 0, totalConAjuste: 0, aniosDiferencia: 0 };
     }
   
-    const TOTAL_REAL = presupuesto.costoTotalEstimado;
-    const PORCENTAJE_DESCUENTO = (presupuesto.descuentoValor || displaySettings.promotionalDiscounts?.find(d => d.type === 'percentage')?.value || 15) / 100;
-  
+    const adultos = presupuesto.invitadosAdultos || 0;
+    const adolescentes = presupuesto.invitadosAdolescentes || 0;
+    const ninos = presupuesto.invitadosNinos || 0;
+
+    const itemsRecalculados = presupuesto.itemsPresupuestados.map(item => ({
+        ...item,
+        costoTotalItem: calcularCostoItem(item, adultos, adolescentes, ninos)
+    }));
+
+    const TOTAL_REAL = itemsRecalculados
+        .filter(item => !item.esRegalo)
+        .reduce((sum, item) => sum + item.costoTotalItem, 0);
+
+    const PORCENTAJE_DESCUENTO = (presupuesto.descuentoValor && presupuesto.descuentoTipo === 'porcentaje'
+        ? presupuesto.descuentoValor 
+        : (displaySettings.promotionalDiscounts?.find(d => d.name === presupuesto.nombrePromocion)?.value || displaySettings.annualAdjustmentPercentage)) / 100 || 0.15;
+    
     const VALOR_SERVICIOS = (PORCENTAJE_DESCUENTO > 0 && PORCENTAJE_DESCUENTO < 1)
       ? TOTAL_REAL / (1 - PORCENTAJE_DESCUENTO)
       : TOTAL_REAL;
-  
-    const DESCUENTO_PROMO = VALOR_SERVICIOS - TOTAL_REAL;
-  
-    const costoRegalos = presupuesto.itemsPresupuestados
+      
+    const DESCUENTO_PROMO = presupuesto.descuentoTipo === 'fijo' 
+        ? (presupuesto.descuentoValor || 0)
+        : VALOR_SERVICIOS - TOTAL_REAL;
+
+    const costoRegalos = itemsRecalculados
       .filter(item => item.esRegalo)
       .reduce((sum, item) => {
         const itemSinRegalo = { ...item, esRegalo: false };
         const originalPriceItem = { ...itemSinRegalo, precioUnitarioPresupuesto: item.precioUnitario };
-        return sum + calcularCostoItem(originalPriceItem, presupuesto.invitadosAdultos || 0, presupuesto.invitadosAdolescentes || 0, presupuesto.invitadosNinos || 0);
+        return sum + calcularCostoItem(originalPriceItem, adultos, adolescentes, ninos);
       }, 0);
   
-    const agrupados: Record<string, ItemPresupuestado[]> = presupuesto.itemsPresupuestados.reduce((acc, item) => {
+    const agrupados: Record<string, ItemPresupuestado[]> = itemsRecalculados.reduce((acc, item) => {
       const categoria = item.esRegalo ? 'Regalos Incluidos' : (item.categoriaServicio || 'Otros Servicios');
       if (!acc[categoria]) acc[categoria] = [];
       acc[categoria].push(item);
@@ -259,10 +213,44 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   }, [presupuesto, displaySettings]);
 
 
+  const fetchPresupuestoAndSettings = useCallback(async () => {
+    if (!presupuestoId) { setError("ID de presupuesto no válido."); setIsLoading(false); return; }
+    setIsLoading(true); setError(null);
+    try {
+      const [fetchedPresupuesto, fetchedSettings, templateSettings] = await Promise.all([
+        getPresupuestoById(presupuestoId),
+        getBudgetDisplaySettings(),
+        getInvoiceTemplateSettings()
+      ]);
+      setDisplaySettings(fetchedSettings);
+      setLogoUrl(templateSettings.logoUrl);
+
+      if (fetchedPresupuesto) {
+        setPresupuesto(fetchedPresupuesto);
+        if (fetchedPresupuesto.clienteId) {
+            const clienteData = await getCustomerById(fetchedPresupuesto.clienteId);
+            setCliente(clienteData);
+        }
+      } else {
+        setError(`Presupuesto con ID ${presupuestoId} no encontrado.`);
+        toast({ title: "Error", description: `Presupuesto no encontrado.`, variant: "destructive"});
+      }
+    } catch (err: any) {
+      setError(err.message || "No se pudo cargar el presupuesto.");
+      toast({ title: "Error al Cargar", variant: "destructive"});
+    } finally {
+      setIsLoading(false);
+    }
+  }, [presupuestoId, toast]);
+
+  useEffect(() => {
+    fetchPresupuestoAndSettings();
+  }, [fetchPresupuestoAndSettings]);
+  
   const generarTextoWhatsApp = useCallback(() => {
     if (!presupuesto) return '';
     
-    const { valorServiciosAntesDeDescuento, descuentoPromocional, costoTotalRegalos, totalConAjuste } = calculatedValues;
+    const { valorServiciosAntesDeDescuento, descuentoPromocional, costoTotalRegalos, totalAPagar, totalConAjuste } = calculatedValues;
     const pageUrl = `${window.location.origin}/presupuestos/${presupuesto.id}/ver`;
     
     let texto = `*Resumen de Presupuesto - ${COMPANY_NAME_BRAND}*\n`;
@@ -281,8 +269,8 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     if (costoTotalRegalos > 0) {
         texto += `Ahorro en Regalos: ${formatCurrency(costoTotalRegalos)}\n`;
     }
-    texto += `*TOTAL A PAGAR (sin ajuste):* *${formatCurrency(presupuesto.costoTotalEstimado)}*\n`;
-    if (totalConAjuste > presupuesto.costoTotalEstimado) {
+    texto += `*TOTAL A PAGAR (sin ajuste):* *${formatCurrency(totalAPagar)}*\n`;
+    if (totalConAjuste > totalAPagar) {
         texto += `*TOTAL FINAL AJUSTADO:* *${formatCurrency(totalConAjuste)}*\n`;
     }
     texto += `-----------------\n`;
@@ -339,6 +327,12 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   fechaValidoHasta.setDate(fechaValidoHasta.getDate() + BUDGET_VALIDITY_DAYS_PDF);
   const protagonistas = [presupuesto.protagonista1Nombre, presupuesto.protagonista2Nombre].filter(Boolean).join(' y ');
   const displayId = presupuesto.numero ? `#${presupuesto.numero}` : `#${presupuesto.id.split('_').pop()?.substring(0,6)}`;
+  
+  const showAnnualAdjustmentLegend = 
+    displaySettings?.annualAdjustmentPercentage && 
+    displaySettings.annualAdjustmentPercentage > 0 && 
+    aniosDiferencia > 0 &&
+    (presupuesto?.estado === 'Aceptado' || presupuesto?.estado === 'Facturado');
 
   return (
     <>
@@ -494,6 +488,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                <footer className="mt-6 pt-3 border-t border-gray-300 print:mt-2 print:pt-1.5 print:border-gray-400 text-xs print:text-[8pt] text-gray-600 print:text-black">
                   <p>{BUDGET_DEPOSIT_NOTE_PDF}</p>
                   {presupuesto.notas && displaySettings.showPaymentMethodNotes && <p className="mt-1 print:mt-0.5 whitespace-pre-line">{presupuesto.notas}</p>}
+                  {showAnnualAdjustmentLegend && (<p className="mt-1 print:mt-0.5 text-orange-600">Nota: Este presupuesto podría estar sujeto a un ajuste anual del {displaySettings.annualAdjustmentPercentage}% si el evento se realiza en un año posterior al actual.</p>)}
                 </footer>
                 
                 {(presupuesto.estado === 'Aceptado' || presupuesto.estado === 'Facturado') && (
@@ -536,5 +531,3 @@ export default function Page({ params }: { params: { id: string } }) {
     </Suspense>
   )
 }
-
-    
