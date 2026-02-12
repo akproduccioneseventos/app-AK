@@ -11,6 +11,8 @@ import { Separator } from '@/components/ui/separator';
 import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge';
 import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto';
 import { getPresupuestoById, updatePresupuesto } from '@/app/actions/presupuestos';
+import { getCustomerById } from '@/app/actions/customers';
+import type { Customer } from '@/types/customer';
 import type { BudgetDisplaySettings } from '@/types/settings';
 import { getBudgetDisplaySettings } from '@/app/actions/settings';
 import { useToast } from '@/hooks/use-toast';
@@ -117,6 +119,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const { toast } = useToast();
 
   const [presupuesto, setPresupuesto] = useState<Presupuesto | null>(null);
+  const [cliente, setCliente] = useState<Customer | null>(null);
   const [displaySettings, setDisplaySettings] = useState<BudgetDisplaySettings | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -133,6 +136,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
       ]);
       setDisplaySettings(fetchedSettings);
       setLogoUrl(templateSettings.logoUrl);
+
       if (fetchedPresupuesto) {
         const adultos = fetchedPresupuesto.invitadosAdultos || 0;
         const adolescentes = fetchedPresupuesto.invitadosAdolescentes || 0;
@@ -146,19 +150,27 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
         const costoTotalEstimadoRecalculado = itemsRecalculados.filter(item => !item.esRegalo).reduce((sum, item) => sum + item.costoTotalItem, 0);
 
         let finalTotalWithDiscount = costoTotalEstimadoRecalculado;
+        const PORCENTAJE_DESCUENTO = (fetchedSettings.promotionalDiscounts?.find(d => d.type === 'percentage')?.value || 15) / 100;
+        
         if (fetchedPresupuesto.descuentoTipo && fetchedPresupuesto.descuentoValor && fetchedPresupuesto.descuentoValor > 0) {
             const descuentoAplicado = fetchedPresupuesto.descuentoTipo === 'porcentaje'
-                ? (costoTotalEstimadoRecalculado * fetchedPresupuesto.descuentoValor) / 100
+                ? (costoTotalEstimadoRecalculado * (fetchedPresupuesto.descuentoValor / 100))
                 : fetchedPresupuesto.descuentoValor;
             finalTotalWithDiscount = costoTotalEstimadoRecalculado - descuentoAplicado;
         }
 
-        setPresupuesto({
+        const finalPresupuesto = {
             ...fetchedPresupuesto, 
             itemsPresupuestados: itemsRecalculados,
             costoTotalEstimado: costoTotalEstimadoRecalculado,
-            totalConDescuento: finalTotalWithDiscount !== costoTotalEstimadoRecalculado ? finalTotalWithDiscount : undefined,
-        });
+            totalConDescuento: finalTotalWithDiscount,
+        };
+        setPresupuesto(finalPresupuesto);
+        
+        if (finalPresupuesto.clienteId) {
+            const clienteData = await getCustomerById(finalPresupuesto.clienteId);
+            setCliente(clienteData);
+        }
 
       } else {
         setError(`Presupuesto con ID ${presupuestoId} no encontrado.`);
@@ -178,19 +190,18 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   
   const calculatedValues = useMemo(() => {
     if (!presupuesto || !displaySettings) {
-      return { itemsAgrupados: {}, valorServiciosAntesDeDescuento: 0, costoTotalRegalos: 0, descuentoPromocional: 0, totalAPagar: 0 };
+      return { itemsAgrupados: {}, valorServiciosAntesDeDescuento: 0, costoTotalRegalos: 0, descuentoPromocional: 0, totalAPagar: 0, ajusteAnual: 0, totalConAjuste: 0, aniosDiferencia: 0 };
     }
-
+  
     const TOTAL_REAL = presupuesto.costoTotalEstimado;
-    const PORCENTAJE_DESCUENTO_CONFIG = displaySettings.promotionalDiscounts?.find(d => d.type === 'percentage')?.value || 15;
-    const PORCENTAJE_DESCUENTO = (presupuesto.descuentoTipo === 'porcentaje' ? presupuesto.descuentoValor || PORCENTAJE_DESCUENTO_CONFIG : 0) / 100;
-    
-    const VALOR_SERVICIOS = PORCENTAJE_DESCUENTO > 0 && PORCENTAJE_DESCUENTO < 1
+    const PORCENTAJE_DESCUENTO = (presupuesto.descuentoValor || displaySettings.promotionalDiscounts?.find(d => d.type === 'percentage')?.value || 15) / 100;
+  
+    const VALOR_SERVICIOS = (PORCENTAJE_DESCUENTO > 0 && PORCENTAJE_DESCUENTO < 1)
       ? TOTAL_REAL / (1 - PORCENTAJE_DESCUENTO)
-      : TOTAL_REAL + (presupuesto.descuentoTipo === 'fijo' ? presupuesto.descuentoValor || 0 : 0);
-
+      : TOTAL_REAL;
+  
     const DESCUENTO_PROMO = VALOR_SERVICIOS - TOTAL_REAL;
-
+  
     const costoRegalos = presupuesto.itemsPresupuestados
       .filter(item => item.esRegalo)
       .reduce((sum, item) => {
@@ -198,15 +209,15 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
         const originalPriceItem = { ...itemSinRegalo, precioUnitarioPresupuesto: item.precioUnitario };
         return sum + calcularCostoItem(originalPriceItem, presupuesto.invitadosAdultos || 0, presupuesto.invitadosAdolescentes || 0, presupuesto.invitadosNinos || 0);
       }, 0);
-
+  
     const agrupados: Record<string, ItemPresupuestado[]> = presupuesto.itemsPresupuestados.reduce((acc, item) => {
-        const categoria = item.categoriaServicio || 'Otros Servicios';
-        if (!acc[categoria]) acc[categoria] = [];
-        acc[categoria].push(item);
-        return acc;
+      const categoria = item.esRegalo ? 'Regalos Incluidos' : (item.categoriaServicio || 'Otros Servicios');
+      if (!acc[categoria]) acc[categoria] = [];
+      acc[categoria].push(item);
+      return acc;
     }, {} as Record<string, ItemPresupuestado[]>);
     
-    const categoriaOrder = ['Entrada', 'Plato Principal', 'Menú Infantil/Adolescente', 'Postre', 'Servicio de catering', 'Servicio de bebidas', 'Personal', 'Servicio de decoración', 'Servicio de discoteca', 'Servicio de fotografía', 'Servicio de filmación', 'Servicio de entretenimiento', 'Otros servicios', 'Regalo exclusivo', 'Regalos Incluidos'];
+    const categoriaOrder = ['Entrada', 'Plato Principal', 'Menú Infantil/Adolescente', 'Postre', 'Servicio de catering', 'Servicio de bebidas', 'Personal', 'Servicio de decoración', 'Servicio de discoteca', 'Servicio de fotografía', 'Servicio de filmación', 'Servicio de entretenimiento', 'Otros servicios', 'Regalos Incluidos'];
     const sortedKeys = Object.keys(agrupados).sort((a,b) => {
         const indexA = categoriaOrder.indexOf(a);
         const indexB = categoriaOrder.indexOf(b);
@@ -217,24 +228,43 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     });
     const sortedAgrupados: Record<string, ItemPresupuestado[]> = {};
     sortedKeys.forEach(key => sortedAgrupados[key] = agrupados[key]);
-
-    if (presupuesto.itemsPresupuestados.some(item => item.esRegalo)) {
-      sortedAgrupados['Regalos Incluidos'] = presupuesto.itemsPresupuestados.filter(item => item.esRegalo);
-    }
     
+    let ajusteAnual = 0;
+    let totalConAjuste = TOTAL_REAL;
+    let aniosDiferencia = 0;
+
+    if (presupuesto.ajusteAnualActivo && presupuesto.eventoFecha) {
+        const anioCreacion = new Date(presupuesto.timestamp).getFullYear();
+        const anioEvento = new Date(presupuesto.eventoFecha).getFullYear();
+        aniosDiferencia = anioEvento > anioCreacion ? anioEvento - anioCreacion : 0;
+        
+        if (aniosDiferencia > 0) {
+            const porcentajeAjuste = displaySettings.annualAdjustmentPercentage || 15;
+            const factorAjuste = Math.pow(1 + (porcentajeAjuste / 100), aniosDiferencia);
+            totalConAjuste = TOTAL_REAL * factorAjuste;
+            ajusteAnual = totalConAjuste - TOTAL_REAL;
+        }
+    }
+
     return {
       itemsAgrupados: sortedAgrupados,
       valorServiciosAntesDeDescuento: Math.round(VALOR_SERVICIOS),
       costoTotalRegalos: Math.round(costoRegalos),
       descuentoPromocional: Math.round(DESCUENTO_PROMO),
-      totalAPagar: Math.round(TOTAL_REAL)
+      totalAPagar: Math.round(TOTAL_REAL),
+      ajusteAnual: Math.round(ajusteAnual),
+      totalConAjuste: Math.round(totalConAjuste),
+      aniosDiferencia: aniosDiferencia,
     };
   }, [presupuesto, displaySettings]);
-  
+
+
   const generarTextoWhatsApp = useCallback(() => {
     if (!presupuesto) return '';
-    const { itemsAgrupados, valorServiciosAntesDeDescuento, descuentoPromocional, costoTotalRegalos, totalAPagar } = calculatedValues;
+    
+    const { valorServiciosAntesDeDescuento, descuentoPromocional, costoTotalRegalos, totalConAjuste } = calculatedValues;
     const pageUrl = `${window.location.origin}/presupuestos/${presupuesto.id}/ver`;
+    
     let texto = `*Resumen de Presupuesto - ${COMPANY_NAME_BRAND}*\n`;
     texto += `-----------------\n`;
     texto += `*Cliente:* ${presupuesto.clienteNombre}\n`;
@@ -243,32 +273,19 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     if(presupuesto.eventoFecha) texto += `*Fecha:* ${formatDate(presupuesto.eventoFecha)}\n`;
     texto += `-----------------\n`;
     
-    texto += `*Servicios Seleccionados:*\n`;
-
-    Object.entries(itemsAgrupados).forEach(([categoria, items]) => {
-      if (items.length === 0) return;
-      texto += `\n*${categoria}*\n`;
-      items.forEach(item => {
-        texto += `- ${item.nombreServicio}`;
-        if (item.esRegalo) {
-          texto += ` (REGALO)\n`;
-        } else {
-          texto += ` = ${formatCurrency(item.costoTotalItem)}\n`;
-        }
-      });
-    });
-
-    texto += `-----------------\n`;
-    texto += `*Valor de servicios:* ${formatCurrency(valorServiciosAntesDeDescuento)}\n`;
+    texto += `*Resumen de Costos:*\n`;
+    texto += `Valor de servicios: ${formatCurrency(valorServiciosAntesDeDescuento)}\n`;
     if (descuentoPromocional > 0) {
-        texto += `*Descuento Promocional:* -${formatCurrency(descuentoPromocional)}\n`;
+        texto += `Descuento Promocional: -${formatCurrency(descuentoPromocional)}\n`;
     }
     if (costoTotalRegalos > 0) {
-        texto += `*Ahorro en Regalos:* ${formatCurrency(costoTotalRegalos)}\n`;
+        texto += `Ahorro en Regalos: ${formatCurrency(costoTotalRegalos)}\n`;
     }
-    texto += `*TOTAL A PAGAR:* *${formatCurrency(totalAPagar)}*\n`;
+    texto += `*TOTAL A PAGAR (sin ajuste):* *${formatCurrency(presupuesto.costoTotalEstimado)}*\n`;
+    if (totalConAjuste > presupuesto.costoTotalEstimado) {
+        texto += `*TOTAL FINAL AJUSTADO:* *${formatCurrency(totalConAjuste)}*\n`;
+    }
     texto += `-----------------\n`;
-    texto += `Este presupuesto es una estimación y no incluye todos los posibles adicionales. Válido por 30 días.\n\n`;
     texto += `Puedes ver el presupuesto detallado en el siguiente enlace:\n${pageUrl}`;
     
     return texto;
@@ -310,15 +327,6 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     }
   };
 
-  const showAnnualAdjustmentLegend = useMemo(() => {
-    if (!presupuesto || !displaySettings) return false;
-    const anioCreacion = new Date(presupuesto.timestamp).getFullYear();
-    const anioEvento = presupuesto.eventoFecha ? new Date(presupuesto.eventoFecha).getFullYear() : anioCreacion;
-    const currentYear = new Date().getFullYear();
-    return anioEvento > currentYear && presupuesto?.estado !== 'Facturado' && !presupuesto.ajusteAnualActivo;
-  }, [presupuesto, displaySettings]);
-
-
   if (isLoading) {
     return <div className="flex items-center justify-center h-screen"><Loader2 className="w-16 h-16 animate-spin text-primary" /><p className="ml-4 text-xl">Cargando...</p></div>;
   }
@@ -326,7 +334,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     return <div className="max-w-2xl mx-auto text-center py-10"><AlertTriangle className="w-16 h-16 mx-auto text-destructive mb-4" /><h1 className="text-2xl font-bold">Error</h1><p className="text-muted-foreground">{error || "Presupuesto no encontrado o configuración faltante."}</p><Link href="/presupuestos/nuevo" passHref><Button variant="outline" className="mt-6"><ArrowLeft className="mr-2 h-4 w-4"/>Volver</Button></Link></div>;
   }
   
-  const { itemsAgrupados, valorServiciosAntesDeDescuento, costoTotalRegalos, descuentoPromocional, totalAPagar } = calculatedValues;
+  const { itemsAgrupados, valorServiciosAntesDeDescuento, costoTotalRegalos, descuentoPromocional, totalAPagar, ajusteAnual, totalConAjuste, aniosDiferencia } = calculatedValues;
   const fechaValidoHasta = new Date(presupuesto.timestamp);
   fechaValidoHasta.setDate(fechaValidoHasta.getDate() + BUDGET_VALIDITY_DAYS_PDF);
   const protagonistas = [presupuesto.protagonista1Nombre, presupuesto.protagonista2Nombre].filter(Boolean).join(' y ');
@@ -453,37 +461,70 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                           <span className="text-muted-foreground">Valor de servicios:</span>
                           <span className="font-medium">{formatCurrency(valorServiciosAntesDeDescuento, true, true)}</span>
                       </div>
-                      {descuentoPromocional > 0 && (
-                          <div className="flex justify-between text-destructive">
-                          <span>Descuento{presupuesto.nombrePromocion ? ` (${presupuesto.nombrePromocion})` : ''}:</span>
-                          <span className="font-medium">-{formatCurrency(descuentoPromocional, true, true)}</span>
-                          </div>
-                      )}
+                      <div className="flex justify-between text-destructive">
+                        <span>{presupuesto.nombrePromocion || 'Descuento Promocional'}:</span>
+                        <span className="font-medium">-{formatCurrency(descuentoPromocional, true, true)}</span>
+                      </div>
                        {costoTotalRegalos > 0 && (
                          <div className="flex justify-between text-green-600">
                             <span className="flex items-center gap-1"><Gift className="w-3.5 h-3.5"/>Ahorro en Regalos:</span>
                             <span className="font-medium">{formatCurrency(costoTotalRegalos, true, true)}</span>
                           </div>
                        )}
-                      <div className="flex justify-between font-semibold">
-                        <span className="text-muted-foreground">Ahorro total (Descuento + Regalos):</span>
-                        <span className="font-medium">-{formatCurrency(descuentoPromocional + costoTotalRegalos, true, true)}</span>
-                      </div>
                       <Separator className="my-2"/>
                       <div className="flex justify-between font-bold text-lg pt-1">
                           <span className="text-primary">TOTAL A PAGAR:</span>
                           <span className="text-primary">{formatCurrency(totalAPagar, true)}</span>
                       </div>
+                      {ajusteAnual > 0 && (
+                        <>
+                           <div className="flex justify-between text-amber-700 font-medium pt-2">
+                                <span>Ajuste Anual ({aniosDiferencia} año{aniosDiferencia > 1 ? 's' : ''}):</span>
+                                <span>+{formatCurrency(ajusteAnual, true)}</span>
+                            </div>
+                             <div className="flex justify-between font-bold text-lg pt-1 text-amber-800">
+                                <span className="text-amber-800">TOTAL FINAL AJUSTADO:</span>
+                                <span className="text-amber-800">{formatCurrency(totalConAjuste, true)}</span>
+                            </div>
+                        </>
+                      )}
                   </div>
                 </section>
                 
                <footer className="mt-6 pt-3 border-t border-gray-300 print:mt-2 print:pt-1.5 print:border-gray-400 text-xs print:text-[8pt] text-gray-600 print:text-black">
                   <p>{BUDGET_DEPOSIT_NOTE_PDF}</p>
                   {presupuesto.notas && displaySettings.showPaymentMethodNotes && <p className="mt-1 print:mt-0.5 whitespace-pre-line">{presupuesto.notas}</p>}
-                  {showAnnualAdjustmentLegend && (<p className="mt-1 print:mt-0.5 text-orange-600 font-medium">Nota: Este presupuesto podría estar sujeto a un ajuste anual del {displaySettings.annualAdjustmentPercentage}% si el evento se realiza en un año posterior al actual.</p>)}
                 </footer>
+                
+                {(presupuesto.estado === 'Aceptado' || presupuesto.estado === 'Facturado') && (
+                    <section className="mt-16 print:mt-8 print:break-before-page">
+                        <div className="flex justify-between">
+                            <div className="w-2/5 border-t border-gray-400 pt-2 text-center">
+                                <p className="font-semibold text-sm">Tec. Alexander Knuth</p>
+                                <p className="text-xs">46173508</p>
+                                <p className="text-xs text-muted-foreground mt-1">Por la Empresa</p>
+                            </div>
+                            <div className="w-2/5 border-t border-gray-400 pt-2 text-center">
+                                <p className="font-semibold text-sm">{cliente?.name || presupuesto.clienteNombre}</p>
+                                {cliente?.taxId && <p className="text-xs">C.I.: {cliente.taxId}</p>}
+                                <p className="text-xs text-muted-foreground mt-1">Por el Cliente</p>
+                            </div>
+                        </div>
+                    </section>
+                )}
             </div>
         </div>
+        <div className="hidden print:block fixed bottom-4 w-full">
+            <div className="flex justify-between text-xs text-gray-500 max-w-3xl mx-auto px-10">
+                <span>Firma Cliente: _________________________</span>
+                <span>Firma Empresa: _________________________</span>
+            </div>
+        </div>
+        <style jsx global>{`
+            @media print {
+              body { -webkit-print-color-adjust: exact; color-adjust: exact; }
+            }
+        `}</style>
     </>
   );
 }
