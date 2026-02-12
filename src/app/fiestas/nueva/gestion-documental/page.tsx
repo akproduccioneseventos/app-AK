@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, UploadCloud, FileText, Loader2, AlertTriangle, Archive, FileSignature, FileUp, ListChecks, Download, FileX } from 'lucide-react';
+import { ArrowLeft, UploadCloud, FileText, Loader2, AlertTriangle, Archive, FileSignature, FileUp, ListChecks, Download, FileX, FileArchive } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { FiestaEnPlanificacion, OtroDocumento, DocumentoTipo } from '@/types/fiesta';
@@ -214,6 +214,9 @@ function GestionDocumentalContent() {
                 <Link href={`/fiestas/nueva/gestion-documental/contrato-servicio?fiestaId=${fiestaId}`} passHref>
                   <Button variant="secondary" size="sm"><FileSignature className="w-4 h-4 mr-1.5"/>Borrador Contrato Servicio</Button>
                 </Link>
+                <Link href={`/fiestas/nueva/gestion-documental/cambio-fecha?fiestaId=${fiestaId}`} passHref>
+                  <Button variant="secondary" size="sm"><FileArchive className="w-4 h-4 mr-1.5"/>Generar Cambio de Fecha</Button>
+                </Link>
                 <Link href={`/fiestas/nueva/gestion-documental/cancelacion-contrato?fiestaId=${fiestaId}`} passHref>
                   <Button variant="destructive" size="sm"><FileX className="w-4 h-4 mr-1.5"/>Generar Cancelación</Button>
                 </Link>
@@ -259,3 +262,5 @@ export default function GestionDocumentalPageWrapper() {
         </Suspense>
     )
 }
+
+    
