@@ -4,7 +4,170 @@
     "name": "Barra de Tragos",
     "description": "Una selección de cócteles y bebidas para la barra.",
     "templateType": "Personalizado",
-    "items": []
+    "items": [
+      {
+        "id": "dish_barra_tragos_completa",
+        "name": "Servicio Completo Barra de Tragos",
+        "type": "Servicio de bebidas",
+        "totalDishCost": 125.45,
+        "profitMargin": 100,
+        "suggestedSellingPrice": 250.9,
+        "ingredients": [
+          {
+            "id": "ing_bt_1",
+            "name": "Licor de Frutilla",
+            "quantityPerPerson": "0.02",
+            "unit": "Litros",
+            "costoUnitario": 300,
+            "costoTotalReceta": 6
+          },
+          {
+            "id": "ing_bt_2",
+            "name": "Licor de Durazno",
+            "quantityPerPerson": "0.02",
+            "unit": "Litros",
+            "costoUnitario": 300,
+            "costoTotalReceta": 6
+          },
+          {
+            "id": "ing_bt_3",
+            "name": "Jugo de Durazno",
+            "quantityPerPerson": "0.02",
+            "unit": "Litros",
+            "costoUnitario": 50,
+            "costoTotalReceta": 1
+          },
+          {
+            "id": "ing_bt_4",
+            "name": "Licor blue",
+            "quantityPerPerson": "0.02",
+            "unit": "Litros",
+            "costoUnitario": 300,
+            "costoTotalReceta": 6
+          },
+          {
+            "id": "ing_bt_5",
+            "name": "Fernet",
+            "quantityPerPerson": "0.04",
+            "unit": "Litros",
+            "costoUnitario": 400,
+            "costoTotalReceta": 16
+          },
+          {
+            "id": "ing_bt_6",
+            "name": "Granadina",
+            "quantityPerPerson": "0.01",
+            "unit": "Litros",
+            "costoUnitario": 220,
+            "costoTotalReceta": 2.2
+          },
+          {
+            "id": "ing_bt_7",
+            "name": "Lata durazno",
+            "quantityPerPerson": "0.03",
+            "unit": "Unidades",
+            "costoUnitario": 80,
+            "costoTotalReceta": 2.4
+          },
+          {
+            "id": "ing_bt_8",
+            "name": "lata anana",
+            "quantityPerPerson": "0.05",
+            "unit": "Unidades",
+            "costoUnitario": 117,
+            "costoTotalReceta": 5.85
+          },
+          {
+            "id": "ing_bt_9",
+            "name": "Pepsi",
+            "quantityPerPerson": "0.14",
+            "unit": "Litros",
+            "costoUnitario": 90,
+            "costoTotalReceta": 12.6
+          },
+          {
+            "id": "ing_bt_10",
+            "name": "vasos y sorvitos",
+            "quantityPerPerson": "3",
+            "unit": "Unidades",
+            "costoUnitario": 2,
+            "costoTotalReceta": 6
+          },
+          {
+            "id": "ing_bt_11",
+            "name": "Refresco lima barato",
+            "quantityPerPerson": "0.02",
+            "unit": "Litros",
+            "costoUnitario": 65,
+            "costoTotalReceta": 1.3
+          },
+          {
+            "id": "ing_bt_12",
+            "name": "Vodka",
+            "quantityPerPerson": "0.03",
+            "unit": "Litros",
+            "costoUnitario": 280,
+            "costoTotalReceta": 8.4
+          },
+          {
+            "id": "ing_bt_13",
+            "name": "Ron",
+            "quantityPerPerson": "0.02",
+            "unit": "Litros",
+            "costoUnitario": 300,
+            "costoTotalReceta": 6
+          },
+          {
+            "id": "ing_bt_14",
+            "name": "Limon",
+            "quantityPerPerson": "20",
+            "unit": "Gramos",
+            "costoUnitario": 70,
+            "costoTotalReceta": 1.4
+          },
+          {
+            "id": "ing_bt_15",
+            "name": "Frutilla",
+            "quantityPerPerson": "20",
+            "unit": "Gramos",
+            "costoUnitario": 120,
+            "costoTotalReceta": 2.4
+          },
+          {
+            "id": "ing_bt_16",
+            "name": "Azucar",
+            "quantityPerPerson": "20",
+            "unit": "Gramos",
+            "costoUnitario": 70,
+            "costoTotalReceta": 1.4
+          },
+          {
+            "id": "ing_bt_17",
+            "name": "Caña",
+            "quantityPerPerson": "0.02",
+            "unit": "Litros",
+            "costoUnitario": 300,
+            "costoTotalReceta": 6
+          },
+          {
+            "id": "ing_bt_18",
+            "name": "Jugo de naranja",
+            "quantityPerPerson": "0.1",
+            "unit": "Litros",
+            "costoUnitario": 35,
+            "costoTotalReceta": 3.5
+          },
+          {
+            "id": "ing_bt_19",
+            "name": "Costo Operativo Barman",
+            "quantityPerPerson": "1",
+            "unit": "Unidad",
+            "costoUnitario": 31,
+            "costoTotalReceta": 31
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "menu_fuente_chocolate_base",
