@@ -1070,18 +1070,29 @@
     "proveedor": "UNIPLAS"
   },
   {
-    "id": "ing-jugo-naranja-bebida",
-    "nombre": "Jugo de Naranja (Bebida)",
+    "id": "insumo_jugo_durazno",
+    "nombre": "Jugo de Durazno",
     "tipoItem": "Bebida (Insumo)",
     "categoria": "Servicio de bebidas",
-    "valorUnitarioEstimado": 35,
+    "subcategoria": "Barra de Tragos",
+    "valorUnitarioEstimado": 50,
     "unidad": "Litro"
+  },
+  {
+    "id": "insumo_vasos_sorbitos",
+    "nombre": "Vasos y Sorbitos",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Descartables",
+    "subcategoria": "Barra de Tragos",
+    "valorUnitarioEstimado": 2,
+    "unidad": "Unidad"
   },
   {
     "id": "ing-licor-frutilla",
     "nombre": "Licor de Frutilla",
     "tipoItem": "Bebida (Insumo)",
     "categoria": "Servicio de bebidas",
+    "subcategoria": "Barra de Tragos",
     "valorUnitarioEstimado": 400,
     "unidad": "Litro"
   },
@@ -1090,6 +1101,7 @@
     "nombre": "Licor de Durazno",
     "tipoItem": "Bebida (Insumo)",
     "categoria": "Servicio de bebidas",
+    "subcategoria": "Barra de Tragos",
     "valorUnitarioEstimado": 400,
     "unidad": "Litro"
   },
@@ -1098,6 +1110,7 @@
     "nombre": "Licor Blue Curaçao",
     "tipoItem": "Bebida (Insumo)",
     "categoria": "Servicio de bebidas",
+    "subcategoria": "Barra de Tragos",
     "valorUnitarioEstimado": 300,
     "unidad": "Litro"
   },
@@ -1106,6 +1119,7 @@
     "nombre": "Fernet",
     "tipoItem": "Bebida (Insumo)",
     "categoria": "Servicio de bebidas",
+    "subcategoria": "Barra de Tragos",
     "valorUnitarioEstimado": 400,
     "unidad": "Litro"
   },
@@ -1114,6 +1128,7 @@
     "nombre": "Granadina",
     "tipoItem": "Bebida (Insumo)",
     "categoria": "Servicio de bebidas",
+    "subcategoria": "Barra de Tragos",
     "valorUnitarioEstimado": 220,
     "unidad": "Litro"
   },
@@ -1122,6 +1137,7 @@
     "nombre": "Lata de Durazno",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumos varios",
+    "subcategoria": "Barra de Tragos",
     "valorUnitarioEstimado": 80,
     "unidad": "Unidad"
   },
@@ -1130,6 +1146,7 @@
     "nombre": "Lata de Ananá",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumos varios",
+    "subcategoria": "Barra de Tragos",
     "valorUnitarioEstimado": 117,
     "unidad": "Unidad"
   },
@@ -1138,22 +1155,16 @@
     "nombre": "Pepsi",
     "tipoItem": "Bebida (Insumo)",
     "categoria": "Servicio de bebidas",
+    "subcategoria": "Barra de Tragos",
     "valorUnitarioEstimado": 90,
     "unidad": "Litro"
-  },
-  {
-    "id": "ing-vasos-sorbitos",
-    "nombre": "Vasos y Sorbitos",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Descartables",
-    "valorUnitarioEstimado": 2,
-    "unidad": "Unidad"
   },
   {
     "id": "ing-refresco-lima",
     "nombre": "Refresco Lima",
     "tipoItem": "Bebida (Insumo)",
     "categoria": "Servicio de bebidas",
+    "subcategoria": "Barra de Tragos",
     "valorUnitarioEstimado": 65,
     "unidad": "Litro"
   },
@@ -1162,6 +1173,7 @@
     "nombre": "Vodka",
     "tipoItem": "Bebida (Insumo)",
     "categoria": "Servicio de bebidas",
+    "subcategoria": "Barra de Tragos",
     "valorUnitarioEstimado": 280,
     "unidad": "Litro"
   },
@@ -1170,6 +1182,7 @@
     "nombre": "Ron",
     "tipoItem": "Bebida (Insumo)",
     "categoria": "Servicio de bebidas",
+    "subcategoria": "Barra de Tragos",
     "valorUnitarioEstimado": 300,
     "unidad": "Litro"
   },
@@ -1178,6 +1191,7 @@
     "nombre": "Limon (fruta)",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Frutas",
+    "subcategoria": "Barra de Tragos",
     "valorUnitarioEstimado": 70,
     "unidad": "Kg"
   },
@@ -1186,6 +1200,7 @@
     "nombre": "Frutilla",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Frutas",
+    "subcategoria": "Barra de Tragos",
     "valorUnitarioEstimado": 120,
     "unidad": "Kg"
   },
@@ -1194,6 +1209,7 @@
     "nombre": "Azúcar (kg)",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumos varios",
+    "subcategoria": "Barra de Tragos",
     "valorUnitarioEstimado": 70,
     "unidad": "Kg"
   },
@@ -1202,7 +1218,17 @@
     "nombre": "Caña",
     "tipoItem": "Bebida (Insumo)",
     "categoria": "Servicio de bebidas",
+    "subcategoria": "Barra de Tragos",
     "valorUnitarioEstimado": 300,
+    "unidad": "Litro"
+  },
+  {
+    "id": "ing-jugo-naranja-bebida",
+    "nombre": "Jugo de Naranja (Bebida)",
+    "tipoItem": "Bebida (Insumo)",
+    "categoria": "Servicio de bebidas",
+    "subcategoria": "Barra de Tragos",
+    "valorUnitarioEstimado": 35,
     "unidad": "Litro"
   },
   {

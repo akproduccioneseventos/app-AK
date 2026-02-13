@@ -1,3 +1,4 @@
+
 [
   {
     "id": "serv_1759923719718_a48m0c7",
@@ -225,9 +226,9 @@
     "nombre": "Barra de tragos",
     "tipoItem": "Servicio",
     "categoria": "Servicio de bebidas",
-    "valorUnitarioEstimado": 200,
+    "valorUnitarioEstimado": 125.45,
     "calculationMethod": "porPersona",
-    "precioPorPersona": 399
+    "precioPorPersona": 390
   },
   {
     "id": "serv_1759924239222_wxgn1ro",

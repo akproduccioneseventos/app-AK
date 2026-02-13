@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Sparkles, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, DollarSign, Printer, Copy, Percent } from 'lucide-react';
+import { ArrowLeft, Sparkles, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, DollarSign, Printer, Copy, Percent, Package } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { getServiciosEmpresa, deleteServicioEmpresa, duplicateServicioEmpresa, adjustAllServicePrices, adjustAllServiceCosts } from '@/app/actions/servicios-empresa';
@@ -325,7 +325,7 @@ export default function CatalogoServiciosPage() {
                   <AccordionContent className="px-4 pt-0 pb-3">
                     <div className="space-y-3 mt-2">
                       {itemsAgrupadosPorCategoria[categoria]?.map((item) => (
-                        <Card key={item.id} className="bg-muted/30 hover:shadow-sm transition-shadow">
+                        <Card key={item.id} className="bg-muted/30 hover:shadow-sm transition-shadow flex flex-col">
                           <CardHeader className="pb-2 pt-3 px-3">
                             <div className="flex justify-between items-start">
                               <CardTitle className="text-base font-semibold">{item.nombre}</CardTitle>
@@ -343,11 +343,20 @@ export default function CatalogoServiciosPage() {
                               </div>
                             </div>
                           </CardHeader>
-                          <CardContent className="px-3 pb-3 text-sm space-y-1">
+                          <CardContent className="px-3 pb-3 text-sm space-y-1 flex-grow">
                              <div><span className="text-muted-foreground">Cálculo: </span><Badge variant="secondary">{getCalculationMethodLabel(item.calculationMethod)}</Badge></div>
                              <p><span className="text-muted-foreground">Precio Venta: </span><span className="font-semibold text-primary/90">{getDisplayPrice(item)}</span></p>
                              <p><span className="text-muted-foreground">Costo Est.: </span><span className="font-semibold">{formatCurrency(item.valorUnitarioEstimado)}</span></p>
                           </CardContent>
+                           {item.id === 'serv_1752489600086_barlib' && (
+                                <CardFooter className="p-2 border-t">
+                                    <Link href="/empresa/insumos?subcategoria=Barra+de+Tragos" passHref className="w-full">
+                                        <Button variant="outline" size="sm" className="w-full">
+                                            <Package className="w-4 h-4 mr-2"/> Ver Insumos de Barra
+                                        </Button>
+                                    </Link>
+                                </CardFooter>
+                            )}
                         </Card>
                       ))}
                     </div>
