@@ -25,23 +25,24 @@ export type ExtractContractOutput = z.infer<typeof ExtractContractOutputSchema>;
 
 const prompt = ai.definePrompt({
   name: 'extractContractPrompt',
-  model: 'googleai/gemini-1.5-flash-latest',
+  model: 'googleai/gemini-1.5-flash',
   input: { schema: ExtractContractInputSchema },
   output: { schema: ExtractContractOutputSchema },
   config: {
     temperature: 0,
   },
   prompt: `Actúa como un asistente administrativo experto de la empresa AK Producciones.
-    Tu misión es leer el documento adjunto (contrato o presupuesto) y extraer datos específicos.
+    Tu misión es leer el documento adjunto (que puede ser un PDF de varias páginas o una imagen) y extraer datos específicos.
     
     INSTRUCCIONES DE EXTRACCIÓN:
-    1. CLIENTE: Busca el nombre completo de la persona o empresa contratante.
-    2. FECHA: Busca la fecha del evento. Devuélvela SIEMPRE en formato YYYY-MM-DD. 
+    1. REVISA TODO EL DOCUMENTO: Busca en todas las páginas. Los datos del cliente suelen estar al principio, pero los montos finales suelen estar al final del presupuesto.
+    2. CLIENTE: Busca el nombre completo de la persona o empresa contratante. Ignora los datos del prestador (AK Producciones).
+    3. FECHA: Busca la fecha en que se realizará el evento. Devuélvela SIEMPRE en formato YYYY-MM-DD. 
        Si dice "15 de agosto de 2024", debes devolver "2024-08-15".
-    3. MONTO: Busca el PRECIO TOTAL o SALDO FINAL. Es el número más grande al final del desglose. Devuelve solo el número sin símbolos de moneda.
-    4. TIPO: Identifica si es Boda, 15 años, Cumpleaños infantil, etc.
+    4. MONTO: Busca el PRECIO TOTAL, SALDO FINAL o TOTAL A PAGAR. Es el número más grande al final del desglose de servicios. Devuelve solo el número sin símbolos de moneda.
+    5. TIPO: Identifica si es Boda, 15 años, Cumpleaños infantil, etc.
 
-    Si el documento es una foto o un escaneo de mala calidad, haz tu mejor esfuerzo usando OCR.
+    Si el documento es un PDF, analízalo íntegramente. Si es una foto, usa OCR para leer el texto.
 
     Documento: {{media url=fileDataUri}}`,
 });
@@ -53,11 +54,16 @@ const extractContractFlow = ai.defineFlow(
     outputSchema: ExtractContractOutputSchema,
   },
   async (input) => {
-    const { output } = await prompt(input);
-    if (!output) {
-      throw new Error("No se pudo procesar el documento. Asegúrate de que los datos sean legibles.");
+    try {
+      const { output } = await prompt(input);
+      if (!output) {
+        throw new Error("No se pudo extraer información del documento.");
+      }
+      return output;
+    } catch (error: any) {
+      console.error("Error en extractContractFlow:", error);
+      throw new Error("Error al procesar el documento con IA: " + error.message);
     }
-    return output;
   }
 );
 

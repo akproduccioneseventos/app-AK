@@ -50,6 +50,7 @@ export default function CargaHistoricosPage() {
             reader.onloadend = async () => {
                 const base64data = reader.result as string;
                 try {
+                    // El flujo de IA ahora maneja mejor los tiempos de espera y archivos pesados
                     const data = await extractContractData({ fileDataUri: base64data });
                     if (data) {
                         if (data.clienteNombre) setClienteNombre(data.clienteNombre);
@@ -63,11 +64,11 @@ export default function CargaHistoricosPage() {
                         if (data.montoTotal) setMontoTotal(String(data.montoTotal));
                         
                         setAnalysisDone(true);
-                        toast({ title: "Documento Analizado", description: "Hemos extraído los datos principales." });
+                        toast({ title: "Documento Analizado", description: "Hemos extraído los datos de las 4 páginas." });
                     }
                 } catch (err: any) {
                     console.error("AI Analysis failed:", err);
-                    setAnalysisError("No pudimos extraer los datos automáticamente. Por favor, rellena el formulario manualmente.");
+                    setAnalysisError("No pudimos extraer los datos automáticamente (el archivo puede ser muy pesado o complejo). Por favor, rellena el formulario manualmente.");
                 } finally {
                     setIsAnalyzing(false);
                 }
@@ -128,7 +129,7 @@ export default function CargaHistoricosPage() {
                         Subir Contrato o Presupuesto
                     </CardTitle>
                     <CardDescription>
-                        Sube un PDF o imagen. La IA extraerá los datos automáticamente para ahorrarte trabajo.
+                        Sube un PDF o imagen. La IA analizará todas las páginas para extraer los datos.
                     </CardDescription>
                 </CardHeader>
                 <form onSubmit={handleSubmit}>
@@ -158,9 +159,12 @@ export default function CargaHistoricosPage() {
                         </div>
 
                         {isAnalyzing && (
-                            <div className="flex items-center gap-2 text-sm text-primary animate-pulse justify-center">
-                                <Sparkles className="w-4 h-4" />
-                                Analizando documento con IA (esto puede tardar unos segundos)...
+                            <div className="flex flex-col items-center gap-2 text-sm text-primary animate-pulse justify-center">
+                                <div className="flex items-center gap-2">
+                                    <Sparkles className="w-4 h-4" />
+                                    Analizando documento multi-página con IA...
+                                </div>
+                                <p className="text-xs text-muted-foreground italic">(Esto puede tardar hasta 30 segundos en archivos grandes)</p>
                             </div>
                         )}
 
@@ -168,7 +172,7 @@ export default function CargaHistoricosPage() {
 
                         <div className="space-y-4">
                             <h3 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                                <FileText className="w-4 h-4" /> Verificar Datos
+                                <FileText className="w-4 h-4" /> Verificar Datos Extraídos
                             </h3>
                             
                             <div className="space-y-2">
@@ -219,7 +223,7 @@ export default function CargaHistoricosPage() {
                                 <CheckCircle2 className="h-4 w-4 text-green-600" />
                                 <AlertTitle className="text-green-800">Análisis Exitoso</AlertTitle>
                                 <AlertDescription className="text-green-700">
-                                    Verifica que la información extraída sea correcta antes de confirmar.
+                                    Hemos leído el documento correctamente. Verifica los datos antes de confirmar.
                                 </AlertDescription>
                             </Alert>
                         )}
