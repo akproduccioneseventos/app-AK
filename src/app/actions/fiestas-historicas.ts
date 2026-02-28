@@ -81,7 +81,6 @@ export async function generarDesdeHistorico(
     const proyeccion = calcularAjusteHistorico(source.presupuestoTotalOriginal, source.anioOriginal, anioNuevo);
 
     // 1. Prepare New Budget Data
-    // We multiply each item's price by the factor to maintain structure
     const adjustedItems = source.detalleCostos.map(item => ({
       ...item,
       precioUnitario: Math.round(item.precioUnitario * proyeccion.factorAjuste),
@@ -93,15 +92,16 @@ export async function generarDesdeHistorico(
       clienteNombre: source.clienteNombre,
       clienteContacto: source.clienteContacto,
       eventoTipo: source.tipoFiesta,
-      eventoFecha: new Date(anioNuevo, 11, 31).toISOString(), // Placeholder date
+      eventoFecha: new Date(anioNuevo, 5, 15).toISOString(), // Fecha tentativa
       invitadosCantidad: source.cantidadInvitados,
-      invitadosAdultos: source.cantidadInvitados, // Assumption
+      invitadosAdultos: source.cantidadInvitados,
       salonFiestas: source.lugar,
       itemsPresupuestados: adjustedItems,
       costoTotalEstimado: proyeccion.montoAjustado,
       timestamp: new Date().toISOString(),
       estado: 'Borrador',
-      notas: `Generado automáticamente desde historial: ${source.nombreEvento} (${source.anioOriginal}). Ajuste aplicado: ${proyeccion.añosTranscurridos} años al 15% anual compuesto.`
+      notas: `Generado automáticamente desde historial: ${source.nombreEvento} (${source.anioOriginal}). Ajuste aplicado: ${proyeccion.añosTranscurridos} años al 15% anual compuesto.`,
+      source: 'manual'
     };
 
     const budgetResult = await savePresupuesto(newBudgetData, { source: 'manual' });
@@ -112,13 +112,14 @@ export async function generarDesdeHistorico(
       ...initialFiestaActualData,
       id: `fiesta_gen_${Date.now()}`,
       presupuestoId: budgetResult.id,
+      generadoDesdeHistorico: true,
       configuracion: {
         ...initialFiestaActualData.configuracion,
         nombreEvento: `${source.nombreEvento} ${anioNuevo}`,
         tipoCelebracion: source.tipoFiesta,
         invitadosEstimados: source.cantidadInvitados,
         nombreLugar: source.lugar,
-        clienteId: budgetResult.leadId // savePresupuesto creates a lead/customer
+        clienteId: budgetResult.leadId
       },
       tareas: source.checklistBase.map(t => ({ ...t, id: `task_gen_${Math.random()}`, completada: false }))
     };

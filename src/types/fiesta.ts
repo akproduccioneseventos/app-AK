@@ -1,5 +1,4 @@
 
-
 import type { TipoEvento } from './presupuesto';
 import type { Invitado } from './invitado'; 
 import type { UnidadServicio } from './empresa';
@@ -558,7 +557,7 @@ export type CostoCategoria =
 export interface CostoItem {
   id: string;
   nombre: string;
-  categoria: CostoCategoria;
+  category: CostoCategoria;
   montoEstimado: number;
   montoReal?: number;
   notas?: string;
@@ -688,6 +687,7 @@ export interface FiestaEnPlanificacion {
   pagosProveedores?: PagoProveedor[];
 
   estadosCompra?: CompraProveedorEstado[];
+  generadoDesdeHistorico?: boolean; // Flag para rastrear origen
 }
 
 export interface RestorePoint {

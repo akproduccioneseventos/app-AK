@@ -15,13 +15,11 @@ import {
   AlertTriangle, 
   Copy, 
   Trash2, 
-  Edit, 
   CalendarDays, 
-  DollarSign,
+  Users,
   TrendingUp,
-  ArrowRight,
   RotateCw,
-  FileText
+  ArrowLeft
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestasHistoricas, deleteFiestaHistorica, generarDesdeHistorico, calcularAjusteHistorico } from '@/app/actions/fiestas-historicas';
@@ -34,8 +32,6 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogTrigger,
-  DialogClose,
 } from "@/components/ui/dialog";
 import { Separator } from '@/components/ui/separator';
 
@@ -88,7 +84,6 @@ export default function FiestasHistoricasPage() {
       if (result.success) {
         toast({ title: "¡Evento Generado!", description: "Se ha creado un nuevo presupuesto y planificación basada en el histórico." });
         setIsDuplicating(false);
-        // Optional: redirect to the new event
       } else {
         throw new Error(result.error);
       }
@@ -111,13 +106,19 @@ export default function FiestasHistoricasPage() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <History className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline">Fiestas Históricas</h1>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">Fiestas Historias (Base de Proyección)</h1>
         </div>
         <div className="flex gap-2">
            <Link href="/admin/carga-historicos">
             <Button variant="default">
               <PlusCircle className="w-4 h-4 mr-2" />
-              Cargar Fiesta Realizada
+              Cargar Nueva Base Histórica
+            </Button>
+          </Link>
+          <Link href="/empresa/contabilidad">
+            <Button variant="outline">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Volver
             </Button>
           </Link>
         </div>
@@ -172,7 +173,7 @@ export default function FiestasHistoricasPage() {
                       }}
                     >
                       <Copy className="w-4 h-4 mr-2" />
-                      Duplicar con Ajuste
+                      Duplicar con Ajuste 15%
                     </Button>
                     <Button 
                       variant="ghost" 
@@ -202,14 +203,14 @@ export default function FiestasHistoricasPage() {
           <DialogHeader>
             <DialogTitle>Generar Nuevo Presupuesto</DialogTitle>
             <DialogDescription>
-              Ajuste automático del 15% anual compuesto.
+              Ajuste automático del 15% anual compuesto desde el año original.
             </DialogDescription>
           </DialogHeader>
           {selectedSource && proyeccion && (
             <div className="space-y-4 py-4">
               <div className="p-3 bg-muted/50 rounded-md border text-sm space-y-1">
-                <p><strong>Base:</strong> {selectedSource.nombreEvento} ({selectedSource.anioOriginal})</p>
-                <p><strong>Monto Original:</strong> {formatCurrency(selectedSource.presupuestoTotalOriginal)}</p>
+                <p><strong>Evento Original:</strong> {selectedSource.nombreEvento} ({selectedSource.anioOriginal})</p>
+                <p><strong>Monto Base:</strong> {formatCurrency(selectedSource.presupuestoTotalOriginal)}</p>
               </div>
 
               <div className="space-y-2">
@@ -247,7 +248,7 @@ export default function FiestasHistoricasPage() {
             <Button variant="outline" onClick={() => setIsDuplicating(false)}>Cancelar</Button>
             <Button onClick={handleDuplicate} disabled={!!isProcessing}>
               {isProcessing ? <Loader2 className="animate-spin w-4 h-4 mr-2" /> : <RotateCw className="w-4 h-4 mr-2" />}
-              Crear Nuevo Evento
+              Generar Todo Automáticamente
             </Button>
           </DialogFooter>
         </DialogContent>
