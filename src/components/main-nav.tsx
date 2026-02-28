@@ -1,4 +1,3 @@
-
 "use client"
 
 import Link from "next/link";
@@ -171,7 +170,6 @@ export function MainNav() {
                     isActive("/presupuestos") ||
                     isActive("/invoices") ||
                     isActive("/customers") ||
-                    isActive("/admin/carga-historicos") ||
                     isActive("/contabilidad/fiestas-historicas")
                   }
                   isSubmenu
@@ -221,14 +219,6 @@ export function MainNav() {
                       <SidebarMenuSubButton isActive={isActive("/contabilidad/fiestas-historicas")}>
                         <History />
                         Fiestas Históricas
-                      </SidebarMenuSubButton>
-                    </Link>
-                  </SidebarMenuSubItem>
-                  <SidebarMenuSubItem>
-                    <Link href="/admin/carga-historicos" passHref asChild>
-                      <SidebarMenuSubButton isActive={isActive("/admin/carga-historicos")}>
-                        <FileArchive />
-                        Carga de Históricos
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>

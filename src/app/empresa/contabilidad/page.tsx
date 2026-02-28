@@ -1,11 +1,10 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, BarChart3, FileText, KanbanSquare, ListChecks, TrendingUp, DollarSign, CreditCard, Banknote, Users, Loader2, Wand2, Calculator, TrendingDown, FileArchive, History } from 'lucide-react';
+import { ArrowLeft, BarChart3, FileText, KanbanSquare, ListChecks, TrendingUp, DollarSign, CreditCard, Banknote, Users, Loader2, Wand2, Calculator, TrendingDown, History } from 'lucide-react';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { getDashboardKpiData } from '@/app/actions/dashboard';
 import { getCrmKpiData } from '@/app/actions/crm';
@@ -42,12 +41,6 @@ const financialHubItems = [
         description: "Registra los costos operativos de tu empresa (compras, reparaciones, etc.).",
         href: "/empresa/contabilidad/gastos",
         icon: Calculator
-    },
-    {
-        title: "Carga de Históricos",
-        description: "Sube PDF o imágenes de contratos antiguos para que la IA extraiga los datos automáticamente.",
-        href: "/admin/carga-historicos",
-        icon: FileArchive
     },
     {
         title: "Fiestas Históricas",

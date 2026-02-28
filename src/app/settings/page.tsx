@@ -1,10 +1,9 @@
-
 'use client';
 
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Building, Bell, ShieldCheck, Settings as SettingsIcon, FileText, BrainCircuit, Link as LinkIcon, Star, HardDriveDownload, PartyPopper, Sparkles as SparklesIcon, Wand2, UserCog, ListChecks, PackageSearch, Palette, FileArchive } from 'lucide-react';
+import { Building, Bell, ShieldCheck, Settings as SettingsIcon, BarChart3, Link as LinkIcon, Star, HardDriveDownload, Wand2, UserCog, Palette } from 'lucide-react';
 
 const settingsCards = [
    {
@@ -41,13 +40,6 @@ const settingsCards = [
     href: "/settings/accesos-personal",
     icon: UserCog,
     buttonLabel: "Gestionar Accesos"
-  },
-  {
-    title: "Carga de Históricos",
-    description: "Sube rápidamente contratos y presupuestos de años anteriores para mantener un registro completo.",
-    href: "/admin/carga-historicos",
-    icon: FileArchive,
-    buttonLabel: "Cargar Datos"
   },
   {
     title: "Notificaciones",
@@ -89,7 +81,7 @@ export default function SettingsPage() {
       
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {settingsCards.map((item) => (
-          <Card key={item.title} className="flex flex-col shadow-md hover:shadow-lg transition-shadow">
+          <Card key={item.title} className="flex flex-col shadow-md hover:shadow-lg transition-shadow duration-300">
             <CardHeader className="flex-row items-start gap-4 space-y-0 pb-3">
               <div className="p-3 bg-primary/10 rounded-lg">
                     <item.icon className="w-7 h-7 text-primary" />

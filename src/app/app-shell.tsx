@@ -1,4 +1,3 @@
-
 'use client';
 
 import { ReactNode, useState, useEffect } from 'react';
@@ -121,7 +120,6 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/admin/aaiff-fiesta') return 'Análisis de Evento con IA';
   if (pathname === '/admin/asistente-ak') return 'Asistente de Marketing IA';
   if (pathname === '/settings/backup') return 'Backup y Restauración';
-  if (pathname === '/admin/carga-historicos') return 'Carga Rápida de Históricos';
   
   if (pathname === '/simulador-de-presupuesto') return 'Simulador de Presupuesto';
   
@@ -212,7 +210,6 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/admin/aaiff-fiesta') return PartyPopper;
   if (pathname === '/admin/asistente-ak') return Bot;
   if (pathname === '/settings/backup') return HardDriveDownload;
-  if (pathname === '/admin/carga-historicos') return FileArchive;
   if (pathname === '/settings/task-templates') return ListChecks;
   if (pathname === '/settings/accesos-personal') return UserCog;
   
