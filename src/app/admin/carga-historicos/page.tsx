@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, type FormEvent, useEffect } from 'react';
@@ -8,13 +7,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, UploadCloud, Loader2, FileArchive, Sparkles, CheckCircle2, FileText } from 'lucide-react';
+import { ArrowLeft, UploadCloud, Loader2, FileArchive, Sparkles, CheckCircle2, FileText, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import { processHistoricRecord } from '@/app/actions/historicos';
 import { extractContractData } from '@/ai/flows/extract-contract-data';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { cn } from '@/lib/utils';
 
 export default function CargaHistoricosPage() {
     const router = useRouter();
@@ -27,6 +27,7 @@ export default function CargaHistoricosPage() {
     const [montoTotal, setMontoTotal] = useState('');
     const [contractFile, setContractFile] = useState<File | null>(null);
     const [analysisDone, setAnalysisDone] = useState(false);
+    const [analysisError, setAnalysisDoneError] = useState(false);
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -34,6 +35,7 @@ export default function CargaHistoricosPage() {
         
         setContractFile(file);
         setAnalysisDone(false);
+        setAnalysisDoneError(false);
         setIsAnalyzing(true);
 
         try {
@@ -44,34 +46,35 @@ export default function CargaHistoricosPage() {
                 try {
                     const data = await extractContractData({ fileDataUri: base64data });
                     if (data) {
-                        setClienteNombre(data.clienteNombre);
+                        setClienteNombre(data.clienteNombre || '');
                         if (data.eventoFecha) {
-                            // Ensure the date is valid before setting
                             const parsedDate = new Date(data.eventoFecha);
                             if (!isNaN(parsedDate.getTime())) {
                                 setEventoFecha(parsedDate);
                             }
                         }
-                        setMontoTotal(String(data.montoTotal));
+                        setMontoTotal(data.montoTotal ? String(data.montoTotal) : '');
                         setAnalysisDone(true);
-                        toast({ title: "Documento Analizado", description: "Hemos extraído los datos automáticamente. Por favor, verifícalos." });
+                        toast({ title: "Documento Analizado", description: "Hemos extraído los datos. Por favor, verifícalos." });
                     }
                 } catch (err) {
                     console.error("AI Analysis failed:", err);
-                    toast({ title: "Análisis limitado", description: "No pudimos extraer todos los datos. Por favor, completa el formulario manualmente.", variant: "default" });
+                    setAnalysisDoneError(true);
+                    toast({ title: "Análisis limitado", description: "No pudimos extraer los datos automáticamente. Completa el formulario manualmente.", variant: "default" });
                 } finally {
                     setIsAnalyzing(false);
                 }
             };
         } catch (error) {
             setIsAnalyzing(false);
+            setAnalysisDoneError(true);
         }
     };
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (!clienteNombre || !eventoFecha || !montoTotal || !contractFile) {
-            toast({ title: "Datos Incompletos", description: "Todos los campos son obligatorios.", variant: "destructive" });
+            toast({ title: "Datos Incompletos", description: "Todos los campos con (*) son obligatorios.", variant: "destructive" });
             return;
         }
         setIsSubmitting(true);
@@ -84,15 +87,8 @@ export default function CargaHistoricosPage() {
         try {
             const result = await processHistoricRecord(formData);
             if (result.success) {
-                toast({ title: "Registro Histórico Completo", description: `Se ha creado el cliente, presupuesto, factura y evento para ${clienteNombre}.` });
-                // Reset form
-                setClienteNombre('');
-                setEventoFecha(undefined);
-                setMontoTotal('');
-                setContractFile(null);
-                setAnalysisDone(false);
-                const fileInput = document.getElementById('contractFile') as HTMLInputElement;
-                if (fileInput) fileInput.value = '';
+                toast({ title: "Registro Histórico Completo", description: `Se ha creado toda la estructura para ${clienteNombre}.` });
+                router.push('/contabilidad/fiestas-historicas');
             } else {
                 throw new Error(result.error);
             }
@@ -110,7 +106,7 @@ export default function CargaHistoricosPage() {
                     <FileArchive className="w-8 h-8 text-primary" />
                     <h1 className="text-3xl font-bold tracking-tight font-headline">Carga Automática de Históricos</h1>
                 </div>
-                <Link href="/" passHref>
+                <Link href="/contabilidad/fiestas-historicas" passHref>
                     <Button variant="outline" disabled={isSubmitting || isAnalyzing}>
                         <ArrowLeft className="w-4 h-4 mr-2" />
                         Volver
@@ -121,11 +117,11 @@ export default function CargaHistoricosPage() {
             <Card className="shadow-lg border-primary/20">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                        <Sparkles className="w-5 h-5 text-primary animate-pulse" />
+                        <Sparkles className="w-5 h-5 text-primary" />
                         Subir Contrato o Presupuesto
                     </CardTitle>
                     <CardDescription>
-                        Sube un PDF o imagen del contrato. La IA extraerá los datos y creará automáticamente toda la estructura (Cliente, Presupuesto, Factura Pagada y Evento).
+                        Sube un PDF o imagen. La IA extraerá los datos automáticamente para ahorrarte trabajo.
                     </CardDescription>
                 </CardHeader>
                 <form onSubmit={handleSubmit}>
@@ -136,9 +132,9 @@ export default function CargaHistoricosPage() {
                             </div>
                             <div className="space-y-1">
                                 <Label htmlFor="contractFile" className="text-base font-semibold cursor-pointer hover:text-primary transition-colors">
-                                    {contractFile ? contractFile.name : "Selecciona el archivo del contrato (PDF o Imagen)"}
+                                    {contractFile ? contractFile.name : "Selecciona el archivo (PDF o Imagen)"}
                                 </Label>
-                                <p className="text-xs text-muted-foreground">La IA analizará el contenido inmediatamente</p>
+                                <p className="text-xs text-muted-foreground">Límite 10MB</p>
                             </div>
                             <Input 
                                 id="contractFile" 
@@ -165,7 +161,7 @@ export default function CargaHistoricosPage() {
 
                         <div className="space-y-4">
                             <h3 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                                <FileText className="w-4 h-4" /> Datos Extraídos
+                                <FileText className="w-4 h-4" /> Verificar Datos
                             </h3>
                             
                             <div className="space-y-2">
@@ -177,7 +173,7 @@ export default function CargaHistoricosPage() {
                                     placeholder="Nombre del cliente..." 
                                     required 
                                     disabled={isSubmitting || isAnalyzing}
-                                    className={analysisDone ? "border-green-500/50 bg-green-50/10" : ""}
+                                    className={cn(analysisDone && "border-green-500/50 bg-green-50/10")}
                                 />
                             </div>
 
@@ -187,7 +183,7 @@ export default function CargaHistoricosPage() {
                                     <DatePickerDemo 
                                         selectedDate={eventoFecha} 
                                         onDateChange={setEventoFecha} 
-                                        className={analysisDone ? "border-green-500/50" : ""}
+                                        className={cn(analysisDone && "border-green-500/50")}
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -204,7 +200,7 @@ export default function CargaHistoricosPage() {
                                             step="any" 
                                             required 
                                             disabled={isSubmitting || isAnalyzing}
-                                            className={cn("pl-7", analysisDone ? "border-green-500/50 bg-green-50/10" : "")}
+                                            className={cn("pl-7", analysisDone && "border-green-500/50 bg-green-50/10")}
                                         />
                                     </div>
                                 </div>
@@ -216,7 +212,17 @@ export default function CargaHistoricosPage() {
                                 <CheckCircle2 className="h-4 w-4 text-green-600" />
                                 <AlertTitle className="text-green-800">Análisis Exitoso</AlertTitle>
                                 <AlertDescription className="text-green-700">
-                                    Hemos pre-completado los campos. Verifica que los montos y fechas coincidan con tu documento físico antes de guardar.
+                                    Verifica que la información extraída sea correcta antes de confirmar.
+                                </AlertDescription>
+                            </Alert>
+                        )}
+
+                        {analysisError && (
+                            <Alert variant="destructive" className="bg-destructive/10 border-destructive/20">
+                                <AlertTriangle className="h-4 w-4" />
+                                <AlertTitle>Análisis Manual Requerido</AlertTitle>
+                                <AlertDescription>
+                                    No pudimos extraer todos los datos. Por favor, rellena el formulario manualmente.
                                 </AlertDescription>
                             </Alert>
                         )}
@@ -226,7 +232,7 @@ export default function CargaHistoricosPage() {
                             {isSubmitting ? (
                                 <>
                                     <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                                    Procesando todo el sistema...
+                                    Generando Sistema Histórico...
                                 </>
                             ) : (
                                 <>
@@ -238,10 +244,6 @@ export default function CargaHistoricosPage() {
                     </CardFooter>
                 </form>
             </Card>
-            
-            <p className="text-center text-xs text-muted-foreground">
-                Al confirmar, se generará: 1 Cliente nuevo, 1 Presupuesto aprobado, 1 Factura pagada y 1 Evento en el historial.
-            </p>
         </div>
     );
 }
