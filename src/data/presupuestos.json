@@ -1,1 +1,132 @@
-[]
+[
+  {
+    "id": "pres_1147_lorena",
+    "numero": 1147,
+    "clienteNombre": "Lorena Leal",
+    "clienteId": "cust_lorena_leal_177077",
+    "eventoTipo": "Evento",
+    "eventoFecha": "2026-12-19T00:00:00.000Z",
+    "invitadosCantidad": 100,
+    "invitadosAdultos": 60,
+    "invitadosNinos": 40,
+    "invitadosAdolescentes": 0,
+    "salonFiestas": "A definir",
+    "itemsPresupuestados": [
+      {
+        "idServicioCatalogo": "serv_mozos",
+        "nombreServicio": "Mozos",
+        "cantidad": 4,
+        "unidad": "$",
+        "precioUnitario": 2900,
+        "precioUnitarioPresupuesto": 2900,
+        "costoTotalItem": 11600,
+        "categoriaServicio": "Personal",
+        "calculationMethod": "fijo"
+      },
+      {
+        "idServicioCatalogo": "serv_mozo_cocina",
+        "nombreServicio": "Mozo de cocina",
+        "cantidad": 4,
+        "unidad": "$",
+        "precioUnitario": 2900,
+        "precioUnitarioPresupuesto": 2900,
+        "costoTotalItem": 11600,
+        "categoriaServicio": "Personal",
+        "calculationMethod": "fijo"
+      },
+      {
+        "idServicioCatalogo": "dish_entrada_8",
+        "nombreServicio": "Entrada 8: Picada de fiambres",
+        "cantidad": 100,
+        "unidad": "$",
+        "precioUnitario": 150,
+        "precioUnitarioPresupuesto": 150,
+        "costoTotalItem": 15000,
+        "categoriaServicio": "Entrada",
+        "calculationMethod": "porPersona"
+      },
+      {
+        "idServicioCatalogo": "item_1758319656786_6sjl431",
+        "nombreServicio": "Vajilla completa",
+        "cantidad": 100,
+        "unidad": "$",
+        "precioUnitario": 70,
+        "precioUnitarioPresupuesto": 70,
+        "costoTotalItem": 7000,
+        "categoriaServicio": "Servicio de catering",
+        "calculationMethod": "porPersona"
+      },
+      {
+        "idServicioCatalogo": "serv_manteleria_completa",
+        "nombreServicio": "Mantelería completa",
+        "cantidad": 100,
+        "unidad": "$",
+        "precioUnitario": 70,
+        "precioUnitarioPresupuesto": 70,
+        "costoTotalItem": 7000,
+        "categoriaServicio": "Servicio de catering",
+        "calculationMethod": "porPersona"
+      },
+      {
+        "idServicioCatalogo": "dish_entrada_23",
+        "nombreServicio": "Entrada 23: Sandwiches y Saladitos",
+        "cantidad": 100,
+        "unidad": "$",
+        "precioUnitario": 220,
+        "precioUnitarioPresupuesto": 220,
+        "costoTotalItem": 22000,
+        "categoriaServicio": "Entrada",
+        "calculationMethod": "porPersona"
+      },
+      {
+        "idServicioCatalogo": "dish_main_3",
+        "nombreServicio": "Plato principal 3: Pollo arrollado c/ guarnición",
+        "cantidad": 60,
+        "unidad": "$",
+        "precioUnitario": 350,
+        "precioUnitarioPresupuesto": 350,
+        "costoTotalItem": 21000,
+        "categoriaServicio": "Plato Principal",
+        "calculationMethod": "porPersona"
+      },
+      {
+        "idServicioCatalogo": "dish_child_3",
+        "nombreServicio": "Menú niños - Hamburguesa c/ fritas",
+        "cantidad": 40,
+        "unidad": "$",
+        "precioUnitario": 270,
+        "precioUnitarioPresupuesto": 270,
+        "costoTotalItem": 10800,
+        "categoriaServicio": "Menú Infantil/Adolescente",
+        "calculationMethod": "porPersona"
+      },
+      {
+        "idServicioCatalogo": "serv_1769814137199_pwamegp",
+        "nombreServicio": "Torta principal",
+        "cantidad": 100,
+        "unidad": "$",
+        "precioUnitario": 70,
+        "precioUnitarioPresupuesto": 70,
+        "costoTotalItem": 7000,
+        "categoriaServicio": "Servicio de repostería",
+        "calculationMethod": "porPersona"
+      },
+      {
+        "idServicioCatalogo": "extra_pages",
+        "nombreServicio": "Resto de servicios (Páginas 2 y 3)",
+        "cantidad": 1,
+        "unidad": "$",
+        "precioUnitario": 63700,
+        "precioUnitarioPresupuesto": 63700,
+        "costoTotalItem": 63700,
+        "categoriaServicio": "Otros servicios",
+        "calculationMethod": "fijo"
+      }
+    ],
+    "costoTotalEstimado": 176700,
+    "timestamp": "2025-01-22T12:00:00.000Z",
+    "estado": "Enviado",
+    "notas": "Presupuesto cargado manualmente desde documento físico. Válido por 30 días. Se requiere seña de $5.000.",
+    "source": "manual"
+  }
+]

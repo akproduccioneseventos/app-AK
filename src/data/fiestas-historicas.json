@@ -1,1 +1,16 @@
-[]
+[
+  {
+    "id": "hist_1147_lorena",
+    "nombreEvento": "Evento Lorena Leal",
+    "clienteId": "cust_lorena_leal_177077",
+    "clienteNombre": "Lorena Leal",
+    "anioOriginal": 2026,
+    "lugar": "A definir",
+    "tipoFiesta": "Evento",
+    "cantidadInvitados": 100,
+    "presupuestoTotalOriginal": 176700,
+    "detalleCostos": [],
+    "checklistBase": [],
+    "fechaCreacion": "2025-02-28T17:00:00.000Z"
+  }
+]
