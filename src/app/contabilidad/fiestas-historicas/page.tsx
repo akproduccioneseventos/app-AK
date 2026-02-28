@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestasHistoricas, deleteFiestaHistorica, generarDesdeHistorico, calcularAjusteHistorico } from '@/app/actions/fiestas-historicas';
-import type { FiestaHistorica } from '@/types/fiesta-historica';
+import type { FiestaHistorica, ProyeccionHistorica } from '@/types/fiesta-historica';
 import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
@@ -49,6 +49,7 @@ export default function FiestasHistoricasPage() {
   const [isDuplicating, setIsDuplicating] = useState(false);
   const [selectedSource, setSelectedSource] = useState<FiestaHistorica | null>(null);
   const [newYear, setNewYear] = useState<number>(new Date().getFullYear() + 1);
+  const [proyeccion, setProyeccion] = useState<ProyeccionHistorica | null>(null);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -63,6 +64,23 @@ export default function FiestasHistoricasPage() {
   }, [toast]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
+
+  // Actualizar proyección cuando cambia el origen o el año
+  useEffect(() => {
+    async function updateProyeccion() {
+      if (selectedSource) {
+        try {
+          const result = await calcularAjusteHistorico(selectedSource.presupuestoTotalOriginal, selectedSource.anioOriginal, newYear);
+          setProyeccion(result);
+        } catch (e) {
+          console.error("Error calculando ajuste:", e);
+        }
+      } else {
+        setProyeccion(null);
+      }
+    }
+    updateProyeccion();
+  }, [selectedSource, newYear]);
 
   const handleDelete = async (id: string) => {
     setIsProcessing(id);
@@ -99,14 +117,12 @@ export default function FiestasHistoricasPage() {
     h.clienteNombre.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const proyeccion = selectedSource ? calcularAjusteHistorico(selectedSource.presupuestoTotalOriginal, selectedSource.anioOriginal, newYear) : null;
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <History className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline">Fiestas Historias (Base de Proyección)</h1>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">Fiestas Históricas (Base de Proyección)</h1>
         </div>
         <div className="flex gap-2">
            <Link href="/admin/carga-historicos">

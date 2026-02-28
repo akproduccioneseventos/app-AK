@@ -52,11 +52,11 @@ export async function deleteFiestaHistorica(id: string): Promise<{ success: bool
   }
 }
 
-export function calcularAjusteHistorico(
+export async function calcularAjusteHistorico(
   montoOriginal: number,
   anioOriginal: number,
   anioNuevo: number
-): ProyeccionHistorica {
+): Promise<ProyeccionHistorica> {
   const años = Math.max(0, anioNuevo - anioOriginal);
   const factor = Math.pow(1.15, años);
   const montoAjustado = Math.round((montoOriginal * factor) * 100) / 100;
@@ -78,7 +78,7 @@ export async function generarDesdeHistorico(
     const source = historicos.find(h => h.id === historicoId);
     if (!source) throw new Error("Registro histórico no encontrado.");
 
-    const proyeccion = calcularAjusteHistorico(source.presupuestoTotalOriginal, source.anioOriginal, anioNuevo);
+    const proyeccion = await calcularAjusteHistorico(source.presupuestoTotalOriginal, source.anioOriginal, anioNuevo);
 
     // 1. Prepare New Budget Data
     const adjustedItems = source.detalleCostos.map(item => ({
