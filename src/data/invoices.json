@@ -1,2 +1,37 @@
-
-[]
+[
+  {
+    "id": "inv_carla_lourado",
+    "invoiceNumber": "HIST-CARLA",
+    "customer": {
+      "id": "cust_carla_lourado",
+      "name": "Carla Lourado",
+      "partyDate": "2026-01-01T00:00:00.000Z",
+      "estadoCliente": "Antiguo"
+    },
+    "issueDate": "2026-01-01T00:00:00.000Z",
+    "dueDate": "2026-01-01T00:00:00.000Z",
+    "items": [
+      {
+        "id": "item_carla_1",
+        "description": "Servicios históricos para Carla Lourado",
+        "quantity": 1,
+        "unitPrice": 238040,
+        "total": 238040
+      }
+    ],
+    "subtotal": 238040,
+    "totalAmount": 238040,
+    "status": "Paid",
+    "currency": "UYU",
+    "vendorName": "AK Producciones",
+    "payments": [
+      {
+        "id": "pay_carla_1",
+        "paymentDate": "2026-01-01T00:00:00.000Z",
+        "amount": 238040,
+        "method": "Otro",
+        "notes": "Pago histórico registrado manualmente"
+      }
+    ]
+  }
+]

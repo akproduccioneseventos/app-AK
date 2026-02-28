@@ -1,1 +1,29 @@
-[]
+[
+  {
+    "id": "hist_carla_lourado",
+    "nombreEvento": "Carla Lourado XV Años 2026",
+    "clienteId": "cust_carla_lourado",
+    "clienteNombre": "Carla Lourado",
+    "anioOriginal": 2026,
+    "lugar": "A definir",
+    "tipoFiesta": "XV años",
+    "cantidadInvitados": 100,
+    "presupuestoTotalOriginal": 238040,
+    "detalleCostos": [
+      {
+        "idServicioCatalogo": "historic_item",
+        "nombreServicio": "Servicios según contrato histórico",
+        "cantidad": 1,
+        "precioUnitario": 238040,
+        "precioUnitarioPresupuesto": 238040,
+        "costoTotalItem": 238040,
+        "esRegalo": false,
+        "categoriaServicio": "Otros servicios",
+        "calculationMethod": "fijo",
+        "precioBase": 238040
+      }
+    ],
+    "checklistBase": [],
+    "fechaCreacion": "2025-02-28T16:45:00.000Z"
+  }
+]

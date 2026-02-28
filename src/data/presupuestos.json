@@ -1,2 +1,31 @@
-
-[]
+[
+  {
+    "id": "pres_carla_lourado",
+    "clienteNombre": "Carla Lourado",
+    "eventoTipo": "XV años",
+    "eventoFecha": "2026-01-01T00:00:00.000Z",
+    "invitadosCantidad": 100,
+    "salonFiestas": "A definir",
+    "itemsPresupuestados": [
+      {
+        "idServicioCatalogo": "historic_item",
+        "nombreServicio": "Servicios según contrato histórico",
+        "cantidad": 1,
+        "precioUnitario": 238040,
+        "precioUnitarioPresupuesto": 238040,
+        "costoTotalItem": 238040,
+        "esRegalo": false,
+        "categoriaServicio": "Otros servicios",
+        "calculationMethod": "fijo",
+        "precioBase": 238040
+      }
+    ],
+    "costoTotalEstimated": 238040,
+    "costoTotalEstimado": 238040,
+    "estado": "Facturado",
+    "invoiceId": "inv_carla_lourado",
+    "ajusteAnualActivo": true,
+    "timestamp": "2025-02-28T16:45:00.000Z",
+    "notas": "Registro histórico cargado directamente."
+  }
+]
