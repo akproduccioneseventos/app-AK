@@ -24,6 +24,7 @@ export type ExtractContractOutput = z.infer<typeof ExtractContractOutputSchema>;
 
 const prompt = ai.definePrompt({
   name: 'extractContractPrompt',
+  model: 'googleai/gemini-1.5-flash',
   input: { schema: ExtractContractInputSchema },
   output: { schema: ExtractContractOutputSchema },
   prompt: `Actúa como un asistente administrativo experto de la empresa AK Producciones.
@@ -31,9 +32,9 @@ const prompt = ai.definePrompt({
     
     Tu misión es extraer EXACTAMENTE estos campos:
     1. El nombre del cliente o la razón social de la empresa.
-    2. La fecha del evento. Si no la encuentras, intenta deducirla o busca fechas próximas a firmas.
-    3. El monto total final (el precio total del servicio).
-    4. El tipo de fiesta si se menciona (Boda, 15 años, etc).
+    2. La fecha del evento. Busca frases como "fecha del evento", "día de la fiesta" o fechas cercanas a las firmas.
+    3. El monto total final (el precio total del servicio). Busca el número más grande al final del desglose de costos.
+    4. El tipo de fiesta si se menciona (Boda, 15 años, Cumpleaños, etc).
 
     Documento: {{media url=fileDataUri}}`,
 });
