@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview Flujo de IA para extraer datos de contratos y presupuestos.
@@ -27,14 +28,20 @@ const prompt = ai.definePrompt({
   model: 'googleai/gemini-1.5-flash',
   input: { schema: ExtractContractInputSchema },
   output: { schema: ExtractContractOutputSchema },
+  config: {
+    temperature: 0,
+  },
   prompt: `Actúa como un asistente administrativo experto de la empresa AK Producciones.
-    Analiza el documento adjunto (que puede ser un contrato o un presupuesto).
+    Tu misión es leer el documento adjunto (contrato o presupuesto) y extraer datos específicos.
     
-    Tu misión es extraer EXACTAMENTE estos campos:
-    1. El nombre del cliente o la razón social de la empresa.
-    2. La fecha del evento. Busca frases como "fecha del evento", "día de la fiesta" o fechas cercanas a las firmas.
-    3. El monto total final (el precio total del servicio). Busca el número más grande al final del desglose de costos.
-    4. El tipo de fiesta si se menciona (Boda, 15 años, Cumpleaños, etc).
+    INSTRUCCIONES DE EXTRACCIÓN:
+    1. CLIENTE: Busca el nombre completo de la persona o empresa contratante.
+    2. FECHA: Busca la fecha del evento. Devuélvela SIEMPRE en formato YYYY-MM-DD. 
+       Si dice "15 de agosto de 2024", debes devolver "2024-08-15".
+    3. MONTO: Busca el PRECIO TOTAL o SALDO FINAL. Es el número más grande al final del desglose. Devuelve solo el número sin símbolos de moneda.
+    4. TIPO: Identifica si es Boda, 15 años, Cumpleaños infantil, etc.
+
+    Si el documento es una foto o un escaneo de mala calidad, haz tu mejor esfuerzo usando OCR.
 
     Documento: {{media url=fileDataUri}}`,
 });
@@ -48,7 +55,7 @@ const extractContractFlow = ai.defineFlow(
   async (input) => {
     const { output } = await prompt(input);
     if (!output) {
-      throw new Error("No se pudo procesar el documento.");
+      throw new Error("No se pudo procesar el documento. Asegúrate de que los datos sean legibles.");
     }
     return output;
   }

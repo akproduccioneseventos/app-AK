@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, type FormEvent, useEffect } from 'react';
@@ -27,15 +28,20 @@ export default function CargaHistoricosPage() {
     const [montoTotal, setMontoTotal] = useState('');
     const [contractFile, setContractFile] = useState<File | null>(null);
     const [analysisDone, setAnalysisDone] = useState(false);
-    const [analysisError, setAnalysisDoneError] = useState(false);
+    const [analysisError, setAnalysisError] = useState<string | null>(null);
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
         
+        if (file.size > 20 * 1024 * 1024) {
+            toast({ title: "Archivo demasiado grande", description: "El límite es de 20MB.", variant: "destructive" });
+            return;
+        }
+
         setContractFile(file);
         setAnalysisDone(false);
-        setAnalysisDoneError(false);
+        setAnalysisError(null);
         setIsAnalyzing(true);
 
         try {
@@ -46,28 +52,31 @@ export default function CargaHistoricosPage() {
                 try {
                     const data = await extractContractData({ fileDataUri: base64data });
                     if (data) {
-                        setClienteNombre(data.clienteNombre || '');
+                        if (data.clienteNombre) setClienteNombre(data.clienteNombre);
                         if (data.eventoFecha) {
-                            const parsedDate = new Date(data.eventoFecha);
+                            // The AI is now instructed to return YYYY-MM-DD
+                            const [year, month, day] = data.eventoFecha.split('-').map(Number);
+                            const parsedDate = new Date(year, month - 1, day);
                             if (!isNaN(parsedDate.getTime())) {
                                 setEventoFecha(parsedDate);
                             }
                         }
-                        setMontoTotal(data.montoTotal ? String(data.montoTotal) : '');
+                        if (data.montoTotal) setMontoTotal(String(data.montoTotal));
+                        
                         setAnalysisDone(true);
-                        toast({ title: "Documento Analizado", description: "Hemos extraído los datos. Por favor, verifícalos." });
+                        toast({ title: "Documento Analizado", description: "Hemos extraído los datos principales." });
                     }
-                } catch (err) {
+                } catch (err: any) {
                     console.error("AI Analysis failed:", err);
-                    setAnalysisDoneError(true);
-                    toast({ title: "Análisis limitado", description: "No pudimos extraer los datos automáticamente. Completa el formulario manualmente.", variant: "default" });
+                    setAnalysisError(err.message || "No pudimos leer el archivo automáticamente.");
+                    toast({ title: "Análisis limitado", description: "Completa el formulario manualmente.", variant: "default" });
                 } finally {
                     setIsAnalyzing(false);
                 }
             };
         } catch (error) {
             setIsAnalyzing(false);
-            setAnalysisDoneError(true);
+            setAnalysisError("Error al leer el archivo.");
         }
     };
 
@@ -134,7 +143,7 @@ export default function CargaHistoricosPage() {
                                 <Label htmlFor="contractFile" className="text-base font-semibold cursor-pointer hover:text-primary transition-colors">
                                     {contractFile ? contractFile.name : "Selecciona el archivo (PDF o Imagen)"}
                                 </Label>
-                                <p className="text-xs text-muted-foreground">Límite 10MB</p>
+                                <p className="text-xs text-muted-foreground">Límite 20MB</p>
                             </div>
                             <Input 
                                 id="contractFile" 
@@ -153,7 +162,7 @@ export default function CargaHistoricosPage() {
                         {isAnalyzing && (
                             <div className="flex items-center gap-2 text-sm text-primary animate-pulse justify-center">
                                 <Sparkles className="w-4 h-4" />
-                                Analizando documento con IA...
+                                Analizando documento con IA (esto puede tardar unos segundos)...
                             </div>
                         )}
 
@@ -222,7 +231,7 @@ export default function CargaHistoricosPage() {
                                 <AlertTriangle className="h-4 w-4" />
                                 <AlertTitle>Análisis Manual Requerido</AlertTitle>
                                 <AlertDescription>
-                                    No pudimos extraer todos los datos. Por favor, rellena el formulario manualmente.
+                                    {analysisError} Por favor, rellena el formulario manualmente.
                                 </AlertDescription>
                             </Alert>
                         )}
