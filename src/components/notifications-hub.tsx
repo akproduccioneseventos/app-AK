@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { BellRing, Trash2, CheckCheck, KanbanSquare, Bell } from "lucide-react";
+import { BellRing, Trash2, CheckCheck, KanbanSquare, Bell, ListChecks, MessageSquareText } from "lucide-react";
 import { getNotifications, markAllNotificationsAsRead, deleteNotification } from '@/app/actions/notifications';
 import type { Notificacion } from '@/types/fiesta';
 import { formatDistanceToNow } from 'date-fns';
@@ -21,6 +21,8 @@ import { useToast } from '@/hooks/use-toast';
 
 const iconMap: { [key: string]: React.ElementType } = {
   KanbanSquare,
+  ListChecks,
+  MessageSquareText,
   Default: Bell,
 };
 
@@ -32,41 +34,44 @@ export function NotificationsHub() {
   const fetchNotifications = useCallback(async () => {
     try {
       const fetched = await getNotifications();
-      setNotifications(fetched);
+      // Aseguramos que siempre sea un array para evitar errores de .filter o .map
+      setNotifications(Array.isArray(fetched) ? fetched : []);
     } catch (e) {
-      toast({ title: "Error", description: "No se pudieron cargar las notificaciones.", variant: "destructive" });
+      console.warn("Error al obtener notificaciones:", e);
+      setNotifications([]);
     }
-  }, [toast]);
+  }, []);
 
   useEffect(() => {
     setIsLoading(true);
-    fetchNotifications();
-    setIsLoading(false);
+    fetchNotifications().finally(() => setIsLoading(false));
     
-    // Set up polling
-    const interval = setInterval(fetchNotifications, 15000); // Refresh every 15 seconds
+    // Configurar sondeo (polling) cada 30 segundos
+    const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
   }, [fetchNotifications]);
 
-  const unreadCount = useMemo(() => notifications.filter(n => !n.leida).length, [notifications]);
+  // Memorizamos la lista segura para evitar re-renderizados innecesarios y errores de nulos
+  const safeNotifications = useMemo(() => Array.isArray(notifications) ? notifications : [], [notifications]);
+  const unreadCount = useMemo(() => safeNotifications.filter(n => !n.leida).length, [safeNotifications]);
 
   const handleMarkAllAsRead = async () => {
-    const originalNotifications = [...notifications];
-    setNotifications(prev => prev.map(n => ({ ...n, leida: true })));
+    const originalNotifications = [...safeNotifications];
+    setNotifications(prev => (prev || []).map(n => ({ ...n, leida: true })));
     const result = await markAllNotificationsAsRead();
     if (!result.success) {
       toast({ title: "Error", description: "No se pudieron marcar como leídas.", variant: "destructive" });
-      setNotifications(originalNotifications); // Revert on error
+      setNotifications(originalNotifications); 
     }
   };
   
   const handleDeleteNotification = async (id: string) => {
-    const originalNotifications = [...notifications];
-    setNotifications(prev => prev.filter(n => n.id !== id));
+    const originalNotifications = [...safeNotifications];
+    setNotifications(prev => (prev || []).filter(n => n.id !== id));
     const result = await deleteNotification(id);
     if (!result.success) {
       toast({ title: "Error", description: "No se pudo eliminar la notificación.", variant: "destructive" });
-      setNotifications(originalNotifications); // Revert on error
+      setNotifications(originalNotifications); 
     }
   }
 
@@ -87,13 +92,13 @@ export function NotificationsHub() {
         <div className="flex justify-between items-center p-3 border-b">
           <h3 className="font-semibold text-sm">Notificaciones</h3>
           <Button variant="ghost" size="sm" className="text-xs h-7" onClick={handleMarkAllAsRead} disabled={unreadCount === 0}>
-            <CheckCheck className="w-3.5 h-3.5 mr-1.5"/>Marcar como leído
+            <CheckCheck className="w-3.5 h-3.5 mr-1.5"/>Marcar leído
           </Button>
         </div>
         <ScrollArea className="h-96">
-          {notifications.length > 0 ? (
+          {safeNotifications.length > 0 ? (
             <div className="space-y-1 p-2">
-              {notifications.map(notif => {
+              {safeNotifications.map(notif => {
                 const Icon = notif.icono && iconMap[notif.icono] ? iconMap[notif.icono] : iconMap.Default;
                 return (
                 <div key={notif.id} className={cn("group p-2 rounded-md hover:bg-muted/50 flex items-start gap-3", !notif.leida && "bg-primary/5")}>
@@ -115,7 +120,7 @@ export function NotificationsHub() {
             </div>
           ) : (
             <div className="p-8 text-center text-sm text-muted-foreground">
-              No tienes notificaciones nuevas.
+              {isLoading ? "Cargando..." : "No tienes notificaciones nuevas."}
             </div>
           )}
         </ScrollArea>

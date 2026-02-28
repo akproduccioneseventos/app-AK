@@ -9,9 +9,15 @@ import { differenceInDays, isToday, startOfToday } from 'date-fns';
 const NOTIFICATIONS_FILE = 'notifications.json';
 
 export async function getNotifications(): Promise<Notificacion[]> {
-  const notifications = await readData<Notificacion[]>(NOTIFICATIONS_FILE, []);
-  // Sort by date descending
-  return notifications.sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
+  try {
+    const notifications = await readData<Notificacion[]>(NOTIFICATIONS_FILE, []);
+    if (!Array.isArray(notifications)) return [];
+    // Sort by date descending
+    return [...notifications].sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
+  } catch (e) {
+    console.error("Error al obtener notificaciones:", e);
+    return [];
+  }
 }
 
 export async function createNotification(
