@@ -159,9 +159,31 @@
         "costoTotalItem": 2900,
         "categoriaServicio": "Servicio de entretenimiento",
         "calculationMethod": "fijo"
+      },
+      {
+        "idServicioCatalogo": "serv_invitaciones_regalo",
+        "nombreServicio": "Invitaciones digitales",
+        "cantidad": 1,
+        "precioUnitario": 2500,
+        "precioUnitarioPresupuesto": 0,
+        "costoTotalItem": 0,
+        "categoriaServicio": "Regalo exclusivo",
+        "calculationMethod": "fijo",
+        "esRegalo": true
+      },
+      {
+        "idServicioCatalogo": "serv_plataforma360_regalo",
+        "nombreServicio": "Plataforma 360",
+        "cantidad": 1,
+        "precioUnitario": 4500,
+        "precioUnitarioPresupuesto": 0,
+        "costoTotalItem": 0,
+        "categoriaServicio": "Regalo exclusivo",
+        "calculationMethod": "fijo",
+        "esRegalo": true
       }
     ],
     "checklistBase": [],
-    "fechaCreacion": "2025-02-28T17:00:00.000Z"
+    "fechaCreacion": "2025-01-22T12:00:00.000Z"
   }
 ]

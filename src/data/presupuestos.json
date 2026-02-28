@@ -200,12 +200,36 @@
         "categoriaServicio": "Regalo exclusivo",
         "calculationMethod": "fijo",
         "esRegalo": true
+      },
+      {
+        "idServicioCatalogo": "serv_invitaciones_regalo",
+        "nombreServicio": "Invitaciones digitales",
+        "cantidad": 1,
+        "unidad": "$",
+        "precioUnitario": 2500,
+        "precioUnitarioPresupuesto": 0,
+        "costoTotalItem": 0,
+        "categoriaServicio": "Regalo exclusivo",
+        "calculationMethod": "fijo",
+        "esRegalo": true
+      },
+      {
+        "idServicioCatalogo": "serv_plataforma360_regalo",
+        "nombreServicio": "Plataforma 360",
+        "cantidad": 1,
+        "unidad": "$",
+        "precioUnitario": 4500,
+        "precioUnitarioPresupuesto": 0,
+        "costoTotalItem": 0,
+        "categoriaServicio": "Regalo exclusivo",
+        "calculationMethod": "fijo",
+        "esRegalo": true
       }
     ],
     "costoTotalEstimado": 176700,
     "timestamp": "2025-01-22T12:00:00.000Z",
     "estado": "Enviado",
-    "notas": "Presupuesto cargado manualmente desde documento físico. Válido por 30 días. Se requiere seña de $5.000.",
+    "notas": "Presupuesto consolidado de 3 páginas. Válido por 30 días. Se requiere seña de $5.000.",
     "source": "manual"
   }
 ]
