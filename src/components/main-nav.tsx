@@ -171,7 +171,8 @@ export function MainNav() {
                     isActive("/presupuestos") ||
                     isActive("/invoices") ||
                     isActive("/customers") ||
-                    isActive("/admin/carga-historicos")
+                    isActive("/admin/carga-historicos") ||
+                    isActive("/contabilidad/fiestas-historicas")
                   }
                   isSubmenu
                 >

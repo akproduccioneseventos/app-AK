@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import Link from 'next/link';
@@ -19,7 +18,9 @@ import {
     CalendarClock,
     Archive,
     CalendarDays,
-    ArrowRight
+    ArrowRight,
+    FileArchive,
+    History
 } from 'lucide-react';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { KpiCard } from '@/components/dashboard/kpi-card';
@@ -148,7 +149,7 @@ export default function MainDashboardPage() {
         <CardHeader>
             <CardTitle className="font-headline text-xl">Herramientas Rápidas</CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Link href="/presupuestos/nuevo/crear" passHref>
                 <div className="p-4 border rounded-lg hover:bg-muted cursor-pointer transition-colors h-full flex flex-col justify-between">
                     <div>
@@ -163,8 +164,19 @@ export default function MainDashboardPage() {
              <Link href="/simulador-de-presupuesto" passHref>
                 <div className="p-4 border rounded-lg hover:bg-muted cursor-pointer transition-colors h-full flex flex-col justify-between">
                     <div>
-                        <h3 className="font-semibold flex items-center gap-2"><Wand2 className="w-5 h-5 text-primary"/>Abrir Simulador para Clientes</h3>
+                        <h3 className="font-semibold flex items-center gap-2"><Wand2 className="w-5 h-5 text-primary"/>Simulador para Clientes</h3>
                         <p className="text-sm text-muted-foreground mt-1">Herramienta para que los clientes armen su presupuesto estimado.</p>
+                    </div>
+                    <div className="flex justify-end mt-2">
+                         <Button variant="ghost" size="sm">Ir ahora <ArrowRight className="w-4 h-4 ml-1"/></Button>
+                    </div>
+                </div>
+            </Link>
+            <Link href="/admin/carga-historicos" passHref>
+                <div className="p-4 border rounded-lg hover:bg-muted cursor-pointer transition-colors h-full flex flex-col justify-between">
+                    <div>
+                        <h3 className="font-semibold flex items-center gap-2"><FileArchive className="w-5 h-5 text-primary"/>Carga de Históricos</h3>
+                        <p className="text-sm text-muted-foreground mt-1">Usa la IA para subir contratos viejos y crear toda la estructura automáticamente.</p>
                     </div>
                     <div className="flex justify-end mt-2">
                          <Button variant="ghost" size="sm">Ir ahora <ArrowRight className="w-4 h-4 ml-1"/></Button>

@@ -4,10 +4,10 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, ChefHat, PlusCircle, Copy, Edit, Trash2, Loader2, DollarSign, Info, Percent } from 'lucide-react';
+import { ArrowLeft, ChefHat, PlusCircle, Copy, Edit, Trash2, Loader2, DollarSign, Info, Percent, GlassWater, Package } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getMenus, deleteMenu, duplicateMenu, adjustAllDishMargins } from '@/app/actions/menus-catering';
 import type { FullMenu, MenuItem } from '@/types/catering';
@@ -23,11 +23,33 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Badge } from '@/components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
+
+const BARRA_TRAGOS_BREAKDOWN = [
+    { producto: "Licor de Frutilla", unidad: "Litros", cantPP: 0.02, costoKL: 300, costoUn: 6, cantTotal: 2, costoTotal: 600 },
+    { producto: "Licor de Durazno", unidad: "Litros", cantPP: 0.02, costoKL: 300, costoUn: 6, cantTotal: 2, costoTotal: 600 },
+    { producto: "Jugo de Durazno", unidad: "Litros", cantPP: 0.02, costoKL: 50, costoUn: 1, cantTotal: 2, costoTotal: 100 },
+    { producto: "Licor blue", unidad: "Litros", cantPP: 0.02, costoKL: 300, costoUn: 6, cantTotal: 2, costoTotal: 600 },
+    { producto: "Fernet", unidad: "Litros", cantPP: 0.04, costoKL: 400, costoUn: 16, cantTotal: 4, costoTotal: 1600 },
+    { producto: "Granadina", unidad: "Litros", cantPP: 0.01, costoKL: 220, costoUn: 2.2, cantTotal: 1, costoTotal: 220 },
+    { producto: "Lata durazno", unidad: "Unidades", cantPP: 0.03, costoKL: 80, costoUn: 2.4, cantTotal: 3, costoTotal: 240 },
+    { producto: "lata anana", unidad: "Unidades", cantPP: 0.05, costoKL: 117, costoUn: 5.85, cantTotal: 5, costoTotal: 585 },
+    { producto: "Pepsi", unidad: "Litros", cantPP: 0.14, costoKL: 90, costoUn: 12.6, cantTotal: 14, costoTotal: 1260 },
+    { producto: "vasos y sorvitos", unidad: "Unidades", cantPP: 3, costoKL: 2, costoUn: 6, cantTotal: 300, costoTotal: 600 },
+    { producto: "Refresco lima barato", unidad: "Litros", cantPP: 0.02, costoKL: 65, costoUn: 1.3, cantTotal: 2, costoTotal: 130 },
+    { producto: "Vodka", unidad: "Litros", cantPP: 0.03, costoKL: 280, costoUn: 8.4, cantTotal: 3, costoTotal: 840 },
+    { producto: "Ron", unidad: "Litros", cantPP: 0.02, costoKL: 300, costoUn: 6, cantTotal: 2, costoTotal: 600 },
+    { producto: "Limon", unidad: "Gramos", cantPP: 20, costoKL: 70, costoUn: 1.4, cantTotal: 2000, costoTotal: 140 },
+    { producto: "Frutilla", unidad: "Gramos", cantPP: 20, costoKL: 120, costoUn: 2.4, cantTotal: 2000, costoTotal: 240 },
+    { producto: "Azucar", unidad: "Gramos", cantPP: 20, costoKL: 70, costoUn: 1.4, cantTotal: 2000, costoTotal: 140 },
+    { producto: "Caña", unidad: "Litros", cantPP: 0.02, costoKL: 300, costoUn: 6, cantTotal: 2, costoTotal: 600 },
+    { producto: "Jugo de naranja", unidad: "Litros", cantPP: 0.1, costoKL: 35, costoUn: 3.5, cantTotal: 10, costoTotal: 350 },
+];
 
 export default function GestionMenusPage() {
   const { toast } = useToast();
@@ -122,6 +144,72 @@ export default function GestionMenusPage() {
             <Link href="/empresa" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver a Empresa</Button></Link>
         </div>
       </div>
+
+      <Card className="border-primary/20 shadow-md">
+          <CardHeader className="bg-primary/5">
+              <div className="flex justify-between items-start">
+                  <div>
+                      <CardTitle className="font-headline text-2xl flex items-center gap-2">
+                          <GlassWater className="text-primary" /> BARRA DE TRAGOS
+                      </CardTitle>
+                      <CardDescription>Análisis de rentabilidad y costos (Base 100 invitados)</CardDescription>
+                  </div>
+                  <Link href="/empresa/insumos?subcategoria=Barra+de+Tragos" passHref>
+                      <Button variant="outline" size="sm">
+                          <Package className="w-4 h-4 mr-2"/> Ver Insumos en Stock
+                      </Button>
+                  </Link>
+              </div>
+          </CardHeader>
+          <CardContent className="pt-6 space-y-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="p-3 border rounded-md bg-muted/30">
+                      <p className="text-xs text-muted-foreground uppercase font-semibold">Costo por Persona</p>
+                      <p className="text-xl font-bold text-primary">$ 125,45</p>
+                  </div>
+                  <div className="p-3 border rounded-md bg-muted/30">
+                      <p className="text-xs text-muted-foreground uppercase font-semibold">Rentabilidad</p>
+                      <p className="text-xl font-bold text-green-600">100%</p>
+                  </div>
+                  <div className="p-3 border rounded-md bg-primary/10 border-primary/20">
+                      <p className="text-xs text-muted-foreground uppercase font-semibold">Precio de Venta</p>
+                      <p className="text-xl font-bold text-primary">$ 390,00</p>
+                  </div>
+                  <div className="p-3 border rounded-md bg-muted/30">
+                      <p className="text-xs text-muted-foreground uppercase font-semibold">Costo Total (100 inv)</p>
+                      <p className="text-xl font-bold">$ 12.545</p>
+                  </div>
+              </div>
+
+              <div className="overflow-x-auto rounded-md border">
+                  <Table>
+                      <TableHeader className="bg-muted/50">
+                          <TableRow>
+                              <TableHead className="text-xs">Producto</TableHead>
+                              <TableHead className="text-xs">Unidad</TableHead>
+                              <TableHead className="text-xs text-right">Cant p/p</TableHead>
+                              <TableHead className="text-xs text-right">Costo kl/lt</TableHead>
+                              <TableHead className="text-xs text-right">Costo p/p</TableHead>
+                              <TableHead className="text-xs text-right font-bold">Costo Total (100)</TableHead>
+                          </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                          {BARRA_TRAGOS_BREAKDOWN.map((row, i) => (
+                              <TableRow key={i} className="text-xs">
+                                  <TableCell className="font-medium">{row.producto}</TableCell>
+                                  <TableCell>{row.unidad}</TableCell>
+                                  <TableCell className="text-right">{row.cantPP}</TableCell>
+                                  <TableCell className="text-right">{formatCurrency(row.costoKL)}</TableCell>
+                                  <TableCell className="text-right font-medium">{formatCurrency(row.costoUn)}</TableCell>
+                                  <TableCell className="text-right font-bold">{formatCurrency(row.costoTotal)}</TableCell>
+                              </TableRow>
+                          ))}
+                      </TableBody>
+                  </Table>
+              </div>
+          </CardContent>
+      </Card>
+
        <Card>
         <CardHeader>
             <CardTitle className="font-headline text-lg">Ajuste de Márgenes Global</CardTitle>
@@ -155,7 +243,7 @@ export default function GestionMenusPage() {
                       <span className="font-bold"> {adjustmentPercentage} puntos porcentuales</span>. Esta acción es irreversible.
                       ¿Deseas continuar?
                     </AlertDialogDescription>
-                </AlertDialogHeader>
+                </AccordionHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel>Cancelar</AlertDialogCancel>
                     <AlertDialogAction onClick={handleAdjustMargins}>
