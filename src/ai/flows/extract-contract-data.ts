@@ -1,10 +1,6 @@
-
 'use server';
 /**
- * @fileOverview Flujo de IA para extraer datos de contratos y presupuestos.
- * 
- * Este flujo analiza documentos (PDF o imágenes) para extraer información clave
- * como el nombre del cliente, fecha del evento y monto total.
+ * @fileOverview Flujo de IA optimizado para documentos de AK Producciones.
  */
 
 import { ai } from '@/ai/genkit';
@@ -31,20 +27,21 @@ const prompt = ai.definePrompt({
   config: {
     temperature: 0,
   },
-  prompt: `Actúa como un asistente administrativo experto de la empresa AK Producciones.
-    Tu misión es leer el documento adjunto (que puede ser un PDF de varias páginas o una imagen) y extraer datos específicos.
-    
-    INSTRUCCIONES DE EXTRACCIÓN:
-    1. REVISA TODO EL DOCUMENTO: Busca en todas las páginas. Los datos del cliente suelen estar al principio, pero los montos finales suelen estar al final del presupuesto.
-    2. CLIENTE: Busca el nombre completo de la persona o empresa contratante. Ignora los datos del prestador (AK Producciones).
-    3. FECHA: Busca la fecha en que se realizará el evento. Devuélvela SIEMPRE en formato YYYY-MM-DD. 
-       Si dice "15 de agosto de 2024", debes devolver "2024-08-15".
-    4. MONTO: Busca el PRECIO TOTAL, SALDO FINAL o TOTAL A PAGAR. Es el número más grande al final del desglose de servicios. Devuelve solo el número sin símbolos de moneda.
-    5. TIPO: Identifica si es Boda, 15 años, Cumpleaños infantil, etc.
+  prompt: `Actúa como un asistente experto de AK Producciones. Tu misión es extraer datos de un presupuesto o contrato que puede tener varias páginas.
 
-    Si el documento es un PDF, analízalo íntegramente. Si es una foto, usa OCR para leer el texto.
+    GUÍA DE EXTRACCIÓN ESPECÍFICA PARA EL FORMATO VISUAL ADJUNTO:
+    1. CLIENTE: Busca el nombre justo antes de los detalles del evento. En tu formato suele aparecer centrado como "Nombre Apellido XV Años 2026". Extrae solo el nombre (ej: "Carla Lourado").
+    2. TIPO DE EVENTO: Identifica si dice "XV Años", "Boda", "Infantil", etc.
+    3. FECHA DEL EVENTO:
+       - Busca menciones del año del evento (ej: "2026") cerca del nombre del cliente.
+       - La tabla pequeña de arriba contiene una "Fecha" (ej: 28/10/2024), esa es la fecha de EMISIÓN del documento.
+       - Si no encuentras una fecha de evento específica (día/mes), usa el año encontrado y asume el 1 de enero de ese año para el formato ISO (ej: "2026-01-01").
+    4. MONTO TOTAL:
+       - Busca al final de la tabla de artículos.
+       - Está etiquetado como "Importe total".
+       - Suele tener prefijos como "NU$" o "$". Ignora el prefijo y extrae el número final (ej: de "NU$ 238.040,00" extrae 238040).
 
-    Documento: {{media url=fileDataUri}}`,
+    Documento completo: {{media url=fileDataUri}}`,
 });
 
 const extractContractFlow = ai.defineFlow(
@@ -57,12 +54,12 @@ const extractContractFlow = ai.defineFlow(
     try {
       const { output } = await prompt(input);
       if (!output) {
-        throw new Error("No se pudo extraer información del documento.");
+        throw new Error("La IA no devolvió resultados válidos.");
       }
       return output;
     } catch (error: any) {
       console.error("Error en extractContractFlow:", error);
-      throw new Error("Error al procesar el documento con IA: " + error.message);
+      throw new Error("Error al analizar el documento: " + error.message);
     }
   }
 );
