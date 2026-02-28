@@ -13,6 +13,7 @@
     "clienteId": "cust_lorena_leal_177077"
   },
   "presupuestoId": "pres_1147_lorena",
+  "invoiceIds": ["inv_1147_lorena"],
   "modulosContratados": {
     "tareas": true,
     "invitados": true,

@@ -228,7 +228,8 @@
     ],
     "costoTotalEstimado": 176700,
     "timestamp": "2025-01-22T12:00:00.000Z",
-    "estado": "Enviado",
+    "estado": "Facturado",
+    "invoiceId": "inv_1147_lorena",
     "notas": "Presupuesto consolidado de 3 páginas. Válido por 30 días. Se requiere seña de $5.000.",
     "source": "manual"
   }
