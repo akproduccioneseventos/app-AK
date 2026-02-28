@@ -1,3 +1,4 @@
+
 "use client"
 
 import Link from "next/link";
@@ -35,6 +36,8 @@ import {
   Wand2,
   ShoppingCart,
   PartyPopper,
+  FileArchive,
+  History,
 } from "lucide-react";
 import AppLogo from "./app-logo";
 
@@ -167,7 +170,8 @@ export function MainNav() {
                     isActive("/contabilidad") ||
                     isActive("/presupuestos") ||
                     isActive("/invoices") ||
-                    isActive("/customers")
+                    isActive("/customers") ||
+                    isActive("/admin/carga-historicos")
                   }
                   isSubmenu
                 >
@@ -208,6 +212,22 @@ export function MainNav() {
                       <SidebarMenuSubButton isActive={isActive("/invoices")}>
                         <FileText />
                         Facturas
+                      </SidebarMenuSubButton>
+                    </Link>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <Link href="/contabilidad/fiestas-historicas" passHref asChild>
+                      <SidebarMenuSubButton isActive={isActive("/contabilidad/fiestas-historicas")}>
+                        <History />
+                        Fiestas Históricas
+                      </SidebarMenuSubButton>
+                    </Link>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <Link href="/admin/carga-historicos" passHref asChild>
+                      <SidebarMenuSubButton isActive={isActive("/admin/carga-historicos")}>
+                        <FileArchive />
+                        Carga de Históricos
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
