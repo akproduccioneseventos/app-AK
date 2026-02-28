@@ -54,7 +54,6 @@ export default function CargaHistoricosPage() {
                     if (data) {
                         if (data.clienteNombre) setClienteNombre(data.clienteNombre);
                         if (data.eventoFecha) {
-                            // The AI is now instructed to return YYYY-MM-DD
                             const [year, month, day] = data.eventoFecha.split('-').map(Number);
                             const parsedDate = new Date(year, month - 1, day);
                             if (!isNaN(parsedDate.getTime())) {
@@ -68,8 +67,7 @@ export default function CargaHistoricosPage() {
                     }
                 } catch (err: any) {
                     console.error("AI Analysis failed:", err);
-                    setAnalysisError(err.message || "No pudimos leer el archivo automáticamente.");
-                    toast({ title: "Análisis limitado", description: "Completa el formulario manualmente.", variant: "default" });
+                    setAnalysisError("No pudimos extraer los datos automáticamente. Por favor, rellena el formulario manualmente.");
                 } finally {
                     setIsAnalyzing(false);
                 }
@@ -231,7 +229,7 @@ export default function CargaHistoricosPage() {
                                 <AlertTriangle className="h-4 w-4" />
                                 <AlertTitle>Análisis Manual Requerido</AlertTitle>
                                 <AlertDescription>
-                                    {analysisError} Por favor, rellena el formulario manualmente.
+                                    {analysisError}
                                 </AlertDescription>
                             </Alert>
                         )}
