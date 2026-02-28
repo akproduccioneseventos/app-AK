@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, Suspense, use } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -38,11 +38,8 @@ const formatDate = (dateString?: string) => {
 
 const today = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
 
-function CancelacionContratoContent() {
+function CancelacionContratoContent({ fiestaId }: { fiestaId: string | null }) {
   const { toast } = useToast();
-  const searchParams = useSearchParams();
-  const fiestaId = searchParams.get('fiestaId');
-
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [cliente, setCliente] = useState<Customer | null>(null);
   const [presupuesto, setPresupuesto] = useState<Presupuesto | null>(null);
@@ -196,10 +193,12 @@ function CancelacionContratoContent() {
 }
 
 export default function CancelacionContratoPage() {
+    const searchParams = useSearchParams();
+    const fiestaId = searchParams.get('fiestaId');
+
     return (
         <Suspense fallback={<div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>}>
-            <CancelacionContratoContent />
+            <CancelacionContratoContent fiestaId={fiestaId} />
         </Suspense>
     );
 }
-

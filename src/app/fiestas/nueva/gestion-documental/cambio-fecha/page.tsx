@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, Suspense, use } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -31,11 +31,8 @@ const formatDate = (dateString?: string) => {
 
 const today = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
 
-function CambioFechaContent() {
+function CambioFechaContent({ fiestaId }: { fiestaId: string | null }) {
   const { toast } = useToast();
-  const searchParams = useSearchParams();
-  const fiestaId = searchParams.get('fiestaId');
-
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [cliente, setCliente] = useState<Customer | null>(null);
   const [presupuesto, setPresupuesto] = useState<Presupuesto | null>(null);
@@ -153,7 +150,7 @@ function CambioFechaContent() {
           
           <p><strong>TERCERO:</strong> Que el cambio de fecha genera una penalización equivalente al DIEZ POR CIENTO (10%) del presupuesto total vigente al momento de la solicitud de modificación, entendiéndose como presupuesto vigente aquel que incluya los ajustes anuales del QUINCE POR CIENTO (15%) aplicables por cada año calendario transcurrido desde el mes de enero inmediato posterior a la firma del contrato original.</p>
           
-          <p><strong>CUARTO:</strong> El importe correspondiente a la penalización deberá ser abonado dentro de los QUINCE (15) días corridos de firmada la presente constancia. En caso de incumplimiento, {companyInfo.companyName} podrá considerar sin efecto el cambio de fecha solicitado, manteniéndose la fecha original o aplicándose las disposiciones de cancelación previstas en el contrato principal.</p>
+          <p><strong>CUARTO: El importe correspondiente a la penalización deberá ser abonado dentro de los QUINCE (15) días corridos de firmada la presente constancia. En caso de incumplimiento, {companyInfo.companyName} podrá considerar sin efecto el cambio de fecha solicitado, manteniéndose la fecha original o aplicándose las disposiciones de cancelación previstas en el contrato principal.</strong></p>
           
           <p><strong>QUINTO:</strong> El presente cambio de fecha no implica novación del contrato original, el cual continúa vigente en todas sus demás cláusulas, condiciones y obligaciones, manteniéndose plenamente válidas las disposiciones relativas a forma de pago, ajustes, cancelación y penalidades.</p>
 
@@ -182,11 +179,12 @@ function CambioFechaContent() {
 }
 
 export default function CambioFechaPage() {
+    const searchParams = useSearchParams();
+    const fiestaId = searchParams.get('fiestaId');
+
     return (
         <Suspense fallback={<div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>}>
-            <CambioFechaContent />
+            <CambioFechaContent fiestaId={fiestaId} />
         </Suspense>
     );
 }
-
-    

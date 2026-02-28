@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent, use } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -18,10 +18,9 @@ import { getInvoiceById, saveInvoice as updateInvoiceAction } from '@/app/action
 import { getCustomers } from '@/app/actions/customers'; // To fetch customers for dropdown
 import type { Customer } from '@/types/customer'; // Main Customer type
 
-export default function EditInvoicePage({ params: paramsProp }: { params: { id: string } }) {
-  const params = use(paramsProp);
+export default function EditInvoicePage({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const invoiceId = params.id as string;
+  const invoiceId = params.id;
   const { toast } = useToast();
 
   const [invoice, setInvoice] = useState<Invoice | null>(null);
@@ -144,9 +143,6 @@ export default function EditInvoicePage({ params: paramsProp }: { params: { id: 
       setIsSaving(false);
     }
   };
-
-  const customerNameDisplay = allCustomers.find(c => c.id === selectedCustomerId)?.companyName || allCustomers.find(c => c.id === selectedCustomerId)?.name || "Cliente no encontrado";
-
 
   if (isLoading) {
     return (<div className="flex items-center justify-center h-screen"><Loader2 className="w-16 h-16 animate-spin text-primary" /><p className="ml-4 text-xl">Cargando...</p></div>);

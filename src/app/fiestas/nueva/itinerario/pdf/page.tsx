@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, use } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
@@ -13,7 +13,6 @@ import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { WatermarkedImage } from '@/components/watermarked-image';
 import { useSearchParams } from 'next/navigation';
-import { Suspense } from 'react';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no definida";
@@ -32,11 +31,8 @@ const iconMap: Record<string, React.ElementType> = {
   Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper, Clock,
 };
 
-function ItinerarioPdfContent() {
+function ItinerarioPdfContent({ fiestaId }: { fiestaId: string | null }) {
   const { toast } = useToast();
-  const searchParams = useSearchParams();
-  const fiestaId = searchParams.get('fiestaId');
-
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -109,8 +105,6 @@ function ItinerarioPdfContent() {
     );
   }
 
-  const musica = fiesta.musica;
-
   return (
     <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans">
       <div className="max-w-3xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2">
@@ -171,9 +165,12 @@ function ItinerarioPdfContent() {
 }
 
 export default function ItinerarioPdfPageWrapper() {
+  const searchParams = useSearchParams();
+  const fiestaId = searchParams.get('fiestaId');
+
   return (
     <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>}>
-        <ItinerarioPdfContent />
+        <ItinerarioPdfContent fiestaId={fiestaId} />
     </Suspense>
   )
 }

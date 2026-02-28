@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, use } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Printer as PrinterIcon, Share2, TrendingUp, TrendingDown, DollarSign, BarChart3 } from 'lucide-react';
@@ -12,15 +12,12 @@ import { WatermarkedImage } from '@/components/watermarked-image';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Loader2, AlertTriangle } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
-import { Suspense } from 'react';
 
 const formatCurrency = (amount: number) => new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString('es-ES');
 
-function ReporteEventoContent() {
+function ReporteEventoContent({ fiestaId }: { fiestaId: string | null }) {
   const { toast } = useToast();
-  const searchParams = useSearchParams();
-  const fiestaId = searchParams.get('fiestaId');
   const [reportData, setReportData] = useState<ProfitAndLossData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -167,9 +164,12 @@ function ReporteEventoContent() {
 }
 
 export default function ReporteEventoPageWrapper() {
+    const searchParams = useSearchParams();
+    const fiestaId = searchParams.get('fiestaId');
+
     return (
         <Suspense fallback={<div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>}>
-            <ReporteEventoContent />
+            <ReporteEventoContent fiestaId={fiestaId} />
         </Suspense>
     )
 }

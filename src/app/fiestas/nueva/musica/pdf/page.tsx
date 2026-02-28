@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, use } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
@@ -13,7 +13,6 @@ import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { WatermarkedImage } from '@/components/watermarked-image';
 import { useSearchParams } from 'next/navigation';
-import { Suspense } from 'react';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no definida";
@@ -28,14 +27,8 @@ const formatDate = (dateString?: string) => {
 
 const companyName = "AK Producciones";
 
-const iconMap: Record<string, React.ElementType> = {
-  Utensils: Music, GlassWater: Music, Music: Music, CakeSlice: Music, Camera: Music, Diamond: Music, PartyPopper: Music, Clock: Music,
-};
-
-function MusicaPdfContent() {
+function MusicaPdfContent({ fiestaId }: { fiestaId: string | null }) {
   const { toast } = useToast();
-  const searchParams = useSearchParams();
-  const fiestaId = searchParams.get('fiestaId');
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -175,9 +168,12 @@ function MusicaPdfContent() {
 }
 
 export default function MusicaPdfPageWrapper() {
+    const searchParams = useSearchParams();
+    const fiestaId = searchParams.get('fiestaId');
+
     return (
         <Suspense fallback={<div className="p-8 max-w-3xl mx-auto bg-white"><Skeleton className="h-[80vh] w-full" /></div>}>
-            <MusicaPdfContent />
+            <MusicaPdfContent fiestaId={fiestaId} />
         </Suspense>
     )
 }

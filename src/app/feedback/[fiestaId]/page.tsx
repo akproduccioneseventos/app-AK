@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, type FormEvent, use } from 'react';
+import React, { useState, useEffect, type FormEvent, Suspense } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,8 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { saveFeedback } from '@/app/actions/feedback';
 
-export default function FeedbackPage({ params: paramsProp }: { params: { fiestaId: string } }) {
-  const params = use(paramsProp);
+function FeedbackContent({ fiestaId }: { fiestaId: string | null }) {
   const { toast } = useToast();
   const [clientName, setClientName] = useState('');
   const [enjoyedMost, setEnjoyedMost] = useState('');
@@ -28,9 +27,14 @@ export default function FeedbackPage({ params: paramsProp }: { params: { fiestaI
 
   useEffect(() => {
     async function loadFiestaInfo() {
+      if (!fiestaId) {
+        setError("Falta el ID del evento.");
+        setIsLoading(false);
+        return;
+      }
       try {
         const fiestaData = await getFiestaActual();
-        if (fiestaData.id !== params.fiestaId) {
+        if (fiestaData.id !== fiestaId) {
             setError("Este enlace de encuesta no corresponde al evento actual.");
         } else {
             setFiestaNombre(fiestaData.configuracion.nombreEvento);
@@ -42,17 +46,18 @@ export default function FeedbackPage({ params: paramsProp }: { params: { fiestaI
       }
     }
     loadFiestaInfo();
-  }, [params.fiestaId]);
+  }, [fiestaId]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (!fiestaId) return;
     if (!clientName.trim() || !enjoyedMost.trim() || !toImprove.trim()) {
       toast({ title: "Campos Requeridos", description: "Por favor, completa todos los campos obligatorios.", variant: "destructive" });
       return;
     }
     setIsSubmitting(true);
     const result = await saveFeedback({
-      fiestaId: params.fiestaId,
+      fiestaId: fiestaId,
       fiestaNombre,
       clientName,
       enjoyedMost,
@@ -124,4 +129,14 @@ export default function FeedbackPage({ params: paramsProp }: { params: { fiestaI
       </Card>
     </div>
   );
+}
+
+export default function FeedbackPage({ params }: { params: { fiestaId: string } }) {
+  const fiestaId = params.fiestaId;
+
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center min-h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>}>
+      <FeedbackContent fiestaId={fiestaId} />
+    </Suspense>
+  )
 }

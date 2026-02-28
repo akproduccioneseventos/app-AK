@@ -1,27 +1,25 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, use, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Printer as PrinterIcon, Share2, AlertTriangle, Info, CalendarDays, Users, MapPin, ChefHat, Palette, UserCheck, Clock, Loader2, ListChecks, Download } from 'lucide-react';
-import type { FiestaEnPlanificacion, Tarea, ProgramaEventoItem, DecorationItem } from '@/types/fiesta';
+import { ArrowLeft, Printer as PrinterIcon, Share2, AlertTriangle, CalendarDays, Users, MapPin, ChefHat, Palette, UserCheck, Clock, Loader2, Download } from 'lucide-react';
+import type { FiestaEnPlanificacion, DecorationItem } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import type { FullMenu, MenuItem } from '@/types/catering';
 import type { Empleado } from '@/types/empleado';
 import type { Rol } from '@/types/rol';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getCustomerById } from '@/app/actions/customers';
-import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getMenuById } from '@/app/actions/menus-catering';
 import { getEmpleados } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
-import { Suspense } from 'react';
 import html2canvas from 'html2canvas';
 
 const formatDate = (dateString?: string) => {
@@ -37,10 +35,8 @@ const formatDate = (dateString?: string) => {
 
 const companyName = "AK Producciones";
 
-function ResumenImprimibleContent() {
+function ResumenImprimibleContent({ fiestaId }: { fiestaId: string | null }) {
   const { toast } = useToast();
-  const searchParams = useSearchParams();
-  const fiestaId = searchParams.get('fiestaId');
   const printRef = useRef<HTMLDivElement>(null);
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
@@ -272,7 +268,7 @@ function ResumenImprimibleContent() {
             </section>
             
             <footer className="mt-8 pt-4 border-t text-center text-xs text-gray-400 print:mt-5 print:pt-2 print:border-gray-300">
-            <p>Documento generado por {companyName} el: {new Date().toLocaleString('es-ES')}</p>
+            <p>Generado por {companyName} el: {new Date().toLocaleString('es-ES')}</p>
             </footer>
         </div>
       </div>
@@ -281,9 +277,12 @@ function ResumenImprimibleContent() {
 }
 
 export default function ResumenImprimiblePageWrapper() {
+  const searchParams = useSearchParams();
+  const fiestaId = searchParams.get('fiestaId');
+
   return (
     <Suspense fallback={<div className="p-8 max-w-3xl mx-auto bg-white"><Skeleton className="h-[80vh] w-full" /></div>}>
-        <ResumenImprimibleContent />
+        <ResumenImprimibleContent fiestaId={fiestaId} />
     </Suspense>
   )
 }

@@ -1,12 +1,11 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef, type ChangeEvent, use } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import React, { useState, useEffect, useCallback, type ChangeEvent } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Camera, Loader2, AlertTriangle, Upload, CheckCircle, PartyPopper } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, VideoVidaData } from '@/types/fiesta';
+import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { saveLifeStoryVideoPhoto, getLifeStoryVideoPhotos } from '@/app/actions/fiesta/video-vida.actions';
 import NextImage from 'next/image';
@@ -18,7 +17,6 @@ interface PhotoSlot {
   imageUrl: string | null;
 }
 
-// --- Componente Atómico para cada Slot de Foto (Definido AFUERA del componente principal) ---
 const PhotoUploadSlot: React.FC<{
   slot: PhotoSlot;
   fiestaId: string;
@@ -57,7 +55,6 @@ const PhotoUploadSlot: React.FC<{
       onUploadComplete(slot.number, null);
     } finally {
         setIsUploading(false);
-        // Reset file input to allow re-uploading the same file
         if (event.target) event.target.value = '';
     }
   };
@@ -94,8 +91,7 @@ const PhotoUploadSlot: React.FC<{
 };
 
 
-// --- Componente Principal que se renderiza solo en el cliente ---
-function VideoVidaClientPageContent({ params }: { params: { fiestaId: string } }) {
+function VideoVidaClientPageContent({ fiestaId }: { fiestaId: string | null }) {
   const { toast } = useToast();
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [photoSlots, setPhotoSlots] = useState<PhotoSlot[]>([]);
@@ -103,11 +99,16 @@ function VideoVidaClientPageContent({ params }: { params: { fiestaId: string } }
   const [error, setError] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
+    if (!fiestaId) {
+        setError("ID de evento no proporcionado.");
+        setIsLoading(false);
+        return;
+    }
     setIsLoading(true);
     setError(null);
     try {
       const fiestaData = await getFiestaActual();
-      if (fiestaData.id !== params.fiestaId) throw new Error("Acceso no válido para este evento.");
+      if (fiestaData.id !== fiestaId) throw new Error("Acceso no válido para este evento.");
       if (!fiestaData.videoVida?.galleryEnabled) throw new Error("La carga de fotos no está habilitada para este evento.");
 
       setFiesta(fiestaData);
@@ -130,7 +131,7 @@ function VideoVidaClientPageContent({ params }: { params: { fiestaId: string } }
     } finally {
       setIsLoading(false);
     }
-  }, [params.fiestaId, toast]);
+  }, [fiestaId]);
 
   useEffect(() => {
     loadData();
@@ -139,7 +140,6 @@ function VideoVidaClientPageContent({ params }: { params: { fiestaId: string } }
   const handleUploadComplete = useCallback((slotNumber: number, url: string | null) => {
     setPhotoSlots(prev => prev.map(s => {
         if (s.number === slotNumber && url) {
-            // Re-create a new URL object to ensure React re-renders the image
             return { ...s, imageUrl: `${url}?t=${new Date().getTime()}` };
         }
         return s;
@@ -196,10 +196,7 @@ function VideoVidaClientPageContent({ params }: { params: { fiestaId: string } }
 }
 
 
-// --- Página principal que se asegura de renderizar el contenido solo en el cliente ---
-export default function VideoVidaPage({ params: paramsProp }: { params: { fiestaId: string } }) {
-    const params = use(paramsProp);
-
-    // Renderiza el contenido solo cuando isClient es true
-    return <VideoVidaClientPageContent params={params} />;
+export default function VideoVidaPage({ params }: { params: { fiestaId: string } }) {
+    const fiestaId = params.fiestaId;
+    return <VideoVidaClientPageContent fiestaId={fiestaId} />;
 }
