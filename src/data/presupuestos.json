@@ -227,10 +227,12 @@
       }
     ],
     "costoTotalEstimado": 176700,
+    "totalConDescuento": 203205,
     "timestamp": "2025-01-22T12:00:00.000Z",
     "estado": "Facturado",
     "invoiceId": "inv_1147_lorena",
-    "notas": "Presupuesto consolidado de 3 páginas. Válido por 30 días. Se requiere seña de $5.000.",
+    "ajusteAnualActivo": true,
+    "notas": "Presupuesto consolidado. Incluye ajuste anual del 15% aplicado por diferencia de año (2025 a 2026).",
     "source": "manual"
   }
 ]

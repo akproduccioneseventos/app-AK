@@ -13,16 +13,16 @@
     "items": [
       {
         "id": "item_inv_1147_1",
-        "description": "Servicios integrales de fiesta según Presupuesto #1147",
+        "description": "Servicios integrales de fiesta según Presupuesto #1147 (con ajuste anual 15%)",
         "quantity": 1,
-        "unitPrice": 176700,
-        "total": 176700
+        "unitPrice": 203205,
+        "total": 203205
       }
     ],
-    "subtotal": 176700,
+    "subtotal": 203205,
     "taxRate": 0,
     "taxAmount": 0,
-    "totalAmount": 176700,
+    "totalAmount": 203205,
     "status": "Paid",
     "currency": "UYU",
     "vendorName": "AK Producciones",
@@ -30,9 +30,9 @@
       {
         "id": "pay_1147_hist",
         "paymentDate": "2025-01-22T12:00:00.000Z",
-        "amount": 176700,
+        "amount": 203205,
         "method": "Transferencia",
-        "notes": "Pago total registrado de carga histórica"
+        "notes": "Pago total registrado con ajuste del 15% incluido."
       }
     ]
   }
