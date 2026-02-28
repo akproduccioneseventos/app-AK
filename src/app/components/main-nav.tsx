@@ -37,6 +37,7 @@ import {
   ShoppingCart,
   PartyPopper,
   FileArchive,
+  History,
 } from "lucide-react";
 import AppLogo from "./app-logo";
 
@@ -211,6 +212,14 @@ export function MainNav() {
                       <SidebarMenuSubButton isActive={isActive("/invoices")}>
                         <FileText />
                         Facturas
+                      </SidebarMenuSubButton>
+                    </Link>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <Link href="/contabilidad/fiestas-historicas" passHref asChild>
+                      <SidebarMenuSubButton isActive={isActive("/contabilidad/fiestas-historicas")}>
+                        <History />
+                        Fiestas Históricas
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>

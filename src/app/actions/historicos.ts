@@ -1,3 +1,4 @@
+
 'use server';
 
 import { readData, writeData } from '@/lib/data-service';
@@ -5,13 +6,15 @@ import fs from 'fs/promises';
 import path from 'path';
 
 import type { Customer } from '@/types/customer';
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
-import type { Presupuesto } from '@/types/presupuesto';
+import type { FiestaEnPlanificacion, Tarea } from '@/types/fiesta';
+import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto';
+import type { FiestaHistorica } from '@/types/fiesta-historica';
 import { initialFiestaActualData } from '@/lib/fiesta-defaults';
 import { saveFiesta } from './fiesta/fiesta.actions';
 import { createNotification } from './notifications';
 import { saveInvoice } from './invoices';
 import type { Invoice, Payment } from '@/types/invoice';
+import { saveFiestaHistorica } from './fiestas-historicas';
 
 const CUSTOMERS_FILE = 'customers.json';
 const PRESUPUESTOS_FILE = 'presupuestos.json';
@@ -59,19 +62,20 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
         customers.push(newCustomer);
         await writeData(CUSTOMERS_FILE, customers, (a, b) => (a.name || '').localeCompare(b.name || ''));
 
-        // 2. Create Fiesta Object (in memory)
-        const fiestaId = `fiesta_hist_${Date.now()}`;
-        const newFiesta: FiestaEnPlanificacion = {
-            ...initialFiestaActualData,
-            id: fiestaId,
-            configuracion: {
-                ...initialFiestaActualData.configuracion,
-                clienteId: customerId,
-                nombreEvento: `Histórico: ${clienteNombre}`,
-                fechaEvento: eventoFecha,
-            },
-        };
-        
+        // 2. Create simplified Presupuesto Items
+        const items: ItemPresupuestado[] = [{
+            idServicioCatalogo: 'historic_item',
+            nombreServicio: 'Servicios según contrato histórico adjunto',
+            cantidad: 1,
+            precioUnitario: montoTotal,
+            precioUnitarioPresupuesto: montoTotal,
+            costoTotalItem: montoTotal,
+            esRegalo: false,
+            categoriaServicio: 'Otros servicios',
+            calculationMethod: 'fijo',
+            precioBase: montoTotal,
+        }];
+
         // 3. Create a simplified Presupuesto
         const presupuestoId = `pres_hist_${Date.now()}`;
         const newPresupuesto: Presupuesto = {
@@ -79,20 +83,9 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
             clienteNombre: clienteNombre,
             eventoTipo: 'Histórico',
             eventoFecha: eventoFecha,
-            invitadosCantidad: 1, // Default value for historic records
+            invitadosCantidad: 1, 
             salonFiestas: 'N/A (Histórico)',
-            itemsPresupuestados: [{
-                idServicioCatalogo: 'historic_item',
-                nombreServicio: 'Servicios según contrato histórico adjunto',
-                cantidad: 1,
-                precioUnitario: montoTotal,
-                precioUnitarioPresupuesto: montoTotal,
-                costoTotalItem: montoTotal,
-                esRegalo: false,
-                categoriaServicio: 'Otros servicios',
-                calculationMethod: 'fijo',
-                precioBase: montoTotal,
-            }],
+            itemsPresupuestados: items,
             costoTotalEstimado: montoTotal,
             estado: 'Facturado',
             ajusteAnualActivo: true,
@@ -119,7 +112,7 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
             totalAmount: montoTotal,
             status: 'Paid',
             currency: 'UYU',
-            vendorName: 'AK Producciones', // Placeholder, consider moving to settings
+            vendorName: 'AK Producciones',
             payments: [{
                 id: `pay_hist_${Date.now()}`,
                 paymentDate: eventoFecha,
@@ -133,18 +126,43 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
             throw new Error('Fallo al crear la factura histórica.');
         }
 
-        // 5. Save the Fiesta as an ACTIVE event
-        newFiesta.presupuestoId = presupuestoId;
-        newFiesta.invoiceIds = [invoiceResult.id];
+        // 5. Create and save the "Fiesta Historica" record for future duplications
+        const historicalRecord: Omit<FiestaHistorica, 'id' | 'fechaCreacion'> = {
+          nombreEvento: `Histórico: ${clienteNombre}`,
+          clienteId: customerId,
+          clienteNombre: clienteNombre,
+          anioOriginal: new Date(eventoFecha).getFullYear(),
+          lugar: 'N/A (Histórico)',
+          tipoFiesta: 'Histórico',
+          cantidadInvitados: 1,
+          presupuestoTotalOriginal: montoTotal,
+          detalleCostos: items,
+          checklistBase: [],
+          contratoUrl: uniqueFilename,
+          observaciones: `Carga histórica del ${new Date().toLocaleDateString()}`
+        };
+        await saveFiestaHistorica(historicalRecord);
+
+        // 6. Save the Fiesta as an ACTIVE (but archived) event
+        const fiestaId = `fiesta_hist_${Date.now()}`;
+        const newFiesta: FiestaEnPlanificacion = {
+            ...initialFiestaActualData,
+            id: fiestaId,
+            configuracion: {
+                ...initialFiestaActualData.configuracion,
+                clienteId: customerId,
+                nombreEvento: `Histórico: ${clienteNombre}`,
+                fechaEvento: eventoFecha,
+            },
+            presupuestoId: presupuestoId,
+            invoiceIds: [invoiceResult.id]
+        };
         const saveFiestaResult = await saveFiesta(newFiesta);
-        if (!saveFiestaResult.success) {
-            throw new Error(saveFiestaResult.error || "No se pudo guardar la nueva fiesta activa.");
-        }
         
-        // 6. Notification
+        // 7. Notification
         await createNotification({
           mensaje: `Se cargó el evento histórico de ${clienteNombre}.`,
-          href: `/fiestas/nueva?fiestaId=${fiestaId}`,
+          href: `/contabilidad/fiestas-historicas`,
           icono: 'Archive',
         });
 
