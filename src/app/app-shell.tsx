@@ -225,7 +225,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname.startsWith('/portal')) return KeyRound;
 
   return null;
-}
+};
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
