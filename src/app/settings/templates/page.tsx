@@ -2,11 +2,17 @@
 'use client';
 
 import Link from 'next/link';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, FileText, Sparkles as SparklesIcon, Wand2, UserCog, ListChecks, PackageSearch, Palette, Image as ImageIcon, LayoutDashboard } from 'lucide-react';
+import { ArrowLeft, FileText, Sparkles as SparklesIcon, Wand2, UserCog, ListChecks, PackageSearch, Palette, Image as ImageIcon, LayoutDashboard, FileSignature } from 'lucide-react';
 
 const settingsCards = [
+  {
+    title: "Plantilla de Contrato",
+    description: "Personaliza el texto base del contrato de prestación de servicios con tus propias cláusulas.",
+    href: "/settings/templates/contrato",
+    icon: FileSignature,
+  },
   {
     title: "Plantillas de Invitación Digital",
     description: "Gestiona los diseños base para las invitaciones web de tus eventos.",

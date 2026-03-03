@@ -191,11 +191,8 @@ export interface DecoracionData {
   salonPlanBackgroundImageUrl?: string;
   salonElements?: LayoutElement[];
   generalNotesSalonLayout?: string;
-  layoutMode?: 'libre' | 'mixto' | 'numerado';
-  guestNameStyle?: 'full' | 'initials' | 'none';
-  guestIconStyle?: 'color' | 'bw';
   layoutTemplateName?: string;
-  pixelsPerMeter?: number; // Nueva propiedad
+  pixelsPerMeter?: number; 
 }
 
 export interface GiftItem {
@@ -379,7 +376,7 @@ export interface MusicaFiesta {
   cancionesTortaBrindis?: string[]; 
   playlistFiesta?: string;
   listaNoReproducir?: string;
-  sugerenciasInvitados?: string; // New field for guest suggestions
+  sugerenciasInvitados?: string; 
 }
 
 export interface ReposteriaItem {
@@ -666,6 +663,9 @@ export interface FiestaEnPlanificacion {
   cartaTragos?: CartaTragosData;
   menuMesa?: MenuMesaData;
   numerosMesa?: NumerosMesaData;
+
+  // Event specific contract text (override template)
+  contratoServicioTexto?: string;
 
   // Deprecated - will be migrated to invitacionDigital
   webPageSettings?: EventWebPageSettings; 

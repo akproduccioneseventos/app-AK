@@ -1,10 +1,6 @@
 
 'use server';
 
-// This file is a central hub for all actions related to the "current event".
-// It re-exports actions from more specific files to provide a unified interface
-// for components working with a single, active event.
-
 import {
   getFiestas as getFiestasFromModule,
   getAllFiestas as getAllFiestasFromModule,
@@ -70,6 +66,14 @@ export const updateModulosContratadosFiestaActual = async (fiestaId: string, mod
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) throw new Error("Fiesta no encontrada");
     const updatedFiesta = { ...fiesta, modulosContratados: modulos };
+    return saveFiesta(updatedFiesta);
+}
+
+// Contract Action
+export const updateContratoFiestaActual = async (fiestaId: string, text: string) => {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) throw new Error("Fiesta no encontrada");
+    const updatedFiesta = { ...fiesta, contratoServicioTexto: text };
     return saveFiesta(updatedFiesta);
 }
 
