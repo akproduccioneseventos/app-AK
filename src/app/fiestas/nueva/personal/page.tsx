@@ -47,7 +47,10 @@ export default function AsignarPersonalEventoPage() {
     if (showLoading) setIsLoading(true);
     setError(null);
     try {
-      const fiestaActual = await getFiestaById(new URLSearchParams(window.location.search).get('fiestaId') || '');
+      const fiestaId = new URLSearchParams(window.location.search).get('fiestaId');
+      if (!fiestaId) throw new Error("ID de fiesta no encontrado");
+      
+      const fiestaActual = await getFiestaById(fiestaId);
       if (!fiestaActual) throw new Error("Fiesta no encontrada");
 
       const [empleadosData, rolesData, presupuestoData] = await Promise.all([
@@ -67,13 +70,14 @@ export default function AsignarPersonalEventoPage() {
           const empleadoDetail = empleadosData.find(e => e.id === assigned.empleadoId);
           if (empleadoDetail) {
             const rolDetail = rolesData.find(r => r.id === assigned.rolId);
-            const aportes = (assigned.eventSalary * (rolDetail?.porcentajeAportesPatronales ?? 0)) / 100;
+            const eventSalary = assigned.eventSalary;
+            const aportes = (eventSalary * (rolDetail?.porcentajeAportesPatronales ?? 0)) / 100;
             initialAssignedMap.set(assigned.empleadoId, {
               empleadoId: empleadoDetail.id,
               nombre: empleadoDetail.nombre,
               rolId: assigned.rolId,
               rolNombre: rolDetail?.nombre || 'Rol Desconocido',
-              eventSalary: assigned.eventSalary,
+              eventSalary: eventSalary,
               employerContribution: aportes,
             });
           }
@@ -84,11 +88,13 @@ export default function AsignarPersonalEventoPage() {
           const personalItems = presupuestoData.itemsPresupuestados.filter(item => 
             item.categoriaServicio?.toLowerCase().includes('personal') ||
             item.nombreServicio.toLowerCase().includes('mozo') ||
-            item.nombreServicio.toLowerCase().includes('asador')
+            item.nombreServicio.toLowerCase().includes('asador') ||
+            item.nombreServicio.toLowerCase().includes('chef') ||
+            item.nombreServicio.toLowerCase().includes('coordinador')
           );
 
           if (personalItems.length > 0) {
-              toast({ title: "Sugerencia de Personal", description: "Se detectaron servicios de personal en el presupuesto. Selecciona a los empleados para asignar los roles."});
+              toast({ title: "Sugerencia de Personal", description: "Se detectaron servicios de personal en el presupuesto. Asigna a los empleados correspondientes."});
           }
       }
 

@@ -57,22 +57,23 @@ function PlannerGastronomicoFiestaContent() {
         setPresupuesto(presupuestoData);
         
         if (presupuestoData && presupuestoData.itemsPresupuestados.length > 0) {
-            // Sincronización automática de Repostería desde Presupuesto
+            // 1. Sincronización de Repostería
             const budgetReposteriaItems = presupuestoData.itemsPresupuestados.filter(item => 
                 item.categoriaServicio?.toLowerCase().includes('repostería') ||
                 item.nombreServicio.toLowerCase().includes('torta') ||
                 item.nombreServicio.toLowerCase().includes('postre')
             );
 
-            if (budgetReposteriaItems.length > 0 && initialReposteria.categorias.every(c => !c.activada)) {
+            if (budgetReposteriaItems.length > 0) {
                 initialReposteria = {
                     ...initialReposteria,
                     categorias: initialReposteria.categorias.map(cat => {
                         const itemsInCat = budgetReposteriaItems.filter(bi => 
                             bi.categoriaServicio?.toLowerCase().includes(cat.nombreDisplay.toLowerCase()) ||
-                            bi.nombreServicio.toLowerCase().includes(cat.nombreDisplay.toLowerCase())
+                            bi.nombreServicio.toLowerCase().includes(cat.nombreDisplay.toLowerCase()) ||
+                            (cat.id === 'tortas_personalizadas' && bi.nombreServicio.toLowerCase().includes('torta'))
                         );
-                        if (itemsInCat.length > 0 || cat.id === 'tortas_personalizadas' && budgetReposteriaItems.some(bi => bi.nombreServicio.toLowerCase().includes('torta'))) {
+                        if (itemsInCat.length > 0) {
                             return { 
                                 ...cat, 
                                 activada: true,
@@ -90,13 +91,13 @@ function PlannerGastronomicoFiestaContent() {
                 };
             }
 
-            // Sincronización automática de Bebidas
+            // 2. Sincronización de Bebidas
             const hasBebidas = presupuestoData.itemsPresupuestados.some(item => 
                 item.categoriaServicio?.toLowerCase().includes('bebida') ||
                 item.nombreServicio.toLowerCase().includes('barra')
             );
             
-            if (hasBebidas && initialBebidas.categorias.every(c => !c.activada)) {
+            if (hasBebidas) {
                  initialBebidas = { 
                      ...initialBebidas, 
                      categorias: initialBebidas.categorias.map(c => {
@@ -109,7 +110,7 @@ function PlannerGastronomicoFiestaContent() {
                  };
             }
 
-            // Intentar matchear el menú principal si no hay uno asignado
+            // 3. Sincronización de Menú Principal
             if (!initialMenuId) {
                 const mainDish = presupuestoData.itemsPresupuestados.find(item => 
                     item.categoriaServicio?.toLowerCase().includes('plato principal')
@@ -155,11 +156,14 @@ function PlannerGastronomicoFiestaContent() {
     }
   
     const { adultos = 0, ninos = 0, adolescentes = 0 } = presupuesto || { 
-        adultos: Number(fiesta?.configuracion.invitadosEstimados) || 0, 
-        ninos: 0, 
-        adolescentes: 0 
+        invitadosAdultos: Number(fiesta?.configuracion.invitadosEstimados) || 0, 
+        invitadosNinos: 0, 
+        invitadosAdolescentes: 0 
     };
-    const totalInvitados = Number(adultos) + Number(ninos) + Number(adolescentes);
+    
+    const displayAdultos = presupuesto?.invitadosAdultos ?? Number(fiesta?.configuracion.invitadosEstimados) ?? 0;
+    const displayNinos = (presupuesto?.invitadosNinos ?? 0) + (presupuesto?.invitadosAdolescentes ?? 0);
+    const totalInvitados = displayAdultos + displayNinos;
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -177,7 +181,7 @@ function PlannerGastronomicoFiestaContent() {
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
                 <CardTitle className="font-headline text-xl">Resumen de Invitados</CardTitle>
-                <CardDescription>Sincronizado con el presupuesto del evento.</CardDescription>
+                <CardDescription>Sincronizado con el presupuesto o la configuración del evento actual.</CardDescription>
             </div>
             <Button variant="ghost" size="sm" onClick={() => loadData(true)} title="Sincronizar con presupuesto">
                 <RefreshCw className="w-4 h-4 mr-2"/> Sincronizar
@@ -186,11 +190,11 @@ function PlannerGastronomicoFiestaContent() {
           <CardContent className="grid grid-cols-3 gap-4 text-center">
             <div className="p-3 bg-muted/30 rounded-lg">
                 <p className="text-xs text-muted-foreground uppercase font-bold">Adultos</p>
-                <p className="text-2xl font-bold">{adultos}</p>
+                <p className="text-2xl font-bold">{displayAdultos}</p>
             </div>
             <div className="p-3 bg-muted/30 rounded-lg">
                 <p className="text-xs text-muted-foreground uppercase font-bold">Niños/Adol.</p>
-                <p className="text-2xl font-bold">{ninos + adolescentes}</p>
+                <p className="text-2xl font-bold">{displayNinos}</p>
             </div>
             <div className="p-3 bg-primary/10 rounded-lg border border-primary/20">
                 <p className="text-xs text-primary uppercase font-bold">Total</p>
@@ -233,20 +237,19 @@ function PlannerGastronomicoFiestaContent() {
             <GestionReposteria 
                 initialData={reposteriaData} 
                 onDataChange={setReposteriaData}
-                invitados={{adultos: Number(adultos), ninos: Number(ninos), adolescentes: Number(adolescentes)}} 
+                invitados={{adultos: displayAdultos, ninos: displayNinos, adolescentes: 0}} 
             />
             
             <GestionBebidas 
                 initialData={bebidasData} 
                 onDataChange={setBebidasData}
-                invitados={{adultos: Number(adultos), ninos: Number(ninos), adolescentes: Number(adolescentes)}}
+                invitados={{adultos: displayAdultos, ninos: displayNinos, adolescentes: 0}}
             />
         </>
        }
     </div>
   );
 }
-
 
 export default function PlannerGastronomicoFiestaPage() {
     return (
