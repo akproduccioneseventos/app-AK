@@ -1,3 +1,4 @@
+
 'use server';
 
 import type { CrmLead, CrmStage, NewCrmLeadData } from '@/types/crm';
@@ -7,7 +8,7 @@ import { getPresupuestoById, updatePresupuesto } from '@/app/actions/presupuesto
 import { saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import { createNotification } from './notifications';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
-import { initialFiestaActualData } from '@/lib/fiesta-defaults';
+import { initialFiestaActualData, defaultModulosContratados } from '@/lib/fiesta-defaults';
 
 const LEADS_FILE = 'crm-leads.json';
 const STAGES_FILE = 'crm-stages.json';
