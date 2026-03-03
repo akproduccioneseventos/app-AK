@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, type FormEvent, useCallback } from 'react'; 
+import React, { useState, useEffect, useCallback, type FormEvent } from 'react'; 
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Link from 'next/link';
-import { ArrowLeft, Save, Loader2, Edit3, AlertTriangle, Trash2, CalendarDays, FileText, Info } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, Edit3, AlertTriangle, Trash2, CalendarDays, FileText, Info, MapPin } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getCustomerById, saveCustomer, deleteCustomer as deleteCustomerAction } from '@/app/actions/customers';
 import type { Customer, CustomerStatus } from '@/types/customer';
@@ -37,6 +37,7 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
   // General fields
   const [name, setName] = useState('');
   const [companyName, setCompanyName] = useState('');
+  const [address, setAddress] = useState('');
   const [phone, setPhone] = useState('');
   const [taxId, setTaxId] = useState(''); 
   const [estadoClienteForm, setEstadoClienteForm] = useState<CustomerStatus>('Actual');
@@ -71,6 +72,7 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
         setCustomer(loadedCustomer);
         setName(loadedCustomer.name || '');
         setCompanyName(loadedCustomer.companyName || '');
+        setAddress(loadedCustomer.address || '');
         setPhone(loadedCustomer.phone || '');
         setTaxId(loadedCustomer.taxId || ''); 
         setEstadoClienteForm(loadedCustomer.estadoCliente || 'Actual');
@@ -110,6 +112,7 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
     else if (companyName.trim()) formData.append('name', companyName.trim()); 
 
     if (companyName.trim()) formData.append('companyName', companyName.trim());
+    if (address.trim()) formData.append('address', address.trim());
     if (phone.trim()) formData.append('phone', phone.trim());
     if (taxId.trim()) formData.append('taxId', taxId.trim());
     formData.append('estadoCliente', estadoClienteForm);
@@ -206,6 +209,10 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div><Label htmlFor="customer-name">Nombre Completo</Label><Input id="customer-name" value={name} onChange={(e) => setName(e.target.value)} disabled={isSaving || isDeleting} /></div>
               <div><Label htmlFor="company-name">Empresa</Label><Input id="company-name" value={companyName} onChange={(e) => setCompanyName(e.target.value)} disabled={isSaving || isDeleting}/></div>
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="customer-address" className="flex items-center gap-1"><MapPin className="w-4 h-4"/> Domicilio</Label>
+                <Input id="customer-address" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Calle y número de casa" disabled={isSaving || isDeleting}/>
             </div>
              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div><Label htmlFor="customer-phone">Teléfono</Label><Input id="customer-phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={isSaving || isDeleting}/></div>

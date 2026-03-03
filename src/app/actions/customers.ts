@@ -53,6 +53,7 @@ export async function saveCustomer(
   if (customerData instanceof FormData) {
     customerToSave.name = customerData.get('name') as string;
     customerToSave.companyName = customerData.get('companyName') as string | undefined;
+    customerToSave.address = customerData.get('address') as string | undefined;
     customerToSave.phone = customerData.get('phone') as string | undefined;
     customerToSave.taxId = customerData.get('taxId') as string | undefined;
     
@@ -321,9 +322,3 @@ export async function addDocumentReferenceToCustomer(customerId: string, documen
     await writeData(CUSTOMERS_FILE, customers);
     return { success: true };
 }
-
-    
-
-    
-
-    

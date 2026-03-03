@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Link from 'next/link';
-import { ArrowLeft, Save, Loader2, UserPlus2, CalendarDays, FileText, Info } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, UserPlus2, CalendarDays, FileText, Info, MapPin } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveCustomer } from '@/app/actions/customers';
 import { DatePickerDemo } from '@/components/date-picker-demo';
@@ -26,6 +26,7 @@ export default function NewCustomerPage() {
   // Form state
   const [name, setName] = useState('');
   const [customerCompanyName, setCustomerCompanyName] = useState('');
+  const [address, setAddress] = useState('');
   const [phone, setPhone] = useState('');
   const [taxId, setTaxId] = useState('');
   
@@ -72,6 +73,7 @@ export default function NewCustomerPage() {
         formData.append('companyName', customerCompanyName.trim());
     }
 
+    if (address.trim()) formData.append('address', address.trim());
     if (phone.trim()) formData.append('phone', phone.trim());
     if (taxId.trim()) formData.append('taxId', taxId.trim());
 
@@ -132,6 +134,10 @@ export default function NewCustomerPage() {
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div><Label htmlFor="customer-name">Nombre Completo</Label><Input id="customer-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ej: Ana García Pérez" /></div>
               <div><Label htmlFor="customer-company-name">Empresa</Label><Input id="customer-company-name" value={customerCompanyName} onChange={(e) => setCustomerCompanyName(e.target.value)} /></div>
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="customer-address" className="flex items-center gap-1"><MapPin className="w-4 h-4"/> Domicilio</Label>
+                <Input id="customer-address" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Calle y número de casa" />
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div><Label htmlFor="customer-phone">Teléfono</Label><Input id="customer-phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} /></div>
@@ -209,7 +215,7 @@ export default function NewCustomerPage() {
             </div>
              <div>
                 <Label htmlFor="venue-name">Salón de Fiestas / Lugar</Label>
-                <Input id="venue-name" value={venueName} onChange={(e) => setVenueName(e.target.value)} placeholder="Ej: Salón El Paraíso"/>
+                <Input id="venue-name" value={venueName} onChange={(e) => setVenueName(e.target.value)} placeholder="Ej: Salón Adeom"/>
              </div>
              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>

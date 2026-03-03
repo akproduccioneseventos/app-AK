@@ -1,5 +1,4 @@
 
-
 export type CustomerStatus = 'Actual' | 'Antiguo';
 export const ALL_CUSTOMER_STATES: CustomerStatus[] = ['Actual', 'Antiguo'];
 
@@ -8,6 +7,7 @@ export interface Customer {
   name: string;
   phone?: string;
   companyName?: string;
+  address?: string; // Nuevo campo para domicilio fiscal/personal
   taxId?: string; 
   estadoCliente?: CustomerStatus; // 'Actual' o 'Antiguo'
   
