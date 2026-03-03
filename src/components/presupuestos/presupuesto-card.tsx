@@ -1,11 +1,10 @@
 
-
 'use client';
 
 import type { Presupuesto } from '@/types/presupuesto';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Eye, Edit, Link as LinkIcon, Link2Off, Loader2, FileSignature, Percent, FileText as FileTextIcon, Trash2 } from 'lucide-react';
+import { Eye, Edit, Link as LinkIcon, Link2Off, Loader2, FileSignature, Percent, FileText as FileTextIcon, Trash2, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { PresupuestoStatusBadge } from './presupuesto-status-badge';
 import {
@@ -31,6 +30,7 @@ interface PresupuestoCardProps {
   onToggleAssign?: () => void;
   isAssigning?: boolean;
   onDeleteSuccess?: () => void; // Callback to refresh the list
+  onHire?: () => void;
 }
 
 const formatCurrency = (amount?: number) => {
@@ -58,7 +58,8 @@ export default function PresupuestoCard({
   isAssignedToCurrentFiesta, 
   onToggleAssign,
   isAssigning,
-  onDeleteSuccess
+  onDeleteSuccess,
+  onHire
 }: PresupuestoCardProps) {
   const { toast } = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
@@ -73,11 +74,9 @@ export default function PresupuestoCard({
     if (presupuesto.source === 'manual') {
       return { text: 'Manual', className: 'bg-gray-200 text-gray-800' };
     }
-    // Fallback for older leads/budgets that might not have the source property
     if (presupuesto.notas?.toLowerCase().includes('simulador')) {
         return { text: 'Simulador', className: 'bg-blue-100 text-blue-800' };
     }
-    // If there's a budget but no source, assume manual.
     return { text: 'Manual', className: 'bg-gray-200 text-gray-800' };
   }, [presupuesto.source, presupuesto.notas]);
 
@@ -134,6 +133,12 @@ export default function PresupuestoCard({
         )}
       </CardContent>
       <CardFooter className="flex flex-col items-stretch gap-2 pt-4">
+        {presupuesto.estado === 'Enviado' && onHire && (
+          <Button onClick={onHire} variant="default" size="sm" className="w-full bg-green-600 hover:bg-green-700 text-white">
+            <CheckCircle className="w-4 h-4 mr-2"/> Contratar Ahora
+          </Button>
+        )}
+
         {onToggleAssign && presupuesto.estado !== 'Facturado' && (
           <Button 
             variant={isAssignedToCurrentFiesta ? "secondary" : "default"} 

@@ -1,16 +1,17 @@
 
-
 'use server';
 
 import type { CrmLead, CrmStage, NewCrmLeadData } from '@/types/crm';
 import { readData, writeData } from '@/lib/data-service';
-import { saveCustomer } from '@/app/actions/customers'; 
+import { saveCustomer, getCustomers } from '@/app/actions/customers'; 
 import type { Customer } from '@/types/customer'; 
-import { createNewFiestaForCustomer } from '@/app/actions/fiesta/fiesta.actions';
-import { activateAnnualAdjustmentForBudget, getPresupuestos, updatePresupuesto } from './presupuestos';
+import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
+import { activateAnnualAdjustmentForBudget, getPresupuestos, updatePresupuesto, getPresupuestoById } from './presupuestos';
 import { addReunion } from './fiesta/reuniones.actions';
 import { createNotification } from './notifications';
 import type { Presupuesto } from '@/types/presupuesto';
+import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import { initialFiestaActualData } from '@/lib/fiesta-defaults';
 
 const LEADS_FILE = 'crm-leads.json';
 const STAGES_FILE = 'crm-stages.json';
@@ -40,7 +41,7 @@ export async function getCrmLeads(): Promise<CrmLead[]> {
     const presupuesto = lead.presupuestoId ? presupuestosMap.get(lead.presupuestoId) : undefined;
     return {
       ...lead,
-      presupuestoId: lead.presupuestoId, // Ensure presupuestoId is always passed through
+      presupuestoId: lead.presupuestoId,
       presupuestoEstado: presupuesto?.estado,
       invoiceId: presupuesto?.invoiceId,
     };
@@ -62,9 +63,9 @@ export async function addCrmLead(
   if (!options.preventDuplicateCheck) {
     const existingLead = leads.find(lead => 
       lead.name.trim().toLowerCase() === leadData.name!.trim().toLowerCase() && 
-      !lead.presupuestoId // Only block if it's a general lead without a budget
+      !lead.presupuestoId 
     );
-    if (existingLead && !leadData.id) { // Only block if creating a new one
+    if (existingLead && !leadData.id) {
          return { success: false, error: `Ya existe un prospecto con el nombre "${leadData.name.trim()}".` };
     }
   }
@@ -153,7 +154,6 @@ export async function findLeadByBudgetOrCreate(
     return { lead: existingLead, isNew: false };
   }
 
-  // If no lead exists, create a new one
   const newLeadData: NewCrmLeadData = {
     name: presupuestoData.clienteNombre,
     phone: presupuestoData.clienteContacto,
@@ -165,11 +165,9 @@ export async function findLeadByBudgetOrCreate(
 
   const result = await addCrmLead(newLeadData, { preventDuplicateCheck: true });
   if (!result.success || !result.lead) {
-    console.error("Failed to create a new CRM lead from budget:", result.error);
     throw new Error('Failed to create a new lead for the budget.');
   }
 
-  // **CRUCIAL FIX**: Ensure the newly created lead's ID is saved back to the budget object.
   const newLead = result.lead;
   const updatedBudget: Presupuesto = { ...presupuestoData, leadId: newLead.id };
   await updatePresupuesto(updatedBudget);
@@ -252,8 +250,85 @@ export async function moveCrmLead(
   return { success: true, lead: updatedLead };
 }
 
+export async function confirmBooking(leadId: string, presupuestoId: string): Promise<{ success: boolean; fiestaId?: string; customerId?: string; error?: string }> {
+  try {
+    const [lead, presupuesto, allCustomers, stages] = await Promise.all([
+      readData<CrmLead[]>(LEADS_FILE, []).then(leads => leads.find(l => l.id === leadId)),
+      getPresupuestoById(presupuestoId),
+      getCustomers(),
+      getCrmStages()
+    ]);
+
+    if (!lead || !presupuesto) throw new Error("Prospecto o presupuesto no encontrado.");
+
+    const conversionStage = stages.find(s => s.isConversionStage);
+    if (!conversionStage) throw new Error("Etapa de conversión no configurada.");
+
+    // 1. Create or get customer
+    let customer = allCustomers.find(c => c.name === lead.name || c.phone === lead.phone);
+    let customerId = customer?.id;
+
+    if (!customer) {
+      const customerResult = await saveCustomer({
+        name: lead.name,
+        phone: lead.phone,
+        email: lead.email,
+        partyDate: presupuesto.eventoFecha,
+        partyType: presupuesto.eventoTipo,
+        venueName: presupuesto.salonFiestas,
+        guestCount: presupuesto.invitadosCantidad,
+        estadoCliente: 'Actual'
+      });
+      if (!customerResult.success || !customerResult.id) throw new Error(customerResult.error || "Error al crear el cliente.");
+      customerId = customerResult.id;
+    }
+
+    // 2. Create Fiesta
+    const newFiesta: FiestaEnPlanificacion = {
+      ...initialFiestaActualData,
+      id: `fiesta_${Date.now()}`,
+      estado: 'Contratada',
+      presupuestoId: presupuesto.id,
+      configuracion: {
+        ...initialFiestaActualData.configuracion,
+        clienteId: customerId,
+        nombreEvento: `${presupuesto.eventoTipo} de ${lead.name}`,
+        fechaEvento: presupuesto.eventoFecha,
+        nombreLugar: presupuesto.salonFiestas,
+        invitadosEstimados: presupuesto.invitadosCantidad,
+        presupuestoEstimado: presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado,
+      }
+    };
+    
+    // Auto-enable all operational modules
+    newFiesta.modulosContratados = Object.keys(newFiesta.modulosContratados || {}).reduce((acc, key) => {
+      acc[key as keyof typeof acc] = true;
+      return acc;
+    }, {} as any);
+
+    await saveFiesta(newFiesta);
+
+    // 3. Update Budget
+    await updatePresupuesto({ ...presupuesto, estado: 'Aceptado' });
+
+    // 4. Update Lead
+    await moveCrmLead(lead.id, conversionStage.id);
+
+    await createNotification({
+      mensaje: `¡Evento Contratado! ${lead.name} ahora es cliente.`,
+      href: `/fiestas/nueva?fiestaId=${newFiesta.id}`,
+      icono: 'PartyPopper'
+    });
+
+    return { success: true, fiestaId: newFiesta.id, customerId };
+
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
 export async function deleteCrmLead(leadId: string): Promise<{ success: boolean; error?: string }> {
-    let leads = await readData<CrmLead[]>(LEADS_FILE, []); // Read fresh data
+    let leads = await readData<CrmLead[]>(LEADS_FILE, []);
     const initialLength = leads.length;
     leads = leads.filter(lead => lead.id !== leadId);
 
@@ -394,6 +469,3 @@ export async function getCrmKpiData() {
     return { success: false, error: 'Failed to calculate CRM KPIs.' };
   }
 }
-
-  
-    

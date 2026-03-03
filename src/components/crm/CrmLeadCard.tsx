@@ -6,7 +6,7 @@ import { CSS } from '@dnd-kit/utilities';
 import type { CrmLead } from '@/types/crm';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Trash2, GripVertical, FilePlus2, Users, Building2, CalendarDays, Clock, ChevronLeft, ChevronRight, FileText, FileSignature } from 'lucide-react';
+import { Loader2, Trash2, GripVertical, FilePlus2, Users, Building2, CalendarDays, Clock, ChevronLeft, ChevronRight, FileText, FileSignature, CheckCircle } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,9 +28,10 @@ interface CrmLeadCardProps {
   isDeleting: boolean;
   isMobile?: boolean;
   onMove?: (direction: -1 | 1) => void;
+  onHire?: () => void;
 }
 
-export function CrmLeadCard({ lead, onDeleteLead, isDeleting, isMobile, onMove }: CrmLeadCardProps) {
+export function CrmLeadCard({ lead, onDeleteLead, isDeleting, isMobile, onMove, onHire }: CrmLeadCardProps) {
   const {
     attributes,
     listeners,
@@ -79,17 +80,16 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting, isMobile, onMove }
     if (lead.budgetSource === 'manual') {
       return { text: 'Manual', className: 'bg-gray-200 text-gray-800' };
     }
-    // Fallback for older leads that might not have the source property
     if (lead.notes?.toLowerCase().includes('simulador')) {
         return { text: 'Simulador', className: 'bg-blue-100 text-blue-800' };
     }
-    // If there's a budget but no source, assume manual.
     return { text: 'Manual', className: 'bg-gray-200 text-gray-800' };
   }, [lead.presupuestoId, lead.budgetSource, lead.notes]);
 
   const displayNotes = getDisplayNotes(lead.notes);
   const hasBudget = !!lead.presupuestoId;
   const isBudgetFacturado = lead.presupuestoEstado === 'Facturado' && !!lead.invoiceId;
+  const isBudgetAceptado = lead.presupuestoEstado === 'Aceptado';
 
 
   return (
@@ -132,13 +132,20 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting, isMobile, onMove }
             <p className="break-words line-clamp-2 italic text-blue-600">"{displayNotes.content}"</p>
           )}
         </CardContent>
-        <CardFooter className="p-2 border-t flex justify-end items-center gap-1 flex-shrink-0">
+        <CardFooter className="p-2 border-t flex flex-wrap justify-end items-center gap-1 flex-shrink-0">
             {isMobile && onMove && (
               <div className="flex gap-1 mr-auto">
                 <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => onMove(-1)}><ChevronLeft className="w-4 h-4"/></Button>
                 <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => onMove(1)}><ChevronRight className="w-4 h-4"/></Button>
               </div>
             )}
+            
+            {hasBudget && !isBudgetFacturado && !isBudgetAceptado && onHire && (
+              <Button onClick={onHire} variant="default" size="sm" className="h-8 text-xs gap-1.5 bg-green-600 hover:bg-green-700 text-white flex-grow">
+                <CheckCircle className="w-4 h-4"/> Contratar
+              </Button>
+            )}
+
             {isBudgetFacturado ? (
                  <Link href={`/invoices/${lead.invoiceId}`} passHref className="flex-grow">
                     <Button variant="secondary" size="sm" className="h-8 text-xs gap-1.5 w-full bg-green-100 text-green-700 hover:bg-green-200">

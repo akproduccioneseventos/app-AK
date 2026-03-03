@@ -633,6 +633,7 @@ export interface ModulosContratados {
   configuracion: boolean;
   disenoSalon: boolean;
   listaCompras: boolean;
+  portalCliente: boolean;
 }
 
 export interface CompraProveedorEstado {
@@ -641,9 +642,12 @@ export interface CompraProveedorEstado {
     pagado: boolean;
 }
 
+export type FiestaEstado = 'Planificación' | 'Contratada' | 'Finalizada' | 'Cancelada';
+
 export interface FiestaEnPlanificacion {
   id: string;
   configuracion: ConfigEventoDataStorage;
+  estado?: FiestaEstado;
   modulosContratados?: ModulosContratados;
   personalAsignado: PersonalAsignadoDetalleStorage[];
   menuAsignadoId?: string;

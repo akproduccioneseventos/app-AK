@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, type FormEvent, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { Button } from '@/components/ui/button';
@@ -10,10 +10,13 @@ import { ArrowLeft, PlusCircle, Loader2, AlertTriangle, KanbanSquare, Users, Cal
 import { useToast } from '@/hooks/use-toast';
 import type { CrmLead, CrmStage } from '@/types/crm';
 import { getCrmLeads, getCrmStages, moveCrmLead, deleteCrmLead, convertToClientAndMoveProspect, getCrmKpiData } from '@/app/actions/crm';
+import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { CrmStageColumn } from '@/components/crm/CrmStageColumn';
 import { AddLeadDialog } from '@/components/crm/AddLeadDialog';
 import { ConvertToClientDialog } from '@/components/crm/ConvertToClientDialog';
 import { ScheduleMeetingDialog } from '@/components/crm/ScheduleMeetingDialog'; 
+import { BookingConfirmationDialog } from '@/components/crm/BookingConfirmationDialog';
+import { RegisterDepositDialog } from '@/components/crm/RegisterDepositDialog';
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
@@ -61,6 +64,13 @@ export default function CrmPage() {
   const [isMeetingModalOpen, setIsMeetingModalOpen] = useState(false);
   const [leadForMeeting, setLeadForMeeting] = useState<CrmLead | null>(null);
   const [meetingType, setMeetingType] = useState<'Entrevista' | 'Firma de Contrato'>('Entrevista');
+
+  // Booking Flow State
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [leadToBook, setLeadToBook] = useState<CrmLead | null>(null);
+  const [bookingPresupuestoInfo, setBookingPresupuestoInfo] = useState<any>(null);
+  const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
+  const [newFiestaId, setNewFiestaId] = useState<string | null>(null);
   
   const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
 
@@ -101,10 +111,41 @@ export default function CrmPage() {
     fetchData();
   }, [fetchData]);
 
+  const handleHireClick = async (lead: CrmLead) => {
+    if (!lead.presupuestoId) return;
+    try {
+      const pres = await getPresupuestoById(lead.presupuestoId);
+      if (pres) {
+        setBookingPresupuestoInfo({
+          total: pres.totalConDescuento ?? pres.costoTotalEstimado,
+          fecha: pres.eventoFecha,
+          salon: pres.salonFiestas
+        });
+        setLeadToBook(lead);
+        setIsBookingModalOpen(true);
+      }
+    } catch (e) {
+      toast({ title: "Error", description: "No se pudo obtener la información del presupuesto." });
+    }
+  };
+
+  const handleBookingConfirmed = (fiestaId: string) => {
+    setIsBookingModalOpen(false);
+    setNewFiestaId(fiestaId);
+    setIsDepositModalOpen(true);
+  };
+
+  const handleDepositCompleted = () => {
+    setIsDepositModalOpen(false);
+    fetchData();
+    if (newFiestaId) {
+      window.location.href = `/fiestas/nueva?fiestaId=${newFiestaId}`;
+    }
+  };
+
   const handleMeetingSubmit = async (meetingDate: string) => {
     if (!leadForMeeting) return;
 
-    // Optimistically update the moved lead in the UI
     const targetStageId = leadForMeeting.currentStageId;
     setLeads(currentLeads =>
         currentLeads.map(lead =>
@@ -116,13 +157,13 @@ export default function CrmPage() {
       const result = await moveCrmLead(leadForMeeting.id, targetStageId, meetingDate);
       if (result.success) {
         toast({ description: `Reunión agendada para "${leadForMeeting.name}".` });
-        fetchData(); // Full refresh to get all data consistent from server
+        fetchData(); 
       } else {
         throw new Error(result.error);
       }
     } catch(e: any) {
        toast({ title: "Error", description: e.message, variant: "destructive" });
-       fetchData(); // Rollback on error
+       fetchData(); 
     }
     setIsMeetingModalOpen(false);
     setLeadForMeeting(null);
@@ -142,12 +183,11 @@ export default function CrmPage() {
         throw new Error(result.error || "No se pudo mover el prospecto.");
       }
       toast({ description: `Prospecto "${result.lead.name}" movido a "${result.lead.history?.[result.lead.history.length-1]?.stageName || ''}".` });
-      // Update the specific lead in the state to reflect all server-side changes (like notes)
       setLeads(currentLeads => currentLeads.map(l => l.id === leadId ? result.lead! : l));
 
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
-      setLeads(originalLeads); // Rollback on error
+      setLeads(originalLeads); 
     }
   };
 
@@ -170,8 +210,7 @@ export default function CrmPage() {
         return;
       }
       if (targetStage.isConversionStage) {
-        setLeadToConvert(leadToMove);
-        setIsConvertToClientModalOpen(true);
+        handleHireClick(leadToMove);
         return; 
       }
 
@@ -230,7 +269,7 @@ export default function CrmPage() {
     return acc;
   }, {} as Record<string, CrmLead[]>), [stages, leads]);
 
-  if (isLoading && !isConvertToClientModalOpen) {
+  if (isLoading && !isConvertToClientModalOpen && !isBookingModalOpen) {
     return (
       <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)]">
         <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
@@ -239,7 +278,7 @@ export default function CrmPage() {
     );
   }
 
-  if (error && !isConvertToClientModalOpen) {
+  if (error && !isConvertToClientModalOpen && !isBookingModalOpen) {
     return (
       <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)] text-center">
         <AlertTriangle className="w-12 h-12 text-destructive mb-4" />
@@ -332,6 +371,7 @@ export default function CrmPage() {
                               await moveLeadAndUpdate(lead.id, stages[nextStageIndex].id);
                             }
                           }}
+                          onHire={() => handleHireClick(lead)}
                         />
                        )) : <p className="p-4 text-center text-sm text-muted-foreground">No hay prospectos en esta etapa.</p>}
                     </AccordionContent>
@@ -349,12 +389,33 @@ export default function CrmPage() {
                       leads={leadsByStage[stage.id] || []}
                       onDeleteLead={handleDeleteLead}
                       deletingLeadId={deletingLeadId}
+                      onHire={handleHireClick}
                   />
               ))}
               </div>
               <ScrollBar orientation="horizontal" />
           </ScrollArea>
         )}
+        
+        {leadToBook && bookingPresupuestoInfo && (
+          <BookingConfirmationDialog
+            isOpen={isBookingModalOpen}
+            onOpenChange={setIsBookingModalOpen}
+            lead={leadToBook}
+            presupuesto={bookingPresupuestoInfo}
+            onConfirmed={handleBookingConfirmed}
+          />
+        )}
+
+        {newFiestaId && (
+          <RegisterDepositDialog
+            isOpen={isDepositModalOpen}
+            onOpenChange={setIsDepositModalOpen}
+            fiestaId={newFiestaId}
+            onCompleted={handleDepositCompleted}
+          />
+        )}
+
         {leadToConvert && (
           <ConvertToClientDialog
             isOpen={isConvertToClientModalOpen}

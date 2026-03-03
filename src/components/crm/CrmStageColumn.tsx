@@ -13,6 +13,7 @@ interface CrmStageColumnProps {
   leads: CrmLead[];
   onDeleteLead: (leadId: string) => Promise<void>;
   deletingLeadId: string | null;
+  onHire: (lead: CrmLead) => void;
 }
 
 export function CrmStageColumn({
@@ -20,6 +21,7 @@ export function CrmStageColumn({
   leads,
   onDeleteLead,
   deletingLeadId,
+  onHire,
 }: CrmStageColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: stage.id,
@@ -47,6 +49,7 @@ export function CrmStageColumn({
                     lead={lead}
                     onDeleteLead={onDeleteLead}
                     isDeleting={deletingLeadId === lead.id}
+                    onHire={() => onHire(lead)}
                 />
                 ))
             ) : (
