@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Loader2, Save, Users, UserCheck, AlertTriangle, Info, Printer, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Loader2, Save, Users, UserCheck, AlertTriangle, Info, Printer, RefreshCw, ClipboardCheck } from 'lucide-react';
 import { getEmpleados } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
 import type { Empleado } from '@/types/empleado';
@@ -19,10 +19,11 @@ import type { PersonalAsignadoDetalleStorage } from '@/types/fiesta';
 import { getFiestaById, updatePersonalFiestaActual } from '@/app/actions/fiesta-actual';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 
 const formatCurrency = (amount: number) => {
   if (isNaN(amount)) return 'N/A';
-  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
+  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 };
 
 interface AssignedStaffUIDetail {
@@ -34,11 +35,18 @@ interface AssignedStaffUIDetail {
   employerContribution: number;
 }
 
+interface RequiredRole {
+  roleName: string;
+  quantity: number;
+  sourceItem: string;
+}
+
 export default function AsignarPersonalEventoPage() {
   const { toast } = useToast();
   const [allEmpleados, setAllEmpleados] = useState<Empleado[]>([]);
   const [allRoles, setAllRoles] = useState<Rol[]>([]);
   const [assignedStaff, setAssignedStaff] = useState<Map<string, AssignedStaffUIDetail>>(new Map());
+  const [requiredRoles, setRequiredRoles] = useState<RequiredRole[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -62,9 +70,44 @@ export default function AsignarPersonalEventoPage() {
       setAllEmpleados(empleadosData);
       setAllRoles(rolesData);
 
+      // Detect Required Roles from Budget
+      if (presupuestoData) {
+        const requirements: RequiredRole[] = [];
+        presupuestoData.itemsPresupuestados.forEach(item => {
+          const name = item.nombreServicio.toLowerCase();
+          const cat = (item.categoriaServicio || '').toLowerCase();
+          
+          if (name.includes('discoteca') || cat.includes('discoteca')) {
+            requirements.push({ roleName: 'DJ', quantity: 1, sourceItem: item.nombreServicio });
+          }
+          if (name.includes('decoración') || name.includes('ambientación') || cat.includes('decoración')) {
+            requirements.push({ roleName: 'Decoradora', quantity: 1, sourceItem: item.nombreServicio });
+            requirements.push({ roleName: 'Ayudante de Decoración', quantity: 1, sourceItem: item.nombreServicio });
+          }
+          if (name.includes('mozo')) {
+            requirements.push({ roleName: 'Mozo', quantity: item.cantidad, sourceItem: item.nombreServicio });
+          }
+          if (name.includes('asado') || name.includes('asador')) {
+            requirements.push({ roleName: 'Asador', quantity: 1, sourceItem: item.nombreServicio });
+          }
+          if (cat.includes('fotografía')) {
+            requirements.push({ roleName: 'Fotógrafo', quantity: 1, sourceItem: item.nombreServicio });
+          }
+          if (cat.includes('filmación') || name.includes('video')) {
+            requirements.push({ roleName: 'Camarógrafo / Videógrafo', quantity: 1, sourceItem: item.nombreServicio });
+          }
+          if (name.includes('cocina') || name.includes('chef')) {
+            requirements.push({ roleName: 'Cocinero/Cheff', quantity: item.cantidad, sourceItem: item.nombreServicio });
+          }
+          if (name.includes('portero') || name.includes('seguridad')) {
+            requirements.push({ roleName: 'Personal de Seguridad / Portero', quantity: item.cantidad, sourceItem: item.nombreServicio });
+          }
+        });
+        setRequiredRoles(requirements);
+      }
+
       const initialAssignedMap = new Map<string, AssignedStaffUIDetail>();
       
-      // 1. Cargar asignaciones ya guardadas
       if (fiestaActual.personalAsignado && fiestaActual.personalAsignado.length > 0) {
         fiestaActual.personalAsignado.forEach(assigned => {
           const empleadoDetail = empleadosData.find(e => e.id === assigned.empleadoId);
@@ -82,20 +125,6 @@ export default function AsignarPersonalEventoPage() {
             });
           }
         });
-      } 
-      // 2. Si no hay asignaciones, intentar sugerir desde el presupuesto
-      else if (presupuestoData) {
-          const personalItems = presupuestoData.itemsPresupuestados.filter(item => 
-            item.categoriaServicio?.toLowerCase().includes('personal') ||
-            item.nombreServicio.toLowerCase().includes('mozo') ||
-            item.nombreServicio.toLowerCase().includes('asador') ||
-            item.nombreServicio.toLowerCase().includes('chef') ||
-            item.nombreServicio.toLowerCase().includes('coordinador')
-          );
-
-          if (personalItems.length > 0) {
-              toast({ title: "Sugerencia de Personal", description: "Se detectaron servicios de personal en el presupuesto. Asigna a los empleados correspondientes."});
-          }
       }
 
       setAssignedStaff(initialAssignedMap);
@@ -203,26 +232,6 @@ export default function AsignarPersonalEventoPage() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-10">
-        <Loader2 className="w-10 h-10 animate-spin text-primary" />
-        <p className="ml-3 text-muted-foreground">Cargando datos...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="py-10 text-center text-destructive">
-        <AlertTriangle className="w-12 h-12 mx-auto mb-3" />
-        <p className="font-semibold">Error al Cargar Datos</p>
-        <p className="text-sm">{error}</p>
-        <Button onClick={() => fetchInitialData()} className="mt-4">Reintentar</Button>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -240,116 +249,124 @@ export default function AsignarPersonalEventoPage() {
         </Link>
       </div>
 
+      {requiredRoles.length > 0 && (
+        <Card className="border-primary/20 bg-primary/5">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg font-headline flex items-center gap-2">
+              <ClipboardCheck className="w-5 h-5 text-primary" /> Personal Requerido según Presupuesto
+            </CardTitle>
+            <CardDescription>Roles detectados automáticamente para este evento.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-2">
+              {requiredRoles.map((req, idx) => (
+                <Badge key={idx} variant="secondary" className="px-3 py-1 bg-white border-primary/20 text-primary">
+                  {req.quantity}x {req.roleName}
+                </Badge>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <Card className="shadow-lg">
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle className="font-headline">Seleccionar Personal</CardTitle>
             <CardDescription>
-                Asigna un empleado a cada rol contratado en el presupuesto.
+                Asigna un empleado a cada rol contratado. Luego define su pago final para el evento.
             </CardDescription>
           </div>
           <Button variant="ghost" size="sm" onClick={() => fetchInitialData(true)}>
-              <RefreshCw className="w-4 h-4 mr-2"/> Sincronizar con Presupuesto
+              <RefreshCw className="w-4 h-4 mr-2"/> Sincronizar
           </Button>
         </CardHeader>
         <CardContent>
-          {allEmpleados.length === 0 ? (
-            <div className="py-10 text-center">
-              <Info className="w-16 h-16 mx-auto text-muted-foreground/50 mb-4" />
-              <p className="text-muted-foreground text-lg">No hay personal registrado en el sistema.</p>
-              <Link href="/empleados/nuevo" passHref>
-                <Button className="mt-6">Añadir Empleado</Button>
-              </Link>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nombre</TableHead>
-                    <TableHead>Rol en el Evento</TableHead>
-                    <TableHead className="text-right">Pago Evento (UYU)</TableHead>
-                    <TableHead className="text-right">Aportes Patronales</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {allEmpleados.map((empleado) => {
-                    const assignedDetail = assignedStaff.get(empleado.id);
-                    const isAssigned = !!assignedDetail;
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nombre</TableHead>
+                  <TableHead>Rol en el Evento</TableHead>
+                  <TableHead className="text-right">Pago Evento (UYU)</TableHead>
+                  <TableHead className="text-right">Aportes Patronales</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {allEmpleados.map((empleado) => {
+                  const assignedDetail = assignedStaff.get(empleado.id);
+                  const isAssigned = !!assignedDetail;
 
-                    return (
-                      <TableRow key={empleado.id} className={isAssigned ? 'bg-primary/5' : ''}>
-                        <TableCell className="font-medium min-w-[180px]">{empleado.nombre}</TableCell>
-                        <TableCell className="min-w-[200px]">
-                           <Select 
-                            value={assignedDetail?.rolId || 'ninguno'}
-                            onValueChange={(value) => handleAssignmentChange(empleado, value)}
-                            disabled={!empleado.rolIds || empleado.rolIds.length === 0}
-                           >
-                            <SelectTrigger className="text-xs h-9">
-                                <SelectValue placeholder="No Asignado" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="ninguno">No Asignado</SelectItem>
-                                {empleado.rolIds?.map(rolId => {
-                                    const rol = allRoles.find(r => r.id === rolId);
-                                    return rol ? <SelectItem key={rolId} value={rolId}>{rol.nombre}</SelectItem> : null
-                                })}
-                            </SelectContent>
-                           </Select>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {isAssigned ? (
-                            <Input
-                              type="number"
-                              value={assignedDetail.eventSalary ?? ''}
-                              onChange={(e) => handleEventSalaryChange(empleado.id, e.target.value)}
-                              onBlur={() => handleEventSalaryBlur(empleado.id)}
-                              placeholder="Pago evento"
-                              className="text-right h-9 max-w-[120px] ml-auto"
-                              min="0"
-                              step="any"
-                            />
-                          ) : (
-                            <span className="text-muted-foreground">-</span>
-                          )}
-                        </TableCell>
-                         <TableCell className="text-right min-w-[140px] font-mono">
-                           {isAssigned ? formatCurrency(assignedDetail.employerContribution ?? 0) : '-'}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
-          )}
+                  return (
+                    <TableRow key={empleado.id} className={isAssigned ? 'bg-primary/5' : ''}>
+                      <TableCell className="font-medium min-w-[180px]">{empleado.nombre}</TableCell>
+                      <TableCell className="min-w-[200px]">
+                         <Select 
+                          value={assignedDetail?.rolId || 'ninguno'}
+                          onValueChange={(value) => handleAssignmentChange(empleado, value)}
+                          disabled={!empleado.rolIds || empleado.rolIds.length === 0}
+                         >
+                          <SelectTrigger className="text-xs h-9">
+                              <SelectValue placeholder="No Asignado" />
+                          </SelectTrigger>
+                          <SelectContent>
+                              <SelectItem value="ninguno">No Asignado</SelectItem>
+                              {empleado.rolIds?.map(rolId => {
+                                  const rol = allRoles.find(r => r.id === rolId);
+                                  return rol ? <SelectItem key={rolId} value={rolId}>{rol.nombre}</SelectItem> : null
+                              })}
+                          </SelectContent>
+                         </Select>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {isAssigned ? (
+                          <Input
+                            type="number"
+                            value={assignedDetail.eventSalary ?? ''}
+                            onChange={(e) => handleEventSalaryChange(empleado.id, e.target.value)}
+                            onBlur={() => handleEventSalaryBlur(empleado.id)}
+                            placeholder="Pago evento"
+                            className="text-right h-9 max-w-[120px] ml-auto"
+                            min="0"
+                            step="any"
+                          />
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
+                      </TableCell>
+                       <TableCell className="text-right min-w-[140px] font-mono">
+                         {isAssigned ? formatCurrency(assignedDetail.employerContribution ?? 0) : '-'}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 
-      {allEmpleados.length > 0 && (
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="font-headline">Resumen de Costos de Personal</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex justify-between items-center"><span className="text-muted-foreground">Total de Personal Asignado:</span><span className="font-semibold text-lg">{totalAssignedCount}</span></div>
-            <div className="flex justify-between items-center border-t pt-3 mt-2"><span className="font-bold text-primary">COSTO TOTAL ESTIMADO:</span><span className="font-bold text-lg text-primary">{formatCurrency(totalEventCost)}</span></div>
-          </CardContent>
-          <CardFooter className="border-t pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
-            <Button onClick={handleSaveChanges} disabled={isSaving} className="w-full sm:w-auto">
-              {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Save className="w-5 h-5 mr-2" />}
-              {isSaving ? 'Guardando...' : 'Guardar Asignaciones'}
-            </Button>
-            <Link href={`/fiestas/nueva/personal/recibos?fiestaId=${new URLSearchParams(window.location.search).get('fiestaId')}`} passHref>
-                <Button variant="secondary" className="w-full sm:w-auto">
-                    <Printer className="w-5 h-5 mr-2" />
-                    Generar Recibos de Pago
-                </Button>
-            </Link>
-          </CardFooter>
-        </Card>
-      )}
+      <Card className="shadow-lg">
+        <CardHeader>
+          <CardTitle className="font-headline">Resumen de Costos de Personal</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex justify-between items-center"><span className="text-muted-foreground">Total de Personal Asignado:</span><span className="font-semibold text-lg">{totalAssignedCount}</span></div>
+          <div className="flex justify-between items-center border-t pt-3 mt-2"><span className="font-bold text-primary">COSTO TOTAL ESTIMADO:</span><span className="font-bold text-lg text-primary">{formatCurrency(totalEventCost)}</span></div>
+        </CardContent>
+        <CardFooter className="border-t pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
+          <Button onClick={handleSaveChanges} disabled={isSaving} className="w-full sm:w-auto" size="lg">
+            {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Save className="w-5 h-5 mr-2" />}
+            {isSaving ? 'Guardando...' : 'Guardar Asignaciones'}
+          </Button>
+          <Link href={`/fiestas/nueva/personal/recibos?fiestaId=${new URLSearchParams(window.location.search).get('fiestaId')}`} passHref>
+              <Button variant="secondary" className="w-full sm:w-auto" size="lg">
+                  <Printer className="w-5 h-5 mr-2" />
+                  Generar Recibos
+              </Button>
+          </Link>
+        </CardFooter>
+      </Card>
     </div>
   );
 }
