@@ -1,8 +1,7 @@
 
-
 'use client';
 
-import { Suspense, useEffect, useState, useCallback, use } from 'react';
+import { Suspense, useEffect, useState, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -30,7 +29,6 @@ function EventoPublicoPageContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // New state for RSVP success
   const [rsvpSuccess, setRsvpSuccess] = useState(false);
   const [confirmedGuest, setConfirmedGuest] = useState<Invitado | null>(null);
   
@@ -57,7 +55,7 @@ function EventoPublicoPageContent() {
 
     } catch (err: any) {
       console.error("Error loading event data for public page:", err);
-      setError("No se pudo cargar la información del evento. Por favor, intenta más tarde.");
+      setError("No se pudo cargar la información del evento.");
     } finally {
       setIsLoading(false);
     }
@@ -106,8 +104,8 @@ function EventoPublicoPageContent() {
       socialConnections,
       isPreview: false,
       onRsvpSubmit,
-      onSectionClick: () => {}, // No-op for public view
-      onUpdate: () => {}, // No-op for public view
+      onSectionClick: () => {}, 
+      onUpdate: () => {}, 
       selectedSectionId: null,
     };
 
@@ -117,47 +115,50 @@ function EventoPublicoPageContent() {
       case 'Allegria':
          return <AllegriaTemplate {...props} />;
       default:
-        return <GraziaTemplate {...props} />; // Fallback
+        return <GraziaTemplate {...props} />;
     }
   }
 
   if (isLoading) {
-    return <div className="flex flex-col items-center justify-center min-h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="text-lg mt-4">Cargando detalles del evento...</p></div>;
+    return <div className="flex flex-col items-center justify-center min-h-screen bg-white"><Loader2 className="w-16 h-16 animate-spin text-primary" /><p className="text-xl font-headline mt-6 tracking-widest text-primary animate-pulse uppercase">Preparando tu invitación...</p></div>;
   }
 
   if (error || !fiesta) {
-    return <div className="flex flex-col items-center justify-center min-h-screen text-center"><p>{error || "No se pudo encontrar el evento."}</p></div>;
+    return <div className="flex flex-col items-center justify-center min-h-screen text-center p-6"><AlertTriangle className="w-12 h-12 text-destructive mb-4"/><p className="text-xl font-headline">{error || "No se pudo encontrar el evento."}</p></div>;
   }
   
   if (rsvpSuccess && confirmedGuest) {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
     const qrValue = `${baseUrl}/evento/actual/checkin?fiestaId=${fiesta.id}&guestId=${confirmedGuest.id}`;
     return (
-       <div className="min-h-screen bg-gradient-to-br from-green-50 to-background flex flex-col items-center justify-center p-4">
-        <Card className="w-full max-w-md shadow-2xl border-t-4 border-green-500 animate-in fade-in-50 zoom-in-95">
-          <CardHeader className="text-center pb-4">
-            <CheckCircle className="w-20 h-20 mx-auto text-green-500 mb-4" />
-            <CardTitle className="text-3xl font-bold font-headline text-green-700">
-              ¡Confirmación Recibida!
+       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
+        <Card className="w-full max-w-md shadow-3xl border-none rounded-[3rem] overflow-hidden animate-in fade-in zoom-in duration-700">
+          <CardHeader className="text-center pb-4 pt-12">
+            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", damping: 12 }}>
+                <CheckCircle className="w-20 h-20 mx-auto text-green-500 mb-6" />
+            </motion.div>
+            <CardTitle className="text-4xl font-headline text-slate-900 mb-2">
+              ¡Te esperamos!
             </CardTitle>
-            <CardDescription className="text-lg text-muted-foreground">¡Gracias por confirmar, {confirmedGuest.nombre}!</CardDescription>
+            <CardDescription className="text-lg">Gracias por confirmar, {confirmedGuest.nombre}.</CardDescription>
           </CardHeader>
-          <CardContent className="text-center space-y-4 py-8">
-             <h3 className="font-semibold text-lg">Tu Entrada Digital</h3>
-             <p className="text-sm text-muted-foreground">Presenta este código QR en la entrada del evento para el check-in.</p>
-             <div className="p-4 bg-white rounded-lg border inline-block">
-                <QRCodeStylized id="qr-code-invitado" value={qrValue} size={180} level="M" />
+          <CardContent className="text-center space-y-8 py-8 px-10">
+             <div className="p-8 bg-white rounded-[2rem] shadow-inner border border-slate-100 inline-block">
+                <QRCodeStylized id="qr-code-invitado" value={qrValue} size={200} level="H" />
              </div>
-             <p className="text-lg font-bold flex items-center justify-center gap-2">
-                <Ticket className="w-5 h-5 text-primary"/>
-                Válido para {confirmedGuest.partySize || 1} persona(s)
-             </p>
+             <div className="space-y-2">
+                <p className="text-xs font-bold uppercase tracking-[0.3em] text-slate-400">Tu pase digital</p>
+                <p className="text-xl font-bold flex items-center justify-center gap-3 text-slate-800">
+                    <Ticket className="w-6 h-6 text-primary"/>
+                    {confirmedGuest.partySize || 1} PERSONA(S)
+                </p>
+             </div>
           </CardContent>
-          <CardFooter className="flex-col gap-3 py-4">
-             <Button onClick={downloadQR} className="w-full">
-                <Download className="w-4 h-4 mr-2"/>Descargar Código QR
+          <CardFooter className="flex-col gap-4 pb-12 px-10">
+             <Button onClick={downloadQR} size="lg" className="w-full h-16 rounded-2xl text-lg font-bold shadow-xl shadow-primary/20">
+                <Download className="w-5 h-5 mr-3"/>GUARDAR EN GALERÍA
             </Button>
-            <p className="text-xs text-muted-foreground pt-2">¡Te esperamos para celebrar juntos!</p>
+            <p className="text-xs text-slate-400 text-center uppercase tracking-widest leading-loose">Presenta este código en la entrada<br/>del evento para tu ingreso.</p>
           </CardFooter>
         </Card>
       </div>
@@ -167,14 +168,9 @@ function EventoPublicoPageContent() {
   return renderTemplate();
 }
 
-
 export default function EventoPublicoPage() {
     return (
-        <Suspense fallback={
-            <div className="flex flex-col items-center justify-center min-h-screen">
-                <Loader2 className="w-12 h-12 animate-spin text-primary" />
-            </div>
-        }>
+        <Suspense fallback={null}>
             <EventoPublicoPageContent />
         </Suspense>
     )

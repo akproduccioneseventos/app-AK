@@ -8,11 +8,10 @@ import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
 import { CountdownTimer } from '@/components/countdown-timer';
 import { Separator } from '@/components/ui/separator';
-import { Church, GlassWater, Gift, MapPin } from 'lucide-react';
+import { Church, GlassWater, Gift, MapPin, Calendar, Heart, PartyPopper } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import { motion } from "framer-motion";
 import type { DetalleEventoEspecifico } from '@/types/fiesta';
-
 
 interface TemplateProps {
   fiesta: FiestaEnPlanificacion;
@@ -22,145 +21,144 @@ interface TemplateProps {
   onSectionClick?: (sectionId: string) => void;
   onUpdate?: (newData: Partial<InvitacionDigitalData>) => void;
   selectedSectionId?: string | null;
-  children?: React.ReactNode; 
 }
 
-const Section: React.FC<{ id: string, onClick?: () => void, isSelected?: boolean, className?: string, children: React.ReactNode }> = 
-({ id, onClick, isSelected, className, children }) => (
-    <section id={id} onClick={onClick} className={cn("relative py-16 px-6 text-center", className, onClick && "cursor-pointer")}>
-        {onClick && <div className={cn("absolute inset-0 border-2 transition-all pointer-events-none", isSelected ? 'border-primary' : 'border-transparent')}></div>}
-        {children}
-    </section>
-);
-
-
-const AllegriaDetalles: React.FC<{ data: InvitacionDigitalData['detallesEvento'], fiesta: FiestaEnPlanificacion, paleta: ColorPalette, onUpdate?: (newData: Partial<InvitacionDigitalData>) => void }> = ({ data, fiesta, paleta, onUpdate }) => {
-  
-  const detallesAMostrar = [
-    data.ceremoniaReligiosa,
-    data.ceremoniaCivil,
-    data.celebracion
-  ].filter(d => d && d.visible);
-
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return null;
-    try {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
-    } catch(e) { return "Fecha inválida"; }
-  };
-  
-  const renderDetalle = (detalle: DetalleEventoEspecifico) => {
-    if (!detalle || !detalle.visible) return null;
-    
-    const mapUrl = detalle.mapaUrl || (detalle.nombreLugar ? `https://www.google.com/maps?q=${encodeURIComponent(detalle.nombreLugar)}` : '#');
-
-    return (
-      <div key={detalle.titulo} className="max-w-md mx-auto text-center mb-12 last:mb-0">
-        <h3 className="font-headline text-3xl mb-4" style={{color: paleta.primary}}>{detalle.titulo}</h3>
-        {detalle.imagenUrl && (
-          <div className="relative aspect-video w-full rounded-lg overflow-hidden shadow-lg mb-6">
-            <NextImage src={detalle.imagenUrl} alt={`Foto de ${detalle.nombreLugar}`} layout="fill" objectFit="cover" />
-          </div>
-        )}
-        <div className="text-lg space-y-1">
-          {detalle.fecha && <p className="font-semibold">{formatDate(detalle.fecha)}</p>}
-          {detalle.hora && <p className="text-muted-foreground">{detalle.hora} hs.</p>}
-          {detalle.nombreLugar && <p className="text-xl font-semibold mt-1" style={{color: paleta.accent}}>{detalle.nombreLugar}</p>}
-          {detalle.direccionLugar && <p className="text-sm text-muted-foreground">{detalle.direccionLugar}</p>}
-        </div>
-        {(detalle.mapaUrl || detalle.nombreLugar) && (
-          <Button asChild variant="link" className="mt-4 text-lg" style={{color: paleta.primary}}>
-            <a href={mapUrl} target="_blank" rel="noopener noreferrer">
-              <MapPin className="w-5 h-5 mr-2"/> Ver en Mapa
-            </a>
-          </Button>
-        )}
-      </div>
-    );
-  };
-
-  return (
-    <div>
-        {detallesAMostrar.length > 0 ? (
-          detallesAMostrar.map(renderDetalle)
-        ) : (
-          <p className="text-muted-foreground italic">Los detalles del evento no están configurados.</p>
-        )}
-    </div>
-  );
-};
-
 export const AllegriaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData, onUpdate, onSectionClick, selectedSectionId, isPreview }) => {
-    
     const paleta = invitacionData.cabecera.paletaColores;
-
-    const handleUpdateCabecera = (field: keyof InvitacionDigitalData['cabecera'], value: string) => {
-        onUpdate?.({ cabecera: { ...invitacionData.cabecera, [field]: value } });
-    };
+    const primaryColor = paleta?.primary || '#E11D48';
 
     const formatDate = (dateString?: string) => {
-        if (!dateString) return "Fecha a confirmar";
-        return new Date(dateString).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+        if (!dateString) return "PRÓXIMAMENTE";
+        return new Date(dateString).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
     };
 
     return (
-        <div className={cn("font-body", isPreview && "h-full overflow-y-auto")}>
-            <style jsx global>{`
-                :root {
-                    --allegria-primary: ${paleta?.primary || '#333333'};
-                    --allegria-text: ${paleta?.secondary || '#555555'};
-                }
-            `}</style>
+        <div className={cn("font-body text-slate-900 bg-white selection:bg-primary/10", isPreview && "h-full overflow-y-auto")}>
+            {/* HERO - Full Screen Experience */}
+            <section 
+                onClick={() => onSectionClick?.('cabecera')}
+                className="relative h-screen flex flex-col items-center justify-end pb-24 overflow-hidden"
+            >
+                <motion.div 
+                    initial={{ scale: 1.1 }}
+                    animate={{ scale: 1 }}
+                    transition={{ duration: 10, ease: "linear" }}
+                    className="absolute inset-0 -z-10"
+                >
+                    <NextImage 
+                        src={invitacionData.cabecera.imagenFondoUrl || 'https://picsum.photos/seed/celebration/1200/1600'} 
+                        alt="" layout="fill" objectFit="cover" 
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/80"></div>
+                </motion.div>
 
-            {/* Cabecera */}
-            <Section id="cabecera" onClick={() => onSectionClick?.('cabecera')} isSelected={selectedSectionId === 'cabecera'} className="min-h-[60vh] flex flex-col items-center justify-center bg-gray-100 p-8">
-                 <div className="absolute inset-0">
-                    {invitacionData.cabecera.imagenFondoUrl ? (
-                         <NextImage src={invitacionData.cabecera.imagenFondoUrl} alt="Fondo de la invitación" layout="fill" objectFit="cover" className="opacity-50" />
-                    ): (
-                        <div className="w-full h-full bg-gray-200"></div>
+                <div className="text-center text-white space-y-6 px-6">
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                        <span className="text-sm font-bold tracking-[0.5em] uppercase opacity-80">{invitacionData.cabecera.subtitulo.text}</span>
+                    </motion.div>
+                    <motion.h1 initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 }} className="text-6xl md:text-8xl font-headline font-bold">
+                        {invitacionData.cabecera.protagonista1}
+                        <br /><span style={{ color: primaryColor }}>&</span><br />
+                        {invitacionData.cabecera.protagonista2}
+                    </motion.h1>
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }} className="flex items-center justify-center gap-4 text-xl">
+                        <Separator className="w-12 bg-white/30" />
+                        <span className="font-bold tracking-widest">{formatDate(fiesta.configuracion.fechaEvento)}</span>
+                        <Separator className="w-12 bg-white/30" />
+                    </motion.div>
+                </div>
+                
+                {isPreview && selectedSectionId === 'cabecera' && <div className="absolute inset-0 border-8 border-primary z-50 pointer-events-none"></div>}
+            </section>
+
+            {/* COUNTDOWN BOLD */}
+            <section className="py-20 bg-slate-900 text-white overflow-hidden">
+                <div className="max-w-4xl mx-auto px-6 text-center space-y-12">
+                    <h2 className="text-xl font-bold tracking-[0.3em] uppercase opacity-50">Comienza el conteo</h2>
+                    <CountdownTimer targetDate={fiesta.configuracion.fechaEvento} />
+                </div>
+            </section>
+
+            {/* WELCOME SECTION */}
+            <section className="py-32 px-6">
+                <div className="max-w-2xl mx-auto text-center space-y-8">
+                    <Heart className="w-12 h-12 mx-auto text-primary animate-pulse" fill={primaryColor} />
+                    <h2 className="text-5xl font-headline font-bold leading-tight">{invitacionData.bienvenida.titulo.text}</h2>
+                    <p className="text-xl text-slate-600 leading-relaxed italic">
+                        "{invitacionData.bienvenida.texto.text}"
+                    </p>
+                </div>
+            </section>
+
+            {/* LOCATIONS - GRID LAYOUT */}
+            <section className="py-32 bg-slate-50 px-6">
+                <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16">
+                    {/* Location Item */}
+                    {[invitacionData.detallesEvento.ceremoniaReligiosa, invitacionData.detallesEvento.celebracion].filter(d => d.visible).map((detalle, i) => (
+                        <motion.div 
+                            key={i}
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            className="bg-white rounded-[2rem] overflow-hidden shadow-2xl shadow-slate-200/50 flex flex-col"
+                        >
+                            <div className="relative aspect-video">
+                                <NextImage src={detalle.imagenUrl || 'https://picsum.photos/seed/location/800/600'} alt="" layout="fill" objectFit="cover" />
+                                <div className="absolute top-6 right-6 bg-white/90 backdrop-blur p-4 rounded-full">
+                                    {i === 0 ? <Church className="text-primary" /> : <PartyPopper className="text-primary" />}
+                                </div>
+                            </div>
+                            <div className="p-12 space-y-6">
+                                <h3 className="text-3xl font-headline font-bold">{detalle.titulo}</h3>
+                                <div className="space-y-4 text-lg">
+                                    <div className="flex items-center gap-4 text-slate-500">
+                                        <Calendar className="w-5 h-5 text-primary" />
+                                        <span>{formatDate(detalle.fecha)}</span>
+                                    </div>
+                                    <div className="flex items-center gap-4 text-slate-500">
+                                        <MapPin className="w-5 h-5 text-primary" />
+                                        <span>{detalle.nombreLugar}</span>
+                                    </div>
+                                </div>
+                                <Button className="w-full h-16 rounded-2xl text-lg font-bold" style={{ backgroundColor: primaryColor }}>
+                                    VER UBICACIÓN
+                                </Button>
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
+            </section>
+
+            {/* GIFT SECTION */}
+            <section className="py-32 px-6 text-center space-y-12">
+                <div className="max-w-xl mx-auto space-y-6">
+                    <div className="inline-block p-6 bg-primary/10 rounded-full mb-4">
+                        <Gift className="w-10 h-10" style={{ color: primaryColor }} />
+                    </div>
+                    <h2 className="text-5xl font-headline font-bold">{invitacionData.regalos.titulo.text}</h2>
+                    <p className="text-xl text-slate-600 leading-relaxed">
+                        {invitacionData.regalos.texto.text}
+                    </p>
+                    {invitacionData.regalos.datosBancarios && (
+                        <div className="p-10 border-2 border-dashed border-slate-200 rounded-[2rem] bg-slate-50">
+                            <p className="font-mono text-2xl tracking-tighter font-bold text-slate-800 break-all">
+                                {invitacionData.regalos.datosBancarios}
+                            </p>
+                        </div>
                     )}
-                 </div>
-                 <div className="relative z-10 text-center">
-                    <h1 className="font-headline text-5xl md:text-7xl font-bold" style={{color: 'var(--allegria-primary)'}}>
-                         <EditableText initialValue={invitacionData.cabecera.protagonista1 || "Protagonista 1"} onSave={(val) => handleUpdateCabecera('protagonista1', val)} textarea={false}/>
-                         <span className="mx-2">&</span>
-                         <EditableText initialValue={invitacionData.cabecera.protagonista2 || "Protagonista 2"} onSave={(val) => handleUpdateCabecera('protagonista2', val)} textarea={false}/>
-                    </h1>
-                     <p className="mt-4 text-lg" style={{color: 'var(--allegria-text)'}}>{formatDate(fiesta.configuracion.fechaEvento)}</p>
-                 </div>
-            </Section>
+                </div>
+            </section>
 
-            {/* Cuenta Regresiva */}
-            <Section id="cuentaRegresiva" onClick={() => onSectionClick?.('cuentaRegresiva')} isSelected={selectedSectionId === 'cuentaRegresiva'}>
-                <h2 className="font-headline text-3xl mb-6" style={{color: 'var(--allegria-primary)'}}>Faltan</h2>
-                <CountdownTimer targetDate={fiesta.configuracion.fechaEvento} />
-            </Section>
-            
-            <Separator />
-
-            {/* Detalles Evento */}
-            <Section id="detallesEvento" onClick={() => onSectionClick?.('detallesEvento')} isSelected={selectedSectionId === 'detallesEvento'}>
-                 <AllegriaDetalles data={invitacionData.detallesEvento} fiesta={fiesta} paleta={paleta} onUpdate={onUpdate} />
-            </Section>
-
-            <Separator />
-            
-             {/* Regalos */}
-            <Section id="regalos" onClick={() => onSectionClick?.('regalos')} isSelected={selectedSectionId === 'regalos'}>
-                 <Gift className="mx-auto w-12 h-12 mb-3" style={{color: 'var(--allegria-primary)'}}/>
-                 <h2 className="font-headline text-3xl mb-4" style={{color: 'var(--allegria-primary)'}}>Regalos</h2>
-                 <p className="max-w-prose mx-auto text-muted-foreground mb-4">
-                     {invitacionData.regalos.texto.text}
-                 </p>
-                 {invitacionData.regalos.datosBancarios && (
-                     <div className="p-4 bg-muted/50 rounded-md inline-block">
-                         <p className="font-mono text-sm">{invitacionData.regalos.datosBancarios}</p>
-                     </div>
-                 )}
-            </Section>
-
+            {/* FOOTER */}
+            <footer className="py-24 bg-slate-900 text-white text-center px-6">
+                <h2 className="text-6xl font-dancing mb-8" style={{ color: primaryColor }}>
+                    {invitacionData.footer.titulo.text}
+                </h2>
+                <div className="w-16 h-1 bg-white/20 mx-auto mb-8 rounded-full"></div>
+                <p className="text-sm font-bold tracking-[0.4em] uppercase opacity-40">
+                    {invitacionData.footer.nombreEmpresa.text}
+                </p>
+            </footer>
         </div>
     );
 };
