@@ -1,4 +1,3 @@
-
 'use server';
 
 import {
@@ -29,8 +28,8 @@ import { updatePrograma } from './fiesta/itinerario.actions';
 import { updatePersonal } from './fiesta/personal.actions';
 import { updateClientChecklist, updateClientNotes, updatePortalSettings } from './fiesta/portal.actions';
 import { updateMusica, saveSugerenciaMusical } from './fiesta/musica.actions';
-import { updateReposteria as updateReposteriaForFiesta } from './reposteria.actions';
-import { updateBebidas as updateBebidasForFiesta } from './bebidas.actions';
+import { updateReposteria as updateReposteriaForFiesta } from './fiesta/reposteria.actions';
+import { updateBebidas as updateBebidasForFiesta } from './fiesta/bebidas.actions';
 import { updateListaDeCargaOperativa } from './fiesta/carga-operativa.actions';
 import { updateGestionCostos } from './fiesta/costos.actions';
 import { updateFotografiaYFilmacion as updateFotografiaYFilmacionFromModule } from './fiesta/fotografia.actions';

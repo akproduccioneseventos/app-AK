@@ -1,16 +1,15 @@
-
 'use client';
 
-import React, { useState, useEffect, useCallback, use } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, UploadCloud, FileText, Loader2, AlertTriangle, Archive, FileSignature, FileUp, ListChecks, Download, FileX, FileArchive } from 'lucide-react';
+import { ArrowLeft, UploadCloud, FileText, Loader2, Archive, FileSignature, FileArchive, FileX, Download, ListChecks } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import type { FiestaEnPlanificacion, OtroDocumento, DocumentoTipo } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, DocumentoTipo } from '@/types/fiesta';
 import { getFiestaById, uploadDocumentoFiesta, deleteDocumentoFiesta } from '@/app/actions/fiesta-actual';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
@@ -61,7 +60,6 @@ function GestionDocumentalContent() {
     if (file) {
       setFileToUpload(file);
       if (!customName) {
-        // Remove extension for cleaner default name
         setCustomName(file.name.replace(/\.[^/.]+$/, ""));
       }
     }
@@ -105,7 +103,7 @@ function GestionDocumentalContent() {
   const handleDelete = async (docId: string) => {
     if (!fiestaId) return;
     try {
-      const result = await deleteDocumentoFiesta(docId);
+      const result = await deleteDocumentoFiesta(fiestaId, docId);
       if (result.success) {
         toast({ title: "Documento Eliminado" });
         await loadData();
@@ -144,9 +142,8 @@ function GestionDocumentalContent() {
     }
   };
 
-
   if (isLoading || !fiesta) {
-    return <div className="p-8 max-w-3xl mx-auto"><Loader2 className="w-8 h-8 animate-spin"/></div>
+    return <div className="p-8 max-w-3xl mx-auto flex justify-center"><Loader2 className="w-8 h-8 animate-spin" /></div>;
   }
 
   return (
@@ -257,10 +254,8 @@ function GestionDocumentalContent() {
 
 export default function GestionDocumentalPageWrapper() {
     return (
-        <Suspense fallback={<div className="p-8 max-w-3xl mx-auto"><Loader2 className="w-8 h-8 animate-spin"/></div>}>
+        <Suspense fallback={<div className="p-8 max-w-3xl mx-auto flex justify-center"><Loader2 className="w-8 h-8 animate-spin" /></div>}>
             <GestionDocumentalContent />
         </Suspense>
     )
 }
-
-    
