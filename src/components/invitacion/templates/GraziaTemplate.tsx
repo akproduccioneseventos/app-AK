@@ -8,22 +8,66 @@ import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
 import { CountdownTimer } from '@/components/countdown-timer';
 import { Separator } from '@/components/ui/separator';
-import { Church, Building, PartyPopper, Heart, MapPin, Play, Pause, Facebook, Instagram, Music, MessageSquare, Sparkles, Check, ArrowRight, X, Calendar, User, Mail, Grid, Code, Palette as PaletteIcon, Share2, Camera as CameraIcon, ArrowLeft, Clock, Users as UsersIcon, Link as LinkIcon, QrCode, Download, Utensils, GlassWater, CakeSlice, Diamond, PlusCircle, Gift as GiftIcon } from 'lucide-react';
+import { 
+  Church, 
+  Building, 
+  PartyPopper, 
+  Heart, 
+  MapPin, 
+  Play, 
+  Pause, 
+  Facebook, 
+  Instagram, 
+  Music, 
+  MessageSquare, 
+  Sparkles, 
+  Check, 
+  ArrowRight, 
+  X, 
+  Calendar, 
+  User, 
+  Mail, 
+  Grid, 
+  Code, 
+  Palette as PaletteIcon, 
+  Share2, 
+  Camera, 
+  Camera as CameraIcon, 
+  ArrowLeft, 
+  Clock, 
+  Users as UsersIcon, 
+  Link as LinkIcon, 
+  QrCode, 
+  Download, 
+  Utensils, 
+  GlassWater, 
+  CakeSlice, 
+  Diamond, 
+  PlusCircle, 
+  Gift as GiftIcon 
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import type { SocialPlatformName } from '@/types/settings';
 import { motion, AnimatePresence } from "framer-motion";
 import { WatermarkedImage } from '@/components/watermarked-image';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { claimGiftFiestaActual, addGiftToRegistryFiestaActual } from '@/app/actions/fiesta-actual';
 import { Loader2 } from 'lucide-react';
-import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Textarea } from '@/components/ui/textarea';
 import QRCodeStylized from 'qrcode.react';
-import { saveSugerenciaMusicalFiestaActual } from '@/app/actions/fiesta-actual';
+
+interface TemplateProps {
+  fiesta: FiestaEnPlanificacion;
+  invitacionData: InvitacionDigitalData;
+  socialConnections: SocialConnection[];
+  isPreview?: boolean;
+  onSectionClick?: (sectionId: string) => void;
+  onUpdate?: (newData: Partial<InvitacionDigitalData>) => void;
+  onRsvpSubmit?: (submission: any) => Promise<boolean>;
+  selectedSectionId?: string | null;
+}
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no definida";
@@ -80,7 +124,7 @@ const SectionWrapper: React.FC<{
 };
 
 const SectionHeader: React.FC<{ icon: React.ElementType, title: string, subtitle?: string, color: string, style?: TextStyle }> = ({ icon: Icon, title, subtitle, color, style }) => (
-    <div className="mb-12 space-y-4">
+    <div className="mb-12 space-y-4 text-center">
         <motion.div 
             initial={{ scale: 0 }} 
             whileInView={{ scale: 1 }} 
@@ -97,6 +141,44 @@ const SectionHeader: React.FC<{ icon: React.ElementType, title: string, subtitle
     </div>
 );
 
+const GraziaCabecera: React.FC<{ data: any, fiesta: FiestaEnPlanificacion, paleta: ColorPalette, onUpdate?: any, isPreview: boolean }> = ({ data, fiesta, paleta, onUpdate, isPreview }) => {
+    return (
+        <section className="relative h-screen flex flex-col items-center justify-center text-center overflow-hidden">
+            <div className="absolute inset-0 -z-10">
+                {data.videoFondoUrl ? (
+                    <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-40">
+                        <source src={data.videoFondoUrl} type="video/mp4" />
+                    </video>
+                ) : (
+                    <NextImage src={data.imagenFondoUrl || 'https://picsum.photos/seed/bg/1200/800'} alt="" layout="fill" objectFit="cover" className="opacity-40" />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/20 to-background"></div>
+            </div>
+
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1 }} className="space-y-8 px-6">
+                {data.logoUrl && <div className="mb-8"><NextImage src={data.logoUrl} alt="Logo" width={150} height={150} className="mx-auto" /></div>}
+                
+                <div className="space-y-4">
+                    <span className="text-sm font-bold tracking-[0.4em] uppercase text-primary block" style={{ color: paleta.primary }}>{data.subtitulo?.text}</span>
+                    <h1 className="text-6xl md:text-8xl font-headline font-bold text-slate-900 tracking-tighter">
+                        {data.protagonista1}
+                        <br />
+                        <span className="text-primary" style={{ color: paleta.primary }}>&</span>
+                        <br />
+                        {data.protagonista2}
+                    </h1>
+                </div>
+
+                <div className="flex items-center justify-center gap-6 text-xl md:text-2xl font-headline text-slate-600">
+                    <Separator className="w-12 bg-slate-300" />
+                    <span>{formatDate(fiesta.configuracion.fechaEvento)}</span>
+                    <Separator className="w-12 bg-slate-300" />
+                </div>
+            </motion.div>
+        </section>
+    );
+};
+
 export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData, socialConnections, isPreview = false, onSectionClick, onUpdate, onRsvpSubmit, selectedSectionId }) => {
   const { toast } = useToast();
   const paletaColores = invitacionData.cabecera.paletaColores;
@@ -112,11 +194,6 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
   const [companionNames, setCompanionNames] = useState<string[]>([]);
   const [isSubmittingRsvp, setIsSubmittingRsvp] = useState(false);
   const [rsvpMusicSuggestion, setRsvpMusicSuggestion] = useState('');
-  
-  const [isMusicModalOpen, setIsMusicModalOpen] = useState(false);
-  const [musicSuggestion, setMusicSuggestion] = useState('');
-  const [suggesterName, setSuggesterName] = useState('');
-  const [isSubmittingMusic, setIsSubmittingMusic] = useState(false);
 
   useEffect(() => {
     const numCompanions = rsvpGuests > 1 ? rsvpGuests - 1 : 0;
@@ -169,7 +246,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
         return (
           <SectionWrapper {...wrapperProps} className="bg-white">
             <SectionHeader icon={Heart} title={seccion.data.titulo.text} color={primaryColor} style={seccion.data.titulo.style} />
-            <div className="max-w-2xl mx-auto leading-relaxed text-lg text-muted-foreground">
+            <div className="max-w-2xl mx-auto leading-relaxed text-lg text-muted-foreground text-center">
               <EditableText initialValue={seccion.data.texto.text} style={seccion.data.texto.style} onSave={v => onUpdate?.({ bienvenida: { ...seccion.data, texto: { ...seccion.data.texto, text: v } } })} textarea />
             </div>
           </SectionWrapper>
@@ -177,7 +254,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
 
       case 'cuentaRegresiva':
         return (
-          <SectionWrapper {...wrapperProps} className="bg-muted/30">
+          <SectionWrapper {...wrapperProps} className="bg-muted/30 text-center">
             <h3 className="text-sm font-bold uppercase tracking-[0.3em] text-primary mb-8">La espera termina en</h3>
             <CountdownTimer targetDate={fiesta.configuracion.fechaEvento} />
           </SectionWrapper>
@@ -264,7 +341,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
         return (
           <SectionWrapper {...wrapperProps} className="bg-muted/20">
             <SectionHeader icon={GiftIcon} title={seccion.data.titulo.text} color={primaryColor} style={seccion.data.titulo.style} />
-            <p className="max-w-2xl mx-auto mb-12 text-muted-foreground">{seccion.data.texto.text}</p>
+            <p className="max-w-2xl mx-auto mb-12 text-muted-foreground text-center">{seccion.data.texto.text}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {(seccion.data.items || []).map((item: GiftItem) => (
                 <Card key={item.id} className="group border-none shadow-xl rounded-3xl overflow-hidden bg-white/80 backdrop-blur">
@@ -287,7 +364,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
 
       case 'confirmacion':
         return (
-          <SectionWrapper {...wrapperProps} className="bg-primary/5 py-32">
+          <SectionWrapper {...wrapperProps} className="bg-primary/5 py-32 text-center">
             <div className="max-w-xl mx-auto space-y-8">
               <h2 className="text-5xl font-headline" style={{ color: primaryColor }}>¿Nos acompañas?</h2>
               <p className="text-lg">Tu presencia es lo más importante para nosotros. Por favor, confirma antes del {formatDate(fiesta.configuracion.fechaEvento)}.</p>
@@ -304,7 +381,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
 
   return (
     <div className={cn("min-h-screen bg-background font-body selection:bg-primary/20", isPreview && "h-full overflow-y-auto")}>
-      <GraziaCabecera data={invitacionData.cabecera} fiesta={fiesta} paleta={paletaColores} onUpdate={onUpdate} isPreview={isPreview} />
+      <GraziaCabecera data={invitacionData.cabecera} fiesta={fiesta} paleta={paletaColores} isPreview={isPreview} />
       
       <main>
         {invitacionData.secciones.map(seccion => renderSectionComponent(seccion))}
