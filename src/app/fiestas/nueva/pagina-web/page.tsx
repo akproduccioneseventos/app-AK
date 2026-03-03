@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useCallback, Suspense, use } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Loader2, ArrowLeft, Save, Sparkles, PlusCircle, AlertTriangle, GripVertical, Settings2, Eye, LayoutGrid, X, Link as LinkIcon, QrCode, ClipboardCopy, Camera, Gift, CheckCircle, PartyPopper, Download, Ticket, Check } from 'lucide-react';
+import { Loader2, ArrowLeft, Save, Sparkles, PlusCircle, AlertTriangle, GripVertical, Settings2, Eye, LayoutGrid, X, Link as LinkIcon, QrCode, ClipboardCopy, Camera, Gift, CheckCircle, PartyPopper, Download, Ticket, Check, Music } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion, InvitacionDigitalData, SeccionInvitacion } from '@/types/fiesta';
