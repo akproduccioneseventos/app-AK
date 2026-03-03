@@ -10,37 +10,36 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Download, Send, Edit, AlertTriangle, Loader2, PlusCircle, ReceiptText, Banknote, Info, Link as LinkIconLucide, FileText as FileTextIcon, Share2 } from 'lucide-react';
+import { ArrowLeft, Download, Send, Edit, AlertTriangle, Loader2, ReceiptText, Banknote, Info, Printer, Share2, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
 import { StatusBadge } from '@/components/status-badge';
 import type { Invoice as InvoiceType, Payment } from '@/types/invoice';
 import { getInvoiceById, addPaymentToInvoice } from '@/app/actions/invoices';
+import { getPresupuestos } from '@/app/actions/presupuestos';
 import { useToast } from '@/hooks/use-toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import Image from 'next/image';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import type { InvoiceTemplateSettings } from '@/types/settings';
+import { cn } from '@/lib/utils';
 
 const formatCurrency = (amount: number, currency: string = 'UYU') => {
-  if (isNaN(amount)) return 'N/A';
   return new Intl.NumberFormat('es-UY', {
     style: 'currency',
     currency: currency,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(amount);
 };
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "N/A";
   try {
-    return new Date(dateString).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
   } catch (e) { return "Fecha inválida"; }
 };
-
-type NewPaymentFormState = Omit<Payment, 'id' | 'transactionProofUrl'>;
-
 
 export default function ViewInvoicePage({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -51,55 +50,49 @@ export default function ViewInvoicePage({ params }: { params: { id: string } }) 
   const [isLoadingInvoice, setIsLoadingInvoice] = useState(true);
   const [errorInvoice, setErrorInvoice] = useState<string | null>(null);
   const [paymentProofFile, setPaymentProofFile] = useState<File | null>(null);
+  const [ajusteText, setAjusteText] = useState<string | null>(null);
 
-  const [newPayment, setNewPayment] = useState<NewPaymentFormState>({
+  const [newPayment, setNewPayment] = useState<Omit<Payment, 'id' | 'transactionProofUrl'>>({
     paymentDate: new Date().toISOString(),
     amount: 0,
     method: 'Transferencia',
     notes: '',
   });
   const [isAddingPayment, setIsAddingPayment] = useState(false);
-
-  // State for template settings
-  const [companySettings, setCompanySettings] = useState<any>(null);
   const [templateSettings, setTemplateSettings] = useState<InvoiceTemplateSettings | null>(null);
-  
-  const suggestedNote = useMemo(() => {
-    if (!invoice) return '';
-    const paymentNumber = (invoice.payments?.length || 0) + 1;
-    return paymentNumber === 1 ? `Pago ${paymentNumber} - Seña` : `Pago ${paymentNumber} - `;
-  }, [invoice]);
 
   const fetchInvoiceAndSettings = useCallback(async () => {
     if (!invoiceId) return;
     setIsLoadingInvoice(true);
-    setErrorInvoice(null);
     try {
-      const [fetchedInvoice, tmplSettings] = await Promise.all([
+      const [fetchedInvoice, tmplSettings, allBudgets] = await Promise.all([
         getInvoiceById(invoiceId),
-        getInvoiceTemplateSettings()
+        getInvoiceTemplateSettings(),
+        getPresupuestos()
       ]);
       
       if (fetchedInvoice) {
         setInvoice(fetchedInvoice);
-        // Use vendor details from the invoice itself
-        setCompanySettings({
-            companyName: fetchedInvoice.vendorName,
-            companyAddress: fetchedInvoice.vendorAddress,
-            companyTaxId: fetchedInvoice.vendorTaxId,
-            invoiceCustomFooter: fetchedInvoice.notes
-        });
+        
+        // Determinar si hay ajuste anual buscando el presupuesto origen
+        const linkedBudget = allBudgets.find(b => b.invoiceId === fetchedInvoice.id);
+        if (linkedBudget?.ajusteAnualActivo && linkedBudget.eventoFecha) {
+            const anioCreacion = new Date(linkedBudget.timestamp).getFullYear();
+            const anioEvento = new Date(linkedBudget.eventoFecha).getFullYear();
+            if (anioEvento > anioCreacion) {
+                let anos = [];
+                for(let i = anioCreacion + 1; i <= anioEvento; i++) anos.push(i);
+                setAjusteText(`INCLUYE AJUSTE 15% ${anos.join(' Y ')}`);
+            }
+        }
+
         const paymentNumber = (fetchedInvoice.payments?.length || 0) + 1;
-        const initialNote = paymentNumber === 1 ? `Pago ${paymentNumber} - Seña` : `Pago ${paymentNumber} - `;
-        setNewPayment(prev => ({...prev, notes: prev.notes || initialNote}));
-      } else {
-        setErrorInvoice(`Factura con ID ${invoiceId} no encontrada.`);
+        const initialNote = paymentNumber === 1 ? `Seña - Entrega 1` : `Entrega ${paymentNumber}`;
+        setNewPayment(prev => ({...prev, notes: initialNote}));
       }
       setTemplateSettings(tmplSettings);
-
     } catch (error: any) {
-      console.error("Error fetching invoice or settings:", error);
-      setErrorInvoice(error.message || "No se pudo cargar la factura o su configuración.");
+      setErrorInvoice(error.message || "Error al cargar los datos.");
     } finally {
       setIsLoadingInvoice(false);
     }
@@ -109,28 +102,10 @@ export default function ViewInvoicePage({ params }: { params: { id: string } }) 
     fetchInvoiceAndSettings();
   }, [fetchInvoiceAndSettings]);
 
-  const handlePaymentInputChange = (field: keyof NewPaymentFormState, value: any) => {
-    setNewPayment(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handlePaymentDateChange = (date?: Date) => {
-    if (date) handlePaymentInputChange('paymentDate', date.toISOString());
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPaymentProofFile(e.target.files?.[0] || null);
-  };
-
   const handleAddPaymentSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!invoice || !newPayment.amount || newPayment.amount <= 0) {
-      toast({ title: "Error", description: "El importe del pago debe ser mayor que cero.", variant: "destructive" });
-      return;
-    }
-    if (!newPayment.paymentDate) {
-        toast({ title: "Error", description: "Por favor, selecciona una fecha para el pago.", variant: "destructive"});
-        return;
-    }
+    if (!invoice || !newPayment.amount || newPayment.amount <= 0) return;
+    
     setIsAddingPayment(true);
     const formData = new FormData();
     formData.append('paymentDate', newPayment.paymentDate);
@@ -139,23 +114,15 @@ export default function ViewInvoicePage({ params }: { params: { id: string } }) 
     if (newPayment.notes) formData.append('notes', newPayment.notes);
     if (paymentProofFile) formData.append('transactionProof', paymentProofFile);
 
-
     try {
       const result = await addPaymentToInvoice(invoice.id, formData);
       if (result.success && result.invoice) {
-        toast({ title: "¡Pago Añadido!", description: "El pago ha sido registrado correctamente." });
-        setInvoice(result.invoice); 
-        const nextPaymentNumber = (result.invoice.payments?.length || 0) + 1;
-        const nextSuggestedNote = nextPaymentNumber === 1 ? `Pago ${nextPaymentNumber} - Seña` : `Pago ${nextPaymentNumber} - `;
-        setNewPayment({ paymentDate: new Date().toISOString(), amount: 0, method: 'Transferencia', notes: nextSuggestedNote });
+        toast({ title: "Pago Registrado" });
+        await fetchInvoiceAndSettings();
         setPaymentProofFile(null);
-        const fileInput = document.getElementById('paymentProof') as HTMLInputElement;
-        if(fileInput) fileInput.value = '';
-      } else {
-        throw new Error(result.error || "Error desconocido al añadir el pago.");
       }
     } catch (error: any) {
-      toast({ title: "Error al Añadir Pago", description: error.message, variant: "destructive" });
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     } finally {
       setIsAddingPayment(false);
     }
@@ -164,219 +131,221 @@ export default function ViewInvoicePage({ params }: { params: { id: string } }) 
   const totalPaid = invoice?.payments?.reduce((sum, p) => sum + p.amount, 0) || 0;
   const amountDue = invoice ? invoice.totalAmount - totalPaid : 0;
 
-  const handlePrint = () => { window.print(); };
-
-  const handleShare = async () => {
-    if (!invoice) return;
-    const shareData = {
-      title: `Factura ${invoice.invoiceNumber} de ${companySettings?.companyName}`,
-      text: `Ver la factura para ${invoice.customer.name || invoice.customer.companyName}. Monto total: ${formatCurrency(invoice.totalAmount, invoice.currency)}`,
-      url: window.location.href,
-    };
-    try {
-      if (navigator.share && navigator.canShare(shareData)) {
-        await navigator.share(shareData);
-      } else {
-        throw new Error();
-      }
-    } catch (err) {
-      navigator.clipboard.writeText(shareData.url);
-      toast({
-        title: "Enlace Copiado",
-        description: "El enlace a esta página ha sido copiado a tu portapapeles.",
-      });
-    }
-  };
-  
-  const getLogoAlignmentClass = () => {
-    if (!templateSettings) return 'justify-start';
-    switch (templateSettings.logoPosition) {
-      case 'center': return 'justify-center';
-      case 'right': return 'justify-end';
-      case 'left': default: return 'justify-start';
-    }
-  };
-
-
-  if (isLoadingInvoice || !invoice || !companySettings || !templateSettings) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <Loader2 className="w-16 h-16 animate-spin text-primary" /><p className="ml-4 text-xl">Cargando factura...</p>
-      </div>
-    );
+  if (isLoadingInvoice || !invoice || !templateSettings) {
+    return <div className="flex items-center justify-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
   }
-
-  if (errorInvoice) {
-    return (
-      <div className="max-w-4xl mx-auto space-y-6 text-center py-10">
-        <AlertTriangle className="w-16 h-16 mx-auto text-destructive mb-4" />
-        <h1 className="text-2xl font-bold">Error al Cargar Factura</h1>
-        <p className="text-muted-foreground">{errorInvoice}</p>
-        <Link href="/invoices" passHref><Button variant="outline" className="mt-6"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
-      </div>
-    );
-  }
-
-  const primaryColorStyle = { color: templateSettings.primaryColor };
-  const accentColorStyle = { backgroundColor: templateSettings.accentColor };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 print:space-y-2 print:m-0 print:p-0">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 print:hidden">
-        <Link href="/invoices" passHref><Button variant="outline" disabled={isAddingPayment}><ArrowLeft className="w-4 h-4 mr-2" />Volver a Facturas</Button></Link>
-        <div className="flex gap-2 flex-wrap justify-end">
-          <Button variant="outline" disabled={isAddingPayment} onClick={handleShare}><Share2 className="w-4 h-4 mr-2" />Compartir</Button>
-          <Button onClick={handlePrint} disabled={isAddingPayment}><Download className="w-4 h-4 mr-2" />Imprimir/PDF</Button>
-          <Link href={`/invoices/${invoice.id}/edit`} passHref><Button variant="secondary" disabled={isAddingPayment}><Edit className="w-4 h-4 mr-2" />Editar</Button></Link>
+    <div className="max-w-4xl mx-auto space-y-8 p-4 md:p-8 print:p-0 print:m-0 bg-background">
+      {/* Botones de acción (No se imprimen) */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 print:hidden">
+        <Link href="/invoices" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => window.print()}><Printer className="w-4 h-4 mr-2" />Imprimir / PDF</Button>
+          <Button variant="outline" onClick={() => {
+              const url = window.location.href;
+              navigator.clipboard.writeText(url);
+              toast({title: "Enlace copiado"});
+          }}><Share2 className="w-4 h-4 mr-2" />Compartir Enlace</Button>
+          <Link href={`/invoices/${invoice.id}/edit`} passHref><Button variant="secondary"><Edit className="w-4 h-4 mr-2" />Editar Datos</Button></Link>
         </div>
       </div>
 
-      <Card className="overflow-hidden shadow-lg print:shadow-none print:border-none" id="invoice-to-print">
-        <CardHeader className="p-6 bg-muted/30 print:bg-transparent print:p-4">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div className={`flex ${getLogoAlignmentClass()} w-full sm:w-auto mb-2 sm:mb-0`}>
-              {templateSettings.logoUrl && <Image src={templateSettings.logoUrl} alt={`${companySettings.companyName} Logo`} width={150} height={60} className="object-contain print:w-36 print:h-14" data-ai-hint="company logo"/>}
-            </div>
-            <div className="text-left sm:text-right w-full sm:w-auto">
-              <h2 className="text-2xl font-bold print:text-xl" style={primaryColorStyle}>FACTURA</h2>
-              <p className="text-md text-muted-foreground print:text-sm">Nº: {invoice.invoiceNumber}</p>
-            </div>
+      {/* DOCUMENTO RECIBO (Se imprime) */}
+      <div className="bg-white p-8 print:p-4 rounded-lg shadow-sm border print:border-none print:shadow-none min-h-[1050px] flex flex-col font-sans">
+        
+        {/* Cabecera */}
+        <div className="flex justify-between items-start mb-12">
+          <div className="space-y-1 text-sm">
+            <p className="font-semibold text-lg">SR. Alexander Knuth</p>
+            <p>Salto</p>
+            <p>50000 Salto</p>
+            <p>akproduccionessalto@gmail.com</p>
+            <p>www.akproduccioneseventos.com</p>
           </div>
-          <div className="mt-2 text-xs text-muted-foreground print:text-[9pt] sm:text-left">
-             <p className="font-semibold text-sm text-foreground">{companySettings.companyName}</p>
-             <p>{companySettings.companyAddress}</p>
-             <p>RUT/NIF: {companySettings.companyTaxId}</p>
-          </div>
-        </CardHeader>
-        <div className="h-1 print:h-[2px] mx-6 print:mx-4" style={accentColorStyle}></div>
-
-        <CardContent className="p-6 space-y-6 print:p-4 print:space-y-3">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 print:grid-cols-2">
-            <div>
-              <h3 className="mb-1.5 text-xs font-semibold tracking-wider uppercase text-muted-foreground print:text-[9pt] print:mb-0.5">Facturar a:</h3>
-              <p className="font-medium text-foreground print:text-sm">{invoice.customer.companyName || invoice.customer.name}</p>
-              {invoice.customer.address?.street && (<p className="text-sm text-muted-foreground print:text-xs">{invoice.customer.address.street}</p>)}
-              {invoice.customer.taxId && <p className="text-sm text-muted-foreground print:text-xs">RUT/NIF: {invoice.customer.taxId}</p>}
-              {invoice.customer.email && <p className="text-sm text-muted-foreground print:text-xs">Email: {invoice.customer.email}</p>}
-              {invoice.customer.phone && <p className="text-sm text-muted-foreground print:text-xs">Tel: {invoice.customer.phone}</p>}
-            </div>
-            <div className="md:text-right">
-              <div className="mb-2 print:mb-1"><span className="text-xs font-semibold uppercase text-muted-foreground print:text-[9pt]">Emisión: </span><span className="text-foreground print:text-sm">{formatDate(invoice.issueDate)}</span></div>
-              <div className="mb-2 print:mb-1"><span className="text-xs font-semibold uppercase text-muted-foreground print:text-[9pt]">Vencimiento: </span><span className="text-foreground print:text-sm">{formatDate(invoice.dueDate)}</span></div>
-              <div><span className="text-xs font-semibold uppercase text-muted-foreground print:text-[9pt]">Estado: </span><StatusBadge status={invoice.status} /></div>
-            </div>
-          </div>
-
-          <div className="overflow-x-auto mt-4 print:mt-2">
-            <table className="w-full text-sm">
-              <thead className="bg-muted/50 print:bg-gray-100">
-                <tr className="border-b print:border-gray-300">
-                  <th className="px-3 py-2.5 font-semibold text-left text-muted-foreground print:px-1 print:py-1 print:text-xs" style={primaryColorStyle}>Descripción</th>
-                  <th className="px-3 py-2.5 font-semibold text-right text-muted-foreground print:px-1 print:py-1 print:text-xs" style={primaryColorStyle}>Cant.</th>
-                  <th className="px-3 py-2.5 font-semibold text-right text-muted-foreground print:px-1 print:py-1 print:text-xs" style={primaryColorStyle}>P. Unit.</th>
-                  <th className="px-3 py-2.5 font-semibold text-right text-muted-foreground print:px-1 print:py-1 print:text-xs" style={primaryColorStyle}>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {invoice.items.map((item) => (
-                  <tr key={item.id} className="border-b print:border-gray-200 last:border-b-0">
-                    <td className="px-3 py-2.5 text-foreground print:px-1 print:py-1 print:text-xs">{item.description}</td>
-                    <td className="px-3 py-2.5 text-right text-muted-foreground print:px-1 print:py-1 print:text-xs">{item.quantity}</td>
-                    <td className="px-3 py-2.5 text-right text-muted-foreground print:px-1 print:py-1 print:text-xs">{formatCurrency(item.unitPrice, invoice.currency)}</td>
-                    <td className="px-3 py-2.5 text-right text-foreground print:px-1 print:py-1 print:text-xs">{formatCurrency(item.total, invoice.currency)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-0 mt-6 print:mt-3">
-            <div className="md:col-span-2">
-             {invoice.notes && (
-                <div>
-                    <h4 className="text-xs font-semibold text-muted-foreground mb-1 print:text-[9pt]">Notas:</h4>
-                    <p className="text-sm text-muted-foreground print:text-xs whitespace-pre-line">{invoice.notes}</p>
+          <div className="text-right">
+            <h1 className="text-3xl font-bold mb-4 tracking-tighter">Recibo</h1>
+            {templateSettings.logoUrl && (
+                <div className="relative w-32 h-32 ml-auto">
+                    <Image src={templateSettings.logoUrl} alt="Logo" layout="fill" className="object-contain" />
                 </div>
-             )}
-            </div>
-            <div className="space-y-1.5 text-right print:space-y-1">
-              <div className="flex justify-between"><span className="text-sm text-muted-foreground print:text-xs">Subtotal:</span><span className="text-sm font-medium text-foreground print:text-xs">{formatCurrency(invoice.subtotal, invoice.currency)}</span></div>
-              {invoice.taxAmount !== undefined && invoice.taxRate !== undefined && invoice.taxRate > 0 && (<div className="flex justify-between"><span className="text-sm text-muted-foreground print:text-xs">IVA ({invoice.taxRate}%):</span><span className="text-sm font-medium text-foreground print:text-xs">{formatCurrency(invoice.taxAmount, invoice.currency)}</span></div>)}
-              <Separator className="my-1 print:my-0.5"/>
-              <div className="flex justify-between text-md font-semibold print:text-sm"><span className="text-foreground">Total Factura:</span><span style={primaryColorStyle}>{formatCurrency(invoice.totalAmount, invoice.currency)}</span></div>
-              <div className="flex justify-between text-sm print:text-xs"><span className="text-muted-foreground">Total Pagado:</span><span className="font-medium text-green-600">{formatCurrency(totalPaid, invoice.currency)}</span></div>
-              <div className="flex justify-between text-sm font-semibold print:text-xs"><span className="text-foreground">Saldo Pendiente:</span><span className={amountDue <= 0 ? "text-green-600" : "text-destructive"}>{formatCurrency(amountDue, invoice.currency)}</span></div>
-            </div>
-          </div>
-          
-          <div className="space-y-3 print:mt-4 print:break-inside-avoid">
-            <div className="flex items-center gap-2"><Banknote className="w-5 h-5 text-primary print:w-4 print:h-4" /><h3 className="font-headline text-md print:text-sm">Pagos Registrados</h3></div>
-            {invoice.payments && invoice.payments.length > 0 ? (
-              <div className="overflow-x-auto border rounded-md print:border-gray-300">
-                <table className="w-full text-xs print:text-[9pt]">
-                  <thead className="bg-muted/30 print:bg-gray-50">
-                    <tr className="border-b print:border-gray-300">
-                      <th className="px-2 py-1.5 font-medium text-left text-muted-foreground print:px-1 print:py-1">Fecha</th>
-                      <th className="px-2 py-1.5 font-medium text-left text-muted-foreground print:px-1 print:py-1">Importe</th>
-                      <th className="px-2 py-1.5 font-medium text-left text-muted-foreground print:px-1 print:py-1">Método</th>
-                      <th className="px-2 py-1.5 font-medium text-left text-muted-foreground print:px-1 print:py-1">Notas</th>
-                      <th className="px-2 py-1.5 font-medium text-left text-muted-foreground print:px-1 print:py-1">Comprobante</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {invoice.payments.map(p => (
-                      <tr key={p.id} className="border-b print:border-gray-200 last:border-b-0">
-                        <td className="px-2 py-1.5 print:px-1 print:py-1">{formatDate(p.paymentDate)}</td>
-                        <td className="px-2 py-1.5 print:px-1 print:py-1">{formatCurrency(p.amount, invoice.currency)}</td>
-                        <td className="px-2 py-1.5 print:px-1 print:py-1">{p.method || 'N/A'}</td>
-                        <td className="px-2 py-1.5 print:px-1 print:py-1 max-w-[150px] print:max-w-[100px] truncate" title={p.notes}>{p.notes || '-'}</td>
-                        <td className="px-2 py-1.5 print:px-1 print:py-1">
-                          {p.transactionProofUrl ? (
-                            <a href={p.transactionProofUrl} target="_blank" rel="noopener noreferrer">
-                              <Button variant="outline" size="sm" className="h-6 px-2 text-xs">Ver</Button>
-                            </a>
-                          ) : '-'}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (<div className="text-center py-3 text-muted-foreground bg-muted/20 rounded-md text-xs print:text-[9pt]"><Info className="w-4 h-4 mx-auto mb-1 opacity-50 print:hidden" />No hay pagos registrados.</div>)}
-          </div>
-          
-          {invoice.status !== 'Paid' && (
-            <div className="mt-6 pt-4 border-t print:hidden">
-              <div className="flex items-center gap-2 mb-3"><PlusCircle className="w-6 h-6 text-primary" /><h3 className="font-headline text-lg">Añadir Nuevo Pago</h3></div>
-              <form onSubmit={handleAddPaymentSubmit} className="space-y-3 p-3 border rounded-md bg-card">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div className="space-y-1"><Label htmlFor="paymentDate">Fecha Pago</Label><DatePickerDemo selectedDate={newPayment.paymentDate ? new Date(newPayment.paymentDate) : new Date()} onDateChange={handlePaymentDateChange} /></div>
-                    <div className="space-y-1"><Label htmlFor="paymentAmount">Importe ({invoice.currency})</Label><Input id="paymentAmount" type="number" value={newPayment.amount || ''} onChange={(e) => handlePaymentInputChange('amount', parseFloat(e.target.value) || 0)} placeholder="0.00" min="0.01" step="any" required /></div>
-                  </div>
-                  <div className="space-y-1"><Label htmlFor="paymentMethod">Método</Label><Select value={newPayment.method || 'Transferencia'} onValueChange={(value) => handlePaymentInputChange('method', value as Payment['method'])}><SelectTrigger id="paymentMethod"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="Transferencia">Transferencia</SelectItem><SelectItem value="Efectivo">Efectivo</SelectItem><SelectItem value="Tarjeta">Tarjeta</SelectItem><SelectItem value="Otro">Otro</SelectItem></SelectContent></Select></div>
-                  <div className="space-y-1"><Label htmlFor="paymentNotes">Notas del Pago</Label><Textarea id="paymentNotes" value={newPayment.notes || ''} onChange={(e) => handlePaymentInputChange('notes', e.target.value)} placeholder="Descripción adicional (Ej: Transferencia Banco X)" rows={2} /></div>
-                  <div className="space-y-1"><Label htmlFor="paymentProof">Comprobante (Opcional)</Label><Input id="paymentProof" type="file" accept="image/*,application/pdf" onChange={handleFileChange} /></div>
-                  <Button type="submit" disabled={isAddingPayment} size="sm">{isAddingPayment ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ReceiptText className="w-4 h-4 mr-2" />}{isAddingPayment ? 'Registrando...' : 'Registrar Pago'}</Button>
-              </form>
-            </div>
-          )}
-        </CardContent>
-        <CardFooter className="p-6 text-center bg-muted/30 print:mt-6 print:pt-3 print:border-t print:border-gray-300">
-            {companySettings?.invoiceCustomFooter ? (
-                <p className="text-xs text-muted-foreground print:text-[9pt] whitespace-pre-line">{companySettings.invoiceCustomFooter}</p>
-            ) : (
-                <p className="text-xs text-muted-foreground print:text-[9pt]">Si tienes alguna pregunta sobre esta factura, por favor contacta con {companySettings.companyName}.</p>
             )}
-        </CardFooter>
-      </Card>
-      
+          </div>
+        </div>
+
+        {/* Subtítulo dinámico con ajuste */}
+        <div className="text-center mb-12">
+            <p className="text-lg font-medium">
+                {formatDate(invoice.issueDate)} - {invoice.customer.name || invoice.customer.companyName} {ajusteText && <span className="font-bold ml-2">{ajusteText}</span>}
+            </p>
+        </div>
+
+        {/* Tabla de Datos de Facturación */}
+        <div className="mb-12 overflow-hidden border border-gray-300 rounded-sm">
+            <table className="w-full text-center text-sm border-collapse">
+                <thead className="bg-gray-200 border-b border-gray-300">
+                    <tr>
+                        <th className="py-2 border-r border-gray-300 font-semibold px-2">Número de cliente</th>
+                        <th className="py-2 border-r border-gray-300 font-semibold px-2">Número de factura</th>
+                        <th className="py-2 border-r border-gray-300 font-semibold px-2">Página</th>
+                        <th className="py-2 border-r border-gray-300 font-semibold px-2">Fecha de factura</th>
+                        <th className="py-2 font-semibold px-2">Vencimiento</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td className="py-2 border-r border-gray-300">{invoice.customer.id.split('_').pop()?.substring(0,5)}</td>
+                        <td className="py-2 border-r border-gray-300">{invoice.invoiceNumber}</td>
+                        <td className="py-2 border-r border-gray-300">1 / 1</td>
+                        <td className="py-2 border-r border-gray-300">{formatDate(invoice.issueDate)}</td>
+                        <td className="py-2">{formatDate(invoice.dueDate)}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        {/* Tabla Principal de Artículos y Pagos */}
+        <div className="flex-grow border border-gray-300 rounded-sm overflow-hidden mb-6">
+            <table className="w-full text-sm border-collapse h-full">
+                <thead className="bg-gray-200 border-b border-gray-300">
+                    <tr>
+                        <th className="py-2 px-3 text-left border-r border-gray-300 w-1/2">Artículo</th>
+                        <th className="py-2 px-3 text-right border-r border-gray-300">Cantidad</th>
+                        <th className="py-2 px-3 text-center border-r border-gray-300">Unidad</th>
+                        <th className="py-2 px-3 text-right border-r border-gray-300">Precio</th>
+                        <th className="py-2 px-3 text-right">Importe total</th>
+                    </tr>
+                </thead>
+                <tbody className="align-top">
+                    {/* El servicio principal */}
+                    {invoice.items.map((item, idx) => (
+                        <tr key={item.id} className={idx === 0 ? "" : "border-t border-gray-100"}>
+                            <td className="py-3 px-3 border-r border-gray-300 font-medium uppercase">{item.description}</td>
+                            <td className="py-3 px-3 text-right border-r border-gray-300">{item.quantity}</td>
+                            <td className="py-3 px-3 text-center border-r border-gray-300">$</td>
+                            <td className="py-3 px-3 text-right border-r border-gray-300">{formatCurrency(item.unitPrice).replace('$', '')}</td>
+                            <td className="py-3 px-3 text-right font-medium">{formatCurrency(item.total).replace('$', '')}</td>
+                        </tr>
+                    ))}
+                    
+                    {/* Los pagos como deducciones */}
+                    {invoice.payments?.map(p => (
+                        <tr key={p.id}>
+                            <td className="py-2 px-3 border-r border-gray-300">
+                                <p className="text-xs text-gray-600">{formatDate(p.paymentDate)} Pago: {formatCurrency(p.amount)}</p>
+                                <p className="font-medium text-xs">{p.notes || 'Entrega de pago'}</p>
+                            </td>
+                            <td className="py-2 px-3 border-r border-gray-300"></td>
+                            <td className="py-2 px-3 border-r border-gray-300"></td>
+                            <td className="py-2 px-3 border-r border-gray-300"></td>
+                            <td className="py-2 px-3 text-right text-gray-600">- {formatCurrency(p.amount).replace('$', '')}</td>
+                        </tr>
+                    ))}
+                    
+                    {/* Espacio en blanco para completar la altura del recibo */}
+                    <tr className="flex-grow">
+                        <td className="border-r border-gray-300 h-full"></td>
+                        <td className="border-r border-gray-300"></td>
+                        <td className="border-r border-gray-300"></td>
+                        <td className="border-r border-gray-300"></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        {/* Totales Finales */}
+        <div className="flex justify-end mb-12">
+            <div className="w-full max-w-[300px] space-y-1">
+                <div className="flex justify-between text-sm">
+                    <span className="font-semibold">Importe total</span>
+                    <span className="font-bold">{formatCurrency(invoice.totalAmount)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                    <span className="font-semibold">Pagos</span>
+                    <span className="font-bold">{formatCurrency(totalPaid)}</span>
+                </div>
+                <Separator className="bg-gray-400" />
+                <div className="flex justify-between text-base">
+                    <span className="font-bold uppercase">Importe pendiente</span>
+                    <span className="font-bold">{formatCurrency(amountDue)}</span>
+                </div>
+            </div>
+        </div>
+
+        {/* Pie de página */}
+        <div className="mt-auto pt-8">
+            <p className="text-sm font-medium">Gracias por tu pago</p>
+        </div>
+      </div>
+
+      {/* Formulario para añadir pagos (No se imprime) */}
+      {invoice.status !== 'Paid' && (
+        <Card className="print:hidden border-primary/20 shadow-lg">
+          <CardHeader className="bg-primary/5">
+            <CardTitle className="flex items-center gap-2">
+                <Banknote className="text-primary"/> Registrar Nueva Entrega de Pago
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <form onSubmit={handleAddPaymentSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                        <Label>Monto a entregar (UYU)</Label>
+                        <Input type="number" value={newPayment.amount || ''} onChange={e => handlePaymentInputChange('amount', parseFloat(e.target.value))} placeholder="0.00" required />
+                    </div>
+                    <div className="space-y-1">
+                        <Label>Fecha del pago</Label>
+                        <DatePickerDemo selectedDate={new Date(newPayment.paymentDate)} onDateChange={handlePaymentDateChange} />
+                    </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                        <Label>Método</Label>
+                        <Select value={newPayment.method} onValueChange={v => handlePaymentInputChange('method', v)}>
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="Transferencia">Transferencia</SelectItem>
+                                <SelectItem value="Efectivo">Efectivo</SelectItem>
+                                <SelectItem value="Tarjeta">Tarjeta</SelectItem>
+                                <SelectItem value="Otro">Otro</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="space-y-1">
+                        <Label>Referencia / Detalle (Ej: Seña, Entrega 2)</Label>
+                        <Input value={newPayment.notes} onChange={e => handlePaymentInputChange('notes', e.target.value)} />
+                    </div>
+                </div>
+                <div className="space-y-1">
+                    <Label>Comprobante (Imagen/PDF)</Label>
+                    <Input type="file" onChange={e => setPaymentProofFile(e.target.files?.[0] || null)} />
+                </div>
+                <Button type="submit" className="w-full" disabled={isAddingPayment}>
+                    {isAddingPayment ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <CheckCircle2 className="w-4 h-4 mr-2"/>}
+                    Registrar Pago y Actualizar Recibo
+                </Button>
+            </form>
+          </CardContent>
+        </Card>
+      )}
+
       <style jsx global>{`
         @media print {
-          body { -webkit-print-color-adjust: exact; color-adjust: exact; }
-          .print-main-override { padding: 0.5in !important; }
+          header, footer, .print-hidden, button, .sidebar, .no-print { display: none !important; }
+          body { background: white !important; margin: 0; padding: 0; }
+          .print-m-0 { margin: 0 !important; padding: 0 !important; }
+          @page { size: A4; margin: 1cm; }
         }
-        .temp-hidden-for-print { display: none !important; }
       `}</style>
     </div>
   );
+
+  function handlePaymentInputChange(field: string, value: any) {
+    setNewPayment(prev => ({ ...prev, [field]: value }));
+  }
+
+  function handlePaymentDateChange(date?: Date) {
+    if (date) handlePaymentInputChange('paymentDate', date.toISOString());
+  }
 }
