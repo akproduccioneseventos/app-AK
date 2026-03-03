@@ -3,14 +3,14 @@
 
 import React, { useState, useEffect, type FormEvent, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Download, Send, Edit, AlertTriangle, Loader2, ReceiptText, Banknote, Info, Printer, Share2, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Edit, Loader2, Banknote, Printer, Share2, CheckCircle2, History, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
 import { StatusBadge } from '@/components/status-badge';
@@ -18,26 +18,58 @@ import type { Invoice as InvoiceType, Payment } from '@/types/invoice';
 import { getInvoiceById, addPaymentToInvoice } from '@/app/actions/invoices';
 import { getPresupuestos } from '@/app/actions/presupuestos';
 import { useToast } from '@/hooks/use-toast';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import Image from 'next/image';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import type { InvoiceTemplateSettings } from '@/types/settings';
-import { cn } from '@/lib/utils';
+
+// Helper to convert numbers to Spanish words (simplified for common amounts)
+function numberToSpanishWords(n: number): string {
+  const words: Record<number, string> = {
+    0: 'CERO', 1: 'UN', 2: 'DOS', 3: 'TRES', 4: 'CUATRO', 5: 'CINCO', 6: 'SEIS', 7: 'SIETE', 8: 'OCHO', 9: 'NUEVE',
+    10: 'DIEZ', 11: 'ONCE', 12: 'DOCE', 13: 'TRECE', 14: 'CATORCE', 15: 'QUINCE', 20: 'VEINTE', 30: 'TREINTA',
+    40: 'CUARENTA', 50: 'CINCUENTA', 60: 'SESENTA', 70: 'SETENTA', 80: 'OCHENTA', 90: 'NOVENTA',
+    100: 'CIEN', 200: 'DOSCIENTOS', 300: 'TRESCIENTOS', 400: 'CUATROCIENTOS', 500: 'QUINIENTOS',
+    600: 'SEISCIENTOS', 700: 'SETECIENTOS', 800: 'OCHOCIENTOS', 900: 'NOVECIENTOS',
+    1000: 'MIL', 1000000: 'UN MILLÓN'
+  };
+
+  if (n in words) return words[n];
+  
+  if (n < 100) {
+    const tens = Math.floor(n / 10) * 10;
+    const units = n % 10;
+    return `${words[tens]}${units > 0 ? ' Y ' + words[units] : ''}`;
+  }
+  
+  if (n < 1000) {
+    const hundreds = Math.floor(n / 100) * 100;
+    const rest = n % 100;
+    return `${n === 100 ? 'CIEN' : words[hundreds]}${rest > 0 ? ' ' + numberToSpanishWords(rest) : ''}`;
+  }
+
+  if (n < 1000000) {
+    const thousands = Math.floor(n / 1000);
+    const rest = n % 1000;
+    return `${thousands === 1 ? 'MIL' : numberToSpanishWords(thousands) + ' MIL'}${rest > 0 ? ' ' + numberToSpanishWords(rest) : ''}`;
+  }
+
+  return n.toString();
+}
 
 const formatCurrency = (amount: number, currency: string = 'UYU') => {
   return new Intl.NumberFormat('es-UY', {
     style: 'currency',
     currency: currency,
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(amount);
 };
 
-const formatDate = (dateString?: string) => {
-  if (!dateString) return "N/A";
+const formatDateLong = (dateString?: string) => {
+  if (!dateString) return "____________";
   try {
     const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
   } catch (e) { return "Fecha inválida"; }
 };
 
@@ -51,6 +83,7 @@ export default function ViewInvoicePage({ params }: { params: { id: string } }) 
   const [errorInvoice, setErrorInvoice] = useState<string | null>(null);
   const [paymentProofFile, setPaymentProofFile] = useState<File | null>(null);
   const [ajusteText, setAjusteText] = useState<string | null>(null);
+  const [templateSettings, setTemplateSettings] = useState<InvoiceTemplateSettings | null>(null);
 
   const [newPayment, setNewPayment] = useState<Omit<Payment, 'id' | 'transactionProofUrl'>>({
     paymentDate: new Date().toISOString(),
@@ -59,7 +92,6 @@ export default function ViewInvoicePage({ params }: { params: { id: string } }) 
     notes: '',
   });
   const [isAddingPayment, setIsAddingPayment] = useState(false);
-  const [templateSettings, setTemplateSettings] = useState<InvoiceTemplateSettings | null>(null);
 
   const fetchInvoiceAndSettings = useCallback(async () => {
     if (!invoiceId) return;
@@ -74,7 +106,6 @@ export default function ViewInvoicePage({ params }: { params: { id: string } }) 
       if (fetchedInvoice) {
         setInvoice(fetchedInvoice);
         
-        // Determinar si hay ajuste anual buscando el presupuesto origen
         const linkedBudget = allBudgets.find(b => b.invoiceId === fetchedInvoice.id);
         if (linkedBudget?.ajusteAnualActivo && linkedBudget.eventoFecha) {
             const anioCreacion = new Date(linkedBudget.timestamp).getFullYear();
@@ -88,7 +119,7 @@ export default function ViewInvoicePage({ params }: { params: { id: string } }) 
 
         const paymentNumber = (fetchedInvoice.payments?.length || 0) + 1;
         const initialNote = paymentNumber === 1 ? `Seña - Entrega 1` : `Entrega ${paymentNumber}`;
-        setNewPayment(prev => ({...prev, notes: initialNote}));
+        setNewPayment(prev => ({...prev, notes: initialNote, amount: 0}));
       }
       setTemplateSettings(tmplSettings);
     } catch (error: any) {
@@ -96,7 +127,7 @@ export default function ViewInvoicePage({ params }: { params: { id: string } }) 
     } finally {
       setIsLoadingInvoice(false);
     }
-  }, [invoiceId]);
+  }, [invoiceId, toast]);
 
   useEffect(() => {
     fetchInvoiceAndSettings();
@@ -116,7 +147,7 @@ export default function ViewInvoicePage({ params }: { params: { id: string } }) 
 
     try {
       const result = await addPaymentToInvoice(invoice.id, formData);
-      if (result.success && result.invoice) {
+      if (result.success) {
         toast({ title: "Pago Registrado" });
         await fetchInvoiceAndSettings();
         setPaymentProofFile(null);
@@ -128,20 +159,21 @@ export default function ViewInvoicePage({ params }: { params: { id: string } }) 
     }
   };
   
-  const totalPaid = invoice?.payments?.reduce((sum, p) => sum + p.amount, 0) || 0;
+  const totalPaid = useMemo(() => invoice?.payments?.reduce((sum, p) => sum + p.amount, 0) || 0, [invoice]);
   const amountDue = invoice ? invoice.totalAmount - totalPaid : 0;
+  const lastPayment = useMemo(() => invoice?.payments && invoice.payments.length > 0 ? invoice.payments[invoice.payments.length - 1] : null, [invoice]);
 
   if (isLoadingInvoice || !invoice || !templateSettings) {
     return <div className="flex items-center justify-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 p-4 md:p-8 print:p-0 print:m-0 bg-background">
+    <div className="max-w-5xl mx-auto space-y-8 p-4 md:p-8 print:p-0 print:m-0">
       {/* Botones de acción (No se imprimen) */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 print:hidden">
-        <Link href="/invoices" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
+        <Link href="/invoices" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver al Listado</Button></Link>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => window.print()}><Printer className="w-4 h-4 mr-2" />Imprimir / PDF</Button>
+          <Button variant="outline" onClick={() => window.print()}><Printer className="w-4 h-4 mr-2" />Imprimir Todo (PDF)</Button>
           <Button variant="outline" onClick={() => {
               const url = window.location.href;
               navigator.clipboard.writeText(url);
@@ -151,132 +183,174 @@ export default function ViewInvoicePage({ params }: { params: { id: string } }) 
         </div>
       </div>
 
-      {/* DOCUMENTO RECIBO (Se imprime) */}
-      <div className="bg-white p-8 print:p-4 rounded-lg shadow-sm border print:border-none print:shadow-none min-h-[1050px] flex flex-col font-sans">
-        
-        {/* Cabecera */}
-        <div className="flex justify-between items-start mb-12">
-          <div className="space-y-1 text-sm">
-            <p className="font-semibold text-lg">SR. Alexander Knuth</p>
-            <p>Salto</p>
-            <p>50000 Salto</p>
-            <p>akproduccionessalto@gmail.com</p>
-            <p>www.akproduccioneseventos.com</p>
-          </div>
-          <div className="text-right">
-            <h1 className="text-3xl font-bold mb-4 tracking-tighter">Recibo</h1>
-            {templateSettings.logoUrl && (
-                <div className="relative w-32 h-32 ml-auto">
-                    <Image src={templateSettings.logoUrl} alt="Logo" layout="fill" className="object-contain" />
+      <div className="space-y-12 print:space-y-8">
+        {/* DOCUMENTO 1: ESTADO DE CUENTA PROFESIONAL */}
+        <div className="bg-white p-8 print:p-6 rounded-lg shadow-sm border print:border-none print:shadow-none min-h-[600px] flex flex-col font-sans">
+            <div className="flex justify-between items-start mb-8">
+                <div className="space-y-1 text-sm">
+                    <p className="font-semibold text-lg">Tec. Alexander Knuth</p>
+                    <p>Salto, Uruguay</p>
+                    <p>akproduccionessalto@gmail.com</p>
+                    <p className="text-primary font-medium">www.akproduccioneseventos.com</p>
                 </div>
-            )}
-          </div>
-        </div>
+                <div className="text-right">
+                    <h1 className="text-3xl font-bold mb-2 tracking-tighter">Estado de Cuenta</h1>
+                    {templateSettings.logoUrl && (
+                        <div className="relative w-32 h-20 ml-auto">
+                            <Image src={templateSettings.logoUrl} alt="Logo" layout="fill" className="object-contain" />
+                        </div>
+                    )}
+                </div>
+            </div>
 
-        {/* Subtítulo dinámico con ajuste */}
-        <div className="text-center mb-12">
-            <p className="text-lg font-medium">
-                {formatDate(invoice.issueDate)} - {invoice.customer.name || invoice.customer.companyName} {ajusteText && <span className="font-bold ml-2">{ajusteText}</span>}
-            </p>
-        </div>
+            <div className="bg-muted/30 p-4 rounded-md mb-8 border border-gray-200">
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <p className="text-muted-foreground uppercase text-xs font-bold mb-1">Cliente</p>
+                        <p className="font-bold text-base">{invoice.customer.name || invoice.customer.companyName}</p>
+                        {invoice.customer.phone && <p className="text-muted-foreground">{invoice.customer.phone}</p>}
+                    </div>
+                    <div className="text-right">
+                        <p className="text-muted-foreground uppercase text-xs font-bold mb-1">Resumen del Evento</p>
+                        <p className="font-semibold">{ajusteText || 'Tarifa Estándar'}</p>
+                        <p className="text-xs text-muted-foreground">Factura N° {invoice.invoiceNumber}</p>
+                    </div>
+                </div>
+            </div>
 
-        {/* Tabla de Datos de Facturación */}
-        <div className="mb-12 overflow-hidden border border-gray-300 rounded-sm">
-            <table className="w-full text-center text-sm border-collapse">
-                <thead className="bg-gray-200 border-b border-gray-300">
-                    <tr>
-                        <th className="py-2 border-r border-gray-300 font-semibold px-2">Número de cliente</th>
-                        <th className="py-2 border-r border-gray-300 font-semibold px-2">Número de factura</th>
-                        <th className="py-2 border-r border-gray-300 font-semibold px-2">Página</th>
-                        <th className="py-2 border-r border-gray-300 font-semibold px-2">Fecha de factura</th>
-                        <th className="py-2 font-semibold px-2">Vencimiento</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td className="py-2 border-r border-gray-300">{invoice.customer.id.split('_').pop()?.substring(0,5)}</td>
-                        <td className="py-2 border-r border-gray-300">{invoice.invoiceNumber}</td>
-                        <td className="py-2 border-r border-gray-300">1 / 1</td>
-                        <td className="py-2 border-r border-gray-300">{formatDate(invoice.issueDate)}</td>
-                        <td className="py-2">{formatDate(invoice.dueDate)}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        {/* Tabla Principal de Artículos y Pagos */}
-        <div className="flex-grow border border-gray-300 rounded-sm overflow-hidden mb-6">
-            <table className="w-full text-sm border-collapse h-full">
-                <thead className="bg-gray-200 border-b border-gray-300">
-                    <tr>
-                        <th className="py-2 px-3 text-left border-r border-gray-300 w-1/2">Artículo</th>
-                        <th className="py-2 px-3 text-right border-r border-gray-300">Cantidad</th>
-                        <th className="py-2 px-3 text-center border-r border-gray-300">Unidad</th>
-                        <th className="py-2 px-3 text-right border-r border-gray-300">Precio</th>
-                        <th className="py-2 px-3 text-right">Importe total</th>
-                    </tr>
-                </thead>
-                <tbody className="align-top">
-                    {/* El servicio principal */}
-                    {invoice.items.map((item, idx) => (
-                        <tr key={item.id} className={idx === 0 ? "" : "border-t border-gray-100"}>
-                            <td className="py-3 px-3 border-r border-gray-300 font-medium uppercase">{item.description}</td>
-                            <td className="py-3 px-3 text-right border-r border-gray-300">{item.quantity}</td>
-                            <td className="py-3 px-3 text-center border-r border-gray-300">$</td>
-                            <td className="py-3 px-3 text-right border-r border-gray-300">{formatCurrency(item.unitPrice).replace('$', '')}</td>
-                            <td className="py-3 px-3 text-right font-medium">{formatCurrency(item.total).replace('$', '')}</td>
+            <div className="flex-grow">
+                <table className="w-full text-sm border-collapse">
+                    <thead className="bg-gray-100 border-y border-gray-300">
+                        <tr>
+                            <th className="py-2 px-3 text-left">Fecha / Concepto</th>
+                            <th className="py-2 px-3 text-right">Cargo</th>
+                            <th className="py-2 px-3 text-right">Entrega</th>
+                            <th className="py-2 px-3 text-right">Saldo</th>
                         </tr>
-                    ))}
-                    
-                    {/* Los pagos como deducciones */}
-                    {invoice.payments?.map(p => (
-                        <tr key={p.id}>
-                            <td className="py-2 px-3 border-r border-gray-300">
-                                <p className="text-xs text-gray-600">{formatDate(p.paymentDate)} Pago: {formatCurrency(p.amount)}</p>
-                                <p className="font-medium text-xs">{p.notes || 'Entrega de pago'}</p>
+                    </thead>
+                    <tbody className="divide-y">
+                        {/* El cargo inicial */}
+                        <tr>
+                            <td className="py-3 px-3">
+                                <p className="font-bold uppercase">{invoice.items[0]?.description || 'Servicios Contratados'}</p>
+                                <p className="text-xs text-muted-foreground">Monto Base Acordado</p>
                             </td>
-                            <td className="py-2 px-3 border-r border-gray-300"></td>
-                            <td className="py-2 px-3 border-r border-gray-300"></td>
-                            <td className="py-2 px-3 border-r border-gray-300"></td>
-                            <td className="py-2 px-3 text-right text-gray-600">- {formatCurrency(p.amount).replace('$', '')}</td>
+                            <td className="py-3 px-3 text-right font-medium">{formatCurrency(invoice.totalAmount)}</td>
+                            <td className="py-3 px-3 text-right">-</td>
+                            <td className="py-3 px-3 text-right font-bold">{formatCurrency(invoice.totalAmount)}</td>
                         </tr>
-                    ))}
-                    
-                    {/* Espacio en blanco para completar la altura del recibo */}
-                    <tr className="flex-grow">
-                        <td className="border-r border-gray-300 h-full"></td>
-                        <td className="border-r border-gray-300"></td>
-                        <td className="border-r border-gray-300"></td>
-                        <td className="border-r border-gray-300"></td>
-                        <td></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+                        
+                        {/* Los pagos */}
+                        {invoice.payments?.map((p, idx) => {
+                            const balanceAfterThis = invoice.totalAmount - (invoice.payments?.slice(0, idx + 1).reduce((s, pay) => s + pay.amount, 0) || 0);
+                            return (
+                                <tr key={p.id}>
+                                    <td className="py-3 px-3">
+                                        <p className="font-medium">{p.notes || `Entrega ${idx + 1}`}</p>
+                                        <p className="text-xs text-muted-foreground">{new Date(p.paymentDate).toLocaleDateString('es-ES')}</p>
+                                    </td>
+                                    <td className="py-3 px-3 text-right">-</td>
+                                    <td className="py-3 px-3 text-right text-green-600 font-medium">-{formatCurrency(p.amount)}</td>
+                                    <td className="py-3 px-3 text-right text-gray-500">{formatCurrency(balanceAfterThis)}</td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            </div>
 
-        {/* Totales Finales */}
-        <div className="flex justify-end mb-12">
-            <div className="w-full max-w-[300px] space-y-1">
-                <div className="flex justify-between text-sm">
-                    <span className="font-semibold">Importe total</span>
-                    <span className="font-bold">{formatCurrency(invoice.totalAmount)}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                    <span className="font-semibold">Pagos</span>
-                    <span className="font-bold">{formatCurrency(totalPaid)}</span>
-                </div>
-                <Separator className="bg-gray-400" />
-                <div className="flex justify-between text-base">
-                    <span className="font-bold uppercase">Importe pendiente</span>
-                    <span className="font-bold">{formatCurrency(amountDue)}</span>
+            <div className="mt-8 border-t-2 border-primary pt-4 flex justify-end">
+                <div className="w-full max-w-[280px] space-y-2">
+                    <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">IMPORTE TOTAL:</span>
+                        <span className="font-bold">{formatCurrency(invoice.totalAmount)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">TOTAL ENTREGADO:</span>
+                        <span className="font-bold text-green-600">{formatCurrency(totalPaid)}</span>
+                    </div>
+                    <div className="flex justify-between text-lg bg-primary/5 p-2 rounded">
+                        <span className="font-bold text-primary">SALDO PENDIENTE:</span>
+                        <span className="font-bold text-primary">{formatCurrency(amountDue)}</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        {/* Pie de página */}
-        <div className="mt-auto pt-8">
-            <p className="text-sm font-medium">Gracias por tu pago</p>
-        </div>
+        {/* DOCUMENTO 2: RECIBO DE PAGO INDIVIDUAL (ESTILO LIBRETA) */}
+        {lastPayment && (
+            <div className="bg-white p-6 print:p-4 rounded-lg shadow-sm border-2 border-dashed border-gray-400 print:shadow-none font-sans relative overflow-hidden print:break-before-page">
+                {/* Header del recibo estilo físico */}
+                <div className="flex justify-between items-center mb-6">
+                    <div className="flex items-center gap-4">
+                        {templateSettings.logoUrl && (
+                            <div className="relative w-20 h-20">
+                                <Image src={templateSettings.logoUrl} alt="Logo" layout="fill" className="object-contain" />
+                            </div>
+                        )}
+                        <div className="text-[10pt] leading-tight">
+                            <p className="font-bold text-lg">Alexander Knuth Producciones</p>
+                            <p>Contacto: 098355530</p>
+                            <p>Gaboto 3390, Salto - Uruguay</p>
+                        </div>
+                    </div>
+                    <div className="text-right">
+                        <h2 className="text-2xl font-bold tracking-widest text-gray-400">RECIBO</h2>
+                        <p className="text-sm font-bold">N° {lastPayment.id.split('-').pop()?.substring(0,4).toUpperCase() || '000'}</p>
+                        <div className="mt-2 border-2 border-black p-2 rounded-sm inline-block">
+                            <span className="text-xl font-bold">$ {new Intl.NumberFormat('es-UY').format(lastPayment.amount)}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Cuerpo del recibo */}
+                <div className="space-y-6 text-sm uppercase italic">
+                    <div className="flex items-end gap-2">
+                        <span className="not-italic font-bold whitespace-nowrap">RECIBIMOS DE:</span>
+                        <span className="flex-grow border-b border-black border-dotted pb-1 font-bold not-italic">
+                            {invoice.customer.name || invoice.customer.companyName}
+                        </span>
+                    </div>
+
+                    <div className="flex items-end gap-2">
+                        <span className="not-italic font-bold whitespace-nowrap">LA SUMA DE PESOS URUGUAYOS:</span>
+                        <span className="flex-grow border-b border-black border-dotted pb-1">
+                            {numberToSpanishWords(lastPayment.amount)}
+                        </span>
+                    </div>
+
+                    <div className="flex items-end gap-2">
+                        <span className="not-italic font-bold whitespace-nowrap">POR CONCEPTO DE:</span>
+                        <span className="flex-grow border-b border-black border-dotted pb-1">
+                            {lastPayment.notes || 'PAGO DE SERVICIOS'} ({invoice.invoiceNumber})
+                        </span>
+                    </div>
+                </div>
+
+                {/* Pie del recibo */}
+                <div className="mt-10 grid grid-cols-12 gap-4 items-end">
+                    <div className="col-span-4 text-center">
+                        <div className="border border-black p-2 h-24 flex flex-col justify-between mb-1">
+                            <div className="flex justify-between text-[8pt]"><span>IMPORTE TOTAL:</span> <span>{formatCurrency(invoice.totalAmount)}</span></div>
+                            <div className="flex justify-between text-[8pt] font-bold"><span>SALDO:</span> <span>{formatCurrency(amountDue)}</span></div>
+                        </div>
+                        <p className="text-[7pt] text-left">RECIBO DEL 001 AL 500 X 2 VÍAS</p>
+                    </div>
+                    <div className="col-span-4 text-center">
+                        <p className="text-sm border-b border-black inline-block px-4 mb-1">
+                            {new Date(lastPayment.paymentDate).getDate()} de {new Date(lastPayment.paymentDate).toLocaleString('es-ES', {month: 'long'})} de {new Date(lastPayment.paymentDate).getFullYear()}
+                        </p>
+                        <p className="text-[8pt]">FECHA</p>
+                    </div>
+                    <div className="col-span-4 text-center">
+                        <div className="h-16 mb-1"></div>
+                        <div className="border-t border-black pt-1">
+                            <p className="text-[10pt] font-bold uppercase">FIRMA</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )}
       </div>
 
       {/* Formulario para añadir pagos (No se imprime) */}
@@ -284,25 +358,25 @@ export default function ViewInvoicePage({ params }: { params: { id: string } }) 
         <Card className="print:hidden border-primary/20 shadow-lg">
           <CardHeader className="bg-primary/5">
             <CardTitle className="flex items-center gap-2">
-                <Banknote className="text-primary"/> Registrar Nueva Entrega de Pago
+                <Banknote className="text-primary"/> Registrar Nuevo Pago
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
             <form onSubmit={handleAddPaymentSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1">
-                        <Label>Monto a entregar (UYU)</Label>
-                        <Input type="number" value={newPayment.amount || ''} onChange={e => handlePaymentInputChange('amount', parseFloat(e.target.value))} placeholder="0.00" required />
+                        <Label>Monto (UYU)</Label>
+                        <Input type="number" value={newPayment.amount || ''} onChange={e => setNewPayment(p => ({...p, amount: parseFloat(e.target.value)}))} placeholder="0.00" required />
                     </div>
                     <div className="space-y-1">
-                        <Label>Fecha del pago</Label>
-                        <DatePickerDemo selectedDate={new Date(newPayment.paymentDate)} onDateChange={handlePaymentDateChange} />
+                        <Label>Fecha</Label>
+                        <DatePickerDemo selectedDate={new Date(newPayment.paymentDate)} onDateChange={d => d && setNewPayment(p => ({...p, paymentDate: d.toISOString()}))} />
                     </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1">
                         <Label>Método</Label>
-                        <Select value={newPayment.method} onValueChange={v => handlePaymentInputChange('method', v)}>
+                        <Select value={newPayment.method} onValueChange={v => setNewPayment(p => ({...p, method: v as any}))}>
                             <SelectTrigger><SelectValue /></SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="Transferencia">Transferencia</SelectItem>
@@ -313,17 +387,17 @@ export default function ViewInvoicePage({ params }: { params: { id: string } }) 
                         </Select>
                     </div>
                     <div className="space-y-1">
-                        <Label>Referencia / Detalle (Ej: Seña, Entrega 2)</Label>
-                        <Input value={newPayment.notes} onChange={e => handlePaymentInputChange('notes', e.target.value)} />
+                        <Label>Detalle (Ej: Entrega 2, Saldo Final)</Label>
+                        <Input value={newPayment.notes} onChange={e => setNewPayment(p => ({...p, notes: e.target.value}))} />
                     </div>
                 </div>
                 <div className="space-y-1">
-                    <Label>Comprobante (Imagen/PDF)</Label>
+                    <Label>Comprobante (Opcional)</Label>
                     <Input type="file" onChange={e => setPaymentProofFile(e.target.files?.[0] || null)} />
                 </div>
                 <Button type="submit" className="w-full" disabled={isAddingPayment}>
                     {isAddingPayment ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <CheckCircle2 className="w-4 h-4 mr-2"/>}
-                    Registrar Pago y Actualizar Recibo
+                    Registrar Pago y Generar Recibos
                 </Button>
             </form>
           </CardContent>
@@ -332,7 +406,7 @@ export default function ViewInvoicePage({ params }: { params: { id: string } }) 
 
       <style jsx global>{`
         @media print {
-          header, footer, .print-hidden, button, .sidebar, .no-print { display: none !important; }
+          header, footer, .print-hidden, button, .sidebar, .no-print, .notifications-hub { display: none !important; }
           body { background: white !important; margin: 0; padding: 0; }
           .print-m-0 { margin: 0 !important; padding: 0 !important; }
           @page { size: A4; margin: 1cm; }
@@ -340,12 +414,4 @@ export default function ViewInvoicePage({ params }: { params: { id: string } }) 
       `}</style>
     </div>
   );
-
-  function handlePaymentInputChange(field: string, value: any) {
-    setNewPayment(prev => ({ ...prev, [field]: value }));
-  }
-
-  function handlePaymentDateChange(date?: Date) {
-    if (date) handlePaymentInputChange('paymentDate', date.toISOString());
-  }
 }
