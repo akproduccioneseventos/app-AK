@@ -57,11 +57,12 @@ function PlannerGastronomicoFiestaContent() {
         setPresupuesto(presupuestoData);
         
         if (presupuestoData && presupuestoData.itemsPresupuestados.length > 0) {
-            // 1. Sincronización de Repostería
+            // Sincronización automática desde el presupuesto
+            
+            // 1. Repostería
             const budgetReposteriaItems = presupuestoData.itemsPresupuestados.filter(item => 
                 item.categoriaServicio?.toLowerCase().includes('repostería') ||
-                item.nombreServicio.toLowerCase().includes('torta') ||
-                item.nombreServicio.toLowerCase().includes('postre')
+                item.nombreServicio.toLowerCase().includes('torta')
             );
 
             if (budgetReposteriaItems.length > 0) {
@@ -69,29 +70,18 @@ function PlannerGastronomicoFiestaContent() {
                     ...initialReposteria,
                     categorias: initialReposteria.categorias.map(cat => {
                         const itemsInCat = budgetReposteriaItems.filter(bi => 
-                            bi.categoriaServicio?.toLowerCase().includes(cat.nombreDisplay.toLowerCase()) ||
                             bi.nombreServicio.toLowerCase().includes(cat.nombreDisplay.toLowerCase()) ||
                             (cat.id === 'tortas_personalizadas' && bi.nombreServicio.toLowerCase().includes('torta'))
                         );
                         if (itemsInCat.length > 0) {
-                            return { 
-                                ...cat, 
-                                activada: true,
-                                items: itemsInCat.map(bi => ({
-                                    id: `budget_${bi.idServicioCatalogo}`,
-                                    nombre: bi.nombreServicio,
-                                    cantidad: bi.cantidad,
-                                    costoEstimado: bi.precioUnitarioPresupuesto,
-                                    origenId: bi.idServicioCatalogo
-                                } as ReposteriaItem))
-                            };
+                            return { ...cat, activada: true };
                         }
                         return cat;
                     })
                 };
             }
 
-            // 2. Sincronización de Bebidas
+            // 2. Bebidas y Barra
             const hasBebidas = presupuestoData.itemsPresupuestados.some(item => 
                 item.categoriaServicio?.toLowerCase().includes('bebida') ||
                 item.nombreServicio.toLowerCase().includes('barra')
@@ -110,7 +100,7 @@ function PlannerGastronomicoFiestaContent() {
                  };
             }
 
-            // 3. Sincronización de Menú Principal
+            // 3. Menú Principal
             if (!initialMenuId) {
                 const mainDish = presupuestoData.itemsPresupuestados.find(item => 
                     item.categoriaServicio?.toLowerCase().includes('plato principal')
@@ -147,7 +137,7 @@ function PlannerGastronomicoFiestaContent() {
                 updateBebidasFiestaActual(fiestaId, bebidasData),
                 updateMenuAsignadoFiestaActual(fiestaId, selectedMenuId)
             ]);
-            toast({ title: "Guardado", description: "Los cambios en la planificación gastronómica han sido guardados."});
+            toast({ title: "Planificación Gastronómica Guardada" });
         } catch(e: any) {
             toast({ title: "Error", description: "No se pudieron guardar los cambios.", variant: "destructive"});
         } finally {
@@ -155,12 +145,6 @@ function PlannerGastronomicoFiestaContent() {
         }
     }
   
-    const { adultos = 0, ninos = 0, adolescentes = 0 } = presupuesto || { 
-        invitadosAdultos: Number(fiesta?.configuracion.invitadosEstimados) || 0, 
-        invitadosNinos: 0, 
-        invitadosAdolescentes: 0 
-    };
-    
     const displayAdultos = presupuesto?.invitadosAdultos ?? Number(fiesta?.configuracion.invitadosEstimados) ?? 0;
     const displayNinos = (presupuesto?.invitadosNinos ?? 0) + (presupuesto?.invitadosAdolescentes ?? 0);
     const totalInvitados = displayAdultos + displayNinos;
@@ -181,7 +165,7 @@ function PlannerGastronomicoFiestaContent() {
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
                 <CardTitle className="font-headline text-xl">Resumen de Invitados</CardTitle>
-                <CardDescription>Sincronizado con el presupuesto o la configuración del evento actual.</CardDescription>
+                <CardDescription>Base para el cálculo automático de cantidades e insumos.</CardDescription>
             </div>
             <Button variant="ghost" size="sm" onClick={() => loadData(true)} title="Sincronizar con presupuesto">
                 <RefreshCw className="w-4 h-4 mr-2"/> Sincronizar
@@ -205,18 +189,20 @@ function PlannerGastronomicoFiestaContent() {
       
        <div className="flex justify-end gap-2">
          <Link href={`/fiestas/nueva/catering/lista-compras?fiestaId=${fiestaId}`} passHref>
-           <Button variant="outline"><ShoppingCart className="w-4 h-4 mr-2"/>Ver Lista de Compras</Button>
+           <Button variant="outline" className="bg-primary/5 border-primary/20 hover:bg-primary/10 text-primary">
+             <ShoppingCart className="w-4 h-4 mr-2"/> Ver Lista de Compras Automatizada
+           </Button>
          </Link>
          <Button onClick={handleSaveAll} disabled={isSaving || isLoading}>
             {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>}
-            Guardar Cambios
+            Guardar Planificación
          </Button>
       </div>
 
        {isLoading ? <div className="text-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div> :
         <>
             <Card>
-                <CardHeader><CardTitle className="font-headline">Menú Principal</CardTitle></CardHeader>
+                <CardHeader><CardTitle className="font-headline text-xl">Menú de Comida Asignado</CardTitle></CardHeader>
                 <CardContent>
                     <div className="space-y-2">
                         <Label htmlFor="menu-select">Seleccionar Menú del Catálogo</Label>
@@ -229,7 +215,7 @@ function PlannerGastronomicoFiestaContent() {
                                 ))}
                             </SelectContent>
                         </Select>
-                         <p className="text-xs text-muted-foreground">Crea o edita las plantillas de menú en el <Link href="/empresa/menus" className="underline">Planificador Gastronómico Maestro</Link>.</p>
+                         <p className="text-xs text-muted-foreground">Los ingredientes de este menú se sumarán automáticamente a la lista de compras.</p>
                     </div>
                 </CardContent>
             </Card>
