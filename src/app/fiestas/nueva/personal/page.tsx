@@ -9,14 +9,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Loader2, Save, Users, UserCheck, AlertTriangle, Info, Printer } from 'lucide-react';
+import { ArrowLeft, Loader2, Save, Users, UserCheck, AlertTriangle, Info, Printer, RefreshCw } from 'lucide-react';
 import { getEmpleados } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
 import type { Empleado } from '@/types/empleado';
 import type { Rol } from '@/types/rol';
 import { useToast } from '@/hooks/use-toast';
 import type { PersonalAsignadoDetalleStorage } from '@/types/fiesta';
-import { getFiestaActual, updatePersonalFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaById, updatePersonalFiestaActual } from '@/app/actions/fiesta-actual';
+import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { Badge } from '@/components/ui/badge';
 
 const formatCurrency = (amount: number) => {
@@ -42,22 +43,27 @@ export default function AsignarPersonalEventoPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchInitialData = useCallback(async () => {
-    setIsLoading(true);
+  const fetchInitialData = useCallback(async (showLoading = true) => {
+    if (showLoading) setIsLoading(true);
     setError(null);
     try {
-      const [empleadosData, rolesData, fiestaActualData] = await Promise.all([
+      const fiestaActual = await getFiestaById(new URLSearchParams(window.location.search).get('fiestaId') || '');
+      if (!fiestaActual) throw new Error("Fiesta no encontrada");
+
+      const [empleadosData, rolesData, presupuestoData] = await Promise.all([
         getEmpleados(),
         getRoles(),
-        getFiestaActual()
+        fiestaActual.presupuestoId ? getPresupuestoById(fiestaActual.presupuestoId) : Promise.resolve(null)
       ]);
       
       setAllEmpleados(empleadosData);
       setAllRoles(rolesData);
 
       const initialAssignedMap = new Map<string, AssignedStaffUIDetail>();
-      if (fiestaActualData.personalAsignado && empleadosData.length > 0) {
-        fiestaActualData.personalAsignado.forEach(assigned => {
+      
+      // 1. Cargar asignaciones ya guardadas
+      if (fiestaActual.personalAsignado && fiestaActual.personalAsignado.length > 0) {
+        fiestaActual.personalAsignado.forEach(assigned => {
           const empleadoDetail = empleadosData.find(e => e.id === assigned.empleadoId);
           if (empleadoDetail) {
             const rolDetail = rolesData.find(r => r.id === assigned.rolId);
@@ -72,11 +78,24 @@ export default function AsignarPersonalEventoPage() {
             });
           }
         });
+      } 
+      // 2. Si no hay asignaciones, intentar sugerir desde el presupuesto
+      else if (presupuestoData) {
+          const personalItems = presupuestoData.itemsPresupuestados.filter(item => 
+            item.categoriaServicio?.toLowerCase().includes('personal') ||
+            item.nombreServicio.toLowerCase().includes('mozo') ||
+            item.nombreServicio.toLowerCase().includes('asador')
+          );
+
+          if (personalItems.length > 0) {
+              toast({ title: "Sugerencia de Personal", description: "Se detectaron servicios de personal en el presupuesto. Selecciona a los empleados para asignar los roles."});
+          }
       }
+
       setAssignedStaff(initialAssignedMap);
 
     } catch (err: any) {
-      setError("No se pudieron cargar los datos iniciales. Por favor, intente de nuevo.");
+      setError("No se pudieron cargar los datos iniciales.");
       toast({ title: "Error de Carga", description: (err as Error).message, variant: "destructive" });
     } finally {
       setIsLoading(false);
@@ -151,6 +170,9 @@ export default function AsignarPersonalEventoPage() {
   const totalEventCost = totalSalaryCost + totalContributionCost;
 
   const handleSaveChanges = async () => {
+    const fiestaId = new URLSearchParams(window.location.search).get('fiestaId');
+    if (!fiestaId) return;
+    
     setIsSaving(true);
     const personalToSave: PersonalAsignadoDetalleStorage[] = Array.from(assignedStaff.values()).map(item => ({
       empleadoId: item.empleadoId,
@@ -159,14 +181,14 @@ export default function AsignarPersonalEventoPage() {
     }));
 
     try {
-      const result = await updatePersonalFiestaActual(personalToSave);
+      const result = await updatePersonalFiestaActual(fiestaId, personalToSave);
       if (result.success) {
         toast({
           title: "¡Personal Guardado!",
           description: `Se guardaron las asignaciones de ${totalAssignedCount} empleado(s).`,
         });
       } else {
-        throw new Error(result.error || "Error desconocido al guardar el personal asignado.");
+        throw new Error(result.error || "No se pudo guardar el personal asignado.");
       }
     } catch (error: any) {
       toast({ title: "Error al Guardar", description: error.message, variant: "destructive" });
@@ -190,7 +212,7 @@ export default function AsignarPersonalEventoPage() {
         <AlertTriangle className="w-12 h-12 mx-auto mb-3" />
         <p className="font-semibold">Error al Cargar Datos</p>
         <p className="text-sm">{error}</p>
-        <Button onClick={fetchInitialData} className="mt-4">Reintentar</Button>
+        <Button onClick={() => fetchInitialData()} className="mt-4">Reintentar</Button>
       </div>
     );
   }
@@ -204,7 +226,7 @@ export default function AsignarPersonalEventoPage() {
             Asignar Personal al Evento
           </h1>
         </div>
-        <Link href="/fiestas/nueva" passHref>
+        <Link href={`/fiestas/nueva?fiestaId=${new URLSearchParams(window.location.search).get('fiestaId')}`} passHref>
           <Button variant="outline" disabled={isSaving}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Volver al Planificador
@@ -213,11 +235,16 @@ export default function AsignarPersonalEventoPage() {
       </div>
 
       <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle className="font-headline">Seleccionar Personal</CardTitle>
-          <CardDescription>
-            Para cada empleado, selecciona el rol que desempeñará en este evento. El sueldo se cargará automáticamente pero puedes ajustarlo si es necesario.
-          </CardDescription>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle className="font-headline">Seleccionar Personal</CardTitle>
+            <CardDescription>
+                Asigna un empleado a cada rol contratado en el presupuesto.
+            </CardDescription>
+          </div>
+          <Button variant="ghost" size="sm" onClick={() => fetchInitialData(true)}>
+              <RefreshCw className="w-4 h-4 mr-2"/> Sincronizar con Presupuesto
+          </Button>
         </CardHeader>
         <CardContent>
           {allEmpleados.length === 0 ? (
@@ -264,11 +291,6 @@ export default function AsignarPersonalEventoPage() {
                                 })}
                             </SelectContent>
                            </Select>
-                           {(!empleado.rolIds || empleado.rolIds.length === 0) && (
-                               <p className="text-xs text-muted-foreground mt-1">
-                                   Este empleado no tiene roles. <Link href={`/empleados/${empleado.id}/editar`} className="underline">Asignar roles</Link>.
-                               </p>
-                           )}
                         </TableCell>
                         <TableCell className="text-right">
                           {isAssigned ? (
@@ -306,16 +328,14 @@ export default function AsignarPersonalEventoPage() {
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex justify-between items-center"><span className="text-muted-foreground">Total de Personal Asignado:</span><span className="font-semibold text-lg">{totalAssignedCount}</span></div>
-            <div className="flex justify-between items-center"><span className="text-muted-foreground">Costo Total Salarios Evento:</span><span className="font-semibold text-lg">{formatCurrency(totalSalaryCost)}</span></div>
-            <div className="flex justify-between items-center"><span className="text-muted-foreground">Costo Total Aportes Patronales:</span><span className="font-semibold text-lg">{formatCurrency(totalContributionCost)}</span></div>
-            <div className="flex justify-between items-center border-t pt-3 mt-2"><span className="font-bold text-primary">COSTO TOTAL PERSONAL:</span><span className="font-bold text-lg text-primary">{formatCurrency(totalEventCost)}</span></div>
+            <div className="flex justify-between items-center border-t pt-3 mt-2"><span className="font-bold text-primary">COSTO TOTAL ESTIMADO:</span><span className="font-bold text-lg text-primary">{formatCurrency(totalEventCost)}</span></div>
           </CardContent>
           <CardFooter className="border-t pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
             <Button onClick={handleSaveChanges} disabled={isSaving} className="w-full sm:w-auto">
               {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Save className="w-5 h-5 mr-2" />}
               {isSaving ? 'Guardando...' : 'Guardar Asignaciones'}
             </Button>
-            <Link href="/fiestas/nueva/personal/recibos" passHref>
+            <Link href={`/fiestas/nueva/personal/recibos?fiestaId=${new URLSearchParams(window.location.search).get('fiestaId')}`} passHref>
                 <Button variant="secondary" className="w-full sm:w-auto">
                     <Printer className="w-5 h-5 mr-2" />
                     Generar Recibos de Pago

@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Palette, Save, Loader2, AlertTriangle, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, Settings2, StickyNote, CakeSlice, Building, Gift, Camera, Sparkles as SparklesIcon, ChevronDown, ListPlus, FileText } from 'lucide-react';
+import { ArrowLeft, Palette, Save, Loader2, AlertTriangle, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, Settings2, StickyNote, CakeSlice, Building, Gift, Camera, Sparkles as SparklesIcon, ChevronDown, ListPlus, FileText, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion, DecoracionData, DecorationItem, ColorPalette, ZonaContratada } from '@/types/fiesta';
@@ -32,6 +32,7 @@ import { Switch } from '@/components/ui/switch';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import { UploadButton } from '@/components/invitacion/edit/UploadButton';
+import { getPresupuestoById } from '@/app/actions/presupuestos';
 
 
 const ALL_DECORATION_ITEM_CATEGORIES = [
@@ -105,21 +106,42 @@ function DecoracionYDisenoEventoContent() {
   const [failedImageUrls, setFailedImageUrls] = useState<Record<string, boolean>>({});
 
   
-  const loadDecoracionData = useCallback(async () => {
+  const loadDecoracionData = useCallback(async (showLoading = true) => {
     if (!fiestaId) {
       setError("No se especificó ID de fiesta");
       setIsLoading(false);
       return;
     }
-    setIsLoading(true);
+    if (showLoading) setIsLoading(true);
     setError(null);
     setFailedImageUrls({});
     try {
       const fiestaData = await getFiestaById(fiestaId);
       if (!fiestaData) throw new Error("Fiesta no encontrada");
 
-      const loadedDecoracion = fiestaData.decoracion || defaultDecoracion;
+      let loadedDecoracion = fiestaData.decoracion || defaultDecoracion;
       
+      // Sincronizar items de decoración desde el presupuesto si están vacíos
+      if ((!loadedDecoracion.items || loadedDecoracion.items.length === 0) && fiestaData.presupuestoId) {
+          const budget = await getPresupuestoById(fiestaData.presupuestoId);
+          if (budget) {
+              const decoBudgetItems = budget.itemsPresupuestados.filter(item => 
+                item.categoriaServicio?.toLowerCase().includes('decoración') ||
+                item.categoriaServicio?.toLowerCase().includes('ambientación')
+              );
+              if (decoBudgetItems.length > 0) {
+                  const newItems: DecorationItem[] = decoBudgetItems.map(bi => ({
+                      id: `budget_${bi.idServicioCatalogo}`,
+                      name: bi.nombreServicio,
+                      quantity: bi.cantidad,
+                      estimatedCost: bi.precioUnitarioPresupuesto,
+                      category: 'Otro'
+                  }));
+                  loadedDecoracion = { ...loadedDecoracion, items: newItems };
+              }
+          }
+      }
+
       const mergedZonas = defaultZonasContratadas.map(defaultZona => {
         const savedZona = loadedDecoracion.zonasContratadas?.find(sz => sz.id === defaultZona.id);
         return savedZona ? { ...defaultZona, ...savedZona } : { ...defaultZona };
@@ -215,7 +237,7 @@ function DecoracionYDisenoEventoContent() {
 
   const handleItemModalSave = () => {
     if (!currentItem || !currentItem.name?.trim()) {
-      toast({ title: "Nombre Requerido", description: "El nombre del elemento es obligatorio.", variant: "destructive" });
+      toast({ title: "Nombre requerido", description: "El nombre del elemento es obligatorio.", variant: "destructive" });
       return;
     }
     setDecoracionData(prev => {
@@ -268,14 +290,17 @@ function DecoracionYDisenoEventoContent() {
     return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando decoración...</p></div>;
   }
   if (error) {
-    return <div className="py-10 text-center text-red-600"><AlertTriangle className="w-12 h-12 mx-auto mb-3" /><p className="font-semibold">{error}</p><Button onClick={loadDecoracionData} className="mt-4">Reintentar</Button></div>;
+    return <div className="py-10 text-center text-red-600"><AlertTriangle className="w-12 h-12 mx-auto mb-3" /><p className="font-semibold">{error}</p><Button onClick={() => loadDecoracionData()} className="mt-4">Reintentar</Button></div>;
   }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3"><Palette className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">🎨 Decoración y Diseño del Evento</h1></div>
+        <div className="flex items-center gap-3"><Palette className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Decoración y Diseño</h1></div>
         <div className="flex gap-2">
+            <Button variant="ghost" size="sm" onClick={() => loadDecoracionData(true)} title="Sincronizar con presupuesto">
+                <RefreshCw className="w-4 h-4 mr-2"/> Sincronizar
+            </Button>
             <Link href={`/fiestas/nueva/decoracion/pdf?fiestaId=${fiestaId}`} passHref>
                 <Button variant="outline" disabled={isSaving}><FileText className="w-4 h-4 mr-2"/>Ver PDF</Button>
             </Link>
@@ -285,7 +310,7 @@ function DecoracionYDisenoEventoContent() {
 
       <form onSubmit={handleSaveDecoracion}>
         <Card className="shadow-lg mb-6">
-          <CardHeader><CardTitle className="font-headline text-xl flex items-center gap-2"><Settings2 className="text-primary"/>Configuración General de Decoración</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="font-headline text-xl flex items-center gap-2"><Settings2 className="text-primary"/>Configuración General</CardTitle></CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2"><Label htmlFor="tema-evento">Tema del Evento</Label><Input id="tema-evento" value={decoracionData.tema || ''} onChange={e => handleInputChange('tema', e.target.value)} placeholder="Ej: Rústico Chic, Tropical, Años 80" /></div>
