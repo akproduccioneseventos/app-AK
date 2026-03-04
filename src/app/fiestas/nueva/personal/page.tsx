@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -70,14 +70,26 @@ export default function AsignarPersonalEventoPage() {
       setAllEmpleados(empleadosData);
       setAllRoles(rolesData);
 
-      // Detect Required Roles from Budget
+      // Detect Required Roles from Budget + Automatic Rules
       if (presupuestoData) {
         const requirements: RequiredRole[] = [];
+        const totalGuests = (presupuestoData.invitadosAdultos || 0) + (presupuestoData.invitadosNinos || 0) + (presupuestoData.invitadosAdolescentes || 0);
+
+        // 1. Automatic Utility Rule: 1 per 25 guests
+        const numUtileros = Math.ceil(totalGuests / 25);
+        if (numUtileros > 0) {
+            requirements.push({ 
+                roleName: 'Utilero', 
+                quantity: numUtileros, 
+                sourceItem: 'Regla automática (1 cada 25 invitados)' 
+            });
+        }
+
         presupuestoData.itemsPresupuestados.forEach(item => {
           const name = item.nombreServicio.toLowerCase();
           const cat = (item.categoriaServicio || '').toLowerCase();
           
-          if (name.includes('discoteca') || cat.includes('discoteca')) {
+          if (name.includes('discoteca') || cat.includes('discoteca') || name.includes(' dj')) {
             requirements.push({ roleName: 'DJ', quantity: 1, sourceItem: item.nombreServicio });
           }
           if (name.includes('decoración') || name.includes('ambientación') || cat.includes('decoración')) {
@@ -90,17 +102,17 @@ export default function AsignarPersonalEventoPage() {
           if (name.includes('asado') || name.includes('asador')) {
             requirements.push({ roleName: 'Asador', quantity: 1, sourceItem: item.nombreServicio });
           }
-          if (cat.includes('fotografía')) {
+          if (name.includes('fotografía') || cat.includes('fotografía')) {
             requirements.push({ roleName: 'Fotógrafo', quantity: 1, sourceItem: item.nombreServicio });
           }
-          if (cat.includes('filmación') || name.includes('video')) {
+          if (name.includes('filmación') || name.includes('video') || cat.includes('filmación')) {
             requirements.push({ roleName: 'Camarógrafo / Videógrafo', quantity: 1, sourceItem: item.nombreServicio });
           }
           if (name.includes('cocina') || name.includes('chef')) {
-            requirements.push({ roleName: 'Cocinero/Cheff', quantity: item.cantidad, sourceItem: item.nombreServicio });
+            requirements.push({ roleName: 'Cocinero/Cheff', quantity: item.cantidad || 1, sourceItem: item.nombreServicio });
           }
           if (name.includes('portero') || name.includes('seguridad')) {
-            requirements.push({ roleName: 'Personal de Seguridad / Portero', quantity: item.cantidad, sourceItem: item.nombreServicio });
+            requirements.push({ roleName: 'Personal de Seguridad / Portero', quantity: item.cantidad || 1, sourceItem: item.nombreServicio });
           }
         });
         setRequiredRoles(requirements);
@@ -253,9 +265,9 @@ export default function AsignarPersonalEventoPage() {
         <Card className="border-primary/20 bg-primary/5">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg font-headline flex items-center gap-2">
-              <ClipboardCheck className="w-5 h-5 text-primary" /> Personal Requerido según Presupuesto
+              <ClipboardCheck className="w-5 h-5 text-primary" /> Personal Requerido (Basado en Presupuesto e Invitados)
             </CardTitle>
-            <CardDescription>Roles detectados automáticamente para este evento.</CardDescription>
+            <CardDescription>Roles detectados automáticamente. Los utileros se suman según la regla de 1 cada 25 invitados.</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
@@ -274,7 +286,7 @@ export default function AsignarPersonalEventoPage() {
           <div>
             <CardTitle className="font-headline">Seleccionar Personal</CardTitle>
             <CardDescription>
-                Asigna un empleado a cada rol contratado. Luego define su pago final para el evento.
+                Asigna un empleado a cada rol. El sueldo se precarga desde la configuración del rol.
             </CardDescription>
           </div>
           <Button variant="ghost" size="sm" onClick={() => fetchInitialData(true)}>
