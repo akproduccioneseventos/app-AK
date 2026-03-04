@@ -5,7 +5,7 @@ import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'reac
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, AlertTriangle, Printer, ShoppingCart, Truck, CheckCircle, PackageSearch, Beer, ChefHat, Info } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, Printer, ShoppingCart, Truck, CheckCircle, PackageSearch, Beer, ChefHat, Info, RefreshCw } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, CompraProveedorEstado } from '@/types/fiesta';
@@ -298,8 +298,8 @@ function ListaDeComprasContent() {
               <div className="space-y-10">
                 {providerNames.map((providerName) => {
                   const { items, total } = groupedByProvider[providerName];
-                  const estadoActual = estadosCompra.find(e => e.proveedor === proveedorName) || { pedido: false, pagado: false };
-                  const isSavingThis = isSavingStatus === proveedorName;
+                  const estadoActual = estadosCompra.find(e => e.provider === providerName) || { pedido: false, pagado: false };
+                  const isSavingThis = isSavingStatus === providerName;
                   return (
                       <div key={providerName} className="print:break-inside-avoid">
                           <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-2 border-b pb-2">
