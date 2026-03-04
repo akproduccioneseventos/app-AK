@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -23,7 +22,6 @@ import Link from 'next/link';
 interface GestionReposteriaProps {
   initialData: ReposteriaData | null;
   onDataChange: (data: ReposteriaData) => void;
-  onSave?: (data: ReposteriaData) => Promise<any>;
   invitados: { adultos: number; ninos: number; adolescentes: number };
   isTemplateMode?: boolean;
 }
@@ -33,12 +31,11 @@ const formatCurrency = (amount?: number) => {
     return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 };
 
-export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialData, onDataChange, onSave, invitados, isTemplateMode = false }) => {
+export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialData, onDataChange, invitados, isTemplateMode = false }) => {
   const { toast } = useToast();
   const [reposteria, setReposteria] = useState<ReposteriaData>(initialData || defaultReposteriaData);
   const [catalogoInsumos, setCatalogoInsumos] = useState<ServicioEmpresa[]>([]);
   
-  // State for modals
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<ReposteriaCategoria | null>(null);
@@ -46,8 +43,15 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
   const [catalogSearchTerm, setCatalogSearchTerm] = useState('');
 
   useEffect(() => {
-    onDataChange(reposteria);
-  }, [reposteria, onDataChange]);
+    if (initialData) {
+        setReposteria(initialData);
+    }
+  }, [initialData]);
+
+  const triggerChange = (updatedData: ReposteriaData) => {
+    setReposteria(updatedData);
+    onDataChange(updatedData);
+  };
 
   const fetchCatalogo = useCallback(async () => {
     try {
@@ -55,19 +59,19 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
         setCatalogoInsumos(todosLosInsumos);
     } catch(e) {
         console.error("Failed to load insumos catalog:", e);
-        toast({title: "Error", description: "No se pudo cargar el catálogo de insumos.", variant: "destructive"});
     }
-  }, [toast]);
+  }, []);
 
   useEffect(() => {
     fetchCatalogo();
   }, [fetchCatalogo]);
 
   const handleCategoryActivation = (categoryId: string, activada: boolean) => {
-    setReposteria(prev => ({
-      ...prev,
-      categorias: prev.categorias.map(c => c.id === categoryId ? { ...c, activada } : c)
-    }));
+    const updated = {
+      ...reposteria,
+      categorias: reposteria.categorias.map(c => c.id === categoryId ? { ...c, activada } : c)
+    };
+    triggerChange(updated);
   };
   
   const openItemModal = (category: ReposteriaCategoria, item?: ReposteriaItem) => {
@@ -100,11 +104,10 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
       costoEstimado: Number(currentItem.costoEstimado) || 0,
     } as ReposteriaItem;
 
-    setReposteria(prev => ({
-      ...prev,
-      categorias: prev.categorias.map(cat => {
+    const updated = {
+      ...reposteria,
+      categorias: reposteria.categorias.map(cat => {
         if (cat.id !== editingCategory.id) return cat;
-        
         const existingItemIndex = cat.items.findIndex(i => i.id === finalItem.id);
         if (existingItemIndex > -1) {
           const newItems = [...cat.items];
@@ -114,9 +117,11 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
           return { ...cat, items: [...cat.items, finalItem] };
         }
       })
-    }));
+    };
     
+    triggerChange(updated);
     setIsItemModalOpen(false);
+    toast({title: "Ítem guardado"});
   };
   
   const handleAddFromCatalog = (insumo: ServicioEmpresa) => {
@@ -127,24 +132,27 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
           nombre: insumo.nombre,
           cantidad: 1,
           unidad: insumo.unidad || 'unidad',
-          costoEstimado: insumo.valorUnitarioEstimado || 0,
+          costoEstimado: insumo.valorUnitarioEstimated || 0,
       };
-      setReposteria(prev => ({
-        ...prev,
-        categorias: prev.categorias.map(cat => 
+      const updated = {
+        ...reposteria,
+        categorias: reposteria.categorias.map(cat => 
           cat.id === editingCategory.id ? {...cat, items: [...cat.items, newItem]} : cat
         )
-      }));
-      toast({description: `"${insumo.nombre}" añadido a ${editingCategory.nombreDisplay}.`});
+      };
+      triggerChange(updated);
+      toast({description: `"${insumo.nombre}" añadido.`});
   };
 
   const handleDeleteItem = (categoryId: string, itemId: string) => {
-     setReposteria(prev => ({
-      ...prev,
-      categorias: prev.categorias.map(cat => 
+     const updated = {
+      ...reposteria,
+      categorias: reposteria.categorias.map(cat => 
         cat.id === categoryId ? { ...cat, items: cat.items.filter(i => i.id !== itemId) } : cat
       )
-    }));
+    };
+    triggerChange(updated);
+    toast({title: "Ítem eliminado", variant: "destructive"});
   };
   
   const totalCostoReposteria = useMemo(() => {
@@ -172,7 +180,7 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
     <>
       <Dialog open={isItemModalOpen} onOpenChange={setIsItemModalOpen}>
         <DialogContent>
-          <DialogHeader><DialogTitle>Añadir Ítem Manual para {editingCategory?.nombreDisplay}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>Editar Ítem para {editingCategory?.nombreDisplay}</DialogTitle></DialogHeader>
           <div className="space-y-3 py-2">
             <div className="space-y-1"><Label htmlFor="item-nombre-manual">Nombre Ítem</Label><Input id="item-nombre-manual" value={currentItem.nombre || ''} onChange={e => handleItemChange('nombre', e.target.value)} /></div>
             <div className="grid grid-cols-3 gap-2">
@@ -180,9 +188,9 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
               <div className="space-y-1"><Label htmlFor="item-unit-manual">Unidad</Label><Select value={currentItem.unidad || 'unidad'} onValueChange={(v) => handleItemChange('unidad', v)}><SelectTrigger id="item-unit-manual"><SelectValue /></SelectTrigger><SelectContent>{ALL_UNIDADES_SERVICIO.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent></Select></div>
               <div className="space-y-1 relative"><Label htmlFor="item-cost-manual">Costo Est.</Label><Input id="item-cost-manual" type="number" value={currentItem.costoEstimado || 0} onChange={e => handleItemChange('costoEstimado', e.target.value)} className="pl-6"/><span className="absolute left-2 top-1/2 mt-1 text-muted-foreground">$</span></div>
             </div>
-            <div className="space-y-1"><Label htmlFor="item-notes-manual">Notas</Label><Input id="item-notes-manual" value={currentItem.notas || ''} onChange={e => handleItemChange('notas', e.target.value)} /></div>
+            <div className="space-y-1"><Label htmlFor="item-notes-manual">Notas</Label><Input id="item-notes-manual" value={currentItem.notes || ''} onChange={e => handleItemChange('notes', e.target.value)} /></div>
           </div>
-          <DialogFooter><Button variant="outline" onClick={() => setIsItemModalOpen(false)}>Cancelar</Button><Button onClick={handleSaveItem}>Añadir Ítem</Button></DialogFooter>
+          <DialogFooter><Button variant="outline" onClick={() => setIsItemModalOpen(false)}>Cancelar</Button><Button onClick={handleSaveItem}>Guardar Ítem</Button></DialogFooter>
         </DialogContent>
       </Dialog>
       
@@ -190,9 +198,9 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
         <DialogContent className="sm:max-w-md">
             <DialogHeader><DialogTitle>Seleccionar del Catálogo de Insumos</DialogTitle><DialogDescription>Añadiendo a: {editingCategory?.nombreDisplay}</DialogDescription></DialogHeader>
             <div className="py-2 space-y-2">
-                <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"/><Input placeholder="Buscar insumo..." value={catalogSearchTerm} onChange={e => setCatalogSearchTerm(e.target.value)} className="pl-9"/></div>
+                <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"/><Input placeholder="Buscar insumo..." value={catalogSearchTerm} onChange={e => setCatalogSearchTerm(e.target.value)} className="pl-9"/></div>
                 <ScrollArea className="h-64 border rounded-md p-1"><ul className="space-y-1">{filteredInsumos.length > 0 ? filteredInsumos.map(insumo => (<li key={insumo.id}><Button type="button" variant="ghost" className="w-full justify-start text-left h-auto" onClick={() => { handleAddFromCatalog(insumo); setIsCatalogModalOpen(false); }}><div><p className="font-medium text-sm">{insumo.nombre}</p><p className="text-xs text-muted-foreground">{formatCurrency(insumo.valorUnitarioEstimado)} / {insumo.unidad}</p></div></Button></li>))
-                    : <li className="p-4 text-sm text-center text-muted-foreground">No hay insumos que coincidan. <Link href="/empresa/insumos/nuevo" className="text-primary underline">Añadir al catálogo</Link>.</li>}
+                    : <li className="p-4 text-sm text-center text-muted-foreground">No hay insumos que coincidan.</li>}
                 </ul></ScrollArea>
             </div>
              <DialogFooter><DialogClose asChild><Button variant="outline">Cerrar</Button></DialogClose></DialogFooter>
@@ -205,7 +213,7 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
           <div>
             <CardTitle className="font-headline text-2xl">Repostería</CardTitle>
             <CardDescription>
-              {isTemplateMode ? "Define los ítems base para cada categoría de repostería." : "Activa y configura las mesas dulces y postres para el evento."}
+              Activa y configura las mesas dulces y postres. Los cambios se guardan automáticamente.
             </CardDescription>
           </div>
           {!isTemplateMode && (
@@ -233,17 +241,17 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
                               {cat.items.map(item => (
                                 <li key={item.id} className="flex items-center justify-between">
                                   <span>{item.nombre} ({item.cantidad} {item.unidad}) - {formatCurrency(item.costoEstimado)}</span>
-                                  <div>
-                                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => openItemModal(cat, item)}><Edit className="w-3 h-3"/></Button>
-                                    <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => handleDeleteItem(cat.id, item.id)}><Trash2 className="w-3 h-3"/></Button>
+                                  <div className="flex gap-1">
+                                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openItemModal(cat, item)}><Edit className="w-3.5 h-3.5"/></Button>
+                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteItem(cat.id, item.id)}><Trash2 className="w-3.5 h-3.5"/></Button>
                                   </div>
                                 </li>
                               ))}
                           </ul>
                       </div>
-                    ) : ( <p className="text-sm text-muted-foreground italic text-center py-2">No hay ítems manuales para esta categoría.</p> )}
+                    ) : ( <p className="text-sm text-muted-foreground italic text-center py-2">No hay ítems para esta categoría.</p> )}
                     <div className="flex justify-end pt-2 gap-2">
-                        <Button variant="outline" size="sm" onClick={() => openItemModal(cat)}><PlusCircle className="w-3 h-3 mr-2"/>Añadir Ítem Manual</Button>
+                        <Button variant="outline" size="sm" onClick={() => openItemModal(cat)}><PlusCircle className="w-3 h-3 mr-2"/>Añadir Manual</Button>
                         <Button variant="outline" size="sm" onClick={() => openCatalogModal(cat)}><BookOpen className="w-3 h-3 mr-2"/>Añadir desde Catálogo</Button>
                     </div>
                   </div>

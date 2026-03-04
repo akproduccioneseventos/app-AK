@@ -1,3 +1,4 @@
+
 'use server';
 
 import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto'; 
@@ -10,6 +11,7 @@ import { getServiciosEmpresa } from './servicios-empresa';
 import { getMenus } from './menus-catering';
 import type { ServicioEmpresa } from '@/types/empresa';
 import type { FullMenu, MenuItem } from '@/types/catering';
+import { getAllFiestas, saveFiesta } from './fiesta/fiesta.actions';
 
 const PRESUPUESTOS_FILE = 'presupuestos.json';
 
@@ -77,6 +79,26 @@ export async function getPresupuestoById(id: string): Promise<Presupuesto | null
   return presupuestos.find(p => p.id === id) || null;
 }
 
+async function syncLinkedFiesta(presupuesto: Presupuesto) {
+    try {
+        const allFiestas = await getAllFiestas();
+        const linkedFiesta = allFiestas.find(f => f.presupuestoId === presupuesto.id);
+        if (linkedFiesta) {
+            linkedFiesta.configuracion = {
+                ...linkedFiesta.configuracion,
+                nombreEvento: `${presupuesto.eventoTipo} de ${presupuesto.clienteNombre}`,
+                fechaEvento: presupuesto.eventoFecha,
+                invitadosEstimados: presupuesto.invitadosCantidad,
+                presupuestoEstimado: presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado,
+                nombreLugar: presupuesto.salonFiestas,
+            };
+            await saveFiesta(linkedFiesta);
+        }
+    } catch (e) {
+        console.error("Error auto-syncing fiesta from budget:", e);
+    }
+}
+
 export async function savePresupuesto(
   presupuestoData: Omit<Presupuesto, 'id'>,
   options?: { source?: 'manual' | 'simulator', leadId?: string }
@@ -129,7 +151,7 @@ export async function savePresupuesto(
     id: presupuestoId,
     numero: nuevoNumero,
     itemsPresupuestados: validItems,
-    costoTotalEstimado: costoTotalEstimadoRecalculado,
+    costoTotalEstimado: costoTotalEstimadoRecalculated,
     totalConDescuento: descuentoAplicado > 0 ? finalTotalWithDiscount : undefined,
     timestamp: new Date().toISOString(),
     estado: presupuestoData.estado || 'Enviado',
@@ -150,6 +172,8 @@ export async function savePresupuesto(
   
   presupuestos.push(nuevoPresupuesto);
   await writeData(PRESUPUESTOS_FILE, presupuestos);
+  
+  await syncLinkedFiesta(nuevoPresupuesto);
 
   return { success: true, id: nuevoPresupuesto.id, presupuesto: nuevoPresupuesto, leadId: finalLeadId };
 }
@@ -198,6 +222,9 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
 
     presupuestos[index] = updated;
     await writeData(PRESUPUESTOS_FILE, presupuestos);
+    
+    await syncLinkedFiesta(updated);
+
     return { success: true, id: updated.id, presupuesto: updated };
 }
 

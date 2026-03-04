@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -14,7 +13,6 @@ import type { BebidasData, BebidaCategoria, BebidaItem, BebidaReceta, Ingredient
 import { GlassWater, Edit, Trash2, PlusCircle, BookOpen, Search } from 'lucide-react';
 import { defaultBebidasData } from '@/lib/fiesta-defaults';
 import { useToast } from '@/hooks/use-toast';
-import { saveBebidasMasterTemplate } from '@/app/actions/bebidas.actions';
 import { getInsumos } from '@/app/actions/insumos';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { ScrollArea } from '../ui/scroll-area';
@@ -23,7 +21,6 @@ import Link from 'next/link';
 interface GestionBebidasProps {
   initialData: BebidasData | null;
   onDataChange: (data: BebidasData) => void;
-  onSave?: (data: BebidasData) => Promise<any>;
   invitados: { adultos: number; ninos: number; adolescentes: number };
   isTemplateMode?: boolean;
 }
@@ -33,7 +30,7 @@ const formatCurrency = (amount?: number) => {
     return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 };
 
-export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onDataChange, onSave, invitados, isTemplateMode = false }) => {
+export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onDataChange, invitados, isTemplateMode = false }) => {
   const { toast } = useToast();
   const [bebidas, setBebidas] = useState<BebidasData>(initialData || defaultBebidasData);
   const [catalogoInsumos, setCatalogoInsumos] = useState<ServicioEmpresa[]>([]);
@@ -50,9 +47,10 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
     }
   }, [initialData]);
 
-  useEffect(() => {
-    onDataChange(bebidas);
-  }, [bebidas, onDataChange]);
+  const triggerChange = (updatedData: BebidasData) => {
+    setBebidas(updatedData);
+    onDataChange(updatedData);
+  };
 
   const fetchCatalogo = useCallback(async () => {
     const todosLosInsumos = await getInsumos();
@@ -65,16 +63,16 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
 
 
   const handleCategoryActivation = (categoryId: string, activada: boolean) => {
-    setBebidas(prev => ({
-      ...prev,
-      categorias: prev.categorias.map(c => c.id === categoryId ? { ...c, activada } : c)
-    }));
+    const updated = {
+      ...bebidas,
+      categorias: bebidas.categorias.map(c => c.id === categoryId ? { ...c, activada } : c)
+    };
+    triggerChange(updated);
   };
   
   const openEditModal = (category: BebidaCategoria) => {
-    // Always use the latest data from the main state when opening the modal
     const currentCategoryData = bebidas.categorias.find(c => c.id === category.id);
-    setEditingCategory(JSON.parse(JSON.stringify(currentCategoryData || category))); // Deep copy
+    setEditingCategory(JSON.parse(JSON.stringify(currentCategoryData || category)));
     setIsEditModalOpen(true);
   };
 
@@ -116,7 +114,6 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
         proveedorHabitual: insumo.proveedor || ''
       };
       setEditingCategory(prev => prev ? { ...prev, items: [...prev.items, newItem] } : null);
-      toast({ description: `"${insumo.nombre}" añadido a ${editingCategory.nombreDisplay}.` });
   };
 
   const deleteItem = (itemId: string) => {
@@ -124,19 +121,15 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
      setEditingCategory(prev => prev ? {...prev, items: prev.items.filter(item => item.id !== itemId)} : null);
   };
 
-  const handleSaveEdits = async () => {
+  const handleSaveEdits = () => {
     if (!editingCategory) return;
-    const newBebidasData = {
+    const updated = {
       ...bebidas,
       categorias: bebidas.categorias.map(c => c.id === editingCategory.id ? editingCategory : c)
     };
-    setBebidas(newBebidasData);
+    triggerChange(updated);
     setIsEditModalOpen(false);
-
-    if(onSave) {
-        await onSave(newBebidasData);
-    }
-    toast({title: "Cambios en Bebidas Guardados", description: `Se actualizaron los ítems de ${editingCategory.nombreDisplay}.`});
+    toast({title: "Cambios guardados"});
   };
 
   const totalCostoBebidas = useMemo(() => {
@@ -194,7 +187,7 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
         <DialogContent className="sm:max-w-md">
             <DialogHeader><DialogTitle>Seleccionar del Catálogo de Insumos</DialogTitle><DialogDescription>Añadiendo a: {editingCategory?.nombreDisplay}</DialogDescription></DialogHeader>
             <div className="py-2 space-y-2">
-                <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"/><Input placeholder="Buscar insumo..." value={catalogSearchTerm} onChange={e => setCatalogSearchTerm(e.target.value)} className="pl-9"/></div>
+                <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"/><Input placeholder="Buscar insumo..." value={catalogSearchTerm} onChange={e => setCatalogSearchTerm(e.target.value)} className="pl-9"/></div>
                 <ScrollArea className="h-64 border rounded-md p-1"><ul className="space-y-1">{filteredInsumos.map(insumo => (<li key={insumo.id}><Button type="button" variant="ghost" className="w-full justify-start text-left h-auto" onClick={() => { addFromCatalog(insumo); setIsCatalogModalOpen(false); }}><div><p className="font-medium text-sm">{insumo.nombre}</p><p className="text-xs text-muted-foreground">{formatCurrency(insumo.valorUnitarioEstimado)} / {insumo.unidad}</p></div></Button></li>))}</ul></ScrollArea>
             </div>
              <DialogFooter><DialogClose asChild><Button variant="outline">Cerrar</Button></DialogClose></DialogFooter>
@@ -207,7 +200,7 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
           <div>
             <CardTitle className="font-headline text-2xl">Bebidas</CardTitle>
             <CardDescription>
-              {isTemplateMode ? "Define los ítems base y recetas para cada categoría de bebidas." : "Activa y configura las bebidas para el evento."}
+              Activa y configura las bebidas para el evento. Los cambios se guardan automáticamente.
             </CardDescription>
           </div>
           {!isTemplateMode && (
@@ -244,23 +237,6 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
                       </div>
                     )}
                     
-                    {cat.recetas && cat.recetas.length > 0 && (
-                       <div className="space-y-2">
-                          <h4 className="text-sm font-medium">Recetas / Preparaciones:</h4>
-                          {cat.recetas.map(receta => (
-                            <div key={receta.id} className="pl-4">
-                              <p className="font-medium text-sm text-foreground">{receta.nombre}</p>
-                              {isTemplateMode && (
-                                <ul className="list-disc pl-5 text-xs text-muted-foreground">
-                                    {receta.ingredientes?.map(ing => (
-                                    <li key={ing.id}>{ing.nombreInsumo}: {ing.cantidad} {ing.unidad}</li>
-                                    ))}
-                                </ul>
-                              )}
-                            </div>
-                          ))}
-                      </div>
-                    )}
                     <div className="flex justify-end pt-2">
                       <Button variant="outline" size="sm" onClick={() => openEditModal(cat)}>
                           <Edit className="w-3 h-3 mr-2" /> Editar Ítems de Compra

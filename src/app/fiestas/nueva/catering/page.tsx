@@ -130,18 +130,41 @@ function PlannerGastronomicoFiestaContent() {
     loadData();
   }, [loadData]);
 
-   const handleSaveAll = async () => {
+   const handleSaveMenu = async (menuId: string | undefined) => {
         if (!fiestaId) return;
         setIsSaving(true);
+        setSelectedMenuId(menuId);
         try {
-            await Promise.all([
-                updateReposteriaFiestaActual(fiestaId, reposteriaData),
-                updateBebidasFiestaActual(fiestaId, bebidasData),
-                updateMenuAsignadoFiestaActual(fiestaId, selectedMenuId)
-            ]);
-            toast({ title: "Planificación Gastronómica Guardada" });
+            await updateMenuAsignadoFiestaActual(fiestaId, menuId);
+            toast({ title: "Menú actualizado automáticamente" });
         } catch(e: any) {
-            toast({ title: "Error", description: "No se pudieron guardar los cambios.", variant: "destructive"});
+            toast({ title: "Error al guardar menú", description: e.message, variant: "destructive"});
+        } finally {
+            setIsSaving(false);
+        }
+    }
+
+    const handleSaveReposteria = async (data: ReposteriaData) => {
+        if (!fiestaId) return;
+        setIsSaving(true);
+        setReposteriaData(data);
+        try {
+            await updateReposteriaFiestaActual(fiestaId, data);
+        } catch(e: any) {
+            toast({ title: "Error en auto-guardado", description: e.message, variant: "destructive"});
+        } finally {
+            setIsSaving(false);
+        }
+    }
+
+    const handleSaveBebidas = async (data: BebidasData) => {
+        if (!fiestaId) return;
+        setIsSaving(true);
+        setBebidasData(data);
+        try {
+            await updateBebidasFiestaActual(fiestaId, data);
+        } catch(e: any) {
+            toast({ title: "Error en auto-guardado", description: e.message, variant: "destructive"});
         } finally {
             setIsSaving(false);
         }
@@ -175,9 +198,12 @@ function PlannerGastronomicoFiestaContent() {
                 <CardTitle className="font-headline text-xl">Resumen de Invitados</CardTitle>
                 <CardDescription>Base para el cálculo automático de cantidades e insumos.</CardDescription>
             </div>
-            <Button variant="ghost" size="sm" onClick={() => loadData(true)} title="Sincronizar con presupuesto">
-                <RefreshCw className="w-4 h-4 mr-2"/> Sincronizar
-            </Button>
+            <div className="flex items-center gap-2">
+                {isSaving && <Loader2 className="w-4 h-4 animate-spin text-primary"/>}
+                <Button variant="ghost" size="sm" onClick={() => loadData(true)} title="Sincronizar con presupuesto">
+                    <RefreshCw className="w-4 h-4 mr-2"/> Sincronizar
+                </Button>
+            </div>
           </CardHeader>
           <CardContent className="grid grid-cols-3 gap-4 text-center">
             <div className="p-3 bg-muted/30 rounded-lg">
@@ -196,7 +222,7 @@ function PlannerGastronomicoFiestaContent() {
           <CardFooter>
              <p className="text-xs text-muted-foreground italic flex items-center gap-1.5">
                 <Info className="w-3.5 h-3.5"/>
-                Datos sincronizados desde el presupuesto o la configuración del evento actual.
+                Los cambios se guardan automáticamente al modificar menús, bebidas o repostería.
              </p>
           </CardFooter>
       </Card>
@@ -217,10 +243,6 @@ function PlannerGastronomicoFiestaContent() {
              <ShoppingCart className="w-4 h-4 mr-2"/> Ver Lista de Compras
            </Button>
          </Link>
-         <Button onClick={handleSaveAll} disabled={isSaving || isLoading}>
-            {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>}
-            Guardar Cambios
-         </Button>
       </div>
 
        {isLoading ? <div className="text-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div> :
@@ -228,12 +250,12 @@ function PlannerGastronomicoFiestaContent() {
             <Card>
                 <CardHeader>
                     <CardTitle className="font-headline text-xl">Menú Principal Seleccionado</CardTitle>
-                    <CardDescription>Crea o edita las plantillas de menú en el Planificador Gastronómico Maestro.</CardDescription>
+                    <CardDescription>Selecciona una plantilla del catálogo. Los ingredientes se sumarán a la lista de compras automáticamente.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-2">
                         <Label htmlFor="menu-select">Seleccionar Menú del Catálogo</Label>
-                        <Select value={selectedMenuId || ''} onValueChange={(val) => setSelectedMenuId(val === 'ninguno' ? undefined : val)}>
+                        <Select value={selectedMenuId || ''} onValueChange={(val) => handleSaveMenu(val === 'ninguno' ? undefined : val)}>
                             <SelectTrigger id="menu-select"><SelectValue placeholder="Seleccionar un menú..."/></SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="ninguno">Ninguno</SelectItem>
@@ -242,20 +264,19 @@ function PlannerGastronomicoFiestaContent() {
                                 ))}
                             </SelectContent>
                         </Select>
-                         <p className="text-xs text-muted-foreground">Los ingredientes de este menú se sumarán automáticamente a la lista de compras.</p>
                     </div>
                 </CardContent>
             </Card>
 
             <GestionReposteria 
                 initialData={reposteriaData} 
-                onDataChange={setReposteriaData}
+                onDataChange={handleSaveReposteria}
                 invitados={{adultos: displayAdultos, ninos: displayNinos, adolescentes: 0}} 
             />
             
             <GestionBebidas 
                 initialData={bebidasData} 
-                onDataChange={setBebidasData}
+                onDataChange={handleSaveBebidas}
                 invitados={{adultos: displayAdultos, ninos: displayNinos, adolescentes: 0}}
             />
         </>

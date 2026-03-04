@@ -153,28 +153,27 @@ export default function AsignarPersonalEventoPage() {
     fetchInitialData();
   }, [fetchInitialData]);
 
-  const handleAssignmentChange = (empleado: Empleado, selectedRolId: string) => {
-    setAssignedStaff(prev => {
-        const newMap = new Map(prev);
-        if (selectedRolId === "ninguno") {
-            newMap.delete(empleado.id);
-        } else {
-            const rol = allRoles.find(r => r.id === selectedRolId);
-            if(rol) {
-                const eventSalary = rol.sueldoPorEvento;
-                const employerContribution = (eventSalary * (rol.porcentajeAportesPatronales || 0)) / 100;
-                newMap.set(empleado.id, {
-                    empleadoId: empleado.id,
-                    nombre: empleado.nombre,
-                    rolId: rol.id,
-                    rolNombre: rol.nombre,
-                    eventSalary,
-                    employerContribution
-                });
-            }
+  const handleAssignmentChange = async (empleado: Empleado, selectedRolId: string) => {
+    let updatedStaffMap = new Map(assignedStaff);
+    if (selectedRolId === "ninguno") {
+        updatedStaffMap.delete(empleado.id);
+    } else {
+        const rol = allRoles.find(r => r.id === selectedRolId);
+        if(rol) {
+            const eventSalary = rol.sueldoPorEvento;
+            const employerContribution = (eventSalary * (rol.porcentajeAportesPatronales || 0)) / 100;
+            updatedStaffMap.set(empleado.id, {
+                empleadoId: empleado.id,
+                nombre: empleado.nombre,
+                rolId: rol.id,
+                rolNombre: rol.nombre,
+                eventSalary,
+                employerContribution
+            });
         }
-        return newMap;
-    });
+    }
+    setAssignedStaff(updatedStaffMap);
+    await handleAutoSave(updatedStaffMap);
   }
 
   const handleEventSalaryChange = (empleadoId: string, newSalaryStr: string) => {
@@ -197,18 +196,19 @@ export default function AsignarPersonalEventoPage() {
     });
   };
   
-  const handleEventSalaryBlur = (empleadoId: string) => {
-    setAssignedStaff(prev => {
-        const newMap = new Map(prev);
-        const currentAssignment = newMap.get(empleadoId);
-        if (currentAssignment && (currentAssignment.eventSalary === 0 || isNaN(currentAssignment.eventSalary))) {
+  const handleEventSalaryBlur = async (empleadoId: string) => {
+    let updatedStaffMap = new Map(assignedStaff);
+    const currentAssignment = updatedStaffMap.get(empleadoId);
+    if (currentAssignment) {
+        if (currentAssignment.eventSalary === 0 || isNaN(currentAssignment.eventSalary)) {
             const rol = allRoles.find(r => r.id === currentAssignment.rolId);
             const fallbackSalary = rol?.sueldoPorEvento ?? 0;
             const aportes = (fallbackSalary * (rol?.porcentajeAportesPatronales ?? 0)) / 100;
-            newMap.set(empleadoId, { ...currentAssignment, eventSalary: fallbackSalary, employerContribution: aportes });
+            updatedStaffMap.set(empleadoId, { ...currentAssignment, eventSalary: fallbackSalary, employerContribution: aportes });
         }
-        return newMap;
-    });
+        setAssignedStaff(updatedStaffMap);
+        await handleAutoSave(updatedStaffMap);
+    }
   };
 
   const totalAssignedCount = assignedStaff.size;
@@ -216,12 +216,12 @@ export default function AsignarPersonalEventoPage() {
   const totalContributionCost = Array.from(assignedStaff.values()).reduce((sum, { employerContribution }) => sum + (employerContribution || 0), 0);
   const totalEventCost = totalSalaryCost + totalContributionCost;
 
-  const handleSaveChanges = async () => {
+  const handleAutoSave = async (updatedStaffMap: Map<string, AssignedStaffUIDetail>) => {
     const fiestaId = new URLSearchParams(window.location.search).get('fiestaId');
     if (!fiestaId) return;
     
     setIsSaving(true);
-    const personalToSave: PersonalAsignadoDetalleStorage[] = Array.from(assignedStaff.values()).map(item => ({
+    const personalToSave: PersonalAsignadoDetalleStorage[] = Array.from(updatedStaffMap.values()).map(item => ({
       empleadoId: item.empleadoId,
       rolId: item.rolId,
       eventSalary: item.eventSalary
@@ -229,16 +229,9 @@ export default function AsignarPersonalEventoPage() {
 
     try {
       const result = await updatePersonalFiestaActual(fiestaId, personalToSave);
-      if (result.success) {
-        toast({
-          title: "¡Personal Guardado!",
-          description: `Se guardaron las asignaciones de ${totalAssignedCount} empleado(s).`,
-        });
-      } else {
-        throw new Error(result.error || "No se pudo guardar el personal asignado.");
-      }
+      if (!result.success) throw new Error(result.error || "No se pudo guardar automáticamente.");
     } catch (error: any) {
-      toast({ title: "Error al Guardar", description: error.message, variant: "destructive" });
+      toast({ title: "Error en auto-guardado", description: error.message, variant: "destructive" });
     } finally {
       setIsSaving(false);
     }
@@ -286,12 +279,15 @@ export default function AsignarPersonalEventoPage() {
           <div>
             <CardTitle className="font-headline">Seleccionar Personal</CardTitle>
             <CardDescription>
-                Asigna un empleado a cada rol. El sueldo se precarga desde la configuración del rol.
+                Asigna un empleado a cada rol. Los cambios se guardan automáticamente.
             </CardDescription>
           </div>
-          <Button variant="ghost" size="sm" onClick={() => fetchInitialData(true)}>
-              <RefreshCw className="w-4 h-4 mr-2"/> Sincronizar
-          </Button>
+          <div className="flex items-center gap-2">
+            {isSaving && <Loader2 className="w-4 h-4 animate-spin text-primary"/>}
+            <Button variant="ghost" size="sm" onClick={() => fetchInitialData(true)}>
+                <RefreshCw className="w-4 h-4 mr-2"/> Sincronizar
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -366,11 +362,7 @@ export default function AsignarPersonalEventoPage() {
           <div className="flex justify-between items-center"><span className="text-muted-foreground">Total de Personal Asignado:</span><span className="font-semibold text-lg">{totalAssignedCount}</span></div>
           <div className="flex justify-between items-center border-t pt-3 mt-2"><span className="font-bold text-primary">COSTO TOTAL ESTIMADO:</span><span className="font-bold text-lg text-primary">{formatCurrency(totalEventCost)}</span></div>
         </CardContent>
-        <CardFooter className="border-t pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
-          <Button onClick={handleSaveChanges} disabled={isSaving} className="w-full sm:w-auto" size="lg">
-            {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Save className="w-5 h-5 mr-2" />}
-            {isSaving ? 'Guardando...' : 'Guardar Asignaciones'}
-          </Button>
+        <CardFooter className="border-t pt-6 flex flex-col sm:flex-row justify-end items-center gap-3">
           <Link href={`/fiestas/nueva/personal/recibos?fiestaId=${new URLSearchParams(window.location.search).get('fiestaId')}`} passHref>
               <Button variant="secondary" className="w-full sm:w-auto" size="lg">
                   <Printer className="w-5 h-5 mr-2" />
