@@ -3,7 +3,7 @@
 
 import { Suspense, useEffect, useState, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
+import { Loader2, AlertTriangle, CheckCircle, Ticket, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, InvitacionDigitalData, SocialConnection, Invitado } from '@/types/fiesta';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
@@ -15,8 +15,8 @@ import { AllegriaTemplate } from '@/components/invitacion/templates/AllegriaTemp
 import { handleRsvpSubmission } from '@/app/actions/fiesta/invitados.actions';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, PartyPopper, Download, Ticket } from 'lucide-react';
 import QRCodeStylized from 'qrcode.react';
+import { motion } from "framer-motion";
 
 function EventoPublicoPageContent() {
   const { toast } = useToast();
@@ -50,6 +50,28 @@ function EventoPublicoPageContent() {
       
       setFiesta(data);
       const mergedInvitacionData = merge(cloneDeep(defaultInvitacionDigitalData), data.invitacionDigital || {});
+      
+      // SINCRONIZACIÓN DINÁMICA: Sobreescribir con datos de configuración real
+      if (data.configuracion) {
+          mergedInvitacionData.cabecera.protagonista1 = data.configuracion.protagonista1Nombre || mergedInvitacionData.cabecera.protagonista1;
+          mergedInvitacionData.cabecera.protagonista2 = data.configuracion.protagonista2Nombre || mergedInvitacionData.cabecera.protagonista2;
+          
+          // El tipo de celebración actúa como subtítulo si no hay uno personalizado
+          if (!data.invitacionDigital?.cabecera?.subtitulo?.text) {
+              mergedInvitacionData.cabecera.subtitulo.text = data.configuracion.tipoCelebracion || mergedInvitacionData.cabecera.subtitulo.text;
+          }
+          
+          // Sincronizar fechas en detalles si están vacías
+          if (data.configuracion.fechaEvento) {
+              if (mergedInvitacionData.detallesEvento.ceremoniaReligiosa.visible) {
+                  mergedInvitacionData.detallesEvento.ceremoniaReligiosa.fecha = data.configuracion.fechaEvento;
+              }
+              if (mergedInvitacionData.detallesEvento.celebracion.visible) {
+                  mergedInvitacionData.detallesEvento.celebracion.fecha = data.configuracion.fechaEvento;
+              }
+          }
+      }
+
       setInvitacionData(mergedInvitacionData);
       setSocialConnections(socialData);
 

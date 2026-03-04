@@ -8,7 +8,7 @@ import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
 import { CountdownTimer } from '@/components/countdown-timer';
 import { Separator } from '@/components/ui/separator';
-import { Church, GlassWater, Gift, MapPin, Calendar, Heart, PartyPopper } from 'lucide-react';
+import { Church, GlassWater, Gift, MapPin, Calendar, Heart, PartyPopper, Clock, Utensils } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion } from "framer-motion";
 import type { DetalleEventoEspecifico } from '@/types/fiesta';
@@ -54,12 +54,18 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionDa
 
                 <div className="text-center text-white space-y-6 px-6">
                     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-                        <span className="text-sm font-bold tracking-[0.5em] uppercase opacity-80">{invitacionData.cabecera.subtitulo.text}</span>
+                        <span className="text-sm font-bold tracking-[0.5em] uppercase opacity-80">
+                            {fiesta.configuracion.tipoCelebracion || invitacionData.cabecera.subtitulo.text}
+                        </span>
                     </motion.div>
                     <motion.h1 initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 }} className="text-6xl md:text-8xl font-headline font-bold">
-                        {invitacionData.cabecera.protagonista1}
-                        <br /><span style={{ color: primaryColor }}>&</span><br />
-                        {invitacionData.cabecera.protagonista2}
+                        {fiesta.configuracion.protagonista1Nombre || invitacionData.cabecera.protagonista1}
+                        {fiesta.configuracion.protagonista2Nombre && (
+                            <>
+                                <br /><span style={{ color: primaryColor }}>&</span><br />
+                                {fiesta.configuracion.protagonista2Nombre}
+                            </>
+                        )}
                     </motion.h1>
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }} className="flex items-center justify-center gap-4 text-xl">
                         <Separator className="w-12 bg-white/30" />
@@ -72,28 +78,31 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionDa
             </section>
 
             {/* COUNTDOWN BOLD */}
-            <section className="py-20 bg-slate-900 text-white overflow-hidden">
-                <div className="max-w-4xl mx-auto px-6 text-center space-y-12">
-                    <h2 className="text-xl font-bold tracking-[0.3em] uppercase opacity-50">Comienza el conteo</h2>
-                    <CountdownTimer targetDate={fiesta.configuracion.fechaEvento} />
-                </div>
-            </section>
+            {invitacionData.cuentaRegresiva.visible && (
+                <section className="py-20 bg-slate-900 text-white overflow-hidden">
+                    <div className="max-w-4xl mx-auto px-6 text-center space-y-12">
+                        <h2 className="text-xl font-bold tracking-[0.3em] uppercase opacity-50">Comienza el conteo</h2>
+                        <CountdownTimer targetDate={fiesta.configuracion.fechaEvento} />
+                    </div>
+                </section>
+            )}
 
             {/* WELCOME SECTION */}
-            <section className="py-32 px-6">
-                <div className="max-w-2xl mx-auto text-center space-y-8">
-                    <Heart className="w-12 h-12 mx-auto text-primary animate-pulse" fill={primaryColor} />
-                    <h2 className="text-5xl font-headline font-bold leading-tight">{invitacionData.bienvenida.titulo.text}</h2>
-                    <p className="text-xl text-slate-600 leading-relaxed italic">
-                        "{invitacionData.bienvenida.texto.text}"
-                    </p>
-                </div>
-            </section>
+            {invitacionData.bienvenida.visible && (
+                <section className="py-32 px-6">
+                    <div className="max-w-2xl mx-auto text-center space-y-8">
+                        <Heart className="w-12 h-12 mx-auto text-primary animate-pulse" fill={primaryColor} />
+                        <h2 className="text-5xl font-headline font-bold leading-tight">{invitacionData.bienvenida.titulo.text}</h2>
+                        <p className="text-xl text-slate-600 leading-relaxed italic">
+                            "{invitacionData.bienvenida.texto.text}"
+                        </p>
+                    </div>
+                </section>
+            )}
 
             {/* LOCATIONS - GRID LAYOUT */}
             <section className="py-32 bg-slate-50 px-6">
                 <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16">
-                    {/* Location Item */}
                     {[invitacionData.detallesEvento.ceremoniaReligiosa, invitacionData.detallesEvento.celebracion].filter(d => d.visible).map((detalle, i) => (
                         <motion.div 
                             key={i}
@@ -113,15 +122,15 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionDa
                                 <div className="space-y-4 text-lg">
                                     <div className="flex items-center gap-4 text-slate-500">
                                         <Calendar className="w-5 h-5 text-primary" />
-                                        <span>{formatDate(detalle.fecha)}</span>
+                                        <span>{formatDate(detalle.fecha || fiesta.configuracion.fechaEvento)}</span>
                                     </div>
                                     <div className="flex items-center gap-4 text-slate-500">
                                         <MapPin className="w-5 h-5 text-primary" />
                                         <span>{detalle.nombreLugar}</span>
                                     </div>
                                 </div>
-                                <Button className="w-full h-16 rounded-2xl text-lg font-bold" style={{ backgroundColor: primaryColor }}>
-                                    VER UBICACIÓN
+                                <Button asChild className="w-full h-16 rounded-2xl text-lg font-bold" style={{ backgroundColor: primaryColor }}>
+                                    <a href={detalle.mapaUrl || '#'}>VER UBICACIÓN</a>
                                 </Button>
                             </div>
                         </motion.div>
@@ -129,25 +138,51 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionDa
                 </div>
             </section>
 
-            {/* GIFT SECTION */}
-            <section className="py-32 px-6 text-center space-y-12">
-                <div className="max-w-xl mx-auto space-y-6">
-                    <div className="inline-block p-6 bg-primary/10 rounded-full mb-4">
-                        <Gift className="w-10 h-10" style={{ color: primaryColor }} />
-                    </div>
-                    <h2 className="text-5xl font-headline font-bold">{invitacionData.regalos.titulo.text}</h2>
-                    <p className="text-xl text-slate-600 leading-relaxed">
-                        {invitacionData.regalos.texto.text}
-                    </p>
-                    {invitacionData.regalos.datosBancarios && (
-                        <div className="p-10 border-2 border-dashed border-slate-200 rounded-[2rem] bg-slate-50">
-                            <p className="font-mono text-2xl tracking-tighter font-bold text-slate-800 break-all">
-                                {invitacionData.regalos.datosBancarios}
-                            </p>
+            {/* ITINERARIO SECTION */}
+            {invitacionData.itinerario.visible && fiesta.programa && fiesta.programa.length > 0 && (
+                <section className="py-32 px-6 bg-white">
+                    <div className="max-w-4xl mx-auto space-y-12">
+                        <div className="text-center space-y-4">
+                            <Clock className="w-12 h-12 mx-auto text-primary" />
+                            <h2 className="text-5xl font-headline font-bold">Cronograma</h2>
                         </div>
-                    )}
-                </div>
-            </section>
+                        <div className="grid grid-cols-1 gap-6">
+                            {fiesta.programa.map((item, idx) => (
+                                <div key={item.id} className="flex items-center gap-6 p-6 border rounded-2xl hover:bg-slate-50 transition-colors">
+                                    <div className="text-2xl font-bold text-primary w-24 shrink-0">{item.hora}</div>
+                                    <div className="h-12 w-px bg-slate-200"></div>
+                                    <div>
+                                        <h4 className="text-xl font-bold">{item.titulo}</h4>
+                                        <p className="text-slate-500">{item.descripcion}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
+
+            {/* GIFT SECTION */}
+            {invitacionData.regalos.visible && (
+                <section className="py-32 px-6 text-center space-y-12 bg-slate-50">
+                    <div className="max-w-xl mx-auto space-y-6">
+                        <div className="inline-block p-6 bg-primary/10 rounded-full mb-4">
+                            <Gift className="w-10 h-10" style={{ color: primaryColor }} />
+                        </div>
+                        <h2 className="text-5xl font-headline font-bold">{invitacionData.regalos.titulo.text}</h2>
+                        <p className="text-xl text-slate-600 leading-relaxed">
+                            {invitacionData.regalos.texto.text}
+                        </p>
+                        {invitacionData.regalos.datosBancarios && (
+                            <div className="p-10 border-2 border-dashed border-slate-200 rounded-[2rem] bg-white">
+                                <p className="font-mono text-2xl tracking-tighter font-bold text-slate-800 break-all">
+                                    {invitacionData.regalos.datosBancarios}
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                </section>
+            )}
 
             {/* FOOTER */}
             <footer className="py-24 bg-slate-900 text-white text-center px-6">

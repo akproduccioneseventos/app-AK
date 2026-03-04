@@ -159,13 +159,19 @@ const GraziaCabecera: React.FC<{ data: any, fiesta: FiestaEnPlanificacion, palet
                 {data.logoUrl && <div className="mb-8"><NextImage src={data.logoUrl} alt="Logo" width={150} height={150} className="mx-auto" /></div>}
                 
                 <div className="space-y-4">
-                    <span className="text-sm font-bold tracking-[0.4em] uppercase text-primary block" style={{ color: paleta.primary }}>{data.subtitulo?.text}</span>
+                    <span className="text-sm font-bold tracking-[0.4em] uppercase text-primary block" style={{ color: paleta.primary }}>
+                        {fiesta.configuracion.tipoCelebracion || data.subtitulo?.text}
+                    </span>
                     <h1 className="text-6xl md:text-8xl font-headline font-bold text-slate-900 tracking-tighter">
-                        {data.protagonista1}
-                        <br />
-                        <span className="text-primary" style={{ color: paleta.primary }}>&</span>
-                        <br />
-                        {data.protagonista2}
+                        {fiesta.configuracion.protagonista1Nombre || data.protagonista1}
+                        {fiesta.configuracion.protagonista2Nombre && (
+                            <>
+                                <br />
+                                <span className="text-primary" style={{ color: paleta.primary }}>&</span>
+                                <br />
+                                {fiesta.configuracion.protagonista2Nombre}
+                            </>
+                        )}
                     </h1>
                 </div>
 
@@ -275,8 +281,8 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
                     </div>
                   </div>
                   <div className="space-y-2 text-center">
-                    <p className="font-semibold text-xl">{formatDate(detalle.fecha)}</p>
-                    <p className="text-primary font-bold">{detalle.hora} HS</p>
+                    <p className="font-semibold text-xl">{formatDate(detalle.fecha || fiesta.configuracion.fechaEvento)}</p>
+                    <p className="text-primary font-bold">{detalle.hora || (idx === 2 ? fiesta.configuracion.horaInicio : '')} HS</p>
                     <p className="text-sm text-muted-foreground">{detalle.direccionLugar}</p>
                     <Button asChild variant="outline" className="mt-4 rounded-full border-primary/20 hover:bg-primary/5">
                       <a href={detalle.mapaUrl || '#'} target="_blank"><MapPin className="w-4 h-4 mr-2"/> Cómo llegar</a>
@@ -294,14 +300,14 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
             <SectionHeader icon={Clock} title="Cronograma" color={primaryColor} />
             <div className="max-w-2xl mx-auto space-y-8 relative">
               <div className="absolute left-[27px] top-4 bottom-4 w-0.5 bg-primary/20 md:left-1/2 md:-ml-px"></div>
-              {(fiesta.programa || []).map((item, i) => (
+              {(fiesta.programa && fiesta.programa.length > 0 ? fiesta.programa : []).map((item, i) => (
                 <motion.div key={item.id} initial={{ opacity: 0, x: i % 2 === 0 ? -50 : 50 }} whileInView={{ opacity: 1, x: 0 }} className={cn("flex items-center gap-8 md:gap-0", i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse")}>
                   <div className="w-full md:w-1/2 md:px-12 text-left md:text-right">
                     {i % 2 === 0 && (
                       <div className="bg-white p-6 rounded-2xl shadow-xl border border-primary/5">
                         <span className="text-primary font-bold text-lg">{item.hora}</span>
                         <h4 className="text-xl font-headline my-1">{item.titulo}</h4>
-                        <p className="text-sm text-muted-foreground">{item.description}</p>
+                        <p className="text-sm text-muted-foreground">{item.descripcion}</p>
                       </div>
                     )}
                   </div>
@@ -313,7 +319,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
                       <div className="bg-white p-6 rounded-2xl shadow-xl border border-primary/5">
                         <span className="text-primary font-bold text-lg">{item.hora}</span>
                         <h4 className="text-xl font-headline my-1">{item.titulo}</h4>
-                        <p className="text-sm text-muted-foreground">{item.description}</p>
+                        <p className="text-sm text-muted-foreground">{item.descripcion}</p>
                       </div>
                     )}
                   </div>
