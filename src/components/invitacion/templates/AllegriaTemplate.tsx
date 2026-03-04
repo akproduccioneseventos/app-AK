@@ -1,7 +1,7 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import type { FiestaEnPlanificacion, InvitacionDigitalData, ColorPalette, SocialConnection, SeccionInvitacion } from '@/types/fiesta';
 import { EditableText } from '../edit/EditableText';
 import NextImage from 'next/image';
@@ -12,6 +12,7 @@ import { Church, GlassWater, Gift, MapPin, Calendar, Heart, PartyPopper, Clock, 
 import { Button } from '@/components/ui/button';
 import { motion } from "framer-motion";
 import type { DetalleEventoEspecifico } from '@/types/fiesta';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 
 interface TemplateProps {
   fiesta: FiestaEnPlanificacion;
@@ -26,6 +27,8 @@ interface TemplateProps {
 export const AllegriaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData, onUpdate, onSectionClick, selectedSectionId, isPreview }) => {
     const paleta = invitacionData.cabecera.paletaColores;
     const primaryColor = paleta?.primary || '#E11D48';
+    
+    const [isItineraryModalOpen, setIsItineraryModalOpen] = useState(false);
 
     const formatDate = (dateString?: string) => {
         if (!dateString) return "PRÓXIMAMENTE";
@@ -139,26 +142,45 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionDa
             </section>
 
             {/* ITINERARIO SECTION */}
-            {invitacionData.itinerario.visible && fiesta.programa && fiesta.programa.length > 0 && (
-                <section className="py-32 px-6 bg-white">
-                    <div className="max-w-4xl mx-auto space-y-12">
-                        <div className="text-center space-y-4">
-                            <Clock className="w-12 h-12 mx-auto text-primary" />
-                            <h2 className="text-5xl font-headline font-bold">Cronograma</h2>
-                        </div>
-                        <div className="grid grid-cols-1 gap-6">
-                            {fiesta.programa.map((item, idx) => (
-                                <div key={item.id} className="flex items-center gap-6 p-6 border rounded-2xl hover:bg-slate-50 transition-colors">
-                                    <div className="text-2xl font-bold text-primary w-24 shrink-0">{item.hora}</div>
-                                    <div className="h-12 w-px bg-slate-200"></div>
-                                    <div>
-                                        <h4 className="text-xl font-bold">{item.titulo}</h4>
-                                        <p className="text-slate-500">{item.descripcion}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+            {invitacionData.itinerario.visible && (
+                <section className="py-32 px-6 bg-white text-center">
+                    <div className="max-w-2xl mx-auto space-y-8">
+                        <Clock className="w-16 h-16 mx-auto text-primary" />
+                        <h2 className="text-5xl font-headline font-bold">Cronograma</h2>
+                        <p className="text-xl text-slate-600 italic">Descubre los momentos clave del evento.</p>
+                        <Button 
+                            onClick={(e) => { e.stopPropagation(); setIsItineraryModalOpen(true); }}
+                            size="lg" 
+                            className="h-16 px-12 rounded-2xl text-xl font-bold shadow-xl shadow-primary/20"
+                            style={{ backgroundColor: primaryColor }}
+                        >
+                            VER ITINERARIO
+                        </Button>
                     </div>
+                    
+                    <Dialog open={isItineraryModalOpen} onOpenChange={setIsItineraryModalOpen}>
+                        <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto rounded-[2rem] p-8 border-none shadow-3xl">
+                            <DialogHeader className="text-center pb-6 border-b">
+                                <DialogTitle className="text-4xl font-headline font-bold">Cronograma</DialogTitle>
+                                <DialogDescription>Horarios y actividades del evento</DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-8 pt-8">
+                                {(fiesta.programa || []).map((item) => (
+                                    <div key={item.id} className="flex items-center gap-6 text-left">
+                                        <div className="text-xl font-bold text-primary w-20 shrink-0">{item.hora}</div>
+                                        <div className="h-10 w-px bg-slate-200"></div>
+                                        <div>
+                                            <h4 className="text-lg font-bold leading-tight">{item.titulo}</h4>
+                                            <p className="text-sm text-slate-500">{item.descripcion}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            <DialogFooter className="mt-10">
+                                <DialogClose asChild><Button variant="outline" className="w-full h-14 rounded-xl border-slate-200 text-slate-600">Cerrar</Button></DialogClose>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
                 </section>
             )}
 

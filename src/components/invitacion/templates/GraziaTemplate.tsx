@@ -193,8 +193,10 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  // RSVP Form State
+  // Modals State
   const [isRsvpModalOpen, setIsRsvpModalOpen] = useState(false);
+  const [isItineraryModalOpen, setIsItineraryModalOpen] = useState(false);
+  
   const [rsvpName, setRsvpName] = useState('');
   const [rsvpGuests, setRsvpGuests] = useState(1);
   const [companionNames, setCompanionNames] = useState<string[]>([]);
@@ -296,36 +298,46 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
 
       case 'itinerario':
         return (
-          <SectionWrapper {...wrapperProps} className="bg-muted/50">
+          <SectionWrapper {...wrapperProps} className="bg-muted/50 text-center">
             <SectionHeader icon={Clock} title="Cronograma" color={primaryColor} />
-            <div className="max-w-2xl mx-auto space-y-8 relative">
-              <div className="absolute left-[27px] top-4 bottom-4 w-0.5 bg-primary/20 md:left-1/2 md:-ml-px"></div>
-              {(fiesta.programa && fiesta.programa.length > 0 ? fiesta.programa : []).map((item, i) => (
-                <motion.div key={item.id} initial={{ opacity: 0, x: i % 2 === 0 ? -50 : 50 }} whileInView={{ opacity: 1, x: 0 }} className={cn("flex items-center gap-8 md:gap-0", i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse")}>
-                  <div className="w-full md:w-1/2 md:px-12 text-left md:text-right">
-                    {i % 2 === 0 && (
-                      <div className="bg-white p-6 rounded-2xl shadow-xl border border-primary/5">
-                        <span className="text-primary font-bold text-lg">{item.hora}</span>
-                        <h4 className="text-xl font-headline my-1">{item.titulo}</h4>
-                        <p className="text-sm text-muted-foreground">{item.descripcion}</p>
-                      </div>
-                    )}
-                  </div>
-                  <div className="relative z-10 w-14 h-14 rounded-full bg-white border-4 border-primary flex items-center justify-center shrink-0 shadow-lg">
-                    {React.createElement(iconMap[item.icono || 'Clock'] || Clock, { className: "w-6 h-6 text-primary" })}
-                  </div>
-                  <div className="w-full md:w-1/2 md:px-12 text-left">
-                    {i % 2 !== 0 && (
-                      <div className="bg-white p-6 rounded-2xl shadow-xl border border-primary/5">
-                        <span className="text-primary font-bold text-lg">{item.hora}</span>
-                        <h4 className="text-xl font-headline my-1">{item.titulo}</h4>
-                        <p className="text-sm text-muted-foreground">{item.descripcion}</p>
-                      </div>
-                    )}
-                  </div>
-                </motion.div>
-              ))}
+            <div className="max-w-2xl mx-auto">
+                <p className="mb-8 text-muted-foreground italic">Descubre paso a paso los momentos que hemos preparado para ti.</p>
+                <Button 
+                    onClick={(e) => { e.stopPropagation(); setIsItineraryModalOpen(true); }}
+                    size="lg" 
+                    className="rounded-full px-8 h-14 text-lg font-headline shadow-lg hover:scale-105 transition-transform"
+                    style={{ backgroundColor: primaryColor }}
+                >
+                    <Clock className="w-5 h-5 mr-2"/> VER CRONOGRAMA
+                </Button>
             </div>
+            
+            <Dialog open={isItineraryModalOpen} onOpenChange={setIsItineraryModalOpen}>
+                <DialogContent className="sm:max-w-md max-h-[80vh] overflow-y-auto rounded-3xl p-6 border-none shadow-3xl">
+                    <DialogHeader className="text-center pb-4 border-b">
+                        <DialogTitle className="text-3xl font-headline text-primary">Nuestra Fiesta</DialogTitle>
+                        <DialogDescription>Cronograma detallado</DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-6 pt-6 relative">
+                        <div className="absolute left-[19px] top-6 bottom-6 w-0.5 bg-primary/20"></div>
+                        {(fiesta.programa && fiesta.programa.length > 0 ? fiesta.programa : []).map((item) => (
+                            <div key={item.id} className="relative flex items-start gap-4 pb-2">
+                                <div className="relative z-10 w-10 h-10 rounded-full bg-white border-2 border-primary flex items-center justify-center shrink-0 shadow-sm">
+                                    {React.createElement(iconMap[item.icono || 'Clock'] || Clock, { className: "w-5 h-5 text-primary" })}
+                                </div>
+                                <div className="pt-1 text-left">
+                                    <span className="text-primary font-bold text-sm">{item.hora}</span>
+                                    <h4 className="text-lg font-headline font-bold leading-tight">{item.titulo}</h4>
+                                    <p className="text-xs text-muted-foreground">{item.descripcion}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    <DialogFooter className="mt-6">
+                        <DialogClose asChild><Button variant="outline" className="w-full rounded-xl">Cerrar</Button></DialogClose>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
           </SectionWrapper>
         );
 
