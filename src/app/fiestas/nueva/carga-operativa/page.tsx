@@ -14,7 +14,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import type { ListaDeCargaOperativa, CargaOperativaCategoria, CargaOperativaItem } from '@/types/fiesta';
 import type { ServicioEmpresa } from '@/types/empresa';
-import { getFiestaActual, updateListaDeCargaOperativaFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaById, updateListaDeCargaOperativaFiestaActual } from '@/app/actions/fiesta-actual';
 import { getActivosFijos } from '@/app/actions/activos-fijos';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogDescription } from "@/components/ui/dialog";
@@ -23,6 +23,7 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, v
 import { CSS } from '@dnd-kit/utilities';
 import { getCargaOperativaMasterTemplate } from '@/app/actions/fiesta/carga-operativa.actions';
 import { Alert, AlertTitle } from '@/components/ui/alert';
+import { cn } from '@/lib/utils';
 
 function SortableCargaItem({ item, categoryId, onToggle, onQuantityChange, onDelete }: {
     item: CargaOperativaItem;
@@ -46,8 +47,8 @@ function SortableCargaItem({ item, categoryId, onToggle, onQuantityChange, onDel
                   aria-label={`Marcar ${item.nombre} como cargado`}
                 />
                 <div className="flex-grow">
-                  <Label htmlFor={`item-cargado-${item.id}`} className={`font-medium text-sm ${item.cargado ? 'line-through text-muted-foreground' : ''}`}>{item.nombre}</Label>
-                  {item.notas && <p className={`text-xs italic ${item.cargado ? 'text-muted-foreground/60' : 'text-muted-foreground/80'}`}>Nota: {item.notas}</p>}
+                  <Label htmlFor={`item-cargado-${item.id}`} className={cn("font-medium text-sm", item.cargado && "line-through text-muted-foreground")}>{item.nombre}</Label>
+                  {item.notas && <p className={cn("text-xs italic", item.cargado ? "text-muted-foreground/60" : "text-muted-foreground/80")}>Nota: {item.notas}</p>}
                 </div>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0 ml-4">
@@ -69,7 +70,9 @@ function SortableCargaItem({ item, categoryId, onToggle, onQuantityChange, onDel
 
 export default function ListaDeCargaOperativaPage() {
   const { toast } = useToast();
-  const [fiestaId, setFiestaId] = useState<string>('');
+  const searchParams = useSearchParams();
+  const fiestaId = searchParams.get('fiestaId');
+
   const [listaDeCarga, setListaDeCarga] = useState<ListaDeCargaOperativa>({ categorias: [], notasGenerales: '' });
   const [activosCatalogo, setActivosCatalogo] = useState<ServicioEmpresa[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -86,20 +89,22 @@ export default function ListaDeCargaOperativaPage() {
 
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
-
   const loadData = useCallback(async (showLoading = true) => {
+    if (!fiestaId) return;
     if (showLoading) setIsLoading(true);
     setError(null);
     try {
       const [fiestaData, catalogoData, masterTemplate] = await Promise.all([
-        getFiestaActual(),
+        getFiestaById(fiestaId),
         getActivosFijos(),
         getCargaOperativaMasterTemplate()
       ]);
       
-      setFiestaId(fiestaData.id);
+      if (!fiestaData) throw new Error("Fiesta no encontrada.");
       
       let loadedLista = fiestaData.listaDeCargaOperativa;
+      
+      // Si no hay lista, usar plantilla maestra como base
       if ((!loadedLista || !loadedLista.categorias || loadedLista.categorias.length === 0) && masterTemplate.categorias.length > 0) {
         loadedLista = {
           ...masterTemplate,
@@ -118,22 +123,23 @@ export default function ListaDeCargaOperativaPage() {
       setActivosCatalogo(catalogoData);
 
     } catch (err: any) {
-      setError("No se pudo cargar la lista de carga operativa o el catálogo.");
+      setError("No se pudo cargar la lista de carga operativa.");
       toast({ title: "Error al Cargar", description: err.message, variant: "destructive" });
     } finally {
       if (showLoading) setIsLoading(false);
     }
-  }, [toast]);
+  }, [toast, fiestaId]);
 
   useEffect(() => {
     loadData();
   }, [loadData]);
 
   const handleSyncWithBudget = async () => {
+    if (!fiestaId) return;
     setIsSyncing(true);
     try {
-      const fiesta = await getFiestaActual();
-      if (!fiesta.presupuestoId) {
+      const fiesta = await getFiestaById(fiestaId);
+      if (!fiesta || !fiesta.presupuestoId) {
         toast({ title: "Sin presupuesto", description: "Este evento no tiene un presupuesto vinculado para sincronizar.", variant: "destructive" });
         return;
       }
@@ -149,9 +155,9 @@ export default function ListaDeCargaOperativaPage() {
       const budgetCategories = new Set(presupuesto.itemsPresupuestados.map(item => item.categoriaServicio?.toLowerCase()));
       const budgetNames = new Set(presupuesto.itemsPresupuestados.map(item => item.nombreServicio.toLowerCase()));
 
-      // Determinar qué categorías de activos necesitamos
       const neededAssetCategories = new Set<string>();
       
+      // Lógica de detección de necesidades
       if (budgetCategories.has('servicio de discoteca') || budgetNames.has('discoteca') || budgetNames.has('dj')) {
         neededAssetCategories.add('Discoteca');
       }
@@ -160,7 +166,7 @@ export default function ListaDeCargaOperativaPage() {
         neededAssetCategories.add('Mobiliario');
       }
       if (budgetCategories.has('servicio de catering') || budgetNames.has('vajilla')) {
-        neededAssetCategories.add('Vajilla');
+        neededAssetCategories.add('Vajilla (Activo)');
         neededAssetCategories.add('Mantelería');
         neededAssetCategories.add('Equipamiento de Cocina');
       }
@@ -182,12 +188,14 @@ export default function ListaDeCargaOperativaPage() {
                 qty = String(totalInvitados);
               } else if (asset.calculationMethod === 'ratio' && asset.invitadosPorUnidad) {
                 qty = String(Math.ceil(totalInvitados / asset.invitadosPorUnidad));
+              } else if (asset.precioVenta && asset.calculationMethod === 'fijo') {
+                qty = String(asset.precioVenta);
               } else {
-                qty = String(asset.cantidadDisponible || asset.precioVenta || 1);
+                qty = String(asset.cantidadDisponible || 1);
               }
 
               return {
-                id: `item_${asset.id}_${Date.now()}`,
+                id: `item_${asset.id}_${Date.now()}_${Math.random().toString(36).substring(7)}`,
                 nombre: asset.nombre,
                 cantidad: qty,
                 unidad: asset.unidad || 'Uds.',
@@ -204,7 +212,6 @@ export default function ListaDeCargaOperativaPage() {
         return;
       }
 
-      // Merge with existing or overwrite
       setListaDeCarga(prev => ({
         ...prev,
         categorias: [...prev.categorias, ...newCategories]
@@ -236,11 +243,10 @@ export default function ListaDeCargaOperativaPage() {
   }
 
   const handleSaveListaDeCarga = async () => {
-    const fiesta = await getFiestaActual();
-    if(!fiesta) return;
+    if(!fiestaId) return;
     setIsSaving(true);
     try {
-      const result = await updateListaDeCargaOperativaFiestaActual(fiesta.id, listaDeCarga);
+      const result = await updateListaDeCargaOperativaFiestaActual(fiestaId, listaDeCarga);
       if (result.success) {
         toast({ title: "¡Lista Guardada!", description: "La lista de carga operativa ha sido actualizada." });
         if (result.updatedData) {
@@ -290,7 +296,7 @@ export default function ListaDeCargaOperativaPage() {
     const newItem: CargaOperativaItem = {
       id: `item_${Date.now()}_${selectedAsset.id}`,
       nombre: selectedAsset.nombre,
-      cantidad: String(selectedAsset.cantidadDisponible || 1), // Default to 1 if not set
+      cantidad: String(selectedAsset.cantidadDisponible || 1),
       unidad: selectedAsset.unidad,
       cargado: false,
       origenId: selectedAsset.id,
@@ -413,15 +419,6 @@ export default function ListaDeCargaOperativaPage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <Loader2 className="w-12 h-12 animate-spin text-primary" />
         <p className="ml-3 text-lg">Cargando lista de carga...</p>
-      </div>
-    );
-  }
-  if (error) {
-    return (
-      <div className="text-center text-destructive py-10">
-        <AlertTriangle className="w-12 h-12 mx-auto mb-3" />
-        <p className="font-semibold">{error}</p>
-        <Button onClick={() => loadData()} variant="outline" className="mt-4">Reintentar</Button>
       </div>
     );
   }
