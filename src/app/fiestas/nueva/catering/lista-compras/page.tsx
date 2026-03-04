@@ -5,7 +5,9 @@ import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'reac
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, AlertTriangle, Printer, ShoppingCart, Truck, CheckCircle, PackageSearch, Beer, ChefHat, Info, RefreshCw } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { ArrowLeft, Loader2, AlertTriangle, Printer, ShoppingCart, Truck, RefreshCw, Info } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, CompraProveedorEstado } from '@/types/fiesta';
@@ -14,7 +16,6 @@ import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { updateShoppingListStatus } from '@/app/actions/fiesta/catering.actions';
 import { useSearchParams } from 'next/navigation';
 import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { defaultBebidasData } from '@/lib/fiesta-defaults';
@@ -73,7 +74,6 @@ function ListaDeComprasContent() {
           presupuestoData = await getPresupuestoById(fiestaData.presupuestoId);
       }
 
-      // Si no hay presupuesto vinculado, no podemos calcular nada automáticamente
       if (!presupuestoData) {
           setShoppingList([]);
           setIsLoading(false);
@@ -86,7 +86,6 @@ function ListaDeComprasContent() {
 
       let generatedList: ShoppingListItem[] = [];
 
-      // HELPER: Decidir qué cantidad de invitados usar para cada ítem
       const getTargetGuests = (item: { categoriaServicio?: string, nombreServicio: string }) => {
           const cat = (item.categoriaServicio || '').toLowerCase();
           const name = (item.nombreServicio || '').toLowerCase();
@@ -95,9 +94,9 @@ function ListaDeComprasContent() {
           return totalInvitados;
       };
 
-      // 1. PROCESAR PLATOS DEL PRESUPUESTO (Automático)
+      // 1. PROCESAR PLATOS DEL PRESUPUESTO
       const budgetDishes = presupuestoData.itemsPresupuestados.filter(item => 
-          item.idServicioCatalogo.startsWith('dish_')
+          item.idServicioCatalogo.startsWith('dish_') || item.idServicioCatalogo.startsWith('new_item_')
       );
 
       const allDishesInCatalog = allMenus.flatMap(m => m.items);
@@ -110,7 +109,8 @@ function ListaDeComprasContent() {
                   const qtyPerPerson = parseFloat(ing.quantityPerPerson);
                   if (!isNaN(qtyPerPerson) && qtyPerPerson > 0) {
                       const totalQty = qtyPerPerson * targetGuests;
-                      const factorUnidad = (ing.unit.toLowerCase() === 'g' || ing.unit.toLowerCase() === 'ml' || ing.unit.toLowerCase() === 'gramos') ? 1000 : 1;
+                      const unitNormalized = (ing.unit || '').toLowerCase().trim();
+                      const factorUnidad = (unitNormalized === 'g' || unitNormalized === 'ml' || unitNormalized === 'gramos' || unitNormalized === 'cc') ? 1000 : 1;
                       const costValue = (ing.costoUnitario || 0) * (totalQty / factorUnidad);
 
                       generatedList.push({
@@ -128,7 +128,7 @@ function ListaDeComprasContent() {
           }
       });
 
-      // 2. PROCESAR BARRA DE TRAGOS (Automático desde Presupuesto)
+      // 2. PROCESAR BARRA DE TRAGOS
       const hasBarra = presupuestoData.itemsPresupuestados.some(item => 
           item.nombreServicio.toLowerCase().includes('barra') || 
           item.nombreServicio.toLowerCase().includes('licuado')
@@ -139,7 +139,10 @@ function ListaDeComprasContent() {
           if (barraTemplate) {
               barraTemplate.items.forEach(item => {
                   const totalQty = (item.cantidadNecesaria || 0) * totalInvitados;
-                  const itemCost = (item.costoUnitario || 0) * totalQty;
+                  const unitNormalized = (item.unidadCantidad || '').toLowerCase().trim();
+                  const factorUnidad = (unitNormalized === 'g' || unitNormalized === 'ml' || unitNormalized === 'gramos' || unitNormalized === 'cc') ? 1000 : 1;
+                  const itemCost = (item.costoUnitario || 0) * (totalQty / factorUnidad);
+                  
                   generatedList.push({
                       id: `beb-barra-${item.id}`,
                       nombre: item.nombre,
@@ -154,27 +157,26 @@ function ListaDeComprasContent() {
           }
       }
 
-      // 3. PROCESAR BEBIDAS ADICIONALES DEL PRESUPUESTO
+      // 3. PROCESAR BEBIDAS ADICIONALES
       const otherBeverages = presupuestoData.itemsPresupuestados.filter(item => 
           item.categoriaServicio?.toLowerCase().includes('bebida') && 
           !item.nombreServicio.toLowerCase().includes('barra')
       );
 
       otherBeverages.forEach(bev => {
-          const totalQty = bev.cantidad; // En presupuesto ya viene la cantidad calculada
           generatedList.push({
               id: `bev-extra-${bev.idServicioCatalogo}`,
               nombre: bev.nombreServicio,
-              cantidadTotal: totalQty,
+              cantidadTotal: bev.cantidad,
               unit: bev.unidad || 'Unidades',
               costoUnitario: bev.precioUnitario,
-              costoTotal: bev.precioUnitario * totalQty,
+              costoTotal: bev.precioUnitario * bev.cantidad,
               proveedor: 'Distribuidora Bebidas',
               origen: 'Bebidas (Presupuesto)',
           });
       });
 
-      // 4. CONSOLIDAR LISTA (Sumar cantidades de mismos productos)
+      // 4. CONSOLIDAR LISTA
       const consolidated: Record<string, ShoppingListItem> = {};
       generatedList.forEach(item => {
           const key = `${item.nombre.toLowerCase()}-${item.proveedor.toLowerCase()}`;
@@ -249,7 +251,6 @@ function ListaDeComprasContent() {
     }
   };
 
-
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Sincronizando con presupuesto y generando lista...</p></div>;
   }
@@ -298,7 +299,7 @@ function ListaDeComprasContent() {
               <div className="space-y-10">
                 {providerNames.map((providerName) => {
                   const { items, total } = groupedByProvider[providerName];
-                  const estadoActual = estadosCompra.find(e => e.provider === providerName) || { pedido: false, pagado: false };
+                  const estadoActual = estadosCompra.find(e => e.proveedor === providerName) || { pedido: false, pagado: false };
                   const isSavingThis = isSavingStatus === providerName;
                   return (
                       <div key={providerName} className="print:break-inside-avoid">
