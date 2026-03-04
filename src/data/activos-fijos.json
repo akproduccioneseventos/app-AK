@@ -6,7 +6,8 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Barra de Tragos",
     "valorUnitarioEstimado": 2000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_bt_3",
@@ -15,7 +16,8 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Barra de Tragos",
     "valorUnitarioEstimado": 500,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 4
   },
   {
     "id": "lc_bt_6",
@@ -24,7 +26,8 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Barra de Tragos",
     "valorUnitarioEstimado": 800,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_bt_7",
@@ -33,7 +36,8 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Barra de Tragos",
     "valorUnitarioEstimado": 800,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_bt_8",
@@ -42,7 +46,8 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Barra de Tragos",
     "valorUnitarioEstimado": 700,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_bt_9",
@@ -51,7 +56,8 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Barra de Tragos",
     "valorUnitarioEstimado": 2500,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 2
   },
   {
     "id": "lc_bt_10",
@@ -60,7 +66,8 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Barra de Tragos",
     "valorUnitarioEstimado": 4000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_bt_13",
@@ -69,7 +76,8 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Barra de Tragos",
     "valorUnitarioEstimado": 300,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 3
   },
   {
     "id": "lc_bt_14",
@@ -78,7 +86,8 @@
     "tipoItem": "Activo Fijo",
     "categoria": "Barra de Tragos",
     "valorUnitarioEstimado": 2000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_46",
@@ -87,7 +96,8 @@
     "categoria": "Decoración",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 1500,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_47",
@@ -96,7 +106,8 @@
     "categoria": "Decoración",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 4000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_48",
@@ -105,7 +116,8 @@
     "categoria": "Decoración",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 3000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_49",
@@ -114,7 +126,8 @@
     "categoria": "Decoración",
     "cantidadDisponible": 2,
     "valorUnitarioEstimado": 1000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 2
   },
   {
     "id": "lc_51",
@@ -123,7 +136,8 @@
     "categoria": "Decoración",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 3000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_53",
@@ -132,7 +146,8 @@
     "categoria": "Decoración",
     "cantidadDisponible": 2,
     "valorUnitarioEstimado": 800,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 2
   },
   {
     "id": "lc_54",
@@ -141,7 +156,8 @@
     "categoria": "Decoración",
     "cantidadDisponible": 2,
     "valorUnitarioEstimado": 500,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 2
   },
   {
     "id": "lc_55",
@@ -150,7 +166,8 @@
     "categoria": "Decoración",
     "cantidadDisponible": 3,
     "valorUnitarioEstimado": 600,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 3
   },
   {
     "id": "lc_56",
@@ -159,7 +176,8 @@
     "categoria": "Decoración",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 3500,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_93",
@@ -168,7 +186,8 @@
     "categoria": "Decoración",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 2500,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_66",
@@ -177,7 +196,8 @@
     "categoria": "Discoteca",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 2000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_67",
@@ -186,7 +206,8 @@
     "categoria": "Discoteca",
     "cantidadDisponible": 15,
     "valorUnitarioEstimado": 300,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 15
   },
   {
     "id": "lc_73",
@@ -195,7 +216,8 @@
     "categoria": "Discoteca",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 1000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_100_dj",
@@ -204,7 +226,8 @@
     "categoria": "Discoteca",
     "cantidadDisponible": 2,
     "valorUnitarioEstimado": 12000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 2
   },
   {
     "id": "lc_58",
@@ -213,7 +236,8 @@
     "categoria": "Discoteca",
     "cantidadDisponible": 2,
     "valorUnitarioEstimado": 8000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 2
   },
   {
     "id": "lc_59",
@@ -222,7 +246,8 @@
     "categoria": "Discoteca",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 15000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_60",
@@ -231,7 +256,8 @@
     "categoria": "Discoteca",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 25000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_61",
@@ -240,7 +266,8 @@
     "categoria": "Discoteca",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 5000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_62",
@@ -249,7 +276,8 @@
     "categoria": "Discoteca",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 2000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_63",
@@ -258,7 +286,8 @@
     "categoria": "Discoteca",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 30000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_64",
@@ -267,7 +296,8 @@
     "categoria": "Discoteca",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 20000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_65",
@@ -276,7 +306,8 @@
     "categoria": "Discoteca",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 4000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_114",
@@ -285,7 +316,8 @@
     "categoria": "Discoteca",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 15000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_115",
@@ -294,7 +326,8 @@
     "categoria": "Discoteca",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 5000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_68",
@@ -303,7 +336,8 @@
     "categoria": "Discoteca",
     "cantidadDisponible": 3,
     "valorUnitarioEstimado": 4000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 3
   },
   {
     "id": "lc_70",
@@ -312,7 +346,8 @@
     "categoria": "Discoteca",
     "cantidadDisponible": 2,
     "valorUnitarioEstimado": 2000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 2
   },
   {
     "id": "lc_74",
@@ -321,7 +356,8 @@
     "categoria": "Discoteca",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 5000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_75",
@@ -330,7 +366,8 @@
     "categoria": "Discoteca",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 7000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_76",
@@ -339,7 +376,8 @@
     "categoria": "Discoteca",
     "cantidadDisponible": 2,
     "valorUnitarioEstimado": 4000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 2
   },
   {
     "id": "lc_77",
@@ -348,7 +386,8 @@
     "categoria": "Discoteca",
     "cantidadDisponible": 4,
     "valorUnitarioEstimado": 6000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 4
   },
   {
     "id": "lc_78",
@@ -357,7 +396,8 @@
     "categoria": "Discoteca",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 3000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_79",
@@ -366,7 +406,8 @@
     "categoria": "Discoteca",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 2500,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_81",
@@ -375,7 +416,8 @@
     "categoria": "Discoteca",
     "cantidadDisponible": 4,
     "valorUnitarioEstimado": 800,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 4
   },
   {
     "id": "lc_82",
@@ -384,7 +426,8 @@
     "categoria": "Discoteca",
     "cantidadDisponible": 8,
     "valorUnitarioEstimado": 700,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 8
   },
   {
     "id": "lc_14",
@@ -393,7 +436,8 @@
     "categoria": "Equipamiento de Cocina",
     "cantidadDisponible": 2,
     "valorUnitarioEstimado": 800,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 2
   },
   {
     "id": "lc_15",
@@ -402,7 +446,8 @@
     "categoria": "Equipamiento de Cocina",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 15000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_16",
@@ -411,7 +456,8 @@
     "categoria": "Equipamiento de Cocina",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 3000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_17",
@@ -420,7 +466,8 @@
     "categoria": "Equipamiento de Cocina",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 3500,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_101",
@@ -429,7 +476,8 @@
     "categoria": "Equipamiento de Cocina",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 8000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_24",
@@ -438,7 +486,8 @@
     "categoria": "Equipamiento de Cocina",
     "cantidadDisponible": 2,
     "valorUnitarioEstimado": 9000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 2
   },
   {
     "id": "lc_item_olla_50l",
@@ -447,7 +496,8 @@
     "categoria": "Equipamiento de Cocina",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 5000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_item_colador_g",
@@ -456,7 +506,8 @@
     "categoria": "Equipamiento de Cocina",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 700,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_item_tarrina_200l",
@@ -465,7 +516,8 @@
     "categoria": "Equipamiento de Cocina",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 2000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_19",
@@ -474,7 +526,8 @@
     "categoria": "Equipamiento de Cocina",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 3000,
-    "unidad": "Caja"
+    "unidad": "Caja",
+    "precioVenta": 1
   },
   {
     "id": "lc_25",
@@ -483,7 +536,8 @@
     "categoria": "Equipamiento de Cocina",
     "cantidadDisponible": 10,
     "valorUnitarioEstimado": 150,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 10
   },
   {
     "id": "lc_33",
@@ -492,7 +546,8 @@
     "categoria": "Equipamiento de Cocina",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 1500,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_112",
@@ -501,7 +556,8 @@
     "categoria": "Equipamiento de Cocina",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 4000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_41",
@@ -510,7 +566,8 @@
     "categoria": "Mantelería",
     "cantidadDisponible": 200,
     "valorUnitarioEstimado": 50,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "calculationMethod": "porPersona"
   },
   {
     "id": "lc_106",
@@ -519,7 +576,9 @@
     "categoria": "Mantelería",
     "cantidadDisponible": 16,
     "valorUnitarioEstimado": 500,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "calculationMethod": "ratio",
+    "invitadosPorUnidad": 8
   },
   {
     "id": "lc_107",
@@ -528,7 +587,9 @@
     "categoria": "Mantelería",
     "cantidadDisponible": 16,
     "valorUnitarioEstimado": 100,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "calculationMethod": "ratio",
+    "invitadosPorUnidad": 8
   },
   {
     "id": "lc_108",
@@ -537,7 +598,9 @@
     "categoria": "Mantelería",
     "cantidadDisponible": 16,
     "valorUnitarioEstimado": 250,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "calculationMethod": "ratio",
+    "invitadosPorUnidad": 8
   },
   {
     "id": "lc_45",
@@ -546,7 +609,8 @@
     "categoria": "Mantelería",
     "cantidadDisponible": 10,
     "valorUnitarioEstimado": 250,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 10
   },
   {
     "id": "lc_109",
@@ -555,7 +619,8 @@
     "categoria": "Mantelería",
     "cantidadDisponible": 16,
     "valorUnitarioEstimado": 400,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 16
   },
   {
     "id": "lc_110",
@@ -564,7 +629,8 @@
     "categoria": "Mantelería",
     "cantidadDisponible": 200,
     "valorUnitarioEstimado": 150,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "calculationMethod": "porPersona"
   },
   {
     "id": "lc_42",
@@ -573,7 +639,8 @@
     "categoria": "Mantelería",
     "cantidadDisponible": 5,
     "valorUnitarioEstimado": 400,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 5
   },
   {
     "id": "lc_43",
@@ -582,7 +649,8 @@
     "categoria": "Mantelería",
     "cantidadDisponible": 5,
     "valorUnitarioEstimado": 400,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 5
   },
   {
     "id": "lc_72",
@@ -591,7 +659,8 @@
     "categoria": "Mantelería",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 600,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_102",
@@ -600,7 +669,8 @@
     "categoria": "Mobiliario",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 1200,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_34",
@@ -609,7 +679,8 @@
     "categoria": "Mobiliario",
     "cantidadDisponible": 2,
     "valorUnitarioEstimado": 800,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 2
   },
   {
     "id": "lc_71",
@@ -618,7 +689,8 @@
     "categoria": "Mobiliario",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 3500,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_83",
@@ -627,7 +699,8 @@
     "categoria": "Mobiliario",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 2500,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_113",
@@ -636,7 +709,8 @@
     "categoria": "Mobiliario",
     "cantidadDisponible": 2,
     "valorUnitarioEstimado": 1800,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 2
   },
   {
     "id": "lc_111",
@@ -645,7 +719,8 @@
     "categoria": "Mobiliario",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 800,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_103",
@@ -654,7 +729,8 @@
     "categoria": "Otro Activo",
     "cantidadDisponible": 2,
     "valorUnitarioEstimado": 500,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 2
   },
   {
     "id": "lc_104",
@@ -663,7 +739,8 @@
     "categoria": "Otro Activo",
     "cantidadDisponible": 2,
     "valorUnitarioEstimado": 400,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 2
   },
   {
     "id": "lc_105",
@@ -672,7 +749,8 @@
     "categoria": "Otro Activo",
     "cantidadDisponible": 2,
     "valorUnitarioEstimado": 1000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 2
   },
   {
     "id": "lc_50",
@@ -681,7 +759,8 @@
     "categoria": "Otro Activo",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 2000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_52",
@@ -690,7 +769,8 @@
     "categoria": "Otro Activo",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 2500,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_94",
@@ -699,7 +779,8 @@
     "categoria": "Otro Activo",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 500,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_69",
@@ -708,7 +789,8 @@
     "categoria": "Otro Activo",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 4000,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_1",
@@ -717,7 +799,8 @@
     "categoria": "Vajilla",
     "cantidadDisponible": 200,
     "valorUnitarioEstimado": 150,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "calculationMethod": "porPersona"
   },
   {
     "id": "lc_2",
@@ -726,7 +809,8 @@
     "categoria": "Vajilla",
     "cantidadDisponible": 200,
     "valorUnitarioEstimado": 120,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "calculationMethod": "porPersona"
   },
   {
     "id": "lc_3",
@@ -735,7 +819,8 @@
     "categoria": "Vajilla",
     "cantidadDisponible": 200,
     "valorUnitarioEstimado": 80,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "calculationMethod": "porPersona"
   },
   {
     "id": "lc_4",
@@ -744,7 +829,8 @@
     "categoria": "Vajilla",
     "cantidadDisponible": 200,
     "valorUnitarioEstimado": 40,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "calculationMethod": "porPersona"
   },
   {
     "id": "lc_5",
@@ -753,7 +839,8 @@
     "categoria": "Vajilla",
     "cantidadDisponible": 200,
     "valorUnitarioEstimado": 50,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "calculationMethod": "porPersona"
   },
   {
     "id": "lc_6",
@@ -762,7 +849,8 @@
     "categoria": "Vajilla",
     "cantidadDisponible": 200,
     "valorUnitarioEstimado": 60,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "calculationMethod": "porPersona"
   },
   {
     "id": "lc_84",
@@ -771,7 +859,8 @@
     "categoria": "Vajilla",
     "cantidadDisponible": 200,
     "valorUnitarioEstimado": 45,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "calculationMethod": "porPersona"
   },
   {
     "id": "lc_85",
@@ -780,7 +869,8 @@
     "categoria": "Vajilla",
     "cantidadDisponible": 200,
     "valorUnitarioEstimado": 45,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "calculationMethod": "porPersona"
   },
   {
     "id": "lc_86",
@@ -789,7 +879,8 @@
     "categoria": "Vajilla",
     "cantidadDisponible": 200,
     "valorUnitarioEstimado": 50,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "calculationMethod": "porPersona"
   },
   {
     "id": "lc_87",
@@ -798,7 +889,8 @@
     "categoria": "Vajilla",
     "cantidadDisponible": 200,
     "valorUnitarioEstimado": 70,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "calculationMethod": "porPersona"
   },
   {
     "id": "lc_88",
@@ -807,7 +899,8 @@
     "categoria": "Vajilla",
     "cantidadDisponible": 200,
     "valorUnitarioEstimado": 50,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "calculationMethod": "porPersona"
   },
   {
     "id": "lc_89",
@@ -816,7 +909,8 @@
     "categoria": "Vajilla",
     "cantidadDisponible": 200,
     "valorUnitarioEstimado": 30,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "calculationMethod": "porPersona"
   },
   {
     "id": "lc_7",
@@ -825,7 +919,8 @@
     "categoria": "Vajilla",
     "cantidadDisponible": 4,
     "valorUnitarioEstimado": 300,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 4
   },
   {
     "id": "lc_8",
@@ -834,7 +929,8 @@
     "categoria": "Vajilla",
     "cantidadDisponible": 12,
     "valorUnitarioEstimado": 150,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 12
   },
   {
     "id": "lc_9",
@@ -843,7 +939,8 @@
     "categoria": "Vajilla",
     "cantidadDisponible": 24,
     "valorUnitarioEstimado": 250,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 24
   },
   {
     "id": "lc_10",
@@ -852,7 +949,8 @@
     "categoria": "Vajilla",
     "cantidadDisponible": 200,
     "valorUnitarioEstimado": 80,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "calculationMethod": "porPersona"
   },
   {
     "id": "lc_90",
@@ -861,7 +959,8 @@
     "categoria": "Vajilla",
     "cantidadDisponible": 200,
     "valorUnitarioEstimado": 100,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "calculationMethod": "porPersona"
   },
   {
     "id": "lc_91",
@@ -870,7 +969,8 @@
     "categoria": "Vajilla",
     "cantidadDisponible": 200,
     "valorUnitarioEstimado": 110,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "calculationMethod": "porPersona"
   },
   {
     "id": "lc_92",
@@ -879,7 +979,8 @@
     "categoria": "Vajilla",
     "cantidadDisponible": 200,
     "valorUnitarioEstimado": 110,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "calculationMethod": "porPersona"
   },
   {
     "id": "lc_11",
@@ -888,7 +989,8 @@
     "categoria": "Vajilla",
     "cantidadDisponible": 4,
     "valorUnitarioEstimado": 400,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 4
   },
   {
     "id": "lc_99",
@@ -897,7 +999,8 @@
     "categoria": "Vajilla",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 1200,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_40",
@@ -906,7 +1009,8 @@
     "categoria": "Vajilla",
     "cantidadDisponible": 12,
     "valorUnitarioEstimado": 150,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 12
   },
   {
     "id": "lc_12",
@@ -915,7 +1019,8 @@
     "categoria": "Vajilla",
     "cantidadDisponible": 16,
     "valorUnitarioEstimado": 400,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 16
   },
   {
     "id": "lc_13",
@@ -924,7 +1029,8 @@
     "categoria": "Vajilla",
     "cantidadDisponible": 1,
     "valorUnitarioEstimado": 250,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 1
   },
   {
     "id": "lc_18",
@@ -933,7 +1039,8 @@
     "categoria": "Vajilla",
     "cantidadDisponible": 20,
     "valorUnitarioEstimado": 100,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 20
   },
   {
     "id": "lc_23",
@@ -942,7 +1049,8 @@
     "categoria": "Vajilla",
     "cantidadDisponible": 20,
     "valorUnitarioEstimado": 300,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 20
   },
   {
     "id": "lc_21",
@@ -951,7 +1059,8 @@
     "categoria": "Vajilla",
     "cantidadDisponible": 12,
     "valorUnitarioEstimado": 350,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 12
   },
   {
     "id": "lc_22",
@@ -960,7 +1069,8 @@
     "categoria": "Vajilla",
     "cantidadDisponible": 16,
     "valorUnitarioEstimado": 280,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 16
   },
   {
     "id": "lc_100_salsa",
@@ -969,6 +1079,7 @@
     "categoria": "Vajilla",
     "cantidadDisponible": 4,
     "valorUnitarioEstimado": 150,
-    "unidad": "Unidad"
+    "unidad": "Unidad",
+    "precioVenta": 4
   }
 ]

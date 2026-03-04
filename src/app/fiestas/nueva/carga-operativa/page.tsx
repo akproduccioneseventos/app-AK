@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent, useMemo, Suspense } from 'react';
@@ -9,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft, PackageSearch, PlusCircle, Trash2, Loader2, AlertTriangle, Save, FileText, Info, Search, BookOpen, GripVertical, RotateCw, FolderPlus, RefreshCw } from 'lucide-react';
+import { ArrowLeft, PackageSearch, PlusCircle, Trash2, Loader2, AlertTriangle, Save, FileText, Info, Search, BookOpen, GripVertical, RotateCw, RefreshCw } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
@@ -57,10 +56,10 @@ function SortableCargaItem({ item, categoryId, onToggle, onQuantityChange, onDel
                     type="text"
                     value={item.cantidad}
                     onChange={(e) => onQuantityChange(categoryId, item.id, e.target.value)}
-                    className="h-8 w-20 text-center"
+                    className="h-8 w-20 text-center font-bold text-primary"
                     placeholder="Cant."
                   />
-                <span className="text-xs text-muted-foreground">{item.unidad || 'Uds.'}</span>
+                <span className="text-xs text-muted-foreground w-12">{item.unidad || 'Uds.'}</span>
                 <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => onDelete(categoryId, item.id)}>
                     <Trash2 className="w-3.5 h-3.5"/>
                 </Button>
@@ -104,7 +103,6 @@ function ListaDeCargaOperativaContent() {
       
       let loadedLista = fiestaData.listaDeCargaOperativa;
       
-      // Auto-sync logic on first entry if list is empty
       const hasNoData = !loadedLista || !loadedLista.categorias || loadedLista.categorias.length === 0;
       
       if (hasNoData && fiestaData.presupuestoId) {
@@ -122,12 +120,12 @@ function ListaDeCargaOperativaContent() {
                 targetAssetCategories.add('Decoración');
                 targetAssetCategories.add('Mobiliario');
               }
-              if (budgetCategories.has('servicio de catering') || budgetNames.has('vajilla')) {
+              if (budgetCategories.has('servicio de catering') || budgetNames.has('vajilla') || budgetNames.has('comida')) {
                 targetAssetCategories.add('Vajilla');
                 targetAssetCategories.add('Mantelería');
                 targetAssetCategories.add('Equipamiento de Cocina');
               }
-              if (budgetCategories.has('servicio de bebidas') || budgetNames.has('barra')) {
+              if (budgetCategories.has('servicio de bebidas') || budgetNames.has('barra') || budgetNames.has('trago')) {
                 targetAssetCategories.add('Barra de Tragos');
               }
 
@@ -142,7 +140,8 @@ function ListaDeCargaOperativaContent() {
                       let qty = '1';
                       if (asset.calculationMethod === 'porPersona') qty = String(totalInvitados);
                       else if (asset.calculationMethod === 'ratio' && asset.invitadosPorUnidad) qty = String(Math.ceil(totalInvitados / asset.invitadosPorUnidad));
-                      else if (asset.precioVenta && asset.calculationMethod === 'fijo') qty = String(asset.precioVenta);
+                      else if (asset.precioVenta && asset.precioVenta > 0) qty = String(asset.precioVenta);
+                      else if (asset.cantidadDisponible && asset.cantidadDisponible > 0) qty = String(asset.cantidadDisponible);
                       
                       return {
                         id: `item_${asset.id}_${Date.now()}_${Math.random().toString(36).substring(7)}`,
@@ -221,12 +220,12 @@ function ListaDeCargaOperativaContent() {
         targetAssetCategories.add('Decoración');
         targetAssetCategories.add('Mobiliario');
       }
-      if (budgetCategories.has('servicio de catering') || budgetNames.has('vajilla')) {
+      if (budgetCategories.has('servicio de catering') || budgetNames.has('vajilla') || budgetNames.has('comida')) {
         targetAssetCategories.add('Vajilla');
         targetAssetCategories.add('Mantelería');
         targetAssetCategories.add('Equipamiento de Cocina');
       }
-      if (budgetCategories.has('servicio de bebidas') || budgetNames.has('barra')) {
+      if (budgetCategories.has('servicio de bebidas') || budgetNames.has('barra') || budgetNames.has('trago')) {
         targetAssetCategories.add('Barra de Tragos');
       }
 
@@ -244,8 +243,10 @@ function ListaDeCargaOperativaContent() {
                 qty = String(totalInvitados);
               } else if (asset.calculationMethod === 'ratio' && asset.invitadosPorUnidad) {
                 qty = String(Math.ceil(totalInvitados / asset.invitadosPorUnidad));
-              } else if (asset.precioVenta && asset.calculationMethod === 'fijo') {
+              } else if (asset.precioVenta && asset.precioVenta > 0) {
                 qty = String(asset.precioVenta);
+              } else if (asset.cantidadDisponible && asset.cantidadDisponible > 0) {
+                qty = String(asset.cantidadDisponible);
               }
 
               return {
@@ -262,7 +263,7 @@ function ListaDeCargaOperativaContent() {
       });
 
       if (newCategories.length === 0) {
-        toast({ title: "Sincronización", description: "No se detectaron servicios en el presupuesto que requieran carga de activos del catálogo." });
+        toast({ title: "Sincronización", description: "No se detectaron servicios adicionales en el presupuesto." });
         return;
       }
 
@@ -271,7 +272,7 @@ function ListaDeCargaOperativaContent() {
         categorias: [...(prev.categorias || []), ...newCategories]
       }));
 
-      toast({ title: "Sincronización Exitosa", description: `Se añadieron ${newCategories.length} categorías basadas en el presupuesto.` });
+      toast({ title: "Sincronización Exitosa", description: `Se añadieron ${newCategories.length} categorías con sus cantidades estándar.` });
 
     } catch (e: any) {
       toast({ title: "Error de Sincronización", description: e.message, variant: "destructive" });
@@ -290,7 +291,7 @@ function ListaDeCargaOperativaContent() {
             items: cat.items.map(item => ({ ...item, cargado: false }))
           }))
         });
-        toast({ title: "Plantilla Restaurada"});
+        toast({ title: "Plantilla Maestro Cargada"});
     } catch(e) {
       toast({ title: "Error", description: "No se pudo cargar la plantilla maestra.", variant: "destructive" });
     }
@@ -347,10 +348,12 @@ function ListaDeCargaOperativaContent() {
   const handleCatalogItemSelected = (selectedAsset: ServicioEmpresa) => {
     if (!categoryForCatalogSelect) return;
     
+    const qty = selectedAsset.precioVenta && selectedAsset.precioVenta > 0 ? String(selectedAsset.precioVenta) : (selectedAsset.cantidadDisponible ? String(selectedAsset.cantidadDisponible) : '1');
+
     const newItem: CargaOperativaItem = {
       id: `item_${Date.now()}_${selectedAsset.id}`,
       nombre: selectedAsset.nombre,
-      cantidad: String(selectedAsset.cantidadDisponible || 1),
+      cantidad: qty,
       unidad: selectedAsset.unidad,
       cargado: false,
       origenId: selectedAsset.id,
@@ -365,7 +368,7 @@ function ListaDeCargaOperativaContent() {
       ),
     }));
     
-    toast({ description: `"${selectedAsset.nombre}" añadido a la lista.` });
+    toast({ description: `"${selectedAsset.nombre}" añadido con cantidad ${qty}.` });
   };
   
   const openSelectFromCatalogModal = (category: CargaOperativaCategoria) => {
@@ -439,14 +442,14 @@ function ListaDeCargaOperativaContent() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <Loader2 className="w-12 h-12 animate-spin text-primary" />
-        <p className="ml-3 text-lg">Cargando lista de carga...</p>
+        <p className="ml-3 text-lg">Preparando lista de carga...</p>
       </div>
     );
   }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-       <Dialog open={isCatalogModalOpen} onOpenChange={setIsCatalogModalOpen}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle className="font-headline">Seleccionar Activo del Catálogo</DialogTitle><DialogDescription>Para la categoría "{categoryForCatalogSelect?.nombre}"</DialogDescription></DialogHeader><div className="py-2 space-y-3"><div className="relative"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input type="text" placeholder="Buscar activo..." value={catalogSearchTerm} onChange={(e) => setCatalogSearchTerm(e.target.value)} className="w-full pl-10"/></div><ScrollArea className="h-[300px] border rounded-md">{isLoading ? <div className="p-4 text-center"><Loader2 className="w-6 h-6 animate-spin"/></div> : filteredCatalogItems.length > 0 ? (<ul className="p-2 space-y-1">{filteredCatalogItems.map(item => (<li key={item.id}><Button variant="ghost" className="w-full justify-start text-left h-auto py-1.5 px-2" onClick={() => handleCatalogItemSelected(item)}><div><p className="font-medium text-sm">{item.nombre}</p><p className="text-xs text-muted-foreground">Stock: {item.cantidadDisponible || 0} {item.unidad}</p></div></Button></li>))}</ul>) : (<p className="p-4 text-center text-sm text-muted-foreground">{catalogSearchTerm ? "No hay ítems que coincidan con tu búsqueda." : "El catálogo de activos está vacío."}</p>)}</ScrollArea></div><DialogFooter><DialogClose asChild><Button type="button" variant="outline">Cerrar</Button></DialogClose></DialogFooter></DialogContent></Dialog>
+       <Dialog open={isCatalogModalOpen} onOpenChange={setIsCatalogModalOpen}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle className="font-headline">Seleccionar Activo del Catálogo</DialogTitle><DialogDescription>Para la categoría "{categoryForCatalogSelect?.nombre}"</DialogDescription></DialogHeader><div className="py-2 space-y-3"><div className="relative"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input type="text" placeholder="Buscar activo..." value={catalogSearchTerm} onChange={(e) => setCatalogSearchTerm(e.target.value)} className="w-full pl-10"/></div><ScrollArea className="h-[300px] border rounded-md">{isLoading ? <div className="p-4 text-center"><Loader2 className="w-6 h-6 animate-spin"/></div> : filteredCatalogItems.length > 0 ? (<ul className="p-2 space-y-1">{filteredCatalogItems.map(item => (<li key={item.id}><Button type="button" variant="ghost" className="w-full justify-start text-left h-auto py-1.5 px-2" onClick={() => handleCatalogItemSelected(item)}><div><p className="font-medium text-sm">{item.nombre}</p><p className="text-xs text-muted-foreground">Cantidad Sugerida: {item.precioVenta || item.cantidadDisponible || 1} {item.unidad}</p></div></Button></li>))}</ul>) : (<p className="p-4 text-center text-sm text-muted-foreground">{catalogSearchTerm ? "No hay ítems que coincidan con tu búsqueda." : "El catálogo de activos está vacío."}</p>)}</ScrollArea></div><DialogFooter><DialogClose asChild><Button type="button" variant="outline">Cerrar</Button></DialogClose></DialogFooter></DialogContent></Dialog>
        
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
@@ -469,20 +472,16 @@ function ListaDeCargaOperativaContent() {
       
        <Alert className="border-blue-500/50 bg-blue-50 dark:bg-blue-900/30">
           <Info className="h-4 w-4 text-blue-500" />
-          <AlertTitle className="font-semibold text-blue-700 dark:text-blue-300">¿Cómo funciona?</AlertTitle>
+          <AlertTitle className="font-semibold text-blue-700 dark:text-blue-300">Gestión de Carga</AlertTitle>
           <div className="text-blue-600 dark:text-blue-400 text-sm">
-            <ol className="list-decimal pl-5 space-y-1">
-              <li>Usa **"Sincronizar con Presupuesto"** para generar automáticamente la lista base según lo contratado.</li>
-              <li>Dentro de cada categoría, puedes añadir ítems manuales o cargar categorías completas de tu inventario.</li>
-              <li>Puedes definir una **<Link href="/settings/templates/carga-operativa" className="underline font-medium">Plantilla Maestra</Link>** para listas fijas que siempre llevas.</li>
-            </ol>
+            <p>La lista ahora utiliza las **cantidades de carga estándar** definidas en tu inventario. Si sincronizas con el presupuesto, el sistema calculará automáticamente la vajilla y mobiliario según los invitados.</p>
           </div>
        </Alert>
 
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline text-xl">Acciones de Lista</CardTitle>
-          <CardDescription>Genera tu lista rápidamente usando los datos del presupuesto o tus plantillas.</CardDescription>
+          <CardDescription>Genera tu lista rápidamente usando los datos del presupuesto o tu plantilla completa de ejemplo.</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2">
             <Button onClick={handleSyncWithBudget} disabled={isSyncing || isSaving} variant="default" className="bg-primary/90 hover:bg-primary">
@@ -490,7 +489,7 @@ function ListaDeCargaOperativaContent() {
                 Sincronizar con Presupuesto
             </Button>
             <Button onClick={handleRestoreFromTemplate} variant="secondary">
-                <RotateCw className="w-4 h-4 mr-2"/> Cargar Plantilla Maestra
+                <RotateCw className="w-4 h-4 mr-2"/> Cargar Plantilla Maestra (Ejemplo Completo)
             </Button>
         </CardContent>
       </Card>
@@ -498,13 +497,12 @@ function ListaDeCargaOperativaContent() {
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline text-xl">Añadir Nueva Categoría Manual</CardTitle>
-          <CardDescription>Si necesitas organizar elementos adicionales fuera de la sincronización.</CardDescription>
         </CardHeader>
         <CardContent>
             <div className="flex flex-col sm:flex-row items-end gap-2">
                 <div className="flex-grow space-y-1">
                     <Label htmlFor="new-category-name">Nombre de la Categoría</Label>
-                    <Input id="new-category-name" value={newCategoryName} onChange={(e) => setNewCategoryName(e.target.value)} placeholder="Ej: Catering Extra, Regalos Especiales" disabled={isSaving} />
+                    <Input id="new-category-name" value={newCategoryName} onChange={(e) => setNewCategoryName(e.target.value)} placeholder="Ej: Herramientas Extra" disabled={isSaving} />
                 </div>
                 <Button onClick={handleAddCategory} disabled={isSaving || !newCategoryName.trim()} variant="outline">
                     <PlusCircle className="w-4 h-4 mr-2"/> Añadir Categoría
@@ -518,7 +516,7 @@ function ListaDeCargaOperativaContent() {
           <AccordionItem key={category.id} value={category.id} className="border rounded-lg shadow-sm bg-card">
               <div className="flex items-center justify-between px-4 py-3 hover:bg-muted/50 rounded-t-lg">
                   <AccordionTrigger className="text-lg font-medium text-primary hover:no-underline flex-1 p-0">
-                      <span className="flex items-center gap-2">{category.nombre}</span>
+                      <span className="flex items-center gap-2">{category.nombre} ({category.items?.length || 0})</span>
                   </AccordionTrigger>
                   <Button variant="ghost" size="icon" className="ml-2 h-8 w-8 text-destructive" onClick={(e) => { e.stopPropagation(); handleDeleteCategory(category.id); }}>
                       <Trash2 className="w-4 h-4"/>
@@ -531,7 +529,7 @@ function ListaDeCargaOperativaContent() {
                 </Button>
               </div>
               
-              <ScrollArea className="h-auto max-h-[300px] rounded-md border p-2">
+              <ScrollArea className="h-auto max-h-[400px] rounded-md border p-2">
                 {category.items && category.items.length > 0 ? (
                   <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                     <SortableContext items={category.items.map(item => item.id)} strategy={verticalListSortingStrategy}>

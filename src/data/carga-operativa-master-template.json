@@ -1,6 +1,46 @@
-
 {
   "id": "master",
   "name": "Plantilla Maestra de Carga Operativa",
-  "categorias": []
+  "categorias": [
+    {
+      "id": "master_disco",
+      "nombre": "Discoteca",
+      "items": [
+        { "id": "m_item_1", "nombre": "Barras de Bolas de Espejos", "cantidad": "1", "unidad": "Unidad", "cargado": false },
+        { "id": "m_item_2", "nombre": "Bolas de Espejo", "cantidad": "15", "unidad": "Unidad", "cargado": false },
+        { "id": "m_item_3", "nombre": "Cartel de Barra DJ", "cantidad": "1", "unidad": "Unidad", "cargado": false },
+        { "id": "m_item_4", "nombre": "Cajas de 18\"", "cantidad": "2", "unidad": "Unidad", "cargado": false },
+        { "id": "m_item_5", "nombre": "Cajas Activas", "cantidad": "2", "unidad": "Unidad", "cargado": false },
+        { "id": "m_item_6", "nombre": "Caja de Consola y Potencia", "cantidad": "1", "unidad": "Unidad", "cargado": false },
+        { "id": "m_item_7", "nombre": "Controlador DJ Gonza", "cantidad": "1", "unidad": "Unidad", "cargado": false },
+        { "id": "m_item_8", "nombre": "Notebook DJ Gonza", "cantidad": "1", "unidad": "Unidad", "cargado": false },
+        { "id": "m_item_9", "nombre": "Microfonos Inalambricos y Pilas", "cantidad": "1", "unidad": "Unidad", "cargado": false },
+        { "id": "m_item_10", "nombre": "Cerchas de Luces", "cantidad": "3", "unidad": "Unidad", "cargado": false },
+        { "id": "m_item_11", "nombre": "Cabezal Movil 30W", "cantidad": "4", "unidad": "Unidad", "cargado": false },
+        { "id": "m_item_12", "nombre": "Maquina de Humo", "cantidad": "1", "unidad": "Unidad", "cargado": false },
+        { "id": "m_item_13", "nombre": "Caja de Cables", "cantidad": "1", "unidad": "Unidad", "cargado": false }
+      ]
+    },
+    {
+      "id": "master_barra",
+      "nombre": "Barra de Tragos",
+      "items": [
+        { "id": "m_item_14", "nombre": "Licuadoras", "cantidad": "2", "unidad": "Unidad", "cargado": false },
+        { "id": "m_item_15", "nombre": "Caja de Herramientas Barman", "cantidad": "1", "unidad": "Unidad", "cargado": false },
+        { "id": "m_item_16", "nombre": "Casilleros de Licores", "cantidad": "4", "unidad": "Unidad", "cargado": false },
+        { "id": "m_item_17", "nombre": "Conservadora", "cantidad": "1", "unidad": "Unidad", "cargado": false },
+        { "id": "m_item_18", "nombre": "Hieleras Grandes", "cantidad": "16", "unidad": "Unidad", "cargado": false }
+      ]
+    },
+    {
+      "id": "master_cocina",
+      "nombre": "Equipamiento de Cocina",
+      "items": [
+        { "id": "m_item_19", "nombre": "Freidora", "cantidad": "2", "unidad": "Unidad", "cargado": false },
+        { "id": "m_item_20", "nombre": "Plancha de Hamburguesas", "cantidad": "1", "unidad": "Unidad", "cargado": false },
+        { "id": "m_item_21", "nombre": "Cocina", "cantidad": "1", "unidad": "Unidad", "cargado": false },
+        { "id": "m_item_22", "nombre": "Garrafa de Gas", "cantidad": "1", "unidad": "Unidad", "cargado": false }
+      ]
+    }
+  ]
 }
