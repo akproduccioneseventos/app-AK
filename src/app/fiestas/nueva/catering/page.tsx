@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ShoppingCart, Save, Loader2, Calculator, ChefHat, GlassWater, RefreshCw } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Save, Loader2, Calculator, ChefHat, GlassWater, RefreshCw, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateReposteriaFiestaActual, updateBebidasFiestaActual, updateMenuAsignadoFiestaActual } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion, ReposteriaData, BebidasData, ReposteriaItem } from '@/types/fiesta';
@@ -19,6 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { getMenus } from '@/app/actions/menus-catering';
 import type { FullMenu } from '@/types/catering';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 function PlannerGastronomicoFiestaContent() {
   const { toast } = useToast();
@@ -81,19 +82,20 @@ function PlannerGastronomicoFiestaContent() {
                 };
             }
 
-            // 2. Bebidas y Barra
-            const hasBebidas = presupuestoData.itemsPresupuestados.some(item => 
+            // 2. Bebidas y Barra (Mejorado para detectar "Barra de licuados")
+            const budgetBeverageItems = presupuestoData.itemsPresupuestados.filter(item => 
                 item.categoriaServicio?.toLowerCase().includes('bebida') ||
-                item.nombreServicio.toLowerCase().includes('barra')
+                item.nombreServicio.toLowerCase().includes('barra') ||
+                item.nombreServicio.toLowerCase().includes('licuado')
             );
             
-            if (hasBebidas) {
+            if (budgetBeverageItems.length > 0) {
                  initialBebidas = { 
                      ...initialBebidas, 
                      categorias: initialBebidas.categorias.map(c => {
-                         const match = presupuestoData.itemsPresupuestados.some(bi => 
+                         const match = budgetBeverageItems.some(bi => 
                             bi.nombreServicio.toLowerCase().includes(c.nombreDisplay.toLowerCase()) ||
-                            (c.id === 'barra_tragos' && bi.nombreServicio.toLowerCase().includes('barra'))
+                            (c.id === 'barra_tragos' && (bi.nombreServicio.toLowerCase().includes('barra') || bi.nombreServicio.toLowerCase().includes('licuado')))
                          );
                          return match ? { ...c, activada: true } : c;
                      })
@@ -149,6 +151,12 @@ function PlannerGastronomicoFiestaContent() {
     const displayNinos = (presupuesto?.invitadosNinos ?? 0) + (presupuesto?.invitadosAdolescentes ?? 0);
     const totalInvitados = displayAdultos + displayNinos;
 
+    const hasBeverageInBudget = presupuesto?.itemsPresupuestados.some(item => 
+        item.categoriaServicio?.toLowerCase().includes('bebida') ||
+        item.nombreServicio.toLowerCase().includes('barra') ||
+        item.nombreServicio.toLowerCase().includes('licuado')
+    );
+
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
@@ -185,24 +193,43 @@ function PlannerGastronomicoFiestaContent() {
                 <p className="text-2xl font-bold text-primary">{totalInvitados}</p>
             </div>
           </CardContent>
+          <CardFooter>
+             <p className="text-xs text-muted-foreground italic flex items-center gap-1.5">
+                <Info className="w-3.5 h-3.5"/>
+                Datos sincronizados desde el presupuesto o la configuración del evento actual.
+             </p>
+          </CardFooter>
       </Card>
+
+      {hasBeverageInBudget && (
+          <Alert className="bg-blue-50 border-blue-200 text-blue-800">
+              <GlassWater className="h-4 w-4 text-blue-600" />
+              <AlertTitle className="font-bold">Bebida Detectada</AlertTitle>
+              <AlertDescription>
+                  El presupuesto incluye servicios de bebidas/barra. La sección de <strong>Barra de Tragos</strong> se ha activado automáticamente.
+              </AlertDescription>
+          </Alert>
+      )}
       
        <div className="flex justify-end gap-2">
          <Link href={`/fiestas/nueva/catering/lista-compras?fiestaId=${fiestaId}`} passHref>
            <Button variant="outline" className="bg-primary/5 border-primary/20 hover:bg-primary/10 text-primary">
-             <ShoppingCart className="w-4 h-4 mr-2"/> Ver Lista de Compras Automatizada
+             <ShoppingCart className="w-4 h-4 mr-2"/> Ver Lista de Compras
            </Button>
          </Link>
          <Button onClick={handleSaveAll} disabled={isSaving || isLoading}>
             {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>}
-            Guardar Planificación
+            Guardar Cambios
          </Button>
       </div>
 
        {isLoading ? <div className="text-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div> :
         <>
             <Card>
-                <CardHeader><CardTitle className="font-headline text-xl">Menú de Comida Asignado</CardTitle></CardHeader>
+                <CardHeader>
+                    <CardTitle className="font-headline text-xl">Menú Principal Seleccionado</CardTitle>
+                    <CardDescription>Crea o edita las plantillas de menú en el Planificador Gastronómico Maestro.</CardDescription>
+                </CardHeader>
                 <CardContent>
                     <div className="space-y-2">
                         <Label htmlFor="menu-select">Seleccionar Menú del Catálogo</Label>
