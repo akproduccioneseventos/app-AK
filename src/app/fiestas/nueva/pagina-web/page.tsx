@@ -72,33 +72,36 @@ function PaginaWebPageContent() {
         throw new Error("ID no proporcionado");
       }
 
-      const mergedData = merge(cloneDeep(defaultInvitacionDigitalData), data?.invitacionDigital || data);
+      // Merge logic: Default -> Template/Saved -> Current Config Override
+      const baseData = cloneDeep(defaultInvitacionDigitalData);
+      const savedData = data?.invitacionDigital || data;
+      const mergedData = merge(baseData, savedData);
       
-      // SINCRONIZACIÓN DINÁMICA: Ajustar al tipo de evento (especialmente XV Años)
+      // FORCED DYNAMIC OVERRIDE: Prioritize real event config over saved template data
       if (fiestaId && data && data.configuracion) {
           const config = data.configuracion;
           const isXV = config.tipoCelebracion === 'XV años';
 
-          // 1. Protagonistas
+          // 1. Sync Protagonists
           mergedData.cabecera.protagonista1 = config.protagonista1Nombre || mergedData.cabecera.protagonista1;
           mergedData.cabecera.protagonista2 = isXV ? '' : (config.protagonista2Nombre || mergedData.cabecera.protagonista2);
           
-          // 2. Subtítulo (Tipo de Evento)
-          if (!data.invitacionDigital?.cabecera?.subtitulo?.text) {
-              mergedData.cabecera.subtitulo.text = config.tipoCelebracion || mergedData.cabecera.subtitulo.text;
+          // 2. Sync Subtitle (Type of Event)
+          mergedData.cabecera.subtitulo.text = config.tipoCelebracion || mergedData.cabecera.subtitulo.text;
+
+          // 3. Dynamic Welcome Title - Detect if it's default and should be changed for XV
+          if (!mergedData.bienvenida.titulo.text || 
+              mergedData.bienvenida.titulo.text === '¡Nos Casamos!' || 
+              mergedData.bienvenida.titulo.text === '¡Mis 15 Años!') {
+              mergedData.bienvenida.titulo.text = isXV ? '¡Mis 15 Años!' : '¡Nos Casamos!';
           }
 
-          // 3. Título de Bienvenida dinámico
-          if (!data.invitacionDigital?.bienvenida?.titulo?.text || data.invitacionDigital?.bienvenida?.titulo?.text === '¡Nos Casamos!') {
-              mergedData.bienvenida.titulo.text = isXV ? '¡Mis 15 Años!' : (config.tipoCelebracion ? `¡Mi ${config.tipoCelebracion}!` : mergedData.bienvenida.titulo.text);
-          }
-
-          // 4. Fechas de ceremonias
+          // 4. Sync Dates
           if (config.fechaEvento) {
-              if (mergedData.detallesEvento.ceremoniaReligiosa.visible && !mergedData.detallesEvento.ceremoniaReligiosa.fecha) {
+              if (mergedData.detallesEvento.ceremoniaReligiosa.visible) {
                   mergedData.detallesEvento.ceremoniaReligiosa.fecha = config.fechaEvento;
               }
-              if (mergedData.detallesEvento.celebracion.visible && !mergedData.detallesEvento.celebracion.fecha) {
+              if (mergedData.detallesEvento.celebracion.visible) {
                   mergedData.detallesEvento.celebracion.fecha = config.fechaEvento;
               }
           }

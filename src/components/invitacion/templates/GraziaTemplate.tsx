@@ -142,6 +142,12 @@ const SectionHeader: React.FC<{ icon: React.ElementType, title: string, subtitle
 );
 
 const GraziaCabecera: React.FC<{ data: any, fiesta: FiestaEnPlanificacion, paleta: ColorPalette, onUpdate?: any, isPreview: boolean }> = ({ data, fiesta, paleta, onUpdate, isPreview }) => {
+    // Dynamic values from configuration
+    const protagonist1 = fiesta.configuracion.protagonista1Nombre || data.protagonista1;
+    const protagonist2 = fiesta.configuracion.protagonista2Nombre || data.protagonista2;
+    const subtitleText = fiesta.configuracion.tipoCelebracion || data.subtitulo?.text;
+    const eventDate = formatDate(fiesta.configuracion.fechaEvento);
+
     return (
         <section className="relative h-screen flex flex-col items-center justify-center text-center overflow-hidden">
             <div className="absolute inset-0 -z-10">
@@ -160,16 +166,16 @@ const GraziaCabecera: React.FC<{ data: any, fiesta: FiestaEnPlanificacion, palet
                 
                 <div className="space-y-4">
                     <span className="text-sm font-bold tracking-[0.4em] uppercase text-primary block" style={{ color: paleta.primary }}>
-                        {fiesta.configuracion.tipoCelebracion || data.subtitulo?.text}
+                        {subtitleText}
                     </span>
                     <h1 className="text-6xl md:text-8xl font-headline font-bold text-slate-900 tracking-tighter">
-                        {fiesta.configuracion.protagonista1Nombre || data.protagonista1}
-                        {fiesta.configuracion.protagonista2Nombre && (
+                        {protagonist1}
+                        {protagonist2 && (
                             <>
                                 <br />
                                 <span className="text-primary" style={{ color: paleta.primary }}>&</span>
                                 <br />
-                                {fiesta.configuracion.protagonista2Nombre}
+                                {protagonist2}
                             </>
                         )}
                     </h1>
@@ -177,7 +183,7 @@ const GraziaCabecera: React.FC<{ data: any, fiesta: FiestaEnPlanificacion, palet
 
                 <div className="flex items-center justify-center gap-6 text-xl md:text-2xl font-headline text-slate-600">
                     <Separator className="w-12 bg-slate-300" />
-                    <span>{formatDate(fiesta.configuracion.fechaEvento)}</span>
+                    <span>{eventDate}</span>
                     <Separator className="w-12 bg-slate-300" />
                 </div>
             </motion.div>
@@ -251,9 +257,13 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
 
     switch (seccion.tipo) {
       case 'bienvenida':
+        // Handle XV Years welcome title automatically
+        const isXV = fiesta.configuracion.tipoCelebracion === 'XV años';
+        const displayTitle = (isXV && seccion.data.titulo.text === '¡Nos Casamos!') ? '¡Mis 15 Años!' : seccion.data.titulo.text;
+
         return (
           <SectionWrapper {...wrapperProps} className="bg-white">
-            <SectionHeader icon={Heart} title={seccion.data.titulo.text} color={primaryColor} style={seccion.data.titulo.style} />
+            <SectionHeader icon={Heart} title={displayTitle} color={primaryColor} style={seccion.data.titulo.style} />
             <div className="max-w-2xl mx-auto leading-relaxed text-lg text-muted-foreground text-center">
               <EditableText initialValue={seccion.data.texto.text} style={seccion.data.texto.style} onSave={v => onUpdate?.({ bienvenida: { ...seccion.data, texto: { ...seccion.data.texto, text: v } } })} textarea />
             </div>

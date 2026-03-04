@@ -35,6 +35,18 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionDa
         return new Date(dateString).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
     };
 
+    // Dynamic values from configuration
+    const protagonist1 = fiesta.configuracion.protagonista1Nombre || invitacionData.cabecera.protagonista1;
+    const protagonist2 = fiesta.configuracion.protagonista2Nombre || invitacionData.cabecera.protagonista2;
+    const subtitleText = fiesta.configuracion.tipoCelebracion || invitacionData.cabecera.subtitulo.text;
+    const eventDate = formatDate(fiesta.configuracion.fechaEvento);
+
+    // Dynamic welcome title for XV years
+    const isXV = fiesta.configuracion.tipoCelebracion === 'XV años';
+    const displayWelcomeTitle = (isXV && invitacionData.bienvenida.titulo.text === '¡Nos Casamos!') 
+        ? '¡Mis 15 Años!' 
+        : invitacionData.bienvenida.titulo.text;
+
     return (
         <div className={cn("font-body text-slate-900 bg-white selection:bg-primary/10", isPreview && "h-full overflow-y-auto")}>
             {/* HERO - Full Screen Experience */}
@@ -58,21 +70,21 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionDa
                 <div className="text-center text-white space-y-6 px-6">
                     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
                         <span className="text-sm font-bold tracking-[0.5em] uppercase opacity-80">
-                            {fiesta.configuracion.tipoCelebracion || invitacionData.cabecera.subtitulo.text}
+                            {subtitleText}
                         </span>
                     </motion.div>
                     <motion.h1 initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 }} className="text-6xl md:text-8xl font-headline font-bold">
-                        {fiesta.configuracion.protagonista1Nombre || invitacionData.cabecera.protagonista1}
-                        {fiesta.configuracion.protagonista2Nombre && (
+                        {protagonist1}
+                        {protagonist2 && (
                             <>
                                 <br /><span style={{ color: primaryColor }}>&</span><br />
-                                {fiesta.configuracion.protagonista2Nombre}
+                                {protagonist2}
                             </>
                         )}
                     </motion.h1>
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }} className="flex items-center justify-center gap-4 text-xl">
                         <Separator className="w-12 bg-white/30" />
-                        <span className="font-bold tracking-widest">{formatDate(fiesta.configuracion.fechaEvento)}</span>
+                        <span className="font-bold tracking-widest">{eventDate}</span>
                         <Separator className="w-12 bg-white/30" />
                     </motion.div>
                 </div>
@@ -95,7 +107,7 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionDa
                 <section className="py-32 px-6">
                     <div className="max-w-2xl mx-auto text-center space-y-8">
                         <Heart className="w-12 h-12 mx-auto text-primary animate-pulse" fill={primaryColor} />
-                        <h2 className="text-5xl font-headline font-bold leading-tight">{invitacionData.bienvenida.titulo.text}</h2>
+                        <h2 className="text-5xl font-headline font-bold leading-tight">{displayWelcomeTitle}</h2>
                         <p className="text-xl text-slate-600 leading-relaxed italic">
                             "{invitacionData.bienvenida.texto.text}"
                         </p>
