@@ -122,7 +122,8 @@ function ListaDeComprasContent() {
                       const totalNeeded = qtyPerPerson * targetGuests;
                       
                       // Buscar proveedor en catálogo si no está en la receta
-                      const providerFromCatalog = catalogoInsumos.find(ci => ci.id === ing.origenId || ci.nombre.toLowerCase() === ing.name.toLowerCase())?.proveedor;
+                      const catalogInsumo = catalogoInsumos.find(ci => ci.id === ing.origenId || ci.nombre.toLowerCase() === ing.name.toLowerCase());
+                      const providerFromCatalog = catalogInsumo?.proveedor;
 
                       rawList.push({
                           nombre: ing.name,
@@ -150,7 +151,8 @@ function ListaDeComprasContent() {
               barraTemplate.items.forEach(item => {
                   const totalNeeded = (item.cantidadNecesaria || 0) * totalInvitados;
                   
-                  const providerFromCatalog = catalogoInsumos.find(ci => ci.id === item.origenId || ci.nombre.toLowerCase() === item.nombre.toLowerCase())?.proveedor;
+                  const catalogInsumo = catalogoInsumos.find(ci => ci.id === item.origenId || ci.nombre.toLowerCase() === item.nombre.toLowerCase());
+                  const providerFromCatalog = catalogInsumo?.proveedor;
 
                   rawList.push({
                       nombre: item.nombre,
@@ -323,7 +325,7 @@ function ListaDeComprasContent() {
               <div className="space-y-10">
                 {providerNames.map((providerName) => {
                   const { items, total } = groupedByProvider[providerName];
-                  const estadoActual = estadosCompra.find(e => e.proveedor === providerName) || { pedido: false, pagado: false };
+                  const estadoActual = estadosCompra.find(e => e.provider === providerName) || { pedido: false, pagado: false };
                   const isSavingThis = isSavingStatus === providerName;
                   return (
                       <div key={providerName} className="print:break-inside-avoid">

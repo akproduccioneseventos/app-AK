@@ -43,7 +43,7 @@
           },
           {
             "id": "ing_bt_4",
-            "name": "Licor blue",
+            "name": "Licor Blue",
             "quantityPerPerson": "0.02",
             "unit": "Litros",
             "costoUnitario": 300,
@@ -106,7 +106,7 @@
           },
           {
             "id": "ing_bt_11",
-            "name": "Refresco lima barato",
+            "name": "Refresco Lima",
             "quantityPerPerson": "0.02",
             "unit": "Litros",
             "costoUnitario": 65,
@@ -169,7 +169,7 @@
           },
           {
             "id": "ing_bt_18",
-            "name": "Jugo de naranja",
+            "name": "Jugo de Naranja",
             "quantityPerPerson": "0.1",
             "unit": "Litros",
             "costoUnitario": 35,
@@ -190,7 +190,7 @@
         "id": "dish_entrada_8",
         "name": "Picada de fiambres",
         "type": "Entrada",
-        "totalDishCost": 42.15,
+        "totalDishCost": 30.15,
         "profitMargin": 255,
         "suggestedSellingPrice": 150,
         "ingredients": [
@@ -229,15 +229,6 @@
             "costoUnitario": 220,
             "costoTotalReceta": 3.3,
             "origenId": "ing-aceitunas"
-          },
-          {
-            "id": "ing_8_5",
-            "name": "Pan de campo",
-            "quantityPerPerson": "0.1",
-            "unit": "Unidad",
-            "costoUnitario": 120,
-            "costoTotalReceta": 12,
-            "origenId": "ing-pan-campo"
           }
         ]
       },
@@ -255,7 +246,8 @@
             "quantityPerPerson": "0.5",
             "unit": "Unidad",
             "costoUnitario": 15,
-            "costoTotalReceta": 7.5
+            "costoTotalReceta": 7.5,
+            "proveedor": "VALENTIN"
           },
           {
             "id": "ing_23_5",
@@ -263,7 +255,8 @@
             "quantityPerPerson": "1",
             "unit": "Unidad",
             "costoUnitario": 11,
-            "costoTotalReceta": 11
+            "costoTotalReceta": 11,
+            "proveedor": "VALENTIN"
           },
           {
             "id": "ing_23_9",
@@ -271,7 +264,17 @@
             "quantityPerPerson": "1",
             "unit": "Unidad",
             "costoUnitario": 7.5,
-            "costoTotalReceta": 7.5
+            "costoTotalReceta": 7.5,
+            "proveedor": "DON DIEGO"
+          },
+          {
+            "id": "ing_23_10",
+            "name": "Jesuitas",
+            "quantityPerPerson": "0.3",
+            "unit": "Unidad",
+            "costoUnitario": 11,
+            "costoTotalReceta": 3.3,
+            "proveedor": "DON DIEGO"
           }
         ]
       }
@@ -287,7 +290,7 @@
         "id": "dish_main_3",
         "name": "Pollo arrollado c/ guarnición",
         "type": "Plato Principal",
-        "totalDishCost": 189.4,
+        "totalDishCost": 177.4,
         "profitMargin": 137,
         "suggestedSellingPrice": 449,
         "ingredients": [
@@ -298,16 +301,8 @@
             "unit": "g",
             "costoUnitario": 500,
             "costoTotalReceta": 125,
-            "origenId": "ing-pollo-arrollado"
-          },
-          {
-            "id": "ing_pa3_2",
-            "name": "Papa",
-            "quantityPerPerson": "200",
-            "unit": "g",
-            "costoUnitario": 60,
-            "costoTotalReceta": 12,
-            "origenId": "ing-papa"
+            "origenId": "ing-pollo-arrollado",
+            "proveedor": "NICO"
           },
           {
             "id": "ing_pa3_3",
@@ -341,7 +336,7 @@
         "id": "dish_child_3",
         "name": "Hamburguesa con fritas",
         "type": "Menú Infantil/Adolescente",
-        "totalDishCost": 134.3,
+        "totalDishCost": 51,
         "profitMargin": 123,
         "suggestedSellingPrice": 299,
         "ingredients": [
@@ -362,15 +357,6 @@
             "costoUnitario": 16,
             "costoTotalReceta": 16,
             "origenId": "ing-tortuga-chivito"
-          },
-          {
-            "id": "ing_c3_9",
-            "name": "Papas fritas",
-            "quantityPerPerson": "200",
-            "unit": "g",
-            "costoUnitario": 130,
-            "costoTotalReceta": 26,
-            "origenId": "ing-fritas"
           }
         ]
       }
