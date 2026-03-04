@@ -7,9 +7,9 @@ import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Printer as PrinterIcon, Share2, AlertTriangle, Clock, Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, Share2, AlertTriangle, Clock, Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper, Loader2 } from 'lucide-react';
 import type { FiestaEnPlanificacion, ProgramaEventoItem } from '@/types/fiesta';
-import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { WatermarkedImage } from '@/components/watermarked-image';
 import { useSearchParams } from 'next/navigation';
@@ -43,11 +43,12 @@ function ItinerarioPdfContent({ fiestaId }: { fiestaId: string | null }) {
     setError(null);
     try {
       const [fiestaData, templateSettings] = await Promise.all([
-        getFiestaActual(),
+        getFiestaById(fiestaId || ''),
         getInvoiceTemplateSettings()
       ]);
+      if (!fiestaData) throw new Error("Evento no encontrado.");
       setFiesta(fiestaData);
-      setLogoUrl(templateSettings.logoUrl);
+      setLogoUrl(templateSettings.logoUrl || null);
     } catch (err: any) {
       setError("No se pudieron cargar los datos para el PDF.");
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -55,7 +56,7 @@ function ItinerarioPdfContent({ fiestaId }: { fiestaId: string | null }) {
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, [toast, fiestaId]);
 
   useEffect(() => {
     loadData();
@@ -90,7 +91,7 @@ function ItinerarioPdfContent({ fiestaId }: { fiestaId: string | null }) {
     return <div className="p-8 max-w-3xl mx-auto bg-white"><Skeleton className="h-[80vh] w-full" /></div>;
   }
 
-  if (error || !fiesta || !fiesta.musica) {
+  if (error || !fiesta) {
     return (
       <div className="p-8 max-w-3xl mx-auto bg-white text-center">
          <div className="flex justify-between items-center mb-6 print:hidden">
@@ -107,7 +108,10 @@ function ItinerarioPdfContent({ fiestaId }: { fiestaId: string | null }) {
 
   return (
     <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans">
-      <div className="max-w-3xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2">
+      <div className="max-w-3xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2 relative">
+        <div className="w-full h-24 print:h-20 mb-4 relative">
+            <WatermarkedImage src={logoUrl} alt="Marca de agua" containerClassName='w-full h-full'/>
+        </div>
         <div className="flex justify-between items-center mb-6 print:hidden">
           <Link href={`/fiestas/nueva/itinerario?fiestaId=${fiestaId}`} passHref>
             <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Editar</Button>
@@ -119,11 +123,6 @@ function ItinerarioPdfContent({ fiestaId }: { fiestaId: string | null }) {
         </div>
 
         <header className="mb-6 print:mb-3 text-center border-b pb-3 print:pb-2">
-            {logoUrl && (
-                <div className="w-24 h-24 mx-auto mb-2 print:w-20 print:h-20">
-                    <Image src={logoUrl} alt={`${companyName} Logo`} width={96} height={96} className="object-contain" data-ai-hint="company logo"/>
-                </div>
-            )}
           <h1 className="text-xl font-bold text-primary print:text-lg flex items-center justify-center gap-2">
             <Clock className="w-6 h-6 print:w-5 print:h-5" /> Cronograma del Evento
           </h1>
