@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, PlusCircle, Edit, Trash2, Loader2, AlertTriangle, Clock, GripVertical, Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper, Save, FolderOpen, RotateCcw, Printer, Share2, Eye } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Edit, Trash2, Loader2, AlertTriangle, Clock, GripVertical, Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper, Save, FolderOpen, RotateCcw, Printer, Share2, Eye, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, ProgramaEventoItem, ItineraryTemplate } from '@/types/fiesta';
 import { getFiestaById, updateProgramaFiestaActual } from '@/app/actions/fiesta-actual';
@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { defaultPrograma } from '@/lib/fiesta-defaults';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const iconMap: Record<string, React.ElementType> = {
   Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper, Clock,
@@ -126,7 +127,6 @@ function ItinerarioContent() {
       if (itinerario.length === 0) {
         const defaultItems = [...defaultPrograma.map(p => ({...p, id: `prog_${Date.now()}_${Math.random()}`}))];
         setPrograma(defaultItems);
-        // Save defaults if it was empty
         await updateProgramaFiestaActual(fiestaId, defaultItems);
       } else {
         setPrograma(itinerario);
@@ -167,14 +167,19 @@ function ItinerarioContent() {
       return;
     }
     setIsSaving(true);
-    const result = await saveItineraryTemplate(templateName, programa);
-    if (result.success) {
-      toast({title: "Plantilla Guardada"});
-      setIsSaveTemplateModalOpen(false);
-    } else {
-      toast({title: "Error al guardar plantilla", description: result.error, variant: "destructive"});
+    try {
+        const result = await saveItineraryTemplate(templateName, programa);
+        if (result.success) {
+          toast({title: "Plantilla Guardada"});
+          setIsSaveTemplateModalOpen(false);
+        } else {
+          throw new Error(result.error);
+        }
+    } catch(e: any) {
+        toast({title: "Error al guardar plantilla", description: e.message, variant: "destructive"});
+    } finally {
+        setIsSaving(false);
     }
-    setIsSaving(false);
   };
 
   const handleLoadTemplate = async (template: ItineraryTemplate) => {
@@ -183,6 +188,23 @@ function ItinerarioContent() {
     await handleAutoSave(updatedItems);
     toast({title: "Plantilla cargada"});
     setIsLoadTemplateModalOpen(false);
+  };
+
+  const handleDeleteTemplate = async (id: string) => {
+    setDeletingTemplateId(id);
+    try {
+        const result = await deleteItineraryTemplate(id);
+        if(result.success) {
+          toast({title: "Plantilla eliminada"});
+          setTemplates(prev => prev.filter(t => t.id !== id));
+        } else {
+          throw new Error(result.error);
+        }
+    } catch(e: any) {
+        toast({title: "Error al eliminar", description: e.message, variant: "destructive"});
+    } finally {
+        setDeletingTemplateId(null);
+    }
   };
 
   const openModal = (item?: ProgramaEventoItem) => {
@@ -234,6 +256,48 @@ function ItinerarioContent() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
+       {/* Modals para Plantillas */}
+       <Dialog open={isLoadTemplateModalOpen} onOpenChange={setIsLoadTemplateModalOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle className="font-headline">Cargar Cronograma desde Plantilla</DialogTitle><DialogDescription>Selecciona una plantilla para sobreescribir el cronograma actual.</DialogDescription></DialogHeader>
+          {isLoadingTemplates ? <div className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto"/></div> :
+            templates.length > 0 ? (
+              <ScrollArea className="max-h-64">
+                <div className="space-y-2 pr-4">
+                    {templates.map(t => (
+                    <div key={t.id} className="flex items-center justify-between p-2 border rounded-md">
+                        <span className="font-medium text-sm">{t.name} ({t.items.length} momentos)</span>
+                        <div className="flex gap-1">
+                        <Button size="sm" onClick={() => handleLoadTemplate(t)}>Cargar</Button>
+                        <Button size="icon" variant="destructive" className="h-8 w-8" onClick={() => handleDeleteTemplate(t.id)} disabled={deletingTemplateId===t.id}>
+                            {deletingTemplateId===t.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}
+                        </Button>
+                        </div>
+                    </div>
+                    ))}
+                </div>
+              </ScrollArea>
+            ) : <p className="p-4 text-center text-muted-foreground">No hay plantillas guardadas.</p>}
+          <DialogFooter><DialogClose asChild><Button variant="outline">Cerrar</Button></DialogClose></DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isSaveTemplateModalOpen} onOpenChange={setIsSaveTemplateModalOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle className="font-headline">Guardar como Plantilla</DialogTitle><DialogDescription>Crea una plantilla a partir de este cronograma para usarla en otros eventos.</DialogDescription></DialogHeader>
+          <div className="py-2 space-y-2">
+              <Label htmlFor="template-name">Nombre de la Plantilla</Label>
+              <Input id="template-name" value={templateName} onChange={e => setTemplateName(e.target.value)} placeholder="Ej: Itinerario Boda Estándar"/>
+          </div>
+          <DialogFooter>
+              <DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose>
+              <Button onClick={handleSaveTemplate} disabled={isSaving || !templateName.trim()}>
+                  {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>} Guardar Plantilla
+              </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
        <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
         <DialogContent>
           <DialogHeader><DialogTitle className="font-headline">{currentItem?.id ? 'Editar' : 'Añadir'} Momento</DialogTitle></DialogHeader>
@@ -251,7 +315,7 @@ function ItinerarioContent() {
             <div className="space-y-1"><Label htmlFor="item-desc">Descripción (Opcional)</Label><Textarea id="item-desc" value={currentItem?.descripcion || ''} onChange={(e) => setCurrentItem(p => p ? {...p, descripcion: e.target.value} : null)} rows={3} /></div>
             <DialogFooter className="pt-3">
               <DialogClose asChild><Button type="button" variant="outline">Cancelar</Button></DialogClose>
-              <Button type="submit">Guardar y Sincronizar</Button>
+              <Button type="submit">Guardar Momento</Button>
             </DialogFooter>
           </form>
         </DialogContent>

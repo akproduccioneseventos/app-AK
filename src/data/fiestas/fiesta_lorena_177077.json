@@ -13,7 +13,9 @@
     "clienteId": "cust_lorena_leal_177077"
   },
   "presupuestoId": "pres_1147_lorena",
-  "invoiceIds": ["inv_1147_lorena"],
+  "invoiceIds": [
+    "inv_1147_lorena"
+  ],
   "modulosContratados": {
     "tareas": true,
     "invitados": true,
@@ -46,5 +48,98 @@
   "tareas": [],
   "reuniones": [],
   "pagosProveedores": [],
-  "estadosCompra": []
+  "estadosCompra": [],
+  "programa": [
+    {
+      "id": "prog_1772656200990_0.1258763057396406",
+      "hora": "22:00",
+      "titulo": "Comienzo",
+      "descripcion": "Recepción de invitados con música suave.",
+      "icono": "PartyPopper"
+    },
+    {
+      "id": "prog_1772656200990_0.07746269289237273",
+      "hora": "22:15",
+      "titulo": "Servicio de Entrada 1",
+      "descripcion": "Se sirve la primera tanda de bocaditos.",
+      "icono": "Utensils"
+    },
+    {
+      "id": "prog_1772656200990_0.4738233772614643",
+      "hora": "22:30",
+      "titulo": "Entrada de la Quinceañera y Vals",
+      "descripcion": "Momento emotivo principal.",
+      "icono": "Diamond"
+    },
+    {
+      "id": "prog_1772656200990_0.7823953159221227",
+      "hora": "22:45",
+      "titulo": "Servicio de Entrada 2",
+      "descripcion": "Segunda tanda de bocaditos.",
+      "icono": "Utensils"
+    },
+    {
+      "id": "prog_1772656200990_0.8707413450671019",
+      "hora": "00:00",
+      "titulo": "¡A Bailar!",
+      "descripcion": "Se abre la pista de baile.",
+      "icono": "Music"
+    },
+    {
+      "id": "prog_1772656200990_0.6759821985914531",
+      "hora": "01:00",
+      "titulo": "Cena / Cierre de Barra",
+      "descripcion": "Se sirve el plato principal. La barra se cierra temporalmente.",
+      "icono": "Utensils"
+    },
+    {
+      "id": "prog_1772656200990_0.4762927276205233",
+      "hora": "01:45",
+      "titulo": "Video de Vida",
+      "descripcion": "Proyección del video emotivo.",
+      "icono": "Camera"
+    },
+    {
+      "id": "prog_1772656200990_0.4618825201853235",
+      "hora": "02:00",
+      "titulo": "Reapertura de Barra y Baile",
+      "descripcion": "Continúa la fiesta.",
+      "icono": "GlassWater"
+    },
+    {
+      "id": "prog_1772656200990_0.8492895788011788",
+      "hora": "02:30",
+      "titulo": "Plataforma 360 / Fotocabina",
+      "descripcion": "Activación de entretenimiento fotográfico.",
+      "icono": "Camera"
+    },
+    {
+      "id": "prog_1772656200990_0.5391483783191118",
+      "hora": "03:00",
+      "titulo": "Cotillón",
+      "descripcion": "Reparto de cotillón para el carnaval carioca.",
+      "icono": "Sparkles"
+    },
+    {
+      "id": "prog_1772656200990_0.6462582587671938",
+      "hora": "03:45",
+      "titulo": "Fuente de Chocolate",
+      "descripcion": "Se habilita la mesa de postres o fuente de chocolate.",
+      "icono": "CakeSlice"
+    },
+    {
+      "id": "prog_1772656200990_0.7062072269031544",
+      "hora": "04:00",
+      "titulo": "Apagado de Velas y Torta",
+      "descripcion": "Momento de cantar y cortar la torta.",
+      "icono": "CakeSlice"
+    },
+    {
+      "id": "prog_1772656200990_0.6246579464408887",
+      "hora": "05:00",
+      "titulo": "Final de la Fiesta",
+      "descripcion": "Cierre del evento.",
+      "icono": "Clock"
+    }
+  ]
 }
