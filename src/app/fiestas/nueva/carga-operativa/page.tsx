@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft, PackageSearch, PlusCircle, Trash2, Loader2, AlertTriangle, Save, FileText, Info, Search, BookOpen, GripVertical, RotateCw, FolderPlus } from 'lucide-react';
+import { ArrowLeft, PackageSearch, PlusCircle, Trash2, Loader2, AlertTriangle, Save, FileText, Info, Search, BookOpen, GripVertical, RotateCw, FolderPlus, RefreshCw } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
@@ -16,6 +16,7 @@ import type { ListaDeCargaOperativa, CargaOperativaCategoria, CargaOperativaItem
 import type { ServicioEmpresa } from '@/types/empresa';
 import { getFiestaActual, updateListaDeCargaOperativaFiestaActual } from '@/app/actions/fiesta-actual';
 import { getActivosFijos } from '@/app/actions/activos-fijos';
+import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogDescription } from "@/components/ui/dialog";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -73,6 +74,7 @@ export default function ListaDeCargaOperativaPage() {
   const [activosCatalogo, setActivosCatalogo] = useState<ServicioEmpresa[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [newCategoryName, setNewCategoryName] = useState('');
@@ -85,8 +87,8 @@ export default function ListaDeCargaOperativaPage() {
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
 
-  const loadData = useCallback(async () => {
-    setIsLoading(true);
+  const loadData = useCallback(async (showLoading = true) => {
+    if (showLoading) setIsLoading(true);
     setError(null);
     try {
       const [fiestaData, catalogoData, masterTemplate] = await Promise.all([
@@ -106,7 +108,6 @@ export default function ListaDeCargaOperativaPage() {
             items: cat.items.map(item => ({ ...item, cargado: false }))
           }))
         };
-        toast({ title: "Plantilla Cargada", description: "Se cargó la lista de carga operativa desde la plantilla maestra." });
       }
 
       const categoriasConItems = (loadedLista?.categorias || []).map(cat => ({
@@ -120,13 +121,103 @@ export default function ListaDeCargaOperativaPage() {
       setError("No se pudo cargar la lista de carga operativa o el catálogo.");
       toast({ title: "Error al Cargar", description: err.message, variant: "destructive" });
     } finally {
-      setIsLoading(false);
+      if (showLoading) setIsLoading(false);
     }
   }, [toast]);
 
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  const handleSyncWithBudget = async () => {
+    setIsSyncing(true);
+    try {
+      const fiesta = await getFiestaActual();
+      if (!fiesta.presupuestoId) {
+        toast({ title: "Sin presupuesto", description: "Este evento no tiene un presupuesto vinculado para sincronizar.", variant: "destructive" });
+        return;
+      }
+
+      const [presupuesto, activos] = await Promise.all([
+        getPresupuestoById(fiesta.presupuestoId),
+        getActivosFijos()
+      ]);
+
+      if (!presupuesto) throw new Error("No se pudo obtener el presupuesto.");
+
+      const totalInvitados = presupuesto.invitadosCantidad || 100;
+      const budgetCategories = new Set(presupuesto.itemsPresupuestados.map(item => item.categoriaServicio?.toLowerCase()));
+      const budgetNames = new Set(presupuesto.itemsPresupuestados.map(item => item.nombreServicio.toLowerCase()));
+
+      // Determinar qué categorías de activos necesitamos
+      const neededAssetCategories = new Set<string>();
+      
+      if (budgetCategories.has('servicio de discoteca') || budgetNames.has('discoteca') || budgetNames.has('dj')) {
+        neededAssetCategories.add('Discoteca');
+      }
+      if (budgetCategories.has('servicio de decoración') || budgetNames.has('decoración')) {
+        neededAssetCategories.add('Decoración (Activo)');
+        neededAssetCategories.add('Mobiliario');
+      }
+      if (budgetCategories.has('servicio de catering') || budgetNames.has('vajilla')) {
+        neededAssetCategories.add('Vajilla');
+        neededAssetCategories.add('Mantelería');
+        neededAssetCategories.add('Equipamiento de Cocina');
+      }
+      if (budgetCategories.has('servicio de bebidas') || budgetNames.has('barra')) {
+        neededAssetCategories.add('Barra de Tragos');
+      }
+
+      const newCategories: CargaOperativaCategoria[] = [];
+
+      neededAssetCategories.forEach(categoryName => {
+        const matchingAssets = activos.filter(a => a.categoria === categoryName);
+        if (matchingAssets.length > 0) {
+          newCategories.push({
+            id: `sync_${categoryName}_${Date.now()}`,
+            nombre: categoryName,
+            items: matchingAssets.map(asset => {
+              let qty = '1';
+              if (asset.calculationMethod === 'porPersona') {
+                qty = String(totalInvitados);
+              } else if (asset.calculationMethod === 'ratio' && asset.invitadosPorUnidad) {
+                qty = String(Math.ceil(totalInvitados / asset.invitadosPorUnidad));
+              } else {
+                qty = String(asset.cantidadDisponible || asset.precioVenta || 1);
+              }
+
+              return {
+                id: `item_${asset.id}_${Date.now()}`,
+                nombre: asset.nombre,
+                cantidad: qty,
+                unidad: asset.unidad || 'Uds.',
+                cargado: false,
+                origenId: asset.id
+              };
+            })
+          });
+        }
+      });
+
+      if (newCategories.length === 0) {
+        toast({ title: "Sincronización", description: "No se detectaron servicios en el presupuesto que requieran carga de activos del catálogo." });
+        return;
+      }
+
+      // Merge with existing or overwrite
+      setListaDeCarga(prev => ({
+        ...prev,
+        categorias: [...prev.categorias, ...newCategories]
+      }));
+
+      toast({ title: "Sincronización Exitosa", description: `Se añadieron ${newCategories.length} categorías basadas en el presupuesto.` });
+
+    } catch (e: any) {
+      toast({ title: "Error de Sincronización", description: e.message, variant: "destructive" });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
   
   const handleRestoreFromTemplate = async () => {
     try {
@@ -330,7 +421,7 @@ export default function ListaDeCargaOperativaPage() {
       <div className="text-center text-destructive py-10">
         <AlertTriangle className="w-12 h-12 mx-auto mb-3" />
         <p className="font-semibold">{error}</p>
-        <Button onClick={loadData} variant="outline" className="mt-4">Reintentar</Button>
+        <Button onClick={() => loadData()} variant="outline" className="mt-4">Reintentar</Button>
       </div>
     );
   }
@@ -364,29 +455,44 @@ export default function ListaDeCargaOperativaPage() {
           <AlertTitle className="font-semibold text-blue-700 dark:text-blue-300">¿Cómo funciona?</AlertTitle>
           <div className="text-blue-600 dark:text-blue-400 text-sm">
             <ol className="list-decimal pl-5 space-y-1">
-              <li>Crea una categoría para agrupar ítems (ej: Sonido, Vajilla).</li>
-              <li>Dentro de cada categoría, usa **"Cargar Categoría Completa"** para añadir todos los ítems de una categoría de tu inventario (ej: todos los de "Discoteca"), o **"Seleccionar del Catálogo"** para añadirlos uno a uno.</li>
-              <li>Puedes definir una **<Link href="/settings/templates/carga-operativa" className="underline font-medium">Plantilla Maestra</Link>** para que cada evento nuevo comience con una lista pre-cargada.</li>
+              <li>Usa **"Sincronizar con Presupuesto"** para generar automáticamente la lista base según lo contratado.</li>
+              <li>Dentro de cada categoría, puedes añadir ítems manuales o cargar categorías completas de tu inventario.</li>
+              <li>Puedes definir una **<Link href="/settings/templates/carga-operativa" className="underline font-medium">Plantilla Maestra</Link>** para listas fijas que siempre llevas.</li>
             </ol>
           </div>
        </Alert>
 
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle className="font-headline text-xl">Añadir Nueva Categoría de Carga</CardTitle>
-          <CardDescription>Organiza los elementos a trasladar por categorías (Ej: Decoración, Sonido, Barra).</CardDescription>
+          <CardTitle className="font-headline text-xl">Acciones de Lista</CardTitle>
+          <CardDescription>Genera tu lista rápidamente usando los datos del presupuesto o tus plantillas.</CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-2">
+            <Button onClick={handleSyncWithBudget} disabled={isSyncing || isSaving} variant="default" className="bg-primary/90 hover:bg-primary">
+                {isSyncing ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <RefreshCw className="w-4 h-4 mr-2"/>}
+                Sincronizar con Presupuesto
+            </Button>
+            <Button onClick={handleRestoreFromTemplate} variant="secondary">
+                <RotateCw className="w-4 h-4 mr-2"/> Cargar Plantilla Maestra
+            </Button>
+        </CardContent>
+      </Card>
+
+      <Card className="shadow-lg">
+        <CardHeader>
+          <CardTitle className="font-headline text-xl">Añadir Nueva Categoría Manual</CardTitle>
+          <CardDescription>Si necesitas organizar elementos adicionales fuera de la sincronización.</CardDescription>
         </CardHeader>
         <CardContent>
             <div className="flex flex-col sm:flex-row items-end gap-2">
                 <div className="flex-grow space-y-1">
                     <Label htmlFor="new-category-name">Nombre de la Categoría</Label>
-                    <Input id="new-category-name" value={newCategoryName} onChange={(e) => setNewCategoryName(e.target.value)} placeholder="Ej: Catering, Barra de Tragos" disabled={isSaving} />
+                    <Input id="new-category-name" value={newCategoryName} onChange={(e) => setNewCategoryName(e.target.value)} placeholder="Ej: Catering Extra, Regalos Especiales" disabled={isSaving} />
                 </div>
-                <Button onClick={handleAddCategory} disabled={isSaving || !newCategoryName.trim()} className="w-full sm:w-auto">
+                <Button onClick={handleAddCategory} disabled={isSaving || !newCategoryName.trim()} variant="outline">
                     <PlusCircle className="w-4 h-4 mr-2"/> Añadir Categoría
                 </Button>
             </div>
-            <Button onClick={handleRestoreFromTemplate} variant="link" className="mt-2 text-xs h-auto p-0"><RotateCw className="w-3 h-3 mr-1"/>Restaurar desde Plantilla Maestra</Button>
         </CardContent>
       </Card>
 
@@ -397,6 +503,9 @@ export default function ListaDeCargaOperativaPage() {
                   <AccordionTrigger className="text-lg font-medium text-primary hover:no-underline flex-1 p-0">
                       <span className="flex items-center gap-2">{category.nombre}</span>
                   </AccordionTrigger>
+                  <Button variant="ghost" size="icon" className="ml-2 h-8 w-8 text-destructive" onClick={(e) => { e.stopPropagation(); handleDeleteCategory(category.id); }}>
+                      <Trash2 className="w-4 h-4"/>
+                  </Button>
               </div>
             <AccordionContent className="px-4 pt-2 pb-4 border-t" data-category-id={category.id}>
               <div className="flex flex-wrap justify-end gap-2 mb-3">
@@ -407,7 +516,6 @@ export default function ListaDeCargaOperativaPage() {
                    <BookOpen className="w-4 h-4 mr-1.5"/> Seleccionar del Catálogo
                 </Button>
               </div>
-              {activosCatalogo.length === 0 && <p className="text-xs text-muted-foreground text-center mb-2">No hay ítems en el catálogo de activos para seleccionar.</p>}
               
               <ScrollArea className="h-auto max-h-[300px] rounded-md border p-2">
                 {category.items && category.items.length > 0 ? (
@@ -445,4 +553,3 @@ export default function ListaDeCargaOperativaPage() {
     </div>
   );
 }
-    
