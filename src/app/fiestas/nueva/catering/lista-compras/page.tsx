@@ -95,8 +95,13 @@ function ListaDeComprasContent() {
       const getTargetGuests = (item: { categoriaServicio?: string, nombreServicio: string }) => {
           const cat = (item.categoriaServicio || '').toLowerCase();
           const name = (item.nombreServicio || '').toLowerCase();
-          if (cat.includes('infantil') || cat.includes('adolescente') || name.includes('niño')) return ninos;
-          if (cat.includes('plato principal') || name.includes('principal')) return adultos;
+          
+          if (cat.includes('infantil') || cat.includes('adolescente') || name.includes('niño') || name.includes('hamburguesa') || name.includes('pancho')) {
+              return ninos;
+          }
+          if (cat.includes('plato principal') || name.includes('principal') || name.includes('arrollado') || name.includes('asado') || name.includes('bife')) {
+              return adultos;
+          }
           return totalInvitados;
       };
 
@@ -160,6 +165,8 @@ function ListaDeComprasContent() {
       
       rawList.forEach(raw => {
           const key = `${raw.nombre.toLowerCase()}-${raw.proveedor.toLowerCase()}`;
+          const unitNorm = (raw.unit || '').toLowerCase().trim();
+          
           if (consolidated[key]) {
               consolidated[key].cantidadNecesaria += raw.cantidadNecesaria;
               if (!consolidated[key].origen.includes(raw.origen)) {
@@ -168,17 +175,22 @@ function ListaDeComprasContent() {
           } else {
               const catalogItem = catalogoInsumos.find(ci => ci.id === raw.origenId || ci.nombre.toLowerCase() === raw.nombre.toLowerCase());
               const stock = catalogItem?.cantidadDisponible || 0;
-              const cost = catalogItem?.valorUnitarioEstimado || raw.costoUnitario;
+              
+              // Si la unidad es tiempo (min), no usamos el precio de la garrafa ($1000) sino el precio de la receta ($1)
+              let cost = raw.costoUnitario;
+              if (catalogItem && unitNorm !== 'min' && unitNorm !== 'unidad') {
+                  cost = catalogItem.valorUnitarioEstimado || raw.costoUnitario;
+              }
               
               consolidated[key] = {
                   id: key,
                   nombre: raw.nombre,
                   cantidadNecesaria: raw.cantidadNecesaria,
                   stockDisponible: stock,
-                  cantidadAComprar: 0, // Calculated below
+                  cantidadAComprar: 0, 
                   unit: raw.unit,
                   costoUnitario: cost,
-                  costoTotalFaltante: 0, // Calculated below
+                  costoTotalFaltante: 0, 
                   proveedor: raw.proveedor,
                   origen: raw.origen,
                   origenId: raw.origenId
@@ -186,17 +198,20 @@ function ListaDeComprasContent() {
           }
       });
 
-      // Cálculo final de faltantes y costos de inversión
       const finalList = Object.values(consolidated).map(item => {
           const faltante = Math.max(0, item.cantidadNecesaria - item.stockDisponible);
-          const unitNormalized = (item.unit || '').toLowerCase().trim();
-          const factorUnidad = (unitNormalized === 'g' || unitNormalized === 'ml' || unitNormalized === 'gramos' || unitNormalized === 'cc') ? 1000 : 1;
-          const costoInversion = (item.costoUnitario) * (faltante / factorUnidad);
+          const unitNorm = (item.unit || '').toLowerCase().trim();
+          
+          // Conversión de unidades: si es gramos o mililitros, dividimos por 1000 para llevar a Kg/Lt
+          const factorUnidad = (unitNorm === 'g' || unitNorm === 'ml' || unitNorm === 'gramos' || unitNorm === 'cc') ? 1000 : 1;
+          
+          // Costo = Precio Unitario del Catálogo (por Kg/Lt) * (Cantidad Faltante / 1000)
+          const costoInversion = item.costoUnitario * (faltante / factorUnidad);
 
           return {
               ...item,
               cantidadAComprar: faltante,
-              costoTotalFaltante: costoInversion
+              costoTotalFaltante: Math.round(costoInversion)
           };
       }).sort((a,b) => a.proveedor.localeCompare(b.proveedor));
 
@@ -219,7 +234,7 @@ function ListaDeComprasContent() {
 
   const groupedByProvider = useMemo(() => {
     return shoppingList.reduce((acc, item) => {
-      const provider = item.proveedor || 'Sin Proveedor Especificado';
+      const provider = item.proveedor || 'Sin especificar';
       if (!acc[provider]) {
         acc[provider] = { items: [], total: 0 };
       }
@@ -271,7 +286,7 @@ function ListaDeComprasContent() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 print:hidden">
           <div className="flex items-center gap-3">
             <ShoppingCart className="w-8 h-8 text-primary" />
-            <h1 className="text-3xl font-bold tracking-tight font-headline">Lista de Compras e Inventario</h1>
+            <h1 className="text-3xl font-bold tracking-tight font-headline">Lista de Compras Automática</h1>
           </div>
           <div className="flex gap-2">
             <Button variant="ghost" onClick={() => loadData(true)} title="Actualizar desde presupuesto"><RefreshCw className="w-4 h-4 mr-2"/>Sincronizar</Button>
@@ -284,24 +299,24 @@ function ListaDeComprasContent() {
         
         <div className="print:block hidden text-center mb-4">
           <h1 className="text-2xl font-bold">Lista de Compras - {fiesta?.configuracion.nombreEvento}</h1>
-          <p className="text-sm">Insumos comparados con el stock maestro del catálogo.</p>
+          <p className="text-sm">Insumos detectados automáticamente desde el presupuesto oficial.</p>
         </div>
 
         <Card className="shadow-lg print:shadow-none print:border-none">
           <CardHeader>
             <div className="flex items-center gap-2 mb-1">
-                <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">Inventario Sincronizado</Badge>
+                <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">Sincronización Activa</Badge>
             </div>
             <CardTitle>Insumos Consolidados por Proveedor</CardTitle>
             <CardDescription>
-              Comparamos lo necesario con tu stock disponible. Si el "Stock" es insuficiente, el "Faltante" te indica qué comprar.
+              Hemos analizado el presupuesto y los menús. Aquí tienes el desglose total de lo que debes comprar.
             </CardDescription>
           </CardHeader>
           <CardContent>
             {shoppingList.length === 0 ? (
               <div className="text-center py-12 bg-muted/30 rounded-lg border-2 border-dashed">
                   <Info className="w-12 h-12 mx-auto text-muted-foreground opacity-50 mb-3"/>
-                  <p className="text-muted-foreground">No se detectaron insumos automáticos. Asegúrate de que el presupuesto contenga platos del catálogo o servicios de barra.</p>
+                  <p className="text-muted-foreground">No se detectaron insumos automáticos. Asegúrate de que el presupuesto contenga platos del catálogo.</p>
               </div>
             ) : (
               <div className="space-y-10">
@@ -341,7 +356,7 @@ function ListaDeComprasContent() {
                                   </TableHeader>
                                   <TableBody>
                                   {items.map(item => (
-                                      <TableRow key={item.id} className={cn(item.cantidadAComprar > 0 && "bg-amber-50/30")}>
+                                      <TableRow key={item.id} className={cn(item.cantidadAComprar > 0 && "bg-amber-50/10")}>
                                       <TableCell className="font-medium">
                                           {item.nombre}
                                           <p className="text-[10px] text-muted-foreground font-normal italic">Ref: {item.origen}</p>
@@ -360,7 +375,7 @@ function ListaDeComprasContent() {
                                   </TableBody>
                                    <TableFooter>
                                     <TableRow className="bg-muted/10">
-                                        <TableCell colSpan={5} className="text-right font-bold text-lg">Inversión necesaria con {providerName}:</TableCell>
+                                        <TableCell colSpan={5} className="text-right font-bold text-lg">Total a invertir con {providerName}:</TableCell>
                                         <TableCell className="text-right font-bold text-lg text-primary">{formatCurrency(total)}</TableCell>
                                     </TableRow>
                                   </TableFooter>
@@ -374,9 +389,9 @@ function ListaDeComprasContent() {
           </CardContent>
           <CardFooter className="border-t mt-8 pt-6 flex justify-end bg-muted/5 p-6">
               <div className="text-right space-y-1">
-                  <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider">Inversión Real en Compras para este Evento</p>
+                  <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider">Inversión Real en Compras para el Evento</p>
                   <p className="text-4xl font-bold text-primary">{formatCurrency(totalInvestment)}</p>
-                  <p className="text-xs text-muted-foreground italic">Este monto contempla únicamente lo que falta comprar (Precio de Catálogo x Faltante).</p>
+                  <p className="text-xs text-muted-foreground italic">Cálculo basado en el presupuesto oficial vinculado.</p>
               </div>
           </CardFooter>
         </Card>
