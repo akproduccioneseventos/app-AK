@@ -1,27 +1,26 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, Suspense, use } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Loader2, ArrowLeft, Save, Sparkles, PlusCircle, AlertTriangle, GripVertical, Settings2, Eye, LayoutGrid, X, Link as LinkIcon, QrCode, ClipboardCopy, Camera, Gift, CheckCircle, PartyPopper, Download, Ticket, Check, Music } from 'lucide-react';
+import { Loader2, ArrowLeft, Save, Link as LinkIcon, ClipboardCopy, Gift, Camera, Music, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion, InvitacionDigitalData, SeccionInvitacion } from '@/types/fiesta';
 import { defaultInvitacionDigitalData } from '@/lib/invitacion-digital-defaults';
 import { merge, cloneDeep } from 'lodash';
 import { DndContext, closestCenter, type DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import { SortableContext, arrayMove, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { GraziaTemplate } from '@/components/invitacion/templates/GraziaTemplate';
 import { AllegriaTemplate } from '@/components/invitacion/templates/AllegriaTemplate';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import type { SocialConnection } from '@/types/settings';
-import { getInvitationTemplates, type InvitacionDigitalTemplate } from '@/app/actions/invitacion-digital-templates';
+import { getInvitationTemplates } from '@/app/actions/invitacion-digital-templates';
 import { ControlPanel } from '@/components/invitacion/edit/ControlPanel';
 import { SectionEditorPanel } from '@/components/invitacion/edit/SectionEditorPanel';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardDescription } from '@/components/ui/card';
 import QRCodeStylized from 'qrcode.react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -68,13 +67,43 @@ function PaginaWebPageContent() {
         const templates = await getInvitationTemplates();
         data = templates.find(t => t.id === templateId);
         if(!data) throw new Error("Plantilla no encontrada");
-        // Create a dummy fiesta object for previewing templates
         setFiesta({ ...defaultInvitacionDigitalData, id: 'template_preview', configuracion: { nombreEvento: data.name, tipoCelebracion: 'Boda', fechaEvento: new Date().toISOString() } } as FiestaEnPlanificacion);
       } else {
         throw new Error("ID no proporcionado");
       }
 
       const mergedData = merge(cloneDeep(defaultInvitacionDigitalData), data?.invitacionDigital || data);
+      
+      // SINCRONIZACIÓN DINÁMICA: Ajustar al tipo de evento (especialmente XV Años)
+      if (fiestaId && data && data.configuracion) {
+          const config = data.configuracion;
+          const isXV = config.tipoCelebracion === 'XV años';
+
+          // 1. Protagonistas
+          mergedData.cabecera.protagonista1 = config.protagonista1Nombre || mergedData.cabecera.protagonista1;
+          mergedData.cabecera.protagonista2 = isXV ? '' : (config.protagonista2Nombre || mergedData.cabecera.protagonista2);
+          
+          // 2. Subtítulo (Tipo de Evento)
+          if (!data.invitacionDigital?.cabecera?.subtitulo?.text) {
+              mergedData.cabecera.subtitulo.text = config.tipoCelebracion || mergedData.cabecera.subtitulo.text;
+          }
+
+          // 3. Título de Bienvenida dinámico
+          if (!data.invitacionDigital?.bienvenida?.titulo?.text || data.invitacionDigital?.bienvenida?.titulo?.text === '¡Nos Casamos!') {
+              mergedData.bienvenida.titulo.text = isXV ? '¡Mis 15 Años!' : (config.tipoCelebracion ? `¡Mi ${config.tipoCelebracion}!` : mergedData.bienvenida.titulo.text);
+          }
+
+          // 4. Fechas de ceremonias
+          if (config.fechaEvento) {
+              if (mergedData.detallesEvento.ceremoniaReligiosa.visible && !mergedData.detallesEvento.ceremoniaReligiosa.fecha) {
+                  mergedData.detallesEvento.ceremoniaReligiosa.fecha = config.fechaEvento;
+              }
+              if (mergedData.detallesEvento.celebracion.visible && !mergedData.detallesEvento.celebracion.fecha) {
+                  mergedData.detallesEvento.celebracion.fecha = config.fechaEvento;
+              }
+          }
+      }
+
       setInvitacionData(mergedData);
       setSocialConnections(socialData);
 
@@ -172,7 +201,7 @@ function PaginaWebPageContent() {
       isPreview: true,
       onSectionClick: setSelectedSectionId,
       onUpdate: handleUpdate,
-      onRsvpSubmit: undefined, // RSVP submission logic is not part of the editor
+      onRsvpSubmit: undefined, 
       selectedSectionId,
     };
     
@@ -182,7 +211,7 @@ function PaginaWebPageContent() {
       case 'Allegria':
         return <AllegriaTemplate {...props} />;
       default:
-        return <GraziaTemplate {...props} />; // Fallback a Grazia
+        return <GraziaTemplate {...props} />;
     }
   };
   
@@ -201,7 +230,6 @@ function PaginaWebPageContent() {
         </div>
       </header>
       <main className="flex-grow flex min-h-0">
-        {/* Left Panel */}
         <div className="w-[380px] flex-shrink-0 border-r bg-background overflow-y-auto">
             {selectedSectionId ? (
                 <SectionEditorPanel
@@ -223,14 +251,13 @@ function PaginaWebPageContent() {
                     onSectionClick={setSelectedSectionId}
                 />
                 
-                {/* Link & QR Center */}
                 {fiestaId && fiesta && (
                     <div className="p-4 space-y-4 border-t">
                         <h3 className="font-semibold text-lg flex items-center gap-2">
                             <LinkIcon className="w-5 h-5 text-primary"/> Centro de Enlaces y QR
                         </h3>
                         <p className="text-xs text-muted-foreground">
-                            Usa estos enlaces y códigos QR para integrar partes de tu invitación en diseños externos (ej. Canva).
+                            Usa estos enlaces y códigos QR para integrar partes de tu invitación en diseños externos.
                         </p>
                         <div className="space-y-3">
                             {invitacionData.regalos.visible && (
@@ -258,7 +285,7 @@ function PaginaWebPageContent() {
                              {fiesta.socialGallerySettings?.enabled && (
                                 <Card className="bg-muted/40 p-3">
                                     <Label className="text-sm font-medium flex items-center gap-1.5"><Camera className="w-4 h-4"/>Muro Social</Label>
-                                    <div className="flex items-center space-x-2 mt-2">
+                                    <div className="flex items-center space-x-2">
                                         <Input value={getFullLink('/evento/social/[fiestaId]')} readOnly />
                                         <Button size="icon" variant="outline" onClick={() => handleCopyToClipboard(getFullLink('/evento/social/[fiestaId]'))}><ClipboardCopy className="h-4 w-4" /></Button>
                                     </div>
@@ -268,16 +295,6 @@ function PaginaWebPageContent() {
                                     </div>
                                 </Card>
                              )}
-                             {invitacionData.musica?.visible && (
-                                <Card className="bg-muted/40 p-3">
-                                     <Label className="text-sm font-medium flex items-center gap-1.5"><Music className="w-4 h-4"/>Sugerencias Musicales</Label>
-                                    <div className="flex items-center space-x-2 mt-2">
-                                        <Input value={getFullLink('/evento/actual', 'confirmacion')} readOnly />
-                                        <Button size="icon" variant="outline" onClick={() => handleCopyToClipboard(getFullLink('/evento/actual', 'confirmacion'))}><ClipboardCopy className="h-4 w-4" /></Button>
-                                    </div>
-                                    <p className="text-xs text-muted-foreground mt-1">El formulario de música está junto al de RSVP.</p>
-                                </Card>
-                            )}
                         </div>
                     </div>
                 )}
@@ -285,7 +302,6 @@ function PaginaWebPageContent() {
             )}
         </div>
         
-        {/* Center Panel (Preview) */}
         <div className="flex-1 overflow-y-auto p-4 flex justify-center bg-gray-200">
           <div className="w-full max-w-[500px] min-w-[380px] shadow-2xl rounded-lg overflow-hidden bg-white">
             {isLoading ? (
