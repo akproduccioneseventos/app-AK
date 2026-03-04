@@ -121,12 +121,15 @@ function ListaDeComprasContent() {
                   if (!isNaN(qtyPerPerson) && qtyPerPerson > 0) {
                       const totalNeeded = qtyPerPerson * targetGuests;
                       
+                      // Buscar proveedor en catálogo si no está en la receta
+                      const providerFromCatalog = catalogoInsumos.find(ci => ci.id === ing.origenId || ci.nombre.toLowerCase() === ing.name.toLowerCase())?.proveedor;
+
                       rawList.push({
                           nombre: ing.name,
                           cantidadNecesaria: totalNeeded,
                           unit: ing.unit,
                           costoUnitario: ing.costoUnitario,
-                          proveedor: ing.proveedor || 'Sin especificar',
+                          proveedor: ing.proveedor || providerFromCatalog || 'Sin especificar',
                           origen: `Presupuesto: ${catalogDish.name}`,
                           origenId: ing.origenId,
                       });
@@ -147,12 +150,14 @@ function ListaDeComprasContent() {
               barraTemplate.items.forEach(item => {
                   const totalNeeded = (item.cantidadNecesaria || 0) * totalInvitados;
                   
+                  const providerFromCatalog = catalogoInsumos.find(ci => ci.id === item.origenId || ci.nombre.toLowerCase() === item.nombre.toLowerCase())?.proveedor;
+
                   rawList.push({
                       nombre: item.nombre,
                       cantidadNecesaria: totalNeeded,
                       unit: item.unidadCantidad || 'Litros',
                       costoUnitario: item.costoUnitario || 0,
-                      proveedor: item.proveedorHabitual || 'Proveedor Bebidas',
+                      proveedor: item.proveedorHabitual || providerFromCatalog || 'Proveedor Bebidas',
                       origen: 'Barra de Tragos (Presupuesto)',
                       origenId: item.origenId,
                   });
@@ -176,7 +181,6 @@ function ListaDeComprasContent() {
               const catalogItem = catalogoInsumos.find(ci => ci.id === raw.origenId || ci.nombre.toLowerCase() === raw.nombre.toLowerCase());
               const stock = catalogItem?.cantidadDisponible || 0;
               
-              // Si la unidad es tiempo (min), no usamos el precio de la garrafa ($1000) sino el precio de la receta ($1)
               let cost = raw.costoUnitario;
               if (catalogItem && unitNorm !== 'min' && unitNorm !== 'unidad') {
                   cost = catalogItem.valorUnitarioEstimado || raw.costoUnitario;
@@ -202,10 +206,7 @@ function ListaDeComprasContent() {
           const faltante = Math.max(0, item.cantidadNecesaria - item.stockDisponible);
           const unitNorm = (item.unit || '').toLowerCase().trim();
           
-          // Conversión de unidades: si es gramos o mililitros, dividimos por 1000 para llevar a Kg/Lt
           const factorUnidad = (unitNorm === 'g' || unitNorm === 'ml' || unitNorm === 'gramos' || unitNorm === 'cc') ? 1000 : 1;
-          
-          // Costo = Precio Unitario del Catálogo (por Kg/Lt) * (Cantidad Faltante / 1000)
           const costoInversion = item.costoUnitario * (faltante / factorUnidad);
 
           return {
@@ -322,7 +323,7 @@ function ListaDeComprasContent() {
               <div className="space-y-10">
                 {providerNames.map((providerName) => {
                   const { items, total } = groupedByProvider[providerName];
-                  const estadoActual = estadosCompra.find(e => e.provider === providerName) || { pedido: false, pagado: false };
+                  const estadoActual = estadosCompra.find(e => e.proveedor === providerName) || { pedido: false, pagado: false };
                   const isSavingThis = isSavingStatus === providerName;
                   return (
                       <div key={providerName} className="print:break-inside-avoid">
