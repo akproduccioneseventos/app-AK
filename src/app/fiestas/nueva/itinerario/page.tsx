@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent, Suspense } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,11 +9,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DatePickerDemo } from '@/components/date-picker-demo';
 import { ArrowLeft, PlusCircle, Edit, Trash2, Loader2, AlertTriangle, Clock, GripVertical, Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper, Save, FolderOpen, RotateCcw, Printer, Share2, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, ProgramaEventoItem, ItineraryTemplate as TaskTemplate } from '@/types/fiesta';
-import { getFiestaActual, updateProgramaFiestaActual } from '@/app/actions/fiesta-actual';
+import type { FiestaEnPlanificacion, ProgramaEventoItem, ItineraryTemplate } from '@/types/fiesta';
+import { getFiestaById, updateProgramaFiestaActual } from '@/app/actions/fiesta-actual';
 import { getItineraryTemplates, saveItineraryTemplate, deleteItineraryTemplate } from '@/app/actions/itinerary-templates';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -40,6 +39,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { defaultPrograma } from '@/lib/fiesta-defaults';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 const iconMap: Record<string, React.ElementType> = {
   Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper, Clock,
@@ -77,8 +77,12 @@ function SortableItem({ item, onEdit, onDelete }: { item: ProgramaEventoItem, on
   );
 }
 
-export default function ItinerarioEventoPage() {
+function ItinerarioContent() {
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const fiestaId = searchParams.get('fiestaId');
+
   const [programa, setPrograma] = useState<ProgramaEventoItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -87,37 +91,35 @@ export default function ItinerarioEventoPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [currentItem, setCurrentItem] = useState<Partial<ProgramaEventoItem> | null>(null);
 
-  // Template States
   const [isSaveTemplateModalOpen, setIsSaveTemplateModalOpen] = useState(false);
   const [templateName, setTemplateName] = useState('');
   const [isLoadTemplateModalOpen, setIsLoadTemplateModalOpen] = useState(false);
-  const [templates, setTemplates] = useState<TaskTemplate[]>([]);
+  const [templates, setTemplates] = useState<ItineraryTemplate[]>([]);
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
   const [deletingTemplateId, setDeletingTemplateId] = useState<string | null>(null);
 
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
   const loadData = useCallback(async () => {
+    if (!fiestaId) return;
     setIsLoading(true);
     setError(null);
     try {
-      const fiestaData = await getFiestaActual();
+      const fiestaData = await getFiestaById(fiestaId);
+      if (!fiestaData) throw new Error("No se encontró el evento.");
       const itinerario = fiestaData.programa || [];
-      // If the current event has no schedule, load the default one.
       if (itinerario.length === 0) {
         setPrograma([...defaultPrograma.map(p => ({...p, id: `prog_${Date.now()}_${Math.random()}`}))]);
-        toast({ title: "Plantilla por Defecto Cargada", description: "Se ha cargado un cronograma de ejemplo. Puedes modificarlo y guardarlo." });
       } else {
         setPrograma(itinerario);
       }
     } catch (err: any) {
-      console.error("Error loading tasks:", err);
       setError("No se pudo cargar el cronograma.");
-      toast({ title: "Error", description: err.message || "Ocurrió un problema inesperado.", variant: "destructive" });
+      toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, [toast, fiestaId]);
 
   useEffect(() => {
     loadData();
@@ -137,7 +139,7 @@ export default function ItinerarioEventoPage() {
   };
 
   const handleOpenSaveTemplateModal = () => {
-    setTemplateName(''); // Reset name
+    setTemplateName('');
     setIsSaveTemplateModalOpen(true);
   };
   
@@ -157,22 +159,10 @@ export default function ItinerarioEventoPage() {
     setIsSaving(false);
   };
 
-  const handleLoadTemplate = (template: TaskTemplate) => {
+  const handleLoadTemplate = (template: ItineraryTemplate) => {
     setPrograma(template.items.map(item => ({...item, id: `prog_${Date.now()}_${Math.random()}`})));
-    toast({title: "Plantilla cargada", description: `Se cargó el cronograma "${template.name}".`});
+    toast({title: "Plantilla cargada"});
     setIsLoadTemplateModalOpen(false);
-  };
-
-  const handleDeleteTemplate = async (id: string) => {
-    setDeletingTemplateId(id);
-    const result = await deleteItineraryTemplate(id);
-    if(result.success) {
-      toast({title: "Plantilla eliminada"});
-      setTemplates(prev => prev.filter(t => t.id !== id));
-    } else {
-      toast({title: "Error al eliminar", description: result.error, variant: "destructive"});
-    }
-    setDeletingTemplateId(null);
   };
 
   const openModal = (item?: ProgramaEventoItem) => {
@@ -216,14 +206,14 @@ export default function ItinerarioEventoPage() {
   }
 
   const handleSaveItinerario = async () => {
+    if (!fiestaId) return;
     setIsSaving(true);
     try {
-      const result = await updateProgramaFiestaActual(programa);
+      const result = await updateProgramaFiestaActual(fiestaId, programa);
       if (result.success) {
-        toast({ title: "Cronograma Guardado", description: "El cronograma del evento ha sido actualizado." });
-        if (result.updatedData) setPrograma(result.updatedData);
+        toast({ title: "Cronograma Guardado" });
       } else {
-        throw new Error(result.error || "Error desconocido al guardar.");
+        throw new Error(result.error);
       }
     } catch (err: any) {
       toast({ title: "Error al Guardar", description: err.message, variant: "destructive" });
@@ -231,14 +221,8 @@ export default function ItinerarioEventoPage() {
       setIsSaving(false);
     }
   };
-  
-  const handleRestoreDefault = () => {
-    setPrograma([...defaultPrograma.map(p => ({...p, id: `prog_${Date.now()}_${Math.random().toString(36).substring(2,9)}`}))]);
-    toast({description: "El cronograma por defecto ha sido cargado."});
-  };
 
-  if (isLoading) return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /> <p className="ml-2">Cargando cronograma...</p></div>;
-  if (error) return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>{error}</div>;
+  if (isLoading) return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-primary"/></div>;
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -264,32 +248,6 @@ export default function ItinerarioEventoPage() {
           </form>
         </DialogContent>
       </Dialog>
-      <Dialog open={isSaveTemplateModalOpen} onOpenChange={setIsSaveTemplateModalOpen}>
-        <DialogContent><DialogHeader><DialogTitle>Guardar Cronograma como Plantilla</DialogTitle></DialogHeader>
-          <div className="py-2 space-y-2"><Label htmlFor="template-name">Nombre de la Plantilla</Label><Input id="template-name" value={templateName} onChange={e => setTemplateName(e.target.value)} placeholder="Ej: Cronograma Boda Clásica"/></div>
-          <DialogFooter><DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose><Button onClick={handleSaveTemplate} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : "Guardar"}</Button></DialogFooter>
-        </DialogContent>
-      </Dialog>
-      <Dialog open={isLoadTemplateModalOpen} onOpenChange={setIsLoadTemplateModalOpen}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Cargar Cronograma desde Plantilla</DialogTitle></DialogHeader>
-          {isLoadingTemplates ? <div className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin"/></div> :
-            templates.length > 0 ? (
-              <ul className="space-y-2 max-h-64 overflow-y-auto">
-                {templates.map(t => (
-                  <li key={t.id} className="flex items-center justify-between p-2 border rounded-md">
-                    <span>{t.name} ({t.items.length} momentos)</span>
-                    <div className="flex gap-1">
-                      <Button size="sm" onClick={() => handleLoadTemplate(t)}>Cargar</Button>
-                      <Button size="icon" variant="destructive" onClick={() => handleDeleteTemplate(t.id)} disabled={deletingTemplateId===t.id}>{deletingTemplateId===t.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}</Button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            ) : <p className="p-4 text-center text-muted-foreground">No hay plantillas guardadas.</p>}
-          <DialogFooter><DialogClose asChild><Button variant="outline">Cerrar</Button></DialogClose></DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -297,15 +255,16 @@ export default function ItinerarioEventoPage() {
           <h1 className="text-3xl font-bold tracking-tight font-headline">Cronograma de la Fiesta</h1>
         </div>
         <div className="flex gap-2">
-            <Link href="/fiestas/nueva/itinerario/pdf" passHref>
+            <Link href={`/fiestas/nueva/itinerario/pdf?fiestaId=${fiestaId}`} passHref>
               <Button variant="secondary" size="sm"><Eye className="w-4 h-4 mr-2"/>Vista Previa / PDF</Button>
             </Link>
-            <Link href="/fiestas/nueva" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
+            <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
         </div>
       </div>
+
       <Card>
         <CardHeader>
-          <CardTitle>Cronograma del Evento</CardTitle>
+          <CardTitle>Eventos Programados</CardTitle>
           <CardDescription>Organiza cada momento de la fiesta. Arrastra y suelta para reordenar.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -313,7 +272,6 @@ export default function ItinerarioEventoPage() {
             <Button onClick={() => openModal()}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Momento</Button>
             <Button onClick={handleOpenLoadTemplateModal} variant="secondary"><FolderOpen className="w-4 h-4 mr-2"/>Cargar Plantilla</Button>
             <Button onClick={handleOpenSaveTemplateModal} variant="secondary"><Save className="w-4 h-4 mr-2"/>Guardar como Plantilla</Button>
-            <Button onClick={handleRestoreDefault} variant="outline"><RotateCcw className="w-4 h-4 mr-2"/>Restaurar por Defecto</Button>
           </div>
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             <SortableContext items={programa.map(p => p.id)} strategy={verticalListSortingStrategy}>
@@ -324,7 +282,6 @@ export default function ItinerarioEventoPage() {
               </div>
             </SortableContext>
           </DndContext>
-           {programa.length === 0 && <p className="text-center text-muted-foreground p-6">Aún no has añadido ningún momento al cronograma.</p>}
         </CardContent>
         <CardFooter className="border-t pt-4">
           <Button onClick={handleSaveItinerario} disabled={isSaving}>
@@ -333,13 +290,14 @@ export default function ItinerarioEventoPage() {
           </Button>
         </CardFooter>
       </Card>
-
-      <style jsx global>{`
-        @media print {
-          body { font-size: 10pt; }
-          .print-hidden { display: none !important; }
-        }
-      `}</style>
     </div>
   );
+}
+
+export default function ItinerarioPage() {
+    return (
+        <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="animate-spin text-primary"/></div>}>
+            <ItinerarioContent />
+        </Suspense>
+    );
 }

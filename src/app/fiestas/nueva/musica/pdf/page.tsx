@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Printer as PrinterIcon, Share2, AlertTriangle, Music, Ban, PartyPopper } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, Share2, AlertTriangle, Music, Ban, PartyPopper, Loader2 } from 'lucide-react';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
@@ -36,7 +36,7 @@ function MusicaPdfContent({ fiestaId }: { fiestaId: string | null }) {
 
   const loadData = useCallback(async () => {
     if (!fiestaId) {
-      setError("No se especificó ID de fiesta.");
+      setError("No se especificó un identificador de evento válido.");
       setIsLoading(false);
       return;
     }
@@ -47,17 +47,16 @@ function MusicaPdfContent({ fiestaId }: { fiestaId: string | null }) {
         getFiestaById(fiestaId),
         getInvoiceTemplateSettings()
       ]);
-      if (!fiestaData) throw new Error("Evento no encontrado.");
+      if (!fiestaData) throw new Error("Evento no encontrado en el sistema.");
       setFiesta(fiestaData);
-      setLogoUrl(templateSettings.logoUrl);
+      setLogoUrl(templateSettings.logoUrl || null);
     } catch (err: any) {
-      setError("No se pudieron cargar los datos para el PDF de música.");
-      toast({ title: "Error", description: err.message, variant: "destructive" });
-      console.error("Error loading data for PDF:", err);
+      console.error("Error loading PDF data:", err);
+      setError(err.message || "Ocurrió un error al cargar los datos.");
     } finally {
       setIsLoading(false);
     }
-  }, [toast, fiestaId]);
+  }, [fiestaId]);
 
   useEffect(() => {
     loadData();
@@ -68,16 +67,24 @@ function MusicaPdfContent({ fiestaId }: { fiestaId: string | null }) {
   };
   
   const handleShare = async () => {
+    if (!fiesta) return;
     const shareData = {
-      title: `Preferencias Musicales - ${fiesta?.configuracion.nombreEvento}`,
+      title: `Preferencias Musicales - ${fiesta.configuracion.nombreEvento}`,
       text: `Aquí tienes las preferencias musicales para el DJ del evento.`,
       url: window.location.href,
     };
-    if (typeof navigator.share !== 'undefined' && navigator.canShare(shareData)) {
-        navigator.share(shareData).catch(err => console.error("Error al compartir:", err));
-    } else {
-        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareData.text + '\n' + shareData.url)}`;
-        window.open(whatsappUrl, '_blank');
+    try {
+      if (navigator.share && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+      } else {
+        throw new Error();
+      }
+    } catch (err) {
+      navigator.clipboard.writeText(shareData.url);
+      toast({
+        title: "Enlace Copiado",
+        description: "El enlace ha sido copiado a tu portapapeles.",
+      });
     }
   };
 
@@ -87,15 +94,13 @@ function MusicaPdfContent({ fiestaId }: { fiestaId: string | null }) {
 
   if (error || !fiesta || !fiesta.musica) {
     return (
-      <div className="p-8 max-w-3xl mx-auto bg-white text-center">
-         <div className="flex justify-between items-center mb-6 print:hidden">
-             <Link href={`/fiestas/nueva/musica?fiestaId=${fiestaId}`} passHref>
-                <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver</Button>
-            </Link>
-        </div>
-        <AlertTriangle className="w-12 h-12 mx-auto text-destructive mb-3" />
-        <p className="font-semibold text-lg text-destructive">Error al Cargar</p>
-        <p className="text-sm text-muted-foreground">{error || "No se pudieron cargar los datos necesarios."}</p>
+      <div className="p-8 max-w-3xl mx-auto bg-white text-center flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <AlertTriangle className="w-16 h-16 text-destructive" />
+        <h2 className="text-2xl font-bold text-destructive">Error al Generar Reporte</h2>
+        <p className="text-muted-foreground">{error || "No hay preferencias musicales definidas."}</p>
+        <Link href={`/fiestas/nueva/musica?fiestaId=${fiestaId || ''}`} passHref>
+            <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver a la Planificación</Button>
+        </Link>
       </div>
     );
   }
@@ -106,14 +111,14 @@ function MusicaPdfContent({ fiestaId }: { fiestaId: string | null }) {
     <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans">
       <div className="max-w-3xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2 relative">
         <div className="w-full h-24 print:h-20 mb-4 relative">
-            <WatermarkedImage src={logoUrl} alt="Marca de agua" containerClassName='w-full h-full'/>
+            <WatermarkedImage src={logoUrl} alt="Logo" containerClassName='w-full h-full'/>
         </div>
         <div className="flex justify-between items-center mb-6 print:hidden">
           <Link href={`/fiestas/nueva/musica?fiestaId=${fiestaId}`} passHref>
             <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Editar</Button>
           </Link>
           <div className="flex gap-2">
-            <Button onClick={handleShare} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir por WhatsApp</Button>
+            <Button onClick={handleShare} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir</Button>
             <Button onClick={handlePrint} size="sm"><PrinterIcon className="w-4 h-4 mr-1.5" />Imprimir / Guardar PDF</Button>
           </div>
         </div>
@@ -144,12 +149,7 @@ function MusicaPdfContent({ fiestaId }: { fiestaId: string | null }) {
             </section>
 
              <section>
-                <h2 className="text-lg font-semibold text-gray-800 print:text-base border-b border-gray-300 pb-1 mb-2 flex items-center gap-2"><PartyPopper className="w-5 h-5"/>Sugerencias de los Invitados</h2>
-                <p className="text-sm print:text-xs text-gray-700 whitespace-pre-line bg-blue-50 p-2 rounded-md">{musica.sugerenciasInvitados || 'No hay sugerencias de los invitados.'}</p>
-            </section>
-
-             <section>
-                <h2 className="text-lg font-semibold text-gray-800 print:text-base border-b border-gray-300 pb-1 mb-2 flex items-center gap-2">Playlist General / Sugerencias del Cliente</h2>
+                <h2 className="text-lg font-semibold text-gray-800 print:text-base border-b border-gray-300 pb-1 mb-2 flex items-center gap-2">Playlist y Sugerencias</h2>
                 <p className="text-sm print:text-xs text-gray-700 whitespace-pre-line bg-gray-50 p-2 rounded-md">{musica.playlistFiesta || 'No hay sugerencias generales.'}</p>
             </section>
             
@@ -167,13 +167,16 @@ function MusicaPdfContent({ fiestaId }: { fiestaId: string | null }) {
   );
 }
 
-export default function MusicaPdfPageWrapper() {
-    const searchParams = useSearchParams();
-    const fiestaId = searchParams.get('fiestaId');
+function MusicaPdfPage() {
+  const searchParams = useSearchParams();
+  const fiestaId = searchParams.get('fiestaId');
+  return <MusicaPdfContent fiestaId={fiestaId} />;
+}
 
-    return (
-        <Suspense fallback={<div className="p-8 max-w-3xl mx-auto bg-white"><Skeleton className="h-[80vh] w-full" /></div>}>
-            <MusicaPdfContent fiestaId={fiestaId} />
-        </Suspense>
-    )
+export default function MusicaPdfPageWrapper() {
+  return (
+    <Suspense fallback={<div className="flex justify-center p-8 h-screen items-center"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>}>
+        <MusicaPdfPage />
+    </Suspense>
+  )
 }

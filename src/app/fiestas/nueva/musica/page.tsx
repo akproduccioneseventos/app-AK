@@ -1,19 +1,20 @@
+
 'use client';
 
-import { useState, type FormEvent, useEffect, useCallback } from 'react';
+import { useState, type FormEvent, useEffect, useCallback, Suspense } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Music2, ListMusic, Ban, CakeSlice, PlusCircle, Trash2, Printer } from 'lucide-react'; // Added Printer
+import { ArrowLeft, Save, Loader2, AlertTriangle, Music2, ListMusic, Ban, CakeSlice, PlusCircle, Trash2, Printer } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import type { MusicaFiesta } from '@/types/fiesta';
-import { getFiestaActual, updateMusicaFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaById, updateMusicaFiestaActual } from '@/app/actions/fiesta-actual';
 import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge'; // Para mostrar las canciones
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Badge } from '@/components/ui/badge';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 const cancionesSugeridasTortaBrindis = [
   "Llego la hora de cortar la torta",
@@ -23,8 +24,12 @@ const cancionesSugeridasTortaBrindis = [
   "Feliz cumpleaños"
 ];
 
-export default function MusicaFiestaPage() {
+function MusicaContent() {
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const fiestaId = searchParams.get('fiestaId');
+
   const [musicaData, setMusicaData] = useState<MusicaFiesta>({
     cancionEntrada: '',
     cancionVals: '',
@@ -39,33 +44,25 @@ export default function MusicaFiestaPage() {
   const [error, setError] = useState<string | null>(null);
 
   const loadMusicaData = useCallback(async () => {
+    if (!fiestaId) return;
     setIsLoading(true);
     setError(null);
     try {
-      const fiestaData = await getFiestaActual();
+      const fiestaData = await getFiestaById(fiestaId);
+      if (!fiestaData) throw new Error("Fiesta no encontrada");
       if (fiestaData.musica) {
         setMusicaData({
           ...fiestaData.musica,
-          cancionesTortaBrindis: fiestaData.musica.cancionesTortaBrindis || [], // Asegurar que sea un array
-        });
-      } else {
-        setMusicaData({
-          cancionEntrada: '',
-          cancionVals: '',
-          cancionesTortaBrindis: [],
-          playlistFiesta: '',
-          listaNoReproducir: '',
-          sugerenciasInvitados: '',
+          cancionesTortaBrindis: fiestaData.musica.cancionesTortaBrindis || [],
         });
       }
     } catch (err: any) {
-      console.error("Error loading music data:", err);
       setError("No se pudo cargar la configuración de música.");
-      toast({ title: "Error al Cargar", description: err.message, variant: "destructive" });
+      toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, [toast, fiestaId]);
 
   useEffect(() => {
     loadMusicaData();
@@ -84,7 +81,7 @@ export default function MusicaFiestaPage() {
       }
       return prev;
     });
-    setNuevaCancionTorta(''); // Limpiar input después de añadir
+    setNuevaCancionTorta('');
   };
 
   const handleRemoveCancionTortaBrindis = (songToRemove: string) => {
@@ -96,20 +93,14 @@ export default function MusicaFiestaPage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (!fiestaId) return;
     setIsSaving(true);
     try {
-      const result = await updateMusicaFiestaActual(musicaData);
-      if (result.success && result.updatedData) {
-        toast({
-          title: "¡Música Guardada!",
-          description: "Las preferencias musicales para la fiesta han sido guardadas.",
-        });
-        setMusicaData({
-            ...result.updatedData,
-            cancionesTortaBrindis: result.updatedData.cancionesTortaBrindis || [],
-        });
+      const result = await updateMusicaFiestaActual(fiestaId, musicaData);
+      if (result.success) {
+        toast({ title: "¡Música Guardada!" });
       } else {
-        throw new Error(result.error || "Error desconocido al guardar la música.");
+        throw new Error(result.error);
       }
     } catch (err: any) {
       toast({ title: "Error al Guardar", description: err.message, variant: "destructive" });
@@ -118,44 +109,21 @@ export default function MusicaFiestaPage() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-12 h-12 animate-spin text-primary" />
-        <p className="ml-3 text-lg">Cargando configuración musical...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
-        <AlertTriangle className="w-12 h-12 text-destructive mb-4" />
-        <h2 className="text-xl font-semibold mb-2">Error al Cargar Música</h2>
-        <p className="text-muted-foreground">{error}</p>
-         <Button onClick={loadMusicaData} className="mt-4">Intentar de Nuevo</Button>
-      </div>
-    );
-  }
+  if (isLoading) return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-primary"/></div>;
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
          <div className="flex items-center gap-3">
           <Music2 className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Música de la Fiesta
-          </h1>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">Música de la Fiesta</h1>
         </div>
         <div className="flex gap-2">
-            <Link href="/fiestas/nueva/musica/pdf" passHref>
+            <Link href={`/fiestas/nueva/musica/pdf?fiestaId=${fiestaId}`} passHref>
               <Button variant="secondary"><Printer className="w-4 h-4 mr-2"/>Imprimir para DJ</Button>
             </Link>
-            <Link href="/fiestas/nueva" passHref>
-              <Button variant="outline" disabled={isSaving}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Volver al Planificador
-              </Button>
+            <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref>
+              <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
             </Link>
         </div>
       </div>
@@ -163,7 +131,7 @@ export default function MusicaFiestaPage() {
       <form onSubmit={handleSubmit}>
         <Card className="shadow-lg">
           <CardHeader>
-            <CardTitle className="font-headline text-xl">Preferencias Musicales Generales</CardTitle>
+            <CardTitle className="font-headline text-xl">Preferencias Musicales</CardTitle>
             <CardDescription>Define las canciones clave y el ambiente musical para tu evento.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -175,7 +143,7 @@ export default function MusicaFiestaPage() {
                 id="cancion-entrada"
                 value={musicaData.cancionEntrada || ''}
                 onChange={(e) => handleInputChange('cancionEntrada', e.target.value)}
-                placeholder="Ej: 'Marry You' - Bruno Mars (o enlace a YouTube/Spotify)"
+                placeholder="Ej: 'Marry You' - Bruno Mars"
                 className="text-base p-3"
                 disabled={isSaving}
               />
@@ -183,13 +151,13 @@ export default function MusicaFiestaPage() {
 
             <div className="space-y-2">
               <Label htmlFor="cancion-vals" className="text-base flex items-center gap-2">
-                <Music2 className="w-5 h-5 text-primary/80" /> Canción para el Vals (o momento especial)
+                <Music2 className="w-5 h-5 text-primary/80" /> Canción para el Vals
               </Label>
               <Input
                 id="cancion-vals"
                 value={musicaData.cancionVals || ''}
                 onChange={(e) => handleInputChange('cancionVals', e.target.value)}
-                placeholder="Ej: 'Danubio Azul' (o enlace)"
+                placeholder="Ej: 'Danubio Azul'"
                 className="text-base p-3"
                 disabled={isSaving}
               />
@@ -199,120 +167,85 @@ export default function MusicaFiestaPage() {
 
             <div className="space-y-4">
               <h3 className="text-lg font-medium font-headline text-primary flex items-center gap-2">
-                <CakeSlice className="w-5 h-5"/> Música para el Corte de la Torta y Brindis
+                <CakeSlice className="w-5 h-5"/> Torta y Brindis
               </h3>
-              <div className="space-y-2">
-                <Label htmlFor="nueva-cancion-torta" className="text-sm">Añadir canción manualmente:</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="nueva-cancion-torta"
-                    value={nuevaCancionTorta}
-                    onChange={(e) => setNuevaCancionTorta(e.target.value)}
-                    placeholder="Nombre de la canción - Artista"
-                    className="text-sm p-2"
-                    disabled={isSaving}
-                  />
-                  <Button type="button" size="sm" onClick={() => handleAddCancionTortaBrindis(nuevaCancionTorta)} disabled={isSaving || !nuevaCancionTorta.trim()}>
-                    <PlusCircle className="w-4 h-4 mr-1"/> Añadir
-                  </Button>
-                </div>
+              <div className="flex gap-2">
+                <Input
+                  value={nuevaCancionTorta}
+                  onChange={(e) => setNuevaCancionTorta(e.target.value)}
+                  placeholder="Canción para la torta..."
+                  className="p-2"
+                  disabled={isSaving}
+                />
+                <Button type="button" onClick={() => handleAddCancionTortaBrindis(nuevaCancionTorta)} disabled={isSaving || !nuevaCancionTorta.trim()}>
+                  <PlusCircle className="w-4 h-4 mr-1"/> Añadir
+                </Button>
               </div>
-              <div>
-                <p className="text-sm mb-2 text-muted-foreground">Sugerencias (haz clic para añadir):</p>
-                <div className="flex flex-wrap gap-2">
-                  {cancionesSugeridasTortaBrindis.map(song => (
+              <div className="flex flex-wrap gap-2">
+                {musicaData.cancionesTortaBrindis?.map(song => (
+                  <Badge key={song} variant="secondary" className="text-sm py-1 px-2">
+                    {song}
                     <Button
-                      key={song}
                       type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleAddCancionTortaBrindis(song)}
-                      disabled={isSaving || musicaData.cancionesTortaBrindis?.includes(song)}
-                      className="text-xs"
+                      variant="ghost"
+                      size="icon"
+                      className="h-5 w-5 ml-1.5 text-muted-foreground hover:text-destructive"
+                      onClick={() => handleRemoveCancionTortaBrindis(song)}
+                      disabled={isSaving}
                     >
-                      {song}
+                      <Trash2 className="h-3 w-3" />
                     </Button>
-                  ))}
-                </div>
+                  </Badge>
+                ))}
               </div>
-              {musicaData.cancionesTortaBrindis && musicaData.cancionesTortaBrindis.length > 0 && (
-                <div className="mt-3 space-y-2">
-                  <p className="text-sm font-medium">Canciones seleccionadas para Torta/Brindis:</p>
-                  <div className="flex flex-wrap gap-2 p-2 border rounded-md bg-muted/50">
-                    {musicaData.cancionesTortaBrindis.map(song => (
-                      <Badge key={song} variant="secondary" className="text-sm py-1 px-2">
-                        {song}
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="h-5 w-5 ml-1.5 text-muted-foreground hover:text-destructive"
-                          onClick={() => handleRemoveCancionTortaBrindis(song)}
-                          disabled={isSaving}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
 
             <Separator />
 
             <div className="space-y-2">
-                <Label htmlFor="sugerencias-invitados" className="text-base flex items-center gap-2">
-                <ListMusic className="w-5 h-5 text-primary/80" /> Sugerencias de Invitados
-                </Label>
-                <Textarea
-                id="sugerencias-invitados"
-                value={musicaData.sugerenciasInvitados || ''}
-                readOnly
-                placeholder="Las sugerencias de los invitados aparecerán aquí automáticamente."
-                rows={4}
-                className="text-sm p-3 bg-muted/70"
-                />
-            </div>
-            
-            <div className="space-y-2">
               <Label htmlFor="playlist-fiesta" className="text-base flex items-center gap-2">
-                <ListMusic className="w-5 h-5 text-primary/80" /> Playlist General para la Fiesta
+                <ListMusic className="w-5 h-5 text-primary/80" /> Playlist y Estilos
               </Label>
               <Textarea
                 id="playlist-fiesta"
                 value={musicaData.playlistFiesta || ''}
                 onChange={(e) => handleInputChange('playlistFiesta', e.target.value)}
-                placeholder="Escribe aquí una lista de canciones, géneros preferidos, o pega un enlace a una playlist (Spotify, YouTube Music, etc.)"
+                placeholder="Escribe géneros, artistas o pega enlaces a Spotify/YouTube..."
                 rows={6}
-                className="text-base p-3"
                 disabled={isSaving}
               />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="lista-no-reproducir" className="text-base flex items-center gap-2">
-                <Ban className="w-5 h-5 text-destructive" /> Música a NO Reproducir (Lista de Exclusión)
+                <Ban className="w-5 h-5 text-destructive" /> Lista de "NO REPRODUCIR"
               </Label>
               <Textarea
                 id="lista-no-reproducir"
                 value={musicaData.listaNoReproducir || ''}
                 onChange={(e) => handleInputChange('listaNoReproducir', e.target.value)}
-                placeholder="Canciones o artistas específicos que no quieres que suenen en la fiesta."
+                placeholder="Canciones que NO quieres que suenen bajo ningún motivo..."
                 rows={4}
-                className="text-base p-3"
                 disabled={isSaving}
               />
             </div>
           </CardContent>
           <CardFooter className="border-t pt-6">
-            <Button type="submit" className="w-full sm:w-auto" disabled={isSaving || isLoading}>
+            <Button type="submit" className="w-full sm:w-auto" disabled={isSaving}>
               {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2" />}
-              {isSaving ? 'Guardando...' : 'Guardar Preferencias Musicales'}
+              Guardar Preferencias
             </Button>
           </CardFooter>
         </Card>
       </form>
     </div>
   );
+}
+
+export default function MusicaFiestaPage() {
+    return (
+        <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="animate-spin text-primary"/></div>}>
+            <MusicaContent />
+        </Suspense>
+    );
 }
