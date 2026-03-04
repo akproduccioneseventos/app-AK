@@ -120,7 +120,6 @@ function ListaDeComprasContent() {
                   if (!isNaN(qtyPerPerson) && qtyPerPerson > 0) {
                       const totalNeeded = qtyPerPerson * targetGuests;
                       
-                      // Buscar proveedor en catálogo si no está en la receta
                       const catalogInsumo = catalogoInsumos.find(ci => ci.id === ing.origenId || ci.nombre.toLowerCase() === ing.name.toLowerCase());
                       const providerFromCatalog = catalogInsumo?.proveedor;
 
@@ -171,7 +170,6 @@ function ListaDeComprasContent() {
       
       rawList.forEach(raw => {
           const key = `${raw.nombre.toLowerCase()}-${raw.proveedor.toLowerCase()}`;
-          const unitNorm = (raw.unit || '').toLowerCase().trim();
           
           if (consolidated[key]) {
               consolidated[key].cantidadNecesaria += raw.cantidadNecesaria;
@@ -288,7 +286,7 @@ function ListaDeComprasContent() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 print:hidden">
           <div className="flex items-center gap-3">
             <ShoppingCart className="w-8 h-8 text-primary" />
-            <h1 className="text-3xl font-bold tracking-tight font-headline">Lista de Compras Automática</h1>
+            <h1 className="text-3xl font-bold tracking-tight font-headline">Lista de Compras e Inventario</h1>
           </div>
           <div className="flex gap-2">
             <Button variant="ghost" onClick={() => loadData(true)} title="Actualizar desde presupuesto"><RefreshCw className="w-4 h-4 mr-2"/>Sincronizar</Button>
@@ -301,17 +299,17 @@ function ListaDeComprasContent() {
         
         <div className="print:block hidden text-center mb-4">
           <h1 className="text-2xl font-bold">Lista de Compras - {fiesta?.configuracion.nombreEvento}</h1>
-          <p className="text-sm">Insumos detectados automáticamente desde el presupuesto oficial.</p>
+          <p className="text-sm">Insumos comparados con el stock maestro del catálogo.</p>
         </div>
 
         <Card className="shadow-lg print:shadow-none print:border-none">
           <CardHeader>
             <div className="flex items-center gap-2 mb-1">
-                <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">Sincronización Activa</Badge>
+                <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">Inventario Sincronizado</Badge>
             </div>
             <CardTitle>Insumos Consolidados por Proveedor</CardTitle>
             <CardDescription>
-              Hemos analizado el presupuesto y los menús. Aquí tienes el desglose total de lo que debes comprar.
+              Comparamos lo necesario con tu stock disponible. Si el "Stock" es insuficiente, el "Faltante" te indica qué comprar.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -377,7 +375,7 @@ function ListaDeComprasContent() {
                                   </TableBody>
                                    <TableFooter>
                                     <TableRow className="bg-muted/10">
-                                        <TableCell colSpan={5} className="text-right font-bold text-lg">Total a invertir con {providerName}:</TableCell>
+                                        <TableCell colSpan={5} className="text-right font-bold text-lg">Inversión necesaria con {providerName}:</TableCell>
                                         <TableCell className="text-right font-bold text-lg text-primary">{formatCurrency(total)}</TableCell>
                                     </TableRow>
                                   </TableFooter>
@@ -391,9 +389,9 @@ function ListaDeComprasContent() {
           </CardContent>
           <CardFooter className="border-t mt-8 pt-6 flex justify-end bg-muted/5 p-6">
               <div className="text-right space-y-1">
-                  <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider">Inversión Real en Compras para el Evento</p>
+                  <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider">Inversión Real en Compras para este Evento</p>
                   <p className="text-4xl font-bold text-primary">{formatCurrency(totalInvestment)}</p>
-                  <p className="text-xs text-muted-foreground italic">Cálculo basado en el presupuesto oficial vinculado.</p>
+                  <p className="text-xs text-muted-foreground italic">Este monto contempla únicamente lo que falta comprar (Precio de Catálogo x Faltante).</p>
               </div>
           </CardFooter>
         </Card>

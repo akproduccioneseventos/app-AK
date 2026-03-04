@@ -125,8 +125,8 @@
         "id": "dish_main_3",
         "name": "Pollo arrollado c/ guarnición",
         "type": "Plato Principal",
-        "totalDishCost": 177.4,
-        "profitMargin": 137,
+        "totalDishCost": 202.4,
+        "profitMargin": 122,
         "suggestedSellingPrice": 449,
         "ingredients": [
           {
@@ -139,7 +139,34 @@
             "origenId": "ing-pollo-arrollado"
           },
           {
-            "id": "ing_pa3_3",
+            "id": "ing_pa3_papa",
+            "name": "Papa",
+            "quantityPerPerson": "150",
+            "unit": "g",
+            "costoUnitario": 60,
+            "costoTotalReceta": 9,
+            "origenId": "ing-papa"
+          },
+          {
+            "id": "ing_pa3_zana",
+            "name": "Zanahoria",
+            "quantityPerPerson": "50",
+            "unit": "g",
+            "costoUnitario": 80,
+            "costoTotalReceta": 4,
+            "origenId": "ing-zanahoria"
+          },
+          {
+            "id": "ing_pa3_arveja",
+            "name": "Arvejas",
+            "quantityPerPerson": "30",
+            "unit": "g",
+            "costoUnitario": 120,
+            "costoTotalReceta": 3.6,
+            "origenId": "ing-arvejas"
+          },
+          {
+            "id": "ing_pa3_mayo",
             "name": "Mayonesa",
             "quantityPerPerson": "40",
             "unit": "g",
@@ -148,7 +175,7 @@
             "origenId": "ing-mayonesa"
           },
           {
-            "id": "ing_pa3_4",
+            "id": "ing_pa3_gas",
             "name": "Gas",
             "quantityPerPerson": "10",
             "unit": "min",
@@ -169,7 +196,7 @@
         "id": "dish_child_3",
         "name": "Hamburguesa con fritas",
         "type": "Menú Infantil/Adolescente",
-        "totalDishCost": 51,
+        "totalDishCost": 53.4,
         "profitMargin": 123,
         "suggestedSellingPrice": 299,
         "ingredients": [
@@ -183,22 +210,22 @@
             "origenId": "ing-hamburguesa-cong"
           },
           {
-            "id": "ing_c3_2",
-            "name": "Papas Fritas Congeladas",
-            "quantityPerPerson": "200",
-            "unit": "g",
-            "costoUnitario": 130,
-            "costoTotalReceta": 26,
-            "origenId": "ing-fritas"
-          },
-          {
             "id": "ing_c3_4",
-            "name": "Tortuga para chivito",
+            "name": "Tortuga",
             "quantityPerPerson": "1",
             "unit": "Unidad",
             "costoUnitario": 16,
             "costoTotalReceta": 16,
-            "origenId": "ing-tortuga-chivito"
+            "origenId": "ing-tortuga"
+          },
+          {
+            "id": "ing_c3_mayo",
+            "name": "Mayonesa",
+            "quantityPerPerson": "20",
+            "unit": "g",
+            "costoUnitario": 120,
+            "costoTotalReceta": 2.4,
+            "origenId": "ing-mayonesa"
           }
         ]
       }

@@ -54,6 +54,33 @@
     "proveedor": "NICO"
   },
   {
+    "id": "ing-papa",
+    "nombre": "Papa",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "valorUnitarioEstimado": 60,
+    "unidad": "Kg",
+    "proveedor": "VERDULERIA"
+  },
+  {
+    "id": "ing-zanahoria",
+    "nombre": "Zanahoria",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Verduras",
+    "valorUnitarioEstimado": 80,
+    "unidad": "Kg",
+    "proveedor": "VERDULERIA"
+  },
+  {
+    "id": "ing-arvejas",
+    "nombre": "Arvejas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumos varios",
+    "valorUnitarioEstimado": 120,
+    "unidad": "Kg",
+    "proveedor": "VERDULERIA"
+  },
+  {
     "id": "ing-gas",
     "nombre": "Gas",
     "tipoItem": "Insumo/Ingrediente",
@@ -81,17 +108,8 @@
     "proveedor": "DOPACA"
   },
   {
-    "id": "ing-fritas",
-    "nombre": "Papas Fritas Congeladas",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Congelados",
-    "valorUnitarioEstimado": 130,
-    "unidad": "Kg",
-    "proveedor": "DOPACA"
-  },
-  {
-    "id": "ing-tortuga-chivito",
-    "nombre": "Tortuga para chivito",
+    "id": "ing-tortuga",
+    "nombre": "Tortuga",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Panificados",
     "valorUnitarioEstimado": 16,
