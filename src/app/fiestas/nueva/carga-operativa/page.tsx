@@ -1,8 +1,9 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent, useMemo, Suspense } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -48,7 +49,7 @@ function SortableCargaItem({ item, categoryId, onToggle, onQuantityChange, onDel
                 />
                 <div className="flex-grow">
                   <Label htmlFor={`item-cargado-${item.id}`} className={cn("font-medium text-sm", item.cargado && "line-through text-muted-foreground")}>{item.nombre}</Label>
-                  {item.notas && <p className={cn("text-xs italic", item.cargado ? "text-muted-foreground/60" : "text-muted-foreground/80")}>Nota: {item.notas}</p>}
+                  {item.notes && <p className={cn("text-xs italic", item.cargado ? "text-muted-foreground/60" : "text-muted-foreground/80")}>Nota: {item.notes}</p>}
                 </div>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0 ml-4">
@@ -68,7 +69,7 @@ function SortableCargaItem({ item, categoryId, onToggle, onQuantityChange, onDel
     );
 }
 
-export default function ListaDeCargaOperativaPage() {
+function ListaDeCargaOperativaContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const fiestaId = searchParams.get('fiestaId');
@@ -82,8 +83,7 @@ export default function ListaDeCargaOperativaPage() {
 
   const [newCategoryName, setNewCategoryName] = useState('');
   
-  const [isSelectCatalogModalOpen, setIsSelectCatalogModalOpen] = useState(false);
-  const [isLoadCategoryModalOpen, setIsLoadCategoryModalOpen] = useState(false);
+  const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
   const [catalogSearchTerm, setCatalogSearchTerm] = useState('');
   const [categoryForCatalogSelect, setCategoryForCatalogSelect] = useState<CargaOperativaCategoria | null>(null);
 
@@ -104,7 +104,6 @@ export default function ListaDeCargaOperativaPage() {
       
       let loadedLista = fiestaData.listaDeCargaOperativa;
       
-      // Si no hay lista, usar plantilla maestra como base
       if ((!loadedLista || !loadedLista.categorias || loadedLista.categorias.length === 0) && masterTemplate.categorias.length > 0) {
         loadedLista = {
           ...masterTemplate,
@@ -157,7 +156,6 @@ export default function ListaDeCargaOperativaPage() {
 
       const neededAssetCategories = new Set<string>();
       
-      // Lógica de detección de necesidades
       if (budgetCategories.has('servicio de discoteca') || budgetNames.has('discoteca') || budgetNames.has('dj')) {
         neededAssetCategories.add('Discoteca');
       }
@@ -317,38 +315,8 @@ export default function ListaDeCargaOperativaPage() {
   const openSelectFromCatalogModal = (category: CargaOperativaCategoria) => {
     setCategoryForCatalogSelect(category);
     setCatalogSearchTerm('');
-    setIsSelectCatalogModalOpen(true);
+    setIsCatalogModalOpen(true);
   };
-  
-  const openLoadCategoryModal = (category: CargaOperativaCategoria) => {
-    setCategoryForCatalogSelect(category);
-    setIsLoadCategoryModalOpen(true);
-  };
-
-  const handleLoadFullCategory = (categoriaActivo: string) => {
-    if(!categoryForCatalogSelect) return;
-    const activosDeCategoria = activosCatalogo.filter(a => a.categoria === categoriaActivo);
-    const nuevosItems: CargaOperativaItem[] = activosDeCategoria.map(asset => ({
-        id: `item_cat_${asset.id}_${Date.now()}`,
-        nombre: asset.nombre,
-        cantidad: String(asset.cantidadDisponible || 1),
-        unidad: asset.unidad,
-        cargado: false,
-        origenId: asset.id,
-    }));
-
-    setListaDeCarga(prev => ({
-      ...prev,
-      categorias: (prev.categorias || []).map(cat =>
-        cat.id === categoryForCatalogSelect.id
-          ? { ...cat, items: [...(cat.items || []), ...nuevosItems] }
-          : cat
-      ),
-    }));
-
-    toast({description: `Se añadieron ${nuevosItems.length} ítems de la categoría "${categoriaActivo}".`});
-    setIsLoadCategoryModalOpen(false);
-  }
 
   const toggleItemCargado = (categoryId: string, itemId: string) => {
     setListaDeCarga(prev => ({
@@ -411,9 +379,6 @@ export default function ListaDeCargaOperativaPage() {
     );
   }, [activosCatalogo, catalogSearchTerm]);
 
-  const categoriasDeActivos = useMemo(() => Array.from(new Set(activosCatalogo.map(a => a.categoria).filter(Boolean))), [activosCatalogo]);
-
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -425,8 +390,7 @@ export default function ListaDeCargaOperativaPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-       <Dialog open={isSelectCatalogModalOpen} onOpenChange={setIsSelectCatalogModalOpen}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle className="font-headline">Seleccionar Activo del Catálogo</DialogTitle><DialogDescription>Para la categoría "{categoryForCatalogSelect?.nombre}"</DialogDescription></DialogHeader><div className="py-2 space-y-3"><div className="relative"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input type="text" placeholder="Buscar activo..." value={catalogSearchTerm} onChange={(e) => setCatalogSearchTerm(e.target.value)} className="w-full pl-10"/></div><ScrollArea className="h-[300px] border rounded-md">{isLoading ? <div className="p-4 text-center"><Loader2 className="w-6 h-6 animate-spin"/></div> : filteredCatalogItems.length > 0 ? (<ul className="p-2 space-y-1">{filteredCatalogItems.map(item => (<li key={item.id}><Button variant="ghost" className="w-full justify-start text-left h-auto py-1.5 px-2" onClick={() => handleCatalogItemSelected(item)}><div><p className="font-medium text-sm">{item.nombre}</p><p className="text-xs text-muted-foreground">Stock: {item.cantidadDisponible || 0} {item.unidad}</p></div></Button></li>))}</ul>) : (<p className="p-4 text-center text-sm text-muted-foreground">{catalogSearchTerm ? "No hay ítems que coincidan con tu búsqueda." : "El catálogo de activos está vacío."}</p>)}</ScrollArea></div><DialogFooter><DialogClose asChild><Button type="button" variant="outline">Cerrar</Button></DialogClose></DialogFooter></DialogContent></Dialog>
-       <Dialog open={isLoadCategoryModalOpen} onOpenChange={setIsLoadCategoryModalOpen}><DialogContent className="sm:max-w-md"><DialogHeader><DialogTitle className="font-headline">Cargar Categoría Completa</DialogTitle><DialogDescription>Selecciona una categoría de tu catálogo de Activos Fijos para añadir todos sus ítems a "{categoryForCatalogSelect?.nombre}".</DialogDescription></DialogHeader><div className="py-4 space-y-2">{categoriasDeActivos.map(cat => (<Button key={cat} variant="secondary" className="w-full justify-start" onClick={() => handleLoadFullCategory(cat!)}>{cat}</Button>))}</div></DialogContent></Dialog>
+       <Dialog open={isCatalogModalOpen} onOpenChange={setIsCatalogModalOpen}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle className="font-headline">Seleccionar Activo del Catálogo</DialogTitle><DialogDescription>Para la categoría "{categoryForCatalogSelect?.nombre}"</DialogDescription></DialogHeader><div className="py-2 space-y-3"><div className="relative"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input type="text" placeholder="Buscar activo..." value={catalogSearchTerm} onChange={(e) => setCatalogSearchTerm(e.target.value)} className="w-full pl-10"/></div><ScrollArea className="h-[300px] border rounded-md">{isLoading ? <div className="p-4 text-center"><Loader2 className="w-6 h-6 animate-spin"/></div> : filteredCatalogItems.length > 0 ? (<ul className="p-2 space-y-1">{filteredCatalogItems.map(item => (<li key={item.id}><Button variant="ghost" className="w-full justify-start text-left h-auto py-1.5 px-2" onClick={() => handleCatalogItemSelected(item)}><div><p className="font-medium text-sm">{item.nombre}</p><p className="text-xs text-muted-foreground">Stock: {item.cantidadDisponible || 0} {item.unidad}</p></div></Button></li>))}</ul>) : (<p className="p-4 text-center text-sm text-muted-foreground">{catalogSearchTerm ? "No hay ítems que coincidan con tu búsqueda." : "El catálogo de activos está vacío."}</p>)}</ScrollArea></div><DialogFooter><DialogClose asChild><Button type="button" variant="outline">Cerrar</Button></DialogClose></DialogFooter></DialogContent></Dialog>
        
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
@@ -506,9 +470,6 @@ export default function ListaDeCargaOperativaPage() {
               </div>
             <AccordionContent className="px-4 pt-2 pb-4 border-t" data-category-id={category.id}>
               <div className="flex flex-wrap justify-end gap-2 mb-3">
-                <Button variant="secondary" size="sm" onClick={() => openLoadCategoryModal(category)} disabled={activosCatalogo.length === 0}>
-                   <FolderPlus className="w-4 h-4 mr-1.5"/> Cargar Categoría Completa
-                </Button>
                 <Button variant="default" size="sm" onClick={() => openSelectFromCatalogModal(category)} disabled={activosCatalogo.length === 0}>
                    <BookOpen className="w-4 h-4 mr-1.5"/> Seleccionar del Catálogo
                 </Button>
@@ -548,5 +509,13 @@ export default function ListaDeCargaOperativaPage() {
         </Button>
       </div>
     </div>
+  );
+}
+
+export default function ListaDeCargaOperativaPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>}>
+      <ListaDeCargaOperativaContent />
+    </Suspense>
   );
 }
