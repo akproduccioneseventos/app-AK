@@ -9,287 +9,8 @@
     "proveedor": "CALSAL"
   },
   {
-    "id": "ing-algas",
-    "nombre": "Algas",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumos varios",
-    "valorUnitarioEstimado": 2000,
-    "unidad": "Kg",
-    "proveedor": "MONTEVIDEO"
-  },
-  {
-    "id": "ing-salsa-soja",
-    "nombre": "Salsa de soja",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Salsas y Condimentos",
-    "valorUnitarioEstimado": 500,
-    "unidad": "Litro",
-    "proveedor": "UNIPLAS"
-  },
-  {
-    "id": "ing-aceite",
-    "nombre": "Aceite",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumos varios",
-    "valorUnitarioEstimado": 70,
-    "unidad": "Litro",
-    "proveedor": "DK MAYORISTA"
-  },
-  {
-    "id": "ing-gas",
-    "nombre": "Gas",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Equipamiento",
-    "valorUnitarioEstimado": 1,
-    "unidad": "min",
-    "proveedor": "Proveedor Gas"
-  },
-  {
-    "id": "ing-huevo",
-    "nombre": "Huevo",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumos varios",
-    "valorUnitarioEstimado": 10,
-    "unidad": "Unidad",
-    "proveedor": "VERDULERIA"
-  },
-  {
-    "id": "ing-arrolladitos-primavera",
-    "nombre": "Arrolladitos primavera",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Congelados",
-    "valorUnitarioEstimado": 6,
-    "unidad": "Unidad",
-    "proveedor": "DOPACA"
-  },
-  {
-    "id": "ing-tostaditas",
-    "nombre": "Tostaditas",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Panificados",
-    "valorUnitarioEstimado": 390,
-    "unidad": "Kg",
-    "proveedor": "DON DIEGO"
-  },
-  {
-    "id": "ing-albahaca",
-    "nombre": "Albahaca",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Verduras",
-    "valorUnitarioEstimado": 40,
-    "unidad": "Unidad",
-    "proveedor": "VERDULERIA"
-  },
-  {
-    "id": "ing-hongos",
-    "nombre": "Hongos",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumos varios",
-    "valorUnitarioEstimado": 280,
-    "unidad": "Kg",
-    "proveedor": "UNIPLAS"
-  },
-  {
-    "id": "ing-picles",
-    "nombre": "Picles",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumos varios",
-    "valorUnitarioEstimado": 200,
-    "unidad": "Kg",
-    "proveedor": "UNIPLAS"
-  },
-  {
-    "id": "ing-pate",
-    "nombre": "Pate",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumos varios",
-    "valorUnitarioEstimado": 200,
-    "unidad": "Kg",
-    "proveedor": "UNIPLAS"
-  },
-  {
-    "id": "ing-salsa",
-    "nombre": "Salsa",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Salsas y Condimentos",
-    "valorUnitarioEstimado": 180,
-    "unidad": "Kg",
-    "proveedor": "UNIPLAS"
-  },
-  {
-    "id": "ing-aceitunas-rodajas",
-    "nombre": "Aceitunas rodajas",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumos varios",
-    "valorUnitarioEstimado": 180,
-    "unidad": "Kg",
-    "proveedor": "UNIPLAS"
-  },
-  {
-    "id": "ing-salsas",
-    "nombre": "Salsas",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Salsas y Condimentos",
-    "valorUnitarioEstimado": 180,
-    "unidad": "Kg",
-    "proveedor": "UNIPLAS"
-  },
-  {
-    "id": "ing-tomate-cherry",
-    "nombre": "Tomate cherry",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Verduras",
-    "valorUnitarioEstimado": 200,
-    "unidad": "Kg",
-    "proveedor": "VERDULERIA"
-  },
-  {
     "id": "ing-jamon",
     "nombre": "Jamon",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Fiambres",
-    "valorUnitarioEstimado": 180,
-    "unidad": "Kg",
-    "proveedor": "EL TROPERO"
-  },
-  {
-    "id": "ing-manteca",
-    "nombre": "Manteca",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Lácteos",
-    "valorUnitarioEstimado": 200,
-    "unidad": "Kg",
-    "proveedor": "EL TROPERO"
-  },
-  {
-    "id": "ing-muzzarella",
-    "nombre": "Muzzarella",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Lácteos",
-    "valorUnitarioEstimado": 330,
-    "unidad": "Kg",
-    "proveedor": "EL TROPERO"
-  },
-  {
-    "id": "ing-pan-sandwiches",
-    "nombre": "Pan de Sandwiches",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Panificados",
-    "valorUnitarioEstimado": 380,
-    "unidad": "Kg",
-    "proveedor": "DON DIEGO"
-  },
-  {
-    "id": "ing-aceitunas",
-    "nombre": "Aceitunas",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumos varios",
-    "valorUnitarioEstimado": 220,
-    "unidad": "Kg",
-    "proveedor": "UNIPLAS"
-  },
-  {
-    "id": "ing-palitos-salados",
-    "nombre": "Palitos salados",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumos varios",
-    "valorUnitarioEstimado": 200,
-    "unidad": "Kg",
-    "proveedor": "BAGASHOPING"
-  },
-  {
-    "id": "ing-mani",
-    "nombre": "Mani",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Fiambres",
-    "valorUnitarioEstimado": 200,
-    "unidad": "Kg",
-    "proveedor": "EL TROPERO"
-  },
-  {
-    "id": "ing-papas-chips",
-    "nombre": "Papas Chips",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumos varios",
-    "valorUnitarioEstimado": 400,
-    "unidad": "Kg",
-    "proveedor": "DK MAYORISTA"
-  },
-  {
-    "id": "ing-doritos",
-    "nombre": "Doritos",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumos varios",
-    "valorUnitarioEstimado": 800,
-    "unidad": "Kg",
-    "proveedor": "DK MAYORISTA"
-  },
-  {
-    "id": "ing-fritas",
-    "nombre": "Papas Fritas Congeladas",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Congelados",
-    "valorUnitarioEstimado": 130,
-    "unidad": "Kg",
-    "proveedor": "DOPACA"
-  },
-  {
-    "id": "ing-queso-cheddar",
-    "nombre": "Queso Cheddar",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Lácteos",
-    "valorUnitarioEstimado": 340,
-    "unidad": "Kg",
-    "proveedor": "DK MAYORISTA"
-  },
-  {
-    "id": "ing-carnes-brocheta",
-    "nombre": "Carnes para brocheta (mix)",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Carnes",
-    "valorUnitarioEstimado": 380,
-    "unidad": "Kg",
-    "proveedor": "CARNICERIA"
-  },
-  {
-    "id": "ing-panceta",
-    "nombre": "Panceta",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Fiambres",
-    "valorUnitarioEstimado": 400,
-    "unidad": "Kg",
-    "proveedor": "EL TROPERO"
-  },
-  {
-    "id": "ing-morron-rojo",
-    "nombre": "Morron rojo",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Verduras",
-    "valorUnitarioEstimado": 150,
-    "unidad": "Kg",
-    "proveedor": "VERDULERIA"
-  },
-  {
-    "id": "ing-morron-verde",
-    "nombre": "Morron verde",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Verduras",
-    "valorUnitarioEstimado": 100,
-    "unidad": "Kg",
-    "proveedor": "VERDULERIA"
-  },
-  {
-    "id": "ing-cebollas",
-    "nombre": "Cebollas",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Verduras",
-    "valorUnitarioEstimado": 80,
-    "unidad": "Kg",
-    "proveedor": "VERDULERIA"
-  },
-  {
-    "id": "ing-paleta",
-    "nombre": "Paleta",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Fiambres",
     "valorUnitarioEstimado": 180,
@@ -315,553 +36,13 @@
     "proveedor": "EL TROPERO"
   },
   {
-    "id": "ing-queso-cerdo",
-    "nombre": "Queso de cerdo",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Fiambres",
-    "valorUnitarioEstimado": 380,
-    "unidad": "Kg",
-    "proveedor": "EL TROPERO"
-  },
-  {
-    "id": "ing-queso-alpa",
-    "nombre": "Queso alpa",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Lácteos",
-    "valorUnitarioEstimado": 280,
-    "unidad": "Kg",
-    "proveedor": "EL TROPERO"
-  },
-  {
-    "id": "ing-leonesa-primavera",
-    "nombre": "Leonesa primavera",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Fiambres",
-    "valorUnitarioEstimado": 322,
-    "unidad": "Kg",
-    "proveedor": "EL TROPERO"
-  },
-  {
-    "id": "ing-aceitunas-sc",
-    "nombre": "Aceitunas s/ carozo",
+    "id": "ing-aceitunas",
+    "nombre": "Aceitunas",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Insumos varios",
-    "valorUnitarioEstimado": 250,
+    "valorUnitarioEstimado": 220,
     "unidad": "Kg",
     "proveedor": "UNIPLAS"
-  },
-  {
-    "id": "ing-grisines-chicos",
-    "nombre": "Grisines chicos",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Panificados",
-    "valorUnitarioEstimado": 370,
-    "unidad": "Kg",
-    "proveedor": "BISIO"
-  },
-  {
-    "id": "ing-galletas-malteadas",
-    "nombre": "Galletas malteadas sin sal",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Panificados",
-    "valorUnitarioEstimado": 270,
-    "unidad": "Kg",
-    "proveedor": "DON DIEGO"
-  },
-  {
-    "id": "ing-tostadas-baguet",
-    "nombre": "Tostadas baguet saborizadas",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Panificados",
-    "valorUnitarioEstimado": 635,
-    "unidad": "Kg",
-    "proveedor": "DON DIEGO"
-  },
-  {
-    "id": "ing-catalan-remolacha",
-    "nombre": "Catalan 20g con sesamo de remolacha",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Panificados",
-    "valorUnitarioEstimado": 340,
-    "unidad": "Kg",
-    "proveedor": "DON DIEGO"
-  },
-  {
-    "id": "ing-catalan-verde",
-    "nombre": "Catalan 20g con sesamo verde",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Panificados",
-    "valorUnitarioEstimado": 340,
-    "unidad": "Kg",
-    "proveedor": "DON DIEGO"
-  },
-  {
-    "id": "ing-escones-queso",
-    "nombre": "Escones de queso con sesamo",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Panificados",
-    "valorUnitarioEstimado": 11,
-    "unidad": "Unidad",
-    "proveedor": "DON DIEGO"
-  },
-  {
-    "id": "ing-chipa",
-    "nombre": "Chipa",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Panificados",
-    "valorUnitarioEstimado": 11,
-    "unidad": "Unidad",
-    "proveedor": "DON DIEGO"
-  },
-  {
-    "id": "ing-picada-carne",
-    "nombre": "Picada de carne",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Carnes",
-    "valorUnitarioEstimado": 330,
-    "unidad": "Kg",
-    "proveedor": "CARNICERIA"
-  },
-  {
-    "id": "ing-aderezos-varios-2",
-    "nombre": "Aderezos (varios)",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Salsas y Condimentos",
-    "valorUnitarioEstimado": 150,
-    "unidad": "Kg",
-    "proveedor": "UNIPLAS"
-  },
-  {
-    "id": "ing-perejil-ajo",
-    "nombre": "Perejil y ajo natural",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Verduras",
-    "valorUnitarioEstimado": 100,
-    "unidad": "Kg",
-    "proveedor": "VERDULERIA"
-  },
-  {
-    "id": "ing-pollo",
-    "nombre": "Pollo",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Carnes",
-    "valorUnitarioEstimado": 120,
-    "unidad": "Kg",
-    "proveedor": "CARNICERIA"
-  },
-  {
-    "id": "ing-papa",
-    "nombre": "Papa",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Verduras",
-    "valorUnitarioEstimado": 60,
-    "unidad": "Kg",
-    "proveedor": "VERDULERIA"
-  },
-  {
-    "id": "ing-zanahoria",
-    "nombre": "Zanahoria",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Verduras",
-    "valorUnitarioEstimado": 120,
-    "unidad": "Kg",
-    "proveedor": "VERDULERIA"
-  },
-  {
-    "id": "ing-arbejas",
-    "nombre": "Arbejas",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Verduras",
-    "valorUnitarioEstimado": 500,
-    "unidad": "Kg",
-    "proveedor": "UNIPLAS"
-  },
-  {
-    "id": "ing-mayonesa",
-    "nombre": "Mayonesa",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Salsas y Condimentos",
-    "valorUnitarioEstimado": 120,
-    "unidad": "Kg",
-    "proveedor": "UNIPLAS"
-  },
-  {
-    "id": "ing-condimentos",
-    "nombre": "Condimentos",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Salsas y Condimentos",
-    "valorUnitarioEstimado": 100,
-    "unidad": "Kg",
-    "proveedor": "UNIPLAS"
-  },
-  {
-    "id": "ing-tapa-empanada",
-    "nombre": "Tapa de Empanada",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Panificados",
-    "valorUnitarioEstimado": 6,
-    "unidad": "Unidad",
-    "proveedor": "PASTAS LULU"
-  },
-  {
-    "id": "ing-carne-picada",
-    "nombre": "Carne picada",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Carnes",
-    "valorUnitarioEstimado": 250,
-    "unidad": "Kg",
-    "proveedor": "CARNICERIA"
-  },
-  {
-    "id": "ing-pan-chivito",
-    "nombre": "Pan de Chivito",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Panificados",
-    "valorUnitarioEstimado": 6,
-    "unidad": "Unidad",
-    "proveedor": "DON DIEGO"
-  },
-  {
-    "id": "ing-lechuga",
-    "nombre": "Lechuga",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Verduras",
-    "valorUnitarioEstimado": 50,
-    "unidad": "Unidad",
-    "proveedor": "VERDULERIA"
-  },
-  {
-    "id": "ing-carne-chivito",
-    "nombre": "Carne para chivito",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Carnes",
-    "valorUnitarioEstimado": 380,
-    "unidad": "Kg",
-    "proveedor": "CARNICERIA"
-  },
-  {
-    "id": "ing-tomate",
-    "nombre": "Tomate",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Verduras",
-    "valorUnitarioEstimado": 150,
-    "unidad": "Kg",
-    "proveedor": "VERDULERIA"
-  },
-  {
-    "id": "ing-queso-sandwich",
-    "nombre": "Queso sandwich",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Lácteos",
-    "valorUnitarioEstimado": 400,
-    "unidad": "Kg",
-    "proveedor": "EL TROPERO"
-  },
-  {
-    "id": "ing-choclo",
-    "nombre": "Choclo",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Verduras",
-    "valorUnitarioEstimado": 260,
-    "unidad": "Kg",
-    "proveedor": "UNIPLAS"
-  },
-  {
-    "id": "ing-papas-pay",
-    "nombre": "Papas pay",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumos varios",
-    "valorUnitarioEstimado": 450,
-    "unidad": "Kg",
-    "proveedor": "UNIPLAS"
-  },
-  {
-    "id": "ing-palmitos",
-    "nombre": "Palmitos",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumos varios",
-    "valorUnitarioEstimado": 200,
-    "unidad": "Kg",
-    "proveedor": "UNIPLAS"
-  },
-  {
-    "id": "ing-conos-pizza",
-    "nombre": "Conos para pizza",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Panificados",
-    "valorUnitarioEstimado": 25,
-    "unidad": "Unidad",
-    "proveedor": "DON DIEGO"
-  },
-  {
-    "id": "ing-pizzas",
-    "nombre": "Pizzas prehechas",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Panificados",
-    "valorUnitarioEstimado": 60,
-    "unidad": "Unidad",
-    "proveedor": "DON DIEGO"
-  },
-  {
-    "id": "ing-harina-maiz-blanco-arepas",
-    "nombre": "Harina de maiz blanco (arepas)",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumos varios",
-    "valorUnitarioEstimado": 120,
-    "unidad": "Kg",
-    "proveedor": "EL TROPERO"
-  },
-  {
-    "id": "ing-tapas-hojaldre",
-    "nombre": "Tapas de hojaldre",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Panificados",
-    "valorUnitarioEstimado": 65,
-    "unidad": "Unidad",
-    "proveedor": "PASTAS LULU"
-  },
-  {
-    "id": "ing-nugget-pollo",
-    "nombre": "Nugget de pollo",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Congelados",
-    "valorUnitarioEstimado": 283,
-    "unidad": "Kg",
-    "proveedor": "DOPACA"
-  },
-  {
-    "id": "ing-aros-cebolla",
-    "nombre": "Aros de cebolla",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Congelados",
-    "valorUnitarioEstimado": 253,
-    "unidad": "Kg",
-    "proveedor": "DOPACA"
-  },
-  {
-    "id": "ing-croquetas-papa",
-    "nombre": "Croquetas de papa",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Congelados",
-    "valorUnitarioEstimado": 250,
-    "unidad": "Kg",
-    "proveedor": "DOPACA"
-  },
-  {
-    "id": "ing-noisettes",
-    "nombre": "Noisettes",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Congelados",
-    "valorUnitarioEstimado": 200,
-    "unidad": "Kg",
-    "proveedor": "DOPACA"
-  },
-  {
-    "id": "ing-formitas-merluza",
-    "nombre": "Formitas de merluza",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Congelados",
-    "valorUnitarioEstimado": 239,
-    "unidad": "Kg",
-    "proveedor": "DOPACA"
-  },
-  {
-    "id": "ing-salsa-criolla",
-    "nombre": "Salsa criolla",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Salsas y Condimentos",
-    "valorUnitarioEstimado": 200,
-    "unidad": "Kg",
-    "proveedor": "UNIPLAS"
-  },
-  {
-    "id": "ing-ravioles-fritos",
-    "nombre": "Ravioles Fritos",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Congelados",
-    "valorUnitarioEstimado": 209,
-    "unidad": "Kg",
-    "proveedor": "DOPACA"
-  },
-  {
-    "id": "ing-papas-rusticas",
-    "nombre": "Papas rústicas",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Congelados",
-    "valorUnitarioEstimado": 180,
-    "unidad": "Kg",
-    "proveedor": "DOPACA"
-  },
-  {
-    "id": "ing-chorizos",
-    "nombre": "Chorizos",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Carnes",
-    "valorUnitarioEstimado": 250,
-    "unidad": "Kg",
-    "proveedor": "CARNICERIA"
-  },
-  {
-    "id": "ing-morcilla",
-    "nombre": "Morcilla",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Carnes",
-    "valorUnitarioEstimado": 360,
-    "unidad": "Kg",
-    "proveedor": "CARNICERIA"
-  },
-  {
-    "id": "ing-pan-campo",
-    "nombre": "Pan de campo",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Panificados",
-    "valorUnitarioEstimado": 120,
-    "unidad": "Unidad",
-    "proveedor": "PANONO"
-  },
-  {
-    "id": "ing-milanesa-pescado",
-    "nombre": "Milanesa de pescado",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Congelados",
-    "valorUnitarioEstimado": 400,
-    "unidad": "Kg",
-    "proveedor": "DOPACA"
-  },
-  {
-    "id": "ing-rabas-rebozadas",
-    "nombre": "Rabas rebozadas de calamar",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Congelados",
-    "valorUnitarioEstimado": 415,
-    "unidad": "Kg",
-    "proveedor": "DOPACA"
-  },
-  {
-    "id": "ing-bastones-muzzarella",
-    "nombre": "Bastones de muzarella",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Congelados",
-    "valorUnitarioEstimado": 365,
-    "unidad": "Kg",
-    "proveedor": "DOPACA"
-  },
-  {
-    "id": "ing-salmon",
-    "nombre": "Salmon",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Pescados y Mariscos",
-    "valorUnitarioEstimado": 1000,
-    "unidad": "Kg",
-    "proveedor": "FERRANDO"
-  },
-  {
-    "id": "ing-arroz-sushi",
-    "nombre": "Arroz de Shushi",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumos varios",
-    "valorUnitarioEstimado": 135,
-    "unidad": "Kg",
-    "proveedor": "TATA"
-  },
-  {
-    "id": "ing-pepino",
-    "nombre": "Pepino",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Verduras",
-    "valorUnitarioEstimado": 90,
-    "unidad": "Kg",
-    "proveedor": "VERDULERIA"
-  },
-  {
-    "id": "ing-panchos-mm",
-    "nombre": "Panchos medio metro",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Fiambres",
-    "valorUnitarioEstimado": 270,
-    "unidad": "Kg",
-    "proveedor": "BORDENAVE"
-  },
-  {
-    "id": "ing-pan-pancho-mm",
-    "nombre": "Pan de panchos medio metro",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Panificados",
-    "valorUnitarioEstimado": 48,
-    "unidad": "Unidad",
-    "proveedor": "DON DIEGO"
-  },
-  {
-    "id": "ing-panchos-comun",
-    "nombre": "Panchos comunes",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Fiambres",
-    "valorUnitarioEstimado": 260,
-    "unidad": "Kg",
-    "proveedor": "UNIPLAS"
-  },
-  {
-    "id": "ing-pan-pancho-comun",
-    "nombre": "Pan de panchos común",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Panificados",
-    "valorUnitarioEstimado": 13,
-    "unidad": "Unidad",
-    "proveedor": "DON DIEGO"
-  },
-  {
-    "id": "ing-hamburguesa-cong",
-    "nombre": "Hamburguesas congeladas",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Congelados",
-    "valorUnitarioEstimado": 35,
-    "unidad": "Unidad",
-    "proveedor": "DOPACA"
-  },
-  {
-    "id": "ing-huevo-frito",
-    "nombre": "Huevo frito",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumos varios",
-    "valorUnitarioEstimado": 10,
-    "unidad": "Unidad",
-    "proveedor": "VERDULERIA"
-  },
-  {
-    "id": "ing-tortuga-brioche",
-    "nombre": "Tortugas brioche 70 gramos",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Panificados",
-    "valorUnitarioEstimado": 20,
-    "unidad": "Unidad",
-    "proveedor": "DON DIEGO"
-  },
-  {
-    "id": "ing-queso-cheddar-kg",
-    "nombre": "Queso Cheddar (kg)",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Lácteos",
-    "valorUnitarioEstimado": 340,
-    "unidad": "Kg",
-    "proveedor": "EL TROPERO"
-  },
-  {
-    "id": "ing-tortuga-chivito",
-    "nombre": "Tortuga para chivito",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Panificados",
-    "valorUnitarioEstimado": 16,
-    "unidad": "Unidad",
-    "proveedor": "DON DIEGO"
-  },
-  {
-    "id": "ing-carne-para-chivito",
-    "nombre": "Carne para Chivito",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Carnes",
-    "valorUnitarioEstimado": 400,
-    "unidad": "Kg",
-    "proveedor": "CARNICERIA"
   },
   {
     "id": "ing-pollo-arrollado",
@@ -873,229 +54,109 @@
     "proveedor": "NICO"
   },
   {
-    "id": "ing-guarnicion",
-    "nombre": "Guarnicion (genérica)",
+    "id": "ing-gas",
+    "nombre": "Gas",
     "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumos varios",
-    "valorUnitarioEstimado": 40,
-    "unidad": "Unidad",
-    "proveedor": "VERDULERIA"
+    "categoria": "Equipamiento",
+    "valorUnitarioEstimado": 1,
+    "unidad": "min",
+    "proveedor": "Proveedor Gas"
   },
   {
-    "id": "ing-bondiola-carne",
-    "nombre": "Bondiola de cerdo (carne)",
+    "id": "ing-mayonesa",
+    "nombre": "Mayonesa",
     "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Carnes",
-    "valorUnitarioEstimado": 190,
-    "unidad": "Kg",
-    "proveedor": "CARNICERIA"
-  },
-  {
-    "id": "ing-crema-leche",
-    "nombre": "Crema de leche",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Lácteos",
-    "valorUnitarioEstimado": 200,
-    "unidad": "Litro",
-    "proveedor": "DOPACA"
-  },
-  {
-    "id": "ing-miel",
-    "nombre": "Miel",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumos varios",
+    "categoria": "Salsas y Condimentos",
     "valorUnitarioEstimado": 120,
     "unidad": "Kg",
-    "proveedor": "CASA DE LA MIEL"
-  },
-  {
-    "id": "ing-mostaza",
-    "nombre": "Mostaza",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Salsas y Condimentos",
-    "valorUnitarioEstimado": 250,
-    "unidad": "Kg",
     "proveedor": "UNIPLAS"
   },
   {
-    "id": "ing-salsa-barbacoa",
-    "nombre": "Salsa Barbacoa",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Salsas y Condimentos",
-    "valorUnitarioEstimado": 300,
-    "unidad": "Kg",
-    "proveedor": "UNIPLAS"
-  },
-  {
-    "id": "ing-ajo-verdura",
-    "nombre": "Ajo (verdura)",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Verduras",
-    "valorUnitarioEstimado": 100,
-    "unidad": "Kg",
-    "proveedor": "VERDULERIA"
-  },
-  {
-    "id": "ing-ravioles-cong",
-    "nombre": "Ravioles congelados",
+    "id": "ing-hamburguesa-cong",
+    "nombre": "Hamburguesas congeladas",
     "tipoItem": "Insumo/Ingrediente",
     "categoria": "Congelados",
-    "valorUnitarioEstimado": 220,
+    "valorUnitarioEstimado": 35,
+    "unidad": "Unidad",
+    "proveedor": "DOPACA"
+  },
+  {
+    "id": "ing-fritas",
+    "nombre": "Papas Fritas Congeladas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Congelados",
+    "valorUnitarioEstimado": 130,
     "unidad": "Kg",
     "proveedor": "DOPACA"
   },
   {
-    "id": "ing-queso-rallado",
-    "nombre": "Queso rallado",
+    "id": "ing-tortuga-chivito",
+    "nombre": "Tortuga para chivito",
     "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Lácteos",
-    "valorUnitarioEstimado": 450,
-    "unidad": "Kg",
-    "proveedor": "EL TROPERO"
-  },
-  {
-    "id": "ing-noquis-cong",
-    "nombre": "Noquis congelados",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Congelados",
-    "valorUnitarioEstimado": 160,
-    "unidad": "Kg",
-    "proveedor": "DOPACA"
-  },
-  {
-    "id": "ing-queso-colonial",
-    "nombre": "Queso colonial",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Lácteos",
-    "valorUnitarioEstimado": 420,
-    "unidad": "Kg",
-    "proveedor": "EL TROPERO"
-  },
-  {
-    "id": "ing-cerdo-arrollado-carne",
-    "nombre": "Cerdo arrollado (carne)",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Carnes",
-    "valorUnitarioEstimado": 110,
+    "categoria": "Panificados",
+    "valorUnitarioEstimado": 16,
     "unidad": "Unidad",
-    "proveedor": "CARNICERIA"
+    "proveedor": "DON DIEGO"
   },
   {
-    "id": "ing-muslos-pollo",
-    "nombre": "Muslos de pollo",
+    "id": "ing-valentin-sandwiches",
+    "nombre": "Sandwiches pan blanco",
     "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Carnes",
-    "valorUnitarioEstimado": 70,
+    "categoria": "Insumos varios",
+    "valorUnitarioEstimado": 15,
     "unidad": "Unidad",
-    "proveedor": "CARNICERIA"
+    "proveedor": "VALENTIN"
   },
   {
-    "id": "ing-ketchup",
-    "nombre": "Ketchup",
+    "id": "ing-valentin-pebetes",
+    "nombre": "Pebetes",
     "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Salsas y Condimentos",
-    "valorUnitarioEstimado": 200,
-    "unidad": "Kg",
-    "proveedor": "UNIPLAS"
-  },
-  {
-    "id": "ing-sorrentinos-cong",
-    "nombre": "Sorrentinos congelados",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Congelados",
-    "valorUnitarioEstimado": 465,
-    "unidad": "Kg",
-    "proveedor": "DOPACA"
-  },
-  {
-    "id": "ing-carne-brocheta-kg",
-    "nombre": "Carne para brocheta (kg)",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Carnes",
-    "valorUnitarioEstimado": 380,
-    "unidad": "Kg",
-    "proveedor": "CARNICERIA"
-  },
-  {
-    "id": "ing-suprema-pollo",
-    "nombre": "Suprema de pollo",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Carnes",
-    "valorUnitarioEstimado": 300,
-    "unidad": "Kg",
-    "proveedor": "CARNICERIA"
-  },
-  {
-    "id": "ing-milanesa-carne-kg",
-    "nombre": "Milanesa de carne (kg)",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Carnes",
-    "valorUnitarioEstimado": 350,
-    "unidad": "Kg",
-    "proveedor": "CARNICERIA"
-  },
-  {
-    "id": "ing-merluza-kg",
-    "nombre": "Merluza (kg)",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Pescados y Mariscos",
-    "valorUnitarioEstimado": 345,
-    "unidad": "Kg",
-    "proveedor": "UNIPLAS"
-  },
-  {
-    "id": "ing-bife-carne",
-    "nombre": "Bife (carne)",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Carnes",
-    "valorUnitarioEstimado": 380,
-    "unidad": "Kg",
-    "proveedor": "CARNICERIA"
-  },
-  {
-    "id": "ing-cordero-crudo-kg",
-    "nombre": "Cordero crudo (kg)",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Carnes",
-    "valorUnitarioEstimado": 300,
-    "unidad": "Kg",
-    "proveedor": "CARNICERIA"
-  },
-  {
-    "id": "ing-asado-vacio-kg",
-    "nombre": "Asado vacio (kg)",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Carnes",
-    "valorUnitarioEstimado": 370,
-    "unidad": "Kg",
-    "proveedor": "UNIPLAS"
-  },
-  {
-    "id": "insumo_jugo_durazno",
-    "nombre": "Jugo de Durazno",
-    "tipoItem": "Bebida (Insumo)",
-    "categoria": "Servicio de bebidas",
-    "subcategoria": "Barra de Tragos",
-    "valorUnitarioEstimado": 50,
-    "unidad": "Litro",
-    "proveedor": "Proveedor Bebidas"
-  },
-  {
-    "id": "insumo_vasos_sorbitos",
-    "nombre": "Vasos y Sorbitos",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Descartables",
-    "subcategoria": "Barra de Tragos",
-    "valorUnitarioEstimado": 2,
+    "categoria": "Insumos varios",
+    "valorUnitarioEstimado": 11,
     "unidad": "Unidad",
-    "proveedor": "Proveedor Bebidas"
+    "proveedor": "VALENTIN"
+  },
+  {
+    "id": "ing-valentin-arrolladitos",
+    "nombre": "Arrolladitos de hojaldre",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumos varios",
+    "valorUnitarioEstimado": 11,
+    "unidad": "Unidad",
+    "proveedor": "VALENTIN"
+  },
+  {
+    "id": "ing-valentin-empanaditas",
+    "nombre": "Empanaditas copetin",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumos varios",
+    "valorUnitarioEstimado": 11,
+    "unidad": "Unidad",
+    "proveedor": "VALENTIN"
+  },
+  {
+    "id": "ing-valentin-pizzetitas",
+    "nombre": "pizzetitas con muzzarella",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumos varios",
+    "valorUnitarioEstimado": 11,
+    "unidad": "Unidad",
+    "proveedor": "VALENTIN"
+  },
+  {
+    "id": "ing-valentin-medialunas",
+    "nombre": "Medialunas",
+    "tipoItem": "Insumo/Ingrediente",
+    "categoria": "Insumos varios",
+    "valorUnitarioEstimado": 15,
+    "unidad": "Unidad",
+    "proveedor": "VALENTIN"
   },
   {
     "id": "ing-licor-frutilla",
     "nombre": "Licor de Frutilla",
     "tipoItem": "Bebida (Insumo)",
     "categoria": "Servicio de bebidas",
-    "subcategoria": "Barra de Tragos",
     "valorUnitarioEstimado": 400,
     "unidad": "Litro",
     "proveedor": "Proveedor Bebidas"
@@ -1105,18 +166,7 @@
     "nombre": "Licor de Durazno",
     "tipoItem": "Bebida (Insumo)",
     "categoria": "Servicio de bebidas",
-    "subcategoria": "Barra de Tragos",
     "valorUnitarioEstimado": 400,
-    "unidad": "Litro",
-    "proveedor": "Proveedor Bebidas"
-  },
-  {
-    "id": "ing-licor-blue",
-    "nombre": "Licor Blue Curaçao",
-    "tipoItem": "Bebida (Insumo)",
-    "categoria": "Servicio de bebidas",
-    "subcategoria": "Barra de Tragos",
-    "valorUnitarioEstimado": 300,
     "unidad": "Litro",
     "proveedor": "Proveedor Bebidas"
   },
@@ -1125,165 +175,8 @@
     "nombre": "Fernet",
     "tipoItem": "Bebida (Insumo)",
     "categoria": "Servicio de bebidas",
-    "subcategoria": "Barra de Tragos",
     "valorUnitarioEstimado": 400,
     "unidad": "Litro",
-    "proveedor": "Proveedor Bebidas"
-  },
-  {
-    "id": "ing-granadina",
-    "nombre": "Granadina",
-    "tipoItem": "Bebida (Insumo)",
-    "categoria": "Servicio de bebidas",
-    "subcategoria": "Barra de Tragos",
-    "valorUnitarioEstimado": 220,
-    "unidad": "Litro",
-    "proveedor": "Proveedor Bebidas"
-  },
-  {
-    "id": "ing-durazno-en-lata",
-    "nombre": "Lata de Durazno",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumos varios",
-    "subcategoria": "Barra de Tragos",
-    "valorUnitarioEstimado": 80,
-    "unidad": "Unidad",
-    "proveedor": "Proveedor Bebidas"
-  },
-  {
-    "id": "ing-anana-en-lata",
-    "nombre": "Lata de Ananá",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumos varios",
-    "subcategoria": "Barra de Tragos",
-    "valorUnitarioEstimado": 117,
-    "unidad": "Unidad",
-    "proveedor": "Proveedor Bebidas"
-  },
-  {
-    "id": "ing-pepsi",
-    "nombre": "Pepsi",
-    "tipoItem": "Bebida (Insumo)",
-    "categoria": "Servicio de bebidas",
-    "subcategoria": "Barra de Tragos",
-    "valorUnitarioEstimado": 90,
-    "unidad": "Litro",
-    "proveedor": "Proveedor Bebidas"
-  },
-  {
-    "id": "ing-refresco-lima",
-    "nombre": "Refresco Lima",
-    "tipoItem": "Bebida (Insumo)",
-    "categoria": "Servicio de bebidas",
-    "subcategoria": "Barra de Tragos",
-    "valorUnitarioEstimado": 65,
-    "unidad": "Litro",
-    "proveedor": "Proveedor Bebidas"
-  },
-  {
-    "id": "ing-vodka",
-    "nombre": "Vodka",
-    "tipoItem": "Bebida (Insumo)",
-    "categoria": "Servicio de bebidas",
-    "subcategoria": "Barra de Tragos",
-    "valorUnitarioEstimado": 280,
-    "unidad": "Litro",
-    "proveedor": "Proveedor Bebidas"
-  },
-  {
-    "id": "ing-ron",
-    "nombre": "Ron",
-    "tipoItem": "Bebida (Insumo)",
-    "categoria": "Servicio de bebidas",
-    "subcategoria": "Barra de Tragos",
-    "valorUnitarioEstimado": 300,
-    "unidad": "Litro",
-    "proveedor": "Proveedor Bebidas"
-  },
-  {
-    "id": "ing-limon-fruta",
-    "nombre": "Limon (fruta)",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Frutas",
-    "subcategoria": "Barra de Tragos",
-    "valorUnitarioEstimado": 70,
-    "unidad": "Kg",
-    "proveedor": "VERDULERIA"
-  },
-  {
-    "id": "ing-frutilla-fruta",
-    "nombre": "Frutilla",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Frutas",
-    "subcategoria": "Barra de Tragos",
-    "valorUnitarioEstimado": 120,
-    "unidad": "Kg",
-    "proveedor": "VERDULERIA"
-  },
-  {
-    "id": "ing-azucar-kg",
-    "nombre": "Azúcar (kg)",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumos varios",
-    "subcategoria": "Barra de Tragos",
-    "valorUnitarioEstimado": 70,
-    "unidad": "Kg",
-    "proveedor": "CALSAL"
-  },
-  {
-    "id": "ing-cana-bebida",
-    "nombre": "Caña",
-    "tipoItem": "Bebida (Insumo)",
-    "categoria": "Servicio de bebidas",
-    "subcategoria": "Barra de Tragos",
-    "valorUnitarioEstimado": 300,
-    "unidad": "Litro",
-    "proveedor": "Proveedor Bebidas"
-  },
-  {
-    "id": "ing-jugo-naranja-bebida",
-    "nombre": "Jugo de Naranja (Bebida)",
-    "tipoItem": "Bebida (Insumo)",
-    "categoria": "Servicio de bebidas",
-    "subcategoria": "Barra de Tragos",
-    "valorUnitarioEstimado": 35,
-    "unidad": "Litro",
-    "proveedor": "Proveedor Bebidas"
-  },
-  {
-    "id": "ing-vino-rosado-dulce",
-    "nombre": "Vino rosado dulce",
-    "tipoItem": "Bebida (Insumo)",
-    "categoria": "Servicio de bebidas",
-    "valorUnitarioEstimado": 100,
-    "unidad": "Botella",
-    "proveedor": "Proveedor Bebidas"
-  },
-  {
-    "id": "ing-vino-blanco-dulce",
-    "nombre": "Vino blanco dulce",
-    "tipoItem": "Bebida (Insumo)",
-    "categoria": "Servicio de bebidas",
-    "valorUnitarioEstimado": 130,
-    "unidad": "Botella",
-    "proveedor": "Proveedor Bebidas"
-  },
-  {
-    "id": "ing-jugo-rinde2",
-    "nombre": "Jugo rinde 2",
-    "tipoItem": "Insumo/Ingrediente",
-    "categoria": "Insumos varios",
-    "valorUnitarioEstimado": 18,
-    "unidad": "Sobre",
-    "proveedor": "DK MAYORISTA"
-  },
-  {
-    "id": "ing-sidra-750ml",
-    "nombre": "Sidra 750ml",
-    "tipoItem": "Bebida (Insumo)",
-    "categoria": "Servicio de bebidas",
-    "valorUnitarioEstimado": 69,
-    "unidad": "Botella",
     "proveedor": "Proveedor Bebidas"
   }
 ]

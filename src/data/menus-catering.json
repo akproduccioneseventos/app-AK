@@ -1,190 +1,8 @@
-
 [
-  {
-    "id": "menu_barra_tragos_base",
-    "name": "Barra de Tragos",
-    "description": "Una selección de cócteles y bebidas para la barra.",
-    "templateType": "Personalizado",
-    "items": [
-      {
-        "id": "dish_barra_tragos_completa",
-        "name": "Servicio Completo Barra de Tragos",
-        "type": "Servicio de bebidas",
-        "totalDishCost": 125.45,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 390,
-        "ingredients": [
-          {
-            "id": "ing_bt_1",
-            "name": "Licor de Frutilla",
-            "quantityPerPerson": "0.02",
-            "unit": "Litros",
-            "costoUnitario": 400,
-            "costoTotalReceta": 8,
-            "origenId": "ing-licor-frutilla"
-          },
-          {
-            "id": "ing_bt_2",
-            "name": "Licor de Durazno",
-            "quantityPerPerson": "0.02",
-            "unit": "Litros",
-            "costoUnitario": 400,
-            "costoTotalReceta": 8,
-            "origenId": "ing-licor-durazno"
-          },
-          {
-            "id": "ing_bt_3",
-            "name": "Jugo de Durazno",
-            "quantityPerPerson": "0.02",
-            "unit": "Litros",
-            "costoUnitario": 50,
-            "costoTotalReceta": 1,
-            "origenId": "insumo_jugo_durazno"
-          },
-          {
-            "id": "ing_bt_4",
-            "name": "Licor Blue",
-            "quantityPerPerson": "0.02",
-            "unit": "Litros",
-            "costoUnitario": 300,
-            "costoTotalReceta": 6,
-            "origenId": "ing-licor-blue"
-          },
-          {
-            "id": "ing_bt_5",
-            "name": "Fernet",
-            "quantityPerPerson": "0.04",
-            "unit": "Litros",
-            "costoUnitario": 400,
-            "costoTotalReceta": 16,
-            "origenId": "ing-fernet"
-          },
-          {
-            "id": "ing_bt_6",
-            "name": "Granadina",
-            "quantityPerPerson": "0.01",
-            "unit": "Litros",
-            "costoUnitario": 220,
-            "costoTotalReceta": 2.2,
-            "origenId": "ing-granadina"
-          },
-          {
-            "id": "ing_bt_7",
-            "name": "Lata durazno",
-            "quantityPerPerson": "0.03",
-            "unit": "Unidades",
-            "costoUnitario": 80,
-            "costoTotalReceta": 2.4,
-            "origenId": "ing-durazno-en-lata"
-          },
-          {
-            "id": "ing_bt_8",
-            "name": "lata anana",
-            "quantityPerPerson": "0.05",
-            "unit": "Unidades",
-            "costoUnitario": 117,
-            "costoTotalReceta": 5.85,
-            "origenId": "ing-anana-en-lata"
-          },
-          {
-            "id": "ing_bt_9",
-            "name": "Pepsi",
-            "quantityPerPerson": "0.14",
-            "unit": "Litros",
-            "costoUnitario": 90,
-            "costoTotalReceta": 12.6,
-            "origenId": "ing-pepsi"
-          },
-          {
-            "id": "ing_bt_10",
-            "name": "vasos y sorvitos",
-            "quantityPerPerson": "3",
-            "unit": "Unidades",
-            "costoUnitario": 2,
-            "costoTotalReceta": 6,
-            "origenId": "insumo_vasos_sorbitos"
-          },
-          {
-            "id": "ing_bt_11",
-            "name": "Refresco Lima",
-            "quantityPerPerson": "0.02",
-            "unit": "Litros",
-            "costoUnitario": 65,
-            "costoTotalReceta": 1.3,
-            "origenId": "ing-refresco-lima"
-          },
-          {
-            "id": "ing_bt_12",
-            "name": "Vodka",
-            "quantityPerPerson": "0.03",
-            "unit": "Litros",
-            "costoUnitario": 280,
-            "costoTotalReceta": 8.4,
-            "origenId": "ing-vodka"
-          },
-          {
-            "id": "ing_bt_13",
-            "name": "Ron",
-            "quantityPerPerson": "0.02",
-            "unit": "Litros",
-            "costoUnitario": 300,
-            "costoTotalReceta": 6,
-            "origenId": "ing-ron"
-          },
-          {
-            "id": "ing_bt_14",
-            "name": "Limon",
-            "quantityPerPerson": "20",
-            "unit": "Gramos",
-            "costoUnitario": 70,
-            "costoTotalReceta": 1.4,
-            "origenId": "ing-limon-fruta"
-          },
-          {
-            "id": "ing_bt_15",
-            "name": "Frutilla",
-            "quantityPerPerson": "20",
-            "unit": "Gramos",
-            "costoUnitario": 120,
-            "costoTotalReceta": 2.4,
-            "origenId": "ing-frutilla-fruta"
-          },
-          {
-            "id": "ing_bt_16",
-            "name": "Azucar",
-            "quantityPerPerson": "20",
-            "unit": "Gramos",
-            "costoUnitario": 70,
-            "costoTotalReceta": 1.4,
-            "origenId": "ing-azucar-kg"
-          },
-          {
-            "id": "ing_bt_17",
-            "name": "Caña",
-            "quantityPerPerson": "0.02",
-            "unit": "Litros",
-            "costoUnitario": 300,
-            "costoTotalReceta": 6,
-            "origenId": "ing-cana-bebida"
-          },
-          {
-            "id": "ing_bt_18",
-            "name": "Jugo de Naranja",
-            "quantityPerPerson": "0.1",
-            "unit": "Litros",
-            "costoUnitario": 35,
-            "costoTotalReceta": 3.5,
-            "origenId": "ing-jugo-naranja-bebida"
-          }
-        ]
-      }
-    ]
-  },
   {
     "id": "menu_entradas_predisenado",
     "name": "Menú de Entradas",
-    "description": "Una selección de entradas frías y calientes para comenzar el evento.",
-    "templateType": "Menú de Entradas",
+    "description": "Selección de entradas para el evento.",
     "items": [
       {
         "id": "dish_entrada_8",
@@ -247,7 +65,34 @@
             "unit": "Unidad",
             "costoUnitario": 15,
             "costoTotalReceta": 7.5,
-            "proveedor": "VALENTIN"
+            "origenId": "ing-valentin-sandwiches"
+          },
+          {
+            "id": "ing_23_2",
+            "name": "Pebetes",
+            "quantityPerPerson": "0.3",
+            "unit": "Unidad",
+            "costoUnitario": 11,
+            "costoTotalReceta": 3.3,
+            "origenId": "ing-valentin-pebetes"
+          },
+          {
+            "id": "ing_23_3",
+            "name": "Arrolladitos de hojaldre",
+            "quantityPerPerson": "0.3",
+            "unit": "Unidad",
+            "costoUnitario": 11,
+            "costoTotalReceta": 3.3,
+            "origenId": "ing-valentin-arrolladitos"
+          },
+          {
+            "id": "ing_23_4",
+            "name": "Enpanaditas copetin",
+            "quantityPerPerson": "0.5",
+            "unit": "Unidad",
+            "costoUnitario": 11,
+            "costoTotalReceta": 5.5,
+            "origenId": "ing-valentin-empanaditas"
           },
           {
             "id": "ing_23_5",
@@ -256,25 +101,16 @@
             "unit": "Unidad",
             "costoUnitario": 11,
             "costoTotalReceta": 11,
-            "proveedor": "VALENTIN"
+            "origenId": "ing-valentin-pizzetitas"
           },
           {
-            "id": "ing_23_9",
-            "name": "Tarteletas",
-            "quantityPerPerson": "1",
+            "id": "ing_23_6",
+            "name": "Medialunas",
+            "quantityPerPerson": "0.5",
             "unit": "Unidad",
-            "costoUnitario": 7.5,
+            "costoUnitario": 15,
             "costoTotalReceta": 7.5,
-            "proveedor": "DON DIEGO"
-          },
-          {
-            "id": "ing_23_10",
-            "name": "Jesuitas",
-            "quantityPerPerson": "0.3",
-            "unit": "Unidad",
-            "costoUnitario": 11,
-            "costoTotalReceta": 3.3,
-            "proveedor": "DON DIEGO"
+            "origenId": "ing-valentin-medialunas"
           }
         ]
       }
@@ -283,8 +119,7 @@
   {
     "id": "menu_platos_principales_predisenado",
     "name": "Menú de Platos Principales",
-    "description": "Una selección de platos fuertes para el evento.",
-    "templateType": "Menú de Platos Principales",
+    "description": "Selección de platos fuertes.",
     "items": [
       {
         "id": "dish_main_3",
@@ -301,8 +136,7 @@
             "unit": "g",
             "costoUnitario": 500,
             "costoTotalReceta": 125,
-            "origenId": "ing-pollo-arrollado",
-            "proveedor": "NICO"
+            "origenId": "ing-pollo-arrollado"
           },
           {
             "id": "ing_pa3_3",
@@ -328,9 +162,8 @@
   },
   {
     "id": "menu_infantil_predisenado",
-    "name": "Menú Infantil y Adolescente",
-    "description": "Opciones divertidas y deliciosas para los más chicos.",
-    "templateType": "Menú para Niños",
+    "name": "Menú Infantil",
+    "description": "Opciones para niños.",
     "items": [
       {
         "id": "dish_child_3",
@@ -348,6 +181,15 @@
             "costoUnitario": 35,
             "costoTotalReceta": 35,
             "origenId": "ing-hamburguesa-cong"
+          },
+          {
+            "id": "ing_c3_2",
+            "name": "Papas Fritas Congeladas",
+            "quantityPerPerson": "200",
+            "unit": "g",
+            "costoUnitario": 130,
+            "costoTotalReceta": 26,
+            "origenId": "ing-fritas"
           },
           {
             "id": "ing_c3_4",

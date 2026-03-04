@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
@@ -184,7 +183,7 @@ function ListaDeComprasContent() {
               const stock = catalogItem?.cantidadDisponible || 0;
               
               let cost = raw.costoUnitario;
-              if (catalogItem && unitNorm !== 'min' && unitNorm !== 'unidad') {
+              if (catalogItem) {
                   cost = catalogItem.valorUnitarioEstimado || raw.costoUnitario;
               }
               
@@ -325,7 +324,7 @@ function ListaDeComprasContent() {
               <div className="space-y-10">
                 {providerNames.map((providerName) => {
                   const { items, total } = groupedByProvider[providerName];
-                  const estadoActual = estadosCompra.find(e => e.provider === providerName) || { pedido: false, pagado: false };
+                  const estadoActual = estadosCompra.find(e => e.proveedor === providerName) || { pedido: false, pagado: false };
                   const isSavingThis = isSavingStatus === providerName;
                   return (
                       <div key={providerName} className="print:break-inside-avoid">
