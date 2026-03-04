@@ -1,18 +1,19 @@
-
 'use client';
 
 import React, { useState } from 'react';
-import type { FiestaEnPlanificacion, InvitacionDigitalData, ColorPalette, SocialConnection, SeccionInvitacion } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, InvitacionDigitalData, ColorPalette, SocialConnection, SeccionInvitacion, GiftItem } from '@/types/fiesta';
 import { EditableText } from '../edit/EditableText';
 import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
 import { CountdownTimer } from '@/components/countdown-timer';
 import { Separator } from '@/components/ui/separator';
-import { Church, GlassWater, Gift, MapPin, Calendar, Heart, PartyPopper, Clock, Utensils } from 'lucide-react';
+import { Church, GlassWater, Gift, MapPin, Calendar, Heart, PartyPopper, Clock, Utensils, ClipboardCopy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion } from "framer-motion";
 import type { DetalleEventoEspecifico } from '@/types/fiesta';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import { Card, CardContent } from '@/components/ui/card';
+import { useToast } from '@/hooks/use-toast';
 
 interface TemplateProps {
   fiesta: FiestaEnPlanificacion;
@@ -25,14 +26,21 @@ interface TemplateProps {
 }
 
 export const AllegriaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData, onUpdate, onSectionClick, selectedSectionId, isPreview }) => {
+    const { toast } = useToast();
     const paleta = invitacionData.cabecera.paletaColores;
     const primaryColor = paleta?.primary || '#E11D48';
     
     const [isItineraryModalOpen, setIsItineraryModalOpen] = useState(false);
+    const [isGiftModalOpen, setIsGiftModalOpen] = useState(false);
 
     const formatDate = (dateString?: string) => {
         if (!dateString) return "PRÓXIMAMENTE";
         return new Date(dateString).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
+    };
+
+    const handleCopyAccount = (text: string) => {
+        navigator.clipboard.writeText(text);
+        toast({ title: "Copiado", description: "Los datos bancarios se han copiado." });
     };
 
     // Dynamic values from configuration
@@ -199,7 +207,7 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionDa
             {/* GIFT SECTION */}
             {invitacionData.regalos.visible && (
                 <section className="py-32 px-6 text-center space-y-12 bg-slate-50">
-                    <div className="max-w-xl mx-auto space-y-6">
+                    <div className="max-w-2xl mx-auto space-y-8">
                         <div className="inline-block p-6 bg-primary/10 rounded-full mb-4">
                             <Gift className="w-10 h-10" style={{ color: primaryColor }} />
                         </div>
@@ -207,14 +215,64 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionDa
                         <p className="text-xl text-slate-600 leading-relaxed">
                             {invitacionData.regalos.texto.text}
                         </p>
+                        
                         {invitacionData.regalos.datosBancarios && (
-                            <div className="p-10 border-2 border-dashed border-slate-200 rounded-[2rem] bg-white">
+                            <div className="p-10 border-2 border-dashed border-slate-200 rounded-[2rem] bg-white relative group">
+                                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-4 text-xs font-bold text-slate-400 tracking-widest uppercase">Datos de Cuenta</span>
                                 <p className="font-mono text-2xl tracking-tighter font-bold text-slate-800 break-all">
                                     {invitacionData.regalos.datosBancarios}
                                 </p>
+                                <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    className="mt-4 text-primary hover:bg-primary/5"
+                                    onClick={() => handleCopyAccount(invitacionData.regalos.datosBancarios)}
+                                >
+                                    <ClipboardCopy className="w-4 h-4 mr-2"/> Copiar Datos
+                                </Button>
                             </div>
                         )}
+
+                        {(invitacionData.regalos.items && invitacionData.regalos.items.length > 0) && (
+                            <Button 
+                                onClick={(e) => { e.stopPropagation(); setIsGiftModalOpen(true); }}
+                                size="lg"
+                                className="h-16 px-12 rounded-2xl text-xl font-bold shadow-xl shadow-primary/20"
+                                style={{ backgroundColor: primaryColor }}
+                            >
+                                VER LISTA DE REGALOS
+                            </Button>
+                        )}
                     </div>
+
+                    <Dialog open={isGiftModalOpen} onOpenChange={setIsGiftModalOpen}>
+                        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto rounded-[2rem] p-8 border-none shadow-3xl">
+                            <DialogHeader className="text-center pb-6 border-b">
+                                <DialogTitle className="text-4xl font-headline font-bold">Sugerencias de Regalo</DialogTitle>
+                                <DialogDescription>Ideas por si quieres obsequiarnos algo especial</DialogDescription>
+                            </DialogHeader>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 pt-8">
+                                {(invitacionData.regalos.items || []).map((item: GiftItem) => (
+                                    <Card key={item.id} className="group border-none shadow-xl rounded-2xl overflow-hidden bg-slate-50">
+                                        <div className="relative aspect-square">
+                                            <NextImage src={item.imageUrl || 'https://picsum.photos/seed/gift/400/400'} alt={item.name} layout="fill" objectFit="cover" />
+                                            {item.isClaimed && <div className="absolute inset-0 bg-primary/60 backdrop-blur-[2px] flex items-center justify-center text-white font-bold text-xl uppercase tracking-widest">Ya Elegido</div>}
+                                        </div>
+                                        <CardContent className="p-6">
+                                            <h4 className="text-xl font-headline font-bold mb-2">{item.name}</h4>
+                                            <p className="text-sm text-slate-500 line-clamp-2">{item.description}</p>
+                                            <Button className="w-full mt-6 rounded-xl" style={{ backgroundColor: primaryColor }} disabled={item.isClaimed}>
+                                                {item.isClaimed ? '¡Gracias!' : 'Lo quiero regalar'}
+                                            </Button>
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                            </div>
+                            <DialogFooter className="mt-10">
+                                <DialogClose asChild><Button variant="outline" className="w-full h-14 rounded-xl">Cerrar</Button></DialogClose>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
                 </section>
             )}
 

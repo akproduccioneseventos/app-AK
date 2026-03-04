@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -44,7 +43,8 @@ import {
   CakeSlice, 
   Diamond, 
   PlusCircle, 
-  Gift as GiftIcon 
+  Gift as GiftIcon,
+  ClipboardCopy
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -57,6 +57,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import QRCodeStylized from 'qrcode.react';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface TemplateProps {
   fiesta: FiestaEnPlanificacion;
@@ -202,6 +203,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
   // Modals State
   const [isRsvpModalOpen, setIsRsvpModalOpen] = useState(false);
   const [isItineraryModalOpen, setIsItineraryModalOpen] = useState(false);
+  const [isGiftModalOpen, setIsGiftModalOpen] = useState(false);
   
   const [rsvpName, setRsvpName] = useState('');
   const [rsvpGuests, setRsvpGuests] = useState(1);
@@ -245,6 +247,11 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
       setRsvpGuests(1);
     }
     setIsSubmittingRsvp(false);
+  };
+
+  const handleCopyAccount = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({ title: "Copiado", description: "Los datos bancarios se han copiado al portapapeles." });
   };
 
   const renderSectionComponent = (seccion: SeccionInvitacion) => {
@@ -369,24 +376,66 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
         return (
           <SectionWrapper {...wrapperProps} className="bg-muted/20">
             <SectionHeader icon={GiftIcon} title={seccion.data.titulo.text} color={primaryColor} style={seccion.data.titulo.style} />
-            <p className="max-w-2xl mx-auto mb-12 text-muted-foreground text-center">{seccion.data.texto.text}</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {(seccion.data.items || []).map((item: GiftItem) => (
-                <Card key={item.id} className="group border-none shadow-xl rounded-3xl overflow-hidden bg-white/80 backdrop-blur">
-                  <div className="relative aspect-square">
-                    <NextImage src={item.imageUrl || 'https://picsum.photos/seed/gift/400/400'} alt={item.name} layout="fill" objectFit="cover" />
-                    {item.isClaimed && <div className="absolute inset-0 bg-primary/60 backdrop-blur-[2px] flex items-center justify-center text-white font-bold text-xl uppercase tracking-widest">Ya Elegido</div>}
-                  </div>
-                  <CardContent className="p-6">
-                    <h4 className="text-xl font-headline mb-2">{item.name}</h4>
-                    <p className="text-sm text-muted-foreground line-clamp-2">{item.description}</p>
-                    <Button className="w-full mt-6 rounded-full" style={{ backgroundColor: primaryColor }} disabled={item.isClaimed}>
-                      {item.isClaimed ? '¡Gracias!' : 'Lo quiero regalar'}
+            <div className="max-w-2xl mx-auto space-y-8 text-center">
+                <p className="text-muted-foreground text-lg">{seccion.data.texto.text}</p>
+                
+                {seccion.data.datosBancarios && (
+                    <div className="p-8 border-2 border-dashed border-primary/20 rounded-3xl bg-white/50 backdrop-blur relative group">
+                        <p className="text-xs font-bold uppercase tracking-widest text-primary mb-2">Datos para Transferencia</p>
+                        <p className="text-xl font-mono break-all font-bold text-slate-800">
+                            {seccion.data.datosBancarios}
+                        </p>
+                        <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="mt-4 text-primary hover:bg-primary/10"
+                            onClick={(e) => { e.stopPropagation(); handleCopyAccount(seccion.data.datosBancarios); }}
+                        >
+                            <ClipboardCopy className="w-4 h-4 mr-2"/> Copiar Datos
+                        </Button>
+                    </div>
+                )}
+
+                {(seccion.data.items && seccion.data.items.length > 0) && (
+                    <Button 
+                        onClick={(e) => { e.stopPropagation(); setIsGiftModalOpen(true); }}
+                        size="lg"
+                        className="rounded-full px-10 h-14 text-lg font-headline shadow-xl shadow-primary/20"
+                        style={{ backgroundColor: primaryColor }}
+                    >
+                        <GiftIcon className="w-5 h-5 mr-2"/> VER LISTA DE REGALOS
                     </Button>
-                  </CardContent>
-                </Card>
-              ))}
+                )}
             </div>
+
+            <Dialog open={isGiftModalOpen} onOpenChange={setIsGiftModalOpen}>
+                <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto rounded-3xl p-6 border-none shadow-3xl">
+                    <DialogHeader className="text-center pb-4 border-b">
+                        <DialogTitle className="text-3xl font-headline text-primary">Sugerencias de Regalo</DialogTitle>
+                        <DialogDescription>Ideas por si quieres obsequiarnos algo especial</DialogDescription>
+                    </DialogHeader>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-8">
+                        {(seccion.data.items || []).map((item: GiftItem) => (
+                            <Card key={item.id} className="group border-none shadow-lg rounded-2xl overflow-hidden bg-muted/30">
+                                <div className="relative aspect-square">
+                                    <NextImage src={item.imageUrl || 'https://picsum.photos/seed/gift/400/400'} alt={item.name} layout="fill" objectFit="cover" />
+                                    {item.isClaimed && <div className="absolute inset-0 bg-primary/60 backdrop-blur-[2px] flex items-center justify-center text-white font-bold text-sm uppercase tracking-widest">Ya Elegido</div>}
+                                </div>
+                                <CardContent className="p-4">
+                                    <h4 className="text-lg font-headline font-bold mb-1">{item.name}</h4>
+                                    <p className="text-xs text-muted-foreground line-clamp-2">{item.description}</p>
+                                    <Button className="w-full mt-4 rounded-xl text-xs" style={{ backgroundColor: primaryColor }} disabled={item.isClaimed}>
+                                        {item.isClaimed ? '¡Gracias!' : 'Lo quiero regalar'}
+                                    </Button>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+                    <DialogFooter className="mt-8">
+                        <DialogClose asChild><Button variant="outline" className="w-full rounded-xl">Cerrar</Button></DialogClose>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
           </SectionWrapper>
         );
 
