@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
@@ -104,9 +105,11 @@ function ListaDeComprasContent() {
           return totalInvitados;
       };
 
-      // 1. PROCESAR PLATOS DEL PRESUPUESTO
+      // 1. PROCESAR PLATOS DEL PRESUPUESTO (DINÁMICO: siempre lee el catálogo actual)
       const budgetDishes = presupuestoData.itemsPresupuestados.filter(item => 
-          item.idServicioCatalogo.startsWith('dish_') || item.idServicioCatalogo.startsWith('new_item_')
+          item.idServicioCatalogo.startsWith('dish_') || 
+          item.idServicioCatalogo.startsWith('new_item_') || 
+          item.idServicioCatalogo.startsWith('menu_')
       );
 
       const allDishesInCatalog = allMenus.flatMap(m => m.items);
@@ -165,7 +168,7 @@ function ListaDeComprasContent() {
           }
       }
 
-      // 3. CONSOLIDAR LISTA Y COMPARAR CON STOCK
+      // 3. CONSOLIDAR Y COMPARAR CON STOCK ACTUAL
       const consolidated: Record<string, ShoppingListItem> = {};
       
       rawList.forEach(raw => {
@@ -205,6 +208,7 @@ function ListaDeComprasContent() {
           const faltante = Math.max(0, item.cantidadNecesaria - item.stockDisponible);
           const unitNorm = (item.unit || '').toLowerCase().trim();
           
+          // Corrección de unidades: gramos a kilos
           const factorUnidad = (unitNorm === 'g' || unitNorm === 'ml' || unitNorm === 'gramos' || unitNorm === 'cc') ? 1000 : 1;
           const costoInversion = item.costoUnitario * (faltante / factorUnidad);
 
@@ -251,7 +255,7 @@ function ListaDeComprasContent() {
     setIsSavingStatus(proveedor);
 
     const updatedEstados = [...estadosCompra];
-    let estadoProveedor = updatedEstados.find(e => e.proveedor === proveedor);
+    let estadoProveedor = updatedEstados.find(e => e.provider === proveedor);
     
     if (estadoProveedor) {
         estadoProveedor[field] = value;
@@ -265,7 +269,7 @@ function ListaDeComprasContent() {
     try {
         const result = await updateShoppingListStatus(fiestaId, updatedEstados);
         if (!result.success) throw new Error(result.error);
-        toast({ title: "Estado Actualizado", description: `${proveedor}: ${field} guardado.` });
+        toast({ title: "Estado Actualizado" });
     } catch(e: any) {
         toast({ title: "Error", description: e.message, variant: "destructive" });
         loadData(false);
@@ -275,7 +279,7 @@ function ListaDeComprasContent() {
   };
 
   if (isLoading) {
-    return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Sincronizando inventario y presupuesto...</p></div>;
+    return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Sincronizando con el Catálogo Maestro...</p></div>;
   }
   if (error) {
     return <div className="text-center py-10"><AlertTriangle className="w-12 h-12 mx-auto text-destructive mb-3" /><p className="font-semibold">{error}</p><Button onClick={() => loadData()} className="mt-4">Reintentar</Button></div>;
@@ -286,7 +290,7 @@ function ListaDeComprasContent() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 print:hidden">
           <div className="flex items-center gap-3">
             <ShoppingCart className="w-8 h-8 text-primary" />
-            <h1 className="text-3xl font-bold tracking-tight font-headline">Lista de Compras e Inventario</h1>
+            <h1 className="text-3xl font-bold tracking-tight font-headline">Lista de Compras Dinámica</h1>
           </div>
           <div className="flex gap-2">
             <Button variant="ghost" onClick={() => loadData(true)} title="Actualizar desde presupuesto"><RefreshCw className="w-4 h-4 mr-2"/>Sincronizar</Button>
@@ -299,24 +303,24 @@ function ListaDeComprasContent() {
         
         <div className="print:block hidden text-center mb-4">
           <h1 className="text-2xl font-bold">Lista de Compras - {fiesta?.configuracion.nombreEvento}</h1>
-          <p className="text-sm">Insumos comparados con el stock maestro del catálogo.</p>
+          <p className="text-sm">Ingredientes sincronizados con las recetas del catálogo maestro.</p>
         </div>
 
         <Card className="shadow-lg print:shadow-none print:border-none">
           <CardHeader>
             <div className="flex items-center gap-2 mb-1">
-                <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">Inventario Sincronizado</Badge>
+                <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">Sincronización Activa</Badge>
             </div>
             <CardTitle>Insumos Consolidados por Proveedor</CardTitle>
             <CardDescription>
-              Comparamos lo necesario con tu stock disponible. Si el "Stock" es insuficiente, el "Faltante" te indica qué comprar.
+              Hemos analizado el presupuesto y los menús. Aquí tienes el desglose total de lo que debes comprar.
             </CardDescription>
           </CardHeader>
           <CardContent>
             {shoppingList.length === 0 ? (
               <div className="text-center py-12 bg-muted/30 rounded-lg border-2 border-dashed">
                   <Info className="w-12 h-12 mx-auto text-muted-foreground opacity-50 mb-3"/>
-                  <p className="text-muted-foreground">No se detectaron insumos automáticos. Asegúrate de que el presupuesto contenga platos del catálogo.</p>
+                  <p className="text-muted-foreground">No se detectaron insumos. Verifica que el presupuesto tenga platos asignados.</p>
               </div>
             ) : (
               <div className="space-y-10">
@@ -375,7 +379,7 @@ function ListaDeComprasContent() {
                                   </TableBody>
                                    <TableFooter>
                                     <TableRow className="bg-muted/10">
-                                        <TableCell colSpan={5} className="text-right font-bold text-lg">Inversión necesaria con {providerName}:</TableCell>
+                                        <TableCell colSpan={5} className="text-right font-bold text-lg">Total a invertir con {providerName}:</TableCell>
                                         <TableCell className="text-right font-bold text-lg text-primary">{formatCurrency(total)}</TableCell>
                                     </TableRow>
                                   </TableFooter>
@@ -389,9 +393,9 @@ function ListaDeComprasContent() {
           </CardContent>
           <CardFooter className="border-t mt-8 pt-6 flex justify-end bg-muted/5 p-6">
               <div className="text-right space-y-1">
-                  <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider">Inversión Real en Compras para este Evento</p>
+                  <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider">Costo Total de Insumos para el Evento</p>
                   <p className="text-4xl font-bold text-primary">{formatCurrency(totalInvestment)}</p>
-                  <p className="text-xs text-muted-foreground italic">Este monto contempla únicamente lo que falta comprar (Precio de Catálogo x Faltante).</p>
+                  <p className="text-xs text-muted-foreground italic">Cálculo basado en el presupuesto oficial vinculado.</p>
               </div>
           </CardFooter>
         </Card>
