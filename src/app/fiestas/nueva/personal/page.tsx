@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -20,6 +20,7 @@ import { getFiestaById, updatePersonalFiestaActual } from '@/app/actions/fiesta-
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { useSearchParams } from 'next/navigation';
 
 const formatCurrency = (amount: number) => {
   if (isNaN(amount)) return 'N/A';
@@ -41,8 +42,11 @@ interface RequiredRole {
   sourceItem: string;
 }
 
-export default function AsignarPersonalEventoPage() {
+function AsignarPersonalEventoContent() {
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const fiestaId = searchParams.get('fiestaId');
+
   const [allEmpleados, setAllEmpleados] = useState<Empleado[]>([]);
   const [allRoles, setAllRoles] = useState<Rol[]>([]);
   const [assignedStaff, setAssignedStaff] = useState<Map<string, AssignedStaffUIDetail>>(new Map());
@@ -52,12 +56,10 @@ export default function AsignarPersonalEventoPage() {
   const [error, setError] = useState<string | null>(null);
 
   const fetchInitialData = useCallback(async (showLoading = true) => {
+    if (!fiestaId) return;
     if (showLoading) setIsLoading(true);
     setError(null);
     try {
-      const fiestaId = new URLSearchParams(window.location.search).get('fiestaId');
-      if (!fiestaId) throw new Error("ID de fiesta no encontrado");
-      
       const fiestaActual = await getFiestaById(fiestaId);
       if (!fiestaActual) throw new Error("Fiesta no encontrada");
 
@@ -75,7 +77,7 @@ export default function AsignarPersonalEventoPage() {
         const requirements: RequiredRole[] = [];
         const totalGuests = (presupuestoData.invitadosAdultos || 0) + (presupuestoData.invitadosNinos || 0) + (presupuestoData.invitadosAdolescentes || 0);
 
-        // 1. Automatic Utility Rule: 1 per 25 guests
+        // 1. Automatic Utility Rule: 1 per 25 guests ($1100 each)
         const numUtileros = Math.ceil(totalGuests / 25);
         if (numUtileros > 0) {
             requirements.push({ 
@@ -147,11 +149,31 @@ export default function AsignarPersonalEventoPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, [toast, fiestaId]);
 
   useEffect(() => {
     fetchInitialData();
   }, [fetchInitialData]);
+
+  const handleAutoSave = async (updatedStaffMap: Map<string, AssignedStaffUIDetail>) => {
+    if (!fiestaId) return;
+    
+    setIsSaving(true);
+    const personalToSave: PersonalAsignadoDetalleStorage[] = Array.from(updatedStaffMap.values()).map(item => ({
+      empleadoId: item.empleadoId,
+      rolId: item.rolId,
+      eventSalary: item.eventSalary
+    }));
+
+    try {
+      const result = await updatePersonalFiestaActual(fiestaId, personalToSave);
+      if (!result.success) throw new Error(result.error || "No se pudo guardar automáticamente.");
+    } catch (error: any) {
+      toast({ title: "Error en auto-guardado", description: error.message, variant: "destructive" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleAssignmentChange = async (empleado: Empleado, selectedRolId: string) => {
     let updatedStaffMap = new Map(assignedStaff);
@@ -216,27 +238,6 @@ export default function AsignarPersonalEventoPage() {
   const totalContributionCost = Array.from(assignedStaff.values()).reduce((sum, { employerContribution }) => sum + (employerContribution || 0), 0);
   const totalEventCost = totalSalaryCost + totalContributionCost;
 
-  const handleAutoSave = async (updatedStaffMap: Map<string, AssignedStaffUIDetail>) => {
-    const fiestaId = new URLSearchParams(window.location.search).get('fiestaId');
-    if (!fiestaId) return;
-    
-    setIsSaving(true);
-    const personalToSave: PersonalAsignadoDetalleStorage[] = Array.from(updatedStaffMap.values()).map(item => ({
-      empleadoId: item.empleadoId,
-      rolId: item.rolId,
-      eventSalary: item.eventSalary
-    }));
-
-    try {
-      const result = await updatePersonalFiestaActual(fiestaId, personalToSave);
-      if (!result.success) throw new Error(result.error || "No se pudo guardar automáticamente.");
-    } catch (error: any) {
-      toast({ title: "Error en auto-guardado", description: error.message, variant: "destructive" });
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -246,7 +247,7 @@ export default function AsignarPersonalEventoPage() {
             Asignar Personal al Evento
           </h1>
         </div>
-        <Link href={`/fiestas/nueva?fiestaId=${new URLSearchParams(window.location.search).get('fiestaId')}`} passHref>
+        <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref>
           <Button variant="outline" disabled={isSaving}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Volver al Planificador
@@ -363,7 +364,7 @@ export default function AsignarPersonalEventoPage() {
           <div className="flex justify-between items-center border-t pt-3 mt-2"><span className="font-bold text-primary">COSTO TOTAL ESTIMADO:</span><span className="font-bold text-lg text-primary">{formatCurrency(totalEventCost)}</span></div>
         </CardContent>
         <CardFooter className="border-t pt-6 flex flex-col sm:flex-row justify-end items-center gap-3">
-          <Link href={`/fiestas/nueva/personal/recibos?fiestaId=${new URLSearchParams(window.location.search).get('fiestaId')}`} passHref>
+          <Link href={`/fiestas/nueva/personal/recibos?fiestaId=${fiestaId}`} passHref>
               <Button variant="secondary" className="w-full sm:w-auto" size="lg">
                   <Printer className="w-5 h-5 mr-2" />
                   Generar Recibos
@@ -373,4 +374,12 @@ export default function AsignarPersonalEventoPage() {
       </Card>
     </div>
   );
+}
+
+export default function AsignarPersonalEventoPage() {
+    return (
+        <Suspense fallback={<div className="flex justify-center items-center h-64"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>}>
+            <AsignarPersonalEventoContent />
+        </Suspense>
+    )
 }

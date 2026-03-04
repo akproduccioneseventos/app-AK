@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Loader2, AlertTriangle, Printer, ShoppingCart, Truck, RefreshCw, Info, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, Printer, ShoppingCart, Truck, RefreshCw, Info } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, CompraProveedorEstado } from '@/types/fiesta';
@@ -322,7 +322,7 @@ function ListaDeComprasContent() {
               <div className="space-y-10">
                 {providerNames.map((providerName) => {
                   const { items, total } = groupedByProvider[providerName];
-                  const estadoActual = estadosCompra.find(e => e.proveedor === proveedorName) || { pedido: false, pagado: false };
+                  const estadoActual = estadosCompra.find(e => e.provider === providerName) || { pedido: false, pagado: false };
                   const isSavingThis = isSavingStatus === providerName;
                   return (
                       <div key={providerName} className="print:break-inside-avoid">
