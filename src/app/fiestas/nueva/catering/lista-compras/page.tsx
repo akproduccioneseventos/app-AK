@@ -5,23 +5,25 @@ import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'reac
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, AlertTriangle, Printer, ShoppingCart, Truck, CheckCircle, PackageSearch, Beer, ChefHat } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, Printer, ShoppingCart, Truck, CheckCircle, PackageSearch, Beer, ChefHat, Info } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, CompraProveedorEstado } from '@/types/fiesta';
-import { getMenuById } from '@/app/actions/menus-catering';
+import { getMenus } from '@/app/actions/menus-catering';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { updateShoppingListStatus } from '@/app/actions/fiesta/catering.actions';
 import { useSearchParams } from 'next/navigation';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { getPresupuestoById } from '@/app/actions/presupuestos';
+import { defaultBebidasData } from '@/lib/fiesta-defaults';
 
 interface ShoppingListItem {
   id: string;
   nombre: string;
   cantidadTotal: number;
-  unidad: string;
+  unit: string;
   costoUnitario: number;
   costoTotal: number;
   proveedor: string;
@@ -56,113 +58,126 @@ function ListaDeComprasContent() {
     if (showLoading) setIsLoading(true);
     setError(null);
     try {
-      const fiestaData = await getFiestaById(fiestaId);
+      const [fiestaData, allMenus] = await Promise.all([
+        getFiestaById(fiestaId),
+        getMenus()
+      ]);
+      
       if (!fiestaData) throw new Error("Fiesta no encontrada.");
       
       setFiesta(fiestaData);
       setEstadosCompra(fiestaData.estadosCompra || []);
 
-      const invitados = Number(fiestaData.configuracion.invitadosEstimados) || 0;
+      let presupuestoData = null;
+      if (fiestaData.presupuestoId) {
+          presupuestoData = await getPresupuestoById(fiestaData.presupuestoId);
+      }
+
+      // Si no hay presupuesto vinculado, no podemos calcular nada automáticamente
+      if (!presupuestoData) {
+          setShoppingList([]);
+          setIsLoading(false);
+          return;
+      }
+
+      const adultos = presupuestoData.invitadosAdultos || 0;
+      const ninos = (presupuestoData.invitadosNinos || 0) + (presupuestoData.invitadosAdolescentes || 0);
+      const totalInvitados = adultos + ninos;
+
       let generatedList: ShoppingListItem[] = [];
-      let totalCostValue = 0;
 
-      // 1. Procesar Ingredientes del Menú de Catering (Automático)
-      if (fiestaData.menuAsignadoId) {
-        const menuData = await getMenuById(fiestaData.menuAsignadoId);
-        if (menuData) {
-          menuData.items.forEach(plato => {
-            plato.ingredients.forEach(ing => {
-              const qtyPerPerson = parseFloat(ing.quantityPerPerson);
-              if (!isNaN(qtyPerPerson) && qtyPerPerson > 0) {
-                const totalQty = qtyPerPerson * invitados;
-                // Ajustar cantidad si es en gramos o ml para el costo
-                const factorUnidad = (ing.unit.toLowerCase() === 'g' || ing.unit.toLowerCase() === 'ml' || ing.unit.toLowerCase() === 'gramos') ? 1000 : 1;
-                const totalCostoIngrediente = (ing.costoUnitario || 0) * (totalQty / factorUnidad);
-                
-                generatedList.push({
-                  id: `ing-${plato.id}-${ing.id}`,
-                  nombre: ing.name,
-                  cantidadTotal: totalQty,
-                  unidad: ing.unit,
-                  costoUnitario: ing.costoUnitario,
-                  costoTotal: totalCostoIngrediente,
-                  proveedor: ing.proveedor || 'Sin especificar',
-                  origen: `Catering: ${plato.name}`,
-                });
-                totalCostValue += totalCostoIngrediente;
-              }
-            });
-          });
-        }
-      }
+      // HELPER: Decidir qué cantidad de invitados usar para cada ítem
+      const getTargetGuests = (item: { categoriaServicio?: string, nombreServicio: string }) => {
+          const cat = (item.categoriaServicio || '').toLowerCase();
+          const name = (item.nombreServicio || '').toLowerCase();
+          if (cat.includes('infantil') || cat.includes('adolescente') || name.includes('niño')) return ninos;
+          if (cat.includes('plato principal') || name.includes('principal')) return adultos;
+          return totalInvitados;
+      };
 
-      // 2. Procesar Barra de Tragos (Cálculo Automático según lo enviado por el usuario)
-      const barraCat = fiestaData.bebidas?.categorias.find(c => c.id === 'barra_tragos');
-      if (barraCat && barraCat.activada) {
-          barraCat.items.forEach(item => {
-              const totalQty = (item.cantidadNecesaria || 0) * invitados;
-              const totalCosto = (item.costoUnitario || 0) * totalQty;
-              
-              generatedList.push({
-                  id: `beb-bt-${item.id}`,
-                  nombre: item.nombre,
-                  cantidadTotal: totalQty,
-                  unidad: item.unidadCantidad || 'Litros',
-                  costoUnitario: item.costoUnitario || 0,
-                  costoTotal: totalCosto,
-                  proveedor: item.proveedorHabitual || 'Proveedor Bebidas',
-                  origen: 'Barra de Tragos',
+      // 1. PROCESAR PLATOS DEL PRESUPUESTO (Automático)
+      const budgetDishes = presupuestoData.itemsPresupuestados.filter(item => 
+          item.idServicioCatalogo.startsWith('dish_')
+      );
+
+      const allDishesInCatalog = allMenus.flatMap(m => m.items);
+
+      budgetDishes.forEach(budgetItem => {
+          const catalogDish = allDishesInCatalog.find(d => d.id === budgetItem.idServicioCatalogo);
+          if (catalogDish) {
+              const targetGuests = getTargetGuests(budgetItem);
+              catalogDish.ingredients.forEach(ing => {
+                  const qtyPerPerson = parseFloat(ing.quantityPerPerson);
+                  if (!isNaN(qtyPerPerson) && qtyPerPerson > 0) {
+                      const totalQty = qtyPerPerson * targetGuests;
+                      const factorUnidad = (ing.unit.toLowerCase() === 'g' || ing.unit.toLowerCase() === 'ml' || ing.unit.toLowerCase() === 'gramos') ? 1000 : 1;
+                      const costValue = (ing.costoUnitario || 0) * (totalQty / factorUnidad);
+
+                      generatedList.push({
+                          id: `ing-${catalogDish.id}-${ing.id}`,
+                          nombre: ing.name,
+                          cantidadTotal: totalQty,
+                          unit: ing.unit,
+                          costoUnitario: ing.costoUnitario,
+                          costoTotal: costValue,
+                          proveedor: ing.proveedor || 'Sin especificar',
+                          origen: `Presupuesto: ${catalogDish.name}`,
+                      });
+                  }
               });
-              totalCostValue += totalCosto;
-          });
+          }
+      });
+
+      // 2. PROCESAR BARRA DE TRAGOS (Automático desde Presupuesto)
+      const hasBarra = presupuestoData.itemsPresupuestados.some(item => 
+          item.nombreServicio.toLowerCase().includes('barra') || 
+          item.nombreServicio.toLowerCase().includes('licuado')
+      );
+
+      if (hasBarra) {
+          const barraTemplate = defaultBebidasData.categorias.find(c => c.id === 'barra_tragos');
+          if (barraTemplate) {
+              barraTemplate.items.forEach(item => {
+                  const totalQty = (item.cantidadNecesaria || 0) * totalInvitados;
+                  const itemCost = (item.costoUnitario || 0) * totalQty;
+                  generatedList.push({
+                      id: `beb-barra-${item.id}`,
+                      nombre: item.nombre,
+                      cantidadTotal: totalQty,
+                      unit: item.unidadCantidad || 'Litros',
+                      costoUnitario: item.costoUnitario || 0,
+                      costoTotal: itemCost,
+                      proveedor: item.proveedorHabitual || 'Proveedor Bebidas',
+                      origen: 'Barra de Tragos (Presupuesto)',
+                  });
+              });
+          }
       }
 
-      // 3. Procesar Otros Bebidas
-      fiestaData.bebidas?.categorias.forEach(cat => {
-        if (cat.activada && cat.id !== 'barra_tragos') {
-          cat.items.forEach(item => {
-            const totalQty = (item.cantidadNecesaria || 0) * invitados;
-            const itemCost = totalQty * (item.costoUnitario || 0);
-            generatedList.push({
-              id: `beb-${item.id}`,
-              nombre: item.nombre,
+      // 3. PROCESAR BEBIDAS ADICIONALES DEL PRESUPUESTO
+      const otherBeverages = presupuestoData.itemsPresupuestados.filter(item => 
+          item.categoriaServicio?.toLowerCase().includes('bebida') && 
+          !item.nombreServicio.toLowerCase().includes('barra')
+      );
+
+      otherBeverages.forEach(bev => {
+          const totalQty = bev.cantidad; // En presupuesto ya viene la cantidad calculada
+          generatedList.push({
+              id: `bev-extra-${bev.idServicioCatalogo}`,
+              nombre: bev.nombreServicio,
               cantidadTotal: totalQty,
-              unidad: item.unidadCantidad || 'uds',
-              costoUnitario: item.costoUnitario || 0,
-              costoTotal: itemCost,
-              proveedor: item.proveedorHabitual || 'Distribuidora Bebidas',
-              origen: cat.nombreDisplay,
-            });
-            totalCostValue += itemCost;
+              unit: bev.unidad || 'Unidades',
+              costoUnitario: bev.precioUnitario,
+              costoTotal: bev.precioUnitario * totalQty,
+              proveedor: 'Distribuidora Bebidas',
+              origen: 'Bebidas (Presupuesto)',
           });
-        }
       });
 
-      // 4. Procesar Repostería (Automático)
-      fiestaData.reposteria?.categorias.forEach(cat => {
-        if (cat.activada) {
-          cat.items.forEach(item => {
-            const totalQty = item.cantidad || 1;
-            const itemCost = (item.costoEstimado || 0) * totalQty;
-            generatedList.push({
-              id: `rep-${item.id}`,
-              nombre: item.nombre,
-              cantidadTotal: totalQty,
-              unidad: item.unidad || 'unidad',
-              costoUnitario: item.costoEstimado || 0,
-              costoTotal: itemCost,
-              proveedor: 'Proveedor Repostería',
-              origen: cat.nombreDisplay,
-            });
-            totalCostValue += itemCost;
-          });
-        }
-      });
-      
-      // Consolidar ítems iguales (mismo nombre y proveedor)
+      // 4. CONSOLIDAR LISTA (Sumar cantidades de mismos productos)
       const consolidated: Record<string, ShoppingListItem> = {};
       generatedList.forEach(item => {
-          const key = `${item.nombre}-${item.proveedor}`.toLowerCase();
+          const key = `${item.nombre.toLowerCase()}-${item.proveedor.toLowerCase()}`;
           if (consolidated[key]) {
               consolidated[key].cantidadTotal += item.cantidadTotal;
               consolidated[key].costoTotal += item.costoTotal;
@@ -174,8 +189,9 @@ function ListaDeComprasContent() {
           }
       });
 
-      setShoppingList(Object.values(consolidated).sort((a,b) => a.proveedor.localeCompare(b.proveedor)));
-      setTotalCost(totalCostValue);
+      const finalList = Object.values(consolidated).sort((a,b) => a.proveedor.localeCompare(b.proveedor));
+      setShoppingList(finalList);
+      setTotalCost(finalList.reduce((sum, item) => sum + item.costoTotal, 0));
 
     } catch (err: any) {
       setError("No se pudo generar la lista de compras.");
@@ -235,7 +251,7 @@ function ListaDeComprasContent() {
 
 
   if (isLoading) {
-    return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Generando lista de compras...</p></div>;
+    return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Sincronizando con presupuesto y generando lista...</p></div>;
   }
   if (error) {
     return <div className="text-center py-10"><AlertTriangle className="w-12 h-12 mx-auto text-destructive mb-3" /><p className="font-semibold">{error}</p><Button onClick={() => loadData()} className="mt-4">Reintentar</Button></div>;
@@ -246,9 +262,10 @@ function ListaDeComprasContent() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 print:hidden">
           <div className="flex items-center gap-3">
             <ShoppingCart className="w-8 h-8 text-primary" />
-            <h1 className="text-3xl font-bold tracking-tight font-headline">Lista de Compras Gastronómica</h1>
+            <h1 className="text-3xl font-bold tracking-tight font-headline">Lista de Compras Automática</h1>
           </div>
           <div className="flex gap-2">
+            <Button variant="ghost" onClick={() => loadData(true)} title="Actualizar desde presupuesto"><RefreshCw className="w-4 h-4 mr-2"/>Sincronizar</Button>
             <Button onClick={handlePrint} variant="outline"><Printer className="w-4 h-4 mr-2"/>Imprimir/PDF</Button>
               <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref>
                   <Button><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button>
@@ -258,25 +275,31 @@ function ListaDeComprasContent() {
         
         <div className="print:block hidden text-center mb-4">
           <h1 className="text-2xl font-bold">Lista de Compras - {fiesta?.configuracion.nombreEvento}</h1>
-          <p className="text-sm">Insumos para {fiesta?.configuracion.invitadosEstimados} invitados</p>
+          <p className="text-sm">Insumos detectados automáticamente desde el presupuesto oficial.</p>
         </div>
 
         <Card className="shadow-lg print:shadow-none print:border-none">
           <CardHeader>
+            <div className="flex items-center gap-2 mb-1">
+                <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">Sincronización Activa</Badge>
+            </div>
             <CardTitle>Insumos Consolidados por Proveedor</CardTitle>
             <CardDescription>
-              Cálculo automático de ingredientes, bebidas y barra de tragos basado en el número de invitados.
+              Hemos analizado el presupuesto y los menús. Aquí tienes el desglose total de lo que debes comprar.
             </CardDescription>
           </CardHeader>
           <CardContent>
             {shoppingList.length === 0 ? (
-              <p className="text-muted-foreground text-center py-10">No hay ítems en la lista. Asegúrate de haber asignado un menú y activado las categorías de bebidas.</p>
+              <div className="text-center py-12 bg-muted/30 rounded-lg border-2 border-dashed">
+                  <Info className="w-12 h-12 mx-auto text-muted-foreground opacity-50 mb-3"/>
+                  <p className="text-muted-foreground">No se detectaron insumos automáticos. Asegúrate de que el presupuesto contenga platos del catálogo o servicios de barra.</p>
+              </div>
             ) : (
               <div className="space-y-10">
                 {providerNames.map((providerName) => {
                   const { items, total } = groupedByProvider[providerName];
-                  const estadoActual = estadosCompra.find(e => e.proveedor === providerName) || { pedido: false, pagado: false };
-                  const isSavingThis = isSavingStatus === providerName;
+                  const estadoActual = estadosCompra.find(e => e.proveedor === proveedorName) || { pedido: false, pagado: false };
+                  const isSavingThis = isSavingStatus === proveedorName;
                   return (
                       <div key={providerName} className="print:break-inside-avoid">
                           <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-2 border-b pb-2">
@@ -314,7 +337,7 @@ function ListaDeComprasContent() {
                                           <p className="text-[10px] text-muted-foreground font-normal italic">Ref: {item.origen}</p>
                                       </TableCell>
                                       <TableCell className="text-right font-mono">{item.cantidadTotal.toFixed(2)}</TableCell>
-                                      <TableCell className="text-xs uppercase font-medium">{item.unidad}</TableCell>
+                                      <TableCell className="text-xs uppercase font-medium">{item.unit}</TableCell>
                                       <TableCell className="text-right text-xs text-muted-foreground">{formatCurrency(item.costoUnitario)}</TableCell>
                                       <TableCell className="text-right font-bold text-primary">{formatCurrency(item.costoTotal)}</TableCell>
                                       </TableRow>
@@ -336,9 +359,9 @@ function ListaDeComprasContent() {
           </CardContent>
           <CardFooter className="border-t mt-8 pt-6 flex justify-end bg-muted/5 p-6">
               <div className="text-right space-y-1">
-                  <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider">Costo Total de Insumos Gastronómicos</p>
+                  <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider">Costo Total de Insumos para el Evento</p>
                   <p className="text-4xl font-bold text-primary">{formatCurrency(totalCost)}</p>
-                  <p className="text-xs text-muted-foreground italic">Basado en {fiesta?.configuracion.invitadosEstimados} invitados estimados.</p>
+                  <p className="text-xs text-muted-foreground italic">Cálculo basado en el presupuesto oficial vinculado.</p>
               </div>
           </CardFooter>
         </Card>
