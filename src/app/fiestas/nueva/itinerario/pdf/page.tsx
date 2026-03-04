@@ -9,10 +9,11 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, Printer as PrinterIcon, Share2, AlertTriangle, Clock, Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper, Loader2 } from 'lucide-react';
 import type { FiestaEnPlanificacion, ProgramaEventoItem } from '@/types/fiesta';
-import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { getFiestaById } from '@/app/actions/fiesta-actual';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { WatermarkedImage } from '@/components/watermarked-image';
 import { useSearchParams } from 'next/navigation';
+import { defaultPrograma } from '@/lib/fiesta-defaults';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no definida";
@@ -109,6 +110,11 @@ function ItinerarioPdfContent({ fiestaId }: { fiestaId: string | null }) {
     );
   }
 
+  // Use current program or fallback to default structure
+  const displayPrograma = (fiesta.programa && fiesta.programa.length > 0) 
+    ? fiesta.programa 
+    : defaultPrograma;
+
   return (
     <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans">
       <div className="max-w-3xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2 relative">
@@ -133,30 +139,26 @@ function ItinerarioPdfContent({ fiestaId }: { fiestaId: string | null }) {
           <p className="text-xs text-gray-500 print:text-[8pt]">{formatDate(fiesta.configuracion.fechaEvento)}</p>
         </header>
         
-        {fiesta.programa && fiesta.programa.length > 0 ? (
-          <div className="relative max-w-xl mx-auto pl-8">
-            <div className="absolute left-8 h-full w-0.5 bg-gray-200 -z-10 print:left-4" style={{left: '32px'}}></div>
-            {fiesta.programa.map((item) => {
-                const Icon = item.icono && iconMap[item.icono] ? iconMap[item.icono] : Clock;
-                return (
-                    <div key={item.id} className="relative flex items-start gap-6 pb-6 print:pb-4 print:gap-4">
-                        <div className="relative z-10 flex flex-col items-center">
-                            <div className="grid h-16 w-16 place-items-center rounded-full bg-primary/10 border-2 border-primary print:h-12 print:w-12">
-                                <Icon className="h-7 w-7 text-primary print:h-5 print:w-5" />
-                            </div>
-                            <span className="mt-1 text-sm font-bold text-primary print:text-xs">{item.hora}</span>
-                        </div>
-                        <div className="pt-2 print:pt-1">
-                            <p className="font-semibold text-base print:text-sm">{item.titulo}</p>
-                            <p className="text-sm text-muted-foreground print:text-xs">{item.descripcion}</p>
-                        </div>
-                    </div>
-                )
-            })}
-          </div>
-        ) : (
-          <p className="text-center text-muted-foreground p-8">No hay un cronograma definido para este evento.</p>
-        )}
+        <div className="relative max-w-xl mx-auto pl-8 print:pl-4">
+          <div className="absolute left-8 h-full w-0.5 bg-gray-200 -z-10 print:left-4" style={{left: '32px'}}></div>
+          {displayPrograma.map((item) => {
+              const Icon = item.icono && iconMap[item.icono] ? iconMap[item.icono] : Clock;
+              return (
+                  <div key={item.id} className="relative flex items-start gap-6 pb-6 print:pb-4 print:gap-4">
+                      <div className="relative z-10 flex flex-col items-center">
+                          <div className="grid h-16 w-16 place-items-center rounded-full bg-primary/10 border-2 border-primary print:h-12 print:w-12">
+                              <Icon className="h-7 w-7 text-primary print:h-5 print:w-5" />
+                          </div>
+                          <span className="mt-1 text-sm font-bold text-primary print:text-xs">{item.hora}</span>
+                      </div>
+                      <div className="pt-2 print:pt-1">
+                          <p className="font-semibold text-base print:text-sm">{item.titulo}</p>
+                          <p className="text-sm text-muted-foreground print:text-xs">{item.descripcion}</p>
+                      </div>
+                  </div>
+              )
+          })}
+        </div>
 
         <footer className="mt-8 pt-4 border-t text-center text-xs text-gray-400 print:mt-5 print:pt-2 print:border-gray-300">
           <p>Generado por {companyName} el: {new Date().toLocaleString('es-ES')}</p>

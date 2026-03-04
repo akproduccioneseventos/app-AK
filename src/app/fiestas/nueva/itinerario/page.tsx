@@ -100,6 +100,21 @@ function ItinerarioContent() {
 
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
+  const handleAutoSave = async (updatedPrograma: ProgramaEventoItem[]) => {
+    if (!fiestaId) return;
+    setIsSaving(true);
+    try {
+      const result = await updateProgramaFiestaActual(fiestaId, updatedPrograma);
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+    } catch (err: any) {
+      toast({ title: "Error al Guardar", description: err.message, variant: "destructive" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const loadData = useCallback(async () => {
     if (!fiestaId) return;
     setIsLoading(true);
@@ -109,7 +124,10 @@ function ItinerarioContent() {
       if (!fiestaData) throw new Error("No se encontró el evento.");
       const itinerario = fiestaData.programa || [];
       if (itinerario.length === 0) {
-        setPrograma([...defaultPrograma.map(p => ({...p, id: `prog_${Date.now()}_${Math.random()}`}))]);
+        const defaultItems = [...defaultPrograma.map(p => ({...p, id: `prog_${Date.now()}_${Math.random()}`}))];
+        setPrograma(defaultItems);
+        // Save defaults if it was empty
+        await updateProgramaFiestaActual(fiestaId, defaultItems);
       } else {
         setPrograma(itinerario);
       }
@@ -159,8 +177,10 @@ function ItinerarioContent() {
     setIsSaving(false);
   };
 
-  const handleLoadTemplate = (template: ItineraryTemplate) => {
-    setPrograma(template.items.map(item => ({...item, id: `prog_${Date.now()}_${Math.random()}`})));
+  const handleLoadTemplate = async (template: ItineraryTemplate) => {
+    const updatedItems = template.items.map(item => ({...item, id: `prog_${Date.now()}_${Math.random()}`}));
+    setPrograma(updatedItems);
+    await handleAutoSave(updatedItems);
     toast({title: "Plantilla cargada"});
     setIsLoadTemplateModalOpen(false);
   };
@@ -186,12 +206,15 @@ function ItinerarioContent() {
       updatedPrograma = [...programa, newItem].sort((a,b) => a.hora.localeCompare(b.hora));
     }
     setPrograma(updatedPrograma);
+    handleAutoSave(updatedPrograma);
     setIsEditModalOpen(false);
     setCurrentItem(null);
   };
 
   const handleDeleteItem = (id: string) => {
-    setPrograma(prev => prev.filter(p => p.id !== id));
+    const updated = programa.filter(p => p.id !== id);
+    setPrograma(updated);
+    handleAutoSave(updated);
   };
   
   function handleDragEnd(event: DragEndEvent) {
@@ -200,27 +223,12 @@ function ItinerarioContent() {
       setPrograma((items) => {
         const oldIndex = items.findIndex((item) => item.id === active.id);
         const newIndex = items.findIndex((item) => item.id === over.id);
-        return arrayMove(items, oldIndex, newIndex);
+        const updated = arrayMove(items, oldIndex, newIndex);
+        handleAutoSave(updated);
+        return updated;
       });
     }
   }
-
-  const handleSaveItinerario = async () => {
-    if (!fiestaId) return;
-    setIsSaving(true);
-    try {
-      const result = await updateProgramaFiestaActual(fiestaId, programa);
-      if (result.success) {
-        toast({ title: "Cronograma Guardado" });
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (err: any) {
-      toast({ title: "Error al Guardar", description: err.message, variant: "destructive" });
-    } finally {
-      setIsSaving(false);
-    }
-  };
 
   if (isLoading) return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-primary"/></div>;
 
@@ -243,7 +251,7 @@ function ItinerarioContent() {
             <div className="space-y-1"><Label htmlFor="item-desc">Descripción (Opcional)</Label><Textarea id="item-desc" value={currentItem?.descripcion || ''} onChange={(e) => setCurrentItem(p => p ? {...p, descripcion: e.target.value} : null)} rows={3} /></div>
             <DialogFooter className="pt-3">
               <DialogClose asChild><Button type="button" variant="outline">Cancelar</Button></DialogClose>
-              <Button type="submit">Guardar</Button>
+              <Button type="submit">Guardar y Sincronizar</Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -264,8 +272,13 @@ function ItinerarioContent() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Eventos Programados</CardTitle>
-          <CardDescription>Organiza cada momento de la fiesta. Arrastra y suelta para reordenar.</CardDescription>
+          <div className="flex justify-between items-center">
+            <div>
+                <CardTitle>Eventos Programados</CardTitle>
+                <CardDescription>Organiza cada momento de la fiesta. Los cambios se sincronizan solos.</CardDescription>
+            </div>
+            {isSaving && <div className="flex items-center text-xs text-muted-foreground animate-pulse"><Save className="w-3 h-3 mr-1"/> Sincronizando...</div>}
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-wrap gap-2">
@@ -283,12 +296,6 @@ function ItinerarioContent() {
             </SortableContext>
           </DndContext>
         </CardContent>
-        <CardFooter className="border-t pt-4">
-          <Button onClick={handleSaveItinerario} disabled={isSaving}>
-            {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>}
-            Guardar Cronograma
-          </Button>
-        </CardFooter>
       </Card>
     </div>
   );
