@@ -20,6 +20,7 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { defaultBebidasData } from '@/lib/fiesta-defaults';
+import { cn } from '@/lib/utils';
 
 interface ShoppingListItem {
   id: string;
@@ -385,7 +386,7 @@ function ListaDeComprasContent() {
 
 export default function ListaDeComprasPageWrapper() {
   return (
-    <Suspense fallback={<div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+    <Suspense fallback={<div className="flex justify-center items-center h-64"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>}>
         <ListaDeComprasContent/>
     </Suspense>
   )
