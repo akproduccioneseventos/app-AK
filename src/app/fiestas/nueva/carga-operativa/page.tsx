@@ -18,7 +18,7 @@ import type { ServicioEmpresa } from '@/types/empresa';
 import { getFiestaById, updateListaDeCargaOperativaFiestaActual } from '@/app/actions/fiesta-actual';
 import { getActivosFijos } from '@/app/actions/activos-fijos';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -104,6 +104,65 @@ function ListaDeCargaOperativaContent() {
       
       let loadedLista = fiestaData.listaDeCargaOperativa;
       
+      // Auto-sync logic on first entry if list is empty
+      const hasNoData = !loadedLista || !loadedLista.categorias || loadedLista.categorias.length === 0;
+      
+      if (hasNoData && fiestaData.presupuestoId) {
+          const presupuesto = await getPresupuestoById(fiestaData.presupuestoId);
+          if (presupuesto) {
+              const totalInvitados = (presupuesto.invitadosAdultos || 0) + (presupuesto.invitadosNinos || 0) + (presupuesto.invitadosAdolescentes || 0) || presupuesto.invitadosCantidad || 100;
+              const budgetCategories = new Set(presupuesto.itemsPresupuestados.map(item => (item.categoriaServicio || '').toLowerCase()));
+              const budgetNames = new Set(presupuesto.itemsPresupuestados.map(item => (item.nombreServicio || '').toLowerCase()));
+
+              const targetAssetCategories = new Set<string>();
+              if (budgetCategories.has('servicio de discoteca') || budgetNames.has('discoteca') || budgetNames.has('dj')) {
+                targetAssetCategories.add('Discoteca');
+              }
+              if (budgetCategories.has('servicio de decoración') || budgetNames.has('decoración') || budgetNames.has('ambientación')) {
+                targetAssetCategories.add('Decoración');
+                targetAssetCategories.add('Mobiliario');
+              }
+              if (budgetCategories.has('servicio de catering') || budgetNames.has('vajilla')) {
+                targetAssetCategories.add('Vajilla');
+                targetAssetCategories.add('Mantelería');
+                targetAssetCategories.add('Equipamiento de Cocina');
+              }
+              if (budgetCategories.has('servicio de bebidas') || budgetNames.has('barra')) {
+                targetAssetCategories.add('Barra de Tragos');
+              }
+
+              const newCategories: CargaOperativaCategoria[] = [];
+              targetAssetCategories.forEach(catName => {
+                const matchingAssets = catalogoData.filter(a => a.categoria === catName);
+                if (matchingAssets.length > 0) {
+                  newCategories.push({
+                    id: `auto_${catName}_${Date.now()}`,
+                    nombre: catName,
+                    items: matchingAssets.map(asset => {
+                      let qty = '1';
+                      if (asset.calculationMethod === 'porPersona') qty = String(totalInvitados);
+                      else if (asset.calculationMethod === 'ratio' && asset.invitadosPorUnidad) qty = String(Math.ceil(totalInvitados / asset.invitadosPorUnidad));
+                      else if (asset.precioVenta && asset.calculationMethod === 'fijo') qty = String(asset.precioVenta);
+                      
+                      return {
+                        id: `item_${asset.id}_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+                        nombre: asset.nombre,
+                        cantidad: qty,
+                        unidad: asset.unidad || 'Uds.',
+                        cargado: false,
+                        origenId: asset.id
+                      };
+                    })
+                  });
+                }
+              });
+
+              if (newCategories.length > 0) {
+                  loadedLista = { categorias: newCategories, notasGenerales: '' };
+              }
+          }
+      }
+
       if ((!loadedLista || !loadedLista.categorias || loadedLista.categorias.length === 0) && masterTemplate.categorias.length > 0) {
         loadedLista = {
           ...masterTemplate,
@@ -150,36 +209,35 @@ function ListaDeCargaOperativaContent() {
 
       if (!presupuesto) throw new Error("No se pudo obtener el presupuesto.");
 
-      const totalInvitados = presupuesto.invitadosCantidad || 100;
-      const budgetCategories = new Set(presupuesto.itemsPresupuestados.map(item => item.categoriaServicio?.toLowerCase()));
-      const budgetNames = new Set(presupuesto.itemsPresupuestados.map(item => item.nombreServicio.toLowerCase()));
+      const totalInvitados = (presupuesto.invitadosAdultos || 0) + (presupuesto.invitadosNinos || 0) + (presupuesto.invitadosAdolescentes || 0) || presupuesto.invitadosCantidad || 100;
+      const budgetCategories = new Set(presupuesto.itemsPresupuestados.map(item => (item.categoriaServicio || '').toLowerCase()));
+      const budgetNames = new Set(presupuesto.itemsPresupuestados.map(item => (item.nombreServicio || '').toLowerCase()));
 
-      const neededAssetCategories = new Set<string>();
-      
+      const targetAssetCategories = new Set<string>();
       if (budgetCategories.has('servicio de discoteca') || budgetNames.has('discoteca') || budgetNames.has('dj')) {
-        neededAssetCategories.add('Discoteca');
+        targetAssetCategories.add('Discoteca');
       }
-      if (budgetCategories.has('servicio de decoración') || budgetNames.has('decoración')) {
-        neededAssetCategories.add('Decoración (Activo)');
-        neededAssetCategories.add('Mobiliario');
+      if (budgetCategories.has('servicio de decoración') || budgetNames.has('decoración') || budgetNames.has('ambientación')) {
+        targetAssetCategories.add('Decoración');
+        targetAssetCategories.add('Mobiliario');
       }
       if (budgetCategories.has('servicio de catering') || budgetNames.has('vajilla')) {
-        neededAssetCategories.add('Vajilla (Activo)');
-        neededAssetCategories.add('Mantelería');
-        neededAssetCategories.add('Equipamiento de Cocina');
+        targetAssetCategories.add('Vajilla');
+        targetAssetCategories.add('Mantelería');
+        targetAssetCategories.add('Equipamiento de Cocina');
       }
       if (budgetCategories.has('servicio de bebidas') || budgetNames.has('barra')) {
-        neededAssetCategories.add('Barra de Tragos');
+        targetAssetCategories.add('Barra de Tragos');
       }
 
       const newCategories: CargaOperativaCategoria[] = [];
 
-      neededAssetCategories.forEach(categoryName => {
-        const matchingAssets = activos.filter(a => a.categoria === categoryName);
+      targetAssetCategories.forEach(catName => {
+        const matchingAssets = activos.filter(a => a.categoria === catName);
         if (matchingAssets.length > 0) {
           newCategories.push({
-            id: `sync_${categoryName}_${Date.now()}`,
-            nombre: categoryName,
+            id: `sync_${catName}_${Date.now()}`,
+            nombre: catName,
             items: matchingAssets.map(asset => {
               let qty = '1';
               if (asset.calculationMethod === 'porPersona') {
@@ -188,8 +246,6 @@ function ListaDeCargaOperativaContent() {
                 qty = String(Math.ceil(totalInvitados / asset.invitadosPorUnidad));
               } else if (asset.precioVenta && asset.calculationMethod === 'fijo') {
                 qty = String(asset.precioVenta);
-              } else {
-                qty = String(asset.cantidadDisponible || 1);
               }
 
               return {
@@ -212,7 +268,7 @@ function ListaDeCargaOperativaContent() {
 
       setListaDeCarga(prev => ({
         ...prev,
-        categorias: [...prev.categorias, ...newCategories]
+        categorias: [...(prev.categorias || []), ...newCategories]
       }));
 
       toast({ title: "Sincronización Exitosa", description: `Se añadieron ${newCategories.length} categorías basadas en el presupuesto.` });
