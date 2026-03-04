@@ -7,12 +7,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Loader2, AlertTriangle, Printer, ShoppingCart, Truck, RefreshCw, Info } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, Printer, ShoppingCart, Truck, RefreshCw, Info, AlertCircle } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, CompraProveedorEstado } from '@/types/fiesta';
 import { getMenus } from '@/app/actions/menus-catering';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { getInsumos } from '@/app/actions/insumos';
 import { updateShoppingListStatus } from '@/app/actions/fiesta/catering.actions';
 import { useSearchParams } from 'next/navigation';
 import { Switch } from '@/components/ui/switch';
@@ -23,12 +24,15 @@ import { defaultBebidasData } from '@/lib/fiesta-defaults';
 interface ShoppingListItem {
   id: string;
   nombre: string;
-  cantidadTotal: number;
+  cantidadNecesaria: number;
+  stockDisponible: number;
+  cantidadAComprar: number;
   unit: string;
   costoUnitario: number;
-  costoTotal: number;
+  costoTotalFaltante: number;
   proveedor: string;
   origen: string;
+  origenId?: string;
 }
 
 const formatCurrency = (amount?: number) => {
@@ -42,7 +46,7 @@ function ListaDeComprasContent() {
   const fiestaId = searchParams.get('fiestaId');
 
   const [shoppingList, setShoppingList] = useState<ShoppingListItem[]>([]);
-  const [totalCost, setTotalCost] = useState(0);
+  const [totalInvestment, setTotalInvestment] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
@@ -59,9 +63,10 @@ function ListaDeComprasContent() {
     if (showLoading) setIsLoading(true);
     setError(null);
     try {
-      const [fiestaData, allMenus] = await Promise.all([
+      const [fiestaData, allMenus, catalogoInsumos] = await Promise.all([
         getFiestaById(fiestaId),
-        getMenus()
+        getMenus(),
+        getInsumos()
       ]);
       
       if (!fiestaData) throw new Error("Fiesta no encontrada.");
@@ -84,7 +89,7 @@ function ListaDeComprasContent() {
       const ninos = (presupuestoData.invitadosNinos || 0) + (presupuestoData.invitadosAdolescentes || 0);
       const totalInvitados = adultos + ninos;
 
-      let generatedList: ShoppingListItem[] = [];
+      let rawList: any[] = [];
 
       const getTargetGuests = (item: { categoriaServicio?: string, nombreServicio: string }) => {
           const cat = (item.categoriaServicio || '').toLowerCase();
@@ -108,20 +113,16 @@ function ListaDeComprasContent() {
               catalogDish.ingredients.forEach(ing => {
                   const qtyPerPerson = parseFloat(ing.quantityPerPerson);
                   if (!isNaN(qtyPerPerson) && qtyPerPerson > 0) {
-                      const totalQty = qtyPerPerson * targetGuests;
-                      const unitNormalized = (ing.unit || '').toLowerCase().trim();
-                      const factorUnidad = (unitNormalized === 'g' || unitNormalized === 'ml' || unitNormalized === 'gramos' || unitNormalized === 'cc') ? 1000 : 1;
-                      const costValue = (ing.costoUnitario || 0) * (totalQty / factorUnidad);
-
-                      generatedList.push({
-                          id: `ing-${catalogDish.id}-${ing.id}`,
+                      const totalNeeded = qtyPerPerson * targetGuests;
+                      
+                      rawList.push({
                           nombre: ing.name,
-                          cantidadTotal: totalQty,
+                          cantidadNecesaria: totalNeeded,
                           unit: ing.unit,
                           costoUnitario: ing.costoUnitario,
-                          costoTotal: costValue,
                           proveedor: ing.proveedor || 'Sin especificar',
                           origen: `Presupuesto: ${catalogDish.name}`,
+                          origenId: ing.origenId,
                       });
                   }
               });
@@ -138,62 +139,68 @@ function ListaDeComprasContent() {
           const barraTemplate = defaultBebidasData.categorias.find(c => c.id === 'barra_tragos');
           if (barraTemplate) {
               barraTemplate.items.forEach(item => {
-                  const totalQty = (item.cantidadNecesaria || 0) * totalInvitados;
-                  const unitNormalized = (item.unidadCantidad || '').toLowerCase().trim();
-                  const factorUnidad = (unitNormalized === 'g' || unitNormalized === 'ml' || unitNormalized === 'gramos' || unitNormalized === 'cc') ? 1000 : 1;
-                  const itemCost = (item.costoUnitario || 0) * (totalQty / factorUnidad);
+                  const totalNeeded = (item.cantidadNecesaria || 0) * totalInvitados;
                   
-                  generatedList.push({
-                      id: `beb-barra-${item.id}`,
+                  rawList.push({
                       nombre: item.nombre,
-                      cantidadTotal: totalQty,
+                      cantidadNecesaria: totalNeeded,
                       unit: item.unidadCantidad || 'Litros',
                       costoUnitario: item.costoUnitario || 0,
-                      costoTotal: itemCost,
                       proveedor: item.proveedorHabitual || 'Proveedor Bebidas',
                       origen: 'Barra de Tragos (Presupuesto)',
+                      origenId: item.origenId,
                   });
               });
           }
       }
 
-      // 3. PROCESAR BEBIDAS ADICIONALES
-      const otherBeverages = presupuestoData.itemsPresupuestados.filter(item => 
-          item.categoriaServicio?.toLowerCase().includes('bebida') && 
-          !item.nombreServicio.toLowerCase().includes('barra')
-      );
-
-      otherBeverages.forEach(bev => {
-          generatedList.push({
-              id: `bev-extra-${bev.idServicioCatalogo}`,
-              nombre: bev.nombreServicio,
-              cantidadTotal: bev.cantidad,
-              unit: bev.unidad || 'Unidades',
-              costoUnitario: bev.precioUnitario,
-              costoTotal: bev.precioUnitario * bev.cantidad,
-              proveedor: 'Distribuidora Bebidas',
-              origen: 'Bebidas (Presupuesto)',
-          });
-      });
-
-      // 4. CONSOLIDAR LISTA
+      // 3. CONSOLIDAR LISTA Y COMPARAR CON STOCK
       const consolidated: Record<string, ShoppingListItem> = {};
-      generatedList.forEach(item => {
-          const key = `${item.nombre.toLowerCase()}-${item.proveedor.toLowerCase()}`;
+      
+      rawList.forEach(raw => {
+          const key = `${raw.nombre.toLowerCase()}-${raw.proveedor.toLowerCase()}`;
           if (consolidated[key]) {
-              consolidated[key].cantidadTotal += item.cantidadTotal;
-              consolidated[key].costoTotal += item.costoTotal;
-              if (!consolidated[key].origen.includes(item.origen)) {
-                  consolidated[key].origen += `, ${item.origen}`;
+              consolidated[key].cantidadNecesaria += raw.cantidadNecesaria;
+              if (!consolidated[key].origen.includes(raw.origen)) {
+                  consolidated[key].origen += `, ${raw.origen}`;
               }
           } else {
-              consolidated[key] = { ...item };
+              const catalogItem = catalogoInsumos.find(ci => ci.id === raw.origenId || ci.nombre.toLowerCase() === raw.nombre.toLowerCase());
+              const stock = catalogItem?.cantidadDisponible || 0;
+              const cost = catalogItem?.valorUnitarioEstimado || raw.costoUnitario;
+              
+              consolidated[key] = {
+                  id: key,
+                  nombre: raw.nombre,
+                  cantidadNecesaria: raw.cantidadNecesaria,
+                  stockDisponible: stock,
+                  cantidadAComprar: 0, // Calculated below
+                  unit: raw.unit,
+                  costoUnitario: cost,
+                  costoTotalFaltante: 0, // Calculated below
+                  proveedor: raw.proveedor,
+                  origen: raw.origen,
+                  origenId: raw.origenId
+              };
           }
       });
 
-      const finalList = Object.values(consolidated).sort((a,b) => a.proveedor.localeCompare(b.proveedor));
+      // Cálculo final de faltantes y costos de inversión
+      const finalList = Object.values(consolidated).map(item => {
+          const faltante = Math.max(0, item.cantidadNecesaria - item.stockDisponible);
+          const unitNormalized = (item.unit || '').toLowerCase().trim();
+          const factorUnidad = (unitNormalized === 'g' || unitNormalized === 'ml' || unitNormalized === 'gramos' || unitNormalized === 'cc') ? 1000 : 1;
+          const costoInversion = (item.costoUnitario) * (faltante / factorUnidad);
+
+          return {
+              ...item,
+              cantidadAComprar: faltante,
+              costoTotalFaltante: costoInversion
+          };
+      }).sort((a,b) => a.proveedor.localeCompare(b.proveedor));
+
       setShoppingList(finalList);
-      setTotalCost(finalList.reduce((sum, item) => sum + item.costoTotal, 0));
+      setTotalInvestment(finalList.reduce((sum, item) => sum + item.costoTotalFaltante, 0));
 
     } catch (err: any) {
       setError("No se pudo generar la lista de compras.");
@@ -216,7 +223,7 @@ function ListaDeComprasContent() {
         acc[provider] = { items: [], total: 0 };
       }
       acc[provider].items.push(item);
-      acc[provider].total += item.costoTotal;
+      acc[provider].total += item.costoTotalFaltante;
       return acc;
     }, {} as Record<string, { items: ShoppingListItem[], total: number }>);
   }, [shoppingList]);
@@ -252,7 +259,7 @@ function ListaDeComprasContent() {
   };
 
   if (isLoading) {
-    return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Sincronizando con presupuesto y generando lista...</p></div>;
+    return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Sincronizando inventario y presupuesto...</p></div>;
   }
   if (error) {
     return <div className="text-center py-10"><AlertTriangle className="w-12 h-12 mx-auto text-destructive mb-3" /><p className="font-semibold">{error}</p><Button onClick={() => loadData()} className="mt-4">Reintentar</Button></div>;
@@ -263,7 +270,7 @@ function ListaDeComprasContent() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 print:hidden">
           <div className="flex items-center gap-3">
             <ShoppingCart className="w-8 h-8 text-primary" />
-            <h1 className="text-3xl font-bold tracking-tight font-headline">Lista de Compras Automática</h1>
+            <h1 className="text-3xl font-bold tracking-tight font-headline">Lista de Compras e Inventario</h1>
           </div>
           <div className="flex gap-2">
             <Button variant="ghost" onClick={() => loadData(true)} title="Actualizar desde presupuesto"><RefreshCw className="w-4 h-4 mr-2"/>Sincronizar</Button>
@@ -276,17 +283,17 @@ function ListaDeComprasContent() {
         
         <div className="print:block hidden text-center mb-4">
           <h1 className="text-2xl font-bold">Lista de Compras - {fiesta?.configuracion.nombreEvento}</h1>
-          <p className="text-sm">Insumos detectados automáticamente desde el presupuesto oficial.</p>
+          <p className="text-sm">Insumos comparados con el stock maestro del catálogo.</p>
         </div>
 
         <Card className="shadow-lg print:shadow-none print:border-none">
           <CardHeader>
             <div className="flex items-center gap-2 mb-1">
-                <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">Sincronización Activa</Badge>
+                <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">Inventario Sincronizado</Badge>
             </div>
             <CardTitle>Insumos Consolidados por Proveedor</CardTitle>
             <CardDescription>
-              Hemos analizado el presupuesto y los menús. Aquí tienes el desglose total de lo que debes comprar.
+              Comparamos lo necesario con tu stock disponible. Si el "Stock" es insuficiente, el "Faltante" te indica qué comprar.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -299,7 +306,7 @@ function ListaDeComprasContent() {
               <div className="space-y-10">
                 {providerNames.map((providerName) => {
                   const { items, total } = groupedByProvider[providerName];
-                  const estadoActual = estadosCompra.find(e => e.proveedor === providerName) || { pedido: false, pagado: false };
+                  const estadoActual = estadosCompra.find(e => e.proveedor === proveedorName) || { pedido: false, pagado: false };
                   const isSavingThis = isSavingStatus === providerName;
                   return (
                       <div key={providerName} className="print:break-inside-avoid">
@@ -324,29 +331,35 @@ function ListaDeComprasContent() {
                                   <TableHeader className="bg-muted/20">
                                   <TableRow>
                                       <TableHead className="font-bold">Producto</TableHead>
-                                      <TableHead className="text-right">Cant. Total</TableHead>
-                                      <TableHead className="w-[100px]">Unidad</TableHead>
-                                      <TableHead className="text-right">Costo Unit.</TableHead>
-                                      <TableHead className="text-right font-bold">Costo Total Est.</TableHead>
+                                      <TableHead className="text-right">Necesario</TableHead>
+                                      <TableHead className="text-right">En Stock</TableHead>
+                                      <TableHead className="text-right font-bold text-primary">Faltante</TableHead>
+                                      <TableHead className="w-[80px]">Unidad</TableHead>
+                                      <TableHead className="text-right font-bold">Costo Inversión</TableHead>
                                   </TableRow>
                                   </TableHeader>
                                   <TableBody>
                                   {items.map(item => (
-                                      <TableRow key={item.id}>
+                                      <TableRow key={item.id} className={cn(item.cantidadAComprar > 0 && "bg-amber-50/30")}>
                                       <TableCell className="font-medium">
                                           {item.nombre}
                                           <p className="text-[10px] text-muted-foreground font-normal italic">Ref: {item.origen}</p>
                                       </TableCell>
-                                      <TableCell className="text-right font-mono">{item.cantidadTotal.toFixed(2)}</TableCell>
+                                      <TableCell className="text-right font-mono">{item.cantidadNecesaria.toFixed(2)}</TableCell>
+                                      <TableCell className="text-right font-mono text-muted-foreground">{item.stockDisponible.toFixed(2)}</TableCell>
+                                      <TableCell className={cn("text-right font-bold", item.cantidadAComprar > 0 ? "text-primary" : "text-green-600")}>
+                                          {item.cantidadAComprar > 0 ? item.cantidadAComprar.toFixed(2) : 'OK'}
+                                      </TableCell>
                                       <TableCell className="text-xs uppercase font-medium">{item.unit}</TableCell>
-                                      <TableCell className="text-right text-xs text-muted-foreground">{formatCurrency(item.costoUnitario)}</TableCell>
-                                      <TableCell className="text-right font-bold text-primary">{formatCurrency(item.costoTotal)}</TableCell>
+                                      <TableCell className="text-right font-bold text-primary">
+                                          {item.cantidadAComprar > 0 ? formatCurrency(item.costoTotalFaltante) : '-'}
+                                      </TableCell>
                                       </TableRow>
                                   ))}
                                   </TableBody>
                                    <TableFooter>
                                     <TableRow className="bg-muted/10">
-                                        <TableCell colSpan={4} className="text-right font-bold text-lg">Total a invertir con {providerName}:</TableCell>
+                                        <TableCell colSpan={5} className="text-right font-bold text-lg">Inversión necesaria con {providerName}:</TableCell>
                                         <TableCell className="text-right font-bold text-lg text-primary">{formatCurrency(total)}</TableCell>
                                     </TableRow>
                                   </TableFooter>
@@ -360,9 +373,9 @@ function ListaDeComprasContent() {
           </CardContent>
           <CardFooter className="border-t mt-8 pt-6 flex justify-end bg-muted/5 p-6">
               <div className="text-right space-y-1">
-                  <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider">Costo Total de Insumos para el Evento</p>
-                  <p className="text-4xl font-bold text-primary">{formatCurrency(totalCost)}</p>
-                  <p className="text-xs text-muted-foreground italic">Cálculo basado en el presupuesto oficial vinculado.</p>
+                  <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider">Inversión Real en Compras para este Evento</p>
+                  <p className="text-4xl font-bold text-primary">{formatCurrency(totalInvestment)}</p>
+                  <p className="text-xs text-muted-foreground italic">Este monto contempla únicamente lo que falta comprar (Precio de Catálogo x Faltante).</p>
               </div>
           </CardFooter>
         </Card>

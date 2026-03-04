@@ -3,6 +3,7 @@
 
 import type { ServicioEmpresa } from '@/types/empresa';
 import { readData, writeData } from '@/lib/data-service';
+import { getMenus, saveMenu } from './menus-catering';
 
 const INSUMOS_FILE = 'insumos.json';
 
@@ -21,6 +22,53 @@ export async function getInsumoById(id: string): Promise<ServicioEmpresa | null>
   return insumos.find(s => s.id === id) || null;
 }
 
+/**
+ * Sincroniza los cambios de un insumo en todos los menús que lo utilizan.
+ */
+async function propagateInsumoChangesToMenus(updatedInsumo: ServicioEmpresa) {
+    const menus = await getMenus();
+    let anyMenuChanged = false;
+
+    const updatedMenus = menus.map(menu => {
+        let menuChanged = false;
+        const updatedItems = menu.items.map(item => {
+            let itemChanged = false;
+            const updatedIngredients = item.ingredients.map(ing => {
+                if (ing.origenId === updatedInsumo.id) {
+                    itemChanged = true;
+                    menuChanged = true;
+                    anyMenuChanged = true;
+                    return {
+                        ...ing,
+                        name: updatedInsumo.nombre,
+                        unit: updatedInsumo.unidad || ing.unit,
+                        costoUnitario: updatedInsumo.valorUnitarioEstimado || 0,
+                        proveedor: updatedInsumo.proveedor || undefined,
+                    };
+                }
+                return ing;
+            });
+
+            if (itemChanged) {
+                return { ...item, ingredients: updatedIngredients };
+            }
+            return item;
+        });
+
+        if (menuChanged) {
+            return { ...menu, items: updatedItems };
+        }
+        return menu;
+    });
+
+    if (anyMenuChanged) {
+        // Guardamos cada menú actualizado. saveMenu ya maneja el guardado del archivo.
+        for (const m of updatedMenus) {
+            await saveMenu(m);
+        }
+    }
+}
+
 export async function saveInsumo(
   itemData: Omit<ServicioEmpresa, 'id'> | ServicioEmpresa
 ): Promise<{ success: boolean; id?: string; servicio?: ServicioEmpresa; error?: string }> {
@@ -31,7 +79,7 @@ export async function saveInsumo(
   const dataWithParsedNumbers: Partial<ServicioEmpresa> = {
     ...itemData,
     tipoItem: itemData.tipoItem || 'Insumo/Ingrediente',
-    valorUnitarioEstimado: itemData.valorUnitarioEstimado !== undefined && !isNaN(Number(itemData.valorUnitarioEstimado)) ? Number(itemData.valorUnitarioEstimado) : 0,
+    valorUnitarioEstimado: itemData.valorUnitarioEstimado !== undefined && !isNaN(Number(itemData.valorUnitarioEstimated)) ? Number(itemData.valorUnitarioEstimado) : (itemData.valorUnitarioEstimado || 0),
     cantidadDisponible: itemData.cantidadDisponible !== undefined && !isNaN(Number(itemData.cantidadDisponible)) ? Number(itemData.cantidadDisponible) : undefined,
     subcategoria: itemData.subcategoria?.trim() || undefined,
     notas: (itemData as any).notas?.trim() || undefined,
@@ -46,7 +94,6 @@ export async function saveInsumo(
     const index = inventario.findIndex(s => s.id === itemId);
     if (index === -1) return { success: false, error: `Insumo con ID ${itemId} no encontrado.` };
     
-    // Check for duplicate name ONLY if the name has changed
     const originalItem = inventario[index];
     if (originalItem.nombre.trim().toLowerCase() !== dataWithParsedNumbers.nombre!.trim().toLowerCase()) {
         const isDuplicate = inventario.some(s => s.id !== itemId && s.nombre.trim().toLowerCase() === dataWithParsedNumbers.nombre!.trim().toLowerCase());
@@ -64,6 +111,10 @@ export async function saveInsumo(
   }
   
   await writeData(INSUMOS_FILE, inventario, (a, b) => (a.categoria || '').localeCompare(b.categoria || '') || (a.nombre || '').localeCompare(b.nombre || ''));
+  
+  // Propagar cambios a los menús si es una actualización
+  await propagateInsumoChangesToMenus(finalItemData as ServicioEmpresa);
+
   return { success: true, id: itemId, servicio: finalItemData as ServicioEmpresa };
 }
 
@@ -102,6 +153,11 @@ export async function adjustAllInsumoCosts(
     });
 
     await writeData(INSUMOS_FILE, updatedInventario, (a, b) => (a.categoria || '').localeCompare(b.categoria || '') || (a.nombre || '').localeCompare(b.nombre || ''));
+
+    // Propagar todos los cambios a los menús
+    for (const insumo of updatedInventario) {
+        await propagateInsumoChangesToMenus(insumo);
+    }
 
     return { success: true };
   } catch (error: any) {
