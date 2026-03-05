@@ -10,10 +10,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, PlusCircle, Trash2, Loader2, AlertTriangle, ListChecks, Clock, Bell, FolderOpen, Save } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Trash2, Loader2, AlertTriangle, ListChecks, Clock, Bell, FolderOpen, Save, RefreshCw, CalendarCheck } from 'lucide-react';
 import Link from 'next/link';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { format as formatDateFn, formatDistanceToNowStrict } from 'date-fns';
+import { format as formatDateFn, formatDistanceToNowStrict, subDays, startOfWeek, addDays, isBefore } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import type { Tarea } from '@/types/fiesta';
@@ -50,9 +50,11 @@ function TareasEventoContent() {
   const router = useRouter();
   const fiestaId = searchParams.get('fiestaId');
 
+  const [fiestaEventDate, setFiestaEventDate] = useState<string | undefined>(undefined);
   const [tareas, setTareas] = useState<Tarea[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [newTaskText, setNewTaskText] = useState('');
@@ -80,6 +82,7 @@ function TareasEventoContent() {
       const fiestaData = await getFiestaById(fiestaId);
       if (!fiestaData) throw new Error("Fiesta no encontrada.");
       setTareas(fiestaData.tareas || []);
+      setFiestaEventDate(fiestaData.configuracion.fechaEvento);
     } catch (err: any) {
       console.error("Error loading tasks:", err);
       setError("No se pudieron cargar las tareas.");
@@ -112,7 +115,7 @@ function TareasEventoContent() {
   };
 
   const handleOpenSaveTemplateModal = () => {
-    setTemplateName(''); // Reset name
+    setTemplateName(''); 
     setIsSaveTemplateModalOpen(true);
   };
   
@@ -141,7 +144,7 @@ function TareasEventoContent() {
     }));
     const updatedTareas = [...tareas, ...newTasksFromTemplate];
     setTareas(updatedTareas);
-    await handleSaveChanges(updatedTareas); // Save immediately
+    await handleSaveChanges(updatedTareas);
     toast({title: "Plantilla de Tareas Cargada", description: `Se añadieron ${newTasksFromTemplate.length} tareas.`});
     setIsLoadTemplateModalOpen(false);
   };
@@ -176,6 +179,98 @@ function TareasEventoContent() {
     }
   };
 
+  const handleSyncSystemTasks = async () => {
+    if (!fiestaId || !fiestaEventDate) {
+        toast({ title: "Sin fecha de evento", description: "Configura primero la fecha del evento para sincronizar tareas.", variant: "destructive" });
+        return;
+    }
+
+    setIsSyncing(true);
+    const eventDate = new Date(fiestaEventDate);
+    
+    // 1. Lunes antes de la fiesta (Compras)
+    // Si la fiesta es lunes o martes, usamos el lunes de la semana anterior. 
+    // Si es miércoles a domingo, usamos el lunes de esa misma semana.
+    let mondayForCatering = startOfWeek(eventDate, { weekStartsOn: 1 });
+    if (eventDate.getDay() === 1 || eventDate.getDay() === 2) {
+        mondayForCatering = subDays(mondayForCatering, 7);
+    }
+
+    const systemTasks: Omit<Tarea, 'id'>[] = [
+        {
+            texto: "Comprar insumos de catering y bebidas",
+            descripcion: "Ir al mercado/proveedores para comprar todo lo necesario para el menú.",
+            completada: false,
+            fechaLimite: mondayForCatering.toISOString(),
+            asignadaA: 'Organizador',
+            esPredeterminada: true
+        },
+        {
+            texto: "Enviar recordatorio y confirmar personal",
+            descripcion: "Avisar por WhatsApp a mozos, barmen y auxiliares.",
+            completada: false,
+            fechaLimite: subDays(eventDate, 3).toISOString(),
+            asignadaA: 'Organizador',
+            esPredeterminada: true
+        },
+        {
+            texto: "Carga de fotos para Video de Vida",
+            descripcion: "Solicitar al cliente que complete la subida de fotos en su portal.",
+            completada: false,
+            fechaLimite: subDays(eventDate, 15).toISOString(),
+            asignadaA: 'Cliente',
+            esPredeterminada: true
+        },
+        {
+            texto: "Reunión final de coordinación",
+            descripcion: "Repasar itinerario y detalles de último momento con el cliente.",
+            completada: false,
+            fechaLimite: subDays(eventDate, 7).toISOString(),
+            asignadaA: 'Organizador',
+            esPredeterminada: true
+        },
+        {
+            texto: "Revisión de lista de carga y camión",
+            descripcion: "Controlar que todo el mobiliario y equipos estén listos.",
+            completada: false,
+            fechaLimite: subDays(eventDate, 1).toISOString(),
+            asignadaA: 'Organizador',
+            esPredeterminada: true
+        },
+        {
+            texto: "Check-in final del salón y montaje",
+            descripcion: "Llegada al salón para supervisar el armado inicial.",
+            completada: false,
+            fechaLimite: eventDate.toISOString(),
+            asignadaA: 'Organizador',
+            esPredeterminada: true
+        }
+    ];
+
+    const currentTasks = [...tareas];
+    let addedCount = 0;
+
+    systemTasks.forEach(sysTask => {
+        if (!currentTasks.some(t => t.texto === sysTask.texto)) {
+            currentTasks.push({
+                ...sysTask,
+                id: `sys_task_${Date.now()}_${Math.random().toString(36).substring(7)}`
+            } as Tarea);
+            addedCount++;
+        }
+    });
+
+    if (addedCount > 0) {
+        setTareas(currentTasks);
+        await handleSaveChanges(currentTasks);
+        toast({ title: "Sincronización Exitosa", description: `Se han añadido ${addedCount} tareas operativas basadas en la fecha del evento.` });
+    } else {
+        toast({ title: "Al día", description: "Las tareas automáticas ya están en tu lista." });
+    }
+    
+    setIsSyncing(false);
+  };
+
   const handleAddTask = async (e: FormEvent) => {
     e.preventDefault();
     if (!newTaskText.trim() || !fiestaId) {
@@ -195,14 +290,11 @@ function TareasEventoContent() {
     };
     
     setIsSaving(true);
-    
     const result = await addTareaToFiestaActual(fiestaId, newTaskData);
 
     if (result.success && result.tarea) {
         setTareas(prev => [result.tarea!, ...prev]);
         toast({ title: "Tarea Añadida" });
-        
-        // Reset form
         setNewTaskText('');
         setNewTaskDescription('');
         setNewTaskDueDate(undefined);
@@ -213,7 +305,6 @@ function TareasEventoContent() {
     } else {
         toast({ title: "Error", description: result.error, variant: 'destructive' });
     }
-
     setIsSaving(false);
   };
 
@@ -273,9 +364,9 @@ function TareasEventoContent() {
 
     if (upcomingTasks.length > 0) {
       const nextTask = upcomingTasks[0];
-      return `Próxima tarea: "${nextTask.texto.substring(0,25)}..." vence ${formatDistanceToNowStrict(nextTask.dueDateTime, { locale: es, addSuffix: true })}`;
+      return `Próxima: "${nextTask.texto.substring(0,20)}..." vence ${formatDistanceToNowStrict(nextTask.dueDateTime, { locale: es, addSuffix: true })}`;
     }
-    return "No hay tareas pendientes con fecha límite próxima.";
+    return "No hay vencimientos próximos.";
   };
 
   const completedCount = tareas.filter(task => task.completada).length;
@@ -314,94 +405,105 @@ function TareasEventoContent() {
         </DialogContent>
       </Dialog>
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <ListChecks className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline">Gestión de Tareas del Evento</h1>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">Tareas del Evento</h1>
         </div>
-        <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver al Planificador</Button></Link>
+        <div className="flex gap-2 flex-wrap">
+            <Button onClick={handleSyncSystemTasks} disabled={isSyncing || isSaving} variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 border-primary/20">
+                {isSyncing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+                Sincronizar Tareas del Sistema
+            </Button>
+            <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
+        </div>
       </div>
 
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline text-xl">Añadir Nueva Tarea</CardTitle>
-          <CardDescription>El sistema creará notificaciones automáticas para tareas con fecha límite próxima.</CardDescription>
+          <CardDescription>Crea tareas personalizadas para este evento específico.</CardDescription>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleAddTask} className="space-y-4">
+        <form onSubmit={handleAddTask}>
+          <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="task-text">Título de la Tarea</Label>
-              <Input id="task-text" value={newTaskText} onChange={(e) => setNewTaskText(e.target.value)} placeholder="Ej: Confirmar lista de música con DJ" required disabled={isSaving} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="task-description">Descripción (Opcional)</Label>
-              <Textarea id="task-description" value={newTaskDescription} onChange={(e) => setNewTaskDescription(e.target.value)} placeholder="Detalles adicionales sobre la tarea..." rows={2} disabled={isSaving} />
+              <Input id="task-text" value={newTaskText} onChange={(e) => setNewTaskText(e.target.value)} placeholder="Ej: Confirmar DJ" required disabled={isSaving} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="task-duedate">Fecha Límite (Opcional)</Label>
+                <Label htmlFor="task-duedate">Fecha Límite</Label>
                 <DatePickerDemo selectedDate={newTaskDueDate} onDateChange={(date) => setNewTaskDueDate(date)} className={isSaving ? "disabled:opacity-70" : ""} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="task-duetime">Hora Límite (Opcional)</Label>
-                <Input id="task-duetime" type="time" value={newTaskDueTime} onChange={(e) => setNewTaskDueTime(e.target.value)} disabled={isSaving || !newTaskDueDate} />
+                <Label htmlFor="task-assigned">Asignada A</Label>
+                <Select value={newTaskAssignedTo} onValueChange={setNewTaskAssignedTo} disabled={isSaving}>
+                    <SelectTrigger id="task-assigned"><SelectValue placeholder="Seleccionar..."/></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="Organizador">Organizador (Yo)</SelectItem>
+                        <SelectItem value="Cliente">Cliente (Portal)</SelectItem>
+                    </SelectContent>
+                </Select>
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="task-reminder">Recordatorio (Opcional)</Label>
-                <Input id="task-reminder" value={newTaskReminder} onChange={(e) => setNewTaskReminder(e.target.value)} placeholder="Ej: 1 día antes, 2h antes" disabled={isSaving} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="task-assigned">Asignar a (Opcional)</Label>
-                <Input id="task-assigned" value={newTaskAssignedTo} onChange={(e) => setNewTaskAssignedTo(e.target.value)} placeholder="Ej: Juan Pérez, Equipo Decoración" disabled={isSaving} />
-              </div>
-            </div>
-            <Button type="submit" className="w-full sm:w-auto" disabled={isSaving}>
-              {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}<PlusCircle className="w-4 h-4 mr-2" />Añadir Tarea
+          </CardContent>
+          <CardFooter className="border-t pt-4">
+            <Button type="submit" disabled={isSaving}>
+              {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <PlusCircle className="w-4 h-4 mr-2" />}
+              Añadir Tarea
             </Button>
-          </form>
-        </CardContent>
+          </CardFooter>
+        </form>
       </Card>
       
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle className="font-headline text-xl">Lista de Tareas ({completedCount}/{totalCount} completadas)</CardTitle>
-          <Progress value={progressPercentage} className="mt-2 h-3" />
-          <CardDescription className="mt-2 text-sm text-muted-foreground">
-            {totalCount === 0 ? "Aún no has añadido ninguna tarea." : `${progressPercentage.toFixed(0)}% completado. ${getNextDueTaskInfo()}`}
-          </CardDescription>
+          <div className="flex justify-between items-center mb-2">
+            <CardTitle className="font-headline text-xl flex items-center gap-2">
+                <CalendarCheck className="w-5 h-5 text-primary"/> Lista de Tareas ({completedCount}/{totalCount})
+            </CardTitle>
+            <div className="flex items-center gap-2">
+                {isSaving && <Loader2 className="w-4 h-4 animate-spin text-primary"/>}
+                <Button variant="ghost" size="sm" onClick={handleOpenLoadTemplateModal} className="h-8"><FolderOpen className="w-4 h-4 mr-1.5"/>Cargar</Button>
+                <Button variant="ghost" size="sm" onClick={handleOpenSaveTemplateModal} className="h-8"><Save className="w-4 h-4 mr-1.5"/>Guardar</Button>
+            </div>
+          </div>
+          <Progress value={progressPercentage} className="h-2" />
+          <p className="mt-2 text-xs text-muted-foreground font-medium uppercase tracking-wider">{getNextDueTaskInfo()}</p>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-wrap gap-2 mb-4">
-            <Button onClick={handleOpenLoadTemplateModal} variant="secondary"><FolderOpen className="w-4 h-4 mr-2"/>Cargar Tareas desde Plantilla</Button>
-            <Button onClick={handleOpenSaveTemplateModal} variant="secondary"><Save className="w-4 h-4 mr-2"/>Guardar Lista como Plantilla</Button>
-            <Link href="/settings/task-templates" passHref>
-              <Button variant="outline">Gestionar Plantillas</Button>
-            </Link>
-          </div>
           {tareas.length > 0 ? (
-            <ScrollArea className="h-[400px] pr-3">
+            <ScrollArea className="h-auto max-h-[500px] pr-3">
               <ul className="space-y-3">
                 {tareas.map((task) => (
-                  <li key={task.id} className="flex items-start gap-3 p-3 border rounded-md hover:bg-muted/50 transition-colors">
-                    <Checkbox id={`task-${task.id}`} checked={task.completada} onCheckedChange={() => toggleTaskCompletion(task.id)} className="mt-1 flex-shrink-0" aria-label={`Marcar tarea ${task.texto}`} disabled={isSaving} />
-                    <div className="flex-grow">
-                      <Label htmlFor={`task-${task.id}`} className={`font-medium cursor-pointer ${task.completada ? 'line-through text-muted-foreground' : 'text-foreground'}`}>{task.texto}</Label>
-                      {task.descripcion && <p className={`text-xs ${task.completada ? 'text-muted-foreground/70' : 'text-muted-foreground'}`}>{task.descripcion}</p>}
-                      <div className="text-xs text-muted-foreground space-x-2 mt-1">
-                        {(task.fechaLimite || task.horaVencimiento) && (<span className="bg-muted px-1.5 py-0.5 rounded-sm inline-flex items-center gap-1"><Clock className="w-3 h-3"/> {formatDateDisplay(task.fechaLimite, task.horaVencimiento) || 'Sin fecha/hora'}</span>)}
-                        {task.asignadaA && (<span className="bg-muted px-1.5 py-0.5 rounded-sm">Para: {task.asignadaA}</span>)}
-                        {task.recordatorio && (<span className="bg-muted px-1.5 py-0.5 rounded-sm inline-flex items-center gap-1"><Bell className="w-3 h-3"/> {task.recordatorio}</span>)}
+                  <li key={task.id} className={cn(
+                      "flex items-start gap-3 p-3 border rounded-md transition-all",
+                      task.completada ? "bg-muted/30 opacity-70" : "bg-card hover:shadow-sm"
+                  )}>
+                    <Checkbox id={`task-${task.id}`} checked={task.completada} onCheckedChange={() => toggleTaskCompletion(task.id)} className="mt-1 flex-shrink-0" disabled={isSaving} />
+                    <div className="flex-grow min-w-0">
+                      <Label htmlFor={`task-${task.id}`} className={cn("font-semibold cursor-pointer block truncate", task.completada && "line-through text-muted-foreground")}>{task.texto}</Label>
+                      {task.descripcion && <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{task.descripcion}</p>}
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {(task.fechaLimite || task.horaVencimiento) && (
+                            <Badge variant="outline" className={cn("text-[10px] py-0 h-5 font-normal", !task.completada && isBefore(new Date(task.fechaLimite!), new Date()) && "border-destructive text-destructive")}>
+                                <Clock className="w-3 h-3 mr-1"/> {formatDateDisplay(task.fechaLimite, task.horaVencimiento)}
+                            </Badge>
+                        )}
+                        {task.asignadaA && (
+                            <Badge variant="secondary" className="text-[10px] py-0 h-5 font-normal bg-primary/5 text-primary border-primary/10">
+                                <User icon={task.asignadaA === 'Cliente' ? 'User' : 'UserCheck'} className="w-3 h-3 mr-1"/> {task.asignadaA}
+                            </Badge>
+                        )}
                       </div>
                     </div>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive flex-shrink-0 h-8 w-8" aria-label={`Eliminar tarea ${task.texto}`} disabled={isSaving}><Trash2 className="w-4 h-4" /></Button>
+                        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive h-8 w-8" disabled={isSaving}><Trash2 className="w-4 h-4" /></Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
-                        <AlertDialogHeader><AlertDialogTitle>¿Confirmas la eliminación?</AlertDialogTitle><AlertDialogDescription>Esta acción no se puede deshacer. La tarea "{task.texto}" será eliminada permanentemente.</AlertDialogDescription></AlertDialogHeader>
-                        <AlertDialogFooter><AlertDialogCancel disabled={isSaving}>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => deleteTask(task.id)} disabled={isSaving} className="bg-destructive hover:bg-destructive/90">Sí, eliminar</AlertDialogAction></AlertDialogFooter>
+                        <AlertDialogHeader><AlertDialogTitle>¿Eliminar tarea?</AlertDialogTitle><AlertDialogDescription>"{task.texto}" será borrada permanentemente.</AlertDialogDescription></AlertDialogHeader>
+                        <AlertDialogFooter><AlertDialogCancel disabled={isSaving}>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => deleteTask(task.id)} disabled={isSaving} className="bg-destructive hover:bg-destructive/90">Eliminar</AlertDialogAction></AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>
                   </li>
@@ -409,12 +511,20 @@ function TareasEventoContent() {
               </ul>
             </ScrollArea>
           ) : (
-            <div className="text-center py-8 bg-muted/30 rounded-md"><ListChecks className="w-12 h-12 mx-auto text-muted-foreground/40 mb-3" /><p className="text-muted-foreground">Comienza añadiendo tu primera tarea para el evento.</p></div>
+            <div className="text-center py-12 bg-muted/20 rounded-lg border-2 border-dashed">
+                <ListChecks className="w-12 h-12 mx-auto text-muted-foreground/30 mb-3" />
+                <p className="text-muted-foreground">Tu lista está vacía. Usa el botón superior para sincronizar las tareas operativas estándar.</p>
+            </div>
           )}
         </CardContent>
       </Card>
     </div>
   );
+}
+
+const User = ({ icon, className }: { icon: string, className?: string }) => {
+    if(icon === 'User') return <Users className={className}/>;
+    return <UserCheck className={className}/>;
 }
 
 export default function TareasClientPage() {
