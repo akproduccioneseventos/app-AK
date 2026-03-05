@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -8,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Save, Loader2, Film, PlusCircle, Trash2, Camera, RefreshCw, Clock, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, Film, PlusCircle, Trash2, Camera, RefreshCw, Clock, CheckCircle2, Edit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateFotografiaYFilmacionFiestaActual as updateFotografia } from '@/app/actions/fiesta-actual';
 import type { FotografiaYFilmacionData, ServicioFotografia, EntregaMaterialEstado } from '@/types/fiesta';
@@ -209,7 +208,7 @@ function FotografiaContent() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                     <Film className="w-8 h-8 text-primary" />
-                    <h1 className="text-3xl font-bold tracking-tight font-headline">Seguimiento de Fotografía y Video</h1>
+                    <h1 className="text-3xl font-bold tracking-tight font-headline">Check-in de Invitados</h1>
                 </div>
                 <div className="flex gap-2">
                     <Button variant="ghost" size="sm" onClick={() => loadData(true)} title="Actualizar desde presupuesto">
