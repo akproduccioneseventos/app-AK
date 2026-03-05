@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save, Loader2, AlertTriangle, BarChart3, PlusCircle, Trash2, DollarSign, ShoppingCart, HardHat, ChefHat, Printer, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, BarChart3, PlusCircle, Trash2, DollarSign, ShoppingCart, HardHat, ChefHat, Printer, RefreshCw, Truck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, GestionCostosData, CostoItem, CostoCategoria } from '@/types/fiesta';
 import { getFiestaById, updateGestionCostosFiestaActual } from '@/app/actions/fiesta-actual';
@@ -21,6 +21,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useSearchParams } from 'next/navigation';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getRoles } from '@/app/actions/roles';
+import type { Rol } from '@/types/rol';
 
 const COST_CATEGORIES: CostoCategoria[] = [
   'Servicio Proveedor',
@@ -82,20 +83,93 @@ function GestionCostosRentabilidadContent() {
       setFiestaActual(fiesta);
       setAllRoles(rolesData);
       
-      let currentGestionCostos = fiesta.gestionCostos || defaultGestionCostos;
+      let currentGestionCostos = fiesta.gestionCostos || { ...defaultGestionCostos };
+      const invitados = (Number(fiesta.configuracion.invitadosEstimados) || 0);
 
-      if (currentGestionCostos.ingresosTotalesEstimados === 0 && fiesta.presupuestoId) {
-          const budget = await getPresupuestoById(fiesta.presupuestoId);
-          if (budget) {
-              currentGestionCostos = {
-                  ...currentGestionCostos,
-                  ingresosTotalesEstimados: budget.totalConDescuento ?? budget.costoTotalEstimado
-              };
+      // --- LOGICA DE SINCRONIZACIÓN AUTOMÁTICA ---
+      if (fiesta.presupuestoId) {
+          const presupuesto = await getPresupuestoById(fiesta.presupuestoId);
+          if (presupuesto) {
+              // 1. Sincronizar Ingresos
+              if (currentGestionCostos.ingresosTotalesEstimados === 0) {
+                  currentGestionCostos.ingresosTotalesEstimados = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
+              }
+
+              const manualCosts = [...(currentGestionCostos.costosItems || [])];
+              let modified = false;
+
+              // 2. Regla Flete de Camión ($2400 si no es Club Uruguay)
+              const lugar = (fiesta.configuracion.nombreLugar || '').toLowerCase();
+              if (!lugar.includes('club uruguay') && lugar.trim() !== '') {
+                  if (!manualCosts.some(c => c.nombre.toLowerCase().includes('flete'))) {
+                      manualCosts.push({
+                          id: 'auto_flete',
+                          nombre: 'Flete de Camión (Fuera de Sede)',
+                          category: 'Servicio Proveedor',
+                          montoEstimado: 2400,
+                          notas: 'Carga automática por salón fuera de Club Uruguay'
+                      });
+                      modified = true;
+                  }
+              }
+
+              // 3. Regla Fotocabina y Plataforma 360 ($1500 cada una)
+              const budgetItems = presupuesto.itemsPresupuestados;
+              const hasFotocabina = budgetItems.some(i => i.nombreServicio.toLowerCase().includes('fotocabina'));
+              const hasPlataforma = budgetItems.some(i => i.nombreServicio.toLowerCase().includes('plataforma 360'));
+
+              if (hasFotocabina && !manualCosts.some(c => c.id === 'auto_sub_fotocabina')) {
+                  manualCosts.push({
+                      id: 'auto_sub_fotocabina',
+                      nombre: 'Subcontratación: Fotocabina',
+                      category: 'Servicio Proveedor',
+                      montoEstimado: 1500,
+                      notas: 'Costo de subcontratación (independiente de si es regalo o no)'
+                  });
+                  modified = true;
+              }
+
+              if (hasPlataforma && !manualCosts.some(c => c.id === 'auto_sub_plataforma')) {
+                  manualCosts.push({
+                      id: 'auto_sub_plataforma',
+                      nombre: 'Subcontratación: Plataforma 360',
+                      category: 'Servicio Proveedor',
+                      montoEstimado: 1500,
+                      notas: 'Costo de subcontratación (independiente de si es regalo o no)'
+                  });
+                  modified = true;
+              }
+
+              // 4. Regla Costo Torta ($60 por persona)
+              const hasTorta = budgetItems.some(i => i.nombreServicio.toLowerCase().includes('torta'));
+              if (hasTorta) {
+                  const costoTorta = invitados * 60;
+                  const existingTorta = manualCosts.find(c => c.id === 'auto_costo_torta');
+                  if (!existingTorta) {
+                      manualCosts.push({
+                          id: 'auto_costo_torta',
+                          nombre: 'Costo Torta (Insumos/Subcont.)',
+                          category: 'Servicio Proveedor',
+                          montoEstimado: costoTorta,
+                          notas: `Cálculo automático: $60 x ${invitados} invitados`
+                      });
+                      modified = true;
+                  } else if (existingTorta.montoEstimado !== costoTorta) {
+                      // Solo actualizamos si el usuario no lo cambió manualmente? 
+                      // Por ahora, lo mantenemos dinámico si cambia el nro de invitados
+                      existingTorta.montoEstimado = costoTorta;
+                      existingTorta.notas = `Cálculo automático actualizado: $60 x ${invitados} invitados`;
+                      modified = true;
+                  }
+              }
+
+              if (modified) {
+                  currentGestionCostos.costosItems = manualCosts;
+              }
           }
       }
 
       setGestionCostos(currentGestionCostos);
-      const invitados = Number(fiesta.configuracion.invitadosEstimados) || 0;
 
       if (fiesta.menuAsignadoId) {
         const menuData = await getMenuById(fiesta.menuAsignadoId);
@@ -258,7 +332,7 @@ function GestionCostosRentabilidadContent() {
       <Accordion type="multiple" defaultValue={['costos-manuales', 'costos-modulos']} className="w-full space-y-4">
         <AccordionItem value="costos-manuales" className="border rounded-lg shadow-md bg-card">
           <AccordionTrigger className="px-4 py-3 hover:no-underline text-lg font-medium text-primary hover:bg-muted/50 rounded-t-lg">
-            <div className="flex items-center gap-2"><HardHat className="w-5 h-5 text-primary/80"/>Costos Directos Manuales</div>
+            <div className="flex items-center gap-2"><HardHat className="w-5 h-5 text-primary/80"/>Costos Directos Manuales y Subcontrataciones</div>
           </AccordionTrigger>
           <AccordionContent className="p-4 border-t space-y-4">
             <form onSubmit={handleAddCostoItem} className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end p-3 border rounded-md bg-muted/30">
@@ -269,10 +343,16 @@ function GestionCostosRentabilidadContent() {
               <Button type="submit" className="md:col-span-2" disabled={isSaving}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Gasto Directo</Button>
             </form>
             {(gestionCostos.costosItems && gestionCostos.costosItems.length > 0) ? (
-              <ScrollArea className="h-auto max-h-[300px] pr-2 mt-3"><ul className="space-y-2">
+              <ScrollArea className="h-auto max-h-[400px] pr-2 mt-3"><ul className="space-y-2">
                 {gestionCostos.costosItems.map(item => (
                   <li key={item.id} className="flex justify-between items-center p-2 border rounded bg-card hover:bg-muted/10">
-                    <div><p className="font-medium text-sm">{item.nombre} <span className="text-xs text-muted-foreground">({item.category})</span></p>{item.notas && <p className="text-xs italic text-muted-foreground">{item.notas}</p>}</div>
+                    <div>
+                        <p className="font-medium text-sm flex items-center gap-2">
+                            {item.id.startsWith('auto_') ? <RefreshCw className="w-3 h-3 text-blue-500" title="Generado automáticamente"/> : null}
+                            {item.nombre} <span className="text-xs text-muted-foreground">({item.category})</span>
+                        </p>
+                        {item.notas && <p className="text-xs italic text-muted-foreground">{item.notas}</p>}
+                    </div>
                     <div className="flex items-center gap-2"><span className="font-semibold text-sm">{formatCurrency(item.montoEstimado)}</span><Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteCostoItem(item.id)}><Trash2 className="w-4 h-4"/></Button></div>
                   </li>
                 ))}
@@ -283,10 +363,12 @@ function GestionCostosRentabilidadContent() {
 
         <AccordionItem value="costos-modulos" className="border rounded-lg shadow-md bg-card">
             <AccordionTrigger className="px-4 py-3 hover:no-underline text-lg font-medium text-primary hover:bg-muted/50 rounded-t-lg">
-                <div className="flex items-center gap-2"><DollarSign className="w-5 h-5 text-primary/80"/>Costos Calculados Automáticamente</div>
+                <div className="flex items-center gap-2"><DollarSign className="w-5 h-5 text-primary/80"/>Costos Calculados por el Sistema</div>
             </AccordionTrigger>
             <AccordionContent className="p-4 border-t space-y-3">
-                 <div className="flex justify-between items-center p-2 border-b text-sm"><span>Catering, Bebidas y Repostería (Gastronomía):</span><span className="font-semibold">{formatCurrency(costoTotalMenu + costoTotalReposteria + costoTotalBebidas)}</span></div>
+                 <div className="flex justify-between items-center p-2 border-b text-sm"><span>Catering (Menú asignado):</span><span className="font-semibold">{formatCurrency(costoTotalMenu)}</span></div>
+                 <div className="flex justify-between items-center p-2 border-b text-sm"><span>Repostería (Tortas y postres activos):</span><span className="font-semibold">{formatCurrency(costoTotalReposteria)}</span></div>
+                 <div className="flex justify-between items-center p-2 border-b text-sm"><span>Bebidas (Insumos y barra):</span><span className="font-semibold">{formatCurrency(costoTotalBebidas)}</span></div>
                  <div className="flex justify-between items-center p-2 border-b text-sm"><span>Personal Asignado (incl. Aportes):</span><span className="font-semibold">{formatCurrency(personalCost)}</span></div>
                  <div className="flex justify-between items-center p-2 border-b text-sm"><span>Decoración y Ambientación:</span><span className="font-semibold">{formatCurrency((fiestaActual?.decoracion?.items || []).reduce((s, i) => s + (i.estimatedCost || 0), 0))}</span></div>
                  <p className="text-xs text-muted-foreground italic">Estos valores se actualizan según lo que configures en cada sección del planificador.</p>
