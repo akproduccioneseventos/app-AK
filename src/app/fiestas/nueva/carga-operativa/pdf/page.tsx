@@ -4,18 +4,20 @@
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Printer as PrinterIcon, PackageSearch, Share2, KeyRound, AlertTriangle, Info, Loader2 } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, PackageSearch, Share2, KeyRound, AlertTriangle, Info, Loader2, Save, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, ListaDeCargaOperativa, CargaOperativaCategoria } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ListaDeCargaOperativa, CargaOperativaCategoria, CargaOperativaItem } from '@/types/fiesta';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getActivosFijos } from '@/app/actions/activos-fijos';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
-import { getCargaOperativaMasterTemplate } from '@/app/actions/fiesta/carga-operativa.actions';
+import { getCargaOperativaMasterTemplate, updateListaDeCargaOperativa } from '@/app/actions/fiesta/carga-operativa.actions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { WatermarkedImage } from '@/components/watermarked-image';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
+import { Checkbox } from '@/components/ui/checkbox';
+import { cn } from '@/lib/utils';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no definida";
@@ -34,6 +36,7 @@ function CargaOperativaPdfContent() {
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [listaDeCarga, setListaDeCarga] = useState<ListaDeCargaOperativa | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isUpdating, setIsUpdating] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
@@ -60,7 +63,6 @@ function CargaOperativaPdfContent() {
 
       let loadedLista = fiestaData.listaDeCargaOperativa;
       
-      // Lógica de auto-población idéntica a la pantalla de edición para que el PDF no salga vacío
       const hasNoData = !loadedLista || !loadedLista.categorias || loadedLista.categorias.length === 0;
       
       if (hasNoData) {
@@ -123,11 +125,42 @@ function CargaOperativaPdfContent() {
     } finally {
       setIsLoading(false);
     }
-  }, [fiestaId]);
+  }, [fiestaId, toast]);
 
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  const handleToggleItem = async (categoryId: string, itemId: string) => {
+    if (!fiestaId || !listaDeCarga) return;
+    
+    setIsUpdating(itemId);
+    
+    const updatedCategorias = listaDeCarga.categorias.map(cat => {
+        if (cat.id === categoryId) {
+            return {
+                ...cat,
+                items: cat.items.map(item => 
+                    item.id === itemId ? { ...item, cargado: !item.cargado } : item
+                )
+            };
+        }
+        return cat;
+    });
+    
+    const updatedLista = { ...listaDeCarga, categorias: updatedCategorias };
+    setListaDeCarga(updatedLista);
+
+    try {
+        const result = await updateListaDeCargaOperativa(fiestaId, updatedLista);
+        if (!result.success) throw new Error(result.error);
+    } catch (e: any) {
+        toast({ title: "Error al actualizar", description: e.message, variant: "destructive" });
+        loadData(); // Revert on error
+    } finally {
+        setIsUpdating(null);
+    }
+  };
   
   const handlePrint = () => {
     window.print();
@@ -186,7 +219,7 @@ function CargaOperativaPdfContent() {
             </CardHeader>
             <CardContent className="py-0 px-4 pb-3">
                 <p className="text-xs text-blue-700 mb-3">
-                    Puedes crear un enlace de <strong>Acceso Personal</strong> para que el equipo pueda marcar los ítems desde su celular en tiempo real.
+                    Puedes crear un enlace de <strong>Acceso Personal</strong> para que el equipo pueda marcar los ítems desde su celular en tiempo real mientras cargan el camión.
                 </p>
                 <Link href="/settings/accesos-personal" passHref>
                     <Button size="sm" variant="outline" className="bg-white border-blue-300 text-blue-700 hover:bg-blue-100">
@@ -221,8 +254,8 @@ function CargaOperativaPdfContent() {
             {(listaDeCarga.categorias || []).length === 0 ? (
                 <div className="text-center py-10 text-muted-foreground border-2 border-dashed rounded-lg">
                     <Info className="w-10 h-10 mx-auto mb-2 opacity-50"/>
-                    <p className="font-medium">No se han definido ítems en la lista de carga para este evento.</p>
-                    <p className="text-xs">Asegúrate de sincronizar la lista con el presupuesto en la pantalla anterior.</p>
+                    <p className="font-medium">No hay una lista de carga generada aún.</p>
+                    <p className="text-xs">Sincroniza con el presupuesto en la pantalla de edición para generar la lista.</p>
                 </div>
             ) : (
                 <div className="space-y-6 print:space-y-4">
@@ -233,11 +266,29 @@ function CargaOperativaPdfContent() {
                         </h2>
                         <div className="grid grid-cols-1 gap-1.5 print:gap-1">
                             {categoria.items.map(item => (
-                            <div key={item.id} className="flex items-start gap-3 p-2 border border-gray-100 rounded bg-gray-50/30 print:p-1 print:border-gray-200 print:bg-transparent">
-                                <div className="w-6 h-6 border-2 border-gray-400 rounded-md flex-shrink-0 mt-0.5 print:w-5 print:h-5 print:border-gray-600 bg-white"></div>
-                                <div className="flex-grow">
+                            <div key={item.id} className={cn(
+                                "flex items-start gap-3 p-2 border border-gray-100 rounded transition-colors print:p-1 print:border-gray-200",
+                                item.cargado ? "bg-green-50/50" : "bg-gray-50/30 print:bg-transparent"
+                            )}>
+                                <div className="relative flex-shrink-0 mt-0.5">
+                                    <Checkbox 
+                                        checked={item.cargado}
+                                        onCheckedChange={() => handleToggleItem(categoria.id, item.id)}
+                                        className="w-6 h-6 border-2 border-gray-400 rounded-md print:w-5 print:h-5 print:border-gray-600 bg-white"
+                                        disabled={isUpdating === item.id}
+                                    />
+                                    {isUpdating === item.id && (
+                                        <div className="absolute inset-0 flex items-center justify-center bg-white/50">
+                                            <Loader2 className="w-3 h-3 animate-spin text-primary"/>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="flex-grow cursor-pointer" onClick={() => handleToggleItem(categoria.id, item.id)}>
                                 <div className="flex justify-between items-baseline">
-                                    <p className="text-sm font-bold text-gray-800 print:text-xs">
+                                    <p className={cn(
+                                        "text-sm font-bold print:text-xs",
+                                        item.cargado ? "text-green-700 line-through opacity-70" : "text-gray-800"
+                                    )}>
                                         {item.nombre}
                                     </p>
                                     <span className="text-sm font-black text-primary print:text-xs bg-primary/5 px-2 rounded print:bg-transparent">
