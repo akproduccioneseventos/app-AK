@@ -12,14 +12,15 @@ import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
 const MODULO_DETAILS: Record<ModuloPermiso, { label: string; href: string; icon: React.ElementType }> = {
-  'musica': { label: 'Preferencias Musicales', href: '/fiestas/nueva/musica', icon: Music2 },
-  'itinerario': { label: 'Itinerario del Evento', href: '/fiestas/nueva/itinerario', icon: Clock },
-  'carga-operativa': { label: 'Lista de Carga Operativa', href: '/fiestas/nueva/carga-operativa', icon: PackageSearch },
+  'musica': { label: 'Preferencias Musicales', href: '/fiestas/nueva/musica/pdf', icon: Music2 },
+  'itinerario': { label: 'Itinerario del Evento', href: '/fiestas/nueva/itinerario/pdf', icon: Clock },
+  'carga-operativa': { label: 'Lista de Carga Operativa', href: '/fiestas/nueva/carga-operativa/pdf', icon: PackageSearch },
   'decoracion': { label: 'Plan de Decoración', href: '/fiestas/nueva/decoracion/pdf', icon: Palette },
   'crm': { label: 'Gestión de Prospectos (CRM)', href: '/contabilidad/crm', icon: KanbanSquare },
 };
 
-export default function PortalPersonalPage({ params }: { params: { tokenId: string } }) {
+export default function PortalPersonalPage({ params: paramsProp }: { params: { tokenId: string } }) {
+  const params = use(paramsProp);
   const { toast } = useToast();
   const [acceso, setAcceso] = useState<AccesoPersonal | null>(null);
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
@@ -36,11 +37,9 @@ export default function PortalPersonalPage({ params }: { params: { tokenId: stri
       }
       
       // If the access is event-specific, load the event data.
-      // If it's general (like for CRM), fiestaId will be undefined and this will be skipped.
       if (fetchedAcceso.fiestaId) {
         const fiestaData = await getFiestaById(fetchedAcceso.fiestaId);
         if(!fiestaData) {
-            // This is a valid error for event-specific links if the event is gone.
             throw new Error("Este enlace de acceso es para un evento que ya no se ha encontrado.");
         }
         setFiesta(fiestaData);
@@ -104,7 +103,6 @@ export default function PortalPersonalPage({ params }: { params: { tokenId: stri
                         const Icon = modulo.icon;
                         const isEventSpecific = ['musica', 'itinerario', 'carga-operativa', 'decoracion'].includes(permisoId);
                         
-                        // If it's an event-specific module but this link is general (no fiesta), don't show it.
                         if (isEventSpecific && !fiesta) return null;
 
                         const linkHref = isEventSpecific ? `${modulo.href}?fiestaId=${fiesta!.id}` : modulo.href;

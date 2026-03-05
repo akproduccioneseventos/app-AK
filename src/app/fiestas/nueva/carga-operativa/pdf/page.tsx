@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ArrowLeft, Printer as PrinterIcon, PackageSearch, Share2, KeyRound, AlertTriangle, Info, Loader2, Save, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -169,7 +169,7 @@ function CargaOperativaPdfContent() {
   const handleShare = async () => {
     const shareData = {
       title: `Lista de Carga - ${fiesta?.configuracion.nombreEvento}`,
-      text: `Aquí tienes la lista de carga operativa para el evento.`,
+      text: `Aquí tienes la lista de carga interactiva para el equipo.`,
       url: window.location.href,
     };
     if (typeof navigator.share !== 'undefined' && navigator.canShare(shareData)) {
@@ -211,21 +211,22 @@ function CargaOperativaPdfContent() {
   return (
     <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans">
       <div className="max-w-3xl mx-auto space-y-4 print:space-y-0">
-        <Card className="bg-blue-50 border-blue-200 print:hidden shadow-sm">
+        {/* MENSAJE DE COMPARTIR (Solo admin) */}
+        <Card className="bg-green-50 border-green-200 print:hidden shadow-sm">
             <CardHeader className="py-3 px-4">
-                <CardTitle className="text-sm font-bold flex items-center gap-2 text-blue-800">
-                    <KeyRound className="w-4 h-4"/> ¿Enviar al Jefe de Utileros?
+                <CardTitle className="text-sm font-bold flex items-center gap-2 text-green-800">
+                    <CheckCircle2 className="w-4 h-4"/> Enlace Listo para Compartir
                 </CardTitle>
             </CardHeader>
             <CardContent className="py-0 px-4 pb-3">
-                <p className="text-xs text-blue-700 mb-3">
-                    Puedes crear un enlace de <strong>Acceso Personal</strong> para que el equipo pueda marcar los ítems desde su celular en tiempo real mientras cargan el camión.
+                <p className="text-xs text-green-700 mb-3">
+                    <strong>¡Sí!</strong> Esta página es pública y segura. Puedes enviarle el enlace de arriba directamente al <strong>Jefe de Utileros</strong>. Él podrá marcar los ítems desde su celular y tú verás los cambios aquí.
                 </p>
-                <Link href="/settings/accesos-personal" passHref>
-                    <Button size="sm" variant="outline" className="bg-white border-blue-300 text-blue-700 hover:bg-blue-100">
-                        Configurar Acceso para Colaboradores
+                <div className="flex gap-2">
+                    <Button size="sm" variant="outline" className="bg-white border-green-300 text-green-700 hover:bg-green-100" onClick={handleShare}>
+                        <Share2 className="w-4 h-4 mr-1.5"/> Enviar enlace por WhatsApp
                     </Button>
-                </Link>
+                </div>
             </CardContent>
         </Card>
 
@@ -292,7 +293,7 @@ function CargaOperativaPdfContent() {
                                         {item.nombre}
                                     </p>
                                     <span className="text-sm font-black text-primary print:text-xs bg-primary/5 px-2 rounded print:bg-transparent">
-                                        CANT: {item.cantidad} {item.unidad || 'Uds.'}
+                                        CANT: {item.cantidad} {item.unit || item.unidad || 'Uds.'}
                                     </span>
                                 </div>
                                 {item.notes && <p className="text-[10px] text-gray-500 italic print:text-[7pt] mt-0.5">Nota: {item.notes}</p>}

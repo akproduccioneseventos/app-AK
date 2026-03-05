@@ -141,5 +141,814 @@
       "descripcion": "Cierre del evento.",
       "icono": "Clock"
     }
-  ]
+  ],
+  "listaDeCargaOperativa": {
+    "categorias": [
+      {
+        "id": "auto_pdf_Discoteca",
+        "nombre": "Discoteca",
+        "items": [
+          {
+            "id": "item_pdf_lc_cactivas",
+            "nombre": "CAJAS ACTIVAS",
+            "cantidad": "2",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_cactivas"
+          },
+          {
+            "id": "item_pdf_lc_consola",
+            "nombre": "CAJA DE CONSULA Y POTENCIA",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_consola"
+          },
+          {
+            "id": "item_pdf_lc_djgonza",
+            "nombre": "CONTROLADOR DJ GONZA",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_djgonza"
+          },
+          {
+            "id": "item_pdf_lc_controlluces",
+            "nombre": "CONTROLADOR DE LUCES",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_controlluces"
+          },
+          {
+            "id": "item_pdf_lc_dmx",
+            "nombre": "CONTROLADOR DMX LUCES PENDRIVE",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_dmx"
+          },
+          {
+            "id": "item_pdf_lc_ntbdj",
+            "nombre": "NOTEBOOK DJ GONZA",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_ntbdj"
+          },
+          {
+            "id": "item_pdf_lc_ntbluces",
+            "nombre": "NOTEBOOK de LUCES",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_ntbluces"
+          },
+          {
+            "id": "item_pdf_lc_mic",
+            "nombre": "MICROFONOS INALAMBRICOS Y PILAS",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_mic"
+          },
+          {
+            "id": "item_pdf_lc_barrabolasespejos",
+            "nombre": "BARRAS DE BOLAS DE ESPEJOS",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_barrabolasespejos"
+          },
+          {
+            "id": "item_pdf_lc_bolasespejo",
+            "nombre": "BOLAS DE ESPEJO",
+            "cantidad": "15",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_bolasespejo"
+          },
+          {
+            "id": "item_pdf_lc_cerchas",
+            "nombre": "CERCHAS DE LUCES",
+            "cantidad": "3",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_cerchas"
+          },
+          {
+            "id": "item_pdf_lc_cajash",
+            "nombre": "CAJAS DE HERRAMIENTAS",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_cajash"
+          },
+          {
+            "id": "item_pdf_lc_pieluces",
+            "nombre": "PIE DE LUCES Y T DE ARRIBA",
+            "cantidad": "2",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_pieluces"
+          },
+          {
+            "id": "item_pdf_lc_barradj",
+            "nombre": "BARRA DJ",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_barradj"
+          },
+          {
+            "id": "item_pdf_lc_telabarradj",
+            "nombre": "TELA DE BARRA DJ",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_telabarradj"
+          },
+          {
+            "id": "item_pdf_lc_cartelbarradj",
+            "nombre": "CARTEL DE BARRA DJ",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_cartelbarradj"
+          },
+          {
+            "id": "item_pdf_lc_cajacables",
+            "nombre": "CAJA DE CABLES",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_cajacables"
+          },
+          {
+            "id": "item_pdf_lc_movil10w",
+            "nombre": "CABEZAL MOVIL 10W",
+            "cantidad": "2",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_movil10w"
+          },
+          {
+            "id": "item_pdf_lc_movil30w",
+            "nombre": "CABEZAL MOVIL 30W",
+            "cantidad": "4",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_movil30w"
+          },
+          {
+            "id": "item_pdf_lc_laser",
+            "nombre": "LASER",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_laser"
+          },
+          {
+            "id": "item_pdf_lc_humo",
+            "nombre": "MAQUINA DE HUMO",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_humo"
+          },
+          {
+            "id": "item_pdf_lc_lhumo",
+            "nombre": "LIQUIDO DE HUMO",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_lhumo"
+          },
+          {
+            "id": "item_pdf_lc_mesadj",
+            "nombre": "MESA DE DJ PARA LUCES",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_mesadj"
+          },
+          {
+            "id": "item_pdf_lc_rollup",
+            "nombre": "CARTEL LONA ROLLUP",
+            "cantidad": "1",
+            "unidad": "Todas",
+            "cargado": false,
+            "origenId": "lc_rollup"
+          },
+          {
+            "id": "item_pdf_lc_tornillos",
+            "nombre": "TORNILLOS CERCHA",
+            "cantidad": "1",
+            "unidad": "Todas",
+            "cargado": false,
+            "origenId": "lc_tornillos"
+          },
+          {
+            "id": "item_pdf_lc_pantalla",
+            "nombre": "PANTALLA Y PROYECTOR",
+            "cantidad": "1",
+            "unidad": "Todas",
+            "cargado": false,
+            "origenId": "lc_pantalla"
+          }
+        ]
+      },
+      {
+        "id": "auto_pdf_Decoración (Activo)",
+        "nombre": "Decoración (Activo)",
+        "items": [
+          {
+            "id": "item_pdf_lc_estructurasimmer",
+            "nombre": "EXTRUCTURA SIMMER",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_estructurasimmer"
+          },
+          {
+            "id": "item_pdf_lc_panelessimmer",
+            "nombre": "PANELES SIMMER PLATEADO",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_panelessimmer"
+          },
+          {
+            "id": "item_pdf_lc_alfombragrande",
+            "nombre": "ALFOMBRA GRANDE",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_alfombragrande"
+          },
+          {
+            "id": "item_pdf_lc_cajadeco",
+            "nombre": "CAJA DE HERRAMIENTAS DECO",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_cajadeco"
+          },
+          {
+            "id": "item_pdf_lc_farolesgr",
+            "nombre": "FAROLES GRANDES",
+            "cantidad": "2",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_farolesgr"
+          },
+          {
+            "id": "item_pdf_lc_farolesch",
+            "nombre": "FAROLES CHICOS",
+            "cantidad": "2",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_farolesch"
+          },
+          {
+            "id": "item_pdf_lc_pedestales",
+            "nombre": "PEDESTAL HIERRO RECTANGULAR",
+            "cantidad": "3",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_pedestales"
+          },
+          {
+            "id": "item_pdf_lc_baul",
+            "nombre": "BAUL",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_baul"
+          }
+        ]
+      },
+      {
+        "id": "auto_pdf_Vajilla (Activo)",
+        "nombre": "Vajilla (Activo)",
+        "items": [
+          {
+            "id": "item_pdf_lc_psitio",
+            "nombre": "PLATOS DE SITIO",
+            "cantidad": "100",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_psitio"
+          },
+          {
+            "id": "item_pdf_lc_pgrandes",
+            "nombre": "PLATOS GRANDES",
+            "cantidad": "100",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_pgrandes"
+          },
+          {
+            "id": "item_pdf_lc_pchicos",
+            "nombre": "PLATOS CHICOS",
+            "cantidad": "100",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_pchicos"
+          },
+          {
+            "id": "item_pdf_lc_cucharitas",
+            "nombre": "CUCHARITAS",
+            "cantidad": "100",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_cucharitas"
+          },
+          {
+            "id": "item_pdf_lc_tenedores",
+            "nombre": "TENEDORES",
+            "cantidad": "100",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_tenedores"
+          },
+          {
+            "id": "item_pdf_lc_cuchillos",
+            "nombre": "CUCHILLOS",
+            "cantidad": "100",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_cuchillos"
+          },
+          {
+            "id": "item_pdf_lc_espatulatorta",
+            "nombre": "ESPATULA DE TORTA",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_espatulatorta"
+          },
+          {
+            "id": "item_pdf_lc_jarrasch",
+            "nombre": "JARRAS CHICAS",
+            "cantidad": "4",
+            "unidad": "Cajas",
+            "cargado": false,
+            "origenId": "lc_jarrasch"
+          },
+          {
+            "id": "item_pdf_lc_jarrasgr",
+            "nombre": "JARRAS GRANDES",
+            "cantidad": "4",
+            "unidad": "Cajas",
+            "cargado": false,
+            "origenId": "lc_jarrasgr"
+          },
+          {
+            "id": "item_pdf_lc_vasos",
+            "nombre": "VASOS",
+            "cantidad": "2",
+            "unidad": "Caja",
+            "cargado": false,
+            "origenId": "lc_vasos"
+          },
+          {
+            "id": "item_pdf_lc_copasbrindis",
+            "nombre": "COPAS DE BRINDIS",
+            "cantidad": "16",
+            "unidad": "Caja",
+            "cargado": false,
+            "origenId": "lc_copasbrindis"
+          },
+          {
+            "id": "item_pdf_lc_paneras",
+            "nombre": "CANASTAS PANERAS MARRONES",
+            "cantidad": "9",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_paneras"
+          },
+          {
+            "id": "item_pdf_lc_prectangulares",
+            "nombre": "PLATOS RECTANGULARES LISOS",
+            "cantidad": "1",
+            "unidad": "Todas",
+            "cargado": false,
+            "origenId": "lc_prectangulares"
+          },
+          {
+            "id": "item_pdf_lc_tarrossalsa",
+            "nombre": "4 TIPOS DE TARROS PARA SALSA",
+            "cantidad": "1",
+            "unidad": "Todos",
+            "cargado": false,
+            "origenId": "lc_tarrossalsa"
+          },
+          {
+            "id": "item_pdf_lc_placradas",
+            "nombre": "COPAS LACRADAS",
+            "cantidad": "9",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_placradas"
+          }
+        ]
+      },
+      {
+        "id": "auto_pdf_Mantelería",
+        "nombre": "Mantelería",
+        "items": [
+          {
+            "id": "item_pdf_lc_servitela",
+            "nombre": "SERVILLETAS NEGRAS DE TELA",
+            "cantidad": "100",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_servitela"
+          },
+          {
+            "id": "item_pdf_lc_delantales",
+            "nombre": "DELANTALES Y GORROS COCINA",
+            "cantidad": "16",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_delantales"
+          },
+          {
+            "id": "item_pdf_lc_mnegroscocina",
+            "nombre": "MANTELES NEGROS DE COCINA",
+            "cantidad": "16",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_mnegroscocina"
+          },
+          {
+            "id": "item_pdf_lc_mblancos",
+            "nombre": "manteles y cubre blancos",
+            "cantidad": "13",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_mblancos"
+          },
+          {
+            "id": "item_pdf_lc_cverde",
+            "nombre": "cubre VERDE",
+            "cantidad": "13",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_cverde"
+          },
+          {
+            "id": "item_pdf_lc_bolsasmante",
+            "nombre": "BOLSAS NEGRAS PARA MANTELERIA",
+            "cantidad": "2",
+            "unidad": "Cajas",
+            "cargado": false,
+            "origenId": "lc_bolsasmante"
+          }
+        ]
+      },
+      {
+        "id": "auto_pdf_Equipamiento de Cocina",
+        "nombre": "Equipamiento de Cocina",
+        "items": [
+          {
+            "id": "item_pdf_lc_hielerasgr",
+            "nombre": "HIELERAS GRANDES",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_hielerasgr"
+          },
+          {
+            "id": "item_pdf_lc_hielerasch",
+            "nombre": "HIELERAS CHICAS",
+            "cantidad": "2",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_hielerasch"
+          },
+          {
+            "id": "item_pdf_lc_bandejashorno",
+            "nombre": "BANDEJAS DE HORNO",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_bandejashorno"
+          },
+          {
+            "id": "item_pdf_lc_cocina",
+            "nombre": "COCINA",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_cocina"
+          },
+          {
+            "id": "item_pdf_lc_hornallas",
+            "nombre": "HORNALLAS DE LA COCINA",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_hornallas"
+          },
+          {
+            "id": "item_pdf_lc_gas",
+            "nombre": "GARRAFA DE GAS",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_gas"
+          },
+          {
+            "id": "item_pdf_lc_pinzashielera",
+            "nombre": "PINZAS DE HIELERAS",
+            "cantidad": "1",
+            "unidad": "Caja Negra",
+            "cargado": false,
+            "origenId": "lc_pinzashielera"
+          },
+          {
+            "id": "item_pdf_lc_espatulascuchillos",
+            "nombre": "ESPATULAS, CUCHILLOS DE COCINA",
+            "cantidad": "1",
+            "unidad": "Caja Negra",
+            "cargado": false,
+            "origenId": "lc_espatulascuchillos"
+          },
+          {
+            "id": "item_pdf_lc_escarbadientes",
+            "nombre": "ESCARBADIENTES Y SALEROS",
+            "cantidad": "1",
+            "unidad": "Caja Negra",
+            "cargado": false,
+            "origenId": "lc_escarbadientes"
+          },
+          {
+            "id": "item_pdf_lc_tablasredondas",
+            "nombre": "TABLAS REDONDAS",
+            "cantidad": "15",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_tablasredondas"
+          },
+          {
+            "id": "item_pdf_lc_platinas",
+            "nombre": "PLATINAS",
+            "cantidad": "1",
+            "unidad": "Caja Negra",
+            "cargado": false,
+            "origenId": "lc_platinas"
+          },
+          {
+            "id": "item_pdf_lc_freidora",
+            "nombre": "FREIDORA",
+            "cantidad": "2",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_freidora"
+          },
+          {
+            "id": "item_pdf_lc_pinzasensalada",
+            "nombre": "PINZAS DE ENSALADAS",
+            "cantidad": "1",
+            "unidad": "Caja Negra",
+            "cargado": false,
+            "origenId": "lc_pinzasensalada"
+          },
+          {
+            "id": "item_pdf_lc_alcoholguantes",
+            "nombre": "ALCOHOL Y GUANTES",
+            "cantidad": "1",
+            "unidad": "Caja Negra",
+            "cargado": false,
+            "origenId": "lc_alcoholguantes"
+          },
+          {
+            "id": "item_pdf_lc_repasadores",
+            "nombre": "REPASADORES",
+            "cantidad": "1",
+            "unidad": "Todos",
+            "cargado": false,
+            "origenId": "lc_repasadores"
+          },
+          {
+            "id": "item_pdf_lc_servilletaspapeltorta",
+            "nombre": "SERVILLETAS DE PAPEL PARA TORTA",
+            "cantidad": "1",
+            "unidad": "Caja Negra",
+            "cargado": false,
+            "origenId": "lc_servilletaspapeltorta"
+          },
+          {
+            "id": "item_pdf_lc_rollopapel",
+            "nombre": "ROLLO SERVILLETAS DE PAPEL",
+            "cantidad": "2",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_rollopapel"
+          },
+          {
+            "id": "item_pdf_lc_aderezos",
+            "nombre": "ADEREZOS",
+            "cantidad": "1",
+            "unidad": "Todas",
+            "cargado": false,
+            "origenId": "lc_aderezos"
+          },
+          {
+            "id": "item_pdf_lc_jabonesponja",
+            "nombre": "JABON Y ESPONJAS",
+            "cantidad": "1",
+            "unidad": "Caja Negra",
+            "cargado": false,
+            "origenId": "lc_jabonesponja"
+          },
+          {
+            "id": "item_pdf_lc_escurridor",
+            "nombre": "ESCURRIDOR DE FREGAR",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_escurridor"
+          },
+          {
+            "id": "item_pdf_lc_jarraelec",
+            "nombre": "JARRA ELECTRICA",
+            "cantidad": "1",
+            "unidad": "Caja Negra",
+            "cargado": false,
+            "origenId": "lc_jarraelec"
+          },
+          {
+            "id": "item_pdf_lc_papelerascocina",
+            "nombre": "PAPELERAS",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_papelerascocina"
+          },
+          {
+            "id": "item_pdf_lc_bolsasresiduos",
+            "nombre": "BOLSAS NEGRAS DE RESIDUOS",
+            "cantidad": "1",
+            "unidad": "Caja Negra",
+            "cargado": false,
+            "origenId": "lc_bolsasresiduos"
+          }
+        ]
+      },
+      {
+        "id": "auto_pdf_Barra de Tragos",
+        "nombre": "Barra de Tragos",
+        "items": [
+          {
+            "id": "item_pdf_lc_barra",
+            "nombre": "BARRA",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_barra"
+          },
+          {
+            "id": "item_pdf_lc_madgr",
+            "nombre": "MADERAS GRANDES DE BARRA",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_madgr"
+          },
+          {
+            "id": "item_pdf_lc_madch",
+            "nombre": "MADERAS CHICAS DE BARRA",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_madch"
+          },
+          {
+            "id": "item_pdf_lc_apo",
+            "nombre": "FIERRITOS APOYO MADERA CHICA",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_apo"
+          },
+          {
+            "id": "item_pdf_lc_est",
+            "nombre": "ESTRUCTURA DE ARRIBA DE LA BARRA",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_est"
+          },
+          {
+            "id": "item_pdf_lc_cajabarm",
+            "nombre": "CAJA DE HERRAMIENTAS BARMAN",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_cajabarm"
+          },
+          {
+            "id": "item_pdf_lc_casilleros",
+            "nombre": "CASILLEROS DE LICORES",
+            "cantidad": "4",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_casilleros"
+          },
+          {
+            "id": "item_pdf_lc_rcola",
+            "nombre": "REFRESCOS COLA",
+            "cantidad": "12",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_rcola"
+          },
+          {
+            "id": "item_pdf_lc_rlima",
+            "nombre": "REFRESCOS LIMA",
+            "cantidad": "2",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_rlima"
+          },
+          {
+            "id": "item_pdf_lc_lbarra",
+            "nombre": "LONA DE BARRA",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_lbarra"
+          },
+          {
+            "id": "item_pdf_lc_fnegra",
+            "nombre": "FOCOS LED LUZ NEGRA BARRA",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_fnegra"
+          },
+          {
+            "id": "item_pdf_lc_fcolor",
+            "nombre": "FOCOS LED COLOR",
+            "cantidad": "2",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_fcolor"
+          },
+          {
+            "id": "item_pdf_lc_licuadoras",
+            "nombre": "LICUADORAS",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_licuadoras"
+          },
+          {
+            "id": "item_pdf_lc_pled",
+            "nombre": "PANTALLA LED BARRA",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_pled"
+          },
+          {
+            "id": "item_pdf_lc_papelerasbarra",
+            "nombre": "PAPELERAS",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_papelerasbarra"
+          },
+          {
+            "id": "item_pdf_lc_vasossorv",
+            "nombre": "VASOS Y SORVITOS",
+            "cantidad": "400",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_vasossorv"
+          },
+          {
+            "id": "item_pdf_lc_tjugos",
+            "nombre": "TARROS PARA JUGOS",
+            "cantidad": "3",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_tjugos"
+          },
+          {
+            "id": "item_pdf_lc_conservadora",
+            "nombre": "CONSERVADORA",
+            "cantidad": "1",
+            "unidad": "Unidad",
+            "cargado": false,
+            "origenId": "lc_conservadora"
+          }
+        ]
+      }
+    ],
+    "notasGenerales": ""
+  }
 }

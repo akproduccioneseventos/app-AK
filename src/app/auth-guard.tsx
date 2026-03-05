@@ -48,13 +48,18 @@ export function AuthGuard({ children }: AuthGuardProps) {
     let isPublic = publicPathPrefixes.some(prefix => pathname.startsWith(prefix));
 
     // Add a specific rule for public budget summary pages, which are also public.
-    // e.g., /presupuestos/pres_12345 or /presupuestos/pres_12345/ver
-    // This regex now allows for an optional trailing slash.
     if (!isPublic) {
       const budgetRegex = /^\/presupuestos\/[^/]+\/ver\/?$/;
       if (budgetRegex.test(pathname)) {
         isPublic = true;
       }
+    }
+
+    // PERMITIR VISTAS PDF Y RESÚMENES IMPRIMIBLES (Para colaboradores y clientes sin login maestro)
+    if (!isPublic) {
+        if (pathname.endsWith('/pdf') || pathname.endsWith('/resumen-imprimible')) {
+            isPublic = true;
+        }
     }
     
     if (isPublic) {
