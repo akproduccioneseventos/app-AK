@@ -21,6 +21,7 @@ import { useSearchParams } from 'next/navigation';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getRoles } from '@/app/actions/roles';
 import type { Rol } from '@/types/rol';
+import type { Presupuesto } from '@/types/presupuesto';
 import { cn } from '@/lib/utils';
 
 const COST_CATEGORIES: CostoCategoria[] = [
@@ -49,6 +50,7 @@ function GestionCostosRentabilidadContent() {
   const fiestaId = searchParams.get('fiestaId');
 
   const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
+  const [presupuestoActual, setPresupuestoActual] = useState<Presupuesto | null>(null);
   const [gestionCostos, setGestionCostos] = useState<GestionCostosData>(defaultGestionCostos);
   const [costoTotalMenu, setCostoTotalMenu] = useState<number>(0);
   const [costoTotalReposteria, setCostoTotalReposteria] = useState<number>(0);
@@ -90,7 +92,8 @@ function GestionCostosRentabilidadContent() {
       if (fiesta.presupuestoId) {
           const presupuesto = await getPresupuestoById(fiesta.presupuestoId);
           if (presupuesto) {
-              // 1. Sincronizar Ingresos
+              setPresupuestoActual(presupuesto);
+              // 1. Sincronizar Ingresos si están en 0
               if (currentGestionCostos.ingresosTotalesEstimados === 0) {
                   currentGestionCostos.ingresosTotalesEstimados = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
               }
@@ -243,13 +246,56 @@ function GestionCostosRentabilidadContent() {
     setGestionCostos(prev => ({ ...prev, costosItems: prev.costosItems.filter(item => item.id !== itemId) }));
   };
 
-  const personalCost = useMemo(() => {
-    return (fiestaActual?.personalAsignado || []).reduce((sum, p) => {
-        const rol = allRoles.find(r => r.id === p.rolId);
-        const aportes = (p.eventSalary * (rol?.porcentajeAportesPatronales || 0)) / 100;
-        return sum + p.eventSalary + aportes;
-    }, 0);
-  }, [fiestaActual?.personalAsignado, allRoles]);
+  // --- CALCULO DE COSTO DE PERSONAL PROYECTADO (Replica lógica de Personal page) ---
+  const personalCostCalculated = useMemo(() => {
+    if (!presupuestoActual) return 0;
+    
+    let total = 0;
+    const totalGuests = (presupuestoActual.invitadosAdultos || 0) + (presupuestoActual.invitadosNinos || 0) + (presupuestoActual.invitadosAdolescentes || 0);
+
+    const getRoleCost = (search: string, qty: number) => {
+        const rol = allRoles.find(r => r.nombre.toLowerCase().includes(search.toLowerCase()));
+        if (rol) {
+            const aportes = (rol.sueldoPorEvento * (rol.porcentajeAportesPatronales || 0)) / 100;
+            return (rol.sueldoPorEvento + aportes) * qty;
+        }
+        return 0;
+    };
+
+    // 1. Utileros
+    total += getRoleCost('Utilero', Math.ceil(totalGuests / 25));
+
+    // 2. Barmen
+    const hasBarra = presupuestoActual.itemsPresupuestados.some(item => 
+        item.nombreServicio.toLowerCase().includes('barra') || 
+        item.nombreServicio.toLowerCase().includes('trago') ||
+        item.nombreServicio.toLowerCase().includes('licuado')
+    );
+    if (hasBarra) {
+        let numBarmen = 1;
+        if (totalGuests > 150) numBarmen = 3;
+        else if (totalGuests > 60) numBarmen = 2;
+        total += getRoleCost('Barman', numBarmen);
+    }
+
+    // 3. Otros roles del presupuesto
+    presupuestoActual.itemsPresupuestados.forEach(item => {
+        const name = item.nombreServicio.toLowerCase();
+        if (name.includes('discoteca') || name.includes(' dj')) total += getRoleCost('DJ', 1);
+        if (name.includes('decoración')) {
+            total += getRoleCost('Decoradora', 1);
+            total += getRoleCost('Ayudante de Decoración', 1);
+        }
+        if (name.includes('mozo')) total += getRoleCost('Mozo', item.cantidad || 1);
+        if (name.includes('asado')) total += getRoleCost('Asador', 1);
+        if (name.includes('fotografía')) total += getRoleCost('Fotógrafo', 1);
+        if (name.includes('filmación')) total += getRoleCost('Camarógrafo', 1);
+        if (name.includes('cocina')) total += getRoleCost('Cocinero', 1);
+        if (name.includes('portero')) total += getRoleCost('Portero', 1);
+    });
+
+    return total;
+  }, [presupuestoActual, allRoles]);
 
   const decorCost = useMemo(() => {
     return (fiestaActual?.decoracion?.items || []).reduce((s, i) => s + (i.estimatedCost || 0), 0);
@@ -266,25 +312,24 @@ function GestionCostosRentabilidadContent() {
       groups[cat].subtotal += amount;
     };
 
-    // 1. Agregar Costos del Sistema (Calculados)
-    add('Catering', 'Menú del Evento', costoTotalMenu, 'Costo ingredientes p/persona', true);
+    // 1. Agregar Costos del Sistema (Calculados dinámicamente)
+    add('Catering', 'Insumos de Menú (Receta)', costoTotalMenu, 'Costo ingredientes p/persona x invitados', true);
     add('Repostería', 'Tortas y Postres', costoTotalReposteria, 'Costo directo ingredientes', true);
     add('Bebidas', 'Insumos y Barra', costoTotalBebidas, 'Insumos barra y recetas', true);
-    add('Personal', 'Sueldos + Aportes', personalCost, 'Calculado por personal asignado', true);
-    add('Decoración', 'Elementos Decorativos', decorCost, 'Items añadidos en decoración', true);
+    add('Personal', 'Sueldos + Aportes Proyectados', personalCostCalculated, 'Proyección automática por roles y reglas', true);
+    add('Decoración', 'Elementos Decorativos', decorCost, 'Items añadidos en diseño de evento', true);
 
     // 2. Agregar Costos Manuales mapeándolos a categorías lógicas
     (gestionCostos.costosItems || []).forEach(item => {
       let cat = item.category;
-      // Normalizar nombres de categorías manuales a las visuales si coinciden
       if (cat === 'Personal Evento') cat = 'Personal';
       if (cat === 'Pago de Salón') cat = 'Salón';
       
-      add(cat, item.nombre, item.montoEstimado, item.notas, false, item.id);
+      add(cat, item.nombre, item.montoEstimado, item.notes, false, item.id);
     });
 
     return groups;
-  }, [costoTotalMenu, costoTotalReposteria, costoTotalBebidas, personalCost, decorCost, gestionCostos.costosItems]);
+  }, [costoTotalMenu, costoTotalReposteria, costoTotalBebidas, personalCostCalculated, decorCost, gestionCostos.costosItems]);
 
   const costoTotalEstimadoEvento = useMemo(() => {
     return Object.values(groupedAllCosts).reduce((sum, group) => sum + group.subtotal, 0);
@@ -320,7 +365,7 @@ function GestionCostosRentabilidadContent() {
 
 
   if (isLoading) {
-    return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando...</p></div>;
+    return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Calculando rentabilidad...</p></div>;
   }
   if (error) {
     return <div className="text-center py-10"><AlertTriangle className="w-12 h-12 mx-auto text-destructive mb-3" /><p className="font-semibold text-lg text-destructive">{error}</p><Button onClick={() => loadData()} className="mt-4" variant="outline">Reintentar</Button></div>;
@@ -334,8 +379,8 @@ function GestionCostosRentabilidadContent() {
           <h1 className="text-3xl font-bold tracking-tight font-headline">Gestión de Costos y Rentabilidad</h1>
         </div>
         <div className="flex gap-2">
-            <Button variant="ghost" size="sm" onClick={() => loadData(true)} title="Sincronizar con presupuesto">
-                <RefreshCw className="w-4 h-4 mr-2"/> Sincronizar
+            <Button variant="ghost" size="sm" onClick={() => loadData(true)} title="Sincronizar con presupuesto e invitados">
+                <RefreshCw className="w-4 h-4 mr-2"/> Sincronizar Todo
             </Button>
             <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
         </div>
@@ -346,7 +391,7 @@ function GestionCostosRentabilidadContent() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <CardTitle className="font-headline text-xl">Resumen Financiero Consolidado</CardTitle>
-                    <CardDescription>Cálculo basado en ingresos del presupuesto vs. costos de todos los módulos.</CardDescription>
+                    <CardDescription>Análisis de ingresos proyectados vs. costos directos del sistema y manuales.</CardDescription>
                 </div>
                 <div className="space-y-1 w-full md:w-auto">
                     <Label htmlFor="ingresos-totales" className="text-xs uppercase font-bold text-muted-foreground">Ingreso por Presupuesto</Label>
@@ -405,7 +450,7 @@ function GestionCostosRentabilidadContent() {
                                             <TableCell className="pl-8">
                                                 <div className="flex flex-col">
                                                     <span className="font-medium flex items-center gap-2">
-                                                        {item.isSystem && <RefreshCw className="w-3 h-3 text-blue-500" title="Generado por el sistema"/>}
+                                                        {item.isSystem && <RefreshCw className="w-3 h-3 text-blue-500" title="Calculado automáticamente por el sistema"/>}
                                                         {item.name}
                                                     </span>
                                                     {item.notes && <span className="text-[10px] text-muted-foreground italic">{item.notes}</span>}
