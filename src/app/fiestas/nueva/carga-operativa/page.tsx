@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent, useMemo, Suspense } from 'react';
@@ -348,7 +349,18 @@ function ListaDeCargaOperativaContent() {
   const handleCatalogItemSelected = (selectedAsset: ServicioEmpresa) => {
     if (!categoryForCatalogSelect) return;
     
-    const qty = selectedAsset.precioVenta && selectedAsset.precioVenta > 0 ? String(selectedAsset.precioVenta) : (selectedAsset.cantidadDisponible ? String(selectedAsset.cantidadDisponible) : '1');
+    // Default quantity calculation for manual catalog add
+    const totalInvitados = (fiestaActual?.configuracion.invitadosEstimados as number) || 100;
+    let qty = '1';
+    if (selectedAsset.calculationMethod === 'porPersona') {
+        qty = String(totalInvitados);
+    } else if (selectedAsset.calculationMethod === 'ratio' && selectedAsset.invitadosPorUnidad) {
+        qty = String(Math.ceil(totalInvitados / selectedAsset.invitadosPorUnidad));
+    } else if (selectedAsset.precioVenta && selectedAsset.precioVenta > 0) {
+        qty = String(selectedAsset.precioVenta);
+    } else if (selectedAsset.cantidadDisponible && selectedAsset.cantidadDisponible > 0) {
+        qty = String(selectedAsset.cantidadDisponible);
+    }
 
     const newItem: CargaOperativaItem = {
       id: `item_${Date.now()}_${selectedAsset.id}`,
@@ -437,6 +449,8 @@ function ListaDeCargaOperativaContent() {
               item.categoria?.toLowerCase().includes(lowerSearch)
     );
   }, [activosCatalogo, catalogSearchTerm]);
+
+  const fiestaActual = fiestaId ? (listaDeCarga as any)._fiesta : null; // Hack to get fiesta context if needed
 
   if (isLoading) {
     return (
