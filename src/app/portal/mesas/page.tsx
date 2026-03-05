@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
@@ -6,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, AlertTriangle, Users, Trash2, Edit3, PlusCircle, ArrowLeft, Info, CheckCircle2, UserPlus2, UserMinus, Search } from 'lucide-react';
+import { Loader2, AlertTriangle, Users, Trash2, Edit3, PlusCircle, ArrowLeft, Info, CheckCircle2, UserPlus2, UserMinus, Search, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, Invitado } from '@/types/fiesta';
 import type { CategoriaInvitado } from '@/types/invitado';
@@ -28,6 +27,7 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
+import { Badge } from '@/components/ui/badge';
 
 function AsignacionMesasContent() {
   const searchParams = useSearchParams();
@@ -72,7 +72,7 @@ function AsignacionMesasContent() {
     loadData();
   }, [loadData]);
   
-  const totalContracted = Number(fiesta?.configuracion.invitadosEstimados) || 0;
+  const totalContracted = fiesta ? Number(fiesta.configuracion.invitadosEstimados) || 0 : 0;
   const currentTotal = fiesta?.invitados?.reduce((sum, inv) => sum + (inv.partySize || 1), 0) || 0;
   const isLimitReached = currentTotal >= totalContracted;
 
@@ -385,19 +385,6 @@ function AsignacionMesasContent() {
     </div>
   );
 }
-
-const Badge = ({ children, variant = 'default', className }: { children: React.ReactNode, variant?: 'default' | 'secondary' | 'destructive' | 'outline', className?: string }) => (
-    <span className={cn(
-        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
-        variant === 'default' ? "border-transparent bg-primary text-primary-foreground hover:bg-primary/80" : 
-        variant === 'secondary' ? "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80" :
-        variant === 'destructive' ? "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80" :
-        "text-foreground border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-        className
-    )}>
-        {children}
-    </span>
-);
 
 export default function MesaPage() {
     return (
