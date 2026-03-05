@@ -10,10 +10,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, PlusCircle, Trash2, Loader2, AlertTriangle, ListChecks, Clock, Bell, FolderOpen, Save, RefreshCw, CalendarCheck } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Trash2, Loader2, AlertTriangle, ListChecks, Clock, Bell, FolderOpen, Save, RefreshCw, CalendarCheck, Users, UserCheck } from 'lucide-react';
 import Link from 'next/link';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { format as formatDateFn, formatDistanceToNowStrict, subDays, startOfWeek, addDays, isBefore } from 'date-fns';
+import { format as formatDateFn, formatDistanceToNowStrict, subDays, startOfWeek, isBefore } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import type { Tarea } from '@/types/fiesta';
@@ -40,6 +40,15 @@ import {
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 
@@ -188,9 +197,6 @@ function TareasEventoContent() {
     setIsSyncing(true);
     const eventDate = new Date(fiestaEventDate);
     
-    // 1. Lunes antes de la fiesta (Compras)
-    // Si la fiesta es lunes o martes, usamos el lunes de la semana anterior. 
-    // Si es miércoles a domingo, usamos el lunes de esa misma semana.
     let mondayForCatering = startOfWeek(eventDate, { weekStartsOn: 1 });
     if (eventDate.getDay() === 1 || eventDate.getDay() === 2) {
         mondayForCatering = subDays(mondayForCatering, 7);
@@ -285,7 +291,7 @@ function TareasEventoContent() {
       fechaLimite: newTaskDueDate ? newTaskDueDate.toISOString() : undefined,
       horaVencimiento: newTaskDueTime.trim() || undefined,
       recordatorio: newTaskReminder.trim() || undefined,
-      asignadaA: newTaskAssignedTo.trim() || undefined,
+      asignadaA: newTaskAssignedTo.trim() as any || undefined,
       esPredeterminada: newIsDefaultTask,
     };
     
@@ -492,7 +498,7 @@ function TareasEventoContent() {
                         )}
                         {task.asignadaA && (
                             <Badge variant="secondary" className="text-[10px] py-0 h-5 font-normal bg-primary/5 text-primary border-primary/10">
-                                <User icon={task.asignadaA === 'Cliente' ? 'User' : 'UserCheck'} className="w-3 h-3 mr-1"/> {task.asignadaA}
+                                {task.asignadaA === 'Cliente' ? <Users className="w-3 h-3 mr-1"/> : <UserCheck className="w-3 h-3 mr-1"/>} {task.asignadaA}
                             </Badge>
                         )}
                       </div>
@@ -503,7 +509,10 @@ function TareasEventoContent() {
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader><AlertDialogTitle>¿Eliminar tarea?</AlertDialogTitle><AlertDialogDescription>"{task.texto}" será borrada permanentemente.</AlertDialogDescription></AlertDialogHeader>
-                        <AlertDialogFooter><AlertDialogCancel disabled={isSaving}>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => deleteTask(task.id)} disabled={isSaving} className="bg-destructive hover:bg-destructive/90">Eliminar</AlertDialogAction></AlertDialogFooter>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel disabled={isSaving}>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => deleteTask(task.id)} disabled={isSaving} className="bg-destructive hover:bg-destructive/90">Eliminar</AlertDialogAction>
+                        </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>
                   </li>
@@ -520,11 +529,6 @@ function TareasEventoContent() {
       </Card>
     </div>
   );
-}
-
-const User = ({ icon, className }: { icon: string, className?: string }) => {
-    if(icon === 'User') return <Users className={className}/>;
-    return <UserCheck className={className}/>;
 }
 
 export default function TareasClientPage() {
