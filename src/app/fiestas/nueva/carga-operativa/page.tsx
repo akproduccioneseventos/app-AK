@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent, useMemo, Suspense } from 'react';
@@ -118,11 +117,11 @@ function ListaDeCargaOperativaContent() {
                 targetAssetCategories.add('Discoteca');
               }
               if (budgetCategories.has('servicio de decoración') || budgetNames.has('decoración') || budgetNames.has('ambientación')) {
-                targetAssetCategories.add('Decoración');
+                targetAssetCategories.add('Decoración (Activo)');
                 targetAssetCategories.add('Mobiliario');
               }
               if (budgetCategories.has('servicio de catering') || budgetNames.has('vajilla') || budgetNames.has('comida')) {
-                targetAssetCategories.add('Vajilla');
+                targetAssetCategories.add('Vajilla (Activo)');
                 targetAssetCategories.add('Mantelería');
                 targetAssetCategories.add('Equipamiento de Cocina');
               }
@@ -218,11 +217,11 @@ function ListaDeCargaOperativaContent() {
         targetAssetCategories.add('Discoteca');
       }
       if (budgetCategories.has('servicio de decoración') || budgetNames.has('decoración') || budgetNames.has('ambientación')) {
-        targetAssetCategories.add('Decoración');
+        targetAssetCategories.add('Decoración (Activo)');
         targetAssetCategories.add('Mobiliario');
       }
       if (budgetCategories.has('servicio de catering') || budgetNames.has('vajilla') || budgetNames.has('comida')) {
-        targetAssetCategories.add('Vajilla');
+        targetAssetCategories.add('Vajilla (Activo)');
         targetAssetCategories.add('Mantelería');
         targetAssetCategories.add('Equipamiento de Cocina');
       }
@@ -273,7 +272,7 @@ function ListaDeCargaOperativaContent() {
         categorias: [...(prev.categorias || []), ...newCategories]
       }));
 
-      toast({ title: "Sincronización Exitosa", description: `Se añadieron ${newCategories.length} categorías con sus cantidades estándar.` });
+      toast({ title: "Sincronización Exitosa", description: `Se añadieron ${newCategories.length} categorías con sus cantidades estándar basadas en ${totalInvitados} invitados.` });
 
     } catch (e: any) {
       toast({ title: "Error de Sincronización", description: e.message, variant: "destructive" });
@@ -350,12 +349,12 @@ function ListaDeCargaOperativaContent() {
     if (!categoryForCatalogSelect) return;
     
     // Default quantity calculation for manual catalog add
-    const totalInvitados = (fiestaActual?.configuracion.invitadosEstimados as number) || 100;
+    const guests = 100; // Placeholder if no budget is available
     let qty = '1';
     if (selectedAsset.calculationMethod === 'porPersona') {
-        qty = String(totalInvitados);
+        qty = String(guests);
     } else if (selectedAsset.calculationMethod === 'ratio' && selectedAsset.invitadosPorUnidad) {
-        qty = String(Math.ceil(totalInvitados / selectedAsset.invitadosPorUnidad));
+        qty = String(Math.ceil(guests / selectedAsset.invitadosPorUnidad));
     } else if (selectedAsset.precioVenta && selectedAsset.precioVenta > 0) {
         qty = String(selectedAsset.precioVenta);
     } else if (selectedAsset.cantidadDisponible && selectedAsset.cantidadDisponible > 0) {
@@ -450,8 +449,6 @@ function ListaDeCargaOperativaContent() {
     );
   }, [activosCatalogo, catalogSearchTerm]);
 
-  const fiestaActual = fiestaId ? (listaDeCarga as any)._fiesta : null; // Hack to get fiesta context if needed
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -463,7 +460,7 @@ function ListaDeCargaOperativaContent() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-       <Dialog open={isCatalogModalOpen} onOpenChange={setIsCatalogModalOpen}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle className="font-headline">Seleccionar Activo del Catálogo</DialogTitle><DialogDescription>Para la categoría "{categoryForCatalogSelect?.nombre}"</DialogDescription></DialogHeader><div className="py-2 space-y-3"><div className="relative"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input type="text" placeholder="Buscar activo..." value={catalogSearchTerm} onChange={(e) => setCatalogSearchTerm(e.target.value)} className="w-full pl-10"/></div><ScrollArea className="h-[300px] border rounded-md">{isLoading ? <div className="p-4 text-center"><Loader2 className="w-6 h-6 animate-spin"/></div> : filteredCatalogItems.length > 0 ? (<ul className="p-2 space-y-1">{filteredCatalogItems.map(item => (<li key={item.id}><Button type="button" variant="ghost" className="w-full justify-start text-left h-auto py-1.5 px-2" onClick={() => handleCatalogItemSelected(item)}><div><p className="font-medium text-sm">{item.nombre}</p><p className="text-xs text-muted-foreground">Cantidad Sugerida: {item.precioVenta || item.cantidadDisponible || 1} {item.unidad}</p></div></Button></li>))}</ul>) : (<p className="p-4 text-center text-sm text-muted-foreground">{catalogSearchTerm ? "No hay ítems que coincidan con tu búsqueda." : "El catálogo de activos está vacío."}</p>)}</ScrollArea></div><DialogFooter><DialogClose asChild><Button type="button" variant="outline">Cerrar</Button></DialogClose></DialogFooter></DialogContent></Dialog>
+       <Dialog open={isCatalogModalOpen} onOpenChange={setIsCatalogModalOpen}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle className="font-headline">Seleccionar Activo del Catálogo</DialogTitle><DialogDescription>Para la categoría "{categoryForCatalogSelect?.nombre}"</DialogDescription></DialogHeader><div className="py-2 space-y-3"><div className="relative"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input type="text" placeholder="Buscar activo..." value={catalogSearchTerm} onChange={(e) => setCatalogSearchTerm(e.target.value)} className="w-full pl-10"/></div><ScrollArea className="h-[300px] border rounded-md">{isLoading ? <div className="p-4 text-center"><Loader2 className="w-6 h-6 animate-spin"/></div> : filteredCatalogItems.length > 0 ? (<ul className="p-2 space-y-1">{filteredCatalogItems.map(item => (<li key={item.id}><Button type="button" variant="ghost" className="w-full justify-start text-left h-auto py-1.5 px-2" onClick={() => handleCatalogItemSelected(item)}><div><p className="font-medium text-sm">{item.nombre}</p><p className="text-xs text-muted-foreground">Regla: {assetRuleLabel(item)}</p></div></Button></li>))}</ul>) : (<p className="p-4 text-center text-sm text-muted-foreground">{catalogSearchTerm ? "No hay ítems que coincidan con tu búsqueda." : "El catálogo de activos está vacío."}</p>)}</ScrollArea></div><DialogFooter><DialogClose asChild><Button type="button" variant="outline">Cerrar</Button></DialogClose></DialogFooter></DialogContent></Dialog>
        
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
@@ -486,9 +483,9 @@ function ListaDeCargaOperativaContent() {
       
        <Alert className="border-blue-500/50 bg-blue-50 dark:bg-blue-900/30">
           <Info className="h-4 w-4 text-blue-500" />
-          <AlertTitle className="font-semibold text-blue-700 dark:text-blue-300">Gestión de Carga</AlertTitle>
+          <AlertTitle className="font-semibold text-blue-700 dark:text-blue-300">Logística de Carga</AlertTitle>
           <div className="text-blue-600 dark:text-blue-400 text-sm">
-            <p>La lista ahora utiliza las **cantidades de carga estándar** definidas en tu inventario. Si sincronizas con el presupuesto, el sistema calculará automáticamente la vajilla y mobiliario según los invitados.</p>
+            <p>La mantelería (mantel, cubremantel de color y blanco) se calcula automáticamente como **1 cada 8 personas**. La vajilla se calcula **1 por persona**.</p>
           </div>
        </Alert>
 
@@ -537,7 +534,7 @@ function ListaDeCargaOperativaContent() {
                   </Button>
               </div>
             <AccordionContent className="px-4 pt-2 pb-4 border-t" data-category-id={category.id}>
-              <div className="flex flex-wrap justify-end gap-2 mb-3">
+              <div className="flex justify-end gap-2 mb-3">
                 <Button variant="default" size="sm" onClick={() => openSelectFromCatalogModal(category)} disabled={activosCatalogo.length === 0}>
                    <BookOpen className="w-4 h-4 mr-1.5"/> Seleccionar del Catálogo
                 </Button>
@@ -578,6 +575,12 @@ function ListaDeCargaOperativaContent() {
       </div>
     </div>
   );
+}
+
+function assetRuleLabel(asset: ServicioEmpresa) {
+    if (asset.calculationMethod === 'porPersona') return '1 por persona';
+    if (asset.calculationMethod === 'ratio') return `1 cada ${asset.invitadosPorUnidad} personas`;
+    return `Cantidad fija (${asset.precioVenta || 1})`;
 }
 
 export default function ListaDeCargaOperativaPage() {
