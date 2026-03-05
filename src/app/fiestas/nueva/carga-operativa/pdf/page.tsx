@@ -158,7 +158,7 @@ function CargaOperativaPdfContent() {
             {(listaDeCarga.categorias || []).length === 0 && (
                 <div className="text-center py-10 text-muted-foreground">
                     <Info className="w-10 h-10 mx-auto mb-2 opacity-50"/>
-                    <p>No hay categorías ni ítems en la lista de carga.</p>
+                    <p>y la lista?</p>
                 </div>
             )}
 
