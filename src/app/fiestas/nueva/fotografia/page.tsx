@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -55,37 +56,50 @@ function FotografiaContent() {
             setEventDate(fiesta.configuracion.fechaEvento);
             let currentFotoData = fiesta.fotografiaYFilmacion || { servicios: [], notasGenerales: '' };
 
-            // SYNC LOGIC: Check budget and merge missing items
+            // LOGICA DE SINCRONIZACIÓN ROBUSTA: Sincroniza con el presupuesto actual
             if (fiesta.presupuestoId) {
                 const presupuesto = await getPresupuestoById(fiesta.presupuestoId);
                 if (presupuesto) {
-                    const existingNames = new Set((currentFotoData.servicios || []).map(s => s.nombre.toLowerCase()));
-                    const updatedServicios = [...(currentFotoData.servicios || [])];
-                    let addedAny = false;
+                    const budgetServices = presupuesto.itemsPresupuestados.filter(item => {
+                        const lowerName = item.nombreServicio.toLowerCase();
+                        // Filtrar solo foto/filmación real, excluyendo fotocabina y video de vida
+                        return (lowerName.includes('foto') || lowerName.includes('film') || lowerName.includes('video')) 
+                               && !lowerName.includes('cabina') 
+                               && !lowerName.includes('vida');
+                    });
 
-                    presupuesto.itemsPresupuestados.forEach(item => {
+                    const currentServicios = currentFotoData.servicios || [];
+                    
+                    // Separar manuales de automáticos
+                    // Los automáticos son los que tienen un ID que empieza por 'sync_'
+                    const manualItems = currentServicios.filter(s => !s.id.startsWith('sync_'));
+                    const autoItems = currentServicios.filter(s => s.id.startsWith('sync_'));
+
+                    const updatedAutoItems: ServicioFotografia[] = [];
+                    let hasChanges = false;
+
+                    budgetServices.forEach(item => {
                         const name = item.nombreServicio;
                         const lowerName = name.toLowerCase();
                         
-                        // Exclude photobooth and life video
-                        const isPhotoOrFilm = (lowerName.includes('foto') || lowerName.includes('film') || lowerName.includes('video')) 
-                                              && !lowerName.includes('cabina') 
-                                              && !lowerName.includes('vida');
-
-                        if (isPhotoOrFilm && !existingNames.has(lowerName)) {
-                            addedAny = true;
-                            // Rule: Party (fiesta) = 20 days, Others (exteriores, civil, iglesia) = 10 days
+                        // Buscar si ya existe un item automático para este servicio del presupuesto
+                        const existingAuto = autoItems.find(s => s.nombre.toLowerCase() === lowerName);
+                        
+                        if (existingAuto) {
+                            // Mantener el existente para no perder estados/links
+                            updatedAutoItems.push(existingAuto);
+                        } else {
+                            // Nuevo servicio detectado en el presupuesto
+                            hasChanges = true;
                             let editionDays = lowerName.includes('fiesta') ? 20 : 10;
-
                             let deliveryDate = undefined;
                             if (fiesta.configuracion.fechaEvento) {
                                 const d = new Date(fiesta.configuracion.fechaEvento);
-                                // The editing term starts after the event
                                 d.setDate(d.getDate() + editionDays);
                                 deliveryDate = d.toISOString();
                             }
 
-                            updatedServicios.push({
+                            updatedAutoItems.push({
                                 id: `sync_${item.idServicioCatalogo}_${Date.now()}_${Math.random().toString(36).substring(7)}`,
                                 nombre: name,
                                 estado: 'Pendiente',
@@ -94,10 +108,18 @@ function FotografiaContent() {
                         }
                     });
 
-                    if (addedAny) {
-                        currentFotoData = { ...currentFotoData, servicios: updatedServicios };
+                    // Si la cantidad de items automáticos cambió, es que alguno fue eliminado del presupuesto
+                    if (autoItems.length !== updatedAutoItems.length) {
+                        hasChanges = true;
+                    }
+
+                    if (hasChanges) {
+                        currentFotoData = { 
+                            ...currentFotoData, 
+                            servicios: [...manualItems, ...updatedAutoItems] 
+                        };
                         if (!showLoading) {
-                            toast({ title: "Presupuesto Sincronizado", description: "Se han detectado y añadido nuevos servicios contratados." });
+                            toast({ title: "Sincronización completa", description: "Se ha actualizado la lista según los servicios del presupuesto actual." });
                         }
                     }
                 }
@@ -232,7 +254,7 @@ function FotografiaContent() {
                     <h1 className="text-3xl font-bold tracking-tight font-headline">Seguimiento de Material</h1>
                 </div>
                 <div className="flex gap-2">
-                    <Button variant="ghost" size="sm" onClick={() => loadData(false)} title="Actualizar desde presupuesto">
+                    <Button variant="ghost" size="sm" onClick={() => loadData(false)} title="Sincronizar con presupuesto">
                         <RefreshCw className="w-4 h-4 mr-2"/>Sincronizar con Presupuesto
                     </Button>
                     <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
