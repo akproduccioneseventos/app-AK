@@ -25,7 +25,12 @@ import { cn } from '@/lib/utils';
 
 const formatCurrency = (amount: number) => {
   if (isNaN(amount)) return 'N/A';
-  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
+  return new Intl.NumberFormat('es-UY', {
+    style: 'currency',
+    currency: 'UYU',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
 };
 
 interface RequiredRole {
@@ -184,7 +189,7 @@ function AsignarPersonalEventoContent() {
         updatedStaff.push({
             empleadoId,
             rolId,
-            eventSalary: defaultSalary ?? rol?.sueldoPorEvento || 0
+            eventSalary: defaultSalary ?? (rol?.sueldoPorEvento || 0)
         });
     } else {
         const rol = allRoles.find(r => r.id === rolId);
@@ -192,7 +197,7 @@ function AsignarPersonalEventoContent() {
             ...updatedStaff[index],
             empleadoId,
             rolId,
-            eventSalary: defaultSalary ?? rol?.sueldoPorEvento || updatedStaff[index].eventSalary
+            eventSalary: defaultSalary ?? (rol?.sueldoPorEvento || updatedStaff[index].eventSalary)
         };
     }
     
