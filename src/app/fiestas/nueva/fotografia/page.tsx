@@ -55,46 +55,50 @@ function FotografiaContent() {
             setEventDate(fiesta.configuracion.fechaEvento);
             let currentFotoData = fiesta.fotografiaYFilmacion || { servicios: [], notasGenerales: '' };
 
-            // AUTO-SYNC LOGIC: If no services are defined, check the budget
-            if (currentFotoData.servicios.length === 0 && fiesta.presupuestoId) {
+            // SYNC LOGIC: Check budget and merge missing items
+            if (fiesta.presupuestoId) {
                 const presupuesto = await getPresupuestoById(fiesta.presupuestoId);
                 if (presupuesto) {
-                    const newServicios: ServicioFotografia[] = [];
-                    
-                    presupuesto.itemsPresupuestados.forEach(item => {
-                        const name = item.nombreServicio.toLowerCase();
-                        
-                        // Exclude fotocabina and video de vida
-                        const isPhotoOrFilm = (name.includes('foto') || name.includes('film') || name.includes('video')) 
-                                              && !name.includes('cabina') 
-                                              && !name.includes('vida');
+                    const existingNames = new Set((currentFotoData.servicios || []).map(s => s.nombre.toLowerCase()));
+                    const updatedServicios = [...(currentFotoData.servicios || [])];
+                    let addedAny = false;
 
-                        if (isPhotoOrFilm) {
+                    presupuesto.itemsPresupuestados.forEach(item => {
+                        const name = item.nombreServicio;
+                        const lowerName = name.toLowerCase();
+                        
+                        // Exclude photobooth and life video
+                        const isPhotoOrFilm = (lowerName.includes('foto') || lowerName.includes('film') || lowerName.includes('video')) 
+                                              && !lowerName.includes('cabina') 
+                                              && !lowerName.includes('vida');
+
+                        if (isPhotoOrFilm && !existingNames.has(lowerName)) {
+                            addedAny = true;
                             // Rule: Party (fiesta) = 20 days, Others (exteriores, civil, iglesia) = 10 days
-                            let editionDays = 10;
-                            if (name.includes('fiesta')) {
-                                editionDays = 20;
-                            }
+                            let editionDays = lowerName.includes('fiesta') ? 20 : 10;
 
                             let deliveryDate = undefined;
                             if (fiesta.configuracion.fechaEvento) {
                                 const d = new Date(fiesta.configuracion.fechaEvento);
-                                // Starts day after + edition days
-                                d.setDate(d.getDate() + editionDays + 1);
+                                // The editing term starts after the event
+                                d.setDate(d.getDate() + editionDays);
                                 deliveryDate = d.toISOString();
                             }
 
-                            newServicios.push({
+                            updatedServicios.push({
                                 id: `sync_${item.idServicioCatalogo}_${Date.now()}_${Math.random().toString(36).substring(7)}`,
-                                nombre: item.nombreServicio,
+                                nombre: name,
                                 estado: 'Pendiente',
                                 fechaEntregaEstimada: deliveryDate,
                             });
                         }
                     });
 
-                    if (newServicios.length > 0) {
-                        currentFotoData = { ...currentFotoData, servicios: newServicios };
+                    if (addedAny) {
+                        currentFotoData = { ...currentFotoData, servicios: updatedServicios };
+                        if (!showLoading) {
+                            toast({ title: "Presupuesto Sincronizado", description: "Se han detectado y añadido nuevos servicios contratados." });
+                        }
                     }
                 }
             }
@@ -228,8 +232,8 @@ function FotografiaContent() {
                     <h1 className="text-3xl font-bold tracking-tight font-headline">Seguimiento de Material</h1>
                 </div>
                 <div className="flex gap-2">
-                    <Button variant="ghost" size="sm" onClick={() => loadData(true)} title="Actualizar desde presupuesto">
-                        <RefreshCw className="w-4 h-4 mr-2"/>Sincronizar
+                    <Button variant="ghost" size="sm" onClick={() => loadData(false)} title="Actualizar desde presupuesto">
+                        <RefreshCw className="w-4 h-4 mr-2"/>Sincronizar con Presupuesto
                     </Button>
                     <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
                 </div>
