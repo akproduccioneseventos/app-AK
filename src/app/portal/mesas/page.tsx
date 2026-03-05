@@ -1,152 +1,52 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense, use } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, AlertTriangle, Square, Circle, Users, LayoutDashboard, Disc, Clapperboard, Sofa, Camera as CameraIcon, Map, PartyPopper, Ticket, Search, UserMinus, X } from 'lucide-react';
+import { Loader2, AlertTriangle, Users, Trash2, Edit3, PlusCircle, ArrowLeft, Info, CheckCircle2, UserPlus2, UserMinus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData, LayoutElementType } from '@/types/fiesta';
-import { getFiestaById, updateInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
-import NextImage from 'next/image';
+import type { FiestaEnPlanificacion, Invitado } from '@/types/fiesta';
+import type { CategoriaInvitado } from '@/types/invitado';
+import { getFiestaById, updateInvitadoFiestaActual, deleteInvitadoFiestaActual, addInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
 import { cn } from "@/lib/utils";
-import Draggable from 'react-draggable';
-import { DndProvider, useDrag, useDrop } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Progress } from '@/components/ui/progress';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
 
-
-const PIXELS_PER_METER_DEFAULT = 40;
-const GUEST_ITEM_TYPE = 'guest';
-
-// --- Sub-components for Drag and Drop ---
-interface GuestDragItem {
-  id: string;
-}
-
-const GuestCard: React.FC<{ guest: Invitado }> = ({ guest }) => {
-  const [{ isDragging }, drag] = useDrag(() => ({
-    type: GUEST_ITEM_TYPE,
-    item: { id: guest.id } as GuestDragItem,
-    collect: (monitor) => ({
-      isDragging: !!monitor.isDragging(),
-    }),
-  }));
-
-  return (
-    <div ref={drag} className={cn("p-2 border rounded-md bg-background shadow-sm cursor-grab", isDragging && "opacity-50")}>
-      <p className="font-medium text-sm truncate">{guest.nombre}</p>
-      <p className="text-xs text-muted-foreground">{guest.partySize || 1} persona(s)</p>
-    </div>
-  );
-};
-
-const TableDropZone: React.FC<{
-    element: LayoutElement;
-    onDrop: (guestId: string, tableName: string) => void;
-    children: React.ReactNode;
-}> = ({ element, onDrop, children }) => {
-  const [{ isOver }, drop] = useDrop(() => ({
-    accept: GUEST_ITEM_TYPE,
-    drop: (item: GuestDragItem) => onDrop(item.id, element.name),
-    collect: (monitor) => ({
-      isOver: !!monitor.isOver(),
-    }),
-  }));
-
-  return (
-    <div ref={drop} className={cn("absolute", isOver && "ring-2 ring-offset-2 ring-primary rounded-md")}>
-        {children}
-    </div>
-  );
-};
-
-const Seat: React.FC<{
-  isOccupied: boolean;
-  isRound: boolean;
-  width: number;
-  height: number;
-  index: number;
-  total: number;
-}> = ({ isOccupied, isRound, width, height, index, total }) => {
-  let style: React.CSSProperties = {};
-  if (isRound) {
-    const angle = index * (360 / total);
-    const radius = Math.min(width, height) / 2 + 12;
-    style = {
-      transform: `rotate(${angle}deg) translate(${radius}px) rotate(-${angle}deg)`,
-      transformOrigin: 'center center',
-      left: `calc(50% - 0.5rem)`, // Center the seat origin
-      top: `calc(50% - 0.5rem)`,
-    };
-  } else {
-    // Distribute seats along the perimeter of the rectangle
-    const perimeter = 2 * (width + height);
-    if (total === 0) return null; // Avoid division by zero
-    const seatSpacing = perimeter / total;
-    let currentPosition = index * seatSpacing;
-
-    let x = 0, y = 0;
-    
-    // Top edge
-    if (currentPosition <= width) {
-        x = currentPosition;
-        y = -15;
-    } 
-    // Right edge
-    else if (currentPosition <= width + height) {
-        x = width + 15;
-        y = currentPosition - width;
-    } 
-    // Bottom edge
-    else if (currentPosition <= 2 * width + height) {
-        x = width - (currentPosition - (width + height));
-        y = height + 15;
-    } 
-    // Left edge
-    else {
-        x = -15;
-        y = height - (currentPosition - (2 * width + height));
-    }
-
-    style = {
-        left: `${x}px`,
-        top: `${y}px`,
-        transform: 'translate(-50%, -50%)',
-    };
-  }
-
-  return (
-    <div
-      className={cn(
-        "absolute w-4 h-4 rounded-full border-2",
-        isOccupied ? "bg-primary border-primary-foreground" : "border-primary bg-background"
-      )}
-      style={style}
-    ></div>
-  );
-};
-
-// --- Main Content Component ---
 function AsignacionMesasContent() {
   const searchParams = useSearchParams();
   const fiestaId = searchParams.get('fiestaId');
   const { toast } = useToast();
+  const router = useRouter();
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
-  const [decoracion, setDecoracion] = useState<DecoracionData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [scale, setScale] = useState(1);
-  const [guestSearchTerm, setGuestSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Form states
+  const [newName, setNewName] = useState('');
+  const [newCategory, setNewCategory] = useState<CategoriaInvitado>('Adulto');
+  
+  const [editingGuest, setEditingGuest] = useState<Invitado | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!fiestaId) {
@@ -160,10 +60,9 @@ function AsignacionMesasContent() {
       const fiestaData = await getFiestaById(fiestaId);
       if(!fiestaData) throw new Error("Evento no encontrado.");
       setFiesta(fiestaData);
-      setDecoracion(fiestaData.decoracion || { salonElements: [], pixelsPerMeter: PIXELS_PER_METER_DEFAULT, salonWidth: 15, salonHeight: 15 });
     } catch (err: any) {
       setError("Error al cargar la información del evento.");
-      console.error("Error fetching data for table assignment:", err);
+      console.error("Error fetching data:", err);
     } finally {
       setIsLoading(false);
     }
@@ -173,219 +72,337 @@ function AsignacionMesasContent() {
     loadData();
   }, [loadData]);
   
-  const handleAssignGuestToTable = async (guestId: string, tableName: string | null) => {
-    if (!fiesta) return;
-    
-    const guestToUpdate = fiesta.invitados?.find(inv => inv.id === guestId);
-    if (!guestToUpdate) return;
-    
-    const updatedGuest: Invitado = { ...guestToUpdate, tableNumber: tableName === null ? undefined : tableName };
+  const totalContracted = Number(fiesta?.configuracion.invitadosEstimados) || 0;
+  const currentTotal = fiesta?.invitados?.reduce((sum, inv) => sum + (inv.partySize || 1), 0) || 0;
+  const isLimitReached = currentTotal >= totalContracted;
 
-    // Optimistic UI update
-    setFiesta(prevFiesta => {
-        if (!prevFiesta) return null;
-        return {
-            ...prevFiesta,
-            invitados: (prevFiesta.invitados || []).map(inv => inv.id === guestId ? updatedGuest : inv),
-        };
-    });
+  const handleAddGuest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!fiestaId || !newName.trim()) return;
+    
+    if (isLimitReached) {
+        toast({
+            title: "Límite alcanzado",
+            description: "Has alcanzado el máximo de invitados contratados. Contacta al organizador para ampliar el cupo.",
+            variant: "destructive"
+        });
+        return;
+    }
 
+    setIsSaving(true);
     try {
-      const result = await updateInvitadoFiestaActual(fiesta.id, updatedGuest);
-      if (!result.success) {
-        throw new Error(result.error || "No se pudo guardar la asignación.");
-      }
-      toast({ title: "Asignación Guardada", description: `${updatedGuest.nombre} -> ${tableName || 'Sin mesa'}`});
+        const result = await addInvitadoFiestaActual(fiestaId, {
+            nombre: newName.trim(),
+            categoria: newCategory,
+            rsvp: 'Confirmado',
+            partySize: 1,
+            companionNames: [],
+        });
+
+        if (result.success) {
+            setNewName('');
+            toast({ title: "Invitado añadido" });
+            await loadData();
+        } else throw new Error(result.error);
     } catch (e: any) {
-       toast({ title: "Error", description: `No se pudo guardar la asignación: ${e.message}`, variant: "destructive"});
-       loadData(); // Revert on error
+        toast({ title: "Error", description: e.message, variant: "destructive" });
+    } finally {
+        setIsSaving(false);
     }
   };
-  
-  const filteredGuests = useMemo(() => {
-    if (!fiesta?.invitados) return { sinMesa: [] };
-    
-    const lowerCaseSearch = guestSearchTerm.toLowerCase();
-    const guestsToConsider = fiesta.invitados.filter(g => g.rsvp === 'Confirmado');
-      
-    const sinMesa = guestsToConsider
-      .filter(g => !g.tableNumber && g.nombre.toLowerCase().includes(lowerCaseSearch))
-      .sort((a,b) => a.nombre.localeCompare(b.nombre));
 
-    return { sinMesa };
-  }, [fiesta?.invitados, guestSearchTerm]);
-  
-  const guestsByTable = useMemo(() => {
-    if (!fiesta?.invitados) return {};
+  const handleDeleteGuest = async (guestId: string) => {
+    if (!fiestaId) return;
+    setIsSaving(true);
+    try {
+        const result = await deleteInvitadoFiestaActual(fiestaId, guestId);
+        if (result.success) {
+            toast({ title: "Invitado eliminado" });
+            await loadData();
+        } else throw new Error(result.error);
+    } catch (e: any) {
+        toast({ title: "Error", description: e.message, variant: "destructive" });
+    } finally {
+        setIsSaving(false);
+    }
+  };
+
+  const handleUpdateGuest = async (guest: Invitado) => {
+    if (!fiestaId) return;
+    setIsSaving(true);
+    try {
+        const result = await updateInvitadoFiestaActual(fiestaId, guest);
+        if (result.success) {
+            toast({ title: "Invitado actualizado" });
+            setIsEditModalOpen(false);
+            await loadData();
+        } else throw new Error(result.error);
+    } catch (e: any) {
+        toast({ title: "Error", description: e.message, variant: "destructive" });
+    } finally {
+        setIsSaving(false);
+    }
+  };
+
+  const filteredInvitados = useMemo(() => {
+    if (!fiesta?.invitados) return [];
+    const lower = searchTerm.toLowerCase();
     return fiesta.invitados
-      .filter(g => g.rsvp === 'Confirmado' && g.tableNumber)
-      .reduce((acc, guest) => {
-        const table = guest.tableNumber!;
-        if (!acc[table]) {
-          acc[table] = [];
-        }
-        acc[table].push(guest);
-        return acc;
-      }, {} as Record<string, Invitado[]>);
-  }, [fiesta?.invitados]);
+        .filter(inv => inv.nombre.toLowerCase().includes(lower))
+        .sort((a,b) => a.nombre.localeCompare(b.nombre));
+  }, [fiesta?.invitados, searchTerm]);
+
+  const availableTables = useMemo(() => {
+    return (fiesta?.decoracion?.salonElements || [])
+        .filter(el => el.category?.includes("Mesa"))
+        .map(el => {
+            const assigned = (fiesta?.invitados || []).filter(inv => inv.tableNumber === el.name);
+            const occupiedSeats = assigned.reduce((sum, g) => sum + (g.partySize || 1), 0);
+            return {
+                name: el.name,
+                seats: el.seats || 0,
+                occupied: occupiedSeats,
+                remaining: (el.seats || 0) - occupiedSeats
+            };
+        });
+  }, [fiesta]);
 
   if (isLoading || !fiesta) {
-    return <><div className="flex flex-col items-center justify-center text-center p-8"><Loader2 className="w-12 h-12 animate-spin text-primary mb-4" /><p className="text-lg text-muted-foreground">Cargando diseñador de mesas...</p></div></>;
+    return <div className="flex flex-col items-center justify-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary mb-4" /><p>Cargando lista de invitados...</p></div>;
   }
 
   if (error) {
-    return <Card className="w-full max-w-md shadow-lg"><CardHeader className="text-center bg-destructive/10"><AlertTriangle className="w-16 h-16 mx-auto text-destructive mb-3" /><CardTitle className="text-xl font-semibold text-destructive">Error</CardTitle></CardHeader><CardContent className="text-center space-y-4 py-6"><p className="text-muted-foreground">{error}</p></CardContent></Card>;
+    return (
+        <div className="flex items-center justify-center h-screen p-4">
+            <Card className="max-w-md text-center bg-destructive/10">
+                <CardHeader>
+                    <AlertTriangle className="w-12 h-12 mx-auto text-destructive" />
+                    <CardTitle className="text-destructive">Error</CardTitle>
+                </CardHeader>
+                <CardContent><p>{error}</p></CardContent>
+            </Card>
+        </div>
+    );
   }
-  
-  if (!decoracion) return null;
-  const pixelsPerMeter = decoracion.pixelsPerMeter || PIXELS_PER_METER_DEFAULT;
 
   return (
-    <>
-      <Card className="max-w-6xl w-full mx-auto shadow-xl">
-          <CardHeader className="text-center">
-              <PartyPopper className="w-10 h-10 mx-auto text-primary" />
-              <CardTitle className="font-headline text-3xl">Organiza tus Mesas</CardTitle>
-              <CardDescription>Arrastra los invitados a las mesas o asígnalos desde la lista.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="visual">
-                <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="visual">Diseño Visual</TabsTrigger>
-                    <TabsTrigger value="list">Asignación por Lista</TabsTrigger>
-                </TabsList>
-                <TabsContent value="visual">
-                   <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 h-[calc(100vh-450px)] pt-4">
-                     <Card className="xl:col-span-3 flex flex-col">
-                        <CardHeader className="p-3"><CardTitle className="text-md">Invitados sin Mesa ({filteredGuests.sinMesa.length})</CardTitle></CardHeader>
-                        <CardContent className="flex-grow min-h-0 p-3"><ScrollArea className="h-full"><div className="space-y-2 pr-4">{filteredGuests.sinMesa.map(guest => <GuestCard key={guest.id} guest={guest} />)}</div></ScrollArea></CardContent>
-                    </Card>
-                     <div className="xl:col-span-9 bg-card border rounded-lg p-2 h-full overflow-auto">
-                        <div className="relative canvas-grid-background" style={{ width: `${(decoracion.salonWidth || 15) * pixelsPerMeter}px`, height: `${(decoracion.salonHeight || 15) * pixelsPerMeter}px`, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
-                           {decoracion.salonPlanBackgroundImageUrl && (<NextImage src={decoracion.salonPlanBackgroundImageUrl} alt="Plano del Salón" layout="fill" objectFit="contain" className="opacity-50"/>)}
-                            {(decoracion.salonElements || []).map(el => {
-                                const nodeRef = React.createRef<HTMLDivElement>();
-                                const assignedGuests = (fiesta?.invitados || []).filter(inv => inv.tableNumber === el.name);
-                                const assignedSeatsCount = assignedGuests.reduce((sum, g) => sum + (g.partySize || 1), 0);
-                                const isRound = el.shape === 'circle';
+    <div className="min-h-screen bg-muted/30 p-4 md:p-8">
+        <div className="max-w-5xl mx-auto space-y-6">
+            <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h1 className="text-3xl font-bold font-headline text-primary">{fiesta.configuracion.nombreEvento}</h1>
+                    <p className="text-muted-foreground italic">Gestión de Lista de Invitados y Mesas</p>
+                </div>
+                <Link href={`/portal?fiestaId=${fiestaId}`} passHref>
+                    <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Portal</Button>
+                </Link>
+            </header>
 
-                                return (
-                                    <Draggable key={el.id} nodeRef={nodeRef} position={{ x: el.x, y: el.y }} disabled>
-                                        <TableDropZone element={el} onDrop={(guestId) => handleAssignGuestToTable(guestId, el.name)}>
-                                            <div ref={nodeRef} id={el.id} className="absolute" style={{ left: el.x, top: el.y, width: el.width, height: el.height, transform: `rotate(${el.rotation}deg)`, zIndex: el.zIndex || (el.type === 'area' ? 0 : 1) }}>
-                                                {Array.from({ length: el.seats || 0 }).map((_, i) => (
-                                                    <Seat
-                                                      key={i}
-                                                      index={i}
-                                                      total={el.seats || 0}
-                                                      isOccupied={i < assignedSeatsCount}
-                                                      isRound={isRound}
-                                                      width={el.width}
-                                                      height={el.height}
-                                                    />
-                                                ))}
-                                                <div className={cn('w-full h-full border flex flex-col p-1 border-gray-500', isRound && 'rounded-full')} style={{ backgroundColor: el.backgroundColor || 'rgba(255, 255, 255, 0.7)' }}>
-                                                    <p className="text-xs font-bold text-center truncate">{el.name}</p>
-                                                    <p className="text-[10px] text-center text-muted-foreground">{assignedSeatsCount}/{el.seats || 'N/A'}</p>
-                                                    <div className="text-[9px] space-y-0.5 overflow-y-auto flex-grow mt-1 text-center">
-                                                      {assignedGuests.map(g => (
-                                                        <div key={g.id} className="flex items-center justify-center gap-1 group relative">
-                                                          <span className="truncate">{g.nombre} ({g.partySize})</span>
-                                                           <button onClick={() => handleAssignGuestToTable(g.id, null)} className="hidden group-hover:block text-destructive">
-                                                                <UserMinus className="w-3 h-3"/>
-                                                            </button>
-                                                        </div>
-                                                      ))}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </TableDropZone>
-                                    </Draggable>
-                                )
-                            })}
-                        </div>
+            {/* Cupos Card */}
+            <Card className="shadow-md border-primary/20">
+                <CardHeader className="pb-3">
+                    <div className="flex justify-between items-center mb-2">
+                        <CardTitle className="text-lg flex items-center gap-2">
+                            <Users className="w-5 h-5 text-primary"/>
+                            Control de Cupos Contratados
+                        </CardTitle>
+                        <Badge variant={isLimitReached ? "destructive" : "secondary"} className="font-bold">
+                            {currentTotal} / {totalContracted} invitados
+                        </Badge>
                     </div>
-                  </div>
-                </TabsContent>
-                <TabsContent value="list">
-                    <div className="pt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <h4 className="font-semibold mb-2">Mesas</h4>
-                             <Accordion type="multiple" className="w-full space-y-2">
-                                {(decoracion.salonElements || []).filter(el => el.category?.includes("Mesa")).map(table => {
-                                    const assigned = guestsByTable[table.name] || [];
-                                    const totalSeats = assigned.reduce((sum, g) => sum + (g.partySize || 1), 0);
-                                    return (
-                                        <AccordionItem key={table.id} value={table.id}>
-                                            <AccordionTrigger className="p-2 border rounded-md text-sm font-medium">
-                                                {table.name} ({totalSeats}/{table.seats || 'N/A'})
-                                            </AccordionTrigger>
-                                            <AccordionContent className="p-2">
-                                               <ul className="space-y-1">
-                                                  {assigned.map(guest => (
-                                                    <li key={guest.id} className="text-xs flex items-center justify-between p-1 bg-muted/50 rounded">
-                                                        <span>{guest.nombre} ({guest.partySize})</span>
-                                                        <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => handleAssignGuestToTable(guest.id, null)}>
-                                                            <UserMinus className="w-3.5 h-3.5" />
-                                                        </Button>
-                                                    </li>
-                                                  ))}
-                                                  {assigned.length === 0 && <p className="text-xs text-center text-muted-foreground py-2">Mesa vacía</p>}
-                                               </ul>
-                                            </AccordionContent>
-                                        </AccordionItem>
-                                    )
-                                })}
-                             </Accordion>
+                    <Progress value={(currentTotal / totalContracted) * 100} className="h-3" />
+                </CardHeader>
+                <CardContent>
+                    {isLimitReached ? (
+                        <div className="bg-destructive/10 text-destructive p-3 rounded-md flex items-center gap-3 text-sm font-medium">
+                            <AlertTriangle className="w-5 h-5"/>
+                            Has alcanzado el límite de invitados contratados. Para añadir más, contacta con el equipo de AK Producciones.
                         </div>
-                         <div>
-                            <h4 className="font-semibold mb-2">Invitados Sin Asignar ({filteredGuests.sinMesa.length})</h4>
-                            <div className="relative mb-2">
-                                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                                <Input placeholder="Buscar invitado..." value={guestSearchTerm} onChange={(e) => setGuestSearchTerm(e.target.value)} className="w-full pl-8 h-9"/>
+                    ) : (
+                        <p className="text-xs text-muted-foreground italic flex items-center gap-1.5">
+                            <Info className="w-3.5 h-3.5"/>
+                            Te quedan {totalContracted - currentTotal} cupos disponibles para agregar.
+                        </p>
+                    )}
+                </CardContent>
+            </Card>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* Form Col */}
+                <Card className="lg:col-span-4 h-fit sticky top-20">
+                    <CardHeader>
+                        <CardTitle className="text-lg">Añadir Invitado</CardTitle>
+                        <CardDescription>Carga cada persona de forma individual.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <form onSubmit={handleAddGuest} className="space-y-4">
+                            <div className="space-y-1.5">
+                                <Label htmlFor="guest-name">Nombre Completo</Label>
+                                <Input 
+                                    id="guest-name" 
+                                    placeholder="Ej: Juan Pérez" 
+                                    value={newName} 
+                                    onChange={e => setNewName(e.target.value)}
+                                    disabled={isSaving || isLimitReached}
+                                />
                             </div>
-                            <ScrollArea className="h-[40vh] border rounded-md">
-                                <Table>
-                                    <TableHeader><TableRow><TableHead>Invitado</TableHead><TableHead className="text-center">#</TableHead><TableHead>Asignar</TableHead></TableRow></TableHeader>
-                                    <TableBody>
-                                        {filteredGuests.sinMesa.map(guest => (
-                                            <TableRow key={guest.id}>
-                                                <TableCell className="font-medium text-xs">{guest.nombre}</TableCell>
-                                                <TableCell className="text-center text-xs">{guest.partySize}</TableCell>
-                                                <TableCell className="p-1">
-                                                  <Select value={''} onValueChange={(val) => handleAssignGuestToTable(guest.id, val)}>
-                                                    <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Mesa..." /></SelectTrigger>
-                                                    <SelectContent>{(decoracion.salonElements || []).filter(el => el.category?.includes("Mesa")).map(t => <SelectItem key={t.id} value={t.name} className="text-xs">{t.name}</SelectItem>)}</SelectContent>
-                                                  </Select>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </ScrollArea>
-                         </div>
+                            <div className="space-y-1.5">
+                                <Label htmlFor="guest-cat">Categoría (para Menú)</Label>
+                                <Select value={newCategory} onValueChange={(v) => setNewCategory(v as CategoriaInvitado)} disabled={isSaving || isLimitReached}>
+                                    <SelectTrigger id="guest-cat"><SelectValue /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Adulto">Adulto</SelectItem>
+                                        <SelectItem value="Niño/Adolescente">Niño / Adolescente</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <Button type="submit" className="w-full" disabled={isSaving || isLimitReached || !newName.trim()}>
+                                {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <UserPlus2 className="w-4 h-4 mr-2"/>}
+                                Añadir a la Lista
+                            </Button>
+                        </form>
+                    </CardContent>
+                </Card>
+
+                {/* List Col */}
+                <Card className="lg:col-span-8">
+                    <CardHeader className="flex flex-row items-center justify-between">
+                        <div>
+                            <CardTitle>Listado de Invitados</CardTitle>
+                            <CardDescription>Revisa y asigna mesas a tus invitados.</CardDescription>
+                        </div>
+                        <div className="relative w-48">
+                            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input 
+                                placeholder="Buscar..." 
+                                className="pl-8 h-9 text-xs" 
+                                value={searchTerm}
+                                onChange={e => setSearchTerm(e.target.value)}
+                            />
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        <ScrollArea className="h-[60vh]">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Nombre</TableHead>
+                                        <TableHead>Categoría</TableHead>
+                                        <TableHead>Mesa</TableHead>
+                                        <TableHead className="text-right">Acciones</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {filteredInvitados.map(guest => (
+                                        <TableRow key={guest.id}>
+                                            <TableCell className="font-medium text-sm">{guest.nombre}</TableCell>
+                                            <TableCell>
+                                                <Badge variant="outline" className="text-[10px] uppercase font-bold px-1.5 py-0">
+                                                    {guest.categoria || 'Adulto'}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Select 
+                                                    value={guest.tableNumber || 'sin-mesa'} 
+                                                    onValueChange={(val) => handleUpdateGuest({...guest, tableNumber: val === 'sin-mesa' ? undefined : val})}
+                                                    disabled={isSaving}
+                                                >
+                                                    <SelectTrigger className="h-8 text-xs w-[120px]">
+                                                        <SelectValue placeholder="Mesa..."/>
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="sin-mesa" className="text-destructive font-semibold">Sin Mesa</SelectItem>
+                                                        <Separator className="my-1"/>
+                                                        {availableTables.map(t => (
+                                                            <SelectItem key={t.name} value={t.name}>
+                                                                {t.name} ({t.occupied}/{t.seats})
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                <div className="flex justify-end gap-1">
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditingGuest(guest); setIsEditModalOpen(true); }}>
+                                                        <Edit3 className="w-4 h-4"/>
+                                                    </Button>
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDeleteGuest(guest.id)}>
+                                                        <Trash2 className="w-4 h-4"/>
+                                                    </Button>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                    {filteredInvitados.length === 0 && (
+                                        <TableRow>
+                                            <TableCell colSpan={4} className="text-center py-10 text-muted-foreground italic">
+                                                No hay invitados en la lista.
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </ScrollArea>
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
+
+        {/* Edit Modal */}
+        <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Editar Invitado</DialogTitle>
+                    <DialogDescription>Actualiza el nombre o la categoría de este invitado.</DialogDescription>
+                </DialogHeader>
+                {editingGuest && (
+                    <div className="space-y-4 py-2">
+                        <div className="space-y-1.5">
+                            <Label htmlFor="edit-name">Nombre Completo</Label>
+                            <Input id="edit-name" value={editingGuest.nombre} onChange={e => setEditingGuest({...editingGuest, nombre: e.target.value})} />
+                        </div>
+                        <div className="space-y-1.5">
+                            <Label htmlFor="edit-cat">Categoría</Label>
+                            <Select value={editingGuest.categoria || 'Adulto'} onValueChange={(v) => setEditingGuest({...editingGuest, categoria: v as CategoriaInvitado})}>
+                                <SelectTrigger id="edit-cat"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Adulto">Adulto</SelectItem>
+                                    <SelectItem value="Niño/Adolescente">Niño / Adolescente</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
-                </TabsContent>
-            </Tabs>
-          </CardContent>
-      </Card>
-    </>
+                )}
+                <DialogFooter>
+                    <DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose>
+                    <Button onClick={() => editingGuest && handleUpdateGuest(editingGuest)} disabled={isSaving}>
+                        {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>}
+                        Guardar Cambios
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    </div>
   );
 }
 
+const Badge = ({ children, variant = 'default', className }: { children: React.ReactNode, variant?: 'default' | 'secondary' | 'destructive' | 'outline', className?: string }) => (
+    <span className={cn(
+        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+        variant === 'default' ? "border-transparent bg-primary text-primary-foreground hover:bg-primary/80" : 
+        variant === 'secondary' ? "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80" :
+        variant === 'destructive' ? "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80" :
+        "text-foreground border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+        className
+    )}>
+        {children}
+    </span>
+);
+
 export default function MesaPage() {
     return (
-        <div className="min-h-screen bg-gradient-to-br from-muted/30 to-background flex flex-col items-center justify-center p-4">
-            <Suspense fallback={
-                 <div className="flex flex-col items-center justify-center text-center p-8">
-                    <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
-                    <p className="text-lg text-muted-foreground">Cargando...</p>
-                </div>
-            }>
-                <DndProvider backend={HTML5Backend}>
-                    <AsignacionMesasContent />
-                </DndProvider>
-            </Suspense>
-        </div>
+        <Suspense fallback={<div className="flex items-center justify-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>}>
+            <AsignacionMesasContent />
+        </Suspense>
     );
 }

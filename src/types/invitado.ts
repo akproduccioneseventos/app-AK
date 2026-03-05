@@ -1,8 +1,10 @@
 export type RsvpStatus = 'Pendiente' | 'Confirmado' | 'Rechazado' | 'Tal vez';
+export type CategoriaInvitado = 'Adulto' | 'Niño/Adolescente';
 
 export interface Invitado {
   id: string;
   nombre: string;
+  categoria?: CategoriaInvitado;
   contacto?: string; // Email o teléfono
   rsvp: RsvpStatus;
   partySize?: number; // Cuántas personas vienen con esta invitación (incluyendo el principal)
