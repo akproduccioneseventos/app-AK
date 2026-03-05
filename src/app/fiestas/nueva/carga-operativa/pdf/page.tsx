@@ -3,7 +3,8 @@
 
 import { useState, useEffect, useCallback, Suspense } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer as PrinterIcon, PackageSearch, Share2, KeyRound, AlertTriangle, Info } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ArrowLeft, Printer as PrinterIcon, PackageSearch, Share2, KeyRound, AlertTriangle, Info, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
@@ -181,7 +182,7 @@ function CargaOperativaPdfContent() {
                                     CANT: {item.cantidad} {item.unidad || 'Uds.'}
                                 </span>
                             </div>
-                            {item.notas && <p className="text-[10px] text-gray-500 italic print:text-[7pt] mt-0.5">Nota: {item.notas}</p>}
+                            {item.notes && <p className="text-[10px] text-gray-500 italic print:text-[7pt] mt-0.5">Nota: {item.notes}</p>}
                             </div>
                         </div>
                         ))}
