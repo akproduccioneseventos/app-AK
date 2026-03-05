@@ -9,19 +9,19 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save, Loader2, AlertTriangle, BarChart3, PlusCircle, Trash2, DollarSign, ShoppingCart, HardHat, ChefHat, Printer, RefreshCw, Truck } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, BarChart3, PlusCircle, Trash2, DollarSign, ShoppingCart, HardHat, ChefHat, Printer, RefreshCw, Truck, Info, Layers } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, GestionCostosData, CostoItem, CostoCategoria } from '@/types/fiesta';
 import { getFiestaById, updateGestionCostosFiestaActual } from '@/app/actions/fiesta-actual';
 import { defaultGestionCostos } from '@/lib/fiesta-defaults';
 import { getMenuById } from '@/app/actions/menus-catering';
 import { Separator } from '@/components/ui/separator';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from '@/components/ui/table';
 import { useSearchParams } from 'next/navigation';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getRoles } from '@/app/actions/roles';
 import type { Rol } from '@/types/rol';
+import { cn } from '@/lib/utils';
 
 const COST_CATEGORIES: CostoCategoria[] = [
   'Servicio Proveedor',
@@ -101,11 +101,11 @@ function GestionCostosRentabilidadContent() {
               // 2. Regla Flete de Camión ($2400 si no es Club Uruguay)
               const lugar = (fiesta.configuracion.nombreLugar || '').toLowerCase();
               if (!lugar.includes('club uruguay') && lugar.trim() !== '') {
-                  if (!manualCosts.some(c => c.nombre.toLowerCase().includes('flete'))) {
+                  if (!manualCosts.some(c => c.id === 'auto_flete')) {
                       manualCosts.push({
                           id: 'auto_flete',
                           nombre: 'Flete de Camión (Fuera de Sede)',
-                          category: 'Servicio Proveedor',
+                          category: 'Otro Costo Directo',
                           montoEstimado: 2400,
                           notas: 'Carga automática por salón fuera de Club Uruguay'
                       });
@@ -124,7 +124,7 @@ function GestionCostosRentabilidadContent() {
                       nombre: 'Subcontratación: Fotocabina',
                       category: 'Servicio Proveedor',
                       montoEstimado: 1500,
-                      notas: 'Costo de subcontratación (independiente de si es regalo o no)'
+                      notas: 'Costo de subcontratación'
                   });
                   modified = true;
               }
@@ -135,7 +135,7 @@ function GestionCostosRentabilidadContent() {
                       nombre: 'Subcontratación: Plataforma 360',
                       category: 'Servicio Proveedor',
                       montoEstimado: 1500,
-                      notas: 'Costo de subcontratación (independiente de si es regalo o no)'
+                      notas: 'Costo de subcontratación'
                   });
                   modified = true;
               }
@@ -148,15 +148,13 @@ function GestionCostosRentabilidadContent() {
                   if (!existingTorta) {
                       manualCosts.push({
                           id: 'auto_costo_torta',
-                          nombre: 'Costo Torta (Insumos/Subcont.)',
+                          nombre: 'Costo Torta (Insumos)',
                           category: 'Servicio Proveedor',
                           montoEstimado: costoTorta,
                           notas: `Cálculo automático: $60 x ${invitados} invitados`
                       });
                       modified = true;
                   } else if (existingTorta.montoEstimado !== costoTorta) {
-                      // Solo actualizamos si el usuario no lo cambió manualmente? 
-                      // Por ahora, lo mantenemos dinámico si cambia el nro de invitados
                       existingTorta.montoEstimado = costoTorta;
                       existingTorta.notas = `Cálculo automático actualizado: $60 x ${invitados} invitados`;
                       modified = true;
@@ -253,11 +251,44 @@ function GestionCostosRentabilidadContent() {
     }, 0);
   }, [fiestaActual?.personalAsignado, allRoles]);
 
+  const decorCost = useMemo(() => {
+    return (fiestaActual?.decoracion?.items || []).reduce((s, i) => s + (i.estimatedCost || 0), 0);
+  }, [fiestaActual?.decoracion?.items]);
+
+  // --- LOGICA DE AGRUPACIÓN POR CATEGORÍA ---
+  const groupedAllCosts = useMemo(() => {
+    const groups: Record<string, { items: { name: string, amount: number, notes?: string, isSystem?: boolean, id?: string }[], subtotal: number }> = {};
+
+    const add = (cat: string, name: string, amount: number, notes?: string, isSystem = false, id?: string) => {
+      if (amount <= 0 && isSystem) return;
+      if (!groups[cat]) groups[cat] = { items: [], subtotal: 0 };
+      groups[cat].items.push({ name, amount, notes, isSystem, id });
+      groups[cat].subtotal += amount;
+    };
+
+    // 1. Agregar Costos del Sistema (Calculados)
+    add('Catering', 'Menú del Evento', costoTotalMenu, 'Costo ingredientes p/persona', true);
+    add('Repostería', 'Tortas y Postres', costoTotalReposteria, 'Costo directo ingredientes', true);
+    add('Bebidas', 'Insumos y Barra', costoTotalBebidas, 'Insumos barra y recetas', true);
+    add('Personal', 'Sueldos + Aportes', personalCost, 'Calculado por personal asignado', true);
+    add('Decoración', 'Elementos Decorativos', decorCost, 'Items añadidos en decoración', true);
+
+    // 2. Agregar Costos Manuales mapeándolos a categorías lógicas
+    (gestionCostos.costosItems || []).forEach(item => {
+      let cat = item.category;
+      // Normalizar nombres de categorías manuales a las visuales si coinciden
+      if (cat === 'Personal Evento') cat = 'Personal';
+      if (cat === 'Pago de Salón') cat = 'Salón';
+      
+      add(cat, item.nombre, item.montoEstimado, item.notas, false, item.id);
+    });
+
+    return groups;
+  }, [costoTotalMenu, costoTotalReposteria, costoTotalBebidas, personalCost, decorCost, gestionCostos.costosItems]);
+
   const costoTotalEstimadoEvento = useMemo(() => {
-    const manualCosts = (gestionCostos.costosItems || []).reduce((sum, item) => sum + item.montoEstimado, 0);
-    const decorCost = (fiestaActual?.decoracion?.items || []).reduce((s, i) => s + (i.estimatedCost || 0), 0);
-    return manualCosts + costoTotalMenu + costoTotalReposteria + costoTotalBebidas + personalCost + decorCost;
-  }, [gestionCostos.costosItems, costoTotalMenu, costoTotalReposteria, costoTotalBebidas, personalCost, fiestaActual]);
+    return Object.values(groupedAllCosts).reduce((sum, group) => sum + group.subtotal, 0);
+  }, [groupedAllCosts]);
 
   const gananciaNetaEstimada = useMemo(() => {
     return (gestionCostos.ingresosTotalesEstimados || 0) - costoTotalEstimadoEvento;
@@ -273,7 +304,7 @@ function GestionCostosRentabilidadContent() {
     if (!fiestaId) return;
     setIsSaving(true);
     try {
-      const result = await updateGestionCostosFiestaActual(fiestaId, gestionCostos);
+      const result = await updateGestionCostosFiestaActual(fiestaId, { ...gestionCostos });
       if (result.success) {
         toast({ title: "¡Datos Guardados!", description: "La información de costos y rentabilidad ha sido actualizada." });
         if (result.updatedData) setGestionCostos(result.updatedData);
@@ -310,88 +341,162 @@ function GestionCostosRentabilidadContent() {
         </div>
       </div>
 
-      <Card className="shadow-md border-primary/20">
-        <CardHeader><CardTitle className="font-headline text-xl">Resumen Financiero del Evento</CardTitle></CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-3 border rounded-lg bg-blue-50 dark:bg-blue-900/40"><p className="text-xs font-medium text-blue-700 dark:text-blue-300 uppercase">Costo Estimado</p><p className="text-xl font-bold text-blue-600 dark:text-blue-400">{formatCurrency(costoTotalEstimadoEvento)}</p></div>
-          <div className="p-3 border rounded-lg bg-green-50 dark:bg-green-900/40"><p className="text-xs font-medium text-green-700 dark:text-green-300 uppercase">Ingresos (Presupuesto)</p><p className="text-xl font-bold text-green-600 dark:text-green-400">{formatCurrency(gestionCostos.ingresosTotalesEstimados)}</p></div>
-          <div className="p-3 border rounded-lg bg-purple-50 dark:bg-purple-900/40"><p className="text-xs font-medium text-purple-700 dark:text-purple-300 uppercase">Ganancia Neta</p><p className="text-xl font-bold text-purple-600 dark:text-purple-400">{formatCurrency(gananciaNetaEstimada)}</p></div>
-          <div className={`p-3 border rounded-lg ${margenRentabilidad < 30 ? 'bg-red-50 dark:bg-red-900/40' : 'bg-orange-50 dark:bg-orange-900/40'}`}><p className="text-xs font-medium uppercase">Rentabilidad</p><p className={`text-xl font-bold ${margenRentabilidad < 30 ? 'text-red-600' : 'text-orange-600'}`}>{margenRentabilidad.toFixed(1)}%</p></div>
-        </CardContent>
-        <CardFooter className="border-t pt-4">
-            <div className="space-y-2 w-full max-w-sm">
-                <Label htmlFor="ingresos-totales" className="text-base font-semibold text-primary">Ingreso Total (Monto Presupuestado)</Label>
-                <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
-                    <Input id="ingresos-totales" type="number" value={gestionCostos.ingresosTotalesEstimados || ''} onChange={handleIngresosChange} placeholder="0.00" min="0" step="any" className="text-lg p-3 pl-7" disabled={isSaving}/>
+      <Card className="shadow-md border-primary/20 overflow-hidden">
+        <CardHeader className="bg-primary/5 pb-4">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <CardTitle className="font-headline text-xl">Resumen Financiero Consolidado</CardTitle>
+                    <CardDescription>Cálculo basado en ingresos del presupuesto vs. costos de todos los módulos.</CardDescription>
+                </div>
+                <div className="space-y-1 w-full md:w-auto">
+                    <Label htmlFor="ingresos-totales" className="text-xs uppercase font-bold text-muted-foreground">Ingreso por Presupuesto</Label>
+                    <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-bold">$</span>
+                        <Input id="ingresos-totales" type="number" value={gestionCostos.ingresosTotalesEstimados || ''} onChange={handleIngresosChange} className="text-xl font-bold p-3 pl-7 bg-white h-12" disabled={isSaving}/>
+                    </div>
                 </div>
             </div>
-        </CardFooter>
-      </Card>
-
-      <Accordion type="multiple" defaultValue={['costos-manuales', 'costos-modulos']} className="w-full space-y-4">
-        <AccordionItem value="costos-manuales" className="border rounded-lg shadow-md bg-card">
-          <AccordionTrigger className="px-4 py-3 hover:no-underline text-lg font-medium text-primary hover:bg-muted/50 rounded-t-lg">
-            <div className="flex items-center gap-2"><HardHat className="w-5 h-5 text-primary/80"/>Costos Directos Manuales y Subcontrataciones</div>
-          </AccordionTrigger>
-          <AccordionContent className="p-4 border-t space-y-4">
-            <form onSubmit={handleAddCostoItem} className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end p-3 border rounded-md bg-muted/30">
-              <div className="space-y-1 md:col-span-2"><Label htmlFor="costo-nombre">Concepto*</Label><Input id="costo-nombre" value={newCostoNombre} onChange={(e) => setNewCostoNombre(e.target.value)} placeholder="Ej: Pago a DJ Externo, Alquiler de Equipo Especial" required/></div>
-              <div className="space-y-1"><Label htmlFor="costo-categoria">Categoría*</Label><Select value={newCostoCategoria} onValueChange={(val) => setNewCostoCategoria(val as CostoCategoria)} required><SelectTrigger><SelectValue/></SelectTrigger><SelectContent>{COST_CATEGORIES.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}</SelectContent></Select></div>
-              <div className="space-y-1"><Label htmlFor="costo-monto">Monto Estimado (UYU)*</Label><Input id="costo-monto" type="number" value={newCostoMontoEstimado} onChange={(e) => setNewCostoMontoEstimado(e.target.value)} placeholder="0.00" min="0" step="any" required/></div>
-              <div className="space-y-1 md:col-span-2"><Label htmlFor="costo-notas">Notas</Label><Input id="costo-notas" value={newCostoNotas} onChange={(e) => setNewCostoNotas(e.target.value)} placeholder="Detalles del pago..."/></div>
-              <Button type="submit" className="md:col-span-2" disabled={isSaving}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Gasto Directo</Button>
-            </form>
-            {(gestionCostos.costosItems && gestionCostos.costosItems.length > 0) ? (
-              <ScrollArea className="h-auto max-h-[400px] pr-2 mt-3"><ul className="space-y-2">
-                {gestionCostos.costosItems.map(item => (
-                  <li key={item.id} className="flex justify-between items-center p-2 border rounded bg-card hover:bg-muted/10">
-                    <div>
-                        <p className="font-medium text-sm flex items-center gap-2">
-                            {item.id.startsWith('auto_') ? <RefreshCw className="w-3 h-3 text-blue-500" title="Generado automáticamente"/> : null}
-                            {item.nombre} <span className="text-xs text-muted-foreground">({item.category})</span>
-                        </p>
-                        {item.notas && <p className="text-xs italic text-muted-foreground">{item.notas}</p>}
-                    </div>
-                    <div className="flex items-center gap-2"><span className="font-semibold text-sm">{formatCurrency(item.montoEstimado)}</span><Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteCostoItem(item.id)}><Trash2 className="w-4 h-4"/></Button></div>
-                  </li>
-                ))}
-              </ul></ScrollArea>
-            ) : (<p className="text-sm text-muted-foreground text-center py-3">Sin gastos manuales.</p>)}
-          </AccordionContent>
-        </AccordionItem>
-
-        <AccordionItem value="costos-modulos" className="border rounded-lg shadow-md bg-card">
-            <AccordionTrigger className="px-4 py-3 hover:no-underline text-lg font-medium text-primary hover:bg-muted/50 rounded-t-lg">
-                <div className="flex items-center gap-2"><DollarSign className="w-5 h-5 text-primary/80"/>Costos Calculados por el Sistema</div>
-            </AccordionTrigger>
-            <AccordionContent className="p-4 border-t space-y-3">
-                 <div className="flex justify-between items-center p-2 border-b text-sm"><span>Catering (Menú asignado):</span><span className="font-semibold">{formatCurrency(costoTotalMenu)}</span></div>
-                 <div className="flex justify-between items-center p-2 border-b text-sm"><span>Repostería (Tortas y postres activos):</span><span className="font-semibold">{formatCurrency(costoTotalReposteria)}</span></div>
-                 <div className="flex justify-between items-center p-2 border-b text-sm"><span>Bebidas (Insumos y barra):</span><span className="font-semibold">{formatCurrency(costoTotalBebidas)}</span></div>
-                 <div className="flex justify-between items-center p-2 border-b text-sm"><span>Personal Asignado (incl. Aportes):</span><span className="font-semibold">{formatCurrency(personalCost)}</span></div>
-                 <div className="flex justify-between items-center p-2 border-b text-sm"><span>Decoración y Ambientación:</span><span className="font-semibold">{formatCurrency((fiestaActual?.decoracion?.items || []).reduce((s, i) => s + (i.estimatedCost || 0), 0))}</span></div>
-                 <p className="text-xs text-muted-foreground italic">Estos valores se actualizan según lo que configures en cada sección del planificador.</p>
-            </AccordionContent>
-        </AccordionItem>
-      </Accordion>
-      
-      <Card className="shadow-md">
-        <CardHeader><CardTitle className="font-headline">Notas y Observaciones Financieras</CardTitle></CardHeader>
-        <CardContent>
-          <Textarea value={gestionCostos.notasGeneralesCostos || ''} onChange={handleNotasGeneralesChange} placeholder="Anotaciones sobre la rentabilidad, imprevistos o negociaciones..." rows={3} disabled={isSaving}/>
+        </CardHeader>
+        <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="p-4 border rounded-lg bg-blue-50 dark:bg-blue-900/40 text-center">
+              <p className="text-xs font-bold text-blue-700 dark:text-blue-300 uppercase tracking-widest mb-1">Costo Total Evento</p>
+              <p className="text-3xl font-black text-blue-600 dark:text-blue-400">{formatCurrency(costoTotalEstimadoEvento)}</p>
+          </div>
+          <div className="p-4 border rounded-lg bg-purple-50 dark:bg-purple-900/40 text-center">
+              <p className="text-xs font-bold text-purple-700 dark:text-purple-300 uppercase tracking-widest mb-1">Ganancia Neta</p>
+              <p className="text-3xl font-black text-purple-600 dark:text-purple-400">{formatCurrency(gananciaNetaEstimada)}</p>
+          </div>
+          <div className={cn("p-4 border rounded-lg text-center", margenRentabilidad < 30 ? 'bg-red-50' : 'bg-green-50')}>
+              <p className="text-xs font-bold uppercase tracking-widest mb-1">Rentabilidad</p>
+              <p className={cn("text-3xl font-black", margenRentabilidad < 30 ? 'text-red-600' : 'text-green-600')}>{margenRentabilidad.toFixed(1)}%</p>
+          </div>
         </CardContent>
       </Card>
 
-      <div className="flex justify-end pt-6 border-t">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+            <Card className="shadow-lg">
+                <CardHeader className="flex flex-row items-center justify-between pb-2 border-b mb-4">
+                    <div className="flex items-center gap-2">
+                        <Layers className="w-5 h-5 text-primary"/>
+                        <CardTitle className="text-lg">Desglose de Gastos por Categoría</CardTitle>
+                    </div>
+                    <Badge variant="outline" className="font-bold">Total: {formatCurrency(costoTotalEstimadoEvento)}</Badge>
+                </CardHeader>
+                <CardContent className="p-0">
+                    <Table>
+                        <TableHeader>
+                            <TableRow className="bg-muted/50">
+                                <TableHead className="w-[300px]">Categoría / Concepto</TableHead>
+                                <TableHead className="text-right">Importe</TableHead>
+                                <TableHead className="w-[50px] print:hidden"></TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {Object.entries(groupedAllCosts).map(([cat, data]) => (
+                                <React.Fragment key={cat}>
+                                    <TableRow className="bg-muted/20 hover:bg-muted/20">
+                                        <TableCell className="font-bold text-primary py-2">{cat.toUpperCase()}</TableCell>
+                                        <TableCell className="text-right font-bold py-2">{formatCurrency(data.subtotal)}</TableCell>
+                                        <TableCell className="print:hidden"></TableCell>
+                                    </TableRow>
+                                    {data.items.map((item, idx) => (
+                                        <TableRow key={item.id || idx} className="text-sm">
+                                            <TableCell className="pl-8">
+                                                <div className="flex flex-col">
+                                                    <span className="font-medium flex items-center gap-2">
+                                                        {item.isSystem && <RefreshCw className="w-3 h-3 text-blue-500" title="Generado por el sistema"/>}
+                                                        {item.name}
+                                                    </span>
+                                                    {item.notes && <span className="text-[10px] text-muted-foreground italic">{item.notes}</span>}
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="text-right font-mono text-muted-foreground">{formatCurrency(item.amount)}</TableCell>
+                                            <TableCell className="text-right print:hidden">
+                                                {!item.isSystem && item.id && (
+                                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteCostoItem(item.id!)}>
+                                                        <Trash2 className="w-3.5 h-3.5"/>
+                                                    </Button>
+                                                )}
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </React.Fragment>
+                            ))}
+                        </TableBody>
+                        <TableFooter>
+                            <TableRow className="bg-primary/5">
+                                <TableCell className="font-bold text-lg">COSTO TOTAL ESTIMADO</TableCell>
+                                <TableCell className="text-right font-bold text-lg text-primary">{formatCurrency(costoTotalEstimadoEvento)}</TableCell>
+                                <TableCell className="print:hidden"></TableCell>
+                            </TableRow>
+                        </TableFooter>
+                    </Table>
+                </CardContent>
+            </Card>
+        </div>
+
+        <div className="space-y-6">
+            <Card className="shadow-md">
+                <CardHeader>
+                    <CardTitle className="text-md font-headline flex items-center gap-2">
+                        <PlusCircle className="w-4 h-4 text-primary"/> Añadir Gasto Manual
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <form onSubmit={handleAddCostoItem} className="space-y-4">
+                        <div className="space-y-1">
+                            <Label htmlFor="costo-nombre">Concepto</Label>
+                            <Input id="costo-nombre" value={newCostoNombre} onChange={(e) => setNewCostoNombre(e.target.value)} placeholder="Ej: Taxi equipo nocturno" required/>
+                        </div>
+                        <div className="space-y-1">
+                            <Label htmlFor="costo-categoria">Categoría</Label>
+                            <Select value={newCostoCategoria} onValueChange={(val) => setNewCostoCategoria(val as CostoCategoria)} required>
+                                <SelectTrigger><SelectValue/></SelectTrigger>
+                                <SelectContent>{COST_CATEGORIES.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}</SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-1">
+                            <Label htmlFor="costo-monto">Monto (UYU)</Label>
+                            <Input id="costo-monto" type="number" value={newCostoMontoEstimado} onChange={(e) => setNewCostoMontoEstimado(e.target.value)} placeholder="0.00" min="0" step="any" required/>
+                        </div>
+                        <div className="space-y-1">
+                            <Label htmlFor="costo-notas">Notas</Label>
+                            <Input id="costo-notas" value={newCostoNotas} onChange={(e) => setNewCostoNotas(e.target.value)} placeholder="Detalles extra..."/>
+                        </div>
+                        <Button type="submit" className="w-full" disabled={isSaving}>Añadir Gasto</Button>
+                    </form>
+                </CardContent>
+            </Card>
+
+            <Card className="shadow-md">
+                <CardHeader><CardTitle className="text-md font-headline">Notas Financieras</CardTitle></CardHeader>
+                <CardContent>
+                    <Textarea value={gestionCostos.notasGeneralesCostos || ''} onChange={handleNotasGeneralesChange} placeholder="Anotaciones sobre rentabilidad, imprevistos..." rows={4} disabled={isSaving}/>
+                </CardContent>
+            </Card>
+        </div>
+      </div>
+
+      <div className="flex justify-end pt-6 border-t gap-3 print:hidden">
         <Button onClick={handleSave} disabled={isSaving || isLoading} size="lg">
           {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin"/> : <Save className="w-5 h-5 mr-2"/>}
-          Guardar Gestión de Costos
+          Guardar Análisis de Costos
         </Button>
       </div>
     </div>
   );
 }
+
+const Badge = ({ children, variant = 'default', className }: { children: React.ReactNode, variant?: 'default' | 'outline', className?: string }) => (
+    <span className={cn(
+        "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
+        variant === 'default' ? "bg-primary/10 text-primary" : "border border-muted-foreground/30 text-muted-foreground",
+        className
+    )}>
+        {children}
+    </span>
+);
 
 export default function GestionCostosPage() {
     return (
