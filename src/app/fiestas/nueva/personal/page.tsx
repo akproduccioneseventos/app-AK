@@ -213,7 +213,8 @@ function AsignarPersonalEventoContent() {
                   rows.push({ type: 'required', roleId: req.roleId, roleName: req.roleName, assignedId: assigned.empleadoId, salary: assigned.eventSalary, originalIndex: realIndex });
                   tempAssigned.splice(matchIndex, 1);
               } else {
-                  rows.push({ type: 'required', roleId: req.roleId, roleName: req.roleName, salary: 0 });
+                  const rol = allRoles.find(r => r.id === req.roleId);
+                  rows.push({ type: 'required', roleId: req.roleId, roleName: req.roleName, salary: rol?.sueldoPorEvento || 0 });
               }
           }
       });
@@ -229,12 +230,37 @@ function AsignarPersonalEventoContent() {
   }, [requiredRoles, assignedStaff, allRoles]);
 
   const totalEventCost = useMemo(() => {
-      return assignedStaff.reduce((sum, p) => {
-          const rol = allRoles.find(r => r.id === p.rolId);
-          const aportes = (p.eventSalary * (rol?.porcentajeAportesPatronales || 0)) / 100;
-          return sum + p.eventSalary + aportes;
-      }, 0);
-  }, [assignedStaff, allRoles]);
+      let total = 0;
+      
+      // Calculate total for required roles based on default role salary
+      requiredRoles.forEach(req => {
+          const rol = allRoles.find(r => r.id === req.roleId);
+          if (rol) {
+              const unitSalary = rol.sueldoPorEvento;
+              const unitAportes = (unitSalary * (rol.porcentajeAportesPatronales || 0)) / 100;
+              total += (unitSalary + unitAportes) * req.quantity;
+          }
+      });
+
+      // Calculate total for extra roles added manually
+      const tempAssigned = [...assignedStaff];
+      requiredRoles.forEach(req => {
+          for (let i = 0; i < req.quantity; i++) {
+              const matchIdx = tempAssigned.findIndex(a => a.rolId === req.roleId);
+              if (matchIdx > -1) tempAssigned.splice(matchIdx, 1);
+          }
+      });
+      
+      tempAssigned.forEach(extra => {
+          const rol = allRoles.find(r => r.id === extra.rolId);
+          const aportes = (extra.eventSalary * (rol?.porcentajeAportesPatronales || 0)) / 100;
+          total += extra.eventSalary + aportes;
+      });
+
+      return total;
+  }, [requiredRoles, assignedStaff, allRoles]);
+
+  const filledCount = useMemo(() => assignedStaff.filter(s => !!s.empleadoId).length, [assignedStaff]);
 
   return (
     <div className="space-y-6">
@@ -278,7 +304,7 @@ function AsignarPersonalEventoContent() {
                   const aportes = (row.salary * (rol?.porcentajeAportesPatronales || 0)) / 100;
 
                   return (
-                    <TableRow key={idx} className={cn(!row.assignedId && "bg-amber-50/30", row.type === 'extra' && "bg-blue-50/20")}>
+                    <TableRow key={idx} className={cn(!row.assignedId && "bg-amber-50/10", row.type === 'extra' && "bg-blue-50/20")}>
                       <TableCell className="font-medium py-4">
                         <div className="flex flex-col gap-1">
                             <span className="flex items-center gap-2">
@@ -293,7 +319,7 @@ function AsignarPersonalEventoContent() {
                           value={row.assignedId || 'ninguno'}
                           onValueChange={(val) => handleUpdateAssignment(row.originalIndex ?? assignedStaff.length, val === 'ninguno' ? null : val, row.roleId)}
                          >
-                          <SelectTrigger className={cn("h-9", !row.assignedId && "border-amber-300 text-amber-700")}>
+                          <SelectTrigger className={cn("h-9", !row.assignedId && "border-amber-200 text-amber-600 italic")}>
                               <SelectValue placeholder={filteredEmpleados.length > 0 ? "Seleccionar empleado..." : "No hay empleados con este rol"} />
                           </SelectTrigger>
                           <SelectContent>
@@ -305,20 +331,19 @@ function AsignarPersonalEventoContent() {
                          </Select>
                       </TableCell>
                       <TableCell className="text-right">
-                        {row.assignedId ? (
-                          <div className="flex items-center justify-end gap-1">
-                              <span className="text-xs text-muted-foreground">$</span>
-                              <Input
-                                type="number"
-                                value={row.salary || ''}
-                                onChange={(e) => handleSalaryChange(row.originalIndex!, Number(e.target.value))}
-                                className="h-8 w-24 text-right text-xs"
-                              />
-                          </div>
-                        ) : <span className="text-muted-foreground text-xs italic">Pendiente</span>}
+                        <div className="flex items-center justify-end gap-1">
+                            <span className="text-xs text-muted-foreground">$</span>
+                            <Input
+                              type="number"
+                              value={row.salary || ''}
+                              onChange={(e) => handleSalaryChange(row.originalIndex!, Number(e.target.value))}
+                              className="h-8 w-24 text-right text-xs"
+                              disabled={!row.assignedId}
+                            />
+                        </div>
                       </TableCell>
                        <TableCell className="text-right font-mono text-xs">
-                         {row.assignedId ? formatCurrency(aportes) : '-'}
+                         {formatCurrency(aportes)}
                       </TableCell>
                       <TableCell>
                           {row.type === 'extra' && (
@@ -351,9 +376,9 @@ function AsignarPersonalEventoContent() {
         <CardContent className="pt-4 space-y-2 text-sm">
           <div className="flex justify-between">
               <span className="text-muted-foreground">Puestos Cubiertos:</span>
-              <span className="font-bold">{assignedStaff.filter(s=>!!s.empleadoId).length} de {assignmentRows.length}</span>
+              <span className="font-bold">{filledCount} de {assignmentRows.length}</span>
           </div>
-          <p className="text-xs text-muted-foreground italic border-t pt-2">El costo total incluye sueldos de evento y el porcentaje estimado de aportes patronales por cada rol.</p>
+          <p className="text-xs text-muted-foreground italic border-t pt-2">El costo total incluye los sueldos previstos para todos los puestos requeridos más el porcentaje estimado de aportes patronales.</p>
         </CardContent>
         <CardFooter className="flex justify-end gap-3 pb-6">
           <Link href={`/fiestas/nueva/personal/recibos?fiestaId=${fiestaId}`} passHref>
