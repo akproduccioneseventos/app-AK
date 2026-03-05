@@ -103,73 +103,76 @@ function ListaDeCargaOperativaContent() {
       
       let loadedLista = fiestaData.listaDeCargaOperativa;
       
+      // Auto-population logic for new events
       const hasNoData = !loadedLista || !loadedLista.categorias || loadedLista.categorias.length === 0;
       
-      if (hasNoData && fiestaData.presupuestoId) {
-          const presupuesto = await getPresupuestoById(fiestaData.presupuestoId);
-          if (presupuesto) {
-              const totalInvitados = (presupuesto.invitadosAdultos || 0) + (presupuesto.invitadosNinos || 0) + (presupuesto.invitadosAdolescentes || 0) || presupuesto.invitadosCantidad || 100;
-              const budgetCategories = new Set(presupuesto.itemsPresupuestados.map(item => (item.categoriaServicio || '').toLowerCase()));
-              const budgetNames = new Set(presupuesto.itemsPresupuestados.map(item => (item.nombreServicio || '').toLowerCase()));
+      if (hasNoData) {
+          if (fiestaData.presupuestoId) {
+              // Try to sync with budget first
+              const presupuesto = await getPresupuestoById(fiestaData.presupuestoId);
+              if (presupuesto) {
+                  const totalInvitados = (presupuesto.invitadosAdultos || 0) + (presupuesto.invitadosNinos || 0) + (presupuesto.invitadosAdolescentes || 0) || presupuesto.invitadosCantidad || 100;
+                  const budgetCategories = new Set(presupuesto.itemsPresupuestados.map(item => (item.categoriaServicio || '').toLowerCase()));
+                  const budgetNames = new Set(presupuesto.itemsPresupuestados.map(item => (item.nombreServicio || '').toLowerCase()));
 
-              const targetAssetCategories = new Set<string>();
-              if (budgetCategories.has('servicio de discoteca') || budgetNames.has('discoteca') || budgetNames.has('dj')) {
-                targetAssetCategories.add('Discoteca');
-              }
-              if (budgetCategories.has('servicio de decoración') || budgetNames.has('decoración') || budgetNames.has('ambientación')) {
-                targetAssetCategories.add('Decoración (Activo)');
-                targetAssetCategories.add('Mobiliario');
-              }
-              if (budgetCategories.has('servicio de catering') || budgetNames.has('vajilla') || budgetNames.has('comida')) {
-                targetAssetCategories.add('Vajilla (Activo)');
-                targetAssetCategories.add('Mantelería');
-                targetAssetCategories.add('Equipamiento de Cocina');
-              }
-              if (budgetCategories.has('servicio de bebidas') || budgetNames.has('barra') || budgetNames.has('trago')) {
-                targetAssetCategories.add('Barra de Tragos');
-              }
+                  const targetAssetCategories = new Set<string>();
+                  if (budgetCategories.has('servicio de discoteca') || budgetNames.has('discoteca') || budgetNames.has('dj')) {
+                    targetAssetCategories.add('Discoteca');
+                  }
+                  if (budgetCategories.has('servicio de decoración') || budgetNames.has('decoración') || budgetNames.has('ambientación')) {
+                    targetAssetCategories.add('Decoración (Activo)');
+                    targetAssetCategories.add('Mobiliario');
+                  }
+                  if (budgetCategories.has('servicio de catering') || budgetNames.has('vajilla') || budgetNames.has('comida')) {
+                    targetAssetCategories.add('Vajilla (Activo)');
+                    targetAssetCategories.add('Mantelería');
+                    targetAssetCategories.add('Equipamiento de Cocina');
+                  }
+                  if (budgetCategories.has('servicio de bebidas') || budgetNames.has('barra') || budgetNames.has('trago')) {
+                    targetAssetCategories.add('Barra de Tragos');
+                  }
 
-              const newCategories: CargaOperativaCategoria[] = [];
-              targetAssetCategories.forEach(catName => {
-                const matchingAssets = catalogoData.filter(a => a.categoria === catName);
-                if (matchingAssets.length > 0) {
-                  newCategories.push({
-                    id: `auto_${catName}_${Date.now()}`,
-                    nombre: catName,
-                    items: matchingAssets.map(asset => {
-                      let qty = '1';
-                      if (asset.calculationMethod === 'porPersona') qty = String(totalInvitados);
-                      else if (asset.calculationMethod === 'ratio' && asset.invitadosPorUnidad) qty = String(Math.ceil(totalInvitados / asset.invitadosPorUnidad));
-                      else if (asset.precioVenta && asset.precioVenta > 0) qty = String(asset.precioVenta);
-                      else if (asset.cantidadDisponible && asset.cantidadDisponible > 0) qty = String(asset.cantidadDisponible);
-                      
-                      return {
-                        id: `item_${asset.id}_${Date.now()}_${Math.random().toString(36).substring(7)}`,
-                        nombre: asset.nombre,
-                        cantidad: qty,
-                        unidad: asset.unidad || 'Uds.',
-                        cargado: false,
-                        origenId: asset.id
-                      };
-                    })
+                  const newCategories: CargaOperativaCategoria[] = [];
+                  targetAssetCategories.forEach(catName => {
+                    const matchingAssets = catalogoData.filter(a => a.categoria === catName);
+                    if (matchingAssets.length > 0) {
+                      newCategories.push({
+                        id: `auto_${catName}_${Date.now()}`,
+                        nombre: catName,
+                        items: matchingAssets.map(asset => {
+                          let qty = '1';
+                          if (asset.calculationMethod === 'porPersona') qty = String(totalInvitados);
+                          else if (asset.calculationMethod === 'ratio' && asset.invitadosPorUnidad) qty = String(Math.ceil(totalInvitados / asset.invitadosPorUnidad));
+                          else if (asset.precioVenta && asset.precioVenta > 0) qty = String(asset.precioVenta);
+                          else if (asset.cantidadDisponible && asset.cantidadDisponible > 0) qty = String(asset.cantidadDisponible);
+                          
+                          return {
+                            id: `item_${asset.id}_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+                            nombre: asset.nombre,
+                            cantidad: qty,
+                            unidad: asset.unidad || 'Uds.',
+                            cargado: false,
+                            origenId: asset.id
+                          };
+                        })
+                      });
+                    }
                   });
-                }
-              });
 
-              if (newCategories.length > 0) {
-                  loadedLista = { categorias: newCategories, notasGenerales: '' };
+                  if (newCategories.length > 0) {
+                      loadedLista = { categorias: newCategories, notasGenerales: '' };
+                  } else {
+                      // Fallback to master template if budget sync results in nothing
+                      loadedLista = { ...masterTemplate, id: `init_${Date.now()}` };
+                  }
+              } else {
+                  // Fallback to master template if budget not found
+                  loadedLista = { ...masterTemplate, id: `init_${Date.now()}` };
               }
+          } else {
+              // Fallback to master template if no budget linked
+              loadedLista = { ...masterTemplate, id: `init_${Date.now()}` };
           }
-      }
-
-      if ((!loadedLista || !loadedLista.categorias || loadedLista.categorias.length === 0) && masterTemplate.categorias.length > 0) {
-        loadedLista = {
-          ...masterTemplate,
-          categorias: masterTemplate.categorias.map(cat => ({
-            ...cat,
-            items: cat.items.map(item => ({ ...item, cargado: false }))
-          }))
-        };
       }
 
       const categoriasConItems = (loadedLista?.categorias || []).map(cat => ({
@@ -348,8 +351,7 @@ function ListaDeCargaOperativaContent() {
   const handleCatalogItemSelected = (selectedAsset: ServicioEmpresa) => {
     if (!categoryForCatalogSelect) return;
     
-    // Default quantity calculation for manual catalog add
-    const guests = 100; // Placeholder if no budget is available
+    const guests = 100; 
     let qty = '1';
     if (selectedAsset.calculationMethod === 'porPersona') {
         qty = String(guests);
