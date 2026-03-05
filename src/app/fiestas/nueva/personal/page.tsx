@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Loader2, Save, Users, UserCheck, AlertTriangle, Info, Printer, RefreshCw, ClipboardCheck } from 'lucide-react';
+import { ArrowLeft, Loader2, Save, Users, UserCheck, AlertTriangle, Info, Printer, RefreshCw, ClipboardCheck, UserPlus, Trash2, UserSearch } from 'lucide-react';
 import { getEmpleados } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
 import type { Empleado } from '@/types/empleado';
@@ -21,22 +21,15 @@ import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useSearchParams } from 'next/navigation';
+import { cn } from '@/lib/utils';
 
 const formatCurrency = (amount: number) => {
   if (isNaN(amount)) return 'N/A';
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 };
 
-interface AssignedStaffUIDetail {
-  empleadoId: string;
-  nombre: string;
-  rolId: string;
-  rolNombre: string;
-  eventSalary: number;
-  employerContribution: number;
-}
-
 interface RequiredRole {
+  roleId: string;
   roleName: string;
   quantity: number;
   sourceItem: string;
@@ -49,7 +42,7 @@ function AsignarPersonalEventoContent() {
 
   const [allEmpleados, setAllEmpleados] = useState<Empleado[]>([]);
   const [allRoles, setAllRoles] = useState<Rol[]>([]);
-  const [assignedStaff, setAssignedStaff] = useState<Map<string, AssignedStaffUIDetail>>(new Map());
+  const [assignedStaff, setAssignedStaff] = useState<PersonalAsignadoDetalleStorage[]>([]);
   const [requiredRoles, setRequiredRoles] = useState<RequiredRole[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -71,16 +64,19 @@ function AsignarPersonalEventoContent() {
       
       setAllEmpleados(empleadosData);
       setAllRoles(rolesData);
+      setAssignedStaff(fiestaActual.personalAsignado || []);
 
       // Detect Required Roles from Budget + Automatic Rules
       if (presupuestoData) {
         const requirements: RequiredRole[] = [];
         const totalGuests = (presupuestoData.invitadosAdultos || 0) + (presupuestoData.invitadosNinos || 0) + (presupuestoData.invitadosAdolescentes || 0);
 
-        // 1. Automatic Utility Rule: 1 per 25 guests ($1100 each)
+        // 1. Automatic Utility Rule: 1 per 25 guests
         const numUtileros = Math.ceil(totalGuests / 25);
-        if (numUtileros > 0) {
+        const utileroRol = rolesData.find(r => r.nombre.toLowerCase().includes('utilero'));
+        if (numUtileros > 0 && utileroRol) {
             requirements.push({ 
+                roleId: utileroRol.id,
                 roleName: 'Utilero', 
                 quantity: numUtileros, 
                 sourceItem: 'Regla automática (1 cada 25 invitados)' 
@@ -91,57 +87,41 @@ function AsignarPersonalEventoContent() {
           const name = item.nombreServicio.toLowerCase();
           const cat = (item.categoriaServicio || '').toLowerCase();
           
+          const findAndAdd = (search: string, qty: number) => {
+              const rol = rolesData.find(r => r.nombre.toLowerCase().includes(search.toLowerCase()));
+              if (rol) {
+                  requirements.push({ roleId: rol.id, roleName: rol.nombre, quantity: qty, sourceItem: item.nombreServicio });
+              }
+          };
+
           if (name.includes('discoteca') || cat.includes('discoteca') || name.includes(' dj')) {
-            requirements.push({ roleName: 'DJ', quantity: 1, sourceItem: item.nombreServicio });
+            findAndAdd('DJ', 1);
           }
           if (name.includes('decoración') || name.includes('ambientación') || cat.includes('decoración')) {
-            requirements.push({ roleName: 'Decoradora', quantity: 1, sourceItem: item.nombreServicio });
-            requirements.push({ roleName: 'Ayudante de Decoración', quantity: 1, sourceItem: item.nombreServicio });
+            findAndAdd('Decoradora', 1);
+            findAndAdd('Ayudante de Decoración', 1);
           }
           if (name.includes('mozo')) {
-            requirements.push({ roleName: 'Mozo', quantity: item.cantidad, sourceItem: item.nombreServicio });
+            findAndAdd('Mozo', item.cantidad);
           }
           if (name.includes('asado') || name.includes('asador')) {
-            requirements.push({ roleName: 'Asador', quantity: 1, sourceItem: item.nombreServicio });
+            findAndAdd('Asador', 1);
           }
           if (name.includes('fotografía') || cat.includes('fotografía')) {
-            requirements.push({ roleName: 'Fotógrafo', quantity: 1, sourceItem: item.nombreServicio });
+            findAndAdd('Fotógrafo', 1);
           }
           if (name.includes('filmación') || name.includes('video') || cat.includes('filmación')) {
-            requirements.push({ roleName: 'Camarógrafo / Videógrafo', quantity: 1, sourceItem: item.nombreServicio });
+            findAndAdd('Camarógrafo / Videógrafo', 1);
           }
           if (name.includes('cocina') || name.includes('chef')) {
-            requirements.push({ roleName: 'Cocinero/Cheff', quantity: item.cantidad || 1, sourceItem: item.nombreServicio });
+            findAndAdd('Cocinero/Cheff', item.cantidad || 1);
           }
           if (name.includes('portero') || name.includes('seguridad')) {
-            requirements.push({ roleName: 'Personal de Seguridad / Portero', quantity: item.cantidad || 1, sourceItem: item.nombreServicio });
+            findAndAdd('Personal de Seguridad / Portero', item.cantidad || 1);
           }
         });
         setRequiredRoles(requirements);
       }
-
-      const initialAssignedMap = new Map<string, AssignedStaffUIDetail>();
-      
-      if (fiestaActual.personalAsignado && fiestaActual.personalAsignado.length > 0) {
-        fiestaActual.personalAsignado.forEach(assigned => {
-          const empleadoDetail = empleadosData.find(e => e.id === assigned.empleadoId);
-          if (empleadoDetail) {
-            const rolDetail = rolesData.find(r => r.id === assigned.rolId);
-            const eventSalary = assigned.eventSalary;
-            const aportes = (eventSalary * (rolDetail?.porcentajeAportesPatronales ?? 0)) / 100;
-            initialAssignedMap.set(assigned.empleadoId, {
-              empleadoId: empleadoDetail.id,
-              nombre: empleadoDetail.nombre,
-              rolId: assigned.rolId,
-              rolNombre: rolDetail?.nombre || 'Rol Desconocido',
-              eventSalary: eventSalary,
-              employerContribution: aportes,
-            });
-          }
-        });
-      }
-
-      setAssignedStaff(initialAssignedMap);
 
     } catch (err: any) {
       setError("No se pudieron cargar los datos iniciales.");
@@ -155,18 +135,11 @@ function AsignarPersonalEventoContent() {
     fetchInitialData();
   }, [fetchInitialData]);
 
-  const handleAutoSave = async (updatedStaffMap: Map<string, AssignedStaffUIDetail>) => {
+  const handleAutoSave = async (updatedStaff: PersonalAsignadoDetalleStorage[]) => {
     if (!fiestaId) return;
-    
     setIsSaving(true);
-    const personalToSave: PersonalAsignadoDetalleStorage[] = Array.from(updatedStaffMap.values()).map(item => ({
-      empleadoId: item.empleadoId,
-      rolId: item.rolId,
-      eventSalary: item.eventSalary
-    }));
-
     try {
-      const result = await updatePersonalFiestaActual(fiestaId, personalToSave);
+      const result = await updatePersonalFiestaActual(fiestaId, updatedStaff);
       if (!result.success) throw new Error(result.error || "No se pudo guardar automáticamente.");
     } catch (error: any) {
       toast({ title: "Error en auto-guardado", description: error.message, variant: "destructive" });
@@ -175,119 +148,115 @@ function AsignarPersonalEventoContent() {
     }
   };
 
-  const handleAssignmentChange = async (empleado: Empleado, selectedRolId: string) => {
-    let updatedStaffMap = new Map(assignedStaff);
-    if (selectedRolId === "ninguno") {
-        updatedStaffMap.delete(empleado.id);
-    } else {
-        const rol = allRoles.find(r => r.id === selectedRolId);
-        if(rol) {
-            const eventSalary = rol.sueldoPorEvento;
-            const employerContribution = (eventSalary * (rol.porcentajeAportesPatronales || 0)) / 100;
-            updatedStaffMap.set(empleado.id, {
-                empleadoId: empleado.id,
-                nombre: empleado.nombre,
-                rolId: rol.id,
-                rolNombre: rol.nombre,
-                eventSalary,
-                employerContribution
-            });
-        }
-    }
-    setAssignedStaff(updatedStaffMap);
-    await handleAutoSave(updatedStaffMap);
-  }
-
-  const handleEventSalaryChange = (empleadoId: string, newSalaryStr: string) => {
-    const salaryNum = parseFloat(newSalaryStr);
-    const finalSalary = newSalaryStr === '' || isNaN(salaryNum) ? 0 : salaryNum;
-
-    setAssignedStaff(prev => {
-      const newMap = new Map(prev);
-      const currentAssignment = newMap.get(empleadoId);
-      if (currentAssignment) {
-        const rol = allRoles.find(r => r.id === currentAssignment.rolId);
-        const aportes = (finalSalary * (rol?.porcentajeAportesPatronales ?? 0)) / 100;
-        newMap.set(empleadoId, { 
-          ...currentAssignment, 
-          eventSalary: finalSalary,
-          employerContribution: aportes,
+  const handleUpdateAssignment = async (index: number, empleadoId: string | null, rolId: string) => {
+    const updatedStaff = [...assignedStaff];
+    
+    if (empleadoId === null) {
+        // Remove assignment
+        updatedStaff.splice(index, 1);
+    } else if (index >= updatedStaff.length) {
+        // New assignment
+        const rol = allRoles.find(r => r.id === rolId);
+        updatedStaff.push({
+            empleadoId,
+            rolId,
+            eventSalary: rol?.sueldoPorEvento || 0
         });
-      }
-      return newMap;
-    });
-  };
-  
-  const handleEventSalaryBlur = async (empleadoId: string) => {
-    let updatedStaffMap = new Map(assignedStaff);
-    const currentAssignment = updatedStaffMap.get(empleadoId);
-    if (currentAssignment) {
-        if (currentAssignment.eventSalary === 0 || isNaN(currentAssignment.eventSalary)) {
-            const rol = allRoles.find(r => r.id === currentAssignment.rolId);
-            const fallbackSalary = rol?.sueldoPorEvento ?? 0;
-            const aportes = (fallbackSalary * (rol?.porcentajeAportesPatronales ?? 0)) / 100;
-            updatedStaffMap.set(empleadoId, { ...currentAssignment, eventSalary: fallbackSalary, employerContribution: aportes });
-        }
-        setAssignedStaff(updatedStaffMap);
-        await handleAutoSave(updatedStaffMap);
+    } else {
+        // Update existing slot
+        const rol = allRoles.find(r => r.id === rolId);
+        updatedStaff[index] = {
+            ...updatedStaff[index],
+            empleadoId,
+            rolId,
+            eventSalary: rol?.sueldoPorEvento || updatedStaff[index].eventSalary
+        };
     }
+    
+    setAssignedStaff(updatedStaff);
+    await handleAutoSave(updatedStaff);
   };
 
-  const totalAssignedCount = assignedStaff.size;
-  const totalSalaryCost = Array.from(assignedStaff.values()).reduce((sum, { eventSalary }) => sum + (eventSalary || 0), 0);
-  const totalContributionCost = Array.from(assignedStaff.values()).reduce((sum, { employerContribution }) => sum + (employerContribution || 0), 0);
-  const totalEventCost = totalSalaryCost + totalContributionCost;
+  const handleSalaryChange = async (index: number, newSalary: number) => {
+      const updatedStaff = [...assignedStaff];
+      updatedStaff[index].eventSalary = newSalary;
+      setAssignedStaff(updatedStaff);
+      await handleAutoSave(updatedStaff);
+  };
+
+  const addManualAssignment = () => {
+      const firstRole = allRoles[0];
+      if (firstRole) {
+          const updatedStaff = [...assignedStaff, { empleadoId: '', rolId: firstRole.id, eventSalary: firstRole.sueldoPorEvento }];
+          setAssignedStaff(updatedStaff);
+      }
+  };
+
+  // Helper to filter employees by role
+  const getEmployeesByRole = (roleId: string) => {
+      return allEmpleados.filter(e => e.rolIds?.includes(roleId));
+  };
+
+  // Build the list of rows to display based on requirements
+  const assignmentRows = useMemo(() => {
+      let rows: { type: 'required' | 'extra', roleId: string, roleName: string, assignedId?: string, salary: number, originalIndex?: number }[] = [];
+      
+      const tempAssigned = [...assignedStaff];
+
+      // 1. Process Required Roles
+      requiredRoles.forEach(req => {
+          for (let i = 0; i < req.quantity; i++) {
+              const matchIndex = tempAssigned.findIndex(a => a.rolId === req.roleId);
+              if (matchIndex > -1) {
+                  const assigned = tempAssigned[matchIndex];
+                  const realIndex = assignedStaff.findIndex(a => a === assigned);
+                  rows.push({ type: 'required', roleId: req.roleId, roleName: req.roleName, assignedId: assigned.empleadoId, salary: assigned.eventSalary, originalIndex: realIndex });
+                  tempAssigned.splice(matchIndex, 1);
+              } else {
+                  rows.push({ type: 'required', roleId: req.roleId, roleName: req.roleName, salary: 0 });
+              }
+          }
+      });
+
+      // 2. Process Remaining (Extra) Assignments
+      tempAssigned.forEach(extra => {
+          const realIndex = assignedStaff.findIndex(a => a === extra);
+          const rol = allRoles.find(r => r.id === extra.rolId);
+          rows.push({ type: 'extra', roleId: extra.rolId, roleName: rol?.nombre || 'Rol Desconocido', assignedId: extra.empleadoId, salary: extra.eventSalary, originalIndex: realIndex });
+      });
+
+      return rows;
+  }, [requiredRoles, assignedStaff, allRoles]);
+
+  const totalEventCost = useMemo(() => {
+      return assignedStaff.reduce((sum, p) => {
+          const rol = allRoles.find(r => r.id === p.rolId);
+          const aportes = (p.eventSalary * (rol?.porcentajeAportesPatronales || 0)) / 100;
+          return sum + p.eventSalary + aportes;
+      }, 0);
+  }, [assignedStaff, allRoles]);
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <UserCheck className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Asignar Personal al Evento
-          </h1>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">Asignar Personal al Evento</h1>
         </div>
         <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref>
-          <Button variant="outline" disabled={isSaving}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver al Planificador
-          </Button>
+          <Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
         </Link>
       </div>
-
-      {requiredRoles.length > 0 && (
-        <Card className="border-primary/20 bg-primary/5">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg font-headline flex items-center gap-2">
-              <ClipboardCheck className="w-5 h-5 text-primary" /> Personal Requerido (Basado en Presupuesto e Invitados)
-            </CardTitle>
-            <CardDescription>Roles detectados automáticamente. Los utileros se suman según la regla de 1 cada 25 invitados.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-2">
-              {requiredRoles.map((req, idx) => (
-                <Badge key={idx} variant="secondary" className="px-3 py-1 bg-white border-primary/20 text-primary">
-                  {req.quantity}x {req.roleName}
-                </Badge>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       <Card className="shadow-lg">
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle className="font-headline">Seleccionar Personal</CardTitle>
-            <CardDescription>
-                Asigna un empleado a cada rol. Los cambios se guardan automáticamente.
-            </CardDescription>
+            <CardTitle className="font-headline">Lista de Personal por Rol</CardTitle>
+            <CardDescription>Asigna nombres a los puestos requeridos. Solo verás empleados capacitados para cada rol.</CardDescription>
           </div>
           <div className="flex items-center gap-2">
             {isSaving && <Loader2 className="w-4 h-4 animate-spin text-primary"/>}
-            <Button variant="ghost" size="sm" onClick={() => fetchInitialData(true)}>
-                <RefreshCw className="w-4 h-4 mr-2"/> Sincronizar
-            </Button>
+            <Button variant="ghost" size="sm" onClick={() => fetchInitialData(true)}><RefreshCw className="w-4 h-4 mr-2"/>Sincronizar</Button>
           </div>
         </CardHeader>
         <CardContent>
@@ -295,56 +264,68 @@ function AsignarPersonalEventoContent() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Nombre</TableHead>
-                  <TableHead>Rol en el Evento</TableHead>
-                  <TableHead className="text-right">Pago Evento (UYU)</TableHead>
-                  <TableHead className="text-right">Aportes Patronales</TableHead>
+                  <TableHead className="w-[200px]">Rol Requerido</TableHead>
+                  <TableHead>Empleado Asignado</TableHead>
+                  <TableHead className="text-right">Sueldo Evento</TableHead>
+                  <TableHead className="text-right">Aportes (Estimado)</TableHead>
+                  <TableHead className="w-[50px]"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {allEmpleados.map((empleado) => {
-                  const assignedDetail = assignedStaff.get(empleado.id);
-                  const isAssigned = !!assignedDetail;
+                {assignmentRows.map((row, idx) => {
+                  const filteredEmpleados = getEmployeesByRole(row.roleId);
+                  const rol = allRoles.find(r => r.id === row.roleId);
+                  const aportes = (row.salary * (rol?.porcentajeAportesPatronales || 0)) / 100;
 
                   return (
-                    <TableRow key={empleado.id} className={isAssigned ? 'bg-primary/5' : ''}>
-                      <TableCell className="font-medium min-w-[180px]">{empleado.nombre}</TableCell>
-                      <TableCell className="min-w-[200px]">
+                    <TableRow key={idx} className={cn(!row.assignedId && "bg-amber-50/30", row.type === 'extra' && "bg-blue-50/20")}>
+                      <TableCell className="font-medium py-4">
+                        <div className="flex flex-col gap-1">
+                            <span className="flex items-center gap-2">
+                                {row.roleName}
+                                {row.type === 'extra' && <Badge variant="outline" className="text-[10px] h-4">EXTRA</Badge>}
+                            </span>
+                            {row.type === 'required' && <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{idx + 1} de {requiredRoles.find(r=>r.roleId===row.roleId)?.quantity} puestos</span>}
+                        </div>
+                      </TableCell>
+                      <TableCell>
                          <Select 
-                          value={assignedDetail?.rolId || 'ninguno'}
-                          onValueChange={(value) => handleAssignmentChange(empleado, value)}
-                          disabled={!empleado.rolIds || empleado.rolIds.length === 0}
+                          value={row.assignedId || 'ninguno'}
+                          onValueChange={(val) => handleUpdateAssignment(row.originalIndex ?? assignedStaff.length, val === 'ninguno' ? null : val, row.roleId)}
                          >
-                          <SelectTrigger className="text-xs h-9">
-                              <SelectValue placeholder="No Asignado" />
+                          <SelectTrigger className={cn("h-9", !row.assignedId && "border-amber-300 text-amber-700")}>
+                              <SelectValue placeholder={filteredEmpleados.length > 0 ? "Seleccionar empleado..." : "No hay empleados con este rol"} />
                           </SelectTrigger>
                           <SelectContent>
-                              <SelectItem value="ninguno">No Asignado</SelectItem>
-                              {empleado.rolIds?.map(rolId => {
-                                  const rol = allRoles.find(r => r.id === rolId);
-                                  return rol ? <SelectItem key={rolId} value={rolId}>{rol.nombre}</SelectItem> : null
-                              })}
+                              <SelectItem value="ninguno">-- Sin Asignar --</SelectItem>
+                              {filteredEmpleados.map(emp => (
+                                  <SelectItem key={emp.id} value={emp.id}>{emp.nombre}</SelectItem>
+                              ))}
                           </SelectContent>
                          </Select>
                       </TableCell>
                       <TableCell className="text-right">
-                        {isAssigned ? (
-                          <Input
-                            type="number"
-                            value={assignedDetail.eventSalary ?? ''}
-                            onChange={(e) => handleEventSalaryChange(empleado.id, e.target.value)}
-                            onBlur={() => handleEventSalaryBlur(empleado.id)}
-                            placeholder="Pago evento"
-                            className="text-right h-9 max-w-[120px] ml-auto"
-                            min="0"
-                            step="any"
-                          />
-                        ) : (
-                          <span className="text-muted-foreground">-</span>
-                        )}
+                        {row.assignedId ? (
+                          <div className="flex items-center justify-end gap-1">
+                              <span className="text-xs text-muted-foreground">$</span>
+                              <Input
+                                type="number"
+                                value={row.salary || ''}
+                                onChange={(e) => handleSalaryChange(row.originalIndex!, Number(e.target.value))}
+                                className="h-8 w-24 text-right text-xs"
+                              />
+                          </div>
+                        ) : <span className="text-muted-foreground text-xs italic">Pendiente</span>}
                       </TableCell>
-                       <TableCell className="text-right min-w-[140px] font-mono">
-                         {isAssigned ? formatCurrency(assignedDetail.employerContribution ?? 0) : '-'}
+                       <TableCell className="text-right font-mono text-xs">
+                         {row.assignedId ? formatCurrency(aportes) : '-'}
+                      </TableCell>
+                      <TableCell>
+                          {row.type === 'extra' && (
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleUpdateAssignment(row.originalIndex!, null, row.roleId)}>
+                                  <Trash2 className="w-4 h-4"/>
+                              </Button>
+                          )}
                       </TableCell>
                     </TableRow>
                   );
@@ -352,22 +333,32 @@ function AsignarPersonalEventoContent() {
               </TableBody>
             </Table>
           </div>
+          <div className="mt-4 flex justify-start">
+              <Button variant="outline" size="sm" onClick={addManualAssignment} className="border-dashed">
+                  <UserPlus className="w-4 h-4 mr-2"/> Añadir Personal Extra Manual
+              </Button>
+          </div>
         </CardContent>
       </Card>
 
-      <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle className="font-headline">Resumen de Costos de Personal</CardTitle>
+      <Card className="shadow-lg border-primary/20">
+        <CardHeader className="bg-primary/5">
+          <CardTitle className="font-headline flex items-center justify-between">
+              <span>Resumen Financiero Personal</span>
+              <span className="text-primary">{formatCurrency(totalEventCost)}</span>
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex justify-between items-center"><span className="text-muted-foreground">Total de Personal Asignado:</span><span className="font-semibold text-lg">{totalAssignedCount}</span></div>
-          <div className="flex justify-between items-center border-t pt-3 mt-2"><span className="font-bold text-primary">COSTO TOTAL ESTIMADO:</span><span className="font-bold text-lg text-primary">{formatCurrency(totalEventCost)}</span></div>
+        <CardContent className="pt-4 space-y-2 text-sm">
+          <div className="flex justify-between">
+              <span className="text-muted-foreground">Puestos Cubiertos:</span>
+              <span className="font-bold">{assignedStaff.filter(s=>!!s.empleadoId).length} de {assignmentRows.length}</span>
+          </div>
+          <p className="text-xs text-muted-foreground italic border-t pt-2">El costo total incluye sueldos de evento y el porcentaje estimado de aportes patronales por cada rol.</p>
         </CardContent>
-        <CardFooter className="border-t pt-6 flex flex-col sm:flex-row justify-end items-center gap-3">
+        <CardFooter className="flex justify-end gap-3 pb-6">
           <Link href={`/fiestas/nueva/personal/recibos?fiestaId=${fiestaId}`} passHref>
-              <Button variant="secondary" className="w-full sm:w-auto" size="lg">
-                  <Printer className="w-5 h-5 mr-2" />
-                  Generar Recibos
+              <Button variant="secondary" size="lg">
+                  <Printer className="w-5 h-5 mr-2" /> Generar Recibos de Pago
               </Button>
           </Link>
         </CardFooter>
@@ -378,7 +369,7 @@ function AsignarPersonalEventoContent() {
 
 export default function AsignarPersonalEventoPage() {
     return (
-        <Suspense fallback={<div className="flex justify-center items-center h-64"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>}>
+        <Suspense fallback={<div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
             <AsignarPersonalEventoContent />
         </Suspense>
     )
