@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
@@ -38,7 +37,7 @@ interface RequiredRole {
   roleName: string;
   quantity: number;
   sourceItem: string;
-  customSalary?: number; // Para manejar los $2000 de extras de fotos
+  customSalary?: number;
 }
 
 function AsignarPersonalEventoContent() {
@@ -134,14 +133,8 @@ function AsignarPersonalEventoContent() {
               } else if (name.includes('iglesia')) {
                   findAndAdd('Fotógrafo', 1, 'Cobertura de Iglesia', 2000);
               } else {
-                  // Fotografía de fiesta (main)
                   findAndAdd('Fotógrafo', 1, item.nombreServicio);
               }
-          }
-
-          // FILMACIÓN (Solo si existe en presupuesto)
-          if (name.includes('filmación') || name.includes('video') || cat.includes('filmación')) {
-            findAndAdd('Camarógrafo / Videógrafo', 1, item.nombreServicio);
           }
 
           if (name.includes('cocina') || name.includes('chef')) {
@@ -189,7 +182,7 @@ function AsignarPersonalEventoContent() {
         updatedStaff.push({
             empleadoId,
             rolId,
-            eventSalary: defaultSalary ?? (rol?.sueldoPorEvento || 0)
+            eventSalary: (defaultSalary ?? rol?.sueldoPorEvento) || 0
         });
     } else {
         const rol = allRoles.find(r => r.id === rolId);
@@ -197,7 +190,7 @@ function AsignarPersonalEventoContent() {
             ...updatedStaff[index],
             empleadoId,
             rolId,
-            eventSalary: defaultSalary ?? (rol?.sueldoPorEvento || updatedStaff[index].eventSalary)
+            eventSalary: (defaultSalary ?? rol?.sueldoPorEvento) || updatedStaff[index].eventSalary
         };
     }
     
@@ -280,7 +273,7 @@ function AsignarPersonalEventoContent() {
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle className="font-headline">Lista de Personal por Rol</CardTitle>
-            <CardDescription>Asigna nombres a los puestos requeridos. El costo total incluye todos los roles necesarios.</CardDescription>
+            <CardDescription>Asigna nombres a los puestos requeridos. Solo verás empleados capacitados para cada rol.</CardDescription>
           </div>
           <div className="flex items-center gap-2">
             {isSaving && <Loader2 className="w-4 h-4 animate-spin text-primary"/>}

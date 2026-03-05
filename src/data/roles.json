@@ -87,7 +87,7 @@
     "porcentajeSalarioVacacional": 8.33,
     "porcentajeAguinaldo": 8.33,
     "porcentajeAportesPatronales": 20.125,
-    "costoAportesCalculado": 1610
+    "costoAportesCalculated": 1610
   },
   {
     "id": "rol_17207",
@@ -138,5 +138,25 @@
     "porcentajeAportesPatronales": 20,
     "costoAportesCalculado": 200,
     "id": "rol_1759834067607_e4pb7"
+  },
+  {
+    "id": "rol_decoradora",
+    "nombre": "Decoradora",
+    "categoriaServicio": "Servicio de decoración",
+    "sueldoPorEvento": 3500,
+    "porcentajeSalarioVacacional": 8.33,
+    "porcentajeAguinaldo": 8.33,
+    "porcentajeAportesPatronales": 20,
+    "costoAportesCalculado": 700
+  },
+  {
+    "id": "rol_ayudante_deco",
+    "nombre": "Ayudante de Decoración",
+    "categoriaServicio": "Servicio de decoración",
+    "sueldoPorEvento": 2000,
+    "porcentajeSalarioVacacional": 8.33,
+    "porcentajeAguinaldo": 8.33,
+    "porcentajeAportesPatronales": 20,
+    "costoAportesCalculado": 400
   }
 ]
