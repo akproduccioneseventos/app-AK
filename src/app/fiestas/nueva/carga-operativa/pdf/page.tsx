@@ -1,15 +1,18 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Printer as PrinterIcon, PackageSearch, Share2, KeyRound, AlertTriangle, Info, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, ListaDeCargaOperativa } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ListaDeCargaOperativa, CargaOperativaCategoria } from '@/types/fiesta';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { getActivosFijos } from '@/app/actions/activos-fijos';
+import { getPresupuestoById } from '@/app/actions/presupuestos';
+import { getCargaOperativaMasterTemplate } from '@/app/actions/fiesta/carga-operativa.actions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { WatermarkedImage } from '@/components/watermarked-image';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
@@ -43,23 +46,84 @@ function CargaOperativaPdfContent() {
     setIsLoading(true);
     setError(null);
     try {
-      const [fiestaData, settings] = await Promise.all([
+      const [fiestaData, catalogoData, masterTemplate, settings] = await Promise.all([
           getFiestaById(fiestaId),
+          getActivosFijos(),
+          getCargaOperativaMasterTemplate(),
           getInvoiceTemplateSettings()
       ]);
+
       if (!fiestaData) throw new Error("Evento no encontrado.");
       
       setFiesta(fiestaData);
-      setListaDeCarga(fiestaData.listaDeCargaOperativa || { categorias: [], notasGenerales: '' });
-      setLogoUrl(settings.logoUrl);
+      setLogoUrl(settings.logoUrl || null);
+
+      let loadedLista = fiestaData.listaDeCargaOperativa;
+      
+      // Lógica de auto-población idéntica a la pantalla de edición para que el PDF no salga vacío
+      const hasNoData = !loadedLista || !loadedLista.categorias || loadedLista.categorias.length === 0;
+      
+      if (hasNoData) {
+          if (fiestaData.presupuestoId) {
+              const presupuesto = await getPresupuestoById(fiestaData.presupuestoId);
+              if (presupuesto) {
+                  const totalInvitados = (presupuesto.invitadosAdultos || 0) + (presupuesto.invitadosNinos || 0) + (presupuesto.invitadosAdolescentes || 0) || presupuesto.invitadosCantidad || 100;
+                  const budgetCategories = new Set(presupuesto.itemsPresupuestados.map(item => (item.categoriaServicio || '').toLowerCase()));
+                  const budgetNames = new Set(presupuesto.itemsPresupuestados.map(item => (item.nombreServicio || '').toLowerCase()));
+
+                  const targetAssetCategories = new Set<string>();
+                  if (budgetCategories.has('servicio de discoteca') || budgetNames.has('discoteca') || budgetNames.has('dj')) targetAssetCategories.add('Discoteca');
+                  if (budgetCategories.has('servicio de decoración') || budgetNames.has('decoración')) { targetAssetCategories.add('Decoración (Activo)'); targetAssetCategories.add('Mobiliario'); }
+                  if (budgetCategories.has('servicio de catering') || budgetNames.has('vajilla')) { targetAssetCategories.add('Vajilla (Activo)'); targetAssetCategories.add('Mantelería'); targetAssetCategories.add('Equipamiento de Cocina'); }
+                  if (budgetCategories.has('servicio de bebidas') || budgetNames.has('barra')) targetAssetCategories.add('Barra de Tragos');
+
+                  const newCategories: CargaOperativaCategoria[] = [];
+                  targetAssetCategories.forEach(catName => {
+                    const matchingAssets = catalogoData.filter(a => a.categoria === catName);
+                    if (matchingAssets.length > 0) {
+                      newCategories.push({
+                        id: `auto_pdf_${catName}`,
+                        nombre: catName,
+                        items: matchingAssets.map(asset => {
+                          let qty = '1';
+                          if (asset.calculationMethod === 'porPersona') qty = String(totalInvitados);
+                          else if (asset.calculationMethod === 'ratio' && asset.invitadosPorUnidad) qty = String(Math.ceil(totalInvitados / asset.invitadosPorUnidad));
+                          else if (asset.precioVenta && asset.precioVenta > 0) qty = String(asset.precioVenta);
+                          return {
+                            id: `item_pdf_${asset.id}`,
+                            nombre: asset.nombre,
+                            cantidad: qty,
+                            unidad: asset.unidad || 'Uds.',
+                            cargado: false,
+                            origenId: asset.id
+                          };
+                        })
+                      });
+                    }
+                  });
+
+                  if (newCategories.length > 0) {
+                      loadedLista = { categorias: newCategories, notasGenerales: '' };
+                  } else {
+                      loadedLista = masterTemplate;
+                  }
+              } else {
+                  loadedLista = masterTemplate;
+              }
+          } else {
+              loadedLista = masterTemplate;
+          }
+      }
+
+      setListaDeCarga(loadedLista || { categorias: [], notasGenerales: '' });
+
     } catch (err: any) {
       setError("No se pudieron cargar los datos para el PDF de carga.");
-      toast({ title: "Error", description: err.message, variant: "destructive" });
       console.error("Error loading data for PDF:", err);
     } finally {
       setIsLoading(false);
     }
-  }, [toast, fiestaId]);
+  }, [fiestaId]);
 
   useEffect(() => {
     loadData();
@@ -114,7 +178,6 @@ function CargaOperativaPdfContent() {
   return (
     <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans">
       <div className="max-w-3xl mx-auto space-y-4 print:space-y-0">
-        {/* Aviso de Acceso Online - Solo pantalla */}
         <Card className="bg-blue-50 border-blue-200 print:hidden shadow-sm">
             <CardHeader className="py-3 px-4">
                 <CardTitle className="text-sm font-bold flex items-center gap-2 text-blue-800">
@@ -123,7 +186,7 @@ function CargaOperativaPdfContent() {
             </CardHeader>
             <CardContent className="py-0 px-4 pb-3">
                 <p className="text-xs text-blue-700 mb-3">
-                    Puedes crear un enlace de <strong>Acceso Personal</strong> para que el equipo pueda marcar los ítems desde su celular mientras cargan el camión.
+                    Puedes crear un enlace de <strong>Acceso Personal</strong> para que el equipo pueda marcar los ítems desde su celular en tiempo real.
                 </p>
                 <Link href="/settings/accesos-personal" passHref>
                     <Button size="sm" variant="outline" className="bg-white border-blue-300 text-blue-700 hover:bg-blue-100">
@@ -135,7 +198,7 @@ function CargaOperativaPdfContent() {
 
         <div className="bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2 relative min-h-screen">
             <div className="w-full h-24 print:h-20 mb-4 relative">
-                <WatermarkedImage src={logoUrl} alt="Marca de agua" containerClassName='w-full h-full'/>
+                <WatermarkedImage src={logoUrl} alt="Logo" containerClassName='w-full h-full'/>
             </div>
             <div className="flex justify-between items-center mb-6 print:hidden">
             <Link href={`/fiestas/nueva/carga-operativa?fiestaId=${fiestaId}`} passHref>
@@ -148,51 +211,48 @@ function CargaOperativaPdfContent() {
             </div>
 
             <header className="mb-6 print:mb-3 text-center border-b pb-3 print:pb-2">
-            <h1 className="text-xl font-bold text-primary print:text-lg flex items-center justify-center gap-2">
+            <h1 className="text-xl font-bold text-primary print:text-lg flex items-center justify-center gap-2 text-primary">
                 <PackageSearch className="w-6 h-6 print:w-5 print:h-5" /> Lista de Carga Operativa
             </h1>
             <p className="text-md text-gray-700 print:text-sm mt-1 font-semibold">{fiesta.configuracion.nombreEvento}</p>
             <p className="text-xs text-gray-500 print:text-[8pt]">{formatDate(fiesta.configuracion.fechaEvento)}</p>
             </header>
             
-            {(listaDeCarga.categorias || []).length === 0 && (
-                <div className="text-center py-10 text-muted-foreground">
+            {(listaDeCarga.categorias || []).length === 0 ? (
+                <div className="text-center py-10 text-muted-foreground border-2 border-dashed rounded-lg">
                     <Info className="w-10 h-10 mx-auto mb-2 opacity-50"/>
-                    <p>y la lista?</p>
+                    <p className="font-medium">No se han definido ítems en la lista de carga para este evento.</p>
+                    <p className="text-xs">Asegúrate de sincronizar la lista con el presupuesto en la pantalla anterior.</p>
+                </div>
+            ) : (
+                <div className="space-y-6 print:space-y-4">
+                    {(listaDeCarga.categorias || []).map(categoria => (
+                    <section key={categoria.id} className="print:break-inside-avoid">
+                        <h2 className="text-lg font-bold text-gray-800 print:text-base border-b-2 border-gray-300 pb-1 mb-2 print:pb-0.5 print:mb-1.5 uppercase tracking-wide">
+                        {categoria.nombre}
+                        </h2>
+                        <div className="grid grid-cols-1 gap-1.5 print:gap-1">
+                            {categoria.items.map(item => (
+                            <div key={item.id} className="flex items-start gap-3 p-2 border border-gray-100 rounded bg-gray-50/30 print:p-1 print:border-gray-200 print:bg-transparent">
+                                <div className="w-6 h-6 border-2 border-gray-400 rounded-md flex-shrink-0 mt-0.5 print:w-5 print:h-5 print:border-gray-600 bg-white"></div>
+                                <div className="flex-grow">
+                                <div className="flex justify-between items-baseline">
+                                    <p className="text-sm font-bold text-gray-800 print:text-xs">
+                                        {item.nombre}
+                                    </p>
+                                    <span className="text-sm font-black text-primary print:text-xs bg-primary/5 px-2 rounded print:bg-transparent">
+                                        CANT: {item.cantidad} {item.unidad || 'Uds.'}
+                                    </span>
+                                </div>
+                                {item.notes && <p className="text-[10px] text-gray-500 italic print:text-[7pt] mt-0.5">Nota: {item.notes}</p>}
+                                </div>
+                            </div>
+                            ))}
+                        </div>
+                    </section>
+                    ))}
                 </div>
             )}
-
-            <div className="space-y-6 print:space-y-4">
-                {(listaDeCarga.categorias || []).map(categoria => (
-                <section key={categoria.id} className="print:break-inside-avoid">
-                    <h2 className="text-lg font-bold text-gray-800 print:text-base border-b-2 border-gray-300 pb-1 mb-2 print:pb-0.5 print:mb-1.5 uppercase tracking-wide">
-                    {categoria.nombre}
-                    </h2>
-                    {categoria.items && categoria.items.length > 0 ? (
-                    <div className="grid grid-cols-1 gap-1.5 print:gap-1">
-                        {categoria.items.map(item => (
-                        <div key={item.id} className="flex items-start gap-3 p-2 border border-gray-100 rounded bg-gray-50/30 print:p-1 print:border-gray-200 print:bg-transparent">
-                            <div className="w-6 h-6 border-2 border-gray-400 rounded-md flex-shrink-0 mt-0.5 print:w-4 print:h-4 print:border-gray-500 bg-white"></div>
-                            <div className="flex-grow">
-                            <div className="flex justify-between items-baseline">
-                                <p className="text-sm font-bold text-gray-800 print:text-xs">
-                                    {item.nombre}
-                                </p>
-                                <span className="text-sm font-black text-primary print:text-xs bg-primary/5 px-2 rounded print:bg-transparent">
-                                    CANT: {item.cantidad} {item.unidad || 'Uds.'}
-                                </span>
-                            </div>
-                            {item.notes && <p className="text-[10px] text-gray-500 italic print:text-[7pt] mt-0.5">Nota: {item.notes}</p>}
-                            </div>
-                        </div>
-                        ))}
-                    </div>
-                    ) : (
-                    <p className="text-xs text-gray-400 italic px-1">Sin ítems definidos.</p>
-                    )}
-                </section>
-                ))}
-            </div>
 
             {listaDeCarga.notasGenerales && (
             <section className="mt-8 pt-4 border-t-2 border-gray-200 print:mt-6 print:pt-2 print:border-gray-300 print:break-inside-avoid">
