@@ -45,7 +45,62 @@
   },
   "personalAsignado": [],
   "invitados": [],
-  "tareas": [],
+  "tareas": [
+    {
+      "texto": "Comprar insumos de catering y bebidas",
+      "descripcion": "Ir al mercado/proveedores para comprar todo lo necesario para el menú.",
+      "completada": false,
+      "fechaLimite": "2026-12-14T03:00:00.000Z",
+      "asignadaA": "Organizador",
+      "esPredeterminada": true,
+      "id": "sys_task_1772743334679_2vtrb"
+    },
+    {
+      "texto": "Enviar recordatorio y confirmar personal",
+      "descripcion": "Avisar por WhatsApp a mozos, barmen y auxiliares.",
+      "completada": false,
+      "fechaLimite": "2026-12-16T00:00:00.000Z",
+      "asignadaA": "Organizador",
+      "esPredeterminada": true,
+      "id": "sys_task_1772743334679_3n8ps"
+    },
+    {
+      "texto": "Carga de fotos para Video de Vida",
+      "descripcion": "Solicitar al cliente que complete la subida de fotos en su portal.",
+      "completada": false,
+      "fechaLimite": "2026-12-04T00:00:00.000Z",
+      "asignadaA": "Cliente",
+      "esPredeterminada": true,
+      "id": "sys_task_1772743334679_uk4np5"
+    },
+    {
+      "texto": "Reunión final de coordinación",
+      "descripcion": "Repasar itinerario y detalles de último momento con el cliente.",
+      "completada": false,
+      "fechaLimite": "2026-12-12T00:00:00.000Z",
+      "asignadaA": "Organizador",
+      "esPredeterminada": true,
+      "id": "sys_task_1772743334679_qmfhxm"
+    },
+    {
+      "texto": "Revisión de lista de carga y camión",
+      "descripcion": "Controlar que todo el mobiliario y equipos estén listos.",
+      "completada": false,
+      "fechaLimite": "2026-12-18T00:00:00.000Z",
+      "asignadaA": "Organizador",
+      "esPredeterminada": true,
+      "id": "sys_task_1772743334679_uakq7i"
+    },
+    {
+      "texto": "Check-in final del salón y montaje",
+      "descripcion": "Llegada al salón para supervisar el armado inicial.",
+      "completada": false,
+      "fechaLimite": "2026-12-19T00:00:00.000Z",
+      "asignadaA": "Organizador",
+      "esPredeterminada": true,
+      "id": "sys_task_1772743334679_uplcnq"
+    }
+  ],
   "reuniones": [],
   "pagosProveedores": [],
   "estadosCompra": [],

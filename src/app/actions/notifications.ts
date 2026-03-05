@@ -28,7 +28,7 @@ export async function createNotification(
     
     // Prevent duplicate notifications for the same message in a short time frame
     const existingNotification = notifications.find(
-      n => n.mensaje === data.mensaje && new Date(n.fecha) > new Date(Date.now() - 60 * 60 * 1000) // 1 hour window
+      n => n.mensaje === data.mensaje && new Date(n.fecha) > new Date(Date.now() - 24 * 60 * 60 * 1000) // 24 hour window for daily reminders
     );
     if (existingNotification) {
         return { success: true, notification: existingNotification };
@@ -113,12 +113,13 @@ export async function checkAndCreateTaskReminders(): Promise<{ success: boolean;
                 const dueDate = new Date(tarea.fechaLimite);
                 const daysUntilDue = differenceInDays(dueDate, today);
 
+                // Reminder if due in 48 hours or less
                 if (daysUntilDue >= 0 && daysUntilDue <= 2) {
                     let mensaje = '';
                     if(isToday(dueDate)) {
-                        mensaje = `Recordatorio HOY: Tarea "${tarea.texto}" vence para el evento ${fiesta.configuracion.nombreEvento}.`;
+                        mensaje = `🚨 VENCE HOY: Tarea "${tarea.texto}" (${fiesta.configuracion.nombreEvento}).`;
                     } else {
-                        mensaje = `Recordatorio: Tarea "${tarea.texto}" (${fiesta.configuracion.nombreEvento}) vence en ${daysUntilDue + 1} día(s).`;
+                        mensaje = `📅 Recordatorio: La tarea "${tarea.texto}" de ${fiesta.configuracion.nombreEvento} vence en ${daysUntilDue + 1} día(s).`;
                     }
                     
                     const result = await createNotification({
@@ -161,9 +162,9 @@ export async function checkAndCreateReunionReminders(): Promise<{ success: boole
                 if (daysUntilMeeting >= 0 && daysUntilMeeting <= 1) { // Reminder for today or tomorrow
                     let mensaje = '';
                      if(isToday(meetingDate)) {
-                        mensaje = `Reunión HOY: "${reunion.titulo}" (${fiesta.configuracion.nombreEvento}) a las ${new Date(reunion.fecha).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })}hs.`;
+                        mensaje = `🤝 Reunión HOY: "${reunion.titulo}" (${fiesta.configuracion.nombreEvento}) a las ${new Date(reunion.fecha).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })}hs.`;
                     } else {
-                        mensaje = `Reunión Mañana: "${reunion.titulo}" (${fiesta.configuracion.nombreEvento}) a las ${new Date(reunion.fecha).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })}hs.`;
+                        mensaje = `🤝 Reunión Mañana: "${reunion.titulo}" (${fiesta.configuracion.nombreEvento}) a las ${new Date(reunion.fecha).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })}hs.`;
                     }
                     
                     const result = await createNotification({

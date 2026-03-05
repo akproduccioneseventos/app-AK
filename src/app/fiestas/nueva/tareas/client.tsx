@@ -19,6 +19,7 @@ import { useToast } from '@/hooks/use-toast';
 import type { Tarea } from '@/types/fiesta';
 import { getFiestaById, updateTareasFiestaActual, addTareaToFiestaActual, deleteTareaFromFiestaActual } from '@/app/actions/fiesta-actual';
 import { getTaskTemplates, saveTaskTemplate, deleteTaskTemplate, type TaskTemplate } from '@/app/actions/task-templates';
+import { checkAndCreateTaskReminders } from '@/app/actions/notifications';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -92,6 +93,10 @@ function TareasEventoContent() {
       if (!fiestaData) throw new Error("Fiesta no encontrada.");
       setTareas(fiestaData.tareas || []);
       setFiestaEventDate(fiestaData.configuracion.fechaEvento);
+      
+      // Trigger background reminder check
+      checkAndCreateTaskReminders().catch(e => console.warn("Reminder check failed", e));
+      
     } catch (err: any) {
       console.error("Error loading tasks:", err);
       setError("No se pudieron cargar las tareas.");
@@ -425,6 +430,28 @@ function TareasEventoContent() {
         </div>
       </div>
 
+      {/* Progress Bar Section */}
+      <Card className="shadow-md border-primary/20 bg-primary/5">
+        <CardHeader className="pb-3">
+          <div className="flex justify-between items-center mb-2">
+            <CardTitle className="text-lg font-headline flex items-center gap-2">
+              <CalendarCheck className="w-5 h-5 text-primary"/>
+              Estado de la Planificación
+            </CardTitle>
+            <Badge variant="secondary" className="font-bold">
+              {completedCount} de {totalCount} tareas cumplidas
+            </Badge>
+          </div>
+          <Progress value={progressPercentage} className="h-3 bg-white border" />
+          <div className="flex justify-between items-center mt-2">
+            <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">
+              {progressPercentage === 100 ? "¡Todo listo para el evento!" : `${Math.round(progressPercentage)}% completado`}
+            </p>
+            <p className="text-xs text-primary font-medium italic">{getNextDueTaskInfo()}</p>
+          </div>
+        </CardHeader>
+      </Card>
+
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline text-xl">Añadir Nueva Tarea</CardTitle>
@@ -466,7 +493,7 @@ function TareasEventoContent() {
         <CardHeader>
           <div className="flex justify-between items-center mb-2">
             <CardTitle className="font-headline text-xl flex items-center gap-2">
-                <CalendarCheck className="w-5 h-5 text-primary"/> Lista de Tareas ({completedCount}/{totalCount})
+                <ListChecks className="w-5 h-5 text-primary"/> Lista de Tareas
             </CardTitle>
             <div className="flex items-center gap-2">
                 {isSaving && <Loader2 className="w-4 h-4 animate-spin text-primary"/>}
@@ -474,8 +501,6 @@ function TareasEventoContent() {
                 <Button variant="ghost" size="sm" onClick={handleOpenSaveTemplateModal} className="h-8"><Save className="w-4 h-4 mr-1.5"/>Guardar</Button>
             </div>
           </div>
-          <Progress value={progressPercentage} className="h-2" />
-          <p className="mt-2 text-xs text-muted-foreground font-medium uppercase tracking-wider">{getNextDueTaskInfo()}</p>
         </CardHeader>
         <CardContent>
           {tareas.length > 0 ? (
@@ -533,7 +558,7 @@ function TareasEventoContent() {
 
 export default function TareasClientPage() {
     return (
-        <Suspense fallback={<div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+        <Suspense fallback={<div className="flex items-center justify-center h-64"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>}>
             <TareasEventoContent />
         </Suspense>
     );
