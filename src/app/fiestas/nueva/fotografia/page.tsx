@@ -63,17 +63,29 @@ function FotografiaContent() {
                     
                     presupuesto.itemsPresupuestados.forEach(item => {
                         const name = item.nombreServicio.toLowerCase();
-                        if (name.includes('foto') || name.includes('film') || name.includes('video')) {
-                            // Calculate default delivery date: Day after party + 30 days
+                        
+                        // Exclude fotocabina and video de vida
+                        const isPhotoOrFilm = (name.includes('foto') || name.includes('film') || name.includes('video')) 
+                                              && !name.includes('cabina') 
+                                              && !name.includes('vida');
+
+                        if (isPhotoOrFilm) {
+                            // Rule: Party (fiesta) = 20 days, Others (exteriores, civil, iglesia) = 10 days
+                            let editionDays = 10;
+                            if (name.includes('fiesta')) {
+                                editionDays = 20;
+                            }
+
                             let deliveryDate = undefined;
                             if (fiesta.configuracion.fechaEvento) {
                                 const d = new Date(fiesta.configuracion.fechaEvento);
-                                d.setDate(d.getDate() + 31); // 1 day after + 30 days of edition
+                                // Starts day after + edition days
+                                d.setDate(d.getDate() + editionDays + 1);
                                 deliveryDate = d.toISOString();
                             }
 
                             newServicios.push({
-                                id: `sync_${item.idServicioCatalogo}_${Date.now()}`,
+                                id: `sync_${item.idServicioCatalogo}_${Date.now()}_${Math.random().toString(36).substring(7)}`,
                                 nombre: item.nombreServicio,
                                 estado: 'Pendiente',
                                 fechaEntregaEstimada: deliveryDate,
@@ -160,7 +172,7 @@ function FotografiaContent() {
     };
 
     if (isLoading || !formData) {
-        return <div className="p-8 max-w-2xl mx-auto flex flex-col items-center justify-center h-64"><Loader2 className="w-12 h-12 animate-spin text-primary mb-4"/><p>Sincronizando con el presupuesto...</p></div>
+        return <div className="p-8 max-w-2xl mx-auto flex flex-col items-center justify-center h-64"><Loader2 className="w-12 h-12 animate-spin text-primary mb-4"/><p>Sincronizando seguimiento...</p></div>
     }
 
     return (
@@ -188,7 +200,12 @@ function FotografiaContent() {
                                 <DatePickerDemo selectedDate={currentItem.fechaEntregaEstimada ? new Date(currentItem.fechaEntregaEstimada) : undefined} onDateChange={(date) => setCurrentItem(p => p ? {...p, fechaEntregaEstimada: date?.toISOString()} : null)}/>
                                 {currentItem.nombre?.toLowerCase().includes('fiesta') && eventDate && (
                                     <p className="text-[10px] text-muted-foreground flex items-center gap-1 mt-1">
-                                        <Clock className="w-3 h-3"/> El plazo comienza a contar desde el día después de la fiesta ({new Date(new Date(eventDate).getTime() + 86400000).toLocaleDateString('es-UY')})
+                                        <Clock className="w-3 h-3"/> El plazo de 20 días comienza el día después de la fiesta ({new Date(new Date(eventDate).getTime() + 86400000).toLocaleDateString('es-UY')})
+                                    </p>
+                                )}
+                                {(currentItem.nombre?.toLowerCase().includes('exterior') || currentItem.nombre?.toLowerCase().includes('civil') || currentItem.nombre?.toLowerCase().includes('iglesia')) && eventDate && (
+                                    <p className="text-[10px] text-muted-foreground flex items-center gap-1 mt-1">
+                                        <Clock className="w-3 h-3"/> El plazo de 10 días comienza el día después de la fiesta ({new Date(new Date(eventDate).getTime() + 86400000).toLocaleDateString('es-UY')})
                                     </p>
                                 )}
                            </div>
@@ -208,7 +225,7 @@ function FotografiaContent() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                     <Film className="w-8 h-8 text-primary" />
-                    <h1 className="text-3xl font-bold tracking-tight font-headline">Check-in de Invitados</h1>
+                    <h1 className="text-3xl font-bold tracking-tight font-headline">Seguimiento de Material</h1>
                 </div>
                 <div className="flex gap-2">
                     <Button variant="ghost" size="sm" onClick={() => loadData(true)} title="Actualizar desde presupuesto">
@@ -225,9 +242,9 @@ function FotografiaContent() {
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="text-xs text-blue-700 space-y-1">
-                    <p>● Los servicios se cargan automáticamente desde el presupuesto.</p>
-                    <p>● Configura aquí los tiempos de entrega para que el cliente los vea en su portal.</p>
-                    <p>● El plazo de edición para la fiesta inicia el día siguiente al evento.</p>
+                    <p>● Sincronizado automáticamente: Solo Fotografía y Filmación.</p>
+                    <p>● Plazos: 20 días para Fiesta, 10 días para Exteriores/Civil/Iglesia.</p>
+                    <p>● El cliente verá estos estados y enlaces en su portal privado.</p>
                 </CardContent>
             </Card>
 
@@ -282,7 +299,7 @@ function FotografiaContent() {
                          {(!formData.servicios || formData.servicios.length === 0) && (
                              <div className="col-span-full py-12 text-center border-2 border-dashed rounded-lg bg-muted/20">
                                 <Camera className="w-12 h-12 mx-auto text-muted-foreground/40 mb-3"/>
-                                <p className="text-muted-foreground">No hay servicios detectados en el presupuesto.</p>
+                                <p className="text-muted-foreground">No hay servicios de fotografía/filmación detectados.</p>
                                 <Button variant="outline" size="sm" onClick={() => openItemModal()} className="mt-4">
                                     <PlusCircle className="w-4 h-4 mr-2"/>Añadir Manualmente
                                 </Button>
@@ -318,7 +335,7 @@ function FotografiaContent() {
 
 export default function FotografiaPage() {
     return (
-        <Suspense fallback={<div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+        <Suspense fallback={<div className="flex justify-center items-center h-64"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>}>
             <FotografiaContent />
         </Suspense>
     )
