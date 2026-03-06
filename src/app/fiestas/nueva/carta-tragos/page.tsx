@@ -5,7 +5,8 @@ import React, { useState, useEffect, useCallback, Suspense, type ChangeEvent, us
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer as PrinterIcon, Save, Loader2, Edit, Upload, Image as ImageIconLucide, Download } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { ArrowLeft, Printer as PrinterIcon, Save, Loader2, Edit, Upload, Image as ImageIconLucide, Download, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, CartaTragosData, Trago } from '@/types/fiesta';
 import { getFiestaById, updateCartaTragos as updateCartaTragosAction } from '@/app/actions/fiesta/fiesta.actions';
@@ -131,7 +132,7 @@ function CartaTragosContent() {
     try {
       const result = await updateCartaTragosAction(fiestaId, cartaTragos);
       if (result.success) {
-        toast({ title: "Guardado!", description: "La carta de tragos ha sido actualizada." });
+        toast({ title: "¡Guardado!", description: "La carta de tragos ha sido actualizada." });
       } else {
         throw new Error(result.error);
       }
