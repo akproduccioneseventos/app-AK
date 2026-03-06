@@ -134,8 +134,8 @@ export const CartaTragosMenu: React.FC<CartaTragosMenuProps> = ({ fiesta, carta,
                 </div>
             </div>
             {logoUrl && (
-                <div className="absolute left-2.5 bottom-2.5 w-10 h-10 z-20 opacity-40">
-                    <NextImage src={logoUrl} alt="Logo" layout="fill" className="object-contain grayscale" data-ai-hint="logo"/>
+                <div className="absolute left-2.5 bottom-2.5 w-10 h-10 z-20">
+                    <NextImage src={logoUrl} alt="Logo" layout="fill" className="object-contain" data-ai-hint="logo"/>
                 </div>
             )}
         </div>
