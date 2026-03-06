@@ -10,7 +10,7 @@
     --card-foreground: 224 71% 4%;
     --popover: 0 0% 100%;
     --popover-foreground: 224 71% 4%;
-    --primary: 348 83% 61%; /* Hot Pink/Red original */
+    --primary: 348 83% 61%;
     --primary-foreground: 210 20% 98%;
     --secondary: 220 14% 96%;
     --secondary-foreground: 224 71% 4%;
@@ -23,8 +23,8 @@
     --border: 220 13% 91%;
     --input: 220 13% 91%;
     --ring: 348 83% 61%;
-    --radius: 1rem;
-    --chart-1: 12 76% 61%;
+    --radius: 1.25rem;
+    --chart-1: 348 83% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
@@ -59,8 +59,11 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-body;
+    @apply bg-background text-foreground font-body antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-headline tracking-tight;
   }
 }
 
@@ -68,14 +71,26 @@
   .canvas-grid-background {
     background-color: hsl(var(--muted));
     background-image: radial-gradient(hsl(var(--border)) 1px, transparent 1px);
-    background-size: 20px 20px;
+    background-size: 24px 24px;
   }
 
   .glass-card {
-    @apply bg-white/70 backdrop-blur-lg border border-white/20 shadow-xl;
+    @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-xl;
   }
 
   .hover-lift {
-    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl;
+    @apply transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-primary/10;
+  }
+
+  .premium-shadow {
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 4px 10px -5px rgba(0, 0, 0, 0.02);
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, AlertTriangle, PartyPopper, Calendar, Users, Palette, ChefHat, Music2, ListChecks, DollarSign, Camera, Gift, FileText, UserCheck, Clock, Archive, PackageSearch, Video, Globe, MessageSquare, LayoutDashboard, Star, Calculator, GlassWater, ShoppingCart, ClipboardList, QrCode, Printer, Settings2, KeyRound, ClipboardCheck, ArrowRight } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, PartyPopper, Calendar, Users, Palette, ChefHat, Music2, ListChecks, DollarSign, Camera, Gift, FileText, UserCheck, Clock, Archive, PackageSearch, Video, Globe, MessageSquare, LayoutDashboard, Star, Calculator, GlassWater, ShoppingCart, ClipboardList, QrCode, Printer, Settings2, KeyRound, ClipboardCheck, ArrowRight, MapPin } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateModulosContratadosFiestaActual, type FiestaEnPlanificacion, type ModulosContratados } from '../../actions/fiesta-actual';
 import { KpiCard } from '@/components/dashboard/kpi-card';
@@ -15,7 +15,8 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { defaultModulosContratados } from '@/lib/fiesta-defaults';
 import { cn } from '@/lib/utils';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Badge } from '@/components/ui/badge';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no definida";
@@ -150,25 +151,29 @@ function PlannerDashboardContent() {
   const pendingTasks = fiesta.tareas?.filter(t => !t.completada).length || 0;
 
   return (
-    <div className="space-y-8 pb-20">
-      <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="p-4 bg-primary rounded-3xl shadow-xl shadow-primary/20 text-white">
-            <PartyPopper className="w-8 h-8" />
+    <div className="space-y-10 pb-24">
+      <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-6">
+          <div className="p-5 bg-primary rounded-[2rem] shadow-2xl shadow-primary/30 text-white transform hover:rotate-6 transition-transform duration-500">
+            <PartyPopper className="w-10 h-10" />
           </div>
           <div>
-            <h1 className="text-4xl font-black tracking-tight font-headline text-slate-900">{configuracion.nombreEvento}</h1>
-            <p className="text-muted-foreground font-medium flex items-center gap-2">
+            <h1 className="text-5xl font-black tracking-tighter text-slate-900 font-headline uppercase">{configuracion.nombreEvento}</h1>
+            <p className="text-slate-500 font-bold flex items-center gap-3 mt-1">
                 <Calendar className="w-4 h-4 text-primary"/> {formatDate(configuracion.fechaEvento)} 
                 <span className="text-slate-300">•</span> 
                 <MapPin className="w-4 h-4 text-primary"/> {configuracion.nombreLugar}
             </p>
           </div>
-        </div>
-        <Link href="/eventos" passHref><Button variant="outline" className="rounded-xl px-6"><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
+        </motion.div>
+        <Link href="/eventos" passHref>
+          <Button variant="outline" className="rounded-2xl px-8 h-12 border-slate-200 font-bold hover:bg-slate-50 transition-all">
+            <ArrowLeft className="w-4 h-4 mr-3"/>Volver al Gestor
+          </Button>
+        </Link>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <KpiCard title="Invitados" value={configuracion.invitadosEstimados.toString()} icon={Users} description={`${confirmedGuests} confirmados`}/>
         <KpiCard title="Pendientes" value={pendingTasks} icon={ListChecks} />
         <KpiCard title="Presupuesto" value={new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(Number(configuracion.presupuestoEstimado))} icon={DollarSign} />
@@ -177,27 +182,27 @@ function PlannerDashboardContent() {
 
        <Accordion type="single" collapsible className="w-full">
         <AccordionItem value="item-1" className="border-none">
-          <AccordionTrigger className="bg-slate-100 hover:bg-slate-200 px-6 rounded-2xl transition-all">
-            <div className="flex items-center gap-2 text-slate-700 font-bold">
+          <AccordionTrigger className="bg-white hover:bg-slate-50 px-8 h-16 rounded-[1.5rem] transition-all premium-shadow border-none">
+            <div className="flex items-center gap-3 text-slate-700 font-black uppercase text-[10px] tracking-widest">
               <Settings2 className="w-5 h-5 text-primary"/>
               Configurar Visibilidad de Módulos
             </div>
           </AccordionTrigger>
-          <AccordionContent className="pt-4">
-            <div className="p-6 bg-slate-50 rounded-3xl border border-slate-200">
-                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <AccordionContent className="pt-6">
+            <div className="p-8 bg-white/50 backdrop-blur-xl rounded-[2rem] border border-slate-200 premium-shadow">
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
                     {moduleCategories.map(category => (
-                        <div key={category} className="space-y-3">
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 border-b pb-2">{category}</h4>
-                            <div className="space-y-2">
+                        <div key={category} className="space-y-5">
+                            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 border-b border-primary/10 pb-3">{category}</h4>
+                            <div className="space-y-1">
                                 {modules.filter(m => m.category === category).map(module => (
-                                    <div key={`${category}-${module.id}`} className="flex items-center justify-between p-2 hover:bg-white rounded-xl transition-colors">
-                                        <Label htmlFor={`switch-${module.id}`} className="text-xs font-semibold text-slate-600 cursor-pointer">{module.title}</Label>
+                                    <div key={`${category}-${module.id}`} className="flex items-center justify-between p-2.5 hover:bg-white rounded-xl transition-all group">
+                                        <Label htmlFor={`switch-${module.id}`} className="text-xs font-bold text-slate-600 cursor-pointer group-hover:text-primary transition-colors">{module.title}</Label>
                                         <Switch
                                             id={`switch-${module.id}`}
                                             checked={modulosContratados[module.id as keyof ModulosContratados]}
                                             onCheckedChange={(checked) => handleModuleToggle(module.id as keyof ModulosContratados, checked)}
-                                            className="scale-75"
+                                            className="scale-75 data-[state=checked]:bg-primary"
                                         />
                                     </div>
                                 ))}
@@ -210,18 +215,25 @@ function PlannerDashboardContent() {
         </AccordionItem>
       </Accordion>
 
-      <div className="space-y-12">
+      <div className="space-y-16">
+          <AnimatePresence>
           {moduleCategories.map((category, catIdx) => {
             const categoryModules = modules.filter(m => m.category === category && modulosContratados[m.id as keyof ModulosContratados]);
             if (categoryModules.length === 0) return null;
 
             return (
-              <div key={category} className="space-y-6">
-                <div className="flex items-center gap-4">
-                    <h3 className="text-2xl font-black font-headline text-slate-800 shrink-0">{category}</h3>
-                    <div className="h-px bg-slate-200 flex-grow"></div>
+              <motion.div 
+                key={category} 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="space-y-8"
+              >
+                <div className="flex items-center gap-6">
+                    <h3 className="text-3xl font-black font-headline text-slate-800 shrink-0 tracking-tighter uppercase">{category}</h3>
+                    <div className="h-px bg-gradient-to-r from-slate-200 to-transparent flex-grow"></div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                   {categoryModules.map((module, mIdx) => {
                     const hrefWithId = module.href.startsWith('/') 
                         ? getLinkHref(module.href)
@@ -229,27 +241,26 @@ function PlannerDashboardContent() {
                     return (
                       <motion.div
                         key={`${module.id}-${mIdx}`}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: (catIdx * 0.1) + (mIdx * 0.05) }}
+                        whileHover={{ y: -8 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 20 }}
                       >
                         <Link href={hrefWithId} passHref className="block h-full">
-                            <Card className="h-full border-none shadow-lg hover:shadow-2xl hover:translate-y-[-4px] transition-all duration-300 cursor-pointer flex flex-col group rounded-3xl overflow-hidden bg-white">
-                            <CardHeader className="flex-row items-center gap-4 space-y-0 pb-4 p-6">
-                                <div className={cn("p-3 rounded-2xl group-hover:scale-110 transition-all duration-500", module.color)}>
-                                    <module.icon className="w-6 h-6" />
+                            <Card className="h-full border-none premium-shadow hover:shadow-primary/10 transition-all duration-500 cursor-pointer flex flex-col group rounded-[2.5rem] overflow-hidden bg-white">
+                            <CardHeader className="flex-row items-center gap-5 space-y-0 pb-4 p-8">
+                                <div className={cn("p-4 rounded-2xl group-hover:rotate-12 transition-all duration-500 shadow-inner", module.color)}>
+                                    <module.icon className="w-7 h-7" />
                                 </div>
-                                <div>
-                                    <CardTitle className="text-base font-bold text-slate-800">{module.title}</CardTitle>
-                                    <CardDescription className="text-[10px] uppercase font-black tracking-widest text-slate-400 mt-0.5">Módulo Activo</CardDescription>
+                                <div className="min-w-0">
+                                    <CardTitle className="text-lg font-black text-slate-800 truncate">{module.title}</CardTitle>
+                                    <Badge className="bg-slate-100 text-slate-400 text-[8px] font-black tracking-widest uppercase border-none">Activo</Badge>
                                 </div>
                             </CardHeader>
-                            <CardContent className="flex-grow pt-0 px-6 pb-6">
-                                <p className="text-xs text-muted-foreground leading-relaxed font-medium">{module.description}</p>
+                            <CardContent className="flex-grow pt-0 px-8 pb-8">
+                                <p className="text-xs text-slate-400 leading-relaxed font-bold uppercase tracking-tighter line-clamp-2">{module.description}</p>
                             </CardContent>
-                            <CardFooter className="bg-slate-50/50 p-3 flex justify-end">
-                                <Button variant="ghost" size="sm" className="text-primary font-bold text-[10px] uppercase tracking-widest">
-                                    Abrir <ArrowRight className="w-3 h-3 ml-2 group-hover:translate-x-1 transition-transform"/>
+                            <CardFooter className="bg-slate-50/50 p-4 flex justify-end px-8 border-t border-slate-50">
+                                <Button variant="ghost" size="sm" className="text-primary font-black text-[10px] uppercase tracking-[0.2em] group-hover:bg-primary group-hover:text-white rounded-xl px-4 transition-all duration-500">
+                                    Abrir <ArrowRight className="w-3.5 h-3.5 ml-2 group-hover:translate-x-1 transition-transform"/>
                                 </Button>
                             </CardFooter>
                             </Card>
@@ -258,17 +269,14 @@ function PlannerDashboardContent() {
                     )
                   })}
                 </div>
-              </div>
+              </motion.div>
             );
           })}
+          </AnimatePresence>
       </div>
     </div>
   );
 }
-
-const MapPin = ({ className }: { className?: string }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-);
 
 export default function PlannerDashboardPage() {
     return (
