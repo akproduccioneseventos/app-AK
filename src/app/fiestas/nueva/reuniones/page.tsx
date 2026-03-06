@@ -9,9 +9,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { DatePickerDemo } from '@/components/date-picker-demo';
-import { ArrowLeft, PlusCircle, Edit3, Trash2, Loader2, AlertTriangle, MessageSquareText, CalendarIcon, CalendarPlus, NotebookTextIcon, Printer, Share2, ClipboardCheck, ArrowRight } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Edit3, Trash2, Loader2, AlertTriangle, MessageSquareText, CalendarIcon, CalendarPlus, NotebookTextIcon, Printer, Share2, ClipboardCheck, ArrowRight, CheckCircle2, ListChecks, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, Reunion } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, Reunion, ReunionChecklistItem } from '@/types/fiesta';
 import { getFiestaById, addReunionToFiestaActual, updateReunionInFiestaActual, deleteReunionFromFiestaActual } from '@/app/actions/fiesta-actual';
 import {
   Dialog,
@@ -35,6 +35,24 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from '@/components/ui/checkbox';
+import { cn } from '@/lib/utils';
+
+const DEFAULT_CHECKLIST: ReunionChecklistItem[] = [
+    { id: 'c1', text: 'Confirmar cantidad final de invitados (Adultos/Niños)', completed: false },
+    { id: 'c2', text: 'Revisión detallada de Menú (Entradas, Principal, Postre)', completed: false },
+    { id: 'c3', text: 'Chequear menús especiales (Celíacos, Alergias)', completed: false },
+    { id: 'c4', text: 'Definir bebidas y funcionamiento de la barra', completed: false },
+    { id: 'c5', text: 'Elección de torta y diseño de mesa dulce', completed: false },
+    { id: 'c6', text: 'Revisar paleta de colores y estilo de decoración', completed: false },
+    { id: 'c7', text: 'Estado de la asignación de mesas', completed: false },
+    { id: 'c8', text: 'Canciones clave (Entrada, Vals, Torta, Cotillón)', completed: false },
+    { id: 'c9', text: 'Repasar cronograma minuto a minuto', completed: false },
+    { id: 'c10', text: 'Fotografía/Video: sesiones previas y cobertura', completed: false },
+    { id: 'c11', text: 'Verificar pagos pendientes y saldos', completed: false },
+    { id: 'c12', text: 'Detalles finales (Cotillón, Souvenirs, etc.)', completed: false },
+];
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no especificada";
@@ -45,29 +63,6 @@ const formatDate = (dateString?: string) => {
   } catch (e) {
     return "Fecha inválida";
   }
-};
-
-const generateICSContent = (reunion: Reunion, fiestaNombre: string): string => {
-  if (!reunion.fecha) return '';
-  const startDate = new Date(reunion.fecha);
-  const endDate = new Date(startDate.getTime() + 60 * 60 * 1000); // Asumir 1 hora de duración
-
-  const toUTC = (date: Date) => date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-
-  return [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'PRODID:-//AKProducciones//App//EN',
-    'BEGIN:VEVENT',
-    `UID:${reunion.id}@akproducciones.app`,
-    `DTSTAMP:${toUTC(new Date())}`,
-    `DTSTART:${toUTC(startDate)}`,
-    `DTEND:${toUTC(endDate)}`,
-    `SUMMARY:Reunión: ${reunion.titulo}`,
-    `DESCRIPTION:Reunión para el evento "${fiestaNombre}". Notas: ${reunion.notas.replace(/\n/g, '\\n')}`,
-    'END:VEVENT',
-    'END:VCALENDAR'
-  ].join('\n');
 };
 
 function GestionReunionesContent() {
@@ -89,9 +84,10 @@ function GestionReunionesContent() {
   const [formHora, setFormHora] = useState('');
   const [formNotas, setFormNotas] = useState('');
   const [formAcuerdos, setFormAcuerdos] = useState('');
+  const [formChecklist, setFormChecklist] = useState<ReunionChecklistItem[]>([]);
+  
   const [isSaving, setIsSaving] = useState(false);
   const [deletingReunionId, setDeletingReunionId] = useState<string | null>(null);
-  const [conflictWarning, setConflictWarning] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     if (!fiestaId) {
@@ -118,28 +114,6 @@ function GestionReunionesContent() {
   useEffect(() => {
     loadData();
   }, [loadData]);
-  
-  useEffect(() => {
-    if (formFecha && formHora) {
-      const currentDateTime = new Date(formFecha);
-      const [hours, minutes] = formHora.split(':').map(Number);
-      currentDateTime.setHours(hours, minutes, 0, 0);
-
-      const existingReunion = reuniones.find(r => {
-        if (!r.fecha) return false;
-        if (currentReunion && r.id === currentReunion.id) return false;
-        return new Date(r.fecha).getTime() === currentDateTime.getTime();
-      });
-
-      if (existingReunion) {
-        setConflictWarning(`Advertencia: Ya existe una reunión ("${existingReunion.titulo}") a esta misma hora.`);
-      } else {
-        setConflictWarning(null);
-      }
-    } else {
-      setConflictWarning(null);
-    }
-  }, [formFecha, formHora, reuniones, currentReunion]);
 
   const handleFormSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -168,6 +142,7 @@ function GestionReunionesContent() {
           fecha: finalDate ? finalDate.toISOString() : undefined,
           notas: formNotas.trim(),
           acuerdos: formAcuerdos.trim(),
+          checklist: formChecklist,
         };
         result = await updateReunionInFiestaActual(updatedReunionData);
       } else {
@@ -177,6 +152,7 @@ function GestionReunionesContent() {
           fecha: finalDate ? finalDate.toISOString() : undefined,
           notas: formNotas.trim(),
           acuerdos: formAcuerdos.trim(),
+          checklist: formChecklist,
         };
         result = await addReunionToFiestaActual(newReunionData);
       }
@@ -203,6 +179,7 @@ function GestionReunionesContent() {
       setFormHora(reunion.fecha ? new Date(reunion.fecha).toTimeString().substring(0,5) : '');
       setFormNotas(reunion.notas);
       setFormAcuerdos(reunion.acuerdos || '');
+      setFormChecklist(reunion.checklist || [...DEFAULT_CHECKLIST]);
     } else {
       setCurrentReunion(null);
       setFormTitulo('');
@@ -210,11 +187,17 @@ function GestionReunionesContent() {
       setFormHora('');
       setFormNotas('');
       setFormAcuerdos('');
+      setFormChecklist([...DEFAULT_CHECKLIST]);
     }
-    setConflictWarning(null);
     setIsFormModalOpen(true);
   };
   
+  const toggleChecklistItem = (id: string) => {
+      setFormChecklist(prev => prev.map(item => 
+          item.id === id ? { ...item, completed: !item.completed } : item
+      ));
+  };
+
   const handleDeleteReunion = async (reunionId: string) => {
     if (!fiestaId) return;
     setDeletingReunionId(reunionId);
@@ -232,74 +215,96 @@ function GestionReunionesContent() {
       setDeletingReunionId(null);
     }
   };
-  
-  const handleShareWhatsApp = (reunion: Reunion) => {
-    if (!fiesta) return;
-    const message = `*Recordatorio de Reunión*\n\n*Evento:* ${fiesta.configuracion.nombreEvento}\n*Reunión:* ${reunion.titulo}\n*Fecha:* ${formatDate(reunion.fecha)}\n*Hora:* ${new Date(reunion.fecha!).toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'})} hs.\n\n*Notas:*\n${reunion.notas}`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
-  };
-
-  const downloadICS = (reunion: Reunion, fiestaNombre: string) => {
-    const icsContent = generateICSContent(reunion, fiestaNombre);
-    if (icsContent) {
-        const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8;' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `${reunion.titulo}.ics`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
-  };
-
-  if (isLoading) {
-    return <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>;
-  }
-  if (error || !fiesta) {
-    return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>{error}</div>;
-  }
 
   const proximasReuniones = reuniones.filter(r => r.fecha && new Date(r.fecha) >= new Date());
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <Dialog open={isFormModalOpen} onOpenChange={setIsFormModalOpen}>
-        <DialogContent className="sm:max-w-2xl">
+        <DialogContent className="sm:max-w-3xl">
           <DialogHeader>
-            <DialogTitle className="font-headline text-xl">{currentReunion ? 'Editar Reunión' : 'Agendar Nueva Reunión'}</DialogTitle>
+            <DialogTitle className="font-headline text-2xl flex items-center gap-2">
+                {currentReunion ? <Edit3 className="w-6 h-6 text-primary"/> : <PlusCircle className="w-6 h-6 text-primary"/>}
+                {currentReunion ? 'Editar Reunión' : 'Agendar Nueva Reunión'}
+            </DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleFormSubmit} className="space-y-4 py-2 max-h-[80vh] overflow-y-auto pr-2">
-            <div className="space-y-1"><Label htmlFor="reunion-titulo">Título *</Label><Input id="reunion-titulo" value={formTitulo} onChange={e => setFormTitulo(e.target.value)} placeholder="Ej: Definir decoración, Degustación menú" required /></div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1"><Label htmlFor="reunion-fecha">Fecha</Label><DatePickerDemo selectedDate={formFecha} onDateChange={setFormFecha} /></div>
-              <div className="space-y-1"><Label htmlFor="reunion-hora">Hora</Label><Input id="reunion-hora" type="time" value={formHora} onChange={(e) => setFormHora(e.target.value)} disabled={!formFecha}/></div>
-            </div>
-            {conflictWarning && <p className="text-xs text-amber-600">{conflictWarning}</p>}
+          
+          <Tabs defaultValue="detalles" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="detalles">Datos y Acuerdos</TabsTrigger>
+                <TabsTrigger value="guia"><ListChecks className="w-4 h-4 mr-2"/>Guía y Checklist</TabsTrigger>
+            </TabsList>
             
-            <div className="space-y-1"><Label htmlFor="reunion-notas">Notas / Temas a tratar</Label><Textarea id="reunion-notas" value={formNotas} onChange={(e) => setFormNotas(e.target.value)} rows={3} placeholder="Puntos a discutir en la reunión..."/></div>
-            
-            <Separator />
-            
-            <div className="space-y-2 p-4 bg-primary/5 rounded-lg border border-primary/10">
-                <Label htmlFor="reunion-acuerdos" className="text-primary font-bold flex items-center gap-2">
-                    <ClipboardCheck className="w-4 h-4"/> Acuerdos Alcanzados
-                </Label>
-                <CardDescription>Documenta aquí las decisiones finales tomadas durante la reunión para que queden registradas.</CardDescription>
-                <Textarea 
-                    id="reunion-acuerdos" 
-                    value={formAcuerdos} 
-                    onChange={(e) => setFormAcuerdos(e.target.value)} 
-                    rows={6} 
-                    placeholder="Ej: Se acordó cambiar el plato principal a Pollo Relleno. El cliente prefiere mantelería blanca..."
-                    className="bg-white"
-                />
-            </div>
+            <TabsContent value="detalles" className="space-y-4 py-4 max-h-[60vh] overflow-y-auto pr-2">
+                <div className="space-y-1"><Label htmlFor="reunion-titulo">Título de la Reunión*</Label><Input id="reunion-titulo" value={formTitulo} onChange={e => setFormTitulo(e.target.value)} placeholder="Ej: Definir decoración, Degustación menú" required /></div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1"><Label htmlFor="reunion-fecha">Fecha</Label><DatePickerDemo selectedDate={formFecha} onDateChange={setFormFecha} /></div>
+                    <div className="space-y-1"><Label htmlFor="reunion-hora">Hora</Label><Input id="reunion-hora" type="time" value={formHora} onChange={(e) => setFormHora(e.target.value)} disabled={!formFecha}/></div>
+                </div>
+                
+                <div className="space-y-1"><Label htmlFor="reunion-notas">Notas / Temas a tratar</Label><Textarea id="reunion-notas" value={formNotas} onChange={(e) => setFormNotas(e.target.value)} rows={3} placeholder="Puntos a discutir en la reunión..."/></div>
+                
+                <div className="space-y-2 p-4 bg-primary/5 rounded-lg border border-primary/10">
+                    <Label htmlFor="reunion-acuerdos" className="text-primary font-bold flex items-center gap-2">
+                        <ClipboardCheck className="w-4 h-4"/> Acuerdos Alcanzados
+                    </Label>
+                    <CardDescription>Documenta aquí las decisiones finales tomadas.</CardDescription>
+                    <Textarea 
+                        id="reunion-acuerdos" 
+                        value={formAcuerdos} 
+                        onChange={(e) => setFormAcuerdos(e.target.value)} 
+                        rows={6} 
+                        placeholder="Ej: Se acordó cambiar el plato principal a Pollo Relleno..."
+                        className="bg-white"
+                    />
+                </div>
+            </TabsContent>
 
-            <DialogFooter className="pt-3">
-              <DialogClose asChild><Button type="button" variant="outline" disabled={isSaving}>Cancelar</Button></DialogClose>
-              <Button type="submit" disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}{currentReunion ? 'Guardar Cambios' : 'Agendar Reunión'}</Button>
-            </DialogFooter>
-          </form>
+            <TabsContent value="guia" className="space-y-4 py-4 max-h-[60vh] overflow-y-auto pr-2">
+                <Alert className="bg-blue-50 border-blue-200">
+                    <Info className="h-4 w-4 text-blue-600"/>
+                    <AlertTitle className="text-blue-800 font-bold">Guía de Planificación</AlertTitle>
+                    <div className="text-xs text-blue-700 space-y-1">
+                        <p>● Asegúrate de que el cliente haya visto la paleta de colores antes de decidir centros de mesa.</p>
+                        <p>● Si el menú es asado, recuerda mencionar el servicio de asador y leña.</p>
+                        <p>● Valida si el cliente prefiere barra libre o controlada.</p>
+                    </div>
+                </Alert>
+
+                <div className="space-y-2">
+                    <Label className="font-bold text-lg flex items-center gap-2">
+                        <ListChecks className="w-5 h-5 text-primary"/> Checklist de Revisión
+                    </Label>
+                    <p className="text-xs text-muted-foreground mb-4">Usa esta lista para no olvidar ningún punto clave durante la charla.</p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {formChecklist.map(item => (
+                            <div key={item.id} className="flex items-center space-x-3 p-2 border rounded-md bg-muted/30 hover:bg-muted/50 transition-colors">
+                                <Checkbox 
+                                    id={`check-${item.id}`} 
+                                    checked={item.completed} 
+                                    onCheckedChange={() => toggleChecklistItem(item.id)}
+                                />
+                                <Label 
+                                    htmlFor={`check-${item.id}`} 
+                                    className={cn("text-sm cursor-pointer", item.completed && "line-through text-muted-foreground")}
+                                >
+                                    {item.text}
+                                </Label>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </TabsContent>
+          </Tabs>
+
+          <DialogFooter className="pt-3 border-t">
+            <DialogClose asChild><Button type="button" variant="outline" disabled={isSaving}>Cancelar</Button></DialogClose>
+            <Button onClick={handleFormSubmit} disabled={isSaving}>
+                {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                {currentReunion ? 'Guardar Cambios' : 'Agendar Reunión'}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -355,13 +360,12 @@ function GestionReunionesContent() {
                         </p>
                       </div>
                       
-                      {reunion.notas && (
-                        <div className="text-xs space-y-1">
-                            <p className="font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                                <MessageSquareText className="w-3 h-3"/> Temas Tratados:
-                            </p>
-                            <p className="text-muted-foreground bg-white/50 p-2 rounded border border-dashed">{reunion.notas}</p>
-                        </div>
+                      {reunion.checklist && reunion.checklist.some(i => i.completed) && (
+                          <div className="flex flex-wrap gap-1.5">
+                              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-[10px]">
+                                  {reunion.checklist.filter(i => i.completed).length} puntos revisados
+                              </Badge>
+                          </div>
                       )}
 
                       {reunion.acuerdos && (
@@ -375,7 +379,6 @@ function GestionReunionesContent() {
                     </div>
                     
                     <div className="flex flex-row sm:flex-col gap-2 flex-shrink-0">
-                      <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => handleShareWhatsApp(reunion)} title="Compartir por WhatsApp"><Share2 className="w-4 h-4 text-green-600"/></Button>
                       <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => openFormModal(reunion)} title="Editar"><Edit3 className="w-4 h-4"/></Button>
                       <AlertDialog>
                           <AlertDialogTrigger asChild>
@@ -388,7 +391,6 @@ function GestionReunionesContent() {
                               <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteReunion(reunion.id)} className="bg-destructive hover:bg-destructive/90">Eliminar</AlertDialogAction></AlertDialogFooter>
                           </AlertDialogContent>
                       </AlertDialog>
-                      {reunion.fecha && <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground" onClick={() => downloadICS(reunion, fiesta.configuracion.nombreEvento)} title="Añadir a Calendario"><CalendarIcon className="w-4 h-4"/></Button>}
                     </div>
                  </div>
               </Card>

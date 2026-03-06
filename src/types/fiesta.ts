@@ -117,6 +117,11 @@ export interface PersonalAsignadoDetalleStorage {
   eventSalary: number;
 }
 
+export interface ReunionChecklistItem {
+  id: string;
+  text: string;
+  completed: boolean;
+}
 
 export interface Reunion {
   id: string;
@@ -124,6 +129,7 @@ export interface Reunion {
   fecha?: string; // ISO string, opcional
   notas: string;
   acuerdos?: string; // Nuevo: Documentación de lo acordado en la reunión
+  checklist?: ReunionChecklistItem[]; // Nuevo: Checklist preconfigurado
   fiestaId?: string;
 }
 
