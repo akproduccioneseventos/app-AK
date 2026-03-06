@@ -123,6 +123,7 @@ export interface Reunion {
   titulo: string;
   fecha?: string; // ISO string, opcional
   notas: string;
+  acuerdos?: string; // Nuevo: Documentación de lo acordado en la reunión
   fiestaId?: string;
 }
 
@@ -321,7 +322,6 @@ export interface InvitacionDigitalData {
   };
   despedida: {
     visible: boolean;
-    texto: TextWithStyle;
   };
   musica: {
     visible: boolean;
@@ -620,7 +620,8 @@ export interface ModulosContratados {
   listaCompras: boolean;
   portalCliente: boolean;
   numerosMesa: boolean;
-  mesasCliente: boolean; // Nuevo campo para control de visibilidad del portal de mesas
+  mesasCliente: boolean;
+  resumenPlanificacion: boolean; // Nuevo: Módulo consolidado de planificación
 }
 
 export interface CompraProveedorEstado {

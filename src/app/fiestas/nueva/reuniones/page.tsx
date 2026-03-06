@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent, Suspense } from 'react';
@@ -10,9 +9,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { DatePickerDemo } from '@/components/date-picker-demo';
-import { ArrowLeft, PlusCircle, Edit3, Trash2, Loader2, AlertTriangle, MessageSquareText, CalendarIcon, CalendarPlus, NotebookTextIcon, Printer, Share2 } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Edit3, Trash2, Loader2, AlertTriangle, MessageSquareText, CalendarIcon, CalendarPlus, NotebookTextIcon, Printer, Share2, ClipboardCheck, ArrowRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, Reunion, ClientTarea } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, Reunion } from '@/types/fiesta';
 import { getFiestaById, addReunionToFiestaActual, updateReunionInFiestaActual, deleteReunionFromFiestaActual } from '@/app/actions/fiesta-actual';
 import {
   Dialog,
@@ -89,6 +88,7 @@ function GestionReunionesContent() {
   const [formFecha, setFormFecha] = useState<Date | undefined>(undefined);
   const [formHora, setFormHora] = useState('');
   const [formNotas, setFormNotas] = useState('');
+  const [formAcuerdos, setFormAcuerdos] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [deletingReunionId, setDeletingReunionId] = useState<string | null>(null);
   const [conflictWarning, setConflictWarning] = useState<string | null>(null);
@@ -167,6 +167,7 @@ function GestionReunionesContent() {
           titulo: formTitulo.trim(),
           fecha: finalDate ? finalDate.toISOString() : undefined,
           notas: formNotas.trim(),
+          acuerdos: formAcuerdos.trim(),
         };
         result = await updateReunionInFiestaActual(updatedReunionData);
       } else {
@@ -175,6 +176,7 @@ function GestionReunionesContent() {
           titulo: formTitulo.trim(),
           fecha: finalDate ? finalDate.toISOString() : undefined,
           notas: formNotas.trim(),
+          acuerdos: formAcuerdos.trim(),
         };
         result = await addReunionToFiestaActual(newReunionData);
       }
@@ -200,12 +202,14 @@ function GestionReunionesContent() {
       setFormFecha(reunion.fecha ? new Date(reunion.fecha) : undefined);
       setFormHora(reunion.fecha ? new Date(reunion.fecha).toTimeString().substring(0,5) : '');
       setFormNotas(reunion.notas);
+      setFormAcuerdos(reunion.acuerdos || '');
     } else {
       setCurrentReunion(null);
       setFormTitulo('');
       setFormFecha(undefined);
       setFormHora('');
       setFormNotas('');
+      setFormAcuerdos('');
     }
     setConflictWarning(null);
     setIsFormModalOpen(true);
@@ -260,18 +264,37 @@ function GestionReunionesContent() {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <Dialog open={isFormModalOpen} onOpenChange={setIsFormModalOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle className="font-headline text-xl">{currentReunion ? 'Editar Reunión' : 'Agendar Nueva Reunión'}</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleFormSubmit} className="space-y-4 py-2">
+          <form onSubmit={handleFormSubmit} className="space-y-4 py-2 max-h-[80vh] overflow-y-auto pr-2">
             <div className="space-y-1"><Label htmlFor="reunion-titulo">Título *</Label><Input id="reunion-titulo" value={formTitulo} onChange={e => setFormTitulo(e.target.value)} placeholder="Ej: Definir decoración, Degustación menú" required /></div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1"><Label htmlFor="reunion-fecha">Fecha</Label><DatePickerDemo selectedDate={formFecha} onDateChange={setFormFecha} /></div>
               <div className="space-y-1"><Label htmlFor="reunion-hora">Hora</Label><Input id="reunion-hora" type="time" value={formHora} onChange={(e) => setFormHora(e.target.value)} disabled={!formFecha}/></div>
             </div>
             {conflictWarning && <p className="text-xs text-amber-600">{conflictWarning}</p>}
-            <div className="space-y-1"><Label htmlFor="reunion-notas">Notas / Temas a tratar</Label><Textarea id="reunion-notas" value={formNotas} onChange={(e) => setFormNotas(e.target.value)} rows={4} placeholder="Puntos importantes para la reunión..."/></div>
+            
+            <div className="space-y-1"><Label htmlFor="reunion-notas">Notas / Temas a tratar</Label><Textarea id="reunion-notas" value={formNotas} onChange={(e) => setFormNotas(e.target.value)} rows={3} placeholder="Puntos a discutir en la reunión..."/></div>
+            
+            <Separator />
+            
+            <div className="space-y-2 p-4 bg-primary/5 rounded-lg border border-primary/10">
+                <Label htmlFor="reunion-acuerdos" className="text-primary font-bold flex items-center gap-2">
+                    <ClipboardCheck className="w-4 h-4"/> Acuerdos Alcanzados
+                </Label>
+                <CardDescription>Documenta aquí las decisiones finales tomadas durante la reunión para que queden registradas.</CardDescription>
+                <Textarea 
+                    id="reunion-acuerdos" 
+                    value={formAcuerdos} 
+                    onChange={(e) => setFormAcuerdos(e.target.value)} 
+                    rows={6} 
+                    placeholder="Ej: Se acordó cambiar el plato principal a Pollo Relleno. El cliente prefiere mantelería blanca..."
+                    className="bg-white"
+                />
+            </div>
+
             <DialogFooter className="pt-3">
               <DialogClose asChild><Button type="button" variant="outline" disabled={isSaving}>Cancelar</Button></DialogClose>
               <Button type="submit" disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}{currentReunion ? 'Guardar Cambios' : 'Agendar Reunión'}</Button>
@@ -279,20 +302,34 @@ function GestionReunionesContent() {
           </form>
         </DialogContent>
       </Dialog>
+
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <MessageSquareText className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">Reuniones con Cliente</h1>
         </div>
-        <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Planificador</Button></Link>
+        <div className="flex gap-2">
+            <Link href={`/fiestas/nueva/resumen-planificacion?fiestaId=${fiestaId}`} passHref>
+                <Button variant="secondary" size="sm">
+                    <ClipboardCheck className="w-4 h-4 mr-2"/> Ver Planificación Actual
+                </Button>
+            </Link>
+            <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
+        </div>
       </div>
-      <Card className="shadow-md">
+
+      <Card className="shadow-md border-primary/20 bg-primary/5">
         <CardHeader>
-          <CardTitle>Planificación de Reuniones</CardTitle>
-          <CardDescription>Agenda y mantén un registro de las reuniones importantes con tu cliente.</CardDescription>
+          <CardTitle className="text-primary flex items-center gap-2"><CalendarPlus className="w-5 h-5"/>Planificación de Reuniones</CardTitle>
+          <CardDescription>Agenda y mantén un registro de cada decisión tomada con tu cliente.</CardDescription>
         </CardHeader>
-        <CardContent>
-          <Button onClick={() => openFormModal()}><CalendarPlus className="w-4 h-4 mr-2"/>Agendar Nueva Reunión</Button>
+        <CardContent className="flex flex-col sm:flex-row gap-3">
+          <Button onClick={() => openFormModal()} className="flex-1"><PlusCircle className="w-4 h-4 mr-2"/>Agendar Nueva Reunión</Button>
+          <Link href={`/fiestas/nueva/resumen-planificacion?fiestaId=${fiestaId}`} className="flex-1">
+            <Button variant="outline" className="w-full">
+                Consolidado de Planificación <ArrowRight className="w-4 h-4 ml-2"/>
+            </Button>
+          </Link>
         </CardContent>
       </Card>
       
@@ -303,26 +340,46 @@ function GestionReunionesContent() {
             {proximasReuniones.length > 0 ? `Tienes ${proximasReuniones.length} reunión(es) próxima(s).` : "No hay reuniones futuras agendadas."}
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-4">
           {reuniones.length > 0 ? (
             reuniones.map(reunion => (
-              <Card key={reunion.id} className="p-3 bg-muted/40">
-                 <div className="flex flex-col sm:flex-row justify-between items-start gap-2">
-                    <div className="flex-grow">
-                      <p className="font-semibold">{reunion.titulo}</p>
-                      <p className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
-                        <CalendarIcon className="w-4 h-4" /> 
-                        {formatDate(reunion.fecha)} 
-                        {reunion.fecha && <span className="font-medium">{new Date(reunion.fecha).toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'})} hs.</span>}
-                      </p>
-                      {reunion.notas && <p className="text-xs text-muted-foreground mt-2 border-l-2 pl-2 whitespace-pre-wrap">{reunion.notas}</p>}
+              <Card key={reunion.id} className="p-4 bg-muted/40 border-l-4 border-primary">
+                 <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+                    <div className="flex-grow space-y-3">
+                      <div>
+                        <p className="font-bold text-lg text-primary">{reunion.titulo}</p>
+                        <p className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
+                            <CalendarIcon className="w-4 h-4" /> 
+                            {formatDate(reunion.fecha)} 
+                            {reunion.fecha && <span className="font-medium">{new Date(reunion.fecha).toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'})} hs.</span>}
+                        </p>
+                      </div>
+                      
+                      {reunion.notas && (
+                        <div className="text-xs space-y-1">
+                            <p className="font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                                <MessageSquareText className="w-3 h-3"/> Temas Tratados:
+                            </p>
+                            <p className="text-muted-foreground bg-white/50 p-2 rounded border border-dashed">{reunion.notas}</p>
+                        </div>
+                      )}
+
+                      {reunion.acuerdos && (
+                        <div className="text-sm space-y-1">
+                            <p className="font-bold text-primary flex items-center gap-1.5">
+                                <ClipboardCheck className="w-4 h-4"/> Acuerdos y Decisiones:
+                            </p>
+                            <p className="bg-primary/5 p-3 rounded-md border border-primary/10 whitespace-pre-wrap">{reunion.acuerdos}</p>
+                        </div>
+                      )}
                     </div>
-                    <div className="flex gap-1 self-start sm:self-center flex-shrink-0">
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleShareWhatsApp(reunion)} title="Compartir por WhatsApp"><Share2 className="w-4 h-4 text-green-600"/></Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openFormModal(reunion)} title="Editar"><Edit3 className="w-4 h-4"/></Button>
+                    
+                    <div className="flex flex-row sm:flex-col gap-2 flex-shrink-0">
+                      <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => handleShareWhatsApp(reunion)} title="Compartir por WhatsApp"><Share2 className="w-4 h-4 text-green-600"/></Button>
+                      <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => openFormModal(reunion)} title="Editar"><Edit3 className="w-4 h-4"/></Button>
                       <AlertDialog>
                           <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" disabled={deletingReunionId === reunion.id} title="Eliminar">
+                              <Button variant="ghost" size="icon" className="h-9 w-9 text-destructive" disabled={deletingReunionId === reunion.id} title="Eliminar">
                                   {deletingReunionId === reunion.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}
                               </Button>
                           </AlertDialogTrigger>
@@ -331,12 +388,16 @@ function GestionReunionesContent() {
                               <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteReunion(reunion.id)} className="bg-destructive hover:bg-destructive/90">Eliminar</AlertDialogAction></AlertDialogFooter>
                           </AlertDialogContent>
                       </AlertDialog>
-                      {reunion.fecha && <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => downloadICS(reunion, fiesta.configuracion.nombreEvento)} title="Añadir a Calendario"><CalendarIcon className="w-4 h-4"/></Button>}
+                      {reunion.fecha && <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground" onClick={() => downloadICS(reunion, fiesta.configuracion.nombreEvento)} title="Añadir a Calendario"><CalendarIcon className="w-4 h-4"/></Button>}
                     </div>
                  </div>
               </Card>
             ))
-           ) : <p className="text-center text-muted-foreground p-4">No hay reuniones agendadas.</p>
+           ) : <div className="text-center py-12 bg-muted/20 rounded-lg border-2 border-dashed">
+                <MessageSquareText className="w-12 h-12 mx-auto text-muted-foreground/30 mb-3" />
+                <p className="text-muted-foreground font-medium">No hay reuniones agendadas.</p>
+                <p className="text-xs text-muted-foreground mt-1">Usa reuniones para documentar cada cambio en la planificación.</p>
+            </div>
           }
         </CardContent>
       </Card>

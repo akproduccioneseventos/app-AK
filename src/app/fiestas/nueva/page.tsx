@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, AlertTriangle, PartyPopper, Calendar, Users, Palette, ChefHat, Music2, ListChecks, DollarSign, Camera, Gift, FileText, UserCheck, Clock, Archive, PackageSearch, Video, Globe, MessageSquare, LayoutDashboard, Star, Calculator, GlassWater, ShoppingCart, ClipboardList, QrCode, Printer, Settings2, KeyRound } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, PartyPopper, Calendar, Users, Palette, ChefHat, Music2, ListChecks, DollarSign, Camera, Gift, FileText, UserCheck, Clock, Archive, PackageSearch, Video, Globe, MessageSquare, LayoutDashboard, Star, Calculator, GlassWater, ShoppingCart, ClipboardList, QrCode, Printer, Settings2, KeyRound, ClipboardCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateModulosContratadosFiestaActual, type FiestaEnPlanificacion, type ModulosContratados } from '../../actions/fiesta-actual';
 import { KpiCard } from '@/components/dashboard/kpi-card';
@@ -31,11 +31,12 @@ const formatDate = (dateString?: string) => {
 const modules = [
   // Gestión Central
   { id: 'configuracion', title: "Configuración", href: "configuracion", icon: Settings2, description: "Datos generales del evento.", category: 'Gestión Central' },
+  { id: 'resumenPlanificacion', title: "Consolidado de Planificación", href: "resumen-planificacion", icon: ClipboardCheck, description: "Ver todo lo acordado y configurado en un solo lugar.", category: 'Gestión Central' },
   { id: 'tareas', title: "Tareas", href: "tareas", icon: ListChecks, description: "Checklist de pendientes.", category: 'Gestión Central' },
   { id: 'documentos', title: "Documentos", href: "gestion-documental", icon: Archive, description: "Contratos y archivos importantes.", category: 'Gestión Central' },
   { id: 'costos', title: "Costos", href: "gestion-costos-rentabilidad", icon: DollarSign, description: "Analiza la rentabilidad.", category: 'Gestión Central' },
-  { id: 'resumenImprimible', title: "Resumen Imprimible", href: "resumen-imprimible", icon: Printer, description: "Genera un PDF con el resumen operativo del evento.", category: 'Gestión Central' },
   { id: 'reuniones', title: "Reuniones", href: "reuniones", icon: MessageSquare, description: "Agenda y gestiona las reuniones con el cliente.", category: 'Gestión Central' },
+  { id: 'resumenImprimible', title: "Resumen Imprimible", href: "resumen-imprimible", icon: Printer, description: "Genera un PDF con el resumen operativo del evento.", category: 'Gestión Central' },
   
   // Planificación del Evento
   { id: 'invitados', title: "Invitados", href: "invitados", icon: Users, description: "Gestiona tu lista de invitados.", category: 'Planificación del Evento' },
