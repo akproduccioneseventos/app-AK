@@ -18,14 +18,14 @@ interface CartaTragosMenuProps {
 }
 
 const Ornament: React.FC<{ position: string; color: string }> = ({ position, color }) => {
-    const baseClasses = "absolute w-8 h-8 border-2";
+    const baseClasses = "absolute w-6 h-6 border-2";
     const positionClasses = {
-        'top-left': 'top-2 left-2 border-t-0 border-r-0',
-        'top-right': 'top-2 right-2 border-t-0 border-l-0',
-        'bottom-left': 'bottom-2 left-2 border-b-0 border-r-0',
-        'bottom-right': 'bottom-2 right-2 border-b-0 border-l-0',
+        'top-left': 'top-1.5 left-1.5 border-t-0 border-r-0',
+        'top-right': 'top-1.5 right-1.5 border-t-0 border-l-0',
+        'bottom-left': 'bottom-1.5 left-1.5 border-b-0 border-r-0',
+        'bottom-right': 'bottom-1.5 right-1.5 border-b-0 border-l-0',
     };
-    const innerClasses = "absolute w-4 h-4 border-2";
+    const innerClasses = "absolute w-3 h-3 border-2";
     const innerPositionClasses = {
         'top-left': 'top-[-2px] left-[-2px] border-t-0 border-r-0',
         'top-right': 'top-[-2px] right-[-2px] border-t-0 border-l-0',
@@ -40,15 +40,6 @@ const Ornament: React.FC<{ position: string; color: string }> = ({ position, col
     );
 };
 
-const SectionSeparator: React.FC<{ color: string }> = ({ color }) => (
-    <div className="flex items-center justify-center my-1">
-        <div className="flex-grow h-px bg-gray-300"></div>
-        <div className="w-2.5 h-2.5 mx-2 transform rotate-45" style={{ backgroundColor: color }}></div>
-        <div className="flex-grow h-px bg-gray-300"></div>
-    </div>
-);
-
-
 export const CartaTragosMenu: React.FC<CartaTragosMenuProps> = ({ fiesta, carta, onUpdate, isPreview, openEditModal }) => {
     const [logoUrl, setLogoUrl] = React.useState<string | null>(null);
 
@@ -58,7 +49,7 @@ export const CartaTragosMenu: React.FC<CartaTragosMenuProps> = ({ fiesta, carta,
         }).catch(err => console.error("Failed to fetch logo for drink menu", err));
     }, []);
     
-    const paleta = carta.paletaColores;
+    const paleta = carta.paletaColores || { primary: '#9333ea', secondary: '#363636', accent: '#ffffff' };
     
     const handleUpdate = (field: keyof CartaTragosData, value: string) => {
         if (onUpdate && isPreview) {
@@ -74,7 +65,7 @@ export const CartaTragosMenu: React.FC<CartaTragosMenuProps> = ({ fiesta, carta,
 
     return (
         <div
-            className={cn("w-full h-full p-2 relative overflow-hidden flex border-2")}
+            className={cn("w-full h-full p-3 relative overflow-hidden flex flex-col border-[3px]")}
             style={{ backgroundColor: carta.backgroundColor, borderColor: paleta.primary }}
         >
              <Ornament position="top-left" color={paleta.primary} />
@@ -84,56 +75,57 @@ export const CartaTragosMenu: React.FC<CartaTragosMenuProps> = ({ fiesta, carta,
             
             {/* Background Image */}
             {carta.backgroundImageUrl && (
-                <NextImage src={carta.backgroundImageUrl} layout="fill" objectFit="cover" className="absolute inset-0 opacity-20 -z-10" alt="" data-ai-hint="floral background texture" />
+                <NextImage src={carta.backgroundImageUrl} layout="fill" objectFit="cover" className="absolute inset-0 opacity-25 -z-10" alt="" data-ai-hint="floral background texture" />
             )}
 
-            {/* Main Content Grid */}
-            <div className="grid grid-cols-12 gap-2 w-full h-full">
+            <div className="grid grid-cols-12 gap-3 w-full h-full">
                 {/* Left Column (Photo) */}
-                <div className="col-span-4 flex items-center justify-center p-2">
-                     <div className="relative w-full aspect-square rounded-full overflow-hidden border-4" style={{borderColor: paleta.primary}}>
+                <div className="col-span-4 flex items-center justify-center">
+                     <div className="relative w-full aspect-square rounded-full overflow-hidden border-4 bg-white/50" style={{borderColor: paleta.primary}}>
                         {carta.protagonistaFotoUrl ? (
-                             <NextImage src={carta.protagonistaFotoUrl} alt="Protagonista" layout="fill" objectFit="cover" data-ai-hint="quinceanera portrait"/>
-                        ) : <div className="w-full h-full bg-gray-200"></div>}
+                             <NextImage src={carta.protagonistaFotoUrl} alt="Protagonista" layout="fill" objectFit="cover" data-ai-hint="portrait photo"/>
+                        ) : <div className="w-full h-full flex items-center justify-center text-[8px] text-muted-foreground">Sin Foto</div>}
                     </div>
                 </div>
 
                 {/* Right Column (Info) */}
-                <div className="col-span-8 flex flex-col justify-between p-1">
-                    <header className="text-center">
-                        <h2 className="font-['Dancing_Script',_cursive] text-4xl" style={{color: paleta.secondary}}>
+                <div className="col-span-8 flex flex-col justify-between">
+                    <header className="text-center pt-1">
+                        <h2 className="font-dancing text-4xl leading-tight" style={{color: paleta.secondary}}>
                             <EditableText initialValue={carta.protagonistaNombre || "Luciana"} onSave={val => handleUpdate('protagonistaNombre', val)} textarea={false} style={{ fontFamily: 'Dancing_Script' }}/>
                         </h2>
-                        <h3 className="font-['Belleza',_serif] text-xl -mt-1" style={{color: paleta.secondary}}>
+                        <h3 className="font-headline text-lg -mt-1 tracking-widest uppercase opacity-80" style={{color: paleta.secondary}}>
                              <EditableText initialValue={carta.numeroPrincipal || "Mis XV"} onSave={val => handleUpdate('numeroPrincipal', val)} textarea={false} style={{ fontFamily: 'Belleza' }}/>
                         </h3>
-                         <h1 className="font-headline text-2xl uppercase tracking-wider mt-2" style={{color: paleta.primary}}>
+                         <h1 className="font-headline text-2xl uppercase tracking-tighter mt-1 font-bold" style={{color: paleta.primary}}>
                             <EditableText initialValue={carta.titulo || 'CARTA DE TRAGOS'} onSave={val => handleUpdate('titulo', val)} textarea={false} style={{ fontFamily: 'Belleza' }} />
                         </h1>
                     </header>
-                    <main className="grid grid-cols-5 gap-1 mt-2 flex-grow">
-                        {carta.items.map(item => (
-                            <div key={item.id} className="text-center group" onClick={() => isPreview && openEditModal?.(item)}>
-                                 <div className="relative aspect-[3/4] rounded-md overflow-hidden border-2 group-hover:border-primary" style={{borderColor: paleta.accent}}>
+
+                    <main className="grid grid-cols-5 gap-1.5 my-2">
+                        {carta.items.slice(0, 10).map(item => (
+                            <div key={item.id} className="text-center group flex flex-col items-center" onClick={() => isPreview && openEditModal?.(item)}>
+                                 <div className="relative w-full aspect-[3/4] rounded-sm overflow-hidden border-[1.5px] group-hover:border-primary bg-white/80 shadow-sm" style={{borderColor: paleta.accent}}>
                                     {item.imageUrl ? (
                                         <NextImage src={item.imageUrl} alt={item.nombre} layout="fill" objectFit="cover" data-ai-hint={item.aiHint || 'cocktail drink'} />
                                     ) : <div className="w-full h-full bg-gray-100"></div>}
                                 </div>
-                                <p className="text-[6px] font-bold uppercase mt-1 leading-tight" style={{color: paleta.secondary}}>{item.nombre}</p>
+                                <p className="text-[7px] font-bold uppercase mt-1 leading-[1.1] h-4 overflow-hidden" style={{color: paleta.secondary}}>{item.nombre}</p>
                             </div>
                         ))}
                     </main>
-                     <footer className="w-full text-center mt-2">
-                        <div className="text-center text-xs space-y-0" style={{ color: paleta.secondary }}>
-                             <p className="font-headline font-semibold text-sm leading-tight" style={{color: paleta.primary}}>
+
+                     <footer className="w-full border-t border-dashed border-gray-400/50 pt-1 pb-1">
+                        <div className="text-center space-y-0" style={{ color: paleta.secondary }}>
+                             <p className="font-headline font-bold text-xs leading-tight tracking-wider" style={{color: paleta.primary}}>
                                <EditableText initialValue={carta.empresa.linea1 || 'AK PRODUCCIONES'} onSave={(val) => handleEmpresaUpdate('linea1', val)} textarea={false} style={{fontFamily: 'Belleza'}}/>
                             </p>
-                            <p className="text-[8px] leading-tight">
+                            <p className="text-[7px] leading-tight opacity-80 italic">
                                 <EditableText initialValue={carta.empresa.linea2 || 'Servicio de fiestas integral'} onSave={(val) => handleEmpresaUpdate('linea2', val)} textarea={false} style={{fontFamily: 'Inter'}}/>
                             </p>
-                             <div className="flex items-center justify-center gap-1.5 pt-0.5">
-                                <Phone className="w-2.5 h-2.5"/>
-                                <p className="text-xs font-semibold">
+                             <div className="flex items-center justify-center gap-1 mt-0.5">
+                                <Phone className="w-2 h-2"/>
+                                <p className="text-[9px] font-bold">
                                    <EditableText initialValue={carta.empresa.contacto || '098 355 530'} onSave={(val) => handleEmpresaUpdate('contacto', val)} textarea={false} style={{fontFamily: 'Inter'}}/>
                                 </p>
                             </div>
@@ -142,8 +134,8 @@ export const CartaTragosMenu: React.FC<CartaTragosMenuProps> = ({ fiesta, carta,
                 </div>
             </div>
             {logoUrl && (
-                <div className="absolute left-2 bottom-2 w-14 h-14 z-20">
-                    <NextImage src={logoUrl} alt="Logo" layout="fill" className="object-contain" data-ai-hint="company logo"/>
+                <div className="absolute left-2.5 bottom-2.5 w-10 h-10 z-20 opacity-40">
+                    <NextImage src={logoUrl} alt="Logo" layout="fill" className="object-contain grayscale" data-ai-hint="logo"/>
                 </div>
             )}
         </div>

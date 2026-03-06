@@ -231,7 +231,7 @@ function CartaTragosContent() {
   }
   
   return (
-    <div className="bg-gray-100 print:bg-white">
+    <div className="bg-gray-100 min-h-screen pb-10 print:bg-white print:pb-0">
         <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
             <DialogContent>
                 <DialogHeader>
@@ -245,7 +245,7 @@ function CartaTragosContent() {
                         </div>
                         <div className="space-y-1">
                             <Label htmlFor="item-image-upload">Cambiar Imagen</Label>
-                            {previewUrl && <NextImage src={previewUrl} alt="Preview" width={100} height={150} className="rounded-md border object-cover" />}
+                            {previewUrl && <div className="relative w-20 h-28 mb-2"><NextImage src={previewUrl} alt="Preview" layout="fill" objectFit="cover" className="rounded-md border" /></div>}
                             <Input id="item-image-upload" type="file" accept="image/*" onChange={handleFileChange} />
                         </div>
                          <div className="space-y-1">
@@ -261,26 +261,54 @@ function CartaTragosContent() {
             </DialogContent>
         </Dialog>
         <div className="py-2 px-4 print:hidden flex flex-col md:flex-row justify-between items-center gap-4 bg-white shadow-sm sticky top-0 z-50">
-            <h1 className="font-headline text-lg">Editor de Carta de Tragos</h1>
+            <div className="flex items-center gap-2">
+                <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref>
+                    <Button variant="ghost" size="icon"><ArrowLeft className="w-5 h-5"/></Button>
+                </Link>
+                <h1 className="font-headline text-lg">Editor de Carta de Tragos (15x10 cm)</h1>
+            </div>
             <div className="flex flex-wrap gap-2 items-center">
-                <div className="space-y-1"><Label htmlFor="protagonista-foto" className="text-xs">Foto</Label><Input id="protagonista-foto" type="file" accept="image/*" onChange={handleProtagonistPhotoUpload} className="text-xs w-48" disabled={isUploading}/></div>
-                <div className="space-y-1"><Label htmlFor="bg-image-upload" className="text-xs">Fondo</Label><Input id="bg-image-upload" type="file" accept="image/*" onChange={handleBackgroundImageUpload} className="text-xs w-44" disabled={isUploading}/></div>
-                <div className="space-y-1"><Label className="text-xs">Borde</Label><Input type="color" value={cartaTragos.paletaColores?.primary || '#8b5cf6'} onChange={e => handleColorChange('primary', e.target.value)} className="w-10 h-9 p-0.5"/></div>
-                <div className="space-y-1"><Label className="text-xs">Título</Label><Input type="color" value={cartaTragos.paletaColores?.accent || '#3b82f6'} onChange={e => handleColorChange('accent', e.target.value)} className="w-10 h-9 p-0.5"/></div>
-                <div className="space-y-1"><Label className="text-xs">Texto</Label><Input type="color" value={cartaTragos.paletaColores?.secondary || '#4b5563'} onChange={e => handleColorChange('secondary', e.target.value)} className="w-10 h-9 p-0.5"/></div>
-                <div className="space-y-1"><Label className="text-xs">Fondo Tarjeta</Label><Input type="color" value={cartaTragos.backgroundColor || '#ffffff'} onChange={e => handleColorChange('background', e.target.value)} className="w-10 h-9 p-0.5"/></div>
-               <div className="flex items-end gap-2">
-                 <Button size="sm" onClick={handleSave} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4"/>}</Button>
-                 <Button onClick={handleDownloadJpg} size="sm" variant="outline" title="Descargar como JPG"><Download className="w-4 h-4"/></Button>
-                 <Button onClick={handlePrint} size="sm" variant="outline" title="Imprimir o Guardar como PDF"><PrinterIcon className="w-4 h-4"/></Button>
-                 <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4"/></Button></Link>
+                <div className="flex flex-col">
+                    <Label className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Color Borde</Label>
+                    <Input type="color" value={cartaTragos.paletaColores?.primary || '#8b5cf6'} onChange={e => handleColorChange('primary', e.target.value)} className="w-10 h-8 p-0.5"/>
+                </div>
+                <div className="flex flex-col">
+                    <Label className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Color Título</Label>
+                    <Input type="color" value={cartaTragos.paletaColores?.accent || '#3b82f6'} onChange={e => handleColorChange('accent', e.target.value)} className="w-10 h-8 p-0.5"/>
+                </div>
+                <div className="flex flex-col">
+                    <Label className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Color Texto</Label>
+                    <Input type="color" value={cartaTragos.paletaColores?.secondary || '#4b5563'} onChange={e => handleColorChange('secondary', e.target.value)} className="w-10 h-8 p-0.5"/>
+                </div>
+                <div className="flex flex-col">
+                    <Label className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Color Fondo</Label>
+                    <Input type="color" value={cartaTragos.backgroundColor || '#ffffff'} onChange={e => handleColorChange('background', e.target.value)} className="w-10 h-8 p-0.5"/>
+                </div>
+
+               <div className="flex items-end gap-2 ml-4">
+                 <Button size="sm" onClick={handleSave} disabled={isSaving} title="Guardar Cambios">
+                    {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>}
+                    Guardar
+                 </Button>
+                 <Button onClick={handleDownloadJpg} size="sm" variant="outline" title="Descargar como JPG">
+                    <Download className="w-4 h-4 mr-2"/> JPG
+                 </Button>
+                 <Button onClick={handlePrint} size="sm" variant="outline" title="Imprimir PDF">
+                    <PrinterIcon className="w-4 h-4 mr-2"/> PDF
+                 </Button>
                </div>
             </div>
         </div>
         
-        <div className="flex justify-center items-center py-4 print:py-0">
-          <div ref={printRef} className="w-[15cm] h-[10cm] bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto">
-              <CartaTragosMenu fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} openEditModal={openEditModal} />
+        <div className="flex flex-col items-center py-10 print:py-0">
+          <Card className="p-0 border-none shadow-2xl print:shadow-none bg-white">
+            <div ref={printRef} className="w-[15cm] h-[10cm] bg-white print:mx-auto">
+                <CartaTragosMenu fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} openEditModal={openEditModal} />
+            </div>
+          </Card>
+          <div className="mt-6 text-sm text-muted-foreground flex items-center gap-2 print:hidden bg-white/80 p-3 rounded-lg border border-dashed">
+              <Info className="w-4 h-4 text-primary"/>
+              <p>Doble clic en los textos para editar. Haz clic en las imágenes de los tragos para cambiarlas.</p>
           </div>
         </div>
 
@@ -288,12 +316,13 @@ function CartaTragosContent() {
         @import url('https://fonts.googleapis.com/css2?family=Belleza&family=Dancing+Script:wght@400;700&family=Great+Vibes&display=swap');
          @media print {
             body { -webkit-print-color-adjust: exact; color-adjust: exact; background: white !important; }
-            .sidebar, header, nav, button, .no-print, .notifications-hub { display: none !important ; }
+            .sidebar, header, nav, button, .no-print, .notifications-hub, .sidebar-inset > header { display: none !important ; }
             @page { 
                 size: 15cm 10cm landscape;
                 margin: 0; 
             }
             main { padding: 0 !important; margin: 0 !important; }
+            .print-main-override { padding: 0 !important; }
         }
        `}</style>
     </div>
