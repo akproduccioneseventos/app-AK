@@ -283,7 +283,7 @@ export const defaultModulosContratados: ModulosContratados = {
     itinerario: true, documentos: true, costos: true, cargaOperativa: true, fotografia: true, videoVida: true,
     reuniones: true, muroSocial: true, regalos: false, feedback: false, menuMesa: false, cartaTragos: false,
     checkin: false, resumenImprimible: false, configuracion: true, disenoSalon: true, listaCompras: true, portalCliente: true,
-    numerosMesa: true, mesasCliente: true,
+    numerosMesa: true, mesasCliente: true, resumenPlanificacion: true,
 };
 
 export const initialFiestaActualData: FiestaEnPlanificacion = {
@@ -313,7 +313,7 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
   menuMesa: defaultMenuMesaData,
   numerosMesa: defaultNumerosMesaData,
   clientPortalSettings: defaultClientPortalSettings,
-  socialGallerySettings: { enabled: false, allowLikes: true, allowComments: true, uploadsActive: true },
+  socialGallerySettings: { enabled: true, allowLikes: true, allowComments: true, uploadsActive: true, backgroundColor: '#f8fafc', accentColor: '#34d399', chatEnabled: true },
   musica: { cancionesTortaBrindis: [] },
   reposteria: defaultReposteriaData,
   bebidas: defaultBebidasData,

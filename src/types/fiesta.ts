@@ -374,6 +374,9 @@ export interface SocialGallerySettings {
   allowComments: boolean;
   uploadsActive: boolean;
   posts?: SocialGalleryPost[];
+  backgroundColor?: string;
+  accentColor?: string;
+  chatEnabled?: boolean;
 }
 
 export interface MusicaFiesta {
