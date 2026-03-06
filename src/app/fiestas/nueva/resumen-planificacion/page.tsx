@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
@@ -5,12 +6,12 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, AlertTriangle, ClipboardCheck, Printer, ChefHat, Music2, Palette, Clock, GlassWater, CakeSlice, Users, MapPin, CalendarDays, Edit3, Share2, Sparkles } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, ClipboardCheck, Printer, ChefHat, Music2, Palette, Clock, GlassWater, CakeSlice, Users, MapPin, CalendarDays, Edit3, Share2, Sparkles, CheckCircle2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, DecorationItem } from '@/types/fiesta';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getMenuById } from '@/app/actions/menus-catering';
-import type { FullMenu } from '@/types/catering';
+import type { FullMenu, MenuItem } from '@/types/catering';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -218,7 +219,7 @@ function ResumenPlanificacionContent() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         {fiesta.decoracion?.zonasContratadas?.filter(z => z.activada).map(z => (
                             <div key={z.id} className="text-xs bg-muted/50 p-2 rounded flex items-center gap-2 border border-dashed border-primary/20">
-                                <Sparkles className="w-3 h-3 text-primary"/> {z.nombreDisplay}
+                                <Sparkles className="w-3.5 h-3.5 text-primary"/> {z.nombreDisplay}
                             </div>
                         ))}
                         {fiesta.decoracion?.zonasContratadas?.filter(z => z.activada).length === 0 && <p className="text-xs text-muted-foreground italic">Sin zonas específicas activas.</p>}
@@ -234,15 +235,15 @@ function ResumenPlanificacionContent() {
             </CardHeader>
             <CardContent className="pt-4">
                 <ScrollArea className="h-64 pr-4">
-                    <div className="space-y-4 relative pl-4">
-                        <div className="absolute left-4 top-2 bottom-2 w-0.5 bg-primary/10"></div>
+                    <div className="space-y-6 relative pl-10">
+                        <div className="absolute left-[19px] top-2 bottom-2 w-0.5 bg-primary/10"></div>
                         {(fiesta.programa || []).map(item => (
                             <div key={item.id} className="relative flex items-start gap-4">
-                                <div className="absolute -left-1.5 w-3 h-3 rounded-full bg-primary border-2 border-white"></div>
-                                <div>
-                                    <p className="text-xs font-black text-primary leading-none mb-1">{item.hora}</p>
+                                <div className="absolute left-[-25px] top-1 w-3 h-3 rounded-full bg-primary border-2 border-white z-10"></div>
+                                <div className="min-w-0">
+                                    <p className="text-xs font-black text-primary leading-none mb-1.5">{item.hora}</p>
                                     <p className="text-sm font-bold leading-tight">{item.titulo}</p>
-                                    {item.descripcion && <p className="text-[10px] text-muted-foreground italic">{item.descripcion}</p>}
+                                    {item.descripcion && <p className="text-[10px] text-muted-foreground italic mt-0.5">{item.descripcion}</p>}
                                 </div>
                             </div>
                         ))}
@@ -269,10 +270,6 @@ function ResumenPlanificacionContent() {
     </div>
   );
 }
-
-const CheckCircle2 = ({ className }: { className?: string }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 22c5.523 0 9-4.477 9-10S17.523 2 12 2 3 6.477 3 12s3.477 10 9 10z"/><path d="m9 12 2 2 4-4"/></svg>
-);
 
 export default function ResumenPlanificacionPage() {
   return (

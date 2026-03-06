@@ -139,21 +139,21 @@ function ItinerarioPdfContent({ fiestaId }: { fiestaId: string | null }) {
           <p className="text-xs text-gray-500 print:text-[8pt]">{formatDate(fiesta.configuracion.fechaEvento)}</p>
         </header>
         
-        <div className="relative max-w-xl mx-auto pl-8 print:pl-4">
-          <div className="absolute left-8 h-full w-0.5 bg-gray-200 -z-10 print:left-4" style={{left: '32px'}}></div>
+        <div className="relative max-w-xl mx-auto pl-12 print:pl-8">
+          <div className="absolute left-[3.25rem] h-full w-0.5 bg-gray-200 -z-10 print:left-[2.25rem]"></div>
           {displayPrograma.map((item) => {
               const Icon = item.icono && iconMap[item.icono] ? iconMap[item.icono] : Clock;
               return (
-                  <div key={item.id} className="relative flex items-start gap-6 pb-6 print:pb-4 print:gap-4">
-                      <div className="relative z-10 flex flex-col items-center">
-                          <div className="grid h-16 w-16 place-items-center rounded-full bg-primary/10 border-2 border-primary print:h-12 print:w-12">
+                  <div key={item.id} className="relative flex items-start gap-8 pb-8 print:pb-6 print:gap-6">
+                      <div className="relative z-10 flex flex-col items-center shrink-0">
+                          <div className="grid h-16 w-16 place-items-center rounded-full bg-primary/10 border-2 border-primary print:h-12 print:w-12 shadow-sm">
                               <Icon className="h-7 w-7 text-primary print:h-5 print:w-5" />
                           </div>
-                          <span className="mt-1 text-sm font-bold text-primary print:text-xs">{item.hora}</span>
+                          <span className="mt-2 text-sm font-bold text-primary print:text-[10px] bg-white px-1.5 border rounded-full">{item.hora}</span>
                       </div>
-                      <div className="pt-2 print:pt-1">
-                          <p className="font-semibold text-base print:text-sm">{item.titulo}</p>
-                          <p className="text-sm text-muted-foreground print:text-xs">{item.descripcion}</p>
+                      <div className="pt-3 print:pt-1 min-w-0">
+                          <p className="font-bold text-lg print:text-sm leading-none mb-1">{item.titulo}</p>
+                          <p className="text-sm text-muted-foreground print:text-xs leading-relaxed">{item.description || item.descripcion}</p>
                       </div>
                   </div>
               )

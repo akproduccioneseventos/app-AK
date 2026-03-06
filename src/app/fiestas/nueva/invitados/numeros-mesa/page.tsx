@@ -64,7 +64,7 @@ const TableNumberComponent: React.FC<{
         </div>
         {logoUrl && (
              <div className={cn("absolute w-12 h-12 z-20", inverted ? 'top-4 left-4' : 'bottom-4 right-4')}>
-                <NextImage src={logoUrl} alt="logo" layout="fill" className="object-contain grayscale opacity-50" data-ai-hint="company logo watermark"/>
+                <NextImage src={logoUrl} alt="logo" layout="fill" className="object-contain" data-ai-hint="company logo watermark"/>
              </div>
         )}
     </div>
@@ -233,7 +233,9 @@ function NumerosDeMesaContent() {
 
         {tableCount === 0 ? (
             <div className="max-w-md mx-auto mt-20 text-center space-y-4 p-8 bg-white rounded-lg shadow-md border-2 border-dashed">
-                <Info className="w-12 h-12 text-primary mx-auto opacity-50"/>
+                <div className="p-4 bg-primary/10 rounded-full inline-block mb-2">
+                    <Info className="w-12 h-12 text-primary mx-auto"/>
+                </div>
                 <h3 className="text-xl font-bold font-headline">No se detectaron mesas</h3>
                 <p className="text-muted-foreground">Debes añadir mesas en el <strong>Diseñador de Salón</strong> para poder imprimir sus números.</p>
                 <Link href={`/fiestas/nueva/invitados/layout?fiestaId=${fiestaId}`}>
@@ -284,7 +286,7 @@ function NumerosDeMesaContent() {
             
             @media print {
                 body { -webkit-print-color-adjust: exact; color-adjust: exact; background: white !important; }
-                .sidebar, header, nav, button, .no-print, .notifications-hub { display: none !important ; }
+                .sidebar, header, nav, button, .no-print, .notifications-hub, .sidebar-inset > header { display: none !important ; }
                 @page { size: A4 portrait; margin: 0; }
                 main { padding: 0 !important; margin: 0 !important; }
             }
