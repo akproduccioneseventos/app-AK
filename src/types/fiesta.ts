@@ -576,21 +576,6 @@ export interface GestionCostosData {
   notasGeneralesCostos?: string;
 }
 
-export type EntregaMaterialEstado = 'Pendiente' | 'En edición' | 'En revisión' | 'Entregado parcial' | 'Entregado completo';
-
-export interface ServicioFotografia {
-    id: string;
-    nombre: string;
-    estado: EntregaMaterialEstado;
-    fechaEntregaEstimada?: string; // ISO String
-    linkEntrega?: string;
-}
-
-export interface FotografiaYFilmacionData {
-    servicios: ServicioFotografia[];
-    notasGenerales?: string;
-}
-
 export interface VideoVidaData {
   galleryEnabled: boolean;
   photosUploaded: boolean;
@@ -635,6 +620,7 @@ export interface ModulosContratados {
   listaCompras: boolean;
   portalCliente: boolean;
   numerosMesa: boolean;
+  mesasCliente: boolean; // Nuevo campo para control de visibilidad del portal de mesas
 }
 
 export interface CompraProveedorEstado {
