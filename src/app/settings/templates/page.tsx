@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, FileText, Sparkles as SparklesIcon, Wand2, UserCog, ListChecks, PackageSearch, Palette, Image as ImageIcon, LayoutDashboard, FileSignature } from 'lucide-react';
+import { ArrowLeft, FileText, Sparkles as SparklesIcon, Wand2, UserCog, ListChecks, PackageSearch, Palette, Image as ImageIcon, LayoutDashboard, FileSignature, MessageSquareText } from 'lucide-react';
 
 const settingsCards = [
   {
@@ -18,6 +18,12 @@ const settingsCards = [
     description: "Gestiona los diseños base para las invitaciones web de tus eventos.",
     href: "/settings/templates/invitaciones",
     icon: ImageIcon,
+  },
+  {
+    title: "Plantilla de Reuniones",
+    description: "Configura el checklist maestro y la guía de consultoría para tus reuniones con clientes.",
+    href: "/settings/templates/reuniones",
+    icon: MessageSquareText
   },
   {
     title: "Plantillas de Tareas",

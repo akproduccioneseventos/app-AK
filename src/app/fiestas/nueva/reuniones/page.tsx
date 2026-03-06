@@ -9,10 +9,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { DatePickerDemo } from '@/components/date-picker-demo';
-import { ArrowLeft, PlusCircle, Edit3, Trash2, Loader2, AlertTriangle, MessageSquareText, CalendarIcon, CalendarPlus, NotebookTextIcon, Printer, Share2, ClipboardCheck, ArrowRight, CheckCircle2, ListChecks, Info } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Edit3, Trash2, Loader2, AlertTriangle, MessageSquareText, CalendarIcon, CalendarPlus, Printer, ClipboardCheck, ArrowRight, Info, ListChecks } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, Reunion, ReunionChecklistItem } from '@/types/fiesta';
 import { getFiestaById, addReunionToFiestaActual, updateReunionInFiestaActual, deleteReunionFromFiestaActual } from '@/app/actions/fiesta-actual';
+import { getMeetingMasterTemplate } from '@/app/actions/meeting-checklist';
 import {
   Dialog,
   DialogContent,
@@ -41,21 +42,6 @@ import { Alert, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
-const DEFAULT_CHECKLIST: ReunionChecklistItem[] = [
-    { id: 'c1', text: 'Confirmar cantidad final de invitados (Adultos/Niños)', completed: false },
-    { id: 'c2', text: 'Revisión detallada de Menú (Entradas, Principal, Postre)', completed: false },
-    { id: 'c3', text: 'Chequear menús especiales (Celíacos, Alergias)', completed: false },
-    { id: 'c4', text: 'Definir bebidas y funcionamiento de la barra', completed: false },
-    { id: 'c5', text: 'Elección de torta y diseño de mesa dulce', completed: false },
-    { id: 'c6', text: 'Revisar paleta de colores y estilo de decoración', completed: false },
-    { id: 'c7', text: 'Estado de la asignación de mesas', completed: false },
-    { id: 'c8', text: 'Canciones clave (Entrada, Vals, Torta, Cotillón)', completed: false },
-    { id: 'c9', text: 'Repasar cronograma minuto a minuto', completed: false },
-    { id: 'c10', text: 'Fotografía/Video: sesiones previas y cobertura', completed: false },
-    { id: 'c11', text: 'Verificar pagos pendientes y saldos', completed: false },
-    { id: 'c12', text: 'Detalles finales (Cotillón, Souvenirs, etc.)', completed: false },
-];
-
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no especificada";
   try {
@@ -75,6 +61,7 @@ function GestionReunionesContent() {
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [reuniones, setReuniones] = useState<Reunion[]>([]);
+  const [masterTemplate, setMasterTemplate] = useState<any>(null);
   
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -100,9 +87,13 @@ function GestionReunionesContent() {
     setIsLoading(true);
     setError(null);
     try {
-      const fiestaData = await getFiestaById(fiestaId);
+      const [fiestaData, templateData] = await Promise.all([
+        getFiestaById(fiestaId),
+        getMeetingMasterTemplate()
+      ]);
       if (!fiestaData) throw new Error("No se encontró el evento.");
       setFiesta(fiestaData);
+      setMasterTemplate(templateData);
       setReuniones((fiestaData.reuniones || []).sort((a,b) => new Date(a.fecha || 0).getTime() - new Date(b.fecha || 0).getTime()));
     } catch (err: any) {
       console.error("Error loading meetings:", err);
@@ -181,7 +172,7 @@ function GestionReunionesContent() {
       setFormHora(reunion.fecha ? new Date(reunion.fecha).toTimeString().substring(0,5) : '');
       setFormNotas(reunion.notas);
       setFormAcuerdos(reunion.acuerdos || '');
-      setFormChecklist(reunion.checklist || [...DEFAULT_CHECKLIST]);
+      setFormChecklist(reunion.checklist || []);
     } else {
       setCurrentReunion(null);
       setFormTitulo('');
@@ -189,7 +180,8 @@ function GestionReunionesContent() {
       setFormHora('');
       setFormNotas('');
       setFormAcuerdos('');
-      setFormChecklist([...DEFAULT_CHECKLIST]);
+      // Cargar del maestro si es nueva
+      setFormChecklist(masterTemplate?.checklist.map((i: any) => ({ ...i, completed: false })) || []);
     }
     setIsFormModalOpen(true);
   };
@@ -263,15 +255,15 @@ function GestionReunionesContent() {
             </TabsContent>
 
             <TabsContent value="guia" className="space-y-4 py-4 max-h-[60vh] overflow-y-auto pr-2">
-                <Alert className="bg-blue-50 border-blue-200">
-                    <Info className="h-4 w-4 text-blue-600"/>
-                    <AlertTitle className="text-blue-800 font-bold">Guía de Planificación</AlertTitle>
-                    <div className="text-xs text-blue-700 space-y-1">
-                        <p>● Asegúrate de que el cliente haya visto la paleta de colores antes de decidir centros de mesa.</p>
-                        <p>● Si el menú es asado, recuerda mencionar el servicio de asador y leña.</p>
-                        <p>● Valida si el cliente prefiere barra libre o controlada.</p>
-                    </div>
-                </Alert>
+                {masterTemplate?.guideNotes && (
+                    <Alert className="bg-blue-50 border-blue-200">
+                        <Info className="h-4 w-4 text-blue-600"/>
+                        <AlertTitle className="text-blue-800 font-bold">Guía de Planificación</AlertTitle>
+                        <div className="text-xs text-blue-700 whitespace-pre-line">
+                            {masterTemplate.guideNotes}
+                        </div>
+                    </Alert>
+                )}
 
                 <div className="space-y-2">
                     <Label className="font-bold text-lg flex items-center gap-2">
