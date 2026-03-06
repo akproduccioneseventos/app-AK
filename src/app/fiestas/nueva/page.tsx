@@ -98,7 +98,9 @@ function PlannerDashboardContent() {
         const fiestaData = await getFiestaById(fiestaId);
         if (!fiestaData) throw new Error("No se encontró el evento especificado.");
         setFiesta(fiestaData);
-        setModulosContratados(fiestaData.modulosContratados || defaultModulosContratados);
+        // Merge saved modules with default modules to ensure new features appear for old events
+        const savedModules = fiestaData.modulosContratados || {};
+        setModulosContratados({ ...defaultModulosContratados, ...savedModules });
       } catch (err: any) {
         setError(err.message || "Error al cargar los datos del evento.");
         toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -185,13 +187,13 @@ function PlannerDashboardContent() {
                             <AccordionTrigger className="px-4 py-2 text-sm font-medium hover:no-underline">{category}</AccordionTrigger>
                             <AccordionContent className="p-4 border-t grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 {modules.filter(m => m.category === category).map(module => (
-                                    <div key={module.id} className="flex items-center space-x-2">
+                                    <div key={`${category}-${module.id}`} className="flex items-center space-x-2">
                                         <Switch
-                                            id={`switch-${module.id}`}
+                                            id={`switch-${category}-${module.id}`}
                                             checked={modulosContratados[module.id as keyof ModulosContratados]}
                                             onCheckedChange={(checked) => handleModuleToggle(module.id as keyof ModulosContratados, checked)}
                                         />
-                                        <Label htmlFor={`switch-${module.id}`} className="text-sm font-normal">{module.title}</Label>
+                                        <Label htmlFor={`switch-${category}-${module.id}`} className="text-sm font-normal">{module.title}</Label>
                                     </div>
                                 ))}
                             </AccordionContent>
@@ -217,12 +219,12 @@ function PlannerDashboardContent() {
               <div key={category}>
                 <h3 className="text-lg font-semibold mb-3 font-headline">{category}</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {categoryModules.map(module => {
+                  {categoryModules.map((module, mIdx) => {
                     const hrefWithId = module.href.startsWith('/') 
                         ? getLinkHref(module.href)
                         : `/fiestas/nueva/${module.href}?fiestaId=${fiesta.id}`;
                     return (
-                      <Link key={module.href} href={hrefWithId} passHref>
+                      <Link key={`${module.id}-${mIdx}`} href={hrefWithId} passHref>
                         <Card className="h-full hover:shadow-lg hover:border-primary/50 transition-all cursor-pointer flex flex-col">
                           <CardHeader className="flex-row items-center gap-3 space-y-0 pb-2">
                             <div className="p-2 bg-primary/10 rounded-md"><module.icon className="w-5 h-5 text-primary" /></div>
