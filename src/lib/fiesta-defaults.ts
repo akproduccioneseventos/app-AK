@@ -281,8 +281,9 @@ export const defaultMenuMesaData: MenuMesaData = {
 export const defaultModulosContratados: ModulosContratados = {
     tareas: true, invitados: true, paginaWeb: true, decoracion: true, catering: true, musica: true, personal: true,
     itinerario: true, documentos: true, costos: true, cargaOperativa: true, fotografia: true, videoVida: true,
-    reuniones: true, muroSocial: false, regalos: false, feedback: false, menuMesa: false, cartaTragos: false,
+    reuniones: true, muroSocial: true, regalos: false, feedback: false, menuMesa: false, cartaTragos: false,
     checkin: false, resumenImprimible: false, configuracion: true, disenoSalon: true, listaCompras: true, portalCliente: true,
+    numerosMesa: true,
 };
 
 export const initialFiestaActualData: FiestaEnPlanificacion = {

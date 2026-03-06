@@ -29,7 +29,7 @@ export interface AsistentePasoOpcion {
 
 export interface AsistentePasoConfig {
   pregunta: string;
-  descripcion: string;
+  description: string;
   opciones: AsistentePasoOpcion[];
 }
 
@@ -382,7 +382,7 @@ export interface MusicaFiesta {
 export interface ReposteriaItem {
   id: string;
   nombre: string;
-  descripcion?: string;
+  description?: string;
   cantidad?: number;
   unidad?: 'unidad' | 'docena' | 'kg' | 'porción';
   costoEstimado?: number;
@@ -634,6 +634,7 @@ export interface ModulosContratados {
   disenoSalon: boolean;
   listaCompras: boolean;
   portalCliente: boolean;
+  numerosMesa: boolean;
 }
 
 export interface CompraProveedorEstado {
