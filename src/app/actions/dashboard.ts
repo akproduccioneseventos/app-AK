@@ -6,9 +6,9 @@ import { getPresupuestos } from './presupuestos';
 import { getInvoices } from './invoices';
 import { getAllFiestas } from './fiesta/fiesta.actions';
 import { checkAndCreateTaskReminders, checkAndCreateReunionReminders } from './notifications';
-import { subMonths, format, isBefore, startOfToday } from 'date-fns';
+import { subMonths, format, isBefore, startOfToday, addDays, isSameDay } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { getCrmKpiData } from './crm';
+import { getCrmKpiData, getCrmLeads } from './crm';
 
 export interface MonthlyChartData {
   month: string;
@@ -18,7 +18,7 @@ export interface MonthlyChartData {
 
 export interface GlobalAlert {
   id: string;
-  type: 'task' | 'payment' | 'meeting';
+  type: 'task' | 'payment' | 'meeting' | 'budget';
   title: string;
   description: string;
   severity: 'high' | 'medium';
@@ -37,16 +37,20 @@ export async function getDashboardKpiData() {
       invoicesData,
       fiestasData,
       crmKpis,
+      leadsData,
     ] = await Promise.all([
       getCustomers(),
       getPresupuestos(),
       getInvoices(),
       getAllFiestas(),
       getCrmKpiData(),
+      getCrmLeads(),
     ]);
     
     const now = new Date();
     const today = startOfToday();
+    const tomorrow = addDays(today, 1);
+    
     const ventasTotales = invoicesData.reduce((total, inv) => total + inv.totalAmount, 0);
     const montoPagado = invoicesData.reduce((total, inv) => total + (inv.payments?.reduce((sum, p) => sum + p.amount, 0) || 0), 0);
     const totalPendiente = ventasTotales - montoPagado;
@@ -94,6 +98,41 @@ export async function getDashboardKpiData() {
       }
     });
 
+    // 3. REUNIONES CRM (Novedad Revisión 3)
+    leadsData.forEach(lead => {
+        if (lead.followUpDate) {
+            const meetingDate = new Date(lead.followUpDate);
+            if (isSameDay(meetingDate, today) || isSameDay(meetingDate, tomorrow)) {
+                alerts.push({
+                    id: `meet_${lead.id}`,
+                    type: 'meeting',
+                    title: `Reunión ${isSameDay(meetingDate, today) ? 'HOY' : 'MAÑANA'}: ${lead.name}`,
+                    description: `Cita agendada para las ${meetingDate.toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })}hs`,
+                    severity: isSameDay(meetingDate, today) ? 'high' : 'medium',
+                    href: `/contabilidad/crm/agenda?date=${meetingDate.toISOString().split('T')[0]}`
+                });
+            }
+        }
+    });
+
+    // 4. PRESUPUESTOS VENCIDOS (Novedad Revisión 3)
+    presupuestosData.forEach(pres => {
+        if (pres.estado === 'Enviado' || pres.estado === 'Borrador') {
+            const createdDate = new Date(pres.timestamp);
+            const expiryDate = addDays(createdDate, 30);
+            if (isBefore(expiryDate, today)) {
+                alerts.push({
+                    id: `expire_${pres.id}`,
+                    type: 'budget',
+                    title: `Presupuesto Vencido: ${pres.clienteNombre}`,
+                    description: `Enviado hace más de 30 días. Requiere seguimiento o actualización.`,
+                    severity: 'medium',
+                    href: `/presupuestos/${pres.id}/ver`
+                });
+            }
+        }
+    });
+
     // Data for Monthly Chart (last 12 months)
     const monthlyData: MonthlyChartData[] = [];
     for (let i = 11; i >= 0; i--) {
@@ -131,7 +170,7 @@ export async function getDashboardKpiData() {
         montoPagado,
         totalPendiente,
         monthlyChartData: monthlyData,
-        alerts: alerts.slice(0, 5) // Top 5 alerts
+        alerts: alerts.sort((a, b) => a.severity === 'high' ? -1 : 1).slice(0, 6)
       },
     };
   } catch (error: any) {

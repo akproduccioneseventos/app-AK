@@ -60,6 +60,31 @@ export async function moveCrmLead(leadId: string, newStageId: string, meetingDat
   return { success: true, lead: leads[index] };
 }
 
+export async function scheduleCrmMeeting(leadId: string, date: string, title?: string): Promise<{ success: boolean; lead?: CrmLead; error?: string }> {
+    let leads = await getCrmLeads();
+    const index = leads.findIndex(l => l.id === leadId);
+    if (index === -1) return { success: false, error: "Prospecto no encontrado" };
+
+    leads[index].followUpDate = date;
+    leads[index].updatedAt = new Date().toISOString();
+    if (title) {
+        const existingNotes = leads[index].notes || '';
+        leads[index].notes = `${existingNotes}\n[REUNIÓN AGENDADA: ${title} para el ${new Date(date).toLocaleString('es-ES')}]`.trim();
+    }
+
+    await writeData(LEADS_FILE, leads);
+    return { success: true, lead: leads[index] };
+}
+
+export async function deleteCrmLead(leadId: string): Promise<{ success: boolean; error?: string }> {
+    let leads = await getCrmLeads();
+    const initialLength = leads.length;
+    leads = leads.filter(l => l.id !== leadId);
+    if (leads.length === initialLength) return { success: false, error: "No encontrado" };
+    await writeData(LEADS_FILE, leads);
+    return { success: true };
+}
+
 export async function confirmBooking(leadId: string, presupuestoId: string): Promise<{ success: boolean; fiestaId?: string; error?: string }> {
   try {
     const [leads, presupuesto, stages] = await Promise.all([

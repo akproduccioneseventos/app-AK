@@ -4,7 +4,7 @@
 import type { Presupuesto } from '@/types/presupuesto';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Eye, Edit, Link as LinkIcon, Link2Off, Loader2, FileSignature, Percent, FileText as FileTextIcon, Trash2, CheckCircle } from 'lucide-react';
+import { Eye, Edit, Link as LinkIcon, Link2Off, Loader2, FileSignature, Percent, FileText as FileTextIcon, Trash2, CheckCircle, Clock, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
 import { PresupuestoStatusBadge } from './presupuesto-status-badge';
 import {
@@ -23,6 +23,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useState, useMemo } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { isBefore, addDays } from 'date-fns';
 
 interface PresupuestoCardProps {
   presupuesto: Presupuesto;
@@ -67,6 +68,13 @@ export default function PresupuestoCard({
     return { text: 'Manual', className: 'bg-gray-100 text-gray-700 border-gray-200' };
   }, [presupuesto.source]);
 
+  const isExpired = useMemo(() => {
+    if (presupuesto.estado === 'Aceptado' || presupuesto.estado === 'Facturado') return false;
+    const createdDate = new Date(presupuesto.timestamp);
+    const expiryDate = addDays(createdDate, 30);
+    return isBefore(expiryDate, new Date());
+  }, [presupuesto]);
+
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
@@ -83,7 +91,10 @@ export default function PresupuestoCard({
   };
 
   return (
-    <Card className="shadow-md hover:shadow-lg transition-all flex flex-col justify-between border-primary/10">
+    <Card className={cn(
+        "shadow-md hover:shadow-lg transition-all flex flex-col justify-between border-primary/10",
+        isExpired && "border-destructive/30"
+    )}>
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start gap-2">
             <div className="min-w-0 flex-grow">
@@ -94,9 +105,16 @@ export default function PresupuestoCard({
                     {presupuesto.eventoTipo} • {formatDate(presupuesto.eventoFecha)}
                 </CardDescription>
             </div>
-            <Badge variant="outline" className={cn("text-[10px] px-1.5 h-5 font-bold uppercase", budgetSource.className)}>
-                {budgetSource.text}
-            </Badge>
+            <div className='flex flex-col gap-1 items-end'>
+                <Badge variant="outline" className={cn("text-[10px] px-1.5 h-5 font-bold uppercase", budgetSource.className)}>
+                    {budgetSource.text}
+                </Badge>
+                {isExpired && (
+                    <Badge variant="destructive" className="text-[9px] h-4 px-1.5 animate-pulse">
+                        VENCIDO
+                    </Badge>
+                )}
+            </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -134,6 +152,13 @@ export default function PresupuestoCard({
               <FileSignature className="w-4 h-4" /> Ver Factura #{presupuesto.invoiceId.split('_').pop()?.substring(0,6)}
             </Button>
           </Link>
+        )}
+
+        {isExpired && (
+            <div className="bg-destructive/10 p-2 rounded flex items-center gap-2 mb-1">
+                <AlertTriangle className="w-3.5 h-3.5 text-destructive"/>
+                <span className="text-[10px] text-destructive leading-tight font-medium">Este presupuesto superó los 30 días de validez. Se recomienda actualizar precios.</span>
+            </div>
         )}
 
         <div className="flex gap-2 w-full mt-1">
