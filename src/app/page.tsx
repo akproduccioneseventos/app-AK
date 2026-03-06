@@ -21,7 +21,9 @@ import {
     History,
     AlertTriangle,
     Bell,
-    Loader2
+    Loader2,
+    CheckCircle2,
+    Sparkles
 } from 'lucide-react';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { KpiCard } from '@/components/dashboard/kpi-card';
@@ -32,6 +34,7 @@ import { Separator } from '@/components/ui/separator';
 import { getFiestaActual, type FiestaEnPlanificacion } from './actions/fiesta/fiesta.actions';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 
 const formatCurrency = (value?: number) => {
     if (value === undefined) return 'N/A';
@@ -41,33 +44,38 @@ const formatCurrency = (value?: number) => {
 const mainHubItems = [
     {
       title: 'Planificador de Eventos',
-      description: 'Gestiona tus eventos activos y archivados. El centro de operaciones de cada fiesta.',
+      description: 'Gestión integral de tus fiestas activas y archivos históricos.',
       href: '/eventos',
       icon: CalendarClock,
+      color: "bg-rose-500"
     },
     {
       title: 'Gestión de la Empresa',
-      description: 'Administra tus servicios, personal, proveedores e inventario.',
+      description: 'Control de servicios, personal, proveedores e inventario físico.',
       href: '/empresa',
       icon: Building2,
+      color: "bg-amber-500"
     },
     {
       title: 'Panel Contable',
-      description: 'Controla el CRM, presupuestos, facturas y la salud financiera de tu negocio.',
+      description: 'CRM de prospectos, presupuestos, facturación y salud financiera.',
       href: '/empresa/contabilidad',
       icon: BarChart3,
+      color: "bg-emerald-500"
     },
      {
-      title: "Agenda de Reuniones (CRM)",
-      description: "Visualiza y gestiona las reuniones coordinadas con prospectos y clientes potenciales.",
+      title: "Agenda de Reuniones",
+      description: "Seguimiento de citas coordinadas con clientes potenciales.",
       href: "/contabilidad/crm/agenda",
       icon: CalendarDays,
+      color: "bg-blue-500"
     },
     {
-      title: 'Configuración General',
-      description: 'Ajusta las preferencias de la aplicación, plantillas y detalles de tu cuenta.',
+      title: 'Configuración',
+      description: 'Ajustes del sistema, plantillas maestras y detalles de cuenta.',
       href: '/settings',
       icon: SettingsIcon,
+      color: "bg-slate-600"
     },
 ]
 
@@ -116,133 +124,164 @@ export default function MainDashboardPage() {
 
 
   return (
-    <div className="space-y-8">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold tracking-tight font-headline text-primary">
-          Menú Principal
-        </h1>
-        <p className="text-lg text-muted-foreground mt-2">
-          Tu centro de mando para la gestión integral de eventos.
-        </p>
-      </div>
+    <div className="space-y-10 pb-10">
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div className="space-y-1">
+            <h1 className="text-4xl font-black tracking-tight font-headline text-slate-900">
+                Panel de <span className="text-primary">Control</span>
+            </h1>
+            <p className="text-muted-foreground font-medium">
+                Gestión operativa y financiera de AK Producciones.
+            </p>
+        </div>
+        <div className="flex items-center gap-3">
+            <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 py-1 px-3">
+                <Sparkles className="w-3.5 h-3.5 mr-2"/> Sistema Optimizado
+            </Badge>
+        </div>
+      </header>
 
        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <KpiCard title="Ventas Totales" value={formatCurrency(kpiData?.ventasTotales)} icon={DollarSign} isLoading={isLoading} description="Suma de todas las facturas generadas."/>
-        <KpiCard title="Total Pagado" value={formatCurrency(kpiData?.montoPagado)} icon={CreditCard} isLoading={isLoading} description="Dinero recibido de los clientes."/>
-        <KpiCard title="Saldo Pendiente" value={formatCurrency(kpiData?.totalPendiente)} icon={Banknote} isLoading={isLoading} description="Monto por cobrar."/>
-        <KpiCard title="Prospectos Activos" value={kpiData?.prospectosActivos ?? '...'} icon={Users} isLoading={isLoading} description="Clientes potenciales en el embudo de ventas."/>
+        <KpiCard title="Ventas Totales" value={formatCurrency(kpiData?.ventasTotales)} icon={DollarSign} isLoading={isLoading} />
+        <KpiCard title="Total Pagado" value={formatCurrency(kpiData?.montoPagado)} icon={CreditCard} isLoading={isLoading} />
+        <KpiCard title="Saldo Pendiente" value={formatCurrency(kpiData?.totalPendiente)} icon={Banknote} isLoading={isLoading} />
+        <KpiCard title="Prospectos Activos" value={kpiData?.prospectosActivos ?? '...'} icon={Users} isLoading={isLoading} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <div className="lg:col-span-8">
+            <div className="lg:col-span-8 space-y-6">
                 <MonthlySalesChart data={kpiData?.monthlyChartData || []} />
+                
+                <Card className="border-none shadow-xl overflow-hidden">
+                    <CardHeader className="bg-slate-900 text-white">
+                        <CardTitle className="font-headline text-xl">Acceso Rápido</CardTitle>
+                        <CardDescription className="text-slate-400">Herramientas de venta directa.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6">
+                        <Link href="/presupuestos/nuevo/crear" passHref>
+                            <div className="group p-6 border rounded-2xl hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer h-full flex items-center gap-4 shadow-sm">
+                                <div className="p-4 bg-primary/10 rounded-2xl group-hover:bg-primary group-hover:text-white transition-all">
+                                    <ListChecks className="w-6 h-6"/>
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-slate-800">Presupuesto Manual</h3>
+                                    <p className="text-xs text-muted-foreground mt-1">Cotiza servicios del catálogo.</p>
+                                </div>
+                                <ArrowRight className="w-4 h-4 ml-auto text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all"/>
+                            </div>
+                        </Link>
+                        <Link href="/simulador-de-presupuesto" passHref>
+                            <div className="group p-6 border rounded-2xl hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer h-full flex items-center gap-4 shadow-sm">
+                                <div className="p-4 bg-primary/10 rounded-2xl group-hover:bg-primary group-hover:text-white transition-all">
+                                    <Wand2 className="w-6 h-6"/>
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-slate-800">Simulador Cliente</h3>
+                                    <p className="text-xs text-muted-foreground mt-1">Herramienta pública de cotización.</p>
+                                </div>
+                                <ArrowRight className="w-4 h-4 ml-auto text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all"/>
+                            </div>
+                        </Link>
+                    </CardContent>
+                </Card>
             </div>
             <div className="lg:col-span-4">
-                <Card className="h-full border-primary/20 shadow-md">
-                    <CardHeader className="bg-primary/5 pb-3">
-                        <CardTitle className="text-lg font-headline flex items-center gap-2">
-                            <Bell className="w-5 h-5 text-primary"/> Alertas del Sistema
+                <Card className="h-full border-none shadow-2xl flex flex-col bg-slate-50/50">
+                    <CardHeader className="bg-white border-b pb-4">
+                        <CardTitle className="text-xl font-headline flex items-center gap-3 text-slate-800">
+                            <div className="p-2 bg-primary/10 rounded-lg">
+                                <Bell className="w-5 h-5 text-primary"/>
+                            </div>
+                            Alertas Críticas
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="pt-4 px-0">
+                    <CardContent className="pt-4 px-0 flex-grow">
                         {isLoading ? <div className="flex justify-center p-8"><Loader2 className="animate-spin text-primary"/></div> :
                          kpiData?.alerts?.length > 0 ? (
-                            <div className="divide-y">
+                            <div className="divide-y divide-slate-100">
                                 {kpiData.alerts.map((alert: GlobalAlert) => (
-                                    <Link key={alert.id} href={alert.href} className="flex items-start gap-3 p-3 hover:bg-muted transition-colors group">
-                                        <div className={cn("p-2 rounded-full mt-0.5", alert.severity === 'high' ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600')}>
-                                            {alert.type === 'payment' ? <DollarSign className="w-4 h-4"/> : <AlertTriangle className="w-4 h-4"/>}
+                                    <Link key={alert.id} href={alert.href} className="flex items-start gap-4 p-4 hover:bg-white transition-all group relative">
+                                        <div className={cn("p-2.5 rounded-xl mt-0.5 shadow-sm", alert.severity === 'high' ? 'bg-red-50 text-red-600' : 'bg-amber-50 text-amber-600')}>
+                                            {alert.type === 'payment' ? <DollarSign className="w-4 h-4"/> : 
+                                             alert.type === 'meeting' ? <CalendarDays className="w-4 h-4"/> : 
+                                             <AlertTriangle className="w-4 h-4"/>}
                                         </div>
-                                        <div className="flex-grow">
-                                            <p className="text-sm font-bold leading-tight group-hover:text-primary transition-colors">{alert.title}</p>
-                                            <p className="text-xs text-muted-foreground mt-1">{alert.description}</p>
+                                        <div className="flex-grow min-w-0">
+                                            <p className="text-sm font-bold text-slate-800 leading-snug group-hover:text-primary transition-colors truncate">{alert.title}</p>
+                                            <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">{alert.description}</p>
                                         </div>
-                                        <ArrowRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity self-center"/>
+                                        <ArrowRight className="w-4 h-4 text-slate-300 opacity-0 group-hover:opacity-100 transition-all self-center shrink-0"/>
+                                        {alert.severity === 'high' && <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-500 rounded-r-full"></div>}
                                     </Link>
                                 ))}
                             </div>
                          ) : (
-                            <div className="text-center py-12 px-4">
-                                <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto opacity-30 mb-2"/>
-                                <p className="text-sm text-muted-foreground">¡Todo al día! No hay alertas pendientes de atención.</p>
+                            <div className="text-center py-20 px-6 space-y-4">
+                                <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto">
+                                    <CheckCircle2 className="w-8 h-8 text-green-500 opacity-40"/>
+                                </div>
+                                <p className="text-sm text-muted-foreground font-medium">¡Excelente! No hay pendientes urgentes.</p>
                             </div>
                          )}
                     </CardContent>
-                    {kpiData?.alerts?.length > 0 && (
-                        <CardFooter className="bg-muted/30 py-2 justify-center border-t">
-                            <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Atención prioritaria recomendada</p>
-                        </CardFooter>
-                    )}
+                    <CardFooter className="bg-white py-3 justify-center border-t">
+                        <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Monitoreo en tiempo real</p>
+                    </CardFooter>
                 </Card>
             </div>
       </div>
       
-       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <KpiCard title="Eventos Pasados" value={kpiData?.fiestasPasadas ?? '...'} icon={Archive} isLoading={isLoading} description="Total de eventos archivados."/>
-        <KpiCard title="Eventos Futuros" value={kpiData?.fiestasFuturas ?? '...'} icon={CalendarClock} isLoading={isLoading} description="Eventos en planificación activa."/>
+       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <KpiCard title="Eventos Archivados" value={kpiData?.fiestasPasadas ?? '...'} icon={Archive} isLoading={isLoading} className="border-none shadow-lg"/>
+        <KpiCard title="Planificaciones Activas" value={kpiData?.fiestasFuturas ?? '...'} icon={CalendarClock} isLoading={isLoading} className="border-none shadow-lg"/>
         <PaymentStatusPieChart data={pieChartData} />
       </div>
 
-      <Card>
-        <CardHeader>
-            <CardTitle className="font-headline text-xl">Herramientas Rápidas</CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Link href="/presupuestos/nuevo/crear" passHref>
-                <div className="p-4 border rounded-lg hover:bg-muted cursor-pointer transition-colors h-full flex flex-col justify-between">
-                    <div>
-                        <h3 className="font-semibold flex items-center gap-2"><ListChecks className="w-5 h-5 text-primary"/>Crear Presupuesto Manual</h3>
-                        <p className="text-sm text-muted-foreground mt-1">Genera un presupuesto detallado seleccionando servicios del catálogo.</p>
-                    </div>
-                    <div className="flex justify-end mt-2">
-                        <Button variant="ghost" size="sm">Ir ahora <ArrowRight className="w-4 h-4 ml-1"/></Button>
-                    </div>
-                </div>
-            </Link>
-             <Link href="/simulador-de-presupuesto" passHref>
-                <div className="p-4 border rounded-lg hover:bg-muted cursor-pointer transition-colors h-full flex flex-col justify-between">
-                    <div>
-                        <h3 className="font-semibold flex items-center gap-2"><Wand2 className="w-5 h-5 text-primary"/>Simulador para Clientes</h3>
-                        <p className="text-sm text-muted-foreground mt-1">Herramienta para que los clientes armen su presupuesto estimado.</p>
-                    </div>
-                    <div className="flex justify-end mt-2">
-                         <Button variant="ghost" size="sm">Ir ahora <ArrowRight className="w-4 h-4 ml-1"/></Button>
-                    </div>
-                </div>
-            </Link>
-        </CardContent>
-      </Card>
-      
-      <Separator className="my-8"/>
+      <Separator className="opacity-50" />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {mainHubItems.map((item) => (
-          <Card key={item.title} className="flex flex-col shadow-md hover:shadow-lg transition-shadow duration-300">
-            <CardHeader className="flex-row items-start gap-4 space-y-0 pb-3">
-              <div className="p-3 bg-primary/10 rounded-lg">
-                    <item.icon className="w-7 h-7 text-primary" />
-              </div>
-              <div>
-                  <CardTitle className="font-headline text-lg mb-1">{item.title}</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="flex-grow">
-              <p className="text-sm text-muted-foreground line-clamp-3">{item.description}</p>
-            </CardContent>
-            <CardFooter className="pt-3">
-                 <Link href={getLinkHref(item.href)} passHref className="w-full">
-                    <Button variant="secondary" className="w-full">
-                        Acceder
-                    </Button>
-                </Link>
-            </CardFooter>
-          </Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+        {mainHubItems.map((item, idx) => (
+          <motion.div
+            key={item.title}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: idx * 0.1 }}
+          >
+            <Card className="group flex flex-col h-full border-none shadow-lg hover:shadow-2xl transition-all duration-500 bg-white rounded-3xl overflow-hidden">
+                <CardHeader className="pb-4 space-y-4">
+                    <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-black/10 group-hover:scale-110 transition-all duration-500", item.color)}>
+                        <item.icon className="w-7 h-7" />
+                    </div>
+                    <CardTitle className="font-headline text-xl text-slate-800">{item.title}</CardTitle>
+                </CardHeader>
+                <CardContent className="flex-grow">
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                        {item.description}
+                    </p>
+                </CardContent>
+                <CardFooter className="pt-0 pb-6 px-6">
+                    <Link href={getLinkHref(item.href)} passHref className="w-full">
+                        <Button variant="ghost" className="w-full justify-between group-hover:bg-slate-50 rounded-xl px-4 transition-all">
+                            Acceder <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                        </Button>
+                    </Link>
+                </CardFooter>
+            </Card>
+          </motion.div>
         ))}
       </div>
     </div>
   );
 }
 
-const CheckCircle2 = ({ className }: { className?: string }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 22c5.523 0 9-4.477 9-10S17.523 2 12 2 3 6.477 3 12s3.477 10 9 10z"/><path d="m9 12 2 2 4-4"/></svg>
+const Badge = ({ children, variant = 'default', className }: { children: React.ReactNode, variant?: 'default' | 'outline' | 'destructive', className?: string }) => (
+    <span className={cn(
+        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold transition-colors",
+        variant === 'default' ? "bg-primary text-primary-foreground" : 
+        variant === 'outline' ? "border text-foreground" :
+        "bg-destructive text-destructive-foreground",
+        className
+    )}>
+        {children}
+    </span>
 );
