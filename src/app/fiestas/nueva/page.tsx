@@ -158,7 +158,7 @@ function PlannerDashboardContent() {
             <PartyPopper className="w-8 h-8 sm:w-10 sm:h-10" />
           </div>
           <div className="min-w-0">
-            <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tighter text-slate-900 font-headline uppercase truncate">{configuracion.nombreEvento}</h1>
+            <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tighter text-slate-900 font-headline uppercase">{configuracion.nombreEvento}</h1>
             <p className="text-slate-500 font-bold flex flex-wrap items-center gap-2 sm:gap-3 mt-1 text-xs sm:text-base">
                 <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary shrink-0"/> {formatDate(configuracion.fechaEvento)} 
                 <span className="text-slate-300 hidden sm:inline">•</span> 
@@ -251,12 +251,12 @@ function PlannerDashboardContent() {
                                     <module.icon className="w-6 h-6 sm:w-7 sm:h-7" />
                                 </div>
                                 <div className="min-w-0">
-                                    <CardTitle className="text-base sm:text-lg font-black text-slate-800 truncate">{module.title}</CardTitle>
+                                    <CardTitle className="text-base sm:text-lg font-black text-slate-800">{module.title}</CardTitle>
                                     <Badge className="bg-slate-100 text-slate-400 text-[8px] font-black tracking-widest uppercase border-none">Activo</Badge>
                                 </div>
                             </CardHeader>
                             <CardContent className="flex-grow pt-0 px-6 sm:px-8 pb-6 sm:pb-8">
-                                <p className="text-[10px] sm:text-xs text-slate-400 leading-relaxed font-bold uppercase tracking-tighter line-clamp-2">{module.description}</p>
+                                <p className="text-[10px] sm:text-xs text-slate-400 leading-relaxed font-bold uppercase tracking-tighter">{module.description}</p>
                             </CardContent>
                             <CardFooter className="bg-slate-50/50 p-3 sm:p-4 flex justify-end px-6 sm:px-8 border-t border-slate-50">
                                 <Button variant="ghost" size="sm" className="text-primary font-black text-[9px] sm:text-[10px] uppercase tracking-[0.2em] group-hover:bg-primary group-hover:text-white rounded-xl px-4 transition-all duration-500">

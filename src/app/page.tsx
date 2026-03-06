@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
     Wand2, 
@@ -177,7 +177,7 @@ export default function MainDashboardPage() {
                                     <ListChecks className="w-6 h-6 sm:w-7 sm:h-7"/>
                                 </div>
                                 <div className="min-w-0">
-                                    <h3 className="font-black text-slate-800 text-base sm:text-lg truncate">Nuevo Presupuesto</h3>
+                                    <h3 className="font-black text-slate-800 text-base sm:text-lg">Nuevo Presupuesto</h3>
                                     <p className="text-[10px] sm:text-xs font-semibold text-slate-400 mt-1 uppercase tracking-tighter">Cotización manual.</p>
                                 </div>
                                 <ArrowRight className="w-5 h-5 ml-auto text-slate-300 group-hover:text-primary group-hover:translate-x-2 transition-all shrink-0"/>
@@ -189,7 +189,7 @@ export default function MainDashboardPage() {
                                     <Wand2 className="w-6 h-6 sm:w-7 sm:h-7"/>
                                 </div>
                                 <div className="min-w-0">
-                                    <h3 className="font-black text-slate-800 text-base sm:text-lg truncate">Simulador Público</h3>
+                                    <h3 className="font-black text-slate-800 text-base sm:text-lg">Simulador Público</h3>
                                     <p className="text-[10px] sm:text-xs font-semibold text-slate-400 mt-1 uppercase tracking-tighter">Captura de leads.</p>
                                 </div>
                                 <ArrowRight className="w-5 h-5 ml-auto text-slate-300 group-hover:text-primary group-hover:translate-x-2 transition-all shrink-0"/>
@@ -223,7 +223,7 @@ export default function MainDashboardPage() {
                                              <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5"/>}
                                         </div>
                                         <div className="flex-grow min-w-0">
-                                            <p className="text-xs sm:text-sm font-black text-slate-800 leading-tight group-hover:text-primary transition-colors truncate">{alert.title}</p>
+                                            <p className="text-xs sm:text-sm font-black text-slate-800 leading-tight group-hover:text-primary transition-colors">{alert.title}</p>
                                             <p className="text-[10px] sm:text-[11px] font-semibold text-slate-400 mt-1.5 leading-relaxed">{alert.description}</p>
                                         </div>
                                         <ArrowRight className="w-4 h-4 text-slate-200 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all self-center shrink-0 hidden sm:block"/>
@@ -269,10 +269,10 @@ export default function MainDashboardPage() {
                       <div className={cn("w-14 h-14 sm:w-16 sm:h-16 rounded-[1rem] sm:rounded-[1.25rem] flex items-center justify-center shadow-lg shadow-black/5 group-hover:rotate-6 transition-all duration-500 shrink-0", item.lightColor)}>
                           <item.icon className="w-7 h-7 sm:w-8 sm:h-8" />
                       </div>
-                      <CardTitle className="text-lg sm:text-xl font-black text-slate-800 tracking-tight truncate">{item.title}</CardTitle>
+                      <CardTitle className="text-lg sm:text-xl font-black text-slate-800 tracking-tight">{item.title}</CardTitle>
                   </CardHeader>
                   <CardContent className="flex-grow px-6 sm:px-8 pb-6 sm:pb-8">
-                      <p className="text-[10px] sm:text-xs font-medium text-slate-400 leading-relaxed uppercase tracking-tighter line-clamp-2">
+                      <p className="text-[10px] sm:text-xs font-medium text-slate-400 leading-relaxed uppercase tracking-tighter">
                           {item.description}
                       </p>
                   </CardContent>

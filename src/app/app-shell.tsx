@@ -145,16 +145,11 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/personal') return UserCheck;
     if (pathname === '/fiestas/nueva/personal/recibos') return Printer;
     if (pathname === '/fiestas/nueva/reuniones') return MessageSquareText;
-    if (pathname === '/fiestas/nueva/portal-cliente') return Globe;
     if (pathname === '/fiestas/nueva/decoracion') return Palette;
-    if (pathname === '/fiestas/nueva/decoracion/pdf') return Printer;
     if (pathname === '/fiestas/nueva/catering') return ChefHat;
-    if (pathname === '/fiestas/nueva/catering/lista-compras') return ShoppingCart;
     if (pathname === '/fiestas/nueva/musica') return Music2;
-    if (pathname === '/fiestas/nueva/musica/pdf') return Printer;
     if (pathname === '/fiestas/nueva/fotografia') return Film;
     if (pathname === '/fiestas/nueva/invitados') return Users;
-    if (pathname === '/fiestas/nueva/invitados/layout') return LayoutDashboard;
     if (pathname === '/fiestas/nueva/itinerario') return Clock;
     if (pathname === '/fiestas/nueva/tareas') return ClipboardListIcon;
     if (pathname === '/fiestas/nueva/configuracion') return SettingsIcon;
@@ -162,10 +157,8 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/gestion-documental') return Archive;
     if (pathname === '/fiestas/nueva/gestion-costos-rentabilidad') return BarChart3;
     if (pathname === '/fiestas/nueva/carga-operativa') return PackageSearch;
-    if (pathname === '/fiestas/nueva/carga-operativa/pdf') return Printer;
     if (pathname === '/fiestas/nueva/video-vida') return Camera;
     if (pathname === '/fiestas/nueva/regalos') return Gift;
-    if (pathname === '/fiestas/nueva/resumen-imprimible') return Printer;
     if (pathname === '/fiestas/nueva/pagina-web') return Globe;
     if (pathname === '/planner-costo-fiesta') return Calculator;
     return PartyPopper;
@@ -285,7 +278,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <div className="flex items-center gap-2">
               <SidebarTrigger className="md:flex" />
               {PageIcon && <PageIcon className="h-5 w-5 text-primary hidden sm:block" />}
-              <h1 className="text-base sm:text-lg md:text-xl font-semibold text-foreground truncate max-w-[200px] sm:max-w-none">
+              <h1 className="text-base sm:text-lg md:text-xl font-semibold text-foreground">
                 {pageTitle}
               </h1>
             </div>
