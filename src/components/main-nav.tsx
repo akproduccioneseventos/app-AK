@@ -1,3 +1,4 @@
+
 "use client"
 
 import Link from "next/link";
@@ -37,6 +38,8 @@ import {
   PartyPopper,
   FileArchive,
   History,
+  Camera,
+  Printer
 } from "lucide-react";
 import AppLogo from "./app-logo";
 

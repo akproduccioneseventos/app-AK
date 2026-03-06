@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -18,20 +19,23 @@ import {
     Archive,
     CalendarDays,
     ArrowRight,
-    History
+    History,
+    AlertTriangle,
+    Bell
 } from 'lucide-react';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { KpiCard } from '@/components/dashboard/kpi-card';
-import { getDashboardKpiData } from '@/app/actions/dashboard';
+import { getDashboardKpiData, type GlobalAlert } from '@/app/actions/dashboard';
 import { MonthlySalesChart } from '@/components/charts/MonthlySalesChart';
 import { PaymentStatusPieChart } from '@/components/charts/PaymentStatusPieChart';
 import { Separator } from '@/components/ui/separator';
 import { getFiestaActual, type FiestaEnPlanificacion } from './actions/fiesta/fiesta.actions';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 const formatCurrency = (value?: number) => {
     if (value === undefined) return 'N/A';
-    return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
+    return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
 };
 
 const mainHubItems = [
@@ -129,18 +133,54 @@ export default function MainDashboardPage() {
         <KpiCard title="Prospectos Activos" value={kpiData?.prospectosActivos ?? '...'} icon={Users} isLoading={isLoading} description="Clientes potenciales en el embudo de ventas."/>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-7 gap-4">
-            <div className="lg:col-span-4">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-8">
                 <MonthlySalesChart data={kpiData?.monthlyChartData || []} />
             </div>
-            <div className="lg:col-span-3">
-                <PaymentStatusPieChart data={pieChartData} />
+            <div className="lg:col-span-4">
+                <Card className="h-full border-primary/20 shadow-md">
+                    <CardHeader className="bg-primary/5 pb-3">
+                        <CardTitle className="text-lg font-headline flex items-center gap-2">
+                            <Bell className="w-5 h-5 text-primary"/> Alertas del Sistema
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-4 px-0">
+                        {isLoading ? <div className="flex justify-center p-8"><Loader2 className="animate-spin text-primary"/></div> :
+                         kpiData?.alerts?.length > 0 ? (
+                            <div className="divide-y">
+                                {kpiData.alerts.map((alert: GlobalAlert) => (
+                                    <Link key={alert.id} href={alert.href} className="flex items-start gap-3 p-3 hover:bg-muted transition-colors group">
+                                        <div className={cn("p-2 rounded-full mt-0.5", alert.severity === 'high' ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600')}>
+                                            {alert.type === 'payment' ? <DollarSign className="w-4 h-4"/> : <AlertTriangle className="w-4 h-4"/>}
+                                        </div>
+                                        <div className="flex-grow">
+                                            <p className="text-sm font-bold leading-tight group-hover:text-primary transition-colors">{alert.title}</p>
+                                            <p className="text-xs text-muted-foreground mt-1">{alert.description}</p>
+                                        </div>
+                                        <ArrowRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity self-center"/>
+                                    </Link>
+                                ))}
+                            </div>
+                         ) : (
+                            <div className="text-center py-12 px-4">
+                                <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto opacity-30 mb-2"/>
+                                <p className="text-sm text-muted-foreground">¡Todo al día! No hay alertas pendientes de atención.</p>
+                            </div>
+                         )}
+                    </CardContent>
+                    {kpiData?.alerts?.length > 0 && (
+                        <CardFooter className="bg-muted/30 py-2 justify-center border-t">
+                            <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Atención prioritaria recomendada</p>
+                        </CardFooter>
+                    )}
+                </Card>
             </div>
       </div>
       
-       <div className="grid gap-4 md:grid-cols-2">
+       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <KpiCard title="Eventos Pasados" value={kpiData?.fiestasPasadas ?? '...'} icon={Archive} isLoading={isLoading} description="Total de eventos archivados."/>
         <KpiCard title="Eventos Futuros" value={kpiData?.fiestasFuturas ?? '...'} icon={CalendarClock} isLoading={isLoading} description="Eventos en planificación activa."/>
+        <PaymentStatusPieChart data={pieChartData} />
       </div>
 
       <Card>
@@ -202,3 +242,7 @@ export default function MainDashboardPage() {
     </div>
   );
 }
+
+const CheckCircle2 = ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 22c5.523 0 9-4.477 9-10S17.523 2 12 2 3 6.477 3 12s3.477 10 9 10z"/><path d="m9 12 2 2 4-4"/></svg>
+);

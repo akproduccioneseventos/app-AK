@@ -1,3 +1,4 @@
+
 'use server';
 
 import { getCustomers } from './customers';
@@ -5,7 +6,7 @@ import { getPresupuestos } from './presupuestos';
 import { getInvoices } from './invoices';
 import { getAllFiestas } from './fiesta/fiesta.actions';
 import { checkAndCreateTaskReminders, checkAndCreateReunionReminders } from './notifications';
-import { subMonths, format, startOfMonth } from 'date-fns';
+import { subMonths, format, isBefore, startOfToday } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { getCrmKpiData } from './crm';
 
@@ -15,9 +16,18 @@ export interface MonthlyChartData {
   pagos: number;
 }
 
+export interface GlobalAlert {
+  id: string;
+  type: 'task' | 'payment' | 'meeting';
+  title: string;
+  description: string;
+  severity: 'high' | 'medium';
+  href: string;
+}
+
 export async function getDashboardKpiData() {
   try {
-    // Run reminder checks in the background without waiting for them
+    // Run reminder checks in the background
     checkAndCreateTaskReminders().catch(err => console.warn("Background task reminder check failed:", err));
     checkAndCreateReunionReminders().catch(err => console.warn("Background meeting reminder check failed:", err));
 
@@ -36,6 +46,7 @@ export async function getDashboardKpiData() {
     ]);
     
     const now = new Date();
+    const today = startOfToday();
     const ventasTotales = invoicesData.reduce((total, inv) => total + inv.totalAmount, 0);
     const montoPagado = invoicesData.reduce((total, inv) => total + (inv.payments?.reduce((sum, p) => sum + p.amount, 0) || 0), 0);
     const totalPendiente = ventasTotales - montoPagado;
@@ -45,7 +56,43 @@ export async function getDashboardKpiData() {
     const clientesActivos = activeCustomerIds.size;
     
     const fiestasPasadas = fiestasData.filter(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) < new Date()).length;
-    const fiestasFuturas = clientesActivos;
+    const fiestasFuturas = fiestasData.filter(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) >= today).length;
+
+    // Generar Alertas Globales
+    const alerts: GlobalAlert[] = [];
+
+    // 1. Tareas Vencidas o Próximas
+    fiestasData.forEach(fiesta => {
+      fiesta.tareas?.forEach(tarea => {
+        if (!tarea.completada && tarea.fechaLimite) {
+          const dueDate = new Date(tarea.fechaLimite);
+          if (isBefore(dueDate, today)) {
+            alerts.push({
+              id: tarea.id,
+              type: 'task',
+              title: `Tarea Vencida: ${tarea.texto}`,
+              description: `Evento: ${fiesta.configuracion.nombreEvento}`,
+              severity: 'high',
+              href: `/fiestas/nueva/tareas?fiestaId=${fiesta.id}`
+            });
+          }
+        }
+      });
+    });
+
+    // 2. Facturas Vencidas
+    invoicesData.forEach(inv => {
+      if (inv.status !== 'Paid' && inv.dueDate && isBefore(new Date(inv.dueDate), today)) {
+        alerts.push({
+          id: inv.id,
+          type: 'payment',
+          title: `Pago Pendiente: Factura ${inv.invoiceNumber}`,
+          description: `Cliente: ${inv.customer.name || inv.customer.companyName}`,
+          severity: 'high',
+          href: `/invoices/${inv.id}`
+        });
+      }
+    });
 
     // Data for Monthly Chart (last 12 months)
     const monthlyData: MonthlyChartData[] = [];
@@ -73,7 +120,6 @@ export async function getDashboardKpiData() {
         });
     });
 
-
     return {
       success: true,
       data: {
@@ -85,6 +131,7 @@ export async function getDashboardKpiData() {
         montoPagado,
         totalPendiente,
         monthlyChartData: monthlyData,
+        alerts: alerts.slice(0, 5) // Top 5 alerts
       },
     };
   } catch (error: any) {

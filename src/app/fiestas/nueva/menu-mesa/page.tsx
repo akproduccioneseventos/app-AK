@@ -107,7 +107,7 @@ function MenuDeMesaContent() {
     try {
       const result = await updateMenuMesaAction(fiestaId, data);
       if (result.success) {
-        toast({ title: "Guardado!", description: "El menú de mesa ha sido actualizado." });
+        toast({ title: "¡Guardado!", description: "El menú de mesa ha sido actualizado." });
       } else {
         throw new Error(result.error);
       }
@@ -127,10 +127,10 @@ function MenuDeMesaContent() {
         const canvas = await html2canvas(printRef.current, { 
             scale: 2, // Increase resolution
             useCORS: true, // For external images
-            backgroundColor: null, // Transparent background
+            backgroundColor: '#ffffff', 
         });
         const link = document.createElement('a');
-        link.download = 'menu-de-mesa.jpg';
+        link.download = `menu-mesa-${fiesta?.configuracion.nombreEvento}.jpg`;
         link.href = canvas.toDataURL('image/jpeg', 0.9); // Use jpeg format
         link.click();
         toast({ title: "¡Descarga iniciada!", description: "La imagen del menú se está descargando."});
@@ -161,8 +161,8 @@ function MenuDeMesaContent() {
                <div className="flex items-end gap-2">
                  <Button size="sm" onClick={handleSave} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}</Button>
                  <Button onClick={handleDownloadJpg} size="sm" variant="outline" title="Descargar como JPG"><Download className="w-4 h-4"/></Button>
-                 <Button onClick={handlePrint} size="sm" variant="outline"><PrinterIcon className="w-4 h-4"/></Button>
-                 <Link href={`/fiestas/nueva/catering?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4"/></Button></Link>
+                 <Button onClick={handlePrint} size="sm" variant="outline" title="Imprimir PDF"><PrinterIcon className="w-4 h-4"/></Button>
+                 <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4"/></Button></Link>
                </div>
             </div>
         </div>
@@ -189,8 +189,10 @@ function MenuDeMesaContent() {
        <style jsx global>{`
             @import url('https://fonts.googleapis.com/css2?family=Belleza&family=Dancing+Script:wght@400;700&family=Great+Vibes&display=swap');
              @media print {
-                body { -webkit-print-color-adjust: exact; color-adjust: exact; }
+                body { -webkit-print-color-adjust: exact; color-adjust: exact; background: white !important; }
+                .sidebar, header, nav, button, .no-print, .notifications-hub { display: none !important ; }
                 @page { size: A4 landscape; margin: 0; }
+                main { padding: 0 !important; margin: 0 !important; }
             }
         `}</style>
     </div>

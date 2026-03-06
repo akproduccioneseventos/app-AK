@@ -151,10 +151,10 @@ function CartaTragosContent() {
         const canvas = await html2canvas(printRef.current, { 
             scale: 2, // Increase resolution
             useCORS: true, // For external images
-            backgroundColor: null, // Transparent background
+            backgroundColor: '#ffffff',
         });
         const link = document.createElement('a');
-        link.download = 'carta-tragos.jpg';
+        link.download = `carta-tragos-${fiesta?.configuracion.nombreEvento}.jpg`;
         link.href = canvas.toDataURL('image/jpeg', 0.9); // Use jpeg format
         link.click();
         toast({ title: "¡Descarga iniciada!", description: "La imagen de la carta de tragos se está descargando."});
@@ -270,10 +270,10 @@ function CartaTragosContent() {
                 <div className="space-y-1"><Label className="text-xs">Texto</Label><Input type="color" value={cartaTragos.paletaColores?.secondary || '#4b5563'} onChange={e => handleColorChange('secondary', e.target.value)} className="w-10 h-9 p-0.5"/></div>
                 <div className="space-y-1"><Label className="text-xs">Fondo Tarjeta</Label><Input type="color" value={cartaTragos.backgroundColor || '#ffffff'} onChange={e => handleColorChange('background', e.target.value)} className="w-10 h-9 p-0.5"/></div>
                <div className="flex items-end gap-2">
-                 <Button size="sm" onClick={handleSave} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}</Button>
+                 <Button size="sm" onClick={handleSave} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4"/>}</Button>
                  <Button onClick={handleDownloadJpg} size="sm" variant="outline" title="Descargar como JPG"><Download className="w-4 h-4"/></Button>
                  <Button onClick={handlePrint} size="sm" variant="outline" title="Imprimir o Guardar como PDF"><PrinterIcon className="w-4 h-4"/></Button>
-                 <Link href={`/fiestas/nueva/catering?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4"/></Button></Link>
+                 <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4"/></Button></Link>
                </div>
             </div>
         </div>
@@ -287,11 +287,13 @@ function CartaTragosContent() {
        <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Belleza&family=Dancing+Script:wght@400;700&family=Great+Vibes&display=swap');
          @media print {
-            body { -webkit-print-color-adjust: exact; color-adjust: exact; }
+            body { -webkit-print-color-adjust: exact; color-adjust: exact; background: white !important; }
+            .sidebar, header, nav, button, .no-print, .notifications-hub { display: none !important ; }
             @page { 
                 size: 15cm 10cm landscape;
                 margin: 0; 
             }
+            main { padding: 0 !important; margin: 0 !important; }
         }
        `}</style>
     </div>
