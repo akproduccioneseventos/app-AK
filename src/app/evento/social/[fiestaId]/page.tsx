@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent, useRef, type ChangeEvent } from 'react';
@@ -551,35 +550,35 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
         )}
         
         {localSettings.chatEnabled && (
-            <Card className="shadow-2xl border-none rounded-[2rem] overflow-hidden bg-white/90 backdrop-blur-md max-w-2xl mx-auto">
-                <CardHeader className="p-6 border-b border-slate-100 flex flex-row items-center gap-3">
-                    <div className="p-2.5 rounded-xl" style={{ backgroundColor: `${accentColor}15` }}>
-                        <MessageSquare className="w-5 h-5" style={{ color: accentColor }}/>
+            <Card className="shadow-2xl border-none rounded-[1.5rem] overflow-hidden bg-white/90 backdrop-blur-md max-w-lg mx-auto">
+                <CardHeader className="p-4 border-b border-slate-100 flex flex-row items-center gap-3">
+                    <div className="p-2 rounded-lg" style={{ backgroundColor: `${accentColor}15` }}>
+                        <MessageSquare className="w-4 h-4" style={{ color: accentColor }}/>
                     </div>
-                    <CardTitle className="text-lg font-bold text-slate-800">Conversación del Evento</CardTitle>
+                    <CardTitle className="text-sm font-bold text-slate-800">Chat del Evento</CardTitle>
                 </CardHeader>
-                <CardContent className="p-6">
-                    <ScrollArea className="h-80 pr-4">
-                        <div className="space-y-4">
+                <CardContent className="p-4">
+                    <ScrollArea className="h-48 pr-4">
+                        <div className="space-y-3">
                             {chatMessages.map(msg => {
                                 const isMe = msg.authorName === authorName;
                                 return (
-                                    <div key={msg.id} className={cn("flex flex-col max-w-[85%]", isMe ? "ml-auto items-end" : "items-start")}>
-                                        {!isMe && <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter mb-1 ml-2">{msg.authorName}</span>}
-                                        <div className={cn("px-4 py-2.5 rounded-2xl text-sm shadow-sm", isMe ? "text-white" : "bg-slate-100 text-slate-700")} style={isMe ? { backgroundColor: accentColor } : {}}>
+                                    <div key={msg.id} className={cn("flex flex-col max-w-[90%]", isMe ? "ml-auto items-end" : "items-start")}>
+                                        {!isMe && <span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter mb-0.5 ml-1">{msg.authorName}</span>}
+                                        <div className={cn("px-3 py-1.5 rounded-xl text-xs shadow-sm", isMe ? "text-white" : "bg-slate-100 text-slate-700")} style={isMe ? { backgroundColor: accentColor } : {}}>
                                             {msg.text}
                                         </div>
-                                        <span className="text-[9px] text-slate-300 mt-1 mx-2">{new Date(msg.timestamp).toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'})}</span>
+                                        <span className="text-[8px] text-slate-300 mt-0.5 mx-1">{new Date(msg.timestamp).toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'})}</span>
                                     </div>
                                 );
                             })}
                             <div ref={chatEndRef}/>
                         </div>
                     </ScrollArea>
-                    <form onSubmit={handleChatSubmit} className="flex gap-2 items-center mt-6 pt-4 border-t border-slate-100">
-                        <Input value={newChatMessage} onChange={e => setNewChatMessage(e.target.value)} placeholder="Escribe un mensaje para todos..." disabled={isSendingChat || !authorName} className="h-12 rounded-2xl bg-slate-50 border-none px-5 focus-visible:ring-2" style={{ '--tw-ring-color': accentColor } as any} />
-                        <Button type="submit" disabled={!newChatMessage.trim() || isSendingChat || !authorName} className="h-12 w-12 rounded-2xl flex-shrink-0 shadow-lg shadow-primary/10 transition-transform active:scale-95" style={{ backgroundColor: accentColor }}>
-                            {isSendingChat ? <Loader2 className="w-5 h-5 animate-spin"/> : <Send className="w-5 h-5"/>}
+                    <form onSubmit={handleChatSubmit} className="flex gap-2 items-center mt-4 pt-3 border-t border-slate-100">
+                        <Input value={newChatMessage} onChange={e => setNewChatMessage(e.target.value)} placeholder="Escribe un mensaje..." disabled={isSendingChat || !authorName} className="h-10 rounded-xl bg-slate-50 border-none px-4 text-xs focus-visible:ring-2" style={{ '--tw-ring-color': accentColor } as any} />
+                        <Button type="submit" disabled={!newChatMessage.trim() || isSendingChat || !authorName} className="h-10 w-10 rounded-xl flex-shrink-0 shadow-lg shadow-primary/10 transition-transform active:scale-95" style={{ backgroundColor: accentColor }}>
+                            {isSendingChat ? <Loader2 className="w-4 h-4 animate-spin"/> : <Send className="w-4 h-4"/>}
                         </Button>
                     </form>
                 </CardContent>
