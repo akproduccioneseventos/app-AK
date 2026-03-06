@@ -283,13 +283,13 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="flex min-h-screen w-full flex-col">
           <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:px-6 print:hidden">
             <div className="flex items-center gap-2">
-              <SidebarTrigger className="md:hidden" />
-              {PageIcon && <PageIcon className="h-6 w-6 text-primary" />}
-              <h1 className="text-lg md:text-xl font-semibold text-foreground">
+              <SidebarTrigger className="md:flex" />
+              {PageIcon && <PageIcon className="h-5 w-5 text-primary hidden sm:block" />}
+              <h1 className="text-base sm:text-lg md:text-xl font-semibold text-foreground truncate max-w-[200px] sm:max-w-none">
                 {pageTitle}
               </h1>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <NotificationsHub />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -332,7 +332,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               </DropdownMenu>
             </div>
           </header>
-          <main className="flex-1 p-4 sm:p-6 lg:p-8 bg-background">
+          <main className="flex-1 p-3 sm:p-6 lg:p-8 bg-background">
             {children}
           </main>
         </div>

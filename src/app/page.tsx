@@ -128,25 +128,25 @@ export default function MainDashboardPage() {
 
 
   return (
-    <div className="space-y-10 pb-16">
+    <div className="space-y-6 sm:space-y-10 pb-16">
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <motion.div 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           className="space-y-2"
         >
-            <h1 className="text-5xl font-black tracking-tighter text-slate-900">
+            <h1 className="text-3xl sm:text-5xl font-black tracking-tighter text-slate-900">
                 Panel de <span className="text-primary italic">Control</span>
             </h1>
-            <p className="text-slate-500 font-semibold flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+            <p className="text-slate-500 font-semibold flex items-center gap-2 text-xs sm:text-base">
+                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse shrink-0"></div>
                 Gestión operativa y financiera de AK Producciones.
             </p>
         </motion.div>
         <motion.div 
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="flex items-center gap-3"
+          className="flex items-center gap-3 hidden sm:flex"
         >
             <Badge variant="outline" className="bg-white text-primary border-primary/20 py-2 px-4 shadow-sm rounded-full font-black text-[10px] tracking-widest uppercase">
                 <Sparkles className="w-3.5 h-3.5 mr-2 text-primary animate-spin-slow"/> Sistema Optimizado
@@ -154,54 +154,54 @@ export default function MainDashboardPage() {
         </motion.div>
       </header>
 
-       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+       <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard title="Ventas Totales" value={formatCurrency(kpiData?.ventasTotales)} icon={DollarSign} isLoading={isLoading} />
         <KpiCard title="Total Pagado" value={formatCurrency(kpiData?.montoPagado)} icon={CreditCard} isLoading={isLoading} />
         <KpiCard title="Saldo Pendiente" value={formatCurrency(kpiData?.totalPendiente)} icon={Banknote} isLoading={isLoading} />
         <KpiCard title="Prospectos Activos" value={kpiData?.prospectosActivos ?? '...'} icon={Users} isLoading={isLoading} />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <div className="lg:col-span-8 space-y-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
+            <div className="lg:col-span-8 space-y-6 sm:space-y-8">
                 <MonthlySalesChart data={kpiData?.monthlyChartData || []} />
                 
-                <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden bg-white">
-                    <CardHeader className="bg-slate-900 text-white p-8">
-                        <CardTitle className="text-2xl font-black tracking-tight">Acceso Directo</CardTitle>
+                <Card className="border-none shadow-2xl rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden bg-white">
+                    <CardHeader className="bg-slate-900 text-white p-6 sm:p-8">
+                        <CardTitle className="text-xl sm:text-2xl font-black tracking-tight">Acceso Directo</CardTitle>
                         <CardDescription className="text-slate-400 font-medium">Herramientas de conversión y venta.</CardDescription>
                     </CardHeader>
-                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 p-8">
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 p-6 sm:p-8">
                         <Link href="/presupuestos/nuevo/crear" passHref>
-                            <div className="group p-8 border border-slate-100 rounded-[1.5rem] hover:border-primary/30 hover:bg-primary/5 transition-all cursor-pointer h-full flex items-center gap-6 shadow-sm">
-                                <div className="p-5 bg-primary/10 text-primary rounded-2xl group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-inner">
-                                    <ListChecks className="w-7 h-7"/>
+                            <div className="group p-6 sm:p-8 border border-slate-100 rounded-[1.25rem] sm:rounded-[1.5rem] hover:border-primary/30 hover:bg-primary/5 transition-all cursor-pointer h-full flex items-center gap-4 sm:gap-6 shadow-sm">
+                                <div className="p-4 sm:p-5 bg-primary/10 text-primary rounded-2xl group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-inner shrink-0">
+                                    <ListChecks className="w-6 h-6 sm:w-7 sm:h-7"/>
                                 </div>
-                                <div>
-                                    <h3 className="font-black text-slate-800 text-lg">Nuevo Presupuesto</h3>
-                                    <p className="text-xs font-semibold text-slate-400 mt-1">Cotización manual detallada.</p>
+                                <div className="min-w-0">
+                                    <h3 className="font-black text-slate-800 text-base sm:text-lg truncate">Nuevo Presupuesto</h3>
+                                    <p className="text-[10px] sm:text-xs font-semibold text-slate-400 mt-1 uppercase tracking-tighter">Cotización manual.</p>
                                 </div>
-                                <ArrowRight className="w-5 h-5 ml-auto text-slate-300 group-hover:text-primary group-hover:translate-x-2 transition-all"/>
+                                <ArrowRight className="w-5 h-5 ml-auto text-slate-300 group-hover:text-primary group-hover:translate-x-2 transition-all shrink-0"/>
                             </div>
                         </Link>
                         <Link href="/simulador-de-presupuesto" passHref>
-                            <div className="group p-8 border border-slate-100 rounded-[1.5rem] hover:border-primary/30 hover:bg-primary/5 transition-all cursor-pointer h-full flex items-center gap-6 shadow-sm">
-                                <div className="p-5 bg-primary/10 text-primary rounded-2xl group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-inner">
-                                    <Wand2 className="w-7 h-7"/>
+                            <div className="group p-6 sm:p-8 border border-slate-100 rounded-[1.25rem] sm:rounded-[1.5rem] hover:border-primary/30 hover:bg-primary/5 transition-all cursor-pointer h-full flex items-center gap-4 sm:gap-6 shadow-sm">
+                                <div className="p-4 sm:p-5 bg-primary/10 text-primary rounded-2xl group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-inner shrink-0">
+                                    <Wand2 className="w-6 h-6 sm:w-7 sm:h-7"/>
                                 </div>
-                                <div>
-                                    <h3 className="font-black text-slate-800 text-lg">Simulador Público</h3>
-                                    <p className="text-xs font-semibold text-slate-400 mt-1">Herramienta de captura de leads.</p>
+                                <div className="min-w-0">
+                                    <h3 className="font-black text-slate-800 text-base sm:text-lg truncate">Simulador Público</h3>
+                                    <p className="text-[10px] sm:text-xs font-semibold text-slate-400 mt-1 uppercase tracking-tighter">Captura de leads.</p>
                                 </div>
-                                <ArrowRight className="w-5 h-5 ml-auto text-slate-300 group-hover:text-primary group-hover:translate-x-2 transition-all"/>
+                                <ArrowRight className="w-5 h-5 ml-auto text-slate-300 group-hover:text-primary group-hover:translate-x-2 transition-all shrink-0"/>
                             </div>
                         </Link>
                     </CardContent>
                 </Card>
             </div>
             <div className="lg:col-span-4">
-                <Card className="h-full border-none shadow-2xl flex flex-col bg-white rounded-[2rem] overflow-hidden">
-                    <CardHeader className="bg-slate-50 border-b border-slate-100 pb-6 p-8">
-                        <CardTitle className="text-xl font-black flex items-center gap-3 text-slate-800">
+                <Card className="h-full border-none shadow-2xl flex flex-col bg-white rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden">
+                    <CardHeader className="bg-slate-50 border-b border-slate-100 pb-6 p-6 sm:p-8">
+                        <CardTitle className="text-lg sm:text-xl font-black flex items-center gap-3 text-slate-800">
                             <div className="p-2.5 bg-primary/10 rounded-xl shadow-inner">
                                 <Bell className="w-5 h-5 text-primary"/>
                             </div>
@@ -213,41 +213,41 @@ export default function MainDashboardPage() {
                          kpiData?.alerts?.length > 0 ? (
                             <div className="divide-y divide-slate-50">
                                 {kpiData.alerts.map((alert: GlobalAlert) => (
-                                    <Link key={alert.id} href={alert.href} className="flex items-start gap-5 p-6 hover:bg-slate-50 transition-all group relative">
+                                    <Link key={alert.id} href={alert.href} className="flex items-start gap-4 sm:gap-5 p-5 sm:p-6 hover:bg-slate-50 transition-all group relative">
                                         <div className={cn(
-                                          "p-3 rounded-2xl mt-0.5 shadow-sm transition-transform group-hover:scale-110 duration-500", 
+                                          "p-2.5 sm:p-3 rounded-2xl mt-0.5 shadow-sm transition-transform group-hover:scale-110 duration-500 shrink-0", 
                                           alert.severity === 'high' ? 'bg-rose-50 text-rose-600' : 'bg-amber-50 text-amber-600'
                                         )}>
-                                            {alert.type === 'payment' ? <DollarSign className="w-5 h-5"/> : 
-                                             alert.type === 'meeting' ? <CalendarDays className="w-5 h-5"/> : 
-                                             <CheckCircle2 className="w-5 h-5"/>}
+                                            {alert.type === 'payment' ? <DollarSign className="w-4 h-4 sm:w-5 sm:h-5"/> : 
+                                             alert.type === 'meeting' ? <CalendarDays className="w-4 h-4 sm:w-5 sm:h-5"/> : 
+                                             <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5"/>}
                                         </div>
                                         <div className="flex-grow min-w-0">
-                                            <p className="text-sm font-black text-slate-800 leading-tight group-hover:text-primary transition-colors truncate">{alert.title}</p>
-                                            <p className="text-[11px] font-semibold text-slate-400 mt-1.5 leading-relaxed">{alert.description}</p>
+                                            <p className="text-xs sm:text-sm font-black text-slate-800 leading-tight group-hover:text-primary transition-colors truncate">{alert.title}</p>
+                                            <p className="text-[10px] sm:text-[11px] font-semibold text-slate-400 mt-1.5 leading-relaxed">{alert.description}</p>
                                         </div>
-                                        <ArrowRight className="w-4 h-4 text-slate-200 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all self-center shrink-0"/>
-                                        {alert.severity === 'high' && <div className="absolute left-0 top-4 bottom-4 w-1.5 bg-rose-500 rounded-r-full shadow-[2px_0_10px_rgba(244,63,94,0.4)]"></div>}
+                                        <ArrowRight className="w-4 h-4 text-slate-200 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all self-center shrink-0 hidden sm:block"/>
+                                        {alert.severity === 'high' && <div className="absolute left-0 top-4 bottom-4 w-1 bg-rose-500 rounded-r-full"></div>}
                                     </Link>
                                 ))}
                             </div>
                          ) : (
-                            <div className="text-center py-24 px-8 space-y-6">
-                                <div className="w-20 h-20 bg-emerald-50 rounded-[2rem] flex items-center justify-center mx-auto shadow-inner">
-                                    <CheckCircle2 className="w-10 h-10 text-emerald-500/40"/>
+                            <div className="text-center py-16 sm:py-24 px-8 space-y-6">
+                                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-emerald-50 rounded-[1.5rem] sm:rounded-[2rem] flex items-center justify-center mx-auto shadow-inner">
+                                    <CheckCircle2 className="w-8 h-8 sm:w-10 sm:h-10 text-emerald-500/40"/>
                                 </div>
-                                <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Todo en orden</p>
+                                <p className="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-widest">Todo en orden</p>
                             </div>
                          )}
                     </CardContent>
                     <CardFooter className="bg-slate-50 py-4 justify-center border-t border-slate-100">
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Monitoreo Inteligente 24/7</p>
+                        <p className="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Monitoreo Inteligente 24/7</p>
                     </CardFooter>
                 </Card>
             </div>
       </div>
       
-       <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+       <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         <KpiCard title="Archivos Históricos" value={kpiData?.fiestasPasadas ?? '...'} icon={Archive} isLoading={isLoading} />
         <KpiCard title="Eventos Activos" value={kpiData?.fiestasFuturas ?? '...'} icon={CalendarClock} isLoading={isLoading} />
         <PaymentStatusPieChart data={pieChartData} />
@@ -255,7 +255,7 @@ export default function MainDashboardPage() {
 
       <Separator className="opacity-30" />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 sm:gap-8">
         <AnimatePresence>
           {mainHubItems.map((item, idx) => (
             <motion.div
@@ -264,21 +264,21 @@ export default function MainDashboardPage() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: idx * 0.05 + 0.3 }}
             >
-              <Card className="group flex flex-col h-full border-none shadow-xl hover:shadow-2xl hover:translate-y-[-8px] transition-all duration-500 bg-white rounded-[2rem] overflow-hidden">
-                  <CardHeader className="pb-4 space-y-5 p-8">
-                      <div className={cn("w-16 h-16 rounded-[1.25rem] flex items-center justify-center shadow-lg shadow-black/5 group-hover:rotate-6 transition-all duration-500", item.lightColor)}>
-                          <item.icon className="w-8 h-8" />
+              <Card className="group flex flex-col h-full border-none shadow-xl hover:shadow-2xl hover:translate-y-[-8px] transition-all duration-500 bg-white rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden">
+                  <CardHeader className="pb-4 space-y-4 sm:space-y-5 p-6 sm:p-8">
+                      <div className={cn("w-14 h-14 sm:w-16 sm:h-16 rounded-[1rem] sm:rounded-[1.25rem] flex items-center justify-center shadow-lg shadow-black/5 group-hover:rotate-6 transition-all duration-500 shrink-0", item.lightColor)}>
+                          <item.icon className="w-7 h-7 sm:w-8 sm:h-8" />
                       </div>
-                      <CardTitle className="text-xl font-black text-slate-800 tracking-tight">{item.title}</CardTitle>
+                      <CardTitle className="text-lg sm:text-xl font-black text-slate-800 tracking-tight truncate">{item.title}</CardTitle>
                   </CardHeader>
-                  <CardContent className="flex-grow px-8 pb-8">
-                      <p className="text-xs font-medium text-slate-400 leading-relaxed uppercase tracking-tighter">
+                  <CardContent className="flex-grow px-6 sm:px-8 pb-6 sm:pb-8">
+                      <p className="text-[10px] sm:text-xs font-medium text-slate-400 leading-relaxed uppercase tracking-tighter line-clamp-2">
                           {item.description}
                       </p>
                   </CardContent>
-                  <CardFooter className="pt-0 pb-8 px-8">
+                  <CardFooter className="pt-0 pb-6 sm:pb-8 px-6 sm:px-8">
                       <Link href={getLinkHref(item.href)} passHref className="w-full">
-                          <Button variant="secondary" className="w-full justify-between group-hover:bg-primary group-hover:text-white rounded-2xl px-6 h-12 font-black text-[10px] tracking-widest uppercase transition-all duration-500 shadow-sm">
+                          <Button variant="secondary" className="w-full justify-between group-hover:bg-primary group-hover:text-white rounded-2xl px-6 h-11 sm:h-12 font-black text-[9px] sm:text-[10px] tracking-widest uppercase transition-all duration-500 shadow-sm">
                               Abrir <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-2 transition-transform duration-500" />
                           </Button>
                       </Link>

@@ -138,10 +138,10 @@ function PlannerDashboardContent() {
   }
   if (error || !fiesta) {
     return (
-      <div className="text-center py-20">
+      <div className="text-center py-20 px-4">
         <AlertTriangle className="w-16 h-16 mx-auto text-destructive mb-4" />
         <p className="text-xl font-bold text-slate-800">{error || "No se pudo cargar el evento."}</p>
-        <Link href="/eventos" passHref><Button variant="outline" className="mt-6 rounded-xl"><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Gestor</Button></Link>
+        <Link href="/eventos" passHref><Button variant="outline" className="mt-6 rounded-xl w-full sm:w-auto"><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Gestor</Button></Link>
       </div>
     );
   }
@@ -151,29 +151,29 @@ function PlannerDashboardContent() {
   const pendingTasks = fiesta.tareas?.filter(t => !t.completada).length || 0;
 
   return (
-    <div className="space-y-10 pb-24">
+    <div className="space-y-6 sm:space-y-10 pb-24">
       <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
-        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-6">
-          <div className="p-5 bg-primary rounded-[2rem] shadow-2xl shadow-primary/30 text-white transform hover:rotate-6 transition-transform duration-500">
-            <PartyPopper className="w-10 h-10" />
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-4 sm:gap-6">
+          <div className="p-4 sm:p-5 bg-primary rounded-[1.5rem] sm:rounded-[2rem] shadow-2xl shadow-primary/30 text-white transform hover:rotate-6 transition-transform duration-500 shrink-0">
+            <PartyPopper className="w-8 h-8 sm:w-10 sm:h-10" />
           </div>
-          <div>
-            <h1 className="text-5xl font-black tracking-tighter text-slate-900 font-headline uppercase">{configuracion.nombreEvento}</h1>
-            <p className="text-slate-500 font-bold flex items-center gap-3 mt-1">
-                <Calendar className="w-4 h-4 text-primary"/> {formatDate(configuracion.fechaEvento)} 
-                <span className="text-slate-300">•</span> 
-                <MapPin className="w-4 h-4 text-primary"/> {configuracion.nombreLugar}
+          <div className="min-w-0">
+            <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tighter text-slate-900 font-headline uppercase truncate">{configuracion.nombreEvento}</h1>
+            <p className="text-slate-500 font-bold flex flex-wrap items-center gap-2 sm:gap-3 mt-1 text-xs sm:text-base">
+                <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary shrink-0"/> {formatDate(configuracion.fechaEvento)} 
+                <span className="text-slate-300 hidden sm:inline">•</span> 
+                <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary shrink-0"/> {configuracion.nombreLugar}
             </p>
           </div>
         </motion.div>
-        <Link href="/eventos" passHref>
-          <Button variant="outline" className="rounded-2xl px-8 h-12 border-slate-200 font-bold hover:bg-slate-50 transition-all">
+        <Link href="/eventos" passHref className="w-full sm:w-auto">
+          <Button variant="outline" className="rounded-2xl px-8 h-12 border-slate-200 font-bold hover:bg-slate-50 transition-all w-full">
             <ArrowLeft className="w-4 h-4 mr-3"/>Volver al Gestor
           </Button>
         </Link>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard title="Invitados" value={configuracion.invitadosEstimados.toString()} icon={Users} description={`${confirmedGuests} confirmados`}/>
         <KpiCard title="Pendientes" value={pendingTasks} icon={ListChecks} />
         <KpiCard title="Presupuesto" value={new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(Number(configuracion.presupuestoEstimado))} icon={DollarSign} />
@@ -182,21 +182,21 @@ function PlannerDashboardContent() {
 
        <Accordion type="single" collapsible className="w-full">
         <AccordionItem value="item-1" className="border-none">
-          <AccordionTrigger className="bg-white hover:bg-slate-50 px-8 h-16 rounded-[1.5rem] transition-all premium-shadow border-none">
-            <div className="flex items-center gap-3 text-slate-700 font-black uppercase text-[10px] tracking-widest">
-              <Settings2 className="w-5 h-5 text-primary"/>
+          <AccordionTrigger className="bg-white hover:bg-slate-50 px-4 sm:px-8 h-16 rounded-[1.25rem] sm:rounded-[1.5rem] transition-all premium-shadow border-none">
+            <div className="flex items-center gap-3 text-slate-700 font-black uppercase text-[9px] sm:text-[10px] tracking-widest text-left">
+              <Settings2 className="w-4 h-4 sm:w-5 sm:h-5 text-primary shrink-0"/>
               Configurar Visibilidad de Módulos
             </div>
           </AccordionTrigger>
           <AccordionContent className="pt-6">
-            <div className="p-8 bg-white/50 backdrop-blur-xl rounded-[2rem] border border-slate-200 premium-shadow">
-                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+            <div className="p-4 sm:p-8 bg-white/50 backdrop-blur-xl rounded-[1.5rem] sm:rounded-[2rem] border border-slate-200 premium-shadow">
+                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-10">
                     {moduleCategories.map(category => (
-                        <div key={category} className="space-y-5">
-                            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 border-b border-primary/10 pb-3">{category}</h4>
+                        <div key={category} className="space-y-4 sm:space-y-5">
+                            <h4 className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 border-b border-primary/10 pb-3">{category}</h4>
                             <div className="space-y-1">
                                 {modules.filter(m => m.category === category).map(module => (
-                                    <div key={`${category}-${module.id}`} className="flex items-center justify-between p-2.5 hover:bg-white rounded-xl transition-all group">
+                                    <div key={`${category}-${module.id}`} className="flex items-center justify-between p-2 sm:p-2.5 hover:bg-white rounded-xl transition-all group">
                                         <Label htmlFor={`switch-${module.id}`} className="text-xs font-bold text-slate-600 cursor-pointer group-hover:text-primary transition-colors">{module.title}</Label>
                                         <Switch
                                             id={`switch-${module.id}`}
@@ -215,9 +215,9 @@ function PlannerDashboardContent() {
         </AccordionItem>
       </Accordion>
 
-      <div className="space-y-16">
+      <div className="space-y-10 sm:space-y-16">
           <AnimatePresence>
-          {moduleCategories.map((category, catIdx) => {
+          {moduleCategories.map((category) => {
             const categoryModules = modules.filter(m => m.category === category && modulosContratados[m.id as keyof ModulosContratados]);
             if (categoryModules.length === 0) return null;
 
@@ -227,13 +227,13 @@ function PlannerDashboardContent() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="space-y-8"
+                className="space-y-6 sm:space-y-8"
               >
-                <div className="flex items-center gap-6">
-                    <h3 className="text-3xl font-black font-headline text-slate-800 shrink-0 tracking-tighter uppercase">{category}</h3>
+                <div className="flex items-center gap-4 sm:gap-6 px-2 sm:px-0">
+                    <h3 className="text-xl sm:text-2xl md:text-3xl font-black font-headline text-slate-800 shrink-0 tracking-tighter uppercase">{category}</h3>
                     <div className="h-px bg-gradient-to-r from-slate-200 to-transparent flex-grow"></div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-8">
                   {categoryModules.map((module, mIdx) => {
                     const hrefWithId = module.href.startsWith('/') 
                         ? getLinkHref(module.href)
@@ -245,22 +245,22 @@ function PlannerDashboardContent() {
                         transition={{ type: "spring", stiffness: 300, damping: 20 }}
                       >
                         <Link href={hrefWithId} passHref className="block h-full">
-                            <Card className="h-full border-none premium-shadow hover:shadow-primary/10 transition-all duration-500 cursor-pointer flex flex-col group rounded-[2.5rem] overflow-hidden bg-white">
-                            <CardHeader className="flex-row items-center gap-5 space-y-0 pb-4 p-8">
-                                <div className={cn("p-4 rounded-2xl group-hover:rotate-12 transition-all duration-500 shadow-inner", module.color)}>
-                                    <module.icon className="w-7 h-7" />
+                            <Card className="h-full border-none premium-shadow hover:shadow-primary/10 transition-all duration-500 cursor-pointer flex flex-col group rounded-[1.5rem] sm:rounded-[2.5rem] overflow-hidden bg-white">
+                            <CardHeader className="flex-row items-center gap-4 sm:gap-5 space-y-0 pb-4 p-6 sm:p-8">
+                                <div className={cn("p-3 sm:p-4 rounded-2xl group-hover:rotate-12 transition-all duration-500 shadow-inner shrink-0", module.color)}>
+                                    <module.icon className="w-6 h-6 sm:w-7 sm:h-7" />
                                 </div>
                                 <div className="min-w-0">
-                                    <CardTitle className="text-lg font-black text-slate-800 truncate">{module.title}</CardTitle>
+                                    <CardTitle className="text-base sm:text-lg font-black text-slate-800 truncate">{module.title}</CardTitle>
                                     <Badge className="bg-slate-100 text-slate-400 text-[8px] font-black tracking-widest uppercase border-none">Activo</Badge>
                                 </div>
                             </CardHeader>
-                            <CardContent className="flex-grow pt-0 px-8 pb-8">
-                                <p className="text-xs text-slate-400 leading-relaxed font-bold uppercase tracking-tighter line-clamp-2">{module.description}</p>
+                            <CardContent className="flex-grow pt-0 px-6 sm:px-8 pb-6 sm:pb-8">
+                                <p className="text-[10px] sm:text-xs text-slate-400 leading-relaxed font-bold uppercase tracking-tighter line-clamp-2">{module.description}</p>
                             </CardContent>
-                            <CardFooter className="bg-slate-50/50 p-4 flex justify-end px-8 border-t border-slate-50">
-                                <Button variant="ghost" size="sm" className="text-primary font-black text-[10px] uppercase tracking-[0.2em] group-hover:bg-primary group-hover:text-white rounded-xl px-4 transition-all duration-500">
-                                    Abrir <ArrowRight className="w-3.5 h-3.5 ml-2 group-hover:translate-x-1 transition-transform"/>
+                            <CardFooter className="bg-slate-50/50 p-3 sm:p-4 flex justify-end px-6 sm:px-8 border-t border-slate-50">
+                                <Button variant="ghost" size="sm" className="text-primary font-black text-[9px] sm:text-[10px] uppercase tracking-[0.2em] group-hover:bg-primary group-hover:text-white rounded-xl px-4 transition-all duration-500">
+                                    Abrir <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 ml-2 group-hover:translate-x-1 transition-transform"/>
                                 </Button>
                             </CardFooter>
                             </Card>
