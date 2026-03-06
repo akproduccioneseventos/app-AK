@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
@@ -6,7 +5,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, AlertTriangle, ClipboardCheck, Printer, ChefHat, Music2, Palette, Clock, GlassWater, CakeSlice, Users, MapPin, CalendarDays, Edit3, Share2 } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, ClipboardCheck, Printer, ChefHat, Music2, Palette, Clock, GlassWater, CakeSlice, Users, MapPin, CalendarDays, Edit3, Share2, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, DecorationItem } from '@/types/fiesta';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
@@ -14,6 +13,7 @@ import { getMenuById } from '@/app/actions/menus-catering';
 import type { FullMenu } from '@/types/catering';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
