@@ -9,23 +9,15 @@ import { Label } from '@/components/ui/label';
 import { ArrowLeft, PlusCircle, Loader2, AlertTriangle, KanbanSquare, Users, CalendarDays, UserCog, Clock, ChevronLeft, ChevronRight, TrendingUp, UserRoundCheck, UserRoundX, Wallet, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { CrmLead, CrmStage } from '@/types/crm';
-import { getCrmLeads, getCrmStages, moveCrmLead, deleteCrmLead, convertToClientAndMoveProspect, getCrmKpiData } from '@/app/actions/crm';
+import { getCrmLeads, getCrmStages, moveCrmLead, deleteCrmLead, confirmBooking, getCrmKpiData } from '@/app/actions/crm';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { CrmStageColumn } from '@/components/crm/CrmStageColumn';
 import { AddLeadDialog } from '@/components/crm/AddLeadDialog';
-import { ConvertToClientDialog } from '@/components/crm/ConvertToClientDialog';
 import { ScheduleMeetingDialog } from '@/components/crm/ScheduleMeetingDialog'; 
 import { BookingConfirmationDialog } from '@/components/crm/BookingConfirmationDialog';
 import { RegisterDepositDialog } from '@/components/crm/RegisterDepositDialog';
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { useIsMobile } from '@/hooks/use-mobile';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { DashboardCalendar } from '@/components/dashboard-calendar';
 import { getOcupiedDates } from '@/app/actions/agenda';
 import {
@@ -40,12 +32,11 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { CrmLeadCard } from '@/components/crm/CrmLeadCard';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { Separator } from '@/components/ui/separator';
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
-import { getFiestaById as getFiestaActual } from '@/app/actions/fiesta/fiesta.actions';
+import { getFiestaActual } from '@/app/actions/fiesta/fiesta.actions';
 
 const formatCurrency = (value?: number) => {
     if (value === undefined) return 'N/A';
-    return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(value);
+    return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
 };
 
 export default function CrmPage() {
@@ -57,8 +48,6 @@ export default function CrmPage() {
   const { toast } = useToast();
   const [deletingLeadId, setDeletingLeadId] = useState<string | null>(null);
   
-  const [leadToConvert, setLeadToConvert] = useState<CrmLead | null>(null);
-  const [isConvertToClientModalOpen, setIsConvertToClientModalOpen] = useState(false);
   const [occupiedDates, setOccupiedDates] = useState<Date[]>([]);
   
   const [isMeetingModalOpen, setIsMeetingModalOpen] = useState(false);
@@ -72,34 +61,24 @@ export default function CrmPage() {
   const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
   const [newFiestaId, setNewFiestaId] = useState<string | null>(null);
   
-  const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
-
   const isMobile = useIsMobile();
-  
   const sensors = useSensors(useSensor(PointerSensor));
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const [stagesData, leadsData, occupiedDatesStrings, crmKpis, fiestaData] = await Promise.all([
+      const [stagesData, leadsData, occupiedDatesStrings, crmKpis] = await Promise.all([
         getCrmStages(),
         getCrmLeads(),
         getOcupiedDates(),
         getCrmKpiData(),
-        getFiestaActual(),
       ]);
-      const sortedStages = stagesData.sort((a,b) => a.order - b.order);
-      setStages(sortedStages);
-      const sortedLeads = leadsData.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-      setLeads(sortedLeads);
-      if (crmKpis.success) {
-        setKpiData(crmKpis.data);
-      }
+      setStages(stagesData.sort((a,b) => a.order - b.order));
+      setLeads(leadsData.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
+      if (crmKpis.success) setKpiData(crmKpis.data);
       setOccupiedDates(occupiedDatesStrings.map(d => new Date(d)));
-      setFiestaActual(fiestaData);
     } catch (err: any) {
-      console.error("Error fetching CRM data:", err);
       setError("No se pudieron cargar los datos del CRM.");
       toast({ title: "Error", description: err.message || "Ocurrió un problema.", variant: "destructive" });
     } finally {
@@ -107,9 +86,7 @@ export default function CrmPage() {
     }
   }, [toast]);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   const handleHireClick = async (lead: CrmLead) => {
     if (!lead.presupuestoId) return;
@@ -125,7 +102,7 @@ export default function CrmPage() {
         setIsBookingModalOpen(true);
       }
     } catch (e) {
-      toast({ title: "Error", description: "No se pudo obtener la información del presupuesto." });
+      toast({ title: "Error", description: "No se pudo obtener el presupuesto." });
     }
   };
 
@@ -138,73 +115,33 @@ export default function CrmPage() {
   const handleDepositCompleted = () => {
     setIsDepositModalOpen(false);
     fetchData();
-    if (newFiestaId) {
-      window.location.href = `/fiestas/nueva?fiestaId=${newFiestaId}`;
-    }
+    if (newFiestaId) router.push(`/fiestas/nueva?fiestaId=${newFiestaId}`);
   };
 
   const handleMeetingSubmit = async (meetingDate: string) => {
     if (!leadForMeeting) return;
-
-    const targetStageId = leadForMeeting.currentStageId;
-    setLeads(currentLeads =>
-        currentLeads.map(lead =>
-          lead.id === leadForMeeting.id ? { ...lead, currentStageId: targetStageId, followUpDate: meetingDate } : lead
-        )
-    );
-
     try {
-      const result = await moveCrmLead(leadForMeeting.id, targetStageId, meetingDate);
+      const result = await moveCrmLead(leadForMeeting.id, leadForMeeting.currentStageId, meetingDate);
       if (result.success) {
         toast({ description: `Reunión agendada para "${leadForMeeting.name}".` });
         fetchData(); 
-      } else {
-        throw new Error(result.error);
-      }
+      } else throw new Error(result.error);
     } catch(e: any) {
        toast({ title: "Error", description: e.message, variant: "destructive" });
-       fetchData(); 
     }
     setIsMeetingModalOpen(false);
     setLeadForMeeting(null);
   };
   
-  const moveLeadAndUpdate = async (leadId: string, newStageId: string) => {
-    const originalLeads = [...leads];
-    setLeads(currentLeads =>
-        currentLeads.map(lead =>
-          lead.id === leadId ? { ...lead, currentStageId: newStageId, updatedAt: new Date().toISOString() } : lead
-        )
-    );
-
-    try {
-      const result = await moveCrmLead(leadId, newStageId);
-      if (!result.success || !result.lead) {
-        throw new Error(result.error || "No se pudo mover el prospecto.");
-      }
-      toast({ description: `Prospecto "${result.lead.name}" movido a "${result.lead.history?.[result.lead.history.length-1]?.stageName || ''}".` });
-      setLeads(currentLeads => currentLeads.map(l => l.id === leadId ? result.lead! : l));
-
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-      setLeads(originalLeads); 
-    }
-  };
-
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
-    
     if (over && active.id !== over.id) {
-      const activeLeadId = active.id as string;
-      const newStageId = over.id as string;
-      
-      const leadToMove = leads.find(l => l.id === activeLeadId);
-      const targetStage = stages.find(s => s.id === newStageId);
-
+      const leadToMove = leads.find(l => l.id === active.id);
+      const targetStage = stages.find(s => s.id === over.id);
       if (!leadToMove || !targetStage) return;
 
       if (targetStage.name.toLowerCase().includes('entrevista')) {
-        setLeadForMeeting({ ...leadToMove, currentStageId: newStageId });
+        setLeadForMeeting({ ...leadToMove, currentStageId: targetStage.id });
         setMeetingType('Entrevista');
         setIsMeetingModalOpen(true);
         return;
@@ -214,53 +151,23 @@ export default function CrmPage() {
         return; 
       }
 
-      await moveLeadAndUpdate(activeLeadId, newStageId);
+      const result = await moveCrmLead(leadToMove.id, targetStage.id);
+      if (result.success) fetchData();
     }
   };
 
   const handleDeleteLead = async (leadId: string) => {
     setDeletingLeadId(leadId);
-     const leadToDelete = leads.find(l => l.id === leadId);
     try {
       const result = await deleteCrmLead(leadId);
       if (result.success) {
-        toast({ description: `Prospecto "${leadToDelete?.name || 'seleccionado'}" eliminado.`, variant: "destructive" });
+        toast({ description: `Prospecto eliminado.`, variant: "destructive" });
         await fetchData();
-      } else {
-        throw new Error(result.error || "No se pudo eliminar el prospecto.");
-      }
-    } catch (error: any) {
-      toast({ title: "Error al Eliminar", description: error.message, variant: "destructive" });
-    } finally {
-      setDeletingLeadId(null);
-    }
-  };
-
-  const handleConversionSubmit = async (formData: FormData) => {
-    if (!leadToConvert) return false;
-    formData.append('prospectId', leadToConvert.id);
-    formData.append('prospectName', leadToConvert.name);
-    if (leadToConvert.email) formData.append('email', leadToConvert.email);
-    if (leadToConvert.phone) formData.append('phone', leadToConvert.phone);
-
-    setIsLoading(true);
-    try {
-      const result = await convertToClientAndMoveProspect(formData);
-      if (result.success) {
-        toast({ title: "Conversión Exitosa", description: `Prospecto "${leadToConvert.name}" convertido a cliente y movido.` });
-        setIsConvertToClientModalOpen(false);
-        setLeadToConvert(null);
-        await fetchData();
-        return true;
-      } else {
-        toast({ title: "Error en Conversión", description: result.error || "No se pudo completar la conversión.", variant: "destructive" });
-        return false;
-      }
+      } else throw new Error(result.error);
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
-      return false;
     } finally {
-      setIsLoading(false);
+      setDeletingLeadId(null);
     }
   };
 
@@ -269,24 +176,7 @@ export default function CrmPage() {
     return acc;
   }, {} as Record<string, CrmLead[]>), [stages, leads]);
 
-  if (isLoading && !isConvertToClientModalOpen && !isBookingModalOpen) {
-    return (
-      <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)]">
-        <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
-        <p className="text-muted-foreground">Cargando CRM...</p>
-      </div>
-    );
-  }
-
-  if (error && !isConvertToClientModalOpen && !isBookingModalOpen) {
-    return (
-      <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)] text-center">
-        <AlertTriangle className="w-12 h-12 text-destructive mb-4" />
-        <p className="text-destructive font-semibold mb-2">{error}</p>
-        <Button onClick={fetchData} variant="outline">Reintentar</Button>
-      </div>
-    );
-  }
+  if (isLoading && !isBookingModalOpen) return <div className="flex justify-center items-center h-screen"><Loader2 className="animate-spin w-12 h-12 text-primary" /></div>;
 
   return (
     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
@@ -294,103 +184,45 @@ export default function CrmPage() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-3">
             <KanbanSquare className="w-8 h-8 text-primary" />
-            <h1 className="text-3xl font-bold tracking-tight font-headline">
-              Gestión de Prospectos (CRM)
-            </h1>
+            <h1 className="text-3xl font-bold tracking-tight font-headline">CRM de Prospectos</h1>
           </div>
           <div className="flex gap-2 flex-wrap">
-             <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline"><CalendarDays className="w-4 h-4 mr-2"/>Ver Calendario Eventos</Button>
-              </SheetTrigger>
-              <SheetContent>
-                <SheetHeader>
-                  <SheetTitle>Calendario de Eventos Ocupados</SheetTitle>
-                  <SheetDescription>
-                    Los días marcados en rojo ya tienen un evento confirmado. Evita agendar reuniones importantes en estas fechas para no generar conflictos.
-                  </SheetDescription>
-                </SheetHeader>
-                <div className="py-4 flex justify-center">
-                  <DashboardCalendar occupiedDates={occupiedDates} />
-                </div>
-              </SheetContent>
-            </Sheet>
-            <Link href="/contabilidad/crm/agenda" passHref>
-                <Button variant="outline"><Clock className="w-4 h-4 mr-2"/>Agenda de Prospectos</Button>
-            </Link>
-            <Link href="/settings/accesos-personal" passHref>
-                <Button variant="secondary"><UserCog className="w-4 h-4 mr-2"/>Gestionar Accesos</Button>
-            </Link>
+            <Link href="/contabilidad/crm/agenda" passHref><Button variant="outline"><Clock className="w-4 h-4 mr-2"/>Agenda</Button></Link>
             {stages.length > 0 && <AddLeadDialog stages={stages} onLeadAdded={fetchData} defaultStageId={stages[0].id} />}
-            <Link href="/empresa/contabilidad" passHref>
-              <Button variant="outline">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Volver al Panel Contable
-              </Button>
-            </Link>
+            <Link href="/empresa/contabilidad" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
           </div>
         </div>
         
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
-            <KpiCard title="Valor en Propuestas" value={formatCurrency(kpiData?.pipelineValue)} icon={Wallet} isLoading={isLoading} description="Suma de presupuestos en estado 'Borrador' o 'Enviado'."/>
-            <KpiCard title="Prospectos Activos" value={kpiData?.activeLeads} icon={Users} isLoading={isLoading} description="Potenciales clientes en el embudo."/>
-            <KpiCard title="Tasa de Conversión" value={`${(kpiData?.conversionRate ?? 0).toFixed(1)}%`} icon={TrendingUp} isLoading={isLoading} description="De prospectos a clientes."/>
-            <KpiCard title="Ganados vs. Perdidos" value={`${kpiData?.wonLeads ?? 0} / ${kpiData?.lostLeads ?? 0}`} icon={CheckCircle} isLoading={isLoading} description="Clientes confirmados vs. no contratados."/>
+            <KpiCard title="Propuestas Activas" value={formatCurrency(kpiData?.pipelineValue)} icon={Wallet} isLoading={isLoading}/>
+            <KpiCard title="Prospectos" value={kpiData?.activeLeads} icon={Users} isLoading={isLoading}/>
+            <KpiCard title="Tasa Conversión" value={`${(kpiData?.conversionRate ?? 0).toFixed(1)}%`} icon={TrendingUp} isLoading={isLoading}/>
+            <KpiCard title="Ganados/Perdidos" value={`${kpiData?.wonLeads ?? 0}/${kpiData?.lostLeads ?? 0}`} icon={CheckCircle} isLoading={isLoading}/>
         </div>
-        <Separator className="mb-6"/>
 
-        {stages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center py-10">
-              <Users className="w-16 h-16 text-muted-foreground/50 mb-4" />
-              <p className="text-lg text-muted-foreground">No hay etapas definidas en el CRM.</p>
-              <p className="text-sm text-muted-foreground">Verifica la configuración en `src/app/actions/crm.ts`.</p>
-          </div>
-        ) : isMobile ? (
-             <Accordion type="multiple" defaultValue={stages.map(s => s.id)} className="w-full space-y-3">
-              {stages.map((stage, stageIndex) => {
-                const stageLeads = leadsByStage[stage.id] || [];
-                return (
-                  <AccordionItem key={stage.id} value={stage.id} className="border-l-4 rounded-md overflow-hidden bg-card shadow-sm" style={{borderColor: stage.borderColor}}>
-                    <AccordionTrigger className={`px-4 py-3 text-left hover:no-underline ${stage.headerBgColor} ${stage.headerTextColor}`}>
-                      <div className="flex justify-between items-center w-full">
-                        <span className="font-semibold">{stage.name}</span>
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${stage.bgColor} ${stage.textColor}`}>{stageLeads.length}</span>
+        {isMobile ? (
+             <Accordion type="multiple" defaultValue={stages.map(s => s.id)} className="space-y-3">
+              {stages.map((stage, idx) => (
+                  <AccordionItem key={stage.id} value={stage.id} className="border rounded-md bg-card shadow-sm" style={{borderColor: stage.borderColor}}>
+                    <AccordionTrigger className={cn("px-4 py-3", stage.headerBgColor, stage.headerTextColor)}>
+                      <div className="flex justify-between w-full pr-4">
+                        <span>{stage.name}</span>
+                        <Badge variant="secondary">{leadsByStage[stage.id]?.length || 0}</Badge>
                       </div>
                     </AccordionTrigger>
                     <AccordionContent className="p-2 space-y-2 bg-muted/30">
-                       {stageLeads.length > 0 ? stageLeads.map(lead => (
-                        <CrmLeadCard
-                          key={lead.id}
-                          lead={lead}
-                          onDeleteLead={handleDeleteLead}
-                          isDeleting={deletingLeadId === lead.id}
-                          isMobile={true}
-                          onMove={async (direction) => {
-                            const nextStageIndex = stageIndex + direction;
-                            if (nextStageIndex >= 0 && nextStageIndex < stages.length) {
-                              await moveLeadAndUpdate(lead.id, stages[nextStageIndex].id);
-                            }
-                          }}
-                          onHire={() => handleHireClick(lead)}
-                        />
-                       )) : <p className="p-4 text-center text-sm text-muted-foreground">No hay prospectos en esta etapa.</p>}
+                       {leadsByStage[stage.id]?.map(lead => (
+                        <CrmLeadCard key={lead.id} lead={lead} onDeleteLead={handleDeleteLead} isDeleting={deletingLeadId === lead.id} isMobile={true} onHire={() => handleHireClick(lead)} />
+                       ))}
                     </AccordionContent>
                   </AccordionItem>
-                )
-              })}
+              ))}
             </Accordion>
         ) : (
           <ScrollArea className="w-full whitespace-nowrap pb-4">
               <div className="flex gap-4">
               {stages.map(stage => (
-                  <CrmStageColumn
-                      key={stage.id}
-                      stage={stage}
-                      leads={leadsByStage[stage.id] || []}
-                      onDeleteLead={handleDeleteLead}
-                      deletingLeadId={deletingLeadId}
-                      onHire={handleHireClick}
-                  />
+                  <CrmStageColumn key={stage.id} stage={stage} leads={leadsByStage[stage.id] || []} onDeleteLead={handleDeleteLead} deletingLeadId={deletingLeadId} onHire={handleHireClick} />
               ))}
               </div>
               <ScrollBar orientation="horizontal" />
@@ -398,42 +230,15 @@ export default function CrmPage() {
         )}
         
         {leadToBook && bookingPresupuestoInfo && (
-          <BookingConfirmationDialog
-            isOpen={isBookingModalOpen}
-            onOpenChange={setIsBookingModalOpen}
-            lead={leadToBook}
-            presupuesto={bookingPresupuestoInfo}
-            onConfirmed={handleBookingConfirmed}
-          />
+          <BookingConfirmationDialog isOpen={isBookingModalOpen} onOpenChange={setIsBookingModalOpen} lead={leadToBook} presupuesto={bookingPresupuestoInfo} onConfirmed={handleBookingConfirmed} />
         )}
 
         {newFiestaId && (
-          <RegisterDepositDialog
-            isOpen={isDepositModalOpen}
-            onOpenChange={setIsDepositModalOpen}
-            fiestaId={newFiestaId}
-            onCompleted={handleDepositCompleted}
-          />
+          <RegisterDepositDialog isOpen={isDepositModalOpen} onOpenChange={setIsDepositModalOpen} fiestaId={newFiestaId} onCompleted={handleDepositCompleted} />
         )}
 
-        {leadToConvert && (
-          <ConvertToClientDialog
-            isOpen={isConvertToClientModalOpen}
-            onOpenChange={setIsConvertToClientModalOpen}
-            lead={leadToConvert}
-            onSubmit={handleConversionSubmit}
-            onClose={() => setLeadToConvert(null)}
-          />
-        )}
         {leadForMeeting && (
-            <ScheduleMeetingDialog
-                isOpen={isMeetingModalOpen}
-                onOpenChange={setIsMeetingModalOpen}
-                leadName={leadForMeeting.name}
-                meetingType={meetingType}
-                onSubmit={handleMeetingSubmit}
-                onClose={() => setLeadForMeeting(null)}
-            />
+            <ScheduleMeetingDialog isOpen={isMeetingModalOpen} onOpenChange={setIsMeetingModalOpen} leadName={leadForMeeting.name} meetingType={meetingType} onSubmit={handleMeetingSubmit} onClose={() => setLeadForMeeting(null)} />
         )}
       </div>
     </DndContext>

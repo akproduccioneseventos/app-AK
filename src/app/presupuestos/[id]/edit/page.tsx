@@ -1,8 +1,7 @@
 
-
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent, use } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -39,6 +38,9 @@ export default function EditarPresupuestoPage({ params }: { params: { id: string
   const [eventoTipo, setEventoTipo] = useState<TipoEvento | string>('');
   const [eventoFecha, setEventoFecha] = useState<Date | undefined>(undefined);
   const [invitadosCantidad, setInvitadosCantidad] = useState<number | null>(null);
+  const [invitadosAdultos, setInvitadosAdultos] = useState<number>(0);
+  const [invitadosNinos, setInvitadosNinos] = useState<number>(0);
+  const [invitadosAdolescentes, setInvitadosAdolescentes] = useState<number>(0);
   const [salonFiestas, setSalonFiestas] = useState('');
   const [protagonista1Nombre, setProtagonista1Nombre] = useState('');
   const [protagonista2Nombre, setProtagonista2Nombre] = useState('');
@@ -49,7 +51,7 @@ export default function EditarPresupuestoPage({ params }: { params: { id: string
   // Discount fields
   const [nombrePromocion, setNombrePromocion] = useState('');
   const [descuentoTipo, setDescuentoTipo] = useState<Presupuesto['descuentoTipo']>(undefined);
-  const [descuentoValor, setDescuentoValor] = useState<string>(''); // Store as string for input
+  const [descuentoValor, setDescuentoValor] = useState<string>(''); 
   const [vigenciaPromocion, setVigenciaPromocion] = useState('');
   
   const [isLoading, setIsLoading] = useState(true);
@@ -68,6 +70,9 @@ export default function EditarPresupuestoPage({ params }: { params: { id: string
         setEventoTipo(loadedPresupuesto.eventoTipo);
         setEventoFecha(loadedPresupuesto.eventoFecha ? new Date(loadedPresupuesto.eventoFecha) : undefined);
         setInvitadosCantidad(loadedPresupuesto.invitadosCantidad);
+        setInvitadosAdultos(loadedPresupuesto.invitadosAdultos || 0);
+        setInvitadosNinos(loadedPresupuesto.invitadosNinos || 0);
+        setInvitadosAdolescentes(loadedPresupuesto.invitadosAdolescentes || 0);
         setSalonFiestas(loadedPresupuesto.salonFiestas || '');
         setProtagonista1Nombre(loadedPresupuesto.protagonista1Nombre || '');
         setProtagonista2Nombre(loadedPresupuesto.protagonista2Nombre || '');
@@ -100,23 +105,18 @@ export default function EditarPresupuestoPage({ params }: { params: { id: string
   const handleSelectTipoEventoChange = (value: string) => {
     const newTipoEvento = value === "Otro" ? "" : value as TipoEvento;
     setEventoTipo(newTipoEvento);
-    // Clear conditional fields
     if (newTipoEvento !== 'Evento corporativo') setNombreEmpresa('');
     if (newTipoEvento !== 'Boda') setProtagonista2Nombre('');
     if (newTipoEvento === 'Evento corporativo' || newTipoEvento === 'Boda') setProtagonista1Nombre('');
   };
   
-  const handleCustomTipoEventoInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEventoTipo(e.target.value);
-  };
   const finalEventType = eventoTipo.trim();
   const showCustomTipoInput = eventoTipoEnSelect === "Otro" || (finalEventType && !ALL_TIPOS_EVENTO.includes(finalEventType as TipoEvento));
-
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!presupuesto) return;
-    if (!clienteNombre.trim() || !finalEventType.trim() || !eventoFecha || !invitadosCantidad || invitadosCantidad <= 0 || !salonFiestas.trim()) {
+    if (!clienteNombre.trim() || !finalEventType.trim() || !eventoFecha || !invitadosAdultos || !salonFiestas.trim()) {
       toast({ title: "Campos incompletos", description: "Cliente, Salón, Tipo de Evento, Fecha y Nº de Invitados son requeridos.", variant: "destructive" });
       return;
     }
@@ -125,11 +125,14 @@ export default function EditarPresupuestoPage({ params }: { params: { id: string
     const descuentoValorNum = parseFloat(descuentoValor) || 0;
 
     const updatedData: Presupuesto = {
-      ...presupuesto, // This includes itemsPresupuestados and other unchanged fields
+      ...presupuesto,
       clienteNombre: clienteNombre.trim(),
       eventoTipo: finalEventType,
       eventoFecha: eventoFecha.toISOString(),
-      invitadosCantidad: Number(invitadosCantidad),
+      invitadosCantidad: invitadosAdultos + invitadosNinos + invitadosAdolescentes,
+      invitadosAdultos,
+      invitadosNinos,
+      invitadosAdolescentes,
       salonFiestas: salonFiestas.trim(),
       protagonista1Nombre: protagonista1Nombre.trim() || undefined,
       protagonista2Nombre: finalEventType === 'Boda' ? (protagonista2Nombre.trim() || undefined) : undefined,
@@ -139,16 +142,14 @@ export default function EditarPresupuestoPage({ params }: { params: { id: string
       nombrePromocion: nombrePromocion.trim() || undefined,
       descuentoTipo: descuentoTipo,
       descuentoValor: descuentoValorNum > 0 ? descuentoValorNum : undefined,
-      // totalConDescuento will be recalculated in the server action
       vigenciaPromocion: vigenciaPromocion.trim() || undefined,
-      timestamp: new Date().toISOString(),
     };
 
     try {
       const result = await updatePresupuesto(updatedData);
       if (result.success && result.presupuesto) {
         toast({ title: "¡Presupuesto Actualizado!", description: `El presupuesto para "${result.presupuesto.clienteNombre}" ha sido actualizado.` });
-        router.push(`/presupuestos/${presupuestoId}/ver`); // Redirect to summary view
+        router.push(`/presupuestos/${presupuestoId}/ver`); 
       } else {
         throw new Error(result.error || "Error desconocido al actualizar.");
       }
@@ -191,7 +192,6 @@ export default function EditarPresupuestoPage({ params }: { params: { id: string
         <CardHeader><CardTitle className="font-headline">Información Principal</CardTitle><CardDescription>Modifica los detalles generales del presupuesto.</CardDescription></CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-6">
-            {/* Step 1 equivalent fields */}
             <div className="space-y-2"><Label htmlFor="clienteNombre">Nombre Cliente*</Label><Input id="clienteNombre" value={clienteNombre} onChange={(e) => setClienteNombre(e.target.value)} disabled={isSaving} required/></div>
             <div className="space-y-2"><Label htmlFor="salonFiestas">Salón de Fiestas*</Label><Input id="salonFiestas" value={salonFiestas} onChange={(e) => setSalonFiestas(e.target.value)} disabled={isSaving} required/></div>
             <div className="space-y-2"><Label htmlFor="eventoTipo">Tipo Evento*</Label>
@@ -199,14 +199,12 @@ export default function EditarPresupuestoPage({ params }: { params: { id: string
                   <SelectTrigger id="eventoTipo"><SelectValue placeholder="Seleccionar..."/></SelectTrigger>
                   <SelectContent>{ALL_TIPOS_EVENTO.map(t => (<SelectItem key={t} value={t}>{t}</SelectItem>))}</SelectContent>
               </Select>
-              {showCustomTipoInput && <Input value={finalEventType !== "Otro" ? finalEventType : ""} onChange={handleCustomTipoEventoInputChange} placeholder="Especificar tipo" className="mt-2" disabled={isSaving} required={showCustomTipoInput}/>}
+              {showCustomTipoInput && <Input value={finalEventType !== "Otro" ? finalEventType : ""} onChange={e => setEventoTipo(e.target.value)} placeholder="Especificar tipo" className="mt-2" disabled={isSaving} required={showCustomTipoInput}/>}
             </div>
             {finalEventType === 'Boda' && (<div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label htmlFor="protagonista1">Novio/a 1</Label><Input id="protagonista1" value={protagonista1Nombre} onChange={e => setProtagonista1Nombre(e.target.value)} disabled={isSaving}/></div><div className="space-y-2"><Label htmlFor="protagonista2">Novio/a 2</Label><Input id="protagonista2" value={protagonista2Nombre} onChange={e => setProtagonista2Nombre(e.target.value)} disabled={isSaving}/></div></div>)}
             {finalEventType === 'Evento corporativo' && (<div className="space-y-2"><Label htmlFor="nombreEmpresa">Empresa</Label><Input id="nombreEmpresa" value={nombreEmpresa} onChange={e => setNombreEmpresa(e.target.value)} disabled={isSaving}/></div>)}
-            {finalEventType && finalEventType !== 'Boda' && finalEventType !== 'Evento corporativo' && (<div className="space-y-2"><Label htmlFor="protagonistaUnico">Agasajado</Label><Input id="protagonistaUnico" value={protagonista1Nombre} onChange={e => setProtagonista1Nombre(e.target.value)} disabled={isSaving}/></div>)}
-            <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label htmlFor="eventoFecha">Fecha Evento*</Label><DatePickerDemo selectedDate={eventoFecha} onDateChange={setEventoFecha} className={isSaving ? "opacity-70":""}/></div><div className="space-y-2"><Label htmlFor="invitadosCantidad">Nº Invitados*</Label><Input id="invitadosCantidad" type="number" value={invitadosCantidad ?? ''} onChange={(e) => setInvitadosCantidad(e.target.value ? parseInt(e.target.value) : null)} min="1" disabled={isSaving} required/></div></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4"><div className="space-y-2"><Label htmlFor="eventoFecha">Fecha Evento*</Label><DatePickerDemo selectedDate={eventoFecha} onDateChange={setEventoFecha} className={isSaving ? "opacity-70":""}/></div><div className="space-y-2"><Label htmlFor="invitadosAdultos">Nº Adultos*</Label><Input id="invitadosAdultos" type="number" value={invitadosAdultos} onChange={(e) => setInvitadosAdultos(parseInt(e.target.value) || 0)} min="1" disabled={isSaving} required/></div></div>
             
-            {/* Discount fields - Step 3 equivalent fields */}
             <div className="pt-4 border-t mt-4 space-y-4">
               <h3 className="text-md font-medium flex items-center gap-2"><Tag className="w-5 h-5 text-primary"/>Promoción / Descuento (Opcional)</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -216,7 +214,7 @@ export default function EditarPresupuestoPage({ params }: { params: { id: string
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <Label htmlFor="descuento-tipo-edit">Tipo Descuento</Label>
-                  <Select value={descuentoTipo || ''} onValueChange={val => setDescuentoTipo(val as Presupuesto['descuentoTipo'])} disabled={isSaving}>
+                  <Select value={descuentoTipo || ''} onValueChange={val => setDescuentoTipo(val as Presupuesto['descuentoTipo'])}>
                     <SelectTrigger id="descuento-tipo-edit"><SelectValue placeholder="Seleccionar..."/></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="porcentaje">Porcentaje (%)</SelectItem>
@@ -225,11 +223,8 @@ export default function EditarPresupuestoPage({ params }: { params: { id: string
                   </Select>
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="descuento-valor-edit" className="flex items-center gap-1">
-                    {descuentoTipo === 'porcentaje' ? <Percent className="w-4 h-4 text-muted-foreground"/> : <span className="text-muted-foreground font-bold text-sm">$</span>}
-                    Valor Descuento
-                  </Label>
-                  <Input id="descuento-valor-edit" type="number" value={descuentoValor ?? ''} onChange={e => setDescuentoValor(e.target.value)} min="0" step="any" disabled={isSaving || !descuentoTipo} placeholder="Ej: 10 o 5000"/>
+                  <Label htmlFor="descuento-valor-edit">Valor Descuento</Label>
+                  <Input id="descuento-valor-edit" type="number" value={descuentoValor} onChange={e => setDescuentoValor(e.target.value)} min="0" step="any" disabled={!descuentoTipo}/>
                 </div>
               </div>
             </div>
@@ -237,52 +232,39 @@ export default function EditarPresupuestoPage({ params }: { params: { id: string
             <div className="space-y-2"><Label htmlFor="estado-presupuesto">Estado</Label><Select value={estado} onValueChange={(value) => setEstado(value as Presupuesto['estado'])} disabled={isSaving}><SelectTrigger id="estado-presupuesto"><SelectValue /></SelectTrigger><SelectContent>{(['Borrador', 'Enviado', 'Aceptado', 'Rechazado', 'Facturado'] as Presupuesto['estado'][]).map(s => (<SelectItem key={s} value={s}>{s}</SelectItem>))}</SelectContent></Select></div>
             <div className="space-y-2"><Label htmlFor="notas">Notas Adicionales</Label><Textarea id="notas" value={notas} onChange={(e) => setNotas(e.target.value)} rows={4} disabled={isSaving}/></div>
             
-            <div className="pt-6 border-t">
-              <h3 className="text-lg font-medium font-headline text-primary mb-2">Editar Servicios</h3>
-              <p className="text-sm text-muted-foreground mb-4">Para añadir, quitar o modificar los servicios y precios de este presupuesto, usa el creador de presupuestos.</p>
-              <Link href={`/presupuestos/nuevo/crear?editId=${presupuestoId}`} passHref>
-                <Button variant="secondary" type="button">
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  Editar Servicios, Cantidades y Precios
-                </Button>
-              </Link>
+            <div className="pt-6 border-t space-y-4">
+              <h3 className="text-lg font-medium font-headline text-primary">Acciones de Catálogo</h3>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Link href={`/presupuestos/nuevo/crear?editId=${presupuestoId}`} passHref className="flex-grow">
+                    <Button variant="secondary" type="button" className="w-full">
+                    <Sparkles className="w-4 h-4 mr-2" /> Editar Servicios
+                    </Button>
+                </Link>
+                <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                    <Button variant="outline" type="button" disabled={isSaving || isRecalculating} className="flex-grow">
+                        {isRecalculating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+                        Sincronizar Precios
+                    </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>¿Actualizar precios?</AlertDialogTitle>
+                        <AlertDialogDescription>Esto buscará el precio más reciente de cada servicio en tu catálogo. Los ítems sin equivalente no cambiarán.</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleRecalculate}>Sí, sincronizar</AlertDialogAction>
+                    </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+              </div>
             </div>
-
-            <div className="pt-6 border-t">
-              <h3 className="text-lg font-medium font-headline text-primary mb-2">Sincronizar Precios</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Si has actualizado los precios de tus servicios en el catálogo, puedes usar este botón para actualizar todos los precios en este presupuesto a sus valores más recientes. Esta acción no se puede deshacer.
-              </p>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="outline" type="button" disabled={isSaving || isRecalculating}>
-                    {isRecalculating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
-                    Actualizar Precios desde Catálogo
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>¿Actualizar todos los precios?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Esta acción buscará el precio más reciente para cada servicio de este presupuesto en tu catálogo y lo actualizará. Los ítems sin un equivalente en el catálogo no cambiarán. Esta acción es irreversible.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleRecalculate} disabled={isRecalculating}>
-                      {isRecalculating && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                      Sí, actualizar precios
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-
           </CardContent>
           <CardFooter className="border-t pt-6">
             <Button type="submit" className="w-full sm:w-auto" disabled={isSaving}>
               {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Save className="mr-2 h-4 w-4" />}
-              {isSaving ? 'Guardando...' : 'Guardar Cambios'}
+              Guardar Cambios
             </Button>
           </CardFooter>
         </form>
@@ -290,4 +272,3 @@ export default function EditarPresupuestoPage({ params }: { params: { id: string
     </div>
   );
 }
-    

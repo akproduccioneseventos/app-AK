@@ -3,7 +3,7 @@
 
 import type { CrmLead, CrmStage, NewCrmLeadData } from '@/types/crm';
 import { readData, writeData } from '@/lib/data-service';
-import { saveCustomer, getCustomers } from '@/app/actions/customers'; 
+import { saveCustomer } from '@/app/actions/customers'; 
 import { getPresupuestoById, updatePresupuesto } from '@/app/actions/presupuestos';
 import { saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import { createNotification } from './notifications';
@@ -103,7 +103,6 @@ export async function confirmBooking(leadId: string, presupuestoId: string): Pro
       }
     };
     
-    // Activar módulos operativos
     newFiesta.modulosContratados = { ...defaultModulosContratados };
 
     await saveFiesta(newFiesta);
@@ -125,17 +124,6 @@ export async function confirmBooking(leadId: string, presupuestoId: string): Pro
   } catch (error: any) {
     return { success: false, error: error.message };
   }
-}
-
-export async function scheduleCrmMeeting(leadId: string, date: string, title: string) {
-    return moveCrmLead(leadId, 's2', date);
-}
-
-export async function deleteCrmLead(leadId: string) {
-    let leads = await getCrmLeads();
-    leads = leads.filter(l => l.id !== leadId);
-    await writeData(LEADS_FILE, leads);
-    return { success: true };
 }
 
 export async function getCrmKpiData() {
@@ -161,7 +149,7 @@ export async function getCrmKpiData() {
     };
 }
 
-export async function findLeadByBudgetOrCreate(presupuesto: Presupuesto) {
+export async function findLeadByBudgetOrCreate(presupuesto: any) {
     const leads = await getCrmLeads();
     let lead = leads.find(l => l.presupuestoId === presupuesto.id || l.id === presupuesto.leadId);
     if (!lead) {
@@ -175,6 +163,12 @@ export async function findLeadByBudgetOrCreate(presupuesto: Presupuesto) {
             budgetSource: presupuesto.source || 'manual'
         } as NewCrmLeadData);
         if (res.lead) lead = res.lead;
+    } else {
+        // Update denormalized status
+        const index = leads.findIndex(l => l.id === lead.id);
+        leads[index].presupuestoEstado = presupuesto.estado;
+        if (presupuesto.invoiceId) leads[index].invoiceId = presupuesto.invoiceId;
+        await writeData(LEADS_FILE, leads);
     }
     return { lead: lead!, isNew: !lead };
 }

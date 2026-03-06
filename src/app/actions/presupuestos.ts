@@ -151,14 +151,14 @@ export async function savePresupuesto(
     id: presupuestoId,
     numero: nuevoNumero,
     itemsPresupuestados: validItems,
-    costoTotalEstimado: costoTotalEstimadoRecalculated,
-    totalConDescuento: descuentoAplicado > 0 ? finalTotalWithDiscount : undefined,
+    costoTotalEstimado: costoTotalEstimadoRecalculado,
+    totalConDescuento: finalTotalWithDiscount,
     timestamp: new Date().toISOString(),
     estado: presupuestoData.estado || 'Enviado',
     invoiceId: undefined,
     ajusteAnualActivo: false,
     leadId: options?.leadId,
-    source: options?.source,
+    source: options?.source || 'manual',
   };
 
   let finalLeadId = options?.leadId;
@@ -204,7 +204,7 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
 
     // APLICAR AJUSTE AUTOMÁTICO 15%
     let finalTotal = totalConDescuento;
-    if (presupuestoData.eventoFecha) {
+    if (presupuestoData.ajusteAnualActivo && presupuestoData.eventoFecha) {
         const yearCreated = new Date(presupuestoData.timestamp).getFullYear();
         const yearEvent = new Date(presupuestoData.eventoFecha).getFullYear();
         if (yearEvent > yearCreated) {
@@ -246,17 +246,23 @@ export async function markPresupuestoAsFacturado(presupuestoId: string, invoiceI
   return { success: true };
 }
 
-export async function activateAnnualAdjustmentForBudget(presupuestoId: string): Promise<{ success: boolean; error?: string }> {
-  let presupuestos = await getPresupuestos();
-  const index = presupuestos.findIndex(p => p.id === presupuestoId);
-  if (index === -1) return { success: false, error: "No encontrado" };
-  presupuestos[index].ajusteAnualActivo = true;
-  await writeData(PRESUPUESTOS_FILE, presupuestos);
-  return { success: true };
-}
-
 export async function recalculatePresupuestoFromCatalog(presupuestoId: string): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
   const presupuesto = await getPresupuestoById(presupuestoId);
   if (!presupuesto) return { success: false, error: 'No encontrado' };
-  return await updatePresupuesto(presupuesto);
+  
+  const catalogServices = await getServiciosEmpresa();
+  const updatedItems = presupuesto.itemsPresupuestados.map(item => {
+    const catalogItem = catalogServices.find(s => s.id === item.idServicioCatalogo);
+    if (catalogItem) {
+      const newPrice = catalogItem.precioVenta || catalogItem.precioPorPersona || catalogItem.precioBase || item.precioUnitario;
+      return {
+        ...item,
+        precioUnitario: catalogItem.valorUnitarioEstimado || item.precioUnitario,
+        precioUnitarioPresupuesto: newPrice,
+      };
+    }
+    return item;
+  });
+
+  return await updatePresupuesto({ ...presupuesto, itemsPresupuestados: updatedItems });
 }
