@@ -238,7 +238,9 @@ function SalonLayoutContent() {
   const [customElement, setCustomElement] = useState({ name: '', width: 2, height: 1, type: 'element' as 'element' | 'area', shape: 'rectangle' as 'rectangle' | 'circle' });
   
   const [isLoadTemplateModalOpen, setIsLoadTemplateModalOpen] = useState(false);
+  const [isSaveTemplateModalOpen, setIsSaveTemplateModalOpen] = useState(false);
   const [templates, setTemplates] = useState<SalonLayoutTemplate[]>([]);
+  const [templateName, setTemplateName] = useState('');
   const [isTemplateActionLoading, setIsTemplateActionLoading] = useState(false);
   const [processingPointName, setProcessingPointName] = useState<string | null>(null);
 
@@ -360,6 +362,22 @@ function SalonLayoutContent() {
     }
   };
 
+  const handleSaveAsTemplate = async () => {
+    if (!templateName.trim() || !decoracion) return;
+    setIsTemplateActionLoading(true);
+    try {
+        const result = await saveSalonLayoutTemplate(templateName, decoracion);
+        if (result.success) {
+            toast({title: "Plantilla Guardada"});
+            setIsSaveTemplateModalOpen(false);
+        } else throw new Error(result.error);
+    } catch(e: any) {
+         toast({title: "Error", description: e.message, variant: "destructive"});
+    } finally {
+         setIsTemplateActionLoading(false);
+    }
+  };
+
   const handleDeleteTemplate = async (templateId: string) => {
     setProcessingPointName(templateId);
     try {
@@ -470,6 +488,27 @@ function SalonLayoutContent() {
           }
         </DialogContent>
       </Dialog>
+
+      <Dialog open={isSaveTemplateModalOpen} onOpenChange={setIsSaveTemplateModalOpen}>
+        <DialogContent className="rounded-3xl border-none">
+          <DialogHeader>
+            <DialogTitle className="font-headline text-2xl">Guardar Diseño como Plantilla</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            <div className="space-y-2">
+                <Label htmlFor="new-template-name" className="text-xs uppercase font-black tracking-widest text-slate-400">Nombre de la Plantilla</Label>
+                <Input id="new-template-name" value={templateName} onChange={e => setTemplateName(e.target.value)} placeholder="Ej: Club Uruguay, Salón Chico" className="rounded-xl h-12 bg-slate-50 border-none"/>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={()=>setIsSaveTemplateModalOpen(false)} className="rounded-xl h-12 flex-1">Cancelar</Button>
+            <Button onClick={handleSaveAsTemplate} disabled={isTemplateActionLoading} className="rounded-xl h-12 flex-1 shadow-lg shadow-primary/20">
+                {isTemplateActionLoading ? <Loader2 className="w-4 h-4 animate-spin"/> : <FolderDown className="w-4 h-4 mr-2"/>}
+                Guardar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
        
        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
          <div className="flex items-center gap-4">
@@ -483,6 +522,7 @@ function SalonLayoutContent() {
          </div>
          <div className="flex gap-2 w-full md:w-auto">
             <Button variant="outline" onClick={handleLoadTemplate} className="rounded-xl border-slate-200"><FolderUp className="w-4 h-4 mr-2"/>Cargar Plantilla</Button>
+            <Button variant="outline" onClick={() => setIsSaveTemplateModalOpen(true)} className="rounded-xl border-slate-200"><FolderDown className="w-4 h-4 mr-2"/>Guardar Plantilla</Button>
             <Link href={`/fiestas/nueva/decoracion/pdf?fiestaId=${fiestaId}&layout=true`} passHref className="flex-1 md:flex-none">
                 <Button variant="outline" className="w-full rounded-xl border-slate-200"><Printer className="w-4 h-4 mr-2"/>Imprimir Plano</Button>
             </Link>
