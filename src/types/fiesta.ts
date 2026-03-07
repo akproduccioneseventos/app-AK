@@ -178,10 +178,20 @@ export interface ZonaContratada {
   dataAiHint?: string;
 }
 
+export interface MoodboardItem {
+  id: string;
+  url: string;
+  description?: string;
+  likedByClient?: boolean;
+  uploadedBy?: 'Organizador' | 'Cliente';
+  timestamp: string;
+}
+
 export interface DecoracionData {
   tema?: string;
   paletaColores?: ColorPalette;
-  moodboardImageUrl?: string;
+  moodboardImageUrl?: string; // Deprecated, but kept for compatibility
+  moodboardItems?: MoodboardItem[]; // Nuevo campo para el Módulo 3
   colorCubremantel?: string;
   colorGlobos?: string;
   decoracionTorta?: {
@@ -364,6 +374,7 @@ export interface ClientPortalSettings {
   invitados: PortalViewOnlyModuleSettings;
   paginaPublica: PortalViewOnlyModuleSettings;
   fotografiaYFilmacion: PortalViewOnlyModuleSettings;
+  moodboard: PortalModuleSettings; // Nuevo para Módulo 3
 }
 
 export interface SocialGallerySettings {

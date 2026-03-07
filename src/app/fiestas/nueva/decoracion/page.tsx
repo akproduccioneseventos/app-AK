@@ -10,10 +10,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Palette, Save, Loader2, AlertTriangle, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, Settings2, StickyNote, CakeSlice, Building, Gift, Camera, Sparkles as SparklesIcon, ChevronDown, ListPlus, FileText, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Palette, Save, Loader2, AlertTriangle, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, Settings2, StickyNote, CakeSlice, Building, Gift, Camera, Sparkles as SparklesIcon, ChevronDown, ListPlus, FileText, RefreshCw, Heart } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
-import type { FiestaEnPlanificacion, DecoracionData, DecorationItem, ColorPalette, ZonaContratada } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, DecoracionData, DecorationItem, ColorPalette, ZonaContratada, MoodboardItem } from '@/types/fiesta';
 import { defaultDecoracion, defaultZonasContratadas } from '@/lib/fiesta-defaults';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -33,6 +33,7 @@ import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import { UploadButton } from '@/components/invitacion/edit/UploadButton';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
+import { addMoodboardItem, deleteMoodboardItem } from '@/app/actions/fiesta/decoracion.actions';
 
 
 const ALL_DECORATION_ITEM_CATEGORIES = [
@@ -151,6 +152,7 @@ function DecoracionYDisenoEventoContent() {
         ...defaultDecoracion,
         ...loadedDecoracion,
         items: loadedDecoracion.items || [],
+        moodboardItems: loadedDecoracion.moodboardItems || [],
         zonasContratadas: mergedZonas,
         salonElements: loadedDecoracion.salonElements || [],
         paletaColores: {
@@ -178,9 +180,6 @@ function DecoracionYDisenoEventoContent() {
 
   const handleInputChange = <K extends keyof DecoracionData>(field: K, value: DecoracionData[K]) => {
     setDecoracionData(prev => ({ ...prev, [field]: value }));
-    if (field === 'moodboardImageUrl') {
-        setFailedImageUrls(prevFailed => ({...prevFailed, moodboardImageUrl: false}));
-    }
   };
 
   const handleColorChange = (colorType: keyof ColorPalette, value: string) => {
@@ -209,9 +208,6 @@ function DecoracionYDisenoEventoContent() {
         [field]: value,
       },
     }));
-    if (field === 'imageUrl') {
-        setFailedImageUrls(prevFailed => ({...prevFailed, 'tortaImageUrl': false}));
-    }
   };
 
   const handleZonaChange = (zonaId: ZonaContratada['id'], field: keyof ZonaContratada, value: string | boolean) => {
@@ -221,9 +217,6 @@ function DecoracionYDisenoEventoContent() {
         zona.id === zonaId ? { ...zona, [field]: value } : zona
       ),
     }));
-    if (field === 'imagenReferenciaUrl') {
-        setFailedImageUrls(prevFailed => ({...prevFailed, [zonaId]: false}));
-    }
   };
   
   const openItemModal = (prefillData?: Partial<DecorationItem>) => {
@@ -255,6 +248,26 @@ function DecoracionYDisenoEventoContent() {
   const handleDeleteItem = (itemId: string) => {
     setDecoracionData(prev => ({ ...prev, items: (prev.items || []).filter(it => it.id !== itemId) }));
   };
+
+  const handleAddMoodboardPhoto = async (url: string) => {
+      if (!fiestaId) return;
+      const res = await addMoodboardItem(fiestaId, url);
+      if (res.success) {
+          toast({ title: "Foto de inspiración añadida" });
+          loadDecoracionData(false);
+      } else {
+          toast({ title: "Error", description: res.error, variant: "destructive" });
+      }
+  };
+
+  const handleDeleteMoodboardPhoto = async (itemId: string) => {
+      if (!fiestaId) return;
+      const res = await deleteMoodboardItem(fiestaId, itemId);
+      if (res.success) {
+          toast({ title: "Foto eliminada" });
+          loadDecoracionData(false);
+      }
+  };
   
   const handleSaveDecoracion = async (e: FormEvent) => {
     e.preventDefault();
@@ -264,17 +277,7 @@ function DecoracionYDisenoEventoContent() {
       const result = await updateDecoracionFiestaActual(fiestaId, decoracionData);
       if (result.success && result.updatedData) {
         toast({ title: "¡Decoración Guardada!", description: "Los detalles de decoración se han actualizado." });
-        const loadedDecoracion = result.updatedData || defaultDecoracion;
-        const mergedZonas = defaultZonasContratadas.map(defaultZona => {
-            const savedZona = loadedDecoracion.zonasContratadas?.find(sz => sz.id === defaultZona.id);
-            return savedZona ? { ...defaultZona, ...savedZona } : { ...defaultZona };
-        });
-        setDecoracionData({
-          ...defaultDecoracion, ...loadedDecoracion, items: loadedDecoracion.items || [], 
-          zonasContratadas: mergedZonas, salonElements: loadedDecoracion.salonElements || [],
-           paletaColores: {...defaultDecoracion.paletaColores, ...(loadedDecoracion.paletaColores || {})},
-           decoracionTorta: {...defaultDecoracion.decoracionTorta, ...(loadedDecoracion.decoracionTorta || {})}
-        });
+        loadDecoracionData(false);
       } else {
         throw new Error(result.error || "Error desconocido al guardar la decoración.");
       }
@@ -288,9 +291,6 @@ function DecoracionYDisenoEventoContent() {
 
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando decoración...</p></div>;
-  }
-  if (error) {
-    return <div className="py-10 text-center text-red-600"><AlertTriangle className="w-12 h-12 mx-auto mb-3" /><p className="font-semibold">{error}</p><Button onClick={() => loadDecoracionData()} className="mt-4">Reintentar</Button></div>;
   }
 
   return (
@@ -309,6 +309,52 @@ function DecoracionYDisenoEventoContent() {
       </div>
 
       <form onSubmit={handleSaveDecoracion}>
+        <Card className="shadow-lg mb-6 border-primary/20">
+          <CardHeader className="bg-primary/5">
+              <div className="flex items-center gap-3">
+                  <Wand2 className="w-6 h-6 text-primary" />
+                  <CardTitle className="font-headline text-xl">Módulo 3: Dream Designer (Moodboard)</CardTitle>
+              </div>
+              <CardDescription>Sube fotos de inspiración. El cliente podrá darles "like" desde su portal para definir el estilo final.</CardDescription>
+          </CardHeader>
+          <CardContent className="pt-6 space-y-6">
+            <div className="p-6 border-2 border-dashed rounded-2xl bg-muted/20 flex flex-col items-center justify-center text-center">
+                <ImageIconLucide className="w-10 h-10 text-muted-foreground/40 mb-2"/>
+                <Label className="mb-4">Añadir foto de inspiración al Moodboard</Label>
+                <UploadButton onUrlChange={handleAddMoodboardPhoto} fiestaId={fiestaId || undefined} />
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {(decoracionData.moodboardItems || []).map((item) => (
+                    <div key={item.id} className="relative aspect-square rounded-xl overflow-hidden border group shadow-sm bg-white">
+                        <NextImage src={item.url} alt="inspiración" layout="fill" objectFit="cover" />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2">
+                            <div className="flex justify-end">
+                                <Button type="button" variant="destructive" size="icon" className="h-7 w-7" onClick={() => handleDeleteMoodboardPhoto(item.id)}>
+                                    <Trash2 className="w-4 h-4"/>
+                                </Button>
+                            </div>
+                            {item.likedByClient && (
+                                <div className="bg-white/90 backdrop-blur-sm p-1.5 rounded-lg flex items-center justify-center gap-1.5 animate-in fade-in zoom-in">
+                                    <Heart className="w-4 h-4 text-rose-500 fill-current" />
+                                    <span className="text-[10px] font-black text-rose-600 uppercase tracking-widest">¡Favorito!</span>
+                                </div>
+                            )}
+                        </div>
+                        {item.likedByClient && !isSaving && (
+                            <div className="absolute top-2 left-2 bg-rose-500 text-white p-1 rounded-full shadow-lg">
+                                <Heart className="w-3 h-3 fill-current" />
+                            </div>
+                        )}
+                    </div>
+                ))}
+            </div>
+            {(!decoracionData.moodboardItems || decoracionData.moodboardItems.length === 0) && (
+                <p className="text-center text-sm text-muted-foreground py-10 italic">Aún no hay fotos en el tablero de sueños.</p>
+            )}
+          </CardContent>
+        </Card>
+
         <Card className="shadow-lg mb-6">
           <CardHeader><CardTitle className="font-headline text-xl flex items-center gap-2"><Settings2 className="text-primary"/>Configuración General</CardTitle></CardHeader>
           <CardContent className="space-y-6">
@@ -355,15 +401,6 @@ function DecoracionYDisenoEventoContent() {
               </div>
             </div>
             
-            <div className="space-y-2">
-                <Label htmlFor="moodboard-url">URL de Moodboard/Imagen de Portada General</Label>
-                <UploadButton 
-                    currentUrl={decoracionData.moodboardImageUrl}
-                    onUrlChange={(url) => handleInputChange('moodboardImageUrl', url)}
-                    fiestaId={fiestaId}
-                />
-             {decoracionData.moodboardImageUrl && !failedImageUrls['moodboardImageUrl'] && <NextImage src={decoracionData.moodboardImageUrl} alt="Moodboard Preview" width={200} height={120} className="mt-1 rounded border object-contain max-h-[120px]" data-ai-hint="event moodboard inspiration" onError={()=>setFailedImageUrls(p=>({...p, moodboardImageUrl:true}))}/>}
-            </div>
             <div className="space-y-2"><Label htmlFor="general-notes-decoracion">Notas Generales de Decoración</Label><Textarea id="general-notes-decoracion" value={decoracionData.generalNotesDecoracion || ''} onChange={e => handleInputChange('generalNotesDecoracion', e.target.value)} rows={3} placeholder="Ideas, conceptos, elementos clave..."/></div>
           </CardContent>
         </Card>
@@ -377,7 +414,7 @@ function DecoracionYDisenoEventoContent() {
                 <UploadButton 
                     currentUrl={decoracionData.decoracionTorta?.imageUrl}
                     onUrlChange={(url) => handleTortaChange('imageUrl', url)}
-                    fiestaId={fiestaId}
+                    fiestaId={fiestaId || undefined}
                 />
             {decoracionData.decoracionTorta?.imageUrl && !failedImageUrls['tortaImageUrl'] && <NextImage src={decoracionData.decoracionTorta.imageUrl} alt="Torta Preview" width={150} height={100} className="mt-1 rounded border object-contain max-h-[100px]" data-ai-hint={decoracionData.decoracionTorta.dataAiHint || "cake design style"} onError={()=>setFailedImageUrls(p=>({...p, tortaImageUrl:true}))}/>}
             </div>
@@ -387,9 +424,9 @@ function DecoracionYDisenoEventoContent() {
 
         <Card className="shadow-lg mb-6">
           <CardHeader><CardTitle className="font-headline text-xl flex items-center gap-2">
-              <ListPlus className="text-primary"/>Elementos Decorativos Clave
+              <ListPlus className="text-primary"/>Elementos Decorativos Clave (Catálogo Interno)
             </CardTitle>
-            <CardDescription>Añade y detalla los elementos específicos para las áreas principales del evento.</CardDescription>
+            <CardDescription>Añade y detalla los elementos físicos específicos que se usarán en el salón.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <ItemSection
@@ -477,7 +514,7 @@ function DecoracionYDisenoEventoContent() {
                           <UploadButton 
                               currentUrl={zona.imagenReferenciaUrl}
                               onUrlChange={url => handleZonaChange(zona.id, 'imagenReferenciaUrl', url)}
-                              fiestaId={fiestaId}
+                              fiestaId={fiestaId || undefined}
                           />
                           {zona.imagenReferenciaUrl && !failedImageUrls[zona.id] && <NextImage src={zona.imagenReferenciaUrl} alt={zona.nombreDisplay} width={150} height={100} className="mt-1 rounded border object-contain max-h-[100px]" data-ai-hint={zona.dataAiHint || "event zone decoration"} onError={()=>setFailedImageUrls(p=>({...p, [zona.id]: true}))}/>}
                         </div>
@@ -519,7 +556,7 @@ function DecoracionYDisenoEventoContent() {
                   <UploadButton 
                     currentUrl={currentItem.imageUrl} 
                     onUrlChange={(url) => handleItemModalChange('imageUrl', url)}
-                    fiestaId={fiestaId}
+                    fiestaId={fiestaId || undefined}
                   />
               </div>
               <div className="space-y-1"><Label htmlFor="item-aihint">AI Hint (para imagen en PDF)</Label><Input id="item-aihint" value={currentItem.dataAiHint || ''} onChange={e => handleItemModalChange('dataAiHint', e.target.value)} placeholder="Ej: vintage table centerpiece" /></div>

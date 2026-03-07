@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { Suspense, useEffect, useState, type FormEvent } from 'react';
@@ -8,9 +7,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, AlertTriangle, KeyRound, LogIn, ArrowRight, NotebookTextIcon, ListChecks, Music, Camera, Gift, FileText, UserCheck, Users, Globe, MessageSquare } from 'lucide-react';
+import { Loader2, AlertTriangle, KeyRound, LogIn, ArrowRight, NotebookTextIcon, ListChecks, Music, Camera, Gift, FileText, UserCheck, Users, Globe, MessageSquare, Wand2 } from 'lucide-react';
 import type { FiestaEnPlanificacion, ClientPortalSettings } from '@/types/fiesta';
-import { getFiestaById } from '@/app/actions/fiesta-actual';
+import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import Link from 'next/link';
 
 const SESSION_KEY_PREFIX = 'portal_auth_';
@@ -18,9 +17,10 @@ const SESSION_KEY_PREFIX = 'portal_auth_';
 const portalModules = [
     { id: 'checklist', label: 'Mis Tareas', href: '/portal/[fiestaId]/tareas', icon: ListChecks },
     { id: 'invitados', label: 'Asignación de Mesas', href: '/portal/mesas', icon: Users },
+    { id: 'moodboard', label: 'Dream Designer (Moodboard)', href: '/portal/[fiestaId]/moodboard', icon: Wand2 },
     { id: 'musica', label: 'Sugerencias Musicales', href: '/portal/[fiestaId]/musica', icon: Music },
     { id: 'videoVida', label: 'Carga de Fotos para Video', href: '/portal/[fiestaId]/video-vida', icon: Camera },
-    { id: 'listaRegalos', label: 'Configurar Regalos', href: '/fiestas/nueva/regalos', icon: Gift },
+    { id: 'listaRegalos', label: 'Configurar Regalos', icon: Gift },
     { id: 'documentos', label: 'Mis Documentos', href: '/portal/[fiestaId]/documentos', icon: FileText },
     { id: 'notasCliente', label: 'Notas Compartidas', href: '/portal/[fiestaId]/notas', icon: NotebookTextIcon },
     { id: 'paginaPublica', label: 'Acceso a Página Pública', href: '/evento/actual', icon: Globe },
@@ -53,7 +53,6 @@ function ClientPortalContent() {
                     setError("El portal para este evento no está habilitado o el evento no existe.");
                 } else {
                     setFiesta(fiestaData);
-                    // Check session storage for the stored password hash (or plain password in this case)
                     const storedAuthKey = sessionStorage.getItem(sessionKey);
                     if (storedAuthKey === fiestaData.clientPortalSettings.accessKey) {
                         setIsAuthenticated(true);
@@ -135,7 +134,8 @@ function ClientPortalContent() {
                            if (!moduleSetting || !moduleSetting.visible) return null;
                            const Icon = mod.icon;
                            
-                           const finalHref = mod.href.replace('[fiestaId]', fiesta.id);
+                           let finalHref = mod.href?.replace('[fiestaId]', fiesta.id);
+                           if (mod.id === 'listaRegalos') finalHref = `/fiestas/nueva/regalos?fiestaId=${fiesta.id}`;
 
                            return (
                                <Link href={`${finalHref}?fiestaId=${fiesta.id}`} key={mod.id} passHref>
