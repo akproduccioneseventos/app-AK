@@ -1,6 +1,5 @@
 
 import type { TipoEvento } from './presupuesto';
-import type { Invitado } from './invitado'; 
 import type { UnidadServicio } from './empresa';
 import type { SocialGalleryPost } from './social-gallery';
 
@@ -8,10 +7,30 @@ import type { SocialGalleryPost } from './social-gallery';
 export interface Notificacion {
   id: string;
   mensaje: string;
-  href?: string; // Link a la página relevante
-  fecha: string; // ISO String
+  href?: string;
+  fecha: string;
   leida: boolean;
-  icono?: string; // Nombre de un icono de lucide-react
+  icono?: string;
+}
+
+// --- INVITADOS ---
+export type RsvpStatus = 'Pendiente' | 'Confirmado' | 'Rechazado' | 'Tal vez';
+export type CategoriaInvitado = 'Adulto' | 'Niño/Adolescente';
+
+export interface Invitado {
+  id: string;
+  nombre: string;
+  categoria?: CategoriaInvitado;
+  contacto?: string;
+  rsvp: RsvpStatus;
+  partySize?: number;
+  tableNumber?: string;
+  notes?: string;
+  companionNames?: string[];
+  checkedIn?: boolean;
+  checkInTimestamp?: string;
+  isCeliac?: boolean;
+  tag?: string;
 }
 
 // --- CARTA DE TRAGOS / MENU MESA ---
@@ -66,7 +85,7 @@ export interface NumerosMesaData {
   colorSecundario: string;
 }
 
-// --- MODULO 6: LIVE EVENT TYPES ---
+// --- LIVE EVENT ---
 export interface EntregaCritica {
     id: string;
     nombre: string;
@@ -94,8 +113,7 @@ export interface LiveEventState {
     staffCheckIn: Record<string, { llego: boolean, hora?: string }>;
 }
 
-// --- RESTO DE TIPOS ---
-
+// --- CONFIGURACIÓN ---
 export interface ConfigEventoDataStorage {
   nombreEvento: string;
   tipoCelebracion: TipoEvento | string;
@@ -103,8 +121,11 @@ export interface ConfigEventoDataStorage {
   horaInicio: string;
   horaFin: string;
   nombreLugar: string;
-  invitadosEstimados: number | string;
-  presupuestoEstimado: number | string;
+  invitadosEstimados: number;
+  invitadosAdultos?: number;
+  invitadosNinos?: number;
+  invitadosAdolescentes?: number;
+  presupuestoEstimado: number;
   notasAdicionales: string;
   clienteId?: string; 
   protagonista1Nombre?: string; 
@@ -228,7 +249,7 @@ export interface ProgramaEventoItem {
   titulo: string;
   descripcion?: string;
   icono?: string; 
-  completado?: boolean; // Módulo 6: Seguimiento en vivo
+  completado?: boolean;
 }
 
 export interface TextStyle {
@@ -264,9 +285,7 @@ export interface InvitacionDigitalData {
   category?: 'Boda' | 'XV Años' | 'Cumpleaños' | 'General';
   plantilla: 'Grazia' | 'Allegria';
   musicaFondoUrl?: string;
-  
   secciones: SeccionInvitacion[];
-  
   cabecera: {
     visible: boolean;
     logoUrl?: string;
@@ -330,7 +349,7 @@ export interface InvitacionDigitalData {
   };
   confirmacion: {
     visible: boolean;
-    showRelationshipTags?: boolean; // Nuevo: Activar/Desactivar etiquetas de relación
+    showRelationshipTags?: boolean;
   };
   despedida: {
     visible: boolean;
@@ -379,7 +398,6 @@ export interface SocialGallerySettings {
   allowLikes: boolean;
   allowComments: boolean;
   uploadsActive: boolean;
-  posts?: SocialGalleryPost[];
   backgroundColor?: string;
   accentColor?: string;
   chatEnabled?: boolean;
@@ -399,7 +417,7 @@ export interface ReposteriaItem {
   nombre: string;
   description?: string;
   cantidad?: number;
-  unidad?: 'unidad' | 'docena' | 'kg' | 'porción';
+  unidad?: string;
   costoEstimado?: number;
   precioSugerido?: number;
   imagenReferenciaUrl?: string;
@@ -471,10 +489,10 @@ export interface CargaOperativaItem {
   nombre: string;
   cantidad: string; 
   cargado: boolean;
-  retornado?: boolean; // Toque de Oro 3: Logística Inversa
+  retornado?: boolean;
   notas?: string;
   origenId?: string; 
-  unidad?: UnidadServicio | string;
+  unidad?: string;
   hasConflict?: boolean; 
   availableStockAtDate?: number; 
 }
@@ -560,7 +578,7 @@ export interface ModulosContratados {
   numerosMesa: boolean;
   mesasCliente: boolean;
   resumenPlanificacion: boolean;
-  enVivo: boolean; // Nuevo: Módulo 6
+  enVivo: boolean;
 }
 
 export interface CompraProveedorEstado {
@@ -604,7 +622,7 @@ export interface FiestaEnPlanificacion {
   pagosProveedores?: PagoProveedor[];
   estadosCompra?: CompraProveedorEstado[];
   generadoDesdeHistorico?: boolean; 
-  liveState?: LiveEventState; // Nuevo: Módulo 6
+  liveState?: LiveEventState;
 }
 
 export interface ContratoFirmaInfo {

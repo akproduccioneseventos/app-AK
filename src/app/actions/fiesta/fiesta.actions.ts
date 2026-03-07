@@ -1,5 +1,8 @@
 
-
+/**
+ * @fileOverview Acciones nucleares para la persistencia de archivos de fiesta.
+ * Centraliza el guardado, borrado y archivo de los archivos JSON de cada evento.
+ */
 'use server';
 
 import type { FiestaEnPlanificacion, CartaTragosData, MenuMesaData, NumerosMesaData } from '@/types/fiesta';
@@ -11,21 +14,17 @@ import fs from 'fs/promises';
 
 const FIESTAS_DIR = 'fiestas';
 const ARCHIVE_DIR = 'archive';
-const ARCHIVE_FILE_PATH_PREFIX = 'archive';
 const EXAMPLE_FIESTA_FILE = 'fiestas/fiesta_actual_ejemplo.json';
 
+// --- UTILIDADES ---
 
-async function ensureDirectoryExists(dirPath: string) {
-    try { 
-        const dataDir = path.join(process.cwd(), 'src', 'data');
-        await fs.access(path.join(dataDir, dirPath)); 
-    } catch { 
-        const dataDir = path.join(process.cwd(), 'src', 'data');
-        await fs.mkdir(path.join(dataDir, dirPath), { recursive: true }); 
-    }
+async function ensureFiestasDirectories() {
+    const dataDir = path.join(process.cwd(), 'src', 'data');
+    await fs.mkdir(path.join(dataDir, FIESTAS_DIR), { recursive: true });
+    await fs.mkdir(path.join(dataDir, ARCHIVE_DIR), { recursive: true });
 }
-ensureDirectoryExists(FIESTAS_DIR);
-ensureDirectoryExists(ARCHIVE_DIR);
+
+// --- ACCIONES DE LECTURA ---
 
 export async function getHistorialFiestas(): Promise<FiestaEnPlanificacion[]> {
   const dataDir = path.join(process.cwd(), 'src', 'data', ARCHIVE_DIR);
@@ -36,29 +35,14 @@ export async function getHistorialFiestas(): Promise<FiestaEnPlanificacion[]> {
         .map(file => readData<FiestaEnPlanificacion>(path.join(ARCHIVE_DIR, file), null as any));
     
     const historiales = await Promise.all(historialesPromises);
-
     return historiales.filter((f): f is FiestaEnPlanificacion => f !== null)
       .sort((a, b) => new Date(b.configuracion.fechaEvento || 0).getTime() - new Date(a.configuracion.fechaEvento || 0).getTime());
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-      return []; // No archive directory exists yet.
-    }
-    console.error("Error leyendo el historial de fiestas:", error);
     return [];
   }
 }
 
 export async function getFiestas(includeArchived = true): Promise<FiestaEnPlanificacion[]> {
-    const [activas, archivadas] = await Promise.all([
-        getActivas(),
-        includeArchived ? getHistorialFiestas() : Promise.resolve([])
-    ]);
-    const allFiestas = [...activas, ...archivadas];
-    const uniqueFiestas = Array.from(new Map(allFiestas.map(item => [item.id, item])).values());
-    return uniqueFiestas;
-}
-
-async function getActivas(): Promise<FiestaEnPlanificacion[]> {
     const dataDir = path.join(process.cwd(), 'src', 'data', FIESTAS_DIR);
     try {
         const activeFiles = await fs.readdir(dataDir);
@@ -66,183 +50,33 @@ async function getActivas(): Promise<FiestaEnPlanificacion[]> {
             .filter(file => file.endsWith('.json'))
             .map(file => readData<FiestaEnPlanificacion>(path.join(FIESTAS_DIR, file), null as any));
         
-        const activas = await Promise.all(activasPromises);
-        return activas.filter((f): f is FiestaEnPlanificacion => f !== null);
-
+        const activas = (await Promise.all(activasPromises)).filter((f): f is FiestaEnPlanificacion => f !== null);
+        const archivadas = includeArchived ? await getHistorialFiestas() : [];
+        
+        const allFiestas = [...activas, ...archivadas];
+        return Array.from(new Map(allFiestas.map(item => [item.id, item])).values());
     } catch (error) {
-        if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-            return [];
-        }
-        console.error("Error leyendo fiestas activas:", error);
         return [];
     }
 }
 
 export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
-    const activas = await getActivas();
-    if (activas.length > 0) {
-        // Find the most recently updated active event.
-        const sortedByUpdate = activas.sort((a,b) => 
-            new Date(b.configuracion.fechaEvento || 0).getTime() - new Date(a.configuracion.fechaEvento || 0).getTime()
-        );
-        return sortedByUpdate[0];
+    const all = await getFiestas(false);
+    if (all.length > 0) {
+        return all.sort((a,b) => new Date(b.configuracion.fechaEvento || 0).getTime() - new Date(a.configuracion.fechaEvento || 0).getTime())[0];
     }
-    // If no active events, load the example one.
     try {
-        const exampleFiesta = await readData<FiestaEnPlanificacion>(EXAMPLE_FIESTA_FILE, initialFiestaActualData);
-        return exampleFiesta;
+        return await readData<FiestaEnPlanificacion>(EXAMPLE_FIESTA_FILE, initialFiestaActualData);
     } catch {
          return { ...initialFiestaActualData, id: `fiesta_placeholder_${Date.now()}`};
     }
 }
 
-
 export async function getAllFiestas(): Promise<FiestaEnPlanificacion[]> {
-  const [activas, archivadas] = await Promise.all([getActivas(), getHistorialFiestas()]);
-  const allFiestas = [...activas, ...archivadas];
-  const uniqueFiestas = Array.from(new Map(allFiestas.map(item => [item.id, item])).values());
-  return uniqueFiestas;
+  return await getFiestas(true);
 }
 
-export async function deleteFiesta(fiestaId: string): Promise<{ success: boolean; error?: string }> {
-  const dataDir = path.join(process.cwd(), 'src', 'data', FIESTAS_DIR);
-  try {
-    const files = await fs.readdir(dataDir);
-    let fileToDelete: string | null = null;
-
-    for (const file of files) {
-        if (file.endsWith('.json')) {
-            const filePath = path.join(dataDir, file);
-            try {
-                const content = await fs.readFile(filePath, 'utf-8');
-                const fiestaData = JSON.parse(content) as FiestaEnPlanificacion;
-                if (fiestaData.id === fiestaId) {
-                    fileToDelete = file;
-                    break;
-                }
-            } catch (e) {
-                console.warn(`Could not read or parse file ${file}, skipping.`);
-            }
-        }
-    }
-
-    if (fileToDelete) {
-        await fs.unlink(path.join(dataDir, fileToDelete));
-        return { success: true };
-    }
-
-    return { success: false, error: "El archivo del evento activo no fue encontrado para eliminar." };
-
-  } catch (error: any) {
-    console.error(`Error deleting active fiesta file for ID ${fiestaId}:`, error);
-    return { success: false, error: `No se pudo eliminar el archivo del evento. Error: ${error.message}` };
-  }
-}
-
-
-export async function archiveFiesta(fiestaId: string): Promise<{ success: boolean; error?: string }> {
-  try {
-    const fiestaActual = await getFiestaById(fiestaId);
-    if (!fiestaActual) {
-      return { success: false, error: "No hay una fiesta activa para archivar." };
-    }
-    
-    const datePart = fiestaActual.configuracion.fechaEvento ? new Date(fiestaActual.configuracion.fechaEvento).toISOString().split('T')[0] : 'sin-fecha';
-    const namePart = fiestaActual.configuracion.nombreEvento.replace(/[^a-z0-9]/gi, '_').toLowerCase().substring(0, 20);
-    const archiveFilename = `fiesta_archivada_${datePart}_${namePart}_${fiestaActual.id}.json`;
-    
-    await writeData(path.join(ARCHIVE_FILE_PATH_PREFIX, archiveFilename), fiestaActual);
-    
-    await deleteFiesta(fiestaId);
-    
-    return { success: true };
-  } catch (error: any) {
-    console.error("Error al archivar la fiesta actual:", error);
-    return { success: false, error: "No se pudo archivar la fiesta." };
-  }
-}
-
-export async function deleteFiestaArchivada(fiestaId: string): Promise<{ success: boolean; error?: string }> {
-  const allArchived = await getHistorialFiestas();
-  const fiestaToDelete = allArchived.find(f => f.id === fiestaId);
-  if (!fiestaToDelete) {
-    return { success: false, error: "El evento archivado no fue encontrado." };
-  }
-  
-  const datePart = fiestaToDelete.configuracion.fechaEvento ? new Date(fiestaToDelete.configuracion.fechaEvento).toISOString().split('T')[0] : 'sin-fecha';
-  const namePart = fiestaToDelete.configuracion.nombreEvento.replace(/[^a-z0-9]/gi, '_').toLowerCase().substring(0, 20);
-  const archiveFilename = `fiesta_archivada_${datePart}_${namePart}_${fiestaToDelete.id}.json`;
-
-  try {
-    const filePath = path.join(process.cwd(), 'src', 'data', ARCHIVE_DIR, archiveFilename);
-    await fs.unlink(filePath);
-    return { success: true };
-  } catch (error: any) {
-     if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-      // If file doesn't exist, it might be a naming mismatch. Try finding it by ID.
-      const files = await fs.readdir(path.join(process.cwd(), 'src', 'data', ARCHIVE_DIR));
-      const actualFile = files.find(f => f.includes(fiestaId));
-      if (actualFile) {
-        try {
-          await fs.unlink(path.join(process.cwd(), 'src', 'data', ARCHIVE_DIR, actualFile));
-          return { success: true };
-        } catch (e: any) {
-           console.error(`Error deleting archived fiesta file (fallback) ${actualFile}:`, e);
-           return { success: false, error: `No se pudo eliminar el archivo del evento archivado (fallback). Error: ${e.message}` };
-        }
-      }
-      return { success: false, error: "El archivo del evento archivado no fue encontrado para eliminar." };
-    }
-    console.error(`Error deleting archived fiesta file ${archiveFilename}:`, error);
-    return { success: false, error: "No se pudo eliminar el archivo del evento archivado." };
-  }
-}
-
-
-export async function resetFiestaActual(): Promise<{ success: boolean; error?: string }> {
-    try {
-        const activas = await getActivas();
-        for (const fiesta of activas) {
-            await archiveFiesta(fiesta.id);
-        }
-        
-        const newFiesta = { ...initialFiestaActualData, id: `fiesta_${Date.now()}`};
-        const newFilePath = path.join(FIESTAS_DIR, `${newFiesta.id}.json`);
-        await writeData(newFilePath, newFiesta);
-        return { success: true };
-    } catch(e: any) {
-        return { success: false, error: e.message };
-    }
-}
-
-export async function getFiestaById(fiestaId: string): Promise<FiestaEnPlanificacion | null> {
-    // --- OPTIMIZATION START ---
-    // 1. Check active fiestas (fast path) by reading the file directly.
-    const activeFiestaPath = path.join(FIESTAS_DIR, `${fiestaId}.json`);
-    try {
-        // Assuming `readData` can handle file-not-found gracefully by returning the default value (null).
-        // This avoids reading the entire directory.
-        const activeFiesta = await readData<FiestaEnPlanificacion | null>(activeFiestaPath, null);
-        if (activeFiesta && activeFiesta.id === fiestaId) {
-            return activeFiesta;
-        }
-    } catch (e) {
-        // This catch block will handle any unexpected errors from readData/fs operations,
-        // but we'll proceed to check archives anyway.
-        console.warn(`Could not directly read active fiesta ${fiestaId}, checking archives. Error:`, e);
-    }
-
-    // 2. If not found in active, search the archived fiestas (slower path).
-    const archivadas = await getHistorialFiestas();
-    const foundInArchive = archivadas.find(f => f.id === fiestaId);
-    if (foundInArchive) {
-        return foundInArchive;
-    }
-    
-    // 3. Return null if not found in active or archived.
-    return null;
-    // --- OPTIMIZATION END ---
-}
+// --- ACCIONES DE ESCRITURA Y MANTENIMIENTO ---
 
 export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ success: boolean; fiesta?: FiestaEnPlanificacion; error?: string }> {
   try {
@@ -250,148 +84,126 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
     await writeData(filePath, fiestaData);
     return { success: true, fiesta: fiestaData };
   } catch (error: any) {
-    console.error("Error saving fiesta:", error);
-    return { success: false, error: "No se pudo guardar la fiesta." };
+    return { success: false, error: "No se pudo guardar el archivo del evento." };
   }
+}
+
+export async function deleteFiesta(fiestaId: string): Promise<{ success: boolean; error?: string }> {
+  const dataDir = path.join(process.cwd(), 'src', 'data', FIESTAS_DIR);
+  try {
+    const files = await fs.readdir(dataDir);
+    const fileToDelete = files.find(f => f.includes(fiestaId) && f.endsWith('.json'));
+    if (fileToDelete) {
+        await fs.unlink(path.join(dataDir, fileToDelete));
+        return { success: true };
+    }
+    return { success: false, error: "Archivo no encontrado." };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function archiveFiesta(fiestaId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) throw new Error("Evento no encontrado.");
+    
+    const datePart = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento).toISOString().split('T')[0] : 'sin-fecha';
+    const namePart = fiesta.configuracion.nombreEvento.replace(/[^a-z0-9]/gi, '_').toLowerCase().substring(0, 20);
+    const archiveFilename = `fiesta_archivada_${datePart}_${namePart}_${fiesta.id}.json`;
+    
+    await writeData(path.join(ARCHIVE_DIR, archiveFilename), fiesta);
+    await deleteFiesta(fiestaId);
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function deleteFiestaArchivada(fiestaId: string): Promise<{ success: boolean; error?: string }> {
+  const dataDir = path.join(process.cwd(), 'src', 'data', ARCHIVE_DIR);
+  try {
+    const files = await fs.readdir(dataDir);
+    const fileToDelete = files.find(f => f.includes(fiestaId));
+    if (fileToDelete) {
+        await fs.unlink(path.join(dataDir, fileToDelete));
+        return { success: true };
+    }
+    return { success: false, error: "Archivo archivado no encontrado." };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function resetFiestaActual(): Promise<{ success: boolean; error?: string }> {
+    try {
+        const activas = await getFiestas(false);
+        for (const f of activas) { await archiveFiesta(f.id); }
+        const newFiesta = { ...initialFiestaActualData, id: `fiesta_${Date.now()}`};
+        await saveFiesta(newFiesta);
+        return { success: true };
+    } catch(e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+export async function getFiestaById(fiestaId: string): Promise<FiestaEnPlanificacion | null> {
+    const activePath = path.join(FIESTAS_DIR, `${fiestaId}.json`);
+    try {
+        const active = await readData<FiestaEnPlanificacion | null>(activePath, null);
+        if (active && active.id === fiestaId) return active;
+    } catch (e) {}
+    const archivadas = await getHistorialFiestas();
+    return archivadas.find(f => f.id === fiestaId) || null;
 }
 
 export async function duplicateFiesta(fiestaId: string): Promise<{ success: boolean; newFiestaId?: string; error?: string }> {
   try {
-    const fiestaToDuplicate = await getFiestaById(fiestaId);
-
-    if (!fiestaToDuplicate) {
-      return { success: false, error: 'Evento a duplicar no encontrado.' };
-    }
-
+    const original = await getFiestaById(fiestaId);
+    if (!original) throw new Error('Evento no encontrado.');
     const newFiesta: FiestaEnPlanificacion = {
-      ...fiestaToDuplicate,
-      id: `fiesta_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
-      configuracion: {
-        ...fiestaToDuplicate.configuracion,
-        nombreEvento: `[COPIA] ${fiestaToDuplicate.configuracion.nombreEvento}`,
-      },
+      ...original,
+      id: `fiesta_copy_${Date.now()}`,
+      configuracion: { ...original.configuracion, nombreEvento: `[COPIA] ${original.configuracion.nombreEvento}` },
       presupuestoId: undefined,
       invoiceIds: [],
       pagosProveedores: [],
     };
-    
     const result = await saveFiesta(newFiesta);
-    if(result.success && result.fiesta) {
-        return { success: true, newFiestaId: result.fiesta.id };
-    } else {
-        throw new Error(result.error || "No se pudo guardar la fiesta duplicada.");
-    }
+    return result.success ? { success: true, newFiestaId: newFiesta.id } : { success: false, error: result.error };
   } catch (error: any) {
-    console.error("Error duplicating fiesta:", error);
-    return { success: false, error: "Error al duplicar el evento." };
+    return { success: false, error: error.message };
   }
 }
 
-export async function createNewFiestaForCustomer(customer: Customer): Promise<{ success: boolean; fiesta?: FiestaEnPlanificacion; error?: string }> {
-  const newFiesta: FiestaEnPlanificacion = {
-    ...initialFiestaActualData,
-    id: `fiesta_${Date.now()}`,
-    configuracion: {
-      ...initialFiestaActualData.configuracion,
-      clienteId: customer.id,
-      nombreEvento: customer.partyType ? `${customer.partyType} de ${customer.name}` : `Evento de ${customer.name}`,
-      fechaEvento: customer.partyDate || new Date().toISOString(),
-      invitadosEstimados: customer.guestCount || 50,
-      nombreLugar: customer.venueName || 'A definir',
-    },
-  };
-  
-  try {
-    const filePath = path.join(FIESTAS_DIR, `${newFiesta.id}.json`);
-    await writeData(filePath, newFiesta);
-    return { success: true, fiesta: newFiesta };
-  } catch (error: any) {
-    console.error("Error creating new fiesta for customer:", error);
-    return { success: false, error: "No se pudo crear la fiesta para el nuevo cliente." };
-  }
+// --- ACTUALIZACIONES DE MÓDULOS ESPECÍFICOS ---
+
+export async function addInvoiceId(fiestaId: string, invoiceId: string) {
+  const f = await getFiestaById(fiestaId);
+  if (!f) return { success: false };
+  return await saveFiesta({ ...f, invoiceIds: [...(f.invoiceIds || []), invoiceId] });
 }
 
-export async function addInvoiceId(fiestaId: string, invoiceId: string): Promise<{ success: boolean; error?: string }> {
-  try {
-    const fiesta = await getFiestaById(fiestaId);
-    if (!fiesta) {
-      return { success: false, error: "Fiesta no encontrada." };
-    }
-    const updatedFiesta = {
-      ...fiesta,
-      invoiceIds: [...(fiesta.invoiceIds || []), invoiceId],
-    };
-    await saveFiesta(updatedFiesta);
-    return { success: true };
-  } catch (e: any) {
-    return { success: false, error: e.message };
-  }
+export async function removeInvoiceId(fiestaId: string, invoiceId: string) {
+  const f = await getFiestaById(fiestaId);
+  if (!f) return { success: false };
+  return await saveFiesta({ ...f, invoiceIds: (f.invoiceIds || []).filter(id => id !== invoiceId) });
 }
 
-export async function removeInvoiceId(fiestaId: string, invoiceId: string): Promise<{ success: boolean; error?: string }> {
-  try {
-    const fiesta = await getFiestaById(fiestaId);
-    if (!fiesta) {
-      return { success: false, error: "Fiesta no encontrada." };
-    }
-    const updatedFiesta = {
-      ...fiesta,
-      invoiceIds: (fiesta.invoiceIds || []).filter(id => id !== invoiceId),
-    };
-    await saveFiesta(updatedFiesta);
-    return { success: true };
-  } catch (e: any) {
-    return { success: false, error: e.message };
-  }
-}
-    
-export async function updateCartaTragos(fiestaId: string, cartaData: CartaTragosData): Promise<{ success: boolean; error?: string }> {
-  try {
-    const fiesta = await getFiestaById(fiestaId);
-    if (!fiesta) {
-      return { success: false, error: "Fiesta no encontrada." };
-    }
-    const updatedFiesta = {
-      ...fiesta,
-      cartaTragos: cartaData,
-    };
-    await saveFiesta(updatedFiesta);
-    return { success: true };
-  } catch (e: any) {
-    return { success: false, error: e.message };
-  }
+export async function updateCartaTragos(fiestaId: string, cartaData: CartaTragosData) {
+  const f = await getFiestaById(fiestaId);
+  if (!f) return { success: false };
+  return await saveFiesta({ ...f, cartaTragos: cartaData });
 }
 
-export async function updateMenuMesa(fiestaId: string, menuData: MenuMesaData): Promise<{ success: boolean; error?: string }> {
-  try {
-    const fiesta = await getFiestaById(fiestaId);
-    if (!fiesta) {
-      return { success: false, error: "Fiesta no encontrada." };
-    }
-    const updatedFiesta = {
-      ...fiesta,
-      menuMesa: menuData,
-    };
-    await saveFiesta(updatedFiesta);
-    return { success: true };
-  } catch (e: any) {
-    return { success: false, error: e.message };
-  }
+export async function updateMenuMesa(fiestaId: string, menuData: MenuMesaData) {
+  const f = await getFiestaById(fiestaId);
+  if (!f) return { success: false };
+  return await saveFiesta({ ...f, menuMesa: menuData });
 }
 
-export async function updateNumerosMesa(fiestaId: string, data: NumerosMesaData): Promise<{ success: boolean, error?: string }> {
-  try {
-    const fiesta = await getFiestaById(fiestaId);
-    if (!fiesta) {
-      return { success: false, error: "Fiesta no encontrada." };
-    }
-    const updatedFiesta = {
-      ...fiesta,
-      numerosMesa: data,
-    };
-    await saveFiesta(updatedFiesta);
-    return { success: true };
-  } catch (e: any) {
-    return { success: false, error: e.message };
-  }
+export async function updateNumerosMesa(fiestaId: string, data: NumerosMesaData) {
+  const f = await getFiestaById(fiestaId);
+  if (!f) return { success: false };
+  return await saveFiesta({ ...f, numerosMesa: data });
 }
