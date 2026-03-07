@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState } from 'react';
@@ -26,7 +25,15 @@ interface TemplateProps {
   selectedSectionId?: string | null;
 }
 
-export const AllegriaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData, onUpdate, onSectionClick, selectedSectionId, isPreview }) => {
+export const AllegriaTemplate: React.FC<TemplateProps> = ({ 
+    fiesta, 
+    invitacionData, 
+    socialConnections, 
+    onUpdate, 
+    onSectionClick, 
+    selectedSectionId, 
+    isPreview 
+}) => {
     const { toast } = useToast();
     const paleta = invitacionData.cabecera.paletaColores;
     const primaryColor = paleta?.primary || '#E11D48';
