@@ -347,6 +347,35 @@ function SalonLayoutContent() {
     }
   };
   
+  const handleLoadTemplate = async () => {
+    setIsTemplateActionLoading(true);
+    try {
+        const data = await getSalonLayoutTemplates();
+        setTemplates(data);
+        setIsLoadTemplateModalOpen(true);
+    } catch(e) {
+        toast({title: "Error", description: "No se pudieron cargar las plantillas."});
+    } finally {
+        setIsTemplateActionLoading(false);
+    }
+  };
+
+  const handleDeleteTemplate = async (templateId: string) => {
+    setProcessingPointName(templateId);
+    try {
+      const result = await deleteSalonLayoutTemplate(templateId);
+      if (result.success) {
+        toast({ title: "Plantilla eliminada" });
+        const updatedTemplates = templates.filter(t => t.id !== templateId);
+        setTemplates(updatedTemplates);
+      } else throw new Error(result.error);
+    } catch (e: any) {
+      toast({ title: "Error", description: "No se pudo eliminar la plantilla.", variant: "destructive" });
+    } finally {
+      setProcessingPointName(null);
+    }
+  };
+  
   const handleAssignGuestToTable = async (guestId: string, tableName: string | null) => {
     const guestToUpdate = fiesta?.invitados?.find(inv => inv.id === guestId);
     if (!guestToUpdate || !fiestaId) return;
@@ -414,6 +443,33 @@ function SalonLayoutContent() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={isLoadTemplateModalOpen} onOpenChange={setIsLoadTemplateModalOpen}>
+        <DialogContent className="rounded-3xl border-none">
+          <DialogHeader><DialogTitle className="font-headline text-2xl">Cargar Plantilla</DialogTitle></DialogHeader>
+          {isTemplateActionLoading ? <div className="p-8 text-center"><Loader2 className="w-12 h-12 animate-spin text-primary mx-auto"/></div> : 
+            templates.length === 0 ? <p className="text-center text-slate-400 py-12">No hay plantillas guardadas.</p> :
+            <ScrollArea className="max-h-[60vh] pr-4">
+                <div className="space-y-3">
+                    {templates.map(t => (
+                        <div key={t.id} className="p-4 border rounded-2xl flex items-center justify-between group hover:border-primary/50 transition-all">
+                            <div>
+                                <p className="font-bold text-slate-800">{t.name}</p>
+                                <p className="text-[10px] uppercase font-black tracking-widest text-slate-400">{t.layoutData.salonElements?.length || 0} elementos</p>
+                            </div>
+                            <div className="flex gap-2">
+                                <Button onClick={() => { setDecoracion(t.layoutData); setIsLoadTemplateModalOpen(false); toast({title:"Plantilla cargada"}); }} size="sm" className="rounded-xl h-9 px-4 font-bold">Cargar</Button>
+                                <Button onClick={() => handleDeleteTemplate(t.id)} variant="ghost" size="icon" className="rounded-xl h-9 w-9 text-destructive hover:bg-red-50" disabled={processingPointName === t.id}>
+                                    {processingPointName === t.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}
+                                </Button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </ScrollArea>
+          }
+        </DialogContent>
+      </Dialog>
        
        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
          <div className="flex items-center gap-4">
@@ -426,6 +482,7 @@ function SalonLayoutContent() {
             </div>
          </div>
          <div className="flex gap-2 w-full md:w-auto">
+            <Button variant="outline" onClick={handleLoadTemplate} className="rounded-xl border-slate-200"><FolderUp className="w-4 h-4 mr-2"/>Cargar Plantilla</Button>
             <Link href={`/fiestas/nueva/decoracion/pdf?fiestaId=${fiestaId}&layout=true`} passHref className="flex-1 md:flex-none">
                 <Button variant="outline" className="w-full rounded-xl border-slate-200"><Printer className="w-4 h-4 mr-2"/>Imprimir Plano</Button>
             </Link>
@@ -541,11 +598,77 @@ function SalonLayoutContent() {
             </div>
           </div>
         </TabsContent>
-        <TabsContent value="list">
-             <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden bg-white"><CardContent className="pt-6"><Table><TableHeader><TableRow><TableHead className="font-bold">Invitado</TableHead><TableHead className="text-center font-bold">Capacidad</TableHead><TableHead className="font-bold">Mesa Asignada</TableHead></TableRow></TableHeader><TableBody>{filteredGuests.sinMesa.map(guest => (<TableRow key={guest.id}><TableCell className="font-medium text-sm">{guest.nombre}</TableCell><TableCell className="text-center text-sm">{guest.partySize}</TableCell><TableCell><Select value={guest.tableNumber || ''} onValueChange={(val) => handleAssignGuestToTable(guest.id, val)}><SelectTrigger className="rounded-xl"><SelectValue placeholder="Elegir mesa..." /></SelectTrigger><SelectContent className="rounded-xl">{(decoracion.salonElements || []).filter(el => el.category?.includes("Mesa")).map(t => <SelectItem key={t.id} value={t.name}>{t.name}</SelectItem>)}</SelectContent></Select></TableCell></TableRow>))}{filteredGuests.conMesa.map(guest => (<TableRow key={guest.id} className="bg-emerald-50/30"><TableCell className="font-bold text-sm text-emerald-700">{guest.nombre}</TableCell><TableCell className="text-center text-sm">{guest.partySize}</TableCell><TableCell><Select value={guest.tableNumber || 'sin-mesa'} onValueChange={(val) => val === 'sin-mesa' ? handleAssignGuestToTable(guest.id, null) : handleAssignGuestToTable(guest.id, val)}><SelectTrigger className="rounded-xl border-emerald-200"><SelectValue /></SelectTrigger><SelectContent className="rounded-xl">{(decoracion.salonElements || []).filter(el => el.category?.includes("Mesa")).map(t => <SelectItem key={t.id} value={t.name}>{t.name}</SelectItem>)}<Separator className="my-1"/><SelectItem value="sin-mesa" className="text-destructive font-bold">ELIMINAR ASIGNACIÓN</SelectItem></SelectContent></Select></TableCell></TableRow>))}</TableBody></Table></CardContent></Card>
+        <TabsContent value="list" className="pt-4">
+             <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden bg-white">
+                <CardHeader className="flex flex-row items-center justify-between p-6 bg-slate-50 border-b border-slate-100">
+                    <div>
+                        <CardTitle className="text-sm font-black uppercase tracking-widest text-slate-800">Listado Maestro de Asignación</CardTitle>
+                        <CardDescription className="text-xs">Gestiona las mesas de forma masiva</CardDescription>
+                    </div>
+                    <div className="relative w-full max-w-xs">
+                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                        <Input placeholder="Buscar invitado..." value={guestSearchTerm} onChange={(e) => setGuestSearchTerm(e.target.value)} className="w-full pl-10 h-10 text-xs rounded-xl bg-white border-slate-200"/>
+                    </div>
+                </CardHeader>
+                <CardContent className="p-0">
+                    <Table>
+                        <TableHeader>
+                            <TableRow className="bg-slate-50/50 hover:bg-slate-50/50 border-b border-slate-100">
+                                <TableHead className="font-bold text-slate-400 uppercase text-[10px] tracking-widest pl-8">Invitado</TableHead>
+                                <TableHead className="text-center font-bold text-slate-400 uppercase text-[10px] tracking-widest">Capacidad</TableHead>
+                                <TableHead className="font-bold text-slate-400 uppercase text-[10px] tracking-widest">Mesa Asignada</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {filteredGuests.sinMesa.map(guest => (
+                                <TableRow key={guest.id} className="border-b border-slate-50 hover:bg-slate-50/30">
+                                    <TableCell className="font-medium text-sm pl-8 text-slate-700">{guest.nombre}</TableCell>
+                                    <TableCell className="text-center text-sm font-bold text-slate-400">{guest.partySize}</TableCell>
+                                    <TableCell>
+                                        <Select value={guest.tableNumber || ''} onValueChange={(val) => handleAssignGuestToTable(guest.id, val)}>
+                                            <SelectTrigger className="rounded-xl h-10 border-slate-200 bg-white">
+                                                <SelectValue placeholder="Elegir mesa..." />
+                                            </SelectTrigger>
+                                            <SelectContent className="rounded-2xl border-none shadow-2xl">
+                                                {(decoracion.salonElements || []).filter(el => el.category?.includes("Mesa")).map(t => (
+                                                    <SelectItem key={t.id} value={t.name}>{t.name}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                            {filteredGuests.conMesa.map(guest => (
+                                <TableRow key={guest.id} className="bg-emerald-50/30 border-b border-emerald-100 hover:bg-emerald-50/50">
+                                    <TableCell className="font-bold text-sm pl-8 text-emerald-700">{guest.nombre}</TableCell>
+                                    <TableCell className="text-center text-sm font-black text-emerald-600">{guest.partySize}</TableCell>
+                                    <TableCell>
+                                        <Select value={guest.tableNumber || 'sin-mesa'} onValueChange={(val) => val === 'sin-mesa' ? handleAssignGuestToTable(guest.id, null) : handleAssignGuestToTable(guest.id, val)}>
+                                            <SelectTrigger className="rounded-xl h-10 border-emerald-200 bg-white shadow-sm">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent className="rounded-2xl border-none shadow-2xl">
+                                                {(decoracion.salonElements || []).filter(el => el.category?.includes("Mesa")).map(t => (
+                                                    <SelectItem key={t.id} value={t.name}>{t.name}</SelectItem>
+                                                ))}
+                                                <DropdownMenuSeparator className="bg-slate-100"/>
+                                                <SelectItem value="sin-mesa" className="text-destructive font-bold uppercase text-[10px] tracking-widest">ELIMINAR ASIGNACIÓN</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
         </TabsContent>
       </Tabs>
-      <div className="flex justify-end pt-4 border-t border-slate-100"><Button onClick={handleSaveAll} disabled={isSaving} size="lg" className="rounded-2xl px-10 h-14 font-black text-base shadow-2xl shadow-primary/30">{isSaving ? <Loader2 className="w-5 h-5 mr-3 animate-spin"/> : <Save className="w-5 h-5 mr-3"/>} GUARDAR DISTRIBUCIÓN</Button></div>
+      <div className="flex justify-end pt-4 border-t border-slate-100">
+        <Button onClick={handleSaveAll} disabled={isSaving} size="lg" className="rounded-2xl px-10 h-14 font-black text-base shadow-2xl shadow-primary/30">
+            {isSaving ? <Loader2 className="w-5 h-5 mr-3 animate-spin"/> : <Save className="w-5 h-5 mr-3"/>} GUARDAR DISTRIBUCIÓN
+        </Button>
+      </div>
     </div>
   );
 }
