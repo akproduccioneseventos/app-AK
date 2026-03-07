@@ -221,28 +221,52 @@ function PaginaWebPageContent() {
             <Link href={fiestaId ? `/fiestas/nueva?fiestaId=${fiestaId}` : '/settings/templates/invitaciones'} passHref>
                 <Button variant="ghost" size="icon" className="rounded-full"><ArrowLeft className="w-5 h-5" /></Button>
             </Link>
-            <h1 className="text-xl font-black font-headline tracking-tight">{fiesta ? `Constructor: ${fiesta.configuracion.nombreEvento}` : 'Editor de Plantilla'}</h1>
+            <h1 className="text-lg md:text-xl font-black font-headline tracking-tight hidden sm:block">
+                {fiesta ? `Constructor: ${fiesta.configuracion.nombreEvento}` : 'Editor de Plantilla'}
+            </h1>
         </div>
         
-        <div className="hidden lg:flex items-center gap-1 bg-slate-100 p-1 rounded-2xl">
-            <Button variant={previewMode === 'mobile' ? 'white' : 'ghost'} size="sm" onClick={() => setPreviewMode('mobile')} className={cn("rounded-xl h-9", previewMode === 'mobile' && "shadow-sm")}><Smartphone className="w-4 h-4 mr-2"/>Móvil</Button>
-            <Button variant={previewMode === 'tablet' ? 'white' : 'ghost'} size="sm" onClick={() => setPreviewMode('tablet')} className={cn("rounded-xl h-9", previewMode === 'tablet' && "shadow-sm")}><Tablet className="w-4 h-4 mr-2"/>Tablet</Button>
-            <Button variant={previewMode === 'desktop' ? 'white' : 'ghost'} size="sm" onClick={() => setPreviewMode('desktop')} className={cn("rounded-xl h-9", previewMode === 'desktop' && "shadow-sm")}><Monitor className="w-4 h-4 mr-2"/>PC</Button>
+        {/* SELECTOR DE DISPOSITIVOS - MEJORADO PARA VISIBILIDAD */}
+        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-2xl border border-slate-200 shadow-inner">
+            <Button 
+                variant={previewMode === 'mobile' ? 'white' : 'ghost'} 
+                size="sm" 
+                onClick={() => setPreviewMode('mobile')} 
+                className={cn("rounded-xl h-9 px-3", previewMode === 'mobile' && "shadow-sm bg-white")}
+            >
+                <Smartphone className="w-4 h-4 md:mr-2"/><span className="hidden md:inline">Móvil</span>
+            </Button>
+            <Button 
+                variant={previewMode === 'tablet' ? 'white' : 'ghost'} 
+                size="sm" 
+                onClick={() => setPreviewMode('tablet')} 
+                className={cn("rounded-xl h-9 px-3", previewMode === 'tablet' && "shadow-sm bg-white")}
+            >
+                <Tablet className="w-4 h-4 md:mr-2"/><span className="hidden md:inline">Tablet</span>
+            </Button>
+            <Button 
+                variant={previewMode === 'desktop' ? 'white' : 'ghost'} 
+                size="sm" 
+                onClick={() => setPreviewMode('desktop')} 
+                className={cn("rounded-xl h-9 px-3", previewMode === 'desktop' && "shadow-sm bg-white")}
+            >
+                <Monitor className="w-4 h-4 md:mr-2"/><span className="hidden md:inline">PC</span>
+            </Button>
         </div>
 
-        <div className="flex items-center gap-3">
-            <Link href={fiestaId ? `/evento/actual?fiestaId=${fiestaId}` : '#'} target="_blank" passHref>
-              <Button variant="outline" className="rounded-xl font-bold"><Eye className="w-4 h-4 mr-2"/>Página Real</Button>
+        <div className="flex items-center gap-2">
+            <Link href={fiestaId ? `/evento/actual?fiestaId=${fiestaId}` : '#'} target="_blank" passHref className="hidden xs:block">
+              <Button variant="outline" className="rounded-xl font-bold h-9"><Eye className="w-4 h-4 mr-2"/>Ver Real</Button>
             </Link>
-           <Button onClick={handleSave} disabled={isSaving || fiestaId === 'template_preview'} className="rounded-xl font-bold shadow-lg shadow-primary/20">
-                {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>}
-                Guardar
+           <Button onClick={handleSave} disabled={isSaving || fiestaId === 'template_preview'} className="rounded-xl font-bold h-9 shadow-lg shadow-primary/20">
+                {isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4 sm:mr-2"/>}
+                <span className="hidden sm:inline">Guardar</span>
             </Button>
         </div>
       </header>
 
       <main className="flex-grow flex min-h-0">
-        <div className="w-[400px] flex-shrink-0 border-r bg-white overflow-y-auto custom-scrollbar shadow-xl z-40">
+        <div className="w-[320px] md:w-[400px] flex-shrink-0 border-r bg-white overflow-y-auto custom-scrollbar shadow-xl z-40">
             {selectedSectionId ? (
                 <SectionEditorPanel
                     data={invitacionData}
@@ -267,7 +291,7 @@ function PaginaWebPageContent() {
                     <div className="p-6 space-y-6 border-t bg-slate-50/50">
                         <div className="space-y-1">
                             <h3 className="font-black text-sm uppercase tracking-widest text-slate-400">Marketing y QR</h3>
-                            <p className="text-xs text-muted-foreground leading-relaxed">Integra estos elementos en tus invitaciones físicas o diseños externos.</p>
+                            <p className="text-xs text-muted-foreground leading-relaxed">Integra estos elementos en tus invitaciones físicas.</p>
                         </div>
                         <div className="space-y-4">
                             {invitacionData.regalos.visible && (
@@ -283,19 +307,6 @@ function PaginaWebPageContent() {
                                 </div>
                             </Card>
                             )}
-                             {fiesta.socialGallerySettings?.enabled && (
-                                <Card className="p-4 border-none shadow-sm rounded-2xl bg-white">
-                                    <Label className="text-xs font-black uppercase tracking-widest text-slate-400 mb-3 block">Muro Social</Label>
-                                    <div className="flex items-center space-x-2">
-                                        <Input value={getFullLink('/evento/social/[fiestaId]')} readOnly className="h-10 text-xs bg-slate-50 border-none rounded-xl" />
-                                        <Button size="icon" variant="secondary" className="rounded-xl h-10 w-10 shrink-0" onClick={() => handleCopyToClipboard(getFullLink('/evento/social/[fiestaId]'))}><ClipboardCopy className="h-4 w-4" /></Button>
-                                    </div>
-                                    <div className="text-center mt-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                                        <QRCodeStylized id="qr-social-panel" value={getFullLink('/evento/social/[fiestaId]')} size={100} level="M" />
-                                        <Button size="sm" variant="link" className="text-xs mt-2" onClick={() => downloadQR('qr-social-panel', 'qr-muro-social')}><Download className="w-3 h-3 mr-1"/>Descargar</Button>
-                                    </div>
-                                </Card>
-                             )}
                         </div>
                     </div>
                 )}
@@ -303,14 +314,15 @@ function PaginaWebPageContent() {
             )}
         </div>
         
-        <div className="flex-1 overflow-y-auto p-8 flex justify-center items-start bg-slate-200">
+        {/* LIENZO DE PREVISUALIZACIÓN CON MARCO DE DISPOSITIVO */}
+        <div className="flex-1 overflow-y-auto p-4 md:p-8 flex justify-center items-start bg-slate-200 custom-scrollbar">
           <div className={cn(
               "transition-all duration-700 ease-in-out shadow-3xl bg-white relative overflow-hidden",
-              previewMode === 'mobile' && "w-[390px] h-[844px] rounded-[3rem] border-[12px] border-slate-900 mt-10",
+              previewMode === 'mobile' && "w-[375px] h-[667px] md:w-[390px] md:h-[844px] rounded-[3rem] border-[12px] border-slate-900 mt-10",
               previewMode === 'tablet' && "w-[768px] h-[1024px] rounded-[2rem] border-[12px] border-slate-900 mt-4",
               previewMode === 'desktop' && "w-full max-w-full h-full rounded-lg"
           )}>
-            {previewMode === 'mobile' && (
+            {(previewMode === 'mobile' || previewMode === 'tablet') && (
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-900 rounded-b-2xl z-[60] flex items-center justify-center">
                     <div className="w-12 h-1 bg-slate-800 rounded-full"></div>
                 </div>
