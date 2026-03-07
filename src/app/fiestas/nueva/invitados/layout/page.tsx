@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Disc, Clapperboard, Sofa, Camera as CameraIcon, Search, Printer, Settings2, FolderDown, FolderUp, Maximize, ZoomIn, ZoomOut, Upload, Map, ChevronsUp, ChevronsDown, X, Armchair, PartyPopper, Ticket, UserMinus, CookingPot, Beer, Layers, Ruler } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Disc, Clapperboard, Sofa, Camera as CameraIcon, Search, Printer, Settings2, FolderDown, FolderUp, Maximize, ZoomIn, ZoomOut, Upload, Map, ChevronsUp, ChevronsDown, X, Armchair, PartyPopper, Ticket, UserMinus, CookingPot, Beer, Layers, Ruler, Filter, Group } from 'lucide-react';
 import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData, LayoutElementType } from '@/types/fiesta';
@@ -67,7 +67,10 @@ const GuestCard: React.FC<{ guest: Invitado }> = ({ guest }) => {
         <p className="font-bold text-sm text-slate-800 truncate">{guest.nombre}</p>
         {guest.isCeliac && <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0"/>}
       </div>
-      <p className="text-[10px] uppercase font-black tracking-widest text-slate-400">{guest.partySize || 1} persona(s)</p>
+      <div className="flex justify-between items-center mt-1">
+        <p className="text-[10px] uppercase font-black tracking-widest text-slate-400">{guest.partySize || 1} persona(s)</p>
+        {guest.tag && <Badge variant="outline" className="text-[8px] h-4 bg-slate-50 text-slate-400 font-bold border-none uppercase">{guest.tag}</Badge>}
+      </div>
     </div>
   );
 };
@@ -256,6 +259,7 @@ function SalonLayoutContent() {
   const [scale, setScale] = useState(1);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [guestSearchTerm, setGuestSearchTerm] = useState('');
+  const [tagFilter, setTagFilter] = useState<string>('all');
   const [isUploading, setIsUploading] = useState(false);
 
   const loadData = useCallback(async (showLoading = true) => {
@@ -455,15 +459,27 @@ function SalonLayoutContent() {
     setCustomElement({ name: '', width: 2, height: 1, type: 'element', shape: 'rectangle' });
   };
 
+  const allTags = useMemo(() => {
+      const tags = new Set<string>();
+      fiesta?.invitados?.forEach(inv => { if(inv.tag) tags.add(inv.tag); });
+      return Array.from(tags).sort();
+  }, [fiesta?.invitados]);
+
   const filteredGuests = useMemo(() => {
     if (!fiesta?.invitados) return { conMesa: [], sinMesa: [] };
     const lowerCaseSearch = guestSearchTerm.toLowerCase();
-    const guestsToConsider = fiesta.invitados;
+    
+    const guestsToConsider = fiesta.invitados.filter(g => {
+        const matchesSearch = g.nombre.toLowerCase().includes(lowerCaseSearch);
+        const matchesTag = tagFilter === 'all' || g.tag === tagFilter;
+        return matchesSearch && matchesTag;
+    });
+
     return {
-        conMesa: guestsToConsider.filter(g => g.tableNumber && g.nombre.toLowerCase().includes(lowerCaseSearch)).sort((a,b) => (a.tableNumber || '').localeCompare(b.tableNumber || '')),
-        sinMesa: guestsToConsider.filter(g => !g.tableNumber && g.nombre.toLowerCase().includes(lowerCaseSearch)).sort((a,b) => a.nombre.localeCompare(b.nombre))
+        conMesa: guestsToConsider.filter(g => g.tableNumber).sort((a,b) => (a.tableNumber || '').localeCompare(b.tableNumber || '')),
+        sinMesa: guestsToConsider.filter(g => !g.tableNumber).sort((a,b) => a.nombre.localeCompare(b.nombre))
     };
-  }, [fiesta?.invitados, guestSearchTerm]);
+  }, [fiesta?.invitados, guestSearchTerm, tagFilter]);
 
   if (isLoading || !fiestaId) return <div className="flex items-center justify-center h-[calc(100vh-200px)]"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>
   if (error || !decoracion || !fiesta) return <div className="text-destructive text-center p-4">{error}</div>
@@ -636,14 +652,51 @@ function SalonLayoutContent() {
 
             <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 h-[calc(100vh-500px)]">
             <Card className="xl:col-span-3 flex flex-col border-none shadow-2xl rounded-[2rem] overflow-hidden bg-white/80 backdrop-blur-md">
-                <CardHeader className="p-6 bg-slate-50 border-b border-slate-100">
-                  <div className="flex justify-between items-center mb-4">
+                <CardHeader className="p-6 bg-slate-50 border-b border-slate-100 space-y-4">
+                  <div className="flex justify-between items-center">
                     <CardTitle className="text-sm font-black uppercase tracking-widest text-slate-800">Invitados Sin Mesa</CardTitle>
                     <Badge variant="secondary" className="rounded-full bg-primary/10 text-primary border-none">{filteredGuests.sinMesa.length}</Badge>
                   </div>
-                  <div className="relative"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" /><Input placeholder="Buscar por nombre..." value={guestSearchTerm} onChange={(e) => setGuestSearchTerm(e.target.value)} className="w-full pl-10 h-10 text-xs rounded-xl bg-white border-slate-200"/></div>
+                  
+                  {/* Smart Seating Filters */}
+                  <div className="space-y-3">
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                        <Input placeholder="Buscar por nombre..." value={guestSearchTerm} onChange={(e) => setGuestSearchTerm(e.target.value)} className="w-full pl-10 h-10 text-xs rounded-xl bg-white border-slate-200"/>
+                    </div>
+                    
+                    <div className="space-y-1.5">
+                        <Label className="text-[9px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5">
+                            <Filter className="w-3 h-3"/> Agrupar por Relación
+                        </Label>
+                        <Select value={tagFilter} onValueChange={setTagFilter}>
+                            <SelectTrigger className="h-9 rounded-xl text-[10px] font-bold uppercase tracking-tight bg-white border-slate-200">
+                                <SelectValue placeholder="Todos los grupos"/>
+                            </SelectTrigger>
+                            <SelectContent className="rounded-xl border-none shadow-2xl">
+                                <SelectItem value="all">Todos los grupos</SelectItem>
+                                <DropdownMenuSeparator/>
+                                {allTags.map(tag => (
+                                    <SelectItem key={tag} value={tag}>{tag}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                  </div>
                 </CardHeader>
-                <CardContent className="flex-grow min-h-0 p-4"><ScrollArea className="h-full"><div className="space-y-2 pr-4">{filteredGuests.sinMesa.map(guest => <GuestCard key={guest.id} guest={guest} />)}</div></ScrollArea></CardContent>
+                <CardContent className="flex-grow min-h-0 p-4">
+                    <ScrollArea className="h-full">
+                        <div className="space-y-2 pr-4">
+                            {filteredGuests.sinMesa.map(guest => <GuestCard key={guest.id} guest={guest} />)}
+                            {filteredGuests.sinMesa.length === 0 && (
+                                <div className="text-center py-12 opacity-30">
+                                    <Users className="w-10 h-10 mx-auto mb-2"/>
+                                    <p className="text-[10px] font-black uppercase tracking-widest">Sin resultados</p>
+                                </div>
+                            )}
+                        </div>
+                    </ScrollArea>
+                </CardContent>
             </Card>
             <div className={cn("xl:col-span-9 flex flex-col transition-all duration-500", isFullScreen ? 'fixed inset-0 z-[100] p-6 bg-slate-900/95 backdrop-blur-3xl' : '')}>
                 <Card className="h-full flex flex-col flex-grow border-none shadow-2xl rounded-[2rem] overflow-hidden bg-white">
@@ -740,6 +793,7 @@ function SalonLayoutContent() {
                                         <div className="flex items-center gap-2">
                                             {guest.nombre}
                                             {guest.isCeliac && <AlertTriangle className="w-3.5 h-3.5 text-amber-600" title="Celíaco" />}
+                                            {guest.tag && <Badge variant="outline" className="text-[8px] bg-slate-50 text-slate-400 border-none font-bold uppercase">{guest.tag}</Badge>}
                                         </div>
                                     </TableCell>
                                     <TableCell className="text-center text-sm font-bold text-slate-400">{guest.partySize}</TableCell>
@@ -763,6 +817,7 @@ function SalonLayoutContent() {
                                         <div className="flex items-center gap-2">
                                             {guest.nombre}
                                             {guest.isCeliac && <AlertTriangle className="w-3.5 h-3.5 text-amber-600" title="Celíaco" />}
+                                            {guest.tag && <Badge variant="outline" className="text-[8px] bg-emerald-100/50 text-emerald-600 border-none font-bold uppercase">{guest.tag}</Badge>}
                                         </div>
                                     </TableCell>
                                     <TableCell className="text-center text-sm font-black text-emerald-600">{guest.partySize}</TableCell>

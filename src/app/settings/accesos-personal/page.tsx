@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -8,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft, PlusCircle, Trash2, Loader2, AlertTriangle, KeyRound, ClipboardCopy, Share2, KanbanSquare, Music2, Clock, PackageSearch, Palette } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Trash2, Loader2, KeyRound, ClipboardCopy, Share2, KanbanSquare, Music2, Clock, PackageSearch, Palette, Cake, Camera } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { createAccesoPersonal, getAccesosGenerales, deleteAccesoPersonal, type AccesoPersonal, type ModuloPermiso } from '@/app/actions/accesos-personal';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
@@ -31,6 +30,8 @@ const MODULOS_PERMITIDOS: { id: ModuloPermiso, label: string, icon: React.Elemen
     { id: 'itinerario', label: 'Itinerario del Evento', icon: Clock, type: 'evento' },
     { id: 'carga-operativa', label: 'Lista de Carga Operativa', icon: PackageSearch, type: 'evento' },
     { id: 'decoracion', label: 'Plan de Decoración', icon: Palette, type: 'evento' },
+    { id: 'reposteria', label: 'Gestión de Repostería (Proveedor)', icon: Cake, type: 'evento' },
+    { id: 'fotografia', label: 'Gestión de Foto/Video (Proveedor)', icon: Camera, type: 'evento' },
 ];
 
 export default function AccesosPersonalPage() {
@@ -170,7 +171,7 @@ export default function AccesosPersonalPage() {
       <Card>
         <CardHeader>
           <CardTitle>Gestionar Accesos</CardTitle>
-          <CardDescription>Crea enlaces únicos y seguros para que tu personal (portero, DJ, etc.) pueda ver solo la información relevante, sin necesidad de una contraseña.</CardDescription>
+          <CardDescription>Crea enlaces únicos y seguros para que tu personal (portero, DJ, etc.) o proveedores externos (repostera, fotógrafo) puedan ver solo la información relevante.</CardDescription>
         </CardHeader>
         <CardContent>
           <Button onClick={() => setIsModalOpen(true)}><PlusCircle className="w-4 h-4 mr-2"/>Crear Nuevo Enlace de Acceso</Button>

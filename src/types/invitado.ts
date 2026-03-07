@@ -14,6 +14,7 @@ export interface Invitado {
   checkedIn?: boolean; // Has this guest been checked in?
   checkInTimestamp?: string; // ISO date string of when they were checked in
   isCeliac?: boolean; // Módulo 2: Seguridad alimentaria
+  tag?: string; // Punto 6: Etiqueta de relación (Familia, Amigos, etc.)
 }
 
 // Para el formulario de añadir nuevo invitado, antes de tener ID

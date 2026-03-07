@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Plus, Trash2, Users, Mail, Phone, Edit3, Save, Loader2, AlertTriangle, NotebookTextIcon, UserMinus, UserPlus2, UserCheck, Ticket, LayoutDashboard, ArrowRight, Printer, QrCode } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Users, Mail, Phone, Edit3, Save, Loader2, AlertTriangle, NotebookTextIcon, UserMinus, UserPlus2, UserCheck, Ticket, LayoutDashboard, ArrowRight, Printer, QrCode, Tag } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import type { Invitado, RsvpStatus, NuevoInvitadoData, CategoriaInvitado } from '@/types/invitado';
@@ -58,6 +58,7 @@ function InvitadosEventoContent() {
   const [nuevaCategoria, setNewCategoria] = useState<CategoriaInvitado>('Adulto');
   const [nuevoNumAcompanantes, setNuevoNumAcompanantes] = useState<number>(0);
   const [nuevoCeliaco, setNuevoCeliaco] = useState(false);
+  const [nuevoTag, setNuevoTag] = useState('');
 
   const [editingInvitado, setEditingInvitado] = useState<Invitado | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -116,7 +117,8 @@ function InvitadosEventoContent() {
       partySize: 1 + (Number(nuevoNumAcompanantes) || 0),
       notes: undefined, 
       companionNames: [],
-      isCeliac: nuevoCeliaco
+      isCeliac: nuevoCeliaco,
+      tag: nuevoTag.trim() || undefined
     };
     const result = await addInvitadoFiestaActual(fiestaId, nuevoInvitadoData);
     if (result.success && result.invitado) {
@@ -125,6 +127,7 @@ function InvitadosEventoContent() {
       setNuevoContacto('');
       setNuevoNumAcompanantes(0);
       setNuevoCeliaco(false);
+      setNuevoTag('');
       toast({ title: "Invitado Añadido" });
     } else {
       toast({ title: "Error al Añadir", description: result.error, variant: "destructive" });
@@ -187,10 +190,6 @@ function InvitadosEventoContent() {
     return acc;
   }, {} as Record<RsvpStatus | 'TotalPersonas' | 'TotalInvitaciones' | 'checkedIn' | 'celiacs', number>), [invitados]);
 
-  const celiacosList = useMemo(() => invitados.filter(i => i.isCeliac && i.rsvp === 'Confirmado'), [invitados]);
-
-  if (isLoading) return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
-
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <Dialog open={isQrModalOpen} onOpenChange={setIsQrModalOpen}>
@@ -221,12 +220,12 @@ function InvitadosEventoContent() {
           <Card className="bg-amber-50 border-amber-200">
               <CardHeader className="py-3 px-4">
                   <CardTitle className="text-sm font-bold text-amber-800 flex items-center gap-2">
-                      <AlertTriangle className="w-4 h-4"/> Alertas Alimentarias (Mozos)
+                      <AlertTriangle className="w-4 h-4"/> Alertas Alimentarias
                   </CardTitle>
               </CardHeader>
               <CardContent className="py-0 px-4 pb-3">
                   <p className="text-2xl font-black text-amber-600">{rsvpCounts.celiacs}</p>
-                  <p className="text-xs text-amber-700">Total Celíacos confirmados</p>
+                  <p className="text-xs text-amber-700">Celíacos confirmados</p>
               </CardContent>
           </Card>
           <Card>
@@ -238,52 +237,19 @@ function InvitadosEventoContent() {
               <CardContent className="py-0 px-4 pb-3"><p className="text-2xl font-black text-green-600">{rsvpCounts.Confirmado || 0}</p></CardContent>
           </Card>
       </div>
-      
-      {celiacosList.length > 0 && (
-          <Card className="border-amber-200 shadow-md">
-              <CardHeader className="bg-amber-50/50 border-b border-amber-100">
-                  <CardTitle className="text-md font-bold text-amber-900">Reporte de Celíacos para Servicio</CardTitle>
-                  <CardDescription className="text-amber-700">Identificación rápida para mozos y organizador.</CardDescription>
-              </CardHeader>
-              <CardContent className="p-0">
-                  <Table>
-                      <TableHeader>
-                          <TableRow className="bg-amber-50/30">
-                              <TableHead className="font-bold text-amber-900">Nombre</TableHead>
-                              <TableHead className="font-bold text-amber-900">Ubicación (Mesa)</TableHead>
-                          </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                          {celiacosList.map(inv => (
-                              <TableRow key={inv.id}>
-                                  <TableCell className="font-bold">{inv.nombre}</TableCell>
-                                  <TableCell>
-                                      {inv.tableNumber ? (
-                                          <Badge className="bg-amber-600 text-white border-none font-black px-3">MESA {inv.tableNumber}</Badge>
-                                      ) : (
-                                          <span className="text-amber-600 font-medium italic">Sin mesa (Mesa Libre)</span>
-                                      )}
-                                  </TableCell>
-                              </TableRow>
-                          ))}
-                      </TableBody>
-                  </Table>
-              </CardContent>
-          </Card>
-      )}
 
       <Card>
         <CardHeader><CardTitle>Añadir Invitado Manualmente</CardTitle></CardHeader>
         <CardContent>
-          <form onSubmit={handleAddInvitado} className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
-            <div className="space-y-1"><Label>Nombre</Label><Input value={nuevoNombre} onChange={e => setNuevoNombre(e.target.value)} required /></div>
+          <form onSubmit={handleAddInvitado} className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
+            <div className="space-y-1 md:col-span-2"><Label>Nombre</Label><Input value={nuevoNombre} onChange={e => setNuevoNombre(e.target.value)} required /></div>
             <div className="space-y-1"><Label>Categoría</Label>
               <Select value={nuevaCategoria} onValueChange={v => setNewCategoria(v as CategoriaInvitado)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent><SelectItem value="Adulto">Adulto</SelectItem><SelectItem value="Niño/Adolescente">Niño/Adol.</SelectItem></SelectContent>
               </Select>
             </div>
-            <div className="space-y-1"><Label>Acompañantes</Label><Input type="number" value={nuevoNumAcompanantes} onChange={e => setNuevoNumAcompanantes(Number(e.target.value))} min="0" /></div>
+            <div className="space-y-1"><Label>Grupo/Relación</Label><Input value={nuevoTag} onChange={e => setNuevoTag(e.target.value)} placeholder="Ej: Familia, Amigos" /></div>
             <div className="flex items-center space-x-2 pb-2">
                 <Switch id="new-celiac" checked={nuevoCeliaco} onCheckedChange={setNuevoCeliaco} />
                 <Label htmlFor="new-celiac" className="text-xs font-bold text-amber-600">Celíaco</Label>
@@ -295,10 +261,7 @@ function InvitadosEventoContent() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex justify-between items-center">
-            <span>Lista Completa</span>
-            <Badge variant="secondary">Presentes: {rsvpCounts.checkedIn}</Badge>
-          </CardTitle>
+          <CardTitle>Lista Completa</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -306,7 +269,7 @@ function InvitadosEventoContent() {
                 <TableHeader>
                 <TableRow>
                     <TableHead>Nombre</TableHead>
-                    <TableHead>Categoría</TableHead>
+                    <TableHead>Grupo</TableHead>
                     <TableHead>RSVP</TableHead>
                     <TableHead>Alertas</TableHead>
                     <TableHead>Mesa</TableHead>
@@ -317,7 +280,9 @@ function InvitadosEventoContent() {
                 {invitados.map(guest => (
                     <TableRow key={guest.id} className={guest.isCeliac ? "bg-amber-50/20" : ""}>
                     <TableCell className="font-medium">{guest.nombre}</TableCell>
-                    <TableCell><Badge variant="outline">{guest.categoria || 'Adulto'}</Badge></TableCell>
+                    <TableCell>
+                        {guest.tag ? <Badge variant="secondary" className="bg-slate-100 text-slate-600 border-none font-bold text-[10px] uppercase">{guest.tag}</Badge> : '-'}
+                    </TableCell>
                     <TableCell><RsvpStatusBadge status={guest.rsvp} /></TableCell>
                     <TableCell>
                         {guest.isCeliac && <Badge className="bg-amber-500 text-white border-none font-bold text-[10px]">CELIACO</Badge>}
@@ -351,18 +316,21 @@ function InvitadosEventoContent() {
                     <SelectContent><SelectItem value="Adulto">Adulto</SelectItem><SelectItem value="Niño/Adolescente">Niño/Adol.</SelectItem></SelectContent>
                     </Select>
                 </div>
+                <div className="space-y-1"><Label>Grupo/Relación</Label><Input value={editingInvitado.tag || ''} onChange={e => setEditingInvitado({...editingInvitado, tag: e.target.value})} placeholder="Ej: Familia, Trabajo" /></div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1"><Label>Mesa</Label>
                     <Select value={editingInvitado.tableNumber || 'sin-mesa'} onValueChange={v => setEditingInvitado({...editingInvitado, tableNumber: v === 'sin-mesa' ? undefined : v})}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent><SelectItem value="sin-mesa">Sin Mesa</SelectItem>{tableNames.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
                     </Select>
                 </div>
+                <div className="flex items-center space-x-2 pt-6">
+                    <Switch id="edit-celiac" checked={editingInvitado.isCeliac || false} onCheckedChange={(val) => setEditingInvitado({...editingInvitado, isCeliac: val})} />
+                    <Label htmlFor="edit-celiac" className="text-sm font-bold text-amber-900">Soy Celíaco</Label>
+                </div>
               </div>
-              <div className="flex items-center space-x-2 p-3 bg-amber-50 rounded-lg border border-amber-100">
-                <Switch id="edit-celiac" checked={editingInvitado.isCeliac || false} onCheckedChange={(val) => setEditingInvitado({...editingInvitado, isCeliac: val})} />
-                <Label htmlFor="edit-celiac" className="text-sm font-bold text-amber-900">Soy Celíaco</Label>
-              </div>
-              <DialogFooter><Button type="submit" disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : 'Guardar Cambios'}</Button></DialogFooter>
+              <DialogFooter><Button type="submit" disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : 'Guardar Cambios'}</Button></DialogFooter>
             </form>
           )}
         </DialogContent>
