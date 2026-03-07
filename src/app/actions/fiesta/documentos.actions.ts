@@ -1,3 +1,4 @@
+
 'use server';
 
 import type { FiestaEnPlanificacion, OtroDocumento, DocumentoTipo } from '@/types/fiesta';
@@ -5,6 +6,7 @@ import { readData, writeData } from '@/lib/data-service';
 import path from 'path';
 import fs from 'fs/promises';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
+import { headers } from 'next/headers';
 
 const DATA_DIR = path.join(process.cwd(), 'src', 'data');
 
@@ -75,7 +77,73 @@ export async function deleteDocumento(fiestaId: string, docId: string): Promise<
         await saveFiesta(updatedFiesta);
 
         return { success: true };
-    } catch (e:any) {
+    } catch(e:any) {
+        return { success: false, error: e.message };
+    }
+}
+
+// --- MÓDULO 4: FIRMA DIGITAL Y CARGA FÍSICA ---
+
+export async function signContractDigitally(fiestaId: string, signerName: string): Promise<{ success: boolean; error?: string }> {
+    try {
+        const fiesta = await getFiestaById(fiestaId);
+        if (!fiesta) throw new Error("Evento no encontrado");
+
+        const headersList = headers();
+        const ip = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'IP desconocida';
+
+        const updatedFiesta: FiestaEnPlanificacion = {
+            ...fiesta,
+            contratoFirmaInfo: {
+                isSigned: true,
+                signedAt: new Date().toISOString(),
+                method: 'digital',
+                signedBy: signerName,
+                ip: ip
+            }
+        };
+
+        await saveFiesta(updatedFiesta);
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+export async function uploadPhysicalContract(formData: FormData): Promise<{ success: boolean; error?: string }> {
+    const file = formData.get('file') as File | null;
+    const fiestaId = formData.get('fiestaId') as string;
+
+    if (!file || !fiestaId) return { success: false, error: 'Faltan datos.' };
+
+    try {
+        const fiesta = await getFiestaById(fiestaId);
+        if (!fiesta) throw new Error("Evento no encontrado");
+
+        const contractsDir = path.join(DATA_DIR, 'contracts', 'signed-physical', fiestaId);
+        await ensureDirectoryExists(contractsDir);
+
+        const newFilename = `contrato_fisico_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+        const filePath = path.join(contractsDir, newFilename);
+
+        const bytes = await file.arrayBuffer();
+        await fs.writeFile(filePath, Buffer.from(bytes));
+
+        const publicUrl = `/api/signed-contracts/${fiestaId}/${newFilename}`;
+
+        const updatedFiesta: FiestaEnPlanificacion = {
+            ...fiesta,
+            contratoFirmaInfo: {
+                isSigned: true,
+                signedAt: new Date().toISOString(),
+                method: 'physical',
+                physicalContractUrl: publicUrl
+            }
+        };
+
+        await saveFiesta(updatedFiesta);
+        return { success: true };
+    } catch (e: any) {
         return { success: false, error: e.message };
     }
 }

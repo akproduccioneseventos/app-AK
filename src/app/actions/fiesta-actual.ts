@@ -1,3 +1,4 @@
+
 'use server';
 
 import * as FiestaModule from './fiesta/fiesta.actions';
@@ -105,6 +106,8 @@ export async function updateFotografiaYFilmacionFiestaActual(fiestaId: string, f
 // Documentos Actions
 export async function uploadDocumentoFiesta(formData: FormData) { return DocumentosModule.uploadDocumento(formData); }
 export async function deleteDocumentoFiesta(fiestaId: string, docId: string) { return DocumentosModule.deleteDocumento(fiestaId, docId); }
+export async function signContractDigitally(fiestaId: string, name: string) { return DocumentosModule.signContractDigitally(fiestaId, name); }
+export async function uploadPhysicalContract(formData: FormData) { return DocumentosModule.uploadPhysicalContract(formData); }
 
 // Pagos Proveedores Actions
 export async function updatePagosProveedoresFiestaActual(fiestaId: string, pagos: PagoProveedor[]) { return PagosModule.updatePagosProveedores(fiestaId, pagos); }

@@ -375,6 +375,7 @@ export interface ClientPortalSettings {
   paginaPublica: PortalViewOnlyModuleSettings;
   fotografiaYFilmacion: PortalViewOnlyModuleSettings;
   moodboard: PortalModuleSettings; // Nuevo para Módulo 3
+  contrato: PortalViewOnlyModuleSettings; // Nuevo para Módulo 4
 }
 
 export interface SocialGallerySettings {
@@ -654,6 +655,15 @@ export interface CompraProveedorEstado {
 
 export type FiestaEstado = 'Planificación' | 'Contratada' | 'Finalizada' | 'Cancelada';
 
+export interface ContratoFirmaInfo {
+    isSigned: boolean;
+    signedAt?: string;
+    method?: 'digital' | 'physical';
+    signedBy?: string;
+    ip?: string;
+    physicalContractUrl?: string; // Si se subió escaneado
+}
+
 export interface FiestaEnPlanificacion {
   id: string;
   configuracion: ConfigEventoDataStorage;
@@ -680,6 +690,7 @@ export interface FiestaEnPlanificacion {
 
   // Event specific contract text (override template)
   contratoServicioTexto?: string;
+  contratoFirmaInfo?: ContratoFirmaInfo; // Módulo 4
 
   // Deprecated - will be migrated to invitacionDigital
   webPageSettings?: EventWebPageSettings; 

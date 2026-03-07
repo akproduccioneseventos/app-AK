@@ -3,11 +3,11 @@
 
 import { Suspense, useEffect, useState, type FormEvent } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, AlertTriangle, KeyRound, LogIn, ArrowRight, NotebookTextIcon, ListChecks, Music, Camera, Gift, FileText, UserCheck, Users, Globe, MessageSquare, Wand2 } from 'lucide-react';
+import { Loader2, AlertTriangle, KeyRound, LogIn, ArrowRight, NotebookTextIcon, ListChecks, Music, Camera, Gift, FileText, UserCheck, Users, Globe, MessageSquare, Wand2, FileSignature } from 'lucide-react';
 import type { FiestaEnPlanificacion, ClientPortalSettings } from '@/types/fiesta';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import Link from 'next/link';
@@ -16,6 +16,7 @@ const SESSION_KEY_PREFIX = 'portal_auth_';
 
 const portalModules = [
     { id: 'checklist', label: 'Mis Tareas', href: '/portal/[fiestaId]/tareas', icon: ListChecks },
+    { id: 'contrato', label: 'Ver y Firmar Contrato', href: '/portal/[fiestaId]/contrato', icon: FileSignature }, // Módulo 4
     { id: 'invitados', label: 'Asignación de Mesas', href: '/portal/mesas', icon: Users },
     { id: 'moodboard', label: 'Dream Designer (Moodboard)', href: '/portal/[fiestaId]/moodboard', icon: Wand2 },
     { id: 'musica', label: 'Sugerencias Musicales', href: '/portal/[fiestaId]/musica', icon: Music },
@@ -130,8 +131,11 @@ function ClientPortalContent() {
                     </CardHeader>
                     <CardContent className="space-y-3">
                        {portalModules.map(mod => {
+                           // For 'contrato' module, it's always visible if not explicitly hidden
                            const moduleSetting = settings[mod.id as keyof typeof settings];
-                           if (!moduleSetting || !moduleSetting.visible) return null;
+                           const isVisible = (mod.id === 'contrato' && !moduleSetting) || (moduleSetting && (moduleSetting as any).visible);
+                           
+                           if (!isVisible) return null;
                            const Icon = mod.icon;
                            
                            let finalHref = mod.href?.replace('[fiestaId]', fiesta.id);
