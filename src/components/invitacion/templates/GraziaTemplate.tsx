@@ -1,8 +1,8 @@
 
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import type { FiestaEnPlanificacion, InvitacionDigitalData, ColorPalette, SocialConnection, SeccionInvitacion, GiftItem, DetalleEventoEspecifico, TextWithStyle, TextStyle, ProgramaEventoItem } from '@/types/fiesta';
+import React, { useState, useEffect, useRef } from 'react';
+import type { FiestaEnPlanificacion, InvitacionDigitalData, ColorPalette, SocialConnection, SeccionInvitacion, GiftItem, ProgramaEventoItem, TextStyle } from '@/types/fiesta';
 import { EditableText } from '../edit/EditableText';
 import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
@@ -10,54 +10,33 @@ import { CountdownTimer } from '@/components/countdown-timer';
 import { Separator } from '@/components/ui/separator';
 import { 
   Church, 
-  Building, 
-  PartyPopper, 
-  Heart, 
   MapPin, 
   Play, 
   Pause, 
-  Facebook, 
-  Instagram, 
-  Music, 
-  MessageSquare, 
-  Sparkles, 
-  Check, 
-  ArrowRight, 
-  X, 
-  Calendar, 
-  User, 
-  Mail, 
-  Grid, 
-  Code, 
-  Palette as PaletteIcon, 
-  Share2, 
-  Camera, 
-  Camera as CameraIcon, 
-  ArrowLeft, 
+  Heart, 
+  PartyPopper, 
   Clock, 
-  Users as UsersIcon, 
-  Link as LinkIcon, 
-  QrCode, 
-  Download, 
   Utensils, 
   GlassWater, 
   CakeSlice, 
   Diamond, 
-  PlusCircle, 
+  Sparkles, 
   Gift as GiftIcon,
-  ClipboardCopy
+  ClipboardCopy,
+  Calendar,
+  Camera as CameraIcon,
+  ChevronDown,
+  Music,
+  Share2,
+  Check
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
 import { motion, AnimatePresence } from "framer-motion";
-import { WatermarkedImage } from '@/components/watermarked-image';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
-import { Textarea } from '@/components/ui/textarea';
-import QRCodeStylized from 'qrcode.react';
 import { Card, CardContent } from '@/components/ui/card';
 
 interface TemplateProps {
@@ -71,20 +50,20 @@ interface TemplateProps {
   selectedSectionId?: string | null;
 }
 
+const iconMap: Record<string, React.ElementType> = {
+  Utensils, GlassWater, Music, CakeSlice, Camera: CameraIcon, Diamond, PartyPopper, Clock,
+};
+
 const formatDate = (dateString?: string) => {
-  if (!dateString) return "Fecha no definida";
+  if (!dateString) return "PRÓXIMAMENTE";
   try {
     const date = new Date(dateString);
     return date.toLocaleDateString('es-ES', {
       day: 'numeric', month: 'long', year: 'numeric'
-    });
+    }).toUpperCase();
   } catch (e) {
-    return 'Fecha inválida';
+    return 'FECHA INVÁLIDA';
   }
-};
-
-const iconMap: Record<string, React.ElementType> = {
-  Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper, Clock,
 };
 
 const SectionWrapper: React.FC<{
@@ -94,31 +73,22 @@ const SectionWrapper: React.FC<{
     isSelected?: boolean,
     className?: string,
     backgroundColor?: string,
-    innerClassName?: string;
-}> = ({ seccion, children, onClick, isSelected, className, backgroundColor, innerClassName }) => {
+}> = ({ seccion, children, onClick, isSelected, className, backgroundColor }) => {
     if (!seccion.data?.visible) return null;
 
     return (
         <motion.section
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.1 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
             id={seccion.tipo}
-            className={cn("relative py-24 px-6 md:px-12", className, onClick && "cursor-pointer group/section")}
+            className={cn("relative py-32 px-6 md:px-12 overflow-hidden", className, onClick && "cursor-pointer group/section")}
             onClick={onClick}
             style={{ backgroundColor }}
         >
-            {onClick && <div className={cn("absolute inset-0 border-4 transition-all pointer-events-none z-30", isSelected ? 'border-primary' : 'border-transparent')}></div>}
-            
-            {seccion.data.imagenFondoUrl && (
-                <div className="absolute inset-0 -z-10">
-                    <NextImage src={seccion.data.imagenFondoUrl} alt="" layout="fill" objectFit="cover" className="opacity-10 grayscale" />
-                    <div className="absolute inset-0 bg-background/90"></div>
-                </div>
-            )}
-            
-            <div className={cn("max-w-5xl mx-auto", innerClassName)}>
+            {onClick && <div className={cn("absolute inset-0 border-4 transition-all duration-500 pointer-events-none z-40", isSelected ? 'border-primary' : 'border-transparent')}></div>}
+            <div className="max-w-4xl mx-auto relative z-10">
               {children}
             </div>
         </motion.section>
@@ -126,67 +96,93 @@ const SectionWrapper: React.FC<{
 };
 
 const SectionHeader: React.FC<{ icon: React.ElementType, title: string, subtitle?: string, color: string, style?: TextStyle }> = ({ icon: Icon, title, subtitle, color, style }) => (
-    <div className="mb-12 space-y-4 text-center">
+    <div className="mb-16 space-y-6 text-center">
         <motion.div 
-            initial={{ scale: 0 }} 
-            whileInView={{ scale: 1 }} 
+            initial={{ scale: 0, rotate: -180 }} 
+            whileInView={{ scale: 1, rotate: 0 }} 
             viewport={{ once: true }}
-            className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6"
+            transition={{ type: "spring", damping: 15, stiffness: 100 }}
+            className="w-20 h-20 rounded-full bg-white shadow-xl flex items-center justify-center mx-auto mb-8 border border-slate-50"
         >
-            <Icon className="w-8 h-8" style={{ color }} />
+            <Icon className="w-10 h-10" style={{ color }} />
         </motion.div>
-        <h2 className="text-4xl md:text-5xl font-headline tracking-tight" style={{ color: style?.color || color, fontFamily: style?.fontFamily || 'var(--font-playfair_display)' }}>
-            {title}
-        </h2>
-        {subtitle && <p className="text-muted-foreground text-lg italic">{subtitle}</p>}
-        <div className="w-24 h-1 bg-primary/30 mx-auto mt-4 rounded-full"></div>
+        <div className="space-y-2">
+            {subtitle && (
+                <span className="text-xs font-black uppercase tracking-[0.4em] text-slate-400 block mb-2">
+                    {subtitle}
+                </span>
+            )}
+            <h2 className="text-5xl md:text-7xl font-headline font-bold leading-tight text-slate-900" style={{ color: style?.color || 'inherit', fontFamily: style?.fontFamily || 'var(--font-belleza)' }}>
+                {title}
+            </h2>
+        </div>
+        <div className="w-20 h-1 mx-auto mt-8 rounded-full" style={{ backgroundColor: color, opacity: 0.3 }}></div>
     </div>
 );
 
-const GraziaCabecera: React.FC<{ data: any, fiesta: FiestaEnPlanificacion, paleta: ColorPalette, onUpdate?: any, isPreview: boolean }> = ({ data, fiesta, paleta, onUpdate, isPreview }) => {
-    // Dynamic values from configuration
+const GraziaCabecera: React.FC<{ data: any, fiesta: FiestaEnPlanificacion, paleta: ColorPalette, isPreview: boolean }> = ({ data, fiesta, paleta }) => {
     const protagonist1 = fiesta.configuracion.protagonista1Nombre || data.protagonista1;
     const protagonist2 = fiesta.configuracion.protagonista2Nombre || data.protagonista2;
     const subtitleText = fiesta.configuracion.tipoCelebracion || data.subtitulo?.text;
     const eventDate = formatDate(fiesta.configuracion.fechaEvento);
 
     return (
-        <section className="relative h-screen flex flex-col items-center justify-center text-center overflow-hidden">
-            <div className="absolute inset-0 -z-10">
+        <section className="relative h-screen flex flex-col items-center justify-center text-center overflow-hidden bg-slate-50">
+            <motion.div 
+                initial={{ scale: 1.2, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 2, ease: "easeOut" }}
+                className="absolute inset-0 -z-10"
+            >
                 {data.videoFondoUrl ? (
-                    <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-40">
+                    <video autoPlay loop muted playsInline className="w-full h-full object-cover">
                         <source src={data.videoFondoUrl} type="video/mp4" />
                     </video>
                 ) : (
-                    <NextImage src={data.imagenFondoUrl || 'https://picsum.photos/seed/bg/1200/800'} alt="" layout="fill" objectFit="cover" className="opacity-40" />
+                    <NextImage src={data.imagenFondoUrl || 'https://picsum.photos/seed/bg/1200/1600'} alt="" layout="fill" objectFit="cover" />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/20 to-background"></div>
-            </div>
+                <div className="absolute inset-0 bg-white/20 backdrop-blur-[2px]"></div>
+                <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-white/90"></div>
+            </motion.div>
 
-            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1 }} className="space-y-8 px-6">
-                {data.logoUrl && <div className="mb-8"><NextImage src={data.logoUrl} alt="Logo" width={150} height={150} className="mx-auto" /></div>}
+            <div className="space-y-12 px-6">
+                {data.logoUrl && (
+                    <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
+                        <NextImage src={data.logoUrl} alt="Logo" width={120} height={120} className="mx-auto drop-shadow-2xl" />
+                    </motion.div>
+                )}
                 
-                <div className="space-y-4">
-                    <span className="text-sm font-bold tracking-[0.4em] uppercase text-primary block" style={{ color: paleta.primary }}>
+                <div className="space-y-6">
+                    <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="text-sm font-black tracking-[0.6em] uppercase text-primary block" style={{ color: paleta.primary }}>
                         {subtitleText}
-                    </span>
-                    <h1 className="text-6xl md:text-8xl font-headline font-bold text-slate-900 tracking-tighter">
+                    </motion.span>
+                    <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2, duration: 1 }} className="text-7xl md:text-[9rem] font-headline font-bold text-slate-900 leading-none tracking-tighter">
                         {protagonist1}
                         {protagonist2 && (
                             <>
-                                <br />
-                                <span className="text-primary" style={{ color: paleta.primary }}>&</span>
-                                <br />
+                                <span className="block text-4xl md:text-6xl my-4 italic font-dancing text-primary" style={{ color: paleta.primary }}>&</span>
                                 {protagonist2}
                             </>
                         )}
-                    </h1>
+                    </motion.h1>
                 </div>
 
-                <div className="flex items-center justify-center gap-6 text-xl md:text-2xl font-headline text-slate-600">
-                    <Separator className="w-12 bg-slate-300" />
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2 }} className="flex items-center justify-center gap-8 text-lg md:text-xl font-headline font-bold text-slate-600 tracking-[0.3em]">
+                    <div className="h-px w-16 bg-slate-300"></div>
                     <span>{eventDate}</span>
-                    <Separator className="w-12 bg-slate-300" />
+                    <div className="h-px w-16 bg-slate-300"></div>
+                </motion.div>
+            </div>
+
+            <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 3, duration: 1 }}
+                className="absolute bottom-12 left-1/2 -translate-x-1/2"
+            >
+                <div className="flex flex-col items-center gap-4 text-slate-400">
+                    <span className="text-[10px] font-black uppercase tracking-[0.4em]">Scroll</span>
+                    <motion.div animate={{ y: [0, 10, 0] }} transition={{ repeat: Infinity, duration: 2 }} className="w-px h-16 bg-gradient-to-b from-primary to-transparent" style={{ backgroundColor: paleta.primary }}></motion.div>
                 </div>
             </motion.div>
         </section>
@@ -201,7 +197,6 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  // Modals State
   const [isRsvpModalOpen, setIsRsvpModalOpen] = useState(false);
   const [isItineraryModalOpen, setIsItineraryModalOpen] = useState(false);
   const [isGiftModalOpen, setIsGiftModalOpen] = useState(false);
@@ -265,47 +260,67 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
 
     switch (seccion.tipo) {
       case 'bienvenida':
-        // Handle XV Years welcome title automatically
         const isXV = fiesta.configuracion.tipoCelebracion === 'XV años';
-        const displayTitle = (isXV && seccion.data.titulo.text === '¡Nos Casamos!') ? '¡Mis 15 Años!' : seccion.data.titulo.text;
+        const welcomeTitle = (isXV && seccion.data.titulo.text === '¡Nos Casamos!') ? '¡Mis 15 Años!' : seccion.data.titulo.text;
 
         return (
           <SectionWrapper {...wrapperProps} className="bg-white">
-            <SectionHeader icon={Heart} title={displayTitle} color={primaryColor} style={seccion.data.titulo.style} />
-            <div className="max-w-2xl mx-auto leading-relaxed text-lg text-muted-foreground text-center">
-              <EditableText initialValue={seccion.data.texto.text} style={seccion.data.texto.style} onSave={v => onUpdate?.({ bienvenida: { ...seccion.data, texto: { ...seccion.data.texto, text: v } } })} textarea />
+            <SectionHeader icon={Heart} title={welcomeTitle} color={primaryColor} style={seccion.data.titulo.style} />
+            <div className="max-w-2xl mx-auto text-center">
+              <div className="text-xl md:text-2xl text-slate-500 font-medium leading-relaxed italic">
+                <EditableText 
+                    initialValue={seccion.data.texto.text} 
+                    style={seccion.data.texto.style} 
+                    onSave={v => onUpdate?.({ bienvenida: { ...seccion.data, texto: { ...seccion.data.texto, text: v } } })} 
+                    textarea 
+                />
+              </div>
             </div>
           </SectionWrapper>
         );
 
       case 'cuentaRegresiva':
         return (
-          <SectionWrapper {...wrapperProps} className="bg-muted/30 text-center">
-            <h3 className="text-sm font-bold uppercase tracking-[0.3em] text-primary mb-8">La espera termina en</h3>
-            <CountdownTimer targetDate={fiesta.configuracion.fechaEvento} />
+          <SectionWrapper {...wrapperProps} className="bg-slate-900 text-white text-center">
+            <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className="space-y-12">
+                <span className="text-xs font-black uppercase tracking-[0.5em] text-primary/60" style={{ color: `${primaryColor}99` }}>La espera termina en</span>
+                <CountdownTimer targetDate={fiesta.configuracion.fechaEvento} />
+            </motion.div>
           </SectionWrapper>
         );
 
       case 'detallesEvento':
         return (
-          <SectionWrapper {...wrapperProps} className="bg-white">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+          <SectionWrapper {...wrapperProps} className="bg-white" innerClassName="max-w-6xl">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16 md:gap-8">
               {[seccion.data.ceremoniaReligiosa, seccion.data.ceremoniaCivil, seccion.data.celebracion].filter(d => d.visible).map((detalle, idx) => (
-                <motion.div key={idx} whileHover={{ y: -10 }} className="space-y-6">
-                  <div className="relative aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl">
-                    <NextImage src={detalle.imagenUrl || 'https://picsum.photos/seed/event/600/800'} alt="" layout="fill" objectFit="cover" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
-                    <div className="absolute bottom-6 left-6 right-6 text-white text-left">
-                      <h4 className="text-2xl font-headline mb-1">{detalle.titulo}</h4>
-                      <p className="text-sm opacity-90">{detalle.nombreLugar}</p>
+                <motion.div 
+                    key={idx} 
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: idx * 0.2 }}
+                    className="space-y-8"
+                >
+                  <div className="relative aspect-[3/4] rounded-[2.5rem] overflow-hidden shadow-3xl shadow-slate-200 group">
+                    <NextImage src={detalle.imagenUrl || 'https://picsum.photos/seed/event/800/1200'} alt="" layout="fill" objectFit="cover" className="group-hover:scale-110 transition-transform duration-1000" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
+                    <div className="absolute bottom-8 left-8 right-8 text-white text-left">
+                      <div className="w-12 h-12 bg-white/20 backdrop-blur-xl rounded-2xl flex items-center justify-center mb-4">
+                        {idx === 0 ? <Church className="w-6 h-6" /> : <PartyPopper className="w-6 h-6" />}
+                      </div>
+                      <h4 className="text-3xl font-headline font-bold mb-2">{detalle.titulo}</h4>
+                      <p className="text-sm font-bold uppercase tracking-widest opacity-70">{detalle.nombreLugar}</p>
                     </div>
                   </div>
-                  <div className="space-y-2 text-center">
-                    <p className="font-semibold text-xl">{formatDate(detalle.fecha || fiesta.configuracion.fechaEvento)}</p>
-                    <p className="text-primary font-bold">{detalle.hora || (idx === 2 ? fiesta.configuracion.horaInicio : '')} HS</p>
-                    <p className="text-sm text-muted-foreground">{detalle.direccionLugar}</p>
-                    <Button asChild variant="outline" className="mt-4 rounded-full border-primary/20 hover:bg-primary/5">
-                      <a href={detalle.mapaUrl || '#'} target="_blank"><MapPin className="w-4 h-4 mr-2"/> Cómo llegar</a>
+                  <div className="space-y-4 text-center px-4">
+                    <div className="space-y-1">
+                        <p className="font-bold text-2xl text-slate-800">{formatDate(detalle.fecha || fiesta.configuracion.fechaEvento)}</p>
+                        <p className="text-primary font-black text-xl tracking-tighter" style={{ color: primaryColor }}>{detalle.hora || (idx === 2 ? fiesta.configuracion.horaInicio : '')} HS</p>
+                    </div>
+                    <p className="text-sm text-slate-400 font-medium leading-relaxed">{detalle.direccionLugar}</p>
+                    <Button asChild variant="outline" className="mt-4 rounded-xl h-12 px-8 border-slate-200 hover:bg-primary/5 hover:border-primary/20 hover:text-primary transition-all font-bold">
+                      <a href={detalle.mapaUrl || '#'} target="_blank"><MapPin className="w-4 h-4 mr-2"/> VER UBICACIÓN</a>
                     </Button>
                   </div>
                 </motion.div>
@@ -316,43 +331,42 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
 
       case 'itinerario':
         return (
-          <SectionWrapper {...wrapperProps} className="bg-muted/50 text-center">
-            <SectionHeader icon={Clock} title="Cronograma" color={primaryColor} />
-            <div className="max-w-2xl mx-auto">
-                <p className="mb-8 text-muted-foreground italic">Descubre paso a paso los momentos que hemos preparado para ti.</p>
+          <SectionWrapper {...wrapperProps} className="bg-slate-50 text-center">
+            <SectionHeader icon={Clock} title="Itinerario" subtitle="Los momentos que harán esta noche mágica" color={primaryColor} />
+            <div className="max-w-xl mx-auto">
                 <Button 
                     onClick={(e) => { e.stopPropagation(); setIsItineraryModalOpen(true); }}
                     size="lg" 
-                    className="rounded-full px-8 h-14 text-lg font-headline shadow-lg hover:scale-105 transition-transform"
+                    className="rounded-2xl h-16 px-12 text-lg font-bold shadow-2xl hover:scale-105 transition-all"
                     style={{ backgroundColor: primaryColor }}
                 >
-                    <Clock className="w-5 h-5 mr-2"/> VER CRONOGRAMA
+                    <Clock className="w-5 h-5 mr-3"/> ABRIR CRONOGRAMA
                 </Button>
             </div>
             
             <Dialog open={isItineraryModalOpen} onOpenChange={setIsItineraryModalOpen}>
-                <DialogContent className="sm:max-w-md max-h-[80vh] overflow-y-auto rounded-3xl p-6 border-none shadow-3xl">
-                    <DialogHeader className="text-center pb-4 border-b">
-                        <DialogTitle className="text-3xl font-headline text-primary">Nuestra Fiesta</DialogTitle>
-                        <DialogDescription>Cronograma detallado</DialogDescription>
+                <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto rounded-[2.5rem] p-10 border-none shadow-3xl">
+                    <DialogHeader className="text-center pb-8 border-b">
+                        <DialogTitle className="text-4xl font-headline font-bold text-slate-900">Cronograma</DialogTitle>
+                        <DialogDescription className="text-base">Detalle de actividades</DialogDescription>
                     </DialogHeader>
-                    <div className="space-y-6 pt-6 relative">
-                        <div className="absolute left-[19px] top-6 bottom-6 w-0.5 bg-primary/20"></div>
+                    <div className="space-y-10 pt-10 relative">
+                        <div className="absolute left-[23px] top-10 bottom-10 w-px bg-slate-100"></div>
                         {(fiesta.programa && fiesta.programa.length > 0 ? fiesta.programa : []).map((item) => (
-                            <div key={item.id} className="relative flex items-start gap-4 pb-2">
-                                <div className="relative z-10 w-10 h-10 rounded-full bg-white border-2 border-primary flex items-center justify-center shrink-0 shadow-sm">
-                                    {React.createElement(iconMap[item.icono || 'Clock'] || Clock, { className: "w-5 h-5 text-primary" })}
+                            <div key={item.id} className="relative flex items-start gap-8">
+                                <div className="relative z-10 w-12 h-12 rounded-2xl bg-white border border-slate-100 flex items-center justify-center shrink-0 shadow-xl shadow-slate-100">
+                                    {React.createElement(iconMap[item.icono || 'Clock'] || Clock, { className: "w-6 h-6 text-primary", style: { color: primaryColor } })}
                                 </div>
-                                <div className="pt-1 text-left">
-                                    <span className="text-primary font-bold text-sm">{item.hora}</span>
-                                    <h4 className="text-lg font-headline font-bold leading-tight">{item.titulo}</h4>
-                                    <p className="text-xs text-muted-foreground">{item.descripcion}</p>
+                                <div className="pt-1.5 text-left space-y-1">
+                                    <span className="text-primary font-black text-xs uppercase tracking-widest" style={{ color: primaryColor }}>{item.hora}</span>
+                                    <h4 className="text-xl font-bold text-slate-800 leading-tight">{item.titulo}</h4>
+                                    <p className="text-sm text-slate-400 font-medium">{item.descripcion}</p>
                                 </div>
                             </div>
                         ))}
                     </div>
-                    <DialogFooter className="mt-6">
-                        <DialogClose asChild><Button variant="outline" className="w-full rounded-xl">Cerrar</Button></DialogClose>
+                    <DialogFooter className="mt-10">
+                        <DialogClose asChild><Button variant="secondary" className="w-full h-14 rounded-2xl font-bold">ENTENDIDO</Button></DialogClose>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
@@ -362,11 +376,15 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
       case 'galeria':
         return (
           <SectionWrapper {...wrapperProps} className="bg-white">
-            <SectionHeader icon={CameraIcon} title="Momentos" color={primaryColor} />
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <SectionHeader icon={CameraIcon} title="Nuestros Momentos" color={primaryColor} />
+            <div className="columns-2 md:grid-cols-4 gap-6 space-y-6">
               {(seccion.data.fotos || []).map((url: string, i: number) => (
-                <motion.div key={i} whileHover={{ scale: 1.02 }} className={cn("relative rounded-xl overflow-hidden shadow-lg", i % 3 === 0 ? "row-span-2 aspect-[3/4]" : "aspect-square")}>
-                  <NextImage src={url} alt="" layout="fill" objectFit="cover" className="hover:scale-110 transition-transform duration-700" />
+                <motion.div 
+                    key={i} 
+                    whileHover={{ y: -5 }} 
+                    className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white inline-block w-full"
+                >
+                  <NextImage src={url} alt="" width={800} height={1200} className="w-full h-auto" />
                 </motion.div>
               ))}
             </div>
@@ -375,24 +393,24 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
 
       case 'regalos':
         return (
-          <SectionWrapper {...wrapperProps} className="bg-muted/20">
-            <SectionHeader icon={GiftIcon} title={seccion.data.titulo.text} color={primaryColor} style={seccion.data.titulo.style} />
-            <div className="max-w-2xl mx-auto space-y-8 text-center">
-                <p className="text-muted-foreground text-lg">{seccion.data.texto.text}</p>
+          <SectionWrapper {...wrapperProps} className="bg-slate-50">
+            <SectionHeader icon={GiftIcon} title={seccion.data.titulo.text} subtitle="Ideas por si quieres obsequiarnos algo" color={primaryColor} style={seccion.data.titulo.style} />
+            <div className="max-w-2xl mx-auto space-y-12 text-center">
+                <p className="text-xl text-slate-500 font-medium leading-relaxed italic">{seccion.data.texto.text}</p>
                 
                 {seccion.data.datosBancarios && (
-                    <div className="p-8 border-2 border-dashed border-primary/20 rounded-3xl bg-white/50 backdrop-blur relative group">
-                        <p className="text-xs font-bold uppercase tracking-widest text-primary mb-2">Datos para Transferencia</p>
-                        <p className="text-xl font-mono break-all font-bold text-slate-800">
+                    <div className="p-12 border border-slate-200 rounded-[3rem] bg-white shadow-2xl shadow-slate-200/50 relative group">
+                        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-300 mb-4">Transferencia Bancaria</p>
+                        <p className="text-2xl font-mono break-all font-black text-slate-800 tracking-tight">
                             {seccion.data.datosBancarios}
                         </p>
                         <Button 
                             variant="ghost" 
                             size="sm" 
-                            className="mt-4 text-primary hover:bg-primary/10"
+                            className="mt-6 text-primary font-bold hover:bg-primary/5 rounded-full"
                             onClick={(e) => { e.stopPropagation(); handleCopyAccount(seccion.data.datosBancarios); }}
                         >
-                            <ClipboardCopy className="w-4 h-4 mr-2"/> Copiar Datos
+                            <ClipboardCopy className="w-4 h-4 mr-2"/> COPIAR DATOS
                         </Button>
                     </div>
                 )}
@@ -401,39 +419,39 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
                     <Button 
                         onClick={(e) => { e.stopPropagation(); setIsGiftModalOpen(true); }}
                         size="lg"
-                        className="rounded-full px-10 h-14 text-lg font-headline shadow-xl shadow-primary/20"
+                        className="rounded-full h-16 px-12 text-lg font-bold shadow-2xl hover:scale-105 transition-all"
                         style={{ backgroundColor: primaryColor }}
                     >
-                        <GiftIcon className="w-5 h-5 mr-2"/> VER LISTA DE REGALOS
+                        <GiftIcon className="w-5 h-5 mr-3"/> VER LISTA DE REGALOS
                     </Button>
                 )}
             </div>
 
             <Dialog open={isGiftModalOpen} onOpenChange={setIsGiftModalOpen}>
-                <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto rounded-3xl p-6 border-none shadow-3xl">
-                    <DialogHeader className="text-center pb-4 border-b">
-                        <DialogTitle className="text-3xl font-headline text-primary">Sugerencias de Regalo</DialogTitle>
-                        <DialogDescription>Ideas por si quieres obsequiarnos algo especial</DialogDescription>
+                <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto rounded-[3rem] p-10 border-none shadow-3xl">
+                    <DialogHeader className="text-center pb-8 border-b">
+                        <DialogTitle className="text-4xl font-headline font-bold text-slate-900">Mesa de Regalos</DialogTitle>
+                        <DialogDescription className="text-base">Selecciona un presente</DialogDescription>
                     </DialogHeader>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 pt-10">
                         {(seccion.data.items || []).map((item: GiftItem) => (
-                            <Card key={item.id} className="group border-none shadow-lg rounded-2xl overflow-hidden bg-muted/30">
+                            <Card key={item.id} className="group border-none shadow-xl rounded-[2rem] overflow-hidden bg-slate-50">
                                 <div className="relative aspect-square">
-                                    <NextImage src={item.imageUrl || 'https://picsum.photos/seed/gift/400/400'} alt={item.name} layout="fill" objectFit="cover" />
-                                    {item.isClaimed && <div className="absolute inset-0 bg-primary/60 backdrop-blur-[2px] flex items-center justify-center text-white font-bold text-sm uppercase tracking-widest">Ya Elegido</div>}
+                                    <NextImage src={item.imageUrl || 'https://picsum.photos/seed/gift/600/600'} alt={item.name} layout="fill" objectFit="cover" className="group-hover:scale-110 transition-transform duration-1000" />
+                                    {item.isClaimed && <div className="absolute inset-0 bg-primary/70 backdrop-blur-sm flex items-center justify-center text-white font-black text-2xl uppercase tracking-widest">YA ELEGIDO</div>}
                                 </div>
-                                <CardContent className="p-4">
-                                    <h4 className="text-lg font-headline font-bold mb-1">{item.name}</h4>
-                                    <p className="text-xs text-muted-foreground line-clamp-2">{item.description}</p>
-                                    <Button className="w-full mt-4 rounded-xl text-xs" style={{ backgroundColor: primaryColor }} disabled={item.isClaimed}>
-                                        {item.isClaimed ? '¡Gracias!' : 'Lo quiero regalar'}
+                                <CardContent className="p-8 text-center space-y-4">
+                                    <h4 className="text-2xl font-headline font-bold text-slate-800 leading-tight">{item.name}</h4>
+                                    <p className="text-sm text-slate-400 font-medium line-clamp-2">{item.description}</p>
+                                    <Button className="w-full h-14 rounded-2xl font-bold text-sm tracking-widest shadow-lg shadow-primary/20" style={{ backgroundColor: primaryColor }} disabled={item.isClaimed}>
+                                        {item.isClaimed ? '¡GRACIAS!' : 'ELEGIR REGALO'}
                                     </Button>
                                 </CardContent>
                             </Card>
                         ))}
                     </div>
-                    <DialogFooter className="mt-8">
-                        <DialogClose asChild><Button variant="outline" className="w-full rounded-xl">Cerrar</Button></DialogClose>
+                    <DialogFooter className="mt-10">
+                        <DialogClose asChild><Button variant="outline" className="w-full h-14 rounded-2xl font-bold">VOLVER</Button></DialogClose>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
@@ -442,12 +460,20 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
 
       case 'confirmacion':
         return (
-          <SectionWrapper {...wrapperProps} className="bg-primary/5 py-32 text-center">
-            <div className="max-w-xl mx-auto space-y-8">
-              <h2 className="text-5xl font-headline" style={{ color: primaryColor }}>¿Nos acompañas?</h2>
-              <p className="text-lg">Tu presencia es lo más importante para nosotros. Por favor, confirma antes del {formatDate(fiesta.configuracion.fechaEvento)}.</p>
-              <Button size="lg" className="h-16 px-12 rounded-full text-xl font-headline shadow-2xl hover:scale-105 transition-transform" style={{ backgroundColor: primaryColor }} onClick={() => setIsRsvpModalOpen(true)}>
-                Confirmar Asistencia
+          <SectionWrapper {...wrapperProps} className="bg-slate-900 text-white py-48 text-center relative">
+            <div className="absolute inset-0 overflow-hidden">
+                <div className="absolute top-0 left-0 w-64 h-64 bg-primary/10 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2" style={{ backgroundColor: `${primaryColor}1A` }}></div>
+                <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-[120px] translate-x-1/2 translate-y-1/2" style={{ backgroundColor: `${primaryColor}0D` }}></div>
+            </div>
+            <div className="max-w-2xl mx-auto space-y-12 relative z-10">
+              <span className="text-xs font-black uppercase tracking-[0.6em] text-primary/60" style={{ color: `${primaryColor}99` }}>RSVP</span>
+              <h2 className="text-6xl md:text-8xl font-headline font-bold leading-none tracking-tighter" style={{ color: primaryColor }}>¿Vienes?</h2>
+              <p className="text-xl text-slate-400 font-medium leading-relaxed">
+                Tu presencia es el mejor regalo. Por favor, confirma tu asistencia antes del 
+                <span className="block mt-2 text-white font-bold text-2xl uppercase tracking-widest">{formatDate(fiesta.configuracion.fechaEvento)}</span>
+              </p>
+              <Button size="lg" className="h-20 px-16 rounded-full text-xl font-bold shadow-3xl hover:scale-105 transition-all duration-500" style={{ backgroundColor: primaryColor }} onClick={() => setIsRsvpModalOpen(true)}>
+                CONFIRMAR ASISTENCIA
               </Button>
             </div>
           </SectionWrapper>
@@ -458,67 +484,79 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
   };
 
   return (
-    <div className={cn("min-h-screen bg-background font-body selection:bg-primary/20", isPreview && "h-full overflow-y-auto")}>
+    <div className={cn("min-h-screen bg-white font-body selection:bg-primary/20 selection:text-white", isPreview && "h-full overflow-y-auto")}>
       <GraziaCabecera data={invitacionData.cabecera} fiesta={fiesta} paleta={paletaColores} isPreview={isPreview} />
       
-      <main>
+      <main className="relative">
+        <div className="fixed top-8 right-8 z-50 flex flex-col gap-4">
+            {invitacionData.musicaFondoUrl && !isPreview && (
+                <motion.button 
+                    whileHover={{ scale: 1.1 }} 
+                    whileTap={{ scale: 0.9 }} 
+                    onClick={togglePlayPause} 
+                    className="w-16 h-16 rounded-[1.5rem] bg-white shadow-3xl flex items-center justify-center border border-slate-100 group"
+                >
+                    {isPlaying ? <Pause className="w-6 h-6 text-primary animate-pulse" /> : <Play className="w-6 h-6 text-slate-400 group-hover:text-primary transition-colors" />}
+                </motion.button>
+            )}
+        </div>
+
         {invitacionData.secciones.map(seccion => renderSectionComponent(seccion))}
       </main>
 
-      {/* Música de fondo flotante */}
-      {invitacionData.musicaFondoUrl && !isPreview && (
-        <div className="fixed bottom-8 right-8 z-50">
-          <audio ref={audioRef} src={invitacionData.musicaFondoUrl} loop />
-          <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={togglePlayPause} className="w-14 h-14 rounded-full bg-white shadow-2xl flex items-center justify-center border border-primary/10">
-            {isPlaying ? <Pause className="w-6 h-6 text-primary animate-pulse" /> : <Play className="w-6 h-6 text-primary" />}
-          </motion.button>
-        </div>
-      )}
-
-      {/* Modal RSVP Estilizado */}
       <Dialog open={isRsvpModalOpen} onOpenChange={setIsRsvpModalOpen}>
-        <DialogContent className="sm:max-w-md rounded-3xl p-8 border-none shadow-3xl">
-          <DialogHeader className="text-center">
-            <DialogTitle className="text-3xl font-headline text-primary">Confirmar Asistencia</DialogTitle>
-            <DialogDescription className="text-lg">¡Qué alegría que quieras venir!</DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleRsvpFormSubmit} className="space-y-6 pt-4">
-            <div className="space-y-2">
-              <Label className="text-xs uppercase tracking-widest font-bold text-muted-foreground">Tu Nombre Completo</Label>
-              <Input value={rsvpName} onChange={e => setRsvpName(e.target.value)} className="h-12 rounded-xl bg-muted/50 border-none text-lg" required />
+        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-10 border-none shadow-3xl">
+          <DialogHeader className="text-center space-y-4">
+            <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto" style={{ backgroundColor: `${primaryColor}1A` }}>
+                <Check className="w-10 h-10 text-primary" style={{ color: primaryColor }} />
             </div>
-            <div className="space-y-2">
-              <Label className="text-xs uppercase tracking-widest font-bold text-muted-foreground">Cantidad de Personas</Label>
-              <Input type="number" value={rsvpGuests} onChange={e => setRsvpGuests(Number(e.target.value))} className="h-12 rounded-xl bg-muted/50 border-none text-lg" min={1} required />
+            <DialogTitle className="text-4xl font-headline font-bold text-slate-900">¡Te esperamos!</DialogTitle>
+            <DialogDescription className="text-base font-medium">Por favor, completa tus datos para confirmar.</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleRsvpFormSubmit} className="space-y-8 pt-6">
+            <div className="space-y-3">
+              <Label className="text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Tu Nombre Completo</Label>
+              <Input value={rsvpName} onChange={e => setRsvpName(e.target.value)} className="h-14 rounded-2xl bg-slate-50 border-none text-lg font-bold focus-visible:ring-2" style={{ "--tw-ring-color": primaryColor } as any} required />
+            </div>
+            <div className="space-y-3">
+              <Label className="text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">¿Cuántos vienen?</Label>
+              <Input type="number" value={rsvpGuests} onChange={e => setRsvpGuests(Number(e.target.value))} className="h-14 rounded-2xl bg-slate-50 border-none text-lg font-bold focus-visible:ring-2" style={{ "--tw-ring-color": primaryColor } as any} min={1} required />
             </div>
             {companionNames.map((name, i) => (
-              <div key={i} className="space-y-2 animate-in slide-in-from-top-2">
-                <Label className="text-xs text-muted-foreground">Acompañante {i+1}</Label>
+              <div key={i} className="space-y-3 animate-in fade-in slide-in-from-top-2">
+                <Label className="text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Nombre Acompañante {i+1}</Label>
                 <Input value={name} onChange={e => {
                   const n = [...companionNames]; n[i] = e.target.value; setCompanionNames(n);
-                }} className="h-10 rounded-lg bg-muted/30 border-none" />
+                }} className="h-12 rounded-xl bg-slate-50 border-none text-sm" />
               </div>
             ))}
             <DialogFooter>
-              <Button type="submit" className="w-full h-14 rounded-2xl text-lg font-headline" style={{ backgroundColor: primaryColor }} disabled={isSubmittingRsvp}>
-                {isSubmittingRsvp ? <Loader2 className="animate-spin" /> : 'Enviar Confirmación'}
+              <Button type="submit" className="w-full h-16 rounded-[1.5rem] text-lg font-black tracking-widest shadow-2xl shadow-primary/20" style={{ backgroundColor: primaryColor }} disabled={isSubmittingRsvp}>
+                {isSubmittingRsvp ? <Loader2 className="animate-spin w-6 h-6" /> : 'ENVIAR CONFIRMACIÓN'}
               </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
 
-      <footer className="py-20 text-center bg-white border-t border-primary/10">
-        <h4 className="text-3xl font-headline mb-4" style={{ color: primaryColor }}>{invitacionData.footer.titulo.text}</h4>
-        <div className="flex justify-center gap-6 mb-8">
-          {socialConnections.filter(c => c.isConnected).map(c => (
-            <a key={c.platform} href={c.profileUrl} target="_blank" className="w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center hover:bg-primary/10 transition-colors">
-              <Share2 className="w-5 h-5 text-primary" />
-            </a>
-          ))}
-        </div>
-        <p className="text-sm font-bold tracking-[0.2em] text-muted-foreground uppercase">{invitacionData.footer.nombreEmpresa.text}</p>
+      <footer className="py-32 text-center bg-slate-50 px-6 border-t border-slate-100">
+        <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="space-y-12">
+            <h4 className="text-5xl md:text-7xl font-dancing text-slate-800" style={{ color: primaryColor }}>{invitacionData.footer.titulo.text}</h4>
+            <div className="flex justify-center gap-8">
+            {socialConnections.filter(c => c.isConnected).map(c => (
+                <a key={c.platform} href={c.profileUrl} target="_blank" className="w-16 h-16 rounded-3xl bg-white shadow-xl flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-500 text-slate-400">
+                <Share2 className="w-6 h-6" />
+                </a>
+            ))}
+            </div>
+            <div className="space-y-2">
+                <div className="w-16 h-1 bg-primary/20 mx-auto rounded-full mb-6"></div>
+                <p className="text-[10px] font-black tracking-[0.5em] text-slate-300 uppercase">{invitacionData.footer.nombreEmpresa.text}</p>
+            </div>
+        </motion.div>
       </footer>
+      
+      <audio ref={audioRef} src={invitacionData.musicaFondoUrl} loop />
     </div>
   );
 };

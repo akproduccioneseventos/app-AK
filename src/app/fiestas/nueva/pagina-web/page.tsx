@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Loader2, ArrowLeft, Save, Link as LinkIcon, ClipboardCopy, Gift, Camera, Music, Check, Eye } from 'lucide-react';
+import { Loader2, ArrowLeft, Save, Link as LinkIcon, ClipboardCopy, Gift, Camera, Music, Check, Eye, Smartphone, Tablet, Monitor } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion, InvitacionDigitalData, SeccionInvitacion } from '@/types/fiesta';
@@ -24,7 +24,10 @@ import { Card, CardDescription } from '@/components/ui/card';
 import QRCodeStylized from 'qrcode.react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { cn } from '@/lib/utils';
 
+type PreviewMode = 'mobile' | 'tablet' | 'desktop';
 
 function PaginaWebPageContent() {
   const { toast } = useToast();
@@ -40,6 +43,7 @@ function PaginaWebPageContent() {
   
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [previewMode, setPreviewMode] = useState<PreviewMode>('mobile');
   
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const sensors = useSensors(useSensor(PointerSensor));
@@ -72,31 +76,24 @@ function PaginaWebPageContent() {
         throw new Error("ID no proporcionado");
       }
 
-      // Merge logic: Default -> Template/Saved -> Current Config Override
       const baseData = cloneDeep(defaultInvitacionDigitalData);
       const savedData = data?.invitacionDigital || data;
       const mergedData = merge(baseData, savedData);
       
-      // FORCED DYNAMIC OVERRIDE: Prioritize real event config over saved template data
       if (fiestaId && data && data.configuracion) {
           const config = data.configuracion;
           const isXV = config.tipoCelebracion === 'XV años';
 
-          // 1. Sync Protagonists
           mergedData.cabecera.protagonista1 = config.protagonista1Nombre || mergedData.cabecera.protagonista1;
           mergedData.cabecera.protagonista2 = isXV ? '' : (config.protagonista2Nombre || mergedData.cabecera.protagonista2);
-          
-          // 2. Sync Subtitle (Type of Event)
           mergedData.cabecera.subtitulo.text = config.tipoCelebracion || mergedData.cabecera.subtitulo.text;
 
-          // 3. Dynamic Welcome Title - Detect if it's default and should be changed for XV
           if (!mergedData.bienvenida.titulo.text || 
               mergedData.bienvenida.titulo.text === '¡Nos Casamos!' || 
               mergedData.bienvenida.titulo.text === '¡Mis 15 Años!') {
               mergedData.bienvenida.titulo.text = isXV ? '¡Mis 15 Años!' : '¡Nos Casamos!';
           }
 
-          // 4. Sync Dates
           if (config.fechaEvento) {
               if (mergedData.detallesEvento.ceremoniaReligiosa.visible) {
                   mergedData.detallesEvento.ceremoniaReligiosa.fecha = config.fechaEvento;
@@ -193,7 +190,6 @@ function PaginaWebPageContent() {
     }
   };
 
-
   const renderTemplate = () => {
     if(!fiesta) return null;
 
@@ -219,21 +215,34 @@ function PaginaWebPageContent() {
   };
   
   return (
-    <div className="h-[calc(100vh-64px)] flex flex-col bg-muted">
-      <header className="flex-shrink-0 flex items-center justify-between p-3 border-b bg-background shadow-sm">
-        <h1 className="text-lg font-semibold">{fiesta ? `Editando: ${fiesta.configuracion.nombreEvento}` : 'Editando Plantilla'}</h1>
-        <div className="flex items-center gap-2">
-            <Link href={fiestaId ? `/evento/actual?fiestaId=${fiestaId}` : '#'} target="_blank" passHref>
-              <Button variant="outline" size="sm"><Eye className="w-4 h-4 mr-2"/>Vista Previa</Button>
-            </Link>
+    <div className="h-[calc(100vh-64px)] flex flex-col bg-slate-50">
+      <header className="flex-shrink-0 flex items-center justify-between p-4 border-b bg-white shadow-sm z-50">
+        <div className="flex items-center gap-4">
             <Link href={fiestaId ? `/fiestas/nueva?fiestaId=${fiestaId}` : '/settings/templates/invitaciones'} passHref>
-                <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
+                <Button variant="ghost" size="icon" className="rounded-full"><ArrowLeft className="w-5 h-5" /></Button>
             </Link>
-           <Button onClick={handleSave} disabled={isSaving || fiestaId === 'template_preview'}>{isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>}Guardar</Button>
+            <h1 className="text-xl font-black font-headline tracking-tight">{fiesta ? `Constructor: ${fiesta.configuracion.nombreEvento}` : 'Editor de Plantilla'}</h1>
+        </div>
+        
+        <div className="hidden lg:flex items-center gap-1 bg-slate-100 p-1 rounded-2xl">
+            <Button variant={previewMode === 'mobile' ? 'white' : 'ghost'} size="sm" onClick={() => setPreviewMode('mobile')} className={cn("rounded-xl h-9", previewMode === 'mobile' && "shadow-sm")}><Smartphone className="w-4 h-4 mr-2"/>Móvil</Button>
+            <Button variant={previewMode === 'tablet' ? 'white' : 'ghost'} size="sm" onClick={() => setPreviewMode('tablet')} className={cn("rounded-xl h-9", previewMode === 'tablet' && "shadow-sm")}><Tablet className="w-4 h-4 mr-2"/>Tablet</Button>
+            <Button variant={previewMode === 'desktop' ? 'white' : 'ghost'} size="sm" onClick={() => setPreviewMode('desktop')} className={cn("rounded-xl h-9", previewMode === 'desktop' && "shadow-sm")}><Monitor className="w-4 h-4 mr-2"/>PC</Button>
+        </div>
+
+        <div className="flex items-center gap-3">
+            <Link href={fiestaId ? `/evento/actual?fiestaId=${fiestaId}` : '#'} target="_blank" passHref>
+              <Button variant="outline" className="rounded-xl font-bold"><Eye className="w-4 h-4 mr-2"/>Página Real</Button>
+            </Link>
+           <Button onClick={handleSave} disabled={isSaving || fiestaId === 'template_preview'} className="rounded-xl font-bold shadow-lg shadow-primary/20">
+                {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>}
+                Guardar
+            </Button>
         </div>
       </header>
+
       <main className="flex-grow flex min-h-0">
-        <div className="w-[380px] flex-shrink-0 border-r bg-background overflow-y-auto">
+        <div className="w-[400px] flex-shrink-0 border-r bg-white overflow-y-auto custom-scrollbar shadow-xl z-40">
             {selectedSectionId ? (
                 <SectionEditorPanel
                     data={invitacionData}
@@ -255,46 +264,35 @@ function PaginaWebPageContent() {
                 />
                 
                 {fiestaId && fiesta && (
-                    <div className="p-4 space-y-4 border-t">
-                        <h3 className="font-semibold text-lg flex items-center gap-2">
-                            <LinkIcon className="w-5 h-5 text-primary"/> Centro de Enlaces y QR
-                        </h3>
-                        <p className="text-xs text-muted-foreground">
-                            Usa estos enlaces y códigos QR para integrar partes de tu invitación en diseños externos.
-                        </p>
-                        <div className="space-y-3">
+                    <div className="p-6 space-y-6 border-t bg-slate-50/50">
+                        <div className="space-y-1">
+                            <h3 className="font-black text-sm uppercase tracking-widest text-slate-400">Marketing y QR</h3>
+                            <p className="text-xs text-muted-foreground leading-relaxed">Integra estos elementos en tus invitaciones físicas o diseños externos.</p>
+                        </div>
+                        <div className="space-y-4">
                             {invitacionData.regalos.visible && (
-                            <Card className="bg-muted/40 p-3">
-                                <Label className="text-sm font-medium flex items-center gap-1.5"><Gift className="w-4 h-4"/>Lista de Regalos</Label>
-                                <div className="flex items-center space-x-2 mt-2">
-                                    <Input value={getFullLink('/evento/actual', 'regalos')} readOnly />
-                                    <Button size="icon" variant="outline" onClick={() => handleCopyToClipboard(getFullLink('/evento/actual', 'regalos'))}><ClipboardCopy className="h-4 w-4" /></Button>
+                            <Card className="p-4 border-none shadow-sm rounded-2xl bg-white">
+                                <Label className="text-xs font-black uppercase tracking-widest text-slate-400 mb-3 block">Lista de Regalos</Label>
+                                <div className="flex items-center space-x-2">
+                                    <Input value={getFullLink('/evento/actual', 'regalos')} readOnly className="h-10 text-xs bg-slate-50 border-none rounded-xl" />
+                                    <Button size="icon" variant="secondary" className="rounded-xl h-10 w-10 shrink-0" onClick={() => handleCopyToClipboard(getFullLink('/evento/actual', 'regalos'))}><ClipboardCopy className="h-4 w-4" /></Button>
                                 </div>
-                                <div className="text-center mt-3">
-                                    <QRCodeStylized id="qr-regalos" value={getFullLink('/evento/actual', 'regalos')} size={80} level="M" />
-                                    <Button size="sm" variant="link" onClick={() => downloadQR('qr-regalos', 'qr-regalos')}>Descargar QR</Button>
-                                </div>
-                            </Card>
-                            )}
-                            {invitacionData.confirmacion.visible && (
-                            <Card className="bg-muted/40 p-3">
-                                 <Label className="text-sm font-medium flex items-center gap-1.5"><Check className="w-4 h-4"/>Confirmar Asistencia (RSVP)</Label>
-                                <div className="flex items-center space-x-2 mt-2">
-                                    <Input value={getFullLink('/evento/actual', 'confirmacion')} readOnly />
-                                    <Button size="icon" variant="outline" onClick={() => handleCopyToClipboard(getFullLink('/evento/actual', 'confirmacion'))}><ClipboardCopy className="h-4 w-4" /></Button>
+                                <div className="text-center mt-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                    <QRCodeStylized id="qr-regalos" value={getFullLink('/evento/actual', 'regalos')} size={100} level="M" />
+                                    <Button size="sm" variant="link" className="text-xs mt-2" onClick={() => downloadQR('qr-regalos', 'qr-regalos')}><Download className="w-3 h-3 mr-1"/>Descargar</Button>
                                 </div>
                             </Card>
                             )}
                              {fiesta.socialGallerySettings?.enabled && (
-                                <Card className="bg-muted/40 p-3">
-                                    <Label className="text-sm font-medium flex items-center gap-1.5"><Camera className="w-4 h-4"/>Muro Social</Label>
+                                <Card className="p-4 border-none shadow-sm rounded-2xl bg-white">
+                                    <Label className="text-xs font-black uppercase tracking-widest text-slate-400 mb-3 block">Muro Social</Label>
                                     <div className="flex items-center space-x-2">
-                                        <Input value={getFullLink('/evento/social/[fiestaId]')} readOnly />
-                                        <Button size="icon" variant="outline" onClick={() => handleCopyToClipboard(getFullLink('/evento/social/[fiestaId]'))}><ClipboardCopy className="h-4 w-4" /></Button>
+                                        <Input value={getFullLink('/evento/social/[fiestaId]')} readOnly className="h-10 text-xs bg-slate-50 border-none rounded-xl" />
+                                        <Button size="icon" variant="secondary" className="rounded-xl h-10 w-10 shrink-0" onClick={() => handleCopyToClipboard(getFullLink('/evento/social/[fiestaId]'))}><ClipboardCopy className="h-4 w-4" /></Button>
                                     </div>
-                                    <div className="text-center mt-3">
-                                        <QRCodeStylized id="qr-social-panel" value={getFullLink('/evento/social/[fiestaId]')} size={80} level="M" />
-                                        <Button size="sm" variant="link" onClick={() => downloadQR('qr-social-panel', 'qr-muro-social')}>Descargar QR</Button>
+                                    <div className="text-center mt-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                        <QRCodeStylized id="qr-social-panel" value={getFullLink('/evento/social/[fiestaId]')} size={100} level="M" />
+                                        <Button size="sm" variant="link" className="text-xs mt-2" onClick={() => downloadQR('qr-social-panel', 'qr-muro-social')}><Download className="w-3 h-3 mr-1"/>Descargar</Button>
                                     </div>
                                 </Card>
                              )}
@@ -305,29 +303,49 @@ function PaginaWebPageContent() {
             )}
         </div>
         
-        <div className="flex-1 overflow-y-auto p-4 flex justify-center bg-gray-200">
-          <div className="w-full max-w-[500px] min-w-[380px] shadow-2xl rounded-lg overflow-hidden bg-white">
+        <div className="flex-1 overflow-y-auto p-8 flex justify-center items-start bg-slate-200">
+          <div className={cn(
+              "transition-all duration-700 ease-in-out shadow-3xl bg-white relative overflow-hidden",
+              previewMode === 'mobile' && "w-[390px] h-[844px] rounded-[3rem] border-[12px] border-slate-900 mt-10",
+              previewMode === 'tablet' && "w-[768px] h-[1024px] rounded-[2rem] border-[12px] border-slate-900 mt-4",
+              previewMode === 'desktop' && "w-full max-w-full h-full rounded-lg"
+          )}>
+            {previewMode === 'mobile' && (
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-900 rounded-b-2xl z-[60] flex items-center justify-center">
+                    <div className="w-12 h-1 bg-slate-800 rounded-full"></div>
+                </div>
+            )}
+            
             {isLoading ? (
-              <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin"/></div>
+              <div className="flex items-center justify-center h-full"><Loader2 className="w-12 h-12 animate-spin text-primary opacity-20"/></div>
             ) : fiesta ? (
-              <DndContext sensors={sensors} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
-                  <SortableContext items={invitacionData.secciones.map(s => s.id)} strategy={verticalListSortingStrategy}>
-                      {renderTemplate()}
-                  </SortableContext>
-              </DndContext>
+              <div className={cn("h-full", previewMode !== 'desktop' && "overflow-y-auto custom-scrollbar")}>
+                <DndContext sensors={sensors} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
+                    <SortableContext items={invitacionData.secciones.map(s => s.id)} strategy={verticalListSortingStrategy}>
+                        {renderTemplate()}
+                    </SortableContext>
+                </DndContext>
+              </div>
             ) : (
                <div className="flex items-center justify-center h-full"><AlertTriangle className="w-8 h-8 text-destructive"/></div>
             )}
           </div>
         </div>
       </main>
+      
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+      `}</style>
     </div>
   );
 }
 
 export default function PaginaWebYPortalPage() {
     return (
-        <Suspense fallback={<div className="flex items-center justify-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando constructor...</p></div>}>
+        <Suspense fallback={<div className="flex items-center justify-center h-screen bg-white"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>}>
             <PaginaWebPageContent />
         </Suspense>
     );

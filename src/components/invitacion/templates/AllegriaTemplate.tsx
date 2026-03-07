@@ -8,9 +8,9 @@ import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
 import { CountdownTimer } from '@/components/countdown-timer';
 import { Separator } from '@/components/ui/separator';
-import { Church, GlassWater, Gift, MapPin, Calendar, Heart, PartyPopper, Clock, Utensils, ClipboardCopy } from 'lucide-react';
+import { Church, GlassWater, Gift, MapPin, Calendar, Heart, PartyPopper, Clock, Utensils, ClipboardCopy, Camera, Share2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import type { DetalleEventoEspecifico } from '@/types/fiesta';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
@@ -44,13 +44,11 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionDa
         toast({ title: "Copiado", description: "Los datos bancarios se han copiado." });
     };
 
-    // Dynamic values from configuration
     const protagonist1 = fiesta.configuracion.protagonista1Nombre || invitacionData.cabecera.protagonista1;
     const protagonist2 = fiesta.configuracion.protagonista2Nombre || invitacionData.cabecera.protagonista2;
     const subtitleText = fiesta.configuracion.tipoCelebracion || invitacionData.cabecera.subtitulo.text;
     const eventDate = formatDate(fiesta.configuracion.fechaEvento);
 
-    // Dynamic welcome title for XV years
     const isXV = fiesta.configuracion.tipoCelebracion === 'XV años';
     const displayWelcomeTitle = (isXV && invitacionData.bienvenida.titulo.text === '¡Nos Casamos!') 
         ? '¡Mis 15 Años!' 
@@ -58,102 +56,105 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionDa
 
     return (
         <div className={cn("font-body text-slate-900 bg-white selection:bg-primary/10", isPreview && "h-full overflow-y-auto")}>
-            {/* HERO - Full Screen Experience */}
             <section 
                 onClick={() => onSectionClick?.('cabecera')}
-                className="relative h-screen flex flex-col items-center justify-end pb-24 overflow-hidden"
+                className="relative h-screen flex flex-col items-center justify-end pb-32 overflow-hidden"
             >
                 <motion.div 
-                    initial={{ scale: 1.1 }}
+                    initial={{ scale: 1.2 }}
                     animate={{ scale: 1 }}
-                    transition={{ duration: 10, ease: "linear" }}
+                    transition={{ duration: 15, ease: "linear" }}
                     className="absolute inset-0 -z-10"
                 >
                     <NextImage 
                         src={invitacionData.cabecera.imagenFondoUrl || 'https://picsum.photos/seed/celebration/1200/1600'} 
                         alt="" layout="fill" objectFit="cover" 
                     />
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/80"></div>
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/90"></div>
                 </motion.div>
 
-                <div className="text-center text-white space-y-6 px-6">
-                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-                        <span className="text-sm font-bold tracking-[0.5em] uppercase opacity-80">
+                <div className="text-center text-white space-y-8 px-6 relative z-10">
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
+                        <span className="text-sm font-black tracking-[0.8em] uppercase opacity-70">
                             {subtitleText}
                         </span>
                     </motion.div>
-                    <motion.h1 initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 }} className="text-6xl md:text-8xl font-headline font-bold">
+                    <motion.h1 initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5, duration: 1.2, type: "spring" }} className="text-7xl md:text-[10rem] font-headline font-bold leading-none tracking-tighter">
                         {protagonist1}
                         {protagonist2 && (
-                            <>
-                                <br /><span style={{ color: primaryColor }}>&</span><br />
-                                {protagonist2}
-                            </>
+                            <div className="flex items-center justify-center gap-4">
+                                <span className="text-4xl md:text-6xl italic font-dancing" style={{ color: primaryColor }}>&</span>
+                                <span>{protagonist2}</span>
+                            </div>
                         )}
                     </motion.h1>
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }} className="flex items-center justify-center gap-4 text-xl">
-                        <Separator className="w-12 bg-white/30" />
-                        <span className="font-bold tracking-widest">{eventDate}</span>
-                        <Separator className="w-12 bg-white/30" />
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5, duration: 1 }} className="flex items-center justify-center gap-8 text-2xl font-bold tracking-[0.4em]">
+                        <div className="h-px w-16 bg-white/30"></div>
+                        <span>{eventDate}</span>
+                        <div className="h-px w-16 bg-white/30"></div>
                     </motion.div>
                 </div>
                 
                 {isPreview && selectedSectionId === 'cabecera' && <div className="absolute inset-0 border-8 border-primary z-50 pointer-events-none"></div>}
             </section>
 
-            {/* COUNTDOWN BOLD */}
             {invitacionData.cuentaRegresiva.visible && (
-                <section className="py-20 bg-slate-900 text-white overflow-hidden">
-                    <div className="max-w-4xl mx-auto px-6 text-center space-y-12">
-                        <h2 className="text-xl font-bold tracking-[0.3em] uppercase opacity-50">Comienza el conteo</h2>
+                <section className="py-32 bg-slate-950 text-white overflow-hidden relative">
+                    <div className="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none">
+                        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary rounded-full blur-[120px]" style={{ backgroundColor: primaryColor }}></div>
+                        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary rounded-full blur-[120px]" style={{ backgroundColor: primaryColor }}></div>
+                    </div>
+                    <div className="max-w-4xl mx-auto px-6 text-center space-y-16 relative z-10">
+                        <span className="text-xs font-black tracking-[0.6em] uppercase opacity-40">Cuenta regresiva</span>
                         <CountdownTimer targetDate={fiesta.configuracion.fechaEvento} />
                     </div>
                 </section>
             )}
 
-            {/* WELCOME SECTION */}
             {invitacionData.bienvenida.visible && (
-                <section className="py-32 px-6">
-                    <div className="max-w-2xl mx-auto text-center space-y-8">
-                        <Heart className="w-12 h-12 mx-auto text-primary animate-pulse" fill={primaryColor} />
-                        <h2 className="text-5xl font-headline font-bold leading-tight">{displayWelcomeTitle}</h2>
-                        <p className="text-xl text-slate-600 leading-relaxed italic">
+                <section className="py-48 px-6 bg-white relative overflow-hidden">
+                    <div className="max-w-3xl mx-auto text-center space-y-12">
+                        <motion.div initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ type: "spring", damping: 12 }}>
+                            <Heart className="w-20 h-20 mx-auto text-primary" fill={primaryColor} />
+                        </motion.div>
+                        <h2 className="text-6xl md:text-8xl font-headline font-bold leading-tight tracking-tighter">{displayWelcomeTitle}</h2>
+                        <p className="text-2xl text-slate-500 leading-relaxed font-medium italic px-4 md:px-12">
                             "{invitacionData.bienvenida.texto.text}"
                         </p>
                     </div>
                 </section>
             )}
 
-            {/* LOCATIONS - GRID LAYOUT */}
-            <section className="py-32 bg-slate-50 px-6">
-                <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16">
+            <section className="py-48 bg-slate-50 px-6 overflow-hidden">
+                <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-24 items-center">
                     {[invitacionData.detallesEvento.ceremoniaReligiosa, invitacionData.detallesEvento.celebracion].filter(d => d.visible).map((detalle, i) => (
                         <motion.div 
                             key={i}
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
+                            initial={{ opacity: 0, x: i === 0 ? -50 : 50 }}
+                            whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
-                            className="bg-white rounded-[2rem] overflow-hidden shadow-2xl shadow-slate-200/50 flex flex-col"
+                            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+                            className={cn("flex flex-col gap-12", i === 1 && "md:flex-col-reverse")}
                         >
-                            <div className="relative aspect-video">
-                                <NextImage src={detalle.imagenUrl || 'https://picsum.photos/seed/location/800/600'} alt="" layout="fill" objectFit="cover" />
-                                <div className="absolute top-6 right-6 bg-white/90 backdrop-blur p-4 rounded-full">
-                                    {i === 0 ? <Church className="text-primary" /> : <PartyPopper className="text-primary" />}
+                            <div className="relative aspect-[4/5] rounded-[3.5rem] overflow-hidden shadow-3xl shadow-slate-200">
+                                <NextImage src={detalle.imagenUrl || 'https://picsum.photos/seed/location/1200/1600'} alt="" layout="fill" objectFit="cover" />
+                                <div className="absolute top-10 right-10 w-20 h-20 bg-white/90 backdrop-blur-2xl rounded-[2rem] flex items-center justify-center shadow-2xl">
+                                    {i === 0 ? <Church className="w-10 h-10 text-primary" style={{ color: primaryColor }} /> : <PartyPopper className="w-10 h-10 text-primary" style={{ color: primaryColor }} />}
                                 </div>
                             </div>
-                            <div className="p-12 space-y-6">
-                                <h3 className="text-3xl font-headline font-bold">{detalle.titulo}</h3>
-                                <div className="space-y-4 text-lg">
-                                    <div className="flex items-center gap-4 text-slate-500">
-                                        <Calendar className="w-5 h-5 text-primary" />
-                                        <span>{formatDate(detalle.fecha || fiesta.configuracion.fechaEvento)}</span>
+                            <div className="space-y-8 px-4">
+                                <h3 className="text-5xl font-headline font-bold">{detalle.titulo}</h3>
+                                <div className="space-y-6">
+                                    <div className="flex items-center gap-6 text-xl font-bold">
+                                        <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center"><Calendar className="w-6 h-6 text-primary" style={{ color: primaryColor }} /></div>
+                                        <span className="uppercase tracking-widest">{formatDate(detalle.fecha || fiesta.configuracion.fechaEvento)}</span>
                                     </div>
-                                    <div className="flex items-center gap-4 text-slate-500">
-                                        <MapPin className="w-5 h-5 text-primary" />
+                                    <div className="flex items-center gap-6 text-xl font-bold">
+                                        <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center"><MapPin className="w-6 h-6 text-primary" style={{ color: primaryColor }} /></div>
                                         <span>{detalle.nombreLugar}</span>
                                     </div>
                                 </div>
-                                <Button asChild className="w-full h-16 rounded-2xl text-lg font-bold" style={{ backgroundColor: primaryColor }}>
+                                <Button asChild className="w-full h-20 rounded-[2rem] text-xl font-black shadow-2xl shadow-primary/30" style={{ backgroundColor: primaryColor }}>
                                     <a href={detalle.mapaUrl || '#'}>VER UBICACIÓN</a>
                                 </Button>
                             </div>
@@ -162,17 +163,16 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionDa
                 </div>
             </section>
 
-            {/* ITINERARIO SECTION */}
             {invitacionData.itinerario.visible && (
-                <section className="py-32 px-6 bg-white text-center">
-                    <div className="max-w-2xl mx-auto space-y-8">
-                        <Clock className="w-16 h-16 mx-auto text-primary" />
-                        <h2 className="text-5xl font-headline font-bold">Cronograma</h2>
-                        <p className="text-xl text-slate-600 italic">Descubre los momentos clave del evento.</p>
+                <section className="py-48 px-6 bg-slate-900 text-white text-center">
+                    <div className="max-w-3xl mx-auto space-y-12">
+                        <Sparkles className="w-20 h-20 mx-auto text-primary" style={{ color: primaryColor }} />
+                        <h2 className="text-6xl md:text-8xl font-headline font-bold tracking-tighter">Plan de Vuelo</h2>
+                        <p className="text-2xl text-slate-400 font-medium italic">Todo lo que pasará en esta noche mágica.</p>
                         <Button 
                             onClick={(e) => { e.stopPropagation(); setIsItineraryModalOpen(true); }}
                             size="lg" 
-                            className="h-16 px-12 rounded-2xl text-xl font-bold shadow-xl shadow-primary/20"
+                            className="h-20 px-16 rounded-full text-2xl font-bold shadow-3xl shadow-primary/20 hover:scale-105 transition-all"
                             style={{ backgroundColor: primaryColor }}
                         >
                             VER ITINERARIO
@@ -180,56 +180,53 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionDa
                     </div>
                     
                     <Dialog open={isItineraryModalOpen} onOpenChange={setIsItineraryModalOpen}>
-                        <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto rounded-[2rem] p-8 border-none shadow-3xl">
-                            <DialogHeader className="text-center pb-6 border-b">
-                                <DialogTitle className="text-4xl font-headline font-bold">Cronograma</DialogTitle>
-                                <DialogDescription>Horarios y actividades del evento</DialogDescription>
+                        <DialogContent className="sm:max-w-xl max-h-[85vh] overflow-y-auto rounded-[3rem] p-12 border-none shadow-3xl">
+                            <DialogHeader className="text-center pb-10 border-b border-slate-100">
+                                <DialogTitle className="text-5xl font-headline font-bold text-slate-900">Cronograma</DialogTitle>
+                                <DialogDescription className="text-lg">Momentos clave del evento</DialogDescription>
                             </DialogHeader>
-                            <div className="space-y-8 pt-8">
+                            <div className="space-y-12 pt-12">
                                 {(fiesta.programa || []).map((item) => (
-                                    <div key={item.id} className="flex items-center gap-6 text-left">
-                                        <div className="text-xl font-bold text-primary w-20 shrink-0">{item.hora}</div>
-                                        <div className="h-10 w-px bg-slate-200"></div>
-                                        <div>
-                                            <h4 className="text-lg font-bold leading-tight">{item.titulo}</h4>
-                                            <p className="text-sm text-slate-500">{item.descripcion}</p>
+                                    <div key={item.id} className="flex items-center gap-10 text-left">
+                                        <div className="text-2xl font-black text-primary min-w-[100px]" style={{ color: primaryColor }}>{item.hora}</div>
+                                        <div className="flex-grow space-y-1">
+                                            <h4 className="text-2xl font-bold text-slate-800 leading-tight">{item.titulo}</h4>
+                                            <p className="text-base text-slate-400 font-medium">{item.descripcion}</p>
                                         </div>
                                     </div>
                                 ))}
                             </div>
-                            <DialogFooter className="mt-10">
-                                <DialogClose asChild><Button variant="outline" className="w-full h-14 rounded-xl border-slate-200 text-slate-600">Cerrar</Button></DialogClose>
+                            <DialogFooter className="mt-12">
+                                <DialogClose asChild><Button variant="outline" className="w-full h-16 rounded-[1.5rem] border-slate-200 text-lg font-bold">Cerrar</Button></DialogClose>
                             </DialogFooter>
                         </DialogContent>
                     </Dialog>
                 </section>
             )}
 
-            {/* GIFT SECTION */}
             {invitacionData.regalos.visible && (
-                <section className="py-32 px-6 text-center space-y-12 bg-slate-50">
-                    <div className="max-w-2xl mx-auto space-y-8">
-                        <div className="inline-block p-6 bg-primary/10 rounded-full mb-4">
-                            <Gift className="w-10 h-10" style={{ color: primaryColor }} />
+                <section className="py-48 px-6 text-center space-y-24 bg-white">
+                    <div className="max-w-4xl mx-auto space-y-16">
+                        <div className="inline-block p-10 bg-slate-50 rounded-[3rem] shadow-inner">
+                            <Gift className="w-16 h-16" style={{ color: primaryColor }} />
                         </div>
-                        <h2 className="text-5xl font-headline font-bold">{invitacionData.regalos.titulo.text}</h2>
-                        <p className="text-xl text-slate-600 leading-relaxed">
+                        <h2 className="text-6xl md:text-8xl font-headline font-bold tracking-tighter">{invitacionData.regalos.titulo.text}</h2>
+                        <p className="text-2xl text-slate-500 font-medium leading-relaxed max-w-2xl mx-auto">
                             {invitacionData.regalos.texto.text}
                         </p>
                         
                         {invitacionData.regalos.datosBancarios && (
-                            <div className="p-10 border-2 border-dashed border-slate-200 rounded-[2rem] bg-white relative group">
-                                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-4 text-xs font-bold text-slate-400 tracking-widest uppercase">Datos de Cuenta</span>
-                                <p className="font-mono text-2xl tracking-tighter font-bold text-slate-800 break-all">
+                            <div className="p-16 border border-slate-100 rounded-[4rem] bg-slate-50/50 backdrop-blur relative group shadow-2xl shadow-slate-100">
+                                <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest">Datos para el regalo</span>
+                                <p className="font-mono text-3xl md:text-4xl tracking-tighter font-black text-slate-900 break-all mb-8">
                                     {invitacionData.regalos.datosBancarios}
                                 </p>
                                 <Button 
-                                    variant="ghost" 
-                                    size="sm" 
-                                    className="mt-4 text-primary hover:bg-primary/5"
+                                    variant="outline" 
+                                    className="h-14 px-10 rounded-2xl border-slate-200 font-bold hover:bg-white"
                                     onClick={() => handleCopyAccount(invitacionData.regalos.datosBancarios)}
                                 >
-                                    <ClipboardCopy className="w-4 h-4 mr-2"/> Copiar Datos
+                                    <ClipboardCopy className="w-5 h-5 mr-3"/> COPIAR DATOS
                                 </Button>
                             </div>
                         )}
@@ -238,54 +235,66 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionDa
                             <Button 
                                 onClick={(e) => { e.stopPropagation(); setIsGiftModalOpen(true); }}
                                 size="lg"
-                                className="h-16 px-12 rounded-2xl text-xl font-bold shadow-xl shadow-primary/20"
+                                className="h-20 px-16 rounded-[2rem] text-2xl font-bold shadow-3xl shadow-primary/20"
                                 style={{ backgroundColor: primaryColor }}
                             >
-                                VER LISTA DE REGALOS
+                                VER MESA DE REGALOS
                             </Button>
                         )}
                     </div>
 
                     <Dialog open={isGiftModalOpen} onOpenChange={setIsGiftModalOpen}>
-                        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto rounded-[2rem] p-8 border-none shadow-3xl">
-                            <DialogHeader className="text-center pb-6 border-b">
-                                <DialogTitle className="text-4xl font-headline font-bold">Sugerencias de Regalo</DialogTitle>
-                                <DialogDescription>Ideas por si quieres obsequiarnos algo especial</DialogDescription>
+                        <DialogContent className="sm:max-w-4xl max-h-[85vh] overflow-y-auto rounded-[4rem] p-12 border-none shadow-3xl">
+                            <DialogHeader className="text-center pb-10 border-b">
+                                <DialogTitle className="text-5xl font-headline font-bold text-slate-900">Sugerencias</DialogTitle>
+                                <DialogDescription className="text-xl">Ideas para obsequiarnos</DialogDescription>
                             </DialogHeader>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 pt-8">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 pt-12">
                                 {(invitacionData.regalos.items || []).map((item: GiftItem) => (
-                                    <Card key={item.id} className="group border-none shadow-xl rounded-2xl overflow-hidden bg-slate-50">
+                                    <Card key={item.id} className="group border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
                                         <div className="relative aspect-square">
-                                            <NextImage src={item.imageUrl || 'https://picsum.photos/seed/gift/400/400'} alt={item.name} layout="fill" objectFit="cover" />
-                                            {item.isClaimed && <div className="absolute inset-0 bg-primary/60 backdrop-blur-[2px] flex items-center justify-center text-white font-bold text-xl uppercase tracking-widest">Ya Elegido</div>}
+                                            <NextImage src={item.imageUrl || 'https://picsum.photos/seed/gift/600/600'} alt={item.name} layout="fill" objectFit="cover" className="group-hover:scale-110 transition-transform duration-1000" />
+                                            {item.isClaimed && <div className="absolute inset-0 bg-primary/80 backdrop-blur-sm flex items-center justify-center text-white font-black text-2xl uppercase tracking-widest">Ya Elegido</div>}
                                         </div>
-                                        <CardContent className="p-6">
-                                            <h4 className="text-xl font-headline font-bold mb-2">{item.name}</h4>
-                                            <p className="text-sm text-slate-500 line-clamp-2">{item.description}</p>
-                                            <Button className="w-full mt-6 rounded-xl" style={{ backgroundColor: primaryColor }} disabled={item.isClaimed}>
-                                                {item.isClaimed ? '¡Gracias!' : 'Lo quiero regalar'}
+                                        <CardContent className="p-8 text-center space-y-4">
+                                            <h4 className="text-2xl font-headline font-bold text-slate-900 leading-tight">{item.name}</h4>
+                                            <Button className="w-full h-14 rounded-2xl font-black text-xs tracking-widest shadow-xl" style={{ backgroundColor: primaryColor }} disabled={item.isClaimed}>
+                                                {item.isClaimed ? '¡GRACIAS!' : 'ELEGIR'}
                                             </Button>
                                         </CardContent>
                                     </Card>
                                 ))}
                             </div>
-                            <DialogFooter className="mt-10">
-                                <DialogClose asChild><Button variant="outline" className="w-full h-14 rounded-xl">Cerrar</Button></DialogClose>
+                            <DialogFooter className="mt-12">
+                                <DialogClose asChild><Button variant="outline" className="w-full h-16 rounded-3xl font-bold">Cerrar</Button></DialogClose>
                             </DialogFooter>
                         </DialogContent>
                     </Dialog>
                 </section>
             )}
 
-            {/* FOOTER */}
-            <footer className="py-24 bg-slate-900 text-white text-center px-6">
-                <h2 className="text-6xl font-dancing mb-8" style={{ color: primaryColor }}>
-                    {invitacionData.footer.titulo.text}
-                </h2>
-                <div className="w-16 h-1 bg-white/20 mx-auto mb-8 rounded-full"></div>
-                <p className="text-sm font-bold tracking-[0.4em] uppercase opacity-40">
-                    {invitacionData.footer.nombreEmpresa.text}
-                </p>
+            <footer className="py-48 bg-slate-950 text-white text-center px-6 relative overflow-hidden">
+                <div className="absolute inset-0 opacity-10 pointer-events-none">
+                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+                </div>
+                <div className="relative z-10 space-y-12">
+                    <h2 className="text-7xl md:text-9xl font-dancing leading-none" style={{ color: primaryColor }}>
+                        {invitacionData.footer.titulo.text}
+                    </h2>
+                    <div className="flex justify-center gap-10">
+                        {socialConnections.filter(c => c.isConnected).map(c => (
+                            <a key={c.platform} href={c.profileUrl} target="_blank" className="w-20 h-20 rounded-[2rem] bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white hover:text-slate-950 transition-all duration-500 group">
+                                <Share2 className="w-8 h-8 opacity-50 group-hover:opacity-100" />
+                            </a>
+                        ))}
+                    </div>
+                    <div className="space-y-4">
+                        <div className="w-24 h-1 bg-white/10 mx-auto rounded-full"></div>
+                        <p className="text-xs font-black tracking-[0.6em] uppercase opacity-30">
+                            {invitacionData.footer.nombreEmpresa.text}
+                        </p>
+                    </div>
+                </div>
             </footer>
         </div>
     );
