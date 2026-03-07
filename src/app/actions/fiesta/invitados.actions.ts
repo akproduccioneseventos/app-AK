@@ -1,4 +1,4 @@
-'use client';
+'use server';
 
 import type { FiestaEnPlanificacion, Invitado, RsvpStatus } from '@/types/fiesta';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
