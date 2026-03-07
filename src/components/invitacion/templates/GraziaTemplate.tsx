@@ -28,7 +28,9 @@ import {
   ChevronDown,
   Music,
   Share2,
-  Check
+  Check,
+  Send,
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from "framer-motion";
@@ -36,8 +38,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { getChatMessages, addChatMessage } from '@/app/actions/social-gallery';
+import type { ChatMessage } from '@/types/social-gallery';
+import { claimGift } from '@/app/actions/fiesta/regalos.actions';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface TemplateProps {
   fiesta: FiestaEnPlanificacion;
@@ -207,6 +212,22 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
   const [isSubmittingRsvp, setIsSubmittingRsvp] = useState(false);
   const [rsvpMusicSuggestion, setRsvpMusicSuggestion] = useState('');
 
+  // Pre-party Chat states
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [newChatMsg, setNewChatMsg] = useState('');
+  const [isSendingChat, setIsSendingChat] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isPreview && fiesta.id) {
+        getChatMessages(fiesta.id).then(setChatMessages);
+        const interval = setInterval(() => {
+            getChatMessages(fiesta.id).then(setChatMessages);
+        }, 5000);
+        return () => clearInterval(interval);
+    }
+  }, [fiesta.id, isPreview]);
+
   useEffect(() => {
     const numCompanions = rsvpGuests > 1 ? rsvpGuests - 1 : 0;
     setCompanionNames(prev => {
@@ -243,6 +264,30 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
       setRsvpGuests(1);
     }
     setIsSubmittingRsvp(false);
+  };
+
+  const handleSendChat = async (e: FormEvent) => {
+      e.preventDefault();
+      if (!newChatMsg.trim() || isPreview) return;
+      setIsSendingChat(true);
+      const res = await addChatMessage(fiesta.id, newChatMsg, rsvpName || "Invitado");
+      if (res.success) {
+          setNewChatMsg('');
+          getChatMessages(fiesta.id).then(setChatMessages);
+      }
+      setIsSendingChat(false);
+  };
+
+  const handleClaimGift = async (gift: GiftItem) => {
+      if (isPreview || item.isClaimed) return;
+      const guestName = prompt("Para reservar este regalo, dinos tu nombre:");
+      if (!guestName) return;
+      
+      const res = await claimGift(fiesta.id, gift.id, guestName);
+      if (res.success) {
+          toast({ title: "¡Regalo Reservado!", description: "Gracias por tu detalle." });
+          // Update local state if possible or reload
+      }
   };
 
   const handleCopyAccount = (text: string) => {
@@ -431,14 +476,24 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
                 <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto rounded-[3rem] p-10 border-none shadow-3xl">
                     <DialogHeader className="text-center pb-8 border-b">
                         <DialogTitle className="text-4xl font-headline font-bold text-slate-900">Mesa de Regalos</DialogTitle>
-                        <DialogDescription className="text-base">Selecciona un presente</DialogDescription>
+                        <DialogDescription className="text-base">Haz clic en un regalo para elegirlo</DialogDescription>
                     </DialogHeader>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 pt-10">
                         {(seccion.data.items || []).map((item: GiftItem) => (
-                            <Card key={item.id} className="group border-none shadow-xl rounded-[2rem] overflow-hidden bg-slate-50">
+                            <Card 
+                                key={item.id} 
+                                onClick={() => handleClaimGift(item)}
+                                className={cn(
+                                    "group border-none shadow-xl rounded-[2rem] overflow-hidden bg-slate-50 transition-all",
+                                    !item.isClaimed && "cursor-pointer hover:scale-105"
+                                )}
+                            >
                                 <div className="relative aspect-square">
                                     <NextImage src={item.imageUrl || 'https://picsum.photos/seed/gift/600/600'} alt={item.name} layout="fill" objectFit="cover" className="group-hover:scale-110 transition-transform duration-1000" />
-                                    {item.isClaimed && <div className="absolute inset-0 bg-primary/70 backdrop-blur-sm flex items-center justify-center text-white font-black text-2xl uppercase tracking-widest">YA ELEGIDO</div>}
+                                    {item.isClaimed && <div className="absolute inset-0 bg-primary/70 backdrop-blur-sm flex flex-col items-center justify-center text-white p-4">
+                                        <span className="font-black text-2xl uppercase tracking-widest">YA ELEGIDO</span>
+                                        <span className="text-sm font-bold opacity-80 mt-2">Por: {item.claimedBy}</span>
+                                    </div>}
                                 </div>
                                 <CardContent className="p-8 text-center space-y-4">
                                     <h4 className="text-2xl font-headline font-bold text-slate-800 leading-tight">{item.name}</h4>
@@ -455,6 +510,42 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+          </SectionWrapper>
+        );
+
+      case 'redesSociales':
+        return (
+          <SectionWrapper {...wrapperProps} className="bg-white text-center">
+            <SectionHeader icon={CameraIcon} title="Chat de la Previa" subtitle="¡Dinos algo antes de la fiesta!" color={primaryColor} />
+            <Card className="max-w-2xl mx-auto shadow-2xl border-none rounded-[2rem] overflow-hidden bg-slate-50">
+                <CardContent className="p-0">
+                    <ScrollArea className="h-80 p-8" viewportRef={chatEndRef}>
+                        <div className="space-y-6">
+                            {chatMessages.map(msg => (
+                                <div key={msg.id} className="flex flex-col items-start text-left">
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 ml-4">{msg.authorName}</span>
+                                    <div className="bg-white px-6 py-4 rounded-[1.5rem] rounded-tl-none shadow-sm text-sm font-medium text-slate-700 leading-relaxed max-w-[90%] border border-slate-100">
+                                        {msg.text}
+                                    </div>
+                                </div>
+                            ))}
+                            {chatMessages.length === 0 && <p className="text-slate-400 italic py-12">¡Sé el primero en dejar un mensaje!</p>}
+                        </div>
+                    </ScrollArea>
+                    <form onSubmit={handleSendChat} className="p-6 bg-white border-t flex gap-3">
+                        <Input 
+                            value={newChatMsg} 
+                            onChange={e => setNewChatMsg(e.target.value)} 
+                            placeholder="Escribe un saludo..." 
+                            className="h-14 rounded-2xl bg-slate-50 border-none px-6 focus-visible:ring-2"
+                            style={{ "--tw-ring-color": primaryColor } as any}
+                        />
+                        <Button type="submit" disabled={isSendingChat || !newChatMsg.trim()} size="icon" className="h-14 w-14 rounded-2xl shadow-xl shrink-0" style={{ backgroundColor: primaryColor }}>
+                            {isSendingChat ? <Loader2 className="animate-spin w-5 h-5"/> : <Send className="w-5 h-5" />}
+                        </Button>
+                    </form>
+                </CardContent>
+            </Card>
           </SectionWrapper>
         );
 

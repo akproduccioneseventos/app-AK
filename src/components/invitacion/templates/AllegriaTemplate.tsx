@@ -1,19 +1,24 @@
+
 'use client';
 
-import React, { useState } from 'react';
-import type { FiestaEnPlanificacion, InvitacionDigitalData, ColorPalette, SocialConnection, SeccionInvitacion, GiftItem } from '@/types/fiesta';
+import React, { useState, useEffect, useRef } from 'react';
+import type { FiestaEnPlanificacion, InvitacionDigitalData, ColorPalette, SocialConnection, SeccionInvitacion, GiftItem, TextStyle } from '@/types/fiesta';
 import { EditableText } from '../edit/EditableText';
 import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
 import { CountdownTimer } from '@/components/countdown-timer';
 import { Separator } from '@/components/ui/separator';
-import { Church, GlassWater, Gift, MapPin, Calendar, Heart, PartyPopper, Clock, Utensils, ClipboardCopy, Camera, Share2, Sparkles } from 'lucide-react';
+import { Church, GlassWater, Gift, MapPin, Calendar, Heart, PartyPopper, Clock, Utensils, ClipboardCopy, Camera, Share2, Sparkles, Send, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from "framer-motion";
-import type { DetalleEventoEspecifico } from '@/types/fiesta';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { getChatMessages, addChatMessage } from '@/app/actions/social-gallery';
+import type { ChatMessage } from '@/types/social-gallery';
+import { claimGift } from '@/app/actions/fiesta/regalos.actions';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Input } from '@/components/ui/input';
 
 interface TemplateProps {
   fiesta: FiestaEnPlanificacion;
@@ -41,6 +46,22 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
     const [isItineraryModalOpen, setIsItineraryModalOpen] = useState(false);
     const [isGiftModalOpen, setIsGiftModalOpen] = useState(false);
 
+    // Pre-party Chat states
+    const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+    const [newChatMsg, setNewChatMsg] = useState('');
+    const [isSendingChat, setIsSendingChat] = useState(false);
+    const chatEndRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (!isPreview && fiesta.id) {
+            getChatMessages(fiesta.id).then(setChatMessages);
+            const interval = setInterval(() => {
+                getChatMessages(fiesta.id).then(setChatMessages);
+            }, 5000);
+            return () => clearInterval(interval);
+        }
+    }, [fiesta.id, isPreview]);
+
     const formatDate = (dateString?: string) => {
         if (!dateString) return "PRÓXIMAMENTE";
         return new Date(dateString).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
@@ -49,6 +70,29 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
     const handleCopyAccount = (text: string) => {
         navigator.clipboard.writeText(text);
         toast({ title: "Copiado", description: "Los datos bancarios se han copiado." });
+    };
+
+    const handleSendChat = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!newChatMsg.trim() || isPreview) return;
+        setIsSendingChat(true);
+        const res = await addChatMessage(fiesta.id, newChatMsg, "Invitado");
+        if (res.success) {
+            setNewChatMsg('');
+            getChatMessages(fiesta.id).then(setChatMessages);
+        }
+        setIsSendingChat(false);
+    };
+
+    const handleClaimGift = async (gift: GiftItem) => {
+        if (isPreview || gift.isClaimed) return;
+        const guestName = prompt("Para reservar este regalo, dinos tu nombre:");
+        if (!guestName) return;
+        
+        const res = await claimGift(fiesta.id, gift.id, guestName);
+        if (res.success) {
+            toast({ title: "¡Regalo Reservado!", description: "Gracias por tu detalle." });
+        }
     };
 
     const protagonist1 = fiesta.configuracion.protagonista1Nombre || invitacionData.cabecera.protagonista1;
@@ -73,10 +117,16 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                     transition={{ duration: 15, ease: "linear" }}
                     className="absolute inset-0 -z-10"
                 >
-                    <NextImage 
-                        src={invitacionData.cabecera.imagenFondoUrl || 'https://picsum.photos/seed/celebration/1200/1600'} 
-                        alt="" layout="fill" objectFit="cover" 
-                    />
+                    {invitacionData.cabecera.videoFondoUrl ? (
+                        <video autoPlay loop muted playsInline className="w-full h-full object-cover">
+                            <source src={invitacionData.cabecera.videoFondoUrl} type="video/mp4" />
+                        </video>
+                    ) : (
+                        <NextImage 
+                            src={invitacionData.cabecera.imagenFondoUrl || 'https://picsum.photos/seed/celebration/1200/1600'} 
+                            alt="" layout="fill" objectFit="cover" 
+                        />
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/90"></div>
                 </motion.div>
 
@@ -198,7 +248,7 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                                         <div className="text-2xl font-black text-primary min-w-[100px]" style={{ color: primaryColor }}>{item.hora}</div>
                                         <div className="flex-grow space-y-1">
                                             <h4 className="text-2xl font-bold text-slate-800 leading-tight">{item.titulo}</h4>
-                                            <p className="text-base text-slate-400 font-medium">{item.descripcion}</p>
+                                            <p className="text-sm text-slate-400 font-medium">{item.descripcion}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -223,7 +273,7 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                         </p>
                         
                         {invitacionData.regalos.datosBancarios && (
-                            <div className="p-16 border border-slate-100 rounded-[4rem] bg-slate-50/50 backdrop-blur relative group shadow-2xl shadow-slate-100">
+                            <div className="p-12 border border-slate-200 rounded-[4rem] bg-slate-50/50 backdrop-blur relative group shadow-2xl shadow-slate-100">
                                 <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest">Datos para el regalo</span>
                                 <p className="font-mono text-3xl md:text-4xl tracking-tighter font-black text-slate-900 break-all mb-8">
                                     {invitacionData.regalos.datosBancarios}
@@ -254,14 +304,24 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                         <DialogContent className="sm:max-w-4xl max-h-[85vh] overflow-y-auto rounded-[4rem] p-12 border-none shadow-3xl">
                             <DialogHeader className="text-center pb-10 border-b">
                                 <DialogTitle className="text-5xl font-headline font-bold text-slate-900">Sugerencias</DialogTitle>
-                                <DialogDescription className="text-xl">Ideas para obsequiarnos</DialogDescription>
+                                <DialogDescription className="text-xl">Ideas para obsequiarnos (Haz clic para elegir)</DialogDescription>
                             </DialogHeader>
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 pt-12">
                                 {(invitacionData.regalos.items || []).map((item: GiftItem) => (
-                                    <Card key={item.id} className="group border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
+                                    <Card 
+                                        key={item.id} 
+                                        onClick={() => handleClaimGift(item)}
+                                        className={cn(
+                                            "group border-none shadow-xl rounded-[2.5rem] overflow-hidden bg-white transition-all",
+                                            !item.isClaimed && "cursor-pointer hover:scale-105"
+                                        )}
+                                    >
                                         <div className="relative aspect-square">
                                             <NextImage src={item.imageUrl || 'https://picsum.photos/seed/gift/600/600'} alt={item.name} layout="fill" objectFit="cover" className="group-hover:scale-110 transition-transform duration-1000" />
-                                            {item.isClaimed && <div className="absolute inset-0 bg-primary/80 backdrop-blur-sm flex items-center justify-center text-white font-black text-2xl uppercase tracking-widest">Ya Elegido</div>}
+                                            {item.isClaimed && <div className="absolute inset-0 bg-primary/80 backdrop-blur-sm flex flex-col items-center justify-center text-white p-4">
+                                                <span className="font-black text-2xl uppercase tracking-widest">Ya Elegido</span>
+                                                <span className="text-sm font-bold opacity-80 mt-2">Por: {item.claimedBy}</span>
+                                            </div>}
                                         </div>
                                         <CardContent className="p-8 text-center space-y-4">
                                             <h4 className="text-2xl font-headline font-bold text-slate-900 leading-tight">{item.name}</h4>
@@ -280,6 +340,43 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                 </section>
             )}
 
+            {invitacionData.redesSociales.visible && (
+                <section className="py-48 px-6 bg-slate-50 text-center">
+                    <div className="max-w-2xl mx-auto space-y-12">
+                        <MessageSquare className="w-16 h-16 mx-auto" style={{ color: primaryColor }} />
+                        <h2 className="text-5xl md:text-7xl font-headline font-bold tracking-tighter">Chat de la Previa</h2>
+                        <Card className="shadow-2xl border-none rounded-[2rem] overflow-hidden bg-white">
+                            <CardContent className="p-0">
+                                <ScrollArea className="h-80 p-8" viewportRef={chatEndRef}>
+                                    <div className="space-y-6">
+                                        {chatMessages.map(msg => (
+                                            <div key={msg.id} className="flex flex-col items-start text-left">
+                                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 ml-4">{msg.authorName}</span>
+                                                <div className="bg-slate-50 px-6 py-4 rounded-[1.5rem] rounded-tl-none shadow-sm text-sm font-medium text-slate-700 leading-relaxed max-w-[90%]">
+                                                    {msg.text}
+                                                </div>
+                                            </div>
+                                        ))}
+                                        {chatMessages.length === 0 && <p className="text-slate-400 italic py-12">¡Sé el primero en dejar un mensaje!</p>}
+                                    </div>
+                                </ScrollArea>
+                                <form onSubmit={handleSendChat} className="p-6 bg-white border-t flex gap-3">
+                                    <Input 
+                                        value={newChatMsg} 
+                                        onChange={e => setNewChatMsg(e.target.value)} 
+                                        placeholder="Escribe un saludo..." 
+                                        className="h-14 rounded-2xl bg-slate-50 border-none px-6"
+                                    />
+                                    <Button type="submit" disabled={isSendingChat || !newChatMsg.trim()} size="icon" className="h-14 w-14 rounded-2xl shadow-xl shrink-0" style={{ backgroundColor: primaryColor }}>
+                                        {isSendingChat ? <Loader2 className="animate-spin w-5 h-5"/> : <Send className="w-5 h-5" />}
+                                    </Button>
+                                </form>
+                            </CardContent>
+                        </Card>
+                    </div>
+                </section>
+            )}
+
             <footer className="py-48 bg-slate-950 text-white text-center px-6 relative overflow-hidden">
                 <div className="absolute inset-0 opacity-10 pointer-events-none">
                     <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
@@ -289,7 +386,7 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                         {invitacionData.footer.titulo.text}
                     </h2>
                     <div className="flex justify-center gap-10">
-                        {socialConnections.filter(c => c.isConnected).map(c => (
+                        {socialConnections && socialConnections.filter(c => c.isConnected).map(c => (
                             <a key={c.platform} href={c.profileUrl} target="_blank" className="w-20 h-20 rounded-[2rem] bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white hover:text-slate-950 transition-all duration-500 group">
                                 <Share2 className="w-8 h-8 opacity-50 group-hover:opacity-100" />
                             </a>
