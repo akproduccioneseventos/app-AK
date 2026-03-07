@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
@@ -5,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, AlertTriangle, Users, Trash2, Edit3, PlusCircle, ArrowLeft, Info, CheckCircle2, UserPlus2, UserMinus, Search, Save } from 'lucide-react';
+import { Loader2, AlertTriangle, Users, Trash2, Edit3, PlusCircle, ArrowLeft, Info, CheckCircle2, UserPlus2, UserMinus, Search, Save, Tag } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, Invitado } from '@/types/fiesta';
 import type { CategoriaInvitado } from '@/types/invitado';
@@ -40,10 +41,12 @@ function AsignacionMesasContent() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [tagFilter, setTagFilter] = useState('all');
 
   // Form states
   const [newName, setNewName] = useState('');
   const [newCategory, setNewCategory] = useState<CategoriaInvitado>('Adulto');
+  const [newTag, setNewTag] = useState('');
   
   const [editingGuest, setEditingGuest] = useState<Invitado | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -97,10 +100,12 @@ function AsignacionMesasContent() {
             rsvp: 'Confirmado',
             partySize: 1,
             companionNames: [],
+            tag: newTag || undefined
         });
 
         if (result.success) {
             setNewName('');
+            setNewTag('');
             toast({ title: "Invitado añadido" });
             await loadData();
         } else throw new Error(result.error);
@@ -144,13 +149,23 @@ function AsignacionMesasContent() {
     }
   };
 
+  const allTags = useMemo(() => {
+      const tags = new Set<string>();
+      fiesta?.invitados?.forEach(inv => { if(inv.tag) tags.add(inv.tag); });
+      return Array.from(tags).sort();
+  }, [fiesta?.invitados]);
+
   const filteredInvitados = useMemo(() => {
     if (!fiesta?.invitados) return [];
     const lower = searchTerm.toLowerCase();
     return fiesta.invitados
-        .filter(inv => inv.nombre.toLowerCase().includes(lower))
+        .filter(inv => {
+            const matchesSearch = inv.nombre.toLowerCase().includes(lower);
+            const matchesTag = tagFilter === 'all' || inv.tag === tagFilter;
+            return matchesSearch && matchesTag;
+        })
         .sort((a,b) => a.nombre.localeCompare(b.nombre));
-  }, [fiesta?.invitados, searchTerm]);
+  }, [fiesta?.invitados, searchTerm, tagFilter]);
 
   const availableTables = useMemo(() => {
     return (fiesta?.decoracion?.salonElements || [])
@@ -185,6 +200,10 @@ function AsignacionMesasContent() {
     );
   }
 
+  const relationshipOptions = fiesta.configuracion.tipoCelebracion === 'Boda' 
+    ? ["Familia Novio", "Familia Novia", "Amigos Novio", "Amigos Novia", "Trabajo", "Otros"]
+    : ["Familia", "Amigos", "Trabajo", "Otros"];
+
   return (
     <div className="min-h-screen bg-muted/30 p-4 md:p-8">
         <div className="max-w-5xl mx-auto space-y-6">
@@ -216,7 +235,7 @@ function AsignacionMesasContent() {
                     {isLimitReached ? (
                         <div className="bg-destructive/10 text-destructive p-3 rounded-md flex items-center gap-3 text-sm font-medium">
                             <AlertTriangle className="w-5 h-5"/>
-                            Has alcanzado el límite de invitados contratados. Para añadir más, contacta con el equipo de AK Producciones.
+                            Has alcanzado el límite de invitados contratados. Para añadir más, contacta con el equipo de AK Producciones para ampliar tu presupuesto.
                         </div>
                     ) : (
                         <p className="text-xs text-muted-foreground italic flex items-center gap-1.5">
@@ -247,12 +266,23 @@ function AsignacionMesasContent() {
                                 />
                             </div>
                             <div className="space-y-1.5">
-                                <Label htmlFor="guest-cat">Categoría (para Menú)</Label>
+                                <Label htmlFor="guest-cat">Categoría</Label>
                                 <Select value={newCategory} onValueChange={(v) => setNewCategory(v as CategoriaInvitado)} disabled={isSaving || isLimitReached}>
                                     <SelectTrigger id="guest-cat"><SelectValue /></SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="Adulto">Adulto</SelectItem>
                                         <SelectItem value="Niño/Adolescente">Niño / Adolescente</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label htmlFor="guest-tag">Relación / Grupo</Label>
+                                <Select value={newTag} onValueChange={setNewTag} disabled={isSaving || isLimitReached}>
+                                    <SelectTrigger id="guest-tag"><SelectValue placeholder="Seleccionar grupo..."/></SelectTrigger>
+                                    <SelectContent>
+                                        {relationshipOptions.map(opt => (
+                                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                                        ))}
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -266,40 +296,60 @@ function AsignacionMesasContent() {
 
                 {/* List Col */}
                 <Card className="lg:col-span-8">
-                    <CardHeader className="flex flex-row items-center justify-between">
-                        <div>
-                            <CardTitle>Listado de Invitados</CardTitle>
-                            <CardDescription>Revisa y asigna mesas a tus invitados.</CardDescription>
-                        </div>
-                        <div className="relative w-48">
-                            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <Input 
-                                placeholder="Buscar..." 
-                                className="pl-8 h-9 text-xs" 
-                                value={searchTerm}
-                                onChange={e => setSearchTerm(e.target.value)}
-                            />
+                    <CardHeader className="p-6 bg-slate-50/50 border-b">
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <div>
+                                <CardTitle>Listado de Invitados</CardTitle>
+                                <CardDescription>Asigna mesas y organiza a tus grupos.</CardDescription>
+                            </div>
+                            <div className="flex gap-2 w-full md:w-auto">
+                                <div className="relative flex-grow md:w-48">
+                                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                    <Input 
+                                        placeholder="Buscar..." 
+                                        className="pl-8 h-9 text-xs bg-white" 
+                                        value={searchTerm}
+                                        onChange={e => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
+                                <Select value={tagFilter} onValueChange={setTagFilter}>
+                                    <SelectTrigger className="h-9 w-32 text-xs bg-white">
+                                        <SelectValue placeholder="Grupos"/>
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">Todos</SelectItem>
+                                        {allTags.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                            </div>
                         </div>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-0">
                         <ScrollArea className="h-[60vh]">
                             <Table>
                                 <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Nombre</TableHead>
-                                        <TableHead>Categoría</TableHead>
+                                    <TableRow className="bg-slate-50">
+                                        <TableHead className="pl-6">Nombre</TableHead>
+                                        <TableHead>Relación</TableHead>
                                         <TableHead>Mesa</TableHead>
-                                        <TableHead className="text-right">Acciones</TableHead>
+                                        <TableHead className="text-right pr-6">Acciones</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {filteredInvitados.map(guest => (
-                                        <TableRow key={guest.id}>
-                                            <TableCell className="font-medium text-sm">{guest.nombre}</TableCell>
+                                        <TableRow key={guest.id} className="hover:bg-slate-50 transition-colors">
+                                            <TableCell className="font-medium text-sm pl-6">
+                                                <div className="flex flex-col">
+                                                    <span>{guest.nombre}</span>
+                                                    <span className="text-[10px] text-muted-foreground uppercase font-bold">{guest.categoria}</span>
+                                                </div>
+                                            </TableCell>
                                             <TableCell>
-                                                <Badge variant="outline" className="text-[10px] uppercase font-bold px-1.5 py-0">
-                                                    {guest.categoria || 'Adulto'}
-                                                </Badge>
+                                                {guest.tag ? (
+                                                    <Badge variant="secondary" className="text-[10px] bg-slate-100 text-slate-600 border-none font-bold uppercase">
+                                                        <Tag className="w-3 h-3 mr-1"/> {guest.tag}
+                                                    </Badge>
+                                                ) : '-'}
                                             </TableCell>
                                             <TableCell>
                                                 <Select 
@@ -307,7 +357,7 @@ function AsignacionMesasContent() {
                                                     onValueChange={(val) => handleUpdateGuest({...guest, tableNumber: val === 'sin-mesa' ? undefined : val})}
                                                     disabled={isSaving}
                                                 >
-                                                    <SelectTrigger className="h-8 text-xs w-[120px]">
+                                                    <SelectTrigger className="h-8 text-xs w-[120px] bg-white">
                                                         <SelectValue placeholder="Mesa..."/>
                                                     </SelectTrigger>
                                                     <SelectContent>
@@ -321,12 +371,12 @@ function AsignacionMesasContent() {
                                                     </SelectContent>
                                                 </Select>
                                             </TableCell>
-                                            <TableCell className="text-right">
+                                            <TableCell className="text-right pr-6">
                                                 <div className="flex justify-end gap-1">
                                                     <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditingGuest(guest); setIsEditModalOpen(true); }}>
                                                         <Edit3 className="w-4 h-4"/>
                                                     </Button>
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDeleteGuest(guest.id)}>
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-red-50" onClick={() => handleDeleteGuest(guest.id)}>
                                                         <Trash2 className="w-4 h-4"/>
                                                     </Button>
                                                 </div>
@@ -335,8 +385,9 @@ function AsignacionMesasContent() {
                                     ))}
                                     {filteredInvitados.length === 0 && (
                                         <TableRow>
-                                            <TableCell colSpan={4} className="text-center py-10 text-muted-foreground italic">
-                                                No hay invitados en la lista.
+                                            <TableCell colSpan={4} className="text-center py-16 text-muted-foreground opacity-50">
+                                                <Users className="w-12 h-12 mx-auto mb-2"/>
+                                                <p>No hay invitados en la lista.</p>
                                             </TableCell>
                                         </TableRow>
                                     )}
@@ -350,34 +401,45 @@ function AsignacionMesasContent() {
 
         {/* Edit Modal */}
         <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-            <DialogContent className="sm:max-w-md">
+            <DialogContent className="sm:max-w-md rounded-3xl border-none">
                 <DialogHeader>
-                    <DialogTitle>Editar Invitado</DialogTitle>
-                    <DialogDescription>Actualiza el nombre o la categoría de este invitado.</DialogDescription>
+                    <DialogTitle className="text-2xl font-headline">Editar Invitado</DialogTitle>
+                    <DialogDescription>Actualiza la información de este asistente.</DialogDescription>
                 </DialogHeader>
                 {editingGuest && (
-                    <div className="space-y-4 py-2">
+                    <div className="space-y-5 py-4">
                         <div className="space-y-1.5">
-                            <Label htmlFor="edit-name">Nombre Completo</Label>
-                            <Input id="edit-name" value={editingGuest.nombre} onChange={e => setEditingGuest({...editingGuest, nombre: e.target.value})} />
+                            <Label htmlFor="edit-name" className="text-xs uppercase font-black tracking-widest text-slate-400">Nombre Completo</Label>
+                            <Input id="edit-name" value={editingGuest.nombre} onChange={e => setEditingGuest({...editingGuest, nombre: e.target.value})} className="rounded-xl h-12 bg-slate-50 border-none" />
                         </div>
-                        <div className="space-y-1.5">
-                            <Label htmlFor="edit-cat">Categoría</Label>
-                            <Select value={editingGuest.categoria || 'Adulto'} onValueChange={(v) => setEditingGuest({...editingGuest, categoria: v as CategoriaInvitado})}>
-                                <SelectTrigger id="edit-cat"><SelectValue /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="Adulto">Adulto</SelectItem>
-                                    <SelectItem value="Niño/Adolescente">Niño / Adolescente</SelectItem>
-                                </SelectContent>
-                            </Select>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1.5">
+                                <Label htmlFor="edit-cat" className="text-xs uppercase font-black tracking-widest text-slate-400">Categoría</Label>
+                                <Select value={editingGuest.categoria || 'Adulto'} onValueChange={(v) => setEditingGuest({...editingGuest, categoria: v as CategoriaInvitado})}>
+                                    <SelectTrigger id="edit-cat" className="rounded-xl h-12 bg-slate-50 border-none"><SelectValue /></SelectTrigger>
+                                    <SelectContent className="rounded-2xl border-none shadow-2xl">
+                                        <SelectItem value="Adulto">Adulto</SelectItem>
+                                        <SelectItem value="Niño/Adolescente">Niño / Adolescente</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label htmlFor="edit-tag" className="text-xs uppercase font-black tracking-widest text-slate-400">Relación</Label>
+                                <Select value={editingGuest.tag || ''} onValueChange={(v) => setEditingGuest({...editingGuest, tag: v})}>
+                                    <SelectTrigger id="edit-tag" className="rounded-xl h-12 bg-slate-50 border-none"><SelectValue placeholder="Elegir..."/></SelectTrigger>
+                                    <SelectContent className="rounded-2xl border-none shadow-2xl">
+                                        {relationshipOptions.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                            </div>
                         </div>
                     </div>
                 )}
-                <DialogFooter>
-                    <DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose>
-                    <Button onClick={() => editingGuest && handleUpdateGuest(editingGuest)} disabled={isSaving}>
+                <DialogFooter className="gap-2">
+                    <DialogClose asChild><Button variant="outline" className="rounded-xl h-12 flex-1">Cancelar</Button></DialogClose>
+                    <Button onClick={() => editingGuest && handleUpdateGuest(editingGuest)} disabled={isSaving} className="rounded-xl h-12 flex-1 shadow-lg shadow-primary/20">
                         {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>}
-                        Guardar Cambios
+                        Guardar
                     </Button>
                 </DialogFooter>
             </DialogContent>

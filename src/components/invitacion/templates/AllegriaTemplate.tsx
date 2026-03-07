@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -7,7 +8,7 @@ import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
 import { CountdownTimer } from '@/components/countdown-timer';
 import { Separator } from '@/components/ui/separator';
-import { Church, GlassWater, Gift, MapPin, Calendar, Heart, PartyPopper, Clock, Utensils, ClipboardCopy, Camera, Share2, Sparkles, Send, Loader2, AlertTriangle, Check } from 'lucide-react';
+import { Church, GlassWater, Gift, MapPin, Calendar, Heart, PartyPopper, Clock, Utensils, ClipboardCopy, Camera, Share2, Sparkles, Send, Loader2, AlertTriangle, Check, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from "framer-motion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
@@ -20,6 +21,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface TemplateProps {
   fiesta: FiestaEnPlanificacion;
@@ -53,7 +55,9 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
     // RSVP form state
     const [rsvpName, setRsvpName] = useState('');
     const [rsvpGuests, setRsvpGuests] = useState(1);
+    const [rsvpCategory, setRsvpCategory] = useState<'Adulto' | 'Niño/Adolescente'>('Adulto');
     const [isCeliac, setIsCeliac] = useState(false);
+    const [rsvpTag, setRsvpTag] = useState('');
     const [companionNames, setCompanionNames] = useState<string[]>([]);
     const [isSubmittingRsvp, setIsSubmittingRsvp] = useState(false);
 
@@ -127,13 +131,15 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
             numeroAsistentes: rsvpGuests,
             isCeliac: isCeliac,
             mensaje: '',
-            companionNames: companionNames
+            companionNames: companionNames,
+            tag: rsvpTag || undefined
         });
         if (success) {
             setIsRsvpModalOpen(false);
             setRsvpName('');
             setRsvpGuests(1);
             setIsCeliac(false);
+            setRsvpTag('');
         }
         setIsSubmittingRsvp(false);
     };
@@ -147,6 +153,10 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
     const displayWelcomeTitle = (isXV && invitacionData.bienvenida.titulo.text === '¡Nos Casamos!') 
         ? '¡Mis 15 Años!' 
         : invitacionData.bienvenida.titulo.text;
+
+    const relationshipOptions = fiesta.configuracion.tipoCelebracion === 'Boda' 
+        ? ["Familia Novio", "Familia Novia", "Amigos Novio", "Amigos Novia", "Trabajo", "Otros"]
+        : ["Familia", "Amigos", "Trabajo", "Otros"];
 
     return (
         <div className={cn("font-body text-slate-900 bg-white selection:bg-primary/10", isPreview && "h-full overflow-y-auto")}>
@@ -479,10 +489,41 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                             <Label className="text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Tu Nombre Completo</Label>
                             <Input value={rsvpName} onChange={e => setRsvpName(e.target.value)} className="h-14 rounded-2xl bg-slate-50 border-none text-lg font-bold focus-visible:ring-2" style={{ "--tw-ring-color": primaryColor } as any} required />
                         </div>
-                        <div className="space-y-3">
-                            <Label className="text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">¿Cuántos vienen?</Label>
-                            <Input type="number" value={rsvpGuests} onChange={e => setRsvpGuests(Number(e.target.value))} className="h-14 rounded-2xl bg-slate-50 border-none text-lg font-bold focus-visible:ring-2" style={{ "--tw-ring-color": primaryColor } as any} min={1} required />
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-3">
+                                <Label className="text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">¿Cuántos vienen?</Label>
+                                <Input type="number" value={rsvpGuests} onChange={e => setRsvpGuests(Number(e.target.value))} className="h-14 rounded-2xl bg-slate-50 border-none text-lg font-bold focus-visible:ring-2" style={{ "--tw-ring-color": primaryColor } as any} min={1} required />
+                            </div>
+                            <div className="space-y-3">
+                                <Label className="text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Categoría</Label>
+                                <Select value={rsvpCategory} onValueChange={(v) => setRsvpCategory(v as any)}>
+                                    <SelectTrigger className="h-14 rounded-2xl bg-slate-50 border-none font-bold">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Adulto">Adulto</SelectItem>
+                                        <SelectItem value="Niño/Adolescente">Niño / Adol.</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
                         </div>
+
+                        {invitacionData.confirmacion.showRelationshipTags && (
+                            <div className="space-y-3">
+                                <Label className="text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Relación / Grupo</Label>
+                                <Select value={rsvpTag} onValueChange={setRsvpTag}>
+                                    <SelectTrigger className="h-14 rounded-2xl bg-slate-50 border-none font-bold">
+                                        <SelectValue placeholder="Selecciona tu relación..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {relationshipOptions.map(opt => (
+                                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )}
+
                         <div className="flex items-center justify-between p-4 bg-amber-50 rounded-2xl border border-amber-100">
                             <div className="flex items-center gap-3">
                                 <AlertTriangle className="w-5 h-5 text-amber-600" />

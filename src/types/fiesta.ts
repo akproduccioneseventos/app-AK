@@ -330,6 +330,7 @@ export interface InvitacionDigitalData {
   };
   confirmacion: {
     visible: boolean;
+    showRelationshipTags?: boolean; // Nuevo: Activar/Desactivar etiquetas de relación
   };
   despedida: {
     visible: boolean;

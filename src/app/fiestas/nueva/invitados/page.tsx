@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, type FormEvent, useEffect, useCallback, useMemo } from 'react';
@@ -49,6 +50,7 @@ function InvitadosEventoContent() {
   const fiestaId = searchParams.get('fiestaId');
   const [invitados, setInvitados] = useState<Invitado[]>([]);
   const [tableNames, setTableNames] = useState<string[]>([]);
+  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false); 
   const [error, setError] = useState<string |null>(null);
@@ -79,6 +81,7 @@ function InvitadosEventoContent() {
       const fiestaData = await getFiestaById(fiestaId);
       if (!fiestaData) throw new Error("Fiesta no encontrada");
       
+      setFiesta(fiestaData);
       setInvitados((fiestaData.invitados || []).sort((a,b) => a.nombre.localeCompare(b.nombre)));
       const tables = (fiestaData.decoracion?.salonElements || [])
         .filter(el => el.category?.toLowerCase().includes('mesa'))
@@ -113,12 +116,12 @@ function InvitadosEventoContent() {
       nombre: nuevoNombre.trim(),
       categoria: nuevaCategoria,
       contacto: nuevoContacto.trim() || undefined,
-      rsvp: 'Pendiente',
+      rsvp: 'Confirmado',
       partySize: 1 + (Number(nuevoNumAcompanantes) || 0),
       notes: undefined, 
       companionNames: [],
       isCeliac: nuevoCeliaco,
-      tag: nuevoTag.trim() || undefined
+      tag: nuevoTag || undefined
     };
     const result = await addInvitadoFiestaActual(fiestaId, nuevoInvitadoData);
     if (result.success && result.invitado) {
@@ -133,21 +136,6 @@ function InvitadosEventoContent() {
       toast({ title: "Error al Añadir", description: result.error, variant: "destructive" });
     }
     setIsSaving(false);
-  };
-
-  const handleFieldChange = async (invitadoId: string, field: keyof Invitado, value: any) => {
-    const invitadoOriginal = invitados.find(inv => inv.id === invitadoId);
-    if(!invitadoOriginal || !fiestaId) return;
-
-    setInvitados(prev =>
-      prev.map(inv => (inv.id === invitadoId ? { ...inv, [field]: value } : inv))
-    );
-    
-    const result = await updateInvitadoFiestaActual(fiestaId, { ...invitadoOriginal, [field]: value });
-    if (!result.success) {
-      toast({ title: "Error al Actualizar", variant: "destructive" });
-      setInvitados(prev => prev.map(inv => (inv.id === invitadoId ? invitadoOriginal : inv))); 
-    }
   };
 
   const handleDeleteInvitado = async (invitadoId: string) => {
@@ -182,13 +170,18 @@ function InvitadosEventoContent() {
   }
 
   const rsvpCounts = useMemo(() => invitados.reduce((acc, inv) => {
-    acc[inv.rsvp] = (acc[inv.rsvp] || 0) + (inv.partySize || 1);
-    acc.TotalPersonas = (acc.TotalPersonas || 0) + (inv.partySize || 1);
+    const size = inv.partySize || 1;
+    acc[inv.rsvp] = (acc[inv.rsvp] || 0) + size;
+    acc.TotalPersonas = (acc.TotalPersonas || 0) + size;
     acc.TotalInvitaciones = (acc.TotalInvitaciones || 0) + 1;
-    acc.checkedIn = (acc.checkedIn || 0) + (inv.checkedIn ? (inv.partySize || 1) : 0);
-    acc.celiacs = (acc.celiacs || 0) + (inv.isCeliac ? (inv.partySize || 1) : 0);
+    acc.checkedIn = (acc.checkedIn || 0) + (inv.checkedIn ? size : 0);
+    acc.celiacs = (acc.celiacs || 0) + (inv.isCeliac ? size : 0);
     return acc;
   }, {} as Record<RsvpStatus | 'TotalPersonas' | 'TotalInvitaciones' | 'checkedIn' | 'celiacs', number>), [invitados]);
+
+  const relationshipOptions = fiesta?.configuracion.tipoCelebracion === 'Boda' 
+    ? ["Familia Novio", "Familia Novia", "Amigos Novio", "Amigos Novia", "Trabajo", "Otros"]
+    : ["Familia", "Amigos", "Trabajo", "Otros"];
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -249,7 +242,16 @@ function InvitadosEventoContent() {
                 <SelectContent><SelectItem value="Adulto">Adulto</SelectItem><SelectItem value="Niño/Adolescente">Niño/Adol.</SelectItem></SelectContent>
               </Select>
             </div>
-            <div className="space-y-1"><Label>Grupo/Relación</Label><Input value={nuevoTag} onChange={e => setNuevoTag(e.target.value)} placeholder="Ej: Familia, Amigos" /></div>
+            <div className="space-y-1"><Label>Grupo/Relación</Label>
+                <Select value={nuevoTag} onValueChange={setNuevoTag}>
+                    <SelectTrigger><SelectValue placeholder="Seleccionar..."/></SelectTrigger>
+                    <SelectContent>
+                        {relationshipOptions.map(opt => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
             <div className="flex items-center space-x-2 pb-2">
                 <Switch id="new-celiac" checked={nuevoCeliaco} onCheckedChange={setNuevoCeliaco} />
                 <Label htmlFor="new-celiac" className="text-xs font-bold text-amber-600">Celíaco</Label>
@@ -279,7 +281,12 @@ function InvitadosEventoContent() {
                 <TableBody>
                 {invitados.map(guest => (
                     <TableRow key={guest.id} className={guest.isCeliac ? "bg-amber-50/20" : ""}>
-                    <TableCell className="font-medium">{guest.nombre}</TableCell>
+                    <TableCell className="font-medium">
+                        <div className="flex flex-col">
+                            <span>{guest.nombre}</span>
+                            <span className="text-[10px] text-muted-foreground uppercase font-bold">{guest.categoria}</span>
+                        </div>
+                    </TableCell>
                     <TableCell>
                         {guest.tag ? <Badge variant="secondary" className="bg-slate-100 text-slate-600 border-none font-bold text-[10px] uppercase">{guest.tag}</Badge> : '-'}
                     </TableCell>
@@ -316,7 +323,14 @@ function InvitadosEventoContent() {
                     <SelectContent><SelectItem value="Adulto">Adulto</SelectItem><SelectItem value="Niño/Adolescente">Niño/Adol.</SelectItem></SelectContent>
                     </Select>
                 </div>
-                <div className="space-y-1"><Label>Grupo/Relación</Label><Input value={editingInvitado.tag || ''} onChange={e => setEditingInvitado({...editingInvitado, tag: e.target.value})} placeholder="Ej: Familia, Trabajo" /></div>
+                <div className="space-y-1"><Label>Grupo/Relación</Label>
+                    <Select value={editingInvitado.tag || ''} onValueChange={v => setEditingInvitado({...editingInvitado, tag: v})}>
+                        <SelectTrigger><SelectValue placeholder="Elegir..."/></SelectTrigger>
+                        <SelectContent>
+                            {relationshipOptions.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1"><Label>Mesa</Label>

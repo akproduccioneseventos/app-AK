@@ -1,3 +1,4 @@
+
 'use server';
 
 import type { FiestaEnPlanificacion, Invitado, RsvpStatus } from '@/types/fiesta';
@@ -56,9 +57,17 @@ export async function deleteInvitado(fiestaId: string, invitadoId: string) {
     });
 }
 
-export async function handleRsvpSubmission(fiestaId: string, submission: {nombreCompleto: string, confirmacion: string, numeroAsistentes: number, mensaje: string, companionNames: string[], isCeliac?: boolean }): Promise<{ success: boolean, invitado?: Invitado, error?: string}> {
+export async function handleRsvpSubmission(fiestaId: string, submission: {nombreCompleto: string, confirmacion: string, numeroAsistentes: number, mensaje: string, companionNames: string[], isCeliac?: boolean, tag?: string }): Promise<{ success: boolean, invitado?: Invitado, error?: string}> {
    let updatedInvitado: Invitado | undefined;
    const result = await updateFiestaData(fiestaId, data => {
+     // Validar cupos
+     const currentTotal = (data.invitados || []).reduce((sum, inv) => sum + (inv.partySize || 1), 0);
+     const limit = Number(data.configuracion.invitadosEstimados) || 0;
+     
+     if (currentTotal + (submission.numeroAsistentes || 1) > limit) {
+         throw new Error(`Se ha alcanzado el límite de invitados contratados (${limit}). Por favor, contacta al organizador.`);
+     }
+
      const invitadoExistenteIndex = (data.invitados || []).findIndex(
         inv => inv.nombre.trim().toLowerCase() === submission.nombreCompleto.toLowerCase()
       );
@@ -76,6 +85,7 @@ export async function handleRsvpSubmission(fiestaId: string, submission: {nombre
            notes: combinedNotes,
            companionNames: submission.companionNames,
            isCeliac: submission.isCeliac ?? data.invitados![invitadoExistenteIndex].isCeliac,
+           tag: submission.tag || data.invitados![invitadoExistenteIndex].tag
          };
          data.invitados![invitadoExistenteIndex] = updatedInvitado;
       } else {
@@ -87,6 +97,7 @@ export async function handleRsvpSubmission(fiestaId: string, submission: {nombre
            notes: combinedNotes,
            companionNames: submission.companionNames,
            isCeliac: submission.isCeliac,
+           tag: submission.tag
          };
          data.invitados = [...(data.invitados || []), updatedInvitado];
       }
