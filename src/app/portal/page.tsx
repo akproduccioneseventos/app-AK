@@ -7,16 +7,18 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, AlertTriangle, KeyRound, LogIn, ArrowRight, NotebookTextIcon, ListChecks, Music, Camera, Gift, FileText, UserCheck, Users, Globe, MessageSquare, Wand2, FileSignature } from 'lucide-react';
+import { Loader2, AlertTriangle, KeyRound, LogIn, ArrowRight, NotebookTextIcon, ListChecks, Music, Camera, Gift, FileText, UserCheck, Users, Globe, MessageSquare, Wand2, FileSignature, Zap } from 'lucide-react';
 import type { FiestaEnPlanificacion, ClientPortalSettings } from '@/types/fiesta';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { notifyClientArrival } from '@/app/actions/fiesta/live.actions';
 import Link from 'next/link';
+import { useToast } from '@/hooks/use-toast';
 
 const SESSION_KEY_PREFIX = 'portal_auth_';
 
 const portalModules = [
     { id: 'checklist', label: 'Mis Tareas', href: '/portal/[fiestaId]/tareas', icon: ListChecks },
-    { id: 'contrato', label: 'Ver y Firmar Contrato', href: '/portal/[fiestaId]/contrato', icon: FileSignature }, // Módulo 4
+    { id: 'contrato', label: 'Ver y Firmar Contrato', href: '/portal/[fiestaId]/contrato', icon: FileSignature },
     { id: 'invitados', label: 'Asignación de Mesas', href: '/portal/mesas', icon: Users },
     { id: 'moodboard', label: 'Dream Designer (Moodboard)', href: '/portal/[fiestaId]/moodboard', icon: Wand2 },
     { id: 'musica', label: 'Sugerencias Musicales', href: '/portal/[fiestaId]/musica', icon: Music },
@@ -31,12 +33,14 @@ const portalModules = [
 function ClientPortalContent() {
     const searchParams = useSearchParams();
     const fiestaId = searchParams.get('fiestaId');
+    const { toast } = useToast();
 
     const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isNotifying, setIsNotifying] = useState(false);
 
     useEffect(() => {
         if (!fiestaId) {
@@ -77,6 +81,18 @@ function ClientPortalContent() {
         } else {
             setError("Contraseña incorrecta.");
         }
+    };
+
+    const handleArrivalNotify = async () => {
+        if (!fiestaId) return;
+        setIsNotifying(true);
+        const res = await notifyClientArrival(fiestaId);
+        if (res.success) {
+            toast({ title: "¡Aviso enviado!", description: "El organizador ha sido notificado de tu llegada." });
+        } else {
+            toast({ title: "Error", description: "No se pudo enviar el aviso.", variant: "destructive" });
+        }
+        setIsNotifying(false);
     };
     
     if (isLoading) {
@@ -124,6 +140,26 @@ function ClientPortalContent() {
                     <p className="text-lg text-muted-foreground">¡Bienvenido/a a tu portal!</p>
                 </header>
 
+                <Card className="bg-primary text-white shadow-xl rounded-[2rem] border-none overflow-hidden animate-in fade-in slide-in-from-top-4 duration-700">
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-black uppercase tracking-widest opacity-80">Día del Evento</CardTitle>
+                    </CardHeader>
+                    <CardContent className="pb-6">
+                        <div className="flex flex-col gap-4">
+                            <p className="text-lg font-bold">¿Ya estás llegando al salón?</p>
+                            <Button 
+                                onClick={handleArrivalNotify} 
+                                disabled={isNotifying}
+                                className="h-16 rounded-2xl bg-white text-primary hover:bg-slate-100 font-black text-lg shadow-2xl"
+                            >
+                                {isNotifying ? <Loader2 className="animate-spin mr-3"/> : <Zap className="w-6 h-6 mr-3"/>}
+                                ¡ESTAMOS LLEGANDO!
+                            </Button>
+                            <p className="text-[10px] uppercase font-black tracking-widest text-center opacity-60">Presiona para avisar al organizador</p>
+                        </div>
+                    </CardContent>
+                </Card>
+
                 <Card>
                     <CardHeader>
                         <CardTitle>Módulos Disponibles</CardTitle>
@@ -131,7 +167,6 @@ function ClientPortalContent() {
                     </CardHeader>
                     <CardContent className="space-y-3">
                        {portalModules.map(mod => {
-                           // For 'contrato' module, it's always visible if not explicitly hidden
                            const moduleSetting = settings[mod.id as keyof typeof settings];
                            const isVisible = (mod.id === 'contrato' && !moduleSetting) || (moduleSetting && (moduleSetting as any).visible);
                            
@@ -159,7 +194,6 @@ function ClientPortalContent() {
         </div>
     );
 }
-
 
 export default function ClientPortalPage() {
     return (

@@ -14,31 +14,6 @@ export interface Notificacion {
   icono?: string; // Nombre de un icono de lucide-react
 }
 
-
-// --- CONFIGURACIÓN DEL ASISTENTE AK ---
-export interface AsistentePasoOpcion {
-  id: string;
-  nombre: string;
-  costoBase?: number;
-  costoPorPersona?: number;
-  multiplicadorCosto?: number;
-  img?: string;
-  hint?: string;
-  valor?: boolean; 
-}
-
-export interface AsistentePasoConfig {
-  pregunta: string;
-  description: string;
-  opciones: AsistentePasoOpcion[];
-}
-
-export interface AsistenteAkConfig {
-  pasos: {
-    tipoFiesta: AsistentePasoConfig;
-  }
-}
-
 // --- CARTA DE TRAGOS / MENU MESA ---
 export interface Trago {
   id: string;
@@ -50,7 +25,7 @@ export interface Trago {
 export interface CartaTragosData {
     titulo?: string;
     items: Trago[];
-    protagonistaFotoUrl?: string; // Foto principal de la carta
+    protagonistaFotoUrl?: string; 
     protagonistaNombre?: string;
     numeroPrincipal?: string;
     backgroundImageUrl?: string;
@@ -62,7 +37,6 @@ export interface CartaTragosData {
         contacto: string;
     };
 }
-
 
 export interface MenuMesaData {
   protagonistaFotoUrl?: string;
@@ -92,28 +66,55 @@ export interface NumerosMesaData {
   colorSecundario: string;
 }
 
+// --- MODULO 6: LIVE EVENT TYPES ---
+export interface EntregaCritica {
+    id: string;
+    nombre: string;
+    horaEstimada: string;
+    llego: boolean;
+    timestampLlegada?: string;
+    proveedor?: string;
+}
+
+export interface IncidenteEvento {
+    id: string;
+    hora: string;
+    descripcion: string;
+    resuelto: boolean;
+}
+
+export interface LiveEventState {
+    llegadaProtagonistas: {
+        enCamino: boolean;
+        timestampAviso?: string;
+        confirmado: boolean;
+    };
+    entregas: EntregaCritica[];
+    incidentes: IncidenteEvento[];
+    staffCheckIn: Record<string, { llego: boolean, hora?: string }>;
+}
 
 // --- RESTO DE TIPOS ---
 
 export interface ConfigEventoDataStorage {
   nombreEvento: string;
   tipoCelebracion: TipoEvento | string;
-  fechaEvento?: string; // ISO string for storage
+  fechaEvento?: string; 
   horaInicio: string;
   horaFin: string;
   nombreLugar: string;
   invitadosEstimados: number | string;
   presupuestoEstimado: number | string;
   notasAdicionales: string;
-  clienteId?: string; // ID del cliente principal vinculado a esta fiesta
-  protagonista1Nombre?: string; // Nuevo campo para el nombre del agasajado/a
-  protagonista2Nombre?: string; // Nuevo campo para bodas
+  clienteId?: string; 
+  protagonista1Nombre?: string; 
+  protagonista2Nombre?: string; 
   protagonistaFotoUrl?: string;
 }
 
 export interface PersonalAsignadoDetalleStorage {
   empleadoId: string;
-  rolId: string; // ID of the specific role for this event
+  rolId: string; 
   eventSalary: number;
 }
 
@@ -126,10 +127,10 @@ export interface ReunionChecklistItem {
 export interface Reunion {
   id: string;
   titulo: string;
-  fecha?: string; // ISO string, opcional
+  fecha?: string; 
   notas: string;
-  acuerdos?: string; // Nuevo: Documentación de lo acordado en la reunión
-  checklist?: ReunionChecklistItem[]; // Nuevo: Checklist preconfigurado
+  acuerdos?: string; 
+  checklist?: ReunionChecklistItem[]; 
   fiestaId?: string;
 }
 
@@ -190,8 +191,7 @@ export interface MoodboardItem {
 export interface DecoracionData {
   tema?: string;
   paletaColores?: ColorPalette;
-  moodboardImageUrl?: string; // Deprecated, but kept for compatibility
-  moodboardItems?: MoodboardItem[]; // Nuevo campo para el Módulo 3
+  moodboardItems?: MoodboardItem[]; 
   colorCubremantel?: string;
   colorGlobos?: string;
   decoracionTorta?: {
@@ -219,27 +219,22 @@ export interface GiftItem {
   imageUrl?: string;
   dataAiHint?: string;
   isClaimed: boolean;
-  claimedBy?: string; // Name of the guest who claimed it
+  claimedBy?: string; 
 }
 
 export interface ProgramaEventoItem {
   id: string;
-  hora: string; // HH:mm format
+  hora: string; 
   titulo: string;
   descripcion?: string;
-  icono?: string; // Nombre del icono de lucide-react
-}
-
-export interface ItineraryTemplate {
-  id: string;
-  name: string;
-  items: ProgramaEventoItem[];
+  icono?: string; 
+  completado?: boolean; // Módulo 6: Seguimiento en vivo
 }
 
 export interface TextStyle {
     fontFamily?: 'Belleza' | 'Inter' | 'Playfair_Display' | 'Dancing_Script';
-    fontSize?: string; // '16px', '2rem', etc.
-    color?: string; // hex, rgb, etc.
+    fontSize?: string; 
+    color?: string; 
 }
 
 export interface TextWithStyle {
@@ -261,11 +256,11 @@ export interface DetalleEventoEspecifico {
 export interface SeccionInvitacion {
   id: string;
   tipo: 'cabecera' | 'bienvenida' | 'cuentaRegresiva' | 'detallesEvento' | 'itinerario' | 'dressCode' | 'galeria' | 'historia' | 'regalos' | 'confirmacion' | 'despedida' | 'footer' | 'redesSociales' | 'musica';
-  data: any; // El contenido específico de cada sección
+  data: any; 
 }
 
 export interface InvitacionDigitalData {
-  name?: string; // Only for templates
+  name?: string; 
   category?: 'Boda' | 'XV Años' | 'Cumpleaños' | 'General';
   plantilla: 'Grazia' | 'Allegria';
   musicaFondoUrl?: string;
@@ -350,7 +345,6 @@ export interface InvitacionDigitalData {
   }
 }
 
-
 interface PortalModuleSettings {
   visible: boolean;
   editable: boolean;
@@ -359,7 +353,6 @@ interface PortalModuleSettings {
 interface PortalViewOnlyModuleSettings {
   visible: boolean;
 }
-
 
 export interface ClientPortalSettings {
   enabled: boolean;
@@ -374,8 +367,8 @@ export interface ClientPortalSettings {
   invitados: PortalViewOnlyModuleSettings;
   paginaPublica: PortalViewOnlyModuleSettings;
   fotografiaYFilmacion: PortalViewOnlyModuleSettings;
-  moodboard: PortalModuleSettings; // Nuevo para Módulo 3
-  contrato: PortalViewOnlyModuleSettings; // Nuevo para Módulo 4
+  moodboard: PortalModuleSettings; 
+  contrato: PortalViewOnlyModuleSettings; 
 }
 
 export interface SocialGallerySettings {
@@ -411,20 +404,11 @@ export interface ReposteriaItem {
   imagenReferenciaUrl?: string;
   dataAiHint?: string;
   notas?: string;
-  origenId?: string; // Link to Insumo if applicable
+  origenId?: string; 
 }
 
-export type ReposteriaCategoriaId =
-  | 'tortas_personalizadas'
-  | 'cupcakes_minitortas'
-  | 'candy_bar'
-  | 'fuente_chocolate'
-  | 'mesa_dulce_tradicional'
-  | 'mesa_helada'
-  | 'postres_individuales';
-
 export interface ReposteriaCategoria {
-  id: ReposteriaCategoriaId;
+  id: string;
   nombreDisplay: string;
   activada: boolean;
   descripcion?: string;
@@ -432,91 +416,36 @@ export interface ReposteriaCategoria {
   items: ReposteriaItem[];
 }
 
-export type TipoAsistente = 'adulto' | 'adolescente' | 'nino';
-
-export type ReposteriaConsumoConfig = {
-  [key in ReposteriaCategoriaId]: Record<TipoAsistente, number>;
-};
-
-
 export interface ReposteriaData {
   categorias: ReposteriaCategoria[];
-  consumoConfig?: ReposteriaConsumoConfig;
   notasGenerales?: string;
 }
-
-export type BebidaItemStatus = 'Pendiente' | 'A Comprar' | 'Reservado Stock' | 'Contratado';
 
 export interface BebidaItem {
   id: string;
   nombre: string;
-  marca?: string;
-  presentacion?: string; 
   cantidadNecesaria?: number; 
   unidadCantidad?: string; 
   costoUnitario?: number; 
   costoTotal?: number; 
   proveedorHabitual?: string;
   notas?: string;
-  mlPorUnidad?: number; 
   origenId?: string;
-  status?: BebidaItemStatus;
-  stockDisponible?: number;
 }
-
-export interface IngredienteReceta {
-    id: string; // Unique within the recipe
-    insumoId: string; // ID from a "ServicioEmpresa" of type "Insumo/Ingrediente" or "Bebida (Insumo)"
-    nombreInsumo: string; // Denormalized name
-    cantidad: number;
-    unidad: string; // e.g., "lt", "kg", "unidad"
-    costoUnitario: number; // Cost of 1 unit of this ingredient
-    costoTotal: number; // cantidad * costoUnitario
-}
-
-export interface BebidaReceta {
-    id: string;
-    nombre: string;
-    capacidadBaseLt: number; // e.g., 50
-    porcionesBase: number; // e.g., 100
-    ingredientes: IngredienteReceta[];
-    costoTotalReceta: number;
-    precioVentaSugerido?: number;
-    notas?: string;
-}
-
-export type BebidaCategoriaId =
-  | 'coctel_bienvenida'
-  | 'refrescos_gaseosas'
-  | 'jugos'
-  | 'aguas_saborizadas'
-  | 'cervezas'
-  | 'vinos_espumantes'
-  | 'barra_tragos'
-  | 'cafeteria';
-  
-
-export type BebidasConsumoConfig = {
-  [key in BebidaCategoriaId]: Record<TipoAsistente, number>;
-};
 
 export interface BebidaCategoria {
-  id: BebidaCategoriaId;
+  id: string;
   nombreDisplay: string;
   activada: boolean;
   descripcion?: string;
   items: BebidaItem[];
-  recetas?: BebidaReceta[];
+  recetas?: any[];
 }
-
 
 export interface BebidasData {
   categorias: BebidaCategoria[];
-  consumoConfig?: BebidasConsumoConfig;
   notasGenerales?: string;
 }
-
-export type TareaAsignadaA = 'Cliente' | 'Organizador';
 
 export interface Tarea {
   id: string;
@@ -526,7 +455,7 @@ export interface Tarea {
   fechaLimite?: string; 
   horaVencimiento?: string; 
   recordatorio?: string; 
-  asignadaA?: TareaAsignadaA;
+  asignadaA?: 'Cliente' | 'Organizador';
   esPredeterminada?: boolean;
 }
 
@@ -534,22 +463,18 @@ export interface ClientTarea {
   id: string;
   texto: string;
   completada: boolean;
-  asignadaA: TareaAsignadaA;
 }
-
 
 export interface CargaOperativaItem {
   id: string;
   nombre: string;
-  cantidad: string; // '1', '100', '1 por persona'
+  cantidad: string; 
   cargado: boolean;
   notas?: string;
   origenId?: string; 
   unidad?: UnidadServicio | string;
-  calculationMethod?: 'fijo' | 'porPersona' | 'porRatio';
-  ratioPorInvitado?: number; // e.g., 1 unit for every 4 guests
-  hasConflict?: boolean; // Módulo 1: Conflicto de stock detectado
-  availableStockAtDate?: number; // Módulo 1: Stock real libre para esa fecha
+  hasConflict?: boolean; 
+  availableStockAtDate?: number; 
 }
 
 export interface CargaOperativaCategoria {
@@ -565,31 +490,20 @@ export interface ListaDeCargaOperativa {
   notasGenerales?: string;
 }
 
-export type CostoCategoria = 
-  | 'Servicio Proveedor' 
-  | 'Personal Evento' 
-  | 'Compra General' 
-  | 'Marketing y Publicidad'
-  | 'Imprevistos'
-  | 'Otro Costo Directo'
-  | 'Pago de Salón';
-
 export interface CostoItem {
   id: string;
   nombre: string;
-  category: CostoCategoria;
+  category: string;
   montoEstimado: number;
-  montoReal?: number;
   notas?: string;
-  proveedorSugerido?: string; 
 }
 
 export interface PagoProveedor {
   id: string;
-  costoAsociadoId: string; // ID del CostoItem al que pertenece este pago
-  fecha: string; // ISO date string
+  costoAsociadoId: string; 
+  fecha: string; 
   monto: number;
-  metodoPago?: string; // Ej: 'Transferencia', 'Efectivo'
+  metodoPago?: string; 
   notas?: string;
 }
 
@@ -607,13 +521,12 @@ export interface VideoVidaData {
   photoCount?: number;
 }
 
-export type DocumentoTipo = 'contrato_salon' | 'contrato_servicio' | 'presupuesto_firmado' | 'recibo_pago' | 'recibo_salon' | 'recibo_agadu' | 'recibo_personal' | 'otro';
 export interface OtroDocumento {
   id: string;
   nombre: string;
-  tipo: DocumentoTipo;
-  fileName: string; // e.g., 'contrato-salon-fiesta123.pdf'
-  timestamp: string; // ISO String
+  tipo: string;
+  fileName: string; 
+  timestamp: string; 
 }
 
 export interface ModulosContratados {
@@ -644,7 +557,8 @@ export interface ModulosContratados {
   portalCliente: boolean;
   numerosMesa: boolean;
   mesasCliente: boolean;
-  resumenPlanificacion: boolean; // Nuevo: Módulo consolidado de planificación
+  resumenPlanificacion: boolean;
+  enVivo: boolean; // Nuevo: Módulo 6
 }
 
 export interface CompraProveedorEstado {
@@ -653,21 +567,10 @@ export interface CompraProveedorEstado {
     pagado: boolean;
 }
 
-export type FiestaEstado = 'Planificación' | 'Contratada' | 'Finalizada' | 'Cancelada';
-
-export interface ContratoFirmaInfo {
-    isSigned: boolean;
-    signedAt?: string;
-    method?: 'digital' | 'physical';
-    signedBy?: string;
-    ip?: string;
-    physicalContractUrl?: string; // Si se subió escaneado
-}
-
 export interface FiestaEnPlanificacion {
   id: string;
   configuracion: ConfigEventoDataStorage;
-  estado?: FiestaEstado;
+  estado?: string;
   modulosContratados?: ModulosContratados;
   personalAsignado: PersonalAsignadoDetalleStorage[];
   menuAsignadoId?: string;
@@ -679,22 +582,12 @@ export interface FiestaEnPlanificacion {
   invitados?: Invitado[];
   clientChecklist?: ClientTarea[];
   clientNotes?: string; 
-  
-  // New unified object for digital presence
   invitacionDigital?: InvitacionDigitalData;
-
-  // New object for drink menu
   cartaTragos?: CartaTragosData;
   menuMesa?: MenuMesaData;
   numerosMesa?: NumerosMesaData;
-
-  // Event specific contract text (override template)
   contratoServicioTexto?: string;
-  contratoFirmaInfo?: ContratoFirmaInfo; // Módulo 4
-
-  // Deprecated - will be migrated to invitacionDigital
-  webPageSettings?: EventWebPageSettings; 
-
+  contratoFirmaInfo?: ContratoFirmaInfo; 
   clientPortalSettings?: ClientPortalSettings;
   socialGallerySettings?: SocialGallerySettings;
   musica?: MusicaFiesta;
@@ -705,46 +598,18 @@ export interface FiestaEnPlanificacion {
   videoVida?: VideoVidaData;
   programa?: ProgramaEventoItem[];
   fotografiaYFilmacion?: FotografiaYFilmacionData;
-  
-  // New flexible document storage
   otrosDocumentos?: OtroDocumento[];
-  // New provider payment tracking
   pagosProveedores?: PagoProveedor[];
-
   estadosCompra?: CompraProveedorEstado[];
-  generadoDesdeHistorico?: boolean; // Flag para rastrear origen
+  generadoDesdeHistorico?: boolean; 
+  liveState?: LiveEventState; // Nuevo: Módulo 6
 }
 
-export interface RestorePoint {
-  name: string;
-  timestamp: string;
-  displayDate: string;
-}
-
-// Deprecated, keep for data migration if necessary
-export interface EventWebPageSettings {
-  pageTitle: string;
-  heroSubtitle?: string;
-  welcomeMessage: string;
-  coverImageUrl: string; 
-  galleryImageUrls: string[]; 
-  showCountdown: boolean;
-  ourStoryTitle?: string;
-  ourStoryText?: string;
-  ourStoryImageUrl?: string; 
-  showOurStory: boolean; 
-  eventDetailsTitle?: string;
-  eventDetailsText?: string;
-  showEventDetails: boolean;
-  dressCodeText?: string;
-  showDressCode: boolean;
-  giftRegistryTitle?: string;
-  giftRegistryText?: string;
-  showGiftRegistry: boolean;
-  giftRegistry?: GiftItem[];
-  showRsvp: boolean;
-  showPrograma: boolean;
-  musicaEspecialText?: string;
-  showGallery: boolean; 
-  templateName: 'Obsidiana' | 'Grazia' | 'Allegria';
+export interface ContratoFirmaInfo {
+    isSigned: boolean;
+    signedAt?: string;
+    method?: 'digital' | 'physical';
+    signedBy?: string;
+    ip?: string;
+    physicalContractUrl?: string; 
 }

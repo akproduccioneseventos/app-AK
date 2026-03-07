@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
@@ -5,7 +6,12 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, AlertTriangle, PartyPopper, Calendar, Users, Palette, ChefHat, Music2, ListChecks, DollarSign, Camera, Gift, FileText, UserCheck, Clock, Archive, PackageSearch, Video, Globe, MessageSquare, LayoutDashboard, Star, Calculator, GlassWater, ShoppingCart, ClipboardList, QrCode, Printer, Settings2, KeyRound, ClipboardCheck, ArrowRight, MapPin } from 'lucide-react';
+import { 
+    Zap, Loader2, AlertTriangle, PartyPopper, Calendar, Users, Palette, ChefHat, Music2, 
+    ListChecks, DollarSign, Camera, Gift, FileText, UserCheck, Clock, Archive, PackageSearch, 
+    Video, Globe, MessageSquare, LayoutDashboard, Star, Calculator, GlassWater, ShoppingCart, 
+    ClipboardList, QrCode, Printer, Settings2, KeyRound, ClipboardCheck, ArrowRight, MapPin 
+} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateModulosContratadosFiestaActual, type FiestaEnPlanificacion, type ModulosContratados } from '../../actions/fiesta-actual';
 import { KpiCard } from '@/components/dashboard/kpi-card';
@@ -50,6 +56,9 @@ const modules = [
   { id: 'musica', title: "Música", href: "musica", icon: Music2, description: "Canciones y ambiente.", category: 'Planificación del Evento', color: "bg-violet-100 text-violet-600" },
   { id: 'itinerario', title: "Itinerario", href: "itinerario", icon: Clock, description: "Cronograma minuto a minuto.", category: 'Planificación del Evento', color: "bg-blue-100 text-blue-600" },
   
+  // Módulo 6: Vivo
+  { id: 'enVivo', title: "EVENTO EN VIVO", href: "en-vivo", icon: Zap, description: "Modo táctico para el día de la fiesta.", category: 'Evento en Vivo', color: "bg-primary text-white shadow-xl shadow-primary/30" },
+
   // Portal del Cliente
   { id: 'portalCliente', title: "Portal Cliente", href: "portal-cliente", icon: KeyRound, description: "Centro de colaboración.", category: 'Portal del Cliente', color: "bg-amber-100 text-amber-600" },
   { id: 'paginaWeb', title: "Invitación Web", href: "pagina-web", icon: Globe, description: "Web pública interactiva.", category: 'Portal del Cliente', color: "bg-blue-100 text-blue-600" },
@@ -70,6 +79,7 @@ const modules = [
 const moduleCategories = [
     'Gestión Central', 
     'Planificación del Evento',
+    'Evento en Vivo',
     'Portal del Cliente',
     'Herramientas Adicionales',
 ];
@@ -166,11 +176,18 @@ function PlannerDashboardContent() {
             </p>
           </div>
         </motion.div>
-        <Link href="/eventos" passHref className="w-full sm:w-auto">
-          <Button variant="outline" className="rounded-2xl px-8 h-12 border-slate-200 font-bold hover:bg-slate-50 transition-all w-full">
-            <ArrowLeft className="w-4 h-4 mr-3"/>Volver al Gestor
-          </Button>
-        </Link>
+        <div className="flex gap-2 w-full sm:w-auto">
+            <Link href={`/fiestas/nueva/en-vivo?fiestaId=${fiestaId}`} passHref className="w-full sm:w-auto">
+                <Button className="rounded-2xl px-8 h-12 bg-primary shadow-xl shadow-primary/30 font-black tracking-widest w-full">
+                    <Zap className="w-4 h-4 mr-3 animate-pulse"/> MODO EN VIVO
+                </Button>
+            </Link>
+            <Link href="/eventos" passHref className="w-full sm:w-auto">
+                <Button variant="outline" className="rounded-2xl px-8 h-12 border-slate-200 font-bold hover:bg-slate-50 transition-all w-full">
+                    <ArrowLeft className="w-4 h-4 mr-3"/>Volver al Gestor
+                </Button>
+            </Link>
+        </div>
       </div>
 
       <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
@@ -218,7 +235,7 @@ function PlannerDashboardContent() {
       <div className="space-y-10 sm:space-y-16">
           <AnimatePresence>
           {moduleCategories.map((category) => {
-            const categoryModules = modules.filter(m => m.category === category && modulosContratados[m.id as keyof ModulosContratados]);
+            const categoryModules = modules.filter(m => m.category === category && (modulosContratados[m.id as keyof ModulosContratados] || m.id === 'enVivo'));
             if (categoryModules.length === 0) return null;
 
             return (
