@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -211,9 +210,10 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
   const [isItineraryModalOpen, setIsItineraryModalOpen] = useState(false);
   const [isGiftModalOpen, setIsGiftModalOpen] = useState(false);
   
+  // RSVP form state - Refactorizado para cupos por categoría
   const [rsvpName, setRsvpName] = useState('');
-  const [rsvpGuests, setRsvpGuests] = useState(1);
-  const [rsvpCategory, setRsvpCategory] = useState<'Adulto' | 'Niño/Adolescente'>('Adulto');
+  const [numAdults, setNumAdults] = useState(1);
+  const [numKids, setNumKids] = useState(0);
   const [isCeliac, setIsCeliac] = useState(false);
   const [rsvpTag, setRsvpTag] = useState('');
   const [companionNames, setCompanionNames] = useState<string[]>([]);
@@ -237,7 +237,8 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
   }, [fiesta.id, isPreview]);
 
   useEffect(() => {
-    const numCompanions = rsvpGuests > 1 ? rsvpGuests - 1 : 0;
+    const totalOthers = (numAdults + numKids) - 1;
+    const numCompanions = Math.max(0, totalOthers);
     setCompanionNames(prev => {
         const newNames = Array(numCompanions).fill('');
         for (let i = 0; i < Math.min(prev.length, numCompanions); i++) {
@@ -245,7 +246,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
         }
         return newNames;
     });
-  }, [rsvpGuests]);
+  }, [numAdults, numKids]);
 
   const togglePlayPause = () => {
     if (isPreview) return;
@@ -259,19 +260,23 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
     e.preventDefault();
     if (!rsvpName.trim() || !onRsvpSubmit) return;
     setIsSubmittingRsvp(true);
+    
     const success = await onRsvpSubmit({
       nombreCompleto: rsvpName,
       confirmacion: 'Confirmado',
-      numeroAsistentes: rsvpGuests,
+      adultsCount: numAdults,
+      kidsCount: numKids,
       isCeliac: isCeliac,
       mensaje: rsvpMusicSuggestion.trim() ? `Sugerencia: ${rsvpMusicSuggestion}` : '',
       companionNames: companionNames,
       tag: rsvpTag || undefined
     });
+    
     if (success) {
       setIsRsvpModalOpen(false);
       setRsvpName('');
-      setRsvpGuests(1);
+      setNumAdults(1);
+      setNumKids(0);
       setIsCeliac(false);
       setRsvpTag('');
     }
@@ -404,7 +409,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
                 <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-10 border-none shadow-3xl">
                     <DialogHeader className="text-center pb-6 md:pb-8 border-b">
                         <DialogTitle className="text-3xl md:text-4xl font-headline font-bold text-slate-900">Cronograma</DialogTitle>
-                        <DialogDescription className="text-sm md:text-base">Detalle de actividades</DialogDescription>
+                        <DialogDescription className="text-sm md:text-base">Momentos clave del evento</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-8 md:space-y-10 pt-8 md:pt-10 relative">
                         <div className="absolute left-[19px] md:left-[23px] top-10 bottom-10 w-px bg-slate-100"></div>
@@ -589,6 +594,8 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
     ? ["Familia Novio", "Familia Novia", "Amigos Novio", "Amigos Novia", "Trabajo", "Otros"]
     : ["Familia", "Amigos", "Trabajo", "Otros"];
 
+  const showKidsSelector = (Number(fiesta.configuracion.invitadosNinos) || 0) > 0;
+
   return (
     <div className={cn("min-h-screen bg-white font-body selection:bg-primary/20 selection:text-white", isPreview && "h-full overflow-y-auto")}>
       <GraziaCabecera data={invitacionData.cabecera} fiesta={fiesta} paleta={paletaColores} isPreview={isPreview} />
@@ -610,6 +617,25 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
         {invitacionData.secciones.map(seccion => renderSectionComponent(seccion))}
       </main>
 
+      <footer className="py-24 md:py-32 text-center bg-slate-50 px-6 border-t border-slate-100">
+        <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="space-y-8 md:space-y-12">
+            <h4 className="text-4xl md:text-7xl font-dancing text-slate-800" style={{ color: primaryColor }}>{invitacionData.footer.titulo.text}</h4>
+            <div className="flex justify-center gap-6 md:gap-8">
+            {socialConnections.filter(c => c.isConnected).map(c => (
+                <a key={c.platform} href={c.profileUrl} target="_blank" className="w-12 h-12 md:w-16 md:h-16 rounded-2xl md:rounded-3xl bg-white shadow-xl flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-500 text-slate-400">
+                <Share2 className="w-5 h-5 md:w-6 md:h-6" />
+                </a>
+            ))}
+            </div>
+            <div className="space-y-2">
+                <div className="w-12 md:w-16 h-1 bg-primary/20 mx-auto rounded-full mb-4 md:mb-6"></div>
+                <p className="text-[8px] md:text-[10px] font-black tracking-[0.5em] text-slate-300 uppercase">{invitacionData.footer.nombreEmpresa.text}</p>
+            </div>
+        </motion.div>
+      </footer>
+      
+      <audio ref={audioRef} src={invitacionData.musicaFondoUrl} loop />
+
       <Dialog open={isRsvpModalOpen} onOpenChange={setIsRsvpModalOpen}>
         <DialogContent className="sm:max-w-md rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-10 border-none shadow-3xl">
           <DialogHeader className="text-center space-y-3 md:space-y-4">
@@ -617,30 +643,29 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
                 <Check className="w-8 h-8 md:w-10 md:h-10 text-primary" style={{ color: primaryColor }} />
             </div>
             <DialogTitle className="text-3xl md:text-4xl font-headline font-bold text-slate-900">¡Te esperamos!</DialogTitle>
-            <DialogDescription className="text-sm md:text-base font-medium">Por favor, completa tus datos para confirmar.</DialogDescription>
+            <DialogDescription className="text-sm md:text-base font-medium">Confirma tu asistencia y la de tus acompañantes.</DialogDescription>
           </DialogHeader>
           <form onSubmit={handleRsvpFormSubmit} className="space-y-6 md:space-y-8 pt-4 md:pt-6">
             <div className="space-y-2 md:space-y-3">
               <Label className="text-[9px] md:text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Tu Nombre Completo</Label>
               <Input value={rsvpName} onChange={e => setRsvpName(e.target.value)} className="h-12 md:h-14 rounded-xl md:rounded-2xl bg-slate-50 border-none text-base md:text-lg font-bold focus-visible:ring-2" style={{ "--tw-ring-color": primaryColor } as any} required />
             </div>
+            
             <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2 md:space-y-3">
-                    <Label className="text-[9px] md:text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">¿Cuántos vienen?</Label>
-                    <Input type="number" value={rsvpGuests} onChange={e => setRsvpGuests(Number(e.target.value))} className="h-12 md:h-14 rounded-xl md:rounded-2xl bg-slate-50 border-none text-base md:text-lg font-bold focus-visible:ring-2" style={{ "--tw-ring-color": primaryColor } as any} min={1} required />
+                    <Label className="text-[9px] md:text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Nº Adultos</Label>
+                    <Input type="number" value={numAdults} onChange={e => setNumAdults(Math.max(1, Number(e.target.value)))} className="h-12 md:h-14 rounded-xl md:rounded-2xl bg-slate-50 border-none text-base md:text-lg font-bold focus-visible:ring-2" style={{ "--tw-ring-color": primaryColor } as any} min={1} required />
                 </div>
-                <div className="space-y-2 md:space-y-3">
-                    <Label className="text-[9px] md:text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Categoría</Label>
-                    <Select value={rsvpCategory} onValueChange={(v) => setRsvpCategory(v as any)}>
-                        <SelectTrigger className="h-12 md:h-14 rounded-xl md:rounded-2xl bg-slate-50 border-none font-bold">
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="Adulto">Adulto</SelectItem>
-                            <SelectItem value="Niño/Adolescente">Niño / Adol.</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
+                {showKidsSelector ? (
+                    <div className="space-y-2 md:space-y-3">
+                        <Label className="text-[9px] md:text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Nº Niños/Adolescentes</Label>
+                        <Input type="number" value={numKids} onChange={e => setNumKids(Math.max(0, Number(e.target.value)))} className="h-12 md:h-14 rounded-xl md:rounded-2xl bg-slate-50 border-none text-base md:text-lg font-bold focus-visible:ring-2" style={{ "--tw-ring-color": primaryColor } as any} min={0} />
+                    </div>
+                ) : (
+                    <div className="flex items-center justify-center bg-slate-50 rounded-2xl p-4 border border-dashed border-slate-200">
+                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight text-center">Fiesta Solo Adultos</p>
+                    </div>
+                )}
             </div>
 
             {invitacionData.confirmacion.showRelationshipTags && (
@@ -675,6 +700,14 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
                 }} className="h-10 md:h-12 rounded-lg md:rounded-xl bg-slate-50 border-none text-sm" />
               </div>
             ))}
+            
+            {invitacionData.musica.visible && (
+                <div className="space-y-2 md:space-y-3">
+                    <Label className="text-[9px] md:text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Sugerencia Musical</Label>
+                    <Input value={rsvpMusicSuggestion} onChange={e => setRsvpMusicSuggestion(e.target.value)} placeholder={invitacionData.musica.placeholder} className="h-10 md:h-12 rounded-lg md:rounded-xl bg-slate-50 border-none text-sm" />
+                </div>
+            )}
+
             <DialogFooter>
               <Button type="submit" className="w-full h-14 md:h-16 rounded-xl md:rounded-[1.5rem] text-base md:text-lg font-black tracking-widest shadow-2xl shadow-primary/20" style={{ backgroundColor: primaryColor }} disabled={isSubmittingRsvp}>
                 {isSubmittingRsvp ? <Loader2 className="animate-spin w-5 h-5 md:w-6 md:h-6" /> : 'ENVIAR CONFIRMACIÓN'}
@@ -683,25 +716,6 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
           </form>
         </DialogContent>
       </Dialog>
-
-      <footer className="py-24 md:py-32 text-center bg-slate-50 px-6 border-t border-slate-100">
-        <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="space-y-8 md:space-y-12">
-            <h4 className="text-4xl md:text-7xl font-dancing text-slate-800" style={{ color: primaryColor }}>{invitacionData.footer.titulo.text}</h4>
-            <div className="flex justify-center gap-6 md:gap-8">
-            {socialConnections.filter(c => c.isConnected).map(c => (
-                <a key={c.platform} href={c.profileUrl} target="_blank" className="w-12 h-12 md:w-16 md:h-16 rounded-2xl md:rounded-3xl bg-white shadow-xl flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-500 text-slate-400">
-                <Share2 className="w-5 h-5 md:w-6 md:h-6" />
-                </a>
-            ))}
-            </div>
-            <div className="space-y-2">
-                <div className="w-12 md:w-16 h-1 bg-primary/20 mx-auto rounded-full mb-4 md:mb-6"></div>
-                <p className="text-[8px] md:text-[10px] font-black tracking-[0.5em] text-slate-300 uppercase">{invitacionData.footer.nombreEmpresa.text}</p>
-            </div>
-        </motion.div>
-      </footer>
-      
-      <audio ref={audioRef} src={invitacionData.musicaFondoUrl} loop />
     </div>
   );
 };

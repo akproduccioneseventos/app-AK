@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, type FormEvent, useEffect, useCallback, useMemo } from 'react';
@@ -9,14 +8,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Plus, Trash2, Users, Mail, Phone, Edit3, Save, Loader2, AlertTriangle, NotebookTextIcon, UserMinus, UserPlus2, UserCheck, Ticket, LayoutDashboard, ArrowRight, Printer, QrCode, Tag } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Users, Edit3, Save, Loader2, AlertTriangle, QrCode, Printer, Tag, Search } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import type { Invitado, RsvpStatus, NuevoInvitadoData, CategoriaInvitado } from '@/types/invitado';
-import { getFiestaById, addInvitadoFiestaActual, updateInvitadoFiestaActual, deleteInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaById, addInvitadoFiestaActual, updateInvitadoFiestaActual, deleteInvitadoFiestaActual, type FiestaEnPlanificacion } from '@/app/actions/fiesta-actual';
 import QRCodeStylized from 'qrcode.react';
 import { Switch } from '@/components/ui/switch';
+import { Progress } from '@/components/ui/progress';
 
 import {
   Dialog,
@@ -25,8 +24,6 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogTrigger,
-  DialogClose,
 } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -42,41 +39,34 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Suspense } from 'react';
 import { RsvpStatusBadge } from '@/components/presupuestos/rsvp-status-badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 function InvitadosEventoContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const router = useRouter();
   const fiestaId = searchParams.get('fiestaId');
+  
+  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [invitados, setInvitados] = useState<Invitado[]>([]);
   const [tableNames, setTableNames] = useState<string[]>([]);
-  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false); 
   const [error, setError] = useState<string |null>(null);
   
   const [nuevoNombre, setNuevoNombre] = useState('');
-  const [nuevoContacto, setNuevoContacto] = useState('');
   const [nuevaCategoria, setNewCategoria] = useState<CategoriaInvitado>('Adulto');
-  const [nuevoNumAcompanantes, setNuevoNumAcompanantes] = useState<number>(0);
   const [nuevoCeliaco, setNuevoCeliaco] = useState(false);
   const [nuevoTag, setNuevoTag] = useState('');
 
   const [editingInvitado, setEditingInvitado] = useState<Invitado | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [selectedGuestForQr, setSelectedGuestForQr] = useState<Invitado | null>(null);
   
   const fetchInvitados = useCallback(async () => {
-    if (!fiestaId) {
-      setError("No se ha especificado un ID de evento. Serás redirigido...");
-      setTimeout(() => router.push('/eventos'), 2500);
-      setIsLoading(false);
-      return;
-    }
+    if (!fiestaId) return;
     setIsLoading(true);
-    setError(null);
     try {
       const fiestaData = await getFiestaById(fiestaId);
       if (!fiestaData) throw new Error("Fiesta no encontrada");
@@ -85,55 +75,45 @@ function InvitadosEventoContent() {
       setInvitados((fiestaData.invitados || []).sort((a,b) => a.nombre.localeCompare(b.nombre)));
       const tables = (fiestaData.decoracion?.salonElements || [])
         .filter(el => el.category?.toLowerCase().includes('mesa'))
-        .map(el => el.name)
-        .sort((a, b) => {
-          const numA = parseInt(a.replace(/[^0-9]/g, ''), 10);
-          const numB = parseInt(b.replace(/[^0-9]/g, ''), 10);
-          if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
-          return a.localeCompare(b);
-        });
+        .map(el => el.name);
       setTableNames(tables);
     } catch (e: any) {
-      setError("No se pudieron cargar los invitados.");
-      toast({ title: "Error al cargar invitados", description: e.message, variant: "destructive"});
+      toast({ title: "Error al cargar", variant: "destructive"});
     } finally {
       setIsLoading(false);
     }
-  }, [toast, fiestaId, router]);
+  }, [fiestaId, toast]);
 
-  useEffect(() => {
-    fetchInvitados();
-  }, [fetchInvitados]);
+  useEffect(() => { fetchInvitados(); }, [fetchInvitados]);
+
+  const stats = useMemo(() => {
+    const adultsConfirmed = invitados.reduce((sum, i) => sum + (i.rsvp === 'Confirmado' && i.categoria === 'Adulto' ? (i.partySize || 1) : 0), 0);
+    const kidsConfirmed = invitados.reduce((sum, i) => sum + (i.rsvp === 'Confirmado' && i.categoria === 'Niño/Adolescente' ? (i.partySize || 1) : 0), 0);
+    const celiacs = invitados.filter(i => i.isCeliac && i.rsvp === 'Confirmado').length;
+    
+    return {
+        adults: { confirmed: adultsConfirmed, contracted: Number(fiesta?.configuracion.invitadosAdultos) || 0 },
+        kids: { confirmed: kidsConfirmed, contracted: Number(fiesta?.configuracion.invitadosNinos) || 0 },
+        celiacs
+    };
+  }, [invitados, fiesta]);
 
   const handleAddInvitado = async (e: FormEvent) => {
     e.preventDefault();
-    if (!nuevoNombre.trim() || !fiestaId) {
-      toast({ title: "Datos incompletos", description: "El nombre del invitado es requerido.", variant: "destructive" });
-      return;
-    }
+    if (!nuevoNombre.trim() || !fiestaId) return;
     setIsSaving(true);
-    const nuevoInvitadoData: NuevoInvitadoData = {
+    const result = await addInvitadoFiestaActual(fiestaId, {
       nombre: nuevoNombre.trim(),
       categoria: nuevaCategoria,
-      contacto: nuevoContacto.trim() || undefined,
       rsvp: 'Confirmado',
-      partySize: 1 + (Number(nuevoNumAcompanantes) || 0),
-      notes: undefined, 
-      companionNames: [],
+      partySize: 1,
       isCeliac: nuevoCeliaco,
       tag: nuevoTag || undefined
-    };
-    const result = await addInvitadoFiestaActual(fiestaId, nuevoInvitadoData);
-    if (result.success && result.invitado) {
-      await fetchInvitados(); 
-      setNuevoNombre('');
-      setNuevoContacto('');
-      setNuevoNumAcompanantes(0);
-      setNuevoCeliaco(false);
-      setNuevoTag('');
+    });
+    if (result.success) {
+      setNuevoNombre(''); setNuevoTag(''); setNuevoCeliaco(false);
+      await fetchInvitados();
       toast({ title: "Invitado Añadido" });
-    } else {
-      toast({ title: "Error al Añadir", description: result.error, variant: "destructive" });
     }
     setIsSaving(false);
   };
@@ -143,118 +123,56 @@ function InvitadosEventoContent() {
     const result = await deleteInvitadoFiestaActual(fiestaId, invitadoId);
     if (result.success) {
       await fetchInvitados();
-      toast({ title: "Invitado Eliminado", variant: "destructive" });
-    } else {
-      toast({ title: "Error al Eliminar", variant: "destructive" });
+      toast({ title: "Eliminado", variant: "destructive" });
     }
   };
 
-  const handleSaveEditModal = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!editingInvitado || !fiestaId) return;
-    setIsSaving(true);
-    const result = await updateInvitadoFiestaActual(fiestaId, editingInvitado);
-    if (result.success) {
-      await fetchInvitados(); 
-      setIsEditModalOpen(false);
-      toast({ title: "Invitado Actualizado" });
-    } else {
-      toast({ title: "Error al Guardar", variant: "destructive" });
-    }
-    setIsSaving(false);
-  };
-
-  const handleOpenQrModal = (invitado: Invitado) => {
-      setSelectedGuestForQr(invitado);
-      setIsQrModalOpen(true);
-  }
-
-  const rsvpCounts = useMemo(() => invitados.reduce((acc, inv) => {
-    const size = inv.partySize || 1;
-    acc[inv.rsvp] = (acc[inv.rsvp] || 0) + size;
-    acc.TotalPersonas = (acc.TotalPersonas || 0) + size;
-    acc.TotalInvitaciones = (acc.TotalInvitaciones || 0) + 1;
-    acc.checkedIn = (acc.checkedIn || 0) + (inv.checkedIn ? size : 0);
-    acc.celiacs = (acc.celiacs || 0) + (inv.isCeliac ? size : 0);
-    return acc;
-  }, {} as Record<RsvpStatus | 'TotalPersonas' | 'TotalInvitaciones' | 'checkedIn' | 'celiacs', number>), [invitados]);
-
-  const relationshipOptions = fiesta?.configuracion.tipoCelebracion === 'Boda' 
-    ? ["Familia Novio", "Familia Novia", "Amigos Novio", "Amigos Novia", "Trabajo", "Otros"]
-    : ["Familia", "Amigos", "Trabajo", "Otros"];
+  if (isLoading || !fiesta) return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-primary"/></div>;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <Dialog open={isQrModalOpen} onOpenChange={setIsQrModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Código QR para: {selectedGuestForQr?.nombre}</DialogTitle>
-          </DialogHeader>
-          {selectedGuestForQr && (
-            <div className="flex flex-col items-center py-4">
-              <div className="p-4 bg-white rounded-lg border">
-                <QRCodeStylized id="guest-qr-code" value={`${window.location.origin}/evento/actual/checkin?fiestaId=${fiestaId}&guestId=${selectedGuestForQr.id}`} size={200} level="H" />
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <h1 className="text-3xl font-bold tracking-tight font-headline">Gestión de Invitados</h1>
-        <div className="flex gap-2 flex-wrap">
-          <Link href={`/fiestas/nueva/invitados/checkin-scanner?fiestaId=${fiestaId}`}><Button variant="secondary">Escanear QR</Button></Link>
-          <Button variant="outline" onClick={() => window.print()}><Printer className="w-4 h-4 mr-2"/>Imprimir</Button>
-          <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><Button variant="outline">Volver</Button></Link>
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold font-headline">Gestión de Invitados</h1>
+        <div className="flex gap-2">
+          <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="bg-amber-50 border-amber-200">
-              <CardHeader className="py-3 px-4">
-                  <CardTitle className="text-sm font-bold text-amber-800 flex items-center gap-2">
-                      <AlertTriangle className="w-4 h-4"/> Alertas Alimentarias
-                  </CardTitle>
-              </CardHeader>
-              <CardContent className="py-0 px-4 pb-3">
-                  <p className="text-2xl font-black text-amber-600">{rsvpCounts.celiacs}</p>
-                  <p className="text-xs text-amber-700">Celíacos confirmados</p>
+          <Card className="border-blue-200 bg-blue-50/30">
+              <CardHeader className="p-4"><CardTitle className="text-xs font-black uppercase text-blue-800">Adultos</CardTitle></CardHeader>
+              <CardContent className="p-4 pt-0">
+                  <div className="flex justify-between items-end mb-2"><span className="text-2xl font-black">{stats.adults.confirmed}</span><span className="text-xs text-muted-foreground">de {stats.adults.contracted}</span></div>
+                  <Progress value={(stats.adults.confirmed / stats.adults.contracted) * 100} className="h-1.5" />
               </CardContent>
           </Card>
-          <Card>
-              <CardHeader className="py-3 px-4"><CardTitle className="text-sm font-bold">Total Personas</CardTitle></CardHeader>
-              <CardContent className="py-0 px-4 pb-3"><p className="text-2xl font-black">{rsvpCounts.TotalPersonas}</p></CardContent>
+          <Card className="border-purple-200 bg-purple-50/30">
+              <CardHeader className="p-4"><CardTitle className="text-xs font-black uppercase text-purple-800">Niños/Adol.</CardTitle></CardHeader>
+              <CardContent className="p-4 pt-0">
+                  <div className="flex justify-between items-end mb-2"><span className="text-2xl font-black">{stats.kids.confirmed}</span><span className="text-xs text-muted-foreground">de {stats.kids.contracted}</span></div>
+                  <Progress value={(stats.kids.confirmed / stats.kids.contracted) * 100} className="h-1.5" />
+              </CardContent>
           </Card>
-          <Card>
-              <CardHeader className="py-3 px-4"><CardTitle className="text-sm font-bold">Confirmados</CardTitle></CardHeader>
-              <CardContent className="py-0 px-4 pb-3"><p className="text-2xl font-black text-green-600">{rsvpCounts.Confirmado || 0}</p></CardContent>
+          <Card className="border-amber-200 bg-amber-50/30">
+              <CardHeader className="p-4"><CardTitle className="text-xs font-black uppercase text-amber-800">Celíacos</CardTitle></CardHeader>
+              <CardContent className="p-4 pt-0"><span className="text-2xl font-black text-amber-600">{stats.celiacs}</span></CardContent>
           </Card>
       </div>
 
       <Card>
-        <CardHeader><CardTitle>Añadir Invitado Manualmente</CardTitle></CardHeader>
+        <CardHeader><CardTitle>Nuevo Invitado</CardTitle></CardHeader>
         <CardContent>
-          <form onSubmit={handleAddInvitado} className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
-            <div className="space-y-1 md:col-span-2"><Label>Nombre</Label><Input value={nuevoNombre} onChange={e => setNuevoNombre(e.target.value)} required /></div>
-            <div className="space-y-1"><Label>Categoría</Label>
+          <form onSubmit={handleAddInvitado} className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+            <div className="md:col-span-2 space-y-1.5"><Label>Nombre</Label><Input value={nuevoNombre} onChange={e => setNuevoNombre(e.target.value)} required /></div>
+            <div className="space-y-1.5"><Label>Categoría</Label>
               <Select value={nuevaCategoria} onValueChange={v => setNewCategoria(v as CategoriaInvitado)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent><SelectItem value="Adulto">Adulto</SelectItem><SelectItem value="Niño/Adolescente">Niño/Adol.</SelectItem></SelectContent>
               </Select>
             </div>
-            <div className="space-y-1"><Label>Grupo/Relación</Label>
-                <Select value={nuevoTag} onValueChange={setNuevoTag}>
-                    <SelectTrigger><SelectValue placeholder="Seleccionar..."/></SelectTrigger>
-                    <SelectContent>
-                        {relationshipOptions.map(opt => (
-                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
-            <div className="flex items-center space-x-2 pb-2">
-                <Switch id="new-celiac" checked={nuevoCeliaco} onCheckedChange={setNuevoCeliaco} />
-                <Label htmlFor="new-celiac" className="text-xs font-bold text-amber-600">Celíaco</Label>
+            <div className="flex items-center space-x-2 pb-3">
+                <Switch checked={nuevoCeliaco} onCheckedChange={setNuevoCeliaco} />
+                <Label className="text-xs font-bold text-amber-600">Celíaco</Label>
             </div>
             <Button type="submit" disabled={isSaving}><Plus className="w-4 h-4 mr-2"/>Añadir</Button>
           </form>
@@ -262,101 +180,33 @@ function InvitadosEventoContent() {
       </Card>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Lista Completa</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
+        <CardHeader><CardTitle>Lista de Invitados</CardTitle></CardHeader>
+        <CardContent className="p-0">
             <Table>
-                <TableHeader>
-                <TableRow>
-                    <TableHead>Nombre</TableHead>
-                    <TableHead>Grupo</TableHead>
-                    <TableHead>RSVP</TableHead>
-                    <TableHead>Alertas</TableHead>
-                    <TableHead>Mesa</TableHead>
-                    <TableHead className="text-right">Acciones</TableHead>
-                </TableRow>
-                </TableHeader>
+                <TableHeader><TableRow><TableHead>Nombre</TableHead><TableHead>Categoría</TableHead><TableHead>Estado</TableHead><TableHead>Mesa</TableHead><TableHead className="text-right">Acciones</TableHead></TableRow></TableHeader>
                 <TableBody>
-                {invitados.map(guest => (
-                    <TableRow key={guest.id} className={guest.isCeliac ? "bg-amber-50/20" : ""}>
-                    <TableCell className="font-medium">
-                        <div className="flex flex-col">
-                            <span>{guest.nombre}</span>
-                            <span className="text-[10px] text-muted-foreground uppercase font-bold">{guest.categoria}</span>
-                        </div>
-                    </TableCell>
-                    <TableCell>
-                        {guest.tag ? <Badge variant="secondary" className="bg-slate-100 text-slate-600 border-none font-bold text-[10px] uppercase">{guest.tag}</Badge> : '-'}
-                    </TableCell>
-                    <TableCell><RsvpStatusBadge status={guest.rsvp} /></TableCell>
-                    <TableCell>
-                        {guest.isCeliac && <Badge className="bg-amber-500 text-white border-none font-bold text-[10px]">CELIACO</Badge>}
-                    </TableCell>
-                    <TableCell>{guest.tableNumber || '-'}</TableCell>
-                    <TableCell className="text-right">
-                        <div className="flex justify-end gap-1">
-                        <Button variant="ghost" size="icon" onClick={() => handleOpenQrModal(guest)}><QrCode className="w-4 h-4"/></Button>
-                        <Button variant="ghost" size="icon" onClick={() => { setEditingInvitado(guest); setIsEditModalOpen(true); }}><Edit3 className="w-4 h-4"/></Button>
-                        <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDeleteInvitado(guest.id)}><Trash2 className="w-4 h-4"/></Button>
-                        </div>
-                    </TableCell>
-                    </TableRow>
-                ))}
+                    {invitados.map(inv => (
+                        <TableRow key={inv.id} className={inv.isCeliac ? "bg-amber-50/20" : ""}>
+                            <TableCell className="font-bold">
+                                {inv.nombre}
+                                {inv.isCeliac && <Badge className="ml-2 bg-amber-500 text-white text-[8px] h-4">CELIACO</Badge>}
+                            </TableCell>
+                            <TableCell><span className="text-[10px] font-black uppercase text-slate-400">{inv.categoria}</span></TableCell>
+                            <TableCell><RsvpStatusBadge status={inv.rsvp}/></TableCell>
+                            <TableCell>{inv.tableNumber || '-'}</TableCell>
+                            <TableCell className="text-right"><Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDeleteInvitado(inv.id)}><Trash2 className="w-4 h-4"/></Button></TableCell>
+                        </TableRow>
+                    ))}
                 </TableBody>
             </Table>
-          </div>
         </CardContent>
       </Card>
-
-      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Editar Invitado</DialogTitle></DialogHeader>
-          {editingInvitado && (
-            <form onSubmit={handleSaveEditModal} className="space-y-4 py-2">
-              <div className="space-y-1"><Label>Nombre</Label><Input value={editingInvitado.nombre} onChange={e => setEditingInvitado({...editingInvitado, nombre: e.target.value})} required /></div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1"><Label>Categoría</Label>
-                    <Select value={editingInvitado.categoria || 'Adulto'} onValueChange={v => setEditingInvitado({...editingInvitado, categoria: v as CategoriaInvitado})}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent><SelectItem value="Adulto">Adulto</SelectItem><SelectItem value="Niño/Adolescente">Niño/Adol.</SelectItem></SelectContent>
-                    </Select>
-                </div>
-                <div className="space-y-1"><Label>Grupo/Relación</Label>
-                    <Select value={editingInvitado.tag || ''} onValueChange={v => setEditingInvitado({...editingInvitado, tag: v})}>
-                        <SelectTrigger><SelectValue placeholder="Elegir..."/></SelectTrigger>
-                        <SelectContent>
-                            {relationshipOptions.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}
-                        </SelectContent>
-                    </Select>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1"><Label>Mesa</Label>
-                    <Select value={editingInvitado.tableNumber || 'sin-mesa'} onValueChange={v => setEditingInvitado({...editingInvitado, tableNumber: v === 'sin-mesa' ? undefined : v})}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent><SelectItem value="sin-mesa">Sin Mesa</SelectItem>{tableNames.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
-                    </Select>
-                </div>
-                <div className="flex items-center space-x-2 pt-6">
-                    <Switch id="edit-celiac" checked={editingInvitado.isCeliac || false} onCheckedChange={(val) => setEditingInvitado({...editingInvitado, isCeliac: val})} />
-                    <Label htmlFor="edit-celiac" className="text-sm font-bold text-amber-900">Soy Celíaco</Label>
-                </div>
-              </div>
-              <DialogFooter><Button type="submit" disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : 'Guardar Cambios'}</Button></DialogFooter>
-            </form>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
 
 export default function InvitadosEventoPage() {
     return (
-        <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>}>
-            <InvitadosEventoContent/>
-        </Suspense>
+        <Suspense fallback={null}><InvitadosEventoContent/></Suspense>
     )
 }

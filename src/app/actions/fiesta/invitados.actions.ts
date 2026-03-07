@@ -1,7 +1,6 @@
-
 'use server';
 
-import type { FiestaEnPlanificacion, Invitado, RsvpStatus } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, Invitado, RsvpStatus, CategoriaInvitado } from '@/types/fiesta';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 
 
@@ -57,52 +56,77 @@ export async function deleteInvitado(fiestaId: string, invitadoId: string) {
     });
 }
 
-export async function handleRsvpSubmission(fiestaId: string, submission: {nombreCompleto: string, confirmacion: string, numeroAsistentes: number, mensaje: string, companionNames: string[], isCeliac?: boolean, tag?: string }): Promise<{ success: boolean, invitado?: Invitado, error?: string}> {
+export async function handleRsvpSubmission(fiestaId: string, submission: {
+    nombreCompleto: string, 
+    confirmacion: string, 
+    adultsCount: number, 
+    kidsCount: number, 
+    mensaje: string, 
+    companionNames: string[], 
+    isCeliac?: boolean, 
+    tag?: string 
+}): Promise<{ success: boolean, invitado?: Invitado, error?: string}> {
    let updatedInvitado: Invitado | undefined;
+   
    const result = await updateFiestaData(fiestaId, data => {
-     // Validar cupos
-     const currentTotal = (data.invitados || []).reduce((sum, inv) => sum + (inv.partySize || 1), 0);
-     const limit = Number(data.configuracion.invitadosEstimados) || 0;
+     const totalNew = submission.adultsCount + submission.kidsCount;
      
-     if (currentTotal + (submission.numeroAsistentes || 1) > limit) {
-         throw new Error(`Se ha alcanzado el límite de invitados contratados (${limit}). Por favor, contacta al organizador.`);
+     // 1. Validar Cupos por Categoría
+     const currentInvitados = data.invitados || [];
+     const confirmedAdults = currentInvitados.reduce((sum, inv) => sum + (inv.categoria === 'Adulto' ? (inv.partySize || 1) : 0), 0);
+     const confirmedKids = currentInvitados.reduce((sum, inv) => sum + (inv.categoria === 'Niño/Adolescente' ? (inv.partySize || 1) : 0), 0);
+     
+     const limitAdults = Number(data.configuracion.invitadosAdultos) || 0;
+     const limitKids = Number(data.configuracion.invitadosNinos) || 0;
+
+     if (confirmedAdults + submission.adultsCount > limitAdults) {
+         throw new Error(`Cupos de ADULTOS agotados. Límite: ${limitAdults}. Contacta al organizador.`);
+     }
+     if (confirmedKids + submission.kidsCount > limitKids) {
+         throw new Error(`Cupos de NIÑOS agotados. Límite: ${limitKids}. Contacta al organizador.`);
      }
 
-     const invitadoExistenteIndex = (data.invitados || []).findIndex(
+     const invitadoExistenteIndex = currentInvitados.findIndex(
         inv => inv.nombre.trim().toLowerCase() === submission.nombreCompleto.toLowerCase()
       );
       
       const combinedNotes = [
-        (invitadoExistenteIndex > -1 ? data.invitados![invitadoExistenteIndex].notes : ''),
+        (invitadoExistenteIndex > -1 ? currentInvitados[invitadoExistenteIndex].notes : ''),
         submission.mensaje
       ].filter(Boolean).join('\n---\n');
 
+      // Determinamos categoría principal basado en la mayoría o default
+      const mainCategory: CategoriaInvitado = submission.adultsCount >= submission.kidsCount ? 'Adulto' : 'Niño/Adolescente';
+
       if (invitadoExistenteIndex > -1) {
          updatedInvitado = {
-           ...(data.invitados![invitadoExistenteIndex]),
+           ...(currentInvitados[invitadoExistenteIndex]),
            rsvp: submission.confirmacion as RsvpStatus,
-           partySize: submission.numeroAsistentes,
+           partySize: totalNew,
+           categoria: mainCategory,
            notes: combinedNotes,
            companionNames: submission.companionNames,
-           isCeliac: submission.isCeliac ?? data.invitados![invitadoExistenteIndex].isCeliac,
-           tag: submission.tag || data.invitados![invitadoExistenteIndex].tag
+           isCeliac: submission.isCeliac ?? currentInvitados[invitadoExistenteIndex].isCeliac,
+           tag: submission.tag || currentInvitados[invitadoExistenteIndex].tag
          };
-         data.invitados![invitadoExistenteIndex] = updatedInvitado;
+         currentInvitados[invitadoExistenteIndex] = updatedInvitado;
       } else {
          updatedInvitado = {
            id: `inv_rsvp_${Date.now()}`,
            nombre: submission.nombreCompleto,
            rsvp: submission.confirmacion as RsvpStatus,
-           partySize: submission.numeroAsistentes,
+           partySize: totalNew,
+           categoria: mainCategory,
            notes: combinedNotes,
            companionNames: submission.companionNames,
            isCeliac: submission.isCeliac,
            tag: submission.tag
          };
-         data.invitados = [...(data.invitados || []), updatedInvitado];
+         data.invitados = [...currentInvitados, updatedInvitado];
       }
       return data;
    });
+   
    return {...result, invitado: updatedInvitado};
 }
 
@@ -123,7 +147,6 @@ export async function checkInGuest(fiestaId: string, guestId: string): Promise<{
             return inv;
         });
         if (!found) {
-            // This won't throw error to the caller directly, but we can check the returned object
             return data; 
         }
         return { ...data, invitados };
