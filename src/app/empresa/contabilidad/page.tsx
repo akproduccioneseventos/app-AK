@@ -1,10 +1,11 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, BarChart3, FileText, KanbanSquare, ListChecks, TrendingUp, DollarSign, CreditCard, Banknote, Users, Loader2, Wand2, Calculator, TrendingDown, History } from 'lucide-react';
+import { ArrowLeft, BarChart3, FileText, KanbanSquare, ListChecks, TrendingUp, DollarSign, CreditCard, Banknote, Users, Loader2, Wand2, Calculator, TrendingDown, History, Wallet } from 'lucide-react';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { getDashboardKpiData } from '@/app/actions/dashboard';
 import { getCrmKpiData } from '@/app/actions/crm';
@@ -35,6 +36,12 @@ const financialHubItems = [
         description: "Genera facturas, registra pagos y sigue el estado de cuenta de cada evento.",
         href: "/invoices",
         icon: FileText
+    },
+    {
+        title: "Flujo de Caja Proyectado",
+        description: "Analiza el futuro financiero: ingresos por cobrar vs. gastos en camino.",
+        href: "/empresa/contabilidad/flujo-caja",
+        icon: Wallet
     },
     {
         title: "Gastos Generales",
@@ -71,7 +78,7 @@ export default function ContabilidadHubPage() {
             setKpiData(dashboardResult.data);
         }
         if(crmResult.success) {
-            setCrmKpiData(crmResult.data);
+            crmResult.data && setCrmKpiData(crmResult.data);
         }
         setIsLoading(false);
     }, []);
@@ -125,7 +132,7 @@ export default function ContabilidadHubPage() {
 
        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
         {financialHubItems.map((item) => (
-          <Card key={item.title} className="flex flex-col shadow-md hover:shadow-lg transition-shadow">
+          <Card key={item.title} className="flex flex-col shadow-md hover:shadow-lg transition-shadow rounded-[1.5rem]">
             <CardHeader className="flex-row items-center gap-4 space-y-0 pb-3">
               <div className="p-3 bg-primary/10 rounded-lg">
                 <item.icon className="w-6 h-6 text-primary" />
@@ -137,14 +144,14 @@ export default function ContabilidadHubPage() {
             </CardContent>
             <CardFooter className="pt-3">
               <Link href={item.href} passHref className="w-full">
-                <Button variant="secondary" className="w-full">
+                <Button variant="secondary" className="w-full rounded-xl">
                   Acceder
                 </Button>
               </Link>
             </CardFooter>
           </Card>
         ))}
-         <Card className="flex flex-col shadow-md hover:shadow-lg transition-shadow">
+         <Card className="flex flex-col shadow-md hover:shadow-lg transition-shadow rounded-[1.5rem]">
             <CardHeader className="flex-row items-center gap-4 space-y-0 pb-3">
               <div className="p-3 bg-primary/10 rounded-lg">
                 <Wand2 className="w-6 h-6 text-primary" />
@@ -156,13 +163,13 @@ export default function ContabilidadHubPage() {
             </CardContent>
             <CardFooter className="pt-3 flex flex-col sm:flex-row gap-2">
               <Link href="/simulador-de-presupuesto" passHref className="w-full">
-                <Button variant="secondary" className="w-full">
+                <Button variant="secondary" className="w-full rounded-xl">
                   Ir al Simulador
                 </Button>
               </Link>
               <Link href="/settings/budget-display" passHref className="w-full">
-                <Button variant="outline" className="w-full">
-                  Configurar Paquetes
+                <Button variant="outline" className="w-full rounded-xl">
+                  Configurar
                 </Button>
               </Link>
             </CardFooter>

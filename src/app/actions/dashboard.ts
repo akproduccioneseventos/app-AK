@@ -1,19 +1,27 @@
 
-'use server';
+'use client';
 
 import { getCustomers } from './customers';
 import { getPresupuestos } from './presupuestos';
 import { getInvoices } from './invoices';
 import { getAllFiestas } from './fiesta/fiesta.actions';
 import { checkAndCreateTaskReminders, checkAndCreateReunionReminders } from './notifications';
-import { subMonths, format, isBefore, startOfToday, addDays, isSameDay } from 'date-fns';
+import { subMonths, format, isBefore, startOfToday, addDays, isSameDay, addMonths, startOfMonth, endOfMonth, isAfter } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { getCrmKpiData, getCrmLeads } from './crm';
+import { getRoles } from './roles';
 
 export interface MonthlyChartData {
   month: string;
   ventas: number;
   pagos: number;
+}
+
+export interface CashFlowMonth {
+  month: string;
+  income: number;
+  expenses: number;
+  balance: number;
 }
 
 export interface GlobalAlert {
@@ -98,7 +106,7 @@ export async function getDashboardKpiData() {
       }
     });
 
-    // 3. REUNIONES CRM (Novedad Revisión 3)
+    // 3. REUNIONES CRM
     leadsData.forEach(lead => {
         if (lead.followUpDate) {
             const meetingDate = new Date(lead.followUpDate);
@@ -115,7 +123,7 @@ export async function getDashboardKpiData() {
         }
     });
 
-    // 4. PRESUPUESTOS VENCIDOS (Novedad Revisión 3)
+    // 4. PRESUPUESTOS VENCIDOS
     presupuestosData.forEach(pres => {
         if (pres.estado === 'Enviado' || pres.estado === 'Borrador') {
             const createdDate = new Date(pres.timestamp);
@@ -180,4 +188,83 @@ export async function getDashboardKpiData() {
       error: 'Failed to load dashboard data.',
     };
   }
+}
+
+export async function getCashFlowProjection() {
+    try {
+        const [fiestas, invoices, roles] = await Promise.all([
+            getAllFiestas(),
+            getInvoices(),
+            getRoles()
+        ]);
+
+        const today = startOfToday();
+        const projectionMonths: CashFlowMonth[] = [];
+        
+        // Generate next 6 months
+        for (let i = 0; i < 6; i++) {
+            const date = addMonths(today, i);
+            projectionMonths.push({
+                month: format(date, 'MMM yyyy', { locale: es }),
+                income: 0,
+                expenses: 0,
+                balance: 0
+            });
+        }
+
+        // 1. Calculate Future Income (Invoices amountDue grouped by dueDate or eventDate)
+        invoices.forEach(inv => {
+            if (inv.status === 'Paid') return;
+            
+            const dueDate = new Date(inv.dueDate);
+            if (isAfter(dueDate, today) || isSameDay(dueDate, today)) {
+                const monthKey = format(dueDate, 'MMM yyyy', { locale: es });
+                const monthEntry = projectionMonths.find(m => m.month === monthKey);
+                if (monthEntry) {
+                    const totalPaid = inv.payments?.reduce((s, p) => s + p.amount, 0) || 0;
+                    monthEntry.income += (inv.totalAmount - totalPaid);
+                }
+            }
+        });
+
+        // 2. Calculate Future Expenses (Catering, Staff, Manual Costs from future events)
+        fiestas.forEach(fiesta => {
+            if (!fiesta.configuracion.fechaEvento) return;
+            const eventDate = new Date(fiesta.configuracion.fechaEvento);
+            
+            if (isAfter(eventDate, today)) {
+                const monthKey = format(eventDate, 'MMM yyyy', { locale: es });
+                const monthEntry = projectionMonths.find(m => m.month === monthKey);
+                if (monthEntry) {
+                    // Manual Costs
+                    const manualCosts = fiesta.gestionCostos?.costosItems?.reduce((s, i) => s + i.montoEstimado, 0) || 0;
+                    const paidProviders = fiesta.pagosProveedores?.reduce((s, p) => s + p.monto, 0) || 0;
+                    
+                    // Projected Staff Costs
+                    let staffCosts = 0;
+                    fiesta.personalAsignado?.forEach(pa => {
+                        const rol = roles.find(r => r.id === pa.rolId);
+                        const contributions = (pa.eventSalary * (rol?.porcentajeAportesPatronales || 0)) / 100;
+                        staffCosts += pa.eventSalary + contributions;
+                    });
+
+                    monthEntry.expenses += (manualCosts - paidProviders) + staffCosts;
+                }
+            }
+        });
+
+        // 3. Calculate Balances
+        projectionMonths.forEach(m => {
+            m.balance = m.income - m.expenses;
+        });
+
+        return {
+            success: true,
+            data: projectionMonths
+        };
+
+    } catch (error: any) {
+        console.error("Error calculating cash flow projection:", error);
+        return { success: false, error: error.message };
+    }
 }
