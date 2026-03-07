@@ -433,7 +433,7 @@ export interface ReposteriaData {
   notasGenerales?: string;
 }
 
-export type BebidaItemEstado = 'Pendiente' | 'A Comprar' | 'Reservado Stock' | 'Contratado';
+export type BebidaItemStatus = 'Pendiente' | 'A Comprar' | 'Reservado Stock' | 'Contratado';
 
 export interface BebidaItem {
   id: string;
@@ -448,7 +448,7 @@ export interface BebidaItem {
   notas?: string;
   mlPorUnidad?: number; 
   origenId?: string;
-  estado?: BebidaItemEstado;
+  status?: BebidaItemStatus;
   stockDisponible?: number;
 }
 
@@ -536,6 +536,8 @@ export interface CargaOperativaItem {
   unidad?: UnidadServicio | string;
   calculationMethod?: 'fijo' | 'porPersona' | 'porRatio';
   ratioPorInvitado?: number; // e.g., 1 unit for every 4 guests
+  hasConflict?: boolean; // Módulo 1: Conflicto de stock detectado
+  availableStockAtDate?: number; // Módulo 1: Stock real libre para esa fecha
 }
 
 export interface CargaOperativaCategoria {
