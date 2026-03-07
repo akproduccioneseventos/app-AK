@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { ArrowLeft, Building, Save, Loader2, Image as ImageIconLucide } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { ArrowLeft, Building, Save, Loader2, Image as ImageIconLucide, FileSignature } from 'lucide-react';
 import React, { useState, type FormEvent, useEffect, useCallback, type ChangeEvent } from 'react';
 import NextImage from 'next/image';
 import { useToast } from '@/hooks/use-toast';
@@ -34,8 +34,8 @@ export default function CompanySettingsPage() {
         getInvoiceTemplateSettings(),
         getCompanyInfo()
       ]);
-      setLogoUrl(invoiceSettings.logoUrl);
-      setLogoPreview(invoiceSettings.logoUrl);
+      setLogoUrl(invoiceSettings.logoUrl || null);
+      setLogoPreview(invoiceSettings.logoUrl || null);
       setCompanyInfo(companyData);
     } catch(e) {
        toast({ title: "Error", description: "No se pudo cargar la configuración de la empresa.", variant: "destructive" });
@@ -67,6 +67,18 @@ export default function CompanySettingsPage() {
       setLogoUrl(null);
     }
   };
+
+  const handleSignatureFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const dataUrl = reader.result as string;
+        setCompanyInfo(prev => ({...prev, signatureUrl: dataUrl}));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
   
   const handleLogoUrlChange = (event: ChangeEvent<HTMLInputElement>) => {
     const url = event.target.value;
@@ -89,7 +101,7 @@ export default function CompanySettingsPage() {
       if (!logoResult.success) throw new Error(logoResult.error || "No se pudo guardar el logo.");
       if (!infoResult.success) throw new Error(infoResult.error || "No se pudo guardar la información.");
 
-      toast({ title: "Información Guardada", description: "Los datos de la empresa y el logo han sido actualizados." });
+      toast({ title: "Información Guardada", description: "Los datos de la empresa, logo y firma han sido actualizados." });
     } catch (err: any) {
        toast({ title: "Error", description: err.message || "No se pudo guardar la información.", variant: "destructive" });
     } finally {
@@ -137,6 +149,27 @@ export default function CompanySettingsPage() {
                       <Input id="logo-upload" type="file" accept="image/png, image/jpeg" onChange={handleLogoFileChange} className="text-xs file:mr-2 file:py-1.5 file:px-2 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" disabled={isSaving} />
                        <p className="text-xs text-muted-foreground pt-1">O pega una URL directa:</p>
                        <Input id="logo-url" type="url" value={logoUrl || ''} onChange={handleLogoUrlChange} placeholder="https://ejemplo.com/logo.png" className="text-sm h-9" disabled={isSaving}/>
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Signature Section */}
+                <div className="space-y-4">
+                  <Label className="text-base font-medium flex items-center gap-2">
+                    <FileSignature className="w-5 h-5 text-primary/80"/> Tu Firma Digital (Imagen)
+                  </Label>
+                  <CardDescription className="text-xs">Sube una imagen de tu firma (preferiblemente con fondo transparente) para que se aplique automáticamente a los contratos.</CardDescription>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                    <div className="w-36 h-20 border rounded-md flex items-center justify-center bg-muted overflow-hidden flex-shrink-0 p-1">
+                      {companyInfo.signatureUrl ? (
+                        <NextImage src={companyInfo.signatureUrl} alt="Firma Preview" width={140} height={70} className="object-contain" data-ai-hint="admin signature" />
+                      ) : <span className="text-xs text-muted-foreground">Sin firma</span>}
+                    </div>
+                    <div className="space-y-2 flex-grow">
+                      <Label htmlFor="signature-upload" className="text-sm">Subir imagen de firma</Label>
+                      <Input id="signature-upload" type="file" accept="image/png, image/jpeg" onChange={handleSignatureFileChange} className="text-xs file:mr-2 file:py-1.5 file:px-2 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" disabled={isSaving} />
                     </div>
                   </div>
                 </div>

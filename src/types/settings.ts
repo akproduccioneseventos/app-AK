@@ -1,5 +1,4 @@
 
-
 export interface PromotionalDiscount {
   id: string;
   name: string;
@@ -61,6 +60,7 @@ export interface CompanyInfo {
     companyContact: string;
     defaultDocumentNotes: string;
     invoiceCustomFooter: string;
+    signatureUrl?: string | null; // Nueva propiedad para la firma del admin
 }
 
 export const defaultCompanyInfo: CompanyInfo = {
@@ -70,4 +70,5 @@ export const defaultCompanyInfo: CompanyInfo = {
     companyContact: "akproduccionessalto@gmail.com",
     defaultDocumentNotes: "El presupuesto es válido por 30 días. Para asegurar el presupuesto debe abonar el 20% del total como seña.",
     invoiceCustomFooter: "Información de pago: Banco X, Cuenta Y, Titular Z.\nConsulte por otros métodos de pago.",
+    signatureUrl: null,
 };

@@ -23,6 +23,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import NextImage from 'next/image';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return '____________';
@@ -77,7 +78,7 @@ function ContratoServicioContent() {
       if (!fiestaData) throw new Error("Evento no encontrado.");
       setFiesta(fiestaData);
       setCompanyInfo(companyData);
-      setLogoUrl(settingsData.logoUrl);
+      setLogoUrl(settingsData.logoUrl || null);
 
       if (fiestaData.configuracion.clienteId && fiestaData.presupuestoId) {
           const [clienteData, presupuestoData] = await Promise.all([
@@ -298,7 +299,12 @@ function ContratoServicioContent() {
 
             {!isEditing && (
                 <div className="mt-24 grid grid-cols-2 gap-20 text-center print:mt-12">
-                    <div className="border-t border-slate-200 pt-4">
+                    <div className="border-t border-slate-200 pt-4 relative">
+                        {companyInfo?.signatureUrl && (
+                            <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-32 h-16 pointer-events-none">
+                                <NextImage src={companyInfo.signatureUrl} alt="Firma Empresa" layout="fill" objectFit="contain" />
+                            </div>
+                        )}
                         <p className="font-black text-sm uppercase tracking-tighter text-slate-900">Tec. Alexander Knuth</p>
                         <p className="text-[10px] text-slate-400 font-sans uppercase tracking-widest">Por la Empresa</p>
                     </div>
@@ -324,7 +330,13 @@ function ContratoServicioContent() {
 export default function ContratoServicioPage() {
     return (
         <Suspense fallback={<div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>}>
-            <ContratoServicioContent />
+            <ContratoServicioPageContent />
         </Suspense>
     );
+}
+
+function ContratoServicioPageContent() {
+    const searchParams = useSearchParams();
+    const fiestaId = searchParams.get('fiestaId');
+    return <ContratoServicioContent fiestaId={fiestaId} />;
 }

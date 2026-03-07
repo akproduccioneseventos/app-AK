@@ -9,19 +9,22 @@ import { Button } from '@/components/ui/button';
 import { Loader2, ArrowLeft, FileSignature, CheckCircle2, ShieldCheck, Info, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, signContractDigitally } from '@/app/actions/fiesta-actual';
+import { getCompanyInfo } from '@/app/actions/settings';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import type { CompanyInfo } from '@/types/settings';
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
+import NextImage from 'next/image';
 
 export default function ClientContractPage({ params: paramsPromise }: { params: Promise<{ fiestaId: string }> }) {
   const params = use(paramsPromise);
   const fiestaId = params.fiestaId;
   const { toast } = useToast();
-  const router = useRouter();
   
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
+  const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSigning, setIsSaving] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -29,9 +32,13 @@ export default function ClientContractPage({ params: paramsPromise }: { params: 
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const data = await getFiestaById(fiestaId);
+      const [data, companyData] = await Promise.all([
+          getFiestaById(fiestaId),
+          getCompanyInfo()
+      ]);
       if (!data) throw new Error("Evento no encontrado");
       setFiesta(data);
+      setCompanyInfo(companyData);
     } catch (e) {
       toast({ title: "Error al cargar", variant: "destructive" });
     } finally {
@@ -127,6 +134,28 @@ export default function ClientContractPage({ params: paramsPromise }: { params: 
                 <CardContent className="p-8 md:p-12">
                     <div className="prose prose-slate max-w-none text-slate-700 leading-relaxed font-serif whitespace-pre-wrap text-base md:text-lg">
                         {fiesta.contratoServicioTexto}
+                    </div>
+
+                    <div className="mt-20 grid grid-cols-2 gap-10 sm:gap-20 text-center">
+                        <div className="border-t border-slate-200 pt-4 relative">
+                            {companyInfo?.signatureUrl && (
+                                <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-32 h-16">
+                                    <NextImage src={companyInfo.signatureUrl} alt="Firma Empresa" layout="fill" objectFit="contain" />
+                                </div>
+                            )}
+                            <p className="font-black text-sm uppercase tracking-tighter text-slate-900">Tec. Alexander Knuth</p>
+                            <p className="text-[10px] text-slate-400 font-sans uppercase tracking-widest">Por la Empresa</p>
+                        </div>
+                        <div className="border-t border-slate-200 pt-4 relative">
+                            {firma?.method === 'digital' && (
+                                <div className="absolute -top-12 left-1/2 -translate-x-1/2 text-primary rotate-[-5deg]">
+                                    <p className="font-dancing text-3xl font-bold opacity-80">{firma.signedBy}</p>
+                                    <p className="text-[8px] font-sans font-black uppercase tracking-tighter -mt-1">Firmado Digitalmente</p>
+                                </div>
+                            )}
+                            <p className="font-black text-sm uppercase tracking-tighter text-slate-900">EL CLIENTE</p>
+                            <p className="text-[10px] text-slate-400 font-sans uppercase tracking-widest">Firma del Titular</p>
+                        </div>
                     </div>
                 </CardContent>
                 
