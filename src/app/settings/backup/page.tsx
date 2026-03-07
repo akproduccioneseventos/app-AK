@@ -1,12 +1,11 @@
-
 'use client';
 
-import { useState, type FormEvent, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, HardDriveDownload, History, UploadCloud, Info, AlertTriangle, Loader2, PlusCircle, Trash2, RotateCw } from 'lucide-react';
+import { ArrowLeft, HardDriveDownload, History, UploadCloud, Info, AlertTriangle, Loader2, PlusCircle, Trash2, RotateCw, ShieldCheck, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -20,24 +19,18 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useRouter } from 'next/navigation';
 import { createRestorePoint, getRestorePoints, restoreFromPoint, deleteRestorePoint, type RestorePoint } from '@/app/actions/backup';
 import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
 
 export default function BackupPage() {
   const { toast } = useToast();
-  const router = useRouter();
-
-  // State for manual backup/restore
   const [file, setFile] = useState<File | null>(null);
   const [isRestoringZip, setIsRestoringZip] = useState(false);
-
-  // State for restore points
   const [restorePoints, setRestorePoints] = useState<RestorePoint[]>([]);
   const [isLoadingPoints, setIsLoadingPoints] = useState(true);
   const [isCreatingPoint, setIsCreatingPoint] = useState(false);
   const [processingPointName, setProcessingPointName] = useState<string | null>(null);
-
 
   const loadRestorePoints = useCallback(async () => {
     setIsLoadingPoints(true);
@@ -55,17 +48,14 @@ export default function BackupPage() {
     loadRestorePoints();
   }, [loadRestorePoints]);
 
-
   const handleCreateRestorePoint = async () => {
     setIsCreatingPoint(true);
     try {
-        const result = await createRestorePoint();
+        const result = await createRestorePoint(false);
         if (result.success && result.point) {
-            toast({ title: "¡Punto de Restauración Creado!", description: `Se ha creado el punto de restauración: ${result.point.displayDate}` });
-            await loadRestorePoints(); // Refresh list
-        } else {
-            throw new Error(result.error || "No se pudo crear el punto de restauración.");
-        }
+            toast({ title: "¡Punto Manual Creado!", description: `Se ha guardado tu respaldo actual.` });
+            await loadRestorePoints();
+        } else throw new Error(result.error);
     } catch(error: any) {
         toast({ title: "Error al Crear", description: error.message, variant: "destructive" });
     } finally {
@@ -78,14 +68,11 @@ export default function BackupPage() {
     try {
         const result = await restoreFromPoint(pointName);
         if (result.success) {
-            toast({ title: "¡Restauración Completa!", description: "Los datos han sido restaurados desde el punto seleccionado. La aplicación se recargará." });
-            setTimeout(() => window.location.reload(), 2000);
-        } else {
-            throw new Error(result.error || "Falló la restauración.");
-        }
+            toast({ title: "¡Restauración Completa!", description: "La aplicación se recargará ahora." });
+            setTimeout(() => window.location.reload(), 1500);
+        } else throw new Error(result.error);
     } catch (error: any) {
         toast({ title: "Error en la Restauración", description: error.message, variant: "destructive" });
-    } finally {
         setProcessingPointName(null);
     }
   };
@@ -95,11 +82,9 @@ export default function BackupPage() {
      try {
         const result = await deleteRestorePoint(pointName);
         if (result.success) {
-            toast({ title: "Punto de Restauración Eliminado", variant: "destructive" });
+            toast({ title: "Punto Eliminado" });
             await loadRestorePoints();
-        } else {
-            throw new Error(result.error || "No se pudo eliminar el punto de restauración.");
-        }
+        } else throw new Error(result.error);
     } catch (error: any) {
       toast({ title: "Error al Eliminar", description: error.message, variant: "destructive" });
     } finally {
@@ -107,170 +92,108 @@ export default function BackupPage() {
     }
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = event.target.files?.[0];
-    if (selectedFile && selectedFile.type === 'application/zip') {
-      setFile(selectedFile);
-    } else if (selectedFile) {
-      toast({ title: "Archivo incorrecto", description: "Por favor, selecciona un archivo .zip.", variant: "destructive" });
-      setFile(null);
-      event.target.value = ''; // Reset file input
-    }
-  };
-  
-  const handleRestoreZipSubmit = async () => {
-    if (!file) {
-      toast({ title: "No hay archivo seleccionado", variant: "destructive" });
-      return;
-    }
-    setIsRestoringZip(true);
-    const formData = new FormData();
-    formData.append('backupFile', file);
-    try {
-      const response = await fetch('/api/backup/upload', {
-        method: 'POST',
-        body: formData,
-      });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error || 'Error en el servidor');
-      toast({ title: "¡Restauración Exitosa!", description: "Los datos han sido restaurados. La aplicación se recargará." });
-      setTimeout(() => window.location.reload(), 2000);
-    } catch (error: any) {
-      toast({ title: "Error en la Restauración", description: error.message, variant: "destructive" });
-    } finally {
-      setIsRestoringZip(false);
-    }
-  }
-
   return (
-    <div className="max-w-2xl mx-auto space-y-8">
+    <div className="max-w-3xl mx-auto space-y-8 pb-20">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <HardDriveDownload className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Backup y Restauración
-          </h1>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">Backup y Protección</h1>
         </div>
         <Link href="/settings" passHref>
-          <Button variant="outline">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver a Configuración
-          </Button>
+          <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
         </Link>
       </div>
 
-      <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle className="font-headline text-xl flex items-center gap-2"><History className="w-6 h-6 text-primary"/>Puntos de Restauración Internos</CardTitle>
-          <CardDescription>Crea y gestiona copias de seguridad directamente en el servidor. Útil para revertir cambios recientes rápidamente.</CardDescription>
-        </CardHeader>
-        <CardContent>
-            <Button onClick={handleCreateRestorePoint} disabled={isCreatingPoint} className="w-full sm:w-auto">
-                {isCreatingPoint ? <Loader2 className="w-5 h-5 mr-2 animate-spin"/> : <PlusCircle className="w-5 h-5 mr-2"/>}
-                {isCreatingPoint ? "Creando..." : "Crear Nuevo Punto de Restauración"}
-            </Button>
-            <Separator className="my-4"/>
-            <div className="space-y-3">
-                <h4 className="text-sm font-medium text-muted-foreground">Puntos Guardados:</h4>
-                {isLoadingPoints ? <div className="p-4 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto"/></div> : 
-                 restorePoints.length > 0 ? (
-                    restorePoints.map(point => (
-                        <Card key={point.name} className="p-3 flex justify-between items-center bg-muted/30">
-                            <div>
-                                <p className="font-semibold text-sm">{point.displayDate}</p>
-                                <p className="text-xs text-muted-foreground">{point.name}</p>
-                            </div>
-                            <div className="flex gap-2">
-                                <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                        <Button variant="outline" size="sm" disabled={!!processingPointName}><RotateCw className="w-4 h-4 mr-1.5"/>Restaurar</Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                        <AlertDialogHeader><AlertDialogTitle>¿Restaurar desde este punto?</AlertDialogTitle><AlertDialogDescription>Se sobreescribirán todos los datos actuales con los del punto de restauración de <span className="font-bold">{point.displayDate}</span>. Esta acción no se puede deshacer.</AlertDialogDescription></AlertDialogHeader>
-                                        <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleRestoreFromPoint(point.name)}>Sí, Restaurar</AlertDialogAction></AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
-                                <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                        <Button variant="destructive" size="icon" className="h-9 w-9" disabled={!!processingPointName}><Trash2 className="w-4 h-4"/></Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                        <AlertDialogHeader><AlertDialogTitle>¿Eliminar este punto?</AlertDialogTitle><AlertDialogDescription>El punto de restauración de <span className="font-bold">{point.displayDate}</span> será eliminado permanentemente.</AlertDialogDescription></AlertDialogHeader>
-                                        <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteRestorePoint(point.name)} className="bg-destructive hover:bg-destructive/90">Eliminar</AlertDialogAction></AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
-                            </div>
-                        </Card>
-                    ))
-                 ) : <p className="text-sm text-center text-muted-foreground py-3">No hay puntos de restauración guardados.</p>}
-            </div>
-        </CardContent>
-      </Card>
-      
-
-      <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle className="font-headline text-xl">Backup Manual (Descarga/Subida ZIP)</CardTitle>
-          <CardDescription>
-            Genera un archivo ZIP con todos los datos para guardarlo externamente (ej: en tu computadora, Google Drive).
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground mb-4">
-            Ideal para tener un respaldo completo y seguro fuera del servidor.
-          </p>
-          <a href="/api/backup/download" download>
-            <Button className="w-full sm:w-auto">
-              <HardDriveDownload className="w-5 h-5 mr-2" />
-              Descargar Backup ZIP Ahora
-            </Button>
-          </a>
-        </CardContent>
+      {/* AUTO BACKUP STATUS */}
+      <Card className="bg-emerald-50 border-emerald-200 shadow-sm overflow-hidden">
+          <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-emerald-800 text-lg flex items-center gap-2">
+                    <ShieldCheck className="w-6 h-6 text-emerald-600"/> Protección Automática Activa
+                </CardTitle>
+                <Badge className="bg-emerald-600 text-white border-none animate-pulse">LIVE</Badge>
+              </div>
+              <CardDescription className="text-emerald-700">
+                  El sistema está monitoreando tus cambios. Se crea un punto de restauración automático cada 30 minutos de actividad.
+              </CardDescription>
+          </CardHeader>
       </Card>
 
-      <Card className="shadow-lg border-destructive/50 bg-destructive/5">
-        <CardHeader>
-          <CardTitle className="font-headline text-xl flex items-center gap-2"><UploadCloud className="w-6 h-6 text-destructive"/>Restaurar desde archivo ZIP</CardTitle>
-           <CardDescription className="text-destructive/90">
-            <AlertTriangle className="inline-block w-4 h-4 mr-1" />
-            ¡Acción peligrosa! Esto reemplazará TODOS los datos actuales con el contenido del archivo de respaldo.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-           <div className="space-y-2">
-            <Label htmlFor="backup-file-upload">Seleccionar archivo de respaldo (.zip)</Label>
-            <Input id="backup-file-upload" type="file" accept=".zip" onChange={handleFileChange} disabled={isRestoringZip} />
-           </div>
-           {file && <p className="text-sm text-muted-foreground">Archivo seleccionado: <span className="font-medium">{file.name}</span></p>}
-        </CardContent>
-         <CardFooter>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="destructive" disabled={!file || isRestoringZip} className="w-full sm:w-auto">
-                  {isRestoringZip ? <Loader2 className="w-5 h-5 mr-2 animate-spin"/> : <UploadCloud className="w-5 h-5 mr-2" />}
-                  {isRestoringZip ? "Restaurando..." : "Restaurar Backup"}
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>¿Estás absolutamente seguro?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Esta acción es irreversible. Se borrarán todos los datos actuales y se reemplazarán con los datos del archivo <span className="font-bold">{file?.name}</span>. ¿Deseas continuar?
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel disabled={isRestoringZip}>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleRestoreZipSubmit} disabled={isRestoringZip} className="bg-destructive hover:bg-destructive/90">
-                    {isRestoringZip ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : null}
-                    Sí, restaurar y sobreescribir todo
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-        </CardFooter>
-      </Card>
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+        <div className="md:col-span-8 space-y-6">
+            <Card className="shadow-lg">
+                <CardHeader>
+                <CardTitle className="font-headline text-xl flex items-center gap-2"><History className="w-6 h-6 text-primary"/>Puntos de Restauración</CardTitle>
+                <CardDescription>Lista de respaldos internos guardados en el servidor.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-3">
+                        {isLoadingPoints ? <div className="p-8 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-primary"/></div> : 
+                        restorePoints.length > 0 ? (
+                            restorePoints.map(point => (
+                                <Card key={point.name} className="p-3 flex justify-between items-center bg-muted/30 hover:bg-muted/50 transition-colors">
+                                    <div>
+                                        <p className="font-bold text-sm text-slate-800">{point.displayDate}</p>
+                                        <p className="text-[10px] text-muted-foreground font-mono">{point.name}</p>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button variant="outline" size="sm" className="h-8 rounded-lg" disabled={!!processingPointName}><RotateCw className="w-3.5 h-3.5 mr-1.5"/>Restaurar</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader><AlertDialogTitle>¿Restaurar desde este punto?</AlertDialogTitle><AlertDialogDescription>Se sobreescribirán todos los datos actuales con los del <span className="font-bold">{point.displayDate}</span>. Esta acción no se puede deshacer.</AlertDialogDescription></AlertDialogHeader>
+                                                <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleRestoreFromPoint(point.name)}>Sí, Restaurar</AlertDialogAction></AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive rounded-lg" disabled={!!processingPointName}><Trash2 className="w-4 h-4"/></Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader><AlertDialogTitle>¿Eliminar este punto?</AlertDialogTitle><AlertDialogDescription>El punto de restauración será eliminado permanentemente.</AlertDialogDescription></AlertDialogHeader>
+                                                <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteRestorePoint(point.name)} className="bg-destructive hover:bg-destructive/90">Eliminar</AlertDialogAction></AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                    </div>
+                                </Card>
+                            ))
+                        ) : <p className="text-sm text-center text-muted-foreground py-10 border-2 border-dashed rounded-xl">No hay puntos de restauración aún.</p>}
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+
+        <div className="md:col-span-4 space-y-6">
+            <Card className="shadow-lg border-primary/20 bg-primary/5">
+                <CardHeader>
+                    <CardTitle className="text-sm font-black uppercase tracking-widest text-primary">Acción Manual</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <Button onClick={handleCreateRestorePoint} disabled={isCreatingPoint} className="w-full h-12 rounded-xl font-bold shadow-lg shadow-primary/20">
+                        {isCreatingPoint ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Zap className="w-4 h-4 mr-2"/>}
+                        Respaldo Ahora
+                    </Button>
+                    <Separator />
+                    <a href="/api/backup/download" download className="block w-full">
+                        <Button variant="outline" className="w-full h-12 rounded-xl font-bold border-primary/30 text-primary bg-white hover:bg-primary/5">
+                            <HardDriveDownload className="w-4 h-4 mr-2" />
+                            Bajar ZIP Físico
+                        </Button>
+                    </a>
+                </CardContent>
+            </Card>
+
+            <Card className="bg-amber-50 border-amber-200">
+                <CardContent className="p-4 flex gap-3">
+                    <Info className="w-5 h-5 text-amber-600 shrink-0" />
+                    <p className="text-xs text-amber-800 leading-relaxed">
+                        <strong>Consejo de Seguridad:</strong> Aunque el sistema hace auto-backups en el servidor, descarga el ZIP físico a tu computadora una vez por semana para tener una copia externa de seguridad.
+                    </p>
+                </CardContent>
+            </Card>
+        </div>
+      </div>
     </div>
   );
 }
-
-    
