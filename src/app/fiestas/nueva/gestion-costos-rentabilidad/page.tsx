@@ -9,10 +9,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save, Loader2, AlertTriangle, BarChart3, PlusCircle, Trash2, DollarSign, ShoppingCart, HardHat, ChefHat, Printer, RefreshCw, Truck, Info, Layers } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, BarChart3, PlusCircle, Trash2, DollarSign, ShoppingCart, HardHat, ChefHat, Printer, RefreshCw, Truck, Info, Layers, Banknote, CheckCircle2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, GestionCostosData, CostoItem, CostoCategoria } from '@/types/fiesta';
-import { getFiestaById, updateGestionCostosFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaById, updateGestionCostosFiestaActual, updatePagosProveedoresFiestaActual } from '@/app/actions/fiesta-actual';
 import { defaultGestionCostos } from '@/lib/fiesta-defaults';
 import { getMenuById } from '@/app/actions/menus-catering';
 import { Separator } from '@/components/ui/separator';
@@ -22,7 +21,10 @@ import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getRoles } from '@/app/actions/roles';
 import type { Rol } from '@/types/rol';
 import type { Presupuesto } from '@/types/presupuesto';
+import type { PagoProveedor, CostoItem, CostoCategoria, GestionCostosData, FiestaEnPlanificacion } from '@/types/fiesta';
 import { cn } from '@/lib/utils';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { DatePickerDemo } from '@/components/date-picker-demo';
 
 const COST_CATEGORIES: CostoCategoria[] = [
   'Servicio Proveedor',
@@ -52,6 +54,7 @@ function GestionCostosRentabilidadContent() {
   const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
   const [presupuestoActual, setPresupuestoActual] = useState<Presupuesto | null>(null);
   const [gestionCostos, setGestionCostos] = useState<GestionCostosData>(defaultGestionCostos);
+  const [pagosProveedores, setPagosProveedores] = useState<PagoProveedor[]>([]);
   const [costoTotalMenu, setCostoTotalMenu] = useState<number>(0);
   const [costoTotalReposteria, setCostoTotalReposteria] = useState<number>(0);
   const [costoTotalBebidas, setCostoTotalBebidas] = useState<number>(0);
@@ -61,10 +64,16 @@ function GestionCostosRentabilidadContent() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Form states
   const [newCostoNombre, setNewCostoNombre] = useState('');
   const [newCostoCategoria, setNewCostoCategoria] = useState<CostoCategoria>('Otro Costo Directo');
   const [newCostoMontoEstimado, setNewCostoMontoEstimado] = useState<string>('');
   const [newCostoNotas, setNewCostoNotas] = useState('');
+
+  const [newPagoCostoId, setNewPagoCostoId] = useState('');
+  const [newPagoFecha, setNewPagoFecha] = useState<Date | undefined>(new Date());
+  const [newPagoMonto, setNewPagoMonto] = useState('');
+  const [newPagoMetodo, setNewPagoMetodo] = useState('Transferencia');
 
   const loadData = useCallback(async (showLoading = true) => {
     if(!fiestaId) {
@@ -84,88 +93,17 @@ function GestionCostosRentabilidadContent() {
 
       setFiestaActual(fiesta);
       setAllRoles(rolesData);
+      setPagosProveedores(fiesta.pagosProveedores || []);
       
       let currentGestionCostos = fiesta.gestionCostos || { ...defaultGestionCostos };
       const invitados = (Number(fiesta.configuracion.invitadosEstimados) || 0);
 
-      // --- LOGICA DE SINCRONIZACIÓN AUTOMÁTICA ---
       if (fiesta.presupuestoId) {
           const presupuesto = await getPresupuestoById(fiesta.presupuestoId);
           if (presupuesto) {
               setPresupuestoActual(presupuesto);
-              // 1. Sincronizar Ingresos si están en 0
               if (currentGestionCostos.ingresosTotalesEstimados === 0) {
                   currentGestionCostos.ingresosTotalesEstimados = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
-              }
-
-              const manualCosts = [...(currentGestionCostos.costosItems || [])];
-              let modified = false;
-
-              // 2. Regla Flete de Camión ($2400 si no es Club Uruguay)
-              const lugar = (fiesta.configuracion.nombreLugar || '').toLowerCase();
-              if (!lugar.includes('club uruguay') && lugar.trim() !== '') {
-                  if (!manualCosts.some(c => c.id === 'auto_flete')) {
-                      manualCosts.push({
-                          id: 'auto_flete',
-                          nombre: 'Flete de Camión (Fuera de Sede)',
-                          category: 'Otro Costo Directo',
-                          montoEstimado: 2400,
-                          notas: 'Carga automática por salón fuera de Club Uruguay'
-                      });
-                      modified = true;
-                  }
-              }
-
-              // 3. Regla Fotocabina y Plataforma 360 ($1500 cada una)
-              const budgetItems = presupuesto.itemsPresupuestados;
-              const hasFotocabina = budgetItems.some(i => i.nombreServicio.toLowerCase().includes('fotocabina'));
-              const hasPlataforma = budgetItems.some(i => i.nombreServicio.toLowerCase().includes('plataforma 360'));
-
-              if (hasFotocabina && !manualCosts.some(c => c.id === 'auto_sub_fotocabina')) {
-                  manualCosts.push({
-                      id: 'auto_sub_fotocabina',
-                      nombre: 'Subcontratación: Fotocabina',
-                      category: 'Servicio Proveedor',
-                      montoEstimado: 1500,
-                      notas: 'Costo de subcontratación'
-                  });
-                  modified = true;
-              }
-
-              if (hasPlataforma && !manualCosts.some(c => c.id === 'auto_sub_plataforma')) {
-                  manualCosts.push({
-                      id: 'auto_sub_plataforma',
-                      nombre: 'Subcontratación: Plataforma 360',
-                      category: 'Servicio Proveedor',
-                      montoEstimado: 1500,
-                      notas: 'Costo de subcontratación'
-                  });
-                  modified = true;
-              }
-
-              // 4. Regla Costo Torta ($60 por persona)
-              const hasTorta = budgetItems.some(i => i.nombreServicio.toLowerCase().includes('torta'));
-              if (hasTorta) {
-                  const costoTorta = invitados * 60;
-                  const existingTorta = manualCosts.find(c => c.id === 'auto_costo_torta');
-                  if (!existingTorta) {
-                      manualCosts.push({
-                          id: 'auto_costo_torta',
-                          nombre: 'Costo Torta (Insumos)',
-                          category: 'Servicio Proveedor',
-                          montoEstimado: costoTorta,
-                          notas: `Cálculo automático: $60 x ${invitados} invitados`
-                      });
-                      modified = true;
-                  } else if (existingTorta.montoEstimado !== costoTorta) {
-                      existingTorta.montoEstimado = costoTorta;
-                      existingTorta.notas = `Cálculo automático actualizado: $60 x ${invitados} invitados`;
-                      modified = true;
-                  }
-              }
-
-              if (modified) {
-                  currentGestionCostos.costosItems = manualCosts;
               }
           }
       }
@@ -177,11 +115,7 @@ function GestionCostosRentabilidadContent() {
         if (menuData) {
           const costoPorPersona = menuData.items.reduce((sum, item) => sum + (item.totalDishCost || 0), 0);
           setCostoTotalMenu(costoPorPersona * invitados);
-        } else {
-          setCostoTotalMenu(0);
         }
-      } else {
-        setCostoTotalMenu(0);
       }
       
       let tempCostoReposteria = 0;
@@ -194,16 +128,11 @@ function GestionCostosRentabilidadContent() {
       fiesta.bebidas?.categorias.forEach(cat => {
         if(cat.activada) {
             cat.items.forEach(item => tempCostoBebidas += item.costoTotal || ((item.costoUnitario || 0) * (item.cantidadNecesaria || 0)));
-            cat.recetas?.forEach(receta => {
-                 const factorEscala = invitados / (receta.porcionesBase || 1); 
-                 tempCostoBebidas += (receta.costoTotalReceta || 0) * (isNaN(factorEscala) ? 0 : factorEscala);
-            });
         }
       });
       setCostoTotalBebidas(tempCostoBebidas);
 
     } catch (err: any) {
-      console.error("Error loading data:", err);
       setError("No se pudieron cargar los datos de costos.");
       toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
@@ -215,333 +144,245 @@ function GestionCostosRentabilidadContent() {
     loadData();
   }, [loadData]);
 
-  const handleIngresosChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setGestionCostos(prev => ({ ...prev, ingresosTotalesEstimados: parseFloat(e.target.value) || 0 }));
-  };
-
-  const handleNotasGeneralesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setGestionCostos(prev => ({ ...prev, notasGeneralesCostos: e.target.value }));
-  };
-
   const handleAddCostoItem = (e: FormEvent) => {
     e.preventDefault();
-    if (!newCostoNombre.trim() || !newCostoMontoEstimado.trim() || isNaN(parseFloat(newCostoMontoEstimado))) {
-      toast({ title: "Datos Inválidos", description: "Nombre y monto son requeridos.", variant: "destructive" });
-      return;
-    }
+    if (!newCostoNombre.trim() || !newCostoMontoEstimado.trim()) return;
     const newItem: CostoItem = {
-      id: `costo_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      id: `costo_${Date.now()}`,
       nombre: newCostoNombre.trim(),
       category: newCostoCategoria,
       montoEstimado: parseFloat(newCostoMontoEstimado),
       notas: newCostoNotas.trim() || undefined,
     };
-    setGestionCostos(prev => ({ ...prev, costosItems: [...prev.costosItems, newItem] }));
-    setNewCostoNombre('');
-    setNewCostoMontoEstimado('');
-    setNewCostoNotas('');
+    const updated = { ...gestionCostos, costosItems: [...gestionCostos.costosItems, newItem] };
+    setGestionCostos(updated);
+    setNewCostoNombre(''); setNewCostoMontoEstimado('');
   };
 
-  const handleDeleteCostoItem = (itemId: string) => {
-    setGestionCostos(prev => ({ ...prev, costosItems: prev.costosItems.filter(item => item.id !== itemId) }));
-  };
+  // --- TOQUE DE ORO 1: INTEGRIDAD FINANCIERA (PAGOS REALES) ---
 
-  // --- CALCULO DE COSTO DE PERSONAL PROYECTADO (Replica lógica de Personal page) ---
-  const personalCostCalculated = useMemo(() => {
-    if (!presupuestoActual) return 0;
+  const handleAddPago = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!newPagoCostoId || !newPagoMonto || !newPagoFecha || !fiestaId) return;
     
-    let total = 0;
-    const totalGuests = (presupuestoActual.invitadosAdultos || 0) + (presupuestoActual.invitadosNinos || 0) + (presupuestoActual.invitadosAdolescentes || 0);
-
-    const getRoleCost = (search: string, qty: number) => {
-        const rol = allRoles.find(r => r.nombre.toLowerCase().includes(search.toLowerCase()));
-        if (rol) {
-            const aportes = (rol.sueldoPorEvento * (rol.porcentajeAportesPatronales || 0)) / 100;
-            return (rol.sueldoPorEvento + aportes) * qty;
-        }
-        return 0;
+    const newPago: PagoProveedor = {
+        id: `pago_${Date.now()}`,
+        costoAsociadoId: newPagoCostoId,
+        fecha: newPagoFecha.toISOString(),
+        monto: parseFloat(newPagoMonto),
+        metodoPago: newPagoMetodo
     };
 
-    // 1. Utileros
-    total += getRoleCost('Utilero', Math.ceil(totalGuests / 25));
-
-    // 2. Barmen
-    const hasBarra = presupuestoActual.itemsPresupuestados.some(item => 
-        item.nombreServicio.toLowerCase().includes('barra') || 
-        item.nombreServicio.toLowerCase().includes('trago') ||
-        item.nombreServicio.toLowerCase().includes('licuado')
-    );
-    if (hasBarra) {
-        let numBarmen = 1;
-        if (totalGuests > 150) numBarmen = 3;
-        else if (totalGuests > 60) numBarmen = 2;
-        total += getRoleCost('Barman', numBarmen);
+    const updatedPagos = [...pagosProveedores, newPago];
+    setPagosProveedores(updatedPagos);
+    setIsSaving(true);
+    try {
+        const result = await updatePagosProveedoresFiestaActual(fiestaId, updatedPagos);
+        if (result.success) {
+            toast({ title: "Pago registrado", description: "El egreso real ha sido contabilizado." });
+            setNewPagoMonto('');
+        }
+    } catch (err: any) {
+        toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+        setIsSaving(false);
     }
+  };
 
-    // 3. Otros roles del presupuesto
-    presupuestoActual.itemsPresupuestados.forEach(item => {
-        const name = item.nombreServicio.toLowerCase();
-        if (name.includes('discoteca') || name.includes(' dj')) total += getRoleCost('DJ', 1);
-        if (name.includes('decoración')) {
-            total += getRoleCost('Decoradora', 1);
-            total += getRoleCost('Ayudante de Decoración', 1);
-        }
-        if (name.includes('mozo')) total += getRoleCost('Mozo', item.cantidad || 1);
-        if (name.includes('asado')) total += getRoleCost('Asador', 1);
-        if (name.includes('fotografía')) total += getRoleCost('Fotógrafo', 1);
-        if (name.includes('filmación')) total += getRoleCost('Camarógrafo', 1);
-        if (name.includes('cocina')) total += getRoleCost('Cocinero', 1);
-        if (name.includes('portero')) total += getRoleCost('Portero', 1);
-    });
+  const deletePago = async (pagoId: string) => {
+      const updated = pagosProveedores.filter(p => p.id !== pagoId);
+      setPagosProveedores(updated);
+      if (fiestaId) await updatePagosProveedoresFiestaActual(fiestaId, updated);
+  };
 
-    return total;
-  }, [presupuestoActual, allRoles]);
+  const costItemsForSelect = useMemo(() => {
+      return (gestionCostos.costosItems || []).map(i => ({ id: i.id, label: i.nombre }));
+  }, [gestionCostos.costosItems]);
 
-  const decorCost = useMemo(() => {
-    return (fiestaActual?.decoracion?.items || []).reduce((s, i) => s + (i.estimatedCost || 0), 0);
-  }, [fiestaActual?.decoracion?.items]);
+  const stats = useMemo(() => {
+    const totalCostosProyectados = Object.values(gestionCostos.costosItems).reduce((s, i) => s + i.montoEstimado, 0) + costoTotalMenu + costoTotalReposteria + costoTotalBebidas;
+    const totalPagosRealizados = pagosProveedores.reduce((s, p) => s + p.monto, 0);
+    const balanceReal = (gestionCostos.ingresosTotalesEstimados || 0) - totalPagosRealizados;
+    const rentabilidadReal = gestionCostos.ingresosTotalesEstimados > 0 ? (balanceReal / gestionCostos.ingresosTotalesEstimados) * 100 : 0;
 
-  // --- LOGICA DE AGRUPACIÓN POR CATEGORÍA ---
-  const groupedAllCosts = useMemo(() => {
-    const groups: Record<string, { items: { name: string, amount: number, notes?: string, isSystem?: boolean, id?: string }[], subtotal: number }> = {};
-
-    const add = (cat: string, name: string, amount: number, notes?: string, isSystem = false, id?: string) => {
-      if (amount <= 0 && isSystem) return;
-      if (!groups[cat]) groups[cat] = { items: [], subtotal: 0 };
-      groups[cat].items.push({ name, amount, notes, isSystem, id });
-      groups[cat].subtotal += amount;
-    };
-
-    // 1. Agregar Costos del Sistema (Calculados dinámicamente)
-    add('Catering', 'Insumos de Menú (Receta)', costoTotalMenu, 'Costo ingredientes p/persona x invitados', true);
-    add('Repostería', 'Tortas y Postres', costoTotalReposteria, 'Costo directo ingredientes', true);
-    add('Bebidas', 'Insumos y Barra', costoTotalBebidas, 'Insumos barra y recetas', true);
-    add('Personal', 'Sueldos + Aportes Proyectados', personalCostCalculated, 'Proyección automática por roles y reglas', true);
-    add('Decoración', 'Elementos Decorativos', decorCost, 'Items añadidos en diseño de evento', true);
-
-    // 2. Agregar Costos Manuales mapeándolos a categorías lógicas
-    (gestionCostos.costosItems || []).forEach(item => {
-      let cat = item.category;
-      if (cat === 'Personal Evento') cat = 'Personal';
-      if (cat === 'Pago de Salón') cat = 'Salón';
-      
-      add(cat, item.nombre, item.montoEstimado, item.notes, false, item.id);
-    });
-
-    return groups;
-  }, [costoTotalMenu, costoTotalReposteria, costoTotalBebidas, personalCostCalculated, decorCost, gestionCostos.costosItems]);
-
-  const costoTotalEstimadoEvento = useMemo(() => {
-    return Object.values(groupedAllCosts).reduce((sum, group) => sum + group.subtotal, 0);
-  }, [groupedAllCosts]);
-
-  const gananciaNetaEstimada = useMemo(() => {
-    return (gestionCostos.ingresosTotalesEstimados || 0) - costoTotalEstimadoEvento;
-  }, [gestionCostos.ingresosTotalesEstimados, costoTotalEstimadoEvento]);
-
-  const margenRentabilidad = useMemo(() => {
-    if (!gestionCostos.ingresosTotalesEstimados || gestionCostos.ingresosTotalesEstimados === 0) return 0;
-    return (gananciaNetaEstimada / gestionCostos.ingresosTotalesEstimados) * 100;
-  }, [gananciaNetaEstimada, gestionCostos.ingresosTotalesEstimados]);
-
+    return { totalCostosProyectados, totalPagosRealizados, balanceReal, rentabilidadReal };
+  }, [gestionCostos, pagosProveedores, costoTotalMenu, costoTotalReposteria, costoTotalBebidas]);
 
   const handleSave = async () => {
     if (!fiestaId) return;
     setIsSaving(true);
     try {
-      const result = await updateGestionCostosFiestaActual(fiestaId, { ...gestionCostos });
-      if (result.success) {
-        toast({ title: "¡Datos Guardados!", description: "La información de costos y rentabilidad ha sido actualizada." });
-        if (result.updatedData) setGestionCostos(result.updatedData);
-      } else {
-        throw new Error(result.error || "Error desconocido al guardar.");
-      }
+      await updateGestionCostosFiestaActual(fiestaId, gestionCostos);
+      toast({ title: "Cambios guardados" });
     } catch (err: any) {
-      toast({ title: "Error al Guardar", description: err.message, variant: "destructive" });
+      toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
       setIsSaving(false);
     }
   };
 
-
-  if (isLoading) {
-    return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Calculando rentabilidad...</p></div>;
-  }
-  if (error) {
-    return <div className="text-center py-10"><AlertTriangle className="w-12 h-12 mx-auto text-destructive mb-3" /><p className="font-semibold text-lg text-destructive">{error}</p><Button onClick={() => loadData()} className="mt-4" variant="outline">Reintentar</Button></div>;
-  }
+  if (isLoading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
+    <div className="max-w-5xl mx-auto space-y-8 pb-20">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <BarChart3 className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline">Gestión de Costos y Rentabilidad</h1>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">Costos y Rentabilidad</h1>
         </div>
         <div className="flex gap-2">
-            <Button variant="ghost" size="sm" onClick={() => loadData(true)} title="Sincronizar con presupuesto e invitados">
-                <RefreshCw className="w-4 h-4 mr-2"/> Sincronizar Todo
+            <Button variant="ghost" size="sm" onClick={() => loadData(true)}><RefreshCw className="w-4 h-4 mr-2"/> Sincronizar</Button>
+            <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="bg-slate-900 text-white border-none shadow-xl rounded-[2rem] overflow-hidden">
+              <CardHeader className="pb-2"><CardTitle className="text-[10px] font-black uppercase tracking-widest opacity-60">Ingreso Total</CardTitle></CardHeader>
+              <CardContent>
+                  <p className="text-3xl font-black">{formatCurrency(gestionCostos.ingresosTotalesEstimados)}</p>
+                  <Input 
+                    type="number" 
+                    value={gestionCostos.ingresosTotalesEstimados} 
+                    onChange={e => setGestionCostos(p => ({...p, ingresosTotalesEstimados: parseFloat(e.target.value) || 0}))}
+                    className="mt-4 bg-white/10 border-white/10 h-10 text-white font-bold"
+                  />
+              </CardContent>
+          </Card>
+          <Card className="bg-primary text-white border-none shadow-xl rounded-[2rem] overflow-hidden">
+              <CardHeader className="pb-2"><CardTitle className="text-[10px] font-black uppercase tracking-widest opacity-60">Egresos Reales</CardTitle></CardHeader>
+              <CardContent>
+                  <p className="text-3xl font-black">{formatCurrency(stats.totalPagosRealizados)}</p>
+                  <div className="mt-2 text-xs font-bold opacity-80">Proyectado: {formatCurrency(stats.totalCostosProyectados)}</div>
+              </CardContent>
+          </Card>
+          <Card className="bg-emerald-600 text-white border-none shadow-xl rounded-[2rem] overflow-hidden">
+              <CardHeader className="pb-2"><CardTitle className="text-[10px] font-black uppercase tracking-widest opacity-60">Ganancia Neta Real</CardTitle></CardHeader>
+              <CardContent>
+                  <p className="text-3xl font-black">{formatCurrency(stats.balanceReal)}</p>
+                  <Badge className="mt-2 bg-white/20 text-white border-none font-black">{stats.rentabilidadReal.toFixed(1)}% Margen</Badge>
+              </CardContent>
+          </Card>
+      </div>
+
+      <Tabs defaultValue="proyeccion" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 bg-slate-100 p-1 rounded-2xl h-14">
+              <TabsTrigger value="proyeccion" className="rounded-xl font-bold uppercase text-[10px] tracking-widest">Plan de Costos</TabsTrigger>
+              <TabsTrigger value="pagos" className="rounded-xl font-bold uppercase text-[10px] tracking-widest">Pagos Realizados (Real)</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="proyeccion" className="space-y-6 pt-4">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                  <Card className="lg:col-span-8 border-none shadow-xl rounded-[2rem] overflow-hidden bg-white">
+                      <CardHeader className="bg-slate-50 border-b border-slate-100"><CardTitle className="text-sm font-black uppercase tracking-widest text-slate-800">Desglose de Inversión Proyectada</CardTitle></CardHeader>
+                      <CardContent className="p-0">
+                          <Table>
+                              <TableHeader className="bg-slate-50/50"><TableRow><TableHead className="pl-8">Concepto</TableHead><TableHead className="text-right pr-8">Monto Estimado</TableHead></TableRow></TableHeader>
+                              <TableBody>
+                                  <TableRow><TableCell className="pl-8 font-bold text-primary flex items-center gap-2"><ChefHat className="w-4 h-4"/> Insumos Catering</TableCell><TableCell className="text-right pr-8 font-mono">{formatCurrency(costoTotalMenu)}</TableCell></TableRow>
+                                  <TableRow><TableCell className="pl-8 font-bold text-primary flex items-center gap-2"><ShoppingCart className="w-4 h-4"/> Bebidas y Barra</TableCell><TableCell className="text-right pr-8 font-mono">{formatCurrency(costoTotalBebidas)}</TableCell></TableRow>
+                                  <TableRow><TableCell className="pl-8 font-bold text-primary flex items-center gap-2"><PlusCircle className="w-4 h-4"/> Repostería</TableCell><TableCell className="text-right pr-8 font-mono">{formatCurrency(costoTotalReposteria)}</TableCell></TableRow>
+                                  {gestionCostos.costosItems.map(item => (
+                                      <TableRow key={item.id} className="group">
+                                          <TableCell className="pl-8">
+                                              <p className="font-bold text-slate-700">{item.nombre}</p>
+                                              <p className="text-[10px] uppercase font-black text-slate-400">{item.category}</p>
+                                          </TableCell>
+                                          <TableCell className="text-right pr-8">
+                                              <div className="flex items-center justify-end gap-3">
+                                                  <span className="font-mono font-bold">{formatCurrency(item.montoEstimado)}</span>
+                                                  <Button variant="ghost" size="icon" className="h-8 w-8 text-rose-500 opacity-0 group-hover:opacity-100" onClick={() => handleDeleteCostoItem(item.id)}><Trash2 className="w-4 h-4"/></Button>
+                                              </div>
+                                          </TableCell>
+                                      </TableRow>
+                                  ))}
+                              </TableBody>
+                          </Table>
+                      </CardContent>
+                  </Card>
+
+                  <Card className="lg:col-span-4 border-none shadow-xl rounded-[2.5rem] overflow-hidden bg-white">
+                      <CardHeader><CardTitle className="text-sm font-black uppercase tracking-widest">Añadir Gasto Proyectado</CardTitle></CardHeader>
+                      <CardContent>
+                          <form onSubmit={handleAddCostoItem} className="space-y-4">
+                              <div className="space-y-1.5"><Label className="text-[10px] font-black uppercase text-slate-400">Concepto</Label><Input value={newCostoNombre} onChange={e => setNewCostoNombre(e.target.value)} placeholder="Ej: Pago de Salón" /></div>
+                              <div className="space-y-1.5"><Label className="text-[10px] font-black uppercase text-slate-400">Categoría</Label><Select value={newCostoCategoria} onValueChange={(v) => setNewCostoCategoria(v as any)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent>{COST_CATEGORIES.map(c=><SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select></div>
+                              <div className="space-y-1.5"><Label className="text-[10px] font-black uppercase text-slate-400">Monto Estimado</Label><Input type="number" value={newCostoMontoEstimado} onChange={e => setNewCostoMontoEstimado(e.target.value)} /></div>
+                              <Button type="submit" className="w-full h-12 rounded-xl font-bold" disabled={!newCostoNombre || !newCostoMontoEstimado}>Añadir al Plan</Button>
+                          </form>
+                      </CardContent>
+                  </Card>
+              </div>
+          </TabsContent>
+
+          <TabsContent value="pagos" className="space-y-6 pt-4 animate-in slide-in-from-right-4 duration-500">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                  <Card className="lg:col-span-8 border-none shadow-xl rounded-[2rem] overflow-hidden bg-white">
+                      <CardHeader className="bg-emerald-50 border-b border-emerald-100"><CardTitle className="text-sm font-black uppercase tracking-widest text-emerald-800">Bitácora de Egresos Reales</CardTitle></CardHeader>
+                      <CardContent className="p-0">
+                          <Table>
+                              <TableHeader className="bg-slate-50/50"><TableRow><TableHead className="pl-8">Fecha / Concepto</TableHead><TableHead>Método</TableHead><TableHead className="text-right pr-8">Monto Pagado</TableHead></TableRow></TableHeader>
+                              <TableBody>
+                                  {pagosProveedores.map(pago => {
+                                      const costo = gestionCostos.costosItems.find(i => i.id === pago.costoAsociadoId);
+                                      return (
+                                          <TableRow key={pago.id} className="group">
+                                              <TableCell className="pl-8 py-4">
+                                                  <p className="font-bold text-slate-800">{costo?.nombre || 'Gasto'}</p>
+                                                  <p className="text-[10px] font-bold text-slate-400">{new Date(pago.fecha).toLocaleDateString('es-ES')}</p>
+                                              </TableCell>
+                                              <TableCell><Badge variant="outline" className="rounded-lg text-[10px] border-slate-200">{pago.metodoPago}</Badge></TableCell>
+                                              <TableCell className="text-right pr-8">
+                                                  <div className="flex items-center justify-end gap-3">
+                                                      <span className="font-mono font-black text-emerald-600">{formatCurrency(pago.monto)}</span>
+                                                      <Button variant="ghost" size="icon" className="h-8 w-8 text-rose-500 opacity-0 group-hover:opacity-100" onClick={() => deletePago(pago.id)}><Trash2 className="w-4 h-4"/></Button>
+                                                  </div>
+                                              </TableCell>
+                                          </TableRow>
+                                      );
+                                  })}
+                                  {pagosProveedores.length === 0 && (
+                                      <TableRow><TableCell colSpan={3} className="py-20 text-center text-slate-400 font-bold uppercase tracking-widest text-xs">No se han registrado pagos aún.</TableCell></TableRow>
+                                  )}
+                              </TableBody>
+                          </Table>
+                      </CardContent>
+                  </Card>
+
+                  <Card className="lg:col-span-4 border-none shadow-xl rounded-[2.5rem] overflow-hidden bg-emerald-600 text-white">
+                      <CardHeader><CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2"><Banknote className="w-5 h-5"/> Registrar Pago Real</CardTitle></CardHeader>
+                      <CardContent>
+                          <form onSubmit={handleAddPago} className="space-y-4">
+                              <div className="space-y-1.5">
+                                  <Label className="text-[10px] font-black uppercase opacity-60">Vincular a Gasto</Label>
+                                  <Select value={newPagoCostoId} onValueChange={setNewPagoCostoId}>
+                                      <SelectTrigger className="bg-white/10 border-none text-white"><SelectValue placeholder="Elegir concepto..." /></SelectTrigger>
+                                      <SelectContent>{costItemsForSelect.map(i=><SelectItem key={i.id} value={i.id}>{i.label}</SelectItem>)}</SelectContent>
+                                  </Select>
+                              </div>
+                              <div className="space-y-1.5"><Label className="text-[10px] font-black uppercase opacity-60">Monto del Pago</Label><Input type="number" value={newPagoMonto} onChange={e => setNewPagoMonto(e.target.value)} className="bg-white text-slate-900 rounded-xl h-12 border-none text-lg font-black" /></div>
+                              <div className="space-y-1.5"><Label className="text-[10px] font-black uppercase opacity-60">Fecha</Label><DatePickerDemo selectedDate={newPagoFecha} onDateChange={setNewPagoFecha} className="bg-white/10 border-none text-white" /></div>
+                              <Button type="submit" className="w-full h-14 rounded-2xl bg-white text-emerald-600 hover:bg-slate-50 font-black shadow-xl" disabled={isSaving || !newPagoCostoId || !newPagoMonto}>
+                                  {isSaving ? <Loader2 className="animate-spin mr-2"/> : <CheckCircle2 className="w-5 h-5 mr-2"/>} REGISTRAR EGRESO
+                              </Button>
+                          </form>
+                      </CardContent>
+                  </Card>
+              </div>
+          </TabsContent>
+      </Tabs>
+
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-xl border-t border-slate-100 z-50">
+        <div className="max-w-5xl mx-auto flex justify-end">
+            <Button onClick={handleSave} disabled={isSaving} size="lg" className="rounded-2xl px-12 h-14 font-black text-base shadow-2xl shadow-primary/30">
+                {isSaving ? <Loader2 className="w-5 h-5 mr-3 animate-spin" /> : <Save className="w-5 h-5 mr-3" />}
+                {isSaving ? 'GUARDANDO...' : 'GUARDAR ANÁLISIS FINANCIERO'}
             </Button>
-            <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
         </div>
-      </div>
-
-      <Card className="shadow-md border-primary/20 overflow-hidden">
-        <CardHeader className="bg-primary/5 pb-4">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <CardTitle className="font-headline text-xl">Resumen Financiero Consolidado</CardTitle>
-                    <CardDescription>Análisis de ingresos proyectados vs. costos directos del sistema y manuales.</CardDescription>
-                </div>
-                <div className="space-y-1 w-full md:w-auto">
-                    <Label htmlFor="ingresos-totales" className="text-xs uppercase font-bold text-muted-foreground">Ingreso por Presupuesto</Label>
-                    <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-bold">$</span>
-                        <Input id="ingresos-totales" type="number" value={gestionCostos.ingresosTotalesEstimados || ''} onChange={handleIngresosChange} className="text-xl font-bold p-3 pl-7 bg-white h-12" disabled={isSaving}/>
-                    </div>
-                </div>
-            </div>
-        </CardHeader>
-        <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="p-4 border rounded-lg bg-blue-50 dark:bg-blue-900/40 text-center">
-              <p className="text-xs font-bold text-blue-700 dark:text-blue-300 uppercase tracking-widest mb-1">Costo Total Evento</p>
-              <p className="text-3xl font-black text-blue-600 dark:text-blue-400">{formatCurrency(costoTotalEstimadoEvento)}</p>
-          </div>
-          <div className="p-4 border rounded-lg bg-purple-50 dark:bg-purple-900/40 text-center">
-              <p className="text-xs font-bold text-purple-700 dark:text-purple-300 uppercase tracking-widest mb-1">Ganancia Neta</p>
-              <p className="text-3xl font-black text-purple-600 dark:text-purple-400">{formatCurrency(gananciaNetaEstimada)}</p>
-          </div>
-          <div className={cn("p-4 border rounded-lg text-center", margenRentabilidad < 30 ? 'bg-red-50' : 'bg-green-50')}>
-              <p className="text-xs font-bold uppercase tracking-widest mb-1">Rentabilidad</p>
-              <p className={cn("text-3xl font-black", margenRentabilidad < 30 ? 'text-red-600' : 'text-green-600')}>{margenRentabilidad.toFixed(1)}%</p>
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-            <Card className="shadow-lg">
-                <CardHeader className="flex flex-row items-center justify-between pb-2 border-b mb-4">
-                    <div className="flex items-center gap-2">
-                        <Layers className="w-5 h-5 text-primary"/>
-                        <CardTitle className="text-lg">Desglose de Gastos por Categoría</CardTitle>
-                    </div>
-                    <Badge variant="outline" className="font-bold">Total: {formatCurrency(costoTotalEstimadoEvento)}</Badge>
-                </CardHeader>
-                <CardContent className="p-0">
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="bg-muted/50">
-                                <TableHead className="w-[300px]">Categoría / Concepto</TableHead>
-                                <TableHead className="text-right">Importe</TableHead>
-                                <TableHead className="w-[50px] print:hidden"></TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {Object.entries(groupedAllCosts).map(([cat, data]) => (
-                                <React.Fragment key={cat}>
-                                    <TableRow className="bg-muted/20 hover:bg-muted/20">
-                                        <TableCell className="font-bold text-primary py-2">{cat.toUpperCase()}</TableCell>
-                                        <TableCell className="text-right font-bold py-2">{formatCurrency(data.subtotal)}</TableCell>
-                                        <TableCell className="print:hidden"></TableCell>
-                                    </TableRow>
-                                    {data.items.map((item, idx) => (
-                                        <TableRow key={item.id || idx} className="text-sm">
-                                            <TableCell className="pl-8">
-                                                <div className="flex flex-col">
-                                                    <span className="font-medium flex items-center gap-2">
-                                                        {item.isSystem && <RefreshCw className="w-3 h-3 text-blue-500" title="Calculado automáticamente por el sistema"/>}
-                                                        {item.name}
-                                                    </span>
-                                                    {item.notes && <span className="text-[10px] text-muted-foreground italic">{item.notes}</span>}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="text-right font-mono text-muted-foreground">{formatCurrency(item.amount)}</TableCell>
-                                            <TableCell className="text-right print:hidden">
-                                                {!item.isSystem && item.id && (
-                                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteCostoItem(item.id!)}>
-                                                        <Trash2 className="w-3.5 h-3.5"/>
-                                                    </Button>
-                                                )}
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </React.Fragment>
-                            ))}
-                        </TableBody>
-                        <TableFooter>
-                            <TableRow className="bg-primary/5">
-                                <TableCell className="font-bold text-lg">COSTO TOTAL ESTIMADO</TableCell>
-                                <TableCell className="text-right font-bold text-lg text-primary">{formatCurrency(costoTotalEstimadoEvento)}</TableCell>
-                                <TableCell className="print:hidden"></TableCell>
-                            </TableRow>
-                        </TableFooter>
-                    </Table>
-                </CardContent>
-            </Card>
-        </div>
-
-        <div className="space-y-6">
-            <Card className="shadow-md">
-                <CardHeader>
-                    <CardTitle className="text-md font-headline flex items-center gap-2">
-                        <PlusCircle className="w-4 h-4 text-primary"/> Añadir Gasto Manual
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleAddCostoItem} className="space-y-4">
-                        <div className="space-y-1">
-                            <Label htmlFor="costo-nombre">Concepto</Label>
-                            <Input id="costo-nombre" value={newCostoNombre} onChange={(e) => setNewCostoNombre(e.target.value)} placeholder="Ej: Taxi equipo nocturno" required/>
-                        </div>
-                        <div className="space-y-1">
-                            <Label htmlFor="costo-categoria">Categoría</Label>
-                            <Select value={newCostoCategoria} onValueChange={(val) => setNewCostoCategoria(val as CostoCategoria)} required>
-                                <SelectTrigger><SelectValue/></SelectTrigger>
-                                <SelectContent>{COST_CATEGORIES.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}</SelectContent>
-                            </Select>
-                        </div>
-                        <div className="space-y-1">
-                            <Label htmlFor="costo-monto">Monto (UYU)</Label>
-                            <Input id="costo-monto" type="number" value={newCostoMontoEstimado} onChange={(e) => setNewCostoMontoEstimado(e.target.value)} placeholder="0.00" min="0" step="any" required/>
-                        </div>
-                        <div className="space-y-1">
-                            <Label htmlFor="costo-notas">Notas</Label>
-                            <Input id="costo-notas" value={newCostoNotas} onChange={(e) => setNewCostoNotas(e.target.value)} placeholder="Detalles extra..."/>
-                        </div>
-                        <Button type="submit" className="w-full" disabled={isSaving}>Añadir Gasto</Button>
-                    </form>
-                </CardContent>
-            </Card>
-
-            <Card className="shadow-md">
-                <CardHeader><CardTitle className="text-md font-headline">Notas Financieras</CardTitle></CardHeader>
-                <CardContent>
-                    <Textarea value={gestionCostos.notasGeneralesCostos || ''} onChange={handleNotasGeneralesChange} placeholder="Anotaciones sobre rentabilidad, imprevistos..." rows={4} disabled={isSaving}/>
-                </CardContent>
-            </Card>
-        </div>
-      </div>
-
-      <div className="flex justify-end pt-6 border-t gap-3 print:hidden">
-        <Button onClick={handleSave} disabled={isSaving || isLoading} size="lg">
-          {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin"/> : <Save className="w-5 h-5 mr-2"/>}
-          Guardar Análisis de Costos
-        </Button>
       </div>
     </div>
   );
 }
-
-const Badge = ({ children, variant = 'default', className }: { children: React.ReactNode, variant?: 'default' | 'outline', className?: string }) => (
-    <span className={cn(
-        "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
-        variant === 'default' ? "bg-primary/10 text-primary" : "border border-muted-foreground/30 text-muted-foreground",
-        className
-    )}>
-        {children}
-    </span>
-);
 
 export default function GestionCostosPage() {
     return (

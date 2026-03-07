@@ -471,6 +471,7 @@ export interface CargaOperativaItem {
   nombre: string;
   cantidad: string; 
   cargado: boolean;
+  retornado?: boolean; // Toque de Oro 3: Logística Inversa
   notas?: string;
   origenId?: string; 
   unidad?: UnidadServicio | string;

@@ -1,7 +1,7 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, LiveEventState, EntregaCritica, IncidenteEvento } from '@/types/fiesta';
+import type { LiveEventState, CargaOperativaItem } from '@/types/fiesta';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 
 const initialLiveState: LiveEventState = {
@@ -99,4 +99,31 @@ export async function resolveIncidente(fiestaId: string, incidenteId: string): P
         ...state,
         incidentes: (state.incidentes || []).map(i => i.id === incidenteId ? { ...i, resuelto: true } : i)
     }));
+}
+
+// --- TOQUE DE ORO 3: LOGÍSTICA INVERSA ---
+
+export async function toggleReturnItem(fiestaId: string, categoryId: string, itemId: string): Promise<{ success: boolean; error?: string }> {
+    try {
+        const fiesta = await getFiestaById(fiestaId);
+        if (!fiesta || !fiesta.listaDeCargaOperativa) throw new Error("Datos logísticos no encontrados.");
+
+        const updatedCategorias = fiesta.listaDeCargaOperativa.categorias.map(cat => {
+            if (cat.id === categoryId) {
+                return {
+                    ...cat,
+                    items: cat.items.map(item => 
+                        item.id === itemId ? { ...item, retornado: !item.retornado } : item
+                    )
+                };
+            }
+            return cat;
+        });
+
+        fiesta.listaDeCargaOperativa.categorias = updatedCategorias;
+        await saveFiesta(fiesta);
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
 }

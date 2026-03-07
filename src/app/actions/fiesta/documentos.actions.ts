@@ -1,12 +1,14 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, OtroDocumento, DocumentoTipo } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, OtroDocumento, DocumentoTipo, Tarea } from '@/types/fiesta';
 import { readData, writeData } from '@/lib/data-service';
 import path from 'path';
 import fs from 'fs/promises';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 import { headers } from 'next/headers';
+import { registerBookingDeposit } from '../invoices';
+import { subDays } from 'date-fns';
 
 const DATA_DIR = path.join(process.cwd(), 'src', 'data');
 
@@ -82,7 +84,7 @@ export async function deleteDocumento(fiestaId: string, docId: string): Promise<
     }
 }
 
-// --- MÓDULO 4: FIRMA DIGITAL Y CARGA FÍSICA ---
+// --- TOQUE DE ORO 2: AUTOMATIZACIÓN DE FLUJOS (DOMINÓ) ---
 
 export async function signContractDigitally(fiestaId: string, signerName: string): Promise<{ success: boolean; error?: string }> {
     try {
@@ -94,6 +96,7 @@ export async function signContractDigitally(fiestaId: string, signerName: string
 
         const updatedFiesta: FiestaEnPlanificacion = {
             ...fiesta,
+            estado: 'Contratada',
             contratoFirmaInfo: {
                 isSigned: true,
                 signedAt: new Date().toISOString(),
@@ -102,6 +105,43 @@ export async function signContractDigitally(fiestaId: string, signerName: string
                 ip: ip
             }
         };
+
+        // 1. AUTOMATIZACIÓN: Habilitar portal del cliente
+        if (updatedFiesta.clientPortalSettings) {
+            updatedFiesta.clientPortalSettings.enabled = true;
+            updatedFiesta.clientPortalSettings.checklist.visible = true;
+            updatedFiesta.clientPortalSettings.checklist.editable = true;
+            updatedFiesta.clientPortalSettings.musica.visible = true;
+            updatedFiesta.clientPortalSettings.moodboard.visible = true;
+        }
+
+        // 2. AUTOMATIZACIÓN: Generar Factura de Seña ($20.000)
+        // Solo si no existe ya una factura de seña
+        const hasDeposit = updatedFiesta.invoiceIds?.length && updatedFiesta.invoiceIds.some(id => id.includes('SEÑA'));
+        if (!hasDeposit) {
+            try {
+                await registerBookingDeposit({
+                    fiestaId: fiesta.id,
+                    amount: 20000,
+                    method: 'Transferencia',
+                    date: new Date().toISOString()
+                });
+            } catch (e) {
+                console.warn("No se pudo auto-generar factura de seña:", e);
+            }
+        }
+
+        // 3. AUTOMATIZACIÓN: Cargar tareas iniciales si está vacío
+        if (!updatedFiesta.tareas || updatedFiesta.tareas.length === 0) {
+            const eventDate = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : new Date();
+            const initialTasks: Omit<Tarea, 'id'>[] = [
+                { texto: "Definir paleta de colores en Dream Designer", completada: false, asignadaA: 'Cliente', fechaLimite: subDays(new Date(), -7).toISOString() },
+                { texto: "Cargar primeras 10 fotos en Video de Vida", completada: false, asignadaA: 'Cliente' },
+                { texto: "Confirmar lista base de invitados", completada: false, asignadaA: 'Cliente' },
+                { texto: "Revisión técnica de Discoteca e Iluminación", completada: false, asignadaA: 'Organizador' }
+            ];
+            updatedFiesta.tareas = initialTasks.map(t => ({ ...t, id: `auto_task_${Date.now()}_${Math.random().toString(36).substring(7)}` }));
+        }
 
         await saveFiesta(updatedFiesta);
         return { success: true };

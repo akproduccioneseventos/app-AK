@@ -83,7 +83,7 @@ export async function getProfitAndLossData(range: DateRange): Promise<{ success:
     const costosDetalle: CostoDetalle[] = [];
     let totalCostos = 0;
     
-    // Costos de Gastos Generales
+    // 1. Costos de Gastos Generales (Oficina, etc)
     gastosGenerales.forEach(gasto => {
         const gastoDate = new Date(gasto.fecha);
         if (gastoDate >= from && gastoDate <= to) {
@@ -102,55 +102,57 @@ export async function getProfitAndLossData(range: DateRange): Promise<{ success:
     for (const fiesta of fiestas) {
       const fiestaDate = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : null;
       if (!fiestaDate || fiestaDate < from || fiestaDate > to) {
-        continue; // Skip events outside the date range
+        continue; 
       }
       
       const invitados = Number(fiesta.configuracion.invitadosEstimados) || 0;
 
-      // 1. Costos de Catering
-      if (fiesta.menuAsignadoId) {
-        const menu = await getMenuById(fiesta.menuAsignadoId);
-        if (menu) {
-          const costoMenu = menu.items.reduce((sum, item) => sum + (item.totalDishCost || 0), 0) * invitados;
-          costosDetalle.push({ id: `catering-${fiesta.id}`, fecha: fiesta.configuracion.fechaEvento!, concepto: `Costo Catering: ${menu.name}`, categoria: 'Catering', monto: costoMenu });
-          totalCostos += costoMenu;
-        }
+      // --- TOQUE DE ORO 1: INTEGRIDAD FINANCIERA (PAGOS REALES VS PROYECTADOS) ---
+      
+      // Si existen pagos registrados a proveedores para esta fiesta, usamos la realidad.
+      // Si no, usamos la proyección como fallback.
+      
+      if (fiesta.pagosProveedores && fiesta.pagosProveedores.length > 0) {
+          fiesta.pagosProveedores.forEach(pago => {
+              const pagoDate = new Date(pago.fecha);
+              if (pagoDate >= from && pagoDate <= to) {
+                  const costoAsociado = fiesta.gestionCostos?.costosItems?.find(c => c.id === pago.costoAsociadoId);
+                  costosDetalle.push({ 
+                      id: `real-pago-${pago.id}`, 
+                      fecha: pago.fecha, 
+                      concepto: `Pago Real: ${costoAsociado?.nombre || 'Proveedor'} (${fiesta.configuracion.nombreEvento})`, 
+                      categoria: 'Pagos Realizados', 
+                      monto: pago.monto 
+                  });
+                  totalCostos += pago.monto;
+              }
+          });
+      } else {
+          // Fallback: Proyección
+          // 2. Costos de Catering (Proyectado)
+          if (fiesta.menuAsignadoId) {
+            const menu = await getMenuById(fiesta.menuAsignadoId);
+            if (menu) {
+              const costoMenu = menu.items.reduce((sum, item) => sum + (item.totalDishCost || 0), 0) * invitados;
+              costosDetalle.push({ id: `proj-catering-${fiesta.id}`, fecha: fiesta.configuracion.fechaEvento!, concepto: `PROYECTADO: Catering (${fiesta.configuracion.nombreEvento})`, categoria: 'Catering (Proy)', monto: costoMenu });
+              totalCostos += costoMenu;
+            }
+          }
+          // 3. Costos Directos Manuales (Proyectado)
+          fiesta.gestionCostos?.costosItems?.forEach(costo => {
+              costosDetalle.push({ id: `proj-manual-${costo.id}`, fecha: fiesta.configuracion.fechaEvento!, concepto: `PROYECTADO: ${costo.nombre}`, categoria: costo.categoria, monto: costo.montoEstimado });
+              totalCostos += costo.montoEstimado;
+          });
       }
-      // 2. Costos de Repostería
-      const costoReposteria = fiesta.reposteria?.categorias?.reduce((sumCat, cat) => sumCat + (cat.items.reduce((sumItem, item) => sumItem + ((item.costoEstimado || 0) * (item.cantidad || 1)), 0)), 0) || 0;
-      if (costoReposteria > 0) {
-        costosDetalle.push({ id: `reposteria-${fiesta.id}`, fecha: fiesta.configuracion.fechaEvento!, concepto: 'Costo total Repostería', categoria: 'Repostería', monto: costoReposteria });
-        totalCostos += costoReposteria;
-      }
-      // 3. Costos de Bebidas
-      const costoBebidas = fiesta.bebidas?.categorias?.reduce((sumCat, cat) => sumCat + (cat.items.reduce((sumItem, item) => sumItem + (item.costoTotal || ((item.costoUnitario || 0) * (item.cantidadNecesaria || 0))), 0)), 0) || 0;
-      if (costoBebidas > 0) {
-        costosDetalle.push({ id: `bebidas-${fiesta.id}`, fecha: fiesta.configuracion.fechaEvento!, concepto: 'Costo total Bebidas', categoria: 'Bebidas', monto: costoBebidas });
-        totalCostos += costoBebidas;
-      }
-      // 4. Costos de Personal (Incluye regla automática de utileros si ya están asignados)
+
+      // 4. Costos de Personal (Sueldos)
       fiesta.personalAsignado?.forEach(personal => {
-          const empleado = empleados.find(e => e.id === personal.empleadoId);
+          const emp = empleados.find(e => e.id === personal.empleadoId);
           const rol = roles.find(r => r.id === personal.rolId);
           const aportes = (personal.eventSalary * (rol?.porcentajeAportesPatronales || 0)) / 100;
           const costoTotalPersonal = personal.eventSalary + aportes;
-          costosDetalle.push({ id: `personal-${personal.empleadoId}-${fiesta.id}`, fecha: fiesta.configuracion.fechaEvento!, concepto: `Pago Personal: ${empleado?.nombre || 'N/A'} (${rol?.nombre})`, categoria: 'Personal', monto: costoTotalPersonal });
+          costosDetalle.push({ id: `personal-${personal.empleadoId}-${fiesta.id}`, fecha: fiesta.configuracion.fechaEvento!, concepto: `Sueldo: ${emp?.nombre || 'N/A'} (${rol?.nombre})`, categoria: 'Personal', monto: costoTotalPersonal });
           totalCostos += costoTotalPersonal;
-      });
-
-      // 5. Costos Directos Manuales (Gestión de Costos)
-      fiesta.gestionCostos?.costosItems?.forEach(costo => {
-          costosDetalle.push({ id: `manual-${costo.id}`, fecha: fiesta.configuracion.fechaEvento!, concepto: costo.nombre, categoria: costo.categoria, monto: costo.montoEstimado });
-          totalCostos += costo.montoEstimado;
-      });
-      // 6. Pagos a Proveedores
-      fiesta.pagosProveedores?.forEach(pago => {
-          const pagoDate = new Date(pago.fecha);
-           if (pagoDate >= from && pagoDate <= to) {
-            const costoAsociado = fiesta.gestionCostos?.costosItems?.find(c => c.id === pago.costoAsociadoId);
-            costosDetalle.push({ id: `pago-prov-${pago.id}`, fecha: pago.fecha, concepto: `Pago: ${costoAsociado?.nombre || 'Proveedor'}`, categoria: 'Pagos a Proveedores', monto: pago.monto });
-            totalCostos += pago.monto;
-           }
       });
     }
 
