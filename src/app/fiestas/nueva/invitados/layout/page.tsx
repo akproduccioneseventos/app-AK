@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Disc, Clapperboard, Sofa, Camera as CameraIcon, Search, Printer, Settings2, FolderDown, FolderUp, Maximize, ZoomIn, ZoomOut, Upload, Map, ChevronsUp, ChevronsDown, X, Armchair, PartyPopper, Ticket, UserMinus, CookingPot, Beer, Layers } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Disc, Clapperboard, Sofa, Camera as CameraIcon, Search, Printer, Settings2, FolderDown, FolderUp, Maximize, ZoomIn, ZoomOut, Upload, Map, ChevronsUp, ChevronsDown, X, Armchair, PartyPopper, Ticket, UserMinus, CookingPot, Beer, Layers, Ruler } from 'lucide-react';
 import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData, LayoutElementType } from '@/types/fiesta';
@@ -424,6 +424,28 @@ function SalonLayoutContent() {
     }
   };
 
+  const handleAddCustomElement = () => {
+    if (!customElement.name.trim()) { toast({ title: "Nombre requerido", variant: "destructive" }); return; }
+    if (!decoracion) return;
+
+    const ppm = decoracion.pixelsPerMeter || PIXELS_PER_METER_DEFAULT;
+    
+    const newElementData: Partial<LayoutElement> = {
+        name: customElement.name,
+        width: (customElement.width || 2) * ppm,
+        height: (customElement.height || 1) * ppm,
+        category: customElement.type === 'area' ? 'Área' : 'Varios',
+        shape: customElement.shape === 'circle' ? 'circle' : 'rectangle',
+        seats: customElement.shape === 'circle' ? 8 : undefined,
+        backgroundColor: customElement.type === 'area' ? 'rgba(59, 130, 246, 0.1)' : undefined,
+    };
+    
+    addElement(newElementData.category!, newElementData, customElement.type);
+    
+    setIsCustomElementModalOpen(false);
+    setCustomElement({ name: '', width: 2, height: 1, type: 'element', shape: 'rectangle' });
+  };
+
   const filteredGuests = useMemo(() => {
     if (!fiesta?.invitados) return { conMesa: [], sinMesa: [] };
     const lowerCaseSearch = guestSearchTerm.toLowerCase();
@@ -458,6 +480,34 @@ function SalonLayoutContent() {
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setIsEditModalOpen(false)} className="rounded-xl h-12 flex-1">Cancelar</Button>
             <Button onClick={handleUpdateElement} className="rounded-xl h-12 flex-1 shadow-lg shadow-primary/20">Guardar Cambios</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isCustomElementModalOpen} onOpenChange={setIsCustomElementModalOpen}>
+        <DialogContent className="rounded-3xl border-none">
+          <DialogHeader>
+            <DialogTitle className="font-headline text-2xl">Crear Elemento Personalizado</DialogTitle>
+            <DialogDescription>Define las medidas reales para objetos o zonas especiales.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-5 py-4">
+            <div className="space-y-2">
+              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Tipo de Elemento</Label>
+              <RadioGroup value={customElement.type} onValueChange={(v) => setCustomElement(p=>({...p, type:v as any}))} className="flex gap-4">
+                <div className="flex items-center space-x-2"><RadioGroupItem value="element" id="type-element"/><Label htmlFor="type-element">Móvil (Mesa/Objeto)</Label></div>
+                <div className="flex items-center space-x-2"><RadioGroupItem value="area" id="type-area"/><Label htmlFor="type-area">Fijo (Área/Zona/Suelo)</Label></div>
+              </RadioGroup>
+            </div>
+            <div className="space-y-2"><Label htmlFor="custom-el-name" className="text-[10px] font-black uppercase tracking-widest text-slate-400">Nombre</Label><Input id="custom-el-name" value={customElement.name} onChange={e => setCustomElement(p => ({...p, name: e.target.value}))} placeholder="Ej: Buffet Central, Barra VIP" className="rounded-xl h-12 bg-slate-50 border-none"/></div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2"><Label htmlFor="custom-el-width" className="text-[10px] font-black uppercase tracking-widest text-slate-400">Ancho (metros)</Label><Input id="custom-el-width" type="number" step="0.1" value={customElement.width} onChange={e => setCustomElement(p => ({...p, width: Number(e.target.value)}))} className="rounded-xl h-12 bg-slate-50 border-none"/></div>
+              <div className="space-y-2"><Label htmlFor="custom-el-height" className="text-[10px] font-black uppercase tracking-widest text-slate-400">Alto (metros)</Label><Input id="custom-el-height" type="number" step="0.1" value={customElement.height} onChange={e => setCustomElement(p => ({...p, height: Number(e.target.value)}))} className="rounded-xl h-12 bg-slate-50 border-none"/></div>
+            </div>
+            <div className="space-y-2"><Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Forma</Label><RadioGroup defaultValue="rectangle" value={customElement.shape} onValueChange={(v) => setCustomElement(p=>({...p, shape:v as any}))} className="flex gap-4"><div className="flex items-center space-x-2"><RadioGroupItem value="rectangle" id="shape-rect"/><Label htmlFor="shape-rect">Rectangular</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="circle" id="shape-circ"/><Label htmlFor="shape-circ">Circular</Label></div></RadioGroup></div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setIsCustomElementModalOpen(false)} className="rounded-xl h-12 flex-1">Cancelar</Button>
+            <Button onClick={handleAddCustomElement} className="rounded-xl h-12 flex-1 shadow-lg shadow-primary/20">Añadir al Plano</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -503,7 +553,7 @@ function SalonLayoutContent() {
           <DialogFooter>
             <Button variant="outline" onClick={()=>setIsSaveTemplateModalOpen(false)} className="rounded-xl h-12 flex-1">Cancelar</Button>
             <Button onClick={handleSaveAsTemplate} disabled={isTemplateActionLoading} className="rounded-xl h-12 flex-1 shadow-lg shadow-primary/20">
-                {isTemplateActionLoading ? <Loader2 className="w-4 h-4 animate-spin"/> : <FolderDown className="w-4 h-4 mr-2"/>}
+                {isTemplateActionLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <FolderDown className="w-4 h-4 mr-2"/>}
                 Guardar
             </Button>
           </DialogFooter>
@@ -537,8 +587,46 @@ function SalonLayoutContent() {
             <TabsTrigger value="visual" className="rounded-xl font-bold uppercase text-[10px] tracking-widest data-[state=active]:shadow-lg">Diseño Visual</TabsTrigger>
             <TabsTrigger value="list" className="rounded-xl font-bold uppercase text-[10px] tracking-widest data-[state=active]:shadow-lg">Gestión de Lista</TabsTrigger>
         </TabsList>
-        <TabsContent value="visual">
-            <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 h-[calc(100vh-400px)] pt-4">
+        <TabsContent value="visual" className="space-y-6 pt-4">
+            {/* NEW PROMINENT SETTINGS PANEL */}
+            <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/80 backdrop-blur-md">
+                <CardHeader className="bg-slate-50/50 p-6 border-b border-slate-100">
+                    <div className="flex items-center gap-2">
+                        <Ruler className="w-5 h-5 text-primary"/>
+                        <CardTitle className="text-sm font-black uppercase tracking-widest text-slate-800">1. Configuración del Espacio y Plano</CardTitle>
+                    </div>
+                </CardHeader>
+                <CardContent className="p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
+                        <div className="space-y-2">
+                            <Label className="text-[10px] font-black uppercase text-slate-400">Ancho Salón (metros)</Label>
+                            <Input type="number" value={decoracion.salonWidth || ''} onChange={e => setDecoracion({...decoracion, salonWidth: Number(e.target.value)})} className="h-12 rounded-xl bg-slate-50 border-none font-bold text-lg"/>
+                        </div>
+                        <div className="space-y-2">
+                            <Label className="text-[10px] font-black uppercase text-slate-400">Alto Salón (metros)</Label>
+                            <Input type="number" value={decoracion.salonHeight || ''} onChange={e => setDecoracion({...decoracion, salonHeight: Number(e.target.value)})} className="h-12 rounded-xl bg-slate-50 border-none font-bold text-lg"/>
+                        </div>
+                        <div className="space-y-2">
+                            <Label className="text-[10px] font-black uppercase text-slate-400">Imagen de Plano (Guía)</Label>
+                            <div className="flex gap-2">
+                                <Input type="file" onChange={handleBackgroundImageUpload} disabled={isUploading} className="hidden" id="bg-upload-main" />
+                                <Button asChild variant="outline" className="w-full h-12 rounded-xl border-dashed border-slate-300">
+                                    <label htmlFor="bg-upload-main" className="cursor-pointer">
+                                        {isUploading ? <Loader2 className="w-4 h-4 animate-spin"/> : <Upload className="w-4 h-4 mr-2"/>}
+                                        {decoracion.salonPlanBackgroundImageUrl ? 'Cambiar Imagen' : 'Subir Imagen de Guía'}
+                                    </label>
+                                </Button>
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <Label className="text-[10px] font-black uppercase text-slate-400">Escala (píxeles por metro)</Label>
+                            <Input type="number" value={decoracion.pixelsPerMeter || ''} onChange={e => setDecoracion({...decoracion, pixelsPerMeter: Number(e.target.value)})} className="h-12 rounded-xl bg-slate-50 border-none font-bold"/>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 h-[calc(100vh-500px)]">
             <Card className="xl:col-span-3 flex flex-col border-none shadow-2xl rounded-[2rem] overflow-hidden bg-white/80 backdrop-blur-md">
                 <CardHeader className="p-6 bg-slate-50 border-b border-slate-100">
                   <div className="flex justify-between items-center mb-4">
@@ -578,6 +666,10 @@ function SalonLayoutContent() {
                                       <DropdownMenuItem className="rounded-xl" onClick={() => addElement('Escenario', undefined, 'area')}><Clapperboard className="w-4 h-4 mr-2 text-indigo-500"/> Escenario</DropdownMenuItem>
                                       <DropdownMenuItem className="rounded-xl" onClick={() => addElement('Barra', undefined, 'area')}><Beer className="w-4 h-4 mr-2 text-emerald-500"/> Barra de Tragos</DropdownMenuItem>
                                   </DropdownMenuGroup>
+                                  <DropdownMenuSeparator/>
+                                  <DropdownMenuItem className="rounded-xl font-bold text-primary" onClick={() => setIsCustomElementModalOpen(true)}>
+                                      <PlusCircle className="w-4 h-4 mr-2"/> Crear Personalizado...
+                                  </DropdownMenuItem>
                               </DropdownMenuContent>
                           </DropdownMenu>
                       </div>
@@ -608,32 +700,6 @@ function SalonLayoutContent() {
                             })}
                         </div>
                     </CardContent>
-                    <CardFooter className="p-3 bg-white border-t border-slate-100">
-                      <Accordion type="single" collapsible className="w-full">
-                        <AccordionItem value="settings" className="border-none">
-                          <AccordionTrigger className="text-[10px] font-black uppercase tracking-widest px-4 py-2 hover:no-underline text-slate-400">Configuración del Plano</AccordionTrigger>
-                          <AccordionContent className="px-4 pb-4">
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
-                                <div className="space-y-2"><Label className="text-[10px] font-black uppercase text-slate-400">Ancho (m)</Label><Input type="number" value={decoracion.salonWidth || ''} onChange={e => setDecoracion({...decoracion, salonWidth: Number(e.target.value)})} className="h-10 rounded-xl bg-slate-50 border-none"/></div>
-                                <div className="space-y-2"><Label className="text-[10px] font-black uppercase text-slate-400">Alto (m)</Label><Input type="number" value={decoracion.salonHeight || ''} onChange={e => setDecoracion({...decoracion, salonHeight: Number(e.target.value)})} className="h-10 rounded-xl bg-slate-50 border-none"/></div>
-                                <div className="space-y-2"><Label className="text-[10px] font-black uppercase text-slate-400">Escala (px/m)</Label><Input type="number" value={decoracion.pixelsPerMeter || ''} onChange={e => setDecoracion({...decoracion, pixelsPerMeter: Number(e.target.value)})} className="h-10 rounded-xl bg-slate-50 border-none"/></div>
-                                <div className="space-y-2"><Label className="text-[10px] font-black uppercase text-slate-400">Imagen de Plano</Label>
-                                    <div className="flex gap-2">
-                                        <Input type="file" onChange={handleBackgroundImageUpload} disabled={isUploading} className="hidden" id="bg-upload-input" />
-                                        <Button asChild variant="outline" className="w-full h-10 rounded-xl border-dashed border-slate-300">
-                                            <label htmlFor="bg-upload-input" className="cursor-pointer">
-                                                {isUploading ? <Loader2 className="w-4 h-4 animate-spin"/> : <Upload className="w-4 h-4 mr-2"/>}
-                                                {decoracion.salonPlanBackgroundImageUrl ? 'Cambiar Imagen' : 'Subir Plano'}
-                                            </label>
-                                        </Button>
-                                        {decoracion.salonPlanBackgroundImageUrl && <Button variant="ghost" size="icon" onClick={() => setDecoracion({...decoracion, salonPlanBackgroundImageUrl: undefined})} className="text-destructive h-10 w-10 rounded-xl"><Trash2 className="w-4 h-4"/></Button>}
-                                    </div>
-                                </div>
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                      </Accordion>
-                    </CardFooter>
                 </Card>
             </div>
           </div>
