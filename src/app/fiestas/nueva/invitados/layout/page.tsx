@@ -64,7 +64,7 @@ const GuestCard: React.FC<{ guest: Invitado }> = ({ guest }) => {
         isDragging && "opacity-50"
       )}
     >
-      <p className="font-bold text-sm text-slate-800 truncate">{guest.nombre}</p>
+      <p className="font-bold text-sm text-slate-800">{guest.nombre}</p>
       <p className="text-[10px] uppercase font-black tracking-widest text-slate-400">{guest.partySize || 1} persona(s)</p>
     </div>
   );
@@ -195,7 +195,7 @@ const DraggableElement: React.FC<{
                     <motion.div 
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="absolute -top-12 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white/90 backdrop-blur-md border border-slate-200 shadow-2xl p-1.5 rounded-2xl z-[100]" 
+                        className="absolute -top-14 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white/90 backdrop-blur-md border border-slate-200 shadow-2xl p-1.5 rounded-2xl z-[100]" 
                         style={{ transform: `translateX(-50%) rotate(-${el.rotation}deg)` }}
                     >
                         <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl hover:bg-slate-100" onClick={(e) => { e.stopPropagation(); onEdit(); }} title="Editar medidas"><Settings2 className="w-4 h-4"/></Button>
@@ -550,7 +550,7 @@ function SalonLayoutContent() {
                 <Input id="new-template-name" value={templateName} onChange={e => setTemplateName(e.target.value)} placeholder="Ej: Club Uruguay, Salón Chico" className="rounded-xl h-12 bg-slate-50 border-none"/>
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="gap-2">
             <Button variant="outline" onClick={()=>setIsSaveTemplateModalOpen(false)} className="rounded-xl h-12 flex-1">Cancelar</Button>
             <Button onClick={handleSaveAsTemplate} disabled={isTemplateActionLoading} className="rounded-xl h-12 flex-1 shadow-lg shadow-primary/20">
                 {isTemplateActionLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <FolderDown className="w-4 h-4 mr-2"/>}
@@ -570,7 +570,7 @@ function SalonLayoutContent() {
                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Planifica el espacio y asigna mesas</p>
             </div>
          </div>
-         <div className="flex gap-2 w-full md:w-auto">
+         <div className="flex flex-wrap gap-2 w-full md:w-auto">
             <Button variant="outline" onClick={handleLoadTemplate} className="rounded-xl border-slate-200"><FolderUp className="w-4 h-4 mr-2"/>Cargar Plantilla</Button>
             <Button variant="outline" onClick={() => setIsSaveTemplateModalOpen(true)} className="rounded-xl border-slate-200"><FolderDown className="w-4 h-4 mr-2"/>Guardar Plantilla</Button>
             <Link href={`/fiestas/nueva/decoracion/pdf?fiestaId=${fiestaId}&layout=true`} passHref className="flex-1 md:flex-none">
@@ -588,7 +588,6 @@ function SalonLayoutContent() {
             <TabsTrigger value="list" className="rounded-xl font-bold uppercase text-[10px] tracking-widest data-[state=active]:shadow-lg">Gestión de Lista</TabsTrigger>
         </TabsList>
         <TabsContent value="visual" className="space-y-6 pt-4">
-            {/* NEW PROMINENT SETTINGS PANEL */}
             <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/80 backdrop-blur-md">
                 <CardHeader className="bg-slate-50/50 p-6 border-b border-slate-100">
                     <div className="flex items-center gap-2">
@@ -597,7 +596,7 @@ function SalonLayoutContent() {
                     </div>
                 </CardHeader>
                 <CardContent className="p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 items-end">
                         <div className="space-y-2">
                             <Label className="text-[10px] font-black uppercase text-slate-400">Ancho Salón (metros)</Label>
                             <Input type="number" value={decoracion.salonWidth || ''} onChange={e => setDecoracion({...decoracion, salonWidth: Number(e.target.value)})} className="h-12 rounded-xl bg-slate-50 border-none font-bold text-lg"/>
@@ -770,7 +769,7 @@ function SalonLayoutContent() {
             </Card>
         </TabsContent>
       </Tabs>
-      <div className="flex justify-end pt-4 border-t border-slate-100">
+      <div className="flex justify-end pt-4 border-t border-slate-100 mb-10">
         <Button onClick={handleSaveAll} disabled={isSaving} size="lg" className="rounded-2xl px-10 h-14 font-black text-base shadow-2xl shadow-primary/30">
             {isSaving ? <Loader2 className="w-5 h-5 mr-3 animate-spin"/> : <Save className="w-5 h-5 mr-3"/>} GUARDAR DISTRIBUCIÓN
         </Button>
