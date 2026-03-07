@@ -1,14 +1,13 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import type { FiestaEnPlanificacion, InvitacionDigitalData, ColorPalette, SocialConnection, SeccionInvitacion, GiftItem, TextStyle } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, InvitacionDigitalData, ColorPalette, SocialConnection, SeccionInvitacion, GiftItem, TextStyle, Invitado } from '@/types/fiesta';
 import { EditableText } from '../edit/EditableText';
 import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
 import { CountdownTimer } from '@/components/countdown-timer';
 import { Separator } from '@/components/ui/separator';
-import { Church, GlassWater, Gift, MapPin, Calendar, Heart, PartyPopper, Clock, Utensils, ClipboardCopy, Camera, Share2, Sparkles, Send, Loader2 } from 'lucide-react';
+import { Church, GlassWater, Gift, MapPin, Calendar, Heart, PartyPopper, Clock, Utensils, ClipboardCopy, Camera, Share2, Sparkles, Send, Loader2, AlertTriangle, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from "framer-motion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
@@ -19,6 +18,8 @@ import type { ChatMessage } from '@/types/social-gallery';
 import { claimGift } from '@/app/actions/fiesta/regalos.actions';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 
 interface TemplateProps {
   fiesta: FiestaEnPlanificacion;
@@ -27,6 +28,7 @@ interface TemplateProps {
   isPreview?: boolean;
   onSectionClick?: (sectionId: string) => void;
   onUpdate?: (newData: Partial<InvitacionDigitalData>) => void;
+  onRsvpSubmit?: (submission: any) => Promise<boolean>;
   selectedSectionId?: string | null;
 }
 
@@ -36,6 +38,7 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
     socialConnections, 
     onUpdate, 
     onSectionClick, 
+    onRsvpSubmit,
     selectedSectionId, 
     isPreview 
 }) => {
@@ -45,6 +48,14 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
     
     const [isItineraryModalOpen, setIsItineraryModalOpen] = useState(false);
     const [isGiftModalOpen, setIsGiftModalOpen] = useState(false);
+    const [isRsvpModalOpen, setIsRsvpModalOpen] = useState(false);
+
+    // RSVP form state
+    const [rsvpName, setRsvpName] = useState('');
+    const [rsvpGuests, setRsvpGuests] = useState(1);
+    const [isCeliac, setIsCeliac] = useState(false);
+    const [companionNames, setCompanionNames] = useState<string[]>([]);
+    const [isSubmittingRsvp, setIsSubmittingRsvp] = useState(false);
 
     // Pre-party Chat states
     const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
@@ -62,6 +73,17 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
         }
     }, [fiesta.id, isPreview]);
 
+    useEffect(() => {
+        const numCompanions = rsvpGuests > 1 ? rsvpGuests - 1 : 0;
+        setCompanionNames(prev => {
+            const newNames = Array(numCompanions).fill('');
+            for (let i = 0; i < Math.min(prev.length, numCompanions); i++) {
+                newNames[i] = prev[i];
+            }
+            return newNames;
+        });
+    }, [rsvpGuests]);
+
     const formatDate = (dateString?: string) => {
         if (!dateString) return "PRÓXIMAMENTE";
         return new Date(dateString).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
@@ -76,7 +98,7 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
         e.preventDefault();
         if (!newChatMsg.trim() || isPreview) return;
         setIsSendingChat(true);
-        const res = await addChatMessage(fiesta.id, newChatMsg, "Invitado");
+        const res = await addChatMessage(fiesta.id, newChatMsg, rsvpName || "Invitado");
         if (res.success) {
             setNewChatMsg('');
             getChatMessages(fiesta.id).then(setChatMessages);
@@ -93,6 +115,27 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
         if (res.success) {
             toast({ title: "¡Regalo Reservado!", description: "Gracias por tu detalle." });
         }
+    };
+
+    const handleRsvpFormSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!rsvpName.trim() || !onRsvpSubmit) return;
+        setIsSubmittingRsvp(true);
+        const success = await onRsvpSubmit({
+            nombreCompleto: rsvpName,
+            confirmacion: 'Confirmado',
+            numeroAsistentes: rsvpGuests,
+            isCeliac: isCeliac,
+            mensaje: '',
+            companionNames: companionNames
+        });
+        if (success) {
+            setIsRsvpModalOpen(false);
+            setRsvpName('');
+            setRsvpGuests(1);
+            setIsCeliac(false);
+        }
+        setIsSubmittingRsvp(false);
     };
 
     const protagonist1 = fiesta.configuracion.protagonista1Nombre || invitacionData.cabecera.protagonista1;
@@ -377,6 +420,27 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                 </section>
             )}
 
+            {invitacionData.confirmacion.visible && (
+                <section className="py-48 bg-slate-900 text-white text-center px-6 relative overflow-hidden">
+                    <div className="max-w-2xl mx-auto space-y-12 relative z-10">
+                        <span className="text-xs font-black tracking-[0.6em] uppercase opacity-40">RSVP</span>
+                        <h2 className="text-6xl md:text-8xl font-headline font-bold tracking-tighter" style={{ color: primaryColor }}>¿Vienes?</h2>
+                        <p className="text-2xl text-slate-400 font-medium leading-relaxed">
+                            Tu presencia es el mejor regalo. Por favor, confirma tu asistencia antes del 
+                            <span className="block mt-2 text-white font-bold text-3xl uppercase tracking-widest">{formatDate(fiesta.configuracion.fechaEvento)}</span>
+                        </p>
+                        <Button 
+                            onClick={() => setIsRsvpModalOpen(true)}
+                            size="lg" 
+                            className="h-20 px-16 rounded-full text-2xl font-bold shadow-3xl shadow-primary/20 hover:scale-105 transition-all duration-500" 
+                            style={{ backgroundColor: primaryColor }}
+                        >
+                            CONFIRMAR ASISTENCIA
+                        </Button>
+                    </div>
+                </section>
+            )}
+
             <footer className="py-48 bg-slate-950 text-white text-center px-6 relative overflow-hidden">
                 <div className="absolute inset-0 opacity-10 pointer-events-none">
                     <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
@@ -386,7 +450,7 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                         {invitacionData.footer.titulo.text}
                     </h2>
                     <div className="flex justify-center gap-10">
-                        {socialConnections && socialConnections.filter(c => c.isConnected).map(c => (
+                        {socialConnections.filter(c => c.isConnected).map(c => (
                             <a key={c.platform} href={c.profileUrl} target="_blank" className="w-20 h-20 rounded-[2rem] bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white hover:text-slate-950 transition-all duration-500 group">
                                 <Share2 className="w-8 h-8 opacity-50 group-hover:opacity-100" />
                             </a>
@@ -400,6 +464,48 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                     </div>
                 </div>
             </footer>
+
+            <Dialog open={isRsvpModalOpen} onOpenChange={setIsRsvpModalOpen}>
+                <DialogContent className="sm:max-w-md rounded-[2.5rem] p-10 border-none shadow-3xl">
+                    <DialogHeader className="text-center space-y-4">
+                        <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto" style={{ backgroundColor: `${primaryColor}1A` }}>
+                            <Check className="w-10 h-10 text-primary" style={{ color: primaryColor }} />
+                        </div>
+                        <DialogTitle className="text-4xl font-headline font-bold text-slate-900">¡Te esperamos!</DialogTitle>
+                        <DialogDescription className="text-base">Completa tus datos para confirmar.</DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleRsvpFormSubmit} className="space-y-8 pt-6">
+                        <div className="space-y-3">
+                            <Label className="text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Tu Nombre Completo</Label>
+                            <Input value={rsvpName} onChange={e => setRsvpName(e.target.value)} className="h-14 rounded-2xl bg-slate-50 border-none text-lg font-bold focus-visible:ring-2" style={{ "--tw-ring-color": primaryColor } as any} required />
+                        </div>
+                        <div className="space-y-3">
+                            <Label className="text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">¿Cuántos vienen?</Label>
+                            <Input type="number" value={rsvpGuests} onChange={e => setRsvpGuests(Number(e.target.value))} className="h-14 rounded-2xl bg-slate-50 border-none text-lg font-bold focus-visible:ring-2" style={{ "--tw-ring-color": primaryColor } as any} min={1} required />
+                        </div>
+                        <div className="flex items-center justify-between p-4 bg-amber-50 rounded-2xl border border-amber-100">
+                            <div className="flex items-center gap-3">
+                                <AlertTriangle className="w-5 h-5 text-amber-600" />
+                                <Label htmlFor="celiac-switch-all" className="text-sm font-bold text-amber-900">Soy Celíaco</Label>
+                            </div>
+                            <Switch id="celiac-switch-all" checked={isCeliac} onCheckedChange={setIsCeliac} />
+                        </div>
+                        {companionNames.map((name, i) => (
+                            <div key={i} className="space-y-3 animate-in fade-in slide-in-from-top-2">
+                                <Label className="text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Nombre Acompañante {i+1}</Label>
+                                <Input value={name} onChange={e => {
+                                    const n = [...companionNames]; n[i] = e.target.value; setCompanionNames(n);
+                                }} className="h-12 rounded-xl bg-slate-50 border-none text-sm" />
+                            </div>
+                        ))}
+                        <DialogFooter>
+                            <Button type="submit" className="w-full h-16 rounded-[1.5rem] text-lg font-black tracking-widest shadow-2xl shadow-primary/20" style={{ backgroundColor: primaryColor }} disabled={isSubmittingRsvp}>
+                                {isSubmittingRsvp ? <Loader2 className="animate-spin w-6 h-6" /> : 'CONFIRMAR'}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };

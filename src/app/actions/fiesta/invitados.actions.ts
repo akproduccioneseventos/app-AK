@@ -1,4 +1,4 @@
-'use server';
+'use client';
 
 import type { FiestaEnPlanificacion, Invitado, RsvpStatus } from '@/types/fiesta';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
@@ -56,7 +56,7 @@ export async function deleteInvitado(fiestaId: string, invitadoId: string) {
     });
 }
 
-export async function handleRsvpSubmission(fiestaId: string, submission: {nombreCompleto: string, confirmacion: string, numeroAsistentes: number, mensaje: string, companionNames: string[] }): Promise<{ success: boolean, invitado?: Invitado, error?: string}> {
+export async function handleRsvpSubmission(fiestaId: string, submission: {nombreCompleto: string, confirmacion: string, numeroAsistentes: number, mensaje: string, companionNames: string[], isCeliac?: boolean }): Promise<{ success: boolean, invitado?: Invitado, error?: string}> {
    let updatedInvitado: Invitado | undefined;
    const result = await updateFiestaData(fiestaId, data => {
      const invitadoExistenteIndex = (data.invitados || []).findIndex(
@@ -75,6 +75,7 @@ export async function handleRsvpSubmission(fiestaId: string, submission: {nombre
            partySize: submission.numeroAsistentes,
            notes: combinedNotes,
            companionNames: submission.companionNames,
+           isCeliac: submission.isCeliac ?? data.invitados![invitadoExistenteIndex].isCeliac,
          };
          data.invitados![invitadoExistenteIndex] = updatedInvitado;
       } else {
@@ -85,6 +86,7 @@ export async function handleRsvpSubmission(fiestaId: string, submission: {nombre
            partySize: submission.numeroAsistentes,
            notes: combinedNotes,
            companionNames: submission.companionNames,
+           isCeliac: submission.isCeliac,
          };
          data.invitados = [...(data.invitados || []), updatedInvitado];
       }

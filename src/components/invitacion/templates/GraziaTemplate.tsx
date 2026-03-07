@@ -1,8 +1,7 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import type { FiestaEnPlanificacion, InvitacionDigitalData, ColorPalette, SocialConnection, SeccionInvitacion, GiftItem, ProgramaEventoItem, TextStyle } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, InvitacionDigitalData, ColorPalette, SocialConnection, SeccionInvitacion, GiftItem, ProgramaEventoItem, TextStyle, Invitado } from '@/types/fiesta';
 import { EditableText } from '../edit/EditableText';
 import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
@@ -30,7 +29,8 @@ import {
   Share2,
   Check,
   Send,
-  Loader2
+  Loader2,
+  AlertTriangle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from "framer-motion";
@@ -43,6 +43,7 @@ import { getChatMessages, addChatMessage } from '@/app/actions/social-gallery';
 import type { ChatMessage } from '@/types/social-gallery';
 import { claimGift } from '@/app/actions/fiesta/regalos.actions';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Switch } from '@/components/ui/switch';
 
 interface TemplateProps {
   fiesta: FiestaEnPlanificacion;
@@ -209,6 +210,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
   
   const [rsvpName, setRsvpName] = useState('');
   const [rsvpGuests, setRsvpGuests] = useState(1);
+  const [isCeliac, setIsCeliac] = useState(false);
   const [companionNames, setCompanionNames] = useState<string[]>([]);
   const [isSubmittingRsvp, setIsSubmittingRsvp] = useState(false);
   const [rsvpMusicSuggestion, setRsvpMusicSuggestion] = useState('');
@@ -256,6 +258,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
       nombreCompleto: rsvpName,
       confirmacion: 'Confirmado',
       numeroAsistentes: rsvpGuests,
+      isCeliac: isCeliac,
       mensaje: rsvpMusicSuggestion.trim() ? `Sugerencia: ${rsvpMusicSuggestion}` : '',
       companionNames: companionNames
     });
@@ -263,6 +266,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
       setIsRsvpModalOpen(false);
       setRsvpName('');
       setRsvpGuests(1);
+      setIsCeliac(false);
     }
     setIsSubmittingRsvp(false);
   };
@@ -455,7 +459,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
                             className="mt-4 md:mt-6 text-primary font-bold hover:bg-primary/5 rounded-full text-xs"
                             onClick={(e) => { e.stopPropagation(); handleCopyAccount(seccion.data.datosBancarios); }}
                         >
-                            <ClipboardCopy className="w-3.5 h-3.5 mr-2"/> COPIAR DATOS
+                            <ClipboardCopy className="w-5 h-5 mr-2"/> COPIAR DATOS
                         </Button>
                     </div>
                 )}
@@ -613,6 +617,15 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
               <Label className="text-[9px] md:text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">¿Cuántos vienen?</Label>
               <Input type="number" value={rsvpGuests} onChange={e => setRsvpGuests(Number(e.target.value))} className="h-12 md:h-14 rounded-xl md:rounded-2xl bg-slate-50 border-none text-base md:text-lg font-bold focus-visible:ring-2" style={{ "--tw-ring-color": primaryColor } as any} min={1} required />
             </div>
+            
+            <div className="flex items-center justify-between p-4 bg-amber-50 rounded-2xl border border-amber-100">
+                <div className="flex items-center gap-3">
+                    <AlertTriangle className="w-5 h-5 text-amber-600" />
+                    <Label htmlFor="celiac-switch" className="text-sm font-bold text-amber-900">Soy Celíaco</Label>
+                </div>
+                <Switch id="celiac-switch" checked={isCeliac} onCheckedChange={setIsCeliac} />
+            </div>
+
             {companionNames.map((name, i) => (
               <div key={i} className="space-y-2 md:space-y-3 animate-in fade-in slide-in-from-top-2">
                 <Label className="text-[9px] md:text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Nombre Acompañante {i+1}</Label>

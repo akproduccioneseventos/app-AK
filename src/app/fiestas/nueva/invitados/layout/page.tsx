@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
@@ -64,7 +63,10 @@ const GuestCard: React.FC<{ guest: Invitado }> = ({ guest }) => {
         isDragging && "opacity-50"
       )}
     >
-      <p className="font-bold text-sm text-slate-800">{guest.nombre}</p>
+      <div className="flex items-center justify-between gap-2">
+        <p className="font-bold text-sm text-slate-800 truncate">{guest.nombre}</p>
+        {guest.isCeliac && <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0"/>}
+      </div>
       <p className="text-[10px] uppercase font-black tracking-widest text-slate-400">{guest.partySize || 1} persona(s)</p>
     </div>
   );
@@ -125,6 +127,7 @@ const DraggableElement: React.FC<{
     const nodeRef = useRef(null);
     const isRound = el.shape === 'circle';
     const isArea = el.type === 'area';
+    const hasCeliac = assignedGuests.some(g => g.isCeliac);
 
     const [{ isOver }, drop] = useDrop(() => ({
         accept: GUEST_ITEM_TYPE,
@@ -164,11 +167,17 @@ const DraggableElement: React.FC<{
                             'w-full h-full border-2 flex flex-col p-2 overflow-hidden transition-all duration-300', 
                             isRound && 'rounded-full',
                             isSelected ? 'border-primary shadow-2xl' : 'border-slate-400 shadow-sm',
-                            isOver && 'border-primary bg-primary/10 ring-4 ring-primary/20'
+                            isOver && 'border-primary bg-primary/10 ring-4 ring-primary/20',
+                            hasCeliac && !isArea && "border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.3)]"
                         )}
                         style={{ backgroundColor: el.backgroundColor || (isArea ? 'rgba(59, 130, 246, 0.15)' : 'rgba(255, 255, 255, 0.9)') }}
                     >
-                        <div className="flex flex-col items-center justify-center h-full">
+                        <div className="flex flex-col items-center justify-center h-full relative">
+                            {hasCeliac && !isArea && (
+                                <div className="absolute top-0 right-0 p-1 bg-amber-500 rounded-full text-white shadow-sm z-20">
+                                    <AlertTriangle className="w-3 h-3" />
+                                </div>
+                            )}
                             <p className={cn("text-[10px] font-black text-center truncate uppercase tracking-tighter", isArea ? 'text-blue-800' : 'text-slate-800')}>
                                 {el.name}
                             </p>
@@ -179,8 +188,8 @@ const DraggableElement: React.FC<{
                             )}
                             <div className="text-[8px] space-y-0.5 overflow-hidden mt-1 text-center font-bold text-slate-600">
                                 {assignedGuests.slice(0, 3).map(g => (
-                                    <div key={g.id} className="flex items-center justify-center gap-1 group/guest">
-                                        <span className="truncate">{g.nombre}</span>
+                                    <div key={g.id} className={cn("flex items-center justify-center gap-1 group/guest", g.isCeliac && "text-amber-700")}>
+                                        <span className="truncate">{g.isCeliac && "🥗 "}{g.nombre}</span>
                                         <button onClick={(e) => { e.stopPropagation(); onUnassign(g.id); }} className="hidden group-hover/guest:block text-destructive"><UserMinus className="w-2.5 h-2.5"/></button>
                                     </div>
                                 ))}
@@ -727,7 +736,12 @@ function SalonLayoutContent() {
                         <TableBody>
                             {filteredGuests.sinMesa.map(guest => (
                                 <TableRow key={guest.id} className="border-b border-slate-50 hover:bg-slate-50/30">
-                                    <TableCell className="font-medium text-sm pl-8 text-slate-700">{guest.nombre}</TableCell>
+                                    <TableCell className="font-medium text-sm pl-8 text-slate-700">
+                                        <div className="flex items-center gap-2">
+                                            {guest.nombre}
+                                            {guest.isCeliac && <AlertTriangle className="w-3.5 h-3.5 text-amber-600" title="Celíaco" />}
+                                        </div>
+                                    </TableCell>
                                     <TableCell className="text-center text-sm font-bold text-slate-400">{guest.partySize}</TableCell>
                                     <TableCell>
                                         <Select value={guest.tableNumber || ''} onValueChange={(val) => handleAssignGuestToTable(guest.id, val)}>
@@ -745,7 +759,12 @@ function SalonLayoutContent() {
                             ))}
                             {filteredGuests.conMesa.map(guest => (
                                 <TableRow key={guest.id} className="bg-emerald-50/30 border-b border-emerald-100 hover:bg-emerald-50/50">
-                                    <TableCell className="font-bold text-sm pl-8 text-emerald-700">{guest.nombre}</TableCell>
+                                    <TableCell className="font-bold text-sm pl-8 text-emerald-700">
+                                        <div className="flex items-center gap-2">
+                                            {guest.nombre}
+                                            {guest.isCeliac && <AlertTriangle className="w-3.5 h-3.5 text-amber-600" title="Celíaco" />}
+                                        </div>
+                                    </TableCell>
                                     <TableCell className="text-center text-sm font-black text-emerald-600">{guest.partySize}</TableCell>
                                     <TableCell>
                                         <Select value={guest.tableNumber || 'sin-mesa'} onValueChange={(val) => val === 'sin-mesa' ? handleAssignGuestToTable(guest.id, null) : handleAssignGuestToTable(guest.id, val)}>
