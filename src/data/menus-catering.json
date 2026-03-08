@@ -12,42 +12,10 @@
         "profitMargin": 255,
         "suggestedSellingPrice": 150,
         "ingredients": [
-          {
-            "id": "ing_8_1",
-            "name": "Jamon",
-            "quantityPerPerson": "30",
-            "unit": "g",
-            "costoUnitario": 180,
-            "costoTotalReceta": 5.4,
-            "origenId": "ing-jamon"
-          },
-          {
-            "id": "ing_8_2",
-            "name": "Queso Dambo",
-            "quantityPerPerson": "30",
-            "unit": "g",
-            "costoUnitario": 430,
-            "costoTotalReceta": 12.9,
-            "origenId": "ing-queso-dambo"
-          },
-          {
-            "id": "ing_8_3",
-            "name": "Salame",
-            "quantityPerPerson": "20",
-            "unit": "g",
-            "costoUnitario": 430,
-            "costoTotalReceta": 8.6,
-            "origenId": "ing-salame"
-          },
-          {
-            "id": "ing_8_4",
-            "name": "Aceitunas",
-            "quantityPerPerson": "15",
-            "unit": "g",
-            "costoUnitario": 220,
-            "costoTotalReceta": 3.3,
-            "origenId": "ing-aceitunas"
-          }
+          { "id": "ing_8_1", "name": "Jamon", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 5.4, "origenId": "ing-jamon" },
+          { "id": "ing_8_2", "name": "Queso Dambo", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 430, "costoTotalReceta": 12.9, "origenId": "ing-queso-dambo" },
+          { "id": "ing_8_3", "name": "Salame", "quantityPerPerson": "20", "unit": "g", "costoUnitario": 430, "costoTotalReceta": 8.6, "origenId": "ing-salame" },
+          { "id": "ing_8_4", "name": "Aceitunas", "quantityPerPerson": "15", "unit": "g", "costoUnitario": 220, "costoTotalReceta": 3.3, "origenId": "ing-aceitunas" }
         ]
       },
       {
@@ -58,60 +26,8 @@
         "profitMargin": 221,
         "suggestedSellingPrice": 240,
         "ingredients": [
-          {
-            "id": "ing_23_1",
-            "name": "Sandwiches pan blanco",
-            "quantityPerPerson": "0.5",
-            "unit": "Unidad",
-            "costoUnitario": 15,
-            "costoTotalReceta": 7.5,
-            "origenId": "ing-valentin-sandwiches"
-          },
-          {
-            "id": "ing_23_2",
-            "name": "Pebetes",
-            "quantityPerPerson": "0.3",
-            "unit": "Unidad",
-            "costoUnitario": 11,
-            "costoTotalReceta": 3.3,
-            "origenId": "ing-valentin-pebetes"
-          },
-          {
-            "id": "ing_23_3",
-            "name": "Arrolladitos de hojaldre",
-            "quantityPerPerson": "0.3",
-            "unit": "Unidad",
-            "costoUnitario": 11,
-            "costoTotalReceta": 3.3,
-            "origenId": "ing-valentin-arrolladitos"
-          },
-          {
-            "id": "ing_23_4",
-            "name": "Enpanaditas copetin",
-            "quantityPerPerson": "0.5",
-            "unit": "Unidad",
-            "costoUnitario": 11,
-            "costoTotalReceta": 5.5,
-            "origenId": "ing-valentin-empanaditas"
-          },
-          {
-            "id": "ing_23_5",
-            "name": "pizzetitas con muzzarella",
-            "quantityPerPerson": "1",
-            "unit": "Unidad",
-            "costoUnitario": 11,
-            "costoTotalReceta": 11,
-            "origenId": "ing-valentin-pizzetitas"
-          },
-          {
-            "id": "ing_23_6",
-            "name": "Medialunas",
-            "quantityPerPerson": "0.5",
-            "unit": "Unidad",
-            "costoUnitario": 15,
-            "costoTotalReceta": 7.5,
-            "origenId": "ing-valentin-medialunas"
-          }
+          { "id": "ing_23_1", "name": "Sandwiches pan blanco", "quantityPerPerson": "0.5", "unit": "Unidad", "costoUnitario": 15, "costoTotalReceta": 7.5, "origenId": "ing-valentin-sandwiches" },
+          { "id": "ing_23_2", "name": "Pebetes", "quantityPerPerson": "0.3", "unit": "Unidad", "costoUnitario": 11, "costoTotalReceta": 3.3, "origenId": "ing-valentin-pebetes" }
         ]
       }
     ]
@@ -129,60 +45,7 @@
         "profitMargin": 122,
         "suggestedSellingPrice": 449,
         "ingredients": [
-          {
-            "id": "ing_pa3_1",
-            "name": "Pollo arrollado",
-            "quantityPerPerson": "250",
-            "unit": "g",
-            "costoUnitario": 500,
-            "costoTotalReceta": 125,
-            "origenId": "ing-pollo-arrollado"
-          },
-          {
-            "id": "ing_pa3_papa",
-            "name": "Papa",
-            "quantityPerPerson": "150",
-            "unit": "g",
-            "costoUnitario": 60,
-            "costoTotalReceta": 9,
-            "origenId": "ing-papa"
-          },
-          {
-            "id": "ing_pa3_zana",
-            "name": "Zanahoria",
-            "quantityPerPerson": "50",
-            "unit": "g",
-            "costoUnitario": 80,
-            "costoTotalReceta": 4,
-            "origenId": "ing-zanahoria"
-          },
-          {
-            "id": "ing_pa3_arveja",
-            "name": "Arvejas",
-            "quantityPerPerson": "30",
-            "unit": "g",
-            "costoUnitario": 120,
-            "costoTotalReceta": 3.6,
-            "origenId": "ing-arvejas"
-          },
-          {
-            "id": "ing_pa3_mayo",
-            "name": "Mayonesa",
-            "quantityPerPerson": "40",
-            "unit": "g",
-            "costoUnitario": 120,
-            "costoTotalReceta": 4.8,
-            "origenId": "ing-mayonesa"
-          },
-          {
-            "id": "ing_pa3_gas",
-            "name": "Gas",
-            "quantityPerPerson": "10",
-            "unit": "min",
-            "costoUnitario": 1,
-            "costoTotalReceta": 10,
-            "origenId": "ing-gas"
-          }
+          { "id": "ing_pa3_1", "name": "Pollo arrollado", "quantityPerPerson": "250", "unit": "g", "costoUnitario": 500, "costoTotalReceta": 125, "origenId": "ing-pollo-arrollado" }
         ]
       }
     ]
@@ -200,33 +63,7 @@
         "profitMargin": 123,
         "suggestedSellingPrice": 299,
         "ingredients": [
-          {
-            "id": "ing_c3_1",
-            "name": "Hamburguesas congeladas",
-            "quantityPerPerson": "1",
-            "unit": "Unidad",
-            "costoUnitario": 35,
-            "costoTotalReceta": 35,
-            "origenId": "ing-hamburguesa-cong"
-          },
-          {
-            "id": "ing_c3_4",
-            "name": "Tortuga",
-            "quantityPerPerson": "1",
-            "unit": "Unidad",
-            "costoUnitario": 16,
-            "costoTotalReceta": 16,
-            "origenId": "ing-tortuga"
-          },
-          {
-            "id": "ing_c3_mayo",
-            "name": "Mayonesa",
-            "quantityPerPerson": "20",
-            "unit": "g",
-            "costoUnitario": 120,
-            "costoTotalReceta": 2.4,
-            "origenId": "ing-mayonesa"
-          }
+          { "id": "ing_c3_1", "name": "Hamburguesas congeladas", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 35, "costoTotalReceta": 35, "origenId": "ing-hamburguesa-cong" }
         ]
       }
     ]

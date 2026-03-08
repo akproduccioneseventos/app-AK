@@ -1,7 +1,3 @@
-
-/**
- * @fileOverview Acciones nucleares para la persistencia de archivos de fiesta.
- */
 'use server';
 
 import type { FiestaEnPlanificacion, MenuMesaData, NumerosMesaData } from '@/types/fiesta';
@@ -12,8 +8,6 @@ import fs from 'fs/promises';
 
 const FIESTAS_DIR = 'fiestas';
 const ARCHIVE_DIR = 'archive';
-
-// --- ACCIONES DE LECTURA ---
 
 export async function getHistorialFiestas(): Promise<FiestaEnPlanificacion[]> {
   const dataDir = path.join(process.cwd(), 'src', 'data', ARCHIVE_DIR);
@@ -49,9 +43,6 @@ export async function getFiestas(includeArchived = true): Promise<FiestaEnPlanif
     }
 }
 
-/**
- * Alias para obtener todos los eventos (activos y archivados).
- */
 export async function getAllFiestas() {
     return getFiestas(true);
 }
@@ -63,8 +54,6 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
     }
     return { ...initialFiestaActualData, id: `fiesta_${Date.now()}`};
 }
-
-// --- ACCIONES DE ESCRITURA ---
 
 export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ success: boolean; fiesta?: FiestaEnPlanificacion; error?: string }> {
   try {
@@ -110,21 +99,6 @@ export async function archiveFiesta(fiestaId: string): Promise<{ success: boolea
     await writeData(path.join(ARCHIVE_DIR, archiveFilename), fiesta);
     await deleteFiesta(fiestaId);
     return { success: true };
-  } catch (error: any) {
-    return { success: false, error: error.message };
-  }
-}
-
-export async function deleteFiestaArchivada(fiestaId: string): Promise<{ success: boolean; error?: string }> {
-  const dataDir = path.join(process.cwd(), 'src', 'data', ARCHIVE_DIR);
-  try {
-    const files = await fs.readdir(dataDir);
-    const fileToDelete = files.find(f => f.includes(fiestaId));
-    if (fileToDelete) {
-        await fs.unlink(path.join(dataDir, fileToDelete));
-        return { success: true };
-    }
-    return { success: false, error: "Archivo no encontrado." };
   } catch (error: any) {
     return { success: false, error: error.message };
   }
