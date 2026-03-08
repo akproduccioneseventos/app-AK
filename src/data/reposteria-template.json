@@ -1,11 +1,13 @@
-
 {
   "categorias": [
     {
       "id": "mesa_postres",
       "nombreDisplay": "Mesa de Postres",
       "activada": true,
-      "items": [],
+      "items": [
+        { "id": "rp_chaja", "nombre": "Postre Chajá", "cantidad": 1, "unidad": "Unidad", "costoEstimado": 1200, "origenId": "serv_1759924910015_2433ma0" },
+        { "id": "rp_cheesecake", "nombre": "Postre Cheesecake", "cantidad": 1, "unidad": "Unidad", "costoEstimado": 1100, "origenId": "serv_1759924980181_kwlgbs9" }
+      ],
       "descripcion": "Variedad de postres clásicos y modernos."
     },
     {

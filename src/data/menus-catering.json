@@ -1,15 +1,15 @@
 [
   {
-    "id": "menu_entradas_predisenado",
-    "name": "Menú de Entradas",
-    "description": "Selección de entradas para el evento.",
+    "id": "menu_entradas_maestro",
+    "name": "Catálogo de Entradas",
+    "description": "Selección completa de entradas para eventos.",
     "items": [
       {
         "id": "dish_entrada_8",
-        "name": "Picada de fiambres",
+        "name": "Entrada 8: Picada de fiambres",
         "type": "Entrada",
         "totalDishCost": 30.15,
-        "profitMargin": 255,
+        "profitMargin": 397,
         "suggestedSellingPrice": 150,
         "ingredients": [
           { "id": "ing_8_1", "name": "Jamon", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 5.4, "origenId": "ing-jamon" },
@@ -20,50 +20,64 @@
       },
       {
         "id": "dish_entrada_23",
-        "name": "Sandwiches y Saladitos",
+        "name": "Entrada 23: Sandwiches y Saladitos",
         "type": "Entrada",
         "totalDishCost": 74.8,
         "profitMargin": 221,
         "suggestedSellingPrice": 240,
         "ingredients": [
           { "id": "ing_23_1", "name": "Sandwiches pan blanco", "quantityPerPerson": "0.5", "unit": "Unidad", "costoUnitario": 15, "costoTotalReceta": 7.5, "origenId": "ing-valentin-sandwiches" },
-          { "id": "ing_23_2", "name": "Pebetes", "quantityPerPerson": "0.3", "unit": "Unidad", "costoUnitario": 11, "costoTotalReceta": 3.3, "origenId": "ing-valentin-pebetes" }
+          { "id": "ing_23_2", "name": "Pebetes", "quantityPerPerson": "0.3", "unit": "Unidad", "costoUnitario": 11, "costoTotalReceta": 3.3, "origenId": "ing-valentin-pebetes" },
+          { "id": "ing_23_3", "name": "Arrolladitos de hojaldre", "quantityPerPerson": "0.3", "unit": "Unidad", "costoUnitario": 11, "costoTotalReceta": 3.3, "origenId": "ing-valentin-arrolladitos" }
         ]
       }
     ]
   },
   {
-    "id": "menu_platos_principales_predisenado",
-    "name": "Menú de Platos Principales",
-    "description": "Selección de platos fuertes.",
+    "id": "menu_principales_maestro",
+    "name": "Catálogo de Platos Principales",
+    "description": "Platos fuertes para banquetes.",
     "items": [
       {
         "id": "dish_main_3",
-        "name": "Pollo arrollado c/ guarnición",
+        "name": "Plato principal 3: Pollo arrollado c/ guarnición",
         "type": "Plato Principal",
         "totalDishCost": 202.4,
         "profitMargin": 122,
         "suggestedSellingPrice": 449,
         "ingredients": [
-          { "id": "ing_pa3_1", "name": "Pollo arrollado", "quantityPerPerson": "250", "unit": "g", "costoUnitario": 500, "costoTotalReceta": 125, "origenId": "ing-pollo-arrollado" }
+          { "id": "ing_pa3_1", "name": "Pollo arrollado", "quantityPerPerson": "250", "unit": "g", "costoUnitario": 500, "costoTotalReceta": 125, "origenId": "ing-pollo-arrollado" },
+          { "id": "ing_pa3_2", "name": "Papa", "quantityPerPerson": "200", "unit": "g", "costoUnitario": 60, "costoTotalReceta": 12, "origenId": "ing-papa" }
+        ]
+      },
+      {
+        "id": "dish_main_asado",
+        "name": "Plato principal: Asado completo (Varios cortes)",
+        "type": "Plato Principal",
+        "totalDishCost": 350,
+        "profitMargin": 100,
+        "suggestedSellingPrice": 700,
+        "ingredients": [
+          { "id": "ing_as_1", "name": "Carnes Varias", "quantityPerPerson": "400", "unit": "g", "costoUnitario": 450, "costoTotalReceta": 180 }
         ]
       }
     ]
   },
   {
-    "id": "menu_infantil_predisenado",
-    "name": "Menú Infantil",
-    "description": "Opciones para niños.",
+    "id": "menu_infantil_maestro",
+    "name": "Catálogo Infantil",
+    "description": "Opciones para los más pequeños.",
     "items": [
       {
         "id": "dish_child_3",
-        "name": "Hamburguesa con fritas",
+        "name": "Menú niños: Hamburguesa con fritas",
         "type": "Menú Infantil/Adolescente",
         "totalDishCost": 53.4,
-        "profitMargin": 123,
+        "profitMargin": 460,
         "suggestedSellingPrice": 299,
         "ingredients": [
-          { "id": "ing_c3_1", "name": "Hamburguesas congeladas", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 35, "costoTotalReceta": 35, "origenId": "ing-hamburguesa-cong" }
+          { "id": "ing_c3_1", "name": "Hamburguesas congeladas", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 35, "costoTotalReceta": 35, "origenId": "ing-hamburguesa-cong" },
+          { "id": "ing_c3_2", "name": "Papa", "quantityPerPerson": "150", "unit": "g", "costoUnitario": 60, "costoTotalReceta": 9, "origenId": "ing-papa" }
         ]
       }
     ]
