@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -98,7 +99,7 @@ export default function GestionMenusPage() {
       const result = await adjustAllDishMargins(adjustmentPercentage);
       if (result.success) {
         toast({ title: "Márgenes ajustados", description: `Los márgenes de todos los platos fueron ajustados.` });
-        await fetchMenus(); // Refresh data
+        await fetchMenus();
       } else {
         throw new Error(result.error);
       }
@@ -242,7 +243,7 @@ export default function GestionMenusPage() {
                       <span className="font-bold"> {adjustmentPercentage} puntos porcentuales</span>. Esta acción es irreversible.
                       ¿Deseas continuar?
                     </AlertDialogDescription>
-                </AccordionHeader>
+                </AlertDialogHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel>Cancelar</AlertDialogCancel>
                     <AlertDialogAction onClick={handleAdjustMargins}>
@@ -290,12 +291,11 @@ export default function GestionMenusPage() {
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
-                        <AlertDialogHeader><AlertDialogTitle>¿Eliminar Menú?</AlertDialogTitle><AlertDialogDescription>Se eliminará la plantilla "{menu.name}".</AlertDialogDescription></AccordionHeader>
+                        <AlertDialogHeader><AlertDialogTitle>¿Eliminar Menú?</AlertDialogTitle><AlertDialogDescription>Se eliminará la plantilla "{menu.name}".</AlertDialogDescription></AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancelar</AlertDialogCancel>
                           <AlertDialogAction onClick={() => handleDelete(menu.id, menu.name)} className="bg-destructive hover:bg-destructive/80">Eliminar</AlertDialogAction>
                         </AlertDialogFooter>
-                      </AlertDialogContent>
                    </AlertDialog>
                 </CardFooter>
               </Card>
