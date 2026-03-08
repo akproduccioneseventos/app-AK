@@ -77,9 +77,11 @@ function AsignacionMesasContent() {
   }, [loadData]);
   
   const handleSeatingModeChange = async (mode: 'numerada' | 'mixta' | 'libre') => {
-    if (!fiestaId || !fiesta?.decoracion) return;
+    if (!fiestaId || !fiesta) return;
     
-    const updatedDecoracion = { ...fiesta.decoracion, seatingMode: mode };
+    // Si no hay objeto decoracion, creamos uno base
+    const currentDecoracion = fiesta.decoracion || { salonElements: [], pixelsPerMeter: 40, salonWidth: 15, salonHeight: 15 };
+    const updatedDecoracion = { ...currentDecoracion, seatingMode: mode };
     
     // Optimistic UI update
     setFiesta({ ...fiesta, decoracion: updatedDecoracion });
@@ -87,7 +89,7 @@ function AsignacionMesasContent() {
     try {
         const result = await updateDecoracionFiestaActual(fiestaId, updatedDecoracion);
         if (result.success) {
-            toast({ title: "Modo de asignación actualizado" });
+            toast({ title: "Modo de asignación actualizado", description: `Cambiado a: ${mode === 'numerada' ? 'Mesas Numeradas' : mode === 'mixta' ? 'Distribución Mixta' : 'Ubicación Libre'}` });
         } else throw new Error(result.error);
     } catch (e: any) {
         toast({ title: "Error al guardar modo", description: e.message, variant: "destructive" });
@@ -242,30 +244,39 @@ function AsignacionMesasContent() {
                         onValueChange={(v) => handleSeatingModeChange(v as any)}
                         className="grid grid-cols-1 md:grid-cols-3 gap-4"
                     >
-                        <div className={cn(
-                            "flex items-start space-x-3 p-4 border-2 rounded-2xl bg-white transition-all cursor-pointer",
-                            seatingMode === 'numerada' ? "border-primary shadow-md" : "border-slate-100 hover:border-primary/30"
-                        )}>
+                        <div 
+                            onClick={() => handleSeatingModeChange('numerada')}
+                            className={cn(
+                                "flex items-start space-x-3 p-4 border-2 rounded-2xl bg-white transition-all cursor-pointer",
+                                seatingMode === 'numerada' ? "border-primary shadow-md" : "border-slate-100 hover:border-primary/30"
+                            )}
+                        >
                             <RadioGroupItem value="numerada" id="mode-numerada" className="mt-1" />
                             <Label htmlFor="mode-numerada" className="cursor-pointer">
                                 <p className="font-bold text-sm">Mesas Numeradas</p>
                                 <p className="text-[10px] text-muted-foreground uppercase leading-tight mt-1">Todos los invitados tienen un lugar asignado.</p>
                             </Label>
                         </div>
-                        <div className={cn(
-                            "flex items-start space-x-3 p-4 border-2 rounded-2xl bg-white transition-all cursor-pointer",
-                            seatingMode === 'mixta' ? "border-primary shadow-md" : "border-slate-100 hover:border-primary/30"
-                        )}>
+                        <div 
+                            onClick={() => handleSeatingModeChange('mixta')}
+                            className={cn(
+                                "flex items-start space-x-3 p-4 border-2 rounded-2xl bg-white transition-all cursor-pointer",
+                                seatingMode === 'mixta' ? "border-primary shadow-md" : "border-slate-100 hover:border-primary/30"
+                            )}
+                        >
                             <RadioGroupItem value="mixta" id="mode-mixta" className="mt-1" />
                             <Label htmlFor="mode-mixta" className="cursor-pointer">
                                 <p className="font-bold text-sm">Distribución Mixta</p>
                                 <p className="text-[10px] text-muted-foreground uppercase leading-tight mt-1">Mesas reservadas y zonas de ubicación libre.</p>
                             </Label>
                         </div>
-                        <div className={cn(
-                            "flex items-start space-x-3 p-4 border-2 rounded-2xl bg-white transition-all cursor-pointer",
-                            seatingMode === 'libre' ? "border-primary shadow-md" : "border-slate-100 hover:border-primary/30"
-                        )}>
+                        <div 
+                            onClick={() => handleSeatingModeChange('libre')}
+                            className={cn(
+                                "flex items-start space-x-3 p-4 border-2 rounded-2xl bg-white transition-all cursor-pointer",
+                                seatingMode === 'libre' ? "border-primary shadow-md" : "border-slate-100 hover:border-primary/30"
+                            )}
+                        >
                             <RadioGroupItem value="libre" id="mode-libre" className="mt-1" />
                             <Label htmlFor="mode-libre" className="cursor-pointer">
                                 <p className="font-bold text-sm">Ubicación Libre</p>
