@@ -10,7 +10,7 @@ import {
     ListChecks, DollarSign, Camera, Gift, Archive, 
     Video, Globe, MessageSquare, LayoutDashboard, Star, Calculator, ShoppingCart, 
     ClipboardList, QrCode, Printer, Settings2, KeyRound, ClipboardCheck, ArrowRight, MapPin,
-    ArrowLeft
+    ArrowLeft, Clock
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateModulosContratadosFiestaActual, type FiestaEnPlanificacion, type ModulosContratados } from '../../actions/fiesta-actual';
