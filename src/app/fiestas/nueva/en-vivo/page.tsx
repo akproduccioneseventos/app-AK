@@ -1,14 +1,16 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, Suspense, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
     Zap, Loader2, AlertTriangle, Clock, CheckCircle2, Truck, Users, 
     Smartphone, Phone, MapPin, PartyPopper, Bell, RefreshCw, 
-    ArrowLeft, ClipboardList, Info, CircleAlert, Check, X, ShieldAlert, PackageSearch, RotateCcw
+    ArrowLeft, ClipboardList, Info, CircleAlert, Check, X, ShieldAlert, 
+    PackageSearch, RotateCcw, Share2, Camera, Wallet, ChefHat, 
+    ShoppingCart, PlusCircle
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateProgramaFiestaActual } from '@/app/actions/fiesta-actual';
@@ -18,6 +20,7 @@ import {
 } from '@/app/actions/fiesta/live.actions';
 import { getEmpleados } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
+import { getInvoiceById } from '@/app/actions/invoices';
 import type { FiestaEnPlanificacion, Empleado, Rol, ProgramaEventoItem } from '@/types/fiesta';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -36,9 +39,11 @@ function LiveEventDashboardContent() {
     const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
     const [empleados, setEmpleados] = useState<Empleado[]>([]);
     const [roles, setRoles] = useState<Rol[]>([]);
+    const [saldoPendiente, setSaldoPendiente] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const [isActionLoading, setIsActionLoading] = useState<string | null>(null);
     const [incidenteInput, setIncidenteInput] = useState('');
+    const [eventDuration, setEventDuration] = useState('00:00:00');
 
     const loadData = useCallback(async (showLoading = true) => {
         if (!fiestaId) return;
@@ -53,6 +58,19 @@ function LiveEventDashboardContent() {
             setFiesta(fiestaData);
             setEmpleados(empData);
             setRoles(rolesData);
+
+            // Calcular Saldo Pendiente
+            if (fiestaData.invoiceIds && fiestaData.invoiceIds.length > 0) {
+                let totalPagado = 0;
+                for (const id of fiestaData.invoiceIds) {
+                    const inv = await getInvoiceById(id);
+                    if (inv) {
+                        totalPagado += inv.payments?.reduce((s, p) => s + p.amount, 0) || 0;
+                    }
+                }
+                const totalAcordado = fiestaData.configuracion.presupuestoEstimado || 0;
+                setSaldoPendiente(totalAcordado - totalPagado);
+            }
         } catch (e: any) {
             toast({ title: "Error", description: e.message, variant: "destructive" });
         } finally {
@@ -62,9 +80,34 @@ function LiveEventDashboardContent() {
 
     useEffect(() => {
         loadData();
-        const interval = setInterval(() => loadData(false), 5000); 
+        const interval = setInterval(() => loadData(false), 10000); 
         return () => clearInterval(interval);
     }, [loadData]);
+
+    // Timer del evento
+    useEffect(() => {
+        if (!fiesta?.configuracion.fechaEvento) return;
+        const timer = setInterval(() => {
+            const start = new Date(fiesta.configuracion.fechaEvento!);
+            // Si hay hora de inicio, ajustarla
+            if (fiesta.configuracion.horaInicio) {
+                const [h, m] = fiesta.configuracion.horaInicio.split(':').map(Number);
+                start.setHours(h, m, 0, 0);
+            }
+            const now = new Date();
+            const diff = now.getTime() - start.getTime();
+            
+            if (diff > 0) {
+                const hours = Math.floor(diff / 3600000);
+                const minutes = Math.floor((diff % 3600000) / 60000);
+                const seconds = Math.floor((diff % 60000) / 1000);
+                setEventDuration(
+                    `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+                );
+            }
+        }, 1000);
+        return () => clearInterval(timer);
+    }, [fiesta?.configuracion]);
 
     const handleToggleDelivery = async (id: string) => {
         if (!fiestaId) return;
@@ -112,9 +155,18 @@ function LiveEventDashboardContent() {
         (fiesta?.invitados || []).filter(i => i.checkedIn).reduce((s, g) => s + (g.partySize || 1), 0),
     [fiesta?.invitados]);
 
+    const totalCeliacosPresentes = useMemo(() => 
+        (fiesta?.invitados || []).filter(i => i.checkedIn && i.isCeliac).length,
+    [fiesta?.invitados]);
+
     const totalConfirmados = useMemo(() => 
         (fiesta?.invitados || []).filter(i => i.rsvp === 'Confirmado').reduce((s, g) => s + (g.partySize || 1), 0),
     [fiesta?.invitados]);
+
+    const handleShareUtilsLink = () => {
+        const url = `${window.location.origin}/fiestas/nueva/carga-operativa/retorno?fiestaId=${fiestaId}`;
+        window.open(`https://wa.me/?text=${encodeURIComponent('Hola, aquí tienes el enlace para el control de retorno al camión: ' + url)}`, '_blank');
+    };
 
     if (isLoading || !fiesta) {
         return (
@@ -134,13 +186,13 @@ function LiveEventDashboardContent() {
                 {/* HEADER DE COMANDO */}
                 <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-slate-900/50 p-6 rounded-[2rem] border border-white/5 backdrop-blur-xl">
                     <div className="flex items-center gap-5">
-                        <div className="p-4 bg-primary rounded-2xl shadow-2xl shadow-primary/40 text-white animate-pulse">
+                        <div className="p-4 bg-primary rounded-2xl shadow-2xl shadow-primary/40 text-white">
                             <Zap className="w-8 h-8" />
                         </div>
                         <div>
                             <h1 className="text-2xl md:text-4xl font-black tracking-tighter uppercase font-headline">CENTRO DE OPERACIONES</h1>
                             <p className="text-slate-500 font-bold text-sm uppercase tracking-widest flex items-center gap-2">
-                                <MapPin className="w-4 h-4 text-primary"/> {fiesta.configuracion.nombreEvento}
+                                <Clock className="w-4 h-4 text-primary"/> TIEMPO TRANSCURRIDO: <span className="text-white font-mono">{eventDuration}</span>
                             </p>
                         </div>
                     </div>
@@ -155,6 +207,32 @@ function LiveEventDashboardContent() {
                         </Link>
                     </div>
                 </header>
+
+                {/* ALERTAS CRÍTICAS */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {saldoPendiente > 0 && (
+                        <Card className="bg-amber-600 border-none rounded-3xl shadow-xl animate-in fade-in slide-in-from-left-4">
+                            <CardContent className="p-6 flex items-center gap-4 text-white">
+                                <div className="p-3 bg-white/20 rounded-2xl"><Wallet className="w-8 h-8"/></div>
+                                <div>
+                                    <p className="text-[10px] font-black uppercase tracking-widest opacity-70">Saldo por Cobrar Hoy</p>
+                                    <p className="text-2xl font-black">{new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(saldoPendiente)}</p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
+                    {totalCeliacosPresentes > 0 && (
+                        <Card className="bg-blue-600 border-none rounded-3xl shadow-xl animate-in fade-in slide-in-from-right-4">
+                            <CardContent className="p-6 flex items-center gap-4 text-white">
+                                <div className="p-3 bg-white/20 rounded-2xl"><ShieldAlert className="w-8 h-8"/></div>
+                                <div>
+                                    <p className="text-[10px] font-black uppercase tracking-widest opacity-70">Seguridad Alimentaria</p>
+                                    <p className="text-2xl font-black">{totalCeliacosPresentes} Celíacos en Salón</p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
+                </div>
 
                 {/* RADAR DE LLEGADA */}
                 <AnimatePresence>
@@ -187,14 +265,16 @@ function LiveEventDashboardContent() {
 
                     <TabsContent value="operaciones" className="space-y-8">
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                            {/* COLUMNA IZQUIERDA */}
                             <div className="lg:col-span-8 space-y-8">
                                 {/* ENTREGAS */}
                                 <Card className="bg-slate-900/80 border-white/5 shadow-2xl rounded-[2.5rem] overflow-hidden">
-                                    <CardHeader className="bg-white/5 border-b border-white/5 p-6">
+                                    <CardHeader className="bg-white/5 border-b border-white/5 p-6 flex flex-row items-center justify-between">
                                         <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-3">
                                             <Truck className="w-5 h-5 text-primary"/> Recepción Crítica
                                         </CardTitle>
+                                        <Button variant="ghost" size="sm" onClick={() => confirmProtagonistArrival(fiestaId!)} className="text-[9px] font-black uppercase tracking-widest text-primary hover:bg-primary/10 border border-primary/20 rounded-full h-7 px-4">
+                                            Aviso Manual de Llegada
+                                        </Button>
                                     </CardHeader>
                                     <CardContent className="p-6">
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -264,7 +344,6 @@ function LiveEventDashboardContent() {
                                 </Card>
                             </div>
 
-                            {/* COLUMNA DERECHA */}
                             <div className="lg:col-span-4 space-y-8">
                                 <Card className="bg-primary shadow-3xl shadow-primary/20 border-none rounded-[2.5rem] overflow-hidden text-white">
                                     <CardHeader><CardTitle className="text-sm font-black uppercase tracking-widest">Recepción</CardTitle></CardHeader>
@@ -293,20 +372,27 @@ function LiveEventDashboardContent() {
                                 </Card>
 
                                 <Card className="bg-slate-900/80 border-white/5 shadow-2xl rounded-[2.5rem] overflow-hidden">
-                                    <CardHeader className="p-6"><CardTitle className="text-sm font-black uppercase tracking-widest text-rose-500">Bitácora de Incidentes</CardTitle></CardHeader>
+                                    <CardHeader className="p-6 flex flex-row items-center justify-between">
+                                        <CardTitle className="text-sm font-black uppercase tracking-widest text-rose-500">Bitácora de Incidentes</CardTitle>
+                                        <Link href={fiesta.id ? `/evento/social/${fiesta.id}` : '#'} target="_blank">
+                                            <Button variant="ghost" size="sm" className="text-[10px] font-black uppercase text-pink-500 hover:bg-pink-500/10">Muro Social <Camera className="ml-2 w-3 h-3"/></Button>
+                                        </Link>
+                                    </CardHeader>
                                     <CardContent className="p-6 pt-0 space-y-4">
                                         <div className="flex gap-2">
                                             <Input value={incidenteInput} onChange={e => setIncidenteInput(e.target.value)} placeholder="Ej: Rotura cristal mesa 4" className="h-12 rounded-xl bg-white/5 border-white/10" />
                                             <Button onClick={handleAddIncidente} size="icon" className="h-12 w-12 rounded-xl shrink-0"><PlusCircle/></Button>
                                         </div>
-                                        <div className="space-y-2">
-                                            {fiesta.liveState?.incidentes.map(inc => (
-                                                <div key={inc.id} className="p-3 rounded-2xl bg-white/5 border border-white/5 flex justify-between items-center">
-                                                    <span className={cn("text-xs font-bold", inc.resuelto && "line-through opacity-40")}>{inc.descripcion}</span>
-                                                    <Button variant="ghost" size="icon" onClick={() => resolveIncidente(fiestaId!, inc.id)} className={cn("h-8 w-8 rounded-full", inc.resuelto ? "text-emerald-500" : "text-slate-600")}><Check className="w-4 h-4"/></Button>
-                                                </div>
-                                            ))}
-                                        </div>
+                                        <ScrollArea className="h-40">
+                                            <div className="space-y-2">
+                                                {fiesta.liveState?.incidentes.map(inc => (
+                                                    <div key={inc.id} className="p-3 rounded-2xl bg-white/5 border border-white/5 flex justify-between items-center group">
+                                                        <span className={cn("text-xs font-bold", inc.resuelto && "line-through opacity-40")}>{inc.descripcion}</span>
+                                                        <Button variant="ghost" size="icon" onClick={() => resolveIncidente(fiestaId!, inc.id)} className={cn("h-8 w-8 rounded-full", inc.resuelto ? "text-emerald-500" : "text-slate-600")}><Check className="w-4 h-4"/></Button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </ScrollArea>
                                     </CardContent>
                                 </Card>
                             </div>
@@ -315,12 +401,18 @@ function LiveEventDashboardContent() {
 
                     <TabsContent value="retorno" className="space-y-8 animate-in fade-in zoom-in duration-500">
                         <Card className="bg-slate-900/80 border-white/5 shadow-3xl rounded-[2.5rem] overflow-hidden">
-                            <CardHeader className="bg-primary/10 border-b border-white/5 p-8 text-center">
+                            <CardHeader className="bg-primary/10 border-b border-white/5 p-8 text-center relative">
                                 <div className="p-4 bg-primary/20 rounded-3xl w-fit mx-auto mb-4">
                                     <PackageSearch className="w-10 h-10 text-primary" />
                                 </div>
-                                <CardTitle className="text-2xl font-black uppercase tracking-tighter text-white">Logística de Retorno al Depósito</CardTitle>
-                                <CardDescription className="text-slate-400 font-medium mt-2">Toque de Oro 3: Control de recuperación de activos al finalizar el evento.</CardDescription>
+                                <CardTitle className="text-2xl font-black uppercase tracking-tighter text-white">Logística de Retorno</CardTitle>
+                                <CardDescription className="text-slate-400 font-medium mt-2">Control de recuperación de activos al finalizar el evento.</CardDescription>
+                                
+                                <div className="absolute top-8 right-8">
+                                    <Button onClick={handleShareUtilsLink} className="rounded-2xl bg-emerald-600 hover:bg-emerald-700 h-12 px-6 font-black uppercase tracking-widest shadow-xl">
+                                        <Share2 className="w-4 h-4 mr-2"/> Enlace Utileros
+                                    </Button>
+                                </div>
                             </CardHeader>
                             <CardContent className="p-8">
                                 {(!fiesta.listaDeCargaOperativa?.categorias || fiesta.listaDeCargaOperativa.categorias.length === 0) ? (
@@ -368,7 +460,7 @@ function LiveEventDashboardContent() {
                             <CardFooter className="bg-white/5 p-8 flex justify-between items-center border-t border-white/5">
                                 <div className="flex items-center gap-3">
                                     <Info className="w-5 h-5 text-primary"/>
-                                    <p className="text-xs font-medium text-slate-400">Esta lista utiliza como referencia los ítems marcados como "Cargados" por el equipo de utileros.</p>
+                                    <p className="text-xs font-medium text-slate-400">Progreso en tiempo real sincronizado con el personal de carga.</p>
                                 </div>
                                 <div className="text-right">
                                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Recuperación Total</p>
