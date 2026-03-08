@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -173,7 +172,7 @@ export default function GestionMenusPage() {
                   </div>
                   <div className="p-3 border rounded-md bg-primary/10 border-primary/20">
                       <p className="text-xs text-muted-foreground uppercase font-semibold">Precio de Venta</p>
-                      <p className="text-xl font-bold text-primary">$ 390,00</p>
+                      <p className="text-xl font-bold text-primary">$ 251,00</p>
                   </div>
                   <div className="p-3 border rounded-md bg-muted/30">
                       <p className="text-xs text-muted-foreground uppercase font-semibold">Costo Total (100 inv)</p>
@@ -291,7 +290,7 @@ export default function GestionMenusPage() {
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
-                        <AlertDialogHeader><AlertDialogTitle>¿Eliminar Menú?</AlertDialogTitle><AlertDialogDescription>Se eliminará la plantilla "{menu.name}".</AlertDialogDescription></AlertDialogHeader>
+                        <AlertDialogHeader><AlertDialogTitle>¿Eliminar Menú?</AlertDialogTitle><AlertDialogDescription>Se eliminará la plantilla "{menu.name}".</AlertDialogDescription></AccordionHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancelar</AlertDialogCancel>
                           <AlertDialogAction onClick={() => handleDelete(menu.id, menu.name)} className="bg-destructive hover:bg-destructive/80">Eliminar</AlertDialogAction>

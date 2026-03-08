@@ -19,10 +19,62 @@
       "nombreDisplay": "Barra de Tragos",
       "activada": true,
       "items": [
-        { "id": "beb-5", "nombre": "Fernet", "cantidadNecesaria": 0.04, "unidadCantidad": "Litros", "costoUnitario": 400, "costoTotal": 16, "origenId": "ing-fernet" },
-        { "id": "beb-12", "nombre": "Vodka", "cantidadNecesaria": 0.03, "unidadCantidad": "Litros", "costoUnitario": 280, "costoTotal": 8.4, "origenId": "ing-vodka" }
+        { "id": "beb-lic-frutilla", "nombre": "Licor de Frutilla", "cantidadNecesaria": 0.02, "unidadCantidad": "Litros", "costoUnitario": 300, "costoTotal": 6, "origenId": "ing-lic-frutilla" },
+        { "id": "beb-lic-durazno", "nombre": "Licor de Durazno", "cantidadNecesaria": 0.02, "unidadCantidad": "Litros", "costoUnitario": 300, "costoTotal": 6, "origenId": "ing-lic-durazno" },
+        { "id": "beb-jugo-durazno", "nombre": "Jugo de Durazno", "cantidadNecesaria": 0.02, "unidadCantidad": "Litros", "costoUnitario": 50, "costoTotal": 1, "origenId": "ing-jugo-durazno" },
+        { "id": "beb-lic-blue", "nombre": "Licor blue", "cantidadNecesaria": 0.02, "unidadCantidad": "Litros", "costoUnitario": 300, "costoTotal": 6, "origenId": "ing-lic-blue" },
+        { "id": "beb-fernet", "nombre": "Fernet", "cantidadNecesaria": 0.04, "unidadCantidad": "Litros", "costoUnitario": 400, "costoTotal": 16, "origenId": "ing-fernet" },
+        { "id": "beb-granadina", "nombre": "Granadina", "cantidadNecesaria": 0.01, "unidadCantidad": "Litros", "costoUnitario": 220, "costoTotal": 2.2, "origenId": "ing-granadina" },
+        { "id": "beb-lata-durazno", "nombre": "Lata durazno", "cantidadNecesaria": 0.03, "unidadCantidad": "Unidades", "costoUnitario": 80, "costoTotal": 2.4, "origenId": "ing-lata-durazno" },
+        { "id": "beb-lata-anana", "nombre": "lata anana", "cantidadNecesaria": 0.05, "unidadCantidad": "Unidades", "costoUnitario": 117, "costoTotal": 5.85, "origenId": "ing-lata-anana" },
+        { "id": "beb-pepsi", "nombre": "Pepsi", "cantidadNecesaria": 0.14, "unidadCantidad": "Litros", "costoUnitario": 90, "costoTotal": 12.6, "origenId": "ing-pepsi" },
+        { "id": "beb-vasos-sorvitos", "nombre": "vasos y sorvitos", "cantidadNecesaria": 3, "unidadCantidad": "Unidades", "costoUnitario": 2, "costoTotal": 6, "origenId": "ing-vasos-sorvitos" },
+        { "id": "beb-refresco-lima", "nombre": "Refresco lima barato", "cantidadNecesaria": 0.02, "unidadCantidad": "Litros", "costoUnitario": 65, "costoTotal": 1.3, "origenId": "ing-refresco-lima" },
+        { "id": "beb-vodka", "nombre": "Vodka", "cantidadNecesaria": 0.03, "unidadCantidad": "Litros", "costoUnitario": 280, "costoTotal": 8.4, "origenId": "ing-vodka" },
+        { "id": "beb-ron", "nombre": "Ron", "cantidadNecesaria": 0.02, "unidadCantidad": "Litros", "costoUnitario": 300, "costoTotal": 6, "origenId": "ing-ron" },
+        { "id": "beb-limon", "nombre": "Limon", "cantidadNecesaria": 20, "unidadCantidad": "Gramos", "costoUnitario": 70, "costoTotal": 1.4, "origenId": "ing-limon-barra" },
+        { "id": "beb-frutilla", "nombre": "Frutilla", "cantidadNecesaria": 20, "unidadCantidad": "Gramos", "costoUnitario": 120, "costoTotal": 2.4, "origenId": "ing-frutilla-barra" },
+        { "id": "beb-azucar", "nombre": "Azucar", "cantidadNecesaria": 20, "unidadCantidad": "Gramos", "costoUnitario": 70, "costoTotal": 1.4, "origenId": "ing-azucar-barra" },
+        { "id": "beb-cana", "nombre": "Caña", "cantidadNecesaria": 0.02, "unidadCantidad": "Litros", "costoUnitario": 300, "costoTotal": 6, "origenId": "ing-cana" },
+        { "id": "beb-jugo-naranja", "nombre": "Jugo de naranja", "cantidadNecesaria": 0.1, "unidadCantidad": "Litros", "costoUnitario": 35, "costoTotal": 3.5, "origenId": "ing-jugo-naranja" }
       ],
       "descripcion": "Bebidas blancas y licores para la barra."
+    },
+    {
+      "id": "jugos",
+      "nombreDisplay": "Mesa de jugos naturales",
+      "activada": false,
+      "items": [],
+      "descripcion": "Opciones frutales y refrescantes."
+    },
+    {
+      "id": "aguas_saborizadas",
+      "nombreDisplay": "Aguas Saborizadas y Minerales",
+      "activada": false,
+      "items": [],
+      "descripcion": "Con y sin gas, opciones saborizadas."
+    },
+    {
+      "id": "cervezas",
+      "nombreDisplay": "Cervezas",
+      "activada": false,
+      "items": [],
+      "descripcion": "Variedad de cervezas nacionales e importadas."
+    },
+    {
+      "id": "vinos_espumantes",
+      "nombreDisplay": "Vinos y Espumantes",
+      "activada": false,
+      "items": [],
+      "descripcion": "Selección de tintos, blancos, rosados y espumosos."
+    },
+    {
+      "id": "cafeteria",
+      "nombreDisplay": "Servicio de Cafetería",
+      "activada": false,
+      "items": [],
+      "descripcion": "Café, té, instituciones."
     }
-  ]
+  ],
+  "notasGenerales": ""
 }
