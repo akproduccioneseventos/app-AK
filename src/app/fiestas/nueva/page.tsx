@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
@@ -10,7 +9,8 @@ import {
     Zap, Loader2, AlertTriangle, PartyPopper, Calendar, Users, Palette, ChefHat, Music2, 
     ListChecks, DollarSign, Camera, Gift, FileText, UserCheck, Clock, Archive, PackageSearch, 
     Video, Globe, MessageSquare, LayoutDashboard, Star, Calculator, GlassWater, ShoppingCart, 
-    ClipboardList, QrCode, Printer, Settings2, KeyRound, ClipboardCheck, ArrowRight, MapPin 
+    ClipboardList, QrCode, Printer, Settings2, KeyRound, ClipboardCheck, ArrowRight, MapPin,
+    ArrowLeft
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateModulosContratadosFiestaActual, type FiestaEnPlanificacion, type ModulosContratados } from '../../actions/fiesta-actual';
@@ -170,9 +170,9 @@ function PlannerDashboardContent() {
           <div className="min-w-0">
             <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tighter text-slate-900 font-headline uppercase">{configuracion.nombreEvento}</h1>
             <p className="text-slate-500 font-bold flex flex-wrap items-center gap-2 sm:gap-3 mt-1 text-xs sm:text-base">
-                <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary shrink-0"/> {formatDate(configuracion.fechaEvento)} 
+                <Calendar className="w-3.5 h-3.5 sm:w-4 h-4 text-primary shrink-0"/> {formatDate(configuracion.fechaEvento)} 
                 <span className="text-slate-300 hidden sm:inline">•</span> 
-                <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary shrink-0"/> {configuracion.nombreLugar}
+                <MapPin className="w-3.5 h-3.5 sm:w-4 h-4 text-primary shrink-0"/> {configuracion.nombreLugar}
             </p>
           </div>
         </motion.div>
