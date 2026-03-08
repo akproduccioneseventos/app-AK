@@ -1,9 +1,6 @@
 
 /**
  * @fileOverview Central de Acciones de Servidor para la Planificación de Fiestas.
- * Este archivo actúa como una fachada (proxy) para todos los sub-módulos operativos.
- * Se han refactorizado todas las exportaciones como funciones asíncronas para garantizar
- * la estabilidad del despliegue en Next.js.
  */
 'use server';
 
@@ -50,7 +47,6 @@ import type {
 export async function getFiestaActual() { return await FiestaModule.getFiestaActual(); }
 export async function getHistorialFiestas() { return await FiestaModule.getHistorialFiestas(); }
 export async function getFiestas(includeArchived = true) { return await FiestaModule.getFiestas(includeArchived); }
-export async function getAllFiestas() { return await FiestaModule.getAllFiestas(); }
 export async function archiveFiesta(fiestaId: string) { return await FiestaModule.archiveFiesta(fiestaId); }
 export async function deleteFiestaArchivada(fiestaId: string) { return await FiestaModule.deleteFiestaArchivada(fiestaId); }
 export async function deleteFiesta(fiestaId: string) { return await FiestaModule.deleteFiesta(fiestaId); }

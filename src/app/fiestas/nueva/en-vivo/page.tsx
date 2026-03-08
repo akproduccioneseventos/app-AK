@@ -2,15 +2,15 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, Suspense, useMemo } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
     Zap, Loader2, TriangleAlert, Clock, CircleCheckBig, Truck, Users, 
-    Phone, PartyPopper, Bell, RefreshCw, 
+    PartyPopper, Bell, RefreshCw, 
     ArrowLeft, ClipboardList, Info, Check, X, ShieldAlert, 
-    PackageSearch, RotateCcw, Share2, Camera, Wallet, CirclePlus
+    PackageSearch, RotateCcw, Share2, Wallet, CirclePlus
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateProgramaFiestaActual } from '@/app/actions/fiesta-actual';
@@ -60,7 +60,6 @@ function LiveEventDashboardContent() {
             setEmpleados(empData);
             setRoles(rolesData);
 
-            // Calcular Saldo Pendiente
             if (fiestaData.invoiceIds && fiestaData.invoiceIds.length > 0) {
                 let totalPagado = 0;
                 for (const id of fiestaData.invoiceIds) {
@@ -95,14 +94,11 @@ function LiveEventDashboardContent() {
             }
             const now = new Date();
             const diff = now.getTime() - start.getTime();
-            
             if (diff > 0) {
                 const hours = Math.floor(diff / 3600000);
                 const minutes = Math.floor((diff % 3600000) / 60000);
                 const seconds = Math.floor((diff % 60000) / 1000);
-                setEventDuration(
-                    `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
-                );
+                setEventDuration(`${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`);
             }
         }, 1000);
         return () => clearInterval(timer);
@@ -126,9 +122,7 @@ function LiveEventDashboardContent() {
 
     const handleToggleItineraryItem = async (itemId: string) => {
         if (!fiesta || !fiestaId) return;
-        const updatedPrograma = (fiesta.programa || []).map(p => 
-            p.id === itemId ? { ...p, completado: !p.completado } : p
-        );
+        const updatedPrograma = (fiesta.programa || []).map(p => p.id === itemId ? { ...p, completado: !p.completado } : p);
         const res = await updateProgramaFiestaActual(fiestaId, updatedPrograma);
         if (res.success) await loadData(false);
     };
@@ -136,10 +130,7 @@ function LiveEventDashboardContent() {
     const handleAddIncidente = async () => {
         if (!fiestaId || !incidenteInput.trim()) return;
         const res = await addIncidente(fiestaId, incidenteInput);
-        if (res.success) {
-            setIncidenteInput('');
-            await loadData(false);
-        }
+        if (res.success) { setIncidenteInput(''); await loadData(false); }
     };
 
     const handleToggleReturn = async (catId: string, itemId: string) => {
@@ -150,47 +141,29 @@ function LiveEventDashboardContent() {
         setIsActionLoading(null);
     };
 
-    const asistentesPresentes = useMemo(() => 
-        (fiesta?.invitados || []).filter(i => i.checkedIn).reduce((s, g) => s + (g.partySize || 1), 0),
-    [fiesta?.invitados]);
-
-    const totalCeliacosPresentes = useMemo(() => 
-        (fiesta?.invitados || []).filter(i => i.checkedIn && i.isCeliac).length,
-    [fiesta?.invitados]);
-
-    const totalConfirmados = useMemo(() => 
-        (fiesta?.invitados || []).filter(i => i.rsvp === 'Confirmado').reduce((s, g) => s + (g.partySize || 1), 0),
-    [fiesta?.invitados]);
+    const asistentesPresentes = useMemo(() => (fiesta?.invitados || []).filter(i => i.checkedIn).reduce((s, g) => s + (g.partySize || 1), 0), [fiesta?.invitados]);
+    const totalCeliacosPresentes = useMemo(() => (fiesta?.invitados || []).filter(i => i.checkedIn && i.isCeliac).length, [fiesta?.invitados]);
+    const totalConfirmados = useMemo(() => (fiesta?.invitados || []).filter(i => i.rsvp === 'Confirmado').reduce((s, g) => s + (g.partySize || 1), 0), [fiesta?.invitados]);
 
     const handleShareUtilsLink = () => {
         const url = `${window.location.origin}/fiestas/nueva/carga-operativa/retorno?fiestaId=${fiestaId}`;
         window.open(`https://wa.me/?text=${encodeURIComponent('Hola, aquí tienes el enlace para el control de retorno al camión: ' + url)}`, '_blank');
     };
 
-    if (isLoading || !fiesta) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-screen bg-slate-950 text-white">
-                <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
-                <p className="font-black uppercase tracking-[0.3em] text-slate-500">Iniciando Centro de Mando...</p>
-            </div>
-        );
-    }
+    if (isLoading || !fiesta) return <div className="flex flex-col items-center justify-center min-h-screen bg-slate-950 text-white"><Loader2 className="w-12 h-12 animate-spin text-primary mb-4" /><p className="font-black uppercase tracking-widest text-slate-500">Iniciando Centro de Mando...</p></div>;
 
     const radar = fiesta.liveState?.llegadaProtagonistas;
 
     return (
         <div className="min-h-screen bg-slate-950 text-slate-200 p-4 md:p-8">
             <div className="max-w-7xl mx-auto space-y-8">
-                
                 <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-slate-900/50 p-6 rounded-[2rem] border border-white/5 backdrop-blur-xl">
                     <div className="flex items-center gap-5">
-                        <div className="p-4 bg-primary rounded-2xl shadow-2xl shadow-primary/40 text-white">
-                            <Zap className="w-8 h-8" />
-                        </div>
+                        <div className="p-4 bg-primary rounded-2xl shadow-2xl shadow-primary/40 text-white"><Zap className="w-8 h-8" /></div>
                         <div>
                             <h1 className="text-2xl md:text-4xl font-black tracking-tighter uppercase font-headline">CENTRO DE OPERACIONES</h1>
                             <p className="text-slate-500 font-bold text-sm uppercase tracking-widest flex items-center gap-2">
-                                <Clock className="w-4 h-4 text-primary"/> TIEMPO TRANSCURRIDO: <span className="text-white font-mono">{eventDuration}</span>
+                                <Clock className="w-4 h-4 text-primary"/> JORNADA: <span className="text-white font-mono">{eventDuration}</span>
                             </p>
                         </div>
                     </div>
@@ -211,10 +184,7 @@ function LiveEventDashboardContent() {
                         <Card className="bg-amber-600 border-none rounded-3xl shadow-xl animate-in fade-in slide-in-from-left-4">
                             <CardContent className="p-6 flex items-center gap-4 text-white">
                                 <div className="p-3 bg-white/20 rounded-2xl"><Wallet className="w-8 h-8"/></div>
-                                <div>
-                                    <p className="text-[10px] font-black uppercase tracking-widest opacity-70">Saldo por Cobrar Hoy</p>
-                                    <p className="text-2xl font-black">{new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(saldoPendiente)}</p>
-                                </div>
+                                <div><p className="text-[10px] font-black uppercase tracking-widest opacity-70">Saldo por Cobrar Hoy</p><p className="text-2xl font-black">{new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(saldoPendiente)}</p></div>
                             </CardContent>
                         </Card>
                     )}
@@ -222,10 +192,7 @@ function LiveEventDashboardContent() {
                         <Card className="bg-blue-600 border-none rounded-3xl shadow-xl animate-in fade-in slide-in-from-right-4">
                             <CardContent className="p-6 flex items-center gap-4 text-white">
                                 <div className="p-3 bg-white/20 rounded-2xl"><ShieldAlert className="w-8 h-8"/></div>
-                                <div>
-                                    <p className="text-[10px] font-black uppercase tracking-widest opacity-70">Seguridad Alimentaria</p>
-                                    <p className="text-2xl font-black">{totalCeliacosPresentes} Celíacos en Salón</p>
-                                </div>
+                                <div><p className="text-[10px] font-black uppercase tracking-widest opacity-70">Seguridad Alimentaria</p><p className="text-2xl font-black">{totalCeliacosPresentes} Celíacos en Salón</p></div>
                             </CardContent>
                         </Card>
                     )}
@@ -235,19 +202,8 @@ function LiveEventDashboardContent() {
                     {radar?.enCamino && (
                         <Card className="bg-rose-600 border-none shadow-[0_0_50px_rgba(225,29,72,0.5)] rounded-[2.5rem] overflow-hidden animate-pulse">
                             <CardContent className="p-8 flex flex-col md:flex-row items-center justify-between gap-6 text-white">
-                                <div className="flex items-center gap-6">
-                                    <div className="p-5 bg-white rounded-3xl text-rose-600 shadow-xl">
-                                        <Bell className="w-10 h-10 animate-bounce" />
-                                    </div>
-                                    <div>
-                                        <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter">¡ESTÁN LLEGANDO!</h2>
-                                        <p className="text-lg font-bold opacity-80 mt-2">Aviso recibido a las {new Date(radar.timestampAviso!).toLocaleTimeString('es-ES')}</p>
-                                    </div>
-                                </div>
-                                <div className="flex gap-3">
-                                    <Button onClick={() => confirmProtagonistArrival(fiestaId!)} className="h-16 px-10 rounded-2xl bg-white text-rose-600 hover:bg-slate-100 font-black text-lg shadow-2xl">CONFIRMAR LLEGADA</Button>
-                                    <Button onClick={() => resetArrivalRadar(fiestaId!)} variant="ghost" className="h-16 px-6 rounded-2xl text-white hover:bg-black/20"><X className="w-6 h-6"/></Button>
-                                </div>
+                                <div className="flex items-center gap-6"><div className="p-5 bg-white rounded-3xl text-rose-600 shadow-xl"><Bell className="w-10 h-10 animate-bounce" /></div><div><h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter">¡ESTÁN LLEGANDO!</h2><p className="text-lg font-bold opacity-80 mt-2">Aviso recibido a las {new Date(radar.timestampAviso!).toLocaleTimeString('es-ES')}</p></div></div>
+                                <div className="flex gap-3"><Button onClick={() => confirmProtagonistArrival(fiestaId!)} className="h-16 px-10 rounded-2xl bg-white text-rose-600 hover:bg-slate-100 font-black text-lg shadow-2xl">CONFIRMAR LLEGADA</Button><Button onClick={() => resetArrivalRadar(fiestaId!)} variant="ghost" className="h-16 px-6 rounded-2xl text-white hover:bg-black/20"><X className="w-6 h-6"/></Button></div>
                             </CardContent>
                         </Card>
                     )}
@@ -264,32 +220,15 @@ function LiveEventDashboardContent() {
                             <div className="lg:col-span-8 space-y-8">
                                 <Card className="bg-slate-900/80 border-white/5 shadow-2xl rounded-[2.5rem] overflow-hidden">
                                     <CardHeader className="bg-white/5 border-b border-white/5 p-6 flex flex-row items-center justify-between">
-                                        <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-3">
-                                            <Truck className="w-5 h-5 text-primary"/> Recepción Crítica
-                                        </CardTitle>
-                                        <Button variant="ghost" size="sm" onClick={() => confirmProtagonistArrival(fiestaId!)} className="text-[9px] font-black uppercase tracking-widest text-primary hover:bg-primary/10 border border-primary/20 rounded-full h-7 px-4">
-                                            Aviso Manual de Llegada
-                                        </Button>
+                                        <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-3"><Truck className="w-5 h-5 text-primary"/> Recepción Crítica</CardTitle>
+                                        <Button variant="ghost" size="sm" onClick={() => confirmProtagonistArrival(fiestaId!)} className="text-[9px] font-black uppercase tracking-widest text-primary hover:bg-primary/10 border border-primary/20 rounded-full h-7 px-4">Aviso Manual Llegada</Button>
                                     </CardHeader>
                                     <CardContent className="p-6">
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                             {fiesta.liveState?.entregas.map(entrega => (
-                                                <button 
-                                                    key={entrega.id}
-                                                    onClick={() => handleToggleDelivery(entrega.id)}
-                                                    className={cn(
-                                                        "p-5 rounded-3xl border-2 transition-all text-left flex flex-col gap-2",
-                                                        entrega.llego ? "bg-emerald-500/10 border-emerald-500/50" : "bg-slate-800/50 border-white/5"
-                                                    )}
-                                                >
-                                                    <div className="flex justify-between items-start">
-                                                        <div className={cn("p-2 rounded-xl", entrega.llego ? "bg-emerald-500 text-white" : "bg-slate-700 text-slate-400")}>
-                                                            {entrega.llego ? <CircleCheckBig className="w-5 h-5"/> : <Clock className="w-5 h-5"/>}
-                                                        </div>
-                                                        <span className="text-[10px] font-black uppercase opacity-40">{entrega.horaEstimada} HS</span>
-                                                    </div>
-                                                    <p className="font-bold text-lg mt-2">{entrega.nombre}</p>
-                                                    <p className="text-[10px] uppercase font-black text-slate-500">{entrega.proveedor}</p>
+                                                <button key={entrega.id} onClick={() => handleToggleDelivery(entrega.id)} className={cn("p-5 rounded-3xl border-2 transition-all text-left flex flex-col gap-2", entrega.llego ? "bg-emerald-500/10 border-emerald-500/50" : "bg-slate-800/50 border-white/5")}>
+                                                    <div className="flex justify-between items-start"><div className={cn("p-2 rounded-xl", entrega.llego ? "bg-emerald-500 text-white" : "bg-slate-700 text-slate-400")}>{entrega.llego ? <CircleCheckBig className="w-5 h-5"/> : <Clock className="w-5 h-5"/>}</div><span className="text-[10px] font-black uppercase opacity-40">{entrega.horaEstimada} HS</span></div>
+                                                    <p className="font-bold text-lg mt-2">{entrega.nombre}</p><p className="text-[10px] uppercase font-black text-slate-500">{entrega.proveedor}</p>
                                                 </button>
                                             ))}
                                         </div>
@@ -297,34 +236,18 @@ function LiveEventDashboardContent() {
                                 </Card>
 
                                 <Card className="bg-slate-900/80 border-white/5 shadow-2xl rounded-[2.5rem] overflow-hidden">
-                                    <CardHeader className="bg-white/5 border-b border-white/5 p-6">
-                                        <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-3">
-                                            <Users className="w-5 h-5 text-primary"/> Checklist de Personal
-                                        </CardTitle>
-                                    </CardHeader>
+                                    <CardHeader className="bg-white/5 border-b border-white/5 p-6"><CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-3"><Users className="w-5 h-5 text-primary"/> Checklist de Personal</CardTitle></CardHeader>
                                     <CardContent className="p-0">
                                         <Table>
-                                            <TableHeader className="bg-white/5">
-                                                <TableRow className="border-white/5">
-                                                    <TableHead className="text-[10px] uppercase font-black text-slate-500 pl-8">Empleado</TableHead>
-                                                    <TableHead className="text-center text-[10px] uppercase font-black text-slate-500">Estado</TableHead>
-                                                </TableRow>
-                                            </TableHeader>
+                                            <TableHeader className="bg-white/5"><TableRow className="border-white/5"><TableHead className="text-[10px] uppercase font-black text-slate-500 pl-8">Empleado</TableHead><TableHead className="text-center text-[10px] uppercase font-black text-slate-500">Estado</TableHead></TableRow></TableHeader>
                                             <TableBody>
                                                 {fiesta.personalAsignado?.map(pa => {
                                                     const emp = empleados.find(e => e.id === pa.empleadoId);
                                                     const status = fiesta.liveState?.staffCheckIn?.[pa.empleadoId] || { llego: false };
                                                     return (
                                                         <TableRow key={pa.empleadoId} className="border-white/5 hover:bg-white/5">
-                                                            <TableCell className="pl-8 py-4">
-                                                                <p className="font-bold text-white">{emp?.nombre || 'N/A'}</p>
-                                                                <p className="text-[10px] uppercase font-black text-primary/60">{roles.find(r=>r.id===pa.rolId)?.nombre}</p>
-                                                            </TableCell>
-                                                            <TableCell className="text-center">
-                                                                <button onClick={() => handleStaffCheckIn(pa.empleadoId, status.llego)} className={cn("h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest", status.llego ? "bg-emerald-500/20 text-emerald-500" : "bg-slate-800 text-slate-500")}>
-                                                                    {status.llego ? 'Presente' : 'Pendiente'}
-                                                                </button>
-                                                            </TableCell>
+                                                            <TableCell className="pl-8 py-4"><p className="font-bold text-white">{emp?.nombre || 'N/A'}</p><p className="text-[10px] uppercase font-black text-primary/60">{roles.find(r=>r.id===pa.rolId)?.nombre}</p></TableCell>
+                                                            <TableCell className="text-center"><button onClick={() => handleStaffCheckIn(pa.empleadoId, status.llego)} className={cn("h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest", status.llego ? "bg-emerald-500/20 text-emerald-500" : "bg-slate-800 text-slate-500")}>{status.llego ? 'Presente' : 'Pendiente'}</button></TableCell>
                                                         </TableRow>
                                                     );
                                                 })}
@@ -344,17 +267,12 @@ function LiveEventDashboardContent() {
                                 </Card>
 
                                 <Card className="bg-slate-900/80 border-white/5 shadow-2xl rounded-[2.5rem] overflow-hidden">
-                                    <CardHeader className="bg-white/5 border-b border-white/5 p-6">
-                                        <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-3">
-                                            <PartyPopper className="w-5 h-5 text-primary"/> Hitos del Itinerario
-                                        </CardTitle>
-                                    </CardHeader>
+                                    <CardHeader className="bg-white/5 border-b border-white/5 p-6"><CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-3"><PartyPopper className="w-5 h-5 text-primary"/> Hitos del Itinerario</CardTitle></CardHeader>
                                     <CardContent className="p-6">
                                         <div className="space-y-4">
                                             {fiesta.programa?.map(item => (
                                                 <button key={item.id} onClick={() => handleToggleItineraryItem(item.id)} className={cn("w-full p-4 rounded-2xl flex items-center justify-between transition-all", item.completado ? "bg-emerald-500/10 text-emerald-500" : "bg-white/5 text-slate-400 hover:bg-white/10")}>
-                                                    <span className="font-bold text-sm">{item.titulo}</span>
-                                                    <span className="text-xs font-black">{item.hora}</span>
+                                                    <span className="font-bold text-sm">{item.titulo}</span><span className="text-xs font-black">{item.hora}</span>
                                                 </button>
                                             ))}
                                         </div>
@@ -362,9 +280,7 @@ function LiveEventDashboardContent() {
                                 </Card>
 
                                 <Card className="bg-slate-900/80 border-white/5 shadow-2xl rounded-[2.5rem] overflow-hidden">
-                                    <CardHeader className="p-6 flex flex-row items-center justify-between">
-                                        <CardTitle className="text-sm font-black uppercase tracking-widest text-rose-500">Bitácora de Incidentes</CardTitle>
-                                    </CardHeader>
+                                    <CardHeader className="p-6 flex flex-row items-center justify-between"><CardTitle className="text-sm font-black uppercase tracking-widest text-rose-500">Bitácora de Incidentes</CardTitle></CardHeader>
                                     <CardContent className="p-6 pt-0 space-y-4">
                                         <div className="flex gap-2">
                                             <Input value={incidenteInput} onChange={e => setIncidenteInput(e.target.value)} placeholder="Ej: Rotura cristal mesa 4" className="h-12 rounded-xl bg-white/5 border-white/10" />
@@ -389,9 +305,7 @@ function LiveEventDashboardContent() {
                     <TabsContent value="retorno" className="space-y-8">
                         <Card className="bg-slate-900/80 border-white/5 shadow-3xl rounded-[2.5rem] overflow-hidden">
                             <CardHeader className="bg-primary/10 border-b border-white/5 p-8 text-center relative">
-                                <div className="p-4 bg-primary/20 rounded-3xl w-fit mx-auto mb-4">
-                                    <PackageSearch className="w-10 h-10 text-primary" />
-                                </div>
+                                <div className="p-4 bg-primary/20 rounded-3xl w-fit mx-auto mb-4"><PackageSearch className="w-10 h-10 text-primary" /></div>
                                 <CardTitle className="text-2xl font-black uppercase tracking-tighter text-white">Logística de Retorno</CardTitle>
                                 <div className="absolute top-8 right-8">
                                     <Button onClick={handleShareUtilsLink} className="rounded-2xl bg-emerald-600 hover:bg-emerald-700 h-12 px-6 font-black uppercase tracking-widest shadow-xl">
@@ -401,39 +315,17 @@ function LiveEventDashboardContent() {
                             </CardHeader>
                             <CardContent className="p-8">
                                 {(!fiesta.listaDeCargaOperativa?.categorias || fiesta.listaDeCargaOperativa.categorias.length === 0) ? (
-                                    <div className="text-center py-20 bg-black/20 rounded-3xl border border-dashed border-white/10">
-                                        <p className="text-slate-500 font-bold uppercase tracking-widest text-sm">No hay una lista de carga base.</p>
-                                    </div>
+                                    <div className="text-center py-20 bg-black/20 rounded-3xl border border-dashed border-white/10"><p className="text-slate-500 font-bold uppercase tracking-widest text-sm">No hay una lista de carga base.</p></div>
                                 ) : (
                                     <div className="space-y-10">
                                         {fiesta.listaDeCargaOperativa.categorias.map(cat => (
                                             <div key={cat.id} className="space-y-4">
-                                                <h3 className="text-xs font-black uppercase tracking-[0.3em] text-primary flex items-center gap-3">
-                                                    <div className="w-1 h-4 bg-primary rounded-full"></div>
-                                                    {cat.nombre}
-                                                </h3>
+                                                <h3 className="text-xs font-black uppercase tracking-[0.3em] text-primary flex items-center gap-3"><div className="w-1 h-4 bg-primary rounded-full"></div>{cat.nombre}</h3>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                                     {cat.items.map(item => (
-                                                        <button 
-                                                            key={item.id} 
-                                                            onClick={() => handleToggleReturn(cat.id, item.id)}
-                                                            className={cn(
-                                                                "p-5 rounded-3xl border-2 transition-all text-left flex items-center justify-between group",
-                                                                item.retornado 
-                                                                    ? "bg-emerald-500/10 border-emerald-500/50" 
-                                                                    : "bg-slate-800/50 border-white/5 hover:border-primary/30"
-                                                            )}
-                                                        >
-                                                            <div className="flex flex-col">
-                                                                <span className={cn("font-bold text-lg", item.retornado ? "text-emerald-500 line-through opacity-60" : "text-white")}>{item.nombre}</span>
-                                                                <span className="text-[10px] font-black uppercase tracking-widest opacity-40">CANT: {item.cantidad}</span>
-                                                            </div>
-                                                            <div className={cn(
-                                                                "w-10 h-10 rounded-2xl flex items-center justify-center transition-all",
-                                                                item.retornado ? "bg-emerald-500 text-white" : "bg-slate-700 text-slate-500"
-                                                            )}>
-                                                                {item.retornado ? <Check className="w-6 h-6"/> : <RotateCcw className="w-5 h-5"/>}
-                                                            </div>
+                                                        <button key={item.id} onClick={() => handleToggleReturn(cat.id, item.id)} className={cn("p-5 rounded-3xl border-2 transition-all text-left flex items-center justify-between group", item.retornado ? "bg-emerald-500/10 border-emerald-500/50" : "bg-slate-800/50 border-white/5 hover:border-primary/30")}>
+                                                            <div className="flex flex-col"><span className={cn("font-bold text-lg", item.retornado ? "text-emerald-500 line-through opacity-60" : "text-white")}>{item.nombre}</span><span className="text-[10px] font-black uppercase tracking-widest opacity-40">CANT: {item.cantidad}</span></div>
+                                                            <div className={cn("w-10 h-10 rounded-2xl flex items-center justify-center transition-all", item.retornado ? "bg-emerald-500 text-white" : "bg-slate-700 text-slate-500")}>{item.retornado ? <Check className="w-6 h-6"/> : <RotateCcw className="w-5 h-5"/>}</div>
                                                         </button>
                                                     ))}
                                                 </div>

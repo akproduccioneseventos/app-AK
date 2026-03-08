@@ -593,7 +593,7 @@ export interface FiestaEnPlanificacion {
   videoVida?: VideoVidaData;
   programa?: ProgramaEventoItem[];
   fotografiaYFilmacion?: FotografiaYFilmacionData;
-  otrosDocumentos?: OtroDocumento[];
+  othersDocumentos?: OtroDocumento[];
   pagosProveedores?: PagoProveedor[];
   estadosCompra?: CompraProveedorEstado[];
   generadoDesdeHistorico?: boolean; 

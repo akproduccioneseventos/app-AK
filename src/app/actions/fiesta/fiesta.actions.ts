@@ -1,12 +1,10 @@
 
 /**
  * @fileOverview Acciones nucleares para la persistencia de archivos de fiesta.
- * Centraliza el guardado, borrado y archivo de los archivos JSON de cada evento.
  */
 'use server';
 
 import type { FiestaEnPlanificacion, MenuMesaData, NumerosMesaData } from '@/types/fiesta';
-import type { Customer } from '@/types/customer';
 import { initialFiestaActualData } from '@/lib/fiesta-defaults';
 import { readData, writeData } from '@/lib/data-service';
 import path from 'path';
@@ -14,15 +12,6 @@ import fs from 'fs/promises';
 
 const FIESTAS_DIR = 'fiestas';
 const ARCHIVE_DIR = 'archive';
-const EXAMPLE_FIESTA_FILE = 'fiestas/fiesta_actual_ejemplo.json';
-
-// --- UTILIDADES ---
-
-async function ensureFiestasDirectories() {
-    const dataDir = path.join(process.cwd(), 'src', 'data');
-    await fs.mkdir(path.join(dataDir, FIESTAS_DIR), { recursive: true });
-    await fs.mkdir(path.join(dataDir, ARCHIVE_DIR), { recursive: true });
-}
 
 // --- ACCIONES DE LECTURA ---
 
@@ -65,18 +54,10 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
     if (all.length > 0) {
         return all.sort((a,b) => new Date(b.configuracion.fechaEvento || 0).getTime() - new Date(a.configuracion.fechaEvento || 0).getTime())[0];
     }
-    try {
-        return await readData<FiestaEnPlanificacion>(EXAMPLE_FIESTA_FILE, initialFiestaActualData);
-    } catch {
-         return { ...initialFiestaActualData, id: `fiesta_placeholder_${Date.now()}`};
-    }
+    return { ...initialFiestaActualData, id: `fiesta_${Date.now()}`};
 }
 
-export async function getAllFiestas(): Promise<FiestaEnPlanificacion[]> {
-  return await getFiestas(true);
-}
-
-// --- ACCIONES DE ESCRITURA Y MANTENIMIENTO ---
+// --- ACCIONES DE ESCRITURA ---
 
 export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ success: boolean; fiesta?: FiestaEnPlanificacion; error?: string }> {
   try {
@@ -84,8 +65,18 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
     await writeData(filePath, fiestaData);
     return { success: true, fiesta: fiestaData };
   } catch (error: any) {
-    return { success: false, error: "No se pudo guardar el archivo del evento." };
+    return { success: false, error: "No se pudo guardar el evento." };
   }
+}
+
+export async function getFiestaById(fiestaId: string): Promise<FiestaEnPlanificacion | null> {
+    const activePath = path.join(FIESTAS_DIR, `${fiestaId}.json`);
+    try {
+        const active = await readData<FiestaEnPlanificacion | null>(activePath, null);
+        if (active && active.id === fiestaId) return active;
+    } catch (e) {}
+    const archivadas = await getHistorialFiestas();
+    return archivadas.find(f => f.id === fiestaId) || null;
 }
 
 export async function deleteFiesta(fiestaId: string): Promise<{ success: boolean; error?: string }> {
@@ -107,11 +98,8 @@ export async function archiveFiesta(fiestaId: string): Promise<{ success: boolea
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) throw new Error("Evento no encontrado.");
-    
     const datePart = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento).toISOString().split('T')[0] : 'sin-fecha';
-    const namePart = fiesta.configuracion.nombreEvento.replace(/[^a-z0-9]/gi, '_').toLowerCase().substring(0, 20);
-    const archiveFilename = `fiesta_archivada_${datePart}_${namePart}_${fiesta.id}.json`;
-    
+    const archiveFilename = `fiesta_archivada_${datePart}_${fiesta.id}.json`;
     await writeData(path.join(ARCHIVE_DIR, archiveFilename), fiesta);
     await deleteFiesta(fiestaId);
     return { success: true };
@@ -129,7 +117,7 @@ export async function deleteFiestaArchivada(fiestaId: string): Promise<{ success
         await fs.unlink(path.join(dataDir, fileToDelete));
         return { success: true };
     }
-    return { success: false, error: "Archivo archivado no encontrado." };
+    return { success: false, error: "Archivo no encontrado." };
   } catch (error: any) {
     return { success: false, error: error.message };
   }
@@ -147,16 +135,6 @@ export async function resetFiestaActual(): Promise<{ success: boolean; error?: s
     }
 }
 
-export async function getFiestaById(fiestaId: string): Promise<FiestaEnPlanificacion | null> {
-    const activePath = path.join(FIESTAS_DIR, `${fiestaId}.json`);
-    try {
-        const active = await readData<FiestaEnPlanificacion | null>(activePath, null);
-        if (active && active.id === fiestaId) return active;
-    } catch (e) {}
-    const archivadas = await getHistorialFiestas();
-    return archivadas.find(f => f.id === fiestaId) || null;
-}
-
 export async function duplicateFiesta(fiestaId: string): Promise<{ success: boolean; newFiestaId?: string; error?: string }> {
   try {
     const original = await getFiestaById(fiestaId);
@@ -165,9 +143,7 @@ export async function duplicateFiesta(fiestaId: string): Promise<{ success: bool
       ...original,
       id: `fiesta_copy_${Date.now()}`,
       configuracion: { ...original.configuracion, nombreEvento: `[COPIA] ${original.configuracion.nombreEvento}` },
-      presupuestoId: undefined,
-      invoiceIds: [],
-      pagosProveedores: [],
+      presupuestoId: undefined, invoiceIds: [], pagosProveedores: [],
     };
     const result = await saveFiesta(newFiesta);
     return result.success ? { success: true, newFiestaId: newFiesta.id } : { success: false, error: result.error };
@@ -175,8 +151,6 @@ export async function duplicateFiesta(fiestaId: string): Promise<{ success: bool
     return { success: false, error: error.message };
   }
 }
-
-// --- ACTUALIZACIONES DE MÓDULOS ESPECÍFICOS ---
 
 export async function addInvoiceId(fiestaId: string, invoiceId: string) {
   const f = await getFiestaById(fiestaId);

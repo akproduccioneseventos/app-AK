@@ -1,15 +1,15 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
-    Zap, Loader2, AlertTriangle, PartyPopper, Calendar, Users, Palette, ChefHat, Music2, 
-    ListChecks, DollarSign, Camera, Gift, FileText, UserCheck, Clock, Archive, PackageSearch, 
-    Video, Globe, MessageSquare, LayoutDashboard, Star, Calculator, GlassWater, ShoppingCart, 
+    Zap, Loader2, AlertTriangle, PartyPopper, Calendar, Users, Palette, 
+    ListChecks, DollarSign, Camera, Gift, Archive, 
+    Video, Globe, MessageSquare, LayoutDashboard, Star, Calculator, ShoppingCart, 
     ClipboardList, QrCode, Printer, Settings2, KeyRound, ClipboardCheck, ArrowRight, MapPin,
     ArrowLeft
 } from 'lucide-react';
@@ -31,44 +31,33 @@ const formatDate = (dateString?: string) => {
     return new Date(dateString).toLocaleDateString('es-ES', {
       day: 'numeric', month: 'long', year: 'numeric'
     });
-  } catch (e) {
-    return "Fecha inválida";
-  }
+  } catch (e) { return "Fecha inválida"; }
 };
 
 const modules = [
-  // Gestión Central
   { id: 'configuracion', title: "Configuración", href: "configuracion", icon: Settings2, description: "Datos maestros del evento.", category: 'Gestión Central', color: "bg-slate-100 text-slate-600" },
   { id: 'resumenPlanificacion', title: "Consolidado", href: "resumen-planificacion", icon: ClipboardCheck, description: "Visión total de lo pactado.", category: 'Gestión Central', color: "bg-primary/10 text-primary" },
   { id: 'tareas', title: "Tareas", href: "tareas", icon: ListChecks, description: "Checklist operativo.", category: 'Gestión Central', color: "bg-slate-100 text-slate-600" },
   { id: 'documentos', title: "Documentos", href: "gestion-documental", icon: Archive, description: "Contratos y expedientes.", category: 'Gestión Central', color: "bg-slate-100 text-slate-600" },
   { id: 'costos', title: "Costos", href: "gestion-costos-rentabilidad", icon: DollarSign, description: "Rentabilidad real.", category: 'Gestión Central', color: "bg-emerald-100 text-emerald-600" },
   { id: 'reuniones', title: "Reuniones", href: "reuniones", icon: MessageSquare, description: "Minutas y acuerdos.", category: 'Gestión Central', color: "bg-blue-100 text-blue-600" },
-  { id: 'resumenImprimible', title: "Para Imprimir", href: "resumen-imprimible", icon: Printer, description: "PDF operativo final.", category: 'Gestión Central', color: "bg-slate-100 text-slate-600" },
   
-  // Planificación del Evento
   { id: 'invitados', title: "Invitados", href: "invitados", icon: Users, description: "Lista y confirmaciones.", category: 'Planificación del Evento', color: "bg-indigo-100 text-indigo-600" },
   { id: 'disenoSalon', title: "Diseño Salón", href: "invitados/layout", icon: LayoutDashboard, description: "Planimetría interactiva.", category: 'Planificación del Evento', color: "bg-indigo-100 text-indigo-600" },
   { id: 'decoracion', title: "Decoración", href: "decoracion", icon: Palette, description: "Estilo y ambientación.", category: 'Planificación del Evento', color: "bg-pink-100 text-pink-600" },
   { id: 'catering', title: "Gastronomía", href: "catering", icon: Calculator, description: "Cálculo de menú e insumos.", category: 'Planificación del Evento', color: "bg-orange-100 text-orange-600" },
-  { id: 'personal', title: "Personal", href: "personal", icon: UserCheck, description: "Asignación de equipo.", category: 'Planificación del Evento', color: "bg-teal-100 text-teal-600" },
   { id: 'cargaOperativa', title: "Carga", href: "carga-operativa", icon: ClipboardList, description: "Logística de traslado.", category: 'Planificación del Evento', color: "bg-slate-100 text-slate-600" },
   { id: 'fotografia', title: "Foto y Video", href: "fotografia", icon: Camera, description: "Seguimiento de entrega.", category: 'Planificación del Evento', color: "bg-purple-100 text-purple-600" },
-  { id: 'musica', title: "Música", href: "musica", icon: Music2, description: "Canciones y ambiente.", category: 'Planificación del Evento', color: "bg-violet-100 text-violet-600" },
   { id: 'itinerario', title: "Itinerario", href: "itinerario", icon: Clock, description: "Cronograma minuto a minuto.", category: 'Planificación del Evento', color: "bg-blue-100 text-blue-600" },
   
-  // Módulo 6: Vivo
   { id: 'enVivo', title: "EVENTO EN VIVO", href: "en-vivo", icon: Zap, description: "Modo táctico para el día de la fiesta.", category: 'Evento en Vivo', color: "bg-primary text-white shadow-xl shadow-primary/30" },
 
-  // Portal del Cliente
   { id: 'portalCliente', title: "Portal Cliente", href: "portal-cliente", icon: KeyRound, description: "Centro de colaboración.", category: 'Portal del Cliente', color: "bg-amber-100 text-amber-600" },
   { id: 'paginaWeb', title: "Invitación Web", href: "pagina-web", icon: Globe, description: "Web pública interactiva.", category: 'Portal del Cliente', color: "bg-blue-100 text-blue-600" },
   { id: 'regalos', title: "Regalos", href: "regalos", icon: Gift, description: "Mesa de regalos digital.", category: 'Portal del Cliente', color: "bg-rose-100 text-rose-600" },
   { id: 'videoVida', title: "Video Vida", href: "video-vida", icon: Video, description: "Carga de fotos de infancia.", category: 'Portal del Cliente', color: "bg-indigo-100 text-indigo-600" },
   { id: 'feedback', title: "Feedback", href: "/settings/feedback", icon: Star, description: "Encuesta post-evento.", category: 'Portal del Cliente', color: "bg-yellow-100 text-yellow-600" },
-  { id: 'mesasCliente', title: "Mesas (Cliente)", href: "/portal/mesas", icon: Users, description: "Organizador para el cliente.", category: 'Portal del Cliente', color: "bg-amber-100 text-amber-600" },
 
-  // Herramientas Adicionales
   { id: 'checkin', title: "Check-in QR", href: "invitados/checkin-scanner", icon: QrCode, description: "Recepción de invitados.", category: 'Herramientas Adicionales', color: "bg-green-100 text-green-600" },
   { id: 'listaCompras', title: "Compras", href: "catering/lista-compras", icon: ShoppingCart, description: "Insumos necesarios.", category: 'Herramientas Adicionales', color: "bg-slate-100 text-slate-600" },
   { id: 'menuMesa', title: "Menú Mesa", href: "menu-mesa", icon: Printer, description: "Diseño impreso.", category: 'Herramientas Adicionales', color: "bg-slate-100 text-slate-600" },
@@ -83,7 +72,6 @@ const moduleCategories = [
     'Herramientas Adicionales',
 ];
 
-
 function PlannerDashboardContent() {
   const { toast } = useToast();
   const router = useRouter();
@@ -96,27 +84,16 @@ function PlannerDashboardContent() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!fiestaId) {
-      router.replace('/eventos');
-      return;
-    }
-
+    if (!fiestaId) { router.replace('/eventos'); return; }
     const loadFiesta = async () => {
       setIsLoading(true);
-      setError(null);
       try {
         const fiestaData = await getFiestaById(fiestaId);
         if (!fiestaData) throw new Error("No se encontró el evento.");
         setFiesta(fiestaData);
-        const savedModules = fiestaData.modulosContratados || {};
-        setModulosContratados({ ...defaultModulosContratados, ...savedModules });
-      } catch (err: any) {
-        setError(err.message || "Error al cargar los datos del evento.");
-      } finally {
-        setIsLoading(false);
-      }
+        setModulosContratados({ ...defaultModulosContratados, ...(fiestaData.modulosContratados || {}) });
+      } catch (err: any) { setError(err.message); } finally { setIsLoading(false); }
     };
-
     loadFiesta();
   }, [fiestaId, router]);
 
@@ -125,100 +102,64 @@ function PlannerDashboardContent() {
     setModulosContratados(updatedModules);
     try {
       if(fiesta) await updateModulosContratadosFiestaActual(fiesta.id, updatedModules);
-    } catch(e: any) {
-        toast({ title: "Error al guardar", variant: "destructive"});
-        setModulosContratados(modulosContratados);
-    }
+    } catch(e: any) { toast({ title: "Error al guardar", variant: "destructive"}); }
   };
-  
- const getLinkHref = (baseHref: string) => {
-    if (!fiesta) return '#';
-    const handlers: Record<string, () => string> = {
-        "/fiestas/nueva/reuniones": () => `/fiestas/nueva/reuniones?fiestaId=${fiesta.id}`,
-        "/fiestas/nueva/portal-cliente": () => `/fiestas/nueva/portal-cliente?fiestaId=${fiesta.id}`,
-        "/portal/mesas": () => `/portal/mesas?fiestaId=${fiesta.id}`
-    };
-    return handlers[baseHref] ? handlers[baseHref]() : baseHref;
- };
 
-  if (isLoading) {
-    return <div className="flex justify-center items-center h-[calc(100vh-200px)]"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
-  }
-  if (error || !fiesta) {
-    return (
-      <div className="text-center py-20 px-4">
-        <AlertTriangle className="w-16 h-16 mx-auto text-destructive mb-4" />
-        <p className="text-xl font-bold text-slate-800">{error || "No se pudo cargar el evento."}</p>
-        <Link href="/eventos" passHref><Button variant="outline" className="mt-6 rounded-xl w-full sm:w-auto"><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Gestor</Button></Link>
-      </div>
-    );
-  }
-
-  const { configuracion } = fiesta;
-  const confirmedGuests = fiesta.invitados?.filter(i => i.rsvp === 'Confirmado').reduce((sum, i) => sum + (i.partySize || 1), 0) || 0;
-  const pendingTasks = fiesta.tareas?.filter(t => !t.completada).length || 0;
+  if (isLoading) return <div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
+  if (error || !fiesta) return <div className="text-center py-20"><AlertTriangle className="mx-auto text-destructive mb-4" /><p>{error || "Error al cargar."}</p></div>;
 
   return (
     <div className="space-y-6 sm:space-y-10 pb-24">
       <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-4 sm:gap-6">
-          <div className="p-4 sm:p-5 bg-primary rounded-[1.5rem] sm:rounded-[2rem] shadow-2xl shadow-primary/30 text-white transform hover:rotate-6 transition-transform duration-500 shrink-0">
-            <PartyPopper className="w-8 h-8 sm:w-10 sm:h-10" />
-          </div>
-          <div className="min-w-0">
-            <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tighter text-slate-900 font-headline uppercase">{configuracion.nombreEvento}</h1>
-            <p className="text-slate-500 font-bold flex flex-wrap items-center gap-2 sm:gap-3 mt-1 text-xs sm:text-base">
-                <Calendar className="w-3.5 h-3.5 sm:w-4 h-4 text-primary shrink-0"/> {formatDate(configuracion.fechaEvento)} 
-                <span className="text-slate-300 hidden sm:inline">•</span> 
-                <MapPin className="w-3.5 h-3.5 sm:w-4 h-4 text-primary shrink-0"/> {configuracion.nombreLugar}
+          <div className="p-4 sm:p-5 bg-primary rounded-[1.5rem] shadow-2xl text-white shrink-0"><PartyPopper className="w-8 h-8 sm:w-10 sm:h-10" /></div>
+          <div>
+            <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tighter text-slate-900 font-headline uppercase">{fiesta.configuracion.nombreEvento}</h1>
+            <p className="text-slate-500 font-bold flex items-center gap-3 mt-1 text-xs sm:text-base">
+                <Calendar className="w-4 h-4 text-primary shrink-0"/> {formatDate(fiesta.configuracion.fechaEvento)} 
+                <MapPin className="w-4 h-4 text-primary shrink-0"/> {fiesta.configuracion.nombreLugar}
             </p>
           </div>
         </motion.div>
         <div className="flex gap-2 w-full sm:w-auto">
             <Link href={`/fiestas/nueva/en-vivo?fiestaId=${fiestaId}`} passHref className="w-full sm:w-auto">
-                <Button className="rounded-2xl px-8 h-12 bg-primary shadow-xl shadow-primary/30 font-black tracking-widest w-full">
+                <Button className="rounded-2xl px-8 h-12 bg-primary shadow-xl font-black tracking-widest w-full">
                     <Zap className="w-4 h-4 mr-3 animate-pulse"/> MODO EN VIVO
                 </Button>
             </Link>
             <Link href="/eventos" passHref className="w-full sm:w-auto">
-                <Button variant="outline" className="rounded-2xl px-8 h-12 border-slate-200 font-bold hover:bg-slate-50 transition-all w-full">
-                    <ArrowLeft className="w-4 h-4 mr-3"/>Volver al Gestor
+                <Button variant="outline" className="rounded-2xl px-8 h-12 border-slate-200 font-bold w-full">
+                    <ArrowLeft className="w-4 h-4 mr-3"/>Volver
                 </Button>
             </Link>
         </div>
       </div>
 
-      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard title="Invitados" value={configuracion.invitadosEstimados.toString()} icon={Users} description={`${confirmedGuests} confirmados`}/>
-        <KpiCard title="Pendientes" value={pendingTasks} icon={ListChecks} />
-        <KpiCard title="Presupuesto" value={new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(Number(configuracion.presupuestoEstimado))} icon={DollarSign} />
-        <KpiCard title="Fecha" value={new Date(configuracion.fechaEvento!).toLocaleDateString('es-ES', {month: 'short', day: 'numeric'})} icon={Calendar} />
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <KpiCard title="Invitados" value={fiesta.configuracion.invitadosEstimados.toString()} icon={Users} />
+        <KpiCard title="Tareas" value={fiesta.tareas?.filter(t => !t.completada).length || 0} icon={ListChecks} />
+        <KpiCard title="Presupuesto" value={new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(Number(fiesta.configuracion.presupuestoEstimado))} icon={DollarSign} />
+        <KpiCard title="Fecha" value={new Date(fiesta.configuracion.fechaEvento!).toLocaleDateString('es-ES', {month: 'short', day: 'numeric'})} icon={Calendar} />
       </div>
 
        <Accordion type="single" collapsible className="w-full">
-        <AccordionItem value="item-1" className="border-none">
-          <AccordionTrigger className="bg-white hover:bg-slate-50 px-4 sm:px-8 h-16 rounded-[1.25rem] sm:rounded-[1.5rem] transition-all premium-shadow border-none">
-            <div className="flex items-center gap-3 text-slate-700 font-black uppercase text-[9px] sm:text-[10px] tracking-widest text-left">
-              <Settings2 className="w-4 h-4 sm:w-5 sm:h-5 text-primary shrink-0"/>
-              Configurar Visibilidad de Módulos
+        <AccordionItem value="settings" className="border-none">
+          <AccordionTrigger className="bg-white hover:bg-slate-50 px-4 h-16 rounded-2xl premium-shadow border-none">
+            <div className="flex items-center gap-3 text-slate-700 font-black uppercase text-[10px] tracking-widest">
+              <Settings2 className="w-5 h-5 text-primary shrink-0"/> Configurar Módulos
             </div>
           </AccordionTrigger>
           <AccordionContent className="pt-6">
-            <div className="p-4 sm:p-8 bg-white/50 backdrop-blur-xl rounded-[1.5rem] sm:rounded-[2rem] border border-slate-200 premium-shadow">
-                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-10">
+            <div className="p-4 sm:p-8 bg-white/50 backdrop-blur-xl rounded-[2rem] border border-slate-200 premium-shadow">
+                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {moduleCategories.map(category => (
-                        <div key={category} className="space-y-4 sm:space-y-5">
-                            <h4 className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 border-b border-primary/10 pb-3">{category}</h4>
+                        <div key={category} className="space-y-4">
+                            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 border-b pb-3">{category}</h4>
                             <div className="space-y-1">
                                 {modules.filter(m => m.category === category).map(module => (
-                                    <div key={`${category}-${module.id}`} className="flex items-center justify-between p-2 sm:p-2.5 hover:bg-white rounded-xl transition-all group">
-                                        <Label htmlFor={`switch-${module.id}`} className="text-xs font-bold text-slate-600 cursor-pointer group-hover:text-primary transition-colors">{module.title}</Label>
-                                        <Switch
-                                            id={`switch-${module.id}`}
-                                            checked={modulosContratados[module.id as keyof ModulosContratados]}
-                                            onCheckedChange={(checked) => handleModuleToggle(module.id as keyof ModulosContratados, checked)}
-                                            className="scale-75 data-[state=checked]:bg-primary"
-                                        />
+                                    <div key={module.id} className="flex items-center justify-between p-2 rounded-xl group hover:bg-white">
+                                        <Label htmlFor={`switch-${module.id}`} className="text-xs font-bold text-slate-600 cursor-pointer group-hover:text-primary">{module.title}</Label>
+                                        <Switch id={`switch-${module.id}`} checked={modulosContratados[module.id as keyof ModulosContratados]} onCheckedChange={(checked) => handleModuleToggle(module.id as keyof ModulosContratados, checked)} className="scale-75" />
                                     </div>
                                 ))}
                             </div>
@@ -235,54 +176,26 @@ function PlannerDashboardContent() {
           {moduleCategories.map((category) => {
             const categoryModules = modules.filter(m => m.category === category && (modulosContratados[m.id as keyof ModulosContratados] || m.id === 'enVivo'));
             if (categoryModules.length === 0) return null;
-
             return (
-              <motion.div 
-                key={category} 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="space-y-6 sm:space-y-8"
-              >
-                <div className="flex items-center gap-4 sm:gap-6 px-2 sm:px-0">
-                    <h3 className="text-xl sm:text-2xl md:text-3xl font-black font-headline text-slate-800 shrink-0 tracking-tighter uppercase">{category}</h3>
-                    <div className="h-px bg-gradient-to-r from-slate-200 to-transparent flex-grow"></div>
-                </div>
+              <motion.div key={category} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="space-y-6">
+                <div className="flex items-center gap-4"><h3 className="text-xl sm:text-2xl md:text-3xl font-black font-headline text-slate-800 shrink-0 tracking-tighter uppercase">{category}</h3><div className="h-px bg-gradient-to-r from-slate-200 to-transparent flex-grow"></div></div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-8">
-                  {categoryModules.map((module, mIdx) => {
-                    const hrefWithId = module.href.startsWith('/') 
-                        ? getLinkHref(module.href)
-                        : `/fiestas/nueva/${module.href}?fiestaId=${fiesta.id}`;
-                    return (
-                      <motion.div
-                        key={`${module.id}-${mIdx}`}
-                        whileHover={{ y: -8 }}
-                        transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                      >
-                        <Link href={hrefWithId} passHref className="block h-full">
-                            <Card className="h-full border-none premium-shadow hover:shadow-primary/10 transition-all duration-500 cursor-pointer flex flex-col group rounded-[1.5rem] sm:rounded-[2.5rem] overflow-hidden bg-white">
-                            <CardHeader className="flex-row items-center gap-4 sm:gap-5 space-y-0 pb-4 p-6 sm:p-8">
-                                <div className={cn("p-3 sm:p-4 rounded-2xl group-hover:rotate-12 transition-all duration-500 shadow-inner shrink-0", module.color)}>
-                                    <module.icon className="w-6 h-6 sm:w-7 sm:h-7" />
-                                </div>
-                                <div className="min-w-0">
-                                    <CardTitle className="text-base sm:text-lg font-black text-slate-800">{module.title}</CardTitle>
-                                    <Badge className="bg-slate-100 text-slate-400 text-[8px] font-black tracking-widest uppercase border-none">Activo</Badge>
-                                </div>
+                  {categoryModules.map((module) => (
+                    <motion.div key={module.id} whileHover={{ y: -8 }}>
+                        <Link href={module.href.startsWith('/') ? `${module.href}?fiestaId=${fiesta.id}` : `/fiestas/nueva/${module.href}?fiestaId=${fiesta.id}`} passHref>
+                            <Card className="h-full border-none premium-shadow hover:shadow-primary/10 transition-all duration-500 cursor-pointer flex flex-col group rounded-[2.5rem] overflow-hidden bg-white">
+                            <CardHeader className="flex-row items-center gap-4 space-y-0 pb-4 p-6 sm:p-8">
+                                <div className={cn("p-3 sm:p-4 rounded-2xl group-hover:rotate-12 transition-all duration-500 shadow-inner shrink-0", module.color)}><module.icon className="w-6 h-6 sm:w-7 sm:h-7" /></div>
+                                <div className="min-w-0"><CardTitle className="text-base sm:text-lg font-black text-slate-800">{module.title}</CardTitle><Badge className="bg-slate-100 text-slate-400 text-[8px] font-black tracking-widest uppercase border-none">Activo</Badge></div>
                             </CardHeader>
-                            <CardContent className="flex-grow pt-0 px-6 sm:px-8 pb-6 sm:pb-8">
-                                <p className="text-[10px] sm:text-xs text-slate-400 leading-relaxed font-bold uppercase tracking-tighter">{module.description}</p>
-                            </CardContent>
+                            <CardContent className="flex-grow pt-0 px-6 sm:px-8 pb-6"><p className="text-[10px] sm:text-xs text-slate-400 font-bold uppercase tracking-tighter">{module.description}</p></CardContent>
                             <CardFooter className="bg-slate-50/50 p-3 sm:p-4 flex justify-end px-6 sm:px-8 border-t border-slate-50">
-                                <Button variant="ghost" size="sm" className="text-primary font-black text-[9px] sm:text-[10px] uppercase tracking-[0.2em] group-hover:bg-primary group-hover:text-white rounded-xl px-4 transition-all duration-500">
-                                    Abrir <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 ml-2 group-hover:translate-x-1 transition-transform"/>
-                                </Button>
+                                <Button variant="ghost" size="sm" className="text-primary font-black text-[10px] uppercase tracking-[0.2em] group-hover:bg-primary group-hover:text-white rounded-xl px-4">Abrir <ArrowRight className="w-3.5 h-3.5 ml-2 group-hover:translate-x-1 transition-transform"/></Button>
                             </CardFooter>
                             </Card>
                         </Link>
-                      </motion.div>
-                    )
-                  })}
+                    </motion.div>
+                  ))}
                 </div>
               </motion.div>
             );
