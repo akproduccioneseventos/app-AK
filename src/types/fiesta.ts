@@ -209,6 +209,7 @@ export interface DecoracionData {
   generalNotesSalonLayout?: string;
   layoutTemplateName?: string;
   pixelsPerMeter?: number; 
+  seatingMode?: 'numerada' | 'mixta' | 'libre';
 }
 
 export interface GiftItem {

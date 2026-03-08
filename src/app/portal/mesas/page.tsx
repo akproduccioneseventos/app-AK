@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
@@ -5,11 +6,11 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, AlertTriangle, Users, Trash2, Edit3, PlusCircle, ArrowLeft, Info, CheckCircle2, UserPlus2, UserMinus, Search, Save, Tag } from 'lucide-react';
+import { Loader2, AlertTriangle, Users, Trash2, Edit3, PlusCircle, ArrowLeft, Info, CheckCircle2, UserPlus2, UserMinus, Search, Save, Tag, Settings2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, Invitado } from '@/types/fiesta';
 import type { CategoriaInvitado } from '@/types/invitado';
-import { getFiestaById, updateInvitadoFiestaActual, deleteInvitadoFiestaActual, addInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaById, updateInvitadoFiestaActual, deleteInvitadoFiestaActual, addInvitadoFiestaActual, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
 import { cn } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -18,6 +19,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   Dialog,
   DialogContent,
@@ -74,6 +76,25 @@ function AsignacionMesasContent() {
     loadData();
   }, [loadData]);
   
+  const handleSeatingModeChange = async (mode: 'numerada' | 'mixta' | 'libre') => {
+    if (!fiestaId || !fiesta?.decoracion) return;
+    
+    const updatedDecoracion = { ...fiesta.decoracion, seatingMode: mode };
+    
+    // Optimistic UI update
+    setFiesta({ ...fiesta, decoracion: updatedDecoracion });
+
+    try {
+        const result = await updateDecoracionFiestaActual(fiestaId, updatedDecoracion);
+        if (result.success) {
+            toast({ title: "Modo de asignación actualizado" });
+        } else throw new Error(result.error);
+    } catch (e: any) {
+        toast({ title: "Error al guardar modo", description: e.message, variant: "destructive" });
+        loadData(); // Revert on error
+    }
+  };
+
   const totalContractedAdults = fiesta ? Number(fiesta.configuracion.invitadosAdultos) || 0 : 0;
   const totalContractedKids = fiesta ? Number(fiesta.configuracion.invitadosNinos) || 0 : 0;
   
@@ -192,6 +213,8 @@ function AsignacionMesasContent() {
     ? ["Familia Novio", "Familia Novia", "Amigos Novio", "Amigos Novia", "Trabajo", "Otros"]
     : ["Familia", "Amigos", "Trabajo", "Otros"];
 
+  const seatingMode = fiesta.decoracion?.seatingMode || 'mixta';
+
   return (
     <div className="min-h-screen bg-muted/30 p-4 md:p-8">
         <div className="max-w-5xl mx-auto space-y-6">
@@ -204,6 +227,54 @@ function AsignacionMesasContent() {
                     <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Portal</Button>
                 </Link>
             </header>
+
+            {/* Modo de Asignación Card */}
+            <Card className="shadow-lg border-primary/20 bg-primary/5">
+                <CardHeader className="pb-3">
+                    <CardTitle className="text-lg font-headline flex items-center gap-2">
+                        <Settings2 className="w-5 h-5 text-primary"/> Modo de Organización del Salón
+                    </CardTitle>
+                    <CardDescription>Define si tus invitados tendrán asientos asignados o ubicación libre.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <RadioGroup 
+                        value={seatingMode} 
+                        onValueChange={(v) => handleSeatingModeChange(v as any)}
+                        className="grid grid-cols-1 md:grid-cols-3 gap-4"
+                    >
+                        <div className={cn(
+                            "flex items-start space-x-3 p-4 border-2 rounded-2xl bg-white transition-all cursor-pointer",
+                            seatingMode === 'numerada' ? "border-primary shadow-md" : "border-slate-100 hover:border-primary/30"
+                        )}>
+                            <RadioGroupItem value="numerada" id="mode-numerada" className="mt-1" />
+                            <Label htmlFor="mode-numerada" className="cursor-pointer">
+                                <p className="font-bold text-sm">Mesas Numeradas</p>
+                                <p className="text-[10px] text-muted-foreground uppercase leading-tight mt-1">Todos los invitados tienen un lugar asignado.</p>
+                            </Label>
+                        </div>
+                        <div className={cn(
+                            "flex items-start space-x-3 p-4 border-2 rounded-2xl bg-white transition-all cursor-pointer",
+                            seatingMode === 'mixta' ? "border-primary shadow-md" : "border-slate-100 hover:border-primary/30"
+                        )}>
+                            <RadioGroupItem value="mixta" id="mode-mixta" className="mt-1" />
+                            <Label htmlFor="mode-mixta" className="cursor-pointer">
+                                <p className="font-bold text-sm">Distribución Mixta</p>
+                                <p className="text-[10px] text-muted-foreground uppercase leading-tight mt-1">Mesas reservadas y zonas de ubicación libre.</p>
+                            </Label>
+                        </div>
+                        <div className={cn(
+                            "flex items-start space-x-3 p-4 border-2 rounded-2xl bg-white transition-all cursor-pointer",
+                            seatingMode === 'libre' ? "border-primary shadow-md" : "border-slate-100 hover:border-primary/30"
+                        )}>
+                            <RadioGroupItem value="libre" id="mode-libre" className="mt-1" />
+                            <Label htmlFor="mode-libre" className="cursor-pointer">
+                                <p className="font-bold text-sm">Ubicación Libre</p>
+                                <p className="text-[10px] text-muted-foreground uppercase leading-tight mt-1">Sin asignación. Los invitados eligen dónde sentarse.</p>
+                            </Label>
+                        </div>
+                    </RadioGroup>
+                </CardContent>
+            </Card>
 
             {/* Cupos Categorizados Card */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -285,21 +356,40 @@ function AsignacionMesasContent() {
                                     {filteredInvitados.map(guest => (
                                         <TableRow key={guest.id}>
                                             <TableCell className="pl-6">
-                                                <p className="font-bold text-sm">{guest.nombre}</p>
+                                                <div className="flex items-center gap-2">
+                                                    <p className="font-bold text-sm">{guest.nombre}</p>
+                                                    {seatingMode === 'numerada' && !guest.tableNumber && (
+                                                        <AlertTriangle className="w-3 h-3 text-rose-500" title="Falta asignar mesa" />
+                                                    )}
+                                                </div>
                                                 <p className="text-[10px] text-muted-foreground uppercase">{guest.categoria}</p>
                                             </TableCell>
                                             <TableCell>
-                                                <Select value={guest.tableNumber || 'sin-mesa'} onValueChange={(val) => handleUpdateGuest({...guest, tableNumber: val === 'sin-mesa' ? undefined : val})}>
-                                                    <SelectTrigger className="h-8 text-xs w-[100px]"><SelectValue /></SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="sin-mesa">Sin Mesa</SelectItem>
-                                                        {availableTables.map(t => <SelectItem key={t.name} value={t.name}>{t.name} ({t.occupied}/{t.seats})</SelectItem>)}
-                                                    </SelectContent>
-                                                </Select>
+                                                {seatingMode === 'libre' ? (
+                                                    <Badge variant="outline" className="text-[10px] text-muted-foreground uppercase bg-slate-50">Libre</Badge>
+                                                ) : (
+                                                    <Select value={guest.tableNumber || 'sin-mesa'} onValueChange={(val) => handleUpdateGuest({...guest, tableNumber: val === 'sin-mesa' ? undefined : val})}>
+                                                        <SelectTrigger className={cn(
+                                                            "h-8 text-xs w-[110px]",
+                                                            !guest.tableNumber && seatingMode === 'numerada' ? "border-rose-300 text-rose-600" : ""
+                                                        )}>
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="sin-mesa">Sin Mesa</SelectItem>
+                                                            {availableTables.map(t => <SelectItem key={t.name} value={t.name}>{t.name} ({t.occupied}/{t.seats})</SelectItem>)}
+                                                        </SelectContent>
+                                                    </Select>
+                                                )}
                                             </TableCell>
                                             <TableCell className="text-right pr-6"><Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDeleteGuest(guest.id)}><Trash2 className="w-4 h-4"/></Button></TableCell>
                                         </TableRow>
                                     ))}
+                                    {filteredInvitados.length === 0 && (
+                                        <TableRow>
+                                            <TableCell colSpan={3} className="py-10 text-center text-muted-foreground italic">No se encontraron invitados.</TableCell>
+                                        </TableRow>
+                                    )}
                                 </TableBody>
                             </Table>
                         </ScrollArea>
