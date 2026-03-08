@@ -272,7 +272,7 @@ export default function GestionMenusPage() {
                 <CardContent className="flex-grow space-y-2">
                    <div className="flex items-center gap-2 text-sm font-semibold">
                       <DollarSign className="w-4 h-4 text-green-600"/>
-                      Costo p/p: {formatCurrency(calculateTotalCostPerPerson(menu.items))}
+                      Costo p/p base: {formatCurrency(calculateTotalCostPerPerson(menu.items))}
                    </div>
                    <div className="text-xs text-muted-foreground">{menu.items.length} plato(s)</div>
                 </CardContent>
@@ -290,7 +290,7 @@ export default function GestionMenusPage() {
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
-                        <AlertDialogHeader><AlertDialogTitle>¿Eliminar Menú?</AlertDialogTitle><AlertDialogDescription>Se eliminará la plantilla "{menu.name}".</AlertDialogDescription></AlertDialogHeader>
+                        <AlertDialogHeader><AlertDialogTitle>¿Eliminar Menú?</AlertDialogTitle><AlertDialogDescription>Se eliminará la plantilla "{menu.name}".</AlertDialogDescription></AccordionHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancelar</AlertDialogCancel>
                           <AlertDialogAction onClick={() => handleDelete(menu.id, menu.name)} className="bg-destructive hover:bg-destructive/80">Eliminar</AlertDialogAction>
