@@ -128,8 +128,8 @@ function PlannerDashboardContent() {
                 </Button>
             </Link>
             <Link href="/eventos" passHref className="w-full sm:w-auto">
-                <Button variant="outline" className="rounded-2xl px-8 h-12 border-slate-200 font-bold w-full">
-                    <ArrowLeft className="w-4 h-4 mr-3"/>Volver
+                <Button variant="outline" className="rounded-2xl px-8 h-12 border-slate-200 font-bold hover:bg-slate-50 transition-all w-full">
+                    <ArrowLeft className="w-4 h-4 mr-3"/>Volver al Gestor
                 </Button>
             </Link>
         </div>

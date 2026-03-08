@@ -1,3 +1,4 @@
+
 'use client';
 
 import { ReactNode, useState, useEffect } from 'react';
@@ -102,6 +103,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/regalos') return 'Lista de Regalos';
   if (pathname === '/fiestas/nueva/resumen-imprimible') return 'Resumen Imprimible del Evento';
   if (pathname === '/fiestas/nueva/pagina-web') return 'Página Pública del Evento';
+  if (pathname === '/fiestas/nueva/en-vivo') return 'Evento en Vivo (Táctico)';
   if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
 
   if (pathname === '/contabilidad/crm') return 'Gestión de Prospectos (CRM)';
@@ -167,6 +169,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/regalos') return Gift;
     if (pathname === '/fiestas/nueva/resumen-imprimible') return Printer;
     if (pathname === '/fiestas/nueva/pagina-web') return Globe;
+    if (pathname === '/fiestas/nueva/en-vivo') return Zap;
     if (pathname === '/planner-costo-fiesta') return Calculator;
     return PartyPopper;
   }
@@ -207,7 +210,6 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/settings/account') return UserCog;
   if (pathname === '/settings/feedback') return Star;
   if (pathname === '/admin/aaiff-fiesta') return PartyPopper;
-  if (pathname === '/admin/asistente-ak') return Bot;
   if (pathname === '/settings/backup') return HardDriveDownload;
   if (pathname === '/admin/carga-historicos') return FileArchive;
   if (pathname === '/settings/task-templates') return ListChecks;

@@ -49,6 +49,13 @@ export async function getFiestas(includeArchived = true): Promise<FiestaEnPlanif
     }
 }
 
+/**
+ * Alias para obtener todos los eventos (activos y archivados).
+ */
+export async function getAllFiestas() {
+    return getFiestas(true);
+}
+
 export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
     const all = await getFiestas(false);
     if (all.length > 0) {
