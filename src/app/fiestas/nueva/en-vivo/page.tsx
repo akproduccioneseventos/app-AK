@@ -1,15 +1,16 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, Suspense, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import Link from 'next/navigation';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
-    Zap, Loader2, AlertTriangle, Clock, CheckCircle2, Truck, Users, 
+    Zap, Loader2, TriangleAlert, Clock, CircleCheckBig, Truck, Users, 
     Phone, PartyPopper, Bell, RefreshCw, 
     ArrowLeft, ClipboardList, Info, Check, X, ShieldAlert, 
-    PackageSearch, RotateCcw, Share2, Camera, Wallet, PlusCircle
+    PackageSearch, RotateCcw, Share2, Camera, Wallet, CirclePlus
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateProgramaFiestaActual } from '@/app/actions/fiesta-actual';
@@ -240,7 +241,7 @@ function LiveEventDashboardContent() {
                                     </div>
                                     <div>
                                         <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter">¡ESTÁN LLEGANDO!</h2>
-                                        <p className="text-lg font-bold opacity-80 mt-2">Aviso recibido a las {new Date(radar.timestampAviso!).toLocaleTimeString('es-UY')}</p>
+                                        <p className="text-lg font-bold opacity-80 mt-2">Aviso recibido a las {new Date(radar.timestampAviso!).toLocaleTimeString('es-ES')}</p>
                                     </div>
                                 </div>
                                 <div className="flex gap-3">
@@ -283,7 +284,7 @@ function LiveEventDashboardContent() {
                                                 >
                                                     <div className="flex justify-between items-start">
                                                         <div className={cn("p-2 rounded-xl", entrega.llego ? "bg-emerald-500 text-white" : "bg-slate-700 text-slate-400")}>
-                                                            {entrega.llego ? <CheckCircle2 className="w-5 h-5"/> : <Clock className="w-5 h-5"/>}
+                                                            {entrega.llego ? <CircleCheckBig className="w-5 h-5"/> : <Clock className="w-5 h-5"/>}
                                                         </div>
                                                         <span className="text-[10px] font-black uppercase opacity-40">{entrega.horaEstimada} HS</span>
                                                     </div>
@@ -367,7 +368,7 @@ function LiveEventDashboardContent() {
                                     <CardContent className="p-6 pt-0 space-y-4">
                                         <div className="flex gap-2">
                                             <Input value={incidenteInput} onChange={e => setIncidenteInput(e.target.value)} placeholder="Ej: Rotura cristal mesa 4" className="h-12 rounded-xl bg-white/5 border-white/10" />
-                                            <Button onClick={handleAddIncidente} size="icon" className="h-12 w-12 rounded-xl shrink-0"><PlusCircle className="w-4 h-4"/></Button>
+                                            <Button onClick={handleAddIncidente} size="icon" className="h-12 w-12 rounded-xl shrink-0"><CirclePlus className="w-5 h-5"/></Button>
                                         </div>
                                         <ScrollArea className="h-40">
                                             <div className="space-y-2">
