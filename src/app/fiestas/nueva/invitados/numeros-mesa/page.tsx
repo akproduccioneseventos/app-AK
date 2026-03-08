@@ -1,12 +1,12 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, Suspense, type ChangeEvent, useRef } from 'react';
+import React, { useState, useEffect, useCallback, Suspense, type ChangeEvent, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import NextImage from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer as PrinterIcon, Save, Loader2, Plus, Minus, Scissors, Download, Share2 } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, Save, Loader2, Plus, Minus, Download, Tag, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, NumerosMesaData } from '@/types/fiesta';
 import { getFiestaById, updateNumerosMesa as updateNumerosMesaAction } from '@/app/actions/fiesta/fiesta.actions';
@@ -15,7 +15,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import { defaultNumerosMesaData } from '@/lib/fiesta-defaults';
-import html2canvas from 'html2canvas';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 
 const formatDate = (dateString?: string) => {
@@ -29,79 +30,64 @@ const formatDate = (dateString?: string) => {
   }
 };
 
-const Ornament: React.FC<{ position: string; color: string }> = ({ position, color }) => {
-    const baseClasses = "absolute w-12 h-12 border-2";
-    const positionClasses = {
-        'top-left': 'top-4 left-4 border-t-0 border-r-0',
-        'top-right': 'top-4 right-4 border-t-0 border-l-0',
-        'bottom-left': 'bottom-4 left-4 border-b-0 border-r-0',
-        'bottom-right': 'bottom-4 right-4 border-b-0 border-l-0',
-    };
-    const innerClasses = "absolute w-6 h-6 border-2";
-    const innerPositionClasses = {
-        'top-left': 'top-[-2px] left-[-2px] border-t-0 border-r-0',
-        'top-right': 'top-[-2px] right-[-2px] border-t-0 border-l-0',
-        'bottom-left': 'bottom-[-2px] left-[-2px] border-b-0 border-r-0',
-        'bottom-right': 'bottom-[-2px] right-[-2px] border-b-0 border-l-0',
-    }
+const companyName = "AK Producciones";
 
-    return (
-        <div className={cn(baseClasses, positionClasses[position as keyof typeof positionClasses])} style={{ borderColor: color }}>
-            <div className={cn(innerClasses, innerPositionClasses[position as keyof typeof innerPositionClasses])} style={{ borderColor: color }} />
-        </div>
-    );
-};
-
-const TableNumberComponent: React.FC<{
+const TableCardFace: React.FC<{
   fiesta: FiestaEnPlanificacion;
   data: NumerosMesaData;
   logoUrl: string | null;
   tableNumber: number;
+  customLabel?: string;
   inverted?: boolean;
-}> = ({ fiesta, data, logoUrl, tableNumber, inverted }) => {
-  
+}> = ({ fiesta, data, logoUrl, tableNumber, customLabel, inverted }) => {
   const protagonistaNombre = data.protagonistaNombre || fiesta.configuracion.protagonista1Nombre || 'Protagonista';
   const eventDate = data.fechaEvento || formatDate(fiesta.configuracion.fechaEvento);
 
   return (
     <div className={cn(
-        "w-full h-full relative bg-white overflow-hidden flex flex-col items-center justify-center border", 
+        "w-full h-full relative bg-white overflow-hidden flex flex-col items-center justify-center p-6", 
         inverted && 'transform rotate-180'
-    )} style={{ borderColor: `${data.colorPrincipal}40` }}>
-        
-        <Ornament position="top-left" color={data.colorPrincipal} />
-        <Ornament position="top-right" color={data.colorPrincipal} />
-        <Ornament position="bottom-left" color={data.colorPrincipal} />
-        <Ornament position="bottom-right" color={data.colorPrincipal} />
-
+    )}>
+        {/* Background Image (Floral) */}
         {data.backgroundImageUrl && (
-            <div className="absolute inset-0 opacity-15 -z-10">
-                <NextImage src={data.backgroundImageUrl} layout="fill" objectFit="cover" alt="" />
+            <div className="absolute inset-0 opacity-100 -z-10">
+                <NextImage 
+                    src={data.backgroundImageUrl} 
+                    layout="fill" 
+                    objectFit="cover" 
+                    alt="" 
+                    data-ai-hint="floral background"
+                />
             </div>
         )}
 
-        <div className="text-center p-8 z-10">
-            <h2 className="font-dancing text-[130px] leading-none mb-4" style={{ color: data.colorPrincipal }}>
-                {tableNumber}
+        <div className="text-center z-10 space-y-4">
+            <h2 className="font-dancing text-[100px] leading-none mb-2 text-slate-700">
+                Mesa {tableNumber}
             </h2>
+            {customLabel && (
+                <p className="font-headline text-2xl uppercase tracking-widest font-black text-slate-500 -mt-4 mb-4">
+                    {customLabel}
+                </p>
+            )}
             <div className="space-y-1">
-                <p className="font-headline text-3xl uppercase tracking-[0.2em] font-bold" style={{ color: data.colorSecundario }}>
+                <p className="font-headline text-3xl uppercase tracking-[0.2em] font-bold text-slate-800">
                     {protagonistaNombre}
                 </p>
-                <p className="font-body text-xl opacity-60 font-semibold italic" style={{ color: data.colorSecundario }}>
+                <p className="font-body text-xl font-semibold italic text-slate-600">
                     {eventDate}
                 </p>
             </div>
         </div>
 
         {logoUrl && (
-             <div className={cn("absolute w-20 h-20 z-20", inverted ? 'top-10 left-10' : 'bottom-10 right-10')}>
+             <div className={cn("absolute w-16 h-16 z-20", inverted ? 'top-6 left-6' : 'bottom-6 right-6')}>
                 <NextImage 
                     src={logoUrl} 
                     alt="logo" 
-                    width={80} 
-                    height={80} 
-                    className="object-contain filter drop-shadow-sm" 
+                    width={64} 
+                    height={64} 
+                    className="object-contain filter drop-shadow-md brightness-100" 
                 />
              </div>
         )}
@@ -114,7 +100,6 @@ function NumerosDeMesaContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const fiestaId = searchParams.get('fiestaId');
-  const printRef = useRef<HTMLDivElement>(null);
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [data, setData] = useState<NumerosMesaData>(defaultNumerosMesaData);
@@ -123,7 +108,6 @@ function NumerosDeMesaContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [tableCount, setTableCount] = useState(20);
 
   const loadData = useCallback(async () => {
@@ -138,9 +122,13 @@ function NumerosDeMesaContent() {
       setFiesta(fiestaData);
       setLogoUrl(settings.logoUrl || null);
 
-      const mergedData = { ...defaultNumerosMesaData, ...(fiestaData.numerosMesa || {}) };
+      const mergedData = { 
+          ...defaultNumerosMesaData, 
+          labels: {},
+          ...(fiestaData.numerosMesa || {}) 
+      };
       if (!mergedData.protagonistaNombre) {
-        mergedData.protagonistaNombre = fiestaData.configuracion.protagonista1Nombre || 'La Agasajada';
+        mergedData.protagonistaNombre = fiestaData.configuracion.protagonista1Nombre || 'Protagonista';
       }
       if (!mergedData.fechaEvento) {
         mergedData.fechaEvento = formatDate(fiestaData.configuracion.fechaEvento);
@@ -152,7 +140,6 @@ function NumerosDeMesaContent() {
           setTableCount(tables.length);
       }
     } catch (e: any) {
-      setError("No se pudo cargar la información del evento.");
       toast({ title: "Error", description: e.message, variant: "destructive" });
     } finally {
       setIsLoading(false);
@@ -163,8 +150,18 @@ function NumerosDeMesaContent() {
     loadData();
   }, [loadData]);
   
-  const handleUpdate = (field: keyof NumerosMesaData, value: string) => {
+  const handleUpdate = (field: keyof NumerosMesaData, value: any) => {
     setData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleLabelChange = (tableNum: number, label: string) => {
+      setData(prev => ({
+          ...prev,
+          labels: {
+              ...(prev.labels || {}),
+              [tableNum]: label
+          }
+      }));
   };
 
   const handleBackgroundImageUpload = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -192,7 +189,7 @@ function NumerosDeMesaContent() {
     try {
       const result = await updateNumerosMesaAction(fiestaId, data);
       if (result.success) {
-        toast({ title: "¡Configuración Guardada!" });
+        toast({ title: "¡Etiquetas y Diseño Guardados!" });
       } else {
         throw new Error(result.error);
       }
@@ -206,101 +203,121 @@ function NumerosDeMesaContent() {
   const handlePrint = () => window.print();
 
   if (isLoading || !fiesta) {
-    return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+    return <div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
   }
   
   return (
-    <div className="bg-muted/30 min-h-screen">
-        <div className="py-3 px-4 print:hidden flex flex-col md:flex-row justify-between items-center gap-4 bg-background border-b sticky top-0 z-50 shadow-sm">
-            <div className="flex items-center gap-3">
-                <PrinterIcon className="w-6 h-6 text-primary"/>
-                <h1 className="font-headline text-xl font-bold">Generador de Números de Mesa</h1>
+    <div className="bg-slate-100 min-h-screen flex flex-col md:flex-row">
+        {/* Sidebar Settings (Hidden on print) */}
+        <div className="w-full md:w-80 bg-white border-r p-6 space-y-6 overflow-y-auto print:hidden">
+            <div className="flex items-center gap-3 mb-2">
+                <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="ghost" size="icon" className="rounded-full"><ArrowLeft className="w-5 h-5"/></Button></Link>
+                <h1 className="font-headline text-xl font-bold">Números de Mesa</h1>
             </div>
-            
-            <div className="flex flex-wrap gap-4 items-center">
-              {/* Table Count Selector */}
-              <div className="flex items-center bg-slate-100 rounded-xl p-1 border">
-                  <Label className="px-3 text-[10px] font-black uppercase text-slate-500">Cantidad de Mesas</Label>
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setTableCount(Math.max(1, tableCount - 1))}><Minus className="w-3 h-3"/></Button>
-                  <Input 
-                    type="number" 
-                    value={tableCount} 
-                    onChange={e => setTableCount(parseInt(e.target.value) || 1)}
-                    className="w-12 h-8 text-center bg-transparent border-none font-bold p-0"
-                  />
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setTableCount(tableCount + 1)}><Plus className="w-3 h-3"/></Button>
-              </div>
 
-              <div className="flex flex-col">
-                <Label htmlFor="bg-image-upload" className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Fondo Personalizado</Label>
-                <Input id="bg-image-upload" type="file" accept="image/*" onChange={handleBackgroundImageUpload} className="text-xs w-40 h-8" disabled={isUploading}/>
-              </div>
-              
-              <div className="flex flex-col">
-                 <Label className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Color Principal</Label>
-                 <Input type="color" value={data.colorPrincipal || '#9333ea'} onChange={e => handleUpdate('colorPrincipal', e.target.value)} className="w-10 h-8 p-0.5"/>
-              </div>
+            <Separator/>
 
-              <div className="flex items-end gap-2 ml-2">
-                 <Button size="sm" onClick={handleSave} disabled={isSaving} title="Guardar cambios">
+            <div className="space-y-4">
+                <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Cantidad de Mesas</Label>
+                    <div className="flex items-center gap-2">
+                        <Button variant="outline" size="icon" className="h-10 w-10" onClick={() => setTableCount(Math.max(1, tableCount - 1))}><Minus className="w-4 h-4"/></Button>
+                        <Input type="number" value={tableCount} onChange={e => setTableCount(parseInt(e.target.value) || 1)} className="text-center font-bold text-lg"/>
+                        <Button variant="outline" size="icon" className="h-10 w-10" onClick={() => setTableCount(tableCount + 1)}><Plus className="w-4 h-4"/></Button>
+                    </div>
+                </div>
+
+                <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Imagen de Fondo Floral</Label>
+                    <div className="flex flex-col gap-2">
+                        <Input type="file" accept="image/*" onChange={handleBackgroundImageUpload} disabled={isUploading} className="text-xs"/>
+                        <p className="text-[9px] text-muted-foreground italic">Se recomienda una imagen sutil para no tapar el texto.</p>
+                    </div>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-3">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                        <Tag className="w-3 h-3"/> Etiquetas por Mesa
+                    </Label>
+                    <ScrollArea className="h-[300px] border rounded-xl p-3 bg-slate-50">
+                        <div className="space-y-3">
+                            {Array.from({ length: tableCount }).map((_, i) => {
+                                const num = i + 1;
+                                return (
+                                    <div key={num} className="space-y-1">
+                                        <Label className="text-[9px] font-bold text-slate-500 uppercase">Mesa {num}</Label>
+                                        <Input 
+                                            value={data.labels?.[num] || ''} 
+                                            onChange={e => handleLabelChange(num, e.target.value)}
+                                            placeholder="Ej: Familia, Trabajo..."
+                                            className="h-8 text-xs rounded-lg"
+                                        />
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </ScrollArea>
+                </div>
+            </div>
+
+            <div className="pt-4 space-y-3">
+                <Button onClick={handleSave} disabled={isSaving} className="w-full rounded-xl h-12 font-bold shadow-lg shadow-primary/20">
                     {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>}
-                    Guardar
-                 </Button>
-                 <Button onClick={handlePrint} size="sm" variant="outline" title="Imprimir PDF" className="font-bold">
-                    <PrinterIcon className="w-4 h-4 mr-2"/> IMPRIMIR
-                 </Button>
-                 <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4"/></Button></Link>
-              </div>
+                    Guardar Configuración
+                </Button>
+                <Button onClick={handlePrint} variant="secondary" className="w-full rounded-xl h-12 font-bold">
+                    <PrinterIcon className="w-4 h-4 mr-2"/> Imprimir PDF (A4)
+                </Button>
             </div>
         </div>
 
-        <div className="flex flex-col items-center py-8 gap-12 print:gap-0 print:py-0" ref={printRef}>
+        {/* Print Canvas */}
+        <div className="flex-1 flex flex-col items-center py-8 gap-12 bg-slate-200 print:bg-white print:gap-0 print:py-0 overflow-y-auto">
+            <div className="max-w-4xl w-full p-4 print:hidden">
+                <Alert className="bg-blue-50 border-blue-200">
+                    <Info className="w-4 h-4 text-blue-600"/>
+                    <AlertTitle className="text-blue-800 font-bold">Vista Previa de Impresión</AlertTitle>
+                    <p className="text-xs text-blue-700">Las tarjetas están diseñadas para imprimirse en A4. Dóblalas por la línea de puntos para armar la carpa.</p>
+                </Alert>
+            </div>
+
             {Array.from({ length: Math.ceil(tableCount / 2) }).map((_, pageIndex) => {
                 const tableNum1 = pageIndex * 2 + 1;
                 const tableNum2 = pageIndex * 2 + 2;
 
                 return (
-                    <div key={pageIndex} className="w-[210mm] h-[297mm] bg-white shadow-2xl print:shadow-none print:break-after-page flex flex-col p-8 print:p-0">
-                        <div className="flex-1 grid grid-cols-2 gap-8 print:gap-0">
-                            {/* Mesa 1 de la página */}
-                            <div className="flex flex-col h-full border border-dashed border-slate-200 print:border-none relative group">
-                                <div className="flex-1">
-                                    <TableNumberComponent tableNumber={tableNum1} inverted fiesta={fiesta} data={data} logoUrl={logoUrl}/>
-                                </div>
-                                
-                                {/* LÍNEA DE DOBLADO CENTRAL */}
-                                <div className="absolute top-1/2 left-0 right-0 border-t-2 border-dotted border-slate-300 z-30 pointer-events-none flex items-center justify-center">
-                                    <div className="bg-white px-2 text-[8px] font-black text-slate-300 uppercase tracking-widest -mt-[1px] print:hidden">
-                                        Línea de doblado
-                                    </div>
-                                </div>
-
-                                <div className="flex-1">
-                                    <TableNumberComponent tableNumber={tableNum1} fiesta={fiesta} data={data} logoUrl={logoUrl}/>
-                                </div>
+                    <div key={pageIndex} className="w-[210mm] h-[297mm] bg-white shadow-2xl print:shadow-none print:break-after-page flex flex-row p-0 border border-slate-300 print:border-none">
+                        {/* Columna Izquierda (Mesa 1) */}
+                        <div className="flex-1 border-r border-dashed border-slate-200 print:border-slate-400 relative">
+                            {/* Parte superior invertida */}
+                            <div className="h-1/2 border-b border-dotted border-slate-300">
+                                <TableCardFace tableNumber={tableNum1} customLabel={data.labels?.[tableNum1]} inverted fiesta={fiesta} data={data} logoUrl={logoUrl}/>
                             </div>
+                            {/* Parte inferior normal */}
+                            <div className="h-1/2">
+                                <TableCardFace tableNumber={tableNum1} customLabel={data.labels?.[tableNum1]} fiesta={fiesta} data={data} logoUrl={logoUrl}/>
+                            </div>
+                            {/* Guía de doblado central */}
+                            <div className="absolute top-1/2 left-0 right-0 h-px border-t border-dashed border-slate-400 z-30 pointer-events-none"></div>
+                        </div>
 
-                            {/* Mesa 2 de la página (si existe) */}
+                        {/* Columna Derecha (Mesa 2) */}
+                        <div className="flex-1 relative">
                             {tableNum2 <= tableCount ? (
-                                <div className="flex flex-col h-full border border-dashed border-slate-200 print:border-none relative">
-                                    <div className="flex-1">
-                                        <TableNumberComponent tableNumber={tableNum2} inverted fiesta={fiesta} data={data} logoUrl={logoUrl}/>
+                                <>
+                                    <div className="h-1/2 border-b border-dotted border-slate-300">
+                                        <TableCardFace tableNumber={tableNum2} customLabel={data.labels?.[tableNum2]} inverted fiesta={fiesta} data={data} logoUrl={logoUrl}/>
                                     </div>
-                                    
-                                    <div className="absolute top-1/2 left-0 right-0 border-t-2 border-dotted border-slate-300 z-30 pointer-events-none flex items-center justify-center">
-                                        <div className="bg-white px-2 text-[8px] font-black text-slate-300 uppercase tracking-widest -mt-[1px] print:hidden">
-                                            Línea de doblado
-                                        </div>
+                                    <div className="h-1/2">
+                                        <TableCardFace tableNumber={tableNum2} customLabel={data.labels?.[tableNum2]} fiesta={fiesta} data={data} logoUrl={logoUrl}/>
                                     </div>
-
-                                    <div className="flex-1">
-                                        <TableNumberComponent tableNumber={tableNum2} fiesta={fiesta} data={data} logoUrl={logoUrl}/>
-                                    </div>
-                                </div>
+                                    <div className="absolute top-1/2 left-0 right-0 h-px border-t border-dashed border-slate-400 z-30 pointer-events-none"></div>
+                                </>
                             ) : (
-                                <div className="flex-1 bg-slate-50 flex flex-col items-center justify-center text-slate-300 font-black uppercase tracking-widest text-xs border border-dashed border-slate-200">
-                                    <Scissors className="w-8 h-8 mb-2 opacity-20"/>
-                                    Fin de lista
+                                <div className="h-full bg-slate-50 flex items-center justify-center opacity-20">
+                                    <PrinterIcon className="w-20 h-20 text-slate-300"/>
                                 </div>
                             )}
                         </div>
@@ -314,7 +331,7 @@ function NumerosDeMesaContent() {
             
             @media print {
                 body { -webkit-print-color-adjust: exact; color-adjust: exact; background: white !important; }
-                .sidebar, header, nav, button, .no-print, .notifications-hub, .sidebar-inset > header, .fixed-footer { display: none !important ; }
+                .sidebar, header, nav, button, .no-print, .notifications-hub, .sidebar-inset > header, .fixed-footer, aside { display: none !important ; }
                 @page { size: A4 portrait; margin: 0; }
                 main { padding: 0 !important; margin: 0 !important; }
                 .print-main-override { padding: 0 !important; }

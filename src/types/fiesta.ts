@@ -60,6 +60,7 @@ export interface NumerosMesaData {
   backgroundImageUrl: string;
   colorPrincipal: string;
   colorSecundario: string;
+  labels?: Record<string, string>; // Etiquetas para mesas (ej: {"1": "Familia", "2": "Trabajo"})
 }
 
 // --- LIVE EVENT ---
