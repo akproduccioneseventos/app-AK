@@ -296,6 +296,7 @@ export default function GestionMenusPage() {
                           <AlertDialogCancel>Cancelar</AlertDialogCancel>
                           <AlertDialogAction onClick={() => handleDelete(menu.id, menu.name)} className="bg-destructive hover:bg-destructive/80">Eliminar</AlertDialogAction>
                         </AlertDialogFooter>
+                      </AlertDialogContent>
                    </AlertDialog>
                 </CardFooter>
               </Card>

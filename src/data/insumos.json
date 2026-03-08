@@ -55,5 +55,13 @@
   { "id": "ing-frutilla-barra", "nombre": "Frutilla (Barra)", "tipoItem": "Insumo/Ingrediente", "categoria": "Frutas", "valorUnitarioEstimado": 120, "unidad": "Kg", "proveedor": "VERDULERIA" },
   { "id": "ing-azucar-barra", "nombre": "Azucar (Barra)", "tipoItem": "Insumo/Ingrediente", "categoria": "Insumos varios", "valorUnitarioEstimado": 70, "unidad": "Kg", "proveedor": "Supermercado" },
   { "id": "ing-cana", "nombre": "Caña", "tipoItem": "Bebida (Insumo)", "categoria": "Barra de Tragos", "valorUnitarioEstimado": 300, "unidad": "Litro", "proveedor": "Proveedor Bebidas" },
-  { "id": "ing-jugo-naranja", "nombre": "Jugo de naranja", "tipoItem": "Bebida (Insumo)", "categoria": "Barra de Tragos", "valorUnitarioEstimado": 35, "unidad": "Litro", "proveedor": "Proveedor Bebidas" }
+  { "id": "ing-jugo-naranja", "nombre": "Jugo de naranja", "tipoItem": "Bebida (Insumo)", "categoria": "Barra de Tragos", "valorUnitarioEstimado": 35, "unidad": "Litro", "proveedor": "Proveedor Bebidas" },
+  { "id": "ing-repollo-b", "nombre": "Repollo Blanco", "tipoItem": "Insumo/Ingrediente", "categoria": "Verduras", "valorUnitarioEstimado": 119, "unidad": "Unidad", "proveedor": "VERDULERIA" },
+  { "id": "ing-repollo-m", "nombre": "Repollo Morado", "tipoItem": "Insumo/Ingrediente", "categoria": "Verduras", "valorUnitarioEstimado": 120, "unidad": "Unidad", "proveedor": "VERDULERIA" },
+  { "id": "ing-chauchas", "nombre": "Chauchas", "tipoItem": "Insumo/Ingrediente", "categoria": "Verduras", "valorUnitarioEstimado": 119, "unidad": "Kg", "proveedor": "VERDULERIA" },
+  { "id": "ing-remolacha", "nombre": "Remolacha", "tipoItem": "Insumo/Ingrediente", "categoria": "Verduras", "valorUnitarioEstimado": 10, "unidad": "Unidad", "proveedor": "VERDULERIA" },
+  { "id": "ing-boniato", "nombre": "Boñato", "tipoItem": "Insumo/Ingrediente", "categoria": "Verduras", "valorUnitarioEstimado": 80, "unidad": "Kg", "proveedor": "VERDULERIA" },
+  { "id": "ing-papas-torneadas", "nombre": "Papas congeladas torneadas", "tipoItem": "Insumo/Ingrediente", "categoria": "Congelados", "valorUnitarioEstimado": 130, "unidad": "Kg", "proveedor": "VERDULERIA" },
+  { "id": "ing-pasas", "nombre": "Pasas de uva", "tipoItem": "Insumo/Ingrediente", "categoria": "Insumos varios", "valorUnitarioEstimado": 130, "unidad": "Kg", "proveedor": "DOPACA" },
+  { "id": "ing-anana", "nombre": "Anana", "tipoItem": "Insumo/Ingrediente", "categoria": "Insumos varios", "valorUnitarioEstimado": 150, "unidad": "Unidad", "proveedor": "UNIPLAS" }
 ]

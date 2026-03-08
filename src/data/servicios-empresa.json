@@ -1,3 +1,4 @@
+
 [
   { "id": "serv_mozos", "nombre": "Mozos", "tipoItem": "Servicio", "categoria": "Personal", "valorUnitarioEstimado": 2200, "calculationMethod": "ratio", "precioBase": 2900, "invitadosPorUnidad": 25 },
   { "id": "serv_mozo_cocina", "nombre": "Mozo de cocina", "tipoItem": "Servicio", "categoria": "Personal", "valorUnitarioEstimado": 2100, "calculationMethod": "ratio", "precioBase": 2900, "invitadosPorUnidad": 25 },
@@ -11,5 +12,10 @@
   { "id": "serv_plataforma360", "nombre": "Plataforma 360", "tipoItem": "Servicio", "categoria": "Regalo exclusivo", "valorUnitarioEstimado": 1500, "precioVenta": 4500, "calculationMethod": "fijo" },
   { "id": "serv_foto_fiesta", "nombre": "Fotografía de fiestas", "tipoItem": "Servicio", "categoria": "Servicio de fotografía", "valorUnitarioEstimado": 3300, "precioVenta": 8500, "calculationMethod": "fijo" },
   { "id": "serv_foto_ext", "nombre": "Fotografía de exteriores", "tipoItem": "Servicio", "categoria": "Servicio de fotografía", "valorUnitarioEstimado": 1650, "precioVenta": 3900, "calculationMethod": "fijo" },
-  { "id": "serv_deco_basica", "nombre": "Decoración básica", "tipoItem": "Servicio", "categoria": "Servicio de decoración", "valorUnitarioEstimado": 5000, "precioVenta": 14500, "calculationMethod": "fijo" }
+  { "id": "serv_deco_basica", "nombre": "Decoración básica", "tipoItem": "Servicio", "categoria": "Servicio de decoración", "valorUnitarioEstimado": 5000, "precioVenta": 14500, "calculationMethod": "fijo" },
+  { "id": "dish_entrada_1", "nombre": "Buñuelos de Algas", "tipoItem": "Servicio", "categoria": "Servicio de catering", "subcategoria": "Entrada", "calculationMethod": "porPersona", "precioPorPersona": 90 },
+  { "id": "dish_entrada_2", "nombre": "Arrolladitos Primavera", "tipoItem": "Servicio", "categoria": "Servicio de catering", "subcategoria": "Entrada", "calculationMethod": "porPersona", "precioPorPersona": 80 },
+  { "id": "dish_entrada_8", "nombre": "Picada de Fiambres", "tipoItem": "Servicio", "categoria": "Servicio de catering", "subcategoria": "Entrada", "calculationMethod": "porPersona", "precioPorPersona": 76 },
+  { "id": "dish_main_1", "nombre": "Chivito con Fritas", "tipoItem": "Servicio", "categoria": "Servicio de catering", "subcategoria": "Plato Principal", "calculationMethod": "porPersona", "precioPorPersona": 306 },
+  { "id": "dish_main_18", "nombre": "Asado Completo", "tipoItem": "Servicio", "categoria": "Servicio de catering", "subcategoria": "Plato Principal", "calculationMethod": "porPersona", "precioPorPersona": 575 }
 ]
