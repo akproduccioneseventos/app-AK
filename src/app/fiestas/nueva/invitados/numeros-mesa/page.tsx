@@ -6,6 +6,7 @@ import Link from 'next/link';
 import NextImage from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { ArrowLeft, Printer as PrinterIcon, Save, Loader2, Plus, Minus, Download, Tag, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, NumerosMesaData } from '@/types/fiesta';
@@ -17,6 +18,7 @@ import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import { defaultNumerosMesaData } from '@/lib/fiesta-defaults';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import { Alert, AlertTitle } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
 
 const formatDate = (dateString?: string) => {
