@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, Suspense, type ChangeEvent, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, Suspense, type ChangeEvent, useRef } from 'react';
 import Link from 'next/link';
 import NextImage from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -26,13 +26,11 @@ const formatDate = (dateString?: string) => {
   try {
     const date = new Date(dateString);
     const utcDate = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
-    return utcDate.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    return utcDate.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' });
   } catch (e) {
     return "Fecha inválida";
   }
 };
-
-const companyName = "AK Producciones";
 
 const TableCardFace: React.FC<{
   fiesta: FiestaEnPlanificacion;
@@ -47,49 +45,42 @@ const TableCardFace: React.FC<{
 
   return (
     <div className={cn(
-        "w-full h-full relative bg-white overflow-hidden flex flex-col items-center justify-center p-6", 
+        "w-full h-full relative bg-white overflow-hidden flex flex-col items-center justify-center p-4", 
         inverted && 'transform rotate-180'
     )}>
-        {/* Background Image (Floral) */}
-        {data.backgroundImageUrl && (
-            <div className="absolute inset-0 opacity-100 -z-10">
-                <NextImage 
-                    src={data.backgroundImageUrl} 
-                    layout="fill" 
-                    objectFit="cover" 
-                    alt="" 
-                    data-ai-hint="floral background"
-                />
-            </div>
-        )}
+        {/* Background Image (Floral) - Matching the provided image style */}
+        <div className="absolute inset-0 opacity-100 -z-10">
+            <NextImage 
+                src="https://picsum.photos/seed/lilies/800/600" 
+                layout="fill" 
+                objectFit="cover" 
+                alt="" 
+                data-ai-hint="white lilies flowers background"
+            />
+        </div>
 
-        <div className="text-center z-10 space-y-4">
-            <h2 className="font-dancing text-[100px] leading-none mb-2 text-slate-700">
+        <div className="text-center z-10 space-y-1">
+            <h2 className="font-dancing text-[80pt] leading-none mb-0 text-slate-700 drop-shadow-sm">
                 Mesa {tableNumber}
             </h2>
-            {customLabel && (
-                <p className="font-headline text-2xl uppercase tracking-widest font-black text-slate-500 -mt-4 mb-4">
-                    {customLabel}
-                </p>
-            )}
-            <div className="space-y-1">
-                <p className="font-headline text-3xl uppercase tracking-[0.2em] font-bold text-slate-800">
+            <div className="space-y-0.5">
+                <p className="font-headline text-3xl uppercase tracking-[0.1em] font-medium text-slate-800">
                     {protagonistaNombre}
                 </p>
-                <p className="font-body text-xl font-semibold italic text-slate-600">
+                <p className="font-body text-xl font-medium italic text-slate-600">
                     {eventDate}
                 </p>
             </div>
         </div>
 
         {logoUrl && (
-             <div className={cn("absolute w-16 h-16 z-20", inverted ? 'top-6 left-6' : 'bottom-6 right-6')}>
+             <div className={cn("absolute w-14 h-14 z-20", inverted ? 'top-4 left-4' : 'bottom-4 right-4')}>
                 <NextImage 
                     src={logoUrl} 
                     alt="logo" 
-                    width={64} 
-                    height={64} 
-                    className="object-contain filter drop-shadow-md brightness-100" 
+                    width={56} 
+                    height={56} 
+                    className="object-contain brightness-100" 
                 />
              </div>
         )}
@@ -152,46 +143,13 @@ function NumerosDeMesaContent() {
     loadData();
   }, [loadData]);
   
-  const handleUpdate = (field: keyof NumerosMesaData, value: any) => {
-    setData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleLabelChange = (tableNum: number, label: string) => {
-      setData(prev => ({
-          ...prev,
-          labels: {
-              ...(prev.labels || {}),
-              [tableNum]: label
-          }
-      }));
-  };
-
-  const handleBackgroundImageUpload = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file || !fiestaId) return;
-    setIsUploading(true);
-    try {
-      const result = await uploadPublicPageAsset(fiestaId, file);
-      if(result.success && result.url) {
-        setData(prev => ({ ...prev, backgroundImageUrl: result.url }));
-        toast({title: "Imagen de fondo actualizada"});
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (e: any) {
-      toast({ title: "Error al subir", description: e.message, variant: "destructive" });
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
   const handleSave = async () => {
     if (!fiestaId) return;
     setIsSaving(true);
     try {
       const result = await updateNumerosMesaAction(fiestaId, data);
       if (result.success) {
-        toast({ title: "¡Etiquetas y Diseño Guardados!" });
+        toast({ title: "¡Configuración Guardada!" });
       } else {
         throw new Error(result.error);
       }
@@ -210,11 +168,11 @@ function NumerosDeMesaContent() {
   
   return (
     <div className="bg-slate-100 min-h-screen flex flex-col md:flex-row">
-        {/* Sidebar Settings (Hidden on print) */}
-        <div className="w-full md:w-80 bg-white border-r p-6 space-y-6 overflow-y-auto print:hidden">
+        {/* Sidebar Settings */}
+        <div className="w-full md:w-80 bg-white border-r p-6 space-y-6 overflow-y-auto print:hidden shrink-0">
             <div className="flex items-center gap-3 mb-2">
                 <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="ghost" size="icon" className="rounded-full"><ArrowLeft className="w-5 h-5"/></Button></Link>
-                <h1 className="font-headline text-xl font-bold">Números de Mesa</h1>
+                <h1 className="font-headline text-xl font-bold">Imprimir Números</h1>
             </div>
 
             <Separator/>
@@ -230,47 +188,31 @@ function NumerosDeMesaContent() {
                 </div>
 
                 <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Imagen de Fondo Floral</Label>
-                    <div className="flex flex-col gap-2">
-                        <Input type="file" accept="image/*" onChange={handleBackgroundImageUpload} disabled={isUploading} className="text-xs"/>
-                        <p className="text-[9px] text-muted-foreground italic">Se recomienda una imagen sutil para no tapar el texto.</p>
-                    </div>
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Nombre en Tarjeta</Label>
+                    <Input 
+                        value={data.protagonistaNombre} 
+                        onChange={e => setData({...data, protagonistaNombre: e.target.value})}
+                        placeholder="Nombre principal"
+                    />
                 </div>
 
-                <Separator />
-
-                <div className="space-y-3">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                        <Tag className="w-3 h-3"/> Etiquetas por Mesa
-                    </Label>
-                    <ScrollArea className="h-[300px] border rounded-xl p-3 bg-slate-50">
-                        <div className="space-y-3">
-                            {Array.from({ length: tableCount }).map((_, i) => {
-                                const num = i + 1;
-                                return (
-                                    <div key={num} className="space-y-1">
-                                        <Label className="text-[9px] font-bold text-slate-500 uppercase">Mesa {num}</Label>
-                                        <Input 
-                                            value={data.labels?.[num] || ''} 
-                                            onChange={e => handleLabelChange(num, e.target.value)}
-                                            placeholder="Ej: Familia, Trabajo..."
-                                            className="h-8 text-xs rounded-lg"
-                                        />
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </ScrollArea>
+                <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Fecha en Tarjeta</Label>
+                    <Input 
+                        value={data.fechaEvento} 
+                        onChange={e => setData({...data, fechaEvento: e.target.value})}
+                        placeholder="DD/MM/YY"
+                    />
                 </div>
             </div>
 
             <div className="pt-4 space-y-3">
                 <Button onClick={handleSave} disabled={isSaving} className="w-full rounded-xl h-12 font-bold shadow-lg shadow-primary/20">
                     {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>}
-                    Guardar Configuración
+                    Guardar Datos
                 </Button>
                 <Button onClick={handlePrint} variant="secondary" className="w-full rounded-xl h-12 font-bold">
-                    <PrinterIcon className="w-4 h-4 mr-2"/> Imprimir PDF (A4)
+                    <PrinterIcon className="w-4 h-4 mr-2"/> Imprimir en A4
                 </Button>
             </div>
         </div>
@@ -280,8 +222,12 @@ function NumerosDeMesaContent() {
             <div className="max-w-4xl w-full p-4 print:hidden">
                 <Alert className="bg-blue-50 border-blue-200">
                     <Info className="w-4 h-4 text-blue-600"/>
-                    <AlertTitle className="text-blue-800 font-bold">Vista Previa de Impresión</AlertTitle>
-                    <p className="text-xs text-blue-700">Las tarjetas están diseñadas para imprimirse en A4. Dóblalas por la línea de puntos para armar la carpa.</p>
+                    <AlertTitle className="text-blue-800 font-bold">Instrucciones de Armado</AlertTitle>
+                    <div className="text-xs text-blue-700 space-y-1">
+                        <p>1. Imprime en papel A4 (se recomiendan 200g o más).</p>
+                        <p>2. Corta por la línea sólida central para separar las dos mesas.</p>
+                        <p>3. Dobla por las líneas punteadas para formar el prisma/torre.</p>
+                    </div>
                 </Alert>
             </div>
 
@@ -290,36 +236,39 @@ function NumerosDeMesaContent() {
                 const tableNum2 = pageIndex * 2 + 2;
 
                 return (
-                    <div key={pageIndex} className="w-[210mm] h-[297mm] bg-white shadow-2xl print:shadow-none print:break-after-page flex flex-row p-0 border border-slate-300 print:border-none">
-                        {/* Columna Izquierda (Mesa 1) */}
-                        <div className="flex-1 border-r border-dashed border-slate-200 print:border-slate-400 relative">
-                            {/* Parte superior invertida */}
-                            <div className="h-1/2 border-b border-dotted border-slate-300">
-                                <TableCardFace tableNumber={tableNum1} customLabel={data.labels?.[tableNum1]} inverted fiesta={fiesta} data={data} logoUrl={logoUrl}/>
+                    <div key={pageIndex} className="w-[210mm] h-[297mm] bg-white shadow-2xl print:shadow-none print:break-after-page flex flex-row p-0 border border-slate-300 print:border-none overflow-hidden">
+                        {/* Columna 1 (Mesa Impar) */}
+                        <div className="w-1/2 h-full border-r border-black flex flex-col">
+                            {/* Segmento 1 (Blanco - Base) */}
+                            <div className="h-[74.25mm] w-full border-b border-dashed border-slate-300"></div>
+                            {/* Segmento 2 (Blanco - Base) */}
+                            <div className="h-[74.25mm] w-full border-b border-black"></div>
+                            {/* Segmento 3 (Diseño Invertido) */}
+                            <div className="h-[74.25mm] w-full border-b border-dashed border-slate-300">
+                                <TableCardFace tableNumber={tableNum1} fiesta={fiesta} data={data} logoUrl={logoUrl} inverted />
                             </div>
-                            {/* Parte inferior normal */}
-                            <div className="h-1/2">
-                                <TableCardFace tableNumber={tableNum1} customLabel={data.labels?.[tableNum1]} fiesta={fiesta} data={data} logoUrl={logoUrl}/>
+                            {/* Segmento 4 (Diseño Normal) */}
+                            <div className="h-[74.25mm] w-full">
+                                <TableCardFace tableNumber={tableNum1} fiesta={fiesta} data={data} logoUrl={logoUrl} />
                             </div>
-                            {/* Guía de doblado central */}
-                            <div className="absolute top-1/2 left-0 right-0 h-px border-t border-dashed border-slate-400 z-30 pointer-events-none"></div>
                         </div>
 
-                        {/* Columna Derecha (Mesa 2) */}
-                        <div className="flex-1 relative">
+                        {/* Columna 2 (Mesa Par) */}
+                        <div className="w-1/2 h-full flex flex-col">
                             {tableNum2 <= tableCount ? (
                                 <>
-                                    <div className="h-1/2 border-b border-dotted border-slate-300">
-                                        <TableCardFace tableNumber={tableNum2} customLabel={data.labels?.[tableNum2]} inverted fiesta={fiesta} data={data} logoUrl={logoUrl}/>
+                                    <div className="h-[74.25mm] w-full border-b border-dashed border-slate-300"></div>
+                                    <div className="h-[74.25mm] w-full border-b border-black"></div>
+                                    <div className="h-[74.25mm] w-full border-b border-dashed border-slate-300">
+                                        <TableCardFace tableNumber={tableNum2} fiesta={fiesta} data={data} logoUrl={logoUrl} inverted />
                                     </div>
-                                    <div className="h-1/2">
-                                        <TableCardFace tableNumber={tableNum2} customLabel={data.labels?.[tableNum2]} fiesta={fiesta} data={data} logoUrl={logoUrl}/>
+                                    <div className="h-[74.25mm] w-full">
+                                        <TableCardFace tableNumber={tableNum2} fiesta={fiesta} data={data} logoUrl={logoUrl} />
                                     </div>
-                                    <div className="absolute top-1/2 left-0 right-0 h-px border-t border-dashed border-slate-400 z-30 pointer-events-none"></div>
                                 </>
                             ) : (
-                                <div className="h-full bg-slate-50 flex items-center justify-center opacity-20">
-                                    <PrinterIcon className="w-20 h-20 text-slate-300"/>
+                                <div className="h-full bg-slate-50 flex items-center justify-center opacity-10">
+                                    <PrinterIcon className="w-32 h-32 text-slate-300"/>
                                 </div>
                             )}
                         </div>
@@ -345,7 +294,7 @@ function NumerosDeMesaContent() {
 
 export default function NumerosMesaPage() {
     return (
-        <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>}>
+        <Suspense fallback={<div className="flex justify-center p-8 h-screen items-center"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>}>
             <NumerosDeMesaContent/>
         </Suspense>
     )
