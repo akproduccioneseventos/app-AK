@@ -2,46 +2,48 @@
   "descuentoGeneral": 15,
   "paquetes": [
     {
-      "id": "new_paquete_1757286785711",
+      "id": "pkg_basico",
       "nombre": "Paquete Básico",
       "serviciosIncluidos": [
         { "id": "serv_mozos", "esRegalo": false },
         { "id": "serv_mozo_cocina", "esRegalo": false },
-        { "id": "serv_invitaciones_digitales", "esRegalo": true },
-        { "id": "serv_manteleria_completa", "esRegalo": false }
+        { "id": "serv_manteleria_completa", "esRegalo": false },
+        { "id": "serv_invitaciones_digitales", "esRegalo": true }
       ]
     },
     {
-      "id": "new_paquete_1757290579034",
+      "id": "pkg_intermedio",
       "nombre": "Paquete Intermedio",
       "serviciosIncluidos": [
         { "id": "serv_mozos", "esRegalo": false },
         { "id": "serv_mozo_cocina", "esRegalo": false },
+        { "id": "serv_manteleria_completa", "esRegalo": false },
+        { "id": "serv_disco_intermedia", "esRegalo": false },
         { "id": "serv_invitaciones_digitales", "esRegalo": true },
         { "id": "serv_pantalla_proyector", "esRegalo": true },
-        { "id": "serv_video_vida", "esRegalo": true },
-        { "id": "serv_manteleria_completa", "esRegalo": false }
+        { "id": "serv_video_vida", "esRegalo": true }
       ]
     },
     {
-      "id": "new_paquete_1757733251670",
+      "id": "pkg_premium",
       "nombre": "Paquete Premium",
       "serviciosIncluidos": [
         { "id": "serv_mozos", "esRegalo": false },
         { "id": "serv_mozo_cocina", "esRegalo": false },
+        { "id": "serv_manteleria_completa", "esRegalo": false },
+        { "id": "serv_disco_intermedia", "esRegalo": false },
+        { "id": "serv_1752489600086_barlib", "esRegalo": false },
         { "id": "serv_invitaciones_digitales", "esRegalo": true },
         { "id": "serv_pantalla_proyector", "esRegalo": true },
         { "id": "serv_video_vida", "esRegalo": true },
-        { "id": "serv_1752489600086_barlib", "esRegalo": false },
-        { "id": "serv_manteleria_completa", "esRegalo": false }
+        { "id": "serv_plataforma360_regalo", "esRegalo": true }
       ]
     }
   ],
   "menus": [
     {
-      "id": "menu_catering",
-      "nombre": "Opciones de Catering",
-      "descripcion": "Lista de todos los servicios de catering disponibles para el Simulador.",
+      "id": "menu_completo",
+      "nombre": "Menú Gastronómico Completo",
       "serviciosIncluidos": []
     }
   ],

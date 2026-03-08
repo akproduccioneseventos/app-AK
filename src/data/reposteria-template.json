@@ -16,14 +16,6 @@
       "activada": false,
       "items": [],
       "descripcion": "Mesa de dulces y golosinas variadas."
-    },
-    {
-      "id": "fuente_chocolate",
-      "nombreDisplay": "Fuente de Chocolate",
-      "activada": true,
-      "items": [],
-      "descripcion": "Con frutas, malvaviscos y más."
     }
-  ],
-  "notasGenerales": ""
+  ]
 }

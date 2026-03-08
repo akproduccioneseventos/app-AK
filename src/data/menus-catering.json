@@ -4,33 +4,11 @@
     "name": "Catálogo de Entradas",
     "description": "Selección completa de entradas para eventos.",
     "items": [
-      {
-        "id": "dish_entrada_8",
-        "name": "Entrada 8: Picada de fiambres",
-        "type": "Entrada",
-        "totalDishCost": 30.15,
-        "profitMargin": 397,
-        "suggestedSellingPrice": 150,
-        "ingredients": [
-          { "id": "ing_8_1", "name": "Jamon", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 5.4, "origenId": "ing-jamon" },
-          { "id": "ing_8_2", "name": "Queso Dambo", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 430, "costoTotalReceta": 12.9, "origenId": "ing-queso-dambo" },
-          { "id": "ing_8_3", "name": "Salame", "quantityPerPerson": "20", "unit": "g", "costoUnitario": 430, "costoTotalReceta": 8.6, "origenId": "ing-salame" },
-          { "id": "ing_8_4", "name": "Aceitunas", "quantityPerPerson": "15", "unit": "g", "costoUnitario": 220, "costoTotalReceta": 3.3, "origenId": "ing-aceitunas" }
-        ]
-      },
-      {
-        "id": "dish_entrada_23",
-        "name": "Entrada 23: Sandwiches y Saladitos",
-        "type": "Entrada",
-        "totalDishCost": 74.8,
-        "profitMargin": 221,
-        "suggestedSellingPrice": 240,
-        "ingredients": [
-          { "id": "ing_23_1", "name": "Sandwiches pan blanco", "quantityPerPerson": "0.5", "unit": "Unidad", "costoUnitario": 15, "costoTotalReceta": 7.5, "origenId": "ing-valentin-sandwiches" },
-          { "id": "ing_23_2", "name": "Pebetes", "quantityPerPerson": "0.3", "unit": "Unidad", "costoUnitario": 11, "costoTotalReceta": 3.3, "origenId": "ing-valentin-pebetes" },
-          { "id": "ing_23_3", "name": "Arrolladitos de hojaldre", "quantityPerPerson": "0.3", "unit": "Unidad", "costoUnitario": 11, "costoTotalReceta": 3.3, "origenId": "ing-valentin-arrolladitos" }
-        ]
-      }
+      { "id": "dish_entrada_1", "name": "Entrada 1: Canapés variados", "type": "Entrada", "totalDishCost": 45, "profitMargin": 150, "suggestedSellingPrice": 115, "ingredients": [] },
+      { "id": "dish_entrada_2", "name": "Entrada 2: Brochetas de pollo", "type": "Entrada", "totalDishCost": 60, "profitMargin": 120, "suggestedSellingPrice": 132, "ingredients": [] },
+      { "id": "dish_entrada_8", "name": "Entrada 8: Picada de fiambres", "type": "Entrada", "totalDishCost": 80, "profitMargin": 100, "suggestedSellingPrice": 160, "ingredients": [] },
+      { "id": "dish_entrada_23", "name": "Entrada 23: Sandwiches y Saladitos", "type": "Entrada", "totalDishCost": 110, "profitMargin": 120, "suggestedSellingPrice": 242, "ingredients": [] },
+      { "id": "dish_entrada_premium", "name": "Entrada Premium: Mariscos", "type": "Entrada", "totalDishCost": 150, "profitMargin": 100, "suggestedSellingPrice": 300, "ingredients": [] }
     ]
   },
   {
@@ -38,29 +16,11 @@
     "name": "Catálogo de Platos Principales",
     "description": "Platos fuertes para banquetes.",
     "items": [
-      {
-        "id": "dish_main_3",
-        "name": "Plato principal 3: Pollo arrollado c/ guarnición",
-        "type": "Plato Principal",
-        "totalDishCost": 202.4,
-        "profitMargin": 122,
-        "suggestedSellingPrice": 449,
-        "ingredients": [
-          { "id": "ing_pa3_1", "name": "Pollo arrollado", "quantityPerPerson": "250", "unit": "g", "costoUnitario": 500, "costoTotalReceta": 125, "origenId": "ing-pollo-arrollado" },
-          { "id": "ing_pa3_2", "name": "Papa", "quantityPerPerson": "200", "unit": "g", "costoUnitario": 60, "costoTotalReceta": 12, "origenId": "ing-papa" }
-        ]
-      },
-      {
-        "id": "dish_main_asado",
-        "name": "Plato principal: Asado completo (Varios cortes)",
-        "type": "Plato Principal",
-        "totalDishCost": 350,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 700,
-        "ingredients": [
-          { "id": "ing_as_1", "name": "Carnes Varias", "quantityPerPerson": "400", "unit": "g", "costoUnitario": 450, "costoTotalReceta": 180 }
-        ]
-      }
+      { "id": "dish_main_1", "name": "Plato 1: Suprema de Pollo rellena", "type": "Plato Principal", "totalDishCost": 180, "profitMargin": 120, "suggestedSellingPrice": 396, "ingredients": [] },
+      { "id": "dish_main_2", "name": "Plato 2: Lomo a la pimienta", "type": "Plato Principal", "totalDishCost": 250, "profitMargin": 120, "suggestedSellingPrice": 550, "ingredients": [] },
+      { "id": "dish_main_3", "name": "Plato 3: Pollo arrollado c/ guarnición", "type": "Plato Principal", "totalDishCost": 200, "profitMargin": 120, "suggestedSellingPrice": 440, "ingredients": [] },
+      { "id": "dish_main_asado", "name": "Plato: Asado completo (Varios cortes)", "type": "Plato Principal", "totalDishCost": 300, "profitMargin": 100, "suggestedSellingPrice": 600, "ingredients": [] },
+      { "id": "dish_main_pastas", "name": "Plato: Ravioles con salsa caruso", "type": "Plato Principal", "totalDishCost": 150, "profitMargin": 150, "suggestedSellingPrice": 375, "ingredients": [] }
     ]
   },
   {
@@ -68,18 +28,9 @@
     "name": "Catálogo Infantil",
     "description": "Opciones para los más pequeños.",
     "items": [
-      {
-        "id": "dish_child_3",
-        "name": "Menú niños: Hamburguesa con fritas",
-        "type": "Menú Infantil/Adolescente",
-        "totalDishCost": 53.4,
-        "profitMargin": 460,
-        "suggestedSellingPrice": 299,
-        "ingredients": [
-          { "id": "ing_c3_1", "name": "Hamburguesas congeladas", "quantityPerPerson": "1", "unit": "Unidad", "costoUnitario": 35, "costoTotalReceta": 35, "origenId": "ing-hamburguesa-cong" },
-          { "id": "ing_c3_2", "name": "Papa", "quantityPerPerson": "150", "unit": "g", "costoUnitario": 60, "costoTotalReceta": 9, "origenId": "ing-papa" }
-        ]
-      }
+      { "id": "dish_child_1", "name": "Menú niños: Nuggets con puré", "type": "Menú Infantil/Adolescente", "totalDishCost": 60, "profitMargin": 200, "suggestedSellingPrice": 180, "ingredients": [] },
+      { "id": "dish_child_2", "name": "Menú niños: Mini Pizzas", "type": "Menú Infantil/Adolescente", "totalDishCost": 50, "profitMargin": 250, "suggestedSellingPrice": 175, "ingredients": [] },
+      { "id": "dish_child_3", "name": "Menú niños: Hamburguesa con fritas", "type": "Menú Infantil/Adolescente", "totalDishCost": 80, "profitMargin": 200, "suggestedSellingPrice": 240, "ingredients": [] }
     ]
   }
 ]

@@ -5,15 +5,6 @@
       "nombreDisplay": "Cóctel de Bienvenida",
       "activada": true,
       "items": [],
-      "recetas": [
-        {
-          "id": "receta_coctel_100p",
-          "nombre": "Coctel 100 Personas - 50 Litros",
-          "porcionesBase": 100,
-          "costoTotalReceta": 2910,
-          "ingredientes": []
-        }
-      ],
       "descripcion": "El cóctel especial que se sirve al recibir a los invitados."
     },
     {
@@ -31,9 +22,7 @@
         { "id": "beb-5", "nombre": "Fernet", "cantidadNecesaria": 0.04, "unidadCantidad": "Litros", "costoUnitario": 400, "costoTotal": 16, "origenId": "ing-fernet" },
         { "id": "beb-12", "nombre": "Vodka", "cantidadNecesaria": 0.03, "unidadCantidad": "Litros", "costoUnitario": 280, "costoTotal": 8.4, "origenId": "ing-vodka" }
       ],
-      "recetas": [],
       "descripcion": "Bebidas blancas y licores para la barra."
     }
-  ],
-  "notasGenerales": ""
+  ]
 }
