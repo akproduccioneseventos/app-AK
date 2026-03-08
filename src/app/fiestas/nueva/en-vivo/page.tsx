@@ -7,10 +7,10 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
-    Zap, Loader2, TriangleAlert, Clock, CircleCheckBig, Truck, Users, 
+    Zap, Loader2, CircleCheckBig, Truck, Users, 
     PartyPopper, Bell, RefreshCw, 
     ArrowLeft, ClipboardList, Info, Check, X, ShieldAlert, 
-    PackageSearch, RotateCcw, Share2, Wallet, CirclePlus
+    PackageSearch, RotateCcw, Share2, Wallet, PlusCircle, Clock, TriangleAlert
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateProgramaFiestaActual } from '@/app/actions/fiesta-actual';
@@ -284,7 +284,7 @@ function LiveEventDashboardContent() {
                                     <CardContent className="p-6 pt-0 space-y-4">
                                         <div className="flex gap-2">
                                             <Input value={incidenteInput} onChange={e => setIncidenteInput(e.target.value)} placeholder="Ej: Rotura cristal mesa 4" className="h-12 rounded-xl bg-white/5 border-white/10" />
-                                            <Button onClick={handleAddIncidente} size="icon" className="h-12 w-12 rounded-xl shrink-0"><CirclePlus className="w-5 h-5"/></Button>
+                                            <Button onClick={handleAddIncidente} size="icon" className="h-12 w-12 rounded-xl shrink-0"><PlusCircle/></Button>
                                         </div>
                                         <ScrollArea className="h-40">
                                             <div className="space-y-2">

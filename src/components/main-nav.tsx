@@ -1,3 +1,4 @@
+
 "use client"
 
 import Link from "next/link";
@@ -38,7 +39,9 @@ import {
   FileArchive,
   History,
   Camera,
-  Printer
+  Printer,
+  Wallet,
+  Calculator
 } from "lucide-react";
 import AppLogo from "./app-logo";
 import { cn } from "@/lib/utils";
@@ -147,6 +150,20 @@ export function MainNav() {
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
+                    <Link href="/empresa/activos-fijos" passHref asChild>
+                      <SidebarMenuSubButton isActive={isActive("/empresa/activos-fijos")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
+                        Activos Fijos
+                      </SidebarMenuSubButton>
+                    </Link>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <Link href="/empresa/insumos" passHref asChild>
+                      <SidebarMenuSubButton isActive={isActive("/empresa/insumos")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
+                        Insumos
+                      </SidebarMenuSubButton>
+                    </Link>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
                     <Link href="/empleados" passHref asChild>
                       <SidebarMenuSubButton isActive={isActive("/empleados")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
                         Recursos Humanos
@@ -185,6 +202,13 @@ export function MainNav() {
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <Link href="/contabilidad/crm/agenda" passHref asChild>
+                      <SidebarMenuSubButton isActive={isActive("/contabilidad/crm/agenda")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
+                        Agenda Citas
+                      </SidebarMenuSubButton>
+                    </Link>
+                  </SidebarMenuSubItem>
                    <SidebarMenuSubItem>
                     <Link href="/customers" passHref asChild>
                       <SidebarMenuSubButton isActive={isActive("/customers")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
@@ -203,6 +227,27 @@ export function MainNav() {
                     <Link href="/invoices" passHref asChild>
                       <SidebarMenuSubButton isActive={isActive("/invoices")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
                         Facturación
+                      </SidebarMenuSubButton>
+                    </Link>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <Link href="/empresa/contabilidad/flujo-caja" passHref asChild>
+                      <SidebarMenuSubButton isActive={isActive("/empresa/contabilidad/flujo-caja")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter text-blue-600">
+                        Flujo de Caja
+                      </SidebarMenuSubButton>
+                    </Link>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <Link href="/empresa/contabilidad/gastos" passHref asChild>
+                      <SidebarMenuSubButton isActive={isActive("/empresa/contabilidad/gastos")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
+                        Gastos Empresa
+                      </SidebarMenuSubButton>
+                    </Link>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <Link href="/contabilidad/fiestas-historicas" passHref asChild>
+                      <SidebarMenuSubButton isActive={isActive("/contabilidad/fiestas-historicas")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
+                        Historial Base
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
