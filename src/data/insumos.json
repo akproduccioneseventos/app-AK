@@ -34,7 +34,7 @@
   { "id": "ing-salame", "nombre": "Salame", "tipoItem": "Insumo/Ingrediente", "categoria": "Fiambres", "valorUnitarioEstimado": 430, "unidad": "Kg", "proveedor": "EL TROPERO" },
   { "id": "ing-bondiola-ahumada", "nombre": "Bondiola ahumada", "tipoItem": "Insumo/Ingrediente", "categoria": "Fiambres", "valorUnitarioEstimado": 800, "unidad": "Kg", "proveedor": "EL TROPERO" },
   { "id": "ing-queso-alpa", "nombre": "Queso alpa", "tipoItem": "Insumo/Ingrediente", "categoria": "Lácteos", "valorUnitarioEstimado": 280, "unidad": "Kg", "proveedor": "EL TROPERO" },
-  { "id": "ing-leonesa", "nombre": "Leonesa primavera", "tipoItem": "Insumo/Ingrediente", "categoria": "Fiambres", "valorUnitarioEstimated": 322, "unidad": "Kg", "proveedor": "EL TROPERO" },
+  { "id": "ing-leonesa", "nombre": "Leonesa primavera", "tipoItem": "Insumo/Ingrediente", "categoria": "Fiambres", "valorUnitarioEstimado": 322, "unidad": "Kg", "proveedor": "EL TROPERO" },
   { "id": "ing-aceitunas-s-carozo", "nombre": "Aceitunas s/ carozo", "tipoItem": "Insumo/Ingrediente", "categoria": "Insumos varios", "valorUnitarioEstimado": 250, "unidad": "Kg", "proveedor": "UNIPLAS" },
   { "id": "ing-grisines", "nombre": "Grisines chicos", "tipoItem": "Insumo/Ingrediente", "categoria": "Panificados", "valorUnitarioEstimado": 370, "unidad": "Kg", "proveedor": "BISIO" },
   { "id": "ing-galletas-sin-sal", "nombre": "Galletas malteadas sin sal", "tipoItem": "Insumo/Ingrediente", "categoria": "Panificados", "valorUnitarioEstimado": 270, "unidad": "Kg", "proveedor": "DON DIEGO" },

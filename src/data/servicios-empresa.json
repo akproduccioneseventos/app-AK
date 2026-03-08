@@ -8,7 +8,7 @@
   { "id": "serv_invitaciones_digitales", "nombre": "Invitaciones digitales", "tipoItem": "Servicio", "categoria": "Regalo exclusivo", "valorUnitarioEstimado": 0, "precioVenta": 2500, "calculationMethod": "fijo" },
   { "id": "serv_pantalla_proyector", "nombre": "Pantalla gigante y proyector", "tipoItem": "Servicio", "categoria": "Regalo exclusivo", "valorUnitarioEstimado": 0, "precioVenta": 2500, "calculationMethod": "fijo" },
   { "id": "serv_video_vida", "nombre": "Video de vida", "tipoItem": "Servicio", "categoria": "Regalo exclusivo", "valorUnitarioEstimado": 0, "precioVenta": 2500, "calculationMethod": "fijo" },
-  { "id": "serv_plataforma360_regalo", "nombre": "Plataforma 360", "tipoItem": "Servicio", "categoria": "Regalo exclusivo", "valorUnitarioEstimado": 1500, "precioVenta": 4500, "calculationMethod": "fijo" },
+  { "id": "serv_plataforma360_regalo", "nombre": "Plataforma 360", "tipoItem": "Servicio", "categoria": "Regalo exclusivo", "valorUnitarioEstimated": 1500, "precioVenta": 4500, "calculationMethod": "fijo" },
   { "id": "serv_foto_fiesta", "nombre": "Fotografía de fiestas", "tipoItem": "Servicio", "categoria": "Servicio de fotografía", "valorUnitarioEstimado": 3300, "precioVenta": 8500, "calculationMethod": "fijo" },
   { "id": "serv_foto_ext", "nombre": "Fotografía de exteriores", "tipoItem": "Servicio", "categoria": "Servicio de fotografía", "valorUnitarioEstimado": 1650, "precioVenta": 3900, "calculationMethod": "fijo" },
   { "id": "serv_deco_basica", "nombre": "Decoración básica", "tipoItem": "Servicio", "categoria": "Servicio de decoración", "valorUnitarioEstimado": 5000, "precioVenta": 14500, "calculationMethod": "fijo" }
