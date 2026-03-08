@@ -6,7 +6,7 @@ import Link from 'next/link';
 import NextImage from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer as PrinterIcon, Save, Loader2, Edit, Upload, Image as ImageIcon, Download, AlertTriangle, Info } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, Save, Loader2, Edit, Upload, Image as ImageIcon, Download, AlertTriangle, Info, Plus, Minus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, NumerosMesaData } from '@/types/fiesta';
 import { getFiestaById, updateNumerosMesa as updateNumerosMesaAction } from '@/app/actions/fiesta/fiesta.actions';
@@ -18,7 +18,6 @@ import { defaultNumerosMesaData } from '@/lib/fiesta-defaults';
 import html2canvas from 'html2canvas';
 import { cn } from '@/lib/utils';
 
-// Helper formatting date
 const formatDate = (dateString?: string) => {
   if (!dateString) return "____________";
   try {
@@ -28,6 +27,29 @@ const formatDate = (dateString?: string) => {
   } catch (e) {
     return "Fecha inválida";
   }
+};
+
+const Ornament: React.FC<{ position: string; color: string }> = ({ position, color }) => {
+    const baseClasses = "absolute w-12 h-12 border-2";
+    const positionClasses = {
+        'top-left': 'top-4 left-4 border-t-0 border-r-0',
+        'top-right': 'top-4 right-4 border-t-0 border-l-0',
+        'bottom-left': 'bottom-4 left-4 border-b-0 border-r-0',
+        'bottom-right': 'bottom-4 right-4 border-b-0 border-l-0',
+    };
+    const innerClasses = "absolute w-6 h-6 border-2";
+    const innerPositionClasses = {
+        'top-left': 'top-[-2px] left-[-2px] border-t-0 border-r-0',
+        'top-right': 'top-[-2px] right-[-2px] border-t-0 border-l-0',
+        'bottom-left': 'bottom-[-2px] left-[-2px] border-b-0 border-r-0',
+        'bottom-right': 'bottom-[-2px] right-[-2px] border-b-0 border-l-0',
+    }
+
+    return (
+        <div className={cn(baseClasses, positionClasses[position as keyof typeof positionClasses])} style={{ borderColor: color }}>
+            <div className={cn(innerClasses, innerPositionClasses[position as keyof typeof innerPositionClasses])} style={{ borderColor: color }} />
+        </div>
+    );
 };
 
 const TableNumberComponent: React.FC<{
@@ -43,28 +65,38 @@ const TableNumberComponent: React.FC<{
 
   return (
     <div className={cn(
-        "w-full h-full relative bg-white overflow-hidden border border-gray-200", 
+        "w-full h-full relative bg-white overflow-hidden flex flex-col items-center justify-center border-2", 
         inverted && 'transform rotate-180'
-    )}>
+    )} style={{ borderColor: data.colorPrincipal }}>
+        
+        <Ornament position="top-left" color={data.colorPrincipal} />
+        <Ornament position="top-right" color={data.colorPrincipal} />
+        <Ornament position="bottom-left" color={data.colorPrincipal} />
+        <Ornament position="bottom-right" color={data.colorPrincipal} />
+
         {data.backgroundImageUrl && (
-            <div className="absolute inset-0 opacity-40">
-                <NextImage src={data.backgroundImageUrl} layout="fill" objectFit="cover" alt="" data-ai-hint="floral background decoration"/>
+            <div className="absolute inset-0 opacity-20 -z-10">
+                <NextImage src={data.backgroundImageUrl} layout="fill" objectFit="cover" alt="" />
             </div>
         )}
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4 z-10">
-            <h2 className="font-dancing text-7xl md:text-8xl mb-2" style={{ color: data.colorPrincipal }}>
-                {`Mesa ${tableNumber}`}
+
+        <div className="text-center p-8 z-10">
+            <h2 className="font-dancing text-[120px] leading-none mb-4" style={{ color: data.colorPrincipal }}>
+                {tableNumber}
             </h2>
-            <p className="font-headline text-2xl uppercase tracking-widest" style={{ color: data.colorSecundario }}>
-                {protagonistaNombre}
-            </p>
-            <p className="font-body text-lg opacity-70 mt-1" style={{ color: data.colorSecundario }}>
-                {eventDate}
-            </p>
+            <div className="space-y-1">
+                <p className="font-headline text-3xl uppercase tracking-[0.2em] font-bold" style={{ color: data.colorSecundario }}>
+                    {protagonistaNombre}
+                </p>
+                <p className="font-body text-xl opacity-60 font-semibold italic" style={{ color: data.colorSecundario }}>
+                    {eventDate}
+                </p>
+            </div>
         </div>
+
         {logoUrl && (
-             <div className={cn("absolute w-12 h-12 z-20", inverted ? 'top-4 left-4' : 'bottom-4 right-4')}>
-                <NextImage src={logoUrl} alt="logo" layout="fill" className="object-contain" data-ai-hint="company logo watermark"/>
+             <div className={cn("absolute w-16 h-16 z-20 opacity-30", inverted ? 'top-10 left-10' : 'bottom-10 right-10')}>
+                <NextImage src={logoUrl} alt="logo" layout="fill" className="object-contain" />
              </div>
         )}
     </div>
@@ -86,7 +118,7 @@ function NumerosDeMesaContent() {
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [tableCount, setTableCount] = useState(0);
+  const [tableCount, setTableCount] = useState(20);
 
   const loadData = useCallback(async () => {
     if (!fiestaId) return;
@@ -110,7 +142,9 @@ function NumerosDeMesaContent() {
       setData(mergedData);
       
       const tables = fiestaData.decoracion?.salonElements?.filter(el => el.category?.toLowerCase().includes('mesa')) || [];
-      setTableCount(tables.length);
+      if (tables.length > 0) {
+          setTableCount(tables.length);
+      }
     } catch (e: any) {
       setError("No se pudo cargar la información del evento.");
       toast({ title: "Error", description: e.message, variant: "destructive" });
@@ -165,121 +199,91 @@ function NumerosDeMesaContent() {
 
   const handlePrint = () => window.print();
 
-  const handleDownloadJpg = async () => {
-    if (!printRef.current) return;
-    toast({ title: "Generando imágenes...", description: "Esto puede tardar unos segundos."});
-    try {
-        const canvas = await html2canvas(printRef.current, { 
-            scale: 2,
-            useCORS: true,
-            backgroundColor: '#ffffff'
-        });
-        const link = document.createElement('a');
-        link.download = `numeros-mesa-${fiesta?.configuracion.nombreEvento}.jpg`;
-        link.href = canvas.toDataURL('image/jpeg', 0.9);
-        link.click();
-        toast({ title: "¡Descarga iniciada!" });
-    } catch(e) {
-        toast({ title: "Error al generar imagen", variant: "destructive"});
-    }
-  };
-
   if (isLoading || !fiesta) {
     return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   }
   
-  if (error) {
-    return <div className="p-8 text-center text-destructive flex flex-col items-center gap-4">
-        <AlertTriangle className="w-12 h-12"/>
-        <p className="font-semibold">{error}</p>
-        <Link href={`/fiestas/nueva/invitados/layout?fiestaId=${fiestaId}`}><Button variant="outline">Volver al Diseñador</Button></Link>
-    </div>;
-  }
-
   return (
     <div className="bg-muted/30 min-h-screen">
         <div className="py-3 px-4 print:hidden flex flex-col md:flex-row justify-between items-center gap-4 bg-background border-b sticky top-0 z-50 shadow-sm">
             <div className="flex items-center gap-3">
                 <PrinterIcon className="w-6 h-6 text-primary"/>
-                <h1 className="font-headline text-xl font-bold">Impresión de Números de Mesa</h1>
+                <h1 className="font-headline text-xl font-bold">Generador de Números de Mesa</h1>
             </div>
-            <div className="flex flex-wrap gap-2 items-center">
+            
+            <div className="flex flex-wrap gap-4 items-center">
+              {/* Table Count Selector */}
+              <div className="flex items-center bg-slate-100 rounded-xl p-1 border">
+                  <Label className="px-3 text-[10px] font-black uppercase text-slate-500">Cantidad</Label>
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setTableCount(Math.max(1, tableCount - 1))}><Minus className="w-3 h-3"/></Button>
+                  <Input 
+                    type="number" 
+                    value={tableCount} 
+                    onChange={e => setTableCount(parseInt(e.target.value) || 1)}
+                    className="w-12 h-8 text-center bg-transparent border-none font-bold p-0"
+                  />
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setTableCount(tableCount + 1)}><Plus className="w-3 h-3"/></Button>
+              </div>
+
               <div className="flex flex-col">
                 <Label htmlFor="bg-image-upload" className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Imagen Fondo</Label>
                 <Input id="bg-image-upload" type="file" accept="image/*" onChange={handleBackgroundImageUpload} className="text-xs w-40 h-8" disabled={isUploading}/>
               </div>
+              
               <div className="flex flex-col">
-                 <Label className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Título</Label>
+                 <Label className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Color Principal</Label>
                  <Input type="color" value={data.colorPrincipal || '#9333ea'} onChange={e => handleUpdate('colorPrincipal', e.target.value)} className="w-10 h-8 p-0.5"/>
               </div>
-               <div className="flex flex-col">
-                 <Label className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Texto</Label>
-                 <Input type="color" value={data.colorSecundario || '#363636'} onChange={e => handleUpdate('colorSecundario', e.target.value)} className="w-10 h-8 p-0.5"/>
-              </div>
-              <div className="flex flex-col">
-                 <Label className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Nombre</Label>
-                 <Input value={data.protagonistaNombre} onChange={e => handleUpdate('protagonistaNombre', e.target.value)} className="h-8 w-28 text-xs"/>
-              </div>
-               <div className="flex items-end gap-2 ml-2">
+
+              <div className="flex items-end gap-2 ml-2">
                  <Button size="sm" onClick={handleSave} disabled={isSaving} title="Guardar cambios">
                     {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>}
+                    Guardar
                  </Button>
-                 <Button onClick={handleDownloadJpg} size="sm" variant="outline" title="Descargar JPG"><Download className="w-4 h-4"/></Button>
-                 <Button onClick={handlePrint} size="sm" variant="outline" title="Imprimir PDF"><PrinterIcon className="w-4 h-4"/></Button>
-                 <Link href={`/fiestas/nueva/invitados/layout?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4"/></Button></Link>
-               </div>
+                 <Button onClick={handlePrint} size="sm" variant="outline" title="Imprimir PDF" className="font-bold">
+                    <PrinterIcon className="w-4 h-4 mr-2"/> IMPRIMIR TODO
+                 </Button>
+                 <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4"/></Button></Link>
+              </div>
             </div>
         </div>
 
-        {tableCount === 0 ? (
-            <div className="max-w-md mx-auto mt-20 text-center space-y-4 p-8 bg-white rounded-lg shadow-md border-2 border-dashed">
-                <div className="p-4 bg-primary/10 rounded-full inline-block mb-2">
-                    <Info className="w-12 h-12 text-primary mx-auto"/>
-                </div>
-                <h3 className="text-xl font-bold font-headline">No se detectaron mesas</h3>
-                <p className="text-muted-foreground">Debes añadir mesas en el <strong>Diseñador de Salón</strong> para poder imprimir sus números.</p>
-                <Link href={`/fiestas/nueva/invitados/layout?fiestaId=${fiestaId}`}>
-                    <Button>Ir al Diseñador de Salón</Button>
-                </Link>
-            </div>
-        ) : (
-            <div className="flex flex-col items-center py-8 gap-8 print:gap-0 print:py-0" ref={printRef}>
-                {Array.from({ length: Math.ceil(tableCount / 2) }).map((_, pageIndex) => {
-                    const tableNum1 = pageIndex * 2 + 1;
-                    const tableNum2 = pageIndex * 2 + 2;
+        <div className="flex flex-col items-center py-8 gap-8 print:gap-0 print:py-0" ref={printRef}>
+            {Array.from({ length: Math.ceil(tableCount / 2) }).map((_, pageIndex) => {
+                const tableNum1 = pageIndex * 2 + 1;
+                const tableNum2 = pageIndex * 2 + 2;
 
-                    return (
-                        <div key={pageIndex} className="w-[210mm] h-[297mm] bg-white shadow-2xl print:shadow-none print:break-after-page flex flex-col p-8 print:p-0">
-                            <div className="flex-1 grid grid-cols-2 gap-8 print:gap-0">
+                return (
+                    <div key={pageIndex} className="w-[210mm] h-[297mm] bg-white shadow-2xl print:shadow-none print:break-after-page flex flex-col p-8 print:p-0">
+                        <div className="flex-1 grid grid-cols-2 gap-8 print:gap-0">
+                            <div className="flex flex-col h-full border border-dashed border-gray-200 print:border-none">
+                                <div className="flex-1 p-4 print:p-0">
+                                    <TableNumberComponent tableNumber={tableNum1} inverted fiesta={fiesta} data={data} logoUrl={logoUrl}/>
+                                </div>
+                                <div className="flex-1 p-4 print:p-0">
+                                    <TableNumberComponent tableNumber={tableNum1} fiesta={fiesta} data={data} logoUrl={logoUrl}/>
+                                </div>
+                            </div>
+
+                            {tableNum2 <= tableCount ? (
                                 <div className="flex flex-col h-full border border-dashed border-gray-200 print:border-none">
-                                    <div className="flex-1">
-                                        <TableNumberComponent tableNumber={tableNum1} inverted fiesta={fiesta} data={data} logoUrl={logoUrl}/>
+                                    <div className="flex-1 p-4 print:p-0">
+                                        <TableNumberComponent tableNumber={tableNum2} inverted fiesta={fiesta} data={data} logoUrl={logoUrl}/>
                                     </div>
-                                    <div className="flex-1">
-                                        <TableNumberComponent tableNumber={tableNum1} fiesta={fiesta} data={data} logoUrl={logoUrl}/>
+                                    <div className="flex-1 p-4 print:p-0">
+                                        <TableNumberComponent tableNumber={tableNum2} fiesta={fiesta} data={data} logoUrl={logoUrl}/>
                                     </div>
                                 </div>
-
-                                {tableNum2 <= tableCount ? (
-                                    <div className="flex flex-col h-full border border-dashed border-gray-200 print:border-none">
-                                        <div className="flex-1">
-                                            <TableNumberComponent tableNumber={tableNum2} inverted fiesta={fiesta} data={data} logoUrl={logoUrl}/>
-                                        </div>
-                                        <div className="flex-1">
-                                            <TableNumberComponent tableNumber={tableNum2} fiesta={fiesta} data={data} logoUrl={logoUrl}/>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="flex-1 bg-gray-50 flex items-center justify-center text-muted-foreground italic border border-dashed">
-                                        Espacio vacío
-                                    </div>
-                                )}
-                            </div>
+                            ) : (
+                                <div className="flex-1 bg-slate-50 flex items-center justify-center text-slate-300 font-black uppercase tracking-widest text-xs border border-dashed">
+                                    Fin de lista
+                                </div>
+                            )}
                         </div>
-                    );
-                })}
-            </div>
-        )}
+                    </div>
+                );
+            })}
+        </div>
 
         <style jsx global>{`
             @import url('https://fonts.googleapis.com/css2?family=Belleza&family=Dancing+Script:wght@700&display=swap');
