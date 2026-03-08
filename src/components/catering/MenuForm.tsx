@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent, type ChangeEvent } from 'react';
@@ -45,8 +43,10 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
   const calculateIngredientCost = useCallback((ing: Partial<Ingredient>): number => {
       const quantity = parseFloat(ing.quantityPerPerson || '0');
       const unitCost = Number(ing.costoUnitario) || 0;
-      const unit = ing.unit?.toLowerCase();
-      if (unit === 'g' || unit === 'ml' || unit === 'gramos') {
+      const unit = ing.unit?.toLowerCase().trim() || '';
+      
+      // Normalización de unidades para división por 1000
+      if (['g', 'gr', 'gramos', 'ml', 'cc', 'cm3'].includes(unit)) {
           return (quantity / 1000) * unitCost;
       }
       return quantity * unitCost;
@@ -61,7 +61,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     let finalProfitMargin: number;
     let finalSuggestedSellingPrice: number;
 
-    if (item.suggestedSellingPrice !== undefined && !isNaN(Number(item.suggestedSellingPrice))) {
+    if (item.suggestedSellingPrice !== undefined && !isNaN(Number(item.suggestedSellingPrice)) && Number(item.suggestedSellingPrice) > 0) {
         finalSuggestedSellingPrice = Math.round(Number(item.suggestedSellingPrice));
         if (totalDishCost > 0) {
             finalProfitMargin = Math.round(((finalSuggestedSellingPrice / totalDishCost) - 1) * 100);
@@ -139,7 +139,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                    handleItemChange(itemId, 'imageUrl', reader.result as string);
               };
               reader.readAsDataURL(value);
-              return item; // Return original item for now, update will be triggered by onloadend
+              return item; 
           }
           return calculatePrices(updatedItem);
         }
@@ -318,7 +318,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
             <DialogHeader><DialogTitle>Seleccionar Ingrediente del Catálogo</DialogTitle></DialogHeader>
             <div className="py-2 space-y-2">
                 <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"/><Input placeholder="Buscar insumo..." value={catalogSearchTerm} onChange={e => setCatalogSearchTerm(e.target.value)} className="pl-9"/></div>
-                <ScrollArea className="h-64 border rounded-md p-1"><ul className="space-y-1">{filteredInsumos.length > 0 ? (filteredInsumos.map(insumo => (<li key={insumo.id}><Button type="button" variant="ghost" className="w-full justify-start text-left h-auto" onClick={() => { if (currentItemIdForCatalog) { addIngredientFromCatalog(currentItemIdForCatalog, insumo); } setIsCatalogModalOpen(false); }}><div><p className="font-medium text-sm">{insumo.nombre}</p><p className="text-xs text-muted-foreground">{formatCurrency(insumo.valorUnitarioEstimado)} / {insumo.unidad}</p></div></Button></li>))) : <li className="p-4 text-sm text-center text-muted-foreground">No se encontraron insumos. <Link href="/empresa/insumos/nuevo?from=gastronomia" className="text-primary underline">Añadir al catálogo</Link>.</li>}</ul></ScrollArea>
+                <ScrollArea className="h-64 border rounded-md p-1"><ul className="space-y-1">{filteredInsumos.length > 0 ? filteredInsumos.map(insumo => (<li key={insumo.id}><Button type="button" variant="ghost" className="w-full justify-start text-left h-auto" onClick={() => { if (currentItemIdForCatalog) { addIngredientFromCatalog(currentItemIdForCatalog, insumo); } setIsCatalogModalOpen(false); }}><div><p className="font-medium text-sm">{insumo.nombre}</p><p className="text-xs text-muted-foreground">{formatCurrency(insumo.valorUnitarioEstimado)} / {insumo.unidad}</p></div></Button></li>)) : <li className="p-4 text-sm text-center text-muted-foreground">No se encontraron insumos. <Link href="/empresa/insumos/nuevo?from=gastronomia" className="text-primary underline">Añadir al catálogo</Link>.</li>}</ul></ScrollArea>
             </div>
              <DialogFooter><DialogClose asChild><Button variant="outline">Cerrar</Button></DialogClose></DialogFooter>
         </DialogContent>

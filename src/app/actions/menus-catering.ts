@@ -63,8 +63,8 @@ function calculateIngredientCost(ing: Partial<Ingredient>): number {
     const unit = (ing.unit || '').toLowerCase().trim();
     if (isNaN(quantity) || isNaN(unitCost)) return 0;
     
-    // Gramos, ml, cc, gramos (variantes) -> divide by 1000 to get kg/lt cost
-    if (['g', 'ml', 'gramos', 'cc'].includes(unit)) {
+    // Unidades de medida que requieren división por 1000 (g, gr, gramos, ml, cc, cm3)
+    if (['g', 'gr', 'gramos', 'ml', 'cc', 'cm3'].includes(unit)) {
       return (quantity / 1000) * unitCost;
     }
     
