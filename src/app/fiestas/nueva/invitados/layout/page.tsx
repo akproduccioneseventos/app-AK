@@ -487,7 +487,7 @@ function SalonLayoutContent() {
   const pixelsPerMeter = decoracion.pixelsPerMeter || PIXELS_PER_METER_DEFAULT;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-32">
        <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
         <DialogContent className="rounded-3xl border-none">
           <DialogHeader><DialogTitle className="font-headline text-2xl">Ajustar Medidas</DialogTitle></DialogHeader>
@@ -675,7 +675,7 @@ function SalonLayoutContent() {
                             </SelectTrigger>
                             <SelectContent className="rounded-xl border-none shadow-2xl">
                                 <SelectItem value="all">Todos los grupos</SelectItem>
-                                <DropdownMenuSeparator/>
+                                <DropdownMenuSeparator className="bg-slate-100"/>
                                 {allTags.map(tag => (
                                     <SelectItem key={tag} value={tag}>{tag}</SelectItem>
                                 ))}
@@ -843,10 +843,13 @@ function SalonLayoutContent() {
             </Card>
         </TabsContent>
       </Tabs>
-      <div className="flex justify-end pt-4 border-t border-slate-100 mb-10">
-        <Button onClick={handleSaveAll} disabled={isSaving} size="lg" className="rounded-2xl px-10 h-14 font-black text-base shadow-2xl shadow-primary/30">
-            {isSaving ? <Loader2 className="w-5 h-5 mr-3 animate-spin"/> : <Save className="w-5 h-5 mr-3"/>} GUARDAR DISTRIBUCIÓN
-        </Button>
+
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-xl border-t border-slate-100 z-50 print:hidden">
+        <div className="max-w-4xl mx-auto flex justify-end">
+            <Button onClick={handleSaveAll} disabled={isSaving} size="lg" className="rounded-2xl px-12 h-14 font-black text-base shadow-2xl shadow-primary/30">
+                {isSaving ? <Loader2 className="w-5 h-5 mr-3 animate-spin"/> : <Save className="w-5 h-5 mr-3"/>} GUARDAR DISTRIBUCIÓN
+            </Button>
+        </div>
       </div>
     </div>
   );
