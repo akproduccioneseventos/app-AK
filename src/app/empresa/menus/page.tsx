@@ -30,6 +30,7 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Badge } from '@/components/ui/badge';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -39,7 +40,7 @@ const formatCurrency = (amount?: number) => {
 export default function GestionMenusPage() {
   const { toast } = useToast();
   
-  // Menus State (Untouched logic)
+  // Menus State
   const [menus, setMenus] = useState<FullMenu[]>([]);
   
   // New Services State
@@ -82,7 +83,7 @@ export default function GestionMenusPage() {
     fetchData();
   }, [fetchData]);
 
-  // --- MENU ACTIONS (UNTOUCHED) ---
+  // --- MENU ACTIONS ---
   const handleDeleteMenu = async (id: string, name: string) => {
     setProcessingId(id);
     try {
@@ -426,7 +427,7 @@ export default function GestionMenusPage() {
             </Card>
         </div>
 
-        {/* AJUSTE DE MARGENES (UNTOUCHED LOGIC) */}
+        {/* AJUSTE DE MARGENES */}
         <Card className="border-none shadow-xl rounded-[2.5rem] overflow-hidden bg-slate-900 text-white">
             <CardHeader className="p-8">
                 <CardTitle className="font-headline text-2xl flex items-center gap-3">
@@ -446,14 +447,14 @@ export default function GestionMenusPage() {
                     </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent className="rounded-3xl border-none shadow-2xl">
-                    <AlertDialogHeader><AlertDialogTitle className="font-headline text-2xl">¿Estás seguro?</AlertDialogTitle><AlertDialogDescription className="text-sm font-medium">Esta acción modificará los márgenes de todos los platos en un {adjustmentPercentage}%. El cambio es irreversible.</AlertDialogDescription></AlertDialogHeader>
+                    <AlertDialogHeader><AlertDialogTitle className="font-headline text-2xl">¿Estás seguro?</AlertDialogTitle><AlertDialogDescription className="font-medium text-sm">Esta acción modificará los márgenes de todos los platos en un {adjustmentPercentage}%. El cambio es irreversible.</AlertDialogDescription></AlertDialogHeader>
                     <AlertDialogFooter className="gap-2"><AlertDialogCancel className="rounded-xl">Cancelar</AlertDialogCancel><AlertDialogAction onClick={handleAdjustMargins} className="rounded-xl bg-primary">Confirmar Ajuste</AlertDialogAction></AlertDialogFooter>
                     </AlertDialogContent>
                 </AlertDialog>
             </CardContent>
         </Card>
 
-        {/* MENUS GUARDADOS (UNTOUCHED LOGIC) */}
+        {/* MENUS GUARDADOS */}
         <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
             <CardHeader className="p-8 bg-slate-50 border-b border-slate-100">
                 <div className="flex items-center gap-3">
