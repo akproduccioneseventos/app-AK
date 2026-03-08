@@ -86,7 +86,7 @@ export default function GestionMenusPage() {
         throw new Error(result.error);
       }
     } catch (err: any) {
-      toast({ title: 'Error al Eliminar', description: err.message, variant: 'destructive' });
+      toast({ title: 'Error al Eliminar', description: err.message, variant: "destructive" });
     } finally {
       setProcessingId(null);
     }
@@ -261,7 +261,7 @@ export default function GestionMenusPage() {
         <CardContent className="space-y-4">
           {isLoading ? (
             <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>
-          ) : menus.length > 0 ? (
+          ) : (menus && menus.length > 0) ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {menus.map(menu => (
               <Card key={menu.id} className="flex flex-col shadow-sm hover:shadow-md transition-shadow">
@@ -290,7 +290,7 @@ export default function GestionMenusPage() {
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
-                        <AlertDialogHeader><AlertDialogTitle>¿Eliminar Menú?</AlertDialogTitle><AlertDialogDescription>Se eliminará la plantilla "{menu.name}".</AlertDialogDescription></AccordionHeader>
+                        <AlertDialogHeader><AlertDialogTitle>¿Eliminar Menú?</AlertDialogTitle><AlertDialogDescription>Se eliminará la plantilla "{menu.name}".</AlertDialogDescription></AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancelar</AlertDialogCancel>
                           <AlertDialogAction onClick={() => handleDelete(menu.id, menu.name)} className="bg-destructive hover:bg-destructive/80">Eliminar</AlertDialogAction>

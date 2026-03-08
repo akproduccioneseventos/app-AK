@@ -1,5 +1,3 @@
-
-
 'use server';
 
 import type { FullMenu, MenuItem, Ingredient } from '@/types/catering';
@@ -31,14 +29,13 @@ async function readMenusFile(): Promise<FullMenu[]> {
     const fileContent = await fs.readFile(menusFilePath, 'utf-8');
     if (fileContent.trim() === '') return [];
     const menus = JSON.parse(fileContent) as FullMenu[];
-    // Ensure costs are numbers and new ingredient fields are present
     return menus.map(menu => ({
       ...menu,
       items: menu.items.map(item => ({
         ...item,
         ingredients: item.ingredients.map(ingredient => ({
           ...ingredient,
-          quantityPerPerson: ingredient.quantityPerPerson || '0', // Ensure exists, default to '0' if migrating
+          quantityPerPerson: ingredient.quantityPerPerson || '0',
           costoUnitario: Number(ingredient.costoUnitario) || 0,
           costoTotalReceta: Number(ingredient.costoTotalReceta) || 0,
           proveedor: ingredient.proveedor || undefined,
@@ -73,74 +70,28 @@ async function writeMenusFile(data: FullMenu[]): Promise<void> {
 function calculateIngredientCost(ing: Partial<Ingredient>): number {
     const quantity = parseFloat(ing.quantityPerPerson || '0');
     const unitCost = Number(ing.costoUnitario) || 0;
-    const unit = ing.unit?.toLowerCase();
+    const unit = (ing.unit || '').toLowerCase().trim();
     if (isNaN(quantity) || isNaN(unitCost)) return 0;
-    if (unit === 'g' || unit === 'ml' || unit === 'gramos') {
+    
+    // Gramos, ml, cc -> divide by 1000 to get kg/lt cost
+    if (['g', 'ml', 'gramos', 'cc'].includes(unit)) {
       return (quantity / 1000) * unitCost;
     }
+    
+    // If quantity is high (e.g. > 1) and unit is Kg/Litros, it's likely meant to be g/ml based on user data
+    if (['litros', 'kg', 'kilos', 'kilo', 'litro'].includes(unit) && quantity > 1) {
+        return (quantity / 1000) * unitCost;
+    }
+
     return quantity * unitCost;
 }
 
-// Helper to calculate totalDishCost for a MenuItem based on its ingredients
 function calculateDishCostPerPerson(ingredients: Ingredient[]): number {
   return ingredients.reduce((sum, ing) => sum + calculateIngredientCost(ing), 0);
 }
 
-
-async function initializeLocalMenusFile() {
-  const menus = await readMenusFile();
-  let needsResave = menus.some(menu => 
-      menu.items.some(item => 
-        item.ingredients.some(ing => 
-          (ing as any).cost !== undefined || // Old field
-          !('costoUnitario' in ing) ||
-          !('costoTotalReceta' in ing) ||
-          !('proveedor' in ing) || 
-          !('marca' in ing) ||
-          !('fecha_actualizacion' in ing) ||
-          !('quantityPerPerson' in ing) ||
-          !('origenId' in ing)
-        ) ||
-        (item as any).hasOwnProperty('basePortions') ||
-        (item as any).hasOwnProperty('costPerPortion')
-      )
-    );
-
-    if (needsResave) {
-      console.log("Migrating menus-catering.json...");
-      const correctedMenus = menus.map(menu => ({
-        ...menu,
-        items: menu.items.map(item => {
-          const { basePortions, costPerPortion, ...restOfItem } = item as any; // Remove old fields
-          return {
-            ...restOfItem,
-            ingredients: item.ingredients.map(ingredient => {
-              const { cost, ...restOfIng } = ingredient as any; // Remove old cost field
-              return {
-                ...restOfIng,
-                quantityPerPerson: ingredient.quantityPerPerson || '0',
-                costoUnitario: Number(ingredient.costoUnitario) || 0,
-                costoTotalReceta: Number(ingredient.costoTotalReceta) || 0,
-                proveedor: ingredient.proveedor || undefined,
-                marca: ingredient.marca || undefined,
-                fecha_actualizacion: ingredient.fecha_actualizacion || undefined,
-                origenId: ingredient.origenId || undefined,
-              }
-            }),
-            totalDishCost: Number(item.totalDishCost) || 0,
-          };
-        })
-      }));
-      await writeMenusFile(correctedMenus);
-      console.log("Migration complete for menus-catering.json.");
-    }
-}
-initializeLocalMenusFile();
-
-
 export async function getMenus(): Promise<FullMenu[]> {
   const menus = await readMenusFile();
-  // Add price calculation logic here for every item to fix N/A issues.
   return menus.map(menu => ({
     ...menu,
     items: menu.items.map(item => {
@@ -151,7 +102,7 @@ export async function getMenus(): Promise<FullMenu[]> {
       const totalDishCost = calculateDishCostPerPerson(ingredientsWithCost);
       const profitMargin = item.profitMargin === undefined || isNaN(Number(item.profitMargin)) ? 100 : Number(item.profitMargin);
       
-      const suggestedSellingPrice = item.suggestedSellingPrice !== undefined
+      const suggestedSellingPrice = item.suggestedSellingPrice !== undefined && !isNaN(Number(item.suggestedSellingPrice))
           ? Math.round(item.suggestedSellingPrice)
           : Math.round(totalDishCost * (1 + profitMargin / 100));
 
@@ -167,7 +118,7 @@ export async function getMenus(): Promise<FullMenu[]> {
 }
 
 export async function getMenuById(id: string): Promise<FullMenu | null> {
-  const menus = await getMenus(); // Use getMenus to get calculated prices
+  const menus = await getMenus();
   return menus.find(menu => menu.id === id) || null;
 }
 
@@ -176,7 +127,6 @@ async function processMenuForSave(menuData: Omit<FullMenu, 'id' | 'createdAt' | 
 
   const processedItems = menuData.items.map(item => {
     const ingredients = item.ingredients.map(ing => {
-      // If linked to catalog, sync price, name, and unit
       if (ing.origenId) {
         const catalogItem = catalogoInsumos.find(ci => ci.id === ing.origenId);
         if (catalogItem) {
@@ -188,10 +138,10 @@ async function processMenuForSave(menuData: Omit<FullMenu, 'id' | 'createdAt' | 
       return {
         ...ing,
         name: ing.name.trim(),
-        quantityPerPerson: ing.quantityPerPerson?.toString().trim() || '0', // Ensure it's a string
-        unit: ing.unit.trim(),
+        quantityPerPerson: ing.quantityPerPerson?.toString().trim() || '0',
+        unit: (ing.unit || '').trim(),
         costoUnitario: Number(ing.costoUnitario) || 0,
-        costoTotalReceta: calculateIngredientCost(ing), // Recalculate cost
+        costoTotalReceta: calculateIngredientCost(ing),
         proveedor: ing.proveedor?.trim() || undefined,
         marca: ing.marca?.trim() || undefined,
         fecha_actualizacion: ing.fecha_actualizacion?.trim() ? new Date(ing.fecha_actualizacion.trim()).toISOString() : undefined,
@@ -203,18 +153,14 @@ async function processMenuForSave(menuData: Omit<FullMenu, 'id' | 'createdAt' | 
     let finalProfitMargin: number;
     let finalSuggestedSellingPrice: number;
 
-    // Prioritize suggestedSellingPrice if it's a valid number provided by the user.
     if (item.suggestedSellingPrice !== undefined && !isNaN(Number(item.suggestedSellingPrice))) {
         finalSuggestedSellingPrice = Math.round(Number(item.suggestedSellingPrice));
-        // Recalculate margin based on the final price
         if (totalDishCost > 0) {
             finalProfitMargin = Math.round(((finalSuggestedSellingPrice / totalDishCost) - 1) * 100);
         } else {
-            // Can't calculate margin from 0 cost, so keep the existing margin or default
             finalProfitMargin = item.profitMargin === undefined ? 100 : Number(item.profitMargin);
         }
     } else {
-        // Fallback to calculating price from margin if price isn't set
         finalProfitMargin = item.profitMargin === undefined ? 100 : Number(item.profitMargin);
         finalSuggestedSellingPrice = Math.round(totalDishCost * (1 + finalProfitMargin / 100));
     }
@@ -223,9 +169,7 @@ async function processMenuForSave(menuData: Omit<FullMenu, 'id' | 'createdAt' | 
       ...item,
       name: item.name.trim(),
       ingredients,
-      totalDishCost, // This is now the cost per person for the dish
-      allergens: item.allergens?.trim() || undefined,
-      notes: item.notes?.trim() || undefined,
+      totalDishCost,
       profitMargin: finalProfitMargin,
       suggestedSellingPrice: finalSuggestedSellingPrice,
     };
@@ -234,11 +178,10 @@ async function processMenuForSave(menuData: Omit<FullMenu, 'id' | 'createdAt' | 
   return {
     ...menuData,
     name: menuData.name.trim(),
-    description: menuData.description.trim(),
+    description: (menuData.description || '').trim(),
     items: processedItems,
   } as FullMenu;
 }
-
 
 export async function saveMenu(
   menuDataInput: Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'> | FullMenu
@@ -337,4 +280,3 @@ export async function adjustAllDishMargins(
     return { success: false, error: "Ocurrió un error al intentar ajustar los márgenes." };
   }
 }
-    

@@ -1,3 +1,4 @@
+
 [
   { "id": "serv_mozos", "nombre": "Mozos", "tipoItem": "Servicio", "categoria": "Personal", "valorUnitarioEstimado": 2200, "calculationMethod": "ratio", "precioBase": 2900, "invitadosPorUnidad": 25 },
   { "id": "serv_mozo_cocina", "nombre": "Mozo de cocina", "tipoItem": "Servicio", "categoria": "Personal", "valorUnitarioEstimado": 2100, "calculationMethod": "ratio", "precioBase": 2900, "invitadosPorUnidad": 25 },
@@ -5,10 +6,10 @@
   { "id": "serv_manteleria_completa", "nombre": "Mantelería completa", "tipoItem": "Servicio", "categoria": "Servicio de catering", "valorUnitarioEstimado": 40, "calculationMethod": "porPersona", "precioPorPersona": 70 },
   { "id": "serv_barra_tragos", "nombre": "Barra de tragos", "tipoItem": "Servicio", "categoria": "Servicio de bebidas", "valorUnitarioEstimado": 125.45, "calculationMethod": "porPersona", "precioPorPersona": 251 },
   { "id": "serv_disco_intermedia", "nombre": "Discoteca intermedia", "tipoItem": "Servicio", "categoria": "Servicio de discoteca", "valorUnitarioEstimado": 4000, "precioVenta": 14000, "calculationMethod": "fijo" },
-  { "id": "serv_invitaciones_digitales", "nombre": "Invitaciones digitales", "tipoItem": "Servicio", "categoria": "Regalo exclusivo", "valorUnitarioEstimado": 0, "precioVenta": 2500, "calculationMethod": "fijo" },
-  { "id": "serv_pantalla_proyector", "nombre": "Pantalla gigante y proyector", "tipoItem": "Servicio", "categoria": "Regalo exclusivo", "valorUnitarioEstimado": 0, "precioVenta": 2500, "calculationMethod": "fijo" },
-  { "id": "serv_video_vida", "nombre": "Video de vida", "tipoItem": "Servicio", "categoria": "Regalo exclusivo", "valorUnitarioEstimado": 0, "precioVenta": 2500, "calculationMethod": "fijo" },
-  { "id": "serv_plataforma360", "nombre": "Plataforma 360", "tipoItem": "Servicio", "categoria": "Regalo exclusivo", "valorUnitarioEstimado": 1500, "precioVenta": 4500, "calculationMethod": "fijo" },
+  { "id": "serv_invitaciones_regalo", "nombre": "Invitaciones digitales", "tipoItem": "Servicio", "categoria": "Regalo exclusivo", "valorUnitarioEstimado": 0, "precioVenta": 2500, "calculationMethod": "fijo" },
+  { "id": "serv_pantalla_regalo", "nombre": "Pantalla gigante y proyector", "tipoItem": "Servicio", "categoria": "Regalo exclusivo", "valorUnitarioEstimado": 0, "precioVenta": 2500, "calculationMethod": "fijo" },
+  { "id": "serv_video_vida_regalo", "nombre": "Video de vida", "tipoItem": "Servicio", "categoria": "Regalo exclusivo", "valorUnitarioEstimado": 0, "precioVenta": 2500, "calculationMethod": "fijo" },
+  { "id": "serv_plataforma360_regalo", "nombre": "Plataforma 360", "tipoItem": "Servicio", "categoria": "Regalo exclusivo", "valorUnitarioEstimado": 1500, "precioVenta": 4500, "calculationMethod": "fijo" },
   { "id": "serv_foto_fiesta", "nombre": "Fotografía de fiestas", "tipoItem": "Servicio", "categoria": "Servicio de fotografía", "valorUnitarioEstimado": 3300, "precioVenta": 8500, "calculationMethod": "fijo" },
   { "id": "serv_foto_ext", "nombre": "Fotografía de exteriores", "tipoItem": "Servicio", "categoria": "Servicio de fotografía", "valorUnitarioEstimado": 1650, "precioVenta": 3900, "calculationMethod": "fijo" },
   { "id": "serv_deco_basica", "nombre": "Decoración básica", "tipoItem": "Servicio", "categoria": "Servicio de decoración", "valorUnitarioEstimado": 5000, "precioVenta": 14500, "calculationMethod": "fijo" }

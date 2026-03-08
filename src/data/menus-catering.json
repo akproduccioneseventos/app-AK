@@ -1,6 +1,6 @@
 [
   {
-    "id": "menu_entradas_completo",
+    "id": "menu_entradas_maestro",
     "name": "Catálogo de Entradas",
     "description": "Selección completa de 25 entradas para eventos.",
     "items": [
@@ -18,7 +18,7 @@
         ],
         "totalDishCost": 45.2,
         "profitMargin": 100,
-        "suggestedSellingPrice": 90.4
+        "suggestedSellingPrice": 90
       },
       {
         "id": "dish_ent_2",
@@ -45,11 +45,71 @@
           { "id": "i5", "name": "Pate", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 200, "costoTotalReceta": 6, "origenId": "ing-pate" },
           { "id": "i6", "name": "Salsa", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 5.4, "origenId": "ing-salsa" },
           { "id": "i7", "name": "Aceitunas rodajas", "quantityPerPerson": "15", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 2.7, "origenId": "ing-aceitunas-rodajas" },
-          { "id": "i8", "name": "Salsas", "quantityPerPerson": "20", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 3.6, "origenId": "ing-salsa" }
+          { "id": "i8", "name": "Salsas", "quantityPerPerson": "20", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 3.6, "origenId": "ing-salsa" },
+          { "id": "i9", "name": "Tomate cherry", "quantityPerPerson": "15", "unit": "g", "costoUnitario": 200, "costoTotalReceta": 3, "origenId": "ing-t-cherry" }
         ],
         "totalDishCost": 61.4,
         "profitMargin": 100,
-        "suggestedSellingPrice": 122.8
+        "suggestedSellingPrice": 123
+      },
+      {
+        "id": "dish_ent_4",
+        "name": "PLANCHAS CALIENTES",
+        "type": "Entrada",
+        "ingredients": [
+          { "id": "i1", "name": "Jamon", "quantityPerPerson": "40", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 7.2, "origenId": "ing-jamon" },
+          { "id": "i2", "name": "Manteca", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 200, "costoTotalReceta": 6, "origenId": "ing-manteca" },
+          { "id": "i3", "name": "Muzarella", "quantityPerPerson": "40", "unit": "g", "costoUnitario": 330, "costoTotalReceta": 13.2, "origenId": "ing-muzarella" },
+          { "id": "i4", "name": "Pan de Sandwiches", "quantityPerPerson": "60", "unit": "g", "costoUnitario": 380, "costoTotalReceta": 22.8, "origenId": "ing-pan-sandwich" },
+          { "id": "i5", "name": "Gas", "quantityPerPerson": "5", "unit": "un", "costoUnitario": 1, "costoTotalReceta": 5, "origenId": "ing-gas" }
+        ],
+        "totalDishCost": 54.2,
+        "profitMargin": 100,
+        "suggestedSellingPrice": 108
+      },
+      {
+        "id": "dish_ent_5",
+        "name": "PICADA SNACK",
+        "type": "Entrada",
+        "ingredients": [
+          { "id": "i1", "name": "Aceitunas", "quantityPerPerson": "25", "unit": "g", "costoUnitario": 220, "costoTotalReceta": 5.5, "origenId": "ing-aceitunas-rodajas" },
+          { "id": "i2", "name": "Palitos salados", "quantityPerPerson": "25", "unit": "g", "costoUnitario": 200, "costoTotalReceta": 5, "origenId": "ing-palitos" },
+          { "id": "i3", "name": "Mani", "quantityPerPerson": "25", "unit": "g", "costoUnitario": 200, "costoTotalReceta": 5, "origenId": "ing-mani" },
+          { "id": "i4", "name": "Papas Chips", "quantityPerPerson": "25", "unit": "g", "costoUnitario": 400, "costoTotalReceta": 10, "origenId": "ing-papas-chips" },
+          { "id": "i5", "name": "Doritos", "quantityPerPerson": "25", "unit": "g", "costoUnitario": 800, "costoTotalReceta": 20, "origenId": "ing-doritos" }
+        ],
+        "totalDishCost": 45.5,
+        "profitMargin": 100,
+        "suggestedSellingPrice": 91
+      },
+      {
+        "id": "dish_ent_6",
+        "name": "PAPAS FRITAS CON CHEDDAR",
+        "type": "Entrada",
+        "ingredients": [
+          { "id": "i1", "name": "Fritas", "quantityPerPerson": "200", "unit": "g", "costoUnitario": 130, "costoTotalReceta": 26, "origenId": "ing-fritas" },
+          { "id": "i2", "name": "Queso Cheddar", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 340, "costoTotalReceta": 17, "origenId": "ing-cheddar" },
+          { "id": "i3", "name": "Aceite", "quantityPerPerson": "100", "unit": "ml", "costoUnitario": 70, "costoTotalReceta": 7, "origenId": "ing-aceite" }
+        ],
+        "totalDishCost": 50,
+        "profitMargin": 100,
+        "suggestedSellingPrice": 100
+      },
+      {
+        "id": "dish_ent_8",
+        "name": "PICADA DE FIAMBRES",
+        "type": "Entrada",
+        "ingredients": [
+          { "id": "i1", "name": "Paleta", "quantityPerPerson": "6", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 1.08, "origenId": "ing-jamon" },
+          { "id": "i2", "name": "Queso Dambo", "quantityPerPerson": "6", "unit": "g", "costoUnitario": 430, "costoTotalReceta": 2.58, "origenId": "ing-cheddar" },
+          { "id": "i3", "name": "Salame", "quantityPerPerson": "6", "unit": "g", "costoUnitario": 430, "costoTotalReceta": 2.58, "origenId": "ing-salame" },
+          { "id": "i4", "name": "Queso muzzarela", "quantityPerPerson": "6", "unit": "g", "costoUnitario": 340, "costoTotalReceta": 2.04, "origenId": "ing-muzarella" },
+          { "id": "i5", "name": "Bondiola ahumada", "quantityPerPerson": "6", "unit": "g", "costoUnitario": 800, "costoTotalReceta": 4.8, "origenId": "ing-bondiola-ahumada" },
+          { "id": "i6", "name": "Grisines chicos", "quantityPerPerson": "8", "unit": "g", "costoUnitario": 370, "costoTotalReceta": 2.96, "origenId": "ing-pan-sandwich" }
+        ],
+        "totalDishCost": 38.15,
+        "profitMargin": 100,
+        "suggestedSellingPrice": 76
       },
       {
         "id": "dish_ent_12",
@@ -57,38 +117,20 @@
         "type": "Entrada",
         "ingredients": [
           { "id": "i1", "name": "Pan de 40g", "quantityPerPerson": "80", "unit": "g", "costoUnitario": 238, "costoTotalReceta": 19, "origenId": "ing-pan-sandwich" },
-          { "id": "i2", "name": "lechuga", "quantityPerPerson": "0.1", "unit": "un", "costoUnitario": 50, "costoTotalReceta": 5, "origenId": "ing-albahaca" },
-          { "id": "i3", "name": "Huevos", "quantityPerPerson": "0.2", "unit": "un", "costoUnitario": 10, "costoTotalReceta": 2, "origenId": "ing-huevo" },
-          { "id": "i4", "name": "Carne", "quantityPerPerson": "70", "unit": "g", "costoUnitario": 380, "costoTotalReceta": 26.6, "origenId": "ing-carne" },
-          { "id": "i5", "name": "Tomate", "quantityPerPerson": "40", "unit": "g", "costoUnitario": 150, "costoTotalReceta": 6, "origenId": "ing-t-cherry" },
-          { "id": "i6", "name": "Jamon", "quantityPerPerson": "40", "unit": "g", "costoUnitario": 330, "costoTotalReceta": 13.2, "origenId": "ing-jamon" },
-          { "id": "i7", "name": "Queso Cheddar", "quantityPerPerson": "40", "unit": "g", "costoUnitario": 400, "costoTotalReceta": 16, "origenId": "ing-cheddar" }
+          { "id": "i2", "name": "Carne", "quantityPerPerson": "70", "unit": "g", "costoUnitario": 380, "costoTotalReceta": 26.6, "origenId": "ing-carne" },
+          { "id": "i3", "name": "Jamon", "quantityPerPerson": "40", "unit": "g", "costoUnitario": 330, "costoTotalReceta": 13.2, "origenId": "ing-jamon" },
+          { "id": "i4", "name": "Queso Cheddar", "quantityPerPerson": "40", "unit": "g", "costoUnitario": 400, "costoTotalReceta": 16, "origenId": "ing-cheddar" }
         ],
         "totalDishCost": 90.84,
         "profitMargin": 100,
-        "suggestedSellingPrice": 181.68
-      },
-      {
-        "id": "dish_ent_25",
-        "name": "TABLA DE FIAMBRE GOURMET",
-        "type": "Entrada",
-        "ingredients": [
-          { "id": "i1", "name": "Paleta", "quantityPerPerson": "20", "unit": "g", "costoUnitario": 180, "costoTotalReceta": 3.6, "origenId": "ing-jamon" },
-          { "id": "i2", "name": "Lomito ahumado", "quantityPerPerson": "15", "unit": "g", "costoUnitario": 511, "costoTotalReceta": 7.6, "origenId": "ing-jamon" },
-          { "id": "i3", "name": "Jamon crudo", "quantityPerPerson": "15", "unit": "g", "costoUnitario": 1799, "costoTotalReceta": 27, "origenId": "ing-jamon" },
-          { "id": "i4", "name": "Queso Dambo", "quantityPerPerson": "15", "unit": "g", "costoUnitario": 420, "costoTotalReceta": 6.3, "origenId": "ing-cheddar" },
-          { "id": "i5", "name": "Aceitunas", "quantityPerPerson": "20", "unit": "g", "costoUnitario": 220, "costoTotalReceta": 4.4, "origenId": "ing-aceitunas-rodajas" }
-        ],
-        "totalDishCost": 118.9,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 237.8
+        "suggestedSellingPrice": 182
       }
     ]
   },
   {
-    "id": "menu_principales_completo",
+    "id": "menu_principales_maestro",
     "name": "Catálogo de Platos Principales",
-    "description": "Platos fuertes detallados con guarnición.",
+    "description": "Platos fuertes para banquetes.",
     "items": [
       {
         "id": "dish_main_1",
@@ -102,7 +144,7 @@
         ],
         "totalDishCost": 153.15,
         "profitMargin": 100,
-        "suggestedSellingPrice": 306.3
+        "suggestedSellingPrice": 306
       },
       {
         "id": "dish_main_18",
@@ -116,14 +158,14 @@
         ],
         "totalDishCost": 287.4,
         "profitMargin": 100,
-        "suggestedSellingPrice": 574.8
+        "suggestedSellingPrice": 575
       }
     ]
   },
   {
-    "id": "menu_infantil_completo",
+    "id": "menu_infantil_maestro",
     "name": "Catálogo Infantil",
-    "description": "Opciones para los más pequeños, incluyendo Pancho Medio Metro.",
+    "description": "Opciones para los más pequeños.",
     "items": [
       {
         "id": "dish_child_1",
@@ -137,7 +179,7 @@
         ],
         "totalDishCost": 164.3,
         "profitMargin": 100,
-        "suggestedSellingPrice": 330.6
+        "suggestedSellingPrice": 331
       }
     ]
   }
