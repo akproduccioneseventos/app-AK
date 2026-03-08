@@ -5,7 +5,7 @@
     "description": "Selección completa de entradas para eventos.",
     "items": [
       {
-        "id": "dish_entrada_algas",
+        "id": "dish_entrada_1",
         "name": "Buñuelos de Algas",
         "type": "Entrada",
         "totalDishCost": 45.2,
@@ -21,7 +21,7 @@
         ]
       },
       {
-        "id": "dish_entrada_primavera",
+        "id": "dish_entrada_2",
         "name": "Arrolladitos Primavera",
         "type": "Entrada",
         "totalDishCost": 40,
@@ -34,7 +34,7 @@
         ]
       },
       {
-        "id": "dish_entrada_tapas",
+        "id": "dish_entrada_3",
         "name": "Tapas Saborizadas",
         "type": "Entrada",
         "totalDishCost": 61.4,
@@ -52,7 +52,7 @@
         ]
       },
       {
-        "id": "dish_entrada_planchas",
+        "id": "dish_entrada_4",
         "name": "Planchas Calientes",
         "type": "Entrada",
         "totalDishCost": 54.2,
@@ -67,7 +67,7 @@
         ]
       },
       {
-        "id": "dish_entrada_snack",
+        "id": "dish_entrada_5",
         "name": "Picada Snack",
         "type": "Entrada",
         "totalDishCost": 45.5,
@@ -82,7 +82,7 @@
         ]
       },
       {
-        "id": "dish_entrada_cheddar",
+        "id": "dish_entrada_6",
         "name": "Papas Fritas con Cheddar",
         "type": "Entrada",
         "totalDishCost": 50,
@@ -95,7 +95,23 @@
         ]
       },
       {
-        "id": "dish_entrada_fiambres",
+        "id": "dish_entrada_7",
+        "name": "Mini Brochetas",
+        "type": "Entrada",
+        "totalDishCost": 57.2,
+        "profitMargin": 100,
+        "suggestedSellingPrice": 114,
+        "ingredients": [
+          { "id": "i1", "origenId": "ing-carne", "name": "Carnes", "quantityPerPerson": "60", "unit": "Gramos", "costoUnitario": 380, "costoTotalReceta": 22.8 },
+          { "id": "i2", "origenId": "ing-panceta", "name": "Panceta", "quantityPerPerson": "50", "unit": "Gramos", "costoUnitario": 400, "costoTotalReceta": 20 },
+          { "id": "i3", "origenId": "ing-morron-rojo", "name": "Morron rojo", "quantityPerPerson": "30", "unit": "Gramos", "costoUnitario": 150, "costoTotalReceta": 4.5 },
+          { "id": "i4", "origenId": "ing-t-cherry", "name": "Tomate cherry", "quantityPerPerson": "30", "unit": "Gramos", "costoUnitario": 150, "costoTotalReceta": 4.5 },
+          { "id": "i5", "origenId": "ing-morron-verde", "name": "Morron verde", "quantityPerPerson": "30", "unit": "Gramos", "costoUnitario": 100, "costoTotalReceta": 3 },
+          { "id": "i6", "origenId": "ing-cebolla", "name": "Cebollas", "quantityPerPerson": "30", "unit": "Gramos", "costoUnitario": 80, "costoTotalReceta": 2.4 }
+        ]
+      },
+      {
+        "id": "dish_entrada_8",
         "name": "Picada de Fiambres",
         "type": "Entrada",
         "totalDishCost": 38.15,
@@ -120,7 +136,7 @@
         ]
       },
       {
-        "id": "dish_entrada_kebabs",
+        "id": "dish_entrada_9",
         "name": "Kebabs",
         "type": "Entrada",
         "totalDishCost": 76,
@@ -136,7 +152,7 @@
         ]
       },
       {
-        "id": "dish_entrada_salpicon",
+        "id": "dish_entrada_10",
         "name": "Salpicón de Pollo",
         "type": "Entrada",
         "totalDishCost": 71.2,
@@ -153,7 +169,7 @@
         ]
       },
       {
-        "id": "dish_entrada_empanadas",
+        "id": "dish_entrada_11",
         "name": "Empanadas de Carne",
         "type": "Entrada",
         "totalDishCost": 57.2,
@@ -169,7 +185,7 @@
         ]
       },
       {
-        "id": "dish_entrada_chivitos",
+        "id": "dish_entrada_12",
         "name": "Mini Chivitos",
         "type": "Entrada",
         "totalDishCost": 90.84,
@@ -185,6 +201,21 @@
           { "id": "i7", "origenId": "ing-cheddar", "name": "Queso Cheddar", "quantityPerPerson": "40", "unit": "Gramos", "costoUnitario": 400, "costoTotalReceta": 16 },
           { "id": "i8", "origenId": "ing-gas", "name": "Gas", "quantityPerPerson": "0.003", "unit": "Unidad", "costoUnitario": 1000, "costoTotalReceta": 3 }
         ]
+      },
+      {
+        "id": "dish_entrada_23",
+        "name": "Sandwiches y Saladitos",
+        "type": "Entrada",
+        "totalDishCost": 74.8,
+        "profitMargin": 100,
+        "suggestedSellingPrice": 150,
+        "ingredients": [
+          { "id": "i1", "origenId": "ing-pan-blanco", "name": "Sandwiches pan blanco", "quantityPerPerson": "0.5", "unit": "Unidades", "costoUnitario": 15, "costoTotalReceta": 7.5 },
+          { "id": "i2", "origenId": "ing-pebetes", "name": "Pebetes", "quantityPerPerson": "0.3", "unit": "Unidades", "costoUnitario": 11, "costoTotalReceta": 3.3 },
+          { "id": "i3", "origenId": "ing-arrolladitos-hoj", "name": "Arrolladitos hojaldre", "quantityPerPerson": "0.3", "unit": "Unidades", "costoUnitario": 11, "costoTotalReceta": 3.3 },
+          { "id": "i4", "origenId": "ing-empanaditas", "name": "Empanaditas copetin", "quantityPerPerson": "0.5", "unit": "Unidades", "costoUnitario": 11, "costoTotalReceta": 5.5 },
+          { "id": "i5", "origenId": "ing-pizzetitas", "name": "Pizzetitas", "quantityPerPerson": "1", "unit": "Unidades", "costoUnitario": 11, "costoTotalReceta": 11 }
+        ]
       }
     ]
   },
@@ -194,7 +225,7 @@
     "description": "Platos fuertes para banquetes.",
     "items": [
       {
-        "id": "dish_main_chivito",
+        "id": "dish_main_1",
         "name": "Chivito con Fritas",
         "type": "Plato Principal",
         "totalDishCost": 153.14,
@@ -216,7 +247,7 @@
         ]
       },
       {
-        "id": "dish_main_pollo_arr",
+        "id": "dish_main_2",
         "name": "Pollo Arrollado con Rusa",
         "type": "Plato Principal",
         "totalDishCost": 189.4,
@@ -228,7 +259,7 @@
         ]
       },
       {
-        "id": "dish_main_cerdo_mostaza",
+        "id": "dish_main_3",
         "name": "Cerdo a la Mostaza",
         "type": "Plato Principal",
         "totalDishCost": 146.7,
@@ -245,7 +276,7 @@
         ]
       },
       {
-        "id": "dish_main_asado",
+        "id": "dish_main_4",
         "name": "Asado Completo con Guarnición",
         "type": "Plato Principal",
         "totalDishCost": 287.4,
@@ -267,7 +298,7 @@
     "description": "Opciones para los más pequeños.",
     "items": [
       {
-        "id": "dish_child_hamburguesa",
+        "id": "dish_child_1",
         "name": "Hamburguesa con Fritas",
         "type": "Menú Infantil/Adolescente",
         "totalDishCost": 138.3,

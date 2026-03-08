@@ -32,11 +32,11 @@
         { "id": "serv_mozo_cocina", "esRegalo": false },
         { "id": "serv_manteleria_completa", "esRegalo": false },
         { "id": "serv_disco_intermedia", "esRegalo": false },
-        { "id": "serv_1752489600086_barlib", "esRegalo": false },
+        { "id": "serv_barra_tragos", "esRegalo": false },
         { "id": "serv_invitaciones_digitales", "esRegalo": true },
         { "id": "serv_pantalla_proyector", "esRegalo": true },
         { "id": "serv_video_vida", "esRegalo": true },
-        { "id": "serv_plataforma360_regalo", "esRegalo": true }
+        { "id": "serv_plataforma360", "esRegalo": true }
       ]
     }
   ],
@@ -49,7 +49,7 @@
   ],
   "platosVisibles": [],
   "serviceDependencies": [
-    { "id": "dep_asado", "triggerServiceId": "dish_main_asado", "requiredServiceId": "serv_1759925173262_6sba1mh" }
+    { "id": "dep_asado", "triggerServiceId": "dish_main_4", "requiredServiceId": "serv_asador" }
   ],
   "mostrarPrecios": true
 }
