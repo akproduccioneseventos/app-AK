@@ -42,7 +42,6 @@ import type {
   Reunion, 
   ClientTarea, 
   ClientPortalSettings, 
-  CartaTragosData, 
   MenuMesaData, 
   NumerosMesaData 
 } from '@/types/fiesta';
@@ -128,7 +127,6 @@ export async function claimGiftFiestaActual(fiestaId: string, giftId: string, gu
 export async function addGiftToRegistryFiestaActual(fiestaId: string, newGiftData: Omit<GiftItem, 'id' | 'isClaimed'>) { return await RegalosModule.addGiftToRegistry(fiestaId, newGiftData); }
 
 // --- SEÑALÉTICA E IMPRESIÓN ---
-export async function updateCartaTragos(fiestaId: string, cartaData: CartaTragosData) { return await FiestaModule.updateCartaTragos(fiestaId, cartaData); }
 export async function updateMenuMesa(fiestaId: string, menuData: MenuMesaData) { return await FiestaModule.updateMenuMesa(fiestaId, menuData); }
 export async function updateNumerosMesa(fiestaId: string, data: NumerosMesaData) { return await FiestaModule.updateNumerosMesa(fiestaId, data); }
 export async function updateContratoFiestaActual(fiestaId: string, text: string) {

@@ -33,30 +33,7 @@ export interface Invitado {
   tag?: string;
 }
 
-// --- CARTA DE TRAGOS / MENU MESA ---
-export interface Trago {
-  id: string;
-  nombre: string;
-  imageUrl: string;
-  aiHint?: string;
-}
-
-export interface CartaTragosData {
-    titulo?: string;
-    items: Trago[];
-    protagonistaFotoUrl?: string; 
-    protagonistaNombre?: string;
-    numeroPrincipal?: string;
-    backgroundImageUrl?: string;
-    paletaColores?: Partial<ColorPalette>;
-    backgroundColor?: string;
-    empresa: {
-        linea1: string;
-        linea2: string;
-        contacto: string;
-    };
-}
-
+// --- MENU MESA ---
 export interface MenuMesaData {
   protagonistaFotoUrl?: string;
   paletaColores: {
@@ -568,7 +545,6 @@ export interface ModulosContratados {
   regalos: boolean;
   feedback: boolean;
   menuMesa: boolean;
-  cartaTragos: boolean;
   checkin: boolean;
   resumenImprimible: boolean;
   configuracion: boolean;
@@ -603,7 +579,6 @@ export interface FiestaEnPlanificacion {
   clientChecklist?: ClientTarea[];
   clientNotes?: string; 
   invitacionDigital?: InvitacionDigitalData;
-  cartaTragos?: CartaTragosData;
   menuMesa?: MenuMesaData;
   numerosMesa?: NumerosMesaData;
   contratoServicioTexto?: string;

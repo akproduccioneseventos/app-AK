@@ -14,7 +14,6 @@ import type {
   GiftItem,
   ColorPalette,
   NumerosMesaData,
-  CartaTragosData,
   MenuMesaData,
   ModulosContratados,
   ZonaContratada,
@@ -138,11 +137,6 @@ export const defaultNumerosMesaData: NumerosMesaData = {
   colorSecundario: "#363636",
 };
 
-export const defaultCartaTragosData: CartaTragosData = {
-    items: [],
-    empresa: { linea1: 'AK PRODUCCIONES', linea2: 'Servicio integral', contacto: '098 355 530' }
-};
-
 export const defaultMenuMesaData: MenuMesaData = {
     paletaColores: { primary: '#8b5cf6', secondary: '#4b5563', accent: '#3b82f6', background: '#ffffff' },
     entrada: '', platoPrincipal: '', adolescentes: '', postres: '', bebidas: '',
@@ -152,7 +146,7 @@ export const defaultMenuMesaData: MenuMesaData = {
 export const defaultModulosContratados: ModulosContratados = {
     tareas: true, invitados: true, paginaWeb: true, decoracion: true, catering: true, musica: true, personal: true,
     itinerario: true, documentos: true, costos: true, cargaOperativa: true, fotografia: true, videoVida: true,
-    reuniones: true, muroSocial: true, regalos: false, feedback: false, menuMesa: false, cartaTragos: false,
+    reuniones: true, muroSocial: true, regalos: false, feedback: false, menuMesa: false,
     checkin: false, resumenImprimible: false, configuracion: true, disenoSalon: true, listaCompras: true, portalCliente: true,
     numerosMesa: true, mesasCliente: true, resumenPlanificacion: true, enVivo: true
 };
@@ -178,7 +172,6 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
   decoracion: defaultDecoracion,
   invitados: [],
   invitacionDigital: defaultInvitacionDigitalData,
-  cartaTragos: defaultCartaTragosData,
   menuMesa: defaultMenuMesaData,
   numerosMesa: defaultNumerosMesaData,
   clientPortalSettings: defaultClientPortalSettings,

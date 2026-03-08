@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
@@ -71,8 +72,6 @@ const modules = [
   { id: 'checkin', title: "Check-in QR", href: "invitados/checkin-scanner", icon: QrCode, description: "Recepción de invitados.", category: 'Herramientas Adicionales', color: "bg-green-100 text-green-600" },
   { id: 'listaCompras', title: "Compras", href: "catering/lista-compras", icon: ShoppingCart, description: "Insumos necesarios.", category: 'Herramientas Adicionales', color: "bg-slate-100 text-slate-600" },
   { id: 'menuMesa', title: "Menú Mesa", href: "menu-mesa", icon: Printer, description: "Diseño impreso.", category: 'Herramientas Adicionales', color: "bg-slate-100 text-slate-600" },
-  { id: 'cartaTragos', title: "Carta Tragos", href: "carta-tragos", icon: GlassWater, description: "Diseño para barra.", category: 'Herramientas Adicionales', color: "bg-purple-100 text-purple-600" },
-  { id: 'muroSocial', title: "Muro Social", href: "/evento/social/[fiestaId]", icon: Camera, description: "Moderación de fotos en vivo.", category: 'Herramientas Adicionales', color: "bg-pink-100 text-pink-600" },
   { id: 'numerosMesa', title: "Números Mesa", href: "invitados/numeros-mesa", icon: Printer, description: "Impresión de señalética.", category: 'Herramientas Adicionales', color: "bg-slate-100 text-slate-600" },
 ];
 
@@ -137,7 +136,6 @@ function PlannerDashboardContent() {
     const handlers: Record<string, () => string> = {
         "/fiestas/nueva/reuniones": () => `/fiestas/nueva/reuniones?fiestaId=${fiesta.id}`,
         "/fiestas/nueva/portal-cliente": () => `/fiestas/nueva/portal-cliente?fiestaId=${fiesta.id}`,
-        "/evento/social/[fiestaId]": () => `/evento/social/${fiesta.id}`,
         "/portal/mesas": () => `/portal/mesas?fiestaId=${fiesta.id}`
     };
     return handlers[baseHref] ? handlers[baseHref]() : baseHref;

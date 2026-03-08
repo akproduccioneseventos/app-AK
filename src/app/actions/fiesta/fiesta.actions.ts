@@ -5,7 +5,7 @@
  */
 'use server';
 
-import type { FiestaEnPlanificacion, CartaTragosData, MenuMesaData, NumerosMesaData } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, MenuMesaData, NumerosMesaData } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import { initialFiestaActualData } from '@/lib/fiesta-defaults';
 import { readData, writeData } from '@/lib/data-service';
@@ -188,12 +188,6 @@ export async function removeInvoiceId(fiestaId: string, invoiceId: string) {
   const f = await getFiestaById(fiestaId);
   if (!f) return { success: false };
   return await saveFiesta({ ...f, invoiceIds: (f.invoiceIds || []).filter(id => id !== invoiceId) });
-}
-
-export async function updateCartaTragos(fiestaId: string, cartaData: CartaTragosData) {
-  const f = await getFiestaById(fiestaId);
-  if (!f) return { success: false };
-  return await saveFiesta({ ...f, cartaTragos: cartaData });
 }
 
 export async function updateMenuMesa(fiestaId: string, menuData: MenuMesaData) {
