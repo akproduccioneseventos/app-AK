@@ -21,7 +21,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 const formatCurrency = (amount?: number) => {
@@ -55,7 +54,6 @@ export default function GestionMenusPage() {
   const [menus, setMenus] = useState<FullMenu[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
-
   const [adjustmentPercentage, setAdjustmentPercentage] = useState(10);
   const [isAdjusting, setIsAdjusting] = useState(false);
 
@@ -97,13 +95,11 @@ export default function GestionMenusPage() {
     try {
       const result = await adjustAllDishMargins(adjustmentPercentage);
       if (result.success) {
-        toast({ title: "Márgenes ajustados", description: `Los márgenes de todos los platos fueron ajustados.` });
+        toast({ title: "Márgenes ajustados" });
         await fetchMenus();
-      } else {
-        throw new Error(result.error);
-      }
+      } else throw new Error(result.error);
     } catch (err: any) {
-      toast({ title: "Error al ajustar márgenes", description: err.message, variant: "destructive" });
+      toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
       setIsAdjusting(false);
     }
@@ -116,9 +112,7 @@ export default function GestionMenusPage() {
       if (result.success) {
         toast({ title: 'Menú Duplicado', description: `Se creó una copia de "${name}".` });
         fetchMenus();
-      } else {
-        throw new Error(result.error);
-      }
+      } else throw new Error(result.error);
     } catch (err: any) {
       toast({ title: 'Error al Duplicar', description: err.message, variant: "destructive" });
     } finally {
@@ -185,10 +179,8 @@ export default function GestionMenusPage() {
                       <TableHeader className="bg-muted/50">
                           <TableRow>
                               <TableHead className="text-xs">Producto</TableHead>
-                              <TableHead className="text-xs">Unidad</TableHead>
                               <TableHead className="text-xs text-right">Cant p/p</TableHead>
                               <TableHead className="text-xs text-right">Costo kl/lt</TableHead>
-                              <TableHead className="text-xs text-right">Costo p/p</TableHead>
                               <TableHead className="text-xs text-right font-bold">Costo Total (100)</TableHead>
                           </TableRow>
                       </TableHeader>
@@ -196,10 +188,8 @@ export default function GestionMenusPage() {
                           {BARRA_TRAGOS_BREAKDOWN.map((row, i) => (
                               <TableRow key={i} className="text-xs">
                                   <TableCell className="font-medium">{row.producto}</TableCell>
-                                  <TableCell>{row.unidad}</TableCell>
                                   <TableCell className="text-right">{row.cantPP}</TableCell>
                                   <TableCell className="text-right">{formatCurrency(row.costoKL)}</TableCell>
-                                  <TableCell className="text-right font-medium">{formatCurrency(row.costoUn)}</TableCell>
                                   <TableCell className="text-right font-bold">{formatCurrency(row.costoTotal)}</TableCell>
                               </TableRow>
                           ))}
@@ -213,7 +203,7 @@ export default function GestionMenusPage() {
         <CardHeader>
             <CardTitle className="font-headline text-lg">Ajuste de Márgenes Global</CardTitle>
             <CardDescription>
-                Aplica un aumento o disminución a los márgenes de ganancia de **todos los platos** en **todos los menús**. El precio de venta se recalculará automáticamente.
+                Aplica un aumento o disminución a los márgenes de ganancia de todos los platos.
             </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col sm:flex-row gap-4 items-end">
@@ -224,39 +214,36 @@ export default function GestionMenusPage() {
                 type="number"
                 value={adjustmentPercentage}
                 onChange={(e) => setAdjustmentPercentage(Number(e.target.value))}
-                placeholder="Ej: 10 para aumentar, -5 para disminuir"
+                placeholder="Ej: 10"
                 />
             </div>
             <AlertDialog>
                 <AlertDialogTrigger asChild>
                 <Button disabled={isAdjusting || adjustmentPercentage === 0}>
                     {isAdjusting ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Percent className="w-4 h-4 mr-2"/>}
-                    Aplicar Ajuste de Margen
+                    Aplicar Ajuste
                 </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      Esta acción modificará los márgenes de ganancia de TODOS los platos en un 
-                      <span className="font-bold"> {adjustmentPercentage} puntos porcentuales</span>. Esta acción es irreversible.
-                      ¿Deseas continuar?
+                      Esta acción modificará los márgenes de todos los platos en un {adjustmentPercentage}%.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleAdjustMargins}>
-                    Aplicar ajuste del {adjustmentPercentage > 0 ? `+${adjustmentPercentage}`: adjustmentPercentage}%
-                    </AlertDialogAction>
+                    <AlertDialogAction onClick={handleAdjustMargins}>Confirmar</AlertDialogAction>
                 </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
         </CardContent>
     </Card>
+
        <Card>
         <CardHeader>
           <CardTitle>Menús Guardados</CardTitle>
-          <CardDescription>Crea, edita y gestiona tus plantillas de menús para reutilizar en presupuestos y eventos.</CardDescription>
+          <CardDescription>Crea, edita y gestiona tus plantillas de menús.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {isLoading ? (
@@ -267,7 +254,7 @@ export default function GestionMenusPage() {
               <Card key={menu.id} className="flex flex-col shadow-sm hover:shadow-md transition-shadow">
                 <CardHeader>
                   <CardTitle className="font-headline text-lg">{menu.name}</CardTitle>
-                  <CardDescription className="text-xs line-clamp-2 h-8">{menu.description || 'Sin descripción.'}</CardDescription>
+                  <CardDescription className="text-xs line-clamp-2 h-8">{menu.description}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-grow space-y-2">
                    <div className="flex items-center gap-2 text-sm font-semibold">
@@ -277,20 +264,20 @@ export default function GestionMenusPage() {
                    <div className="text-xs text-muted-foreground">{menu.items.length} plato(s)</div>
                 </CardContent>
                 <CardFooter className="flex justify-end gap-1 border-t pt-2 p-2">
-                   <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDuplicate(menu.id, menu.name)} disabled={!!processingId} title="Duplicar">
+                   <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDuplicate(menu.id, menu.name)} disabled={!!processingId}>
                       {processingId === menu.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Copy className="w-4 h-4" />}
                    </Button>
                    <Link href={`/empresa/menus/${menu.id}/editar`} passHref>
-                      <Button variant="ghost" size="icon" className="h-8 w-8" title="Editar"><Edit className="w-4 h-4"/></Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8"><Edit className="w-4 h-4"/></Button>
                    </Link>
                    <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" disabled={!!processingId} title="Eliminar">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" disabled={!!processingId}>
                           {processingId === menu.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4" />}
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
-                        <AlertDialogHeader><AlertDialogTitle>¿Eliminar Menú?</AlertDialogTitle><AlertDialogDescription>Se eliminará la plantilla "{menu.name}".</AlertDialogDescription></AlertDialogHeader>
+                        <AlertDialogHeader><AlertDialogTitle>¿Eliminar Menú?</AlertDialogTitle><AlertDialogDescription>Se eliminará "{menu.name}".</AlertDialogDescription></AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancelar</AlertDialogCancel>
                           <AlertDialogAction onClick={() => handleDelete(menu.id, menu.name)} className="bg-destructive hover:bg-destructive/80">Eliminar</AlertDialogAction>

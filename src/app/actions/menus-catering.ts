@@ -38,16 +38,12 @@ async function readMenusFile(): Promise<FullMenu[]> {
           quantityPerPerson: ingredient.quantityPerPerson || '0',
           costoUnitario: Number(ingredient.costoUnitario) || 0,
           costoTotalReceta: Number(ingredient.costoTotalReceta) || 0,
-          proveedor: ingredient.proveedor || undefined,
-          marca: ingredient.marca || undefined,
-          fecha_actualizacion: ingredient.fecha_actualizacion || undefined,
-          origenId: ingredient.origenId || undefined,
         })),
         totalDishCost: Number(item.totalDishCost) || 0,
       }))
     }));
   } catch (error) {
-    console.error("Error reading menus file, returning empty array:", error);
+    console.error("Error reading menus file:", error);
     return [];
   }
 }
@@ -55,13 +51,7 @@ async function readMenusFile(): Promise<FullMenu[]> {
 async function writeMenusFile(data: FullMenu[]): Promise<void> {
   await ensureDataFileExists(menusFilePath, '[]');
   try {
-    const sortedData = data.sort((a, b) => {
-        if (a.createdAt && b.createdAt) {
-            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-        }
-        return (a.name || '').localeCompare(b.name || '');
-    });
-    await fs.writeFile(menusFilePath, JSON.stringify(sortedData, null, 2), 'utf-8');
+    await fs.writeFile(menusFilePath, JSON.stringify(data, null, 2), 'utf-8');
   } catch (error) {
     console.error('Error writing menus JSON file:', error);
   }
@@ -73,13 +63,13 @@ function calculateIngredientCost(ing: Partial<Ingredient>): number {
     const unit = (ing.unit || '').toLowerCase().trim();
     if (isNaN(quantity) || isNaN(unitCost)) return 0;
     
-    // Gramos, ml, cc -> divide by 1000 to get kg/lt cost
+    // Gramos, ml, cc, gramos (variantes) -> divide by 1000 to get kg/lt cost
     if (['g', 'ml', 'gramos', 'cc'].includes(unit)) {
       return (quantity / 1000) * unitCost;
     }
     
-    // If quantity is high (e.g. > 1) and unit is Kg/Litros, it's likely meant to be g/ml based on user data
-    if (['litros', 'kg', 'kilos', 'kilo', 'litro'].includes(unit) && quantity > 1) {
+    // Si la cantidad es mayor a 1 y la unidad es Kg/Litro pero parece que son gramos
+    if (['kg', 'kilos', 'kilo', 'litro', 'litros'].includes(unit) && quantity > 1) {
         return (quantity / 1000) * unitCost;
     }
 
@@ -123,62 +113,29 @@ export async function getMenuById(id: string): Promise<FullMenu | null> {
 }
 
 async function processMenuForSave(menuData: Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'> | FullMenu): Promise<FullMenu> {
-  const catalogoInsumos = await getInsumos();
-
   const processedItems = menuData.items.map(item => {
-    const ingredients = item.ingredients.map(ing => {
-      if (ing.origenId) {
-        const catalogItem = catalogoInsumos.find(ci => ci.id === ing.origenId);
-        if (catalogItem) {
-          ing.costoUnitario = catalogItem.valorUnitarioEstimado || 0;
-          ing.name = catalogItem.nombre;
-          ing.unit = catalogItem.unidad || ing.unit;
-        }
-      }
-      return {
+    const ingredients = item.ingredients.map(ing => ({
         ...ing,
-        name: ing.name.trim(),
-        quantityPerPerson: ing.quantityPerPerson?.toString().trim() || '0',
-        unit: (ing.unit || '').trim(),
-        costoUnitario: Number(ing.costoUnitario) || 0,
         costoTotalReceta: calculateIngredientCost(ing),
-        proveedor: ing.proveedor?.trim() || undefined,
-        marca: ing.marca?.trim() || undefined,
-        fecha_actualizacion: ing.fecha_actualizacion?.trim() ? new Date(ing.fecha_actualizacion.trim()).toISOString() : undefined,
-      };
-    });
+    }));
     
     const totalDishCost = calculateDishCostPerPerson(ingredients);
-    
-    let finalProfitMargin: number;
-    let finalSuggestedSellingPrice: number;
-
-    if (item.suggestedSellingPrice !== undefined && !isNaN(Number(item.suggestedSellingPrice))) {
-        finalSuggestedSellingPrice = Math.round(Number(item.suggestedSellingPrice));
-        if (totalDishCost > 0) {
-            finalProfitMargin = Math.round(((finalSuggestedSellingPrice / totalDishCost) - 1) * 100);
-        } else {
-            finalProfitMargin = item.profitMargin === undefined ? 100 : Number(item.profitMargin);
-        }
-    } else {
-        finalProfitMargin = item.profitMargin === undefined ? 100 : Number(item.profitMargin);
-        finalSuggestedSellingPrice = Math.round(totalDishCost * (1 + finalProfitMargin / 100));
-    }
+    const profitMargin = item.profitMargin === undefined ? 100 : Number(item.profitMargin);
+    const suggestedSellingPrice = item.suggestedSellingPrice !== undefined 
+        ? Math.round(Number(item.suggestedSellingPrice)) 
+        : Math.round(totalDishCost * (1 + profitMargin / 100));
 
     return {
       ...item,
-      name: item.name.trim(),
       ingredients,
       totalDishCost,
-      profitMargin: finalProfitMargin,
-      suggestedSellingPrice: finalSuggestedSellingPrice,
+      profitMargin,
+      suggestedSellingPrice,
     };
   });
   
   return {
     ...menuData,
-    name: menuData.name.trim(),
-    description: (menuData.description || '').trim(),
     items: processedItems,
   } as FullMenu;
 }
@@ -248,35 +205,19 @@ export async function duplicateMenu(id: string): Promise<{ success: boolean; err
 export async function adjustAllDishMargins(
   percentage: number
 ): Promise<{ success: boolean; error?: string }> {
-  if (isNaN(percentage)) {
-    return { success: false, error: "El porcentaje debe ser un número." };
-  }
-  
   try {
     const menus = await readMenusFile();
-    if (menus.length === 0) {
-      return { success: false, error: "No hay menús para ajustar." };
-    }
-
     const updatedMenus = menus.map(menu => {
       const updatedItems = menu.items.map(item => {
         const newProfitMargin = (item.profitMargin ?? 100) + percentage;
         const newSuggestedSellingPrice = Math.round((item.totalDishCost || 0) * (1 + newProfitMargin / 100));
-
-        return {
-          ...item,
-          profitMargin: newProfitMargin,
-          suggestedSellingPrice: newSuggestedSellingPrice
-        };
+        return { ...item, profitMargin: newProfitMargin, suggestedSellingPrice: newSuggestedSellingPrice };
       });
       return { ...menu, items: updatedItems };
     });
-
     await writeMenusFile(updatedMenus);
-
     return { success: true };
   } catch (error: any) {
-    console.error("Error adjusting dish margins:", error);
     return { success: false, error: "Ocurrió un error al intentar ajustar los márgenes." };
   }
 }
