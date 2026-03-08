@@ -35,59 +35,17 @@ import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 
-const formatCurrency = (value?: number) => {
-    if (value === undefined) return 'N/A';
-    return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
-};
-
-const mainHubItems = [
-    {
-      title: 'Planificador de Eventos',
-      description: 'Gestión integral de tus fiestas activas y archivos históricos.',
-      href: '/eventos',
-      icon: CalendarClock,
-      color: "bg-rose-500",
-      lightColor: "bg-rose-50 text-rose-600"
-    },
-    {
-      title: 'Gestión de la Empresa',
-      description: 'Control de servicios, personal, proveedores e inventario físico.',
-      href: '/empresa',
-      icon: Building2,
-      color: "bg-amber-500",
-      lightColor: "bg-amber-50 text-amber-600"
-    },
-    {
-      title: 'Panel Contable',
-      description: 'CRM de prospectos, presupuestos, facturación y salud financiera.',
-      href: '/empresa/contabilidad',
-      icon: BarChart3,
-      color: "bg-emerald-500",
-      lightColor: "bg-emerald-50 text-emerald-600"
-    },
-     {
-      title: "Agenda de Reuniones",
-      description: "Seguimiento de citas coordinadas con clientes potenciales.",
-      href: "/contabilidad/crm/agenda",
-      icon: CalendarDays,
-      color: "bg-blue-500",
-      lightColor: "bg-blue-50 text-blue-600"
-    },
-    {
-      title: 'Configuración',
-      description: 'Ajustes del sistema, plantillas maestras y detalles de cuenta.',
-      href: '/settings',
-      icon: SettingsIcon,
-      color: "bg-slate-600",
-      lightColor: "bg-slate-50 text-slate-600"
-    },
-]
-
 export default function MainDashboardPage() {
     const [kpiData, setKpiData] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
     const { toast } = useToast();
+
+    const formatCurrency = (value?: number) => {
+        if (isLoading) return '...';
+        if (value === undefined || value === null) return '$ 0';
+        return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
+    };
 
     const fetchData = useCallback(async () => {
         setIsLoading(true);
@@ -119,13 +77,48 @@ export default function MainDashboardPage() {
         ];
     }, [kpiData]);
     
-    const getLinkHref = (baseHref: string) => {
-      if (baseHref === "/fiestas/nueva/reuniones" && fiestaActual) {
-        return `${baseHref}?fiestaId=${fiestaActual.id}`;
-      }
-      return baseHref;
-    };
-
+    const mainHubItems = [
+        {
+          title: 'Planificador de Eventos',
+          description: 'Gestión integral de tus fiestas activas y archivos históricos.',
+          href: '/eventos',
+          icon: CalendarClock,
+          color: "bg-rose-500",
+          lightColor: "bg-rose-50 text-rose-600"
+        },
+        {
+          title: 'Gestión de la Empresa',
+          description: 'Control de servicios, personal, proveedores e inventario físico.',
+          href: '/empresa',
+          icon: Building2,
+          color: "bg-amber-500",
+          lightColor: "bg-amber-50 text-amber-600"
+        },
+        {
+          title: 'Panel Contable',
+          description: 'CRM de prospectos, presupuestos, facturación y salud financiera.',
+          href: '/empresa/contabilidad',
+          icon: BarChart3,
+          color: "bg-emerald-500",
+          lightColor: "bg-emerald-50 text-emerald-600"
+        },
+         {
+          title: "Agenda de Reuniones",
+          description: "Seguimiento de citas coordinadas con clientes potenciales.",
+          href: "/contabilidad/crm/agenda",
+          icon: CalendarDays,
+          color: "bg-blue-500",
+          lightColor: "bg-blue-50 text-blue-600"
+        },
+        {
+          title: 'Configuración',
+          description: 'Ajustes del sistema, plantillas maestras y detalles de cuenta.',
+          href: '/settings',
+          icon: SettingsIcon,
+          color: "bg-slate-600",
+          lightColor: "bg-slate-50 text-slate-600"
+        },
+    ]
 
   return (
     <div className="space-y-6 sm:space-y-10 pb-16">
@@ -158,7 +151,7 @@ export default function MainDashboardPage() {
         <KpiCard title="Ventas Totales" value={formatCurrency(kpiData?.ventasTotales)} icon={DollarSign} isLoading={isLoading} />
         <KpiCard title="Total Pagado" value={formatCurrency(kpiData?.montoPagado)} icon={CreditCard} isLoading={isLoading} />
         <KpiCard title="Saldo Pendiente" value={formatCurrency(kpiData?.totalPendiente)} icon={Banknote} isLoading={isLoading} />
-        <KpiCard title="Prospectos Activos" value={kpiData?.prospectosActivos ?? '...'} icon={Users} isLoading={isLoading} />
+        <KpiCard title="Prospectos Activos" value={isLoading ? '...' : (kpiData?.prospectosActivos ?? 0)} icon={Users} isLoading={isLoading} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
@@ -248,8 +241,8 @@ export default function MainDashboardPage() {
       </div>
       
        <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        <KpiCard title="Archivos Históricos" value={kpiData?.fiestasPasadas ?? '...'} icon={Archive} isLoading={isLoading} />
-        <KpiCard title="Eventos Activos" value={kpiData?.fiestasFuturas ?? '...'} icon={CalendarClock} isLoading={isLoading} />
+        <KpiCard title="Archivos Históricos" value={isLoading ? '...' : (kpiData?.fiestasPasadas ?? 0)} icon={Archive} isLoading={isLoading} />
+        <KpiCard title="Eventos Activos" value={isLoading ? '...' : (kpiData?.fiestasFuturas ?? 0)} icon={CalendarClock} isLoading={isLoading} />
         <PaymentStatusPieChart data={pieChartData} />
       </div>
 
@@ -277,7 +270,7 @@ export default function MainDashboardPage() {
                       </p>
                   </CardContent>
                   <CardFooter className="pt-0 pb-6 sm:pb-8 px-6 sm:px-8">
-                      <Link href={getLinkHref(item.href)} passHref className="w-full">
+                      <Link href={item.href} passHref className="w-full">
                           <Button variant="secondary" className="w-full justify-between group-hover:bg-primary group-hover:text-white rounded-2xl px-6 h-11 sm:h-12 font-black text-[9px] sm:text-[10px] tracking-widest uppercase transition-all duration-500 shadow-sm">
                               Abrir <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-2 transition-transform duration-500" />
                           </Button>

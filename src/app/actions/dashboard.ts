@@ -1,12 +1,11 @@
-
-'use client';
+'use server';
 
 import { getCustomers } from './customers';
 import { getPresupuestos } from './presupuestos';
 import { getInvoices } from './invoices';
 import { getAllFiestas } from './fiesta/fiesta.actions';
 import { checkAndCreateTaskReminders, checkAndCreateReunionReminders } from './notifications';
-import { subMonths, format, isBefore, startOfToday, addDays, isSameDay, addMonths, startOfMonth, endOfMonth, isAfter } from 'date-fns';
+import { subMonths, format, isBefore, startOfToday, addDays, isSameDay, addMonths, isAfter } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { getCrmKpiData, getCrmLeads } from './crm';
 import { getRoles } from './roles';
