@@ -1,10 +1,9 @@
-
 'use client';
 
 import { ReactNode, useState, useEffect } from 'react';
 import AppLogo from '@/components/app-logo';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlus2Icon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, Edit, BarChart3, PackagePlus, BellRing, UserCog, Link as LinkIcon, Camera, Gift, Star, QrCode, Clock, TrendingUp, HardDriveDownload, Wand2, Film, FileArchive, KeyRound } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlus2Icon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, Edit, BarChart3, PackagePlus, BellRing, UserCog, Link as LinkIcon, Camera, Gift, Star, QrCode, Clock, TrendingUp, HardDriveDownload, Wand2, Film, FileArchive, KeyRound, History, Zap, Bot } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -123,20 +122,16 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/settings/backup') return 'Backup y Restauración';
   if (pathname === '/admin/carga-historicos') return 'Carga Rápida de Históricos';
   
-  if (pathname === '/simulador-de-presupuesto') return 'Simulador de Presupuesto';
+  if (pathname === '/simulador-de-presupuesto') return 'Wand2';
   
-  if (pathname === '/evento/actual') return 'Página Pública del Evento';
-  if (pathname === '/evento/actual/mesa') return 'Asignación de Mesa';
-  if (pathname === '/evento/actual/checkin') return 'Check-in de Invitados';
-  if (pathname.startsWith('/evento/social')) return 'Galería Social en Vivo';
-  if (pathname.startsWith('/video-vida')) return 'Carga de Fotos para Video';
-  if (pathname.startsWith('/feedback')) return 'Encuesta de Satisfacción';
-  if (pathname.startsWith('/acceso-personal')) return 'Acceso de Colaboradores';
-
-  if (pathname === '/eventos') return 'Gestor de Eventos';
-  if (pathname === '/calendario') return 'Calendario General';
-  
-  if (pathname === '/login') return 'Login';
+  if (pathname === '/evento/actual') return 'PartyPopper';
+  if (pathname === '/evento/actual/mesa') return 'Ticket';
+  if (pathname === '/evento/actual/checkin') return 'UserCheck';
+  if (pathname.startsWith('/evento/social')) return 'Camera';
+  if (pathname.startsWith('/video-vida')) return 'Camera';
+  if (pathname.startsWith('/feedback')) return 'Star';
+  if (pathname.startsWith('/acceso-personal')) return 'UserCog';
+  if (pathname.startsWith('/portal')) return 'KeyRound';
 
   return 'AK Producciones';
 };
@@ -227,7 +222,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname.startsWith('/portal')) return KeyRound;
 
   return null;
-}
+};
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
