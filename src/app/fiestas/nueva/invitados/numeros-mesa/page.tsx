@@ -6,7 +6,7 @@ import Link from 'next/link';
 import NextImage from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer as PrinterIcon, Save, Loader2, Edit, Upload, Image as ImageIcon, Download, AlertTriangle, Info, Plus, Minus } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, Save, Loader2, Plus, Minus, Scissors, Download, Share2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, NumerosMesaData } from '@/types/fiesta';
 import { getFiestaById, updateNumerosMesa as updateNumerosMesaAction } from '@/app/actions/fiesta/fiesta.actions';
@@ -65,9 +65,9 @@ const TableNumberComponent: React.FC<{
 
   return (
     <div className={cn(
-        "w-full h-full relative bg-white overflow-hidden flex flex-col items-center justify-center border-2", 
+        "w-full h-full relative bg-white overflow-hidden flex flex-col items-center justify-center border", 
         inverted && 'transform rotate-180'
-    )} style={{ borderColor: data.colorPrincipal }}>
+    )} style={{ borderColor: `${data.colorPrincipal}40` }}>
         
         <Ornament position="top-left" color={data.colorPrincipal} />
         <Ornament position="top-right" color={data.colorPrincipal} />
@@ -75,13 +75,13 @@ const TableNumberComponent: React.FC<{
         <Ornament position="bottom-right" color={data.colorPrincipal} />
 
         {data.backgroundImageUrl && (
-            <div className="absolute inset-0 opacity-20 -z-10">
+            <div className="absolute inset-0 opacity-15 -z-10">
                 <NextImage src={data.backgroundImageUrl} layout="fill" objectFit="cover" alt="" />
             </div>
         )}
 
         <div className="text-center p-8 z-10">
-            <h2 className="font-dancing text-[120px] leading-none mb-4" style={{ color: data.colorPrincipal }}>
+            <h2 className="font-dancing text-[130px] leading-none mb-4" style={{ color: data.colorPrincipal }}>
                 {tableNumber}
             </h2>
             <div className="space-y-1">
@@ -95,8 +95,14 @@ const TableNumberComponent: React.FC<{
         </div>
 
         {logoUrl && (
-             <div className={cn("absolute w-16 h-16 z-20 opacity-30", inverted ? 'top-10 left-10' : 'bottom-10 right-10')}>
-                <NextImage src={logoUrl} alt="logo" layout="fill" className="object-contain" />
+             <div className={cn("absolute w-20 h-20 z-20", inverted ? 'top-10 left-10' : 'bottom-10 right-10')}>
+                <NextImage 
+                    src={logoUrl} 
+                    alt="logo" 
+                    width={80} 
+                    height={80} 
+                    className="object-contain filter drop-shadow-sm" 
+                />
              </div>
         )}
     </div>
@@ -214,7 +220,7 @@ function NumerosDeMesaContent() {
             <div className="flex flex-wrap gap-4 items-center">
               {/* Table Count Selector */}
               <div className="flex items-center bg-slate-100 rounded-xl p-1 border">
-                  <Label className="px-3 text-[10px] font-black uppercase text-slate-500">Cantidad</Label>
+                  <Label className="px-3 text-[10px] font-black uppercase text-slate-500">Cantidad de Mesas</Label>
                   <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setTableCount(Math.max(1, tableCount - 1))}><Minus className="w-3 h-3"/></Button>
                   <Input 
                     type="number" 
@@ -226,7 +232,7 @@ function NumerosDeMesaContent() {
               </div>
 
               <div className="flex flex-col">
-                <Label htmlFor="bg-image-upload" className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Imagen Fondo</Label>
+                <Label htmlFor="bg-image-upload" className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Fondo Personalizado</Label>
                 <Input id="bg-image-upload" type="file" accept="image/*" onChange={handleBackgroundImageUpload} className="text-xs w-40 h-8" disabled={isUploading}/>
               </div>
               
@@ -241,14 +247,14 @@ function NumerosDeMesaContent() {
                     Guardar
                  </Button>
                  <Button onClick={handlePrint} size="sm" variant="outline" title="Imprimir PDF" className="font-bold">
-                    <PrinterIcon className="w-4 h-4 mr-2"/> IMPRIMIR TODO
+                    <PrinterIcon className="w-4 h-4 mr-2"/> IMPRIMIR
                  </Button>
                  <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4"/></Button></Link>
               </div>
             </div>
         </div>
 
-        <div className="flex flex-col items-center py-8 gap-8 print:gap-0 print:py-0" ref={printRef}>
+        <div className="flex flex-col items-center py-8 gap-12 print:gap-0 print:py-0" ref={printRef}>
             {Array.from({ length: Math.ceil(tableCount / 2) }).map((_, pageIndex) => {
                 const tableNum1 = pageIndex * 2 + 1;
                 const tableNum2 = pageIndex * 2 + 2;
@@ -256,26 +262,44 @@ function NumerosDeMesaContent() {
                 return (
                     <div key={pageIndex} className="w-[210mm] h-[297mm] bg-white shadow-2xl print:shadow-none print:break-after-page flex flex-col p-8 print:p-0">
                         <div className="flex-1 grid grid-cols-2 gap-8 print:gap-0">
-                            <div className="flex flex-col h-full border border-dashed border-gray-200 print:border-none">
-                                <div className="flex-1 p-4 print:p-0">
+                            {/* Mesa 1 de la página */}
+                            <div className="flex flex-col h-full border border-dashed border-slate-200 print:border-none relative group">
+                                <div className="flex-1">
                                     <TableNumberComponent tableNumber={tableNum1} inverted fiesta={fiesta} data={data} logoUrl={logoUrl}/>
                                 </div>
-                                <div className="flex-1 p-4 print:p-0">
+                                
+                                {/* LÍNEA DE DOBLADO CENTRAL */}
+                                <div className="absolute top-1/2 left-0 right-0 border-t-2 border-dotted border-slate-300 z-30 pointer-events-none flex items-center justify-center">
+                                    <div className="bg-white px-2 text-[8px] font-black text-slate-300 uppercase tracking-widest -mt-[1px] print:hidden">
+                                        Línea de doblado
+                                    </div>
+                                </div>
+
+                                <div className="flex-1">
                                     <TableNumberComponent tableNumber={tableNum1} fiesta={fiesta} data={data} logoUrl={logoUrl}/>
                                 </div>
                             </div>
 
+                            {/* Mesa 2 de la página (si existe) */}
                             {tableNum2 <= tableCount ? (
-                                <div className="flex flex-col h-full border border-dashed border-gray-200 print:border-none">
-                                    <div className="flex-1 p-4 print:p-0">
+                                <div className="flex flex-col h-full border border-dashed border-slate-200 print:border-none relative">
+                                    <div className="flex-1">
                                         <TableNumberComponent tableNumber={tableNum2} inverted fiesta={fiesta} data={data} logoUrl={logoUrl}/>
                                     </div>
-                                    <div className="flex-1 p-4 print:p-0">
+                                    
+                                    <div className="absolute top-1/2 left-0 right-0 border-t-2 border-dotted border-slate-300 z-30 pointer-events-none flex items-center justify-center">
+                                        <div className="bg-white px-2 text-[8px] font-black text-slate-300 uppercase tracking-widest -mt-[1px] print:hidden">
+                                            Línea de doblado
+                                        </div>
+                                    </div>
+
+                                    <div className="flex-1">
                                         <TableNumberComponent tableNumber={tableNum2} fiesta={fiesta} data={data} logoUrl={logoUrl}/>
                                     </div>
                                 </div>
                             ) : (
-                                <div className="flex-1 bg-slate-50 flex items-center justify-center text-slate-300 font-black uppercase tracking-widest text-xs border border-dashed">
+                                <div className="flex-1 bg-slate-50 flex flex-col items-center justify-center text-slate-300 font-black uppercase tracking-widest text-xs border border-dashed border-slate-200">
+                                    <Scissors className="w-8 h-8 mb-2 opacity-20"/>
                                     Fin de lista
                                 </div>
                             )}
@@ -290,9 +314,10 @@ function NumerosDeMesaContent() {
             
             @media print {
                 body { -webkit-print-color-adjust: exact; color-adjust: exact; background: white !important; }
-                .sidebar, header, nav, button, .no-print, .notifications-hub, .sidebar-inset > header { display: none !important ; }
+                .sidebar, header, nav, button, .no-print, .notifications-hub, .sidebar-inset > header, .fixed-footer { display: none !important ; }
                 @page { size: A4 portrait; margin: 0; }
                 main { padding: 0 !important; margin: 0 !important; }
+                .print-main-override { padding: 0 !important; }
             }
         `}</style>
     </div>
