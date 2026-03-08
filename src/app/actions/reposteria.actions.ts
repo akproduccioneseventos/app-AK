@@ -7,13 +7,20 @@ import { defaultReposteriaData } from '@/lib/fiesta-defaults';
 
 const REPOSTERIA_TEMPLATE_FILE = 'reposteria-template.json';
 
-// --- ACCIONES PARA LA PLANTILLA MAESTRA DE REPOSTERÍA ---
-
 /**
  * Obtiene la plantilla maestra de repostería.
  */
 export async function getReposteriaMasterTemplate(): Promise<ReposteriaData> {
-  return readData<ReposteriaData>(REPOSTERIA_TEMPLATE_FILE, defaultReposteriaData);
+  const data = await readData<ReposteriaData>(REPOSTERIA_TEMPLATE_FILE, defaultReposteriaData);
+  // Ensure we have all categories
+  const essentialCategories = ['mesa_postres', 'candy_bar', 'fuente_chocolate'];
+  essentialCategories.forEach(id => {
+      if (!data.categorias.find(c => c.id === id)) {
+          const cat = defaultReposteriaData.categorias.find(c => c.id === id);
+          if (cat) data.categorias.push(cat);
+      }
+  });
+  return data;
 }
 
 /**
@@ -31,8 +38,7 @@ export async function saveReposteriaMasterTemplate(
   }
 }
 
-
-// --- ACCIONES PARA LA FIESTA ESPECÍFICA (A TRAVÉS DE FIESTA-ACTUAL) ---
+// --- ACCIONES PARA LA FIESTA ESPECÍFICA ---
 import { getFiestaById, saveFiesta } from './fiesta/fiesta.actions';
 
 export async function updateReposteria(fiestaId: string, reposteria: ReposteriaData): Promise<{ success: boolean; updatedData?: ReposteriaData; error?: string }> {

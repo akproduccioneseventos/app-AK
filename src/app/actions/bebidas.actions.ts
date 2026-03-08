@@ -7,13 +7,16 @@ import { defaultBebidasData } from '@/lib/fiesta-defaults';
 
 const BEBIDAS_TEMPLATE_FILE = 'bebidas-template.json';
 
-// --- ACCIONES PARA LA PLANTILLA MAESTRA DE BEBIDAS ---
-
 /**
  * Obtiene la plantilla maestra de bebidas.
  */
 export async function getBebidasMasterTemplate(): Promise<BebidasData> {
-  return readData<BebidasData>(BEBIDAS_TEMPLATE_FILE, defaultBebidasData);
+  const data = await readData<BebidasData>(BEBIDAS_TEMPLATE_FILE, defaultBebidasData);
+  // Ensure we have the barra_tragos category
+  if (!data.categorias.find(c => c.id === 'barra_tragos')) {
+      data.categorias.push(defaultBebidasData.categorias.find(c => c.id === 'barra_tragos')!);
+  }
+  return data;
 }
 
 /**
@@ -31,7 +34,7 @@ export async function saveBebidasMasterTemplate(
   }
 }
 
-// --- ACCIONES PARA LA FIESTA ESPECÍFICA (A TRAVÉS DE FIESTA-ACTUAL) ---
+// --- ACCIONES PARA LA FIESTA ESPECÍFICA ---
 import { getFiestaById, saveFiesta } from './fiesta/fiesta.actions';
 
 export async function updateBebidas(fiestaId: string, bebidas: BebidasData): Promise<{ success: boolean; updatedData?: BebidasData; error?: string }> {
