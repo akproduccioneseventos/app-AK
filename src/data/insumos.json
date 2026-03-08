@@ -3,7 +3,6 @@
   { "id": "ing-algas", "nombre": "Algas", "tipoItem": "Insumo/Ingrediente", "categoria": "Insumos varios", "valorUnitarioEstimado": 2000, "unidad": "Kg", "proveedor": "MONTEVIDEO" },
   { "id": "ing-soja", "nombre": "Salsa de soja", "tipoItem": "Insumo/Ingrediente", "categoria": "Insumos varios", "valorUnitarioEstimado": 500, "unidad": "Litro", "proveedor": "UNIPLAS" },
   { "id": "ing-aceite", "nombre": "Aceite", "tipoItem": "Insumo/Ingrediente", "categoria": "Insumos varios", "valorUnitarioEstimado": 70, "unidad": "Litro", "proveedor": "DK MOYORISTA" },
-  { "id": "ing-gas", "nombre": "Gas", "tipoItem": "Insumo/Ingrediente", "categoria": "Equipamiento", "valorUnitarioEstimado": 1000, "unidad": "Unidad", "proveedor": "No definido" },
   { "id": "ing-huevo", "nombre": "Huevo", "tipoItem": "Insumo/Ingrediente", "categoria": "Verduras", "valorUnitarioEstimado": 10, "unidad": "Unidad", "proveedor": "VERDULERIA" },
   { "id": "ing-arrolladitos", "nombre": "Arrolladitos primavera", "tipoItem": "Insumo/Ingrediente", "categoria": "Congelados", "valorUnitarioEstimado": 6, "unidad": "Unidad", "proveedor": "DOPACA" },
   { "id": "ing-tostaditas", "nombre": "Tostaditas", "tipoItem": "Insumo/Ingrediente", "categoria": "Panificados", "valorUnitarioEstimado": 650, "unidad": "Kg", "proveedor": "DON DIEGO" },

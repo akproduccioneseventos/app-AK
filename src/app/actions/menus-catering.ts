@@ -68,11 +68,6 @@ function calculateIngredientCost(ing: Partial<Ingredient>): number {
       return (quantity / 1000) * unitCost;
     }
     
-    // Si la cantidad es mayor a 1 y la unidad es Kg/Litro pero parece que son gramos
-    if (['kg', 'kilos', 'kilo', 'litro', 'litros'].includes(unit) && quantity > 1) {
-        return (quantity / 1000) * unitCost;
-    }
-
     return quantity * unitCost;
 }
 
