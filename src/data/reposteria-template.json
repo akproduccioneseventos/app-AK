@@ -1,59 +1,27 @@
+
 {
   "categorias": [
     {
       "id": "mesa_postres",
       "nombreDisplay": "Mesa de Postres",
-      "activada": false,
+      "activada": true,
       "items": [],
-      "descripcion": "Variedad de postres clásicos y modernos.",
-      "cantidadEstimadaPersonas": 0
+      "descripcion": "Variedad de postres clásicos y modernos."
     },
     {
       "id": "candy_bar",
       "nombreDisplay": "Candy Bar Temático",
       "activada": false,
       "items": [],
-      "descripcion": "Mesa de dulces y golosinas variadas.",
-      "cantidadEstimadaPersonas": 0
+      "descripcion": "Mesa de dulces y golosinas variadas."
     },
     {
       "id": "fuente_chocolate",
       "nombreDisplay": "Fuente de Chocolate",
-      "activada": false,
+      "activada": true,
       "items": [],
-      "descripcion": "Con frutas, malvaviscos y más.",
-      "cantidadEstimadaPersonas": 0
-    },
-    {
-      "id": "mesa_helada",
-      "nombreDisplay": "Mesa Helada",
-      "activada": false,
-      "items": [],
-      "descripcion": "Selección de helados y toppings.",
-      "cantidadEstimadaPersonas": 0
+      "descripcion": "Con frutas, malvaviscos y más."
     }
   ],
-  "consumoConfig": {
-    "mesa_postres": {
-      "adulto": 2,
-      "adolescente": 2,
-      "nino": 1.5
-    },
-    "candy_bar": {
-      "adulto": 1,
-      "adolescente": 1.5,
-      "nino": 2
-    },
-    "fuente_chocolate": {
-      "adulto": 1,
-      "adolescente": 1,
-      "nino": 1
-    },
-    "mesa_helada": {
-      "adulto": 1.5,
-      "adolescente": 1.5,
-      "nino": 1.5
-    }
-  },
   "notasGenerales": ""
 }
