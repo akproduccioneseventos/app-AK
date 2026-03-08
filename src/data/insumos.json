@@ -1,10 +1,9 @@
-
 [
   { "id": "ing-harina", "nombre": "Harina", "tipoItem": "Insumo/Ingrediente", "categoria": "Insumos varios", "valorUnitarioEstimado": 180, "unidad": "Kg", "proveedor": "CALSAL" },
   { "id": "ing-algas", "nombre": "Algas", "tipoItem": "Insumo/Ingrediente", "categoria": "Insumos varios", "valorUnitarioEstimado": 2000, "unidad": "Kg", "proveedor": "MONTEVIDEO" },
   { "id": "ing-soja", "nombre": "Salsa de soja", "tipoItem": "Insumo/Ingrediente", "categoria": "Insumos varios", "valorUnitarioEstimado": 500, "unidad": "Litro", "proveedor": "UNIPLAS" },
   { "id": "ing-aceite", "nombre": "Aceite", "tipoItem": "Insumo/Ingrediente", "categoria": "Insumos varios", "valorUnitarioEstimado": 70, "unidad": "Litro", "proveedor": "DK MOYORISTA" },
-  { "id": "ing-gas", "nombre": "Gas", "tipoItem": "Insumo/Ingrediente", "categoria": "Equipamiento", "valorUnitarioEstimado": 1000, "unidad": "Unidad", "proveedor": "Proveedor Gas" },
+  { "id": "ing-gas", "nombre": "Gas", "tipoItem": "Insumo/Ingrediente", "categoria": "Equipamiento", "valorUnitarioEstimado": 1000, "unidad": "Unidad", "proveedor": "No definido" },
   { "id": "ing-huevo", "nombre": "Huevo", "tipoItem": "Insumo/Ingrediente", "categoria": "Verduras", "valorUnitarioEstimado": 10, "unidad": "Unidad", "proveedor": "VERDULERIA" },
   { "id": "ing-arrolladitos", "nombre": "Arrolladitos primavera", "tipoItem": "Insumo/Ingrediente", "categoria": "Congelados", "valorUnitarioEstimado": 6, "unidad": "Unidad", "proveedor": "DOPACA" },
   { "id": "ing-tostaditas", "nombre": "Tostaditas", "tipoItem": "Insumo/Ingrediente", "categoria": "Panificados", "valorUnitarioEstimado": 650, "unidad": "Kg", "proveedor": "DON DIEGO" },
@@ -26,11 +25,10 @@
   { "id": "ing-fritas", "nombre": "Fritas", "tipoItem": "Insumo/Ingrediente", "categoria": "Congelados", "valorUnitarioEstimado": 130, "unidad": "Kg", "proveedor": "DOPACA" },
   { "id": "ing-cheddar", "nombre": "Queso Cheddar", "tipoItem": "Insumo/Ingrediente", "categoria": "Lácteos", "valorUnitarioEstimado": 340, "unidad": "Kg", "proveedor": "DK MOYORISTA" },
   { "id": "ing-carne", "nombre": "Carnes", "tipoItem": "Insumo/Ingrediente", "categoria": "Carnes", "valorUnitarioEstimado": 380, "unidad": "Kg", "proveedor": "CARNICERIA" },
-  { "id": "ing-panceta", "nombre": "Panceta", "tipoItem": "Insumo/Ingrediente", "categoria": "Fiambres", "valorUnitarioEstimado": 421, "unidad": "Kg", "proveedor": "EL TROPERO" },
+  { "id": "ing-panceta", "nombre": "Panceta", "tipoItem": "Insumo/Ingrediente", "categoria": "Fiambres", "valorUnitarioEstimado": 400, "unidad": "Kg", "proveedor": "EL TROPERO" },
   { "id": "ing-morron-rojo", "nombre": "Morron rojo", "tipoItem": "Insumo/Ingrediente", "categoria": "Verduras", "valorUnitarioEstimado": 150, "unidad": "Kg", "proveedor": "VERDULERIA" },
   { "id": "ing-morron-verde", "nombre": "Morron verde", "tipoItem": "Insumo/Ingrediente", "categoria": "Verduras", "valorUnitarioEstimado": 100, "unidad": "Kg", "proveedor": "VERDULERIA" },
   { "id": "ing-cebolla", "nombre": "Cebollas", "tipoItem": "Insumo/Ingrediente", "categoria": "Verduras", "valorUnitarioEstimado": 80, "unidad": "Kg", "proveedor": "VERDULERIA" },
-  { "id": "ing-paleta", "nombre": "Paleta", "tipoItem": "Insumo/Ingrediente", "categoria": "Fiambres", "valorUnitarioEstimado": 180, "unidad": "Kg", "proveedor": "EL TROPERO" },
   { "id": "ing-salame", "nombre": "Salame", "tipoItem": "Insumo/Ingrediente", "categoria": "Fiambres", "valorUnitarioEstimado": 430, "unidad": "Kg", "proveedor": "EL TROPERO" },
   { "id": "ing-bondiola-ahumada", "nombre": "Bondiola ahumada", "tipoItem": "Insumo/Ingrediente", "categoria": "Fiambres", "valorUnitarioEstimado": 800, "unidad": "Kg", "proveedor": "EL TROPERO" },
   { "id": "ing-picada-carne", "nombre": "Picada de carne", "tipoItem": "Insumo/Ingrediente", "categoria": "Carnes", "valorUnitarioEstimado": 330, "unidad": "Kg", "proveedor": "CARNICERIA" },
@@ -63,5 +61,8 @@
   { "id": "ing-boniato", "nombre": "Boñato", "tipoItem": "Insumo/Ingrediente", "categoria": "Verduras", "valorUnitarioEstimado": 80, "unidad": "Kg", "proveedor": "VERDULERIA" },
   { "id": "ing-papas-torneadas", "nombre": "Papas congeladas torneadas", "tipoItem": "Insumo/Ingrediente", "categoria": "Congelados", "valorUnitarioEstimado": 130, "unidad": "Kg", "proveedor": "VERDULERIA" },
   { "id": "ing-pasas", "nombre": "Pasas de uva", "tipoItem": "Insumo/Ingrediente", "categoria": "Insumos varios", "valorUnitarioEstimado": 130, "unidad": "Kg", "proveedor": "DOPACA" },
-  { "id": "ing-anana", "nombre": "Anana", "tipoItem": "Insumo/Ingrediente", "categoria": "Insumos varios", "valorUnitarioEstimado": 150, "unidad": "Unidad", "proveedor": "UNIPLAS" }
+  { "id": "ing-anana", "nombre": "Anana", "tipoItem": "Insumo/Ingrediente", "categoria": "Insumos varios", "valorUnitarioEstimado": 150, "unidad": "Unidad", "proveedor": "UNIPLAS" },
+  { "id": "ing-pan-pancho-mm", "nombre": "Pan de panchos medio metro", "tipoItem": "Insumo/Ingrediente", "categoria": "Panificados", "valorUnitarioEstimado": 48, "unidad": "Unidad", "proveedor": "DON DIEGO" },
+  { "id": "ing-pancho-mm", "nombre": "Panchos medio metro", "tipoItem": "Insumo/Ingrediente", "categoria": "Fiambres", "valorUnitarioEstimado": 270, "unidad": "Kg", "proveedor": "BORDENAVE" },
+  { "id": "ing-porta-pancho-mm", "nombre": "Porta pancho medio metro", "tipoItem": "Insumo/Ingrediente", "categoria": "Descartables", "valorUnitarioEstimado": 15, "unidad": "Unidad", "proveedor": "UNIPLAS" }
 ]
