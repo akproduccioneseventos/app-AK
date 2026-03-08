@@ -2,15 +2,14 @@
 
 import React, { useState, useEffect, useCallback, Suspense, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
+import Link from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
     Zap, Loader2, AlertTriangle, Clock, CheckCircle2, Truck, Users, 
-    Smartphone, Phone, MapPin, PartyPopper, Bell, RefreshCw, 
-    ArrowLeft, ClipboardList, Info, CircleAlert, Check, X, ShieldAlert, 
-    PackageSearch, RotateCcw, Share2, Camera, Wallet, ChefHat, 
-    ShoppingCart, PlusCircle
+    Phone, PartyPopper, Bell, RefreshCw, 
+    ArrowLeft, ClipboardList, Info, Check, X, ShieldAlert, 
+    PackageSearch, RotateCcw, Share2, Camera, Wallet, PlusCircle
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateProgramaFiestaActual } from '@/app/actions/fiesta-actual';
@@ -29,6 +28,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Separator } from '@/components/ui/separator';
 import { motion, AnimatePresence } from 'framer-motion';
 
 function LiveEventDashboardContent() {
@@ -84,12 +84,10 @@ function LiveEventDashboardContent() {
         return () => clearInterval(interval);
     }, [loadData]);
 
-    // Timer del evento
     useEffect(() => {
         if (!fiesta?.configuracion.fechaEvento) return;
         const timer = setInterval(() => {
             const start = new Date(fiesta.configuracion.fechaEvento!);
-            // Si hay hora de inicio, ajustarla
             if (fiesta.configuracion.horaInicio) {
                 const [h, m] = fiesta.configuracion.horaInicio.split(':').map(Number);
                 start.setHours(h, m, 0, 0);
@@ -183,7 +181,6 @@ function LiveEventDashboardContent() {
         <div className="min-h-screen bg-slate-950 text-slate-200 p-4 md:p-8">
             <div className="max-w-7xl mx-auto space-y-8">
                 
-                {/* HEADER DE COMANDO */}
                 <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-slate-900/50 p-6 rounded-[2rem] border border-white/5 backdrop-blur-xl">
                     <div className="flex items-center gap-5">
                         <div className="p-4 bg-primary rounded-2xl shadow-2xl shadow-primary/40 text-white">
@@ -208,7 +205,6 @@ function LiveEventDashboardContent() {
                     </div>
                 </header>
 
-                {/* ALERTAS CRÍTICAS */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {saldoPendiente > 0 && (
                         <Card className="bg-amber-600 border-none rounded-3xl shadow-xl animate-in fade-in slide-in-from-left-4">
@@ -234,7 +230,6 @@ function LiveEventDashboardContent() {
                     )}
                 </div>
 
-                {/* RADAR DE LLEGADA */}
                 <AnimatePresence>
                     {radar?.enCamino && (
                         <Card className="bg-rose-600 border-none shadow-[0_0_50px_rgba(225,29,72,0.5)] rounded-[2.5rem] overflow-hidden animate-pulse">
@@ -260,13 +255,12 @@ function LiveEventDashboardContent() {
                 <Tabs defaultValue="operaciones" className="w-full">
                     <TabsList className="grid w-full grid-cols-2 bg-slate-900 h-16 p-1 rounded-2xl border border-white/5 mb-8">
                         <TabsTrigger value="operaciones" className="rounded-xl font-black uppercase text-xs tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white">Panel de Comando</TabsTrigger>
-                        <TabsTrigger value="retorno" className="rounded-xl font-black uppercase text-xs tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white">Logística Inversa (Retorno)</TabsTrigger>
+                        <TabsTrigger value="retorno" className="rounded-xl font-black uppercase text-xs tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white">Logística Inversa</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="operaciones" className="space-y-8">
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                             <div className="lg:col-span-8 space-y-8">
-                                {/* ENTREGAS */}
                                 <Card className="bg-slate-900/80 border-white/5 shadow-2xl rounded-[2.5rem] overflow-hidden">
                                     <CardHeader className="bg-white/5 border-b border-white/5 p-6 flex flex-row items-center justify-between">
                                         <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-3">
@@ -301,7 +295,6 @@ function LiveEventDashboardContent() {
                                     </CardContent>
                                 </Card>
 
-                                {/* STAFF */}
                                 <Card className="bg-slate-900/80 border-white/5 shadow-2xl rounded-[2.5rem] overflow-hidden">
                                     <CardHeader className="bg-white/5 border-b border-white/5 p-6">
                                         <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-3">
@@ -314,7 +307,6 @@ function LiveEventDashboardContent() {
                                                 <TableRow className="border-white/5">
                                                     <TableHead className="text-[10px] uppercase font-black text-slate-500 pl-8">Empleado</TableHead>
                                                     <TableHead className="text-center text-[10px] uppercase font-black text-slate-500">Estado</TableHead>
-                                                    <TableHead className="text-right text-[10px] uppercase font-black text-slate-500 pr-8">Contacto</TableHead>
                                                 </TableRow>
                                             </TableHeader>
                                             <TableBody>
@@ -332,9 +324,6 @@ function LiveEventDashboardContent() {
                                                                     {status.llego ? 'Presente' : 'Pendiente'}
                                                                 </button>
                                                             </TableCell>
-                                                            <TableCell className="text-right pr-8">
-                                                                {emp?.phone && <Button size="sm" variant="ghost" asChild className="h-10 w-10 text-primary"><a href={`tel:${emp.phone}`}><Phone className="w-4 h-4"/></a></Button>}
-                                                            </TableCell>
                                                         </TableRow>
                                                     );
                                                 })}
@@ -349,7 +338,7 @@ function LiveEventDashboardContent() {
                                     <CardHeader><CardTitle className="text-sm font-black uppercase tracking-widest">Recepción</CardTitle></CardHeader>
                                     <CardContent className="space-y-6">
                                         <div className="flex justify-between items-end"><div className="text-5xl font-black">{asistentesPresentes}</div><div className="text-xl font-bold opacity-60">de {totalConfirmados}</div></div>
-                                        <Progress value={(asistentesPresentes/totalConfirmados)*100} className="h-3 bg-black/20" />
+                                        <Progress value={(asistentesPresentes/Math.max(1, totalConfirmados))*100} className="h-3 bg-black/20" />
                                     </CardContent>
                                 </Card>
 
@@ -374,14 +363,11 @@ function LiveEventDashboardContent() {
                                 <Card className="bg-slate-900/80 border-white/5 shadow-2xl rounded-[2.5rem] overflow-hidden">
                                     <CardHeader className="p-6 flex flex-row items-center justify-between">
                                         <CardTitle className="text-sm font-black uppercase tracking-widest text-rose-500">Bitácora de Incidentes</CardTitle>
-                                        <Link href={fiesta.id ? `/evento/social/${fiesta.id}` : '#'} target="_blank">
-                                            <Button variant="ghost" size="sm" className="text-[10px] font-black uppercase text-pink-500 hover:bg-pink-500/10">Muro Social <Camera className="ml-2 w-3 h-3"/></Button>
-                                        </Link>
                                     </CardHeader>
                                     <CardContent className="p-6 pt-0 space-y-4">
                                         <div className="flex gap-2">
                                             <Input value={incidenteInput} onChange={e => setIncidenteInput(e.target.value)} placeholder="Ej: Rotura cristal mesa 4" className="h-12 rounded-xl bg-white/5 border-white/10" />
-                                            <Button onClick={handleAddIncidente} size="icon" className="h-12 w-12 rounded-xl shrink-0"><PlusCircle/></Button>
+                                            <Button onClick={handleAddIncidente} size="icon" className="h-12 w-12 rounded-xl shrink-0"><PlusCircle className="w-4 h-4"/></Button>
                                         </div>
                                         <ScrollArea className="h-40">
                                             <div className="space-y-2">
@@ -399,15 +385,13 @@ function LiveEventDashboardContent() {
                         </div>
                     </TabsContent>
 
-                    <TabsContent value="retorno" className="space-y-8 animate-in fade-in zoom-in duration-500">
+                    <TabsContent value="retorno" className="space-y-8">
                         <Card className="bg-slate-900/80 border-white/5 shadow-3xl rounded-[2.5rem] overflow-hidden">
                             <CardHeader className="bg-primary/10 border-b border-white/5 p-8 text-center relative">
                                 <div className="p-4 bg-primary/20 rounded-3xl w-fit mx-auto mb-4">
                                     <PackageSearch className="w-10 h-10 text-primary" />
                                 </div>
                                 <CardTitle className="text-2xl font-black uppercase tracking-tighter text-white">Logística de Retorno</CardTitle>
-                                <CardDescription className="text-slate-400 font-medium mt-2">Control de recuperación de activos al finalizar el evento.</CardDescription>
-                                
                                 <div className="absolute top-8 right-8">
                                     <Button onClick={handleShareUtilsLink} className="rounded-2xl bg-emerald-600 hover:bg-emerald-700 h-12 px-6 font-black uppercase tracking-widest shadow-xl">
                                         <Share2 className="w-4 h-4 mr-2"/> Enlace Utileros
@@ -417,7 +401,7 @@ function LiveEventDashboardContent() {
                             <CardContent className="p-8">
                                 {(!fiesta.listaDeCargaOperativa?.categorias || fiesta.listaDeCargaOperativa.categorias.length === 0) ? (
                                     <div className="text-center py-20 bg-black/20 rounded-3xl border border-dashed border-white/10">
-                                        <p className="text-slate-500 font-bold uppercase tracking-widest text-sm">No hay una lista de carga base para este evento.</p>
+                                        <p className="text-slate-500 font-bold uppercase tracking-widest text-sm">No hay una lista de carga base.</p>
                                     </div>
                                 ) : (
                                     <div className="space-y-10">
@@ -441,11 +425,11 @@ function LiveEventDashboardContent() {
                                                         >
                                                             <div className="flex flex-col">
                                                                 <span className={cn("font-bold text-lg", item.retornado ? "text-emerald-500 line-through opacity-60" : "text-white")}>{item.nombre}</span>
-                                                                <span className="text-[10px] font-black uppercase tracking-widest opacity-40">CARGADO: {item.cantidad} {item.unidad || 'Uds.'}</span>
+                                                                <span className="text-[10px] font-black uppercase tracking-widest opacity-40">CANT: {item.cantidad}</span>
                                                             </div>
                                                             <div className={cn(
                                                                 "w-10 h-10 rounded-2xl flex items-center justify-center transition-all",
-                                                                item.retornado ? "bg-emerald-500 text-white shadow-lg" : "bg-slate-700 text-slate-500"
+                                                                item.retornado ? "bg-emerald-500 text-white" : "bg-slate-700 text-slate-500"
                                                             )}>
                                                                 {item.retornado ? <Check className="w-6 h-6"/> : <RotateCcw className="w-5 h-5"/>}
                                                             </div>
@@ -457,18 +441,6 @@ function LiveEventDashboardContent() {
                                     </div>
                                 )}
                             </CardContent>
-                            <CardFooter className="bg-white/5 p-8 flex justify-between items-center border-t border-white/5">
-                                <div className="flex items-center gap-3">
-                                    <Info className="w-5 h-5 text-primary"/>
-                                    <p className="text-xs font-medium text-slate-400">Progreso en tiempo real sincronizado con el personal de carga.</p>
-                                </div>
-                                <div className="text-right">
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Recuperación Total</p>
-                                    <p className="text-2xl font-black text-emerald-500">
-                                        {fiesta.listaDeCargaOperativa.categorias.reduce((s, c) => s + c.items.filter(i=>i.retornado).length, 0)} / {fiesta.listaDeCargaOperativa.categorias.reduce((s, c) => s + c.items.length, 0)}
-                                    </p>
-                                </div>
-                            </CardFooter>
                         </Card>
                     </TabsContent>
                 </Tabs>
