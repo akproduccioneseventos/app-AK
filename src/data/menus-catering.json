@@ -18,7 +18,7 @@
         ],
         "totalDishCost": 45.2,
         "profitMargin": 100,
-        "suggestedSellingPrice": 90
+        "suggestedSellingPrice": 90.4
       },
       {
         "id": "dish_ent_2",
@@ -49,7 +49,50 @@
         ],
         "totalDishCost": 61.4,
         "profitMargin": 100,
-        "suggestedSellingPrice": 123
+        "suggestedSellingPrice": 122.8
+      },
+      {
+        "id": "dish_ent_4",
+        "name": "PLANCHAS CALIENTES",
+        "type": "Entrada",
+        "ingredients": [
+          { "id": "i1", "name": "Jamon", "quantityPerPerson": "40", "unit": "g", "costoUnitario": 180, "origenId": "ing-jamon" },
+          { "id": "i2", "name": "Manteca", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 200, "origenId": "ing-manteca" },
+          { "id": "i3", "name": "Muzarella", "quantityPerPerson": "40", "unit": "g", "costoUnitario": 330, "origenId": "ing-muzarella" },
+          { "id": "i4", "name": "Pan de Sandwiches", "quantityPerPerson": "60", "unit": "g", "costoUnitario": 380, "origenId": "ing-pan-sandwich" },
+          { "id": "i5", "name": "Gas", "quantityPerPerson": "5", "unit": "un", "costoUnitario": 1, "origenId": "ing-gas" }
+        ],
+        "totalDishCost": 54.2,
+        "profitMargin": 100,
+        "suggestedSellingPrice": 108.4
+      },
+      {
+        "id": "dish_ent_5",
+        "name": "PICADA SNACK",
+        "type": "Entrada",
+        "ingredients": [
+          { "id": "i1", "name": "Palitos salados", "quantityPerPerson": "25", "unit": "g", "costoUnitario": 200, "origenId": "ing-palitos" },
+          { "id": "i2", "name": "Mani", "quantityPerPerson": "25", "unit": "g", "costoUnitario": 200, "origenId": "ing-mani" },
+          { "id": "i3", "name": "Papas Chips", "quantityPerPerson": "25", "unit": "g", "costoUnitario": 400, "origenId": "ing-papas-chips" },
+          { "id": "i4", "name": "Doritos", "quantityPerPerson": "25", "unit": "g", "costoUnitario": 800, "origenId": "ing-doritos" },
+          { "id": "i5", "name": "Aceitunas", "quantityPerPerson": "25", "unit": "g", "costoUnitario": 220, "origenId": "ing-aceitunas-rodajas" }
+        ],
+        "totalDishCost": 45.5,
+        "profitMargin": 100,
+        "suggestedSellingPrice": 91
+      },
+      {
+        "id": "dish_ent_6",
+        "name": "PAPAS FRITAS CON CHEDDAR",
+        "type": "Entrada",
+        "ingredients": [
+          { "id": "i1", "name": "Fritas", "quantityPerPerson": "200", "unit": "g", "costoUnitario": 130, "origenId": "ing-fritas" },
+          { "id": "i2", "name": "Queso Cheddar", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 340, "origenId": "ing-cheddar" },
+          { "id": "i3", "name": "Aceite", "quantityPerPerson": "100", "unit": "ml", "costoUnitario": 70, "origenId": "ing-aceite" }
+        ],
+        "totalDishCost": 50,
+        "profitMargin": 100,
+        "suggestedSellingPrice": 100
       },
       {
         "id": "dish_ent_12",
@@ -59,24 +102,13 @@
           { "id": "i1", "name": "Pan de 40g", "quantityPerPerson": "80", "unit": "g", "costoUnitario": 238, "origenId": "ing-pan-sandwich" },
           { "id": "i2", "name": "Carne", "quantityPerPerson": "70", "unit": "g", "costoUnitario": 380, "origenId": "ing-carne" },
           { "id": "i3", "name": "Jamon", "quantityPerPerson": "40", "unit": "g", "costoUnitario": 330, "origenId": "ing-jamon" },
-          { "id": "i4", "name": "Queso Cheddar", "quantityPerPerson": "40", "unit": "g", "costoUnitario": 400, "origenId": "ing-cheddar" }
+          { "id": "i4", "name": "Queso Cheddar", "quantityPerPerson": "40", "unit": "g", "costoUnitario": 400, "origenId": "ing-cheddar" },
+          { "id": "i5", "name": "lechuga", "quantityPerPerson": "0.1", "unit": "un", "costoUnitario": 50, "origenId": "ing-huevo" },
+          { "id": "i6", "name": "Huevos", "quantityPerPerson": "0.2", "unit": "un", "costoUnitario": 10, "origenId": "ing-huevo" }
         ],
         "totalDishCost": 90.84,
         "profitMargin": 100,
-        "suggestedSellingPrice": 182
-      },
-      {
-        "id": "dish_ent_shushi",
-        "name": "SUSHI",
-        "type": "Entrada",
-        "ingredients": [
-          { "id": "i1", "name": "Salmon", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 1000, "origenId": "ing-salmon" },
-          { "id": "i2", "name": "Arroz de Shushi", "quantityPerPerson": "100", "unit": "g", "costoUnitario": 135, "origenId": "ing-arroz-shushi" },
-          { "id": "i3", "name": "Queso crema", "quantityPerPerson": "30", "unit": "ml", "costoUnitario": 400, "origenId": "ing-queso-crema" }
-        ],
-        "totalDishCost": 99.8,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 200
+        "suggestedSellingPrice": 181.7
       }
     ]
   },
@@ -97,19 +129,7 @@
         ],
         "totalDishCost": 287.4,
         "profitMargin": 100,
-        "suggestedSellingPrice": 575
-      },
-      {
-        "id": "dish_main_cordero",
-        "name": "CORDERO ASADO C/ GUARNICIÓN",
-        "type": "Plato Principal",
-        "ingredients": [
-          { "id": "i1", "name": "Cordero crudo", "quantityPerPerson": "700", "unit": "g", "costoUnitario": 300, "origenId": "ing-carne" },
-          { "id": "i2", "name": "Guarnicion", "quantityPerPerson": "1", "unit": "un", "costoUnitario": 45 }
-        ],
-        "totalDishCost": 255,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 510
+        "suggestedSellingPrice": 574.8
       }
     ]
   },
@@ -126,24 +146,12 @@
           { "id": "i1", "name": "Panchos medio metro", "quantityPerPerson": "190", "unit": "g", "costoUnitario": 270, "origenId": "ing-pancho-mm" },
           { "id": "i2", "name": "Pan de panchos medio metro", "quantityPerPerson": "1", "unit": "un", "costoUnitario": 48, "origenId": "ing-pan-pancho-mm" },
           { "id": "i3", "name": "Fritas", "quantityPerPerson": "200", "unit": "g", "costoUnitario": 150, "origenId": "ing-fritas" },
-          { "id": "i4", "name": "Porta pancho medio metro", "quantityPerPerson": "1", "unit": "un", "costoUnitario": 15, "origenId": "ing-porta-pancho-mm" }
+          { "id": "i4", "name": "Porta pancho medio metro", "quantityPerPerson": "1", "unit": "un", "costoUnitario": 15, "origenId": "ing-porta-pancho-mm" },
+          { "id": "i5", "name": "Gas", "quantityPerPerson": "3", "unit": "un", "costoUnitario": 1, "origenId": "ing-gas" }
         ],
         "totalDishCost": 164.3,
         "profitMargin": 100,
-        "suggestedSellingPrice": 331
-      },
-      {
-        "id": "dish_child_hamb",
-        "name": "HAMBURGUESA C/ FRITAS",
-        "type": "Menú Infantil/Adolescente",
-        "ingredients": [
-          { "id": "i1", "name": "Hamburguesas", "quantityPerPerson": "1", "unit": "un", "costoUnitario": 35, "origenId": "ing-fritas" },
-          { "id": "i2", "name": "Tortugas brioche", "quantityPerPerson": "1", "unit": "un", "costoUnitario": 20, "origenId": "ing-pan-sandwich" },
-          { "id": "i3", "name": "Fritas", "quantityPerPerson": "200", "unit": "g", "costoUnitario": 130, "origenId": "ing-fritas" }
-        ],
-        "totalDishCost": 138.3,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 277
+        "suggestedSellingPrice": 330.6
       }
     ]
   }
