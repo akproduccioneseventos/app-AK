@@ -13,7 +13,7 @@
     "nombre": "Mozo de cocina",
     "tipoItem": "Servicio",
     "categoria": "Personal",
-    "valorUnitarioEstimado": 2100,
+    "valorUnitarioEstimated": 2100,
     "calculationMethod": "ratio",
     "precioBase": 3000,
     "invitadosPorUnidad": 25
@@ -307,6 +307,33 @@
     "categoria": "Servicio de repostería",
     "valorUnitarioEstimado": 600,
     "precioVenta": 1200,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_torta_principal",
+    "nombre": "Torta Principal (Personalizada)",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "valorUnitarioEstimado": 3500,
+    "precioVenta": 7500,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_fuente_chocolate",
+    "nombre": "Fuente de Chocolate (Servicio)",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "valorUnitarioEstimado": 4500,
+    "precioVenta": 8900,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_candy_bar_tematico",
+    "nombre": "Candy Bar Temático",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "valorUnitarioEstimado": 2500,
+    "precioVenta": 5500,
     "calculationMethod": "fijo"
   }
 ]
