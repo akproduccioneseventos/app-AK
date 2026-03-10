@@ -69,7 +69,7 @@
     "nombre": "Mantelería completa",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "valorUnitarioEstimado": 40,
+    "valorUnitarioEstimated": 40,
     "calculationMethod": "porPersona",
     "precioPorPersona": 70
   },
@@ -136,6 +136,51 @@
     "categoria": "Servicio de fotografía",
     "valorUnitarioEstimado": 3300,
     "precioVenta": 8500,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_centro_mesa_alquiler",
+    "nombre": "Centro de mesa alquiler",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "valorUnitarioEstimado": 200,
+    "precioVenta": 500,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_fotocabina",
+    "nombre": "Fotocabina",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de entretenimiento",
+    "valorUnitarioEstimado": 1500,
+    "precioVenta": 2900,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_fuegos_frios",
+    "nombre": "Fuegos fríos",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de entretenimiento",
+    "valorUnitarioEstimado": 1200,
+    "precioVenta": 3000,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_lluvia_burbujas",
+    "nombre": "Lluvia de burbujas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de entretenimiento",
+    "valorUnitarioEstimado": 600,
+    "precioVenta": 1500,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_album_digital",
+    "nombre": "Álbum digital personalizado",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de fotografía",
+    "valorUnitarioEstimado": 1800,
+    "precioVenta": 3500,
     "calculationMethod": "fijo"
   },
   {
