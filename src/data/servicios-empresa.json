@@ -1,16 +1,222 @@
-
 [
-  { "id": "serv_mozos", "nombre": "Mozos", "tipoItem": "Servicio", "categoria": "Personal", "valorUnitarioEstimado": 2200, "calculationMethod": "ratio", "precioBase": 2900, "invitadosPorUnidad": 25 },
-  { "id": "serv_mozo_cocina", "nombre": "Mozo de cocina", "tipoItem": "Servicio", "categoria": "Personal", "valorUnitarioEstimado": 2100, "calculationMethod": "ratio", "precioBase": 2900, "invitadosPorUnidad": 25 },
-  { "id": "serv_asador", "nombre": "Asador profesional", "tipoItem": "Servicio", "categoria": "Personal", "valorUnitarioEstimado": 3200, "precioVenta": 4200, "calculationMethod": "fijo" },
-  { "id": "serv_manteleria_completa", "nombre": "Mantelería completa", "tipoItem": "Servicio", "categoria": "Servicio de catering", "valorUnitarioEstimado": 40, "calculationMethod": "porPersona", "precioPorPersona": 70 },
-  { "id": "serv_barra_tragos", "nombre": "Barra de tragos", "tipoItem": "Servicio", "categoria": "Servicio de bebidas", "valorUnitarioEstimado": 125.45, "calculationMethod": "porPersona", "precioPorPersona": 251 },
-  { "id": "serv_disco_intermedia", "nombre": "Discoteca intermedia", "tipoItem": "Servicio", "categoria": "Servicio de discoteca", "valorUnitarioEstimado": 4000, "precioVenta": 14000, "calculationMethod": "fijo" },
-  { "id": "serv_invitaciones_regalo", "nombre": "Invitaciones digitales", "tipoItem": "Servicio", "categoria": "Regalo exclusivo", "valorUnitarioEstimado": 0, "precioVenta": 2500, "calculationMethod": "fijo" },
-  { "id": "serv_pantalla_regalo", "nombre": "Pantalla gigante y proyector", "tipoItem": "Servicio", "categoria": "Regalo exclusivo", "valorUnitarioEstimado": 0, "precioVenta": 2500, "calculationMethod": "fijo" },
-  { "id": "serv_video_vida_regalo", "nombre": "Video de vida", "tipoItem": "Servicio", "categoria": "Regalo exclusivo", "valorUnitarioEstimado": 0, "precioVenta": 2500, "calculationMethod": "fijo" },
-  { "id": "serv_plataforma360_regalo", "nombre": "Plataforma 360", "tipoItem": "Servicio", "categoria": "Regalo exclusivo", "valorUnitarioEstimado": 1500, "precioVenta": 4500, "calculationMethod": "fijo" },
-  { "id": "serv_foto_fiesta", "nombre": "Fotografía de fiestas", "tipoItem": "Servicio", "categoria": "Servicio de fotografía", "valorUnitarioEstimado": 3300, "precioVenta": 8500, "calculationMethod": "fijo" },
-  { "id": "serv_foto_ext", "nombre": "Fotografía de exteriores", "tipoItem": "Servicio", "categoria": "Servicio de fotografía", "valorUnitarioEstimado": 1650, "precioVenta": 3900, "calculationMethod": "fijo" },
-  { "id": "serv_deco_basica", "nombre": "Decoración básica", "tipoItem": "Servicio", "categoria": "Servicio de decoración", "valorUnitarioEstimado": 5000, "precioVenta": 14500, "calculationMethod": "fijo" }
+  {
+    "id": "serv_asador",
+    "nombre": "Asador profesional",
+    "tipoItem": "Servicio",
+    "categoria": "Personal",
+    "valorUnitarioEstimado": 3200,
+    "precioVenta": 4200,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_mozo_cocina",
+    "nombre": "Mozo de cocina",
+    "tipoItem": "Servicio",
+    "categoria": "Personal",
+    "valorUnitarioEstimado": 2100,
+    "calculationMethod": "ratio",
+    "precioBase": 3000,
+    "invitadosPorUnidad": 25
+  },
+  {
+    "id": "serv_mozos",
+    "nombre": "Mozos",
+    "tipoItem": "Servicio",
+    "categoria": "Personal",
+    "valorUnitarioEstimado": 2200,
+    "calculationMethod": "ratio",
+    "precioBase": 3000,
+    "invitadosPorUnidad": 25
+  },
+  {
+    "id": "serv_invitaciones_regalo",
+    "nombre": "Invitaciones digitales",
+    "tipoItem": "Servicio",
+    "categoria": "Regalo exclusivo",
+    "valorUnitarioEstimado": 0,
+    "precioVenta": 2500,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_pantalla_regalo",
+    "nombre": "Pantalla gigante y proyector",
+    "tipoItem": "Servicio",
+    "categoria": "Regalo exclusivo",
+    "valorUnitarioEstimado": 0,
+    "precioVenta": 2500,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_video_vida_regalo",
+    "nombre": "Video de vida",
+    "tipoItem": "Servicio",
+    "categoria": "Regalo exclusivo",
+    "valorUnitarioEstimado": 0,
+    "precioVenta": 2500,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_barra_tragos",
+    "nombre": "Barra de tragos",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de bebidas",
+    "valorUnitarioEstimado": 250,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 399
+  },
+  {
+    "id": "serv_manteleria_completa",
+    "nombre": "Mantelería completa",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "valorUnitarioEstimado": 40,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 70
+  },
+  {
+    "id": "serv_deco_basica",
+    "nombre": "Decoración",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "valorUnitarioEstimado": 14500,
+    "precioVenta": 14500,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_1773155046161_v5ye5ck",
+    "nombre": "Servicio de Discoteca ",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de discoteca",
+    "valorUnitarioEstimado": 4000,
+    "precioVenta": 9900,
+    "calculationMethod": "tramos",
+    "tramosDePrecio": [
+      {
+        "id": "tramo_1773155179692",
+        "desde": 1,
+        "hasta": 70,
+        "precio": 9900
+      },
+      {
+        "id": "tramo_1773155207858",
+        "desde": 71,
+        "hasta": 120,
+        "precio": 14900
+      },
+      {
+        "id": "tramo_1773155230278",
+        "desde": 121,
+        "hasta": 300,
+        "precio": 25900
+      }
+    ]
+  },
+  {
+    "id": "serv_plataforma360_regalo",
+    "nombre": "Plataforma 360",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de entretenimiento",
+    "valorUnitarioEstimado": 1500,
+    "precioVenta": 3900,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_foto_ext",
+    "nombre": "Fotografía de exteriores",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de fotografía",
+    "valorUnitarioEstimado": 1650,
+    "precioVenta": 3900,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_foto_fiesta",
+    "nombre": "Fotografía de fiestas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de fotografía",
+    "valorUnitarioEstimado": 3300,
+    "precioVenta": 8500,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_postre_imperial_ruso",
+    "nombre": "Postre Imperial Ruso",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "valorUnitarioEstimado": 600,
+    "precioVenta": 1200,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_postre_lemon_pie",
+    "nombre": "Postre Lemon Pie",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "valorUnitarioEstimado": 550,
+    "precioVenta": 1100,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_postre_mousse_choco",
+    "nombre": "Postre Mousse de Chocolate",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "valorUnitarioEstimado": 500,
+    "precioVenta": 1000,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_postre_mousse_ddl",
+    "nombre": "Postre Mousse de Dulce de Leche",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "valorUnitarioEstimado": 500,
+    "precioVenta": 1000,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_postre_rogel",
+    "nombre": "Postre Rogel",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "valorUnitarioEstimado": 800,
+    "precioVenta": 1600,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_postre_tarta_coco",
+    "nombre": "Postre Tarta de Coco",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "valorUnitarioEstimado": 450,
+    "precioVenta": 900,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_postre_tarta_manzana",
+    "nombre": "Postre Tarta de Manzana",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "valorUnitarioEstimado": 450,
+    "precioVenta": 900,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_postre_tarta_frutal",
+    "nombre": "Postre Tarta Frutal",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "valorUnitarioEstimado": 550,
+    "precioVenta": 1100,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_postre_torta_oreo",
+    "nombre": "Postre Torta Oreo",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "valorUnitarioEstimado": 600,
+    "precioVenta": 1200,
+    "calculationMethod": "fijo"
+  }
 ]

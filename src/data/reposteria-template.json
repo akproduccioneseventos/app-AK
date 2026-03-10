@@ -5,8 +5,15 @@
       "nombreDisplay": "Mesa de Postres",
       "activada": true,
       "items": [
-        { "id": "rp_chaja", "nombre": "Postre Chajá", "cantidad": 1, "unidad": "Unidad", "costoEstimado": 1200, "origenId": "serv_1759924910015_2433ma0" },
-        { "id": "rp_cheesecake", "nombre": "Postre Cheesecake", "cantidad": 1, "unidad": "Unidad", "costoEstimado": 1100, "origenId": "serv_1759924980181_kwlgbs9" }
+        { "id": "rp_imperial", "nombre": "Imperial Ruso", "cantidad": 1, "unidad": "Unidad", "costoEstimado": 600, "precioSugerido": 1200, "origenId": "serv_postre_imperial_ruso" },
+        { "id": "rp_lemon", "nombre": "Lemon Pie", "cantidad": 1, "unidad": "Unidad", "costoEstimado": 550, "precioSugerido": 1100, "origenId": "serv_postre_lemon_pie" },
+        { "id": "rp_mousse_choco", "nombre": "Mousse de Chocolate", "cantidad": 1, "unidad": "Unidad", "costoEstimado": 500, "precioSugerido": 1000, "origenId": "serv_postre_mousse_choco" },
+        { "id": "rp_mousse_ddl", "nombre": "Mousse de Dulce de Leche", "cantidad": 1, "unidad": "Unidad", "costoEstimado": 500, "precioSugerido": 1000, "origenId": "serv_postre_mousse_ddl" },
+        { "id": "rp_rogel", "nombre": "Rogel", "cantidad": 1, "unidad": "Unidad", "costoEstimado": 800, "precioSugerido": 1600, "origenId": "serv_postre_rogel" },
+        { "id": "rp_coco", "nombre": "Tarta de Coco", "cantidad": 1, "unidad": "Unidad", "costoEstimado": 450, "precioSugerido": 900, "origenId": "serv_postre_tarta_coco" },
+        { "id": "rp_manzana", "nombre": "Tarta de Manzana", "cantidad": 1, "unidad": "Unidad", "costoEstimado": 450, "precioSugerido": 900, "origenId": "serv_postre_tarta_manzana" },
+        { "id": "rp_frutal", "nombre": "Tarta Frutal", "cantidad": 1, "unidad": "Unidad", "costoEstimado": 550, "precioSugerido": 1100, "origenId": "serv_postre_tarta_frutal" },
+        { "id": "rp_oreo", "nombre": "Torta Oreo", "cantidad": 1, "unidad": "Unidad", "costoEstimado": 600, "precioSugerido": 1200, "origenId": "serv_postre_torta_oreo" }
       ],
       "descripcion": "Variedad de postres clásicos y modernos."
     },
@@ -16,6 +23,20 @@
       "activada": false,
       "items": [],
       "descripcion": "Mesa de dulces y golosinas variadas."
+    },
+    {
+      "id": "fuente_chocolate",
+      "nombreDisplay": "Fuente de Chocolate",
+      "activada": false,
+      "items": [],
+      "descripcion": "Con frutas, malvaviscos y más."
+    },
+    {
+      "id": "mesa_helada",
+      "nombreDisplay": "Mesa Helada",
+      "activada": false,
+      "items": [],
+      "descripcion": "Selección de helados y toppings."
     }
   ]
 }
