@@ -4,8 +4,8 @@
     "nombre": "Asador profesional",
     "tipoItem": "Servicio",
     "categoria": "Personal",
-    "valorUnitarioEstimado": 3200,
-    "precioVenta": 4200,
+    "valorUnitarioEstimado": 2600,
+    "precioVenta": 3500,
     "calculationMethod": "fijo"
   },
   {
@@ -13,9 +13,9 @@
     "nombre": "Mozo de cocina",
     "tipoItem": "Servicio",
     "categoria": "Personal",
-    "valorUnitarioEstimated": 2100,
+    "valorUnitarioEstimado": 2100,
     "calculationMethod": "ratio",
-    "precioBase": 3000,
+    "precioBase": 2900,
     "invitadosPorUnidad": 25
   },
   {
@@ -23,9 +23,9 @@
     "nombre": "Mozos",
     "tipoItem": "Servicio",
     "categoria": "Personal",
-    "valorUnitarioEstimado": 2200,
+    "valorUnitarioEstimado": 2100,
     "calculationMethod": "ratio",
-    "precioBase": 3000,
+    "precioBase": 2900,
     "invitadosPorUnidad": 25
   },
   {
@@ -69,7 +69,7 @@
     "nombre": "Mantelería completa",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "valorUnitarioEstimated": 40,
+    "valorUnitarioEstimado": 40,
     "calculationMethod": "porPersona",
     "precioPorPersona": 70
   },
@@ -335,5 +335,50 @@
     "valorUnitarioEstimado": 2500,
     "precioVenta": 5500,
     "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_discoteca_basica",
+    "nombre": "Discoteca Básica",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de discoteca",
+    "valorUnitarioEstimado": 4000,
+    "precioVenta": 9000,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_asado_completo_bufet",
+    "nombre": "Asado completo con mesa bufet",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "valorUnitarioEstimado": 350,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 650
+  },
+  {
+    "id": "serv_entrada_8_fiambres",
+    "nombre": "Entrada 8: Picada de fiambres",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "valorUnitarioEstimado": 80,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 150
+  },
+  {
+    "id": "serv_entrada_23_sandwiches",
+    "nombre": "Entrada 23: Sandwiches y Saladitos",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "valorUnitarioEstimado": 120,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 220
+  },
+  {
+    "id": "serv_menu_ninos_hamburguesa",
+    "nombre": "Menú niños - Hamburguesa c/ fritas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "valorUnitarioEstimado": 150,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 280
   }
 ]
