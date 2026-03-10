@@ -1,3 +1,4 @@
+
 [
   {
     "id": "serv_asador",
@@ -126,7 +127,7 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de fotografía",
     "valorUnitarioEstimado": 1650,
-    "precioVenta": 3900,
+    "precioVenta": 3500,
     "calculationMethod": "fijo"
   },
   {
@@ -153,7 +154,7 @@
     "tipoItem": "Servicio",
     "categoria": "Servicio de entretenimiento",
     "valorUnitarioEstimado": 1500,
-    "precioVenta": 2900,
+    "precioVenta": 2490,
     "calculationMethod": "fijo"
   },
   {
@@ -176,11 +177,11 @@
   },
   {
     "id": "serv_album_digital",
-    "nombre": "Álbum digital personalizado",
+    "nombre": "Foto álbum 100 fotos",
     "tipoItem": "Servicio",
     "categoria": "Servicio de fotografía",
     "valorUnitarioEstimado": 1800,
-    "precioVenta": 3500,
+    "precioVenta": 3890,
     "calculationMethod": "fijo"
   },
   {
@@ -287,7 +288,7 @@
     "nombre": "Postre Tarta de Manzana",
     "tipoItem": "Servicio",
     "categoria": "Servicio de repostería",
-    "valorUnitarioEstimado": 450,
+    "valorUnitarioEstimated": 450,
     "precioVenta": 900,
     "calculationMethod": "fijo"
   },
@@ -380,5 +381,68 @@
     "valorUnitarioEstimado": 150,
     "calculationMethod": "porPersona",
     "precioPorPersona": 280
+  },
+  {
+    "id": "serv_fernet",
+    "nombre": "Fernet (Artículo)",
+    "tipoItem": "Servicio",
+    "categoria": "Otros servicios",
+    "valorUnitarioEstimado": 250,
+    "precioVenta": 350,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_filmacion_2hs",
+    "nombre": "Filmación 2 horas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de filmación",
+    "valorUnitarioEstimado": 2000,
+    "precioVenta": 4000,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_filmacion_fiesta",
+    "nombre": "Filmación de la fiesta",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de filmación",
+    "valorUnitarioEstimado": 3500,
+    "precioVenta": 7500,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_filmacion_pintada",
+    "nombre": "Filmación de pintada",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de filmación",
+    "valorUnitarioEstimado": 1500,
+    "precioVenta": 3000,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_filmacion_civil",
+    "nombre": "Filmación del civil",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de filmación",
+    "valorUnitarioEstimado": 1800,
+    "precioVenta": 3800,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_foto_2hs",
+    "nombre": "Fotografía 2 horas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de fotografía",
+    "valorUnitarioEstimado": 2000,
+    "precioVenta": 3990,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_foto_iglesia",
+    "nombre": "Fotografía de la iglesia",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de fotografía",
+    "valorUnitarioEstimado": 1800,
+    "precioVenta": 3800,
+    "calculationMethod": "fijo"
   }
 ]
