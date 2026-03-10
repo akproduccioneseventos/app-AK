@@ -184,6 +184,51 @@
     "calculationMethod": "fijo"
   },
   {
+    "id": "serv_portero",
+    "nombre": "Portero",
+    "tipoItem": "Servicio",
+    "categoria": "Personal",
+    "valorUnitarioEstimado": 1500,
+    "precioVenta": 2200,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_peluqueria",
+    "nombre": "Peluquería",
+    "tipoItem": "Servicio",
+    "categoria": "Otros servicios",
+    "valorUnitarioEstimado": 2000,
+    "precioVenta": 3000,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_hielo",
+    "nombre": "Hielo",
+    "tipoItem": "Servicio",
+    "categoria": "Otros servicios",
+    "valorUnitarioEstimado": 300,
+    "precioVenta": 450,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_salon_club_uruguay",
+    "nombre": "Salón de fiesta - Club Uruguay",
+    "tipoItem": "Servicio",
+    "categoria": "Otros servicios",
+    "valorUnitarioEstimado": 20000,
+    "precioVenta": 26000,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_organizacion",
+    "nombre": "Organizamos de la fiesta",
+    "tipoItem": "Servicio",
+    "categoria": "Otros servicios",
+    "valorUnitarioEstimado": 0,
+    "precioVenta": 0,
+    "calculationMethod": "fijo"
+  },
+  {
     "id": "serv_postre_imperial_ruso",
     "nombre": "Postre Imperial Ruso",
     "tipoItem": "Servicio",
