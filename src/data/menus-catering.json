@@ -38,8 +38,8 @@
         "name": "TAPAS SABORIZADAS",
         "type": "Entrada",
         "totalDishCost": 61.4,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 123,
+        "profitMargin": 95,
+        "suggestedSellingPrice": 120,
         "ingredients": [
           { "id": "i1", "name": "Tostaditas", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 650, "origenId": "ing-tostaditas" },
           { "id": "i2", "name": "Albahaca", "quantityPerPerson": "0.1", "unit": "un", "costoUnitario": 40, "origenId": "ing-albahaca" },
@@ -56,8 +56,8 @@
         "name": "PLANCHAS CALIENTES",
         "type": "Entrada",
         "totalDishCost": 54.2,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 108,
+        "profitMargin": 324,
+        "suggestedSellingPrice": 230,
         "ingredients": [
           { "id": "i1", "name": "Jamon", "quantityPerPerson": "40", "unit": "g", "costoUnitario": 180, "origenId": "ing-jamon" },
           { "id": "i2", "name": "Manteca", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 200, "origenId": "ing-manteca" },
@@ -153,8 +153,8 @@
         "name": "SALPICON DE POLLO",
         "type": "Entrada",
         "totalDishCost": 71.2,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 142,
+        "profitMargin": 167,
+        "suggestedSellingPrice": 190,
         "ingredients": [
           { "id": "i1", "name": "Pollo", "quantityPerPerson": "250", "unit": "g", "costoUnitario": 120, "origenId": "ing-pollo" },
           { "id": "i2", "name": "Papa", "quantityPerPerson": "30", "unit": "g", "costoUnitario": 60, "origenId": "ing-papa" },
@@ -217,8 +217,8 @@
         "name": "SHOW DE PIZZAS",
         "type": "Entrada",
         "totalDishCost": 89.61,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 179,
+        "profitMargin": 122,
+        "suggestedSellingPrice": 199,
         "ingredients": [
           { "id": "i1", "name": "Pizzas", "quantityPerPerson": "0.5", "unit": "un", "costoUnitario": 60, "origenId": "ing-pizzas" },
           { "id": "i2", "name": "Muzarella", "quantityPerPerson": "80", "unit": "g", "costoUnitario": 340, "origenId": "ing-muzarella" },
@@ -261,8 +261,8 @@
         "name": "TACOS MEXICANOS",
         "type": "Entrada",
         "totalDishCost": 98.05,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 196,
+        "profitMargin": 124,
+        "suggestedSellingPrice": 220,
         "ingredients": [
           { "id": "i1", "name": "Carne picada", "quantityPerPerson": "120", "unit": "g", "costoUnitario": 280, "origenId": "ing-picada-carne" },
           { "id": "i2", "name": "Tapas de hojaldre", "quantityPerPerson": "1", "unit": "un", "costoUnitario": 9, "origenId": "ing-tapas" },
@@ -341,8 +341,8 @@
         "name": "SANDWICHES Y SALADITOS",
         "type": "Entrada",
         "totalDishCost": 74.8,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 150,
+        "profitMargin": 221,
+        "suggestedSellingPrice": 240,
         "ingredients": [
           { "id": "i1", "name": "Sandwiches pan blanco", "quantityPerPerson": "0.5", "unit": "un", "costoUnitario": 15, "origenId": "ing-sand-blanco" },
           { "id": "i2", "name": "Pizzetitas con muzzarella", "quantityPerPerson": "1", "unit": "un", "costoUnitario": 11, "origenId": "ing-pizzetitas" },
@@ -368,8 +368,8 @@
         "name": "TABLA DE FIAMBRE GROUMET",
         "type": "Entrada",
         "totalDishCost": 118.9,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 238,
+        "profitMargin": 128,
+        "suggestedSellingPrice": 271,
         "ingredients": [
           { "id": "i1", "name": "Lomito ahumado (bordenave)", "quantityPerPerson": "15", "unit": "g", "costoUnitario": 511, "origenId": "ing-lomito" },
           { "id": "i2", "name": "Jamon crudo (Fenix)", "quantityPerPerson": "15", "unit": "g", "costoUnitario": 1799, "origenId": "ing-jamon-crudo" },
@@ -385,11 +385,11 @@
     "items": [
       {
         "id": "dish_main_1",
-        "name": "CHIVITO C/ FRITAS",
+        "name": "CHIVITOS COMPLETOS C/ FRITAS",
         "type": "Plato Principal",
         "totalDishCost": 153.14,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 306,
+        "profitMargin": 148,
+        "suggestedSellingPrice": 380,
         "ingredients": [
           { "id": "i1", "name": "Carne", "quantityPerPerson": "120", "unit": "g", "costoUnitario": 400, "origenId": "ing-carne" },
           { "id": "i2", "name": "Fritas", "quantityPerPerson": "200", "unit": "g", "costoUnitario": 120, "origenId": "ing-fritas" },
