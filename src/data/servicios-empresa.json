@@ -1,33 +1,84 @@
-
 [
+  {
+    "id": "serv_hielo",
+    "nombre": "20 kilos de Hielo",
+    "tipoItem": "Servicio",
+    "categoria": "Otros servicios",
+    "valorUnitarioEstimado": 260,
+    "precioVenta": 460,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_peluqueria",
+    "nombre": "Peluquería uñas y maquillaje ",
+    "tipoItem": "Servicio",
+    "categoria": "Otros servicios",
+    "valorUnitarioEstimado": 2500,
+    "precioVenta": 3000,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_salon_club_uruguay",
+    "nombre": "Salón de fiesta - Club Uruguay",
+    "tipoItem": "Servicio",
+    "categoria": "Otros servicios",
+    "valorUnitarioEstimado": 20000,
+    "precioVenta": 26000,
+    "calculationMethod": "fijo"
+  },
   {
     "id": "serv_asador",
     "nombre": "Asador profesional",
     "tipoItem": "Servicio",
     "categoria": "Personal",
-    "valorUnitarioEstimado": 2600,
+    "valorUnitarioEstimado": 2700,
     "precioVenta": 3500,
     "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_1773235092527_25gy4w3",
+    "nombre": "Cheff",
+    "tipoItem": "Servicio",
+    "categoria": "Personal",
+    "valorUnitarioEstimado": 2200,
+    "precioVenta": 3500,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_1773234908609_4pe9i1v",
+    "nombre": "Mozo ",
+    "tipoItem": "Servicio",
+    "categoria": "Personal",
+    "valorUnitarioEstimado": 2200,
+    "calculationMethod": "fijo",
+    "precioVenta": 2900
   },
   {
     "id": "serv_mozo_cocina",
     "nombre": "Mozo de cocina",
     "tipoItem": "Servicio",
     "categoria": "Personal",
-    "valorUnitarioEstimado": 2100,
-    "calculationMethod": "ratio",
-    "precioBase": 2900,
-    "invitadosPorUnidad": 25
+    "valorUnitarioEstimado": 2200,
+    "calculationMethod": "fijo",
+    "precioVenta": 2900
   },
   {
-    "id": "serv_mozos",
-    "nombre": "Mozos",
+    "id": "serv_portero",
+    "nombre": "Portero",
     "tipoItem": "Servicio",
     "categoria": "Personal",
-    "valorUnitarioEstimado": 2100,
-    "calculationMethod": "ratio",
-    "precioBase": 2900,
-    "invitadosPorUnidad": 25
+    "valorUnitarioEstimado": 1600,
+    "precioVenta": 2200,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_fuegos_frios",
+    "nombre": "Fuegos fríos (2 disparos) ",
+    "tipoItem": "Servicio",
+    "categoria": "Regalo exclusivo",
+    "valorUnitarioEstimado": 1200,
+    "precioVenta": 3000,
+    "calculationMethod": "fijo"
   },
   {
     "id": "serv_invitaciones_regalo",
@@ -36,6 +87,24 @@
     "categoria": "Regalo exclusivo",
     "valorUnitarioEstimado": 0,
     "precioVenta": 2500,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_lluvia_burbujas",
+    "nombre": "Lluvia de burbujas",
+    "tipoItem": "Servicio",
+    "categoria": "Regalo exclusivo",
+    "valorUnitarioEstimado": 600,
+    "precioVenta": 1500,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_organizacion",
+    "nombre": "Organizamos de la fiesta",
+    "tipoItem": "Servicio",
+    "categoria": "Regalo exclusivo",
+    "valorUnitarioEstimado": 0,
+    "precioVenta": 0,
     "calculationMethod": "fijo"
   },
   {
@@ -66,6 +135,24 @@
     "precioPorPersona": 399
   },
   {
+    "id": "serv_1773235145936_ayvif1p",
+    "nombre": "Cerveza corona por unidad ",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de bebidas",
+    "valorUnitarioEstimado": 60,
+    "precioVenta": 90,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_1773235041932_c972ry7",
+    "nombre": "Refrescos ",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de bebidas",
+    "valorUnitarioEstimado": 120,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 145
+  },
+  {
     "id": "serv_manteleria_completa",
     "nombre": "Mantelería completa",
     "tipoItem": "Servicio",
@@ -75,8 +162,17 @@
     "precioPorPersona": 70
   },
   {
+    "id": "serv_centro_mesa_alquiler",
+    "nombre": "Centro de mesa alquiler",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "valorUnitarioEstimado": 200,
+    "precioVenta": 500,
+    "calculationMethod": "fijo"
+  },
+  {
     "id": "serv_deco_basica",
-    "nombre": "Decoración",
+    "nombre": "Servicio de Decoración",
     "tipoItem": "Servicio",
     "categoria": "Servicio de decoración",
     "valorUnitarioEstimado": 14500,
@@ -113,42 +209,6 @@
     ]
   },
   {
-    "id": "serv_plataforma360_regalo",
-    "nombre": "Plataforma 360",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de entretenimiento",
-    "valorUnitarioEstimado": 1500,
-    "precioVenta": 3900,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "serv_foto_ext",
-    "nombre": "Fotografía de exteriores",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de fotografía",
-    "valorUnitarioEstimado": 1650,
-    "precioVenta": 3500,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "serv_foto_fiesta",
-    "nombre": "Fotografía de fiestas",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de fotografía",
-    "valorUnitarioEstimado": 3300,
-    "precioVenta": 8500,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "serv_centro_mesa_alquiler",
-    "nombre": "Centro de mesa alquiler",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de decoración",
-    "valorUnitarioEstimado": 200,
-    "precioVenta": 500,
-    "calculationMethod": "fijo"
-  },
-  {
     "id": "serv_fotocabina",
     "nombre": "Fotocabina",
     "tipoItem": "Servicio",
@@ -158,21 +218,66 @@
     "calculationMethod": "fijo"
   },
   {
-    "id": "serv_fuegos_frios",
-    "nombre": "Fuegos fríos",
+    "id": "serv_1773235482408_86b6rp7",
+    "nombre": "Fuegos fríos (4 disparos) ",
     "tipoItem": "Servicio",
     "categoria": "Servicio de entretenimiento",
-    "valorUnitarioEstimado": 1200,
-    "precioVenta": 3000,
+    "valorUnitarioEstimado": 1700,
+    "precioVenta": 3900,
     "calculationMethod": "fijo"
   },
   {
-    "id": "serv_lluvia_burbujas",
-    "nombre": "Lluvia de burbujas",
+    "id": "serv_plataforma360_regalo",
+    "nombre": "Plataforma 360",
     "tipoItem": "Servicio",
     "categoria": "Servicio de entretenimiento",
-    "valorUnitarioEstimado": 600,
-    "precioVenta": 1500,
+    "valorUnitarioEstimado": 1500,
+    "precioVenta": 3900,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_filmacion_2hs",
+    "nombre": "Filmación 2 horas",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de filmación",
+    "valorUnitarioEstimado": 2500,
+    "precioVenta": 4000,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_filmacion_fiesta",
+    "nombre": "Filmación de la fiesta",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de filmación",
+    "valorUnitarioEstimado": 3800,
+    "precioVenta": 7500,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_filmacion_pintada",
+    "nombre": "Filmación de la pintada",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de filmación",
+    "valorUnitarioEstimado": 1500,
+    "precioVenta": 3990,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_filmacion_civil",
+    "nombre": "Filmación del civil",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de filmación",
+    "valorUnitarioEstimado": 1800,
+    "precioVenta": 3990,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_filmacion_iglesia",
+    "nombre": "Filmacion de la iglesia",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de filmación",
+    "valorUnitarioEstimado": 1800,
+    "precioVenta": 3990,
     "calculationMethod": "fijo"
   },
   {
@@ -185,249 +290,6 @@
     "calculationMethod": "fijo"
   },
   {
-    "id": "serv_portero",
-    "nombre": "Portero",
-    "tipoItem": "Servicio",
-    "categoria": "Personal",
-    "valorUnitarioEstimado": 1500,
-    "precioVenta": 2200,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "serv_peluqueria",
-    "nombre": "Peluquería",
-    "tipoItem": "Servicio",
-    "categoria": "Otros servicios",
-    "valorUnitarioEstimado": 2000,
-    "precioVenta": 3000,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "serv_hielo",
-    "nombre": "Hielo",
-    "tipoItem": "Servicio",
-    "categoria": "Otros servicios",
-    "valorUnitarioEstimado": 300,
-    "precioVenta": 450,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "serv_salon_club_uruguay",
-    "nombre": "Salón de fiesta - Club Uruguay",
-    "tipoItem": "Servicio",
-    "categoria": "Otros servicios",
-    "valorUnitarioEstimado": 20000,
-    "precioVenta": 26000,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "serv_organizacion",
-    "nombre": "Organizamos de la fiesta",
-    "tipoItem": "Servicio",
-    "categoria": "Otros servicios",
-    "valorUnitarioEstimado": 0,
-    "precioVenta": 0,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "serv_postre_imperial_ruso",
-    "nombre": "Postre Imperial Ruso",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de repostería",
-    "valorUnitarioEstimado": 600,
-    "precioVenta": 1200,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "serv_postre_lemon_pie",
-    "nombre": "Postre Lemon Pie",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de repostería",
-    "valorUnitarioEstimado": 550,
-    "precioVenta": 1100,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "serv_postre_mousse_choco",
-    "nombre": "Postre Mousse de Chocolate",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de repostería",
-    "valorUnitarioEstimado": 500,
-    "precioVenta": 1000,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "serv_postre_mousse_ddl",
-    "nombre": "Postre Mousse de Dulce de Leche",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de repostería",
-    "valorUnitarioEstimado": 500,
-    "precioVenta": 1000,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "serv_postre_rogel",
-    "nombre": "Postre Rogel",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de repostería",
-    "valorUnitarioEstimado": 800,
-    "precioVenta": 1600,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "serv_postre_tarta_coco",
-    "nombre": "Postre Tarta de Coco",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de repostería",
-    "valorUnitarioEstimado": 450,
-    "precioVenta": 900,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "serv_postre_tarta_manzana",
-    "nombre": "Postre Tarta de Manzana",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de repostería",
-    "valorUnitarioEstimated": 450,
-    "precioVenta": 900,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "serv_postre_tarta_frutal",
-    "nombre": "Postre Tarta Frutal",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de repostería",
-    "valorUnitarioEstimado": 550,
-    "precioVenta": 1100,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "serv_postre_torta_oreo",
-    "nombre": "Postre Torta Oreo",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de repostería",
-    "valorUnitarioEstimado": 600,
-    "precioVenta": 1200,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "serv_torta_principal",
-    "nombre": "Torta Principal (Personalizada)",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de repostería",
-    "valorUnitarioEstimado": 3500,
-    "precioVenta": 7500,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "serv_fuente_chocolate",
-    "nombre": "Fuente de Chocolate (Servicio)",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de repostería",
-    "valorUnitarioEstimado": 4500,
-    "precioVenta": 8900,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "serv_candy_bar_tematico",
-    "nombre": "Candy Bar Temático",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de repostería",
-    "valorUnitarioEstimado": 2500,
-    "precioVenta": 5500,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "serv_discoteca_basica",
-    "nombre": "Discoteca Básica",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de discoteca",
-    "valorUnitarioEstimado": 4000,
-    "precioVenta": 9000,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "serv_asado_completo_bufet",
-    "nombre": "Asado completo con mesa bufet",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "valorUnitarioEstimado": 350,
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 650
-  },
-  {
-    "id": "serv_entrada_8_fiambres",
-    "nombre": "Entrada 8: Picada de fiambres",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "valorUnitarioEstimado": 80,
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 150
-  },
-  {
-    "id": "serv_entrada_23_sandwiches",
-    "nombre": "Entrada 23: Sandwiches y Saladitos",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "valorUnitarioEstimado": 120,
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 220
-  },
-  {
-    "id": "serv_menu_ninos_hamburguesa",
-    "nombre": "Menú niños - Hamburguesa c/ fritas",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de catering",
-    "valorUnitarioEstimado": 150,
-    "calculationMethod": "porPersona",
-    "precioPorPersona": 280
-  },
-  {
-    "id": "serv_fernet",
-    "nombre": "Fernet (Artículo)",
-    "tipoItem": "Servicio",
-    "categoria": "Otros servicios",
-    "valorUnitarioEstimado": 250,
-    "precioVenta": 350,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "serv_filmacion_2hs",
-    "nombre": "Filmación 2 horas",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de filmación",
-    "valorUnitarioEstimado": 2000,
-    "precioVenta": 4000,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "serv_filmacion_fiesta",
-    "nombre": "Filmación de la fiesta",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de filmación",
-    "valorUnitarioEstimado": 3500,
-    "precioVenta": 7500,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "serv_filmacion_pintada",
-    "nombre": "Filmación de pintada",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de filmación",
-    "valorUnitarioEstimado": 1500,
-    "precioVenta": 3000,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "serv_filmacion_civil",
-    "nombre": "Filmación del civil",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de filmación",
-    "valorUnitarioEstimado": 1800,
-    "precioVenta": 3800,
-    "calculationMethod": "fijo"
-  },
-  {
     "id": "serv_foto_2hs",
     "nombre": "Fotografía 2 horas",
     "tipoItem": "Servicio",
@@ -437,12 +299,156 @@
     "calculationMethod": "fijo"
   },
   {
-    "id": "serv_foto_iglesia",
-    "nombre": "Fotografía de la iglesia",
+    "id": "serv_foto_ext",
+    "nombre": "Fotografía de exteriores",
     "tipoItem": "Servicio",
     "categoria": "Servicio de fotografía",
     "valorUnitarioEstimado": 1800,
-    "precioVenta": 3800,
+    "precioVenta": 3990,
     "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_foto_fiesta",
+    "nombre": "Fotografía de la fiesta",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de fotografía",
+    "valorUnitarioEstimado": 3300,
+    "precioVenta": 9990,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_foto_iglesia",
+    "nombre": "Fotografía de la Iglesia",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de fotografía",
+    "valorUnitarioEstimado": 1800,
+    "precioVenta": 3990,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_foto_pintada",
+    "nombre": "Fotografía de la pintada",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de fotografía",
+    "valorUnitarioEstimado": 1800,
+    "precioVenta": 3990,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_foto_civil",
+    "nombre": "Fotografía del civil",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de fotografía",
+    "valorUnitarioEstimado": 1800,
+    "precioVenta": 3990,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_candy_bar_tematico",
+    "nombre": "Candy Bar Temático",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "valorUnitarioEstimado": 50,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 110
+  },
+  {
+    "id": "serv_fuente_chocolate",
+    "nombre": "Mesa dulce con fuente de chocolate",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "valorUnitarioEstimado": 65,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 0
+  },
+  {
+    "id": "serv_postre_chaja",
+    "nombre": "Postre Chaja",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "valorUnitarioEstimado": 800,
+    "precioVenta": 1590,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_postre_cheesecake",
+    "nombre": "Postre Chesecake",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "valorUnitarioEstimado": 750,
+    "precioVenta": 1500,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_postre_flan_coco",
+    "nombre": "Postre de Flan de coco",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "valorUnitarioEstimado": 500,
+    "precioVenta": 1089,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_postre_mousse_ddl",
+    "nombre": "Postre de mouse de dulce de leche",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "valorUnitarioEstimado": 500,
+    "precioVenta": 1089,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_postre_imperial_ruso",
+    "nombre": "Postre Imperial Ruso",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "valorUnitarioEstimado": 650,
+    "precioVenta": 1390,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_postre_lemon_pie",
+    "nombre": "Postre Lemon Pie",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "valorUnitarioEstimado": 650,
+    "precioVenta": 1419,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_postre_mousse_choco",
+    "nombre": "Postre Mouse de Chocolate",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "valorUnitarioEstimado": 500,
+    "precioVenta": 1089,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_postre_rogel",
+    "nombre": "Postre Rogel",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "valorUnitarioEstimado": 850,
+    "precioVenta": 1749,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_postre_selva_negra",
+    "nombre": "Postre Selva negra",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "valorUnitarioEstimado": 800,
+    "precioVenta": 1590,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_torta_principal",
+    "nombre": "Torta Principal",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "valorUnitarioEstimado": 60,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 0
   }
 ]
