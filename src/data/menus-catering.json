@@ -10,8 +10,8 @@
         "name": "BUÑUELOS DE ALGAS",
         "type": "Entrada",
         "totalDishCost": 45.2,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 90,
+        "profitMargin": 121,
+        "suggestedSellingPrice": 100,
         "ingredients": [
           { "id": "i1", "name": "Harina", "quantityPerPerson": "40", "unit": "g", "costoUnitario": 180, "origenId": "ing-harina" },
           { "id": "i2", "name": "Algas", "quantityPerPerson": "10", "unit": "g", "costoUnitario": 2000, "origenId": "ing-algas" },
@@ -25,8 +25,8 @@
         "name": "ARROLLADITOS PRIMAVERA",
         "type": "Entrada",
         "totalDishCost": 40,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 80,
+        "profitMargin": 250,
+        "suggestedSellingPrice": 140,
         "ingredients": [
           { "id": "i1", "name": "Arrolladitos primavera", "quantityPerPerson": "5", "unit": "un", "costoUnitario": 6, "origenId": "ing-arrolladitos" },
           { "id": "i2", "name": "Aceite", "quantityPerPerson": "100", "unit": "ml", "costoUnitario": 70, "origenId": "ing-aceite" },
@@ -232,8 +232,8 @@
         "name": "AREPAS",
         "type": "Entrada",
         "totalDishCost": 84.8,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 170,
+        "profitMargin": 123,
+        "suggestedSellingPrice": 189,
         "ingredients": [
           { "id": "i1", "name": "Carne picada", "quantityPerPerson": "100", "unit": "g", "costoUnitario": 250, "origenId": "ing-picada-carne" },
           { "id": "i2", "name": "Harina de maiz blanco", "quantityPerPerson": "100", "unit": "g", "costoUnitario": 120, "origenId": "ing-harina-maiz" },
@@ -247,8 +247,8 @@
         "name": "CALZONNE",
         "type": "Entrada",
         "totalDishCost": 96,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 192,
+        "profitMargin": 107,
+        "suggestedSellingPrice": 199,
         "ingredients": [
           { "id": "i1", "name": "Tapas de hojaldre", "quantityPerPerson": "0.5", "unit": "un", "costoUnitario": 65, "origenId": "ing-tapas-hojaldre" },
           { "id": "i2", "name": "Muzarella", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 330, "origenId": "ing-muzarella" },
