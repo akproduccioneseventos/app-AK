@@ -1,3 +1,4 @@
+
 [
   {
     "id": "menu_entradas_maestro",
@@ -519,8 +520,8 @@
         "name": "BAURU C/ FRITAS",
         "type": "Plato Principal",
         "totalDishCost": 159.5,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 319,
+        "profitMargin": 138,
+        "suggestedSellingPrice": 379,
         "ingredients": [
           { "id": "i1", "name": "Carne picada", "quantityPerPerson": "180", "unit": "g", "costoUnitario": 250, "origenId": "ing-picada-carne" },
           { "id": "i2", "name": "Fritas", "quantityPerPerson": "200", "unit": "g", "costoUnitario": 120, "origenId": "ing-fritas" },
@@ -565,7 +566,7 @@
       },
       {
         "id": "dish_main_16",
-        "name": "BIFE AL CHAMPIÑON C/ GUARNICIÓN",
+        "name": "BIFE AL CHAMPIÑÓN C/ GUARNICIÓN",
         "type": "Plato Principal",
         "totalDishCost": 185.1,
         "profitMargin": 132,
@@ -577,22 +578,22 @@
       },
       {
         "id": "dish_main_17",
-        "name": "CORDERO ASADO C/ GUARNICIÓN",
+        "name": "ASADO COMPLETO C/ GUARNICIÓN",
         "type": "Plato Principal",
         "totalDishCost": 255,
-        "profitMargin": 115,
-        "suggestedSellingPrice": 549,
+        "profitMargin": 135,
+        "suggestedSellingPrice": 599,
         "ingredients": [
           { "id": "i1", "name": "Cordero crudo", "quantityPerPerson": "700", "unit": "g", "costoUnitario": 300, "origenId": "ing-cordero" }
         ]
       },
       {
         "id": "dish_main_18",
-        "name": "CORDERO ASADO CON MESA BUFFET",
+        "name": "ASADO COMPLETO CON MESA BUFFET",
         "type": "Plato Principal",
         "totalDishCost": 287.4,
-        "profitMargin": 140,
-        "suggestedSellingPrice": 689,
+        "profitMargin": 161,
+        "suggestedSellingPrice": 749,
         "ingredients": [
           { "id": "i1", "name": "Asado vacio", "quantityPerPerson": "500", "unit": "g", "costoUnitario": 383, "origenId": "ing-asado-vacio" },
           { "id": "i2", "name": "Chorizo", "quantityPerPerson": "80", "unit": "g", "costoUnitario": 330, "origenId": "ing-chorizo" },
@@ -626,8 +627,8 @@
         "name": "PANCHOS MEDIO METRO C/ FRITAS",
         "type": "Menú Infantil/Adolescente",
         "totalDishCost": 164.3,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 331,
+        "profitMargin": 95,
+        "suggestedSellingPrice": 320,
         "ingredients": [
           { "id": "i1", "name": "Panchos medio metro", "quantityPerPerson": "190", "unit": "g", "costoUnitario": 270, "origenId": "ing-pancho-mm" },
           { "id": "i2", "name": "Fritas", "quantityPerPerson": "200", "unit": "g", "costoUnitario": 150, "origenId": "ing-fritas" },
@@ -640,8 +641,8 @@
         "name": "PANCHOS C/ FRITAS",
         "type": "Menú Infantil/Adolescente",
         "totalDishCost": 93.2,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 188,
+        "profitMargin": 114,
+        "suggestedSellingPrice": 199,
         "ingredients": [
           { "id": "i1", "name": "Panchos", "quantityPerPerson": "120", "unit": "g", "costoUnitario": 260, "origenId": "ing-panchos" },
           { "id": "i2", "name": "Fritas", "quantityPerPerson": "200", "unit": "g", "costoUnitario": 150, "origenId": "ing-fritas" },
@@ -653,8 +654,8 @@
         "name": "HAMBURGUESA C/ FRITAS",
         "type": "Menú Infantil/Adolescente",
         "totalDishCost": 138.3,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 277,
+        "profitMargin": 116,
+        "suggestedSellingPrice": 299,
         "ingredients": [
           { "id": "i1", "name": "Hamburguesas", "quantityPerPerson": "1", "unit": "un", "costoUnitario": 35, "origenId": "ing-hamburguesa" },
           { "id": "i2", "name": "Tortugas brioche 70 gramos", "quantityPerPerson": "1", "unit": "un", "costoUnitario": 20, "origenId": "ing-tortuga-brioche" },
