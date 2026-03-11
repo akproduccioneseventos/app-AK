@@ -337,6 +337,19 @@
       },
       {
         "id": "dish_entrada_23",
+        "name": "SANDWICHES Y SALADITOS",
+        "type": "Entrada",
+        "totalDishCost": 74.8,
+        "profitMargin": 100,
+        "suggestedSellingPrice": 150,
+        "ingredients": [
+          { "id": "i1", "name": "Sandwiches pan blanco", "quantityPerPerson": "0.5", "unit": "un", "costoUnitario": 15, "origenId": "ing-sand-blanco" },
+          { "id": "i2", "name": "Pizzetitas con muzzarella", "quantityPerPerson": "1", "unit": "un", "costoUnitario": 11, "origenId": "ing-pizzetitas" },
+          { "id": "i3", "name": "Medialunas", "quantityPerPerson": "0.5", "unit": "un", "costoUnitario": 15, "origenId": "ing-medialunas" }
+        ]
+      },
+      {
+        "id": "dish_entrada_24",
         "name": "SUSHI",
         "type": "Entrada",
         "totalDishCost": 99.8,
@@ -347,19 +360,6 @@
           { "id": "i2", "name": "Arroz de Shushi", "quantityPerPerson": "100", "unit": "g", "costoUnitario": 135, "origenId": "ing-arroz-shushi" },
           { "id": "i3", "name": "Queso crema", "quantityPerPerson": "30", "unit": "ml", "costoUnitario": 400, "origenId": "ing-queso-crema" },
           { "id": "i4", "name": "Palta", "quantityPerPerson": "0.2", "unit": "un", "costoUnitario": 40, "origenId": "ing-palta" }
-        ]
-      },
-      {
-        "id": "dish_entrada_24",
-        "name": "SANDWICHES Y SALADITOS",
-        "type": "Entrada",
-        "totalDishCost": 74.8,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 150,
-        "ingredients": [
-          { "id": "i1", "name": "Sandwiches pan blanco", "quantityPerPerson": "0.5", "unit": "un", "costoUnitario": 15, "origenId": "ing-sand-blanco" },
-          { "id": "i2", "name": "Pizzetitas con muzzarella", "quantityPerPerson": "1", "unit": "un", "costoUnitario": 11, "origenId": "ing-pizzetitas" },
-          { "id": "i3", "name": "Medialunas", "quantityPerPerson": "0.5", "unit": "un", "costoUnitario": 15, "origenId": "ing-medialunas" }
         ]
       },
       {
@@ -424,8 +424,8 @@
         "name": "CERDO BRASEADO A LA BARBACOA C/ GUARNICIÓN",
         "type": "Plato Principal",
         "totalDishCost": 102.1,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 204,
+        "profitMargin": 291,
+        "suggestedSellingPrice": 399,
         "ingredients": [
           { "id": "i1", "name": "bondiola", "quantityPerPerson": "250", "unit": "g", "costoUnitario": 190, "origenId": "ing-bondiola" },
           { "id": "i2", "name": "Salsa Barbacoa", "quantityPerPerson": "80", "unit": "g", "costoUnitario": 300, "origenId": "ing-barbacoa" }
@@ -452,16 +452,16 @@
         "suggestedSellingPrice": 291,
         "ingredients": [
           { "id": "i1", "name": "Noquis congelados", "quantityPerPerson": "200", "unit": "g", "costoUnitario": 160, "origenId": "ing-noquis" },
-          { "id": "i2", "name": "Queso muzzarella", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 310, "origenId": "ing-muzarella" }
+          { "id": "i2", "name": "Queso muzzarela", "quantityPerPerson": "50", "unit": "g", "costoUnitario": 310, "origenId": "ing-muzarella" }
         ]
       },
       {
         "id": "dish_main_7",
-        "name": "CERDO ARROLLADO C/ GUARNICIÓN",
+        "name": "CERDO ARROLLADO C/ GUARNICIÓN (SIMPLE)",
         "type": "Plato Principal",
         "totalDishCost": 300,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 600,
+        "profitMargin": 50,
+        "suggestedSellingPrice": 449,
         "ingredients": [
           { "id": "i1", "name": "Cerdo arrollado", "quantityPerPerson": "1", "unit": "un", "costoUnitario": 110, "origenId": "ing-cerdo-arr" }
         ]
@@ -495,8 +495,8 @@
         "name": "BROCHETAS C/ FRITAS",
         "type": "Plato Principal",
         "totalDishCost": 178.8,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 358,
+        "profitMargin": 123,
+        "suggestedSellingPrice": 399,
         "ingredients": [
           { "id": "i1", "name": "Carne", "quantityPerPerson": "80", "unit": "g", "costoUnitario": 380, "origenId": "ing-carne" },
           { "id": "i2", "name": "Papas para freir", "quantityPerPerson": "200", "unit": "g", "costoUnitario": 120, "origenId": "ing-fritas" }
@@ -544,8 +544,8 @@
         "name": "MERLUZA A LA CREMA C/ GUARNICIÓN",
         "type": "Plato Principal",
         "totalDishCost": 147.35,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 295,
+        "profitMargin": 205,
+        "suggestedSellingPrice": 449,
         "ingredients": [
           { "id": "i1", "name": "merluza", "quantityPerPerson": "250", "unit": "g", "costoUnitario": 345, "origenId": "ing-merluza" },
           { "id": "i2", "name": "Crema de leche", "quantityPerPerson": "100", "unit": "ml", "costoUnitario": 180, "origenId": "ing-crema" }
@@ -568,8 +568,8 @@
         "name": "BIFE AL CHAMPIÑON C/ GUARNICIÓN",
         "type": "Plato Principal",
         "totalDishCost": 185.1,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 370,
+        "profitMargin": 132,
+        "suggestedSellingPrice": 430,
         "ingredients": [
           { "id": "i1", "name": "Bife", "quantityPerPerson": "250", "unit": "g", "costoUnitario": 380, "origenId": "ing-bife" },
           { "id": "i2", "name": "Champiñon", "quantityPerPerson": "100", "unit": "g", "costoUnitario": 500, "origenId": "ing-champinon" }
@@ -580,19 +580,19 @@
         "name": "CORDERO ASADO C/ GUARNICIÓN",
         "type": "Plato Principal",
         "totalDishCost": 255,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 510,
+        "profitMargin": 115,
+        "suggestedSellingPrice": 549,
         "ingredients": [
           { "id": "i1", "name": "Cordero crudo", "quantityPerPerson": "700", "unit": "g", "costoUnitario": 300, "origenId": "ing-cordero" }
         ]
       },
       {
         "id": "dish_main_18",
-        "name": "ASADO COMPLETO C/ GUARNICIÓN",
+        "name": "CORDERO ASADO CON MESA BUFFET",
         "type": "Plato Principal",
         "totalDishCost": 287.4,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 575,
+        "profitMargin": 140,
+        "suggestedSellingPrice": 689,
         "ingredients": [
           { "id": "i1", "name": "Asado vacio", "quantityPerPerson": "500", "unit": "g", "costoUnitario": 383, "origenId": "ing-asado-vacio" },
           { "id": "i2", "name": "Chorizo", "quantityPerPerson": "80", "unit": "g", "costoUnitario": 330, "origenId": "ing-chorizo" },
