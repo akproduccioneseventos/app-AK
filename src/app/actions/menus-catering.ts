@@ -31,9 +31,9 @@ async function readMenusFile(): Promise<FullMenu[]> {
     const menus = JSON.parse(fileContent) as FullMenu[];
     return menus.map(menu => ({
       ...menu,
-      items: menu.items.map(item => ({
+      items: (menu.items || []).map(item => ({
         ...item,
-        ingredients: item.ingredients.map(ingredient => ({
+        ingredients: (item.ingredients || []).map(ingredient => ({
           ...ingredient,
           quantityPerPerson: ingredient.quantityPerPerson || '0',
           costoUnitario: Number(ingredient.costoUnitario) || 0,
@@ -57,14 +57,25 @@ async function writeMenusFile(data: FullMenu[]): Promise<void> {
   }
 }
 
+/**
+ * Calcula el costo de un ingrediente basándose en la cantidad por persona y el costo unitario.
+ * Divide por 1000 si la unidad es de peso (g, kg) o volumen (ml, l) para normalizar el costo base (que suele ser por KG o Litro).
+ */
 function calculateIngredientCost(ing: Partial<Ingredient>): number {
     const quantity = parseFloat(ing.quantityPerPerson || '0');
     const unitCost = Number(ing.costoUnitario) || 0;
     const unit = (ing.unit || '').toLowerCase().trim();
     if (isNaN(quantity) || isNaN(unitCost)) return 0;
     
-    // Unidades de medida que requieren división por 1000 (g, gr, gramos, ml, cc, cm3)
-    if (['g', 'gr', 'gramos', 'ml', 'cc', 'cm3'].includes(unit)) {
+    // Lista de unidades que requieren normalización (división por 1000)
+    // Se incluyen kg, l, etc. porque en el catálogo el costo es por la unidad mayor pero se usa la menor.
+    const subUnits = [
+        'g', 'gr', 'gramos', 'kg', 'kilo', 'kilos', 
+        'ml', 'cc', 'cm3', 'l', 'lt', 'litro', 'litros',
+        'no definido', ''
+    ];
+    
+    if (subUnits.includes(unit)) {
       return (quantity / 1000) * unitCost;
     }
     
@@ -79,7 +90,7 @@ export async function getMenus(): Promise<FullMenu[]> {
   const menus = await readMenusFile();
   return menus.map(menu => ({
     ...menu,
-    items: menu.items.map(item => {
+    items: (menu.items || []).map(item => {
       const ingredientsWithCost = (item.ingredients || []).map(ingredient => ({
           ...ingredient,
           costoTotalReceta: calculateIngredientCost(ingredient),
@@ -108,8 +119,8 @@ export async function getMenuById(id: string): Promise<FullMenu | null> {
 }
 
 async function processMenuForSave(menuData: Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'> | FullMenu): Promise<FullMenu> {
-  const processedItems = menuData.items.map(item => {
-    const ingredients = item.ingredients.map(ing => ({
+  const processedItems = (menuData.items || []).map(item => {
+    const ingredients = (item.ingredients || []).map(ing => ({
         ...ing,
         costoTotalReceta: calculateIngredientCost(ing),
     }));
@@ -203,7 +214,7 @@ export async function adjustAllDishMargins(
   try {
     const menus = await readMenusFile();
     const updatedMenus = menus.map(menu => {
-      const updatedItems = menu.items.map(item => {
+      const updatedItems = (menu.items || []).map(item => {
         const newProfitMargin = (item.profitMargin ?? 100) + percentage;
         const newSuggestedSellingPrice = Math.round((item.totalDishCost || 0) * (1 + newProfitMargin / 100));
         return { ...item, profitMargin: newProfitMargin, suggestedSellingPrice: newSuggestedSellingPrice };

@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PlusCircle, Trash2, Loader2, Save, BookOpen, Search, Percent, DollarSign, Link as LinkIcon, Info, Image as ImageIconLucide, UploadCloud, Copy, Sparkles } from 'lucide-react';
+import { PlusCircle, Trash2, Loader2, Save, BookOpen, Search, Percent, DollarSign, Link as LinkIcon, Info, Image as ImageIconLucide, UploadCloud, Copy, Sparkles, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveMenu } from '@/app/actions/menus-catering';
 import { getInsumos, saveInsumo } from '@/app/actions/insumos';
@@ -18,6 +18,7 @@ import type { ServicioEmpresa } from '@/types/empresa';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogDescription } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 import NextImage from 'next/image';
 
@@ -40,13 +41,23 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
   const [catalogSearchTerm, setCatalogSearchTerm] = useState('');
   const [dishSearchTerm, setDishSearchTerm] = useState('');
 
+  /**
+   * Calcula el costo de un ingrediente basándose en la cantidad por persona y el costo unitario.
+   * Divide por 1000 si la unidad es de peso (g, kg) o volumen (ml, l) para normalizar el costo base.
+   */
   const calculateIngredientCost = useCallback((ing: Partial<Ingredient>): number => {
       const quantity = parseFloat(ing.quantityPerPerson || '0');
       const unitCost = Number(ing.costoUnitario) || 0;
-      const unit = ing.unit?.toLowerCase().trim() || '';
+      const unit = (ing.unit || '').toLowerCase().trim();
+      if (isNaN(quantity) || isNaN(unitCost)) return 0;
       
-      // Normalización de unidades para división por 1000
-      if (['g', 'gr', 'gramos', 'ml', 'cc', 'cm3'].includes(unit)) {
+      const subUnits = [
+          'g', 'gr', 'gramos', 'kg', 'kilo', 'kilos', 
+          'ml', 'cc', 'cm3', 'l', 'lt', 'litro', 'litros',
+          'no definido', ''
+      ];
+      
+      if (subUnits.includes(unit)) {
           return (quantity / 1000) * unitCost;
       }
       return quantity * unitCost;
@@ -90,7 +101,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
       const menuWithCalculatedPrices = {
         ...existingMenu,
         items: (existingMenu.items || []).map(item => {
-             const ingredientsWithCost = item.ingredients.map(ing => ({
+             const ingredientsWithCost = (item.ingredients || []).map(ing => ({
                 ...ing,
                 costoTotalReceta: calculateIngredientCost(ing)
             }));
@@ -103,7 +114,8 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
   }, [existingMenu, calculatePrices, calculateIngredientCost, fetchInsumos]);
   
   const sortedAndFilteredItems = useMemo(() => {
-    const sorted = [...(menu.items || [])].sort((a, b) => (a.totalDishCost || 0) - (b.totalDishCost || 0));
+    const items = menu.items || [];
+    const sorted = [...items].sort((a, b) => (a.totalDishCost || 0) - (b.totalDishCost || 0));
     if (!dishSearchTerm.trim()) {
         return sorted;
     }
@@ -153,7 +165,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
       if (!prev) return null;
       const newItems = (prev.items || []).map(item => {
         if (item.id === itemId) {
-            const newIngredients = item.ingredients.map(ing => {
+            const newIngredients = (item.ingredients || []).map(ing => {
                 if (ing.id === ingId) {
                     const updatedIng = { ...ing, [field]: value };
                     updatedIng.costoTotalReceta = calculateIngredientCost(updatedIng);
@@ -178,7 +190,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     try {
         const updatedInsumo = { ...catalogItem, valorUnitarioEstimado: Number(ing.costoUnitario) || 0 };
         await saveInsumo(updatedInsumo);
-        toast({ title: 'Catálogo Actualizado', description: `Se actualizó el costo de "${ing.name}" en el catálogo.`});
+        toast({ title: 'Catálogo Actualizado', description: `Se registró nuevo costo de "${ing.name}" en el catálogo.`});
         await fetchInsumos();
     } catch (e: any) {
         toast({ title: "Error de Sincronización", description: e.message, variant: "destructive"});
@@ -376,8 +388,8 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                 </CardHeader>
                  <CardContent className="p-0">
                     <Accordion type="single" collapsible>
-                      <AccordionItem value="ingredients">
-                        <AccordionTrigger className="text-sm font-medium">Ingredientes</AccordionTrigger>
+                      <AccordionItem value="ingredients" className="border-none">
+                        <AccordionTrigger className="text-sm font-medium hover:no-underline">Ingredientes ({item.ingredients?.length || 0})</AccordionTrigger>
                         <AccordionContent>
                            <div className="mt-2 space-y-3 p-3 bg-muted/30 rounded-lg">
                               {item.ingredients?.map(ing => (
@@ -390,7 +402,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                                     <div className="space-y-1 col-span-1 lg:col-span-2"><Label className="text-xs">Cant. p/p</Label><Input value={ing.quantityPerPerson || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'quantityPerPerson', e.target.value)} className="h-8 text-sm" /></div>
                                     <div className="space-y-1 col-span-1 lg:col-span-1"><Label className="text-xs">Unidad</Label><Input value={ing.unit || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'unit', e.target.value)} className="h-8 text-sm" disabled={!!ing.origenId}/></div>
                                     <div className="space-y-1 col-span-1 lg:col-span-2 relative"><Label className="text-xs">Costo p/ Kg, Lt, Un</Label><Input type="number" value={ing.costoUnitario || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'costoUnitario', Number(e.target.value))} onBlur={() => handleIngredientBlur(item.id, ing, 'costoUnitario')} className="h-8 pl-6 text-sm"/><span className="absolute left-2 top-1/2 mt-1 text-muted-foreground">$</span></div>
-                                    <div className="space-y-1 col-span-1 lg:col-span-2"><Label className="text-xs">Costo Total Ingrediente</Label><p className="h-8 flex items-center font-medium text-sm">{formatCurrency(ing.costoTotalReceta)}</p></div>
+                                    <div className="space-y-1 col-span-1 lg:col-span-2"><Label className="text-xs">Subtotal</Label><p className="h-8 flex items-center font-medium text-sm">{formatCurrency(ing.costoTotalReceta)}</p></div>
                                     <div className="flex items-center justify-end col-span-2 lg:col-span-2">
                                       <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteIngredient(item.id, ing.id)}><Trash2 className="w-3.5 h-3.5"/></Button>
                                     </div>
@@ -408,8 +420,9 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                  <CardFooter className="p-0 pt-4 mt-4 border-t">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
                         <div className="p-3 rounded-md bg-blue-50 dark:bg-blue-900/40">
-                            <Label className="text-sm font-medium text-blue-800 dark:text-blue-200">Costo p/Persona</Label>
+                            <Label className="text-sm font-medium text-blue-800 dark:text-blue-200">Costo p/Persona (Calculado)</Label>
                             <p className="font-bold text-lg text-blue-700 dark:text-blue-300">{formatCurrency(item.totalDishCost || 0)}</p>
+                            <p className="text-[10px] text-blue-600 mt-1 italic">Basado en Kg/L/G/ML</p>
                         </div>
                         <div className="p-3 rounded-md bg-green-50 dark:bg-green-900/40 space-y-1">
                             <Label htmlFor={`profit-${item.id}`} className="text-sm font-medium text-green-800 dark:text-green-200 flex items-center gap-1"><Percent className="w-4 h-4"/>Margen (%)</Label>
