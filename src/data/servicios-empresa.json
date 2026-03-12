@@ -467,12 +467,12 @@
     "precioPorPersona": 0
   },
   {
-    "id": "serv_postre_chaja",
-    "nombre": "Postre Chaja",
+    "id": "serv_postre_rogel",
+    "nombre": "Postre Brounnie ",
     "tipoItem": "Servicio",
     "categoria": "Servicio de repostería",
-    "valorUnitarioEstimado": 800,
-    "precioVenta": 1590,
+    "valorUnitarioEstimado": 1000,
+    "precioVenta": 1400,
     "calculationMethod": "fijo"
   },
   {
@@ -485,12 +485,48 @@
     "calculationMethod": "fijo"
   },
   {
+    "id": "serv_1773323522662_ud4lsfm",
+    "nombre": "Postre Chesecake de menta y chocolate ",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "valorUnitarioEstimado": 1400,
+    "precioVenta": 1700,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_1773323601903_3zlv2mx",
+    "nombre": "Postre Chocomenta",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "valorUnitarioEstimado": 1350,
+    "precioVenta": 1700,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_postre_chaja",
+    "nombre": "Postre Chocotorta",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "valorUnitarioEstimado": 1390,
+    "precioVenta": 1700,
+    "calculationMethod": "fijo"
+  },
+  {
     "id": "serv_postre_flan_coco",
     "nombre": "Postre de Flan de coco",
     "tipoItem": "Servicio",
     "categoria": "Servicio de repostería",
-    "valorUnitarioEstimado": 700,
-    "precioVenta": 1089,
+    "valorUnitarioEstimado": 800,
+    "precioVenta": 1200,
+    "calculationMethod": "fijo"
+  },
+  {
+    "id": "serv_1773323288891_gixd7bj",
+    "nombre": "Postre de mouse de chocolate ",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "valorUnitarioEstimado": 900,
+    "precioVenta": 1200,
     "calculationMethod": "fijo"
   },
   {
@@ -503,11 +539,20 @@
     "calculationMethod": "fijo"
   },
   {
+    "id": "serv_1773323563187_057gsbb",
+    "nombre": "Postre frutal ",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de repostería",
+    "valorUnitarioEstimado": 1000,
+    "precioVenta": 1400,
+    "calculationMethod": "fijo"
+  },
+  {
     "id": "serv_postre_imperial_ruso",
     "nombre": "Postre Imperial Ruso",
     "tipoItem": "Servicio",
     "categoria": "Servicio de repostería",
-    "valorUnitarioEstimado": 650,
+    "valorUnitarioEstimado": 1000,
     "precioVenta": 1390,
     "calculationMethod": "fijo"
   },
@@ -516,8 +561,8 @@
     "nombre": "Postre Lemon Pie",
     "tipoItem": "Servicio",
     "categoria": "Servicio de repostería",
-    "valorUnitarioEstimado": 650,
-    "precioVenta": 1419,
+    "valorUnitarioEstimado": 1000,
+    "precioVenta": 1300,
     "calculationMethod": "fijo"
   },
   {
@@ -530,12 +575,12 @@
     "calculationMethod": "fijo"
   },
   {
-    "id": "serv_postre_rogel",
-    "nombre": "Postre Rogel",
+    "id": "serv_1773323467736_1b2al2z",
+    "nombre": "Postre oreo ",
     "tipoItem": "Servicio",
     "categoria": "Servicio de repostería",
-    "valorUnitarioEstimado": 1500,
-    "precioVenta": 1800,
+    "valorUnitarioEstimado": 1350,
+    "precioVenta": 1700,
     "calculationMethod": "fijo"
   },
   {

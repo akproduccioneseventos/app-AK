@@ -78,6 +78,7 @@ export async function generateBudgetAndLeadFromSimulator(
       source: 'simulator'
     };
 
+    // savePresupuesto ahora internamente llama a findLeadByBudgetOrCreate
     const budgetResult = await savePresupuesto(presupuestoData, {
       source: 'simulator'
     });

@@ -179,7 +179,7 @@ export async function findLeadByBudgetOrCreate(presupuesto: any) {
     
     // Normalizar datos de búsqueda para evitar duplicados
     const searchName = presupuesto.clienteNombre?.toLowerCase().trim();
-    const searchPhone = presupuesto.clienteContacto?.replace(/\D/g, ''); // Solo dígitos
+    const searchPhone = presupuesto.clienteContacto?.replace(/\D/g, '').slice(-9); // Últimos 9 dígitos
 
     // 1. Intentar encontrar por ID vinculada o ID de presupuesto
     let leadIndex = leads.findIndex(l => 
@@ -191,7 +191,7 @@ export async function findLeadByBudgetOrCreate(presupuesto: any) {
     if (leadIndex === -1 && (searchName || searchPhone)) {
         leadIndex = leads.findIndex(l => {
             const leadName = l.name?.toLowerCase().trim();
-            const leadPhone = l.phone?.replace(/\D/g, '');
+            const leadPhone = l.phone?.replace(/\D/g, '').slice(-9);
             return (searchName && leadName === searchName) || 
                    (searchPhone && leadPhone && leadPhone === searchPhone);
         });
