@@ -1,0 +1,196 @@
+[
+  {
+    "id": "template_1761693836739",
+    "name": "15 años",
+    "items": [
+      {
+        "id": "item_1761693836739_0.1915436767567098",
+        "hora": "22:00",
+        "titulo": "Comienzo",
+        "descripcion": "Recepción de invitados con música suave.",
+        "icono": "PartyPopper"
+      },
+      {
+        "id": "item_1761693836739_0.4576863131782458",
+        "hora": "22:15",
+        "titulo": "Servicio de Entrada 1",
+        "descripcion": "Se sirve la primera tanda de bocaditos.",
+        "icono": "Utensils"
+      },
+      {
+        "id": "item_1761693836739_0.8778378537867209",
+        "hora": "22:30",
+        "titulo": "Entrada de la Quinceañera y Vals",
+        "descripcion": "Momento emotivo principal.",
+        "icono": "Diamond"
+      },
+      {
+        "id": "item_1761693836739_0.9533465363162701",
+        "hora": "22:45",
+        "titulo": "Servicio de Entrada 2",
+        "descripcion": "Segunda tanda de bocaditos.",
+        "icono": "Utensils"
+      },
+      {
+        "id": "item_1761693836739_0.9636757234184625",
+        "hora": "00:00",
+        "titulo": "¡A Bailar!",
+        "descripcion": "Se abre la pista de baile.",
+        "icono": "Music"
+      },
+      {
+        "id": "item_1761693836739_0.22136094890977676",
+        "hora": "01:00",
+        "titulo": "Cena / Cierre de Barra",
+        "descripcion": "Se sirve el plato principal. La barra se cierra temporalmente.",
+        "icono": "Utensils"
+      },
+      {
+        "id": "item_1761693836739_0.051943512320826724",
+        "hora": "01:45",
+        "titulo": "Video de Vida",
+        "descripcion": "Proyección del video emotivo.",
+        "icono": "Camera"
+      },
+      {
+        "id": "item_1761693836739_0.8392926320608236",
+        "hora": "02:00",
+        "titulo": "Reapertura de Barra y Baile",
+        "descripcion": "Continúa la fiesta.",
+        "icono": "GlassWater"
+      },
+      {
+        "id": "item_1761693836739_0.2127702152060662",
+        "hora": "02:30",
+        "titulo": "Plataforma 360 / Fotocabina",
+        "descripcion": "Activación de entretenimiento fotográfico.",
+        "icono": "Camera"
+      },
+      {
+        "id": "item_1761693836739_0.07399617988792517",
+        "hora": "03:00",
+        "titulo": "Cotillón",
+        "descripcion": "Reparto de cotillón para el carnaval carioca.",
+        "icono": "Sparkles"
+      },
+      {
+        "id": "item_1761693836739_0.545819125697883",
+        "hora": "03:45",
+        "titulo": "Fuente de Chocolate",
+        "descripcion": "Se habilita la mesa de postres o fuente de chocolate.",
+        "icono": "CakeSlice"
+      },
+      {
+        "id": "item_1761693836739_0.6694860691943088",
+        "hora": "04:00",
+        "titulo": "Apagado de Velas y Torta",
+        "descripcion": "Momento de cantar y cortar la torta.",
+        "icono": "CakeSlice"
+      },
+      {
+        "id": "item_1761693836739_0.6398606910738953",
+        "hora": "05:00",
+        "titulo": "Final de la Fiesta",
+        "descripcion": "Cierre del evento.",
+        "icono": "Clock"
+      }
+    ]
+  },
+  {
+    "id": "template_1772656364035",
+    "name": "Xv años",
+    "items": [
+      {
+        "id": "item_1772656364035_0.710227689995288",
+        "hora": "22:00",
+        "titulo": "Comienzo",
+        "descripcion": "Recepción de invitados con música suave.",
+        "icono": "PartyPopper"
+      },
+      {
+        "id": "item_1772656364035_0.5768892535702641",
+        "hora": "22:15",
+        "titulo": "Servicio de Entrada 1",
+        "descripcion": "Se sirve la primera tanda de bocaditos.",
+        "icono": "Utensils"
+      },
+      {
+        "id": "item_1772656364035_0.3458114261619807",
+        "hora": "22:30",
+        "titulo": "Entrada de la Quinceañera y Vals",
+        "descripcion": "Momento emotivo principal.",
+        "icono": "Diamond"
+      },
+      {
+        "id": "item_1772656364035_0.5095112664988224",
+        "hora": "22:45",
+        "titulo": "Servicio de Entrada 2",
+        "descripcion": "Segunda tanda de bocaditos.",
+        "icono": "Utensils"
+      },
+      {
+        "id": "item_1772656364035_0.8593156342762798",
+        "hora": "00:00",
+        "titulo": "¡A Bailar!",
+        "descripcion": "Se abre la pista de baile.",
+        "icono": "Music"
+      },
+      {
+        "id": "item_1772656364035_0.9678752042051371",
+        "hora": "01:00",
+        "titulo": "Cena / Cierre de Barra",
+        "descripcion": "Se sirve el plato principal. La barra se cierra temporalmente.",
+        "icono": "Utensils"
+      },
+      {
+        "id": "item_1772656364035_0.9060188288758078",
+        "hora": "01:45",
+        "titulo": "Video de Vida",
+        "descripcion": "Proyección del video emotivo.",
+        "icono": "Camera"
+      },
+      {
+        "id": "item_1772656364035_0.1838214691826363",
+        "hora": "02:00",
+        "titulo": "Reapertura de Barra y Baile",
+        "descripcion": "Continúa la fiesta.",
+        "icono": "GlassWater"
+      },
+      {
+        "id": "item_1772656364035_0.3724292030853227",
+        "hora": "02:30",
+        "titulo": "Plataforma 360 / Fotocabina",
+        "descripcion": "Activación de entretenimiento fotográfico.",
+        "icono": "Camera"
+      },
+      {
+        "id": "item_1772656364035_0.806895821722549",
+        "hora": "03:00",
+        "titulo": "Cotillón",
+        "descripcion": "Reparto de cotillón para el carnaval carioca.",
+        "icono": "Sparkles"
+      },
+      {
+        "id": "item_1772656364035_0.3065681307276351",
+        "hora": "03:45",
+        "titulo": "Fuente de Chocolate",
+        "descripcion": "Se habilita la mesa de postres o fuente de chocolate.",
+        "icono": "CakeSlice"
+      },
+      {
+        "id": "item_1772656364035_0.18251296054755506",
+        "hora": "04:00",
+        "titulo": "Apagado de Velas y Torta",
+        "descripcion": "Momento de cantar y cortar la torta.",
+        "icono": "CakeSlice"
+      },
+      {
+        "id": "item_1772656364035_0.8724711833499579",
+        "hora": "05:00",
+        "titulo": "Final de la Fiesta",
+        "descripcion": "Cierre del evento.",
+        "icono": "Clock"
+      }
+    ]
+  }
+]

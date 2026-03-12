@@ -1,4 +1,3 @@
-
 'use server';
 
 import type { CrmLead, CrmStage, NewCrmLeadData } from '@/types/crm';
@@ -176,24 +175,60 @@ export async function getCrmKpiData() {
 
 export async function findLeadByBudgetOrCreate(presupuesto: any) {
     const leads = await getCrmLeads();
-    let lead = leads.find(l => l.presupuestoId === presupuesto.id || l.id === presupuesto.leadId);
+    const stages = await getCrmStages();
+    
+    // 1. Intentar encontrar por ID
+    let lead = leads.find(l => 
+        (presupuesto.leadId && l.id === presupuesto.leadId) || 
+        (l.presupuestoId === presupuesto.id)
+    );
+    
+    // 2. Intentar encontrar por Nombre o Teléfono para evitar duplicados
+    if (!lead && presupuesto.clienteNombre) {
+        lead = leads.find(l => 
+            l.name.toLowerCase().trim() === presupuesto.clienteNombre.toLowerCase().trim() || 
+            (presupuesto.clienteContacto && l.phone === presupuesto.clienteContacto)
+        );
+    }
+
     if (!lead) {
+        // Crear nuevo
         const res = await addCrmLead({
             name: presupuesto.clienteNombre,
             phone: presupuesto.clienteContacto,
             presupuestoId: presupuesto.id,
+            presupuestoEstado: presupuesto.estado,
             partyType: presupuesto.eventoTipo,
             venueName: presupuesto.salonFiestas,
             guestCount: presupuesto.invitadosCantidad,
-            budgetSource: presupuesto.source || 'manual'
+            budgetSource: presupuesto.source || 'manual',
+            currentStageId: stages[0].id // Siempre al principio si es nuevo
         } as NewCrmLeadData);
         if (res.lead) lead = res.lead;
     } else {
-        // Update denormalized status
-        const index = leads.findIndex(l => l.id === lead.id);
+        // Actualizar datos del lead existente con la info del presupuesto
+        const index = leads.findIndex(l => l.id === lead!.id);
+        leads[index].presupuestoId = presupuesto.id;
         leads[index].presupuestoEstado = presupuesto.estado;
         if (presupuesto.invoiceId) leads[index].invoiceId = presupuesto.invoiceId;
+        
+        // Sincronizar campos básicos si el lead los tenía vacíos
+        if (!leads[index].phone && presupuesto.clienteContacto) leads[index].phone = presupuesto.clienteContacto;
+        if (!leads[index].partyType) leads[index].partyType = presupuesto.eventoTipo;
+        if (!leads[index].venueName) leads[index].venueName = presupuesto.salonFiestas;
+        
+        // Si el presupuesto está en etapa avanzada (Aceptado/Facturado), asegurar que el lead esté en etapa de cierre
+        if ((presupuesto.estado === 'Aceptado' || presupuesto.estado === 'Facturado') && !stages.find(s => s.id === leads[index].currentStageId)?.isConversionStage) {
+            const conversionStage = stages.find(s => s.isConversionStage);
+            if (conversionStage) leads[index].currentStageId = conversionStage.id;
+        } else if (presupuesto.estado === 'Enviado' && leads[index].currentStageId === stages[0].id) {
+            // Mover automáticamente a "Con presupuesto" si se acaba de enviar y estaba en "Consultó"
+            const budgetStage = stages.find(s => s.name.toLowerCase().includes('presupuesto'));
+            if (budgetStage) leads[index].currentStageId = budgetStage.id;
+        }
+
         await writeData(LEADS_FILE, leads);
+        lead = leads[index];
     }
     return { lead: lead!, isNew: !lead };
 }

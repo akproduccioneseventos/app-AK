@@ -1,0 +1,10 @@
+
+{
+  "showClientData": true,
+  "showEventTypeAndDate": true,
+  "showPaymentMethodNotes": true,
+  "showPriceBreakdown": true,
+  "showCompanyLogo": true,
+  "annualAdjustmentPercentage": 15,
+  "promotionalDiscounts": []
+}

@@ -1,4 +1,3 @@
-
 'use server';
 
 import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto'; 
@@ -131,18 +130,18 @@ export async function savePresupuesto(
     tramosDePrecio: item.tramosDePrecio,
   }));
 
-  const costoTotalEstimadoRecalculado = validItems
+  const costoTotalEstimadoRecalculated = validItems
     .filter(item => !item.esRegalo)
     .reduce((sum, item) => sum + item.costoTotalItem, 0);
 
-  let finalTotalWithDiscount = costoTotalEstimadoRecalculado;
+  let finalTotalWithDiscount = costoTotalEstimadoRecalculated;
   let descuentoAplicado = 0;
 
   if (presupuestoData.descuentoTipo && presupuestoData.descuentoValor && presupuestoData.descuentoValor > 0) {
     descuentoAplicado = presupuestoData.descuentoTipo === 'porcentaje'
-      ? (costoTotalEstimadoRecalculado * presupuestoData.descuentoValor) / 100
+      ? (costoTotalEstimadoRecalculated * presupuestoData.descuentoValor) / 100
       : presupuestoData.descuentoValor;
-    finalTotalWithDiscount = costoTotalEstimadoRecalculado - descuentoAplicado;
+    finalTotalWithDiscount = costoTotalEstimadoRecalculated - descuentoAplicado;
   }
 
   const presupuestoId = `pres_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
@@ -151,7 +150,7 @@ export async function savePresupuesto(
     id: presupuestoId,
     numero: nuevoNumero,
     itemsPresupuestados: validItems,
-    costoTotalEstimado: costoTotalEstimadoRecalculado,
+    costoTotalEstimado: costoTotalEstimadoRecalculated,
     totalConDescuento: finalTotalWithDiscount,
     timestamp: new Date().toISOString(),
     estado: presupuestoData.estado || 'Enviado',
@@ -223,6 +222,13 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
     presupuestos[index] = updated;
     await writeData(PRESUPUESTOS_FILE, presupuestos);
     
+    // Sincronizar con el CRM cada vez que se actualiza
+    try {
+        await findLeadByBudgetOrCreate(updated);
+    } catch (e) {
+        console.warn("CRM Sync error during update", e);
+    }
+
     await syncLinkedFiesta(updated);
 
     return { success: true, id: updated.id, presupuesto: updated };
@@ -243,6 +249,12 @@ export async function markPresupuestoAsFacturado(presupuestoId: string, invoiceI
   presupuestos[index].invoiceId = invoiceId;
   presupuestos[index].ajusteAnualActivo = true;
   await writeData(PRESUPUESTOS_FILE, presupuestos);
+  
+  // Sincronizar estado en el CRM
+  try {
+      await findLeadByBudgetOrCreate(presupuestos[index]);
+  } catch (e) { console.warn("CRM Sync error on invoice", e); }
+
   return { success: true };
 }
 

@@ -23,7 +23,7 @@
     "tipoItem": "Servicio",
     "categoria": "Otros servicios",
     "valorUnitarioEstimado": 20000,
-    "precioVenta": 20000,
+    "precioVenta": 26000,
     "calculationMethod": "fijo"
   },
   {
@@ -32,7 +32,7 @@
     "tipoItem": "Servicio",
     "categoria": "Personal",
     "valorUnitarioEstimado": 2700,
-    "precioVenta": 3990,
+    "precioVenta": 3500,
     "calculationMethod": "fijo"
   },
   {
@@ -50,10 +50,8 @@
     "tipoItem": "Servicio",
     "categoria": "Personal",
     "valorUnitarioEstimado": 2200,
-    "precioVenta": 2990,
-    "calculationMethod": "ratio",
-    "precioBase": 2990,
-    "invitadosPorUnidad": 25
+    "precioVenta": 2900,
+    "calculationMethod": "fijo"
   },
   {
     "id": "serv_mozo_cocina",

@@ -1,0 +1,39 @@
+[
+  {
+    "id": "inv_1147_lorena",
+    "invoiceNumber": "HIST-1147",
+    "customer": {
+      "id": "cust_lorena_leal_177077",
+      "name": "Lorena Leal",
+      "phone": "1132",
+      "estadoCliente": "Actual"
+    },
+    "issueDate": "2025-01-22T12:00:00.000Z",
+    "dueDate": "2025-01-22T12:00:00.000Z",
+    "items": [
+      {
+        "id": "item_inv_1147_1",
+        "description": "Servicios integrales de fiesta según Presupuesto #1147 (con ajuste anual 15%)",
+        "quantity": 1,
+        "unitPrice": 203205,
+        "total": 203205
+      }
+    ],
+    "subtotal": 203205,
+    "taxRate": 0,
+    "taxAmount": 0,
+    "totalAmount": 203205,
+    "status": "Paid",
+    "currency": "UYU",
+    "vendorName": "AK Producciones",
+    "payments": [
+      {
+        "id": "pay_1147_hist",
+        "paymentDate": "2025-01-22T12:00:00.000Z",
+        "amount": 203205,
+        "method": "Transferencia",
+        "notes": "Pago total registrado con ajuste del 15% incluido."
+      }
+    ]
+  }
+]
