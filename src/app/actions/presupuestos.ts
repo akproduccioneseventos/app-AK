@@ -160,13 +160,12 @@ export async function savePresupuesto(
     source: options?.source || 'manual',
   };
 
-  let finalLeadId = options?.leadId;
+  // SINCRONIZACIÓN CRM ANTES DE GUARDAR
   try {
-    const { lead } = await findLeadByBudgetOrCreate(nuevoPresupuesto);
-    finalLeadId = lead.id;
-    nuevoPresupuesto.leadId = finalLeadId;
+    const syncRes = await findLeadByBudgetOrCreate(nuevoPresupuesto);
+    nuevoPresupuesto.leadId = syncRes.lead.id;
   } catch (crmError: any) {
-    console.warn(`CRM Sync error: ${crmError.message}`);
+    console.warn(`CRM Sync error during save: ${crmError.message}`);
   }
   
   presupuestos.push(nuevoPresupuesto);
@@ -174,7 +173,7 @@ export async function savePresupuesto(
   
   await syncLinkedFiesta(nuevoPresupuesto);
 
-  return { success: true, id: nuevoPresupuesto.id, presupuesto: nuevoPresupuesto, leadId: finalLeadId };
+  return { success: true, id: nuevoPresupuesto.id, presupuesto: nuevoPresupuesto, leadId: nuevoPresupuesto.leadId };
 }
 
 export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{ success: boolean; id?: string; presupuesto?: Presupuesto; error?: string }> {
@@ -219,16 +218,17 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
         totalConDescuento: finalTotal
     };
 
-    presupuestos[index] = updated;
-    await writeData(PRESUPUESTOS_FILE, presupuestos);
-    
-    // Sincronizar con el CRM cada vez que se actualiza
+    // Sincronizar con el CRM antes de persistir
     try {
-        await findLeadByBudgetOrCreate(updated);
+        const syncRes = await findLeadByBudgetOrCreate(updated);
+        updated.leadId = syncRes.lead.id;
     } catch (e) {
         console.warn("CRM Sync error during update", e);
     }
 
+    presupuestos[index] = updated;
+    await writeData(PRESUPUESTOS_FILE, presupuestos);
+    
     await syncLinkedFiesta(updated);
 
     return { success: true, id: updated.id, presupuesto: updated };
@@ -248,13 +248,13 @@ export async function markPresupuestoAsFacturado(presupuestoId: string, invoiceI
   presupuestos[index].estado = 'Facturado';
   presupuestos[index].invoiceId = invoiceId;
   presupuestos[index].ajusteAnualActivo = true;
-  await writeData(PRESUPUESTOS_FILE, presupuestos);
   
   // Sincronizar estado en el CRM
   try {
       await findLeadByBudgetOrCreate(presupuestos[index]);
   } catch (e) { console.warn("CRM Sync error on invoice", e); }
 
+  await writeData(PRESUPUESTOS_FILE, presupuestos);
   return { success: true };
 }
 

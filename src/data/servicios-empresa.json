@@ -61,8 +61,10 @@
     "tipoItem": "Servicio",
     "categoria": "Personal",
     "valorUnitarioEstimado": 2200,
-    "precioVenta": 2900,
-    "calculationMethod": "fijo"
+    "precioVenta": 299,
+    "calculationMethod": "ratio",
+    "precioBase": 2990,
+    "invitadosPorUnidad": 25
   },
   {
     "id": "serv_portero",
@@ -70,7 +72,7 @@
     "tipoItem": "Servicio",
     "categoria": "Personal",
     "valorUnitarioEstimado": 1600,
-    "precioVenta": 2200,
+    "precioVenta": 2500,
     "calculationMethod": "fijo"
   },
   {
@@ -106,7 +108,7 @@
     "tipoItem": "Servicio",
     "categoria": "Regalo exclusivo",
     "valorUnitarioEstimado": 0,
-    "precioVenta": 0,
+    "precioVenta": 11000,
     "calculationMethod": "fijo"
   },
   {
@@ -155,13 +157,22 @@
     "precioPorPersona": 145
   },
   {
+    "id": "serv_1773318550669_mrmyyqe",
+    "nombre": "Manteleria básica (sin cubre sillas) ",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de catering",
+    "valorUnitarioEstimado": 15,
+    "calculationMethod": "porPersona",
+    "precioPorPersona": 49
+  },
+  {
     "id": "serv_manteleria_completa",
     "nombre": "Mantelería completa",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
     "valorUnitarioEstimado": 40,
     "calculationMethod": "porPersona",
-    "precioPorPersona": 70
+    "precioPorPersona": 79
   },
   {
     "id": "serv_mobiliario_completo",
@@ -170,14 +181,14 @@
     "categoria": "Servicio de catering",
     "valorUnitarioEstimado": 0,
     "calculationMethod": "porPersona",
-    "precioPorPersona": 0
+    "precioPorPersona": 75
   },
   {
     "id": "serv_vajilla_completa",
     "nombre": "Vajilla Completa",
     "tipoItem": "Servicio",
     "categoria": "Servicio de catering",
-    "valorUnitarioEstimado": 40,
+    "valorUnitarioEstimado": 0,
     "calculationMethod": "porPersona",
     "precioPorPersona": 79
   },
@@ -189,7 +200,8 @@
     "valorUnitarioEstimado": 300,
     "precioVenta": 599,
     "calculationMethod": "ratio",
-    "invitadosPorUnidad": 10
+    "precioBase": 600,
+    "invitadosPorUnidad": 8
   },
   {
     "id": "serv_banner",
@@ -201,31 +213,12 @@
     "calculationMethod": "fijo"
   },
   {
-    "id": "serv_centro_mesa_alquiler",
-    "nombre": "Centro de mesa alquiler",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de decoración",
-    "valorUnitarioEstimado": 200,
-    "precioVenta": 759,
-    "calculationMethod": "ratio",
-    "invitadosPorUnidad": 10
-  },
-  {
     "id": "serv_cuadro_firmas",
     "nombre": "Cuadro de firmas",
     "tipoItem": "Servicio",
     "categoria": "Servicio de decoración",
     "valorUnitarioEstimado": 1200,
     "precioVenta": 2990,
-    "calculationMethod": "fijo"
-  },
-  {
-    "id": "serv_deco_basica_eco",
-    "nombre": "Decoración Básica",
-    "tipoItem": "Servicio",
-    "categoria": "Servicio de decoración",
-    "valorUnitarioEstimado": 4000,
-    "precioVenta": 7990,
     "calculationMethod": "fijo"
   },
   {
@@ -251,7 +244,7 @@
     "nombre": "Pista Led chica",
     "tipoItem": "Servicio",
     "categoria": "Servicio de discoteca",
-    "valorUnitarioEstimado": 4000,
+    "valorUnitarioEstimado": 0,
     "precioVenta": 7900,
     "calculationMethod": "fijo"
   },
@@ -487,7 +480,7 @@
     "nombre": "Postre Chesecake",
     "tipoItem": "Servicio",
     "categoria": "Servicio de repostería",
-    "valorUnitarioEstimado": 750,
+    "valorUnitarioEstimado": 1200,
     "precioVenta": 1500,
     "calculationMethod": "fijo"
   },
@@ -496,7 +489,7 @@
     "nombre": "Postre de Flan de coco",
     "tipoItem": "Servicio",
     "categoria": "Servicio de repostería",
-    "valorUnitarioEstimado": 500,
+    "valorUnitarioEstimado": 700,
     "precioVenta": 1089,
     "calculationMethod": "fijo"
   },
@@ -541,8 +534,8 @@
     "nombre": "Postre Rogel",
     "tipoItem": "Servicio",
     "categoria": "Servicio de repostería",
-    "valorUnitarioEstimado": 850,
-    "precioVenta": 1749,
+    "valorUnitarioEstimado": 1500,
+    "precioVenta": 1800,
     "calculationMethod": "fijo"
   },
   {
@@ -550,8 +543,8 @@
     "nombre": "Postre Selva negra",
     "tipoItem": "Servicio",
     "categoria": "Servicio de repostería",
-    "valorUnitarioEstimado": 800,
-    "precioVenta": 1590,
+    "valorUnitarioEstimado": 1350,
+    "precioVenta": 1700,
     "calculationMethod": "fijo"
   },
   {
@@ -561,6 +554,6 @@
     "categoria": "Servicio de repostería",
     "valorUnitarioEstimado": 60,
     "calculationMethod": "porPersona",
-    "precioPorPersona": 0
+    "precioPorPersona": 109
   }
 ]

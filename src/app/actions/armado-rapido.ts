@@ -1,5 +1,3 @@
-
-
 'use server';
 
 import type { ArmadoRapidoConfig, LeadFromQuickBudget, ServiceDependency } from '@/types/armado-rapido';
@@ -59,28 +57,29 @@ export async function generateBudgetAndLeadFromSimulator(
   data: LeadFromQuickBudget & { items: Omit<ItemPresupuestado, 'id' | 'costoTotalItem'>[] }
 ): Promise<{ success: boolean; leadId?: string; presupuestoId?: string; error?: string }> {
   try {
-    const presupuestoData: Omit<Presupuesto, 'id' | 'estado' | 'invoiceId' > = {
+    const presupuestoData: Omit<Presupuesto, 'id'> = {
       clienteNombre: data.clienteNombre,
       clienteContacto: data.clienteContacto,
       eventoTipo: 'Evento (desde Simulador)',
       eventoFecha: data.eventoFecha || new Date().toISOString(),
       invitadosCantidad: (data.adultos || 0) + (data.ninos || 0),
       invitadosAdultos: data.adultos,
-      invitadosAdolescentes: 0, // adolescents are grouped with kids in simulator
+      invitadosAdolescentes: 0,
       invitadosNinos: data.ninos,
       salonFiestas: 'A definir',
-      itemsPresupuestados: data.items,
+      itemsPresupuestados: data.items as ItemPresupuestado[],
       timestamp: new Date().toISOString(),
       notas: `Presupuesto generado desde el Simulador. Paquete: ${data.paqueteNombre || 'N/A'}. Costo estimado: ${formatCurrency(data.costoEstimado)}`,
-      costoTotalEstimado: data.subtotal, // Use subtotal before discount
+      costoTotalEstimado: data.subtotal,
       descuentoTipo: data.descuentoGeneral && data.descuentoGeneral > 0 ? 'porcentaje' : undefined,
       descuentoValor: data.descuentoGeneral,
-      totalConDescuento: data.costoEstimado // This is the final value after discount
+      totalConDescuento: data.costoEstimado,
+      estado: 'Enviado',
+      source: 'simulator'
     };
 
     const budgetResult = await savePresupuesto(presupuestoData, {
-      source: 'simulator',
-      leadId: undefined, 
+      source: 'simulator'
     });
     
     if (budgetResult.success && budgetResult.id && budgetResult.leadId) {
