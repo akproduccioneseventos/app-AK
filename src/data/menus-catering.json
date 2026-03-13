@@ -1,4 +1,3 @@
-
 [
   {
     "id": "menu_entradas_maestro",
@@ -890,7 +889,7 @@
           { "id": "i4", "name": "Panceta", "quantityPerPerson": "10", "unit": "Gramos", "costoUnitario": 400, "origenId": "ing-panceta" },
           { "id": "i5", "name": "Tortugas brioche 70 gramos", "quantityPerPerson": "1", "unit": "Unidades", "costoUnitario": 20, "origenId": "ing-tortuga-brioche" },
           { "id": "i6", "name": "Tomate", "quantityPerPerson": "40", "unit": "Gramos", "costoUnitario": 150, "origenId": "ing-tomate" },
-          { "id": "i7", "name": "Queso Cheddar", "quantityPerPerson": "40", "unit": "Gramos", "costoUnitario": 350, "origenId": "ing-cheddar" },
+          { "id": "i7", "name": "Queso Cheddar", "quantityPerPerson": "40", "unit": "Gramos", "costoUnitario": 340, "origenId": "ing-cheddar" },
           { "id": "i8", "name": "Jamon", "quantityPerPerson": "40", "unit": "Gramos", "costoUnitario": 180, "origenId": "ing-jamon" },
           { "id": "i9", "name": "Aderesos", "quantityPerPerson": "100", "unit": "Gramos", "costoUnitario": 45, "origenId": "ing-aderezos" },
           { "id": "i10", "name": "Fritas", "quantityPerPerson": "200", "unit": "Gramos", "costoUnitario": 130, "origenId": "ing-fritas" },

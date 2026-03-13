@@ -22,22 +22,19 @@ async function ensureDataFileExists(filePath: string, defaultContent: string = '
 }
 
 /**
- * Función de parseo robusta para soportar el formato de números del usuario (con comas).
- * Maneja formatos como "1.234,56", "38,15" o "0,1".
+ * Función de parseo inteligente.
+ * Si tiene coma, asume formato regional (1.234,56) y limpia puntos.
+ * Si NO tiene coma, respeta el punto como decimal (formato JS estándar).
  */
 const parseSafeNumber = (val: any): number => {
     if (val === null || val === undefined || val === '') return 0;
     if (typeof val === 'number') return val;
     
     let str = String(val).trim();
+    if (!str) return 0;
     
-    // Si tiene puntos y comas (formato 1.234,56), quitamos los puntos y cambiamos la coma
-    if (str.includes('.') && str.includes(',')) {
+    if (str.includes(',')) {
         str = str.replace(/\./g, '').replace(',', '.');
-    } 
-    // Si solo tiene comas, las cambiamos por puntos
-    else if (str.includes(',')) {
-        str = str.replace(',', '.');
     }
 
     const parsed = parseFloat(str);
@@ -46,7 +43,7 @@ const parseSafeNumber = (val: any): number => {
 
 /**
  * Calcula el costo de un ingrediente por persona (PASO 1).
- * REGLA DE ORO: Si es peso/volumen o "No definido", se divide por 1000.
+ * REGLA: Unidades de peso/volumen o "No definido" dividen por 1000.
  */
 function calculateIngredientCost(ing: Partial<Ingredient>): number {
     const quantity = parseSafeNumber(ing.quantityPerPerson);
@@ -55,15 +52,12 @@ function calculateIngredientCost(ing: Partial<Ingredient>): number {
     
     if (quantity === 0 || unitCost === 0) return 0;
     
-    // Unidades contables que se multiplican directo
     const countableUnits = ['un', 'unidad', 'unidades', 'uds', 'u', 'paquete', 'pack', 'set', 'docena', 'bolsa', 'caja', 'cajas'];
     
     if (countableUnits.includes(unit)) {
       return quantity * unitCost;
     }
     
-    // Por defecto (Gramos, ml, cc, No definido, etc.) dividimos por 1000 
-    // asumiendo que el precio del catálogo es por KG o Litro.
     return (quantity / 1000) * unitCost;
 }
 
@@ -79,15 +73,13 @@ function recalculateMenu(menu: FullMenu): FullMenu {
                 costoTotalReceta: calculateIngredientCost(ing)
             }));
 
-            // PASO 4: Costo por invitado (Suma de los costos individuales por persona de cada ingrediente)
             const totalDishCost = ingredientsWithCost.reduce((sum, ing) => sum + ing.costoTotalReceta, 0);
             
             const profitMargin = item.profitMargin === undefined || isNaN(Number(item.profitMargin)) ? 100 : Number(item.profitMargin);
             
-            // PASO 5: Precio final del plato
-            // Si hay un precio manual, respetarlo y ajustar el margen. Si no, calcular desde el margen.
             let suggestedSellingPrice: number;
             if (item.suggestedSellingPrice !== undefined && Number(item.suggestedSellingPrice) > 0) {
+                // Si el precio ya existe, recalculamos el margen basado en el costo real actual
                 suggestedSellingPrice = Math.round(Number(item.suggestedSellingPrice));
             } else {
                 suggestedSellingPrice = Math.round(totalDishCost * (1 + profitMargin / 100));
@@ -106,7 +98,6 @@ function recalculateMenu(menu: FullMenu): FullMenu {
 
 export async function getMenus(): Promise<FullMenu[]> {
   const menus = await readMenusFile();
-  // Auditoría en carga: Forzamos el recálculo de todos los menús al leer el JSON
   return menus.map(recalculateMenu);
 }
 
@@ -143,7 +134,6 @@ export async function saveMenu(
   let menus = await readMenusFile();
   let menuId: string;
 
-  // Forzamos recálculo antes de guardar para asegurar integridad
   const menuToSave = recalculateMenu(menuDataInput as FullMenu);
 
   if ('id' in menuToSave && menuToSave.id) {

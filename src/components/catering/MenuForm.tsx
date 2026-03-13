@@ -35,11 +35,12 @@ const parseSafeNumber = (val: any): number => {
     if (val === null || val === undefined || val === '') return 0;
     if (typeof val === 'number') return val;
     let str = String(val).trim();
-    if (str.includes('.') && str.includes(',')) {
+    if (!str) return 0;
+    
+    if (str.includes(',')) {
         str = str.replace(/\./g, '').replace(',', '.');
-    } else if (str.includes(',')) {
-        str = str.replace(',', '.');
     }
+    
     const parsed = parseFloat(str);
     return isNaN(parsed) ? 0 : parsed;
 };
@@ -68,24 +69,10 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
   }, []);
   
   const calculateTotalDishCost = useCallback((ingredients: Ingredient[], dishName: string): number => {
-    // Auditoría paso a paso para el plato seleccionado
-    if (dishName.toUpperCase().includes("PICADA CALIENTE")) {
-        console.group(`Auditoría de Costos: ${dishName}`);
-    }
-    
     const total = ingredients.reduce((sum, ing) => {
         const cost = calculateIngredientCost(ing);
-        if (dishName.toUpperCase().includes("PICADA CALIENTE")) {
-            console.log(`- ${ing.name}: Cant p/p ${ing.quantityPerPerson} ${ing.unit} | Costo Unit $${ing.costoUnitario} | Costo p/p $${cost.toFixed(4)}`);
-        }
         return sum + cost;
     }, 0);
-
-    if (dishName.toUpperCase().includes("PICADA CALIENTE")) {
-        console.log(`TOTAL PLATO POR PERSONA: $${total.toFixed(4)}`);
-        console.groupEnd();
-    }
-    
     return total;
   }, [calculateIngredientCost]);
 
