@@ -17,7 +17,7 @@ async function ensureDataFileExists(filePath: string, defaultContent: string = '
     try {
         await fs.access(filePath);
     } catch {
-        await fs.writeFile(filePath, defaultContent, 'utf-8');
+        await fs.access(filePath).catch(() => fs.writeFile(filePath, defaultContent, 'utf-8'));
     }
 }
 
@@ -31,17 +31,13 @@ const parseSafeNumber = (val: any): number => {
     
     let str = String(val).trim();
     
-    // Formato español: punto para miles, coma para decimales
+    // Si tiene puntos y comas (formato 1.234,56), quitamos los puntos y cambiamos la coma
     if (str.includes('.') && str.includes(',')) {
         str = str.replace(/\./g, '').replace(',', '.');
     } 
-    // Solo coma decimal
+    // Si solo tiene comas, las cambiamos por puntos
     else if (str.includes(',')) {
         str = str.replace(',', '.');
-    }
-    // Múltiples puntos (tratarlos como separadores de miles)
-    else if (str.split('.').length > 2) {
-        str = str.replace(/\./g, '');
     }
 
     const parsed = parseFloat(str);
@@ -50,6 +46,7 @@ const parseSafeNumber = (val: any): number => {
 
 /**
  * Calcula el costo de un ingrediente por persona (PASO 1).
+ * REGLA DE ORO: Si es peso/volumen o "No definido", se divide por 1000.
  */
 function calculateIngredientCost(ing: Partial<Ingredient>): number {
     const quantity = parseSafeNumber(ing.quantityPerPerson);
@@ -58,58 +55,65 @@ function calculateIngredientCost(ing: Partial<Ingredient>): number {
     
     if (quantity === 0 || unitCost === 0) return 0;
     
-    // Unidades contables que NO se dividen por 1000
+    // Unidades contables que se multiplican directo
     const countableUnits = ['un', 'unidad', 'unidades', 'uds', 'u', 'paquete', 'pack', 'set', 'docena', 'bolsa', 'caja', 'cajas'];
     
     if (countableUnits.includes(unit)) {
       return quantity * unitCost;
     }
     
-    // Por defecto (Gramos, ml, No definido, etc.) dividimos por 1000 asumiendo precio por KG/L
+    // Por defecto (Gramos, ml, cc, No definido, etc.) dividimos por 1000 
+    // asumiendo que el precio del catálogo es por KG o Litro.
     return (quantity / 1000) * unitCost;
 }
 
 /**
- * Calcula el costo total del plato por persona (PASO 4).
+ * Recalcula todos los valores de costo de un menú desde cero.
  */
-function calculateDishCostPerPerson(ingredients: Ingredient[]): number {
-  // La suma de los costos individuales ya es el costo por persona
-  return ingredients.reduce((sum, ing) => sum + calculateIngredientCost(ing), 0);
+function recalculateMenu(menu: FullMenu): FullMenu {
+    return {
+        ...menu,
+        items: (menu.items || []).map(item => {
+            const ingredientsWithCost = (item.ingredients || []).map(ing => ({
+                ...ing,
+                costoTotalReceta: calculateIngredientCost(ing)
+            }));
+
+            // PASO 4: Costo por invitado (Suma de los costos individuales por persona de cada ingrediente)
+            const totalDishCost = ingredientsWithCost.reduce((sum, ing) => sum + ing.costoTotalReceta, 0);
+            
+            const profitMargin = item.profitMargin === undefined || isNaN(Number(item.profitMargin)) ? 100 : Number(item.profitMargin);
+            
+            // PASO 5: Precio final del plato
+            // Si hay un precio manual, respetarlo y ajustar el margen. Si no, calcular desde el margen.
+            let suggestedSellingPrice: number;
+            if (item.suggestedSellingPrice !== undefined && Number(item.suggestedSellingPrice) > 0) {
+                suggestedSellingPrice = Math.round(Number(item.suggestedSellingPrice));
+            } else {
+                suggestedSellingPrice = Math.round(totalDishCost * (1 + profitMargin / 100));
+            }
+
+            return {
+                ...item,
+                ingredients: ingredientsWithCost,
+                totalDishCost: totalDishCost,
+                profitMargin: totalDishCost > 0 ? Math.round(((suggestedSellingPrice / totalDishCost) - 1) * 100) : profitMargin,
+                suggestedSellingPrice: suggestedSellingPrice
+            };
+        })
+    };
 }
 
 export async function getMenus(): Promise<FullMenu[]> {
   const menus = await readMenusFile();
-  return menus.map(menu => ({
-    ...menu,
-    items: (menu.items || []).map(item => {
-      // Recalcular costos para asegurar integridad de datos existentes
-      const ingredientsWithCost = (item.ingredients || []).map(ingredient => ({
-          ...ingredient,
-          costoTotalReceta: calculateIngredientCost(ingredient),
-      }));
-      
-      const totalDishCost = calculateDishCostPerPerson(ingredientsWithCost);
-      const profitMargin = item.profitMargin === undefined || isNaN(Number(item.profitMargin)) ? 100 : Number(item.profitMargin);
-      
-      // PASO 5: Precio de venta basado en rentabilidad
-      const suggestedSellingPrice = item.suggestedSellingPrice !== undefined && !isNaN(Number(item.suggestedSellingPrice)) && Number(item.suggestedSellingPrice) > 0
-          ? Math.round(item.suggestedSellingPrice)
-          : Math.round(totalDishCost * (1 + profitMargin / 100));
-
-      return {
-        ...item,
-        ingredients: ingredientsWithCost,
-        totalDishCost: totalDishCost,
-        profitMargin: profitMargin,
-        suggestedSellingPrice: suggestedSellingPrice,
-      };
-    })
-  }));
+  // Auditoría en carga: Forzamos el recálculo de todos los menús al leer el JSON
+  return menus.map(recalculateMenu);
 }
 
 export async function getMenuById(id: string): Promise<FullMenu | null> {
   const menus = await getMenus();
-  return menus.find(menu => menu.id === id) || null;
+  const menu = menus.find(m => m.id === id);
+  return menu ? recalculateMenu(menu) : null;
 }
 
 async function readMenusFile(): Promise<FullMenu[]> {
@@ -139,48 +143,23 @@ export async function saveMenu(
   let menus = await readMenusFile();
   let menuId: string;
 
-  // Procesar cálculos antes de guardar
-  const processedItems = (menuDataInput.items || []).map(item => {
-    const ingredients = (item.ingredients || []).map(ing => ({
-        ...ing,
-        costoTotalReceta: calculateIngredientCost(ing),
-    }));
-    
-    const totalDishCost = calculateDishCostPerPerson(ingredients);
-    const profitMargin = item.profitMargin === undefined ? 100 : Number(item.profitMargin);
-    const suggestedSellingPrice = item.suggestedSellingPrice !== undefined && Number(item.suggestedSellingPrice) > 0
-        ? Math.round(Number(item.suggestedSellingPrice)) 
-        : Math.round(totalDishCost * (1 + profitMargin / 100));
+  // Forzamos recálculo antes de guardar para asegurar integridad
+  const menuToSave = recalculateMenu(menuDataInput as FullMenu);
 
-    return {
-      ...item,
-      ingredients,
-      totalDishCost,
-      profitMargin,
-      suggestedSellingPrice,
-    };
-  });
-
-  const finalMenuData = {
-    ...menuDataInput,
-    items: processedItems,
-  };
-
-  if ('id' in finalMenuData && finalMenuData.id) {
-    menuId = finalMenuData.id;
+  if ('id' in menuToSave && menuToSave.id) {
+    menuId = menuToSave.id;
     const index = menus.findIndex(m => m.id === menuId);
     if (index === -1) {
       return { success: false, error: `Menú con ID ${menuId} no encontrado.` };
     }
     menus[index] = { 
-        ...menus[index], 
-        ...finalMenuData, 
+        ...menuToSave, 
         updatedAt: new Date().toISOString() 
     } as FullMenu;
   } else {
     menuId = `menu_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     const newMenu: FullMenu = {
-      ...(finalMenuData as Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'>),
+      ...(menuToSave as Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'>),
       id: menuId,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
