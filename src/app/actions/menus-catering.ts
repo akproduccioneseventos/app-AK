@@ -1,12 +1,15 @@
 'use server';
 
 import type { FullMenu, MenuItem, Ingredient } from '@/types/catering';
+import type { ServicioEmpresa } from '@/types/empresa';
 import fs from 'fs/promises';
 import path from 'path';
 
 const MENUS_CATERING_COLLECTION_JSON = 'menus-catering.json';
+const INSUMOS_COLLECTION_JSON = 'insumos.json';
 const dataDirectory = path.join(process.cwd(), 'src', 'data');
 const menusFilePath = path.join(dataDirectory, MENUS_CATERING_COLLECTION_JSON);
+const insumosFilePath = path.join(dataDirectory, INSUMOS_COLLECTION_JSON);
 
 async function ensureDataFileExists(filePath: string, defaultContent: string = '[]') {
     try {
@@ -17,69 +20,74 @@ async function ensureDataFileExists(filePath: string, defaultContent: string = '
     try {
         await fs.access(filePath);
     } catch {
-        await fs.access(filePath).catch(() => fs.writeFile(filePath, defaultContent, 'utf-8'));
+        await fs.writeFile(filePath, defaultContent, 'utf-8');
     }
 }
 
-/**
- * Función de parseo inteligente.
- * Si tiene coma, asume formato regional (1.234,56) y limpia puntos.
- * Si NO tiene coma, respeta el punto como decimal (formato JS estándar).
- */
 const parseSafeNumber = (val: any): number => {
     if (val === null || val === undefined || val === '') return 0;
     if (typeof val === 'number') return val;
-    
     let str = String(val).trim();
     if (!str) return 0;
-    
     if (str.includes(',')) {
         str = str.replace(/\./g, '').replace(',', '.');
     }
-
     const parsed = parseFloat(str);
     return isNaN(parsed) ? 0 : parsed;
 };
 
 /**
- * Calcula el costo de un ingrediente por persona (PASO 1).
- * REGLA: Unidades de peso/volumen o "No definido" dividen por 1000.
+ * Lógica de conversión inteligente entre unidades.
  */
-function calculateIngredientCost(ing: Partial<Ingredient>): number {
+function calculateIngredientCost(ing: Partial<Ingredient>, catalogItems: ServicioEmpresa[]): number {
     const quantity = parseSafeNumber(ing.quantityPerPerson);
     const unitCost = parseSafeNumber(ing.costoUnitario);
-    const unit = (ing.unit || '').toLowerCase().trim();
+    const recipeUnit = (ing.unit || '').toLowerCase().trim();
     
     if (quantity === 0 || unitCost === 0) return 0;
     
-    const countableUnits = ['un', 'unidad', 'unidades', 'uds', 'u', 'paquete', 'pack', 'set', 'docena', 'bolsa', 'caja', 'cajas'];
-    
-    if (countableUnits.includes(unit)) {
-      return quantity * unitCost;
+    // Buscar la unidad del catálogo para saber si hay que convertir
+    const catalogItem = ing.origenId ? catalogItems.find(item => item.id === ing.origenId) : null;
+    const catalogUnit = (catalogItem?.unidad || '').toLowerCase().trim();
+
+    const isSmallRecipeUnit = ['g', 'gramos', 'ml', 'cc', 'cc.', 'no definido'].includes(recipeUnit);
+    const isSmallCatalogUnit = ['g', 'gramos', 'ml', 'cc', 'cc.'].includes(catalogUnit);
+    const isLargeCatalogUnit = ['kg', 'kilo', 'kilos', 'l', 'litro', 'litros'].includes(catalogUnit);
+
+    // REGLA MAESTRA:
+    // Dividir por 1000 solo si la receta usa una unidad pequeña (g/ml) 
+    // Y el catálogo NO usa una unidad pequeña (es decir, usa Kg/L o no se especifica).
+    let factor = 1;
+    if (isSmallRecipeUnit && !isSmallCatalogUnit) {
+        factor = 1000;
     }
     
-    return (quantity / 1000) * unitCost;
+    return (quantity / factor) * unitCost;
 }
 
-/**
- * Recalcula todos los valores de costo de un menú desde cero.
- */
-function recalculateMenu(menu: FullMenu): FullMenu {
+async function readInsumosFile(): Promise<ServicioEmpresa[]> {
+    await ensureDataFileExists(insumosFilePath, '[]');
+    try {
+        const fileContent = await fs.readFile(insumosFilePath, 'utf-8');
+        return JSON.parse(fileContent);
+    } catch { return []; }
+}
+
+function recalculateMenu(menu: FullMenu, catalogItems: ServicioEmpresa[]): FullMenu {
     return {
         ...menu,
         items: (menu.items || []).map(item => {
             const ingredientsWithCost = (item.ingredients || []).map(ing => ({
                 ...ing,
-                costoTotalReceta: calculateIngredientCost(ing)
+                costoTotalReceta: calculateIngredientCost(ing, catalogItems)
             }));
 
             const totalDishCost = ingredientsWithCost.reduce((sum, ing) => sum + ing.costoTotalReceta, 0);
+            const profitMargin = item.profitMargin === undefined ? 100 : Number(item.profitMargin);
             
-            const profitMargin = item.profitMargin === undefined || isNaN(Number(item.profitMargin)) ? 100 : Number(item.profitMargin);
-            
+            // Si hay un precio de venta sugerido manual, lo respetamos y recalculamos el margen
             let suggestedSellingPrice: number;
             if (item.suggestedSellingPrice !== undefined && Number(item.suggestedSellingPrice) > 0) {
-                // Si el precio ya existe, recalculamos el margen basado en el costo real actual
                 suggestedSellingPrice = Math.round(Number(item.suggestedSellingPrice));
             } else {
                 suggestedSellingPrice = Math.round(totalDishCost * (1 + profitMargin / 100));
@@ -97,14 +105,14 @@ function recalculateMenu(menu: FullMenu): FullMenu {
 }
 
 export async function getMenus(): Promise<FullMenu[]> {
-  const menus = await readMenusFile();
-  return menus.map(recalculateMenu);
+  const [menus, catalog] = await Promise.all([readMenusFile(), readInsumosFile()]);
+  return menus.map(m => recalculateMenu(m, catalog));
 }
 
 export async function getMenuById(id: string): Promise<FullMenu | null> {
-  const menus = await getMenus();
+  const [menus, catalog] = await Promise.all([readMenusFile(), readInsumosFile()]);
   const menu = menus.find(m => m.id === id);
-  return menu ? recalculateMenu(menu) : null;
+  return menu ? recalculateMenu(menu, catalog) : null;
 }
 
 async function readMenusFile(): Promise<FullMenu[]> {
@@ -113,39 +121,27 @@ async function readMenusFile(): Promise<FullMenu[]> {
     const fileContent = await fs.readFile(menusFilePath, 'utf-8');
     if (fileContent.trim() === '') return [];
     return JSON.parse(fileContent) as FullMenu[];
-  } catch (error) {
-    console.error("Error reading menus file:", error);
-    return [];
-  }
+  } catch { return []; }
 }
 
 async function writeMenusFile(data: FullMenu[]): Promise<void> {
   await ensureDataFileExists(menusFilePath, '[]');
-  try {
-    await fs.writeFile(menusFilePath, JSON.stringify(data, null, 2), 'utf-8');
-  } catch (error) {
-    console.error('Error writing menus JSON file:', error);
-  }
+  await fs.writeFile(menusFilePath, JSON.stringify(data, null, 2), 'utf-8');
 }
 
 export async function saveMenu(
   menuDataInput: Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'> | FullMenu
 ): Promise<{ success: boolean; id?: string; error?: string; menu?: FullMenu }> {
-  let menus = await readMenusFile();
+  const [menus, catalog] = await Promise.all([readMenusFile(), readInsumosFile()]);
   let menuId: string;
 
-  const menuToSave = recalculateMenu(menuDataInput as FullMenu);
+  const menuToSave = recalculateMenu(menuDataInput as FullMenu, catalog);
 
   if ('id' in menuToSave && menuToSave.id) {
     menuId = menuToSave.id;
     const index = menus.findIndex(m => m.id === menuId);
-    if (index === -1) {
-      return { success: false, error: `Menú con ID ${menuId} no encontrado.` };
-    }
-    menus[index] = { 
-        ...menuToSave, 
-        updatedAt: new Date().toISOString() 
-    } as FullMenu;
+    if (index === -1) return { success: false, error: `Menú con ID ${menuId} no encontrado.` };
+    menus[index] = { ...menuToSave, updatedAt: new Date().toISOString() } as FullMenu;
   } else {
     menuId = `menu_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     const newMenu: FullMenu = {
@@ -164,18 +160,14 @@ export async function deleteMenu(id: string): Promise<{ success: boolean; error?
   let menus = await readMenusFile();
   const initialLength = menus.length;
   menus = menus.filter(menu => menu.id !== id);
-  if (menus.length === initialLength) {
-    return { success: false, error: `Menú con ID ${id} no encontrado para eliminar.` };
-  }
+  if (menus.length === initialLength) return { success: false, error: `Menú con ID ${id} no encontrado para eliminar.` };
   await writeMenusFile(menus);
   return { success: true };
 }
 
 export async function duplicateMenu(id: string): Promise<{ success: boolean; error?: string; menu?: FullMenu }> {
     const menuToDuplicate = await getMenuById(id);
-    if (!menuToDuplicate) {
-        return { success: false, error: 'Menú a duplicar no encontrado.' };
-    }
+    if (!menuToDuplicate) return { success: false, error: 'Menú a duplicar no encontrado.' };
     const newMenu: Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'> = {
         ...menuToDuplicate,
         name: `[COPIA] ${menuToDuplicate.name}`,
@@ -183,9 +175,7 @@ export async function duplicateMenu(id: string): Promise<{ success: boolean; err
     return saveMenu(newMenu);
 }
 
-export async function adjustAllDishMargins(
-  percentage: number
-): Promise<{ success: boolean; error?: string }> {
+export async function adjustAllDishMargins(percentage: number): Promise<{ success: boolean; error?: string }> {
   try {
     const menus = await getMenus();
     for (const menu of menus) {

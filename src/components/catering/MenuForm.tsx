@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PlusCircle, Trash2, Loader2, Save, BookOpen, Search, Percent, DollarSign, Link as LinkIcon, Info, Image as ImageIconLucide, UploadCloud, Copy } from 'lucide-react';
+import { PlusCircle, Trash2, Loader2, Save, BookOpen, Search, Percent, DollarSign, Copy, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveMenu } from '@/app/actions/menus-catering';
 import { getInsumos, saveInsumo } from '@/app/actions/insumos';
@@ -19,7 +19,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { cn } from '@/lib/utils';
-import NextImage from 'next/image';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -36,11 +35,9 @@ const parseSafeNumber = (val: any): number => {
     if (typeof val === 'number') return val;
     let str = String(val).trim();
     if (!str) return 0;
-    
     if (str.includes(',')) {
         str = str.replace(/\./g, '').replace(',', '.');
     }
-    
     const parsed = parseFloat(str);
     return isNaN(parsed) ? 0 : parsed;
 };
@@ -61,31 +58,37 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
   const calculateIngredientCost = useCallback((ing: Partial<Ingredient>): number => {
       const quantity = parseSafeNumber(ing.quantityPerPerson);
       const unitCost = parseSafeNumber(ing.costoUnitario);
-      const unit = (ing.unit || '').toLowerCase().trim();
+      const recipeUnit = (ing.unit || '').toLowerCase().trim();
+      
       if (quantity === 0 || unitCost === 0) return 0;
-      const countableUnits = ['un', 'unidad', 'unidades', 'uds', 'u', 'paquete', 'pack', 'set', 'docena', 'bolsa', 'caja', 'cajas'];
-      if (countableUnits.includes(unit)) return quantity * unitCost;
-      return (quantity / 1000) * unitCost;
-  }, []);
+      
+      const catalogItem = ing.origenId ? catalogoInsumos.find(item => item.id === ing.origenId) : null;
+      const catalogUnit = (catalogItem?.unidad || '').toLowerCase().trim();
+
+      const isSmallRecipeUnit = ['g', 'gramos', 'ml', 'cc', 'cc.', 'no definido'].includes(recipeUnit);
+      const isSmallCatalogUnit = ['g', 'gramos', 'ml', 'cc', 'cc.'].includes(catalogUnit);
+
+      let factor = 1;
+      if (isSmallRecipeUnit && !isSmallCatalogUnit) {
+          factor = 1000;
+      }
+      
+      return (quantity / factor) * unitCost;
+  }, [catalogoInsumos]);
   
-  const calculateTotalDishCost = useCallback((ingredients: Ingredient[], dishName: string): number => {
-    const total = ingredients.reduce((sum, ing) => {
-        const cost = calculateIngredientCost(ing);
-        return sum + cost;
-    }, 0);
-    return total;
+  const calculateTotalDishCost = useCallback((ingredients: Ingredient[]): number => {
+    return ingredients.reduce((sum, ing) => sum + calculateIngredientCost(ing), 0);
   }, [calculateIngredientCost]);
 
   const calculatePrices = useCallback((item: MenuItem): MenuItem => {
-    const totalDishCost = calculateTotalDishCost(item.ingredients || [], item.name);
-    let finalProfitMargin: number;
+    const totalDishCost = calculateTotalDishCost(item.ingredients || []);
+    let finalProfitMargin = item.profitMargin === undefined ? 100 : Number(item.profitMargin);
     let finalSuggestedSellingPrice: number;
 
-    if (item.suggestedSellingPrice !== undefined && !isNaN(Number(item.suggestedSellingPrice)) && Number(item.suggestedSellingPrice) > 0) {
+    if (item.suggestedSellingPrice !== undefined && Number(item.suggestedSellingPrice) > 0) {
         finalSuggestedSellingPrice = Math.round(Number(item.suggestedSellingPrice));
-        finalProfitMargin = totalDishCost > 0 ? Math.round(((finalSuggestedSellingPrice / totalDishCost) - 1) * 100) : (item.profitMargin || 100);
+        finalProfitMargin = totalDishCost > 0 ? Math.round(((finalSuggestedSellingPrice / totalDishCost) - 1) * 100) : finalProfitMargin;
     } else {
-        finalProfitMargin = item.profitMargin === undefined ? 100 : Number(item.profitMargin);
         finalSuggestedSellingPrice = Math.round(totalDishCost * (1 + finalProfitMargin / 100));
     }
     
@@ -102,7 +105,11 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     }, [toast]);
 
   useEffect(() => {
-    if (existingMenu) {
+    fetchInsumos();
+  }, [fetchInsumos]);
+
+  useEffect(() => {
+    if (existingMenu && catalogoInsumos.length > 0) {
       const menuWithCalculatedPrices = {
         ...existingMenu,
         items: (existingMenu.items || []).map(item => {
@@ -115,8 +122,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
       };
       setMenu(menuWithCalculatedPrices);
     }
-    fetchInsumos();
-  }, [existingMenu, calculatePrices, calculateIngredientCost, fetchInsumos]);
+  }, [existingMenu, catalogoInsumos, calculatePrices, calculateIngredientCost]);
   
   const sortedAndFilteredItems = useMemo(() => {
     const items = menu.items || [];
@@ -181,7 +187,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     try {
         const updatedInsumo = { ...catalogItem, valorUnitarioEstimado: parseSafeNumber(ing.costoUnitario) };
         await saveInsumo(updatedInsumo);
-        toast({ title: 'Catálogo Actualizado', description: `Se registró nuevo costo de "${ing.name}" en el catálogo.`});
+        toast({ title: 'Catálogo Actualizado', description: `Costo de "${ing.name}" sincronizado.`});
         await fetchInsumos();
     } catch (e: any) {
         toast({ title: "Error de Sincronización", description: e.message, variant: "destructive"});
