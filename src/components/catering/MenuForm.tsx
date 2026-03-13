@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PlusCircle, Trash2, Loader2, Save, BookOpen, Search, Percent, DollarSign, Link as LinkIcon, Info, Image as ImageIconLucide, UploadCloud, Copy, Sparkles, AlertTriangle } from 'lucide-react';
+import { PlusCircle, Trash2, Loader2, Save, BookOpen, Search, Percent, DollarSign, Link as LinkIcon, Info, Image as ImageIconLucide, UploadCloud, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveMenu } from '@/app/actions/menus-catering';
 import { getInsumos, saveInsumo } from '@/app/actions/insumos';
@@ -18,13 +18,17 @@ import type { ServicioEmpresa } from '@/types/empresa';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogDescription } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 import NextImage from 'next/image';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
-  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(amount);
+  return new Intl.NumberFormat('es-UY', { 
+    style: 'currency', 
+    currency: 'UYU', 
+    minimumFractionDigits: 0, 
+    maximumFractionDigits: 2 
+  }).format(amount);
 };
 
 /**
@@ -36,11 +40,16 @@ const parseSafeNumber = (val: any): number => {
     
     let str = String(val).trim();
     
+    // Formato español: punto para miles, coma para decimales
     if (str.includes('.') && str.includes(',')) {
         str = str.replace(/\./g, '').replace(',', '.');
-    } else if (str.includes(',')) {
+    } 
+    // Solo coma decimal
+    else if (str.includes(',')) {
         str = str.replace(',', '.');
-    } else if (str.split('.').length > 2) {
+    }
+    // Múltiples puntos (tratarlos como separadores de miles)
+    else if (str.split('.').length > 2) {
         str = str.replace(/\./g, '');
     }
 
@@ -78,11 +87,13 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
           return quantity * unitCost;
       }
       
+      // Por defecto (Gramos, ml, No definido, etc.), dividimos por 1000
+      // Asumiendo que el precio del catálogo es por KG o LITRO.
       return (quantity / 1000) * unitCost;
   }, []);
   
   const calculateTotalDishCost = useCallback((ingredients: Ingredient[]): number => {
-    return ingredients.reduce((sum, ing) => sum + (calculateIngredientCost(ing) || 0), 0);
+    return ingredients.reduce((sum, ing) => sum + calculateIngredientCost(ing), 0);
   }, [calculateIngredientCost]);
 
   const calculatePrices = useCallback((item: MenuItem): MenuItem => {
@@ -90,6 +101,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     let finalProfitMargin: number;
     let finalSuggestedSellingPrice: number;
 
+    // Si el usuario fijó un precio de venta manual, calculamos el margen real resultante
     if (item.suggestedSellingPrice !== undefined && !isNaN(Number(item.suggestedSellingPrice)) && Number(item.suggestedSellingPrice) > 0) {
         finalSuggestedSellingPrice = Math.round(Number(item.suggestedSellingPrice));
         if (totalDishCost > 0) {
@@ -98,6 +110,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
             finalProfitMargin = item.profitMargin === undefined ? 100 : Number(item.profitMargin);
         }
     } else {
+        // Si no hay precio manual, usamos el margen para calcular el precio
         finalProfitMargin = item.profitMargin === undefined ? 100 : Number(item.profitMargin);
         finalSuggestedSellingPrice = Math.round(totalDishCost * (1 + finalProfitMargin / 100));
     }
@@ -145,24 +158,26 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
       setMenu(prev => ({ ...prev, [field]: value }));
   };
 
-
   const handleItemChange = (itemId: string, field: keyof MenuItem, value: any) => {
     setMenu(prev => ({
       ...prev,
       items: (prev.items || []).map(item => {
         if (item.id === itemId) {
           let updatedItem = { ...item, [field]: value };
-           if (field === 'profitMargin') {
-            const margin = Number(value) || 0;
+          
+          if (field === 'profitMargin') {
+            const margin = parseSafeNumber(value);
             const newPrice = (item.totalDishCost || 0) * (1 + margin / 100);
             updatedItem = { ...updatedItem, suggestedSellingPrice: Math.round(newPrice) };
           }
+          
           if (field === 'suggestedSellingPrice') {
-            const price = Number(value) || 0;
+            const price = parseSafeNumber(value);
             const cost = item.totalDishCost || 0;
             const newMargin = cost > 0 ? ((price / cost) - 1) * 100 : item.profitMargin;
             updatedItem = { ...updatedItem, profitMargin: Math.round(newMargin || 0) };
           }
+          
           if (field === 'imageUrl' && value instanceof File) {
               const reader = new FileReader();
               reader.onloadend = () => {
@@ -171,6 +186,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
               reader.readAsDataURL(value);
               return item; 
           }
+          
           return calculatePrices(updatedItem);
         }
         return item;
@@ -199,7 +215,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     });
   };
   
- const handleIngredientBlur = async (itemId: string, ing: Ingredient, field: 'costoUnitario') => {
+  const handleIngredientBlur = async (itemId: string, ing: Ingredient, field: 'costoUnitario') => {
     if (!ing.origenId) return;
 
     const catalogItem = catalogoInsumos.find(i => i.id === ing.origenId);
@@ -228,7 +244,6 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     }
   };
 
-
   const addItem = () => {
     const newItem: MenuItem = {
       id: `new_item_${Date.now()}`, name: '', type: 'Entrada', ingredients: [], totalDishCost: 0,
@@ -242,22 +257,17 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
       if (!prev || !prev.items) return prev;
       const itemToDuplicate = prev.items.find(item => item.id === itemId);
       if (!itemToDuplicate) return prev;
-      
       const newIndex = prev.items.findIndex(item => item.id === itemId) + 1;
-
       const duplicatedItem: MenuItem = {
         ...JSON.parse(JSON.stringify(itemToDuplicate)),
         id: `dupe_item_${Date.now()}`,
         name: `[COPIA] ${itemToDuplicate.name}`,
       };
-      
       const newItems = [...prev.items];
       newItems.splice(newIndex, 0, duplicatedItem);
-      
       return { ...prev, items: newItems };
     });
   };
-
 
   const addIngredient = (itemId: string) => {
     const newIngredient: Ingredient = {
@@ -269,7 +279,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
         item.id === itemId ? calculatePrices({ ...item, ingredients: [...(item.ingredients || []), newIngredient] }) : item
       ),
     }));
-  }
+  };
 
   const addIngredientFromCatalog = (itemId: string, insumo: ServicioEmpresa) => {
       const newItem: Ingredient = {
@@ -305,8 +315,8 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
         items: (prev.items || []).map(item =>
          item.id === itemId ? calculatePrices({ ...item, ingredients: (item.ingredients || []).filter(ing => ing.id !== ingId) }) : item
         ),
-    }))
-  }
+    }));
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -315,14 +325,8 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
       return;
     }
     setIsSaving(true);
-    
-    const menuToSave = { ...menu };
-    if (menuToSave.items) {
-      menuToSave.items = menuToSave.items.map(calculatePrices);
-    }
-    
     try {
-      const result = await saveMenu(menuToSave as FullMenu);
+      const result = await saveMenu(menu as FullMenu);
       if (result.success) {
         toast({ title: '¡Menú Guardado!', description: `El menú "${menu.name}" ha sido guardado.` });
         router.push('/empresa/menus');
@@ -419,8 +423,8 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                                     </div>
                                     <div className="space-y-1 col-span-1 lg:col-span-2"><Label className="text-xs">Cant. p/p</Label><Input value={ing.quantityPerPerson || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'quantityPerPerson', e.target.value)} className="h-8 text-sm" /></div>
                                     <div className="space-y-1 col-span-1 lg:col-span-1"><Label className="text-xs">Unidad</Label><Input value={ing.unit || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'unit', e.target.value)} className="h-8 text-sm" disabled={!!ing.origenId}/></div>
-                                    <div className="space-y-1 col-span-1 lg:col-span-2 relative"><Label className="text-xs">Costo p/ Kg, Lt, Un</Label><Input type="text" value={ing.costoUnitario || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'costoUnitario', e.target.value)} onBlur={() => handleIngredientBlur(item.id, ing, 'costoUnitario')} className="h-8 pl-6 text-sm"/><span className="absolute left-2 top-1/2 mt-1 text-muted-foreground">$</span></div>
-                                    <div className="space-y-1 col-span-1 lg:col-span-2"><Label className="text-xs">Subtotal</Label><p className="h-8 flex items-center font-medium text-sm">{formatCurrency(ing.costoTotalReceta)}</p></div>
+                                    <div className="space-y-1 col-span-1 lg:col-span-2 relative"><Label className="text-xs">Costo Unit.</Label><Input type="text" value={ing.costoUnitario || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'costoUnitario', e.target.value)} onBlur={() => handleIngredientBlur(item.id, ing, 'costoUnitario')} className="h-8 pl-6 text-sm"/><span className="absolute left-2 top-1/2 mt-1 text-muted-foreground">$</span></div>
+                                    <div className="space-y-1 col-span-1 lg:col-span-2"><Label className="text-xs">Costo p/p</Label><p className="h-8 flex items-center font-medium text-sm">{formatCurrency(ing.costoTotalReceta)}</p></div>
                                     <div className="flex items-center justify-end col-span-2 lg:col-span-2">
                                       <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteIngredient(item.id, ing.id)}><Trash2 className="w-3.5 h-3.5"/></Button>
                                     </div>
@@ -444,11 +448,11 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                         </div>
                         <div className="p-3 rounded-md bg-green-50 dark:bg-green-900/40 space-y-1">
                             <Label htmlFor={`profit-${item.id}`} className="text-sm font-medium text-green-800 dark:text-green-200 flex items-center gap-1"><Percent className="w-4 h-4"/>Margen (%)</Label>
-                            <Input id={`profit-${item.id}`} type="number" value={item.profitMargin?.toFixed(0) ?? ''} onChange={e => handleItemChange(item.id, 'profitMargin', Number(e.target.value) || 0)} className="bg-white dark:bg-background"/>
+                            <Input id={`profit-${item.id}`} type="text" value={item.profitMargin?.toFixed(0) ?? ''} onChange={e => handleItemChange(item.id, 'profitMargin', e.target.value)} className="bg-white dark:bg-background"/>
                         </div>
                         <div className="p-3 rounded-md bg-green-50 dark:bg-green-900/40 space-y-1">
                              <Label htmlFor={`price-${item.id}`} className="text-sm font-medium text-green-800 dark:text-green-200 flex items-center gap-1"><DollarSign className="w-4 h-4"/>Precio Venta ($)</Label>
-                             <Input id={`price-${item.id}`} type="number" value={item.suggestedSellingPrice?.toFixed(0) ?? ''} onChange={e => handleItemChange(item.id, 'suggestedSellingPrice', Number(e.target.value) || 0)} className="bg-white dark:bg-background"/>
+                             <Input id={`price-${item.id}`} type="text" value={item.suggestedSellingPrice?.toFixed(0) ?? ''} onChange={e => handleItemChange(item.id, 'suggestedSellingPrice', e.target.value)} className="bg-white dark:bg-background"/>
                         </div>
                     </div>
                  </CardFooter>
