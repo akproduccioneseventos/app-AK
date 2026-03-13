@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
@@ -38,7 +37,7 @@ interface ShoppingListItem {
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
-  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
+  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(amount);
 };
 
 function ListaDeComprasContent() {
@@ -119,7 +118,8 @@ function ListaDeComprasContent() {
           if (catalogDish) {
               const targetGuests = getTargetGuests(budgetItem);
               catalogDish.ingredients.forEach(ing => {
-                  const qtyPerPerson = parseFloat(ing.quantityPerPerson);
+                  const qtyStr = String(ing.quantityPerPerson || '0').replace(',', '.');
+                  const qtyPerPerson = parseFloat(qtyStr);
                   if (!isNaN(qtyPerPerson) && qtyPerPerson > 0) {
                       const totalNeeded = qtyPerPerson * targetGuests;
                       
@@ -208,14 +208,16 @@ function ListaDeComprasContent() {
           const faltante = Math.max(0, item.cantidadNecesaria - item.stockDisponible);
           const unitNorm = (item.unit || '').toLowerCase().trim();
           
-          // Corrección de unidades: gramos a kilos
-          const factorUnidad = (unitNorm === 'g' || unitNorm === 'ml' || unitNorm === 'gramos' || unitNorm === 'cc') ? 1000 : 1;
+          // Corrección de unidades contables vs masa/volumen
+          const countableUnits = ['un', 'unidad', 'unidades', 'uds', 'u', 'paquete', 'pack', 'set', 'docena', 'bolsa', 'caja', 'cajas'];
+          const factorUnidad = countableUnits.includes(unitNorm) ? 1 : 1000;
+          
           const costoInversion = item.costoUnitario * (faltante / factorUnidad);
 
           return {
               ...item,
               cantidadAComprar: faltante,
-              costoTotalFaltante: Math.round(costoInversion)
+              costoTotalFaltante: Math.round(costoInversion * 100) / 100
           };
       }).sort((a,b) => a.proveedor.localeCompare(b.proveedor));
 
@@ -255,7 +257,7 @@ function ListaDeComprasContent() {
     setIsSavingStatus(proveedor);
 
     const updatedEstados = [...estadosCompra];
-    let estadoProveedor = updatedEstados.find(e => e.provider === proveedor);
+    let estadoProveedor = updatedEstados.find(e => e.proveedor === proveedor);
     
     if (estadoProveedor) {
         estadoProveedor[field] = value;

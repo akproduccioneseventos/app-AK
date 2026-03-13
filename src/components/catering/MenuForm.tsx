@@ -24,7 +24,7 @@ import NextImage from 'next/image';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
-  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
+  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(amount);
 };
 
 
@@ -46,21 +46,23 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
    * Divide por 1000 si la unidad es de peso (g, kg) o volumen (ml, l) para normalizar el costo base.
    */
   const calculateIngredientCost = useCallback((ing: Partial<Ingredient>): number => {
-      const quantity = parseFloat(ing.quantityPerPerson || '0');
+      const qtyStr = String(ing.quantityPerPerson || '0').replace(',', '.');
+      const quantity = parseFloat(qtyStr);
       const unitCost = Number(ing.costoUnitario) || 0;
       const unit = (ing.unit || '').toLowerCase().trim();
+      
       if (isNaN(quantity) || isNaN(unitCost)) return 0;
       
-      const subUnits = [
-          'g', 'gr', 'gramos', 'kg', 'kilo', 'kilos', 
-          'ml', 'cc', 'cm3', 'l', 'lt', 'litro', 'litros',
-          'no definido', ''
-      ];
+      // Unidades contables que NO se dividen por 1000
+      const countableUnits = ['un', 'unidad', 'unidades', 'uds', 'u', 'paquete', 'pack', 'set', 'docena', 'bolsa', 'caja', 'cajas'];
       
-      if (subUnits.includes(unit)) {
-          return (quantity / 1000) * unitCost;
+      if (countableUnits.includes(unit)) {
+          return quantity * unitCost;
       }
-      return quantity * unitCost;
+      
+      // Por defecto (g, ml, kg, l, no definido, etc.), dividimos por 1000 
+      // asumiendo que la cantidad está en la unidad menor y el precio en la mayor.
+      return (quantity / 1000) * unitCost;
   }, []);
   
   const calculateTotalDishCost = useCallback((ingredients: Ingredient[]): number => {

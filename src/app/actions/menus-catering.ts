@@ -59,27 +59,25 @@ async function writeMenusFile(data: FullMenu[]): Promise<void> {
 
 /**
  * Calcula el costo de un ingrediente basándose en la cantidad por persona y el costo unitario.
- * Divide por 1000 si la unidad es de peso (g, kg) o volumen (ml, l) para normalizar el costo base (que suele ser por KG o Litro).
+ * Divide por 1000 si la unidad es de peso (g, kg) o volumen (ml, l) para normalizar el costo base.
  */
 function calculateIngredientCost(ing: Partial<Ingredient>): number {
-    const quantity = parseFloat(ing.quantityPerPerson || '0');
+    const qtyStr = String(ing.quantityPerPerson || '0').replace(',', '.');
+    const quantity = parseFloat(qtyStr);
     const unitCost = Number(ing.costoUnitario) || 0;
     const unit = (ing.unit || '').toLowerCase().trim();
+    
     if (isNaN(quantity) || isNaN(unitCost)) return 0;
     
-    // Lista de unidades que requieren normalización (división por 1000)
-    // Se incluyen kg, l, etc. porque en el catálogo el costo es por la unidad mayor pero se usa la menor.
-    const subUnits = [
-        'g', 'gr', 'gramos', 'kg', 'kilo', 'kilos', 
-        'ml', 'cc', 'cm3', 'l', 'lt', 'litro', 'litros',
-        'no definido', ''
-    ];
+    // Unidades contables que NO se dividen por 1000
+    const countableUnits = ['un', 'unidad', 'unidades', 'uds', 'u', 'paquete', 'pack', 'set', 'docena', 'bolsa', 'caja', 'cajas'];
     
-    if (subUnits.includes(unit)) {
-      return (quantity / 1000) * unitCost;
+    if (countableUnits.includes(unit)) {
+      return quantity * unitCost;
     }
     
-    return quantity * unitCost;
+    // Por defecto (g, ml, kg, l, no definido, etc.), dividimos por 1000
+    return (quantity / 1000) * unitCost;
 }
 
 function calculateDishCostPerPerson(ingredients: Ingredient[]): number {
