@@ -27,6 +27,14 @@ const formatCurrency = (amount?: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(amount);
 };
 
+// Función auxiliar robusta para parsear números con comas o puntos
+const parseSafeNumber = (val: any): number => {
+    if (val === null || val === undefined) return 0;
+    if (typeof val === 'number') return val;
+    const str = String(val).replace(',', '.').trim();
+    const parsed = parseFloat(str);
+    return isNaN(parsed) ? 0 : parsed;
+};
 
 export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
   const router = useRouter();
@@ -43,15 +51,13 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
 
   /**
    * Calcula el costo de un ingrediente basándose en la cantidad por persona y el costo unitario.
-   * Divide por 1000 si la unidad es de peso (g, kg) o volumen (ml, l) para normalizar el costo base.
    */
   const calculateIngredientCost = useCallback((ing: Partial<Ingredient>): number => {
-      const qtyStr = String(ing.quantityPerPerson || '0').replace(',', '.');
-      const quantity = parseFloat(qtyStr);
-      const unitCost = Number(ing.costoUnitario) || 0;
+      const quantity = parseSafeNumber(ing.quantityPerPerson);
+      const unitCost = parseSafeNumber(ing.costoUnitario);
       const unit = (ing.unit || '').toLowerCase().trim();
       
-      if (isNaN(quantity) || isNaN(unitCost)) return 0;
+      if (quantity === 0 || unitCost === 0) return 0;
       
       // Unidades contables que NO se dividen por 1000
       const countableUnits = ['un', 'unidad', 'unidades', 'uds', 'u', 'paquete', 'pack', 'set', 'docena', 'bolsa', 'caja', 'cajas'];
@@ -61,7 +67,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
       }
       
       // Por defecto (g, ml, kg, l, no definido, etc.), dividimos por 1000 
-      // asumiendo que la cantidad está en la unidad menor y el precio en la mayor.
+      // asumiendo que la cantidad está en la unidad menor y el precio en la mayor (Kg/Lt).
       return (quantity / 1000) * unitCost;
   }, []);
   
@@ -190,7 +196,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     if (!catalogItem || catalogItem.valorUnitarioEstimado === ing.costoUnitario) return;
     
     try {
-        const updatedInsumo = { ...catalogItem, valorUnitarioEstimado: Number(ing.costoUnitario) || 0 };
+        const updatedInsumo = { ...catalogItem, valorUnitarioEstimado: parseSafeNumber(ing.costoUnitario) };
         await saveInsumo(updatedInsumo);
         toast({ title: 'Catálogo Actualizado', description: `Se registró nuevo costo de "${ing.name}" en el catálogo.`});
         await fetchInsumos();
@@ -403,7 +409,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                                     </div>
                                     <div className="space-y-1 col-span-1 lg:col-span-2"><Label className="text-xs">Cant. p/p</Label><Input value={ing.quantityPerPerson || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'quantityPerPerson', e.target.value)} className="h-8 text-sm" /></div>
                                     <div className="space-y-1 col-span-1 lg:col-span-1"><Label className="text-xs">Unidad</Label><Input value={ing.unit || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'unit', e.target.value)} className="h-8 text-sm" disabled={!!ing.origenId}/></div>
-                                    <div className="space-y-1 col-span-1 lg:col-span-2 relative"><Label className="text-xs">Costo p/ Kg, Lt, Un</Label><Input type="number" value={ing.costoUnitario || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'costoUnitario', Number(e.target.value))} onBlur={() => handleIngredientBlur(item.id, ing, 'costoUnitario')} className="h-8 pl-6 text-sm"/><span className="absolute left-2 top-1/2 mt-1 text-muted-foreground">$</span></div>
+                                    <div className="space-y-1 col-span-1 lg:col-span-2 relative"><Label className="text-xs">Costo p/ Kg, Lt, Un</Label><Input type="text" value={ing.costoUnitario || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'costoUnitario', e.target.value)} onBlur={() => handleIngredientBlur(item.id, ing, 'costoUnitario')} className="h-8 pl-6 text-sm"/><span className="absolute left-2 top-1/2 mt-1 text-muted-foreground">$</span></div>
                                     <div className="space-y-1 col-span-1 lg:col-span-2"><Label className="text-xs">Subtotal</Label><p className="h-8 flex items-center font-medium text-sm">{formatCurrency(ing.costoTotalReceta)}</p></div>
                                     <div className="flex items-center justify-end col-span-2 lg:col-span-2">
                                       <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteIngredient(item.id, ing.id)}><Trash2 className="w-3.5 h-3.5"/></Button>

@@ -23,6 +23,15 @@ async function ensureDataFileExists(filePath: string, defaultContent: string = '
     }
 }
 
+// Función auxiliar robusta para parsear números con comas o puntos
+const parseSafeNumber = (val: any): number => {
+    if (val === null || val === undefined) return 0;
+    if (typeof val === 'number') return val;
+    const str = String(val).replace(',', '.').trim();
+    const parsed = parseFloat(str);
+    return isNaN(parsed) ? 0 : parsed;
+};
+
 async function readMenusFile(): Promise<FullMenu[]> {
   await ensureDataFileExists(menusFilePath, '[]');
   try {
@@ -36,10 +45,10 @@ async function readMenusFile(): Promise<FullMenu[]> {
         ingredients: (item.ingredients || []).map(ingredient => ({
           ...ingredient,
           quantityPerPerson: ingredient.quantityPerPerson || '0',
-          costoUnitario: Number(ingredient.costoUnitario) || 0,
-          costoTotalReceta: Number(ingredient.costoTotalReceta) || 0,
+          costoUnitario: parseSafeNumber(ingredient.costoUnitario),
+          costoTotalReceta: parseSafeNumber(ingredient.costoTotalReceta),
         })),
-        totalDishCost: Number(item.totalDishCost) || 0,
+        totalDishCost: parseSafeNumber(item.totalDishCost),
       }))
     }));
   } catch (error) {
@@ -59,15 +68,13 @@ async function writeMenusFile(data: FullMenu[]): Promise<void> {
 
 /**
  * Calcula el costo de un ingrediente basándose en la cantidad por persona y el costo unitario.
- * Divide por 1000 si la unidad es de peso (g, kg) o volumen (ml, l) para normalizar el costo base.
  */
 function calculateIngredientCost(ing: Partial<Ingredient>): number {
-    const qtyStr = String(ing.quantityPerPerson || '0').replace(',', '.');
-    const quantity = parseFloat(qtyStr);
-    const unitCost = Number(ing.costoUnitario) || 0;
+    const quantity = parseSafeNumber(ing.quantityPerPerson);
+    const unitCost = parseSafeNumber(ing.costoUnitario);
     const unit = (ing.unit || '').toLowerCase().trim();
     
-    if (isNaN(quantity) || isNaN(unitCost)) return 0;
+    if (quantity === 0 || unitCost === 0) return 0;
     
     // Unidades contables que NO se dividen por 1000
     const countableUnits = ['un', 'unidad', 'unidades', 'uds', 'u', 'paquete', 'pack', 'set', 'docena', 'bolsa', 'caja', 'cajas'];
