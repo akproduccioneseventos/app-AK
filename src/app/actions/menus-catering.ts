@@ -65,7 +65,7 @@ function calculateIngredientCost(ing: Partial<Ingredient>): number {
       return quantity * unitCost;
     }
     
-    // Por defecto (Gramos, ml, etc.) dividimos por 1000 asumiendo precio por KG/L
+    // Por defecto (Gramos, ml, No definido, etc.) dividimos por 1000 asumiendo precio por KG/L
     return (quantity / 1000) * unitCost;
 }
 
