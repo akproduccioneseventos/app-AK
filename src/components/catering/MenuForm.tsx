@@ -27,11 +27,23 @@ const formatCurrency = (amount?: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(amount);
 };
 
-// Función auxiliar robusta para parsear números con comas o puntos
+/**
+ * Función de parseo robusta para soportar el formato de números del usuario (con comas).
+ */
 const parseSafeNumber = (val: any): number => {
-    if (val === null || val === undefined) return 0;
+    if (val === null || val === undefined || val === '') return 0;
     if (typeof val === 'number') return val;
-    const str = String(val).replace(',', '.').trim();
+    
+    let str = String(val).trim();
+    
+    if (str.includes('.') && str.includes(',')) {
+        str = str.replace(/\./g, '').replace(',', '.');
+    } else if (str.includes(',')) {
+        str = str.replace(',', '.');
+    } else if (str.split('.').length > 2) {
+        str = str.replace(/\./g, '');
+    }
+
     const parsed = parseFloat(str);
     return isNaN(parsed) ? 0 : parsed;
 };
@@ -66,8 +78,6 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
           return quantity * unitCost;
       }
       
-      // Por defecto (g, ml, kg, l, no definido, etc.), dividimos por 1000 
-      // asumiendo que la cantidad está en la unidad menor y el precio en la mayor (Kg/Lt).
       return (quantity / 1000) * unitCost;
   }, []);
   
@@ -443,8 +453,8 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                     </div>
                  </CardFooter>
             </Card>
-          ))
-        ) : (
+            ))
+          ) : (
             <div className="text-center py-6 text-muted-foreground">
                 <p>No se encontraron platos con el término "{dishSearchTerm}".</p>
             </div>

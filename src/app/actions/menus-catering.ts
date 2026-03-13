@@ -23,11 +23,28 @@ async function ensureDataFileExists(filePath: string, defaultContent: string = '
     }
 }
 
-// Función auxiliar robusta para parsear números con comas o puntos
+/**
+ * Función de parseo robusta para soportar el formato de números del usuario (con comas).
+ */
 const parseSafeNumber = (val: any): number => {
-    if (val === null || val === undefined) return 0;
+    if (val === null || val === undefined || val === '') return 0;
     if (typeof val === 'number') return val;
-    const str = String(val).replace(',', '.').trim();
+    
+    let str = String(val).trim();
+    
+    // Si contiene puntos y comas, asumimos que el punto es de miles y la coma es decimal (formato ES)
+    if (str.includes('.') && str.includes(',')) {
+        str = str.replace(/\./g, '').replace(',', '.');
+    } 
+    // Si solo contiene comas, la tratamos como separador decimal
+    else if (str.includes(',')) {
+        str = str.replace(',', '.');
+    }
+    // Si contiene múltiples puntos, los tratamos como miles
+    else if (str.split('.').length > 2) {
+        str = str.replace(/\./g, '');
+    }
+
     const parsed = parseFloat(str);
     return isNaN(parsed) ? 0 : parsed;
 };
@@ -68,6 +85,7 @@ async function writeMenusFile(data: FullMenu[]): Promise<void> {
 
 /**
  * Calcula el costo de un ingrediente basándose en la cantidad por persona y el costo unitario.
+ * Sincronizado con la lógica de Picada Caliente (68.14)
  */
 function calculateIngredientCost(ing: Partial<Ingredient>): number {
     const quantity = parseSafeNumber(ing.quantityPerPerson);
@@ -84,6 +102,7 @@ function calculateIngredientCost(ing: Partial<Ingredient>): number {
     }
     
     // Por defecto (g, ml, kg, l, no definido, etc.), dividimos por 1000
+    // Asumiendo que el precio del catálogo es por KG o LITRO.
     return (quantity / 1000) * unitCost;
 }
 
