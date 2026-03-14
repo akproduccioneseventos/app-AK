@@ -24,24 +24,33 @@ async function ensureDataFileExists(filePath: string, defaultContent: string = '
     }
 }
 
+/**
+ * Convierte strings con comas o puntos a números de forma segura.
+ * Maneja el error de interpretación de puntos decimales como miles.
+ */
 const parseSafeNumber = (val: any): number => {
     if (val === null || val === undefined || val === '') return 0;
     if (typeof val === 'number') return val;
     let str = String(val).trim();
     if (!str) return 0;
     
-    // Si ya tiene punto decimal y no tiene comas, es formato JS, lo devolvemos
-    if (str.includes('.') && !str.includes(',')) {
-        const p = parseFloat(str);
-        return isNaN(p) ? 0 : p;
+    // Si contiene coma, es formato uruguayo (ej: 2.044,2 o 38,15)
+    if (str.includes(',')) {
+        // Quitamos puntos de miles y cambiamos coma por punto
+        str = str.replace(/\./g, '').replace(',', '.');
+    } else {
+        // Si no tiene coma pero tiene punto, verificamos si es decimal o miles
+        // Si hay más de un punto o el punto está seguido de exactamente 3 dígitos al final de un número largo
+        // pero aquí priorizamos tratar el punto único como decimal para evitar el error de $5.301
+        const parts = str.split('.');
+        if (parts.length === 2 && parts[1].length !== 3) {
+            // Es un decimal seguro (ej: 53.01)
+        } else if (parts.length > 2) {
+            // Tiene múltiples puntos, es miles (ej: 1.000.000)
+            str = str.replace(/\./g, '');
+        }
     }
 
-    // Limpieza de formato uruguayo (puntos de miles opcionales, coma decimal)
-    // 1. Quitar puntos de miles: "2.044,2" -> "2044,2"
-    str = str.replace(/\./g, '');
-    // 2. Cambiar coma por punto: "2044,2" -> "2044.2"
-    str = str.replace(',', '.');
-    
     const parsed = parseFloat(str);
     return isNaN(parsed) ? 0 : parsed;
 };
@@ -57,8 +66,7 @@ function calculateIngredientCost(ing: Partial<Ingredient>, catalogItems: Servici
     const catalogUnit = (catalogItem?.unidad || '').toLowerCase().trim();
 
     // REGLA DE AUDITORÍA:
-    // Si la receta usa unidades de masa/volumen menores (g, ml, cc) o es "No definido"
-    // y el catálogo NO usa esas mismas unidades pequeñas (ej: usa Kg/Lt), dividimos por 1000.
+    // Gramos, ml, cc y "No definido" (Gas) dividen por 1000 si el catálogo es Kg/Lt
     const isSmallRecipeUnit = ['g', 'gramos', 'ml', 'cc', 'cc.', 'no definido'].includes(recipeUnit);
     const isSmallCatalogUnit = ['g', 'gramos', 'ml', 'cc', 'cc.'].includes(catalogUnit);
 
@@ -84,14 +92,13 @@ function recalculateMenu(menu: FullMenu, catalogItems: ServicioEmpresa[], allDis
         items: (menu.items || []).map(item => {
             let finalIngredients = [...(item.ingredients || [])];
 
-            // LÓGICA DE FUSIÓN DINÁMICA: "Con Mesa Buffet"
-            if (item.name.toLowerCase().includes('mesa buffet') || item.name.toLowerCase().includes('mesa bufet')) {
+            // FUSIÓN DINÁMICA: Si es una versión "CON MESA BUFET", inyectamos ingredientes de la mesa fría
+            if (item.name.toUpperCase().includes('MESA BUFET') || item.name.toUpperCase().includes('MESA BUFFET')) {
                 const mesaBuffetBase = allDishes.find(d => 
                     (d.name === 'MESA BUFET' || d.name === 'Mesa Buffet') && d.id !== item.id
                 );
                 
                 if (mesaBuffetBase && mesaBuffetBase.ingredients) {
-                    // Juntar ingredientes evitando duplicados por nombre
                     mesaBuffetBase.ingredients.forEach(buffetIng => {
                         if (!finalIngredients.some(existing => existing.name.toLowerCase() === buffetIng.name.toLowerCase())) {
                             finalIngredients.push({ ...buffetIng, id: `buffet_merge_${buffetIng.id}_${Date.now()}` });
@@ -128,15 +135,42 @@ function recalculateMenu(menu: FullMenu, catalogItems: ServicioEmpresa[], allDis
 
 export async function getMenus(): Promise<FullMenu[]> {
   const [menus, catalog] = await Promise.all([readMenusFile(), readInsumosFile()]);
+  
+  // INYECCIÓN VIRTUAL: Creamos las variantes "CON MESA BUFET" para los platos de carne
+  const mainMenu = menus.find(m => m.id === 'menu_principales_maestro');
+  if (mainMenu) {
+      const targetDishes = [
+          'ASADO COMPLETO C/ GUARNICIÓN', 
+          'POLLO ARROLLADO C/ GUARNICIÓN', 
+          'CORDERO ASADO C/ GUARNICIÓN', 
+          'CERDO ARROLLADO C/ GUARNICIÓN'
+      ];
+      
+      const virtualItems: MenuItem[] = [];
+      targetDishes.forEach(name => {
+          const base = mainMenu.items.find(i => i.name === name);
+          if (base) {
+              const buffetName = name.replace('C/ GUARNICIÓN', 'CON MESA BUFET');
+              if (!mainMenu.items.some(i => i.name === buffetName)) {
+                  virtualItems.push({
+                      ...base,
+                      id: `${base.id}_virtual_buffet`,
+                      name: buffetName
+                  });
+              }
+          }
+      });
+      mainMenu.items = [...mainMenu.items, ...virtualItems];
+  }
+
   const allDishes = menus.flatMap(m => m.items);
   return menus.map(m => recalculateMenu(m, catalog, allDishes));
 }
 
 export async function getMenuById(id: string): Promise<FullMenu | null> {
-  const [menus, catalog] = await Promise.all([readMenusFile(), readInsumosFile()]);
-  const menu = menus.find(m => m.id === id);
-  const allDishes = menus.flatMap(m => m.items);
-  return menu ? recalculateMenu(menu, catalog, allDishes) : null;
+  const allMenus = await getMenus(); // Usamos getMenus para incluir las versiones virtuales
+  const menu = allMenus.find(m => m.id === id);
+  return menu || null;
 }
 
 async function readMenusFile(): Promise<FullMenu[]> {
@@ -150,7 +184,12 @@ async function readMenusFile(): Promise<FullMenu[]> {
 
 async function writeMenusFile(data: FullMenu[]): Promise<void> {
   await ensureDataFileExists(menusFilePath, '[]');
-  await fs.writeFile(menusFilePath, JSON.stringify(data, null, 2), 'utf-8');
+  // Al guardar, filtramos los items virtuales para no ensuciar el JSON
+  const cleanData = data.map(menu => ({
+      ...menu,
+      items: menu.items.filter(item => !item.id.endsWith('_virtual_buffet'))
+  }));
+  await fs.writeFile(menusFilePath, JSON.stringify(cleanData, null, 2), 'utf-8');
 }
 
 export async function saveMenu(

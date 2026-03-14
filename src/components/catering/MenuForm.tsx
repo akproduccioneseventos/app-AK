@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PlusCircle, Trash2, Loader2, Save, BookOpen, Search, Percent, DollarSign, Copy, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { saveMenu } from '@/app/actions/menus-catering';
+import { saveMenu, getMenus } from '@/app/actions/menus-catering';
 import { getInsumos, saveInsumo } from '@/app/actions/insumos';
 import type { FullMenu, MenuItem, Ingredient } from '@/types/catering';
 import type { ServicioEmpresa } from '@/types/empresa';
@@ -35,8 +35,14 @@ const parseSafeNumber = (val: any): number => {
     if (typeof val === 'number') return val;
     let str = String(val).trim();
     if (!str) return 0;
+    
     if (str.includes(',')) {
         str = str.replace(/\./g, '').replace(',', '.');
+    } else {
+        const parts = str.split('.');
+        if (parts.length > 2 || (parts.length === 2 && parts[1].length === 3)) {
+            str = str.replace(/\./g, '');
+        }
     }
     const parsed = parseFloat(str);
     return isNaN(parsed) ? 0 : parsed;
@@ -50,6 +56,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
   );
   const [isSaving, setIsSaving] = useState(false);
   const [catalogoInsumos, setCatalogoInsumos] = useState<ServicioEmpresa[]>([]);
+  const [allDishesForMerge, setAllDishesForMerge] = useState<MenuItem[]>([]);
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
   const [currentItemIdForCatalog, setCurrentItemIdForCatalog] = useState<string | null>(null);
   const [catalogSearchTerm, setCatalogSearchTerm] = useState('');
@@ -81,7 +88,22 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
   }, [calculateIngredientCost]);
 
   const calculatePrices = useCallback((item: MenuItem): MenuItem => {
-    const totalDishCost = calculateTotalDishCost(item.ingredients || []);
+    // FUSIÓN VISUAL: Si el plato es "con Mesa Buffet", sumamos virtualmente los ingredientes para el costo
+    let finalIngredients = [...(item.ingredients || [])];
+    if (item.name.toUpperCase().includes('MESA BUFET') || item.name.toUpperCase().includes('MESA BUFFET')) {
+        const buffetBase = allDishesForMerge.find(d => 
+            (d.name === 'MESA BUFET' || d.name === 'Mesa Buffet') && d.id !== item.id
+        );
+        if (buffetBase && buffetBase.ingredients) {
+            buffetBase.ingredients.forEach(bi => {
+                if (!finalIngredients.some(ei => ei.name.toLowerCase() === bi.name.toLowerCase())) {
+                    finalIngredients.push(bi);
+                }
+            });
+        }
+    }
+
+    const totalDishCost = calculateTotalDishCost(finalIngredients);
     let finalProfitMargin = item.profitMargin === undefined ? 100 : Number(item.profitMargin);
     let finalSuggestedSellingPrice: number;
 
@@ -93,20 +115,21 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     }
     
     return { ...item, totalDishCost, suggestedSellingPrice: finalSuggestedSellingPrice, profitMargin: finalProfitMargin };
-  }, [calculateTotalDishCost]);
+  }, [calculateTotalDishCost, allDishesForMerge]);
 
-  const fetchInsumos = useCallback(async () => {
+  const fetchInitialData = useCallback(async () => {
       try {
-        const insumos = await getInsumos();
+        const [insumos, menus] = await Promise.all([getInsumos(), getMenus()]);
         setCatalogoInsumos(insumos);
+        setAllDishesForMerge(menus.flatMap(m => m.items));
       } catch (e) {
-        toast({ title: "Error", description: "No se pudo cargar el catálogo de insumos."});
+        toast({ title: "Error", description: "No se pudieron cargar los datos base."});
       }
     }, [toast]);
 
   useEffect(() => {
-    fetchInsumos();
-  }, [fetchInsumos]);
+    fetchInitialData();
+  }, [fetchInitialData]);
 
   useEffect(() => {
     if (existingMenu && catalogoInsumos.length > 0) {
@@ -188,7 +211,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
         const updatedInsumo = { ...catalogItem, valorUnitarioEstimado: parseSafeNumber(ing.costoUnitario) };
         await saveInsumo(updatedInsumo);
         toast({ title: 'Catálogo Actualizado', description: `Costo de "${ing.name}" sincronizado.`});
-        await fetchInsumos();
+        await fetchInitialData();
     } catch (e: any) {
         toast({ title: "Error de Sincronización", description: e.message, variant: "destructive"});
     }
@@ -347,7 +370,13 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                  </CardContent>
                  <CardFooter className="p-0 pt-4 mt-4 border-t">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
-                        <div className="p-3 rounded-md bg-blue-50 dark:bg-blue-900/40"><Label className="text-sm font-medium text-blue-800">Costo p/Persona (Calculado)</Label><p className="font-bold text-lg text-blue-700">{formatCurrency(item.totalDishCost || 0)}</p><p className="text-[10px] text-blue-600 mt-1 italic">Auditado según estructura de 5 pasos</p></div>
+                        <div className="p-3 rounded-md bg-blue-50 dark:bg-blue-900/40">
+                            <Label className="text-sm font-medium text-blue-800">Costo p/Persona (Calculado)</Label>
+                            <p className="font-bold text-lg text-blue-700">{formatCurrency(item.totalDishCost || 0)}</p>
+                            {(item.name.toUpperCase().includes('MESA BUFET') || item.name.toUpperCase().includes('MESA BUFFET')) && (
+                                <p className="text-[9px] text-blue-600 mt-1 uppercase font-black tracking-tighter">Incluye ingredientes de Mesa fría</p>
+                            )}
+                        </div>
                         <div className="p-3 rounded-md bg-green-50 dark:bg-green-900/40 space-y-1"><Label className="text-sm font-medium text-green-800 flex items-center gap-1"><Percent className="w-4 h-4"/>Margen (%)</Label><Input type="text" value={item.profitMargin?.toFixed(0) ?? ''} onChange={e => handleItemChange(item.id, 'profitMargin', e.target.value)} /></div>
                         <div className="p-3 rounded-md bg-green-50 dark:bg-green-900/40 space-y-1"><Label className="text-sm font-medium text-green-800 flex items-center gap-1"><DollarSign className="w-4 h-4"/>Precio Venta ($)</Label><Input type="text" value={item.suggestedSellingPrice?.toFixed(0) ?? ''} onChange={e => handleItemChange(item.id, 'suggestedSellingPrice', e.target.value)} /></div>
                     </div>
