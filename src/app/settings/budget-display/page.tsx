@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent, type ChangeEvent } from 'react';
@@ -152,6 +151,7 @@ export default function BudgetDisplaySettingsPage() {
   const [error, setError] = useState<string | null>(null);
 
   const [servicioSearchTerm, setServicioSearchTerm] = useState('');
+  const [gastronomiaSearchTerm, setGastronomiaSearchTerm] = useState('');
   const [allMenus, setAllMenus] = useState<FullMenu[]>([]);
 
   const [newDependency, setNewDependency] = useState({ triggerServiceId: '', requiredServiceId: '' });
@@ -256,12 +256,7 @@ export default function BudgetDisplaySettingsPage() {
     
     const visibleDishes = allDishes.filter(d => isPlatoVisible(d.id));
 
-    const lowerCaseSearch = gastronomiaSearchTerm.toLowerCase();
-    const filteredDishes = gastronomiaSearchTerm.trim() === ''
-        ? visibleDishes 
-        : visibleDishes.filter(d => d.name.toLowerCase().includes(lowerCaseSearch));
-    
-    const enhancedDishes = filteredDishes.map(item => ({
+    const enhancedDishes = visibleDishes.map(item => ({
         ...item,
         precioVenta: item.suggestedSellingPrice ?? ((item.totalDishCost || 0) * (1 + (item.profitMargin ?? 120) / 100)),
     }));
@@ -643,7 +638,7 @@ export default function BudgetDisplaySettingsPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
                     <div className="space-y-1"><Label htmlFor={`promo-name-${index}`}>Nombre</Label><Input id={`promo-name-${index}`} value={discount.name} onChange={(e) => handleDiscountChange(index, 'name', e.target.value)} /></div>
                     <div className="space-y-1"><Label htmlFor={`promo-type-${index}`}>Tipo</Label><Select value={discount.type} onValueChange={(val) => handleDiscountChange(index, 'type', val)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="percentage">Porcentaje</SelectItem><SelectItem value="fixed">Monto Fijo</SelectItem></SelectContent></Select></div>
-                    <div className="space-y-1"><Label htmlFor={`promo-value-${index}`}>Valor</Label><Input id={`promo-value-${index}`} type="number" value={discount.value} onChange={(e) => handleDiscountChange(index, 'value', Number(e.target.value))}/></div>
+                    <div className="space-y-1"><Label htmlFor={`promo-value-${index}`}>Valor</Label><Input id={`promo-value-${index}`}> <Input id={`promo-value-${index}`} type="number" value={discount.value} onChange={(e) => handleDiscountChange(index, 'value', Number(e.target.value))}/></Input></div>
                   </div>
                 </ConfigFormItem>
               ))}
@@ -764,16 +759,64 @@ export default function BudgetDisplaySettingsPage() {
           <CardDescription>
             Activa o desactiva los platos que estarán disponibles en el simulador. Los platos se gestionan en el <Link href="/empresa/menus" className="text-primary underline hover:text-primary/80">Planificador Gastronómico Maestro</Link>.
           </CardDescription>
+          <div className="relative pt-4">
+            <Search className="absolute left-3 top-7 h-4 w-4 text-muted-foreground" />
+            <Input 
+              placeholder="Buscar plato en el catálogo..."
+              value={gastronomiaSearchTerm}
+              onChange={e => setGastronomiaSearchTerm(e.target.value)}
+              className="pl-9"
+            />
+          </div>
         </CardHeader>
         <CardContent>
            <Accordion type="multiple" defaultValue={['visibility']} className="w-full space-y-4">
               <AccordionItem value="visibility" className="border rounded-md shadow-sm">
                   <AccordionTrigger className="px-3 text-md font-medium hover:no-underline">Visibilidad de Platos</AccordionTrigger>
                   <AccordionContent className="p-3 border-t">
-                       <Accordion type="multiple" defaultValue={['entradas']} className="w-full space-y-2">
-                        <AccordionItem value="entradas" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Entradas</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{getVisibleDishes(entradasDisponibles).map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.nombre} ({formatCurrency(plato.precioPorPersona || 0)})</Label></div>))}</div></AccordionContent></AccordionItem>
-                        <AccordionItem value="principales" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Platos Principales</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{getVisibleDishes(principalesDisponibles).map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.nombre} ({formatCurrency(plato.precioPorPersona || 0)})</Label></div>))}</div></AccordionContent></AccordionItem>
-                        <AccordionItem value="infantiles" className="border rounded-md"><AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Menús Infantiles/Adolescentes</AccordionTrigger><AccordionContent className="p-3 border-t"><div className="grid grid-cols-2 gap-x-4 gap-y-2">{getVisibleDishes(menusNinoDisponibles).map(plato => (<div key={plato.id} className="flex items-center space-x-2"><Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/><Label htmlFor={`vis-${plato.id}`} className="text-xs">{plato.nombre} ({formatCurrency(plato.precioPorPersona || 0)})</Label></div>))}</div></AccordionContent></AccordionItem>
+                       <Accordion type="multiple" defaultValue={['entradas', 'principales', 'infantiles']} className="w-full space-y-2">
+                        <AccordionItem value="entradas" className="border rounded-md">
+                          <AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Entradas ({gastronomiaFiltrada.entradas.length})</AccordionTrigger>
+                          <AccordionContent className="p-3 border-t">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+                              {gastronomiaFiltrada.entradas.map(plato => (
+                                <div key={plato.id} className="flex items-center space-x-2 p-1 hover:bg-muted/50 rounded-md transition-colors">
+                                  <Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/>
+                                  <Label htmlFor={`vis-${plato.id}`} className="text-xs flex-grow cursor-pointer">{plato.nombre} ({formatCurrency(plato.precioPorPersona || 0)})</Label>
+                                </div>
+                              ))}
+                              {gastronomiaFiltrada.entradas.length === 0 && <p className="text-xs text-muted-foreground italic p-2">No se encontraron entradas.</p>}
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                        <AccordionItem value="principales" className="border rounded-md">
+                          <AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Platos Principales ({gastronomiaFiltrada.principales.length})</AccordionTrigger>
+                          <AccordionContent className="p-3 border-t">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+                              {gastronomiaFiltrada.principales.map(plato => (
+                                <div key={plato.id} className="flex items-center space-x-2 p-1 hover:bg-muted/50 rounded-md transition-colors">
+                                  <Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/>
+                                  <Label htmlFor={`vis-${plato.id}`} className="text-xs flex-grow cursor-pointer">{plato.nombre} ({formatCurrency(plato.precioPorPersona || 0)})</Label>
+                                </div>
+                              ))}
+                              {gastronomiaFiltrada.principales.length === 0 && <p className="text-xs text-muted-foreground italic p-2">No se encontraron platos principales.</p>}
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                        <AccordionItem value="infantiles" className="border rounded-md">
+                          <AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Menús Infantiles/Adolescentes ({gastronomiaFiltrada.infantiles.length})</AccordionTrigger>
+                          <AccordionContent className="p-3 border-t">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+                              {gastronomiaFiltrada.infantiles.map(plato => (
+                                <div key={plato.id} className="flex items-center space-x-2 p-1 hover:bg-muted/50 rounded-md transition-colors">
+                                  <Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/>
+                                  <Label htmlFor={`vis-${plato.id}`} className="text-xs flex-grow cursor-pointer">{plato.nombre} ({formatCurrency(plato.precioPorPersona || 0)})</Label>
+                                </div>
+                              ))}
+                              {gastronomiaFiltrada.infantiles.length === 0 && <p className="text-xs text-muted-foreground italic p-2">No se encontraron menús infantiles.</p>}
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
                       </Accordion>
                   </AccordionContent>
               </AccordionItem>
