@@ -1,9 +1,8 @@
-
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FileText as FileTextIcon, PlusCircle, Filter, Loader2, AlertTriangle, Search, Link as LinkIcon, Link2Off } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -124,16 +123,16 @@ export default function InvoicesListPage() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                     <FileTextIcon className="w-8 h-8 text-primary" />
-                    <h1 className="text-3xl font-bold tracking-tight font-headline">Gestión de Facturas</h1>
+                    <h1 className="text-2xl sm:text-3xl font-bold tracking-tight font-headline">Gestión de Facturas</h1>
                 </div>
-                <Link href="/invoices/new" passHref>
-                    <Button><PlusCircle className="w-4 h-4 mr-2" />Nueva Factura</Button>
+                <Link href="/invoices/new" passHref className="w-full sm:w-auto">
+                    <Button className="w-full sm:w-auto h-11"><PlusCircle className="w-4 h-4 mr-2" />Nueva Factura</Button>
                 </Link>
             </div>
             <Card>
-                <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-4 sm:p-6">
                     <div>
-                        <CardTitle className="font-headline">Listado de Facturas ({filteredInvoices.length})</CardTitle>
+                        <CardTitle className="font-headline text-xl sm:text-2xl">Listado de Facturas ({filteredInvoices.length})</CardTitle>
                         <CardDescription>Consulta, gestiona y crea nuevas facturas.</CardDescription>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
@@ -144,58 +143,60 @@ export default function InvoicesListPage() {
                                 placeholder="Buscar por Nº, cliente..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-10"
+                                className="w-full pl-10 h-10 text-xs sm:text-sm"
                             />
                         </div>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="outline"><Filter className="w-4 h-4 mr-2" />Filtrar Estado</Button>
+                                <Button variant="outline" className="h-10 text-xs sm:text-sm"><Filter className="w-4 h-4 mr-2" />Filtrar Estado</Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent>
+                            <DropdownMenuContent className="w-56">
                                 <DropdownMenuLabel>Filtrar por Estado</DropdownMenuLabel>
                                 <DropdownMenuSeparator />
                                 {ALL_STATUSES.map(s => (
-                                    <DropdownMenuCheckboxItem key={s} checked={statusFilter[s]} onCheckedChange={(checked) => setStatusFilter(prev => ({...prev, [s]: !!checked}))}>{s}</DropdownMenuCheckboxItem>
+                                    <DropdownMenuCheckboxItem key={s} checked={statusFilter[s]} onCheckedChange={(checked) => setStatusFilter(prev => ({...prev, [status]: !!checked}))}>{s}</DropdownMenuCheckboxItem>
                                 ))}
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
                 </CardHeader>
-                <CardContent>
-                    {isLoading ? <div className="text-center py-8"><Loader2 className="w-8 h-8 animate-spin mx-auto"/></div> : 
-                    error ? <div className="text-center py-8 text-destructive"><AlertTriangle className="w-8 h-8 mx-auto"/> <p>{error}</p></div> :
+                <CardContent className="p-0 sm:p-6">
+                    {isLoading ? <div className="text-center py-12"><Loader2 className="w-10 h-10 animate-spin mx-auto text-primary/30"/></div> : 
+                    error ? <div className="text-center py-12 text-destructive"><AlertTriangle className="w-10 h-10 mx-auto mb-2"/> <p className="font-bold">{error}</p></div> :
                     filteredInvoices.length > 0 ? (
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Nº Factura</TableHead>
-                                    <TableHead>Cliente</TableHead>
-                                    <TableHead>Fecha Emisión</TableHead>
-                                    <TableHead>Vencimiento</TableHead>
-                                    <TableHead className="text-right">Monto</TableHead>
-                                    <TableHead>Estado</TableHead>
-                                    <TableHead className="text-center">Asignar a Fiesta</TableHead>
-                                    <TableHead className="text-right">Acciones</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {filteredInvoices.map(invoice => (
-                                    <InvoiceListItem 
-                                        key={invoice.id} 
-                                        invoice={invoice} 
-                                        onDelete={handleDelete} 
-                                        isDeleting={deletingId === invoice.id}
-                                        onToggleAssign={() => handleToggleAssign(invoice.id)}
-                                        isAssignedToCurrentFiesta={fiestaActual?.invoiceIds?.includes(invoice.id)}
-                                        isAssigning={assigningId === invoice.id}
-                                        fiestaActual={fiestaActual}
-                                    />
-                                ))}
-                            </TableBody>
-                        </Table>
-                    ) : <div className="text-center py-8"><p className="text-muted-foreground">No se encontraron facturas.</p></div>}
+                        <div className="overflow-x-auto">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead className="min-w-[120px]">Nº Factura</TableHead>
+                                        <TableHead className="min-w-[150px]">Cliente</TableHead>
+                                        <TableHead className="min-w-[100px] hidden sm:table-cell">Emisión</TableHead>
+                                        <TableHead className="min-w-[100px]">Vencimiento</TableHead>
+                                        <TableHead className="text-right min-w-[100px]">Monto</TableHead>
+                                        <TableHead>Estado</TableHead>
+                                        <TableHead className="text-center hidden md:table-cell">Vincular Fiesta</TableHead>
+                                        <TableHead className="text-right">Acciones</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {filteredInvoices.map(invoice => (
+                                        <InvoiceListItem 
+                                            key={invoice.id} 
+                                            invoice={invoice} 
+                                            onDelete={handleDelete} 
+                                            isDeleting={deletingId === invoice.id}
+                                            onToggleAssign={() => handleToggleAssign(invoice.id)}
+                                            isAssignedToCurrentFiesta={fiestaActual?.invoiceIds?.includes(invoice.id)}
+                                            isAssigning={assigningId === invoice.id}
+                                            fiestaActual={fiestaActual}
+                                        />
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    ) : <div className="text-center py-12 px-4"><p className="text-muted-foreground font-medium italic">No se encontraron facturas.</p></div>}
                 </CardContent>
-                {invoices.length > 0 && <CardFooter><p className="text-xs text-muted-foreground">Se encontraron {invoices.length} facturas en total.</p></CardFooter>}
+                {invoices.length > 0 && <CardFooter className="p-4 border-t"><p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Total: {invoices.length} facturas registradas</p></CardFooter>}
             </Card>
         </div>
     );

@@ -20,6 +20,14 @@
         {
           "id": "serv_invitaciones_digitales",
           "esRegalo": true
+        },
+        {
+          "id": "serv_1773234908609_4pe9i1v",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1773155046161_v5ye5ck",
+          "esRegalo": false
         }
       ]
     },
@@ -110,6 +118,22 @@
   "platosVisibles": [
     {
       "id": "dish_entrada_1",
+      "visible": false
+    },
+    {
+      "id": "dish_entrada_3",
+      "visible": false
+    },
+    {
+      "id": "dish_entrada_13",
+      "visible": false
+    },
+    {
+      "id": "dish_entrada_19",
+      "visible": false
+    },
+    {
+      "id": "dish_entrada_18",
       "visible": false
     }
   ],

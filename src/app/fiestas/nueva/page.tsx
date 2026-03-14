@@ -105,47 +105,52 @@ function PlannerDashboardContent() {
   };
 
   if (isLoading) return <div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
-  if (error || !fiesta) return <div className="text-center py-20"><AlertTriangle className="mx-auto text-destructive mb-4" /><p>{error || "Error al cargar."}</p></div>;
+  if (error || !fiesta) return <div className="text-center py-20 px-4"><AlertTriangle className="mx-auto text-destructive mb-4" /><p className="font-bold text-slate-800">{error || "Error al cargar."}</p></div>;
 
   return (
-    <div className="space-y-6 sm:space-y-10 pb-24">
+    <div className="space-y-6 sm:space-y-10 pb-24 px-1 sm:px-0">
       <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
-        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-4 sm:gap-6">
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-4 sm:gap-6 w-full md:w-auto">
           <div className="p-4 sm:p-5 bg-primary rounded-[1.5rem] shadow-2xl text-white shrink-0"><PartyPopper className="w-8 h-8 sm:w-10 sm:h-10" /></div>
-          <div>
-            <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tighter text-slate-900 font-headline uppercase">{fiesta.configuracion.nombreEvento}</h1>
-            <p className="text-slate-500 font-bold flex items-center gap-3 mt-1 text-xs sm:text-base">
-                <Calendar className="w-4 h-4 text-primary shrink-0"/> {formatDate(fiesta.configuracion.fechaEvento)} 
-                <MapPin className="w-4 h-4 text-primary shrink-0"/> {fiesta.configuracion.nombreLugar}
-            </p>
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-4xl md:text-5xl font-black tracking-tighter text-slate-900 font-headline uppercase truncate">{fiesta.configuracion.nombreEvento}</h1>
+            <div className="text-slate-500 font-bold flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-[10px] sm:text-base">
+                <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary shrink-0"/> {formatDate(fiesta.configuracion.fechaEvento)}</span>
+                <span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary shrink-0"/> {fiesta.configuracion.nombreLugar}</span>
+            </div>
           </div>
         </motion.div>
         <div className="flex gap-2 w-full sm:w-auto">
-            <Link href={`/fiestas/nueva/en-vivo?fiestaId=${fiestaId}`} passHref className="w-full sm:w-auto">
-                <Button className="rounded-2xl px-8 h-12 bg-primary shadow-xl font-black tracking-widest w-full">
-                    <Zap className="w-4 h-4 mr-3 animate-pulse"/> MODO EN VIVO
+            <Link href={`/fiestas/nueva/en-vivo?fiestaId=${fiestaId}`} passHref className="flex-1 sm:flex-none">
+                <Button className="rounded-2xl px-6 sm:px-8 h-12 bg-primary shadow-xl font-black tracking-widest w-full text-xs sm:text-sm">
+                    <Zap className="w-4 h-4 mr-2 sm:mr-3 animate-pulse"/> EN VIVO
                 </Button>
             </Link>
-            <Link href="/eventos" passHref className="w-full sm:w-auto">
-                <Button variant="outline" className="rounded-2xl px-8 h-12 border-slate-200 font-bold hover:bg-slate-50 transition-all w-full">
-                    <ArrowLeft className="w-4 h-4 mr-3"/>Volver al Gestor
+            <Link href="/eventos" passHref className="flex-1 sm:flex-none">
+                <Button variant="outline" className="rounded-2xl px-6 sm:px-8 h-12 border-slate-200 font-bold hover:bg-slate-50 transition-all w-full text-xs sm:text-sm">
+                    <ArrowLeft className="w-4 h-4 mr-2 sm:mr-3"/>Volver
                 </Button>
             </Link>
         </div>
       </div>
 
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
         <KpiCard title="Invitados" value={fiesta.configuracion.invitadosEstimados.toString()} icon={Users} />
         <KpiCard title="Tareas" value={fiesta.tareas?.filter(t => !t.completada).length || 0} icon={ListChecks} />
-        <KpiCard title="Presupuesto" value={new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(Number(fiesta.configuracion.presupuestoEstimado))} icon={DollarSign} />
+        <div className="hidden sm:block">
+            <KpiCard title="Presupuesto" value={new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(Number(fiesta.configuracion.presupuestoEstimado))} icon={DollarSign} />
+        </div>
+        <div className="sm:hidden">
+            <KpiCard title="Ingreso" value={new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(Number(fiesta.configuracion.presupuestoEstimado)).split(',')[0]} icon={DollarSign} />
+        </div>
         <KpiCard title="Fecha" value={new Date(fiesta.configuracion.fechaEvento!).toLocaleDateString('es-ES', {month: 'short', day: 'numeric'})} icon={Calendar} />
       </div>
 
        <Accordion type="single" collapsible className="w-full">
         <AccordionItem value="settings" className="border-none">
-          <AccordionTrigger className="bg-white hover:bg-slate-50 px-4 h-16 rounded-2xl premium-shadow border-none">
+          <AccordionTrigger className="bg-white hover:bg-slate-50 px-4 h-16 rounded-2xl premium-shadow border-none group">
             <div className="flex items-center gap-3 text-slate-700 font-black uppercase text-[10px] tracking-widest">
-              <Settings2 className="w-5 h-5 text-primary shrink-0"/> Configurar Módulos
+              <Settings2 className="w-5 h-5 text-primary shrink-0 group-hover:rotate-90 transition-transform duration-500"/> Configurar Módulos
             </div>
           </AccordionTrigger>
           <AccordionContent className="pt-6">
@@ -156,7 +161,7 @@ function PlannerDashboardContent() {
                             <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 border-b pb-3">{category}</h4>
                             <div className="space-y-1">
                                 {modules.filter(m => m.category === category).map(module => (
-                                    <div key={module.id} className="flex items-center justify-between p-2 rounded-xl group hover:bg-white">
+                                    <div key={module.id} className="flex items-center justify-between p-2 rounded-xl group hover:bg-white transition-colors">
                                         <Label htmlFor={`switch-${module.id}`} className="text-xs font-bold text-slate-600 cursor-pointer group-hover:text-primary">{module.title}</Label>
                                         <Switch id={`switch-${module.id}`} checked={modulosContratados[module.id as keyof ModulosContratados]} onCheckedChange={(checked) => handleModuleToggle(module.id as keyof ModulosContratados, checked)} className="scale-75" />
                                     </div>
@@ -185,11 +190,14 @@ function PlannerDashboardContent() {
                             <Card className="h-full border-none premium-shadow hover:shadow-primary/10 transition-all duration-500 cursor-pointer flex flex-col group rounded-[2.5rem] overflow-hidden bg-white">
                             <CardHeader className="flex-row items-center gap-4 space-y-0 pb-4 p-6 sm:p-8">
                                 <div className={cn("p-3 sm:p-4 rounded-2xl group-hover:rotate-12 transition-all duration-500 shadow-inner shrink-0", module.color)}><module.icon className="w-6 h-6 sm:w-7 sm:h-7" /></div>
-                                <div className="min-w-0"><CardTitle className="text-base sm:text-lg font-black text-slate-800">{module.title}</CardTitle><Badge className="bg-slate-100 text-slate-400 text-[8px] font-black tracking-widest uppercase border-none">Activo</Badge></div>
+                                <div className="min-w-0">
+                                    <CardTitle className="text-sm sm:text-lg font-black text-slate-800 truncate">{module.title}</CardTitle>
+                                    <Badge className="bg-slate-100 text-slate-400 text-[8px] font-black tracking-widest uppercase border-none h-4">Activo</Badge>
+                                </div>
                             </CardHeader>
-                            <CardContent className="flex-grow pt-0 px-6 sm:px-8 pb-6"><p className="text-[10px] sm:text-xs text-slate-400 font-bold uppercase tracking-tighter">{module.description}</p></CardContent>
+                            <CardContent className="flex-grow pt-0 px-6 sm:px-8 pb-6"><p className="text-[10px] sm:text-xs text-slate-400 font-bold uppercase tracking-tighter line-clamp-2">{module.description}</p></CardContent>
                             <CardFooter className="bg-slate-50/50 p-3 sm:p-4 flex justify-end px-6 sm:px-8 border-t border-slate-50">
-                                <Button variant="ghost" size="sm" className="text-primary font-black text-[10px] uppercase tracking-[0.2em] group-hover:bg-primary group-hover:text-white rounded-xl px-4">Abrir <ArrowRight className="w-3.5 h-3.5 ml-2 group-hover:translate-x-1 transition-transform"/></Button>
+                                <Button variant="ghost" size="sm" className="text-primary font-black text-[10px] uppercase tracking-[0.2em] group-hover:bg-primary group-hover:text-white rounded-xl px-4 h-8 transition-all">Abrir <ArrowRight className="w-3.5 h-3.5 ml-2 group-hover:translate-x-1 transition-transform"/></Button>
                             </CardFooter>
                             </Card>
                         </Link>

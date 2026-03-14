@@ -222,6 +222,15 @@
     "calculationMethod": "fijo"
   },
   {
+    "id": "serv_1773515866815_p44b51y",
+    "nombre": "Decoración Básica (atrás de la torta)",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de decoración",
+    "valorUnitarioEstimado": 8490,
+    "precioVenta": 8490,
+    "calculationMethod": "fijo"
+  },
+  {
     "id": "serv_deco_basica",
     "nombre": "Servicio de Decoración",
     "tipoItem": "Servicio",

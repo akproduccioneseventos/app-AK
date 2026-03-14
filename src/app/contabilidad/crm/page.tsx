@@ -16,7 +16,6 @@ import { BookingConfirmationDialog } from '@/components/crm/BookingConfirmationD
 import { RegisterDepositDialog } from '@/components/crm/RegisterDepositDialog';
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { useIsMobile } from '@/hooks/use-mobile';
-import { getOcupiedDates } from '@/app/actions/agenda';
 import {
   Accordion,
   AccordionContent,
@@ -180,11 +179,11 @@ export default function CrmPage() {
           </div>
           <div className="flex gap-2 flex-wrap w-full sm:w-auto">
             <Link href="/contabilidad/crm/agenda" passHref className="flex-1 sm:flex-none">
-              <Button variant="outline" className="w-full"><Clock className="w-4 h-4 mr-2"/>Agenda</Button>
+              <Button variant="outline" className="w-full h-11"><Clock className="w-4 h-4 mr-2"/>Agenda</Button>
             </Link>
             {stages.length > 0 && <AddLeadDialog stages={stages} onLeadAdded={fetchData} defaultStageId={stages[0].id} />}
             <Link href="/empresa/contabilidad" passHref className="flex-1 sm:flex-none">
-              <Button variant="outline" className="w-full"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
+              <Button variant="outline" className="w-full h-11"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
             </Link>
           </div>
         </div>
@@ -199,11 +198,11 @@ export default function CrmPage() {
         {isMobile ? (
              <Accordion type="multiple" defaultValue={stages.map(s => s.id)} className="space-y-3">
               {stages.map((stage) => (
-                  <AccordionItem key={stage.id} value={stage.id} className="border rounded-md bg-card shadow-sm overflow-hidden" style={{borderTopColor: stage.borderColor, borderTopWidth: '4px'}}>
-                    <AccordionTrigger className={cn("px-4 py-3 hover:no-underline", stage.headerBgColor, stage.headerTextColor)}>
+                  <AccordionItem key={stage.id} value={stage.id} className="border rounded-2xl bg-card shadow-sm overflow-hidden" style={{borderTopColor: stage.borderColor, borderTopWidth: '4px'}}>
+                    <AccordionTrigger className={cn("px-4 py-4 hover:no-underline", stage.headerBgColor, stage.headerTextColor)}>
                       <div className="flex justify-between w-full pr-4">
-                        <span className="font-bold uppercase tracking-widest text-xs">{stage.name}</span>
-                        <Badge variant="secondary" className="h-5">{leadsByStage[stage.id]?.length || 0}</Badge>
+                        <span className="font-black uppercase tracking-widest text-[10px]">{stage.name}</span>
+                        <Badge variant="secondary" className="h-5 bg-white/20 text-white border-none">{leadsByStage[stage.id]?.length || 0}</Badge>
                       </div>
                     </AccordionTrigger>
                     <AccordionContent className="p-2 space-y-2 bg-muted/10">
@@ -211,7 +210,7 @@ export default function CrmPage() {
                         <CrmLeadCard key={lead.id} lead={lead} onDeleteLead={handleDeleteLead} isDeleting={deletingLeadId === lead.id} isMobile={true} onHire={() => handleHireClick(lead)} />
                        ))}
                        {(!leadsByStage[stage.id] || leadsByStage[stage.id].length === 0) && (
-                         <p className="text-center py-6 text-xs text-muted-foreground italic">Sin prospectos en esta etapa</p>
+                         <p className="text-center py-8 text-xs text-muted-foreground italic font-medium uppercase tracking-widest opacity-50">Sin prospectos</p>
                        )}
                     </AccordionContent>
                   </AccordionItem>
