@@ -52,6 +52,8 @@ const getPageTitle = (pathname: string): string => {
   if (pathSegments[0] === 'empresa' && pathSegments[1] === 'servicios' && pathSegments[2] === 'editar') return `Editar Servicio`;
   if (pathname === '/empresa/contabilidad') return 'Panel Contable y Financiero';
   if (pathname === '/empresa/contabilidad/reportes') return 'Reporte de Ganancias y Pérdidas';
+  if (pathname === '/empresa/contabilidad/flujo-caja') return 'Flujo de Caja Proyectado';
+  if (pathname === '/empresa/contabilidad/gastos') return 'Gastos Generales';
   if (pathname === '/proveedores') return 'Proveedores';
   if (pathname === '/proveedores/new') return 'Añadir Nuevo Proveedor';
   if (pathname === '/proveedores/reporte') return 'Reporte de Proveedores';
@@ -112,15 +114,24 @@ const getPageTitle = (pathname: string): string => {
 
   if (pathname === '/settings') return 'Configuración General';
   if (pathname === '/settings/templates') return 'Personalizar Plantillas';
+  if (pathname === '/settings/templates/contrato') return 'Plantilla de Contrato';
+  if (pathname === '/settings/templates/invitaciones') return 'Plantillas de Invitación';
+  if (pathname === '/settings/templates/reuniones') return 'Plantilla de Reuniones';
+  if (pathname === '/settings/templates/layouts') return 'Plantillas de Salón';
+  if (pathname === '/settings/templates/carga-operativa') return 'Plantilla de Carga';
   if (pathname === '/settings/budget-display') return 'Configuración del Simulador';
   if (pathname === '/settings/company') return 'Información de la Empresa';
   if (pathname === '/settings/social-connections') return 'Cuentas Sociales Vinculadas';
   if (pathname === '/settings/notifications') return 'Configurar Notificaciones';
   if (pathname === '/settings/account') return 'Cuenta y Seguridad';
   if (pathname === '/settings/feedback') return 'Feedback y Testimonios';
+  if (pathname === '/settings/backup') return 'Backup y Restauración';
+  if (pathname === '/settings/task-templates') return 'Plantillas de Tareas';
+  if (pathname === '/settings/accesos-personal') return 'Accesos Colaboradores';
+  
   if (pathname === '/admin/aaiff-fiesta') return 'Análisis de Evento con IA';
   if (pathname === '/admin/asistente-ak') return 'Asistente de Marketing IA';
-  if (pathname === '/settings/backup') return 'Backup y Restauración';
+  if (pathname === '/admin/carga-historicos') return 'Carga Rápida de Históricos';
   
   if (pathname === '/simulador-de-presupuesto') return 'Simulador de Presupuesto';
   
@@ -176,6 +187,8 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/empresa/servicios' || pathname === '/empresa/servicios/reporte' || pathname === '/empresa/servicios/nuevo' || pathname.startsWith('/empresa/servicios/editar')) return Sparkles;
   if (pathname === '/empresa/contabilidad') return BarChart3; 
   if (pathname === '/empresa/contabilidad/reportes') return TrendingUp; 
+  if (pathname === '/empresa/contabilidad/flujo-caja') return Wallet;
+  if (pathname === '/empresa/contabilidad/gastos') return Calculator;
   if (pathname === '/empresa/activos-fijos' || pathname === '/empresa/activos-fijos/reporte' || pathname === '/empresa/activos-fijos/nuevo' || pathname.startsWith('/empresa/activos-fijos/editar')) return Package;
   if (pathname === '/empresa/insumos' || pathname === '/empresa/insumos/reporte' || pathname === '/empresa/insumos/nuevo' || pathname.startsWith('/empresa/insumos/editar')) return Package;
   if (pathname.startsWith('/empresa/redes-sociales')) return Sparkles;
@@ -201,16 +214,20 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
 
 
   if (pathname === '/settings') return SettingsIcon;
-  if (pathname === '/settings/templates') return Palette;
+  if (pathname.startsWith('/settings/templates')) return Palette;
   if (pathname === '/settings/budget-display') return Wand2;
   if (pathname === '/settings/company') return Building2;
   if (pathname === '/settings/social-connections') return LinkIcon;
   if (pathname === '/settings/notifications') return BellRing;
   if (pathname === '/settings/account') return UserCog;
   if (pathname === '/settings/feedback') return Star;
+  if (pathname === '/settings/backup') return HardDriveDownload;
+  if (pathname === '/settings/task-templates') return ListChecks;
+  if (pathname === '/settings/accesos-personal') return UserCog;
+  
   if (pathname === '/admin/aaiff-fiesta') return PartyPopper;
   if (pathname === '/admin/asistente-ak') return Bot;
-  if (pathname === '/settings/backup') return HardDriveDownload;
+  if (pathname === '/admin/carga-historicos') return FileArchive;
   
   if (pathname === '/simulador-de-presupuesto') return Wand2;
   
