@@ -1,94 +1,35 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, type FormEvent, type ChangeEvent } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Save, Settings as SettingsIcon, Loader2, AlertTriangle, Percent, Info, Tag, Package, Bot, Sparkles, Code2, Wand2, PlusCircle, Trash2, ChevronDown, Edit, Gift, Search, ChefHat, Eye, Check } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, Wand2, PlusCircle, Trash2, Search, Percent, Tag, X, Check, ChevronDown, Package } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido, PlatoVisible, PromotionalDiscount, ServiceDependency } from '@/types/armado-rapido';
+import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServiceDependency } from '@/types/armado-rapido';
 import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa, saveServicioEmpresa as saveServicioEmpresaAction } from '@/app/actions/servicios-empresa';
 import { Separator } from '@/components/ui/separator';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogClose, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from '@/components/ui/checkbox';
-import type { ServicioEmpresa, CategoriaServicio } from '@/types/empresa';
+import type { ServicioEmpresa, AnyCategoria } from '@/types/empresa';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import * as AccordionPrimitive from "@radix-ui/react-accordion";
-import { cn } from "@/lib/utils";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup, SelectLabel } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { getMenus } from '@/app/actions/menus-catering';
 import type { FullMenu, MenuItem } from '@/types/catering';
-import { MultiSelect } from '@/components/ui/multi-select'; 
 import { saveBudgetDisplaySettings, getBudgetDisplaySettings } from '@/app/actions/settings';
 import type { BudgetDisplaySettings } from '@/types/settings';
-import { ConfigFormItem } from '@/components/settings/ConfigFormItem';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { cn } from '@/lib/utils';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
-  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
-};
-
-// Sub-component for editing a single service
-const EditServicioForm: React.FC<{ servicioId: string | null; onUpdate: () => void, onClose: () => void }> = ({ servicioId, onUpdate, onClose }) => {
-    const { toast } = useToast();
-    const [servicio, setServicio] = useState<Partial<ServicioEmpresa> | null>(null);
-    const [isSaving, setIsSaving] = useState(false);
-
-    useEffect(() => {
-        if (servicioId) {
-            getServiciosEmpresa().then(servicios => {
-                const s = servicios.find(s => s.id === servicioId);
-                if (s) setServicio(s);
-            });
-        }
-    }, [servicioId]);
-    
-    const handleSaveServicio = async (e: FormEvent) => {
-        e.preventDefault();
-        if (!servicio) return;
-        setIsSaving(true);
-        try {
-            const result = await saveServicioEmpresaAction(servicio as ServicioEmpresa);
-            if (result.success) {
-                toast({ title: "Servicio actualizado" });
-                onUpdate(); 
-                onClose();
-            } else {
-                throw new Error(result.error);
-            }
-        } catch (err: any) {
-            toast({ title: "Error", description: err.message, variant: "destructive" });
-        } finally {
-            setIsSaving(false);
-        }
-    };
-    
-    if (!servicio) return <div className="p-4"><Loader2 className="w-5 h-5 animate-spin"/></div>;
-
-    return (
-        <form onSubmit={handleSaveServicio} className="py-4 space-y-4">
-            <div className="space-y-1">
-              <Label htmlFor="edit-servicio-nombre">Nombre</Label>
-              <Input id="edit-servicio-nombre" value={servicio.nombre || ''} onChange={e => setServicio(s => s ? {...s, nombre: e.target.value} : null)}/>
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="edit-servicio-precio">Precio de Venta</Label>
-              <Input id="edit-servicio-precio" type="number" value={servicio.precioVenta ?? servicio.precioPorPersona ?? servicio.precioBase ?? ''} onChange={e => {
-                  const val = Number(e.target.value);
-                  setServicio(s => s ? { ...s, precioVenta: val, precioPorPersona: val, precioBase: val } : null);
-              }}/>
-            </div>
-             <Button type="submit" className="w-full" disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : 'Guardar Servicio'}</Button>
-        </form>
-    );
+  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 };
 
 const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): ServicioEmpresa => {
@@ -102,7 +43,7 @@ const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): Se
         precioPorPersona: item.precioVenta,
         precioVenta: item.precioVenta,
         precioBase: item.precioVenta,
-        valorUnitarioEstimado: item.totalDishCost,
+        valorUnitarioEstimated: item.totalDishCost,
     };
 };
 
@@ -121,7 +62,6 @@ export default function BudgetDisplaySettingsPage() {
   const [modalType, setModalType] = useState<'paquete' | 'menu'>('paquete');
   const [currentItem, setCurrentItem] = useState<Partial<PaqueteArmadoRapido | MenuArmadoRapido> | null>(null);
   
-  const [editingServicioId, setEditingServicioId] = useState<string | null>(null);
   const [servicioSearchTerm, setServicioSearchTerm] = useState('');
   const [gastronomiaSearchTerm, setGastronomiaSearchTerm] = useState('');
   const [newDependency, setNewDependency] = useState({ triggerServiceId: '', requiredServiceId: '' });
@@ -151,12 +91,24 @@ export default function BudgetDisplaySettingsPage() {
     loadData();
   }, [loadData]);
 
+  const allAvailableItemsForSelection = useMemo(() => {
+    const allDishes = allMenus.flatMap(m => m.items).map(item => menuItemToServicioEmpresa({
+        ...item,
+        precioVenta: item.suggestedSellingPrice ?? ((item.totalDishCost || 0) * (1 + (item.profitMargin ?? 120) / 100)),
+    }));
+    return [...serviciosCatalogo, ...allDishes];
+  }, [serviciosCatalogo, allMenus]);
+
   const { entradasDisponibles, principalesDisponibles, menusNinoDisponibles } = useMemo(() => {
     if (!config || !allMenus.length) {
       return { entradasDisponibles: [], principalesDisponibles: [], menusNinoDisponibles: [] };
     }
     const allDishes = allMenus.flatMap(m => m.items);
-    const enhancedDishes = allDishes.map(item => ({
+    const isPlatoVisible = (platoId: string) => {
+        const setting = config.platosVisibles?.find(p => p.id === platoId);
+        return setting !== undefined ? setting.visible : true;
+    };
+    const enhancedDishes = allDishes.filter(d => isPlatoVisible(d.id)).map(item => ({
         ...item,
         precioVenta: item.suggestedSellingPrice ?? ((item.totalDishCost || 0) * (1 + (item.profitMargin ?? 120) / 100)),
     }));
@@ -228,6 +180,33 @@ export default function BudgetDisplaySettingsPage() {
     setIsSaving(false);
   };
 
+  const handleAddDependency = async () => {
+      if (!config || !newDependency.triggerServiceId || !newDependency.requiredServiceId) return;
+      const newDep: ServiceDependency = {
+          id: `dep_${Date.now()}`,
+          triggerServiceId: newDependency.triggerServiceId,
+          requiredServiceId: newDependency.requiredServiceId,
+      };
+      const newConfig = { ...config, serviceDependencies: [...(config.serviceDependencies || []), newDep] };
+      setConfig(newConfig);
+      await saveArmadoRapidoConfig(newConfig);
+      setNewDependency({ triggerServiceId: '', requiredServiceId: '' });
+      toast({ title: "Dependencia añadida" });
+  };
+
+  const handleDeleteDependency = async (id: string) => {
+      if (!config) return;
+      const updated = (config.serviceDependencies || []).filter(d => d.id !== id);
+      const newConfig = { ...config, serviceDependencies: updated };
+      setConfig(newConfig);
+      await saveArmadoRapidoConfig(newConfig);
+      toast({ title: "Dependencia eliminada" });
+  };
+
+  const findItemName = (id: string) => {
+      return allAvailableItemsForSelection.find(i => i.id === id)?.nombre || id;
+  };
+
   if (isLoading || !config || !budgetSettings) return <div className="flex items-center justify-center min-h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
 
   return (
@@ -242,13 +221,14 @@ export default function BudgetDisplaySettingsPage() {
                     <Label>Servicios Incluidos</Label>
                     <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"/><Input placeholder="Buscar servicios..." value={servicioSearchTerm} onChange={(e) => setServicioSearchTerm(e.target.value)} className="pl-9"/></div>
                     <ScrollArea className="h-64 border rounded-md p-2">
-                        {serviciosCatalogo.filter(s => s.nombre.toLowerCase().includes(servicioSearchTerm.toLowerCase())).map(s => (
+                        {allAvailableItemsForSelection.filter(s => s.nombre.toLowerCase().includes(servicioSearchTerm.toLowerCase())).map(s => (
                             <div key={s.id} className="flex items-center space-x-2 py-1.5 border-b last:border-b-0">
                                 <Checkbox checked={currentItem.serviciosIncluidos?.some(si => si.id === s.id)} onCheckedChange={(checked) => {
                                     const servicios = currentItem.serviciosIncluidos || [];
                                     setCurrentItem(p => p ? ({...p, serviciosIncluidos: checked ? [...servicios, {id: s.id, esRegalo: false}] : servicios.filter(si => si.id !== s.id)}) : null);
                                 }}/>
                                 <Label className="text-sm font-normal flex-grow cursor-pointer">{s.nombre}</Label>
+                                <span className="text-[10px] text-muted-foreground uppercase">{s.categoria}</span>
                             </div>
                         ))}
                     </ScrollArea>
@@ -353,6 +333,63 @@ export default function BudgetDisplaySettingsPage() {
                 </div>
               ))}
             </div>
+          </CardContent>
+      </Card>
+
+      <Card className="shadow-lg border-primary/20">
+          <CardHeader>
+              <CardTitle className="font-headline text-xl flex items-center gap-2">
+                  <Package className="text-primary w-6 h-6"/> Dependencias Automáticas (Lógica de Negocio)
+              </CardTitle>
+              <CardDescription>
+                  Define qué servicios se deben añadir automáticamente al seleccionar otro (ej: si el cliente elige Asado, sumar Asador).
+              </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end bg-muted/30 p-4 rounded-2xl">
+                  <div className="md:col-span-5 space-y-1.5">
+                      <Label className="text-[10px] uppercase font-black tracking-widest">Si se elige...</Label>
+                      <Select value={newDependency.triggerServiceId} onValueChange={v => setNewDependency(p => ({...p, triggerServiceId: v}))}>
+                          <SelectTrigger className="bg-white"><SelectValue placeholder="Elegir plato/servicio..."/></SelectTrigger>
+                          <SelectContent>
+                              {allAvailableItemsForSelection.map(i => <SelectItem key={i.id} value={i.id}>{i.nombre}</SelectItem>)}
+                          </SelectContent>
+                      </Select>
+                  </div>
+                  <div className="md:col-span-1 text-center pb-2 text-slate-400 font-bold">→</div>
+                  <div className="md:col-span-5 space-y-1.5">
+                      <Label className="text-[10px] uppercase font-black tracking-widest">Añadir automáticamente</Label>
+                      <Select value={newDependency.requiredServiceId} onValueChange={v => setNewDependency(p => ({...p, requiredServiceId: v}))}>
+                          <SelectTrigger className="bg-white"><SelectValue placeholder="Elegir servicio..."/></SelectTrigger>
+                          <SelectContent>
+                              {serviciosCatalogo.map(i => <SelectItem key={i.id} value={i.id}>{i.nombre}</SelectItem>)}
+                          </SelectContent>
+                      </Select>
+                  </div>
+                  <div className="md:col-span-1">
+                      <Button onClick={handleAddDependency} disabled={!newDependency.triggerServiceId || !newDependency.requiredServiceId} size="icon" className="h-10 w-10 rounded-xl">
+                          <PlusCircle className="w-5 h-5"/>
+                      </Button>
+                  </div>
+              </div>
+
+              <div className="space-y-2">
+                  {(config.serviceDependencies || []).map(dep => (
+                      <div key={dep.id} className="flex items-center justify-between p-4 border rounded-2xl bg-white group hover:border-primary/30 transition-all">
+                          <div className="flex items-center gap-3 text-sm font-bold">
+                              <span className="text-primary">{findItemName(dep.triggerServiceId)}</span>
+                              <span className="text-slate-300">activa a</span>
+                              <span className="text-emerald-600">{findItemName(dep.requiredServiceId)}</span>
+                          </div>
+                          <Button variant="ghost" size="icon" onClick={() => handleDeleteDependency(dep.id)} className="text-destructive opacity-0 group-hover:opacity-100 rounded-xl">
+                              <Trash2 className="w-4 h-4"/>
+                          </Button>
+                      </div>
+                  ))}
+                  {(config.serviceDependencies || []).length === 0 && (
+                      <p className="text-center text-slate-400 py-8 text-xs font-medium italic">No hay dependencias configuradas.</p>
+                  )}
+              </div>
           </CardContent>
       </Card>
     </div>
