@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Save, Loader2, Wand2, PlusCircle, Trash2, Search, Percent, Tag, X, Check, ChevronDown, Package } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, Wand2, PlusCircle, Trash2, Search, Percent, Tag, X, Check, ChevronDown, Package, Edit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServiceDependency } from '@/types/armado-rapido';
 import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
@@ -344,34 +344,39 @@ export default function BudgetDisplaySettingsPage() {
           </CardHeader>
           <CardContent className="space-y-6">
             <Button onClick={() => handleOpenModal('paquete')}><PlusCircle className="w-4 h-4 mr-2"/>Crear Paquete</Button>
-            <div className="space-y-4">
+            <Accordion type="single" collapsible className="w-full space-y-3">
               {config.paquetes.map(pkg => (
-                <div key={pkg.id} className="flex flex-col p-5 border rounded-3xl bg-white shadow-sm gap-4 group hover:border-primary/30 transition-all">
-                    <div className="flex items-center justify-between">
-                        <div className="space-y-1">
-                            <p className="font-black text-slate-800 text-lg uppercase tracking-tight">{pkg.nombre}</p>
-                            <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">{pkg.serviciosIncluidos.length} servicios configurados</p>
-                        </div>
-                        <div className="flex gap-2">
-                            <Button variant="outline" size="sm" className="rounded-xl h-9 px-4 font-bold" onClick={() => handleOpenModal('paquete', pkg)}>Editar</Button>
-                            <Button variant="ghost" size="icon" className="text-destructive rounded-xl h-9 w-9 hover:bg-red-50" onClick={() => {
-                                const updated = config.paquetes.filter(p => p.id !== pkg.id);
-                                const newConfig = { ...config, paquetes: updated };
-                                setConfig(newConfig);
-                                saveArmadoRapidoConfig(newConfig);
-                            }}><Trash2 className="w-4 h-4"/></Button>
-                        </div>
+                <AccordionItem key={pkg.id} value={pkg.id} className="border rounded-3xl bg-white shadow-sm px-4 group hover:border-primary/30 transition-all">
+                  <div className="flex items-center justify-between">
+                    <AccordionTrigger className="flex-1 hover:no-underline py-4">
+                      <div className="flex flex-col items-start text-left space-y-1">
+                        <p className="font-black text-slate-800 text-base uppercase tracking-tight">{pkg.nombre}</p>
+                        <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">{pkg.serviciosIncluidos.length} servicios configurados</p>
+                      </div>
+                    </AccordionTrigger>
+                    <div className="flex gap-2 ml-4">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl" onClick={(e) => { e.stopPropagation(); handleOpenModal('paquete', pkg); }}><Edit className="w-4 h-4"/></Button>
+                        <Button variant="ghost" size="icon" className="text-destructive rounded-xl h-8 w-8 hover:bg-red-50" onClick={(e) => {
+                            e.stopPropagation();
+                            const updated = config.paquetes.filter(p => p.id !== pkg.id);
+                            const newConfig = { ...config, paquetes: updated };
+                            setConfig(newConfig);
+                            saveArmadoRapidoConfig(newConfig);
+                        }}><Trash2 className="w-4 h-4"/></Button>
                     </div>
-                    <div className="flex flex-wrap gap-1.5">
+                  </div>
+                  <AccordionContent className="pb-4 pt-0">
+                    <div className="flex flex-wrap gap-1.5 border-t pt-4">
                         {pkg.serviciosIncluidos.map(s => (
                             <Badge key={s.id} variant="secondary" className="text-[9px] font-black uppercase tracking-tighter py-0 h-5 bg-slate-50 text-slate-500 border-none group-hover:bg-primary/5 group-hover:text-primary">
                                 {findItemName(s.id)}
                             </Badge>
                         ))}
                     </div>
-                </div>
+                  </AccordionContent>
+                </AccordionItem>
               ))}
-            </div>
+            </Accordion>
           </CardContent>
       </Card>
 
