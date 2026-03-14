@@ -207,6 +207,28 @@ export default function BudgetDisplaySettingsPage() {
       toast({ title: "Dependencia eliminada" });
   };
 
+  // Helper function to sort services: Non-gifts by Category, then Gifts at the bottom
+  const sortServices = (services: {id: string, esRegalo?: boolean}[]) => {
+    return [...services].sort((a, b) => {
+        // 1. Gifts at the bottom
+        if (a.esRegalo && !b.esRegalo) return 1;
+        if (!a.esRegalo && b.esRegalo) return -1;
+
+        // 2. Sort by Category
+        const itemA = allAvailableItemsForSelection.find(i => i.id === a.id);
+        const itemB = allAvailableItemsForSelection.find(i => i.id === b.id);
+        const catA = itemA?.categoria || '';
+        const catB = itemB?.categoria || '';
+        
+        if (catA !== catB) return catA.localeCompare(catB);
+        
+        // 3. Sort by Name within category
+        const nameA = itemA?.nombre || '';
+        const nameB = itemB?.nombre || '';
+        return nameA.localeCompare(nameB);
+    });
+  };
+
   if (isLoading || !config || !budgetSettings) return <div className="flex items-center justify-center min-h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
 
   return (
@@ -219,35 +241,47 @@ export default function BudgetDisplaySettingsPage() {
                     <div className="space-y-1.5"><Label className="text-xs uppercase font-black tracking-widest text-slate-400">Nombre del Paquete</Label><Input value={currentItem.nombre || ''} onChange={e => setCurrentItem(p => p ? {...p, nombre: e.target.value} : null)} className="h-12 rounded-xl bg-slate-50 border-none text-lg font-bold" required/></div>
                     
                     <div className="space-y-2">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-primary">Servicios Seleccionados ({currentItem.serviciosIncluidos?.length || 0})</Label>
+                        <div className="flex justify-between items-center px-1 mb-2">
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-primary">Servicios Seleccionados ({currentItem.serviciosIncluidos?.length || 0})</Label>
+                            <span className="text-[9px] font-bold text-slate-400">Ordenados por tipo • Regalos abajo</span>
+                        </div>
                         <ScrollArea className="h-48 border rounded-2xl bg-slate-50 p-2">
                             {currentItem.serviciosIncluidos && currentItem.serviciosIncluidos.length > 0 ? (
                                 <div className="space-y-2">
-                                    {currentItem.serviciosIncluidos.map(si => (
-                                        <div key={si.id} className="flex items-center justify-between p-3 bg-white rounded-xl border border-slate-100 shadow-sm group">
-                                            <div className="flex items-center gap-3">
-                                                <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-red-50 rounded-lg" onClick={() => {
-                                                    setCurrentItem(p => p ? ({...p, serviciosIncluidos: p.serviciosIncluidos?.filter(item => item.id !== si.id)}) : null);
-                                                }}>
-                                                    <Trash2 className="w-4 h-4"/>
-                                                </Button>
-                                                <span className={cn("text-xs font-bold uppercase", si.esRegalo && "text-rose-600")}>{findItemName(si.id)}</span>
+                                    {sortServices(currentItem.serviciosIncluidos).map(si => {
+                                        const originalItem = allAvailableItemsForSelection.find(i => i.id === si.id);
+                                        return (
+                                            <div key={si.id} className={cn(
+                                                "flex items-center justify-between p-3 rounded-xl border transition-all group",
+                                                si.esRegalo ? "bg-rose-50/50 border-rose-100 shadow-sm" : "bg-white border-slate-100 shadow-sm"
+                                            )}>
+                                                <div className="flex items-center gap-3">
+                                                    <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-red-50 rounded-lg" onClick={() => {
+                                                        setCurrentItem(p => p ? ({...p, serviciosIncluidos: p.serviciosIncluidos?.filter(item => item.id !== si.id)}) : null);
+                                                    }}>
+                                                        <Trash2 className="w-4 h-4"/>
+                                                    </Button>
+                                                    <div className="flex flex-col">
+                                                        <span className={cn("text-xs font-bold uppercase", si.esRegalo && "text-rose-600")}>{originalItem?.nombre || si.id}</span>
+                                                        <span className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">{originalItem?.categoria}</span>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-2 pr-2">
+                                                    <Checkbox 
+                                                        id={`regalo-modal-${si.id}`} 
+                                                        checked={si.esRegalo} 
+                                                        onCheckedChange={(val) => {
+                                                            setCurrentItem(p => p ? ({
+                                                                ...p,
+                                                                serviciosIncluidos: p.serviciosIncluidos?.map(item => item.id === si.id ? {...item, esRegalo: !!val} : item)
+                                                            }) : null);
+                                                        }}
+                                                    />
+                                                    <Label htmlFor={`regalo-modal-${si.id}`} className={cn("text-[9px] font-black uppercase cursor-pointer", si.esRegalo ? "text-rose-600" : "text-slate-400")}>Es Regalo</Label>
+                                                </div>
                                             </div>
-                                            <div className="flex items-center gap-2 pr-2">
-                                                <Checkbox 
-                                                    id={`regalo-${si.id}`} 
-                                                    checked={si.esRegalo} 
-                                                    onCheckedChange={(val) => {
-                                                        setCurrentItem(p => p ? ({
-                                                            ...p,
-                                                            serviciosIncluidos: p.serviciosIncluidos?.map(item => item.id === si.id ? {...item, esRegalo: !!val} : item)
-                                                        }) : null);
-                                                    }}
-                                                />
-                                                <Label htmlFor={`regalo-${si.id}`} className="text-[9px] font-black uppercase text-slate-400 cursor-pointer">Es Regalo</Label>
-                                            </div>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             ) : (
                                 <div className="h-full flex flex-col items-center justify-center text-slate-400 opacity-50 space-y-2">
@@ -387,18 +421,24 @@ export default function BudgetDisplaySettingsPage() {
                   </div>
                   <AccordionContent className="pb-4 pt-0">
                     <ul className="space-y-2 border-t pt-4">
-                        {pkg.serviciosIncluidos.map(s => (
-                            <li key={s.id} className={cn(
-                                "text-xs font-bold uppercase tracking-tight flex items-center justify-between p-2 rounded-xl transition-colors",
-                                s.esRegalo ? "bg-rose-50 text-rose-600" : "bg-slate-50 text-slate-600"
-                            )}>
-                                <span className="flex items-center gap-2">
-                                    {s.esRegalo ? <Gift className="w-3.5 h-3.5" /> : <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />}
-                                    {findItemName(s.id)}
-                                </span>
-                                {s.esRegalo && <span className="text-[9px] font-black bg-rose-600 text-white px-2 py-0.5 rounded-full">REGALO</span>}
-                            </li>
-                        ))}
+                        {sortServices(pkg.serviciosIncluidos).map(s => {
+                            const originalItem = allAvailableItemsForSelection.find(i => i.id === s.id);
+                            return (
+                                <li key={s.id} className={cn(
+                                    "text-xs font-bold uppercase tracking-tight flex items-center justify-between p-2 rounded-xl transition-colors",
+                                    s.esRegalo ? "bg-rose-50 text-rose-600" : "bg-slate-50 text-slate-600"
+                                )}>
+                                    <span className="flex items-center gap-2">
+                                        {s.esRegalo ? <Gift className="w-3.5 h-3.5" /> : <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />}
+                                        <div className="flex flex-col">
+                                            <span>{originalItem?.nombre || s.id}</span>
+                                            <span className="text-[8px] opacity-60 tracking-normal font-normal">({originalItem?.categoria})</span>
+                                        </div>
+                                    </span>
+                                    {s.esRegalo && <span className="text-[9px] font-black bg-rose-600 text-white px-2 py-0.5 rounded-full">REGALO</span>}
+                                </li>
+                            );
+                        })}
                     </ul>
                   </AccordionContent>
                 </AccordionItem>
