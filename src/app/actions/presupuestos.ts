@@ -11,10 +11,10 @@ import { getMenus } from './menus-catering';
 import type { ServicioEmpresa } from '@/types/empresa';
 import type { FullMenu, MenuItem } from '@/types/catering';
 import { getAllFiestas, saveFiesta } from './fiesta/fiesta.actions';
+import { syncLaundryCosts } from './fiesta/costos.actions';
 
 const PRESUPUESTOS_FILE = 'presupuestos.json';
 
-// Helper function to decide which guest count to use for an item
 function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?: string, subcategoria?: string }, adultos: number, adolescentes: number, ninos: number): number {
   const categoria = (item.categoriaServicio || '').toLowerCase();
   const subcategoria = (item.subcategoria || '').toLowerCase();
@@ -92,6 +92,9 @@ async function syncLinkedFiesta(presupuesto: Presupuesto) {
                 nombreLugar: presupuesto.salonFiestas,
             };
             await saveFiesta(linkedFiesta);
+            
+            // Sincronizar Lavadero del Sol
+            await syncLaundryCosts(linkedFiesta.id, presupuesto.invitadosCantidad, presupuesto.itemsPresupuestados);
         }
     } catch (e) {
         console.error("Error auto-syncing fiesta from budget:", e);
@@ -114,7 +117,7 @@ export async function savePresupuesto(
   const validItems = presupuestoData.itemsPresupuestados.map(item => ({
     idServicioCatalogo: item.idServicioCatalogo,
     nombreServicio: item.nombreServicio,
-    descripcionServicio: item.descripcionServicio,
+    descripcionServicio: item.descriptionServicio,
     cantidad: item.cantidad,
     unidad: item.unidad,
     precioUnitario: item.precioUnitario,
@@ -160,7 +163,6 @@ export async function savePresupuesto(
     source: options?.source || 'manual',
   };
 
-  // SINCRONIZACIÓN CRM ANTES DE GUARDAR
   try {
     const syncRes = await findLeadByBudgetOrCreate(nuevoPresupuesto);
     nuevoPresupuesto.leadId = syncRes.lead.id;
@@ -173,7 +175,7 @@ export async function savePresupuesto(
   
   await syncLinkedFiesta(nuevoPresupuesto);
 
-  return { success: true, id: nuevoPresupuesto.id, presupuesto: nuevoPresupuesto, leadId: nuevoPresupuesto.leadId };
+  return { success: true, id: presupuestoId, presupuesto: nuevoPresupuesto, leadId: nuevoPresupuesto.leadId };
 }
 
 export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{ success: boolean; id?: string; presupuesto?: Presupuesto; error?: string }> {
@@ -200,7 +202,6 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
         totalConDescuento = subtotal - desc;
     }
 
-    // APLICAR AJUSTE AUTOMÁTICO 15%
     let finalTotal = totalConDescuento;
     if (presupuestoData.ajusteAnualActivo && presupuestoData.eventoFecha) {
         const yearCreated = new Date(presupuestoData.timestamp).getFullYear();
@@ -218,7 +219,6 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
         totalConDescuento: finalTotal
     };
 
-    // Sincronizar con el CRM antes de persistir
     try {
         const syncRes = await findLeadByBudgetOrCreate(updated);
         updated.leadId = syncRes.lead.id;
@@ -249,7 +249,6 @@ export async function markPresupuestoAsFacturado(presupuestoId: string, invoiceI
   presupuestos[index].invoiceId = invoiceId;
   presupuestos[index].ajusteAnualActivo = true;
   
-  // Sincronizar estado en el CRM
   try {
       await findLeadByBudgetOrCreate(presupuestos[index]);
   } catch (e) { console.warn("CRM Sync error on invoice", e); }
