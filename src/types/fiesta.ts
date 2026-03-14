@@ -104,7 +104,7 @@ export interface ConfigEventoDataStorage {
   invitadosNinos?: number;
   invitadosAdolescentes?: number;
   presupuestoEstimado: number;
-  notasAdicionales: string;
+  notesAdicionales: string;
   clienteId?: string; 
   protagonista1Nombre?: string; 
   protagonista2Nombre?: string; 
@@ -403,6 +403,7 @@ export interface ReposteriaItem {
   dataAiHint?: string;
   notas?: string;
   origenId?: string; 
+  proveedor?: string;
 }
 
 export interface ReposteriaCategoria {
@@ -597,6 +598,7 @@ export interface FiestaEnPlanificacion {
   fotografiaYFilmacion?: FotografiaYFilmacionData;
   othersDocumentos?: OtroDocumento[];
   pagosProveedores?: PagoProveedor[];
+  others?: any;
   estadosCompra?: CompraProveedorEstado[];
   generadoDesdeHistorico?: boolean; 
   liveState?: LiveEventState;
