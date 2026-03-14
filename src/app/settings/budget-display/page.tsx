@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Save, Loader2, Wand2, PlusCircle, Trash2, Search, Percent, Tag, X, Check, ChevronDown, Package, Edit } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, Wand2, PlusCircle, Trash2, Search, Percent, Tag, X, Check, ChevronDown, Package, Edit, Gift } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServiceDependency } from '@/types/armado-rapido';
 import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
@@ -212,50 +212,70 @@ export default function BudgetDisplaySettingsPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-6 pb-20">
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-2xl">
-           <DialogHeader><DialogTitle>{currentItem?.id ? 'Editar' : 'Nuevo'} {modalType === 'paquete' ? 'Paquete' : 'Menú'}</DialogTitle></DialogHeader>
+        <DialogContent className="sm:max-w-2xl rounded-3xl border-none shadow-2xl">
+           <DialogHeader><DialogTitle className="font-headline text-2xl">{currentItem?.id ? 'Editar' : 'Nuevo'} {modalType === 'paquete' ? 'Paquete' : 'Menú'}</DialogTitle></DialogHeader>
            {currentItem && (
-                <form onSubmit={handleSaveItem} className="space-y-4 py-4">
-                    <div className="space-y-1"><Label>Nombre</Label><Input value={currentItem.nombre || ''} onChange={e => setCurrentItem(p => p ? {...p, nombre: e.target.value} : null)} required/></div>
-                    <Separator/>
+                <form onSubmit={handleSaveItem} className="space-y-6 py-4">
+                    <div className="space-y-1.5"><Label className="text-xs uppercase font-black tracking-widest text-slate-400">Nombre del Paquete</Label><Input value={currentItem.nombre || ''} onChange={e => setCurrentItem(p => p ? {...p, nombre: e.target.value} : null)} className="h-12 rounded-xl bg-slate-50 border-none text-lg font-bold" required/></div>
                     
                     <div className="space-y-2">
-                        <Label className="text-xs font-black uppercase tracking-widest text-primary">Servicios Seleccionados ({currentItem.serviciosIncluidos?.length || 0})</Label>
-                        <div className="flex flex-wrap gap-1.5 p-3 border rounded-xl bg-slate-50 min-h-[60px]">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-primary">Servicios Seleccionados ({currentItem.serviciosIncluidos?.length || 0})</Label>
+                        <ScrollArea className="h-48 border rounded-2xl bg-slate-50 p-2">
                             {currentItem.serviciosIncluidos && currentItem.serviciosIncluidos.length > 0 ? (
-                                currentItem.serviciosIncluidos.map(si => (
-                                    <Badge key={si.id} variant="default" className="text-[10px] h-7 px-3 rounded-lg group">
-                                        {findItemName(si.id)}
-                                        <X 
-                                            className="w-3.5 h-3.5 ml-2 cursor-pointer opacity-60 hover:opacity-100 transition-opacity" 
-                                            onClick={() => {
-                                                setCurrentItem(p => p ? ({...p, serviciosIncluidos: p.serviciosIncluidos?.filter(item => item.id !== si.id)}) : null);
-                                            }}
-                                        />
-                                    </Badge>
-                                ))
+                                <div className="space-y-2">
+                                    {currentItem.serviciosIncluidos.map(si => (
+                                        <div key={si.id} className="flex items-center justify-between p-3 bg-white rounded-xl border border-slate-100 shadow-sm group">
+                                            <div className="flex items-center gap-3">
+                                                <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-red-50 rounded-lg" onClick={() => {
+                                                    setCurrentItem(p => p ? ({...p, serviciosIncluidos: p.serviciosIncluidos?.filter(item => item.id !== si.id)}) : null);
+                                                }}>
+                                                    <Trash2 className="w-4 h-4"/>
+                                                </Button>
+                                                <span className={cn("text-xs font-bold uppercase", si.esRegalo && "text-rose-600")}>{findItemName(si.id)}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2 pr-2">
+                                                <Checkbox 
+                                                    id={`regalo-${si.id}`} 
+                                                    checked={si.esRegalo} 
+                                                    onCheckedChange={(val) => {
+                                                        setCurrentItem(p => p ? ({
+                                                            ...p,
+                                                            serviciosIncluidos: p.serviciosIncluidos?.map(item => item.id === si.id ? {...item, esRegalo: !!val} : item)
+                                                        }) : null);
+                                                    }}
+                                                />
+                                                <Label htmlFor={`regalo-${si.id}`} className="text-[9px] font-black uppercase text-slate-400 cursor-pointer">Es Regalo</Label>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                             ) : (
-                                <p className="text-[10px] text-slate-400 italic flex items-center justify-center w-full">Ningún servicio seleccionado aún.</p>
+                                <div className="h-full flex flex-col items-center justify-center text-slate-400 opacity-50 space-y-2">
+                                    <Package className="w-8 h-8"/>
+                                    <p className="text-[10px] font-black uppercase tracking-widest">Sin servicios</p>
+                                </div>
                             )}
-                        </div>
+                        </ScrollArea>
                     </div>
 
                     <Separator/>
-                    <Label>Añadir Servicios del Catálogo</Label>
-                    <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"/><Input placeholder="Buscar servicios para añadir..." value={servicioSearchTerm} onChange={(e) => setServicioSearchTerm(e.target.value)} className="pl-9"/></div>
-                    <ScrollArea className="h-64 border rounded-md p-2">
-                        {allAvailableItemsForSelection.filter(s => s.nombre.toLowerCase().includes(servicioSearchTerm.toLowerCase())).map(s => (
-                            <div key={s.id} className="flex items-center space-x-2 py-1.5 border-b last:border-b-0">
-                                <Checkbox checked={currentItem.serviciosIncluidos?.some(si => si.id === s.id)} onCheckedChange={(checked) => {
-                                    const servicios = currentItem.serviciosIncluidos || [];
-                                    setCurrentItem(p => p ? ({...p, serviciosIncluidos: checked ? [...servicios, {id: s.id, esRegalo: false}] : servicios.filter(si => si.id !== s.id)}) : null);
-                                }}/>
-                                <Label className="text-sm font-normal flex-grow cursor-pointer">{s.nombre}</Label>
-                                <span className="text-[10px] text-muted-foreground uppercase">{s.categoria}</span>
-                            </div>
-                        ))}
-                    </ScrollArea>
-                    <DialogFooter><Button type="submit" disabled={isSaving}>Guardar Paquete</Button></DialogFooter>
+                    <div className="space-y-3">
+                        <Label className="text-sm font-bold">Añadir Servicios del Catálogo</Label>
+                        <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"/><Input placeholder="Buscar servicios..." value={servicioSearchTerm} onChange={(e) => setServicioSearchTerm(e.target.value)} className="pl-9 h-11 rounded-xl bg-slate-50 border-none"/></div>
+                        <ScrollArea className="h-48 border rounded-xl p-2">
+                            {allAvailableItemsForSelection.filter(s => s.nombre.toLowerCase().includes(servicioSearchTerm.toLowerCase())).map(s => (
+                                <div key={s.id} className="flex items-center space-x-2 py-2 px-3 border-b last:border-b-0 hover:bg-slate-50 transition-colors">
+                                    <Checkbox checked={currentItem.serviciosIncluidos?.some(si => si.id === s.id)} onCheckedChange={(checked) => {
+                                        const servicios = currentItem.serviciosIncluidos || [];
+                                        setCurrentItem(p => p ? ({...p, serviciosIncluidos: checked ? [...servicios, {id: s.id, esRegalo: false}] : servicios.filter(si => si.id !== s.id)}) : null);
+                                    }}/>
+                                    <Label className="text-sm font-medium flex-grow cursor-pointer">{s.nombre}</Label>
+                                    <Badge variant="outline" className="text-[8px] font-black uppercase tracking-tighter border-slate-200">{s.categoria}</Badge>
+                                </div>
+                            ))}
+                        </ScrollArea>
+                    </div>
+                    <DialogFooter className="pt-2"><Button onClick={handleSaveItem} disabled={isSaving} className="w-full h-12 rounded-xl font-bold shadow-lg shadow-primary/20">Guardar Paquete</Button></DialogFooter>
                 </form>
            )}
         </DialogContent>
@@ -366,13 +386,20 @@ export default function BudgetDisplaySettingsPage() {
                     </div>
                   </div>
                   <AccordionContent className="pb-4 pt-0">
-                    <div className="flex flex-wrap gap-1.5 border-t pt-4">
+                    <ul className="space-y-2 border-t pt-4">
                         {pkg.serviciosIncluidos.map(s => (
-                            <Badge key={s.id} variant="secondary" className="text-[9px] font-black uppercase tracking-tighter py-0 h-5 bg-slate-50 text-slate-500 border-none group-hover:bg-primary/5 group-hover:text-primary">
-                                {findItemName(s.id)}
-                            </Badge>
+                            <li key={s.id} className={cn(
+                                "text-xs font-bold uppercase tracking-tight flex items-center justify-between p-2 rounded-xl transition-colors",
+                                s.esRegalo ? "bg-rose-50 text-rose-600" : "bg-slate-50 text-slate-600"
+                            )}>
+                                <span className="flex items-center gap-2">
+                                    {s.esRegalo ? <Gift className="w-3.5 h-3.5" /> : <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />}
+                                    {findItemName(s.id)}
+                                </span>
+                                {s.esRegalo && <span className="text-[9px] font-black bg-rose-600 text-white px-2 py-0.5 rounded-full">REGALO</span>}
+                            </li>
                         ))}
-                    </div>
+                    </ul>
                   </AccordionContent>
                 </AccordionItem>
               ))}
