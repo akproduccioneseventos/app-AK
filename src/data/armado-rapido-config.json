@@ -107,11 +107,51 @@
       "serviciosIncluidos": []
     }
   ],
-  "platosVisibles": [],
+  "platosVisibles": [
+    {
+      "id": "dish_entrada_1",
+      "visible": false
+    }
+  ],
   "serviceDependencies": [
     {
-      "id": "dep_1773511376485",
+      "id": "dep_1773514356104",
+      "triggerServiceId": "dish_main_18_virtual_buffet",
+      "requiredServiceId": "serv_asador"
+    },
+    {
+      "id": "dep_1773514369584",
       "triggerServiceId": "dish_main_18",
+      "requiredServiceId": "serv_asador"
+    },
+    {
+      "id": "dep_1773514461886",
+      "triggerServiceId": "dish_main_17",
+      "requiredServiceId": "serv_asador"
+    },
+    {
+      "id": "dep_1773514506391",
+      "triggerServiceId": "dish_main_17_virtual_buffet",
+      "requiredServiceId": "serv_asador"
+    },
+    {
+      "id": "dep_1773514527895",
+      "triggerServiceId": "dish_main_2",
+      "requiredServiceId": "serv_asador"
+    },
+    {
+      "id": "dep_1773514593223",
+      "triggerServiceId": "dish_main_2_virtual_buffet",
+      "requiredServiceId": "serv_asador"
+    },
+    {
+      "id": "dep_1773514764789",
+      "triggerServiceId": "dish_main_7_virtual_buffet",
+      "requiredServiceId": "serv_asador"
+    },
+    {
+      "id": "dep_1773514790968",
+      "triggerServiceId": "dish_main_7_virtual_buffet",
       "requiredServiceId": "serv_asador"
     }
   ],

@@ -43,7 +43,7 @@ const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): Se
         precioPorPersona: item.precioVenta,
         precioVenta: item.precioVenta,
         precioBase: item.precioVenta,
-        valorUnitarioEstimated: item.totalDishCost,
+        valorUnitarioEstimado: item.totalDishCost,
     };
 };
 
@@ -103,15 +103,14 @@ export default function BudgetDisplaySettingsPage() {
     if (!config || !allMenus.length) {
       return { entradasDisponibles: [], principalesDisponibles: [], menusNinoDisponibles: [] };
     }
+    // En SETTINGS queremos ver TODOS los platos para poder activarlos/desactivarlos
     const allDishes = allMenus.flatMap(m => m.items);
-    const isPlatoVisible = (platoId: string) => {
-        const setting = config.platosVisibles?.find(p => p.id === platoId);
-        return setting !== undefined ? setting.visible : true;
-    };
-    const enhancedDishes = allDishes.filter(d => isPlatoVisible(d.id)).map(item => ({
+    
+    const enhancedDishes = allDishes.map(item => ({
         ...item,
         precioVenta: item.suggestedSellingPrice ?? ((item.totalDishCost || 0) * (1 + (item.profitMargin ?? 120) / 100)),
     }));
+    
     return { 
         entradasDisponibles: enhancedDishes.filter(item => item.type === 'Entrada').map(menuItemToServicioEmpresa), 
         principalesDisponibles: enhancedDishes.filter(item => item.type === 'Plato Principal').map(menuItemToServicioEmpresa), 
@@ -290,16 +289,17 @@ export default function BudgetDisplaySettingsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="font-headline text-xl">Visibilidad en Simulador</CardTitle>
+          <CardDescription>Usa los interruptores para activar o desactivar platos del simulador público. Los platos no se borrarán del catálogo.</CardDescription>
           <div className="relative pt-4"><Search className="absolute left-3 top-7 h-4 w-4 text-slate-400"/><Input placeholder="Filtrar platos..." value={gastronomiaSearchTerm} onChange={e => setGastronomiaSearchTerm(e.target.value)} className="pl-10 h-12 rounded-xl bg-slate-50 border-none"/></div>
         </CardHeader>
         <CardContent>
             <Accordion type="multiple" className="w-full space-y-2">
                 {['entradas', 'principales', 'infantiles'].map(cat => (
                     <AccordionItem key={cat} value={cat} className="border rounded-xl px-4">
-                        <AccordionTrigger className="uppercase font-black text-[10px] tracking-widest text-slate-500">{cat} ({(gastronomiaFiltrada as any)[cat].length})</AccordionTrigger>
+                        <AccordionTrigger className="uppercase font-black text-[10px] tracking-widest text-slate-500">{cat} ({(gastronomiaFiltrada as any)[cat === 'entradas' ? 'entradas' : cat === 'principales' ? 'principales' : 'infantiles'].length})</AccordionTrigger>
                         <AccordionContent className="pt-2 pb-4">
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                {(gastronomiaFiltrada as any)[cat].map((p: any) => (
+                                {(gastronomiaFiltrada as any)[cat === 'entradas' ? 'entradas' : cat === 'principales' ? 'principales' : 'infantiles'].map((p: any) => (
                                     <div key={p.id} className="flex items-center justify-between p-2 rounded-lg bg-slate-50">
                                         <Label htmlFor={`v-${p.id}`} className="text-xs font-bold truncate pr-2">{p.nombre}</Label>
                                         <Switch id={`v-${p.id}`} checked={isPlatoVisible(p.id)} onCheckedChange={v => handlePlatoVisibilityChange(p.id, v)} className="scale-75" />
