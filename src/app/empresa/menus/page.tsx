@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, ChefHat, PlusCircle, Copy, Edit, Trash2, Loader2, DollarSign, Info, Percent, GlassWater, Package, Save, Calculator, Search, BookOpen, CakeSlice, Candy } from 'lucide-react';
+import { ArrowLeft, ChefHat, PlusCircle, Copy, Edit, Trash2, Loader2, DollarSign, Info, Percent, GlassWater, Package, Save, Calculator, Search, BookOpen, CakeSlice, Candy, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getMenus, deleteMenu, duplicateMenu, adjustAllDishMargins } from '@/app/actions/menus-catering';
 import { getBebidasMasterTemplate, saveBebidasMasterTemplate } from '@/app/actions/bebidas.actions';
@@ -31,6 +31,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFoo
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -314,6 +315,18 @@ export default function GestionMenusPage() {
         </div>
       </div>
 
+      {/* AVISO DE INTEGRIDAD DEL CATÁLOGO */}
+      <Alert className="bg-blue-50 border-blue-200 text-blue-800 rounded-[1.5rem] shadow-sm">
+        <AlertCircle className="h-5 w-5 text-blue-600" />
+        <div>
+          <AlertTitle className="font-black uppercase text-xs tracking-widest">Aviso de Seguridad del Sistema</AlertTitle>
+          <AlertDescription className="text-sm font-medium opacity-90">
+            La gestión de recetas y costos en esta página **no elimina** los servicios de tu catálogo principal. 
+            Puedes seguir cobrando los postres y bebidas individualmente en los presupuestos; aquí solo definimos cuánto te cuesta producirlos y qué ingredientes necesitas comprar.
+          </AlertDescription>
+        </div>
+      </Alert>
+
       <div className="grid grid-cols-1 gap-8">
         {/* BARRA DE TRAGOS */}
         <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
@@ -385,7 +398,10 @@ export default function GestionMenusPage() {
                             <div key={item.id} className="p-4 bg-slate-50 rounded-2xl flex justify-between items-center group border border-transparent hover:border-orange-200 transition-all">
                                 <div className="min-w-0 flex-grow">
                                     <Input value={item.nombre} onChange={e => handleReposteriaItemChange('mesa_postres', item.id, 'nombre', e.target.value)} className="h-7 border-none font-bold p-0 focus-visible:ring-0 text-sm"/>
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Costo Est: {formatCurrency(item.costoEstimado)}</p>
+                                    <div className="flex items-center gap-2">
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Costo Est: {formatCurrency(item.costoEstimado)}</p>
+                                        <Badge variant="outline" className="text-[8px] bg-white border-slate-200 text-slate-400 font-bold h-4">SINCRO CATÁLOGO</Badge>
+                                    </div>
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <Input type="number" value={item.cantidad} onChange={e => handleReposteriaItemChange('mesa_postres', item.id, 'cantidad', parseInt(e.target.value))} className="w-14 h-8 text-center rounded-lg border-slate-200" />
@@ -414,7 +430,10 @@ export default function GestionMenusPage() {
                             <div key={item.id} className="p-4 bg-slate-50 rounded-2xl flex justify-between items-center group border border-transparent hover:border-pink-200 transition-all">
                                 <div className="min-w-0 flex-grow">
                                     <Input value={item.nombre} onChange={e => handleReposteriaItemChange('candy_bar', item.id, 'nombre', e.target.value)} className="h-7 border-none font-bold p-0 focus-visible:ring-0 text-sm"/>
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Costo Est: {formatCurrency(item.costoEstimado)}</p>
+                                    <div className="flex items-center gap-2">
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Costo Est: {formatCurrency(item.costoEstimado)}</p>
+                                        <Badge variant="outline" className="text-[8px] bg-white border-slate-200 text-slate-400 font-bold h-4">SINCRO CATÁLOGO</Badge>
+                                    </div>
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <Input type="number" value={item.cantidad} onChange={e => handleReposteriaItemChange('candy_bar', item.id, 'cantidad', parseInt(e.target.value))} className="w-14 h-8 text-center rounded-lg border-slate-200" />
