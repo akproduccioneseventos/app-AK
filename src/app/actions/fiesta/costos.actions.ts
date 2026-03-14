@@ -21,6 +21,7 @@ export async function updateGestionCostos(fiestaId: string, costos: GestionCosto
  * Se ejecuta al guardar/actualizar presupuestos.
  */
 export async function syncLaundryCosts(fiestaId: string, guests: number, budgetItems: any[]): Promise<void> {
+    if (!fiestaId || !budgetItems) return;
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return;
 

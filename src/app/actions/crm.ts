@@ -151,9 +151,9 @@ export async function confirmBooking(leadId: string, presupuestoId: string): Pro
 }
 
 export async function getCrmKpiData() {
-    const [leads, presupuestos] = await Promise.all([getCrmLeads(), readData<any[]>('presupuestos.json', [])]);
+    const [leads, presupuestos] = await Promise.all([getCrmLeads(), readData<any[]>('presupuestos.json', []).catch(() => [])]);
     const activeLeads = leads.filter(l => l.currentStageId !== 's4' && l.currentStageId !== 's5');
-    const pipelineValue = presupuestos
+    const pipelineValue = (presupuestos || [])
         .filter(p => activeLeads.some(l => l.presupuestoId === p.id))
         .reduce((sum, p) => sum + (p.totalConDescuento ?? p.costoTotalEstimado), 0);
 
@@ -178,7 +178,7 @@ export async function findLeadByBudgetOrCreate(presupuesto: any) {
     const stages = await getCrmStages();
     
     // Normalizar datos de búsqueda para evitar duplicados
-    const searchName = presupuesto.clienteNombre?.toLowerCase().trim();
+    const searchName = presupuesto.clienteNombre?.toLowerCase().trim().replace(/\s+/g, ' ');
     const searchPhone = presupuesto.clienteContacto?.replace(/\D/g, '').slice(-9);
 
     // 1. Intentar encontrar por ID vinculada o ID de presupuesto
@@ -190,7 +190,7 @@ export async function findLeadByBudgetOrCreate(presupuesto: any) {
     // 2. Intentar encontrar por Nombre o Teléfono Normalizado (Evita duplicados)
     if (leadIndex === -1 && (searchName || searchPhone)) {
         leadIndex = leads.findIndex(l => {
-            const leadName = l.name?.toLowerCase().trim();
+            const leadName = l.name?.toLowerCase().trim().replace(/\s+/g, ' ');
             const leadPhone = l.phone?.replace(/\D/g, '').slice(-9);
             return (searchName && leadName === searchName) || 
                    (searchPhone && leadPhone && leadPhone === searchPhone);
@@ -218,16 +218,17 @@ export async function findLeadByBudgetOrCreate(presupuesto: any) {
         lead.presupuestoEstado = presupuesto.estado;
         if (presupuesto.invoiceId) lead.invoiceId = presupuesto.invoiceId;
         
-        // Sincronizar campos si estaban vacíos
-        if (!lead.phone && presupuesto.clienteContacto) lead.phone = presupuesto.clienteContacto;
-        if (!lead.partyType) lead.partyType = presupuesto.eventoTipo;
-        if (!lead.venueName) lead.venueName = presupuesto.salonFiestas;
+        // Sincronizar campos siempre con la información más reciente del presupuesto
+        if (presupuesto.clienteContacto) lead.phone = presupuesto.clienteContacto;
+        if (presupuesto.eventoTipo) lead.partyType = presupuesto.eventoTipo;
+        if (presupuesto.salonFiestas) lead.venueName = presupuesto.salonFiestas;
+        if (presupuesto.invitadosCantidad) lead.guestCount = presupuesto.invitadosCantidad;
         
         // Progresión automática de etapas
         if ((presupuesto.estado === 'Aceptado' || presupuesto.estado === 'Facturado')) {
             const conversionStage = stages.find(s => s.isConversionStage);
             if (conversionStage) lead.currentStageId = conversionStage.id;
-        } else if (presupuesto.estado === 'Enviado' && lead.currentStageId === stages[0].id) {
+        } else if (presupuesto.estado === 'Enviado' && (lead.currentStageId === stages[0].id || lead.currentStageId === 's1')) {
             const budgetStage = stages.find(s => s.name.toLowerCase().includes('presupuesto'));
             if (budgetStage) lead.currentStageId = budgetStage.id;
         }

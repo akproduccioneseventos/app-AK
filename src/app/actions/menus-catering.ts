@@ -40,8 +40,6 @@ const parseSafeNumber = (val: any): number => {
         str = str.replace(/\./g, '').replace(',', '.');
     } else {
         // Si no tiene coma pero tiene punto, verificamos si es decimal o miles
-        // Si hay más de un punto o el punto está seguido de exactamente 3 dígitos al final de un número largo
-        // pero aquí priorizamos tratar el punto único como decimal para evitar el error de $5.301
         const parts = str.split('.');
         if (parts.length === 2 && parts[1].length !== 3) {
             // Es un decimal seguro (ej: 53.01)
@@ -93,10 +91,12 @@ function recalculateMenu(menu: FullMenu, catalogItems: ServicioEmpresa[], allDis
             let finalIngredients = [...(item.ingredients || [])];
 
             // FUSIÓN DINÁMICA: Si es una versión "CON MESA BUFET", inyectamos ingredientes de la mesa fría
-            if (item.name.toUpperCase().includes('MESA BUFET') || item.name.toUpperCase().includes('MESA BUFFET')) {
-                const mesaBuffetBase = allDishes.find(d => 
-                    (d.name === 'MESA BUFET' || d.name === 'Mesa Buffet') && d.id !== item.id
-                );
+            const upperName = item.name.toUpperCase();
+            if (upperName.includes('MESA BUFET') || upperName.includes('MESA BUFFET')) {
+                const mesaBuffetBase = allDishes.find(d => {
+                    const dName = d.name.toUpperCase();
+                    return (dName === 'MESA BUFET' || dName === 'MESA BUFFET') && d.id !== item.id;
+                });
                 
                 if (mesaBuffetBase && mesaBuffetBase.ingredients) {
                     mesaBuffetBase.ingredients.forEach(buffetIng => {

@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent, type ChangeEvent } from 'react';
@@ -8,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Save, Settings as SettingsIcon, Loader2, AlertTriangle, Percent, Info, Tag, Package, Bot, Sparkles, Code2, Wand2, PlusCircle, Trash2, ChevronDown, Edit, Gift, Search, ChefHat, Eye } from 'lucide-react';
+import { ArrowLeft, Save, Settings as SettingsIcon, Loader2, AlertTriangle, Percent, Info, Tag, Package, Bot, Sparkles, Code2, Wand2, PlusCircle, Trash2, ChevronDown, Edit, Gift, Search, ChefHat, Eye, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServicioIncluidoArmadoRapido, PlatoVisible, PromotionalDiscount, ServiceDependency } from '@/types/armado-rapido';
 import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
@@ -29,24 +28,15 @@ import { MultiSelect } from '@/components/ui/multi-select';
 import { saveBudgetDisplaySettings, getBudgetDisplaySettings } from '@/app/actions/settings';
 import type { BudgetDisplaySettings } from '@/types/settings';
 import { ConfigFormItem } from '@/components/settings/ConfigFormItem';
-
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
-const getCalculationMethodLabel = (method?: string): string => {
-    switch (method) {
-        case 'fijo': return 'Precio Fijo';
-        case 'porPersona': return 'Por Persona';
-        case 'ratio': return 'Por Ratio de Invitados';
-        case 'tramos': return 'Por Tramos de Invitados';
-        default: return 'No definido';
-    }
-};
-
-// Sub-component for editing a single service, to be used inside the Sheet
+// Sub-component for editing a single service
 const EditServicioForm: React.FC<{ servicioId: string | null; onUpdate: () => void, onClose: () => void }> = ({ servicioId, onUpdate, onClose }) => {
     const { toast } = useToast();
     const [servicio, setServicio] = useState<Partial<ServicioEmpresa> | null>(null);
@@ -58,8 +48,6 @@ const EditServicioForm: React.FC<{ servicioId: string | null; onUpdate: () => vo
                 const s = servicios.find(s => s.id === servicioId);
                 if (s) setServicio(s);
             });
-        } else {
-            setServicio(null);
         }
     }, [servicioId]);
     
@@ -92,7 +80,7 @@ const EditServicioForm: React.FC<{ servicioId: string | null; onUpdate: () => vo
               <Input id="edit-servicio-nombre" value={servicio.nombre || ''} onChange={e => setServicio(s => s ? {...s, nombre: e.target.value} : null)}/>
             </div>
             <div className="space-y-1">
-              <Label htmlFor="edit-servicio-precio">Precio de Venta (Fijo/Por Persona/Base)</Label>
+              <Label htmlFor="edit-servicio-precio">Precio de Venta</Label>
               <Input id="edit-servicio-precio" type="number" value={servicio.precioVenta ?? servicio.precioPorPersona ?? servicio.precioBase ?? ''} onChange={e => {
                   const val = Number(e.target.value);
                   setServicio(s => s ? { ...s, precioVenta: val, precioPorPersona: val, precioBase: val } : null);
@@ -118,42 +106,24 @@ const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): Se
     };
 };
 
-const renderServiciosList = (servicios: ServicioIncluidoArmadoRapido[], catalogo: ServicioEmpresa[]) => {
-    if (servicios.length === 0) {
-      return <p className="text-xs text-muted-foreground italic">No hay servicios base en este paquete.</p>;
-    }
-    return (
-      <ul className="text-xs text-muted-foreground list-disc pl-5 space-y-1">
-        {servicios.map(servicio => {
-          const fullServicio = catalogo.find(s => s.id === servicio.id);
-          return <li key={servicio.id}>{fullServicio?.nombre || `ID: ${servicio.id} (no encontrado)`}</li>;
-        })}
-      </ul>
-    );
-};
-
-
 export default function BudgetDisplaySettingsPage() {
   const { toast } = useToast();
   const [config, setConfig] = useState<ArmadoRapidoConfig | null>(null);
   const [budgetSettings, setBudgetSettings] = useState<BudgetDisplaySettings | null>(null);
   const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioEmpresa[]>([]);
+  const [allMenus, setAllMenus] = useState<FullMenu[]>([]);
   
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalType, setModalType] = useState<'paquete' | 'menu'>('paquete');
-  const [currentItem, setCurrentItem] = useState<Partial<PaqueteArmadoRapido | MenuArmadoRapido> | null>(null);
-  
-  const [isCatalogManagerOpen, setIsCatalogManagerOpen] = useState(false);
-  const [editingServicioId, setEditingServicioId] = useState<string | null>(null);
-
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalType, setModalType] = useState<'paquete' | 'menu'>('paquete');
+  const [currentItem, setCurrentItem] = useState<Partial<PaqueteArmadoRapido | MenuArmadoRapido> | null>(null);
+  
+  const [editingServicioId, setEditingServicioId] = useState<string | null>(null);
   const [servicioSearchTerm, setServicioSearchTerm] = useState('');
   const [gastronomiaSearchTerm, setGastronomiaSearchTerm] = useState('');
-  const [allMenus, setAllMenus] = useState<FullMenu[]>([]);
-
   const [newDependency, setNewDependency] = useState({ triggerServiceId: '', requiredServiceId: '' });
 
   const loadData = useCallback(async () => {
@@ -170,312 +140,32 @@ export default function BudgetDisplaySettingsPage() {
       setServiciosCatalogo(serviciosData.filter(s => s.tipoItem === 'Servicio'));
       setAllMenus(menuData);
     } catch(e: any) {
-      setError("No se pudieron cargar los datos de configuración.");
+      setError("No se pudieron cargar los datos.");
       toast({ title: "Error", description: e.message, variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
   }, [toast]);
-  
-  const handleAddDependency = async () => {
-    if (!newDependency.triggerServiceId || !newDependency.requiredServiceId || !config) return;
-    
-    const newDep: ServiceDependency = {
-      id: `dep_${Date.now()}`,
-      ...newDependency
-    };
-    
-    const newConfig: ArmadoRapidoConfig = {
-      ...config,
-      serviceDependencies: [...(config.serviceDependencies || []), newDep]
-    };
-    
-    setIsSaving(true);
-    try {
-      const result = await saveArmadoRapidoConfig(newConfig);
-      if (result.success) {
-        toast({ title: "Dependencia añadida" });
-        setNewDependency({ triggerServiceId: '', requiredServiceId: '' });
-        await loadData();
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
-    } finally {
-      setIsSaving(false);
-    }
-  };
 
-  const handleDeleteDependency = async (dependencyId: string) => {
-    if (!config) return;
-
-    const newConfig: ArmadoRapidoConfig = {
-      ...config,
-      serviceDependencies: (config.serviceDependencies || []).filter(d => d.id !== dependencyId)
-    };
-
-    setIsSaving(true);
-    try {
-      const result = await saveArmadoRapidoConfig(newConfig);
-      if (result.success) {
-        toast({ title: "Dependencia eliminada" });
-        await loadData();
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
-    } finally {
-      setIsSaving(false);
-    }
-  };
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const { entradasDisponibles, principalesDisponibles, menusNinoDisponibles } = useMemo(() => {
     if (!config || !allMenus.length) {
       return { entradasDisponibles: [], principalesDisponibles: [], menusNinoDisponibles: [] };
     }
-    
-    const isPlatoVisible = (platoId: string) => {
-        const setting = config.platosVisibles?.find(p => p.id === platoId);
-        return setting !== undefined ? setting.visible : true;
-    };
-    
-    const sortByPrice = (a: { precioVenta: number }, b: { precioVenta: number }) => a.precioVenta - b.precioVenta;
-    
-    const allDishes = Array.from(
-        allMenus.flatMap(m => m.items)
-        .reduce((map, dish) => {
-            if (!map.has(dish.id)) {
-                map.set(dish.id, dish);
-            }
-            return map;
-        }, new Map<string, MenuItem>())
-        .values()
-    );
-    
-    const visibleDishes = allDishes.filter(d => isPlatoVisible(d.id));
-
-    const enhancedDishes = visibleDishes.map(item => ({
+    const allDishes = allMenus.flatMap(m => m.items);
+    const enhancedDishes = allDishes.map(item => ({
         ...item,
         precioVenta: item.suggestedSellingPrice ?? ((item.totalDishCost || 0) * (1 + (item.profitMargin ?? 120) / 100)),
     }));
-
     return { 
-        entradasDisponibles: enhancedDishes.filter(item => item.type === 'Entrada').map(menuItemToServicioEmpresa).sort(sortByPrice), 
-        principalesDisponibles: enhancedDishes.filter(item => item.type === 'Plato Principal').map(menuItemToServicioEmpresa).sort(sortByPrice), 
-        menusNinoDisponibles: enhancedDishes.filter(item => item.type === 'Menú Infantil/Adolescente').map(menuItemToServicioEmpresa).sort(sortByPrice)
+        entradasDisponibles: enhancedDishes.filter(item => item.type === 'Entrada').map(menuItemToServicioEmpresa), 
+        principalesDisponibles: enhancedDishes.filter(item => item.type === 'Plato Principal').map(menuItemToServicioEmpresa), 
+        menusNinoDisponibles: enhancedDishes.filter(item => item.type === 'Menú Infantil/Adolescente').map(menuItemToServicioEmpresa)
     };
-}, [config, allMenus]);
-  
-
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
-  
-  const handleOpenModal = (type: 'paquete' | 'menu', item?: PaqueteArmadoRapido | MenuArmadoRapido) => {
-    setModalType(type);
-    setCurrentItem(item ? {...item, serviciosIncluidos: item.serviciosIncluidos || []} : { nombre: '', serviciosIncluidos: [] });
-    setServicioSearchTerm(''); 
-    setIsModalOpen(true);
-  };
-  
-  const handleSaveItem = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!currentItem || !currentItem.nombre || !config) return;
-    setIsSaving(true);
-    
-    let updatedList;
-    const newItem = {
-      ...currentItem,
-      id: currentItem.id || `new_${modalType}_${Date.now()}`
-    } as PaqueteArmadoRapido | MenuArmadoRapido;
-
-    if (modalType === 'paquete') {
-        updatedList = [...config.paquetes];
-    } else {
-        updatedList = [...config.menus];
-    }
-
-    const itemIndex = updatedList.findIndex(p => p.id === newItem.id);
-    if(itemIndex > -1) {
-        updatedList[itemIndex] = newItem;
-    } else {
-        updatedList.push(newItem);
-    }
-    
-    const newConfig: ArmadoRapidoConfig = {
-      ...config,
-      [modalType === 'paquete' ? 'paquetes' : 'menus']: updatedList
-    };
-
-    try {
-        const result = await saveArmadoRapidoConfig(newConfig);
-        if (result.success) {
-            toast({ title: `${modalType === 'paquete' ? 'Paquete' : 'Menú'} guardado` });
-            setIsModalOpen(false);
-            await loadData();
-        } else {
-            throw new Error(result.error);
-        }
-    } catch (err: any) {
-      toast({ title: `Error al guardar ${modalType}`, description: err.message, variant: "destructive" });
-    } finally {
-      setIsSaving(false);
-    }
-  };
-  
-  const handleDeleteItem = async (type: 'paquete' | 'menu', itemId: string) => {
-    if (!config) return;
-    setIsSaving(true);
-    let updatedList;
-    if (type === 'paquete') {
-      updatedList = config.paquetes.filter(p => p.id !== itemId);
-    } else {
-      updatedList = config.menus.filter(m => m.id !== itemId);
-    }
-    const newConfig = { ...config, [type === 'paquete' ? 'paquetes' : 'menus']: updatedList };
-    try {
-      const result = await saveArmadoRapidoConfig(newConfig);
-      if (result.success) {
-        toast({ title: `${type === 'paquete' ? 'Paquete' : 'Menú'} Eliminado`, variant: "destructive" });
-        await loadData();
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (err: any) {
-      toast({ title: `Error al eliminar ${type}`, description: err.message, variant: "destructive" });
-    } finally {
-      setIsSaving(false);
-    }
-  };
-  
-  const handleServicioChange = (servicioId: string, checked: boolean) => {
-    setCurrentItem(prev => {
-      if(!prev) return null;
-      const servicios = prev.serviciosIncluidos || [];
-      if(checked) {
-        if(!servicios.some(s => s.id === servicioId)) {
-          return { ...prev, serviciosIncluidos: [...servicios, { id: servicioId, esRegalo: false }] };
-        }
-      } else {
-        return { ...prev, serviciosIncluidos: servicios.filter(s => s.id !== servicioId) };
-      }
-      return prev;
-    });
-  };
-
-  const handleRegaloChange = (servicioId: string, esRegalo: boolean) => {
-     setCurrentItem(prev => {
-      if(!prev) return null;
-      return { ...prev, serviciosIncluidos: (prev.serviciosIncluidos || []).map(s => s.id === servicioId ? {...s, esRegalo} : s) };
-    });
-  };
-
-  const handlePlatoVisibilityChange = async (platoId: string, visible: boolean) => {
-    if (!config) return;
-
-    const newPlatosVisibles = [...(config.platosVisibles || [])];
-    const existingIndex = newPlatosVisibles.findIndex(p => p.id === platoId);
-
-    if (existingIndex > -1) {
-        newPlatosVisibles[existingIndex] = { id: platoId, visible };
-    } else {
-        newPlatosVisibles.push({ id: platoId, visible });
-    }
-
-    const newConfig = { ...config, platosVisibles: newPlatosVisibles };
-    
-    setConfig(newConfig);
-
-    try {
-        await saveArmadoRapidoConfig(newConfig);
-    } catch (err: any) {
-        toast({ title: "Error", description: "No se pudo guardar el cambio de visibilidad.", variant: "destructive" });
-        loadData(); 
-    }
-  };
-
-  const isPlatoVisible = (platoId: string) => {
-    const setting = config?.platosVisibles?.find(p => p.id === platoId);
-    return setting !== undefined ? setting.visible : true; 
-  };
-
-  const serviciosFiltrados = useMemo(() => {
-    if (!servicioSearchTerm) return serviciosCatalogo;
-    const lowerCaseSearch = servicioSearchTerm.toLowerCase();
-    return serviciosCatalogo.filter(s =>
-      s.nombre.toLowerCase().includes(lowerCaseSearch) ||
-      s.categoria?.toLowerCase().includes(lowerCaseSearch) ||
-      s.subcategoria?.toLowerCase().includes(lowerCaseSearch)
-    );
-  }, [servicioSearchTerm, serviciosCatalogo]);
-
-  const serviciosAgrupadosParaPaquetes = useMemo(() => {
-    return serviciosFiltrados.reduce((acc, servicio) => {
-        const categoria = servicio.categoria || 'Otros';
-        if (!acc[categoria]) {
-            acc[categoria] = [];
-        }
-        acc[categoria].push(servicio);
-        return acc;
-    }, {} as Record<string, ServicioEmpresa[]>);
-  }, [serviciosFiltrados]);
-
-  const categoriasOrdenadasParaPaquetes = useMemo(() => Object.keys(serviciosAgrupadosParaPaquetes).sort(), [serviciosAgrupadosParaPaquetes]);
-
-  const handleConfigSave = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!config) return;
-    setIsSaving(true);
-    try {
-      const result = await saveArmadoRapidoConfig(config);
-      if (result.success) {
-        toast({ title: "Configuración guardada" });
-        await loadData();
-      } else throw new Error(result.error);
-    } catch(err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
-    } finally {
-      setIsSaving(false);
-    }
-  };
-  
-  const handleBudgetSettingsSave = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!budgetSettings) return;
-    setIsSaving(true);
-    try {
-      const result = await saveBudgetDisplaySettings(budgetSettings);
-      if (result.success) {
-        toast({ title: "Configuración de Presupuestos guardada" });
-        setBudgetSettings(result.settings || null);
-      } else throw new Error(result.error);
-    } catch(err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleDiscountChange = (index: number, field: keyof PromotionalDiscount, value: any) => {
-    if (!budgetSettings) return;
-    const updatedDiscounts = [...(budgetSettings.promotionalDiscounts || [])];
-    updatedDiscounts[index] = { ...updatedDiscounts[index], [field]: value };
-    setBudgetSettings({ ...budgetSettings, promotionalDiscounts: updatedDiscounts });
-  };
-  
-  const addDiscount = () => {
-    if (!budgetSettings) return;
-    const newDiscount: PromotionalDiscount = { id: `promo_${Date.now()}`, name: '', type: 'percentage', value: 0 };
-    setBudgetSettings({ ...budgetSettings, promotionalDiscounts: [...(budgetSettings.promotionalDiscounts || []), newDiscount] });
-  };
-  
-  const removeDiscount = (index: number) => {
-    if (!budgetSettings) return;
-    const updatedDiscounts = (budgetSettings.promotionalDiscounts || []).filter((_, i) => i !== index);
-    setBudgetSettings({ ...budgetSettings, promotionalDiscounts: updatedDiscounts });
-  };
+  }, [config, allMenus]);
 
   const gastronomiaFiltrada = useMemo(() => {
       const lowerCaseSearch = gastronomiaSearchTerm.toLowerCase();
@@ -487,378 +177,184 @@ export default function BudgetDisplaySettingsPage() {
       };
   }, [gastronomiaSearchTerm, entradasDisponibles, principalesDisponibles, menusNinoDisponibles]);
 
+  const handlePlatoVisibilityChange = async (platoId: string, visible: boolean) => {
+    if (!config) return;
+    const newPlatosVisibles = [...(config.platosVisibles || [])];
+    const existingIndex = newPlatosVisibles.findIndex(p => p.id === platoId);
+    if (existingIndex > -1) newPlatosVisibles[existingIndex] = { id: platoId, visible };
+    else newPlatosVisibles.push({ id: platoId, visible });
+    const newConfig = { ...config, platosVisibles: newPlatosVisibles };
+    setConfig(newConfig);
+    await saveArmadoRapidoConfig(newConfig);
+  };
 
-  if (isLoading || !config || !budgetSettings) {
-    return <div className="flex items-center justify-center min-h-[300px]"><Loader2 className="w-8 h-8 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando...</p></div>;
-  }
-  if (error) {
-    return <div className="text-center text-destructive py-10"><AlertTriangle className="w-12 h-12 mx-auto mb-3" /><p className="font-semibold text-lg">{error}</p><Button onClick={loadData} className="mt-4" variant="outline">Reintentar</Button></div>;
-  }
-  
+  const isPlatoVisible = (platoId: string) => {
+    const setting = config?.platosVisibles?.find(p => p.id === platoId);
+    return setting !== undefined ? setting.visible : true; 
+  };
+
+  const handleOpenModal = (type: 'paquete' | 'menu', item?: PaqueteArmadoRapido | MenuArmadoRapido) => {
+    setModalType(type);
+    setCurrentItem(item ? {...item, serviciosIncluidos: item.serviciosIncluidos || []} : { nombre: '', serviciosIncluidos: [] });
+    setServicioSearchTerm(''); 
+    setIsModalOpen(true);
+  };
+
+  const handleSaveItem = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!currentItem || !currentItem.nombre || !config) return;
+    setIsSaving(true);
+    let updatedList = [...(modalType === 'paquete' ? config.paquetes : config.menus)];
+    const newItem = { ...currentItem, id: currentItem.id || `new_${modalType}_${Date.now()}` } as any;
+    const itemIndex = updatedList.findIndex(p => p.id === newItem.id);
+    if(itemIndex > -1) updatedList[itemIndex] = newItem;
+    else updatedList.push(newItem);
+    const newConfig = { ...config, [modalType === 'paquete' ? 'paquetes' : 'menus']: updatedList };
+    const result = await saveArmadoRapidoConfig(newConfig);
+    if (result.success) {
+        toast({ title: "Guardado con éxito" });
+        setIsModalOpen(false);
+        await loadData();
+    }
+    setIsSaving(false);
+  };
+
+  const handleBudgetSettingsSave = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!budgetSettings) return;
+    setIsSaving(true);
+    const result = await saveBudgetDisplaySettings(budgetSettings);
+    if (result.success) toast({ title: "Ajustes de Presupuesto guardados" });
+    setIsSaving(false);
+  };
+
+  if (isLoading || !config || !budgetSettings) return <div className="flex items-center justify-center min-h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
+
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+    <div className="max-w-3xl mx-auto space-y-6 pb-20">
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-2xl">
-           <DialogHeader>
-                <DialogTitle className="font-headline">{currentItem?.id ? 'Editar' : 'Nuevo'} {modalType === 'paquete' ? 'Paquete' : 'Menú'}</DialogTitle>
-                <DialogDescription>
-                    {modalType === 'paquete' ? 'Define el nombre y los servicios que se incluirán en este paquete.' : 'Define un nombre y selecciona los platos que conformarán este menú para el simulador.'}
-                </DialogDescription>
-            </DialogHeader>
-                <Sheet open={!!editingServicioId} onOpenChange={(open) => !open && setEditingServicioId(null)}>
-                <SheetContent className="w-full max-w-none sm:max-w-lg">
-                  <SheetHeader>
-                    <SheetTitle>Editar Servicio</SheetTitle>
-                    <SheetDescription>
-                      Realiza cambios en el catálogo maestro. Esto afectará a futuros presupuestos.
-                    </SheetDescription>
-                  </SheetHeader>
-                    {editingServicioId && (
-                        <EditServicioForm 
-                          servicioId={editingServicioId}
-                          onUpdate={async () => {
-                              await loadData(); 
-                          }}
-                          onClose={() => setEditingServicioId(null)}
-                        />
-                    )}
-                </SheetContent>
-                
-                {currentItem && (
-                    <form onSubmit={handleSaveItem}>
-                    <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-4 py-4">
-                        <div className="space-y-1"><Label htmlFor="item-name">Nombre del {modalType === 'paquete' ? 'Paquete' : 'Menú'}</Label><Input id="item-name" value={currentItem.nombre || ''} onChange={e => setCurrentItem(p => p ? {...p, nombre: e.target.value} : null)} required/></div>
-                        <Separator/>
-                        <Label>Servicios Incluidos</Label>
-                        
-                        {modalType === 'paquete' && (
-                            <>
-                                { (currentItem.serviciosIncluidos || []).length > 0 && (
-                                    <div className="p-3 border rounded-md space-y-3">
-                                        <h4 className="text-sm font-medium">Servicios en este paquete</h4>
-                                        { (currentItem.serviciosIncluidos || []).map(servicioInfo => {
-                                            const servicio = serviciosCatalogo.find(s => s.id === servicioInfo.id);
-                                            if (!servicio) return null;
-                                            return (
-                                                <div key={servicio.id} className="flex items-center justify-between text-sm p-2 border-b last:border-b-0">
-                                                    <div>
-                                                        <p className="font-medium">{servicio.nombre}</p>
-                                                        <p className="text-xs text-muted-foreground">{servicio.categoria}</p>
-                                                    </div>
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="flex items-center gap-1.5"><Checkbox id={`gift-${servicio.id}`} checked={servicioInfo.esRegalo} onCheckedChange={(checked) => handleRegaloChange(servicio.id, !!checked)} /><Label htmlFor={`gift-${servicio.id}`} className="text-xs">Regalo</Label></div>
-                                                        <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleServicioChange(servicio.id, false)}><Trash2 className="w-3.5 h-3.5"/></Button>
-                                                    </div>
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
-                                )}
-                                <div className="space-y-2">
-                                    <h4 className="text-sm font-medium">Añadir servicios desde el catálogo</h4>
-                                    <div className="relative">
-                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"/>
-                                        <Input 
-                                            placeholder="Buscar servicios..."
-                                            value={servicioSearchTerm}
-                                            onChange={(e) => setServicioSearchTerm(e.target.value)}
-                                            className="pl-9"
-                                        />
-                                    </div>
-                                    <ScrollArea className="h-64 border rounded-md p-2">
-                                        <div className="space-y-2">
-                                            {categoriasOrdenadasParaPaquetes.map(categoria => {
-                                                const itemsToShow = serviciosAgrupadosParaPaquetes[categoria];
-                                                if (!itemsToShow || itemsToShow.length === 0) return null;
-                                                return (
-                                                    <div key={categoria} className="space-y-1">
-                                                        <h5 className="font-semibold text-xs uppercase text-muted-foreground">{categoria}</h5>
-                                                        {itemsToShow.map(servicio => {
-                                                            const isInItem = currentItem.serviciosIncluidos?.some(s => s.id === servicio.id);
-                                                            return (
-                                                                <div key={servicio.id} className="flex items-center space-x-2 py-1">
-                                                                    <Checkbox id={`serv-${servicio.id}`} checked={isInItem} onCheckedChange={(checked) => handleServicioChange(servicio.id, !!checked)} />
-                                                                    <Label htmlFor={`serv-${servicio.id}`} className="text-sm font-normal flex-grow cursor-pointer">{servicio.nombre}</Label>
-                                                                </div>
-                                                            )
-                                                        })}
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                    </ScrollArea>
-                                </div>
-                            </>
-                        )}
-                    </div>
-                    <DialogFooter>
-                        <DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose>
-                        <Button type="submit" disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : null} Guardar</Button>
-                    </DialogFooter>
-                    </form>
-                )}
-              </Sheet>
+           <DialogHeader><DialogTitle>{currentItem?.id ? 'Editar' : 'Nuevo'} {modalType === 'paquete' ? 'Paquete' : 'Menú'}</DialogTitle></DialogHeader>
+           {currentItem && (
+                <form onSubmit={handleSaveItem} className="space-y-4 py-4">
+                    <div className="space-y-1"><Label>Nombre</Label><Input value={currentItem.nombre || ''} onChange={e => setCurrentItem(p => p ? {...p, nombre: e.target.value} : null)} required/></div>
+                    <Separator/>
+                    <Label>Servicios Incluidos</Label>
+                    <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"/><Input placeholder="Buscar servicios..." value={servicioSearchTerm} onChange={(e) => setServicioSearchTerm(e.target.value)} className="pl-9"/></div>
+                    <ScrollArea className="h-64 border rounded-md p-2">
+                        {serviciosCatalogo.filter(s => s.nombre.toLowerCase().includes(servicioSearchTerm.toLowerCase())).map(s => (
+                            <div key={s.id} className="flex items-center space-x-2 py-1.5 border-b last:border-b-0">
+                                <Checkbox checked={currentItem.serviciosIncluidos?.some(si => si.id === s.id)} onCheckedChange={(checked) => {
+                                    const servicios = currentItem.serviciosIncluidos || [];
+                                    setCurrentItem(p => p ? ({...p, serviciosIncluidos: checked ? [...servicios, {id: s.id, esRegalo: false}] : servicios.filter(si => si.id !== s.id)}) : null);
+                                }}/>
+                                <Label className="text-sm font-normal flex-grow cursor-pointer">{s.nombre}</Label>
+                            </div>
+                        ))}
+                    </ScrollArea>
+                    <DialogFooter><Button type="submit" disabled={isSaving}>Guardar</Button></DialogFooter>
+                </form>
+           )}
         </DialogContent>
       </Dialog>
+
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Configuración del Simulador</h1></div>
-        <Link href="/empresa/contabilidad" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver al Panel Contable</Button></Link>
+        <Link href="/empresa/contabilidad" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
       </div>
 
        <form onSubmit={handleBudgetSettingsSave}>
         <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="font-headline text-xl">Ajustes Generales de Presupuestos</CardTitle>
-            <CardDescription>Configura el comportamiento global de los presupuestos finales.</CardDescription>
-          </CardHeader>
+          <CardHeader><CardTitle className="font-headline text-xl">Ajustes Generales de Presupuestos</CardTitle></CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="annualAdjustmentPercentage" className="flex items-center gap-2">
-                <Percent className="w-4 h-4" />Porcentaje de Ajuste Anual (%)
-              </Label>
-              <Input
-                id="annualAdjustmentPercentage"
-                type="number"
-                value={budgetSettings?.annualAdjustmentPercentage ?? ''}
-                onChange={e => setBudgetSettings(s => s ? { ...s, annualAdjustmentPercentage: Number(e.target.value) } : null)}
-                placeholder="Ej: 15"
-              />
-              <p className="text-xs text-muted-foreground">Este ajuste se aplica a presupuestos aceptados si el evento es en un año posterior a la firma.</p>
+              <Label className="flex items-center gap-2"><Percent className="w-4 h-4" />Porcentaje de Ajuste Anual (%)</Label>
+              <Input type="number" value={budgetSettings?.annualAdjustmentPercentage ?? ''} onChange={e => setBudgetSettings(s => s ? { ...s, annualAdjustmentPercentage: Number(e.target.value) } : null)} />
             </div>
             <Separator />
             <div className="space-y-4">
-              <h4 className="font-medium">Descuentos Promocionales Predefinidos</h4>
+              <h4 className="font-medium text-sm">Descuentos Promocionales</h4>
               {(budgetSettings.promotionalDiscounts || []).map((discount, index) => (
-                <ConfigFormItem key={discount.id} title={`Descuento: ${discount.name || 'Nuevo'}`} onDelete={() => removeDiscount(index)}>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
-                    <div className="space-y-1"><Label htmlFor={`promo-name-${index}`}>Nombre</Label><Input id={`promo-name-${index}`} value={discount.name} onChange={(e) => handleDiscountChange(index, 'name', e.target.value)} /></div>
-                    <div className="space-y-1"><Label htmlFor={`promo-type-${index}`}>Tipo</Label><Select value={discount.type} onValueChange={(val) => handleDiscountChange(index, 'type', val)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="percentage">Porcentaje</SelectItem><SelectItem value="fixed">Monto Fijo</SelectItem></SelectContent></Select></div>
-                    <div className="space-y-1"><Label htmlFor={`promo-value-${index}`}>Valor</Label><Input id={`promo-value-${index}`} type="number" value={discount.value} onChange={(e) => handleDiscountChange(index, 'value', Number(e.target.value))}/></div>
-                  </div>
-                </ConfigFormItem>
+                <div key={discount.id} className="grid grid-cols-3 gap-3 items-end p-3 bg-muted/30 rounded-xl border relative group">
+                    <Button variant="ghost" size="icon" className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-white border shadow-sm opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => {
+                        const updated = (budgetSettings.promotionalDiscounts || []).filter((_, i) => i !== index);
+                        setBudgetSettings({ ...budgetSettings, promotionalDiscounts: updated });
+                    }}><X className="w-3 h-3"/></Button>
+                    <div className="space-y-1"><Label className="text-[10px] uppercase">Nombre</Label><Input value={discount.name} onChange={e => {
+                        const updated = [...(budgetSettings.promotionalDiscounts || [])];
+                        updated[index].name = e.target.value;
+                        setBudgetSettings({...budgetSettings, promotionalDiscounts: updated});
+                    }}/></div>
+                    <div className="space-y-1"><Label className="text-[10px] uppercase">Tipo</Label><Select value={discount.type} onValueChange={v => {
+                        const updated = [...(budgetSettings.promotionalDiscounts || [])];
+                        updated[index].type = v as any;
+                        setBudgetSettings({...budgetSettings, promotionalDiscounts: updated});
+                    }}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="percentage">Porcentaje</SelectItem><SelectItem value="fixed">Fijo</SelectItem></SelectContent></Select></div>
+                    <div className="space-y-1"><Label className="text-[10px] uppercase">Valor</Label><Input type="number" value={discount.value} onChange={e => {
+                        const updated = [...(budgetSettings.promotionalDiscounts || [])];
+                        updated[index].value = Number(e.target.value);
+                        setBudgetSettings({...budgetSettings, promotionalDiscounts: updated});
+                    }}/></div>
+                </div>
               ))}
-              <Button type="button" variant="outline" size="sm" onClick={addDiscount}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Descuento</Button>
+              <Button type="button" variant="outline" size="sm" onClick={() => {
+                  const newDisc = { id: `promo_${Date.now()}`, name: '', type: 'percentage' as const, value: 0 };
+                  setBudgetSettings({ ...budgetSettings, promotionalDiscounts: [...(budgetSettings.promotionalDiscounts || []), newDisc] });
+              }}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Descuento</Button>
             </div>
           </CardContent>
-          <CardFooter>
-            <Button type="submit" disabled={isSaving}>{isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin"/>} Guardar Ajustes de Presupuesto</Button>
-          </CardFooter>
+          <CardFooter><Button type="submit" disabled={isSaving}>Guardar Ajustes Globales</Button></CardFooter>
         </Card>
       </form>
 
-      <form onSubmit={handleConfigSave}>
-        <Card className="shadow-lg">
-            <CardHeader>
-                <CardTitle className="font-headline">Ajustes del Simulador</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                 <div className="space-y-2">
-                    <Label htmlFor="descuento-general" className="flex items-center gap-2"><Percent className="w-4 h-4"/>Porcentaje de Descuento Ficticio (Ancla) (%)</Label>
-                    <Input
-                        id="descuento-general"
-                        type="number"
-                        value={config?.descuentoGeneral ?? ''}
-                        onChange={e => setConfig(c => c ? {...c, descuentoGeneral: Number(e.target.value)} : null)}
-                        placeholder="Ej: 15"
-                    />
-                    <p className="text-xs text-muted-foreground">Este es el porcentaje que se mostrará como 'descuento' en el simulador. El sistema aumentará el 'Valor de servicios' para que, tras aplicar este descuento, el total a pagar sea el precio real del catálogo.</p>
-                </div>
-                <div className="flex items-center space-x-2">
-                    <Switch 
-                        id="mostrar-precios"
-                        checked={config?.mostrarPrecios ?? true}
-                        onCheckedChange={checked => setConfig(c => c ? { ...c, mostrarPrecios: checked } : null)}
-                    />
-                    <Label htmlFor="mostrar-precios">Mostrar precios individuales en la selección de gastronomía</Label>
-                </div>
-            </CardContent>
-             <CardFooter>
-                 <Button type="submit" disabled={isSaving}>{isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin"/>} Guardar Ajustes del Simulador</Button>
-            </CardFooter>
-        </Card>
-      </form>
-      
       <Card>
         <CardHeader>
-          <CardTitle className="font-headline text-xl">Dependencias de Servicios</CardTitle>
-          <CardDescription>
-            Configura reglas para que al seleccionar un plato, otro servicio (ej. "Asado" → "Asador") se añada automáticamente.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-            <div className="p-4 border rounded-md bg-muted/40 space-y-3">
-                <h4 className="font-medium">Añadir Nueva Dependencia</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
-                    <div className="space-y-1">
-                        <Label htmlFor="trigger-service">Cuando se elija el plato...</Label>
-                        <Select value={newDependency.triggerServiceId} onValueChange={(val) => setNewDependency(p => ({ ...p, triggerServiceId: val }))}>
-                            <SelectTrigger id="trigger-service"><SelectValue placeholder="Seleccionar plato..." /></SelectTrigger>
-                            <SelectContent>
-                                {allMenus.map(menu => (
-                                    <SelectGroup key={menu.id}>
-                                        <SelectLabel>{menu.name}</SelectLabel>
-                                        {menu.items.map(item => (
-                                            <SelectItem key={item.id} value={item.id}>{item.name}</SelectItem>
-                                        ))}
-                                    </SelectGroup>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="space-y-1">
-                        <Label htmlFor="required-service">Añadir automáticamente el servicio...</Label>
-                        <Select value={newDependency.requiredServiceId} onValueChange={(val) => setNewDependency(p => ({ ...p, requiredServiceId: val }))}>
-                            <SelectTrigger id="required-service"><SelectValue placeholder="Seleccionar servicio..." /></SelectTrigger>
-                            <SelectContent>
-                                {serviciosCatalogo.map(s => (
-                                    <SelectItem key={s.id} value={s.id}>{s.nombre}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </div>
-                <Button onClick={handleAddDependency} disabled={!newDependency.triggerServiceId || !newDependency.requiredServiceId || isSaving}>
-                    <PlusCircle className="w-4 h-4 mr-2" /> Añadir Dependencia
-                </Button>
-            </div>
-            <div className="space-y-2">
-                <h4 className="text-sm font-medium text-muted-foreground">Reglas Actuales:</h4>
-                {config?.serviceDependencies?.length > 0 ? (
-                    config.serviceDependencies.map(dep => {
-                        const allDishes = allMenus.flatMap(m => m.items);
-                        const trigger = allDishes.find(i => i.id === dep.triggerServiceId);
-                        const required = serviciosCatalogo.find(s => s.id === dep.requiredServiceId) || allDishes.find(i => i.id === dep.requiredServiceId);
-                        
-                        return (
-                            <div key={dep.id} className="flex items-center justify-between p-2 border rounded-md text-sm">
-                                <div className="flex items-center gap-2">
-                                    <span>
-                                        <span className="font-semibold">{trigger?.name || <span className='text-destructive italic'>Plato no encontrado</span>}</span> activa a <span className="font-semibold">{required?.name || <span className='text-destructive italic'>Servicio no encontrado (ID: {dep.requiredServiceId})</span>}</span>
-                                    </span>
-                                </div>
-                                <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteDependency(dep.id)} disabled={isSaving}>
-                                    <Trash2 className="w-4 h-4" />
-                                </Button>
-                            </div>
-                        )
-                    })
-                ) : (
-                    <p className="text-xs text-center text-muted-foreground py-2">No hay dependencias configuradas.</p>
-                )}
-            </div>
-        </CardContent>
-      </Card>
-
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="font-headline text-xl">Gestión Gastronómica del Simulador</CardTitle>
-          <CardDescription>
-            Activa o desactiva los platos que estarán disponibles en el simulador. Los platos se gestionan en el <Link href="/empresa/menus" className="text-primary underline hover:text-primary/80">Planificador Gastronómico Maestro</Link>.
-          </CardDescription>
-          <div className="relative pt-4">
-            <Search className="absolute left-3 top-7 h-4 w-4 text-muted-foreground" />
-            <Input 
-              placeholder="Buscar plato en el catálogo..."
-              value={gastronomiaSearchTerm}
-              onChange={e => setGastronomiaSearchTerm(e.target.value)}
-              className="pl-9"
-            />
-          </div>
+          <CardTitle className="font-headline text-xl">Visibilidad en Simulador</CardTitle>
+          <div className="relative pt-4"><Search className="absolute left-3 top-7 h-4 w-4 text-slate-400"/><Input placeholder="Filtrar platos..." value={gastronomiaSearchTerm} onChange={e => setGastronomiaSearchTerm(e.target.value)} className="pl-10 h-12 rounded-xl bg-slate-50 border-none"/></div>
         </CardHeader>
         <CardContent>
-           <Accordion type="multiple" defaultValue={['visibility']} className="w-full space-y-4">
-              <AccordionItem value="visibility" className="border rounded-md shadow-sm">
-                  <AccordionTrigger className="px-3 text-md font-medium hover:no-underline">Visibilidad de Platos</AccordionTrigger>
-                  <AccordionContent className="p-3 border-t">
-                       <Accordion type="multiple" defaultValue={['entradas', 'principales', 'infantiles']} className="w-full space-y-2">
-                        <AccordionItem value="entradas" className="border rounded-md">
-                          <AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Entradas ({gastronomiaFiltrada.entradas.length})</AccordionTrigger>
-                          <AccordionContent className="p-3 border-t">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
-                              {gastronomiaFiltrada.entradas.map(plato => (
-                                <div key={plato.id} className="flex items-center space-x-2 p-1 hover:bg-muted/50 rounded-md transition-colors">
-                                  <Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/>
-                                  <Label htmlFor={`vis-${plato.id}`} className="text-xs flex-grow cursor-pointer">{plato.nombre} ({formatCurrency(plato.precioPorPersona || 0)})</Label>
-                                </div>
-                              ))}
-                              {gastronomiaFiltrada.entradas.length === 0 && <p className="text-xs text-muted-foreground italic p-2">No se encontraron entradas.</p>}
+            <Accordion type="multiple" className="w-full space-y-2">
+                {['entradas', 'principales', 'infantiles'].map(cat => (
+                    <AccordionItem key={cat} value={cat} className="border rounded-xl px-4">
+                        <AccordionTrigger className="uppercase font-black text-[10px] tracking-widest text-slate-500">{cat} ({(gastronomiaFiltrada as any)[cat].length})</AccordionTrigger>
+                        <AccordionContent className="pt-2 pb-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                {(gastronomiaFiltrada as any)[cat].map((p: any) => (
+                                    <div key={p.id} className="flex items-center justify-between p-2 rounded-lg bg-slate-50">
+                                        <Label htmlFor={`v-${p.id}`} className="text-xs font-bold truncate pr-2">{p.nombre}</Label>
+                                        <Switch id={`v-${p.id}`} checked={isPlatoVisible(p.id)} onCheckedChange={v => handlePlatoVisibilityChange(p.id, v)} className="scale-75" />
+                                    </div>
+                                ))}
                             </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                        <AccordionItem value="principales" className="border rounded-md">
-                          <AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Platos Principales ({gastronomiaFiltrada.principales.length})</AccordionTrigger>
-                          <AccordionContent className="p-3 border-t">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
-                              {gastronomiaFiltrada.principales.map(plato => (
-                                <div key={plato.id} className="flex items-center space-x-2 p-1 hover:bg-muted/50 rounded-md transition-colors">
-                                  <Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/>
-                                  <Label htmlFor={`vis-${plato.id}`} className="text-xs flex-grow cursor-pointer">{plato.nombre} ({formatCurrency(plato.precioPorPersona || 0)})</Label>
-                                </div>
-                              ))}
-                              {gastronomiaFiltrada.principales.length === 0 && <p className="text-xs text-muted-foreground italic p-2">No se encontraron platos principales.</p>}
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                        <AccordionItem value="infantiles" className="border rounded-md">
-                          <AccordionTrigger className="px-3 text-sm font-medium hover:no-underline">Menús Infantiles/Adolescentes ({gastronomiaFiltrada.infantiles.length})</AccordionTrigger>
-                          <AccordionContent className="p-3 border-t">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
-                              {gastronomiaFiltrada.infantiles.map(plato => (
-                                <div key={plato.id} className="flex items-center space-x-2 p-1 hover:bg-muted/50 rounded-md transition-colors">
-                                  <Switch id={`vis-${plato.id}`} checked={isPlatoVisible(plato.id)} onCheckedChange={(v) => handlePlatoVisibilityChange(plato.id, v)}/>
-                                  <Label htmlFor={`vis-${plato.id}`} className="text-xs flex-grow cursor-pointer">{plato.nombre} ({formatCurrency(plato.precioPorPersona || 0)})</Label>
-                                </div>
-                              ))}
-                              {gastronomiaFiltrada.infantiles.length === 0 && <p className="text-xs text-muted-foreground italic p-2">No se encontraron menús infantiles.</p>}
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                      </Accordion>
-                  </AccordionContent>
-              </AccordionItem>
-           </Accordion>
+                        </AccordionContent>
+                    </AccordionItem>
+                ))}
+            </Accordion>
         </CardContent>
       </Card>
 
       <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="font-headline text-xl flex items-center gap-2"><Package className="text-primary"/>Paquetes de Servicios para Simulador</CardTitle>
-            <CardDescription>Crea y gestiona paquetes de servicios predefinidos (discoteca, decoración, etc.) para el simulador de clientes.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
+          <CardHeader><CardTitle className="font-headline text-xl">Paquetes de Servicios</CardTitle></CardHeader>
+          <CardContent className="space-y-4">
             <Button onClick={() => handleOpenModal('paquete')}><PlusCircle className="w-4 h-4 mr-2"/>Crear Paquete</Button>
-            <Separator/>
-            <Accordion type="multiple" className="w-full space-y-3">
-              {config.paquetes.map(pkg => {
-                const serviciosNormales = (pkg.serviciosIncluidos || []).filter(s => !s.esRegalo);
-                const serviciosRegalo = (pkg.serviciosIncluidos || []).filter(s => s.esRegalo);
-                return (
-                <AccordionItem key={pkg.id} value={pkg.id} className="border rounded-md shadow-sm">
-                    <div className="flex items-center p-3">
-                        <AccordionTrigger className="hover:no-underline flex-1 text-left font-semibold text-sm">{pkg.nombre}</AccordionTrigger>
-                        <div className="flex gap-2 pl-2">
-                           <Button variant="outline" size="sm" onClick={() => handleOpenModal('paquete', pkg)}>Editar</Button>
-                           <Button variant="destructive" size="sm" onClick={() => handleDeleteItem('paquete', pkg.id)} disabled={isSaving}>Eliminar</Button>
-                        </div>
+            <div className="space-y-2">
+              {config.paquetes.map(pkg => (
+                <div key={pkg.id} className="flex items-center justify-between p-4 border rounded-2xl bg-white shadow-sm">
+                    <div><p className="font-bold text-slate-800">{pkg.nombre}</p><p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">{pkg.serviciosIncluidos.length} servicios</p></div>
+                    <div className="flex gap-2">
+                        <Button variant="outline" size="sm" className="rounded-xl" onClick={() => handleOpenModal('paquete', pkg)}>Editar</Button>
+                        <Button variant="ghost" size="icon" className="text-destructive rounded-xl" onClick={() => {
+                            const updated = config.paquetes.filter(p => p.id !== pkg.id);
+                            const newConfig = { ...config, paquetes: updated };
+                            setConfig(newConfig);
+                            saveArmadoRapidoConfig(newConfig);
+                        }}><Trash2 className="w-4 h-4"/></Button>
                     </div>
-                    <AccordionContent className="p-3 border-t">
-                      {renderServiciosList(serviciosNormales, serviciosCatalogo)}
-                      {serviciosRegalo.length > 0 && (
-                        <>
-                          <Separator className="my-2"/>
-                          <h5 className="font-semibold text-xs uppercase text-green-600 flex items-center gap-1.5"><Gift className="w-3.5 h-3.5"/>Regalos</h5>
-                          {renderServiciosList(serviciosRegalo, serviciosCatalogo)}
-                        </>
-                      )}
-                    </AccordionContent>
-                </AccordionItem>
-                )
-              })}
-            </Accordion>
+                </div>
+              ))}
+            </div>
           </CardContent>
       </Card>
-      
     </div>
   );
 }
