@@ -477,10 +477,6 @@ export default function GestionMenusPage() {
                     <CardDescription className="text-xs line-clamp-2 h-8 font-medium">{menu.description}</CardDescription>
                     </CardHeader>
                     <CardContent className="flex-grow space-y-4 pt-0">
-                    <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10">
-                        <p className="text-[9px] font-black uppercase text-primary/60 tracking-widest mb-1">Costo p/p base</p>
-                        <p className="text-xl font-black text-primary">{formatCurrency(menu.items.reduce((t, i) => t + (i.totalDishCost || 0), 0))}</p>
-                    </div>
                     <div className="flex items-center justify-between"><Badge variant="secondary" className="rounded-full bg-slate-100 text-slate-500 border-none px-3 font-bold text-[10px]">{menu.items.length} PLATOS</Badge></div>
                     </CardContent>
                     <CardFooter className="flex justify-end gap-2 border-t border-slate-50 bg-slate-50/50 p-4">
