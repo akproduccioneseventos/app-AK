@@ -29,7 +29,7 @@ export async function syncLaundryCosts(fiestaId: string, guests: number, budgetI
 
     // 1. Identificar mantelería en el presupuesto
     const hasMantel = budgetItems.some(i => i.nombreServicio.toLowerCase().includes('mantelería') || i.nombreServicio.toLowerCase().includes('mantel'));
-    const hasCompleta = budgetItems.some(i => i.nombreServicio.toLowerCase().includes('mantelería completa') || i.nombreServicio.toLowerCase().includes('completo'));
+    const hasCompleta = budgetItems.some(i => i.nombreServicio.toLowerCase().includes('completa') || i.nombreServicio.toLowerCase().includes('completo'));
 
     const updateOrCreateCost = (name: string, amount: number) => {
         const index = items.findIndex(i => i.nombre === name);
@@ -40,9 +40,9 @@ export async function syncLaundryCosts(fiestaId: string, guests: number, budgetI
                 items.push({
                     id: `laundry_${Date.now()}_${Math.random().toString(36).substring(7)}`,
                     nombre: name,
-                    category: 'Lavadero del Sol',
+                    category: 'Servicio Proveedor',
                     montoEstimado: amount,
-                    notas: 'Generado automáticamente según invitados'
+                    notas: 'Generado automáticamente (Lavadero del Sol)'
                 });
             }
         } else if (index > -1) {

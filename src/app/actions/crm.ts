@@ -179,7 +179,7 @@ export async function findLeadByBudgetOrCreate(presupuesto: any) {
     
     // Normalizar datos de búsqueda para evitar duplicados
     const searchName = presupuesto.clienteNombre?.toLowerCase().trim();
-    const searchPhone = presupuesto.clienteContacto?.replace(/\D/g, '').slice(-9); // Últimos 9 dígitos
+    const searchPhone = presupuesto.clienteContacto?.replace(/\D/g, '').slice(-9);
 
     // 1. Intentar encontrar por ID vinculada o ID de presupuesto
     let leadIndex = leads.findIndex(l => 
@@ -187,7 +187,7 @@ export async function findLeadByBudgetOrCreate(presupuesto: any) {
         (l.presupuestoId === presupuesto.id)
     );
     
-    // 2. Intentar encontrar por Nombre o Teléfono Normalizado
+    // 2. Intentar encontrar por Nombre o Teléfono Normalizado (Evita duplicados)
     if (leadIndex === -1 && (searchName || searchPhone)) {
         leadIndex = leads.findIndex(l => {
             const leadName = l.name?.toLowerCase().trim();
@@ -212,7 +212,7 @@ export async function findLeadByBudgetOrCreate(presupuesto: any) {
         } as NewCrmLeadData);
         return { lead: res.lead!, isNew: true };
     } else {
-        // Actualizar datos del lead existente
+        // Actualizar datos del lead existente (Sincronización Inteligente)
         const lead = leads[leadIndex];
         lead.presupuestoId = presupuesto.id;
         lead.presupuestoEstado = presupuesto.estado;
@@ -228,7 +228,6 @@ export async function findLeadByBudgetOrCreate(presupuesto: any) {
             const conversionStage = stages.find(s => s.isConversionStage);
             if (conversionStage) lead.currentStageId = conversionStage.id;
         } else if (presupuesto.estado === 'Enviado' && lead.currentStageId === stages[0].id) {
-            // Mover a "Con presupuesto" si acaba de enviarse y estaba en la inicial
             const budgetStage = stages.find(s => s.name.toLowerCase().includes('presupuesto'));
             if (budgetStage) lead.currentStageId = budgetStage.id;
         }

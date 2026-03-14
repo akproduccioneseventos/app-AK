@@ -29,16 +29,23 @@ const parseSafeNumber = (val: any): number => {
     if (typeof val === 'number') return val;
     let str = String(val).trim();
     if (!str) return 0;
-    if (str.includes(',')) {
-        str = str.replace(/\./g, '').replace(',', '.');
+    
+    // Si ya tiene punto decimal y no tiene comas, es formato JS, lo devolvemos
+    if (str.includes('.') && !str.includes(',')) {
+        const p = parseFloat(str);
+        return isNaN(p) ? 0 : p;
     }
+
+    // Limpieza de formato uruguayo (puntos de miles opcionales, coma decimal)
+    // 1. Quitar puntos de miles: "2.044,2" -> "2044,2"
+    str = str.replace(/\./g, '');
+    // 2. Cambiar coma por punto: "2044,2" -> "2044.2"
+    str = str.replace(',', '.');
+    
     const parsed = parseFloat(str);
     return isNaN(parsed) ? 0 : parsed;
 };
 
-/**
- * Lógica de conversión inteligente entre unidades.
- */
 function calculateIngredientCost(ing: Partial<Ingredient>, catalogItems: ServicioEmpresa[]): number {
     const quantity = parseSafeNumber(ing.quantityPerPerson);
     const unitCost = parseSafeNumber(ing.costoUnitario);
@@ -46,17 +53,15 @@ function calculateIngredientCost(ing: Partial<Ingredient>, catalogItems: Servici
     
     if (quantity === 0 || unitCost === 0) return 0;
     
-    // Buscar la unidad del catálogo para saber si hay que convertir
     const catalogItem = ing.origenId ? catalogItems.find(item => item.id === ing.origenId) : null;
     const catalogUnit = (catalogItem?.unidad || '').toLowerCase().trim();
 
+    // REGLA DE AUDITORÍA:
+    // Si la receta usa unidades de masa/volumen menores (g, ml, cc) o es "No definido"
+    // y el catálogo NO usa esas mismas unidades pequeñas (ej: usa Kg/Lt), dividimos por 1000.
     const isSmallRecipeUnit = ['g', 'gramos', 'ml', 'cc', 'cc.', 'no definido'].includes(recipeUnit);
     const isSmallCatalogUnit = ['g', 'gramos', 'ml', 'cc', 'cc.'].includes(catalogUnit);
-    const isLargeCatalogUnit = ['kg', 'kilo', 'kilos', 'l', 'litro', 'litros'].includes(catalogUnit);
 
-    // REGLA MAESTRA:
-    // Dividir por 1000 solo si la receta usa una unidad pequeña (g/ml) 
-    // Y el catálogo NO usa una unidad pequeña (es decir, usa Kg/L o no se especifica).
     let factor = 1;
     if (isSmallRecipeUnit && !isSmallCatalogUnit) {
         factor = 1000;
@@ -73,11 +78,29 @@ async function readInsumosFile(): Promise<ServicioEmpresa[]> {
     } catch { return []; }
 }
 
-function recalculateMenu(menu: FullMenu, catalogItems: ServicioEmpresa[]): FullMenu {
+function recalculateMenu(menu: FullMenu, catalogItems: ServicioEmpresa[], allDishes: MenuItem[]): FullMenu {
     return {
         ...menu,
         items: (menu.items || []).map(item => {
-            const ingredientsWithCost = (item.ingredients || []).map(ing => ({
+            let finalIngredients = [...(item.ingredients || [])];
+
+            // LÓGICA DE FUSIÓN DINÁMICA: "Con Mesa Buffet"
+            if (item.name.toLowerCase().includes('mesa buffet') || item.name.toLowerCase().includes('mesa bufet')) {
+                const mesaBuffetBase = allDishes.find(d => 
+                    (d.name === 'MESA BUFET' || d.name === 'Mesa Buffet') && d.id !== item.id
+                );
+                
+                if (mesaBuffetBase && mesaBuffetBase.ingredients) {
+                    // Juntar ingredientes evitando duplicados por nombre
+                    mesaBuffetBase.ingredients.forEach(buffetIng => {
+                        if (!finalIngredients.some(existing => existing.name.toLowerCase() === buffetIng.name.toLowerCase())) {
+                            finalIngredients.push({ ...buffetIng, id: `buffet_merge_${buffetIng.id}_${Date.now()}` });
+                        }
+                    });
+                }
+            }
+
+            const ingredientsWithCost = finalIngredients.map(ing => ({
                 ...ing,
                 costoTotalReceta: calculateIngredientCost(ing, catalogItems)
             }));
@@ -85,7 +108,6 @@ function recalculateMenu(menu: FullMenu, catalogItems: ServicioEmpresa[]): FullM
             const totalDishCost = ingredientsWithCost.reduce((sum, ing) => sum + ing.costoTotalReceta, 0);
             const profitMargin = item.profitMargin === undefined ? 100 : Number(item.profitMargin);
             
-            // Si hay un precio de venta sugerido manual, lo respetamos y recalculamos el margen
             let suggestedSellingPrice: number;
             if (item.suggestedSellingPrice !== undefined && Number(item.suggestedSellingPrice) > 0) {
                 suggestedSellingPrice = Math.round(Number(item.suggestedSellingPrice));
@@ -106,13 +128,15 @@ function recalculateMenu(menu: FullMenu, catalogItems: ServicioEmpresa[]): FullM
 
 export async function getMenus(): Promise<FullMenu[]> {
   const [menus, catalog] = await Promise.all([readMenusFile(), readInsumosFile()]);
-  return menus.map(m => recalculateMenu(m, catalog));
+  const allDishes = menus.flatMap(m => m.items);
+  return menus.map(m => recalculateMenu(m, catalog, allDishes));
 }
 
 export async function getMenuById(id: string): Promise<FullMenu | null> {
   const [menus, catalog] = await Promise.all([readMenusFile(), readInsumosFile()]);
   const menu = menus.find(m => m.id === id);
-  return menu ? recalculateMenu(menu, catalog) : null;
+  const allDishes = menus.flatMap(m => m.items);
+  return menu ? recalculateMenu(menu, catalog, allDishes) : null;
 }
 
 async function readMenusFile(): Promise<FullMenu[]> {
@@ -135,7 +159,8 @@ export async function saveMenu(
   const [menus, catalog] = await Promise.all([readMenusFile(), readInsumosFile()]);
   let menuId: string;
 
-  const menuToSave = recalculateMenu(menuDataInput as FullMenu, catalog);
+  const allDishes = menus.flatMap(m => m.items);
+  const menuToSave = recalculateMenu(menuDataInput as FullMenu, catalog, allDishes);
 
   if ('id' in menuToSave && menuToSave.id) {
     menuId = menuToSave.id;

@@ -93,7 +93,7 @@ async function syncLinkedFiesta(presupuesto: Presupuesto) {
             };
             await saveFiesta(linkedFiesta);
             
-            // Sincronizar Lavadero del Sol
+            // Sincronización Automática Lavadero del Sol
             await syncLaundryCosts(linkedFiesta.id, presupuesto.invitadosCantidad, presupuesto.itemsPresupuestados);
         }
     } catch (e) {
