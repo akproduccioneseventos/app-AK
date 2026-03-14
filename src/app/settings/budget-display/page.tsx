@@ -71,7 +71,7 @@ const EditServicioForm: React.FC<{ servicioId: string | null; onUpdate: () => vo
             const result = await saveServicioEmpresaAction(servicio as ServicioEmpresa);
             if (result.success) {
                 toast({ title: "Servicio actualizado" });
-                onUpdate(); // This should trigger a refresh in the parent
+                onUpdate(); 
                 onClose();
             } else {
                 throw new Error(result.error);
@@ -98,7 +98,7 @@ const EditServicioForm: React.FC<{ servicioId: string | null; onUpdate: () => vo
                   setServicio(s => s ? { ...s, precioVenta: val, precioPorPersona: val, precioBase: val } : null);
               }}/>
             </div>
-             <Button type="submit" disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : 'Guardar Servicio'}</Button>
+             <Button type="submit" className="w-full" disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : 'Guardar Servicio'}</Button>
         </form>
     );
 };
@@ -108,7 +108,7 @@ const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): Se
         id: item.id,
         nombre: item.name,
         tipoItem: 'Servicio',
-        categoria: 'Servicio de catering', // Explicitly set category
+        categoria: 'Servicio de catering',
         subcategoria: item.type,
         calculationMethod: 'porPersona',
         precioPorPersona: item.precioVenta,
@@ -276,7 +276,7 @@ export default function BudgetDisplaySettingsPage() {
   const handleOpenModal = (type: 'paquete' | 'menu', item?: PaqueteArmadoRapido | MenuArmadoRapido) => {
     setModalType(type);
     setCurrentItem(item ? {...item, serviciosIncluidos: item.serviciosIncluidos || []} : { nombre: '', serviciosIncluidos: [] });
-    setServicioSearchTerm(''); // Reset search on modal open
+    setServicioSearchTerm(''); 
     setIsModalOpen(true);
   };
   
@@ -386,26 +386,21 @@ export default function BudgetDisplaySettingsPage() {
 
     const newConfig = { ...config, platosVisibles: newPlatosVisibles };
     
-    // Optimistic UI update
     setConfig(newConfig);
 
     try {
         await saveArmadoRapidoConfig(newConfig);
     } catch (err: any) {
         toast({ title: "Error", description: "No se pudo guardar el cambio de visibilidad.", variant: "destructive" });
-        loadData(); // Revert on error
+        loadData(); 
     }
   };
 
   const isPlatoVisible = (platoId: string) => {
     const setting = config?.platosVisibles?.find(p => p.id === platoId);
-    return setting ? setting.visible : true; // Default to visible if not set
+    return setting !== undefined ? setting.visible : true; 
   };
 
-  const getVisibleDishes = (dishList: (ServicioEmpresa)[]) => {
-    return dishList; // Show all dishes, visibility is handled by the switch
-  };
-  
   const serviciosFiltrados = useMemo(() => {
     if (!servicioSearchTerm) return serviciosCatalogo;
     const lowerCaseSearch = servicioSearchTerm.toLowerCase();
@@ -522,7 +517,7 @@ export default function BudgetDisplaySettingsPage() {
                         <EditServicioForm 
                           servicioId={editingServicioId}
                           onUpdate={async () => {
-                              await loadData(); // Refresh all data in parent
+                              await loadData(); 
                           }}
                           onClose={() => setEditingServicioId(null)}
                         />
@@ -638,7 +633,7 @@ export default function BudgetDisplaySettingsPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
                     <div className="space-y-1"><Label htmlFor={`promo-name-${index}`}>Nombre</Label><Input id={`promo-name-${index}`} value={discount.name} onChange={(e) => handleDiscountChange(index, 'name', e.target.value)} /></div>
                     <div className="space-y-1"><Label htmlFor={`promo-type-${index}`}>Tipo</Label><Select value={discount.type} onValueChange={(val) => handleDiscountChange(index, 'type', val)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="percentage">Porcentaje</SelectItem><SelectItem value="fixed">Monto Fijo</SelectItem></SelectContent></Select></div>
-                    <div className="space-y-1"><Label htmlFor={`promo-value-${index}`}>Valor</Label><Input id={`promo-value-${index}`}> <Input id={`promo-value-${index}`} type="number" value={discount.value} onChange={(e) => handleDiscountChange(index, 'value', Number(e.target.value))}/></Input></div>
+                    <div className="space-y-1"><Label htmlFor={`promo-value-${index}`}>Valor</Label><Input id={`promo-value-${index}`} type="number" value={discount.value} onChange={(e) => handleDiscountChange(index, 'value', Number(e.target.value))}/></div>
                   </div>
                 </ConfigFormItem>
               ))}
@@ -730,13 +725,15 @@ export default function BudgetDisplaySettingsPage() {
                 <h4 className="text-sm font-medium text-muted-foreground">Reglas Actuales:</h4>
                 {config?.serviceDependencies?.length > 0 ? (
                     config.serviceDependencies.map(dep => {
-                        const trigger = allMenus.flatMap(m => m.items).find(i => i.id === dep.triggerServiceId);
-                        const required = serviciosCatalogo.find(s => s.id === dep.requiredServiceId);
+                        const allDishes = allMenus.flatMap(m => m.items);
+                        const trigger = allDishes.find(i => i.id === dep.triggerServiceId);
+                        const required = serviciosCatalogo.find(s => s.id === dep.requiredServiceId) || allDishes.find(i => i.id === dep.requiredServiceId);
+                        
                         return (
                             <div key={dep.id} className="flex items-center justify-between p-2 border rounded-md text-sm">
                                 <div className="flex items-center gap-2">
                                     <span>
-                                        <span className="font-semibold">{trigger?.name || <span className='text-destructive'>Plato no encontrado</span>}</span> activa a <span className="font-semibold">{required?.name || <span className='text-destructive'>Servicio no encontrado</span>}</span>
+                                        <span className="font-semibold">{trigger?.name || <span className='text-destructive italic'>Plato no encontrado</span>}</span> activa a <span className="font-semibold">{required?.name || <span className='text-destructive italic'>Servicio no encontrado (ID: {dep.requiredServiceId})</span>}</span>
                                     </span>
                                 </div>
                                 <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteDependency(dep.id)} disabled={isSaving}>

@@ -1,4 +1,3 @@
-
 {
   "descuentoGeneral": 15,
   "paquetes": [
@@ -6,38 +5,98 @@
       "id": "pkg_basico",
       "nombre": "Paquete Básico",
       "serviciosIncluidos": [
-        { "id": "serv_mozos", "esRegalo": false },
-        { "id": "serv_mozo_cocina", "esRegalo": false },
-        { "id": "serv_manteleria_completa", "esRegalo": false },
-        { "id": "serv_invitaciones_digitales", "esRegalo": true }
+        {
+          "id": "serv_mozos",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_mozo_cocina",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_manteleria_completa",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_invitaciones_digitales",
+          "esRegalo": true
+        }
       ]
     },
     {
       "id": "pkg_intermedio",
       "nombre": "Paquete Intermedio",
       "serviciosIncluidos": [
-        { "id": "serv_mozos", "esRegalo": false },
-        { "id": "serv_mozo_cocina", "esRegalo": false },
-        { "id": "serv_manteleria_completa", "esRegalo": false },
-        { "id": "serv_disco_intermedia", "esRegalo": false },
-        { "id": "serv_invitaciones_digitales", "esRegalo": true },
-        { "id": "serv_pantalla_proyector", "esRegalo": true },
-        { "id": "serv_video_vida", "esRegalo": true }
+        {
+          "id": "serv_mozos",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_mozo_cocina",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_manteleria_completa",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_disco_intermedia",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_invitaciones_digitales",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_pantalla_proyector",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_video_vida",
+          "esRegalo": true
+        }
       ]
     },
     {
       "id": "pkg_premium",
       "nombre": "Paquete Premium",
       "serviciosIncluidos": [
-        { "id": "serv_mozos", "esRegalo": false },
-        { "id": "serv_mozo_cocina", "esRegalo": false },
-        { "id": "serv_manteleria_completa", "esRegalo": false },
-        { "id": "serv_disco_intermedia", "esRegalo": false },
-        { "id": "serv_barra_tragos", "esRegalo": false },
-        { "id": "serv_invitaciones_digitales", "esRegalo": true },
-        { "id": "serv_pantalla_proyector", "esRegalo": true },
-        { "id": "serv_video_vida", "esRegalo": true },
-        { "id": "serv_plataforma360", "esRegalo": true }
+        {
+          "id": "serv_mozos",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_mozo_cocina",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_manteleria_completa",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_disco_intermedia",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_barra_tragos",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_invitaciones_digitales",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_pantalla_proyector",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_video_vida",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_plataforma360",
+          "esRegalo": true
+        }
       ]
     }
   ],
@@ -50,7 +109,11 @@
   ],
   "platosVisibles": [],
   "serviceDependencies": [
-    { "id": "dep_asado", "triggerServiceId": "dish_main_4", "requiredServiceId": "serv_asador" }
+    {
+      "id": "dep_1773511376485",
+      "triggerServiceId": "dish_main_18",
+      "requiredServiceId": "serv_asador"
+    }
   ],
   "mostrarPrecios": true
 }
