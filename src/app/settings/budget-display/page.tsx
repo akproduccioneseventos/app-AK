@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -26,6 +27,7 @@ import type { BudgetDisplaySettings } from '@/types/settings';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -99,11 +101,14 @@ export default function BudgetDisplaySettingsPage() {
     return [...serviciosCatalogo, ...allDishes];
   }, [serviciosCatalogo, allMenus]);
 
+  const findItemName = useCallback((id: string) => {
+      return allAvailableItemsForSelection.find(i => i.id === id)?.nombre || id;
+  }, [allAvailableItemsForSelection]);
+
   const { entradasDisponibles, principalesDisponibles, menusNinoDisponibles } = useMemo(() => {
     if (!config || !allMenus.length) {
       return { entradasDisponibles: [], principalesDisponibles: [], menusNinoDisponibles: [] };
     }
-    // En SETTINGS queremos ver TODOS los platos para poder activarlos/desactivarlos
     const allDishes = allMenus.flatMap(m => m.items);
     
     const enhancedDishes = allDishes.map(item => ({
@@ -202,10 +207,6 @@ export default function BudgetDisplaySettingsPage() {
       toast({ title: "Dependencia eliminada" });
   };
 
-  const findItemName = (id: string) => {
-      return allAvailableItemsForSelection.find(i => i.id === id)?.nombre || id;
-  };
-
   if (isLoading || !config || !budgetSettings) return <div className="flex items-center justify-center min-h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
 
   return (
@@ -217,8 +218,31 @@ export default function BudgetDisplaySettingsPage() {
                 <form onSubmit={handleSaveItem} className="space-y-4 py-4">
                     <div className="space-y-1"><Label>Nombre</Label><Input value={currentItem.nombre || ''} onChange={e => setCurrentItem(p => p ? {...p, nombre: e.target.value} : null)} required/></div>
                     <Separator/>
-                    <Label>Servicios Incluidos</Label>
-                    <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"/><Input placeholder="Buscar servicios..." value={servicioSearchTerm} onChange={(e) => setServicioSearchTerm(e.target.value)} className="pl-9"/></div>
+                    
+                    <div className="space-y-2">
+                        <Label className="text-xs font-black uppercase tracking-widest text-primary">Servicios Seleccionados ({currentItem.serviciosIncluidos?.length || 0})</Label>
+                        <div className="flex flex-wrap gap-1.5 p-3 border rounded-xl bg-slate-50 min-h-[60px]">
+                            {currentItem.serviciosIncluidos && currentItem.serviciosIncluidos.length > 0 ? (
+                                currentItem.serviciosIncluidos.map(si => (
+                                    <Badge key={si.id} variant="default" className="text-[10px] h-7 px-3 rounded-lg group">
+                                        {findItemName(si.id)}
+                                        <X 
+                                            className="w-3.5 h-3.5 ml-2 cursor-pointer opacity-60 hover:opacity-100 transition-opacity" 
+                                            onClick={() => {
+                                                setCurrentItem(p => p ? ({...p, serviciosIncluidos: p.serviciosIncluidos?.filter(item => item.id !== si.id)}) : null);
+                                            }}
+                                        />
+                                    </Badge>
+                                ))
+                            ) : (
+                                <p className="text-[10px] text-slate-400 italic flex items-center justify-center w-full">Ningún servicio seleccionado aún.</p>
+                            )}
+                        </div>
+                    </div>
+
+                    <Separator/>
+                    <Label>Añadir Servicios del Catálogo</Label>
+                    <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"/><Input placeholder="Buscar servicios para añadir..." value={servicioSearchTerm} onChange={(e) => setServicioSearchTerm(e.target.value)} className="pl-9"/></div>
                     <ScrollArea className="h-64 border rounded-md p-2">
                         {allAvailableItemsForSelection.filter(s => s.nombre.toLowerCase().includes(servicioSearchTerm.toLowerCase())).map(s => (
                             <div key={s.id} className="flex items-center space-x-2 py-1.5 border-b last:border-b-0">
@@ -231,7 +255,7 @@ export default function BudgetDisplaySettingsPage() {
                             </div>
                         ))}
                     </ScrollArea>
-                    <DialogFooter><Button type="submit" disabled={isSaving}>Guardar</Button></DialogFooter>
+                    <DialogFooter><Button type="submit" disabled={isSaving}>Guardar Paquete</Button></DialogFooter>
                 </form>
            )}
         </DialogContent>
@@ -314,21 +338,36 @@ export default function BudgetDisplaySettingsPage() {
       </Card>
 
       <Card className="shadow-lg">
-          <CardHeader><CardTitle className="font-headline text-xl">Paquetes de Servicios</CardTitle></CardHeader>
-          <CardContent className="space-y-4">
+          <CardHeader>
+              <CardTitle className="font-headline text-xl">Paquetes de Servicios</CardTitle>
+              <CardDescription>Configura los paquetes predefinidos que los clientes pueden elegir en el simulador.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
             <Button onClick={() => handleOpenModal('paquete')}><PlusCircle className="w-4 h-4 mr-2"/>Crear Paquete</Button>
-            <div className="space-y-2">
+            <div className="space-y-4">
               {config.paquetes.map(pkg => (
-                <div key={pkg.id} className="flex items-center justify-between p-4 border rounded-2xl bg-white shadow-sm">
-                    <div><p className="font-bold text-slate-800">{pkg.nombre}</p><p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">{pkg.serviciosIncluidos.length} servicios</p></div>
-                    <div className="flex gap-2">
-                        <Button variant="outline" size="sm" className="rounded-xl" onClick={() => handleOpenModal('paquete', pkg)}>Editar</Button>
-                        <Button variant="ghost" size="icon" className="text-destructive rounded-xl" onClick={() => {
-                            const updated = config.paquetes.filter(p => p.id !== pkg.id);
-                            const newConfig = { ...config, paquetes: updated };
-                            setConfig(newConfig);
-                            saveArmadoRapidoConfig(newConfig);
-                        }}><Trash2 className="w-4 h-4"/></Button>
+                <div key={pkg.id} className="flex flex-col p-5 border rounded-3xl bg-white shadow-sm gap-4 group hover:border-primary/30 transition-all">
+                    <div className="flex items-center justify-between">
+                        <div className="space-y-1">
+                            <p className="font-black text-slate-800 text-lg uppercase tracking-tight">{pkg.nombre}</p>
+                            <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">{pkg.serviciosIncluidos.length} servicios configurados</p>
+                        </div>
+                        <div className="flex gap-2">
+                            <Button variant="outline" size="sm" className="rounded-xl h-9 px-4 font-bold" onClick={() => handleOpenModal('paquete', pkg)}>Editar</Button>
+                            <Button variant="ghost" size="icon" className="text-destructive rounded-xl h-9 w-9 hover:bg-red-50" onClick={() => {
+                                const updated = config.paquetes.filter(p => p.id !== pkg.id);
+                                const newConfig = { ...config, paquetes: updated };
+                                setConfig(newConfig);
+                                saveArmadoRapidoConfig(newConfig);
+                            }}><Trash2 className="w-4 h-4"/></Button>
+                        </div>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                        {pkg.serviciosIncluidos.map(s => (
+                            <Badge key={s.id} variant="secondary" className="text-[9px] font-black uppercase tracking-tighter py-0 h-5 bg-slate-50 text-slate-500 border-none group-hover:bg-primary/5 group-hover:text-primary">
+                                {findItemName(s.id)}
+                            </Badge>
+                        ))}
                     </div>
                 </div>
               ))}

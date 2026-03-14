@@ -14,10 +14,6 @@
           "esRegalo": false
         },
         {
-          "id": "serv_manteleria_completa",
-          "esRegalo": false
-        },
-        {
           "id": "serv_invitaciones_digitales",
           "esRegalo": true
         },
@@ -27,6 +23,26 @@
         },
         {
           "id": "serv_1773155046161_v5ye5ck",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_mobiliario_completo",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_organizacion",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_vajilla_completa",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1773318550669_mrmyyqe",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_foto_fiesta",
           "esRegalo": false
         }
       ]
