@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
@@ -40,6 +39,20 @@ interface ShoppingListItem {
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
+};
+
+const parseSafeNumber = (val: any): number => {
+    if (val === null || val === undefined || val === '') return 0;
+    if (typeof val === 'number') return val;
+    let str = String(val).trim();
+    if (!str) return 0;
+    if (str.includes(',')) str = str.replace(/\./g, '').replace(',', '.');
+    else {
+        const parts = str.split('.');
+        if (parts.length > 2 || (parts.length === 2 && parts[1].length === 3)) str = str.replace(/\./g, '');
+    }
+    const parsed = parseFloat(str);
+    return isNaN(parsed) ? 0 : parsed;
 };
 
 function ListaDeComprasContent() {
@@ -110,7 +123,7 @@ function ListaDeComprasContent() {
               if (catalogDish) {
                   const targetGuests = getTargetGuests(budgetItem);
                   catalogDish.ingredients.forEach(ing => {
-                      const qtyPerPerson = parseFloat(String(ing.quantityPerPerson || '0').replace(',', '.'));
+                      const qtyPerPerson = parseSafeNumber(ing.quantityPerPerson);
                       if (qtyPerPerson > 0) {
                           const totalNeeded = qtyPerPerson * targetGuests;
                           const catalogInsumo = catalogoInsumos.find(ci => ci.id === ing.origenId);
@@ -150,7 +163,7 @@ function ListaDeComprasContent() {
           }
       }
 
-      // 3. PROCESAR REPOSTERÍA (Desde el Planificador de la Fiesta)
+      // 3. PROCESAR REPOSTERÍA
       if (fiestaData.reposteria?.categorias) {
           fiestaData.reposteria.categorias.filter(c => c.activada).forEach(cat => {
               cat.items.forEach(item => {
@@ -162,7 +175,7 @@ function ListaDeComprasContent() {
                       proveedor: item.proveedor || 'Sin especificar',
                       origen: `Repostería: ${cat.nombreDisplay}`,
                       origenId: item.origenId,
-                      isOrder: true // Marcamos que es un pedido por encargo
+                      isOrder: true
                   });
               });
           });
@@ -196,11 +209,24 @@ function ListaDeComprasContent() {
 
       const finalList = Object.values(consolidated).map(item => {
           const faltante = item.isOrder ? item.cantidadNecesaria : Math.max(0, item.cantidadNecesaria - item.stockDisponible);
-          const factorUnidad = ['unidad', 'un', 'uds', 'u', 'docena', 'pack'].some(u => item.unit?.toLowerCase().includes(u)) ? 1 : 1000;
+          
+          // ALINEACIÓN CON REGLA DE AUDITORÍA:
+          const recipeUnit = (item.unit || '').toLowerCase().trim();
+          const catalogItem = catalogoInsumos.find(ci => ci.id === item.origenId);
+          const catalogUnit = (catalogItem?.unidad || '').toLowerCase().trim();
+          
+          const isSmallRecipeUnit = ['g', 'gramos', 'ml', 'cc', 'cc.', 'no definido'].includes(recipeUnit);
+          const isSmallCatalogUnit = ['g', 'gramos', 'ml', 'cc', 'cc.'].includes(catalogUnit);
+
+          let factor = 1;
+          if (isSmallRecipeUnit && !isSmallCatalogUnit) {
+              factor = 1000;
+          }
+
           return {
               ...item,
               cantidadAComprar: faltante,
-              costoTotalFaltante: Math.round(item.costoUnitario * (faltante / (item.isOrder ? 1 : factorUnidad)))
+              costoTotalFaltante: Math.round(item.costoUnitario * (faltante / factor))
           };
       }).sort((a,b) => a.proveedor.localeCompare(b.proveedor));
 
@@ -268,7 +294,7 @@ function ListaDeComprasContent() {
         <div className="grid grid-cols-1 gap-8">
             {Object.keys(groupedByProvider).map(providerName => {
                 const { items, total } = groupedByProvider[providerName];
-                const estadoActual = estadosCompra.find(e => e.provider === providerName) || { pedido: false, pagado: false };
+                const estadoActual = estadosCompra.find(e => e.proveedor === providerName) || { pedido: false, pagado: false };
                 const isSavingThis = isSavingStatus === providerName;
                 
                 return (
@@ -315,9 +341,9 @@ function ListaDeComprasContent() {
                                                 </div>
                                                 <p className="text-[9px] font-medium text-slate-400 uppercase tracking-tighter mt-0.5">Ref: {item.origen}</p>
                                             </TableCell>
-                                            <TableCell className="text-right font-black text-slate-800">{item.cantidadAComprar.toFixed(2)}</TableCell>
+                                            <TableCell className="text-right font-black text-slate-800">{item.cantidadNecesaria.toFixed(2)}</TableCell>
                                             <TableCell className="text-[10px] font-black text-slate-400 uppercase">{item.unit}</TableCell>
-                                            <TableCell className="text-right pr-8 font-black text-primary">{item.cantidadAComprar > 0 ? formatCurrency(item.costoTotalFaltante) : '-'}</TableCell>
+                                            <TableCell className="text-right pr-8 font-black text-primary">{item.costoTotalFaltante > 0 ? formatCurrency(item.costoTotalFaltante) : '-'}</TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>

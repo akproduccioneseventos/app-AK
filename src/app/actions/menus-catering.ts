@@ -63,7 +63,7 @@ function calculateIngredientCost(ing: Partial<Ingredient>, catalogItems: Servici
     const catalogItem = ing.origenId ? catalogItems.find(item => item.id === ing.origenId) : null;
     const catalogUnit = (catalogItem?.unidad || '').toLowerCase().trim();
 
-    // REGLA DE AUDITORÍA:
+    // REGLA DE AUDITORÍA UNIFICADA:
     // Gramos, ml, cc y "No definido" (Gas) dividen por 1000 si el catálogo es Kg/Lt
     const isSmallRecipeUnit = ['g', 'gramos', 'ml', 'cc', 'cc.', 'no definido'].includes(recipeUnit);
     const isSmallCatalogUnit = ['g', 'gramos', 'ml', 'cc', 'cc.'].includes(catalogUnit);
