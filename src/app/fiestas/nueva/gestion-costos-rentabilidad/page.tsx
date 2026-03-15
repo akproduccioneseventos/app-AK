@@ -118,7 +118,7 @@ function GestionCostosRentabilidadContent() {
       
       // 1. Obtener presupuesto e Invitados
       let invitadosAdultos = Number(fiesta.configuracion.invitadosAdultos) || Number(fiesta.configuracion.invitadosEstimados) || 0;
-      let invitadosNinos = Number(fiesta.configuracion.invitadosNinos) || 0;
+      let invitadosNinos = (Number(fiesta.configuracion.invitadosNinos) || 0) + (Number(fiesta.configuracion.invitadosAdolescentes) || 0);
       let totalInvitados = invitadosAdultos + invitadosNinos;
 
       if (fiesta.presupuestoId) {
@@ -187,7 +187,7 @@ function GestionCostosRentabilidadContent() {
       });
       setCostoTotalBebidas(tempCostoBebidas);
 
-      // 5. Calcular Costo de Personal Real (Sueldos + Aportes Patronales)
+      // 5. Calcular Costo de Personal Real (Sueldos + Aportes Patronales) - INCLUYE VACANTES
       let tempCostoPersonal = 0;
       fiesta.personalAsignado?.forEach(pa => {
           const rol = rolesData.find(r => r.id === pa.rolId);
