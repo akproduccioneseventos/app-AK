@@ -19,9 +19,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useSearchParams } from 'next/navigation';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getRoles } from '@/app/actions/roles';
+import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import type { Rol } from '@/types/rol';
-import type { Presupuesto } from '@/types/presupuesto';
+import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto';
 import type { PagoProveedor, CostoItem, CostoCategoria, GestionCostosData, FiestaEnPlanificacion } from '@/types/fiesta';
+import type { ServicioEmpresa } from '@/types/empresa';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DatePickerDemo } from '@/components/date-picker-demo';
@@ -47,6 +49,14 @@ const formatCurrency = (amount: number | undefined) => {
   }).format(amount);
 };
 
+function getGuestCountForItem(item: { categoriaServicio?: string, nombreServicio: string }, adultos: number, ninos: number): number {
+  const cat = (item.categoriaServicio || '').toLowerCase();
+  const name = (item.nombreServicio || '').toLowerCase();
+  if (cat.includes('infantil') || cat.includes('adolescente') || name.includes('niño')) return ninos;
+  if (cat.includes('plato principal') || name.includes('principal')) return adultos;
+  return adultos + ninos;
+};
+
 function GestionCostosRentabilidadContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
@@ -57,12 +67,15 @@ function GestionCostosRentabilidadContent() {
   const [gestionCostos, setGestionCostos] = useState<GestionCostosData>(defaultGestionCostos);
   const [pagosProveedores, setPagosProveedores] = useState<PagoProveedor[]>([]);
   
+  // Costos Calculados Dinámicamente
   const [costoTotalMenu, setCostoTotalMenu] = useState<number>(0);
   const [costoTotalReposteria, setCostoTotalReposteria] = useState<number>(0);
   const [costoTotalBebidas, setCostoTotalBebidas] = useState<number>(0);
   const [costoTotalPersonal, setCostoTotalPersonal] = useState<number>(0);
+  const [costoTotalProveedoresPresupuesto, setCostoTotalProveedoresPresupuesto] = useState<number>(0);
   
   const [allRoles, setAllRoles] = useState<Rol[]>([]);
+  const [catalogServicios, setCatalogServicios] = useState<ServicioEmpresa[]>([]);
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -88,81 +101,84 @@ function GestionCostosRentabilidadContent() {
     if (showLoading) setIsLoading(true);
     setError(null);
     try {
-      const [fiesta, rolesData] = await Promise.all([
+      const [fiesta, rolesData, catalogData] = await Promise.all([
         getFiestaById(fiestaId),
-        getRoles()
+        getRoles(),
+        getServiciosEmpresa()
       ]);
       
       if (!fiesta) throw new Error("Fiesta no encontrada.");
 
       setFiestaActual(fiesta);
       setAllRoles(rolesData);
+      setCatalogServicios(catalogData);
       setPagosProveedores(fiesta.pagosProveedores || []);
       
       let currentGestionCostos = { ...(fiesta.gestionCostos || defaultGestionCostos) };
-      const invitados = (Number(fiesta.configuracion.invitadosEstimados) || 0);
+      
+      // 1. Obtener presupuesto e Invitados
+      let invitadosAdultos = Number(fiesta.configuracion.invitadosAdultos) || Number(fiesta.configuracion.invitadosEstimados) || 0;
+      let invitadosNinos = Number(fiesta.configuracion.invitadosNinos) || 0;
+      let totalInvitados = invitadosAdultos + invitadosNinos;
 
-      // 1. Sincronizar Ingresos y Costos de Proveedores desde Presupuesto
       if (fiesta.presupuestoId) {
           const presupuesto = await getPresupuestoById(fiesta.presupuestoId);
           if (presupuesto) {
               setPresupuestoActual(presupuesto);
+              invitadosAdultos = presupuesto.invitadosAdultos || invitadosAdultos;
+              invitadosNinos = (presupuesto.invitadosNinos || 0) + (presupuesto.invitadosAdolescentes || 0);
+              totalInvitados = invitadosAdultos + invitadosNinos;
               
-              // Sincronizar Ingreso Pactado
               currentGestionCostos.ingresosTotalesEstimados = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
 
-              // Sincronizar Costos de Proveedores Externos
-              const excludedCategories = [
-                  'Entrada', 'Plato Principal', 'Postre', 'Menú Infantil', 
-                  'Menú Infantil/Adolescente', 'Servicio de catering', 
-                  'Personal', 'Servicio de bebidas', 'Servicio de repostería'
-              ];
+              // 2. Calcular costos de proveedores externos del presupuesto usando el costo de catálogo
+              let tempCostoProv = 0;
+              const excludedFromGenericProviders = ['Entrada', 'Plato Principal', 'Postre', 'Menú Infantil', 'Personal', 'Servicio de bebidas', 'Servicio de repostería'];
+              
+              presupuesto.itemsPresupuestados.forEach(item => {
+                  if (item.esRegalo) return;
+                  if (excludedFromGenericProviders.includes(item.categoriaServicio || '')) return;
 
-              const externalCosts = presupuesto.itemsPresupuestados.filter(item => {
-                  const cat = item.categoriaServicio || '';
-                  return !excludedCategories.includes(cat) && !item.esRegalo;
-              });
-
-              if (!currentGestionCostos.costosItems) currentGestionCostos.costosItems = [];
-
-              externalCosts.forEach(item => {
-                  const existingIndex = currentGestionCostos.costosItems.findIndex(ci => ci.nombre === item.nombreServicio);
-                  if (existingIndex === -1) {
-                      currentGestionCostos.costosItems.push({
-                          id: `sync_${item.idServicioCatalogo}_${Date.now()}`,
-                          nombre: item.nombreServicio,
-                          category: 'Servicio Proveedor',
-                          montoEstimado: (item.precioUnitario || 0) * (item.cantidad || 1), 
-                          notes: 'Sincronizado de presupuesto (Costo Catálogo)'
-                      });
-                  } else {
-                      currentGestionCostos.costosItems[existingIndex].montoEstimado = (item.precioUnitario || 0) * (item.cantidad || 1);
+                  const catalogItem = catalogData.find(c => c.id === item.idServicioCatalogo);
+                  if (catalogItem && catalogItem.valorUnitarioEstimado) {
+                      const costPerUnit = catalogItem.valorUnitarioEstimado;
+                      const targetGuests = getGuestCountForItem({ nombreServicio: item.nombreServicio, categoriaServicio: item.categoriaServicio }, invitadosAdultos, invitadosNinos);
+                      
+                      let lineCost = 0;
+                      if (catalogItem.calculationMethod === 'porPersona') {
+                          lineCost = costPerUnit * targetGuests;
+                      } else if (catalogItem.calculationMethod === 'ratio' && catalogItem.invitadosPorUnidad) {
+                          lineCost = Math.ceil(targetGuests / catalogItem.invitadosPorUnidad) * costPerUnit;
+                      } else {
+                          lineCost = costPerUnit * (item.cantidad || 1);
+                      }
+                      tempCostoProv += lineCost;
                   }
               });
+              setCostoTotalProveedoresPresupuesto(tempCostoProv);
           }
       }
 
       setGestionCostos(currentGestionCostos);
 
-      // 2. Calcular Costo de Catering (Menú asignado)
+      // 3. Calcular Costo de Catering (Receta real del menú asignado)
       if (fiesta.menuAsignadoId) {
         const menuData = await getMenuById(fiesta.menuAsignadoId);
         if (menuData) {
           const costoPorPersona = menuData.items.reduce((sum, item) => sum + (item.totalDishCost || 0), 0);
-          setCostoTotalMenu(costoPorPersona * invitados);
+          setCostoTotalMenu(costoPorPersona * totalInvitados);
         }
       } else {
           setCostoTotalMenu(0);
       }
       
-      // 3. Calcular Costo de Repostería
+      // 4. Calcular Costo de Repostería e Insumos de Barra
       let tempCostoReposteria = 0;
       fiesta.reposteria?.categorias.forEach(cat => {
         if(cat.activada) cat.items.forEach(item => tempCostoReposteria += (item.costoEstimado || 0) * (item.cantidad || 1));
       });
       setCostoTotalReposteria(tempCostoReposteria);
 
-      // 4. Calcular Costo de Bebidas
       let tempCostoBebidas = 0;
       fiesta.bebidas?.categorias.forEach(cat => {
         if(cat.activada) {
@@ -191,6 +207,25 @@ function GestionCostosRentabilidadContent() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  const stats = useMemo(() => {
+    const totalCostosManuales = (gestionCostos.costosItems || []).reduce((s, i) => s + i.montoEstimado, 0);
+    
+    // SUMA MAESTRA DE COSTOS
+    const totalInversionProyectada = 
+        totalCostosManuales + 
+        costoTotalMenu + 
+        costoTotalReposteria + 
+        costoTotalBebidas + 
+        costoTotalPersonal + 
+        costoTotalProveedoresPresupuesto;
+
+    const totalPagosRealizados = pagosProveedores.reduce((s, p) => s + (p.monto || 0), 0);
+    const gananciaNetaProyectada = (gestionCostos.ingresosTotalesEstimados || 0) - totalInversionProyectada;
+    const margenProyectado = (gestionCostos.ingresosTotalesEstimados || 0) > 0 ? (gananciaNetaProyectada / gestionCostos.ingresosTotalesEstimados) * 100 : 0;
+
+    return { totalInversionProyectada, totalPagosRealizados, gananciaNetaProyectada, margenProyectado };
+  }, [gestionCostos, pagosProveedores, costoTotalMenu, costoTotalReposteria, costoTotalBebidas, costoTotalPersonal, costoTotalProveedoresPresupuesto]);
 
   const handleAddCostoItem = (e: FormEvent) => {
     e.preventDefault();
@@ -248,19 +283,10 @@ function GestionCostosRentabilidadContent() {
           { id: 'cat_bebidas', label: 'Bebidas y Barra' },
           { id: 'cat_reposteria', label: 'Repostería' },
           { id: 'cat_personal', label: 'Personal (Total)' },
+          { id: 'cat_proveedores', label: 'Proveedores Presupuesto' },
           ...manual
       ];
   }, [gestionCostos.costosItems]);
-
-  const stats = useMemo(() => {
-    const totalCostosManuales = (gestionCostos.costosItems || []).reduce((s, i) => s + i.montoEstimado, 0);
-    const totalCostosProyectados = totalCostosManuales + costoTotalMenu + costoTotalReposteria + costoTotalBebidas + costoTotalPersonal;
-    const totalPagosRealizados = pagosProveedores.reduce((s, p) => s + (p.monto || 0), 0);
-    const gananciaProyectada = (gestionCostos.ingresosTotalesEstimados || 0) - totalCostosProyectados;
-    const margenProyectado = (gestionCostos.ingresosTotalesEstimados || 0) > 0 ? (gananciaProyectada / gestionCostos.ingresosTotalesEstimados) * 100 : 0;
-
-    return { totalCostosProyectados, totalPagosRealizados, gananciaProyectada, margenProyectado };
-  }, [gestionCostos, pagosProveedores, costoTotalMenu, costoTotalReposteria, costoTotalBebidas, costoTotalPersonal]);
 
   const handleSave = async () => {
     if (!fiestaId) return;
@@ -296,20 +322,14 @@ function GestionCostosRentabilidadContent() {
               <CardContent>
                   <p className="text-3xl font-black">{formatCurrency(gestionCostos.ingresosTotalesEstimados)}</p>
                   <div className="mt-4 flex gap-2">
-                    <Input 
-                        type="number" 
-                        value={gestionCostos.ingresosTotalesEstimados} 
-                        onChange={e => setGestionCostos(p => ({...p, ingresosTotalesEstimados: parseFloat(e.target.value) || 0}))}
-                        className="bg-white/10 border-white/10 h-9 text-white font-bold text-xs"
-                    />
-                    <Badge variant="outline" className="text-white border-white/20">PRESUPUESTO</Badge>
+                    <Badge variant="outline" className="text-white border-white/20 uppercase tracking-tighter text-[9px]">Sincronizado Presupuesto</Badge>
                   </div>
               </CardContent>
           </Card>
           <Card className="bg-primary text-white border-none shadow-xl rounded-[2rem] overflow-hidden">
-              <CardHeader className="pb-2"><CardTitle className="text-[10px] font-black uppercase tracking-widest opacity-60">Inversión Proyectada (Costos)</CardTitle></CardHeader>
+              <CardHeader className="pb-2"><CardTitle className="text-[10px] font-black uppercase tracking-widest opacity-60">Inversión Total (Costos)</CardTitle></CardHeader>
               <CardContent>
-                  <p className="text-3xl font-black">{formatCurrency(stats.totalCostosProyectados)}</p>
+                  <p className="text-3xl font-black">{formatCurrency(stats.totalInversionProyectada)}</p>
                   <div className="mt-2 text-[10px] font-bold uppercase opacity-80 flex items-center gap-2">
                       <Layers className="w-3 h-3"/> Pagos Reales: {formatCurrency(stats.totalPagosRealizados)}
                   </div>
@@ -318,7 +338,7 @@ function GestionCostosRentabilidadContent() {
           <Card className="bg-emerald-600 text-white border-none shadow-xl rounded-[2rem] overflow-hidden">
               <CardHeader className="pb-2"><CardTitle className="text-[10px] font-black uppercase tracking-widest opacity-60">Ganancia Neta Proyectada</CardTitle></CardHeader>
               <CardContent>
-                  <p className="text-3xl font-black">{formatCurrency(stats.gananciaProyectada)}</p>
+                  <p className="text-3xl font-black">{formatCurrency(stats.gananciaNetaProyectada)}</p>
                   <Badge className="mt-2 bg-white/20 text-white border-none font-black text-[10px] tracking-widest uppercase">
                       {stats.margenProyectado.toFixed(1)}% MARGEN EST.
                   </Badge>
@@ -335,7 +355,7 @@ function GestionCostosRentabilidadContent() {
           <TabsContent value="proyeccion" className="space-y-6 pt-4 animate-in fade-in duration-500">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                   <Card className="lg:col-span-8 border-none shadow-xl rounded-[2rem] overflow-hidden bg-white">
-                      <CardHeader className="bg-slate-50 border-b border-slate-100"><CardTitle className="text-sm font-black uppercase tracking-widest text-slate-800">Desglose de Inversión Proyectada</CardTitle></CardHeader>
+                      <CardHeader className="bg-slate-50 border-b border-slate-100"><CardTitle className="text-sm font-black uppercase tracking-widest text-slate-800">Desglose de Inversión Automática</CardTitle></CardHeader>
                       <CardContent className="p-0">
                           <Table>
                               <TableHeader className="bg-slate-50/50">
@@ -346,26 +366,30 @@ function GestionCostosRentabilidadContent() {
                               </TableHeader>
                               <TableBody>
                                   <TableRow className="group">
-                                      <TableCell className="pl-8 py-4"><div className="flex items-center gap-3"><ChefHat className="w-5 h-5 text-primary"/><div><p className="font-bold text-slate-700">Catering / Insumos</p><p className="text-[9px] uppercase font-black text-slate-400">Según receta y menú asignado</p></div></div></TableCell>
+                                      <TableCell className="pl-8 py-4"><div className="flex items-center gap-3"><ChefHat className="w-5 h-5 text-primary"/><div><p className="font-bold text-slate-700">Catering / Insumos (Recetas)</p><p className="text-[9px] uppercase font-black text-slate-400">Según costo de producción en catálogo</p></div></div></TableCell>
                                       <TableCell className="text-right pr-8 font-black text-slate-800">{formatCurrency(costoTotalMenu)}</TableCell>
                                   </TableRow>
                                   <TableRow className="group">
-                                      <TableCell className="pl-8 py-4"><div className="flex items-center gap-3"><ShoppingCart className="w-5 h-5 text-primary"/><div><p className="font-bold text-slate-700">Bebidas y Barra</p><p className="text-[9px] uppercase font-black text-slate-400">Consumo estimado por invitado</p></div></div></TableCell>
+                                      <TableCell className="pl-8 py-4"><div className="flex items-center gap-3"><GlassWater className="w-5 h-5 text-primary"/><div><p className="font-bold text-slate-700">Bebidas y Barra</p><p className="text-[9px] uppercase font-black text-slate-400">Insumos activos en el planificador</p></div></div></TableCell>
                                       <TableCell className="text-right pr-8 font-black text-slate-800">{formatCurrency(costoTotalBebidas)}</TableCell>
                                   </TableRow>
                                   <TableRow className="group">
-                                      <TableCell className="pl-8 py-4"><div className="flex items-center gap-3"><PlusCircle className="w-5 h-5 text-primary"/><div><p className="font-bold text-slate-700">Repostería</p><p className="text-[9px] uppercase font-black text-slate-400">Tortas y mesas dulces contratadas</p></div></div></TableCell>
+                                      <TableCell className="pl-8 py-4"><div className="flex items-center gap-3"><CakeSlice className="w-5 h-5 text-primary"/><div><p className="font-bold text-slate-700">Repostería</p><p className="text-[9px] uppercase font-black text-slate-400">Pedidos activos en el planificador</p></div></div></TableCell>
                                       <TableCell className="text-right pr-8 font-black text-slate-800">{formatCurrency(costoTotalReposteria)}</TableCell>
                                   </TableRow>
                                   <TableRow className="group">
-                                      <TableCell className="pl-8 py-4"><div className="flex items-center gap-3"><UserCheck className="w-5 h-5 text-primary"/><div><p className="font-bold text-slate-700">Personal del Evento</p><p className="text-[9px] uppercase font-black text-slate-400">Sueldos + Aportes patronales</p></div></div></TableCell>
+                                      <TableCell className="pl-8 py-4"><div className="flex items-center gap-3"><UserCheck className="w-5 h-5 text-primary"/><div><p className="font-bold text-slate-700">Personal del Evento</p><p className="text-[9px] uppercase font-black text-slate-400">Sueldos asignados + Aportes patronales</p></div></div></TableCell>
                                       <TableCell className="text-right pr-8 font-black text-slate-800">{formatCurrency(costoTotalPersonal)}</TableCell>
+                                  </TableRow>
+                                  <TableRow className="group">
+                                      <TableCell className="pl-8 py-4"><div className="flex items-center gap-3"><Truck className="w-5 h-5 text-primary"/><div><p className="font-bold text-slate-700">Proveedores (Presupuesto)</p><p className="text-[9px] uppercase font-black text-slate-400">Items de presupuesto (Vajilla, Salón, etc.)</p></div></div></TableCell>
+                                      <TableCell className="text-right pr-8 font-black text-slate-800">{formatCurrency(costoTotalProveedoresPresupuesto)}</TableCell>
                                   </TableRow>
                                   {gestionCostos.costosItems?.map(item => (
                                       <TableRow key={item.id} className="group hover:bg-slate-50 transition-colors border-slate-50">
                                           <TableCell className="pl-8 py-4">
                                               <div className="flex items-center gap-3">
-                                                  {item.category === 'Pago de Salón' ? <Building className="w-5 h-5 text-slate-400"/> : <Truck className="w-5 h-5 text-slate-400"/>}
+                                                  {item.category === 'Pago de Salón' ? <Building className="w-5 h-5 text-slate-400"/> : <PlusCircle className="w-5 h-5 text-slate-400"/>}
                                                   <div>
                                                       <p className="font-bold text-slate-700">{item.nombre}</p>
                                                       <p className="text-[9px] uppercase font-black text-slate-400">{item.category}</p>
@@ -389,10 +413,10 @@ function GestionCostosRentabilidadContent() {
                   </Card>
 
                   <Card className="lg:col-span-4 border-none shadow-xl rounded-[2.5rem] overflow-hidden bg-white">
-                      <CardHeader><CardTitle className="text-sm font-black uppercase tracking-widest text-slate-800">Añadir Gasto Directo</CardTitle></CardHeader>
+                      <CardHeader><CardTitle className="text-sm font-black uppercase tracking-widest text-slate-800">Añadir Gasto Extra</CardTitle></CardHeader>
                       <CardContent>
                           <form onSubmit={handleAddCostoItem} className="space-y-4">
-                              <div className="space-y-1.5"><Label className="text-[10px] font-black uppercase text-slate-400">Concepto / Proveedor</Label><Input value={newCostoNombre} onChange={e => setNewCostoNombre(e.target.value)} placeholder="Ej: Pago de Salón" className="rounded-xl h-11 bg-slate-50 border-none shadow-inner" /></div>
+                              <div className="space-y-1.5"><Label className="text-[10px] font-black uppercase text-slate-400">Concepto / Proveedor</Label><Input value={newCostoNombre} onChange={e => setNewCostoNombre(e.target.value)} placeholder="Ej: Flete especial" className="rounded-xl h-11 bg-slate-50 border-none shadow-inner" /></div>
                               <div className="space-y-1.5"><Label className="text-[10px] font-black uppercase text-slate-400">Categoría</Label><Select value={newCostoCategoria} onValueChange={(v) => setNewCostoCategoria(v as any)}><SelectTrigger className="rounded-xl h-11 bg-slate-50 border-none shadow-inner"><SelectValue/></SelectTrigger><SelectContent className="rounded-xl border-none shadow-2xl">{COST_CATEGORIES.map(c=><SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select></div>
                               <div className="space-y-1.5"><Label className="text-[10px] font-black uppercase text-slate-400">Monto Estimado</Label><Input type="number" value={newCostoMontoEstimado} onChange={e => setNewCostoMontoEstimado(e.target.value)} className="rounded-xl h-11 bg-slate-50 border-none shadow-inner font-bold" /></div>
                               <Button type="submit" className="w-full h-12 rounded-xl font-bold shadow-lg shadow-primary/20" disabled={!newCostoNombre || !newCostoMontoEstimado}>Añadir al Plan</Button>
