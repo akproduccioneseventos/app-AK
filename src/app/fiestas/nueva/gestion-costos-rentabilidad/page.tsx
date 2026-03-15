@@ -13,7 +13,7 @@ import { ArrowLeft, Save, Loader2, AlertTriangle, BarChart3, PlusCircle, Trash2,
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateGestionCostosFiestaActual, updatePagosProveedoresFiestaActual } from '@/app/actions/fiesta-actual';
 import { defaultGestionCostos } from '@/lib/fiesta-defaults';
-import { getMenuById } from '@/app/actions/menus-catering';
+import { getMenuById, getMenus } from '@/app/actions/menus-catering';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useSearchParams } from 'next/navigation';
@@ -49,7 +49,6 @@ const formatCurrency = (amount: number | undefined) => {
   }).format(amount);
 };
 
-// Helper para determinar cuántos invitados corresponden a un ítem según su categoría
 function getGuestCountForItemLocal(item: { categoriaServicio?: string, nombreServicio: string }, adultos: number, ninos: number): number {
   const cat = (item.categoriaServicio || '').toLowerCase();
   const name = (item.nombreServicio || '').toLowerCase();
@@ -68,21 +67,16 @@ function GestionCostosRentabilidadContent() {
   const [gestionCostos, setGestionCostos] = useState<GestionCostosData>(defaultGestionCostos);
   const [pagosProveedores, setPagosProveedores] = useState<PagoProveedor[]>([]);
   
-  // Costos Calculados Dinámicamente
   const [costoTotalMenu, setCostoTotalMenu] = useState<number>(0);
   const [costoTotalReposteria, setCostoTotalReposteria] = useState<number>(0);
   const [costoTotalBebidas, setCostoTotalBebidas] = useState<number>(0);
   const [costoTotalPersonal, setCostoTotalPersonal] = useState<number>(0);
   const [costoTotalProveedoresPresupuesto, setCostoTotalProveedoresPresupuesto] = useState<number>(0);
   
-  const [allRoles, setAllRoles] = useState<Rol[]>([]);
-  const [catalogServicios, setCatalogServicios] = useState<ServicioEmpresa[]>([]);
-
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Form states
   const [newCostoNombre, setNewCostoNombre] = useState('');
   const [newCostoCategoria, setNewCostoCategoria] = useState<CostoCategoria>('Otro Costo Directo');
   const [newCostoMontoEstimado, setNewCostoMontoEstimado] = useState<string>('');
@@ -102,22 +96,20 @@ function GestionCostosRentabilidadContent() {
     if (showLoading) setIsLoading(true);
     setError(null);
     try {
-      const [fiesta, rolesData, catalogData] = await Promise.all([
+      const [fiesta, rolesData, catalogData, allMenus] = await Promise.all([
         getFiestaById(fiestaId),
         getRoles(),
-        getServiciosEmpresa()
+        getServiciosEmpresa(),
+        getMenus()
       ]);
       
       if (!fiesta) throw new Error("Fiesta no encontrada.");
 
       setFiestaActual(fiesta);
-      setAllRoles(rolesData);
-      setCatalogServicios(catalogData);
       setPagosProveedores(fiesta.pagosProveedores || []);
       
       let currentGestionCostos = { ...(fiesta.gestionCostos || defaultGestionCostos) };
       
-      // 1. DETERMINAR INVITADOS Y PACTADO
       let adultos = Number(fiesta.configuracion.invitadosAdultos) || Number(fiesta.configuracion.invitadosEstimados) || 0;
       let ninos = (Number(fiesta.configuracion.invitadosNinos) || 0) + (Number(fiesta.configuracion.invitadosAdolescentes) || 0);
       let totalInv = adultos + ninos;
@@ -126,6 +118,9 @@ function GestionCostosRentabilidadContent() {
       let tempBebidas = 0;
       let tempReposteria = 0;
       let tempProvExtra = 0;
+      let tempCostoPersonal = 0;
+
+      const allDishesInCatalog = allMenus.flatMap(m => m.items);
 
       if (fiesta.presupuestoId) {
           const presupuesto = await getPresupuestoById(fiesta.presupuestoId);
@@ -136,25 +131,33 @@ function GestionCostosRentabilidadContent() {
               totalInv = adultos + ninos;
               currentGestionCostos.ingresosTotalesEstimados = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
 
-              // ESCANEAR PRESUPUESTO PARA COSTOS BASE
               presupuesto.itemsPresupuestados.forEach(item => {
                   if (item.esRegalo) return;
 
-                  const catalogItem = catalogData.find(c => c.id === item.idServicioCatalogo);
-                  if (catalogItem && catalogItem.valorUnitarioEstimado) {
-                      const cost = catalogItem.valorUnitarioEstimado;
+                  // BUSCAR COSTO (En catálogo general o en catálogo de platos)
+                  let catalogItem = catalogData.find(c => c.id === item.idServicioCatalogo);
+                  let cost = catalogItem?.valorUnitarioEstimado || 0;
+
+                  if (cost === 0) {
+                      const dish = allDishesInCatalog.find(d => d.id === item.idServicioCatalogo);
+                      if (dish) cost = dish.totalDishCost || 0;
+                  }
+
+                  if (cost > 0) {
                       const targetGuests = getGuestCountForItemLocal({ nombreServicio: item.nombreServicio, categoriaServicio: item.categoriaServicio }, adultos, ninos);
                       
                       let lineCost = 0;
-                      if (catalogItem.calculationMethod === 'porPersona') {
+                      const calcMethod = catalogItem?.calculationMethod || item.calculationMethod;
+
+                      if (calcMethod === 'porPersona') {
                           lineCost = cost * targetGuests;
-                      } else if (catalogItem.calculationMethod === 'ratio' && catalogItem.invitadosPorUnidad) {
-                          lineCost = Math.ceil(targetGuests / catalogItem.invitadosPorUnidad) * cost;
+                      } else if (calcMethod === 'ratio' && (catalogItem?.invitadosPorUnidad || item.invitadosPorUnidad)) {
+                          const ratio = catalogItem?.invitadosPorUnidad || item.invitadosPorUnidad || 1;
+                          lineCost = Math.ceil(targetGuests / ratio) * cost;
                       } else {
                           lineCost = cost * (item.cantidad || 1);
                       }
 
-                      // Categorizar
                       const cat = (item.categoriaServicio || '').toLowerCase();
                       const name = item.nombreServicio.toLowerCase();
 
@@ -172,39 +175,25 @@ function GestionCostosRentabilidadContent() {
           }
       }
 
-      // REFINAR CON DATOS REALES DEL PLANIFICADOR (SI EXISTEN)
-      // Menú real (Recetas)
-      if (fiesta.menuAsignadoId) {
-        const menuData = await getMenuById(fiesta.menuAsignadoId);
-        if (menuData) {
-          const costoPorPersona = menuData.items.reduce((sum, item) => sum + (item.totalDishCost || 0), 0);
-          tempCatering = costoPorPersona * totalInv;
-        }
+      // PERSONAL REAL (Sueldos + Aportes)
+      // Si hay personal asignado lo usamos, si no, proyectamos por presupuesto
+      if (fiesta.personalAsignado && fiesta.personalAsignado.length > 0) {
+          fiesta.personalAsignado.forEach(pa => {
+              const rol = rolesData.find(r => r.id === pa.rolId);
+              const aportes = (pa.eventSalary * (rol?.porcentajeAportesPatronales || 0)) / 100;
+              tempCostoPersonal += pa.eventSalary + aportes;
+          });
+      } else if (presupuestoActual) {
+          // Proyección de personal basada en el presupuesto
+          presupuestoActual.itemsPresupuestados.forEach(item => {
+              if (item.categoriaServicio === 'Personal') {
+                  const rol = rolesData.find(r => r.nombre.toLowerCase().includes(item.nombreServicio.toLowerCase()) || item.nombreServicio.toLowerCase().includes(r.nombre.toLowerCase()));
+                  const sueldoBase = item.precioUnitario || rol?.sueldoPorEvento || 0;
+                  const aportes = (sueldoBase * (rol?.porcentajeAportesPatronales || 0)) / 100;
+                  tempCostoPersonal += (sueldoBase + aportes) * item.cantidad;
+              }
+          });
       }
-
-      // Repostería detallada
-      let activeReposteriaCost = 0;
-      fiesta.reposteria?.categorias.forEach(cat => {
-        if(cat.activada) cat.items.forEach(item => activeReposteriaCost += (item.costoEstimado || 0) * (item.cantidad || 1));
-      });
-      if (activeReposteriaCost > 0) tempReposteria = activeReposteriaCost;
-
-      // Bebidas detalladas
-      let activeBebidasCost = 0;
-      fiesta.bebidas?.categorias.forEach(cat => {
-        if(cat.activada) {
-            cat.items.forEach(item => activeBebidasCost += item.costoTotal || ((item.costoUnitario || 0) * (item.cantidadNecesaria || 0)));
-        }
-      });
-      if (activeBebidasCost > 0) tempBebidas = activeBebidasCost;
-
-      // CALCULAR PERSONAL REAL (Sueldos + Aportes)
-      let tempCostoPersonal = 0;
-      fiesta.personalAsignado?.forEach(pa => {
-          const rol = rolesData.find(r => r.id === pa.rolId);
-          const aportes = (pa.eventSalary * (rol?.porcentajeAportesPatronales || 0)) / 100;
-          tempCostoPersonal += pa.eventSalary + aportes;
-      });
 
       setGestionCostos(currentGestionCostos);
       setCostoTotalMenu(tempCatering);
@@ -219,7 +208,7 @@ function GestionCostosRentabilidadContent() {
     } finally {
       if (showLoading) setIsLoading(false);
     }
-  }, [toast, fiestaId]);
+  }, [toast, fiestaId, presupuestoActual]);
 
   useEffect(() => {
     loadData();
