@@ -191,7 +191,7 @@ function PlannerDashboardContent() {
                             <CardHeader className="flex-row items-center gap-4 space-y-0 pb-4 p-6 sm:p-8">
                                 <div className={cn("p-3 sm:p-4 rounded-2xl group-hover:rotate-12 transition-all duration-500 shadow-inner shrink-0", module.color)}><module.icon className="w-6 h-6 sm:w-7 sm:h-7" /></div>
                                 <div className="min-w-0">
-                                    <CardTitle className="text-sm sm:text-lg font-black text-slate-800 truncate">{module.title}</CardTitle>
+                                    <CardTitle className="text-sm sm:text-lg font-black text-slate-800">{module.title}</CardTitle>
                                     <Badge className="bg-slate-100 text-slate-400 text-[8px] font-black tracking-widest uppercase border-none h-4">Activo</Badge>
                                 </div>
                             </CardHeader>
