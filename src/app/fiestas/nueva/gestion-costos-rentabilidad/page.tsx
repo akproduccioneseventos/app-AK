@@ -248,10 +248,12 @@ function GestionCostosRentabilidadContent() {
     const totalCostosProyectados = totalCostosManuales + costoTotalMenu + costoTotalReposteria + costoTotalBebidas + costoTotalPersonal;
     
     const totalPagosRealizados = pagosProveedores.reduce((s, p) => s + p.monto, 0);
-    const balanceReal = (gestionCostos.ingresosTotalesEstimados || 0) - totalPagosRealizados;
-    const rentabilidadReal = (gestionCostos.ingresosTotalesEstimados || 0) > 0 ? (balanceReal / gestionCostos.ingresosTotalesEstimados) * 100 : 0;
+    
+    // GANANCIA PROYECTADA (Basada en lo que planeamos gastar)
+    const gananciaProyectada = (gestionCostos.ingresosTotalesEstimados || 0) - totalCostosProyectados;
+    const margenProyectado = (gestionCostos.ingresosTotalesEstimados || 0) > 0 ? (gananciaProyectada / gestionCostos.ingresosTotalesEstimados) * 100 : 0;
 
-    return { totalCostosProyectados, totalPagosRealizados, balanceReal, rentabilidadReal };
+    return { totalCostosProyectados, totalPagosRealizados, gananciaProyectada, margenProyectado };
   }, [gestionCostos, pagosProveedores, costoTotalMenu, costoTotalReposteria, costoTotalBebidas, costoTotalPersonal]);
 
   const handleSave = async () => {
@@ -299,20 +301,20 @@ function GestionCostosRentabilidadContent() {
               </CardContent>
           </Card>
           <Card className="bg-primary text-white border-none shadow-xl rounded-[2rem] overflow-hidden">
-              <CardHeader className="pb-2"><CardTitle className="text-[10px] font-black uppercase tracking-widest opacity-60">Inversión Real (Egresos)</CardTitle></CardHeader>
+              <CardHeader className="pb-2"><CardTitle className="text-[10px] font-black uppercase tracking-widest opacity-60">Inversión Proyectada (Costos)</CardTitle></CardHeader>
               <CardContent>
-                  <p className="text-3xl font-black">{formatCurrency(stats.totalPagosRealizados)}</p>
+                  <p className="text-3xl font-black">{formatCurrency(stats.totalCostosProyectados)}</p>
                   <div className="mt-2 text-[10px] font-bold uppercase opacity-80 flex items-center gap-2">
-                      <Layers className="w-3 h-3"/> Proyectado: {formatCurrency(stats.totalCostosProyectados)}
+                      <Layers className="w-3 h-3"/> Pagos Reales: {formatCurrency(stats.totalPagosRealizados)}
                   </div>
               </CardContent>
           </Card>
           <Card className="bg-emerald-600 text-white border-none shadow-xl rounded-[2rem] overflow-hidden">
-              <CardHeader className="pb-2"><CardTitle className="text-[10px] font-black uppercase tracking-widest opacity-60">Ganancia Neta Real</CardTitle></CardHeader>
+              <CardHeader className="pb-2"><CardTitle className="text-[10px] font-black uppercase tracking-widest opacity-60">Ganancia Neta Proyectada</CardTitle></CardHeader>
               <CardContent>
-                  <p className="text-3xl font-black">{formatCurrency(stats.balanceReal)}</p>
-                  <Badge className="mt-2 bg-white/20 text-white border-none font-black text-[10px] tracking-widest">
-                      {stats.rentabilidadReal.toFixed(1)}% MARGEN
+                  <p className="text-3xl font-black">{formatCurrency(stats.gananciaProyectada)}</p>
+                  <Badge className="mt-2 bg-white/20 text-white border-none font-black text-[10px] tracking-widest uppercase">
+                      {stats.margenProyectado.toFixed(1)}% MARGEN EST.
                   </Badge>
               </CardContent>
           </Card>
