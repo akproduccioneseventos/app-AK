@@ -102,22 +102,25 @@ function GestionCostosRentabilidadContent() {
       let currentGestionCostos = { ...(fiesta.gestionCostos || defaultGestionCostos) };
       const invitados = (Number(fiesta.configuracion.invitadosEstimados) || 0);
 
-      // 1. Sincronizar Ingresos y Costos desde Presupuesto
+      // 1. Sincronizar Ingresos y Costos de Proveedores desde Presupuesto
       if (fiesta.presupuestoId) {
           const presupuesto = await getPresupuestoById(fiesta.presupuestoId);
           if (presupuesto) {
               setPresupuestoActual(presupuesto);
               
-              // Sincronizar Ingreso Pactado (Prioridad presupuesto)
+              // Sincronizar Ingreso Pactado
               currentGestionCostos.ingresosTotalesEstimados = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
 
-              // Sincronizar Costos de Proveedores Externos (Auditoría Inteligente)
+              // Sincronizar Costos de Proveedores Externos
+              const excludedCategories = [
+                  'Entrada', 'Plato Principal', 'Postre', 'Menú Infantil', 
+                  'Menú Infantil/Adolescente', 'Servicio de catering', 
+                  'Personal', 'Servicio de bebidas', 'Servicio de repostería'
+              ];
+
               const externalCosts = presupuesto.itemsPresupuestados.filter(item => {
-                  const cat = (item.categoriaServicio || '').toLowerCase();
-                  const name = item.nombreServicio.toLowerCase();
-                  // Detectar servicios que NO son propios del menú ni personal de base
-                  return (cat.includes('proveedor') || cat.includes('externo') || cat.includes('alquiler') || cat.includes('salón') || name.includes('seguridad'))
-                         && !cat.includes('regalo');
+                  const cat = item.categoriaServicio || '';
+                  return !excludedCategories.includes(cat) && !item.esRegalo;
               });
 
               if (!currentGestionCostos.costosItems) currentGestionCostos.costosItems = [];
@@ -128,13 +131,12 @@ function GestionCostosRentabilidadContent() {
                       currentGestionCostos.costosItems.push({
                           id: `sync_${item.idServicioCatalogo}_${Date.now()}`,
                           nombre: item.nombreServicio,
-                          category: item.nombreServicio.toLowerCase().includes('salón') ? 'Pago de Salón' : 'Servicio Proveedor',
-                          montoEstimado: item.precioUnitario, 
-                          notes: 'Sincronizado desde presupuesto'
+                          category: 'Servicio Proveedor',
+                          montoEstimado: (item.precioUnitario || 0) * (item.cantidad || 1), 
+                          notes: 'Sincronizado de presupuesto (Costo Catálogo)'
                       });
                   } else {
-                      // Actualizar monto si cambió en el presupuesto
-                      currentGestionCostos.costosItems[existingIndex].montoEstimado = item.precioUnitario;
+                      currentGestionCostos.costosItems[existingIndex].montoEstimado = (item.precioUnitario || 0) * (item.cantidad || 1);
                   }
               });
           }
@@ -173,7 +175,6 @@ function GestionCostosRentabilidadContent() {
       let tempCostoPersonal = 0;
       fiesta.personalAsignado?.forEach(pa => {
           const rol = rolesData.find(r => r.id === pa.rolId);
-          // Los aportes patronales son una inversión real de la empresa
           const aportes = (pa.eventSalary * (rol?.porcentajeAportesPatronales || 0)) / 100;
           tempCostoPersonal += pa.eventSalary + aportes;
       });
@@ -183,7 +184,7 @@ function GestionCostosRentabilidadContent() {
       setError("No se pudieron cargar los datos de costos.");
       toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
-      setIsLoading(false);
+      if (showLoading) setIsLoading(false);
     }
   }, [toast, fiestaId]);
 
@@ -224,7 +225,7 @@ function GestionCostosRentabilidadContent() {
     try {
         const result = await updatePagosProveedoresFiestaActual(fiestaId, updatedPagos);
         if (result.success) {
-            toast({ title: "Pago registrado", description: "El egreso real ha sido contabilizado." });
+            toast({ title: "Pago registrado" });
             setNewPagoMonto('');
         }
     } catch (err: any) {
@@ -253,12 +254,8 @@ function GestionCostosRentabilidadContent() {
 
   const stats = useMemo(() => {
     const totalCostosManuales = (gestionCostos.costosItems || []).reduce((s, i) => s + i.montoEstimado, 0);
-    // TOTAL DE INVERSIÓN: Manuales + Gastronomía Consolidada + Personal Consolidado
     const totalCostosProyectados = totalCostosManuales + costoTotalMenu + costoTotalReposteria + costoTotalBebidas + costoTotalPersonal;
-    
     const totalPagosRealizados = pagosProveedores.reduce((s, p) => s + (p.monto || 0), 0);
-    
-    // GANANCIA NETA PROYECTADA (Basada en lo que planeamos gastar)
     const gananciaProyectada = (gestionCostos.ingresosTotalesEstimados || 0) - totalCostosProyectados;
     const margenProyectado = (gestionCostos.ingresosTotalesEstimados || 0) > 0 ? (gananciaProyectada / gestionCostos.ingresosTotalesEstimados) * 100 : 0;
 
