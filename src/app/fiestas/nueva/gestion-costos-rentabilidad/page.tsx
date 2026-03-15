@@ -109,23 +109,23 @@ function GestionCostosRentabilidadContent() {
               setPresupuestoActual(presupuesto);
               
               // Sincronizar Ingreso Pactado
-              if (currentGestionCostos.ingresosTotalesEstimados === 0) {
-                  currentGestionCostos.ingresosTotalesEstimados = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
-              }
+              currentGestionCostos.ingresosTotalesEstimados = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
 
               // Sincronizar Costos de Proveedores Externos
               const externalCosts = presupuesto.itemsPresupuestados.filter(item => {
                   const cat = (item.categoriaServicio || '').toLowerCase();
-                  return cat.includes('proveedor') || cat.includes('externo') || cat.includes('alquiler') || cat.includes('salón');
+                  const name = item.nombreServicio.toLowerCase();
+                  return cat.includes('proveedor') || cat.includes('externo') || cat.includes('alquiler') || cat.includes('salón') || name.includes('seguridad');
               });
 
               externalCosts.forEach(item => {
+                  // Solo añadir si no existe ya para evitar duplicados en la lista de costos directos
                   if (!currentGestionCostos.costosItems?.some(ci => ci.nombre === item.nombreServicio)) {
                       currentGestionCostos.costosItems.push({
-                          id: `sync_${item.idServicioCatalogo}`,
+                          id: `sync_${item.idServicioCatalogo}_${Date.now()}`,
                           nombre: item.nombreServicio,
-                          category: 'Servicio Proveedor',
-                          montoEstimado: item.precioUnitario, // Usamos el costo estimado si lo tiene
+                          category: item.nombreServicio.toLowerCase().includes('salón') ? 'Pago de Salón' : 'Servicio Proveedor',
+                          montoEstimado: item.precioUnitario, // Usamos el precio unitario original del catálogo como base de costo
                           notes: 'Sincronizado desde presupuesto'
                       });
                   }
