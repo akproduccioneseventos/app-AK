@@ -20,12 +20,13 @@ import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getEmpleados } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
 import type { FullMenu, MenuItem } from '@/types/catering';
-import type { Presupuesto } from '@/types/presupuesto';
+import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto';
 import type { Empleado } from '@/types/empleado';
 import type { Rol } from '@/types/rol';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
 
 const formatCurrency = (amount?: number) => {
