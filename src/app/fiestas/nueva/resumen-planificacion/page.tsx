@@ -10,7 +10,7 @@ import {
     ArrowLeft, Loader2, AlertTriangle, ClipboardCheck, Printer, ChefHat, 
     Music2, Palette, Clock, GlassWater, CakeSlice, Users, MapPin, 
     CalendarDays, Edit3, Camera, UserCheck, FileText, CheckCircle2, 
-    Info, Package, Sparkles, Archive, Wallet, Gift
+    Info, Package, Sparkles, Archive, Wallet, Gift, Download, ShoppingCart, Truck
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, DecorationItem } from '@/types/fiesta';
@@ -96,6 +96,28 @@ function ResumenPlanificacionContent() {
 
   const handlePrint = () => window.print();
 
+  // Lógica de Sincronización Gastronómica Fallback: Si no hay menú, buscamos en el presupuesto
+  const gastronomiaFallback = useMemo(() => {
+    if (menu) return null;
+    if (!presupuesto) return null;
+
+    const items = presupuesto.itemsPresupuestados.filter(i => 
+        ['Entrada', 'Plato Principal', 'Postre', 'Menú Infantil/Adolescente'].includes(i.categoriaServicio || '') ||
+        i.nombreServicio.toLowerCase().includes('entrada') ||
+        i.nombreServicio.toLowerCase().includes('principal') ||
+        i.nombreServicio.toLowerCase().includes('postre')
+    );
+
+    if (items.length === 0) return null;
+
+    return {
+        entradas: items.filter(i => i.categoriaServicio === 'Entrada' || i.nombreServicio.toLowerCase().includes('entrada')),
+        principales: items.filter(i => i.categoriaServicio === 'Plato Principal' || i.nombreServicio.toLowerCase().includes('principal')),
+        postres: items.filter(i => i.categoriaServicio === 'Postre' || i.nombreServicio.toLowerCase().includes('postre')),
+        infantiles: items.filter(i => i.categoriaServicio === 'Menú Infantil/Adolescente' || i.nombreServicio.toLowerCase().includes('niño'))
+    };
+  }, [menu, presupuesto]);
+
   if (isLoading) return <div className="flex flex-col items-center justify-center h-screen space-y-4"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="font-bold uppercase tracking-widest text-slate-400">Generando Consolidado...</p></div>;
   if (error || !fiesta) return <div className="text-center p-8 text-destructive"><AlertTriangle className="w-12 h-12 mx-auto mb-4" />{error}</div>;
 
@@ -158,6 +180,32 @@ function ResumenPlanificacionContent() {
         {/* COLUMNA IZQUIERDA: OPERATIVA Y GESTIÓN */}
         <div className="lg:col-span-8 space-y-8">
             
+            {/* CENTRO DE DESCARGAS Y ACCESOS RÁPIDOS */}
+            <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-slate-50 border border-slate-100 print:hidden">
+                <CardHeader className="p-6 pb-2">
+                    <CardTitle className="text-[10px] font-black uppercase tracking-widest text-slate-400">Centro de Descargas Operativas</CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 pt-0">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <Link href={`/fiestas/nueva/carga-operativa/pdf?fiestaId=${fiestaId}`} passHref>
+                            <Button variant="outline" className="w-full h-12 rounded-xl border-slate-200 bg-white font-bold text-xs">
+                                <Truck className="w-4 h-4 mr-2 text-primary"/> Lista de Carga
+                            </Button>
+                        </Link>
+                        <Link href={`/fiestas/nueva/catering/lista-compras?fiestaId=${fiestaId}`} passHref>
+                            <Button variant="outline" className="w-full h-12 rounded-xl border-slate-200 bg-white font-bold text-xs">
+                                <ShoppingCart className="w-4 h-4 mr-2 text-primary"/> Lista de Compras
+                            </Button>
+                        </Link>
+                        <Link href={`/fiestas/nueva/itinerario/pdf?fiestaId=${fiestaId}`} passHref>
+                            <Button variant="outline" className="w-full h-12 rounded-xl border-slate-200 bg-white font-bold text-xs">
+                                <Clock className="w-4 h-4 mr-2 text-primary"/> Itinerario (PDF)
+                            </Button>
+                        </Link>
+                    </div>
+                </CardContent>
+            </Card>
+
             {/* 2. SERVICIOS DEL PRESUPUESTO (LO QUE SE VENDIÓ) */}
             <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white">
                 <CardHeader className="bg-slate-50 border-b border-slate-100 p-6">
@@ -201,7 +249,7 @@ function ResumenPlanificacionContent() {
                 </CardContent>
             </Card>
 
-            {/* 3. GASTRONOMÍA DETALLADA */}
+            {/* 3. GASTRONOMÍA DETALLADA (SINCRO INTELIGENTE) */}
             <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white">
                 <CardHeader className="bg-primary/5 border-b border-primary/10 p-6">
                     <CardTitle className="text-sm font-black uppercase tracking-widest text-primary flex items-center gap-2">
@@ -230,10 +278,31 @@ function ResumenPlanificacionContent() {
                                 )
                             })}
                         </div>
+                    ) : gastronomiaFallback ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            {Object.entries(gastronomiaFallback).map(([tipo, items]) => {
+                                if (items.length === 0) return null;
+                                return (
+                                    <div key={tipo} className="space-y-3">
+                                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-600 flex items-center gap-2">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div> {tipo.toUpperCase()} (De Presupuesto)
+                                        </h4>
+                                        <div className="space-y-2">
+                                            {items.map((i, idx) => (
+                                                <div key={idx} className="p-3 bg-amber-50/30 rounded-xl border border-amber-100 font-bold text-sm text-slate-700 flex justify-between">
+                                                    <span>{i.nombreServicio}</span>
+                                                    <Badge variant="outline" className="text-[8px] bg-white border-amber-200 text-amber-600 font-black">PRESUPUESTO</Badge>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )
+                            })}
+                        </div>
                     ) : (
                         <div className="text-center py-10 border-2 border-dashed rounded-[2rem] bg-slate-50">
                             <Info className="w-10 h-10 mx-auto text-slate-200 mb-2"/>
-                            <p className="text-xs font-black uppercase tracking-widest text-slate-400">Sin menú del catálogo seleccionado</p>
+                            <p className="text-xs font-black uppercase tracking-widest text-slate-400">Sin datos gastronómicos definidos</p>
                         </div>
                     )}
 
