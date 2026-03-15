@@ -9,10 +9,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Edit3, Save, Loader2, AlertTriangle, Trash2 } from 'lucide-react';
+import { ArrowLeft, Edit3, Save, Loader2, AlertTriangle, Trash2, Truck, UserCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getServicioEmpresaById, saveServicioEmpresa, deleteServicioEmpresa } from '@/app/actions/servicios-empresa';
-import type { ServicioEmpresa, CategoriaServicio, TramoDePrecio } from '@/types/empresa';
+import { getProveedores } from '@/app/actions/proveedores';
+import type { ServicioEmpresa, CategoriaServicio, TramoDePrecio, TipoCosto } from '@/types/empresa';
+import type { Proveedor } from '@/types/proveedor';
 import { ALL_CATEGORIAS_SERVICIO } from '@/types/empresa';
 import {
   AlertDialog,
@@ -33,6 +35,7 @@ export default function EditarServicioPage({ params }: { params: { id: string } 
   
   const [item, setItem] = useState<ServicioEmpresa | null>(null);
   const [formData, setFormData] = useState<Partial<ServicioEmpresa>>({});
+  const [proveedores, setProveedores] = useState<Proveedor[]>([]);
   
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -44,12 +47,17 @@ export default function EditarServicioPage({ params }: { params: { id: string } 
   const loadItem = useCallback(async () => {
     setIsLoading(true);
     try {
-      const loadedItem = await getServicioEmpresaById(itemId);
+      const [loadedItem, resProveedores] = await Promise.all([
+          getServicioEmpresaById(itemId),
+          getProveedores()
+      ]);
+      setProveedores(resProveedores);
       if (loadedItem) {
         setItem(loadedItem);
         setFormData({
           ...loadedItem,
-          valorUnitarioEstimado: loadedItem.valorUnitarioEstimado || 0
+          valorUnitarioEstimado: loadedItem.valorUnitarioEstimado || 0,
+          tipoCosto: loadedItem.tipoCosto || (loadedItem.categoria === 'Personal' ? 'Personal' : 'Proveedor'),
         });
       } else {
         setNotFound(true);
@@ -136,25 +144,61 @@ export default function EditarServicioPage({ params }: { params: { id: string } 
         <h1 className="text-3xl font-bold tracking-tight font-headline flex items-center gap-2"><Edit3 className="w-8 h-8 text-primary"/> Editando Servicio</h1>
         <Link href="/empresa/servicios" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
       </div>
-      <Card>
+      <Card className="shadow-lg">
         <form onSubmit={handleSubmit}>
-          <CardHeader><CardTitle>{formData.nombre}</CardTitle></CardHeader>
-          <CardContent className="space-y-4">
+          <CardHeader><CardTitle className="font-headline">{formData.nombre}</CardTitle></CardHeader>
+          <CardContent className="space-y-6">
              <div className="space-y-2"><Label htmlFor="item-nombre">Nombre del Servicio *</Label><Input id="item-nombre" value={formData.nombre || ''} onChange={(e) => handleFormChange('nombre', e.target.value)} required /></div>
              <div className="space-y-2"><Label htmlFor="item-categoria">Categoría *</Label><Select value={formData.categoria || ''} onValueChange={(value) => handleFormChange('categoria', value as CategoriaServicio)} required><SelectTrigger id="item-categoria"><SelectValue /></SelectTrigger><SelectContent>{ALL_CATEGORIAS_SERVICIO.map(cat => (<SelectItem key={cat} value={cat}>{cat}</SelectItem>))}</SelectContent></Select></div>
              <div className="space-y-2"><Label htmlFor="item-subcategoria">Subcategoría</Label><Input id="item-subcategoria" value={formData.subcategoria || ''} onChange={(e) => handleFormChange('subcategoria', e.target.value)} /></div>
-             <div className="space-y-2"><Label htmlFor="item-costo">Costo Interno (UYU)</Label><Input id="item-costo" type="number" value={formData.valorUnitarioEstimado ?? ''} onChange={(e) => handleFormChange('valorUnitarioEstimado', e.target.value === '' ? 0 : parseFloat(e.target.value))} /></div>
+             
+             <Separator/>
             
+            <div className="bg-primary/5 p-4 rounded-2xl border border-primary/10 space-y-4">
+                <h3 className="text-sm font-black uppercase tracking-widest text-primary flex items-center gap-2">
+                    <Save className="w-4 h-4"/> Configuración Financiera (Costos)
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Tipo de Costo</Label>
+                        <Select value={formData.tipoCosto} onValueChange={v => handleFormChange('tipoCosto', v as TipoCosto)}>
+                            <SelectTrigger className="h-11 rounded-xl bg-white"><SelectValue/></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="Personal">Personal (Sueldo + Aportes)</SelectItem>
+                                <SelectItem value="Proveedor">Proveedor Externo (Servicio)</SelectItem>
+                                <SelectItem value="Insumo">Insumo / Mercadería</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="space-y-2">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Proveedor / Responsable</Label>
+                        <Select value={formData.proveedor || ''} onValueChange={v => handleFormChange('proveedor', v)}>
+                            <SelectTrigger className="h-11 rounded-xl bg-white"><SelectValue placeholder="Elegir..."/></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="none">Sin asignar</SelectItem>
+                                {proveedores.map(p => (
+                                    <SelectItem key={p.id} value={p.nombreEmpresa || p.nombre || ''}>{p.nombreEmpresa || p.nombre}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="item-costo" className="text-base">Valor de Costo Unitario (UYU)</Label>
+                    <Input id="item-costo" type="number" value={formData.valorUnitarioEstimado ?? ''} onChange={(e) => handleFormChange('valorUnitarioEstimado', e.target.value === '' ? 0 : parseFloat(e.target.value))} placeholder="0.00" min="0" step="any" className="text-base p-3 font-bold" />
+                </div>
+            </div>
+
              <Separator/>
              
              <div className="space-y-3">
                  <Label className="font-medium">Cálculo de Precio de Venta *</Label>
-                 <Select value={formData.calculationMethod} onValueChange={(v) => handleFormChange('calculationMethod', v)} required><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="fijo">Precio Fijo</SelectItem><SelectItem value="porPersona">Por Persona</SelectItem><SelectItem value="ratio">Por Ratio de Invitados</SelectItem><SelectItem value="tramos">Por Tramos de Invitados</SelectItem></SelectContent></Select>
+                 <Select value={formData.calculationMethod} onValueChange={(v) => handleFormChange('calculationMethod', v)} required><SelectTrigger className="h-12 rounded-xl"><SelectValue/></SelectTrigger><SelectContent><SelectItem value="fijo">Precio Fijo</SelectItem><SelectItem value="porPersona">Por Persona</SelectItem><SelectItem value="ratio">Por Ratio de Invitados</SelectItem><SelectItem value="tramos">Por Tramos de Invitados</SelectItem></SelectContent></Select>
              </div>
              
-            {formData.calculationMethod === 'fijo' && (<div className="space-y-2"><Label htmlFor="precio-venta">Precio de Venta (Fijo)</Label><Input id="precio-venta" type="number" value={formData.precioVenta ?? ''} onChange={(e) => handleFormChange('precioVenta', e.target.value === '' ? undefined : parseFloat(e.target.value))} min="0" step="any"/></div>)}
-            {formData.calculationMethod === 'porPersona' && (<div className="space-y-2"><Label htmlFor="precio-persona">Precio Por Persona</Label><Input id="precio-persona" type="number" value={formData.precioPorPersona ?? ''} onChange={(e) => handleFormChange('precioPorPersona', e.target.value === '' ? undefined : parseFloat(e.target.value))} min="0" step="any"/></div>)}
-            {formData.calculationMethod === 'ratio' && (<div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label htmlFor="ratio-base">Precio Base (por unidad)</Label><Input id="ratio-base" type="number" value={formData.precioBase ?? ''} onChange={(e) => handleFormChange('precioBase', e.target.value === '' ? undefined : parseFloat(e.target.value))} min="0" step="any"/></div><div className="space-y-2"><Label htmlFor="ratio-invitados">Invitados por Unidad</Label><Input id="ratio-invitados" type="number" value={formData.invitadosPorUnidad ?? ''} onChange={(e) => handleFormChange('invitadosPorUnidad', e.target.value === '' ? undefined : parseInt(e.target.value, 10))} min="1"/></div></div>)}
+            {formData.calculationMethod === 'fijo' && (<div className="space-y-2"><Label htmlFor="precio-venta">Precio de Venta (Fijo)</Label><Input id="precio-venta" type="number" value={formData.precioVenta ?? ''} onChange={(e) => handleFormChange('precioVenta', e.target.value === '' ? undefined : parseFloat(e.target.value))} min="0" step="any" className="h-12 rounded-xl text-lg font-bold"/></div>)}
+            {formData.calculationMethod === 'porPersona' && (<div className="space-y-2"><Label htmlFor="precio-persona">Precio Por Persona</Label><Input id="precio-persona" type="number" value={formData.precioPorPersona ?? ''} onChange={(e) => handleFormChange('precioPorPersona', e.target.value === '' ? undefined : parseFloat(e.target.value))} min="0" step="any" className="h-12 rounded-xl text-lg font-bold"/></div>)}
+            {formData.calculationMethod === 'ratio' && (<div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label htmlFor="ratio-base">Precio Base (por unidad)</Label><Input id="ratio-base" type="number" value={formData.precioBase ?? ''} onChange={(e) => handleFormChange('precioBase', e.target.value === '' ? undefined : parseFloat(e.target.value))} min="0" step="any" className="h-12 rounded-xl text-lg font-bold"/></div><div className="space-y-2"><Label htmlFor="ratio-invitados">Invitados por Unidad</Label><Input id="ratio-invitados" type="number" value={formData.invitadosPorUnidad ?? ''} onChange={(e) => handleFormChange('invitadosPorUnidad', e.target.value === '' ? undefined : parseInt(e.target.value, 10))} min="1" className="h-12 rounded-xl"/></div></div>)}
             {formData.calculationMethod === 'tramos' && (
                 <div className="space-y-3">
                     {formData.tramosDePrecio?.map((tramo, index) => (
@@ -164,15 +208,15 @@ export default function EditarServicioPage({ params }: { params: { id: string } 
                 </div>
             )}
           </CardContent>
-          <CardFooter className="flex justify-between">
-            <Button type="submit" disabled={isSaving}>{isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin"/>}Guardar Cambios</Button>
+          <CardFooter className="flex justify-between border-t pt-6">
+            <Button type="submit" className="h-12 rounded-xl" disabled={isSaving}>{isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin"/>}Guardar Cambios</Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="destructive" type="button" disabled={isDeleting}>{isDeleting && <Loader2 className="w-4 h-4 mr-2 animate-spin"/>}Eliminar Servicio</Button>
+                <Button variant="destructive" type="button" className="h-12 rounded-xl" disabled={isDeleting}>{isDeleting && <Loader2 className="w-4 h-4 mr-2 animate-spin"/>}Eliminar Servicio</Button>
               </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader><AlertDialogTitle>¿Confirmas la eliminación?</AlertDialogTitle><AlertDialogDescription>Se eliminará "{formData.nombre}" permanentemente.</AlertDialogDescription></AlertDialogHeader>
-                <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/80">Eliminar</AlertDialogAction></AlertDialogFooter>
+              <AlertDialogContent className="rounded-3xl border-none shadow-2xl">
+                <AlertDialogHeader><AlertDialogTitle className="font-headline text-2xl text-slate-900 uppercase tracking-tighter">¿Confirmas la eliminación?</AlertDialogTitle><AlertDialogDescription className="text-sm font-medium">Se eliminará "{formData.nombre}" permanentemente del catálogo.</AlertDialogDescription></AlertDialogHeader>
+                <AlertDialogFooter className="gap-2"><AlertDialogCancel className="rounded-xl">Cancelar</AlertDialogCancel><AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/80 rounded-xl">Eliminar</AlertDialogAction></AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
           </CardFooter>

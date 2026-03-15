@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Sparkles, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, DollarSign, Printer, Copy, Percent, Package } from 'lucide-react';
+import { ArrowLeft, Sparkles, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, DollarSign, Printer, Copy, Percent, Package, Truck, UserCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { getServiciosEmpresa, deleteServicioEmpresa, duplicateServicioEmpresa, adjustAllServicePrices, adjustAllServiceCosts } from '@/app/actions/servicios-empresa';
@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -92,7 +93,7 @@ export default function CatalogoServiciosPage() {
         toast({ title: "Servicio Eliminado", description: `El servicio "${nombreItem || id}" ha sido eliminado.` });
         fetchItems(); 
       } else {
-        throw new Error(result.error || "Error desconocido al eliminar.");
+        throw new Error(result.error);
       }
     } catch (err: any) {
       toast({ title: "Error al Eliminar", description: (err as Error).message, variant: "destructive" });
@@ -199,164 +200,151 @@ export default function CatalogoServiciosPage() {
                 </Button>
             </Link>
              <Link href="/empresa" passHref>
-                <Button variant="outline">
+                <Button variant="outline" className="rounded-xl">
                     <ArrowLeft className="w-4 h-4 mr-2"/>
-                    Volver a Empresa
+                    Volver
                 </Button>
             </Link>
         </div>
       </div>
-      <CardDescription>Define los servicios que vendes, sus precios y cómo se calculan para incluirlos en los presupuestos.</CardDescription>
+      <CardDescription className="text-lg">Define los servicios que vendes y sus costos base para la sincronización financiera.</CardDescription>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
+        <Card className="shadow-lg border-none rounded-[1.5rem]">
           <CardHeader>
-            <CardTitle className="font-headline text-lg">Ajuste de Precios Global</CardTitle>
+            <CardTitle className="font-headline text-lg flex items-center gap-2"><DollarSign className="w-5 h-5 text-primary"/>Ajuste de Precios Global</CardTitle>
             <CardDescription>
-              Aplica un aumento o disminución porcentual a los precios de VENTA de todos los servicios.
+              Aplica un aumento o disminución porcentual a los precios de VENTA.
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col sm:flex-row gap-4 items-end">
             <div className="space-y-2 flex-grow">
-              <Label htmlFor="percentage-adjust">Porcentaje de Ajuste (%)</Label>
+              <Label htmlFor="percentage-adjust">Porcentaje (%)</Label>
               <Input
                 id="percentage-adjust"
                 type="number"
                 value={adjustmentPercentage}
                 onChange={(e) => setAdjustmentPercentage(Number(e.target.value))}
-                placeholder="Ej: 10 para aumentar, -5 para disminuir"
+                placeholder="Ej: 10"
+                className="h-11 rounded-xl bg-slate-50 border-none shadow-inner"
               />
             </div>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button disabled={isAdjusting || adjustmentPercentage === 0}>
+                <Button disabled={isAdjusting || adjustmentPercentage === 0} className="h-11 rounded-xl px-6 font-bold shadow-lg shadow-primary/20">
                   {isAdjusting ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Percent className="w-4 h-4 mr-2"/>}
-                  Ajustar Precios
+                  Ajustar
                 </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Esta acción modificará los PRECIOS DE VENTA de TODOS los servicios en un 
-                    <span className="font-bold"> {adjustmentPercentage}%</span>. El cambio es irreversible.
-                    Los costos internos no serán modificados. ¿Deseas continuar?
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleAdjustPrices}>
-                    Aplicar ajuste del {adjustmentPercentage > 0 ? `+${adjustmentPercentage}`: adjustmentPercentage}%
-                  </AlertDialogAction>
-                </AlertDialogFooter>
+              <AlertDialogContent className="rounded-3xl border-none shadow-2xl">
+                <AlertDialogHeader><AlertDialogTitle className="font-headline text-2xl uppercase tracking-tighter">¿Estás seguro?</AlertDialogTitle><AlertDialogDescription className="text-sm font-medium">Esta acción modificará los PRECIOS DE VENTA de TODOS los servicios en un <span className="font-bold">{adjustmentPercentage}%</span>.</AlertDialogDescription></AlertDialogHeader>
+                <AlertDialogFooter className="gap-2"><AlertDialogCancel className="rounded-xl">Cancelar</AlertDialogCancel><AlertDialogAction onClick={handleAdjustPrices} className="rounded-xl bg-primary">Aplicar ajuste</AlertDialogAction></AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="shadow-lg border-none rounded-[1.5rem] bg-slate-900 text-white">
           <CardHeader>
-            <CardTitle className="font-headline text-lg">Ajuste de Costos Global</CardTitle>
-            <CardDescription>
-              Aplica un aumento o disminución porcentual a los COSTOS INTERNOS de todos los servicios.
+            <CardTitle className="font-headline text-lg flex items-center gap-2"><Save className="w-5 h-5 text-primary"/>Ajuste de Costos Global</CardTitle>
+            <CardDescription className="text-slate-400">
+              Aplica un aumento porcentual a los COSTOS INTERNOS del catálogo.
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col sm:flex-row gap-4 items-end">
             <div className="space-y-2 flex-grow">
-              <Label htmlFor="cost-percentage-adjust">Porcentaje de Ajuste (%)</Label>
+              <Label htmlFor="cost-percentage-adjust">Porcentaje (%)</Label>
               <Input
                 id="cost-percentage-adjust"
                 type="number"
                 value={costAdjustmentPercentage}
                 onChange={(e) => setCostAdjustmentPercentage(Number(e.target.value))}
-                placeholder="Ej: 10 para aumentar, -5 para disminuir"
+                className="h-11 rounded-xl bg-white/10 border-none text-white font-bold"
               />
             </div>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button disabled={isAdjustingCost || costAdjustmentPercentage === 0} variant="secondary">
+                <Button disabled={isAdjustingCost || costAdjustmentPercentage === 0} className="h-11 rounded-xl px-6 font-bold bg-primary hover:bg-primary/90">
                   {isAdjustingCost ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Percent className="w-4 h-4 mr-2"/>}
                   Ajustar Costos
                 </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Esta acción modificará los COSTOS INTERNOS de TODOS los servicios en un 
-                    <span className="font-bold"> {costAdjustmentPercentage}%</span>. El cambio es irreversible.
-                    Los precios de venta no serán modificados automáticamente. ¿Deseas continuar?
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleAdjustCosts}>
-                    Aplicar ajuste del {costAdjustmentPercentage > 0 ? `+${costAdjustmentPercentage}`: costAdjustmentPercentage}%
-                  </AlertDialogAction>
-                </AlertDialogFooter>
+              <AlertDialogContent className="rounded-3xl border-none shadow-2xl">
+                <AlertDialogHeader><AlertDialogTitle className="font-headline text-2xl uppercase tracking-tighter">¿Actualizar todos los costos?</AlertDialogTitle><AlertDialogDescription className="text-sm font-medium">Esta acción modificará los COSTOS INTERNOS en un <span className="font-bold">{costAdjustmentPercentage}%</span>. Afectará el cálculo de rentabilidad.</AlertDialogDescription></AlertDialogHeader>
+                <AlertDialogFooter className="gap-2"><AlertDialogCancel className="rounded-xl">Cancelar</AlertDialogCancel><AlertDialogAction onClick={handleAdjustCosts} className="rounded-xl bg-primary">Aplicar ajuste</AlertDialogAction></AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
           </CardContent>
         </Card>
       </div>
 
-      <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle>Listado de Servicios ({filteredItems.length})</CardTitle>
-          <div className="relative pt-2">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input type="text" placeholder="Buscar por nombre o categoría..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 text-base"/>
+      <Card className="shadow-2xl border-none rounded-[2rem] overflow-hidden bg-white">
+        <CardHeader className="bg-slate-50 border-b border-slate-100 p-6 sm:p-8">
+          <CardTitle className="text-xl sm:text-2xl font-black uppercase tracking-tighter">Listado Maestro de Servicios ({filteredItems.length})</CardTitle>
+          <div className="relative pt-4">
+            <Search className="absolute left-3 top-7 h-4 w-4 text-slate-400" />
+            <Input type="text" placeholder="Buscar por nombre o categoría..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 rounded-xl h-12 bg-white border-slate-200 shadow-sm text-base"/>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-6 sm:p-8">
           {isLoading ? (
-            <div className="flex items-center justify-center py-10"><Loader2 className="w-10 h-10 animate-spin text-primary" /></div>
+            <div className="flex items-center justify-center py-20"><Loader2 className="w-12 h-12 animate-spin text-primary/30" /></div>
           ) : error ? (
-             <div className="py-10 text-center text-destructive"><AlertTriangle className="w-12 h-12 mx-auto mb-3" /><p className="font-semibold">{error}</p></div>
+             <div className="py-20 text-center text-destructive"><AlertTriangle className="w-12 h-12 mx-auto mb-3" /><p className="font-bold uppercase tracking-widest">{error}</p></div>
           ) : categoriasOrdenadas.length === 0 ? (
-            <div className="py-10 text-center"><p className="text-muted-foreground text-lg">{allItems.length === 0 ? "No hay servicios creados." : "No se encontraron servicios con los filtros aplicados."}</p></div>
+            <div className="py-20 text-center"><p className="text-slate-400 font-bold uppercase tracking-widest text-sm">{allItems.length === 0 ? "No hay servicios creados." : "No se encontraron resultados."}</p></div>
           ) : (
-            <Accordion type="multiple" defaultValue={categoriasOrdenadas} className="w-full space-y-3">
+            <Accordion type="multiple" defaultValue={categoriasOrdenadas} className="w-full space-y-4">
               {categoriasOrdenadas.map((categoria) => (
-                <AccordionItem value={categoria} key={categoria} className="border rounded-lg shadow-sm bg-card">
-                  <AccordionTrigger className="px-4 py-3 hover:no-underline text-lg font-headline text-primary hover:bg-muted/50 rounded-t-lg">
-                    <div className="flex items-center gap-2">{categoria} ({itemsAgrupadosPorCategoria[categoria]?.length || 0})</div>
+                <AccordionItem value={categoria} key={categoria} className="border-none shadow-xl rounded-[1.5rem] overflow-hidden bg-white group">
+                  <AccordionTrigger className="px-6 py-4 hover:no-underline text-base font-black uppercase tracking-[0.2em] text-slate-800 hover:bg-slate-50 transition-all">
+                    <div className="flex items-center gap-3">
+                        <div className="w-2 h-6 bg-primary rounded-full"></div>
+                        {categoria} 
+                        <Badge variant="secondary" className="rounded-full bg-slate-100 text-slate-500 border-none px-3 font-bold text-[10px]">{itemsAgrupadosPorCategoria[categoria]?.length || 0}</Badge>
+                    </div>
                   </AccordionTrigger>
-                  <AccordionContent className="px-4 pt-0 pb-3">
-                    <div className="space-y-3 mt-2">
+                  <AccordionContent className="px-6 pb-6 pt-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {itemsAgrupadosPorCategoria[categoria]?.map((item) => (
-                        <Card key={item.id} className="bg-muted/30 hover:shadow-sm transition-shadow flex flex-col">
-                          <CardHeader className="pb-2 pt-3 px-3">
-                            <div className="flex justify-between items-start">
-                              <CardTitle className="text-base font-semibold">{item.nombre}</CardTitle>
-                              <div className="flex gap-1">
-                                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleDuplicate(item.id, item.nombre)} disabled={!!deletingId || !!duplicatingId} title="Duplicar Servicio">
+                        <Card key={item.id} className="border border-slate-100 shadow-sm hover:shadow-md hover:border-primary/20 transition-all rounded-2xl overflow-hidden bg-white group/item">
+                          <CardHeader className="pb-3 pt-4 px-4 bg-slate-50/50">
+                            <div className="flex justify-between items-start gap-2">
+                              <CardTitle className="text-sm font-black text-slate-800 uppercase tracking-tight truncate flex-grow" title={item.nombre}>{item.nombre}</CardTitle>
+                              <div className="flex gap-1 shrink-0">
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-white" onClick={() => handleDuplicate(item.id, item.nombre)} disabled={!!deletingId || !!duplicatingId} title="Duplicar">
                                       {duplicatingId === item.id ? <Loader2 className="w-3.5 h-3.5 animate-spin"/> : <Copy className="w-3.5 h-3.5"/>}
                                   </Button>
                                   <Link href={`/empresa/servicios/editar/${item.id}`} passHref>
-                                      <Button variant="ghost" size="icon" className="h-7 w-7" disabled={!!deletingId || !!duplicatingId}><Edit className="w-3.5 h-3.5"/></Button>
+                                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-white text-primary"><Edit className="w-3.5 h-3.5"/></Button>
                                   </Link>
                                   <AlertDialog>
-                                    <AlertDialogTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" disabled={!!deletingId || !!duplicatingId}><Trash2 className="w-3.5 h-3.5" /></Button></AlertDialogTrigger>
-                                    <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>¿Confirmar eliminación?</AlertDialogTitle><AlertDialogDescription>El servicio "{item.nombre}" será eliminado.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDelete(item.id, item.nombre)} disabled={deletingId === item.id} className="bg-destructive hover:bg-destructive/90">{deletingId === item.id && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin"/>}Eliminar</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
+                                    <AlertDialogTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-red-50 text-destructive" disabled={!!deletingId || !!duplicatingId}><Trash2 className="w-3.5 h-3.5" /></Button></AlertDialogTrigger>
+                                    <AlertDialogContent className="rounded-3xl border-none shadow-2xl"><AlertDialogHeader><AlertDialogTitle className="font-headline text-2xl uppercase tracking-tighter">¿Eliminar servicio?</AlertDialogTitle><AlertDialogDescription className="text-sm font-medium">Se eliminará "{item.nombre}" del catálogo.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter className="gap-2"><AlertDialogCancel className="rounded-xl">Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDelete(item.id, item.nombre)} disabled={deletingId === item.id} className="bg-destructive hover:bg-destructive/90 rounded-xl">Eliminar</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
                                   </AlertDialog>
                               </div>
                             </div>
                           </CardHeader>
-                          <CardContent className="px-3 pb-3 text-sm space-y-1 flex-grow">
-                             <div><span className="text-muted-foreground">Cálculo: </span><Badge variant="secondary">{getCalculationMethodLabel(item.calculationMethod)}</Badge></div>
-                             <p><span className="text-muted-foreground">Precio Venta: </span><span className="font-semibold text-primary/90">{getDisplayPrice(item)}</span></p>
-                             <p><span className="text-muted-foreground">Costo Est.: </span><span className="font-semibold">{formatCurrency(item.valorUnitarioEstimado)}</span></p>
+                          <CardContent className="px-4 pb-4 pt-3 text-xs space-y-3">
+                             <div className="flex flex-wrap gap-2">
+                                <Badge variant="secondary" className="rounded-lg text-[9px] font-black uppercase bg-slate-100 text-slate-500 border-none">{getCalculationMethodLabel(item.calculationMethod)}</Badge>
+                                {item.tipoCosto === 'Personal' ? (
+                                    <Badge className="rounded-lg text-[9px] font-black uppercase bg-indigo-50 text-indigo-600 border-none flex items-center gap-1"><UserCheck className="w-3 h-3"/> Personal</Badge>
+                                ) : (
+                                    <Badge className="rounded-lg text-[9px] font-black uppercase bg-amber-50 text-amber-600 border-none flex items-center gap-1"><Truck className="w-3 h-3"/> {item.proveedor || 'Proveedor'}</Badge>
+                                )}
+                             </div>
+                             <div className="grid grid-cols-2 gap-4 border-t border-dashed border-slate-100 pt-3">
+                                <div>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Precio Venta</p>
+                                    <p className="text-sm font-black text-primary">{getDisplayPrice(item)}</p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Costo Base</p>
+                                    <p className="text-sm font-black text-slate-700">{formatCurrency(item.valorUnitarioEstimado)}</p>
+                                </div>
+                             </div>
                           </CardContent>
-                           {item.id === 'serv_1752489600086_barlib' && (
-                                <CardFooter className="p-2 border-t">
-                                    <Link href="/empresa/insumos?subcategoria=Barra+de+Tragos" passHref className="w-full">
-                                        <Button variant="outline" size="sm" className="w-full">
-                                            <Package className="w-4 h-4 mr-2"/> Ver Insumos de Barra
-                                        </Button>
-                                    </Link>
-                                </CardFooter>
-                            )}
                         </Card>
                       ))}
                     </div>

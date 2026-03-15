@@ -1,6 +1,7 @@
+
 'use server';
 
-import type { ServicioEmpresa } from '@/types/empresa';
+import type { ServicioEmpresa, TipoCosto } from '@/types/empresa';
 import { readData, writeData } from '@/lib/data-service';
 
 const SERVICIOS_EMPRESA_FILE = 'servicios-empresa.json';
@@ -10,17 +11,20 @@ export async function getServiciosEmpresa(): Promise<ServicioEmpresa[]> {
     return items.map(item => ({
       id: item.id,
       nombre: item.nombre,
-      tipoItem: 'Servicio',
+      tipoItem: item.tipoItem || 'Servicio',
       categoria: item.categoria,
       subcategoria: item.subcategoria || undefined,
       valorUnitarioEstimado: item.valorUnitarioEstimado === undefined || item.valorUnitarioEstimado === null || isNaN(Number(item.valorUnitarioEstimado)) ? 0 : Number(item.valorUnitarioEstimado),
+      tipoCosto: item.tipoCosto || (item.categoria === 'Personal' ? 'Personal' : 'Proveedor'),
+      proveedor: item.proveedor || undefined,
       notas: item.notas || undefined,
       precioVenta: item.precioVenta === undefined || item.precioVenta === null || isNaN(Number(item.precioVenta)) ? undefined : Number(item.precioVenta),
-      calculationMethod: item.calculationMethod,
+      calculationMethod: item.calculationMethod || 'fijo',
       precioBase: item.precioBase === undefined || item.precioBase === null || isNaN(Number(item.precioBase)) ? undefined : Number(item.precioBase),
       precioPorPersona: item.precioPorPersona === undefined || item.precioPorPersona === null || isNaN(Number(item.precioPorPersona)) ? undefined : Number(item.precioPorPersona),
       invitadosPorUnidad: item.invitadosPorUnidad === undefined || item.invitadosPorUnidad === null || isNaN(Number(item.invitadosPorUnidad)) ? undefined : Number(item.invitadosPorUnidad),
       tramosDePrecio: item.tramosDePrecio || undefined,
+      unidad: item.unidad || 'Unidad',
     }));
 }
 
@@ -38,7 +42,7 @@ export async function saveServicioEmpresa(
   
   const dataWithParsedNumbers: Partial<ServicioEmpresa> = {
     ...itemData,
-    tipoItem: 'Servicio', // Force type to 'Servicio'
+    tipoItem: itemData.tipoItem || 'Servicio',
     valorUnitarioEstimado: itemData.valorUnitarioEstimado === undefined || itemData.valorUnitarioEstimado === null || isNaN(Number(itemData.valorUnitarioEstimado)) ? 0 : Number(itemData.valorUnitarioEstimado),
     precioVenta: itemData.precioVenta === undefined || itemData.precioVenta === null || isNaN(Number(itemData.precioVenta)) ? undefined : Number(itemData.precioVenta),
     precioBase: itemData.precioBase === undefined || itemData.precioBase === null || isNaN(Number(itemData.precioBase)) ? undefined : Number(itemData.precioBase),
@@ -46,7 +50,9 @@ export async function saveServicioEmpresa(
     invitadosPorUnidad: itemData.invitadosPorUnidad === undefined || itemData.invitadosPorUnidad === null || isNaN(Number(itemData.invitadosPorUnidad)) ? undefined : Number(itemData.invitadosPorUnidad),
     tramosDePrecio: itemData.tramosDePrecio || undefined,
     subcategoria: itemData.subcategoria?.trim() || undefined,
-    notas: (itemData as any).notas?.trim() || undefined,
+    notas: itemData.notas?.trim() || undefined,
+    tipoCosto: itemData.tipoCosto || (itemData.categoria === 'Personal' ? 'Personal' : 'Proveedor'),
+    proveedor: itemData.proveedor?.trim() || undefined,
   };
   
   if (!dataWithParsedNumbers.nombre || dataWithParsedNumbers.nombre.trim() === "") return { success: false, error: "El nombre del servicio es obligatorio." };
@@ -90,7 +96,6 @@ export async function duplicateServicioEmpresa(
     return { success: false, error: 'Servicio a duplicar no encontrado.' };
   }
 
-  // Create a new object, omitting the id
   const { id, ...originalData } = servicioToDuplicate;
 
   const newServicioData: Omit<ServicioEmpresa, 'id'> = {
@@ -98,8 +103,6 @@ export async function duplicateServicioEmpresa(
     nombre: `[COPIA] ${originalData.nombre}`,
   };
 
-  // Use the existing save function to create the new service.
-  // It will generate a new ID and handle saving the file.
   return saveServicioEmpresa(newServicioData);
 }
 
@@ -119,7 +122,6 @@ export async function adjustAllServicePrices(
     const multiplier = 1 + percentage / 100;
 
     const updatedInventario = inventario.map(servicio => {
-      // We only adjust the selling prices, not the estimated cost (valorUnitarioEstimado)
       const newServicio = { ...servicio };
 
       if (newServicio.precioVenta !== undefined) {

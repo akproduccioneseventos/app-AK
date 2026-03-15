@@ -80,7 +80,9 @@ export type UnidadServicio = 'Unidad' | 'Set' | 'Metro' | 'Kg' | 'Litro' | 'Caja
 export const ALL_UNIDADES_SERVICIO: UnidadServicio[] = ['Unidad', 'Set', 'Metro', 'Kg', 'Litro', 'Caja', 'Rollo', 'Docena', 'Por persona', 'Por evento', 'Gramos', 'Cc', 'Pack'];
 
 export type TipoItemEmpresa = 'Insumo/Ingrediente' | 'Bebida (Insumo)' | 'Activo Fijo' | 'Servicio';
-export const ALL_TIPOS_ITEM_EMPRESA: TipoItemEmpresa[] = ['Insumo/Ingrediente', 'Bebida (Insumo)', 'Activo Fijo', 'Servicio'];
+export const ALL_TIPOS_ITEM_EMPRESA: TipoItemEmpresa[] = ['Insumo/Ingrediente', 'Bebida (Insumo)' , 'Activo Fijo', 'Servicio'];
+
+export type TipoCosto = 'Personal' | 'Proveedor' | 'Insumo' | 'Gasto Fijo';
 
 export interface TramoDePrecio {
   id: string;
@@ -98,8 +100,9 @@ export interface ServicioEmpresa {
   
   // Inventory/Cost fields
   cantidadDisponible?: number; 
-  valorUnitarioEstimado?: number; // Representa el COSTO
-  proveedor?: string;
+  valorUnitarioEstimado?: number; // Representa el COSTO base
+  tipoCosto?: TipoCosto; // Naturaleza del costo para sincronización financiera
+  proveedor?: string; // Nombre del proveedor o responsable del costo
   unidad?: UnidadServicio | string; 
   notas?: string;
   
