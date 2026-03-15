@@ -25,6 +25,7 @@ import type { PagoProveedor, CostoItem, CostoCategoria, GestionCostosData, Fiest
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DatePickerDemo } from '@/components/date-picker-demo';
+import { Badge } from '@/components/ui/badge';
 
 const COST_CATEGORIES: CostoCategoria[] = [
   'Servicio Proveedor',
@@ -159,8 +160,6 @@ function GestionCostosRentabilidadContent() {
     setNewCostoNombre(''); setNewCostoMontoEstimado('');
   };
 
-  // --- TOQUE DE ORO 1: INTEGRIDAD FINANCIERA (PAGOS REALES) ---
-
   const handleAddPago = async (e: FormEvent) => {
     e.preventDefault();
     if (!newPagoCostoId || !newPagoMonto || !newPagoFecha || !fiestaId) return;
@@ -224,7 +223,7 @@ function GestionCostosRentabilidadContent() {
   if (isLoading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 pb-20">
+    <div className="max-w-4xl mx-auto space-y-8 pb-20">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <BarChart3 className="w-8 h-8 text-primary" />
@@ -291,7 +290,10 @@ function GestionCostosRentabilidadContent() {
                                           <TableCell className="text-right pr-8">
                                               <div className="flex items-center justify-end gap-3">
                                                   <span className="font-mono font-bold">{formatCurrency(item.montoEstimado)}</span>
-                                                  <Button variant="ghost" size="icon" className="h-8 w-8 text-rose-500 opacity-0 group-hover:opacity-100" onClick={() => handleDeleteCostoItem(item.id)}><Trash2 className="w-4 h-4"/></Button>
+                                                  <Button variant="ghost" size="icon" className="h-8 w-8 text-rose-500 opacity-0 group-hover:opacity-100" onClick={() => {
+                                                      const updated = gestionCostos.costosItems.filter(i => i.id !== item.id);
+                                                      setGestionCostos({...gestionCostos, costosItems: updated});
+                                                  }}><Trash2 className="w-4 h-4"/></Button>
                                               </div>
                                           </TableCell>
                                       </TableRow>
