@@ -49,7 +49,8 @@ const formatCurrency = (amount: number | undefined) => {
   }).format(amount);
 };
 
-function getGuestCountForItem(item: { categoriaServicio?: string, nombreServicio: string }, adultos: number, ninos: number): number {
+// Helper para determinar cuántos invitados corresponden a un ítem según su categoría
+function getGuestCountForItemLocal(item: { categoriaServicio?: string, nombreServicio: string }, adultos: number, ninos: number): number {
   const cat = (item.categoriaServicio || '').toLowerCase();
   const name = (item.nombreServicio || '').toLowerCase();
   if (cat.includes('infantil') || cat.includes('adolescente') || name.includes('niño')) return ninos;
@@ -116,85 +117,101 @@ function GestionCostosRentabilidadContent() {
       
       let currentGestionCostos = { ...(fiesta.gestionCostos || defaultGestionCostos) };
       
-      // 1. Obtener presupuesto e Invitados
-      let invitadosAdultos = Number(fiesta.configuracion.invitadosAdultos) || Number(fiesta.configuracion.invitadosEstimados) || 0;
-      let invitadosNinos = (Number(fiesta.configuracion.invitadosNinos) || 0) + (Number(fiesta.configuracion.invitadosAdolescentes) || 0);
-      let totalInvitados = invitadosAdultos + invitadosNinos;
+      // 1. DETERMINAR INVITADOS Y PACTADO
+      let adultos = Number(fiesta.configuracion.invitadosAdultos) || Number(fiesta.configuracion.invitadosEstimados) || 0;
+      let ninos = (Number(fiesta.configuracion.invitadosNinos) || 0) + (Number(fiesta.configuracion.invitadosAdolescentes) || 0);
+      let totalInv = adultos + ninos;
+
+      let tempCatering = 0;
+      let tempBebidas = 0;
+      let tempReposteria = 0;
+      let tempProvExtra = 0;
 
       if (fiesta.presupuestoId) {
           const presupuesto = await getPresupuestoById(fiesta.presupuestoId);
           if (presupuesto) {
               setPresupuestoActual(presupuesto);
-              invitadosAdultos = presupuesto.invitadosAdultos || invitadosAdultos;
-              invitadosNinos = (presupuesto.invitadosNinos || 0) + (presupuesto.invitadosAdolescentes || 0);
-              totalInvitados = invitadosAdultos + invitadosNinos;
-              
+              adultos = presupuesto.invitadosAdultos || adultos;
+              ninos = (presupuesto.invitadosNinos || 0) + (presupuesto.invitadosAdolescentes || 0);
+              totalInv = adultos + ninos;
               currentGestionCostos.ingresosTotalesEstimados = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
 
-              // 2. Calcular costos de proveedores externos del presupuesto usando el costo de catálogo
-              let tempCostoProv = 0;
-              const excludedFromGenericProviders = ['Entrada', 'Plato Principal', 'Postre', 'Menú Infantil', 'Personal', 'Servicio de bebidas', 'Servicio de repostería'];
-              
+              // ESCANEAR PRESUPUESTO PARA COSTOS BASE
               presupuesto.itemsPresupuestados.forEach(item => {
                   if (item.esRegalo) return;
-                  if (excludedFromGenericProviders.includes(item.categoriaServicio || '')) return;
 
                   const catalogItem = catalogData.find(c => c.id === item.idServicioCatalogo);
                   if (catalogItem && catalogItem.valorUnitarioEstimado) {
-                      const costPerUnit = catalogItem.valorUnitarioEstimado;
-                      const targetGuests = getGuestCountForItem({ nombreServicio: item.nombreServicio, categoriaServicio: item.categoriaServicio }, invitadosAdultos, invitadosNinos);
+                      const cost = catalogItem.valorUnitarioEstimado;
+                      const targetGuests = getGuestCountForItemLocal({ nombreServicio: item.nombreServicio, categoriaServicio: item.categoriaServicio }, adultos, ninos);
                       
                       let lineCost = 0;
                       if (catalogItem.calculationMethod === 'porPersona') {
-                          lineCost = costPerUnit * targetGuests;
+                          lineCost = cost * targetGuests;
                       } else if (catalogItem.calculationMethod === 'ratio' && catalogItem.invitadosPorUnidad) {
-                          lineCost = Math.ceil(targetGuests / catalogItem.invitadosPorUnidad) * costPerUnit;
+                          lineCost = Math.ceil(targetGuests / catalogItem.invitadosPorUnidad) * cost;
                       } else {
-                          lineCost = costPerUnit * (item.cantidad || 1);
+                          lineCost = cost * (item.cantidad || 1);
                       }
-                      tempCostoProv += lineCost;
+
+                      // Categorizar
+                      const cat = (item.categoriaServicio || '').toLowerCase();
+                      const name = item.nombreServicio.toLowerCase();
+
+                      if (cat.includes('catering') || cat.includes('entrada') || cat.includes('principal') || cat.includes('postre') || cat.includes('menú infantil')) {
+                          tempCatering += lineCost;
+                      } else if (cat.includes('bebida') || name.includes('barra') || name.includes('licuado')) {
+                          tempBebidas += lineCost;
+                      } else if (cat.includes('repostería') || name.includes('torta')) {
+                          tempReposteria += lineCost;
+                      } else if (!cat.includes('personal')) {
+                          tempProvExtra += lineCost;
+                      }
                   }
               });
-              setCostoTotalProveedoresPresupuesto(tempCostoProv);
           }
       }
 
-      setGestionCostos(currentGestionCostos);
-
-      // 3. Calcular Costo de Catering (Receta real del menú asignado)
+      // REFINAR CON DATOS REALES DEL PLANIFICADOR (SI EXISTEN)
+      // Menú real (Recetas)
       if (fiesta.menuAsignadoId) {
         const menuData = await getMenuById(fiesta.menuAsignadoId);
         if (menuData) {
           const costoPorPersona = menuData.items.reduce((sum, item) => sum + (item.totalDishCost || 0), 0);
-          setCostoTotalMenu(costoPorPersona * totalInvitados);
+          tempCatering = costoPorPersona * totalInv;
         }
-      } else {
-          setCostoTotalMenu(0);
       }
-      
-      // 4. Calcular Costo de Repostería e Insumos de Barra
-      let tempCostoReposteria = 0;
-      fiesta.reposteria?.categorias.forEach(cat => {
-        if(cat.activada) cat.items.forEach(item => tempCostoReposteria += (item.costoEstimado || 0) * (item.cantidad || 1));
-      });
-      setCostoTotalReposteria(tempCostoReposteria);
 
-      let tempCostoBebidas = 0;
+      // Repostería detallada
+      let activeReposteriaCost = 0;
+      fiesta.reposteria?.categorias.forEach(cat => {
+        if(cat.activada) cat.items.forEach(item => activeReposteriaCost += (item.costoEstimado || 0) * (item.cantidad || 1));
+      });
+      if (activeReposteriaCost > 0) tempReposteria = activeReposteriaCost;
+
+      // Bebidas detalladas
+      let activeBebidasCost = 0;
       fiesta.bebidas?.categorias.forEach(cat => {
         if(cat.activada) {
-            cat.items.forEach(item => tempCostoBebidas += item.costoTotal || ((item.costoUnitario || 0) * (item.cantidadNecesaria || 0)));
+            cat.items.forEach(item => activeBebidasCost += item.costoTotal || ((item.costoUnitario || 0) * (item.cantidadNecesaria || 0)));
         }
       });
-      setCostoTotalBebidas(tempCostoBebidas);
+      if (activeBebidasCost > 0) tempBebidas = activeBebidasCost;
 
-      // 5. Calcular Costo de Personal Real (Sueldos + Aportes Patronales) - INCLUYE VACANTES
+      // CALCULAR PERSONAL REAL (Sueldos + Aportes)
       let tempCostoPersonal = 0;
       fiesta.personalAsignado?.forEach(pa => {
           const rol = rolesData.find(r => r.id === pa.rolId);
           const aportes = (pa.eventSalary * (rol?.porcentajeAportesPatronales || 0)) / 100;
           tempCostoPersonal += pa.eventSalary + aportes;
       });
+
+      setGestionCostos(currentGestionCostos);
+      setCostoTotalMenu(tempCatering);
+      setCostoTotalBebidas(tempBebidas);
+      setCostoTotalReposteria(tempReposteria);
       setCostoTotalPersonal(tempCostoPersonal);
+      setCostoTotalProveedoresPresupuesto(tempProvExtra);
 
     } catch (err: any) {
       setError("No se pudieron cargar los datos de costos.");
@@ -210,8 +227,6 @@ function GestionCostosRentabilidadContent() {
 
   const stats = useMemo(() => {
     const totalCostosManuales = (gestionCostos.costosItems || []).reduce((s, i) => s + i.montoEstimado, 0);
-    
-    // SUMA MAESTRA DE COSTOS
     const totalInversionProyectada = 
         totalCostosManuales + 
         costoTotalMenu + 
