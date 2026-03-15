@@ -9,13 +9,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save, Loader2, AlertTriangle, BarChart3, PlusCircle, Trash2, DollarSign, ShoppingCart, HardHat, ChefHat, Printer, RefreshCw, Truck, Info, Layers, Banknote, CheckCircle2, UserCheck, Percent } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, BarChart3, PlusCircle, Trash2, DollarSign, ShoppingCart, ChefHat, RefreshCw, Truck, Info, Layers, Banknote, CheckCircle2, UserCheck, Percent, GlassWater, CakeSlice, Building } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateGestionCostosFiestaActual, updatePagosProveedoresFiestaActual } from '@/app/actions/fiesta-actual';
 import { defaultGestionCostos } from '@/lib/fiesta-defaults';
 import { getMenuById } from '@/app/actions/menus-catering';
 import { Separator } from '@/components/ui/separator';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useSearchParams } from 'next/navigation';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getRoles } from '@/app/actions/roles';
@@ -102,15 +102,34 @@ function GestionCostosRentabilidadContent() {
       let currentGestionCostos = fiesta.gestionCostos || { ...defaultGestionCostos };
       const invitados = (Number(fiesta.configuracion.invitadosEstimados) || 0);
 
-      // 1. Sincronizar Ingresos desde Presupuesto
+      // 1. Sincronizar Ingresos y Costos desde Presupuesto
       if (fiesta.presupuestoId) {
           const presupuesto = await getPresupuestoById(fiesta.presupuestoId);
           if (presupuesto) {
               setPresupuestoActual(presupuesto);
-              // Solo actualizar si no hay un ingreso manual ya definido o si es cero
+              
+              // Sincronizar Ingreso Pactado
               if (currentGestionCostos.ingresosTotalesEstimados === 0) {
                   currentGestionCostos.ingresosTotalesEstimados = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
               }
+
+              // Sincronizar Costos de Proveedores Externos
+              const externalCosts = presupuesto.itemsPresupuestados.filter(item => {
+                  const cat = (item.categoriaServicio || '').toLowerCase();
+                  return cat.includes('proveedor') || cat.includes('externo') || cat.includes('alquiler') || cat.includes('salón');
+              });
+
+              externalCosts.forEach(item => {
+                  if (!currentGestionCostos.costosItems?.some(ci => ci.nombre === item.nombreServicio)) {
+                      currentGestionCostos.costosItems.push({
+                          id: `sync_${item.idServicioCatalogo}`,
+                          nombre: item.nombreServicio,
+                          category: 'Servicio Proveedor',
+                          montoEstimado: item.precioUnitario, // Usamos el costo estimado si lo tiene
+                          notes: 'Sincronizado desde presupuesto'
+                      });
+                  }
+              });
           }
       }
 
@@ -289,7 +308,7 @@ function GestionCostosRentabilidadContent() {
               </CardContent>
           </Card>
           <Card className="bg-emerald-600 text-white border-none shadow-xl rounded-[2rem] overflow-hidden">
-              <CardHeader className="pb-2"><CardTitle className="text-[10px] font-black uppercase tracking-widest opacity-60">Ganancia Neta Proyectada</CardTitle></CardHeader>
+              <CardHeader className="pb-2"><CardTitle className="text-[10px] font-black uppercase tracking-widest opacity-60">Ganancia Neta Real</CardTitle></CardHeader>
               <CardContent>
                   <p className="text-3xl font-black">{formatCurrency(stats.balanceReal)}</p>
                   <Badge className="mt-2 bg-white/20 text-white border-none font-black text-[10px] tracking-widest">
@@ -308,7 +327,7 @@ function GestionCostosRentabilidadContent() {
           <TabsContent value="proyeccion" className="space-y-6 pt-4 animate-in fade-in duration-500">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                   <Card className="lg:col-span-8 border-none shadow-xl rounded-[2rem] overflow-hidden bg-white">
-                      <CardHeader className="bg-slate-50 border-b border-slate-100"><CardTitle className="text-sm font-black uppercase tracking-widest text-slate-800">Desglose de Inversión por Área</CardTitle></CardHeader>
+                      <CardHeader className="bg-slate-50 border-b border-slate-100"><CardTitle className="text-sm font-black uppercase tracking-widest text-slate-800">Desglose de Inversión Proyectada</CardTitle></CardHeader>
                       <CardContent className="p-0">
                           <Table>
                               <TableHeader className="bg-slate-50/50">
@@ -338,7 +357,7 @@ function GestionCostosRentabilidadContent() {
                                       <TableRow key={item.id} className="group hover:bg-slate-50 transition-colors border-slate-50">
                                           <TableCell className="pl-8 py-4">
                                               <div className="flex items-center gap-3">
-                                                  <Truck className="w-5 h-5 text-slate-400"/>
+                                                  {item.category === 'Pago de Salón' ? <Building className="w-5 h-5 text-slate-400"/> : <Truck className="w-5 h-5 text-slate-400"/>}
                                                   <div>
                                                       <p className="font-bold text-slate-700">{item.nombre}</p>
                                                       <p className="text-[9px] uppercase font-black text-slate-400">{item.category}</p>
@@ -362,7 +381,7 @@ function GestionCostosRentabilidadContent() {
                   </Card>
 
                   <Card className="lg:col-span-4 border-none shadow-xl rounded-[2.5rem] overflow-hidden bg-white">
-                      <CardHeader><CardTitle className="text-sm font-black uppercase tracking-widest text-slate-800">Añadir Costo Directo</CardTitle></CardHeader>
+                      <CardHeader><CardTitle className="text-sm font-black uppercase tracking-widest text-slate-800">Añadir Gasto Directo</CardTitle></CardHeader>
                       <CardContent>
                           <form onSubmit={handleAddCostoItem} className="space-y-4">
                               <div className="space-y-1.5"><Label className="text-[10px] font-black uppercase text-slate-400">Concepto / Proveedor</Label><Input value={newCostoNombre} onChange={e => setNewCostoNombre(e.target.value)} placeholder="Ej: Pago de Salón" className="rounded-xl h-11 bg-slate-50 border-none shadow-inner" /></div>
@@ -410,18 +429,18 @@ function GestionCostosRentabilidadContent() {
                   </Card>
 
                   <Card className="lg:col-span-4 border-none shadow-xl rounded-[2.5rem] overflow-hidden bg-emerald-600 text-white">
-                      <CardHeader><CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2"><Banknote className="w-5 h-5"/> Registrar Egreso Real</CardTitle></CardHeader>
+                      <CardHeader><CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2"><Banknote className="w-5 h-5"/> Registrar Pago Efectuado</CardTitle></CardHeader>
                       <CardContent>
                           <form onSubmit={handleAddPago} className="space-y-4">
                               <div className="space-y-1.5">
-                                  <Label className="text-[10px] font-black uppercase opacity-60">Vincular a Concepto</Label>
+                                  <Label className="text-[10px] font-black uppercase opacity-60">Concepto de Gasto</Label>
                                   <Select value={newPagoCostoId} onValueChange={setNewPagoCostoId}>
                                       <SelectTrigger className="bg-white/10 border-none text-white h-11 rounded-xl"><SelectValue placeholder="Elegir concepto..." /></SelectTrigger>
                                       <SelectContent className="rounded-xl border-none shadow-2xl">{costItemsForSelect.map(i=><SelectItem key={i.id} value={i.id}>{i.label}</SelectItem>)}</SelectContent>
                                   </Select>
                               </div>
-                              <div className="space-y-1.5"><Label className="text-[10px] font-black uppercase opacity-60">Monto del Pago</Label><Input type="number" value={newPagoMonto} onChange={e => setNewPagoMonto(e.target.value)} className="bg-white text-slate-900 rounded-xl h-12 border-none text-lg font-black shadow-inner" /></div>
-                              <div className="space-y-1.5"><Label className="text-[10px] font-black uppercase opacity-60">Fecha</Label><DatePickerDemo selectedDate={newPagoFecha} onDateChange={setNewPagoFecha} className="bg-white/10 border-none text-white h-11" /></div>
+                              <div className="space-y-1.5"><Label className="text-[10px] font-black uppercase opacity-60">Monto Real Pagado</Label><Input type="number" value={newPagoMonto} onChange={e => setNewPagoMonto(e.target.value)} className="bg-white text-slate-900 rounded-xl h-12 border-none text-lg font-black shadow-inner" /></div>
+                              <div className="space-y-1.5"><Label className="text-[10px] font-black uppercase opacity-60">Fecha del Pago</Label><DatePickerDemo selectedDate={newPagoFecha} onDateChange={setNewPagoFecha} className="bg-white/10 border-none text-white h-11" /></div>
                               <Button type="submit" className="w-full h-14 rounded-2xl bg-white text-emerald-600 hover:bg-slate-50 font-black shadow-xl mt-2 transition-transform active:scale-95" disabled={isSaving || !newPagoCostoId || !newPagoMonto}>
                                   {isSaving ? <Loader2 className="animate-spin mr-2"/> : <CheckCircle2 className="w-5 h-5 mr-2"/>} REGISTRAR PAGO
                               </Button>
@@ -436,11 +455,11 @@ function GestionCostosRentabilidadContent() {
         <div className="max-w-4xl mx-auto flex justify-between items-center px-4 md:px-0">
             <div className="flex items-center gap-2 text-slate-400">
                 <Info className="w-4 h-4"/>
-                <p className="text-[10px] font-bold uppercase tracking-widest">Los costos se sincronizan desde el planificador y el presupuesto.</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest">Los costos se integran automáticamente del presupuesto y planificador.</p>
             </div>
             <Button onClick={handleSave} disabled={isSaving} size="lg" className="rounded-2xl px-12 h-14 font-black text-base shadow-2xl shadow-primary/30">
                 {isSaving ? <Loader2 className="w-5 h-5 mr-3 animate-spin" /> : <Save className="w-5 h-5 mr-3" />}
-                {isSaving ? 'PROCESANDO...' : 'GUARDAR ANÁLISIS'}
+                {isSaving ? 'GUARDANDO...' : 'GUARDAR ANÁLISIS'}
             </Button>
         </div>
       </div>
