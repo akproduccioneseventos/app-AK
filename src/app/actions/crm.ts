@@ -1,10 +1,11 @@
+
 'use server';
 
 import type { CrmLead, CrmStage, NewCrmLeadData } from '@/types/crm';
 import { readData, writeData } from '@/lib/data-service';
 import { saveCustomer } from '@/app/actions/customers'; 
 import { getPresupuestoById, updatePresupuesto } from '@/app/actions/presupuestos';
-import { saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
+import { saveFiesta, syncFiestaFromBudget } from '@/app/actions/fiesta/fiesta.actions';
 import { createNotification } from './notifications';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { initialFiestaActualData, defaultModulosContratados } from '@/lib/fiesta-defaults';
@@ -131,10 +132,13 @@ export async function confirmBooking(leadId: string, presupuestoId: string): Pro
 
     await saveFiesta(newFiesta);
 
-    // 3. Actualizar Presupuesto
+    // 3. Disparar Sincronización Maestra (Personal, Lavadero, etc.)
+    await syncFiestaFromBudget(newFiesta.id);
+
+    // 4. Actualizar Presupuesto
     await updatePresupuesto({ ...presupuesto, estado: 'Aceptado' });
 
-    // 4. Mover Lead
+    // 5. Mover Lead
     if (conversionStage) await moveCrmLead(lead.id, conversionStage.id);
 
     await createNotification({

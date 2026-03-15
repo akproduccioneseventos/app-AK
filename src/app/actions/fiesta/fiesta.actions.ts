@@ -1,11 +1,14 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, MenuMesaData, NumerosMesaData } from '@/types/fiesta';
-import { initialFiestaActualData } from '@/lib/fiesta-defaults';
+import type { FiestaEnPlanificacion, MenuMesaData, NumerosMesaData, ModulosContratados, PersonalAsignadoDetalleStorage } from '@/types/fiesta';
+import { initialFiestaActualData, defaultModulosContratados, defaultClientPortalSettings } from '@/lib/fiesta-defaults';
 import { readData, writeData } from '@/lib/data-service';
 import path from 'path';
 import fs from 'fs/promises';
+import { getPresupuestoById } from '../presupuestos';
+import { getRoles } from '../roles';
+import { syncLaundryCosts } from './costos.actions';
 
 const FIESTAS_DIR = 'fiestas';
 const ARCHIVE_DIR = 'archive';
@@ -74,6 +77,96 @@ export async function getFiestaById(fiestaId: string): Promise<FiestaEnPlanifica
     } catch (e) {}
     const archivadas = await getHistorialFiestas();
     return archivadas.find(f => f.id === fiestaId) || null;
+}
+
+/**
+ * MOTOR DE SINCRONIZACIÓN MAESTRA
+ * Dispara la configuración operativa de la fiesta basándose en el presupuesto aceptado.
+ */
+export async function syncFiestaFromBudget(fiestaId: string) {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta || !fiesta.presupuestoId) return { success: false, error: "Fiesta o presupuesto no encontrado" };
+
+    const presupuesto = await getPresupuestoById(fiesta.presupuestoId);
+    if (!presupuesto) return { success: false, error: "Presupuesto no encontrado" };
+
+    const roles = await getRoles();
+    const updatedFiesta = { ...fiesta };
+    
+    const guests = presupuesto.invitadosCantidad || 100;
+    const items = presupuesto.itemsPresupuestados || [];
+
+    // 1. ACTIVACIÓN DE MÓDULOS
+    const modulos: ModulosContratados = { ...defaultModulosContratados };
+    const hasItem = (term: string) => items.some(i => i.nombreServicio.toLowerCase().includes(term.toLowerCase()));
+
+    modulos.catering = items.some(i => ['Entrada', 'Plato Principal', 'Postre'].includes(i.categoriaServicio || ''));
+    modulos.musica = hasItem('discoteca') || hasItem(' dj');
+    modulos.fotografia = hasItem('foto') || hasItem('film') || hasItem('video');
+    modulos.regalos = true; // Siempre activo para coordinar
+    
+    updatedFiesta.modulosContratados = modulos;
+
+    // 2. CÁLCULO DE PERSONAL AUTOMÁTICO (VACANTES)
+    const personalReq: PersonalAsignadoDetalleStorage[] = [];
+    
+    const addVacantes = (roleSearch: string, qty: number) => {
+        const rol = roles.find(r => r.nombre.toLowerCase().includes(roleSearch.toLowerCase()));
+        if (rol) {
+            for (let i = 0; i < qty; i++) {
+                personalReq.push({
+                    empleadoId: '', // Vacante
+                    rolId: rol.id,
+                    eventSalary: rol.sueldoPorEvento
+                });
+            }
+        }
+    };
+
+    // Regla: 1 mozo cada 25 invitados (si hay catering)
+    if (modulos.catering) {
+        addVacantes('Mozo', Math.ceil(guests / 25));
+        addVacantes('Ayudante de Cocina', Math.ceil(guests / 50));
+    }
+
+    // Regla: 1 utilero cada 25 invitados para logística
+    addVacantes('Utilero', Math.ceil(guests / 25));
+
+    // Regla: Especialistas según presupuesto
+    if (modulos.musica) addVacantes('DJ', 1);
+    if (hasItem('asado')) addVacantes('Asador', 1);
+    if (hasItem('barra') || hasItem('trago')) addVacantes('Barman', Math.ceil(guests / 75));
+
+    // Solo actualizar si no hay personal asignado manualmente aún para no borrar trabajo
+    if (!updatedFiesta.personalAsignado || updatedFiesta.personalAsignado.length === 0) {
+        updatedFiesta.personalAsignado = personalReq;
+    }
+
+    // 3. ACTUALIZAR CONFIGURACIÓN DE PORTAL
+    updatedFiesta.clientPortalSettings = {
+        ...defaultClientPortalSettings,
+        enabled: true,
+        checklist: { visible: true, editable: true },
+        itinerario: { visible: true }
+    };
+
+    // 4. SINCRONIZAR LAVADERO
+    await syncLaundryCosts(fiestaId, guests, items);
+
+    // 5. ACTUALIZAR CONFIG GENERAL
+    updatedFiesta.configuracion = {
+        ...updatedFiesta.configuracion,
+        nombreEvento: `${presupuesto.eventoTipo} de ${presupuesto.clienteNombre}`,
+        fechaEvento: presupuesto.eventoFecha,
+        invitadosEstimados: guests,
+        invitadosAdultos: presupuesto.invitadosAdultos,
+        invitadosNinos: presupuesto.invitadosNinos,
+        invitadosAdolescentes: presupuesto.invitadosAdolescentes,
+        presupuestoEstimado: presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado,
+        nombreLugar: presupuesto.salonFiestas
+    };
+
+    return await saveFiesta(updatedFiesta);
 }
 
 export async function deleteFiesta(fiestaId: string): Promise<{ success: boolean; error?: string }> {

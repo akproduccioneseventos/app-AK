@@ -1,3 +1,4 @@
+
 'use server';
 
 import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto'; 
@@ -10,7 +11,7 @@ import { getServiciosEmpresa } from './servicios-empresa';
 import { getMenus } from './menus-catering';
 import type { ServicioEmpresa } from '@/types/empresa';
 import type { FullMenu, MenuItem } from '@/types/catering';
-import { getAllFiestas, saveFiesta } from './fiesta/fiesta.actions';
+import { getAllFiestas, saveFiesta, syncFiestaFromBudget } from './fiesta/fiesta.actions';
 import { syncLaundryCosts } from './fiesta/costos.actions';
 
 const PRESUPUESTOS_FILE = 'presupuestos.json';
@@ -83,18 +84,22 @@ async function syncLinkedFiesta(presupuesto: Presupuesto) {
         const allFiestas = await getAllFiestas();
         const linkedFiesta = allFiestas.find(f => f.presupuestoId === presupuesto.id);
         if (linkedFiesta) {
-            linkedFiesta.configuracion = {
-                ...linkedFiesta.configuracion,
-                nombreEvento: `${presupuesto.eventoTipo} de ${presupuesto.clienteNombre}`,
-                fechaEvento: presupuesto.eventoFecha,
-                invitadosEstimados: presupuesto.invitadosCantidad,
-                presupuestoEstimado: presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado,
-                nombreLugar: presupuesto.salonFiestas,
-            };
-            await saveFiesta(linkedFiesta);
-            
-            // Sincronización Automática Lavadero del Sol (Blindaje de Módulo 1)
-            await syncLaundryCosts(linkedFiesta.id, presupuesto.invitadosCantidad, presupuesto.itemsPresupuestados);
+            // Solo disparar sincronización completa si el estado es Aceptado o Facturado
+            if (presupuesto.estado === 'Aceptado' || presupuesto.estado === 'Facturado') {
+                await syncFiestaFromBudget(linkedFiesta.id);
+            } else {
+                // Sincronización básica si es borrador/enviado
+                linkedFiesta.configuracion = {
+                    ...linkedFiesta.configuracion,
+                    nombreEvento: `${presupuesto.eventoTipo} de ${presupuesto.clienteNombre}`,
+                    fechaEvento: presupuesto.eventoFecha,
+                    invitadosEstimados: presupuesto.invitadosCantidad,
+                    presupuestoEstimado: presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado,
+                    nombreLugar: presupuesto.salonFiestas,
+                };
+                await saveFiesta(linkedFiesta);
+                await syncLaundryCosts(linkedFiesta.id, presupuesto.invitadosCantidad, presupuesto.itemsPresupuestados);
+            }
         }
     } catch (e) {
         console.error("Error auto-syncing fiesta from budget:", e);
