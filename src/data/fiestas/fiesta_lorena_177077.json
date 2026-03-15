@@ -2442,5 +2442,75 @@
       ],
       "notasGenerales": ""
     }
+  },
+  "decoracion": {
+    "salonElements": [],
+    "pixelsPerMeter": 40,
+    "salonWidth": 15,
+    "salonHeight": 15,
+    "seatingMode": "libre"
+  },
+  "bebidas": {
+    "categorias": [
+      {
+        "id": "coctel_bienvenida",
+        "nombreDisplay": "Cóctel de Bienvenida",
+        "activada": false,
+        "items": [],
+        "recetas": [],
+        "descripcion": "El cóctel especial que se sirve al recibir a los invitados."
+      },
+      {
+        "id": "refrescos_gaseosas",
+        "nombreDisplay": "Refrescos / Gaseosas",
+        "activada": false,
+        "items": [],
+        "descripcion": "Variedad de bebidas carbonatadas."
+      },
+      {
+        "id": "jugos",
+        "nombreDisplay": "Mesa de jugos naturales",
+        "activada": false,
+        "items": [],
+        "descripcion": "Opciones frutales y refrescantes."
+      },
+      {
+        "id": "aguas_saborizadas",
+        "nombreDisplay": "Aguas Saborizadas y Minerales",
+        "activada": false,
+        "items": [],
+        "descripcion": "Con y sin gas, opciones saborizadas."
+      },
+      {
+        "id": "cervezas",
+        "nombreDisplay": "Cervezas",
+        "activada": false,
+        "items": [],
+        "descripcion": "Variedad de cervezas nacionales e importadas."
+      },
+      {
+        "id": "vinos_espumantes",
+        "nombreDisplay": "Vinos y Espumantes",
+        "activada": false,
+        "items": [],
+        "descripcion": "Selección de tintos, blancos, rosados y espumosos."
+      },
+      {
+        "id": "barra_tragos",
+        "nombreDisplay": "Barra de Tragos",
+        "activada": true,
+        "items": [],
+        "recetas": [],
+        "descripcion": "Bebidas blancas y licores para la barra."
+      },
+      {
+        "id": "cafeteria",
+        "nombreDisplay": "Servicio de Cafetería",
+        "activada": false,
+        "items": [],
+        "descripcion": "Café, té, instituciones."
+      }
+    ],
+    "notasGenerales": ""
   }
 }

@@ -99,7 +99,7 @@ function GestionCostosRentabilidadContent() {
       setAllRoles(rolesData);
       setPagosProveedores(fiesta.pagosProveedores || []);
       
-      let currentGestionCostos = fiesta.gestionCostos || { ...defaultGestionCostos };
+      let currentGestionCostos = { ...(fiesta.gestionCostos || defaultGestionCostos) };
       const invitados = (Number(fiesta.configuracion.invitadosEstimados) || 0);
 
       // 1. Sincronizar Ingresos y Costos desde Presupuesto
@@ -108,26 +108,33 @@ function GestionCostosRentabilidadContent() {
           if (presupuesto) {
               setPresupuestoActual(presupuesto);
               
-              // Sincronizar Ingreso Pactado
+              // Sincronizar Ingreso Pactado (Prioridad presupuesto)
               currentGestionCostos.ingresosTotalesEstimados = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
 
-              // Sincronizar Costos de Proveedores Externos
+              // Sincronizar Costos de Proveedores Externos (Auditoría Inteligente)
               const externalCosts = presupuesto.itemsPresupuestados.filter(item => {
                   const cat = (item.categoriaServicio || '').toLowerCase();
                   const name = item.nombreServicio.toLowerCase();
-                  return cat.includes('proveedor') || cat.includes('externo') || cat.includes('alquiler') || cat.includes('salón') || name.includes('seguridad');
+                  // Detectar servicios que NO son propios del menú ni personal de base
+                  return (cat.includes('proveedor') || cat.includes('externo') || cat.includes('alquiler') || cat.includes('salón') || name.includes('seguridad'))
+                         && !cat.includes('regalo');
               });
 
+              if (!currentGestionCostos.costosItems) currentGestionCostos.costosItems = [];
+
               externalCosts.forEach(item => {
-                  // Solo añadir si no existe ya para evitar duplicados en la lista de costos directos
-                  if (!currentGestionCostos.costosItems?.some(ci => ci.nombre === item.nombreServicio)) {
+                  const existingIndex = currentGestionCostos.costosItems.findIndex(ci => ci.nombre === item.nombreServicio);
+                  if (existingIndex === -1) {
                       currentGestionCostos.costosItems.push({
                           id: `sync_${item.idServicioCatalogo}_${Date.now()}`,
                           nombre: item.nombreServicio,
                           category: item.nombreServicio.toLowerCase().includes('salón') ? 'Pago de Salón' : 'Servicio Proveedor',
-                          montoEstimado: item.precioUnitario, // Usamos el precio unitario original del catálogo como base de costo
+                          montoEstimado: item.precioUnitario, 
                           notes: 'Sincronizado desde presupuesto'
                       });
+                  } else {
+                      // Actualizar monto si cambió en el presupuesto
+                      currentGestionCostos.costosItems[existingIndex].montoEstimado = item.precioUnitario;
                   }
               });
           }
@@ -162,10 +169,11 @@ function GestionCostosRentabilidadContent() {
       });
       setCostoTotalBebidas(tempCostoBebidas);
 
-      // 5. Calcular Costo de Personal (Sueldos + Aportes)
+      // 5. Calcular Costo de Personal Real (Sueldos + Aportes Patronales)
       let tempCostoPersonal = 0;
       fiesta.personalAsignado?.forEach(pa => {
           const rol = rolesData.find(r => r.id === pa.rolId);
+          // Los aportes patronales son una inversión real de la empresa
           const aportes = (pa.eventSalary * (rol?.porcentajeAportesPatronales || 0)) / 100;
           tempCostoPersonal += pa.eventSalary + aportes;
       });
@@ -245,11 +253,12 @@ function GestionCostosRentabilidadContent() {
 
   const stats = useMemo(() => {
     const totalCostosManuales = (gestionCostos.costosItems || []).reduce((s, i) => s + i.montoEstimado, 0);
+    // TOTAL DE INVERSIÓN: Manuales + Gastronomía Consolidada + Personal Consolidado
     const totalCostosProyectados = totalCostosManuales + costoTotalMenu + costoTotalReposteria + costoTotalBebidas + costoTotalPersonal;
     
-    const totalPagosRealizados = pagosProveedores.reduce((s, p) => s + p.monto, 0);
+    const totalPagosRealizados = pagosProveedores.reduce((s, p) => s + (p.monto || 0), 0);
     
-    // GANANCIA PROYECTADA (Basada en lo que planeamos gastar)
+    // GANANCIA NETA PROYECTADA (Basada en lo que planeamos gastar)
     const gananciaProyectada = (gestionCostos.ingresosTotalesEstimados || 0) - totalCostosProyectados;
     const margenProyectado = (gestionCostos.ingresosTotalesEstimados || 0) > 0 ? (gananciaProyectada / gestionCostos.ingresosTotalesEstimados) * 100 : 0;
 
