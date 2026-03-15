@@ -10,7 +10,7 @@ import {
     ArrowLeft, Loader2, AlertTriangle, ClipboardCheck, Printer, ChefHat, 
     Music2, Palette, Clock, GlassWater, CakeSlice, Users, MapPin, 
     CalendarDays, Edit3, Camera, UserCheck, FileText, CheckCircle2, 
-    Info, Package, Sparkles, Archive, Wallet
+    Info, Package, Sparkles, Archive, Wallet, Gift
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, DecorationItem } from '@/types/fiesta';
@@ -31,7 +31,7 @@ import { cn } from '@/lib/utils';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
-  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0 }).format(amount);
+  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 };
 
 const formatDate = (dateString?: string) => {
@@ -106,7 +106,7 @@ function ResumenPlanificacionContent() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 print:hidden">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-primary rounded-xl text-white shadow-lg shadow-primary/20"><ClipboardCheck className="w-6 h-6" /></div>
-          <h1 className="text-3xl font-black tracking-tighter font-headline text-primary uppercase">Consolidado del Evento</h1>
+          <h1 className="text-3xl font-bold tracking-tighter font-headline text-primary uppercase">Consolidado del Evento</h1>
         </div>
         <div className="flex gap-2">
           <Button onClick={handlePrint} variant="secondary" className="rounded-xl font-bold"><Printer className="w-4 h-4 mr-2"/>Imprimir / PDF</Button>
@@ -170,8 +170,8 @@ function ResumenPlanificacionContent() {
                 </CardHeader>
                 <CardContent className="p-0">
                     <Table>
-                        <TableHeader className="bg-slate-50/50">
-                            <TableRow className="border-slate-100">
+                        <TableHeader>
+                            <TableRow className="bg-slate-50/50">
                                 <TableHead className="pl-8 text-[10px] font-black uppercase text-slate-400">Servicio / Artículo</TableHead>
                                 <TableHead className="text-center text-[10px] font-black uppercase text-slate-400">Cant.</TableHead>
                                 <TableHead className="text-right pr-8 text-[10px] font-black uppercase text-slate-400">Categoría</TableHead>
@@ -337,7 +337,7 @@ function ResumenPlanificacionContent() {
             {/* 6. HITOS DEL ITINERARIO */}
             <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-slate-900 text-white">
                 <CardHeader className="p-6 border-b border-white/5">
-                    <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
+                    <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-3">
                         <Clock className="w-5 h-5 text-primary"/> Hitos Principales
                     </CardTitle>
                 </CardHeader>
@@ -380,61 +380,6 @@ function ResumenPlanificacionContent() {
                 </CardContent>
             </Card>
         </div>
-      </div>
-
-      <Separator className="my-10 opacity-30"/>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* ESTILO Y DECORACIÓN */}
-          <Card className="border-none shadow-xl rounded-[2.5rem] overflow-hidden bg-white">
-              <CardHeader className="bg-pink-50/50 border-b border-pink-100 p-6">
-                  <CardTitle className="text-sm font-black uppercase tracking-widest text-pink-800 flex items-center gap-2">
-                      <Palette className="w-5 h-5"/> Concepto Estético
-                  </CardTitle>
-              </CardHeader>
-              <CardContent className="p-8 space-y-6">
-                  <div className="flex items-center gap-8">
-                      <div className="space-y-2">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Paleta Maestro</p>
-                          <div className="flex gap-2 p-3 bg-slate-50 rounded-2xl border border-slate-100">
-                              <div className="w-8 h-8 rounded-xl shadow-lg border-2 border-white" style={{ backgroundColor: fiesta.decoracion?.paletaColores?.primary }}></div>
-                              <div className="w-8 h-8 rounded-xl shadow-lg border-2 border-white" style={{ backgroundColor: fiesta.decoracion?.paletaColores?.secondary }}></div>
-                              <div className="w-8 h-8 rounded-xl shadow-lg border-2 border-white" style={{ backgroundColor: fiesta.decoracion?.paletaColores?.accent }}></div>
-                          </div>
-                      </div>
-                      <div className="space-y-2">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Tema</p>
-                          <p className="text-2xl font-black text-slate-800 uppercase tracking-tighter">{fiesta.decoracion?.tema || 'A DEFINIR'}</p>
-                      </div>
-                  </div>
-                  <Separator/>
-                  <div className="space-y-3">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Zonas Especiales Activas</p>
-                      <div className="flex flex-wrap gap-2">
-                          {fiesta.decoracion?.zonasContratadas?.filter(z => z.activada).map(z => (
-                              <Badge key={z.id} className="bg-pink-100 text-pink-700 border-none font-black text-[9px] uppercase px-3 py-1 rounded-full">
-                                  <Sparkles className="w-3 h-3 mr-1.5"/> {z.nombreDisplay}
-                              </Badge>
-                          ))}
-                          {fiesta.decoracion?.zonasContratadas?.filter(z => z.activada).length === 0 && <p className="text-xs text-slate-400 italic">Sin zonas específicas.</p>}
-                      </div>
-                  </div>
-              </CardContent>
-          </Card>
-
-          {/* OBSERVACIONES FINALES */}
-          <Card className="border-none shadow-xl rounded-[2.5rem] overflow-hidden bg-amber-50">
-              <CardHeader className="bg-amber-100/50 border-b border-amber-200 p-6">
-                  <CardTitle className="text-sm font-black uppercase tracking-widest text-amber-800 flex items-center gap-2">
-                      <Info className="w-5 h-5"/> Notas Operativas Generales
-                  </CardTitle>
-              </CardHeader>
-              <CardContent className="p-8">
-                  <p className="text-sm text-amber-900 font-medium leading-relaxed whitespace-pre-line">
-                      {fiesta.configuracion.notasAdicionales || 'Sin observaciones adicionales registradas.'}
-                  </p>
-              </CardContent>
-          </Card>
       </div>
 
       <footer className="text-center py-12 border-t border-slate-100 space-y-2">
