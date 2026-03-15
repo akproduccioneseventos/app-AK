@@ -6,19 +6,22 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { 
     ArrowLeft, Loader2, AlertTriangle, ClipboardCheck, Printer, ChefHat, 
     Music2, Palette, Clock, GlassWater, CakeSlice, Users, MapPin, 
     CalendarDays, Edit3, Camera, UserCheck, FileText, CheckCircle2, 
-    Info, Package, Sparkles, Archive, Wallet, Gift, Download, ShoppingCart, Truck
+    Info, Package, Sparkles, Archive, Wallet, Gift, Download, ShoppingCart, Truck,
+    Layers, PackageSearch, AlertCircle
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, DecorationItem } from '@/types/fiesta';
-import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
-import { getMenuById } from '@/app/actions/menus-catering';
+import { getFiestaById, updateModulosContratadosFiestaActual, type FiestaEnPlanificacion } from '@/app/actions/fiesta-actual';
+import { getMenuById, getMenus } from '@/app/actions/menus-catering';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getEmpleados } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
+import { getInsumos } from '@/app/actions/insumos';
+import { getInvoiceById } from '@/app/actions/invoices';
 import type { FullMenu, MenuItem } from '@/types/catering';
 import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto';
 import type { Empleado } from '@/types/empleado';
@@ -26,9 +29,10 @@ import type { Rol } from '@/types/rol';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
 
+// --- HELPERS ---
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
@@ -41,6 +45,36 @@ const formatDate = (dateString?: string) => {
   } catch (e) { return "Inválida"; }
 };
 
+const parseSafeNumber = (val: any): number => {
+    if (val === null || val === undefined || val === '') return 0;
+    if (typeof val === 'number') return val;
+    let str = String(val).trim();
+    if (!str) return 0;
+    if (str.includes(',')) str = str.replace(/\./g, '').replace(',', '.');
+    else {
+        const parts = str.split('.');
+        if (parts.length > 2 || (parts.length === 2 && parts[1].length === 3)) str = str.replace(/\./g, '');
+    }
+    const parsed = parseFloat(str);
+    return isNaN(parsed) ? 0 : parsed;
+};
+
+// --- TYPES ---
+interface ShoppingListItem {
+  id: string;
+  nombre: string;
+  cantidadNecesaria: number;
+  stockDisponible: number;
+  cantidadAComprar: number;
+  unit: string;
+  costoUnitario: number;
+  costoTotalFaltante: number;
+  proveedor: string;
+  origen: string;
+  origenId?: string;
+  isOrder?: boolean;
+}
+
 function ResumenPlanificacionContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
@@ -51,6 +85,7 @@ function ResumenPlanificacionContent() {
   const [menu, setMenu] = useState<FullMenu | null>(null);
   const [empleados, setEmpleados] = useState<Empleado[]>([]);
   const [roles, setRoles] = useState<Rol[]>([]);
+  const [shoppingList, setShoppingList] = useState<ShoppingListItem[]>([]);
   
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -59,10 +94,12 @@ function ResumenPlanificacionContent() {
     if (!fiestaId) return;
     setIsLoading(true);
     try {
-      const [fiestaData, emps, rolesData] = await Promise.all([
+      const [fiestaData, emps, rolesData, allMenus, catalogoInsumos] = await Promise.all([
         getFiestaById(fiestaId),
         getEmpleados(),
-        getRoles()
+        getRoles(),
+        getMenus(),
+        getInsumos()
       ]);
       
       if (!fiestaData) throw new Error("Fiesta no encontrada.");
@@ -70,17 +107,115 @@ function ResumenPlanificacionContent() {
       setEmpleados(emps);
       setRoles(rolesData);
 
-      // Cargar datos vinculados
-      const promises = [];
-      if (fiestaData.menuAsignadoId) promises.push(getMenuById(fiestaData.menuAsignadoId));
-      else promises.push(Promise.resolve(null));
+      let presupuestoData = null;
+      if (fiestaData.presupuestoId) {
+          presupuestoData = await getPresupuestoById(fiestaData.presupuestoId);
+          setPresupuesto(presupuestoData);
+      }
 
-      if (fiestaData.presupuestoId) promises.push(getPresupuestoById(fiestaData.presupuestoId));
-      else promises.push(Promise.resolve(null));
+      if (fiestaData.menuAsignadoId) {
+        const menuData = await getMenuById(fiestaData.menuAsignadoId);
+        setMenu(menuData);
+      }
 
-      const [menuData, presData] = await Promise.all(promises);
-      setMenu(menuData);
-      setPresupuesto(presData);
+      // --- GENERACIÓN DE LISTA DE COMPRAS PARA CONSOLIDADO ---
+      const adultos = presupuestoData?.invitadosAdultos || Number(fiestaData.configuracion.invitadosEstimados) || 0;
+      const ninos = (presupuestoData?.invitadosNinos || 0) + (presupuestoData?.invitadosAdolescentes || 0);
+      const totalInvitados = adultos + ninos;
+
+      let rawList: any[] = [];
+
+      const getTargetGuests = (item: { categoriaServicio?: string, nombreServicio: string }) => {
+          const cat = (item.categoriaServicio || '').toLowerCase();
+          const name = (item.nombreServicio || '').toLowerCase();
+          if (cat.includes('infantil') || cat.includes('adolescente') || name.includes('niño')) return ninos;
+          if (cat.includes('plato principal') || name.includes('principal')) return adultos;
+          return totalInvitados;
+      };
+
+      if (presupuestoData) {
+          const budgetDishes = presupuestoData.itemsPresupuestados.filter(item => 
+              item.idServicioCatalogo.startsWith('dish_') || 
+              item.idServicioCatalogo.startsWith('new_item_') || 
+              item.idServicioCatalogo.startsWith('menu_')
+          );
+          const allDishesInCatalog = allMenus.flatMap(m => m.items);
+
+          budgetDishes.forEach(budgetItem => {
+              const catalogDish = allDishesInCatalog.find(d => d.id === budgetItem.idServicioCatalogo);
+              if (catalogDish) {
+                  const targetGuests = getTargetGuests(budgetItem);
+                  catalogDish.ingredients.forEach(ing => {
+                      const qtyPerPerson = parseSafeNumber(ing.quantityPerPerson);
+                      if (qtyPerPerson > 0) {
+                          const catalogInsumo = catalogoInsumos.find(ci => ci.id === ing.origenId);
+                          rawList.push({
+                              nombre: ing.name,
+                              cantidadNecesaria: qtyPerPerson * targetGuests,
+                              unit: ing.unit,
+                              costoUnitario: catalogInsumo?.valorUnitarioEstimado || ing.costoUnitario,
+                              proveedor: ing.proveedor || catalogInsumo?.proveedor || 'Sin especificar',
+                              origen: catalogDish.name,
+                              origenId: ing.origenId,
+                          });
+                      }
+                  });
+              }
+          });
+      }
+
+      // Repostería y Bebidas
+      if (fiestaData.reposteria?.categorias) {
+          fiestaData.reposteria.categorias.filter(c => c.activada).forEach(cat => {
+              cat.items.forEach(item => {
+                  rawList.push({
+                      nombre: item.nombre,
+                      cantidadNecesaria: item.cantidad || 1,
+                      unit: item.unidad || 'Unidad',
+                      costoUnitario: item.costoEstimado || 0,
+                      proveedor: item.proveedor || 'Sin especificar',
+                      origen: cat.nombreDisplay,
+                      origenId: item.origenId,
+                      isOrder: true
+                  });
+              });
+          });
+      }
+
+      const consolidated: Record<string, ShoppingListItem> = {};
+      rawList.forEach(raw => {
+          const key = `${raw.nombre.toLowerCase()}-${raw.proveedor.toLowerCase()}`;
+          if (consolidated[key]) {
+              consolidated[key].cantidadNecesaria += raw.cantidadNecesaria;
+          } else {
+              const catalogItem = catalogoInsumos.find(ci => ci.id === raw.origenId);
+              consolidated[key] = {
+                  id: key,
+                  nombre: raw.nombre,
+                  cantidadNecesaria: raw.cantidadNecesaria,
+                  stockDisponible: catalogItem?.cantidadDisponible || 0,
+                  cantidadAComprar: 0,
+                  unit: raw.unit,
+                  costoUnitario: raw.costoUnitario,
+                  costoTotalFaltante: 0,
+                  proveedor: raw.proveedor,
+                  origen: raw.origen,
+                  origenId: raw.origenId,
+                  isOrder: raw.isOrder
+              };
+          }
+      });
+
+      const finalList = Object.values(consolidated).map(item => {
+          const faltante = item.isOrder ? item.cantidadNecesaria : Math.max(0, item.cantidadNecesaria - item.stockDisponible);
+          return {
+              ...item,
+              cantidadAComprar: faltante,
+              costoTotalFaltante: item.costoUnitario * faltante
+          };
+      });
+
+      setShoppingList(finalList);
 
     } catch (e: any) {
       setError(e.message);
@@ -96,7 +231,6 @@ function ResumenPlanificacionContent() {
 
   const handlePrint = () => window.print();
 
-  // Lógica de Sincronización Gastronómica Fallback: Si no hay menú, buscamos en el presupuesto
   const gastronomiaFallback = useMemo(() => {
     if (menu) return null;
     if (!presupuesto) return null;
@@ -136,7 +270,7 @@ function ResumenPlanificacionContent() {
         </div>
       </div>
 
-      {/* 1. CABECERA MAESTRA (SINCRO CONFIG + PRESUPUESTO) */}
+      {/* CABECERA MAESTRA */}
       <Card className="shadow-2xl border-none rounded-[2.5rem] overflow-hidden bg-slate-900 text-white">
         <CardContent className="p-8 md:p-12">
             <div className="flex flex-col md:flex-row justify-between gap-8">
@@ -169,7 +303,6 @@ function ResumenPlanificacionContent() {
                     <div className="p-6 bg-white/5 rounded-3xl border border-white/10 backdrop-blur-xl text-center md:text-right min-w-[200px]">
                         <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Inversión Pactada</p>
                         <p className="text-4xl font-black text-primary">{formatCurrency(Number(fiesta.configuracion.presupuestoEstimado))}</p>
-                        {presupuesto?.ajusteAnualActivo && <p className="text-[9px] font-bold text-amber-500 mt-2">INCLUYE AJUSTE ANUAL 15%</p>}
                     </div>
                 </div>
             </div>
@@ -177,86 +310,98 @@ function ResumenPlanificacionContent() {
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* COLUMNA IZQUIERDA: OPERATIVA Y GESTIÓN */}
         <div className="lg:col-span-8 space-y-8">
             
-            {/* CENTRO DE DESCARGAS Y ACCESOS RÁPIDOS */}
-            <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-slate-50 border border-slate-100 print:hidden">
-                <CardHeader className="p-6 pb-2">
-                    <CardTitle className="text-[10px] font-black uppercase tracking-widest text-slate-400">Centro de Descargas Operativas</CardTitle>
-                </CardHeader>
-                <CardContent className="p-6 pt-0">
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <Link href={`/fiestas/nueva/carga-operativa/pdf?fiestaId=${fiestaId}`} passHref>
-                            <Button variant="outline" className="w-full h-12 rounded-xl border-slate-200 bg-white font-bold text-xs">
-                                <Truck className="w-4 h-4 mr-2 text-primary"/> Lista de Carga
-                            </Button>
-                        </Link>
-                        <Link href={`/fiestas/nueva/catering/lista-compras?fiestaId=${fiestaId}`} passHref>
-                            <Button variant="outline" className="w-full h-12 rounded-xl border-slate-200 bg-white font-bold text-xs">
-                                <ShoppingCart className="w-4 h-4 mr-2 text-primary"/> Lista de Compras
-                            </Button>
-                        </Link>
-                        <Link href={`/fiestas/nueva/itinerario/pdf?fiestaId=${fiestaId}`} passHref>
-                            <Button variant="outline" className="w-full h-12 rounded-xl border-slate-200 bg-white font-bold text-xs">
-                                <Clock className="w-4 h-4 mr-2 text-primary"/> Itinerario (PDF)
-                            </Button>
-                        </Link>
-                    </div>
-                </CardContent>
-            </Card>
-
-            {/* 2. SERVICIOS DEL PRESUPUESTO (LO QUE SE VENDIÓ) */}
+            {/* LOGÍSTICA DE CARGA (VISUALIZACIÓN DIRECTA) */}
             <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white">
-                <CardHeader className="bg-slate-50 border-b border-slate-100 p-6">
+                <CardHeader className="bg-slate-900 text-white p-6">
                     <div className="flex items-center justify-between">
-                        <CardTitle className="text-sm font-black uppercase tracking-widest text-slate-800 flex items-center gap-2">
-                            <Wallet className="w-5 h-5 text-primary"/> Servicios Contratados (Presupuesto)
+                        <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-3">
+                            <PackageSearch className="w-5 h-5 text-primary"/> Logística de Carga
                         </CardTitle>
-                        {presupuesto && <Badge variant="outline" className="font-bold border-primary/20 text-primary">Nº {presupuesto.numero}</Badge>}
+                        <Link href={`/fiestas/nueva/carga-operativa/pdf?fiestaId=${fiestaId}`} target="_blank">
+                            <Button variant="ghost" size="sm" className="h-7 text-[10px] font-black border border-white/20 text-white hover:bg-white/10">VER HOJA DE CARGA</Button>
+                        </Link>
                     </div>
                 </CardHeader>
                 <CardContent className="p-0">
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="bg-slate-50/50">
-                                <TableHead className="pl-8 text-[10px] font-black uppercase text-slate-400">Servicio / Artículo</TableHead>
-                                <TableHead className="text-center text-[10px] font-black uppercase text-slate-400">Cant.</TableHead>
-                                <TableHead className="text-right pr-8 text-[10px] font-black uppercase text-slate-400">Categoría</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {presupuesto ? presupuesto.itemsPresupuestados.map((item, idx) => (
-                                <TableRow key={idx} className="border-slate-50 hover:bg-slate-50/50">
-                                    <TableCell className="pl-8 py-4 font-bold text-slate-700">
-                                        <div className="flex items-center gap-2">
-                                            {item.esRegalo && <Gift className="w-3.5 h-3.5 text-rose-500"/>}
-                                            {item.nombreServicio}
-                                        </div>
-                                    </TableCell>
-                                    <TableCell className="text-center font-mono font-bold text-slate-500">{item.cantidad}</TableCell>
-                                    <TableCell className="text-right pr-8">
-                                        <Badge variant="secondary" className="text-[9px] font-black uppercase tracking-tighter bg-slate-100 text-slate-500 border-none">
-                                            {item.categoriaServicio}
-                                        </Badge>
-                                    </TableCell>
-                                </TableRow>
-                            )) : (
-                                <TableRow><TableCell colSpan={3} className="py-10 text-center text-slate-400 italic text-sm">No hay un presupuesto vinculado a este evento.</TableCell></TableRow>
+                    <ScrollArea className="h-80">
+                        <div className="p-6 space-y-6">
+                            {fiesta.listaDeCargaOperativa?.categorias.map(cat => (
+                                <div key={cat.id} className="space-y-2">
+                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-primary/60 border-b pb-1">{cat.nombre}</h4>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                        {cat.items.map(item => (
+                                            <div key={item.id} className={cn("p-2 rounded-lg flex justify-between items-center text-xs border", item.hasConflict ? "bg-rose-50 border-rose-100" : "bg-slate-50 border-slate-100")}>
+                                                <span className={cn("font-bold", item.hasConflict ? "text-rose-700" : "text-slate-700")}>{item.nombre}</span>
+                                                <Badge variant="outline" className={cn("font-black", item.hasConflict ? "border-rose-300 text-rose-600" : "border-slate-200")}>{item.cantidad} {item.unidad}</Badge>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                            {(!fiesta.listaDeCargaOperativa?.categorias || fiesta.listaDeCargaOperativa.categorias.length === 0) && (
+                                <p className="text-center py-10 text-slate-400 italic text-sm">No hay una lista de carga generada.</p>
                             )}
-                        </TableBody>
-                    </Table>
+                        </div>
+                    </ScrollArea>
                 </CardContent>
             </Card>
 
-            {/* 3. GASTRONOMÍA DETALLADA (SINCRO INTELIGENTE) */}
+            {/* LISTA DE COMPRAS (VISUALIZACIÓN DIRECTA) */}
+            <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white">
+                <CardHeader className="bg-emerald-600 text-white p-6">
+                    <div className="flex items-center justify-between">
+                        <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-3">
+                            <ShoppingCart className="w-5 h-5"/> Insumos a Comprar
+                        </CardTitle>
+                        <Link href={`/fiestas/nueva/catering/lista-compras?fiestaId=${fiestaId}`}>
+                            <Button variant="ghost" size="sm" className="h-7 text-[10px] font-black border border-white/20 text-white hover:bg-white/10">GESTIONAR COMPRAS</Button>
+                        </Link>
+                    </div>
+                </CardHeader>
+                <CardContent className="p-0">
+                    <ScrollArea className="h-80">
+                        <Table>
+                            <TableHeader className="bg-slate-50">
+                                <TableRow className="border-slate-100">
+                                    <TableHead className="pl-8 text-[10px] font-black uppercase">Insumo</TableHead>
+                                    <TableHead className="text-right text-[10px] font-black uppercase">Cantidad</TableHead>
+                                    <TableHead className="text-right pr-8 text-[10px] font-black uppercase">Proveedor</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {shoppingList.map(item => (
+                                    <TableRow key={item.id} className="border-slate-50">
+                                        <TableCell className="pl-8 py-3">
+                                            <p className="font-bold text-slate-700 text-xs">{item.nombre}</p>
+                                            <p className="text-[9px] text-slate-400 uppercase font-medium">Ref: {item.origen}</p>
+                                        </TableCell>
+                                        <TableCell className="text-right font-black text-xs">{item.cantidadAComprar.toFixed(1)} {item.unit}</TableCell>
+                                        <TableCell className="text-right pr-8"><Badge variant="secondary" className="text-[9px] bg-slate-100 text-slate-500 border-none font-black uppercase">{item.proveedor}</Badge></TableCell>
+                                    </TableRow>
+                                ))}
+                                {shoppingList.length === 0 && (
+                                    <TableRow><TableCell colSpan={3} className="py-10 text-center text-slate-400 italic text-sm">No se han detectado insumos para comprar.</TableCell></TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </ScrollArea>
+                </CardContent>
+                <CardFooter className="bg-emerald-50 p-4 flex justify-between items-center border-t border-emerald-100">
+                    <p className="text-[10px] font-black uppercase text-emerald-700 tracking-widest">Inversión Total Proyectada</p>
+                    <p className="text-xl font-black text-emerald-700">{formatCurrency(shoppingList.reduce((s,i) => s + i.costoTotalFaltante, 0))}</p>
+                </CardFooter>
+            </Card>
+
+            {/* PLAN GASTRONÓMICO */}
             <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white">
                 <CardHeader className="bg-primary/5 border-b border-primary/10 p-6">
                     <CardTitle className="text-sm font-black uppercase tracking-widest text-primary flex items-center gap-2">
-                        <ChefHat className="w-5 h-5"/> Plan Gastronómico
+                        <ChefHat className="w-5 h-5"/> Detalle Gastronómico
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="p-8 space-y-8">
+                <CardContent className="p-8">
                     {menu ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             {['Entrada', 'Plato Principal', 'Postre', 'Menú Infantil/Adolescente'].map(tipo => {
@@ -269,7 +414,7 @@ function ResumenPlanificacionContent() {
                                         </h4>
                                         <div className="space-y-2">
                                             {items.map(i => (
-                                                <div key={i.id} className="p-3 bg-slate-50 rounded-xl border border-slate-100 font-bold text-sm text-slate-700">
+                                                <div key={i.id} className="p-3 bg-slate-50 rounded-xl border border-slate-100 font-bold text-xs text-slate-700">
                                                     {i.name}
                                                 </div>
                                             ))}
@@ -285,13 +430,12 @@ function ResumenPlanificacionContent() {
                                 return (
                                     <div key={tipo} className="space-y-3">
                                         <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-600 flex items-center gap-2">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div> {tipo.toUpperCase()} (De Presupuesto)
+                                            <div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div> {tipo.toUpperCase()}
                                         </h4>
                                         <div className="space-y-2">
                                             {items.map((i, idx) => (
-                                                <div key={idx} className="p-3 bg-amber-50/30 rounded-xl border border-amber-100 font-bold text-sm text-slate-700 flex justify-between">
-                                                    <span>{i.nombreServicio}</span>
-                                                    <Badge variant="outline" className="text-[8px] bg-white border-amber-200 text-amber-600 font-black">PRESUPUESTO</Badge>
+                                                <div key={idx} className="p-3 bg-amber-50/30 rounded-xl border border-amber-100 font-bold text-xs text-slate-700">
+                                                    {i.nombreServicio}
                                                 </div>
                                             ))}
                                         </div>
@@ -300,159 +444,65 @@ function ResumenPlanificacionContent() {
                             })}
                         </div>
                     ) : (
-                        <div className="text-center py-10 border-2 border-dashed rounded-[2rem] bg-slate-50">
-                            <Info className="w-10 h-10 mx-auto text-slate-200 mb-2"/>
-                            <p className="text-xs font-black uppercase tracking-widest text-slate-400">Sin datos gastronómicos definidos</p>
-                        </div>
+                        <p className="text-center py-10 text-slate-400 italic">No hay platos definidos.</p>
                     )}
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
-                        <div className="space-y-4">
-                            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-600 flex items-center gap-2">
-                                <CakeSlice className="w-4 h-4"/> Repostería Activa
-                            </h4>
-                            <div className="space-y-2">
-                                {fiesta.reposteria?.categorias.filter(c => c.activada).map(cat => (
-                                    <div key={cat.id} className="p-4 bg-orange-50/50 rounded-2xl border border-orange-100">
-                                        <p className="font-black text-xs text-orange-800 uppercase tracking-tight mb-1">{cat.nombreDisplay}</p>
-                                        <p className="text-xs text-orange-600/80 font-medium">{cat.items.map(i => i.nombre).join(', ')}</p>
-                                    </div>
-                                ))}
-                                {fiesta.reposteria?.categorias.filter(c => c.activada).length === 0 && <p className="text-xs text-slate-400 italic">No hay repostería configurada.</p>}
-                            </div>
-                        </div>
-                        <div className="space-y-4">
-                            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-600 flex items-center gap-2">
-                                <GlassWater className="w-4 h-4"/> Bebidas y Barra
-                            </h4>
-                            <div className="space-y-2">
-                                {fiesta.bebidas?.categorias.filter(c => c.activada).map(cat => (
-                                    <div key={cat.id} className="p-4 bg-blue-50/50 rounded-2xl border border-blue-100 flex items-center justify-between">
-                                        <p className="font-black text-xs text-blue-800 uppercase tracking-tight">{cat.nombreDisplay}</p>
-                                        <CheckCircle2 className="w-4 h-4 text-blue-500"/>
-                                    </div>
-                                ))}
-                                {fiesta.bebidas?.categorias.filter(c => c.activada).length === 0 && <p className="text-xs text-slate-400 italic">No hay bebidas configuradas.</p>}
-                            </div>
-                        </div>
-                    </div>
                 </CardContent>
             </Card>
         </div>
 
-        {/* COLUMNA DERECHA: LOGÍSTICA, PERSONAL Y FOTO */}
+        {/* COLUMNA DERECHA */}
         <div className="lg:col-span-4 space-y-8">
-            
-            {/* 4. PERSONAL ASIGNADO */}
             <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white">
                 <CardHeader className="bg-slate-50 border-b border-slate-100 p-6">
                     <CardTitle className="text-sm font-black uppercase tracking-widest text-slate-800 flex items-center gap-2">
-                        <UserCheck className="w-5 h-5 text-primary"/> Staff Confirmado
+                        <UserCheck className="w-5 h-5 text-primary"/> Personal
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
                     <div className="space-y-3">
-                        {fiesta.personalAsignado && fiesta.personalAsignado.length > 0 ? (
-                            fiesta.personalAsignado.map((pa, idx) => {
-                                const emp = empleados.find(e => e.id === pa.empleadoId);
-                                const rol = roles.find(r => r.id === pa.rolId);
-                                return (
-                                    <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 rounded-2xl border border-slate-100">
-                                        <div className="min-w-0">
-                                            <p className="font-bold text-sm text-slate-800 truncate">{emp?.nombre || 'N/A'}</p>
-                                            <p className="text-[9px] font-black text-primary uppercase tracking-tighter">{rol?.nombre}</p>
-                                        </div>
-                                        <Badge className="bg-emerald-500 text-white border-none h-5 text-[8px] font-black">OK</Badge>
+                        {fiesta.personalAsignado?.map((pa, idx) => {
+                            const emp = empleados.find(e => e.id === pa.empleadoId);
+                            const rol = roles.find(r => r.id === pa.rolId);
+                            return (
+                                <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                                    <div className="min-w-0">
+                                        <p className="font-bold text-xs text-slate-800 truncate">{emp?.nombre || 'VACANTE'}</p>
+                                        <p className="text-[8px] font-black text-primary uppercase tracking-tighter">{rol?.nombre}</p>
                                     </div>
-                                )
-                            })
-                        ) : (
-                            <p className="text-center py-6 text-xs text-slate-400 italic font-medium">No se ha asignado personal aún.</p>
-                        )}
-                    </div>
-                </CardContent>
-            </Card>
-
-            {/* 5. SEGUIMIENTO FOTO/VIDEO */}
-            <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white">
-                <CardHeader className="bg-purple-50/50 border-b border-purple-100 p-6">
-                    <CardTitle className="text-sm font-black uppercase tracking-widest text-purple-800 flex items-center gap-2">
-                        <Camera className="w-5 h-5"/> Seguimiento de Material
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="p-6">
-                    <div className="space-y-3">
-                        {fiesta.fotografiaYFilmacion?.servicios && fiesta.fotografiaYFilmacion.servicios.length > 0 ? (
-                            fiesta.fotografiaYFilmacion.servicios.map(s => (
-                                <div key={s.id} className="p-3 border rounded-2xl space-y-1">
-                                    <div className="flex justify-between items-center">
-                                        <p className="text-xs font-bold text-slate-800">{s.nombre}</p>
-                                        <Badge variant="outline" className="text-[8px] h-4 font-black uppercase border-purple-200 text-purple-600">{s.estado}</Badge>
-                                    </div>
-                                    {s.fechaEntregaEstimada && (
-                                        <p className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">
-                                            Entrega: {new Date(s.fechaEntregaEstimada).toLocaleDateString('es-UY')}
-                                        </p>
-                                    )}
+                                    <Badge className={cn("h-5 text-[8px] font-black border-none", emp ? "bg-emerald-500 text-white" : "bg-amber-100 text-amber-600")}>
+                                        {emp ? "OK" : "PEND"}
+                                    </Badge>
                                 </div>
-                            ))
-                        ) : (
-                            <p className="text-center py-6 text-xs text-slate-400 italic font-medium">Sin seguimiento activo.</p>
-                        )}
+                            )
+                        })}
                     </div>
                 </CardContent>
             </Card>
 
-            {/* 6. HITOS DEL ITINERARIO */}
             <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-slate-900 text-white">
                 <CardHeader className="p-6 border-b border-white/5">
                     <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-3">
-                        <Clock className="w-5 h-5 text-primary"/> Hitos Principales
+                        <Clock className="w-5 h-5 text-primary"/> Itinerario
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
                     <ScrollArea className="h-64">
                         <div className="divide-y divide-white/5">
-                            {(fiesta.programa || []).map(item => (
+                            {fiesta.programa?.map(item => (
                                 <div key={item.id} className="p-4 flex items-start gap-4">
-                                    <span className="text-primary font-black font-mono text-xs pt-0.5">{item.hora}</span>
-                                    <div className="min-w-0">
-                                        <p className="font-bold text-sm leading-tight">{item.titulo}</p>
-                                        <p className="text-[10px] text-slate-500 font-medium line-clamp-1">{item.descripcion}</p>
-                                    </div>
+                                    <span className="text-primary font-black font-mono text-xs">{item.hora}</span>
+                                    <p className="font-bold text-xs leading-tight">{item.titulo}</p>
                                 </div>
                             ))}
-                            {(fiesta.programa || []).length === 0 && (
-                                <p className="p-8 text-center text-xs text-slate-500 font-bold uppercase tracking-widest">Cronograma no definido</p>
-                            )}
                         </div>
                     </ScrollArea>
-                </CardContent>
-            </Card>
-
-            {/* 7. GESTIÓN DOCUMENTAL */}
-            <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white">
-                <CardHeader className="bg-slate-50 border-b border-slate-100 p-6">
-                    <CardTitle className="text-sm font-black uppercase tracking-widest text-slate-800 flex items-center gap-2">
-                        <Archive className="w-5 h-5 text-primary"/> Documentación
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="p-6 space-y-3">
-                    <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50">
-                        <span className="text-xs font-bold text-slate-600 uppercase">Contrato</span>
-                        {fiesta.contratoFirmaInfo?.isSigned ? <Badge className="bg-emerald-500 text-white border-none text-[8px] font-black">FIRMADO</Badge> : <Badge variant="outline" className="text-[8px] font-black uppercase">PENDIENTE</Badge>}
-                    </div>
-                    <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50">
-                        <span className="text-xs font-bold text-slate-600 uppercase">Facturas</span>
-                        <span className="text-xs font-black text-primary">{fiesta.invoiceIds?.length || 0} vinculadas</span>
-                    </div>
                 </CardContent>
             </Card>
         </div>
       </div>
 
-      <footer className="text-center py-12 border-t border-slate-100 space-y-2">
-          <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.3em]">Planificación Consolidada por AK Producciones</p>
+      <footer className="text-center py-12 border-t border-slate-100 space-y-2 print:mt-10">
+          <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.3em]">Sistema de Planificación Consolidada AK Producciones</p>
           <p className="text-[9px] text-slate-300 font-bold uppercase tracking-widest">Generado el {new Date().toLocaleDateString('es-ES')}</p>
       </footer>
     </div>
