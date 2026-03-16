@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import type { PresupuestoFormData, ItemPresupuestado, Presupuesto } from '@/types/presupuesto';
@@ -26,61 +24,59 @@ const formatCurrency = (amount?: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 };
 
-// Helper function to decide which guest count to use for an item
 function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?: string, subcategoria?: string }, adultos: number, adolescentes: number, ninos: number): number {
-  const categoria = (item.categoriaServicio || '').toLowerCase();
-  const subcategoria = (item.subcategoria || '').toLowerCase();
+  const name = item.nombreServicio.toLowerCase();
+  const cat = (item.categoriaServicio || '').toLowerCase();
+  const sub = (item.subcategoria || '').toLowerCase();
   const ninosYAdolescentes = ninos + adolescentes;
   
-  if (categoria.includes('infantil') || categoria.includes('adolescente') || subcategoria.includes('infantil') || subcategoria.includes('adolescente')) {
+  if (cat.includes('infantil') || cat.includes('adolescente') || sub.includes('infantil') || sub.includes('adolescente') || name.includes('niño')) {
     return ninosYAdolescentes;
   }
   
-  if (categoria.includes('plato principal') || subcategoria.includes('plato principal')) {
+  if ((cat.includes('plato principal') || sub.includes('plato principal') || name.includes('principal')) && !name.includes('niño')) {
     return adultos;
   }
   
-  // For ALL OTHER services (Entradas, Postres, Bebidas, Vajilla, DJ, decor, etc.), count everyone.
-  return adultos + adolescentes + ninos;
+  return adultos + ninosYAdolescentes;
 };
 
-// Calculation function to ensure this component is self-contained
 function calcularCostoItem(item: ItemPresupuestado, adultos: number, adolescentes: number, ninos: number): number {
   if (item.esRegalo) return 0;
   
   const totalInvitados = adultos + adolescentes + ninos;
-  const cantidadInvitados = getGuestCountForItem(item, adultos, adolescentes, ninos);
+  const invitadosTarget = getGuestCountForItem(item, adultos, adolescentes, ninos);
   
-  if (cantidadInvitados === 0 && (item.calculationMethod === 'porPersona' || item.calculationMethod === 'ratio')) {
+  if (invitadosTarget === 0 && (item.calculationMethod === 'porPersona' || item.calculationMethod === 'ratio')) {
     return 0;
   }
 
   let itemTotal = 0;
-  const precioUnitario = item.precioUnitarioPresupuesto ?? item.precioUnitario;
+  const precioAplicado = item.precioUnitarioPresupuesto ?? item.precioUnitario;
 
   switch (item.calculationMethod) {
     case 'fijo': 
-      itemTotal = (item.precioBase ?? precioUnitario) * (item.cantidad > 0 ? item.cantidad : 1);
+      itemTotal = (item.precioBase ?? precioAplicado) * (item.cantidad > 0 ? item.cantidad : 1);
       break;
     case 'porPersona': 
-      itemTotal = (item.precioPorPersona ?? precioUnitario) * cantidadInvitados; 
+      itemTotal = (item.precioPorPersona ?? precioAplicado) * invitadosTarget; 
       break;
     case 'ratio':
-      const invitadosPorUnidadNum = Number(item.invitadosPorUnidad);
-      if (invitadosPorUnidadNum > 0) {
-        itemTotal = Math.ceil(cantidadInvitados / invitadosPorUnidadNum) * (item.precioBase ?? precioUnitario);
+      const ratio = Number(item.invitadosPorUnidad);
+      if (ratio > 0) {
+        itemTotal = Math.ceil(invitadosTarget / ratio) * (item.precioBase ?? precioAplicado);
       } else {
-        itemTotal = item.precioBase ?? precioUnitario; // Fallback
+        itemTotal = item.precioBase ?? precioAplicado;
       }
       break;
     case 'tramos':
       const tramo = item.tramosDePrecio?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta);
       itemTotal = tramo?.precio || 0;
       break;
-    default: // Fallback to simple calculation
-      itemTotal = item.cantidad * precioUnitario;
+    default:
+      itemTotal = item.cantidad * precioAplicado;
   }
-  return itemTotal;
+  return Math.round(itemTotal);
 }
 
 export default function Paso3Resumen({ formData, setFormData, totalCalculado, totalInvitados }: Paso3ResumenProps) {
@@ -92,26 +88,21 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
   ) => {
     setFormData(prev => {
       const newSelected = new Map(prev.serviciosSeleccionados);
-      const currentServicio = newSelected.get(servicioId);
-      if (currentServicio) {
+      const current = newSelected.get(servicioId);
+      if (current) {
         if (field === 'esRegalo') {
             const esRegalo = !!value;
             newSelected.set(servicioId, {
-              ...currentServicio,
+              ...current,
               esRegalo,
-              precioUnitarioPresupuesto: esRegalo ? 0 : currentServicio.precioUnitarioOriginal,
+              precioUnitarioPresupuesto: esRegalo ? 0 : current.precioUnitarioOriginal,
             });
         } else {
-            let numericValue = Number(value);
-            if (field === 'cantidad') {
-                numericValue = Math.max(1, Math.floor(numericValue));
-            } else if (field === 'precioUnitarioPresupuesto') {
-                numericValue = Math.max(0, numericValue);
-            }
+            let num = Number(value);
             newSelected.set(servicioId, {
-              ...currentServicio,
-              [field]: isNaN(numericValue) ? (field === 'cantidad' ? 1 : 0) : numericValue,
-               esRegalo: false, // Uncheck gift if price/qty is manually changed
+              ...current,
+              [field]: isNaN(num) ? 0 : num,
+               esRegalo: false,
             });
         }
       }
@@ -119,101 +110,66 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
     });
   };
 
-  const handleRemoveItem = (servicioId: string) => {
-    setFormData(prev => {
-      const newSelected = new Map(prev.serviciosSeleccionados);
-      newSelected.delete(servicioId);
-      return {...prev, serviciosSeleccionados: newSelected};
-    });
-  };
-  
-  const { subtotalBruto, ahorroTotal, totalFinal, descuentoPromocional } = useMemo(() => {
+  const { subtotalBruto, ahorroTotal, totalFinal } = useMemo(() => {
     const adultos = formData.invitadosAdultos || 0;
     const adolescentes = formData.invitadosAdolescentes || 0;
     const ninos = formData.invitadosNinos || 0;
 
-    const bruto = Array.from(formData.serviciosSeleccionados.values())
-      .filter(item => !item.esRegalo)
-      .reduce((sum, item) => {
-        const itemDataForCalc: ItemPresupuestado = {
-          idServicioCatalogo: '', ...item, precioUnitario: item.precioUnitarioPresupuesto, costoTotalItem: 0
-        };
-        return sum + calcularCostoItem(itemDataForCalc, adultos, adolescentes, ninos);
-      }, 0);
+    const items = Array.from(formData.serviciosSeleccionados.entries()).map(([id, s]) => ({
+        idServicioCatalogo: id, ...s, precioUnitario: s.precioUnitarioPresupuesto, costoTotalItem: 0
+    }));
 
-    const costoRegalos = Array.from(formData.serviciosSeleccionados.values())
-      .filter(item => item.esRegalo)
-      .reduce((sum, item) => {
-        const itemDataForCalc: ItemPresupuestado = {
-          idServicioCatalogo: '', ...item, esRegalo: false, precioUnitario: item.precioUnitarioOriginal, costoTotalItem: 0
-        };
-        return sum + calcularCostoItem(itemDataForCalc, adultos, adolescentes, ninos);
-      }, 0);
+    const bruto = items.filter(i => !i.esRegalo).reduce((sum, i) => sum + calcularCostoItem(i, adultos, adolescentes, ninos), 0);
+    const regalos = items.filter(i => i.esRegalo).reduce((sum, i) => {
+        const itemNormal = { ...i, esRegalo: false, precioUnitarioPresupuesto: i.precioUnitarioOriginal };
+        return sum + calcularCostoItem(itemNormal, adultos, adolescentes, ninos);
+    }, 0);
 
     let descPromo = 0;
-    const valorDescuentoNum = parseFloat(formData.descuentoValor || '0') || 0;
+    const valorDesc = parseFloat(formData.descuentoValor || '0') || 0;
+    if (formData.descuentoTipo === 'porcentaje') descPromo = (bruto * valorDesc) / 100;
+    else if (formData.descuentoTipo === 'fijo') descPromo = valorDesc;
     
-    if (formData.descuentoTipo && valorDescuentoNum > 0) {
-      if (formData.descuentoTipo === 'porcentaje') {
-        descPromo = (bruto * valorDescuentoNum) / 100;
-      } else {
-        descPromo = valorDescuentoNum;
-      }
-    }
-    
-    const ahorro = descPromo + costoRegalos;
-    const total = bruto - descPromo;
-
     return {
       subtotalBruto: bruto,
-      ahorroTotal: ahorro,
-      totalFinal: total,
-      descuentoPromocional: descPromo,
+      ahorroTotal: Math.round(descPromo + regalos),
+      totalFinal: Math.round(bruto - descPromo)
     };
   }, [formData]);
-
 
   return (
     <div className="space-y-6">
         <div>
-            <h3 className="text-lg font-medium font-headline text-primary mb-2">Servicios Seleccionados</h3>
+            <h3 className="text-lg font-black font-headline text-primary uppercase mb-4">Servicios Seleccionados</h3>
             <div className="space-y-3">
             {Array.from(formData.serviciosSeleccionados.entries()).map(([id, servicio]) => {
-                const itemDataForCalc: ItemPresupuestado = {
+                const itemParaCalculo: ItemPresupuestado = {
                     idServicioCatalogo: id, ...servicio, 
                     precioUnitario: servicio.precioUnitarioOriginal, costoTotalItem: 0,
                 };
-                const costoItem = calcularCostoItem(itemDataForCalc, formData.invitadosAdultos || 0, formData.invitadosAdolescentes || 0, formData.invitadosNinos || 0);
-                const costoItemSiNoFueraRegalo = calcularCostoItem({...itemDataForCalc, esRegalo: false }, formData.invitadosAdultos || 0, formData.invitadosAdolescentes || 0, formData.invitadosNinos || 0);
+                const costoItem = calcularCostoItem(itemParaCalculo, formData.invitadosAdultos || 0, formData.invitadosAdolescentes || 0, formData.invitadosNinos || 0);
+                const costoSinRegalo = calcularCostoItem({...itemParaCalculo, esRegalo: false }, formData.invitadosAdultos || 0, formData.invitadosAdolescentes || 0, formData.invitadosNinos || 0);
 
                 return (
-                    <div key={id} className="p-3 border rounded-md">
-                        <div className="flex justify-between items-start">
-                          <p className="font-semibold pr-2">{servicio.nombreServicio}</p>
-                          <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive -mt-1 -mr-2" onClick={() => handleRemoveItem(id)}><Trash2 className="w-4 h-4" /></Button>
+                    <div key={id} className="p-4 border rounded-2xl bg-white shadow-sm group hover:border-primary/30 transition-all">
+                        <div className="flex justify-between items-start mb-2">
+                          <p className="font-bold text-slate-800 uppercase text-sm tracking-tight">{servicio.nombreServicio}</p>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive opacity-0 group-hover:opacity-100" onClick={() => {
+                              const newMap = new Map(formData.serviciosSeleccionados);
+                              newMap.delete(id);
+                              setFormData({...formData, serviciosSeleccionados: newMap});
+                          }}><Trash2 className="w-4 h-4" /></Button>
                         </div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2 items-end">
-                            <div className="space-y-1">
-                                <Label htmlFor={`qty-${id}`} className="text-xs">Cantidad</Label>
-                                <Input id={`qty-${id}`} type="number" value={servicio.cantidad} onChange={e => handleServicioDetailChange(id, 'cantidad', e.target.value)} className="h-8 text-sm" />
-                            </div>
-                            <div className="space-y-1">
-                                <Label htmlFor={`price-${id}`} className="text-xs">Precio Unit. ($)</Label>
-                                <Input id={`price-${id}`} type="number" value={servicio.precioUnitarioPresupuesto} onChange={e => handleServicioDetailChange(id, 'precioUnitarioPresupuesto', e.target.value)} className="h-8 text-sm" />
-                            </div>
-                            <div className="flex items-center space-x-2 pt-5">
-                                <Checkbox id={`gift-${id}`} checked={servicio.esRegalo} onCheckedChange={(checked) => handleServicioDetailChange(id, 'esRegalo', !!checked)} />
-                                <Label htmlFor={`gift-${id}`} className="text-xs">Regalo</Label>
-                            </div>
-                             <div className="text-right">
-                                <p className="text-xs text-muted-foreground">Total Item</p>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 items-end">
+                            <div className="space-y-1"><Label className="text-[10px] uppercase font-black text-slate-400">Cant.</Label><Input type="number" value={servicio.cantidad} onChange={e => handleServicioDetailChange(id, 'cantidad', e.target.value)} className="h-10 rounded-xl" /></div>
+                            <div className="space-y-1"><Label className="text-[10px] uppercase font-black text-slate-400">Precio ($)</Label><Input type="number" value={servicio.precioUnitarioPresupuesto} onChange={e => handleServicioDetailChange(id, 'precioUnitarioPresupuesto', e.target.value)} className="h-10 rounded-xl font-bold" /></div>
+                            <div className="flex items-center space-x-2 pb-3"><Checkbox id={`gift-${id}`} checked={servicio.esRegalo} onCheckedChange={(v) => handleServicioDetailChange(id, 'esRegalo', !!v)} /><Label htmlFor={`gift-${id}`} className="text-xs font-bold text-rose-600">Es Regalo</Label></div>
+                             <div className="text-right pb-1">
+                                <p className="text-[10px] uppercase font-black text-slate-400">Subtotal</p>
                                 {servicio.esRegalo ? (
-                                  <>
-                                    <p className="font-semibold text-green-600 flex items-center justify-end gap-1"><Gift className="w-4 h-4"/>REGALO</p>
-                                    {costoItemSiNoFueraRegalo > 0 && <p className="text-xs text-muted-foreground line-through">{formatCurrency(costoItemSiNoFueraRegalo)}</p>}
-                                  </>
+                                  <p className="font-black text-green-600 text-lg">REGALO</p>
                                 ) : (
-                                  <p className="font-semibold">{formatCurrency(costoItem)}</p>
+                                  <p className="font-black text-slate-800 text-lg">{formatCurrency(costoItem)}</p>
                                 )}
                              </div>
                         </div>
@@ -225,66 +181,38 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
 
         <Separator />
         
-         <div className="pt-4 border-t mt-4 space-y-4">
-            <h3 className="text-md font-medium flex items-center gap-2"><Tag className="w-5 h-5 text-primary"/>Promoción / Descuento (Opcional)</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1"><Label htmlFor="promo-nombre">Nombre Promoción</Label><Input id="promo-nombre" value={formData.nombrePromocion || ''} onChange={e => setFormData(prev => ({...prev, nombrePromocion: e.target.value}))} placeholder="Ej: Descuento Amigos"/></div>
-              <div className="space-y-1"><Label htmlFor="promo-vigencia">Vigencia</Label><Input id="promo-vigencia" value={formData.vigenciaPromocion || ''} onChange={e => setFormData(prev => ({...prev, vigenciaPromocion: e.target.value}))} placeholder="Ej: Hasta 31/12"/></div>
+         <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-100 space-y-6">
+            <h3 className="text-md font-black uppercase tracking-widest text-primary flex items-center gap-2"><Tag className="w-5 h-5"/>Promoción y Descuentos</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-1.5"><Label className="text-[10px] uppercase font-black text-slate-400">Nombre de la Promoción</Label><Input value={formData.nombrePromocion || ''} onChange={e => setFormData({...formData, nombrePromocion: e.target.value})} className="rounded-xl border-slate-200" /></div>
+              <div className="space-y-1.5"><Label className="text-[10px] uppercase font-black text-slate-400">Vigencia</Label><Input value={formData.vigenciaPromocion || ''} onChange={e => setFormData({...formData, vigenciaPromocion: e.target.value})} className="rounded-xl border-slate-200" /></div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <Label htmlFor="descuento-tipo">Tipo Descuento</Label>
-                <Select value={formData.descuentoTipo || 'porcentaje'} onValueChange={val => setFormData(prev => ({...prev, descuentoTipo: val as Presupuesto['descuentoTipo']}))}>
-                  <SelectTrigger id="descuento-tipo"><SelectValue placeholder="Seleccionar..."/></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="porcentaje">Porcentaje (%)</SelectItem>
-                    <SelectItem value="fijo">Monto Fijo ($)</SelectItem>
-                  </SelectContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-1.5">
+                <Label className="text-[10px] uppercase font-black text-slate-400">Tipo de Descuento</Label>
+                <Select value={formData.descuentoTipo || 'porcentaje'} onValueChange={v => setFormData({...formData, descuentoTipo: v as any})}>
+                  <SelectTrigger className="rounded-xl border-slate-200 h-11"><SelectValue /></SelectTrigger>
+                  <SelectContent className="rounded-2xl"><SelectItem value="porcentaje">Porcentaje (%)</SelectItem><SelectItem value="fijo">Monto Fijo ($)</SelectItem></SelectContent>
                 </Select>
               </div>
-              <div className="space-y-1">
-                <Label htmlFor="descuento-valor" className="flex items-center gap-1">
-                  {formData.descuentoTipo === 'porcentaje' ? <Percent className="w-4 h-4 text-muted-foreground"/> : <span className="text-muted-foreground font-bold text-sm">$</span>}
-                  Valor Descuento
-                </Label>
-                <Input id="descuento-valor" type="number" value={formData.descuentoValor ?? ''} onChange={e => setFormData(prev => ({...prev, descuentoValor: e.target.value}))} min="0" step="any" placeholder="Ej: 15 o 5000"/>
+              <div className="space-y-1.5">
+                <Label className="text-[10px] uppercase font-black text-slate-400">Valor</Label>
+                <Input type="number" value={formData.descuentoValor ?? ''} onChange={e => setFormData({...formData, descuentoValor: e.target.value})} className="rounded-xl border-slate-200 h-11 font-bold" />
               </div>
             </div>
         </div>
         
-        <div className="space-y-2">
-            <h3 className="text-lg font-medium font-headline text-primary">Resumen Final</h3>
-            <div className="p-4 border rounded-lg bg-primary/5 space-y-2">
-                 <div className="flex justify-between text-md">
-                    <span className="text-muted-foreground">Subtotal de servicios:</span>
-                    <span className="font-medium">{formatCurrency(subtotalBruto)}</span>
-                </div>
-                {ahorroTotal > 0 && (
-                  <div className="flex justify-between text-md text-destructive">
-                      <span>Descuento Promocional + Regalos:</span>
-                      <span className="font-medium">-{formatCurrency(ahorroTotal)}</span>
-                  </div>
-                )}
-                 <div className="flex justify-between text-xl font-bold pt-2 border-t">
-                    <span className="text-primary">TOTAL A PAGAR:</span>
-                    <span className="text-primary">{formatCurrency(totalFinal)}</span>
-                 </div>
+        <div className="p-8 border-none shadow-2xl rounded-[2.5rem] bg-slate-900 text-white space-y-4">
+            <div className="flex justify-between items-center text-sm font-bold opacity-60 uppercase tracking-widest"><span>Servicios Contratados:</span><span>{formatCurrency(subtotalBruto)}</span></div>
+            {ahorroTotal > 0 && <div className="flex justify-between items-center text-sm font-black text-rose-400 uppercase tracking-widest"><span>Total Ahorro (Regalos + Promo):</span><span>-{formatCurrency(ahorroTotal)}</span></div>}
+            <Separator className="bg-white/10" />
+            <div className="flex justify-between items-center">
+                <span className="text-xl font-black uppercase tracking-tighter">Total Final a Cobrar:</span>
+                <span className="text-4xl font-black text-primary">{formatCurrency(totalFinal)}</span>
             </div>
         </div>
         
-        <Separator/>
-        
-        <div className="space-y-2">
-            <Label htmlFor="notas" className="text-base">Notas Adicionales para el Cliente</Label>
-            <Textarea 
-              id="notas" 
-              placeholder="Añade términos, condiciones de pago, o cualquier otra nota relevante aquí." 
-              value={formData.notas} 
-              onChange={(e) => setFormData(prev => ({...prev, notas: e.target.value}))} 
-              rows={4} 
-              className="text-base p-3" 
-            />
-        </div>
+        <div className="space-y-2"><Label className="text-[10px] uppercase font-black text-slate-400">Notas y Condiciones para el Cliente</Label><Textarea value={formData.notes} onChange={(e) => setFormData({...formData, notes: e.target.value})} rows={4} className="rounded-2xl bg-slate-50 border-none shadow-inner" /></div>
     </div>
   );
 }

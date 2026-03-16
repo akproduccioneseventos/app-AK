@@ -22,8 +22,19 @@ export async function updateGestionCostos(fiestaId: string, costos: GestionCosto
 }
 
 /**
+ * MOTOR DE INTEGRACIÓN FINANCIERA: Calcula el costo de un servicio según el target de invitados.
+ */
+function getGuestCountForCost(name: string, cat: string, adultos: number, ninosYAdolescentes: number): number {
+    const lowerName = name.toLowerCase();
+    const lowerCat = cat.toLowerCase();
+    
+    if (lowerCat.includes('infantil') || lowerCat.includes('adolescente') || lowerName.includes('niño')) return ninosYAdolescentes;
+    if (lowerCat.includes('plato principal') || lowerName.includes('principal')) return adultos;
+    return adultos + ninosYAdolescentes;
+}
+
+/**
  * MOTOR FINANCIERO INTEGRAL: Sincroniza todos los gastos operativos del evento.
- * Cruza datos de: Presupuesto, Planificador Gastronómico, Catálogos y Personal.
  */
 export async function syncAllEventCosts(fiestaId: string): Promise<{ success: boolean; error?: string }> {
     if (!fiestaId) return { success: false, error: "ID no válido" };
@@ -50,12 +61,10 @@ export async function syncAllEventCosts(fiestaId: string): Promise<{ success: bo
         let totalPersonalCost = 0;
         let totalBebidasCost = 0;
         let totalReposteriaCost = 0;
-        let totalProveedorCost = 0;
 
         const autoCostItems: CostoItem[] = [];
 
         // 1. SINCRONIZACIÓN DE PERSONAL (SUELDOS + APORTES)
-        // Buscamos personal asignado real o proyectamos por presupuesto
         if (fiesta.personalAsignado && fiesta.personalAsignado.length > 0) {
             fiesta.personalAsignado.forEach(pa => {
                 const rol = roles.find(r => r.id === pa.rolId);
@@ -65,81 +74,74 @@ export async function syncAllEventCosts(fiestaId: string): Promise<{ success: bo
             });
         }
 
-        // 2. SINCRONIZACIÓN GASTRONÓMICA (MENÚ ASIGNADO)
+        // 2. SINCRONIZACIÓN GASTRONÓMICA (RECETAS)
         if (fiesta.menuAsignadoId) {
             const menu = allMenus.find(m => m.id === fiesta.menuAsignadoId);
             if (menu) {
-                const costoPP = menu.items.reduce((s, i) => s + (i.totalDishCost || 0), 0);
-                totalCateringCost = costoPP * totalInv;
+                menu.items.forEach(plato => {
+                    const targetGuests = getGuestCountForCost(plato.name, plato.type, adultos, ninos);
+                    totalCateringCost += (plato.totalDishCost || 0) * targetGuests;
+                });
             }
         }
 
-        // 3. SINCRONIZACIÓN DE BEBIDAS Y REPOSTERÍA (DESDE PLANIFICADOR)
+        // 3. SINCRONIZACIÓN DE BEBIDAS Y REPOSTERÍA
         if (fiesta.bebidas?.categorias) {
             fiesta.bebidas.categorias.filter(c => c.activada).forEach(cat => {
                 cat.items.forEach(item => {
-                    // Si el ítem viene del catálogo, actualizamos su costo unitario al actual
-                    const catalogMatch = catalogInsumos.find(ci => ci.id === item.origenId);
-                    const cost = catalogMatch?.valorUnitarioEstimado || item.costoUnitario || 0;
-                    totalBebidasCost += cost * (totalInv / 100); // Proyección por cada 100
+                    const cost = item.costoUnitario || 0;
+                    const qty = item.cantidadNecesaria || 0;
+                    totalBebidasCost += cost * qty * totalInv;
                 });
             });
         }
         if (fiesta.reposteria?.categorias) {
             fiesta.reposteria.categorias.filter(c => c.activada).forEach(cat => {
                 cat.items.forEach(item => {
-                    const catalogMatch = catalogInsumos.find(ci => ci.id === item.origenId);
-                    const cost = catalogMatch?.valorUnitarioEstimado || item.costoEstimado || 0;
-                    totalReposteriaCost += cost * (item.cantidad || 1);
+                    totalReposteriaCost += (item.costoEstimado || 0) * (item.cantidad || 1);
                 });
             });
         }
 
-        // 4. AUDITORÍA DEL PRESUPUESTO PARA PROVEEDORES EXTERNOS
+        // 4. AUDITORÍA DEL PRESUPUESTO (PROVEEDORES)
         presupuesto.itemsPresupuestados.forEach(item => {
             if (item.esRegalo) return;
-
             const catalogItem = catalogServices.find(c => c.id === item.idServicioCatalogo);
             
-            // Si el ítem es un costo de proveedor o personal no incluido arriba
             if (catalogItem?.tipoCosto === 'Proveedor' || catalogItem?.tipoCosto === 'Gasto Fijo') {
                 const costoUnitario = catalogItem.valorUnitarioEstimado || 0;
-                let qty = item.cantidad || 1;
+                const targetGuests = getGuestCountForCost(item.nombreServicio, item.categoriaServicio || '', adultos, ninos);
                 
-                if (catalogItem.calculationMethod === 'porPersona') qty = totalInv;
-                else if (catalogItem.calculationMethod === 'ratio' && catalogItem.invitadosPorUnidad) qty = Math.ceil(totalInv / catalogItem.invitadosPorUnidad);
+                let qty = item.cantidad || 1;
+                if (catalogItem.calculationMethod === 'porPersona') qty = targetGuests;
+                else if (catalogItem.calculationMethod === 'ratio' && catalogItem.invitadosPorUnidad) qty = Math.ceil(targetGuests / catalogItem.invitadosPorUnidad);
 
                 const totalLineCost = costoUnitario * qty;
-                
                 if (totalLineCost > 0) {
                     autoCostItems.push({
                         id: `auto_prov_${catalogItem.id}`,
-                        nombre: `${item.nombreServicio} (Costo Catálogo)`,
-                        category: catalogItem.tipoCosto === 'Proveedor' ? 'Servicio Proveedor' : 'Otro Costo Directo',
-                        montoEstimado: totalLineCost,
-                        notes: `Sincronizado de Presupuesto. Proveedor: ${catalogItem.proveedor || 'N/A'}`
+                        nombre: `${item.nombreServicio} (Costo Proveedor)`,
+                        category: 'Servicio Proveedor',
+                        montoEstimado: Math.round(totalLineCost),
+                        notes: `Sincronizado de Presupuesto.`
                     });
                 }
             }
         });
 
-        // 5. ACTUALIZAR OBJETO DE GESTIÓN DE COSTOS
-        const currentCosts = fiesta.gestionCostos || defaultGestionCostos;
-        
-        // Mantener ítems manuales que no sean "auto_prov_"
+        const currentCosts = fiesta.gestionCostos || { costosItems: [], ingresosTotalesEstimados: 0 };
         const manualItems = (currentCosts.costosItems || []).filter(i => !i.id.startsWith('auto_prov_'));
 
         const updatedGestion: GestionCostosData = {
             ...currentCosts,
-            ingresosTotalesEstimados: presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado,
+            ingresosTotalesEstimados: Math.round(presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado),
             costosItems: [...manualItems, ...autoCostItems],
-            // Almacenamos los subtotales para referencia rápida en la UI
             others: {
-                totalCateringCost,
-                totalPersonalCost,
-                totalBebidasCost,
-                totalReposteriaCost,
-                totalProveedorCost: autoCostItems.reduce((s, i) => s + i.montoEstimado, 0)
+                totalCateringCost: Math.round(totalCateringCost),
+                totalPersonalCost: Math.round(totalPersonalCost),
+                totalBebidasCost: Math.round(totalBebidasCost),
+                totalReposteriaCost: Math.round(totalReposteriaCost),
+                totalProveedorCost: Math.round(autoCostItems.reduce((s, i) => s + i.montoEstimado, 0))
             }
         };
 
@@ -147,14 +149,10 @@ export async function syncAllEventCosts(fiestaId: string): Promise<{ success: bo
         return { success: true };
 
     } catch (e: any) {
-        console.error("Error in syncAllEventCosts:", e);
         return { success: false, error: e.message };
     }
 }
 
-/**
- * Sincroniza automáticamente los gastos de lavadero basados en la mantelería contratada.
- */
 export async function syncLaundryCosts(fiestaId: string, guests: number, budgetItems: any[]): Promise<void> {
     if (!fiestaId || !budgetItems) return;
     const fiesta = await getFiestaById(fiestaId);
@@ -170,14 +168,14 @@ export async function syncLaundryCosts(fiestaId: string, guests: number, budgetI
         const index = items.findIndex(i => i.nombre === name);
         if (amount > 0) {
             if (index > -1) {
-                items[index].montoEstimado = amount;
+                items[index].montoEstimado = Math.round(amount);
             } else {
                 items.push({
                     id: `laundry_${Date.now()}_${Math.random().toString(36).substring(7)}`,
                     nombre: name,
                     category: 'Servicio Proveedor',
-                    montoEstimado: amount,
-                    notes: 'Generado automáticamente (Lavadero del Sol)'
+                    montoEstimado: Math.round(amount),
+                    notes: 'Auto-generado: Lavadero del Sol'
                 });
             }
         } else if (index > -1) {

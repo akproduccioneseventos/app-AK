@@ -1,4 +1,3 @@
-
 'use server';
 
 import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto'; 
@@ -16,58 +15,74 @@ import { syncLaundryCosts } from './fiesta/costos.actions';
 
 const PRESUPUESTOS_FILE = 'presupuestos.json';
 
+/**
+ * CEREBRO DE CÁLCULO: Determina cuántos invitados corresponden a un ítem específico.
+ * Filtra inteligentemente por nombre, categoría y subcategoría.
+ */
 function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?: string, subcategoria?: string }, adultos: number, adolescentes: number, ninos: number): number {
-  const categoria = (item.categoriaServicio || '').toLowerCase();
-  const subcategoria = (item.subcategoria || '').toLowerCase();
+  const name = item.nombreServicio.toLowerCase();
+  const cat = (item.categoriaServicio || '').toLowerCase();
+  const sub = (item.subcategoria || '').toLowerCase();
   const ninosYAdolescentes = ninos + adolescentes;
   
-  if (categoria.includes('infantil') || categoria.includes('adolescente') || subcategoria.includes('infantil') || subcategoria.includes('adolescente')) {
+  // Regla 1: Servicios exclusivos para menores
+  if (cat.includes('infantil') || cat.includes('adolescente') || sub.includes('infantil') || sub.includes('adolescente') || name.includes('niño')) {
     return ninosYAdolescentes;
   }
   
-  if (categoria.includes('plato principal') || subcategoria.includes('plato principal')) {
+  // Regla 2: Platos principales para adultos (excluyendo si dice infantil)
+  if ((cat.includes('plato principal') || sub.includes('plato principal') || name.includes('principal')) && !name.includes('niño')) {
     return adultos;
   }
   
+  // Regla 3: Servicios generales (Torta, Bebidas, Discoteca, Salón, etc.) -> Total de personas
   return adultos + ninosYAdolescentes;
 };
 
+/**
+ * MOTOR FINANCIERO: Calcula el costo total de una línea basándose en su método de cálculo.
+ */
 function recalcularCostoItem(item: ItemPresupuestado, adultos: number, adolescentes: number, ninos: number): number {
   if (item.esRegalo) return 0;
   
   const totalInvitados = adultos + adolescentes + ninos;
-  const cantidadInvitados = getGuestCountForItem(item, adultos, adolescentes, ninos);
+  const cantidadInvitadosTarget = getGuestCountForItem(item, adultos, adolescentes, ninos);
   
-  if (cantidadInvitados === 0 && (item.calculationMethod === 'porPersona' || item.calculationMethod === 'ratio')) {
+  if (cantidadInvitadosTarget === 0 && (item.calculationMethod === 'porPersona' || item.calculationMethod === 'ratio')) {
     return 0;
   }
   
   let itemTotal = 0;
-  const precioUnitario = item.precioUnitarioPresupuesto ?? item.precioUnitario;
+  const precioAplicado = item.precioUnitarioPresupuesto ?? item.precioUnitario;
 
   switch (item.calculationMethod) {
     case 'fijo':
-      itemTotal = (item.precioBase ?? precioUnitario) * (item.cantidad > 0 ? item.cantidad : 1);
+      // Precio base o unitario multiplicado por la cantidad manual ingresada
+      itemTotal = (item.precioBase ?? precioAplicado) * (item.cantidad > 0 ? item.cantidad : 1);
       break;
     case 'porPersona':
-      itemTotal = (item.precioPorPersona ?? precioUnitario) * cantidadInvitados;
+      // Precio por persona multiplicado por el target de invitados (Adultos, Niños o Total)
+      itemTotal = (item.precioPorPersona ?? precioAplicado) * cantidadInvitadosTarget;
       break;
     case 'ratio':
-      const invitadosPorUnidadNum = Number(item.invitadosPorUnidad);
-      if (invitadosPorUnidadNum > 0) {
-        itemTotal = Math.ceil(cantidadInvitados / invitadosPorUnidadNum) * (item.precioBase ?? precioUnitario);
+      // Ejemplo: 1 mozo cada 25 invitados. Redondea siempre hacia arriba.
+      const ratio = Number(item.invitadosPorUnidad);
+      if (ratio > 0) {
+        const unidadesNecesarias = Math.ceil(cantidadInvitadosTarget / ratio);
+        itemTotal = unidadesNecesarias * (item.precioBase ?? precioAplicado);
       } else {
-        itemTotal = item.precioBase ?? precioUnitario;
+        itemTotal = item.precioBase ?? precioAplicado;
       }
       break;
     case 'tramos':
+      // Busca el precio fijo para el rango total de invitados
       const tramo = item.tramosDePrecio?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta);
       itemTotal = tramo?.precio || 0;
       break;
     default:
-      itemTotal = item.cantidad * precioUnitario;
+      itemTotal = item.cantidad * precioAplicado;
   }
-  return itemTotal;
+  return Math.round(itemTotal);
 }
 
 export async function getPresupuestos(): Promise<Presupuesto[]> {
@@ -84,11 +99,9 @@ async function syncLinkedFiesta(presupuesto: Presupuesto) {
         const allFiestas = await getAllFiestas();
         const linkedFiesta = allFiestas.find(f => f.presupuestoId === presupuesto.id);
         if (linkedFiesta) {
-            // Solo disparar sincronización completa si el estado es Aceptado o Facturado
             if (presupuesto.estado === 'Aceptado' || presupuesto.estado === 'Facturado') {
                 await syncFiestaFromBudget(linkedFiesta.id);
             } else {
-                // Sincronización básica si es borrador/enviado
                 linkedFiesta.configuracion = {
                     ...linkedFiesta.configuracion,
                     nombreEvento: `${presupuesto.eventoTipo} de ${presupuesto.clienteNombre}`,
@@ -119,37 +132,22 @@ export async function savePresupuesto(
   const adolescentes = presupuestoData.invitadosAdolescentes || 0;
   const ninos = presupuestoData.invitadosNinos || 0;
 
+  // RECALCULAR TODAS LAS LÍNEAS PARA SEGURIDAD
   const validItems = presupuestoData.itemsPresupuestados.map(item => ({
-    idServicioCatalogo: item.idServicioCatalogo,
-    nombreServicio: item.nombreServicio,
-    descripcionServicio: item.descriptionServicio,
-    cantidad: item.cantidad,
-    unidad: item.unidad,
-    precioUnitario: item.precioUnitario,
-    precioUnitarioPresupuesto: item.precioUnitarioPresupuesto,
+    ...item,
     costoTotalItem: recalcularCostoItem(item, adultos, adolescentes, ninos),
-    categoriaServicio: item.categoriaServicio,
-    subcategoria: item.subcategoria,
-    esRegalo: item.esRegalo,
-    calculationMethod: item.calculationMethod,
-    precioBase: item.precioBase,
-    precioPorPersona: item.precioPorPersona,
-    invitadosPorUnidad: item.invitadosPorUnidad,
-    tramosDePrecio: item.tramosDePrecio,
   }));
 
-  const costoTotalEstimadoRecalculated = validItems
+  const subtotalBruto = validItems
     .filter(item => !item.esRegalo)
     .reduce((sum, item) => sum + item.costoTotalItem, 0);
 
-  let finalTotalWithDiscount = costoTotalEstimadoRecalculated;
-  let descuentoAplicado = 0;
-
+  let totalConDescuento = subtotalBruto;
   if (presupuestoData.descuentoTipo && presupuestoData.descuentoValor && presupuestoData.descuentoValor > 0) {
-    descuentoAplicado = presupuestoData.descuentoTipo === 'porcentaje'
-      ? (costoTotalEstimadoRecalculated * presupuestoData.descuentoValor) / 100
+    const desc = presupuestoData.descuentoTipo === 'porcentaje'
+      ? (subtotalBruto * presupuestoData.descuentoValor) / 100
       : presupuestoData.descuentoValor;
-    finalTotalWithDiscount = costoTotalEstimadoRecalculated - descuentoAplicado;
+    totalConDescuento = subtotalBruto - desc;
   }
 
   const presupuestoId = `pres_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
@@ -158,12 +156,10 @@ export async function savePresupuesto(
     id: presupuestoId,
     numero: nuevoNumero,
     itemsPresupuestados: validItems,
-    costoTotalEstimado: costoTotalEstimadoRecalculated,
-    totalConDescuento: finalTotalWithDiscount,
+    costoTotalEstimado: subtotalBruto,
+    totalConDescuento: Math.round(totalConDescuento),
     timestamp: new Date().toISOString(),
     estado: presupuestoData.estado || 'Enviado',
-    invoiceId: undefined,
-    ajusteAnualActivo: false,
     leadId: options?.leadId,
     source: options?.source || 'manual',
   };
@@ -207,6 +203,7 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
         totalConDescuento = subtotal - desc;
     }
 
+    // APLICAR AJUSTE ANUAL SI CORRESPONDE
     let finalTotal = totalConDescuento;
     if (presupuestoData.ajusteAnualActivo && presupuestoData.eventoFecha) {
         const yearCreated = new Date(presupuestoData.timestamp).getFullYear();
@@ -221,7 +218,7 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
         ...presupuestoData,
         itemsPresupuestados: validItems,
         costoTotalEstimado: subtotal,
-        totalConDescuento: finalTotal
+        totalConDescuento: Math.round(finalTotal)
     };
 
     try {
