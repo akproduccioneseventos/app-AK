@@ -1,11 +1,9 @@
-
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Save, Loader2, PlusCircle, ArrowRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -22,6 +20,7 @@ import { Progress } from '@/components/ui/progress';
 import { getMenus } from '@/app/actions/menus-catering';
 import type { FullMenu } from '@/types/catering';
 import { getOcupiedDates } from '@/app/actions/agenda';
+import { getGuestCountForItem, recalcularCostoItem } from '@/lib/calculations';
 
 const SESSION_STORAGE_KEY = 'presupuestoEnProgreso_v3';
 
@@ -60,62 +59,6 @@ function formStateInitializer(initialState: PresupuestoFormData): PresupuestoFor
         }
     } catch (error) { console.error("Failed to parse form state", error); }
     return initialState;
-}
-
-// Helper function to decide which guest count to use for an item
-function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?: string, subcategoria?: string }, adultos: number, adolescentes: number, ninos: number): number {
-  const categoria = (item.categoriaServicio || '').toLowerCase();
-  const subcategoria = (item.subcategoria || '').toLowerCase();
-  const ninosYAdolescentes = ninos + adolescentes;
-  
-  if (categoria.includes('infantil') || categoria.includes('adolescente') || subcategoria.includes('infantil') || subcategoria.includes('adolescente')) {
-    return ninosYAdolescentes;
-  }
-  
-  if (categoria.includes('plato principal') || subcategoria.includes('plato principal')) {
-    return adultos;
-  }
-
-  // Default to total guests for general services (DJ, decor, etc.)
-  return adultos + adolescentes + ninos;
-};
-
-function calcularCostoItem(item: ItemPresupuestado, adultos: number, adolescentes: number, ninos: number): number {
-  if (item.esRegalo) return 0;
-  
-  const totalInvitados = adultos + adolescentes + ninos;
-  const cantidadInvitados = getGuestCountForItem(item, adultos, adolescentes, ninos);
-  
-  if (cantidadInvitados === 0 && (item.calculationMethod === 'porPersona' || item.calculationMethod === 'ratio')) {
-    return 0;
-  }
-
-  let itemTotal = 0;
-  const precioUnitario = item.precioUnitarioPresupuesto ?? item.precioUnitario;
-
-  switch (item.calculationMethod) {
-    case 'fijo': 
-      itemTotal = (item.precioBase ?? precioUnitario) * (item.cantidad > 0 ? item.cantidad : 1);
-      break;
-    case 'porPersona': 
-      itemTotal = (item.precioPorPersona ?? precioUnitario) * cantidadInvitados; 
-      break;
-    case 'ratio':
-      const invitadosPorUnidadNum = Number(item.invitadosPorUnidad);
-      if (invitadosPorUnidadNum > 0) {
-        itemTotal = Math.ceil(cantidadInvitados / invitadosPorUnidadNum) * (item.precioBase ?? precioUnitario);
-      } else {
-        itemTotal = item.precioBase ?? precioUnitario; // Fallback
-      }
-      break;
-    case 'tramos':
-      const tramo = item.tramosDePrecio?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta);
-      itemTotal = tramo?.precio || 0;
-      break;
-    default: // Fallback to simple calculation
-      itemTotal = item.cantidad * precioUnitario;
-  }
-  return itemTotal;
 }
 
 function CrearPresupuestoContent() {
@@ -242,7 +185,7 @@ function CrearPresupuestoContent() {
           precioUnitario: item.precioUnitarioPresupuesto,
           costoTotalItem: 0,
         };
-        total += calcularCostoItem(itemDataForCalc, formData.invitadosAdultos || 0, formData.invitadosAdolescentes || 0, formData.invitadosNinos || 0);
+        total += recalcularCostoItem(itemDataForCalc, formData.invitadosAdultos || 0, formData.invitadosAdolescentes || 0, formData.invitadosNinos || 0);
       });
       return total;
     }, [formData]);
@@ -350,7 +293,7 @@ function CrearPresupuestoContent() {
                     </Button>
                     {paso < 3 ? (
                          <Button onClick={handleNext} disabled={isSaving}>
-                            Siguiente <ArrowRight className="w-4 h-4 ml-2" />
+                            Siguiente <ArrowRight className="w-4 h-4 mr-2" />
                         </Button>
                     ) : (
                         <Button onClick={handleSave} disabled={isSaving}>

@@ -11,6 +11,7 @@ import { Trash2, Gift, Tag, Percent } from 'lucide-react';
 import type { Dispatch, SetStateAction } from 'react';
 import { useMemo } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { getGuestCountForItem, recalcularCostoItem } from '@/lib/calculations';
 
 interface Paso3ResumenProps {
   formData: PresupuestoFormData;
@@ -23,61 +24,6 @@ const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 };
-
-function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?: string, subcategoria?: string }, adultos: number, adolescentes: number, ninos: number): number {
-  const name = item.nombreServicio.toLowerCase();
-  const cat = (item.categoriaServicio || '').toLowerCase();
-  const sub = (item.subcategoria || '').toLowerCase();
-  const ninosYAdolescentes = ninos + adolescentes;
-  
-  if (cat.includes('infantil') || cat.includes('adolescente') || sub.includes('infantil') || sub.includes('adolescente') || name.includes('niño')) {
-    return ninosYAdolescentes;
-  }
-  
-  if ((cat.includes('plato principal') || sub.includes('plato principal') || name.includes('principal')) && !name.includes('niño')) {
-    return adultos;
-  }
-  
-  return adultos + ninosYAdolescentes;
-};
-
-function calcularCostoItem(item: ItemPresupuestado, adultos: number, adolescentes: number, ninos: number): number {
-  if (item.esRegalo) return 0;
-  
-  const totalInvitados = adultos + adolescentes + ninos;
-  const invitadosTarget = getGuestCountForItem(item, adultos, adolescentes, ninos);
-  
-  if (invitadosTarget === 0 && (item.calculationMethod === 'porPersona' || item.calculationMethod === 'ratio')) {
-    return 0;
-  }
-
-  let itemTotal = 0;
-  const precioAplicado = item.precioUnitarioPresupuesto ?? item.precioUnitario;
-
-  switch (item.calculationMethod) {
-    case 'fijo': 
-      itemTotal = (item.precioBase ?? precioAplicado) * (item.cantidad > 0 ? item.cantidad : 1);
-      break;
-    case 'porPersona': 
-      itemTotal = (item.precioPorPersona ?? precioAplicado) * invitadosTarget; 
-      break;
-    case 'ratio':
-      const ratio = Number(item.invitadosPorUnidad);
-      if (ratio > 0) {
-        itemTotal = Math.ceil(invitadosTarget / ratio) * (item.precioBase ?? precioAplicado);
-      } else {
-        itemTotal = item.precioBase ?? precioAplicado;
-      }
-      break;
-    case 'tramos':
-      const tramo = item.tramosDePrecio?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta);
-      itemTotal = tramo?.precio || 0;
-      break;
-    default:
-      itemTotal = item.cantidad * precioAplicado;
-  }
-  return Math.round(itemTotal);
-}
 
 export default function Paso3Resumen({ formData, setFormData, totalCalculado, totalInvitados }: Paso3ResumenProps) {
 
@@ -119,10 +65,10 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
         idServicioCatalogo: id, ...s, precioUnitario: s.precioUnitarioPresupuesto, costoTotalItem: 0
     }));
 
-    const bruto = items.filter(i => !i.esRegalo).reduce((sum, i) => sum + calcularCostoItem(i, adultos, adolescentes, ninos), 0);
+    const bruto = items.filter(i => !i.esRegalo).reduce((sum, i) => sum + recalcularCostoItem(i, adultos, adolescentes, ninos), 0);
     const regalos = items.filter(i => i.esRegalo).reduce((sum, i) => {
         const itemNormal = { ...i, esRegalo: false, precioUnitarioPresupuesto: i.precioUnitarioOriginal };
-        return sum + calcularCostoItem(itemNormal, adultos, adolescentes, ninos);
+        return sum + recalcularCostoItem(itemNormal, adultos, adolescentes, ninos);
     }, 0);
 
     let descPromo = 0;
@@ -147,8 +93,7 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
                     idServicioCatalogo: id, ...servicio, 
                     precioUnitario: servicio.precioUnitarioOriginal, costoTotalItem: 0,
                 };
-                const costoItem = calcularCostoItem(itemParaCalculo, formData.invitadosAdultos || 0, formData.invitadosAdolescentes || 0, formData.invitadosNinos || 0);
-                const costoSinRegalo = calcularCostoItem({...itemParaCalculo, esRegalo: false }, formData.invitadosAdultos || 0, formData.invitadosAdolescentes || 0, formData.invitadosNinos || 0);
+                const costoItem = recalcularCostoItem(itemParaCalculo, formData.invitadosAdultos || 0, formData.invitadosAdolescentes || 0, formData.invitadosNinos || 0);
 
                 return (
                     <div key={id} className="p-4 border rounded-2xl bg-white shadow-sm group hover:border-primary/30 transition-all">

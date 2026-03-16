@@ -465,7 +465,7 @@ function SalonLayoutContent() {
       return Array.from(tags).sort();
   }, [fiesta?.invitados]);
 
-  const filteredGuests = useMemo(() => {
+  const filteredInvitados = useMemo(() => {
     if (!fiesta?.invitados) return { conMesa: [], sinMesa: [] };
     const lowerCaseSearch = guestSearchTerm.toLowerCase();
     

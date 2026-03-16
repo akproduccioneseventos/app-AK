@@ -3,6 +3,7 @@
 import type { FiestaEnPlanificacion, GestionCostosData, CostoItem, PagoProveedor } from '@/types/fiesta';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 import { getPresupuestoById } from '../presupuestos';
+import { getGuestCountForItem } from '@/lib/calculations';
 import { getServiciosEmpresa } from '../servicios-empresa';
 import { getMenus } from '../menus-catering';
 import { getRoles } from '../roles';
@@ -19,18 +20,6 @@ export async function updateGestionCostos(fiestaId: string, costos: GestionCosto
   } catch (e: any) {
     return { success: false, error: e.message };
   }
-}
-
-/**
- * MOTOR DE INTEGRACIÓN FINANCIERA: Calcula el costo de un servicio según el target de invitados.
- */
-function getGuestCountForCost(name: string, cat: string, adultos: number, ninosYAdolescentes: number): number {
-    const lowerName = name.toLowerCase();
-    const lowerCat = cat.toLowerCase();
-    
-    if (lowerCat.includes('infantil') || lowerCat.includes('adolescente') || lowerName.includes('niño')) return ninosYAdolescentes;
-    if (lowerCat.includes('plato principal') || lowerName.includes('principal')) return adultos;
-    return adultos + ninosYAdolescentes;
 }
 
 /**
@@ -54,8 +43,9 @@ export async function syncAllEventCosts(fiestaId: string): Promise<{ success: bo
         if (!presupuesto) return { success: false, error: "No hay presupuesto vinculado" };
 
         const adultos = presupuesto.invitadosAdultos || 0;
-        const ninos = (presupuesto.invitadosNinos || 0) + (presupuesto.invitadosAdolescentes || 0);
-        const totalInv = adultos + ninos;
+        const adolescentes = presupuesto.invitadosAdolescentes || 0;
+        const ninos = presupuesto.invitadosNinos || 0;
+        const totalInv = adultos + adolescentes + ninos;
 
         let totalCateringCost = 0;
         let totalPersonalCost = 0;
@@ -65,6 +55,7 @@ export async function syncAllEventCosts(fiestaId: string): Promise<{ success: bo
         const autoCostItems: CostoItem[] = [];
 
         // 1. SINCRONIZACIÓN DE PERSONAL (SUELDOS + APORTES)
+        // Incluye vacantes proyectadas si no hay empleados asignados
         if (fiesta.personalAsignado && fiesta.personalAsignado.length > 0) {
             fiesta.personalAsignado.forEach(pa => {
                 const rol = roles.find(r => r.id === pa.rolId);
@@ -79,7 +70,7 @@ export async function syncAllEventCosts(fiestaId: string): Promise<{ success: bo
             const menu = allMenus.find(m => m.id === fiesta.menuAsignadoId);
             if (menu) {
                 menu.items.forEach(plato => {
-                    const targetGuests = getGuestCountForCost(plato.name, plato.type, adultos, ninos);
+                    const targetGuests = getGuestCountForItem({ nombreServicio: plato.name, categoriaServicio: plato.type }, adultos, adolescentes, ninos);
                     totalCateringCost += (plato.totalDishCost || 0) * targetGuests;
                 });
             }
@@ -90,8 +81,8 @@ export async function syncAllEventCosts(fiestaId: string): Promise<{ success: bo
             fiesta.bebidas.categorias.filter(c => c.activada).forEach(cat => {
                 cat.items.forEach(item => {
                     const cost = item.costoUnitario || 0;
-                    const qty = item.cantidadNecesaria || 0;
-                    totalBebidasCost += cost * qty * totalInv;
+                    const qtyPerPerson = item.cantidadNecesaria || 0;
+                    totalBebidasCost += cost * qtyPerPerson * totalInv;
                 });
             });
         }
@@ -103,14 +94,15 @@ export async function syncAllEventCosts(fiestaId: string): Promise<{ success: bo
             });
         }
 
-        // 4. AUDITORÍA DEL PRESUPUESTO (PROVEEDORES)
+        // 4. AUDITORÍA DEL PRESUPUESTO (PROVEEDORES EXTERNOS)
         presupuesto.itemsPresupuestados.forEach(item => {
             if (item.esRegalo) return;
             const catalogItem = catalogServices.find(c => c.id === item.idServicioCatalogo);
             
-            if (catalogItem?.tipoCosto === 'Proveedor' || catalogItem?.tipoCosto === 'Gasto Fijo') {
+            // Si es proveedor, salón o gasto fijo, calculamos su costo real para la empresa
+            if (catalogItem?.tipoCosto === 'Proveedor' || catalogItem?.tipoCosto === 'Gasto Fijo' || catalogItem?.categoria?.includes('Salón')) {
                 const costoUnitario = catalogItem.valorUnitarioEstimado || 0;
-                const targetGuests = getGuestCountForCost(item.nombreServicio, item.categoriaServicio || '', adultos, ninos);
+                const targetGuests = getGuestCountForItem({ nombreServicio: item.nombreServicio, categoriaServicio: item.categoriaServicio, subcategoria: item.subcategoria }, adultos, adolescentes, ninos);
                 
                 let qty = item.cantidad || 1;
                 if (catalogItem.calculationMethod === 'porPersona') qty = targetGuests;

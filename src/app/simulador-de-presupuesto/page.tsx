@@ -27,6 +27,7 @@ import type { ItemPresupuestado } from '@/types/presupuesto';
 import type { FullMenu, MenuItem } from '@/types/catering';
 import { getMenus } from '@/app/actions/menus-catering';
 import { DatePickerDemo } from '@/components/date-picker-demo';
+import { getGuestCountForItem } from '@/app/actions/presupuestos';
 
 const formatCurrency = (amount?: number) => {
     if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -37,36 +38,13 @@ const formatDate = (date = new Date()) => {
   return date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
 };
 
-const COMPANY_MAIN_TITLE = "Presupuesto para fiestas o eventos - AK PRODUCCIONES";
-const COMPANY_NAME_BRAND = "AK PRODUCCIONES";
-const COMPANY_CONTACT_PERSON = "SR. Alexander Knuth";
-const COMPANY_ADDRESS_LINE1_PDF = "Salto";
-const COMPANY_ADDRESS_LINE2_PDF = "50000 Salto";
-const COMPANY_CONTACT_EMAIL_PDF = "akproduccionessalto@gmail.com";
-const COMPANY_WEBSITE_PDF = "www.akproduccioneseventos.com";
-const BUDGET_VALIDITY_DAYS_PDF = 30;
-const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos los servicios, se requiere una seña de $5.000. El presupuesto es válido por 30 días.";
-
-function getGuestCountForItem(servicio: { nombre: string, categoria?: string; subcategoria?: string }, adultos: number, ninosYAdolescentes: number): number {
-  const name = servicio.nombre.toLowerCase();
-  const cat = (servicio.categoria || '').toLowerCase();
-  const sub = (servicio.subcategoria || '').toLowerCase();
-  
-  if (cat.includes('infantil') || cat.includes('adolescente') || sub.includes('infantil') || sub.includes('adolescente') || name.includes('niño')) {
-    return ninosYAdolescentes;
-  }
-  
-  if ((cat.includes('plato principal') || sub.includes('plato principal') || name.includes('principal')) && !name.includes('niño')) {
-    return adultos;
-  }
-  
-  return adultos + ninosYAdolescentes;
-};
-
+/**
+ * MOTOR DE CÁLCULO UNIFICADO PARA EL SIMULADOR
+ */
 function calcularCostoServicio(servicio: ServicioEmpresa, adultos: number, ninosYAdolescentes: number): number {
   if (!servicio) return 0;
   
-  const invitadosTarget = getGuestCountForItem(servicio, adultos, ninosYAdolescentes);
+  const invitadosTarget = getGuestCountForItem({ nombreServicio: servicio.nombre, categoriaServicio: servicio.categoria, subcategoria: servicio.subcategoria }, adultos, 0, ninosYAdolescentes);
   const totalInvitados = adultos + ninosYAdolescentes;
   
   if (invitadosTarget === 0 && (servicio.calculationMethod === 'porPersona' || servicio.calculationMethod === 'ratio')) {
@@ -283,7 +261,7 @@ export default function ArmadoRapidoPage() {
         idsToAdd.forEach(id => {
             const dishToAdd = allDishes.find(d => d.id === id);
             if (dishToAdd) {
-                const invitados = getGuestCountForItem(dishToAdd, adultos, ninosYAdolescentes);
+                const invitados = getGuestCountForItem({ nombreServicio: dishToAdd.nombre, categoriaServicio: dishToAdd.categoria, subcategoria: dishToAdd.subcategoria }, adultos, 0, ninosYAdolescentes);
                 newSelected.set(dishToAdd.id, menuItemToServicioSeleccionado(dishToAdd, invitados));
             }
         });
@@ -364,9 +342,9 @@ export default function ArmadoRapidoPage() {
             toast({ title: "Datos incompletos", description: "Ingresa nombre, celular de 9 dígitos y adultos.", variant: "destructive" });
             return;
         }
-        const requiredEntradas = duracionHoras > 4 ? 2 : 1;
-        if (step === 2 && (!selectedPrincipal || selectedEntradas.length !== requiredEntradas)) {
-            toast({ title: "Selección incompleta", description: `Elige plato principal y exactamente ${requiredEntradas} entrada(s).`, variant: "destructive" });
+        const maxEntradas = duracionHoras > 4 ? 2 : 1;
+        if (step === 2 && (!selectedPrincipal || selectedEntradas.length !== maxEntradas)) {
+            toast({ title: "Selección incompleta", description: `Elige plato principal y exactamente ${maxEntradas} entrada(s).`, variant: "destructive" });
             return;
         }
         if (step === 3 && !selectedPaqueteId) {
@@ -420,6 +398,8 @@ export default function ArmadoRapidoPage() {
             }
         } else setStep(s => s + 1);
     };
+
+    const prevStep = () => { if (step > 1) setStep(s => s - 1); };
 
     const handleShareWhatsApp = () => {
         if (!whatsappNumber) return;
@@ -477,6 +457,8 @@ export default function ArmadoRapidoPage() {
             </div>
         );
     }
+
+    const maxEntradas = duracionHoras > 4 ? 2 : 1;
 
     return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
