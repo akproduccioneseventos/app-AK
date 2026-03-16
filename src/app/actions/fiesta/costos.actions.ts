@@ -1,4 +1,3 @@
-
 'use server';
 
 import type { FiestaEnPlanificacion, GestionCostosData, CostoItem, PagoProveedor } from '@/types/fiesta';
@@ -7,6 +6,7 @@ import { getPresupuestoById } from '../presupuestos';
 import { getServiciosEmpresa } from '../servicios-empresa';
 import { getMenus } from '../menus-catering';
 import { getRoles } from '../roles';
+import { getInsumos } from '../insumos';
 
 export async function updateGestionCostos(fiestaId: string, costos: GestionCostosData): Promise<{ success: boolean; updatedData?: GestionCostosData; error?: string }> {
   try {
@@ -23,7 +23,7 @@ export async function updateGestionCostos(fiestaId: string, costos: GestionCosto
 
 /**
  * MOTOR FINANCIERO INTEGRAL: Sincroniza todos los gastos operativos del evento.
- * Cruza datos de: Presupuesto, Planificador Gastronómico y Personal.
+ * Cruza datos de: Presupuesto, Planificador Gastronómico, Catálogos y Personal.
  */
 export async function syncAllEventCosts(fiestaId: string): Promise<{ success: boolean; error?: string }> {
     if (!fiestaId) return { success: false, error: "ID no válido" };
@@ -32,9 +32,10 @@ export async function syncAllEventCosts(fiestaId: string): Promise<{ success: bo
         const fiesta = await getFiestaById(fiestaId);
         if (!fiesta) throw new Error("Evento no encontrado");
 
-        const [presupuesto, catalogo, menus, roles] = await Promise.all([
+        const [presupuesto, catalogServices, catalogInsumos, allMenus, roles] = await Promise.all([
             fiesta.presupuestoId ? getPresupuestoById(fiesta.presupuestoId) : Promise.resolve(null),
             getServiciosEmpresa(),
+            getInsumos(),
             getMenus(),
             getRoles()
         ]);
@@ -47,13 +48,14 @@ export async function syncAllEventCosts(fiestaId: string): Promise<{ success: bo
 
         let totalCateringCost = 0;
         let totalPersonalCost = 0;
-        let totalProveedorCost = 0;
         let totalBebidasCost = 0;
         let totalReposteriaCost = 0;
+        let totalProveedorCost = 0;
 
-        const manualCostItems: CostoItem[] = [];
+        const autoCostItems: CostoItem[] = [];
 
         // 1. SINCRONIZACIÓN DE PERSONAL (SUELDOS + APORTES)
+        // Buscamos personal asignado real o proyectamos por presupuesto
         if (fiesta.personalAsignado && fiesta.personalAsignado.length > 0) {
             fiesta.personalAsignado.forEach(pa => {
                 const rol = roles.find(r => r.id === pa.rolId);
@@ -63,9 +65,9 @@ export async function syncAllEventCosts(fiestaId: string): Promise<{ success: bo
             });
         }
 
-        // 2. SINCRONIZACIÓN DE GASTRONOMÍA (MENÚ ASIGNADO)
+        // 2. SINCRONIZACIÓN GASTRONÓMICA (MENÚ ASIGNADO)
         if (fiesta.menuAsignadoId) {
-            const menu = menus.find(m => m.id === fiesta.menuAsignadoId);
+            const menu = allMenus.find(m => m.id === fiesta.menuAsignadoId);
             if (menu) {
                 const costoPP = menu.items.reduce((s, i) => s + (i.totalDishCost || 0), 0);
                 totalCateringCost = costoPP * totalInv;
@@ -75,62 +77,69 @@ export async function syncAllEventCosts(fiestaId: string): Promise<{ success: bo
         // 3. SINCRONIZACIÓN DE BEBIDAS Y REPOSTERÍA (DESDE PLANIFICADOR)
         if (fiesta.bebidas?.categorias) {
             fiesta.bebidas.categorias.filter(c => c.activada).forEach(cat => {
-                cat.items.forEach(item => { totalBebidasCost += (item.costoTotal || 0) * (totalInv / 100); });
+                cat.items.forEach(item => {
+                    // Si el ítem viene del catálogo, actualizamos su costo unitario al actual
+                    const catalogMatch = catalogInsumos.find(ci => ci.id === item.origenId);
+                    const cost = catalogMatch?.valorUnitarioEstimado || item.costoUnitario || 0;
+                    totalBebidasCost += cost * (totalInv / 100); // Proyección por cada 100
+                });
             });
         }
         if (fiesta.reposteria?.categorias) {
             fiesta.reposteria.categorias.filter(c => c.activada).forEach(cat => {
-                cat.items.forEach(item => { totalReposteriaCost += (item.costoEstimado || 0) * (item.cantidad || 1); });
+                cat.items.forEach(item => {
+                    const catalogMatch = catalogInsumos.find(ci => ci.id === item.origenId);
+                    const cost = catalogMatch?.valorUnitarioEstimado || item.costoEstimado || 0;
+                    totalReposteriaCost += cost * (item.cantidad || 1);
+                });
             });
         }
 
-        // 4. ESCANEO INTELIGENTE DEL PRESUPUESTO (PROVEEDORES Y EXTERNOS)
-        // Usamos la nueva metadata de 'tipoCosto' del catálogo para categorizar
+        // 4. AUDITORÍA DEL PRESUPUESTO PARA PROVEEDORES EXTERNOS
         presupuesto.itemsPresupuestados.forEach(item => {
             if (item.esRegalo) return;
 
-            const catalogItem = catalogo.find(c => c.id === item.idServicioCatalogo);
-            const costoUnitario = catalogItem?.valorUnitarioEstimado || 0;
+            const catalogItem = catalogServices.find(c => c.id === item.idServicioCatalogo);
             
-            if (costoUnitario > 0) {
+            // Si el ítem es un costo de proveedor o personal no incluido arriba
+            if (catalogItem?.tipoCosto === 'Proveedor' || catalogItem?.tipoCosto === 'Gasto Fijo') {
+                const costoUnitario = catalogItem.valorUnitarioEstimado || 0;
                 let qty = item.cantidad || 1;
-                // Ajustar cantidad si es por persona
-                if (catalogItem?.calculationMethod === 'porPersona' || item.calculationMethod === 'porPersona') {
-                    const cat = (item.categoriaServicio || '').toLowerCase();
-                    qty = (cat.includes('niño') || cat.includes('infantil')) ? ninos : adultos;
-                }
+                
+                if (catalogItem.calculationMethod === 'porPersona') qty = totalInv;
+                else if (catalogItem.calculationMethod === 'ratio' && catalogItem.invitadosPorUnidad) qty = Math.ceil(totalInv / catalogItem.invitadosPorUnidad);
 
-                const lineCost = costoUnitario * qty;
-
-                // Si es un costo de proveedor externo, lo añadimos como item manual para seguimiento de pagos
-                if (catalogItem?.tipoCosto === 'Proveedor' && catalogItem.proveedor) {
-                    manualCostItems.push({
+                const totalLineCost = costoUnitario * qty;
+                
+                if (totalLineCost > 0) {
+                    autoCostItems.push({
                         id: `auto_prov_${catalogItem.id}`,
-                        nombre: `${catalogItem.nombre} (${catalogItem.proveedor})`,
-                        category: 'Servicio Proveedor',
-                        montoEstimado: lineCost,
-                        notes: 'Sincronizado automáticamente desde el catálogo'
+                        nombre: `${item.nombreServicio} (Costo Catálogo)`,
+                        category: catalogItem.tipoCosto === 'Proveedor' ? 'Servicio Proveedor' : 'Otro Costo Directo',
+                        montoEstimado: totalLineCost,
+                        notes: `Sincronizado de Presupuesto. Proveedor: ${catalogItem.proveedor || 'N/A'}`
                     });
-                } else if (catalogItem?.tipoCosto === 'Personal' && !fiesta.personalAsignado?.length) {
-                    // Solo sumar si no calculamos ya por personal asignado arriba
-                    totalPersonalCost += lineCost;
                 }
             }
         });
 
-        // Actualizar el objeto de gestión de costos de la fiesta
+        // 5. ACTUALIZAR OBJETO DE GESTIÓN DE COSTOS
         const currentCosts = fiesta.gestionCostos || defaultGestionCostos;
+        
+        // Mantener ítems manuales que no sean "auto_prov_"
+        const manualItems = (currentCosts.costosItems || []).filter(i => !i.id.startsWith('auto_prov_'));
+
         const updatedGestion: GestionCostosData = {
             ...currentCosts,
             ingresosTotalesEstimados: presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado,
-            costosItems: manualCostItems,
-            // Guardamos los totales calculados para la vista
+            costosItems: [...manualItems, ...autoCostItems],
+            // Almacenamos los subtotales para referencia rápida en la UI
             others: {
                 totalCateringCost,
                 totalPersonalCost,
                 totalBebidasCost,
                 totalReposteriaCost,
-                totalProveedorCost: manualCostItems.reduce((s,i) => s + i.montoEstimado, 0)
+                totalProveedorCost: autoCostItems.reduce((s, i) => s + i.montoEstimado, 0)
             }
         };
 
@@ -154,8 +163,8 @@ export async function syncLaundryCosts(fiestaId: string, guests: number, budgetI
     const costs = fiesta.gestionCostos || { costosItems: [], ingresosTotalesEstimados: 0 };
     const items = [...(costs.costosItems || [])];
 
-    const hasMantel = budgetItems.some(i => i.nombreServicio.toLowerCase().includes('mantelería') || i.nombreServicio.toLowerCase().includes('mantel'));
-    const hasCompleta = budgetItems.some(i => i.nombreServicio.toLowerCase().includes('completa') || i.nombreServicio.toLowerCase().includes('completo'));
+    const hasMantel = budgetItems.some(i => i.nombreServicio.toLowerCase().includes('mantel'));
+    const hasCompleta = budgetItems.some(i => i.nombreServicio.toLowerCase().includes('completa'));
 
     const updateOrCreateCost = (name: string, amount: number) => {
         const index = items.findIndex(i => i.nombre === name);
@@ -182,11 +191,7 @@ export async function syncLaundryCosts(fiestaId: string, guests: number, budgetI
         updateOrCreateCost('Lavado Cubre ($18)', units * 18);
         if (hasCompleta) {
             updateOrCreateCost('Lavado Cubre Silla ($18)', guests * 18);
-        } else {
-            updateOrCreateCost('Lavado Cubre Silla ($18)', 0);
         }
-    } else {
-        ['Lavado Mantel ($50)', 'Lavado Cubre ($18)', 'Lavado Cubre Silla ($18)'].forEach(n => updateOrCreateCost(n, 0));
     }
 
     await updateGestionCostos(fiestaId, { ...costs, costosItems: items });

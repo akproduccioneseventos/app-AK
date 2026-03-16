@@ -1,4 +1,3 @@
-
 'use server';
 
 import { getInvoices } from './invoices';
@@ -8,7 +7,6 @@ import { getEmpleados } from './empleados';
 import { getRoles } from './roles';
 import { getGastosGenerales } from './gastos'; 
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
-import type { CategoriaGasto } from '@/types/gastos';
 
 interface DateRange {
   from: Date;
@@ -43,16 +41,14 @@ export interface ProfitAndLossData {
   margen: number;
 }
 
-export interface EventFinancialSummaryData extends ProfitAndLossData {
-    nombreEvento: string;
-    fechaEvento: string;
-}
-
+/**
+ * CONSOLIDADOR FINANCIERO GLOBAL: Calcula P&L sumando TODAS las fiestas y gastos generales.
+ */
 export async function getProfitAndLossData(range: DateRange): Promise<{ success: boolean; data?: ProfitAndLossData; error?: string }> {
   try {
     const { from, to } = range;
 
-    // --- CÁLCULO DE INGRESOS ---
+    // 1. CÁLCULO DE INGRESOS (PAGOS REALES RECIBIDOS)
     const allInvoices = await getInvoices();
     const ingresosDetalle: IngresoDetalle[] = [];
     let totalIngresos = 0;
@@ -72,7 +68,7 @@ export async function getProfitAndLossData(range: DateRange): Promise<{ success:
       });
     });
 
-    // --- CÁLCULO DE COSTOS ---
+    // 2. CÁLCULO DE COSTOS GLOBALES
     const [fiestas, empleados, roles, gastosGenerales] = await Promise.all([
       getAllFiestas(),
       getEmpleados(),
@@ -83,7 +79,7 @@ export async function getProfitAndLossData(range: DateRange): Promise<{ success:
     const costosDetalle: CostoDetalle[] = [];
     let totalCostos = 0;
     
-    // 1. Costos de Gastos Generales (Oficina, etc)
+    // 2.1 Gastos Generales de Empresa
     gastosGenerales.forEach(gasto => {
         const gastoDate = new Date(gasto.fecha);
         if (gastoDate >= from && gastoDate <= to) {
@@ -98,62 +94,69 @@ export async function getProfitAndLossData(range: DateRange): Promise<{ success:
         }
     });
 
-
+    // 2.2 Costos por Fiesta (Sincronización Inteligente)
     for (const fiesta of fiestas) {
-      const fiestaDate = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : null;
-      if (!fiestaDate || fiestaDate < from || fiestaDate > to) {
-        continue; 
-      }
+      if (!fiesta.configuracion.fechaEvento) continue;
+      const fiestaDate = new Date(fiesta.configuracion.fechaEvento);
       
-      const invitados = Number(fiesta.configuracion.invitadosEstimados) || 0;
+      if (fiestaDate >= from && fiestaDate <= to) {
+          // Si existen pagos registrados a proveedores, usamos la realidad
+          if (fiesta.pagosProveedores && fiesta.pagosProveedores.length > 0) {
+              fiesta.pagosProveedores.forEach(pago => {
+                  const pagoDate = new Date(pago.fecha);
+                  if (pagoDate >= from && pagoDate <= to) {
+                      const concepto = fiesta.gestionCostos?.costosItems?.find(c => c.id === pago.costoAsociadoId)?.nombre || 'Pago Proveedor';
+                      costosDetalle.push({ 
+                          id: `pago-${pago.id}`, 
+                          fecha: pago.fecha, 
+                          concepto: `${concepto} (${fiesta.configuracion.nombreEvento})`, 
+                          categoria: 'Egresos Reales', 
+                          monto: pago.monto 
+                      });
+                      totalCostos += pago.monto;
+                  }
+              });
+          } else {
+              // Fallback a PROYECCIÓN si no hay pagos reales todavía
+              const otros = fiesta.gestionCostos?.others || {};
+              const proyCatering = otros.totalCateringCost || 0;
+              const proyBebidas = otros.totalBebidasCost || 0;
+              const proyReposteria = otros.totalReposteriaCost || 0;
+              const proyProveedores = otros.totalProveedorCost || 0;
 
-      // --- TOQUE DE ORO 1: INTEGRIDAD FINANCIERA (PAGOS REALES VS PROYECTADOS) ---
-      
-      // Si existen pagos registrados a proveedores para esta fiesta, usamos la realidad.
-      // Si no, usamos la proyección como fallback.
-      
-      if (fiesta.pagosProveedores && fiesta.pagosProveedores.length > 0) {
-          fiesta.pagosProveedores.forEach(pago => {
-              const pagoDate = new Date(pago.fecha);
-              if (pagoDate >= from && pagoDate <= to) {
-                  const costoAsociado = fiesta.gestionCostos?.costosItems?.find(c => c.id === pago.costoAsociadoId);
+              if (proyCatering > 0) {
+                  costosDetalle.push({ id: `proy-cat-${fiesta.id}`, fecha: fiesta.configuracion.fechaEvento, concepto: `Proyección Catering: ${fiesta.configuracion.nombreEvento}`, categoria: 'Catering (Proyectado)', monto: proyCatering });
+                  totalCostos += proyCatering;
+              }
+              if (proyBebidas > 0) {
+                  costosDetalle.push({ id: `proy-beb-${fiesta.id}`, fecha: fiesta.configuracion.fechaEvento, concepto: `Proyección Bebidas: ${fiesta.configuracion.nombreEvento}`, categoria: 'Bebidas (Proyectado)', monto: proyBebidas });
+                  totalCostos += proyBebidas;
+              }
+              if (proyProveedores > 0) {
+                  costosDetalle.push({ id: `proy-prov-${fiesta.id}`, fecha: fiesta.configuracion.fechaEvento, concepto: `Proyección Proveedores: ${fiesta.configuracion.nombreEvento}`, categoria: 'Proveedores (Proyectado)', monto: proyProveedores });
+                  totalCostos += proyProveedores;
+              }
+          }
+
+          // Costos de Personal (Sueldos + Aportes)
+          fiesta.personalAsignado?.forEach(pa => {
+              const rol = roles.find(r => r.id === pa.rolId);
+              const sueldo = pa.eventSalary || rol?.sueldoPorEvento || 0;
+              const aportes = (sueldo * (rol?.porcentajeAportesPatronales || 0)) / 100;
+              const costoNómina = sueldo + aportes;
+              
+              if (costoNómina > 0) {
                   costosDetalle.push({ 
-                      id: `real-pago-${pago.id}`, 
-                      fecha: pago.fecha, 
-                      concepto: `Pago Real: ${costoAsociado?.nombre || 'Proveedor'} (${fiesta.configuracion.nombreEvento})`, 
-                      categoria: 'Pagos Realizados', 
-                      monto: pago.monto 
+                      id: `pers-${pa.empleadoId || 'vac'}-${fiesta.id}`, 
+                      fecha: fiesta.configuracion.fechaEvento!, 
+                      concepto: `Nómina: ${rol?.nombre || 'Personal'} (${fiesta.configuracion.nombreEvento})`, 
+                      categoria: 'Personal', 
+                      monto: costoNómina 
                   });
-                  totalCostos += pago.monto;
+                  totalCostos += costoNómina;
               }
           });
-      } else {
-          // Fallback: Proyección
-          // 2. Costos de Catering (Proyectado)
-          if (fiesta.menuAsignadoId) {
-            const menu = await getMenuById(fiesta.menuAsignadoId);
-            if (menu) {
-              const costoMenu = menu.items.reduce((sum, item) => sum + (item.totalDishCost || 0), 0) * invitados;
-              costosDetalle.push({ id: `proj-catering-${fiesta.id}`, fecha: fiesta.configuracion.fechaEvento!, concepto: `PROYECTADO: Catering (${fiesta.configuracion.nombreEvento})`, categoria: 'Catering (Proy)', monto: costoMenu });
-              totalCostos += costoMenu;
-            }
-          }
-          // 3. Costos Directos Manuales (Proyectado)
-          fiesta.gestionCostos?.costosItems?.forEach(costo => {
-              costosDetalle.push({ id: `proj-manual-${costo.id}`, fecha: fiesta.configuracion.fechaEvento!, concepto: `PROYECTADO: ${costo.nombre}`, categoria: costo.categoria, monto: costo.montoEstimado });
-              totalCostos += costo.montoEstimado;
-          });
       }
-
-      // 4. Costos de Personal (Sueldos)
-      fiesta.personalAsignado?.forEach(personal => {
-          const emp = empleados.find(e => e.id === personal.empleadoId);
-          const rol = roles.find(r => r.id === personal.rolId);
-          const aportes = (personal.eventSalary * (rol?.porcentajeAportesPatronales || 0)) / 100;
-          const costoTotalPersonal = personal.eventSalary + aportes;
-          costosDetalle.push({ id: `personal-${personal.empleadoId}-${fiesta.id}`, fecha: fiesta.configuracion.fechaEvento!, concepto: `Sueldo: ${emp?.nombre || 'N/A'} (${rol?.nombre})`, categoria: 'Personal', monto: costoTotalPersonal });
-          totalCostos += costoTotalPersonal;
-      });
     }
 
     const gananciaNeta = totalIngresos - totalCostos;
@@ -170,7 +173,7 @@ export async function getProfitAndLossData(range: DateRange): Promise<{ success:
     };
 
   } catch (error: any) {
-    console.error("Error calculating P&L data:", error);
-    return { success: false, error: 'Failed to calculate profit and loss data.' };
+    console.error("Error calculating global P&L:", error);
+    return { success: false, error: 'Fallo al consolidar el reporte contable global.' };
   }
 }
