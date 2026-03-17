@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Save, Loader2, Wand2, PlusCircle, Trash2, Search, Percent, Tag, X, Check, ChevronDown, Package, Edit, Gift, Copy } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, Wand2, PlusCircle, Trash2, Search, Percent, Tag, X, Check, ChevronDown, Package, Edit, Gift, Copy, ChefHat, Info, Zap, Link2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServiceDependency } from '@/types/armado-rapido';
 import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
@@ -26,6 +26,7 @@ import { saveBudgetDisplaySettings, getBudgetDisplaySettings } from '@/app/actio
 import type { BudgetDisplaySettings } from '@/types/settings';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -152,10 +153,44 @@ export default function BudgetDisplaySettingsPage() {
     }
   };
 
+  const handlePlatoVisibilityChange = async (platoId: string, visible: boolean) => {
+    if (!config) return;
+    const currentList = config.platosVisibles || [];
+    const index = currentList.findIndex(p => p.id === platoId);
+    let newList = [...currentList];
+    if (index > -1) newList[index] = { id: platoId, visible };
+    else newList.push({ id: platoId, visible });
+    
+    const newConfig = { ...config, platosVisibles: newList };
+    setConfig(newConfig);
+    await saveArmadoRapidoConfig(newConfig);
+  };
+
+  const handleAddDependency = async (triggerId: string, requiredId: string) => {
+    if (!config) return;
+    const newDep: ServiceDependency = {
+        id: `dep_${Date.now()}`,
+        triggerServiceId: triggerId,
+        requiredServiceId: requiredId
+    };
+    const newConfig = { ...config, serviceDependencies: [...(config.serviceDependencies || []), newDep] };
+    setConfig(newConfig);
+    const result = await saveArmadoRapidoConfig(newConfig);
+    if (result.success) toast({ title: "Regla inteligente creada" });
+  };
+
+  const handleDeleteDependency = async (depId: string) => {
+    if (!config) return;
+    const newConfig = { ...config, serviceDependencies: config.serviceDependencies?.filter(d => d.id !== depId) };
+    setConfig(newConfig);
+    await saveArmadoRapidoConfig(newConfig);
+    toast({ title: "Regla eliminada" });
+  };
+
   if (isLoading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-primary w-12 h-12"/></div>;
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6 pb-20">
+    <div className="max-w-3xl mx-auto space-y-10 pb-32">
       {/* Modal de Paquetes/Menús */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col p-0 overflow-hidden">
@@ -258,121 +293,137 @@ export default function BudgetDisplaySettingsPage() {
            <DialogFooter className="p-6 border-t bg-slate-50/50">
                 <Button type="submit" form="package-form" disabled={isSaving} className="w-full h-14 rounded-2xl font-black text-base shadow-xl shadow-primary/20">
                     {isSaving ? <Loader2 className="animate-spin mr-3"/> : <Save className="w-5 h-5 mr-3"/>}
-                    GUARDAR PAQUETE
+                    GUARDAR CAMBIOS
                 </Button>
            </DialogFooter>
         </DialogContent>
       </Dialog>
 
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Simulador de Presupuestos</h1></div>
-        <Link href="/empresa/contabilidad" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
+        <div className="flex items-center gap-3">
+            <div className="p-3 bg-primary rounded-2xl shadow-xl shadow-primary/20 text-white">
+                <Wand2 className="w-8 h-8" />
+            </div>
+            <div>
+                <h1 className="text-3xl font-black tracking-tight font-headline uppercase">Simulador de Presupuestos</h1>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Configuración Maestra</p>
+            </div>
+        </div>
+        <Link href="/empresa/contabilidad" passHref><Button variant="outline" className="rounded-xl"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
       </div>
 
       {/* Ajustes Globales */}
-      <form onSubmit={handleBudgetSettingsSave}>
-        <Card className="shadow-lg">
-          <CardHeader><CardTitle className="font-headline text-xl">Ajustes de Presupuestos</CardTitle></CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2"><Percent className="w-4 h-4" />Porcentaje de Ajuste Anual (%)</Label>
-              <Input type="number" value={budgetSettings?.annualAdjustmentPercentage ?? ''} onChange={e => setBudgetSettings(s => s ? { ...s, annualAdjustmentPercentage: Number(e.target.value) } : null)} />
-            </div>
-            <Separator />
-            <div className="space-y-4">
-              <h4 className="font-medium text-sm">Descuentos Promocionales</h4>
-              {(budgetSettings?.promotionalDiscounts || []).map((discount, index) => (
-                <div key={discount.id} className="grid grid-cols-3 gap-3 items-end p-3 bg-muted/30 rounded-xl border relative group">
-                    <Button variant="ghost" size="icon" className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-white border shadow-sm opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => {
-                        setBudgetSettings(prev => {
-                            if (!prev) return null;
-                            const updated = (prev.promotionalDiscounts || []).filter((_, i) => i !== index);
-                            return { ...prev, promotionalDiscounts: updated };
-                        });
-                    }}><X className="w-3 shadow-sm h-3"/></Button>
-                    <div className="space-y-1"><Label className="text-[10px] uppercase">Nombre</Label><Input value={discount.name} onChange={e => {
-                        setBudgetSettings(prev => {
-                            if (!prev) return null;
-                            const updated = [...(prev.promotionalDiscounts || [])];
-                            updated[index].name = e.target.value;
-                            return { ...prev, promotionalDiscounts: updated };
-                        });
-                    }}/></div>
-                    <div className="space-y-1"><Label className="text-[10px] uppercase">Tipo</Label><Select value={discount.type} onValueChange={v => {
-                        setBudgetSettings(prev => {
-                            if (!prev) return null;
-                            const updated = [...(prev.promotionalDiscounts || [])];
-                            updated[index].type = v as any;
-                            return { ...prev, promotionalDiscounts: updated };
-                        });
-                    }}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="percentage">Porcentaje</SelectItem><SelectItem value="fixed">Fijo</SelectItem></SelectContent></Select></div>
-                    <div className="space-y-1"><Label className="text-[10px] uppercase">Valor</Label><Input type="number" value={discount.value} onChange={e => {
-                        setBudgetSettings(prev => {
-                            if (!prev) return null;
-                            const updated = [...(prev.promotionalDiscounts || [])];
-                            updated[index].value = Number(e.target.value);
-                            return { ...prev, promotionalDiscounts: updated };
-                        });
-                    }}/></div>
+      <Card className="shadow-2xl border-none rounded-[2rem] overflow-hidden bg-white">
+        <CardHeader className="bg-slate-50 border-b border-slate-100"><CardTitle className="font-headline text-xl text-slate-800">Ajustes del Simulador</CardTitle></CardHeader>
+        <CardContent className="p-8 space-y-8">
+            <form onSubmit={handleBudgetSettingsSave} className="space-y-6">
+                <div className="space-y-2">
+                    <Label className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400"><Percent className="w-4 h-4 text-primary" />Porcentaje de Ajuste Anual (%)</Label>
+                    <Input type="number" value={budgetSettings?.annualAdjustmentPercentage ?? ''} onChange={e => setBudgetSettings(s => s ? { ...s, annualAdjustmentPercentage: Number(e.target.value) } : null)} className="h-12 rounded-xl bg-slate-50 border-none shadow-inner text-lg font-bold" />
                 </div>
-              ))}
-              <Button type="button" variant="outline" size="sm" onClick={() => {
-                  const newDisc = { id: `promo_${Date.now()}`, name: '', type: 'percentage' as const, value: 0 };
+                <div className="flex justify-end"><Button type="submit" disabled={isSaving} className="rounded-xl font-bold">Actualizar Globales</Button></div>
+            </form>
+            
+            <Separator />
+            
+            <div className="space-y-4">
+              <h4 className="font-black text-xs uppercase tracking-[0.2em] text-slate-400">Descuentos Promocionales</h4>
+              <div className="grid grid-cols-1 gap-3">
+                {(budgetSettings?.promotionalDiscounts || []).map((discount, index) => (
+                    <div key={discount.id} className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end p-4 bg-slate-50 rounded-2xl border border-slate-100 relative group">
+                        <Button variant="ghost" size="icon" className="absolute -top-2 -right-2 h-7 w-7 rounded-full bg-white border shadow-md opacity-0 group-hover:opacity-100 transition-opacity text-destructive" onClick={() => {
+                            setBudgetSettings(prev => {
+                                if (!prev) return null;
+                                const updated = (prev.promotionalDiscounts || []).filter((_, i) => i !== index);
+                                return { ...prev, promotionalDiscounts: updated };
+                            });
+                        }}><X className="w-4 h-4"/></Button>
+                        <div className="space-y-1.5"><Label className="text-[10px] font-black uppercase text-slate-400">Nombre</Label><Input value={discount.name} onChange={e => {
+                            setBudgetSettings(prev => {
+                                if (!prev) return null;
+                                const updated = [...(prev.promotionalDiscounts || [])];
+                                updated[index].name = e.target.value;
+                                return { ...prev, promotionalDiscounts: updated };
+                            });
+                        }} className="rounded-lg h-9 bg-white"/></div>
+                        <div className="space-y-1.5"><Label className="text-[10px] font-black uppercase text-slate-400">Tipo</Label><Select value={discount.type} onValueChange={v => {
+                            setBudgetSettings(prev => {
+                                if (!prev) return null;
+                                const updated = [...(prev.promotionalDiscounts || [])];
+                                updated[index].type = v as any;
+                                return { ...prev, promotionalDiscounts: updated };
+                            });
+                        }}><SelectTrigger className="rounded-lg h-9 bg-white"><SelectValue/></SelectTrigger><SelectContent className="rounded-xl"><SelectItem value="percentage">Porcentaje (%)</SelectItem><SelectItem value="fixed">Monto Fijo ($)</SelectItem></SelectContent></Select></div>
+                        <div className="space-y-1.5"><Label className="text-[10px] font-black uppercase text-slate-400">Valor</Label><Input type="number" value={discount.value} onChange={e => {
+                            setBudgetSettings(prev => {
+                                if (!prev) return null;
+                                const updated = [...(prev.promotionalDiscounts || [])];
+                                updated[index].value = Number(e.target.value);
+                                return { ...prev, promotionalDiscounts: updated };
+                            });
+                        }} className="rounded-lg h-9 bg-white font-bold"/></div>
+                    </div>
+                ))}
+              </div>
+              <Button type="button" variant="outline" size="sm" className="rounded-xl font-bold border-dashed border-primary/30 text-primary" onClick={() => {
+                  const newDisc = { id: `promo_${Date.now()}`, name: 'Nueva Promo', type: 'percentage' as const, value: 0 };
                   setBudgetSettings(prev => {
                       if (!prev) return null;
                       return { ...prev, promotionalDiscounts: [...(prev.promotionalDiscounts || []), newDisc] };
                   });
               }}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Descuento</Button>
             </div>
-          </CardContent>
-          <CardFooter><Button type="submit" disabled={isSaving}>Guardar Ajustes Globales</Button></CardFooter>
-        </Card>
-      </form>
+        </CardContent>
+      </Card>
 
       {/* Paquetes */}
-      <Card className="shadow-lg">
-          <CardHeader>
-              <CardTitle className="font-headline text-xl">Paquetes Disponibles</CardTitle>
-              <CardDescription>Configura los paquetes predefinidos para el simulador público.</CardDescription>
+      <Card className="shadow-2xl border-none rounded-[2rem] overflow-hidden bg-white">
+          <CardHeader className="bg-slate-50 border-b border-slate-100 p-8">
+              <div className="flex justify-between items-center">
+                  <div>
+                    <CardTitle className="font-headline text-2xl text-slate-800">Paquetes de Venta</CardTitle>
+                    <CardDescription>Configura los paquetes predefinidos para la captura de prospectos.</CardDescription>
+                  </div>
+                  <Button onClick={() => handleOpenModal('paquete')} className="rounded-xl font-bold h-11"><PlusCircle className="w-4 h-4 mr-2"/>Crear Paquete</Button>
+              </div>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <Button onClick={() => handleOpenModal('paquete')}><PlusCircle className="w-4 h-4 mr-2"/>Crear Paquete</Button>
-            <Accordion type="single" collapsible className="w-full space-y-3">
+          <CardContent className="p-8">
+            <Accordion type="single" collapsible className="w-full space-y-4">
               {config?.paquetes?.map(pkg => (
-                <AccordionItem key={pkg.id} value={pkg.id} className="border rounded-3xl bg-white shadow-sm px-4 group hover:border-primary/30 transition-all">
+                <AccordionItem key={pkg.id} value={pkg.id} className="border rounded-[1.5rem] bg-white shadow-sm px-6 group hover:border-primary/30 transition-all overflow-hidden">
                   <div className="flex items-center justify-between">
-                    <AccordionTrigger className="flex-1 hover:no-underline py-4">
+                    <AccordionTrigger className="flex-1 hover:no-underline py-5">
                       <div className="flex flex-col items-start text-left space-y-1">
-                        <p className="font-black text-slate-800 text-base uppercase tracking-tight">{pkg.nombre}</p>
-                        <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">{pkg.serviciosIncluidos.length} servicios</p>
+                        <p className="font-black text-slate-800 text-lg uppercase tracking-tight">{pkg.nombre}</p>
+                        <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">{pkg.serviciosIncluidos.length} servicios configurados</p>
                       </div>
                     </AccordionTrigger>
                     <div className="flex gap-2 ml-4">
-                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl" onClick={(e) => { e.stopPropagation(); handleDuplicatePackage(pkg); }}><Copy className="w-4 h-4"/></Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl" onClick={(e) => { e.stopPropagation(); handleOpenModal('paquete', pkg); }}><Edit className="w-4 h-4"/></Button>
-                        <Button variant="ghost" size="icon" className="text-destructive rounded-xl h-8 w-8 hover:bg-red-50" onClick={(e) => {
+                        <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-slate-100" onClick={(e) => { e.stopPropagation(); handleDuplicatePackage(pkg); }} title="Duplicar"><Copy className="w-4 h-4"/></Button>
+                        <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-slate-100 text-primary" onClick={(e) => { e.stopPropagation(); handleOpenModal('paquete', pkg); }} title="Editar"><Edit className="w-4 h-4"/></Button>
+                        <Button variant="ghost" size="icon" className="text-destructive rounded-xl h-9 w-9 hover:bg-red-50" onClick={(e) => {
                             e.stopPropagation();
                             if(config) {
                                 const updated = config.paquetes.filter(p => p.id !== pkg.id);
                                 saveArmadoRapidoConfig({ ...config, paquetes: updated }).then(loadData);
                             }
-                        }}><Trash2 className="w-4 h-4"/></Button>
+                        }} title="Eliminar"><Trash2 className="w-4 h-4"/></Button>
                     </div>
                   </div>
-                  <AccordionContent className="pb-4 pt-0">
-                    <ul className="space-y-2 border-t pt-4">
+                  <AccordionContent className="pb-6 pt-0 border-t border-slate-50">
+                    <ul className="space-y-2 mt-4">
                         {pkg.serviciosIncluidos.map(s => {
                             const original = allAvailableItemsForSelection.find(i => i.id === s.id);
                             return (
                                 <li key={s.id} className={cn(
-                                    "text-xs font-bold uppercase tracking-tight flex items-center justify-between p-2 rounded-xl",
-                                    s.esRegalo ? "bg-rose-50 text-rose-600" : "bg-slate-50 text-slate-600"
+                                    "text-xs font-bold uppercase tracking-tight flex items-center justify-between p-3 rounded-xl border",
+                                    s.esRegalo ? "bg-rose-50 border-rose-100 text-rose-600" : "bg-slate-50 border-slate-100 text-slate-600"
                                 )}>
-                                    <span className="flex items-center gap-2">
-                                        {s.esRegalo ? <Gift className="w-3.5 h-3.5" /> : <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />}
+                                    <span className="flex items-center gap-3">
+                                        {s.esRegalo ? <Gift className="w-4 h-4" /> : <Package className="w-4 h-4 opacity-40" />}
                                         {original?.nombre || s.id}
                                     </span>
-                                    {s.esRegalo && <span className="text-[9px] font-black bg-rose-600 text-white px-2 py-0.5 rounded-full">REGALO</span>}
+                                    {s.esRegalo && <Badge className="bg-rose-600 text-white border-none font-black text-[8px] px-2 py-0.5">REGALO</Badge>}
                                 </li>
                             );
                         })}
@@ -382,6 +433,160 @@ export default function BudgetDisplaySettingsPage() {
               ))}
             </Accordion>
           </CardContent>
+      </Card>
+
+      {/* Menús Base (Similares a paquetes pero para gastronomía) */}
+      <Card className="shadow-2xl border-none rounded-[2rem] overflow-hidden bg-white">
+          <CardHeader className="bg-slate-50 border-b border-slate-100 p-8">
+              <div className="flex justify-between items-center">
+                  <div>
+                    <CardTitle className="font-headline text-2xl text-slate-800">Menús de Temporada</CardTitle>
+                    <CardDescription>Agrupaciones de platos maestros para selección rápida.</CardDescription>
+                  </div>
+                  <Button variant="secondary" onClick={() => handleOpenModal('menu')} className="rounded-xl font-bold h-11"><PlusCircle className="w-4 h-4 mr-2"/>Nuevo Menú</Button>
+              </div>
+          </CardHeader>
+          <CardContent className="p-8">
+            <Accordion type="single" collapsible className="w-full space-y-4">
+              {config?.menus?.map(m => (
+                <AccordionItem key={m.id} value={m.id} className="border rounded-[1.5rem] bg-white shadow-sm px-6 group hover:border-primary/30 transition-all overflow-hidden">
+                  <div className="flex items-center justify-between">
+                    <AccordionTrigger className="flex-1 hover:no-underline py-5">
+                      <div className="flex flex-col items-start text-left space-y-1">
+                        <p className="font-black text-slate-800 text-lg uppercase tracking-tight">{m.nombre}</p>
+                        <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">{m.serviciosIncluidos.length} platos incluidos</p>
+                      </div>
+                    </AccordionTrigger>
+                    <div className="flex gap-2 ml-4">
+                        <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-slate-100 text-primary" onClick={(e) => { e.stopPropagation(); handleOpenModal('menu', m); }}><Edit className="w-4 h-4"/></Button>
+                        <Button variant="ghost" size="icon" className="text-destructive rounded-xl h-9 w-9 hover:bg-red-50" onClick={(e) => {
+                            e.stopPropagation();
+                            if(config) {
+                                const updated = config.menus.filter(p => p.id !== m.id);
+                                saveArmadoRapidoConfig({ ...config, menus: updated }).then(loadData);
+                            }
+                        }}><Trash2 className="w-4 h-4"/></Button>
+                    </div>
+                  </div>
+                  <AccordionContent className="pb-6 pt-0 border-t border-slate-50">
+                    <ul className="space-y-2 mt-4">
+                        {m.serviciosIncluidos.map(s => (
+                            <li key={s.id} className="text-xs font-bold uppercase tracking-tight flex items-center gap-3 p-3 rounded-xl bg-slate-50 text-slate-600 border border-slate-100">
+                                <ChefHat className="w-4 h-4 opacity-40" />
+                                {findItemName(s.id)}
+                            </li>
+                        ))}
+                    </ul>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </CardContent>
+      </Card>
+
+      {/* Visibilidad de Platos Individuales */}
+      <Card className="shadow-2xl border-none rounded-[2rem] overflow-hidden bg-white">
+          <CardHeader className="bg-slate-50 border-b border-slate-100 p-8">
+              <CardTitle className="font-headline text-2xl text-slate-800 flex items-center gap-3">
+                  <ChefHat className="w-7 h-7 text-primary"/> Visibilidad de Platos en Simulador
+              </CardTitle>
+              <CardDescription>Activa o desactiva qué platos de tu catálogo maestro pueden ver los clientes.</CardDescription>
+          </CardHeader>
+          <CardContent className="p-8">
+              <Accordion type="multiple" defaultValue={['Entrada', 'Plato Principal', 'Postre']} className="w-full space-y-4">
+                  {['Entrada', 'Plato Principal', 'Postre', 'Menú Infantil/Adolescente'].map(cat => {
+                      const dishes = allMenus.flatMap(m => m.items).filter(i => i.type === cat);
+                      if (dishes.length === 0) return null;
+                      return (
+                          <AccordionItem key={cat} value={cat} className="border-none shadow-md rounded-2xl overflow-hidden bg-white">
+                              <AccordionTrigger className="px-6 py-4 hover:bg-slate-50/50 hover:no-underline">
+                                  <span className="text-xs font-black uppercase tracking-widest text-slate-800">{cat} ({dishes.length})</span>
+                              </AccordionTrigger>
+                              <AccordionContent className="px-6 pb-6 pt-2">
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                      {dishes.map(plato => {
+                                          const isVisible = config?.platosVisibles?.find(p => p.id === plato.id)?.visible ?? true;
+                                          return (
+                                              <div key={plato.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
+                                                  <Label htmlFor={`visible-${plato.id}`} className="text-xs font-bold text-slate-700 cursor-pointer flex-grow">{plato.name}</Label>
+                                                  <Switch 
+                                                      id={`visible-${plato.id}`} 
+                                                      checked={isVisible} 
+                                                      onCheckedChange={(val) => handlePlatoVisibilityChange(plato.id, val)} 
+                                                      className="scale-75"
+                                                  />
+                                              </div>
+                                          )
+                                      })}
+                                  </div>
+                              </AccordionContent>
+                          </AccordionItem>
+                      )
+                  })}
+              </Accordion>
+          </CardContent>
+      </Card>
+
+      {/* Inteligencia de Selección (Dependencias) */}
+      <Card className="shadow-2xl border-none rounded-[2rem] overflow-hidden bg-slate-900 text-white">
+          <CardHeader className="p-8 border-b border-white/5">
+              <CardTitle className="font-headline text-2xl flex items-center gap-3">
+                  <Zap className="w-7 h-7 text-primary"/> Reglas de Inteligencia Automática
+              </CardTitle>
+              <CardDescription className="text-slate-400">Define qué servicios se deben añadir automáticamente al seleccionar otros (ej: Plato de Asado -> Añadir Asador).</CardDescription>
+          </CardHeader>
+          <CardContent className="p-8 space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+                  <div className="md:col-span-5 space-y-2">
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Si el cliente elige:</Label>
+                      <Select id="trigger-select">
+                          <SelectTrigger className="h-11 rounded-xl bg-white/10 border-none text-white"><SelectValue placeholder="Elegir plato/servicio..." /></SelectTrigger>
+                          <SelectContent className="rounded-xl">
+                              {allAvailableItemsForSelection.map(s => <SelectItem key={s.id} value={s.id}>{s.nombre}</SelectItem>)}
+                          </SelectContent>
+                      </Select>
+                  </div>
+                  <div className="md:col-span-1 flex justify-center pb-3 text-primary"><Link2 className="w-5 h-5"/></div>
+                  <div className="md:col-span-5 space-y-2">
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Incluir automáticamente:</Label>
+                      <Select id="required-select">
+                          <SelectTrigger className="h-11 rounded-xl bg-white/10 border-none text-white"><SelectValue placeholder="Servicio necesario..." /></SelectTrigger>
+                          <SelectContent className="rounded-xl">
+                              {serviciosCatalogo.map(s => <SelectItem key={s.id} value={s.id}>{s.nombre}</SelectItem>)}
+                          </SelectContent>
+                      </Select>
+                  </div>
+                  <div className="md:col-span-1">
+                      <Button onClick={() => {
+                          const t = (document.getElementById('trigger-select') as HTMLSelectElement)?.value;
+                          const r = (document.getElementById('required-select') as HTMLSelectElement)?.value;
+                          if (t && r) handleAddDependency(t, r);
+                      }} size="icon" className="h-11 w-11 rounded-xl shadow-xl shadow-primary/20"><PlusCircle/></Button>
+                  </div>
+              </div>
+
+              <div className="space-y-3 pt-4">
+                  {config?.serviceDependencies?.map(dep => (
+                      <div key={dep.id} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 group hover:bg-white/10 transition-all">
+                          <div className="flex items-center gap-4 text-sm font-bold">
+                              <Badge variant="outline" className="border-primary/30 text-primary font-black uppercase text-[9px]">{findItemName(dep.triggerServiceId)}</Badge>
+                              <ArrowRight className="w-4 h-4 text-slate-600"/>
+                              <span className="text-slate-300">{findItemName(dep.requiredServiceId)}</span>
+                          </div>
+                          <Button variant="ghost" size="icon" onClick={() => handleDeleteDependency(dep.id)} className="text-rose-400 opacity-0 group-hover:opacity-100 h-8 w-8 rounded-lg"><Trash2 className="w-4 h-4"/></Button>
+                      </div>
+                  ))}
+                  {(!config?.serviceDependencies || config.serviceDependencies.length === 0) && (
+                      <p className="text-center py-10 text-slate-500 italic text-sm">No has definido reglas de inteligencia aún.</p>
+                  )}
+              </div>
+          </CardContent>
+          <CardFooter className="bg-black/20 p-6 flex items-center gap-4">
+              <div className="p-3 bg-white/10 rounded-2xl"><Info className="w-5 h-5 text-primary"/></div>
+              <p className="text-xs font-medium text-slate-400 leading-relaxed">
+                  Estas reglas garantizan que servicios críticos como el asador, el flete o el personal extra se cobren siempre que el cliente seleccione los servicios base correspondientes.
+              </p>
+          </CardFooter>
       </Card>
     </div>
   );
