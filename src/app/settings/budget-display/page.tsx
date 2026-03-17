@@ -23,8 +23,6 @@ import { getMenus } from '@/app/actions/menus-catering';
 import type { FullMenu, MenuItem } from '@/types/catering';
 import { saveBudgetDisplaySettings, getBudgetDisplaySettings } from '@/app/actions/settings';
 import type { BudgetDisplaySettings } from '@/types/settings';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 
@@ -121,16 +119,6 @@ export default function BudgetDisplaySettingsPage() {
         menusNinoDisponibles: enhancedDishes.filter(item => item.type === 'Menú Infantil/Adolescente').map(menuItemToServicioEmpresa)
     };
   }, [config, allMenus]);
-
-  const gastronomiaFiltrada = useMemo(() => {
-      const lowerCaseSearch = gastronomiaSearchTerm.toLowerCase();
-      if (!lowerCaseSearch) return { entradas: entradasDisponibles, principales: principalesDisponibles, infantiles: menusNinoDisponibles };
-      return {
-          entradas: entradasDisponibles.filter(e => e.nombre.toLowerCase().includes(lowerCaseSearch)),
-          principales: principalesDisponibles.filter(p => p.nombre.toLowerCase().includes(lowerCaseSearch)),
-          infantiles: menusNinoDisponibles.filter(m => m.nombre.toLowerCase().includes(lowerCaseSearch))
-      };
-  }, [gastronomiaSearchTerm, entradasDisponibles, principalesDisponibles, menusNinoDisponibles]);
 
   const handlePlatoVisibilityChange = async (platoId: string, visible: boolean) => {
     if (!config) return;
@@ -236,8 +224,6 @@ export default function BudgetDisplaySettingsPage() {
         return nameA.localeCompare(nameB);
     });
   };
-
-  if (isLoading || !config || !budgetSettings) return <div className="flex items-center justify-center min-h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
 
   return (
     <div className="max-w-3xl mx-auto space-y-6 pb-20">
@@ -416,33 +402,6 @@ export default function BudgetDisplaySettingsPage() {
           <CardFooter><Button type="submit" disabled={isSaving}>Guardar Ajustes Globales</Button></CardFooter>
         </Card>
       </form>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="font-headline text-xl">Visibilidad en Simulador</CardTitle>
-          <CardDescription>Usa los interruptores para activar o desactivar platos del simulador público. Los platos no se borrarán del catálogo.</CardDescription>
-          <div className="relative pt-4"><Search className="absolute left-3 top-7 h-4 w-4 text-slate-400"/><Input placeholder="Filtrar platos..." value={gastronomiaSearchTerm} onChange={e => setGastronomiaSearchTerm(e.target.value)} className="pl-10 h-12 rounded-xl bg-slate-50 border-none"/></div>
-        </CardHeader>
-        <CardContent>
-            <Accordion type="multiple" className="w-full space-y-2">
-                {['entradas', 'principales', 'infantiles'].map(cat => (
-                    <AccordionItem key={cat} value={cat} className="border rounded-xl px-4">
-                        <AccordionTrigger className="uppercase font-black text-[10px] tracking-widest text-slate-500">{cat} ({(gastronomiaFiltrada as any)[cat === 'entradas' ? 'entradas' : cat === 'principales' ? 'principales' : 'infantiles'].length})</AccordionTrigger>
-                        <AccordionContent className="pt-2 pb-4">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                {(gastronomiaFiltrada as any)[cat === 'entradas' ? 'entradas' : cat === 'principales' ? 'principales' : 'infantiles'].map((p: any) => (
-                                    <div key={p.id} className="flex items-center justify-between p-2 rounded-lg bg-slate-50">
-                                        <Label htmlFor={`v-${p.id}`} className="text-xs font-bold truncate pr-2">{p.nombre}</Label>
-                                        <Switch id={`v-${p.id}`} checked={isPlatoVisible(p.id)} onCheckedChange={v => handlePlatoVisibilityChange(p.id, v)} className="scale-75" />
-                                    </div>
-                                ))}
-                            </div>
-                        </AccordionContent>
-                    </AccordionItem>
-                ))}
-            </Accordion>
-        </CardContent>
-      </Card>
 
       <Card className="shadow-lg">
           <CardHeader>

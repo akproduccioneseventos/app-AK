@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useSortable } from '@dnd-kit/sortable';
@@ -21,6 +20,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { useMemo } from 'react';
+import { cn } from '@/lib/utils';
 
 interface CrmLeadCardProps {
   lead: CrmLead;
@@ -125,7 +125,7 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting, isMobile, onMove, 
                     <Link href={`/presupuestos/${lead.presupuestoId}/ver`} passHref className="flex-grow">
                         <Button variant="outline" size="sm" className="h-8 text-[10px] w-full">VER PRESUPUESTO</Button>
                     </Link>
-                    {onHire && <Button onClick={onHire} size="sm" className="h-8 bg-green-600 hover:bg-green-700 px-2"><CheckCircle className="w-3.5 h-3.5"/></Button>}
+                    {onHire && <Button onClick={onHire} size="sm" className="h-8 bg-green-600 hover:bg-green-700 px-2"><CheckCircle className="w-4 h-4"/></Button>}
                 </div>
             ) : (
                 <Link href={`/presupuestos/nuevo/crear?leadId=${lead.id}&leadName=${encodeURIComponent(lead.name)}`} passHref className="flex-grow">
