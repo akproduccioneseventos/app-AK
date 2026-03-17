@@ -1,16 +1,19 @@
 {
   "id": "fiesta_maria_rosa_1223",
   "configuracion": {
-    "nombreEvento": "Evento de Maria Rosa Rodriguez",
+    "nombreEvento": "XV años de Maria Rosa Rodriguez",
     "tipoCelebracion": "Evento",
-    "fechaEvento": "2026-03-16T00:00:00.000Z",
+    "fechaEvento": "2027-02-12T03:00:00.000Z",
     "horaInicio": "21:00",
     "horaFin": "04:00",
     "nombreLugar": "Union 589",
-    "invitadosEstimados": 95,
-    "presupuestoEstimado": 136089,
+    "invitadosEstimados": 71,
+    "presupuestoEstimado": 132903,
     "notasAdicionales": "",
-    "clienteId": "cust_maria_rosa_1223"
+    "clienteId": "cust_maria_rosa_1223",
+    "invitadosAdultos": 47,
+    "invitadosNinos": 24,
+    "invitadosAdolescentes": 0
   },
   "presupuestoId": "pres_1223_maria_rosa",
   "modulosContratados": {
@@ -54,7 +57,22 @@
     "categorias": []
   },
   "gestionCostos": {
-    "costosItems": [],
+    "costosItems": [
+      {
+        "id": "laundry_1773758589103_1zxcvf",
+        "nombre": "Lavado Mantel ($50)",
+        "category": "Servicio Proveedor",
+        "montoEstimado": 450,
+        "notes": "Auto-generado: Lavadero del Sol"
+      },
+      {
+        "id": "laundry_1773758589103_j9y8a9",
+        "nombre": "Lavado Cubre ($18)",
+        "category": "Servicio Proveedor",
+        "montoEstimado": 162,
+        "notes": "Auto-generado: Lavadero del Sol"
+      }
+    ],
     "ingresosTotalesEstimados": 136089,
     "notasGeneralesCostos": ""
   }

@@ -1,2 +1,15 @@
-
-[]
+[
+  {
+    "name": "Maria Rosa Rodriguez",
+    "presupuestoId": "pres_1223_maria_rosa",
+    "presupuestoEstado": "Enviado",
+    "partyType": "XV años",
+    "venueName": "Union 589",
+    "guestCount": 71,
+    "budgetSource": "manual",
+    "currentStageId": "s3",
+    "id": "lead_1773758589009",
+    "createdAt": "2026-03-17T14:43:09.009Z",
+    "updatedAt": "2026-03-17T14:55:31.600Z"
+  }
+]

@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense, use } from 'react';
@@ -31,9 +30,11 @@ const formatCurrency = (amount?: number, includeSymbol = true, useNUS = false) =
 };
 
 const formatDate = (dateString?: string, shortMonth = false) => {
-  if (!dateString) return "Fecha no especificada";
+  if (!dateString) return "Fecha no definida";
   try {
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "Fecha no definida";
+    
     const year = dateString.includes('T') ? date.getUTCFullYear() : date.getFullYear();
     const month = dateString.includes('T') ? date.getUTCMonth() : date.getMonth();
     const day = dateString.includes('T') ? date.getUTCDate() : date.getDate();
@@ -146,11 +147,11 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
         }
       } else {
         setError(`Presupuesto con ID ${presupuestoId} no encontrado.`);
-        toast({ title: "Error", description: `Presupuesto no encontrado.`, variant: "destructive"});
+        toast({ title: "Error", description: `Presupuesto no encontrado.`, variant: "destructive" });
       }
     } catch (err: any) {
       setError(err.message || "No se pudo cargar el presupuesto.");
-      toast({ title: "Error al Cargar", variant: "destructive"});
+      toast({ title: "Error al Cargar", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -322,8 +323,15 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   }
   
   const displayId = presupuesto.numero ? `#${presupuesto.numero}` : `#${presupuesto.id.split('_').pop()?.substring(0,6)}`;
-  const fechaValidoHasta = new Date(presupuesto.timestamp);
-  fechaValidoHasta.setDate(fechaValidoHasta.getDate() + BUDGET_VALIDITY_DAYS_PDF);
+  
+  const timestampDate = new Date(presupuesto.timestamp);
+  const isValidTimestamp = !isNaN(timestampDate.getTime());
+  const fechaValidoHasta = new Date(timestampDate);
+  if (isValidTimestamp) {
+    fechaValidoHasta.setDate(fechaValidoHasta.getDate() + BUDGET_VALIDITY_DAYS_PDF);
+  }
+  const expiryDateStr = isValidTimestamp ? fechaValidoHasta.toISOString() : undefined;
+
   const protagonistas = [presupuesto.protagonista1Nombre, presupuesto.protagonista2Nombre].filter(Boolean).join(' y ');
   
   const showAnnualAdjustmentLegend = calculatedValues.ajusteAnual > 0;
@@ -383,7 +391,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                       <tr>
                         <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{displayId}</td>
                         <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(presupuesto.timestamp, true)}</td>
-                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(fechaValidoHasta.toISOString(), true)}</td>
+                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(expiryDateStr, true)}</td>
                       </tr>
                     </tbody>
                   </table>
@@ -483,7 +491,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 
                <footer className="mt-6 pt-3 border-t border-gray-300 print:mt-2 print:pt-1.5 print:border-gray-400 text-xs print:text-[8pt] text-gray-600 print:text-black">
                   <p>{BUDGET_DEPOSIT_NOTE_PDF}</p>
-                  {presupuesto.notas && displaySettings.showPaymentMethodNotes && <p className="mt-1 print:mt-0.5 whitespace-pre-line">{presupuesto.notas}</p>}
+                  {presupuesto.notes && displaySettings.showPaymentMethodNotes && <p className="mt-1 print:mt-0.5 whitespace-pre-line">{presupuesto.notes}</p>}
                   {showAnnualAdjustmentLegend && (<p className="mt-1 print:mt-0.5 text-orange-600">Nota: Este presupuesto está sujeto a un ajuste anual del {displaySettings.annualAdjustmentPercentage}% por cada año hasta la fecha del evento.</p>)}
                 </footer>
                 
