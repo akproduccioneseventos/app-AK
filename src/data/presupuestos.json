@@ -2,7 +2,7 @@
   {
     "clienteNombre": "Maria Rosa Rodriguez",
     "eventoTipo": "XV años",
-    "eventoFecha": "2027-02-12T03:00:00.000Z",
+    "eventoFecha": "2026-03-19T03:00:00.000Z",
     "invitadosCantidad": 71,
     "invitadosAdultos": 47,
     "invitadosNinos": 24,
@@ -156,12 +156,10 @@
       }
     ],
     "costoTotalEstimado": 136179,
-    "descuentoTipo": "fijo",
-    "descuentoValor": 3276,
     "notas": "Presupuesto consolidado de 2 páginas. Incluye beneficios especiales y regalos por contratación anticipada. Válido hasta 15/04/2026.",
     "estado": "Enviado",
     "id": "pres_1223_maria_rosa",
-    "totalConDescuento": 132903,
+    "totalConDescuento": 136179,
     "leadId": "lead_1773758589009"
   },
   {

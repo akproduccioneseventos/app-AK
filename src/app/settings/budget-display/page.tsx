@@ -11,7 +11,7 @@ import { ArrowLeft, Save, Loader2, Wand2, PlusCircle, Trash2, Search, Percent, T
 import { useToast } from '@/hooks/use-toast';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServiceDependency } from '@/types/armado-rapido';
 import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
-import { getServiciosEmpresa, saveServicioEmpresa as saveServicioEmpresaAction } from '@/app/actions/servicios-empresa';
+import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -222,22 +222,15 @@ export default function BudgetDisplaySettingsPage() {
     }
   };
 
-  // Helper function to sort services: Non-gifts by Category, then Gifts at the bottom
   const sortServices = (services: {id: string, esRegalo?: boolean}[]) => {
     return [...services].sort((a, b) => {
-        // 1. Gifts at the bottom
         if (a.esRegalo && !b.esRegalo) return 1;
         if (!a.esRegalo && b.esRegalo) return -1;
-
-        // 2. Sort by Category
         const itemA = allAvailableItemsForSelection.find(i => i.id === a.id);
         const itemB = allAvailableItemsForSelection.find(i => i.id === b.id);
         const catA = itemA?.categoria || '';
         const catB = itemB?.categoria || '';
-        
         if (catA !== catB) return catA.localeCompare(catB);
-        
-        // 3. Sort by Name within category
         const nameA = itemA?.nombre || '';
         const nameB = itemB?.nombre || '';
         return nameA.localeCompare(nameB);
@@ -249,84 +242,114 @@ export default function BudgetDisplaySettingsPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-6 pb-20">
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-2xl">
-           <DialogHeader><DialogTitle>{currentItem?.id ? 'Editar' : 'Nuevo'} {modalType === 'paquete' ? 'Paquete' : 'Menú'}</DialogTitle></DialogHeader>
+        <DialogContent className="sm:max-w-2xl max-h-[95vh] flex flex-col p-0 overflow-hidden">
+           <DialogHeader className="p-6 pb-2">
+             <DialogTitle className="text-2xl font-headline">{currentItem?.id ? 'Editar' : 'Nuevo'} {modalType === 'paquete' ? 'Paquete' : 'Menú'}</DialogTitle>
+           </DialogHeader>
            {currentItem && (
-                <form onSubmit={handleSaveItem} className="space-y-6 py-4">
-                    <div className="space-y-1.5"><Label className="text-xs uppercase font-black tracking-widest text-slate-400">Nombre del Paquete</Label><Input value={currentItem.nombre || ''} onChange={e => setCurrentItem(p => p ? {...p, nombre: e.target.value} : null)} className="h-12 rounded-xl bg-slate-50 border-none text-lg font-bold" required/></div>
-                    
-                    <div className="space-y-2">
-                        <div className="flex justify-between items-center px-1 mb-2">
-                            <Label className="text-[10px] font-black uppercase tracking-widest text-primary">Servicios Seleccionados ({currentItem.serviciosIncluidos?.length || 0})</Label>
-                            <span className="text-[9px] font-bold text-slate-400">Ordenados por tipo • Regalos abajo</span>
+                <div className="flex-1 overflow-y-auto px-6 py-4 custom-scrollbar">
+                    <form id="package-form" onSubmit={handleSaveItem} className="space-y-6">
+                        <div className="space-y-1.5">
+                            <Label className="text-xs uppercase font-black tracking-widest text-slate-400">Nombre del Paquete</Label>
+                            <Input value={currentItem.nombre || ''} onChange={e => setCurrentItem(p => p ? {...p, nombre: e.target.value} : null)} className="h-12 rounded-xl bg-slate-50 border-none text-lg font-bold" required/>
                         </div>
-                        <ScrollArea className="h-48 border rounded-2xl bg-slate-50 p-2">
-                            {currentItem.serviciosIncluidos && currentItem.serviciosIncluidos.length > 0 ? (
-                                <div className="space-y-2">
-                                    {sortServices(currentItem.serviciosIncluidos).map(si => {
-                                        const originalItem = allAvailableItemsForSelection.find(i => i.id === si.id);
-                                        return (
-                                            <div key={si.id} className={cn(
-                                                "flex items-center justify-between p-3 rounded-xl border transition-all group",
-                                                si.esRegalo ? "bg-rose-50/50 border-rose-100 shadow-sm" : "bg-white border-slate-100 shadow-sm"
-                                            )}>
-                                                <div className="flex items-center gap-3">
-                                                    <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-red-50 rounded-lg" onClick={() => {
-                                                        setCurrentItem(p => p ? ({...p, serviciosIncluidos: p.serviciosIncluidos?.filter(item => item.id !== si.id)}) : null);
-                                                    }}>
-                                                        <Trash2 className="w-4 h-4"/>
-                                                    </Button>
-                                                    <div className="flex flex-col">
-                                                        <span className={cn("text-xs font-bold uppercase", si.esRegalo && "text-rose-600")}>{originalItem?.nombre || si.id}</span>
-                                                        <span className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">{originalItem?.categoria}</span>
+                        
+                        <div className="space-y-2">
+                            <div className="flex justify-between items-center px-1 mb-2">
+                                <Label className="text-[10px] font-black uppercase tracking-widest text-primary">Servicios Seleccionados ({currentItem.serviciosIncluidos?.length || 0})</Label>
+                                <span className="text-[9px] font-bold text-slate-400">Ordenados por tipo • Regalos abajo</span>
+                            </div>
+                            <ScrollArea className="h-48 border rounded-2xl bg-slate-50 p-2 shadow-inner">
+                                {currentItem.serviciosIncluidos && currentItem.serviciosIncluidos.length > 0 ? (
+                                    <div className="space-y-2">
+                                        {sortServices(currentItem.serviciosIncluidos).map(si => {
+                                            const originalItem = allAvailableItemsForSelection.find(i => i.id === si.id);
+                                            return (
+                                                <div key={si.id} className={cn(
+                                                    "flex items-center justify-between p-3 rounded-xl border transition-all group",
+                                                    si.esRegalo ? "bg-rose-50/50 border-rose-100 shadow-sm" : "bg-white border-slate-100 shadow-sm"
+                                                )}>
+                                                    <div className="flex items-center gap-3">
+                                                        <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-red-50 rounded-lg" onClick={() => {
+                                                            setCurrentItem(prev => prev ? ({...prev, serviciosIncluidos: prev.serviciosIncluidos?.filter(item => item.id !== si.id)}) : null);
+                                                        }}>
+                                                            <Trash2 className="w-4 h-4"/>
+                                                        </Button>
+                                                        <div className="flex flex-col">
+                                                            <span className={cn("text-xs font-bold uppercase", si.esRegalo && "text-rose-600")}>{originalItem?.nombre || si.id}</span>
+                                                            <span className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">{originalItem?.categoria}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center gap-2 pr-2">
+                                                        <Checkbox 
+                                                            id={`regalo-modal-${si.id}`} 
+                                                            checked={si.esRegalo} 
+                                                            onCheckedChange={(val) => {
+                                                                setCurrentItem(prev => prev ? ({
+                                                                    ...prev,
+                                                                    serviciosIncluidos: prev.serviciosIncluidos?.map(item => item.id === si.id ? {...item, esRegalo: !!val} : item)
+                                                                }) : null);
+                                                            }}
+                                                        />
+                                                        <Label htmlFor={`regalo-modal-${si.id}`} className={cn("text-[9px] font-black uppercase cursor-pointer", si.esRegalo ? "text-rose-600" : "text-slate-400")}>Es Regalo</Label>
                                                     </div>
                                                 </div>
-                                                <div className="flex items-center gap-2 pr-2">
-                                                    <Checkbox 
-                                                        id={`regalo-modal-${si.id}`} 
-                                                        checked={si.esRegalo} 
-                                                        onCheckedChange={(val) => {
-                                                            setCurrentItem(p => p ? ({
-                                                                ...p,
-                                                                serviciosIncluidos: p.serviciosIncluidos?.map(item => item.id === si.id ? {...item, esRegalo: !!val} : item)
-                                                            }) : null);
-                                                        }}
-                                                    />
-                                                    <Label htmlFor={`regalo-modal-${si.id}`} className={cn("text-[9px] font-black uppercase cursor-pointer", si.esRegalo ? "text-rose-600" : "text-slate-400")}>Es Regalo</Label>
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            ) : (
-                                <div className="h-full flex flex-col items-center justify-center text-slate-400 opacity-50 space-y-2">
-                                    <Package className="w-8 h-8"/>
-                                    <p className="text-[10px] font-black uppercase tracking-widest">Sin servicios</p>
-                                </div>
-                            )}
-                        </ScrollArea>
-                    </div>
+                                            );
+                                        })}
+                                    </div>
+                                ) : (
+                                    <div className="h-full flex flex-col items-center justify-center text-slate-400 opacity-50 space-y-2">
+                                        <Package className="w-8 h-8"/>
+                                        <p className="text-[10px] font-black uppercase tracking-widest">Sin servicios</p>
+                                    </div>
+                                )}
+                            </ScrollArea>
+                        </div>
 
-                    <Separator/>
-                    <div className="space-y-3">
-                        <Label className="text-sm font-bold">Añadir Servicios del Catálogo</Label>
-                        <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"/><Input placeholder="Buscar servicios..." value={servicioSearchTerm} onChange={(e) => setServicioSearchTerm(e.target.value)} className="pl-9 h-11 rounded-xl bg-slate-50 border-none"/></div>
-                        <ScrollArea className="h-48 border rounded-xl p-2">
-                            {allAvailableItemsForSelection.filter(s => s.nombre.toLowerCase().includes(servicioSearchTerm.toLowerCase())).map(s => (
-                                <div key={s.id} className="flex items-center space-x-2 py-2 px-3 border-b last:border-b-0 hover:bg-slate-50 transition-colors">
-                                    <Checkbox checked={currentItem.serviciosIncluidos?.some(si => si.id === s.id)} onCheckedChange={(checked) => {
-                                        const servicios = currentItem.serviciosIncluidos || [];
-                                        setCurrentItem(p => p ? ({...p, serviciosIncluidos: checked ? [...servicios, {id: s.id, esRegalo: false}] : servicios.filter(si => si.id !== s.id)}) : null);
-                                    }}/>
-                                    <Label className="text-sm font-medium flex-grow cursor-pointer">{s.nombre}</Label>
-                                    <Badge variant="outline" className="text-[8px] font-black uppercase tracking-tighter border-slate-200">{s.categoria}</Badge>
-                                </div>
-                            ))}
-                        </ScrollArea>
-                    </div>
-                    <DialogFooter className="pt-2"><Button type="submit" disabled={isSaving} className="w-full h-12 rounded-xl font-bold shadow-lg shadow-primary/20">Guardar Paquete</Button></DialogFooter>
-                </form>
+                        <Separator/>
+                        
+                        <div className="space-y-3">
+                            <Label className="text-sm font-bold flex items-center gap-2">
+                                <PlusCircle className="w-4 h-4 text-primary"/> Añadir Servicios del Catálogo
+                            </Label>
+                            <div className="relative">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"/>
+                                <Input placeholder="Buscar servicios..." value={servicioSearchTerm} onChange={(e) => setServicioSearchTerm(e.target.value)} className="pl-9 h-11 rounded-xl bg-slate-50 border-none shadow-inner"/>
+                            </div>
+                            <ScrollArea className="h-64 border rounded-2xl p-2 bg-white shadow-sm">
+                                {allAvailableItemsForSelection.filter(s => s.nombre.toLowerCase().includes(servicioSearchTerm.toLowerCase())).map(s => (
+                                    <div key={s.id} className="flex items-center space-x-2 py-2 px-3 border-b last:border-b-0 hover:bg-slate-50 transition-colors">
+                                        <Checkbox 
+                                            id={`catalog-${s.id}`}
+                                            checked={currentItem.serviciosIncluidos?.some(si => si.id === s.id)} 
+                                            onCheckedChange={(checked) => {
+                                                setCurrentItem(prev => {
+                                                    if (!prev) return null;
+                                                    const servicios = prev.serviciosIncluidos || [];
+                                                    return {
+                                                        ...prev,
+                                                        serviciosIncluidos: checked 
+                                                            ? [...servicios, {id: s.id, esRegalo: false}] 
+                                                            : servicios.filter(si => si.id !== s.id)
+                                                    };
+                                                });
+                                            }}
+                                        />
+                                        <Label htmlFor={`catalog-${s.id}`} className="text-sm font-medium flex-grow cursor-pointer">{s.nombre}</Label>
+                                        <Badge variant="outline" className="text-[8px] font-black uppercase tracking-tighter border-slate-200">{s.categoria}</Badge>
+                                    </div>
+                                ))}
+                            </ScrollArea>
+                        </div>
+                    </form>
+                </div>
            )}
+           <DialogFooter className="p-6 border-t bg-slate-50/50">
+                <Button type="submit" form="package-form" disabled={isSaving} className="w-full h-14 rounded-2xl font-black text-base shadow-xl shadow-primary/20">
+                    {isSaving ? <Loader2 className="animate-spin mr-3"/> : <Save className="w-5 h-5 mr-3"/>}
+                    GUARDAR PAQUETE
+                </Button>
+           </DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -346,32 +369,47 @@ export default function BudgetDisplaySettingsPage() {
             <Separator />
             <div className="space-y-4">
               <h4 className="font-medium text-sm">Descuentos Promocionales</h4>
-              {(budgetSettings.promotionalDiscounts || []).map((discount, index) => (
+              {(budgetSettings?.promotionalDiscounts || []).map((discount, index) => (
                 <div key={discount.id} className="grid grid-cols-3 gap-3 items-end p-3 bg-muted/30 rounded-xl border relative group">
                     <Button variant="ghost" size="icon" className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-white border shadow-sm opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => {
-                        const updated = (budgetSettings.promotionalDiscounts || []).filter((_, i) => i !== index);
-                        setBudgetSettings({ ...budgetSettings, promotionalDiscounts: updated });
+                        setBudgetSettings(prev => {
+                            if (!prev) return null;
+                            const updated = (prev.promotionalDiscounts || []).filter((_, i) => i !== index);
+                            return { ...prev, promotionalDiscounts: updated };
+                        });
                     }}><X className="w-3 h-3"/></Button>
                     <div className="space-y-1"><Label className="text-[10px] uppercase">Nombre</Label><Input value={discount.name} onChange={e => {
-                        const updated = [...(budgetSettings.promotionalDiscounts || [])];
-                        updated[index].name = e.target.value;
-                        setBudgetSettings({...budgetSettings, promotionalDiscounts: updated});
+                        setBudgetSettings(prev => {
+                            if (!prev) return null;
+                            const updated = [...(prev.promotionalDiscounts || [])];
+                            updated[index].name = e.target.value;
+                            return { ...prev, promotionalDiscounts: updated };
+                        });
                     }}/></div>
                     <div className="space-y-1"><Label className="text-[10px] uppercase">Tipo</Label><Select value={discount.type} onValueChange={v => {
-                        const updated = [...(budgetSettings.promotionalDiscounts || [])];
-                        updated[index].type = v as any;
-                        setBudgetSettings({...budgetSettings, promotionalDiscounts: updated});
+                        setBudgetSettings(prev => {
+                            if (!prev) return null;
+                            const updated = [...(prev.promotionalDiscounts || [])];
+                            updated[index].type = v as any;
+                            return { ...prev, promotionalDiscounts: updated };
+                        });
                     }}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="percentage">Porcentaje</SelectItem><SelectItem value="fixed">Fijo</SelectItem></SelectContent></Select></div>
                     <div className="space-y-1"><Label className="text-[10px] uppercase">Valor</Label><Input type="number" value={discount.value} onChange={e => {
-                        const updated = [...(budgetSettings.promotionalDiscounts || [])];
-                        updated[index].value = Number(e.target.value);
-                        setBudgetSettings({...budgetSettings, promotionalDiscounts: updated});
+                        setBudgetSettings(prev => {
+                            if (!prev) return null;
+                            const updated = [...(prev.promotionalDiscounts || [])];
+                            updated[index].value = Number(e.target.value);
+                            return { ...prev, promotionalDiscounts: updated };
+                        });
                     }}/></div>
                 </div>
               ))}
               <Button type="button" variant="outline" size="sm" onClick={() => {
                   const newDisc = { id: `promo_${Date.now()}`, name: '', type: 'percentage' as const, value: 0 };
-                  setBudgetSettings({ ...budgetSettings, promotionalDiscounts: [...(budgetSettings.promotionalDiscounts || []), newDisc] });
+                  setBudgetSettings(prev => {
+                      if (!prev) return null;
+                      return { ...prev, promotionalDiscounts: [...(prev.promotionalDiscounts || []), newDisc] };
+                  });
               }}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Descuento</Button>
             </div>
           </CardContent>

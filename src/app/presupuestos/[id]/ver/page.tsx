@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense, use } from 'react';
@@ -319,18 +318,18 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     return <div className="flex items-center justify-center h-screen"><Loader2 className="w-16 h-16 animate-spin text-primary" /><p className="ml-4 text-xl">Cargando...</p></div>;
   }
   if (error || !presupuesto || !displaySettings) {
-    return <div className="max-w-2xl mx-auto text-center py-10"><AlertTriangle className="w-16 h-16 mx-auto text-destructive mb-4" /><h1 className="text-2xl font-bold">Error</h1><p className="text-muted-foreground">{error || "Presupuesto no encontrado o configuración faltante."}</p><Link href="/presupuestos/nuevo" passHref><Button variant="outline" className="mt-6"><ArrowLeft className="mr-2 h-4 w-4"/>Volver</Button></Link></div>;
+    return <div className="max-w-2xl mx-auto text-center py-10"><AlertTriangle className="w-16 h-16 text-destructive mb-4" /><h1 className="text-2xl font-bold">Error</h1><p className="text-muted-foreground">{error || "Presupuesto no encontrado o configuración faltante."}</p><Link href="/presupuestos/nuevo" passHref><Button variant="outline" className="mt-6"><ArrowLeft className="mr-2 h-4 w-4"/>Volver</Button></Link></div>;
   }
   
   const displayId = presupuesto.numero ? `#${presupuesto.numero}` : `#${presupuesto.id.split('_').pop()?.substring(0,6)}`;
   
   const timestampDate = new Date(presupuesto.timestamp);
   const isValidTimestamp = !isNaN(timestampDate.getTime());
-  const fechaValidoHasta = new Date(timestampDate);
+  let fechaValidoHasta: Date | null = null;
   if (isValidTimestamp) {
+    fechaValidoHasta = new Date(timestampDate);
     fechaValidoHasta.setDate(fechaValidoHasta.getDate() + BUDGET_VALIDITY_DAYS_PDF);
   }
-  const expiryDateStr = isValidTimestamp ? fechaValidoHasta.toISOString() : undefined;
 
   const protagonistas = [presupuesto.protagonista1Nombre, presupuesto.protagonista2Nombre].filter(Boolean).join(' y ');
   
@@ -390,8 +389,8 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                     <tbody>
                       <tr>
                         <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{displayId}</td>
-                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(presupuesto.timestamp, true)}</td>
-                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(expiryDateStr, true)}</td>
+                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{isValidTimestamp ? formatDate(presupuesto.timestamp, true) : 'N/A'}</td>
+                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{fechaValidoHasta ? formatDate(fechaValidoHasta.toISOString(), true) : 'N/A'}</td>
                       </tr>
                     </tbody>
                   </table>

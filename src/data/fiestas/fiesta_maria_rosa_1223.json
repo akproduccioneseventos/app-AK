@@ -3,12 +3,12 @@
   "configuracion": {
     "nombreEvento": "XV años de Maria Rosa Rodriguez",
     "tipoCelebracion": "Evento",
-    "fechaEvento": "2027-02-12T03:00:00.000Z",
+    "fechaEvento": "2026-03-19T03:00:00.000Z",
     "horaInicio": "21:00",
     "horaFin": "04:00",
     "nombreLugar": "Union 589",
     "invitadosEstimados": 71,
-    "presupuestoEstimado": 132903,
+    "presupuestoEstimado": 136179,
     "notasAdicionales": "",
     "clienteId": "cust_maria_rosa_1223",
     "invitadosAdultos": 47,
@@ -73,7 +73,7 @@
         "notes": "Auto-generado: Lavadero del Sol"
       }
     ],
-    "ingresosTotalesEstimados": 136089,
+    "ingresosTotalesEstimados": 136179,
     "notasGeneralesCostos": ""
   }
 }
