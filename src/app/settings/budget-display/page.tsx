@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -8,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Save, Loader2, Wand2, PlusCircle, Trash2, Search, Percent, Tag, X, Check, ChevronDown, Package, Edit, Gift } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, Wand2, PlusCircle, Trash2, Search, Percent, Tag, X, Check, ChevronDown, Package, Edit, Gift, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServiceDependency } from '@/types/armado-rapido';
 import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
@@ -207,6 +206,22 @@ export default function BudgetDisplaySettingsPage() {
       toast({ title: "Dependencia eliminada" });
   };
 
+  const handleDuplicatePackage = async (paquete: PaqueteArmadoRapido) => {
+    if (!config) return;
+    const newPaquete: PaqueteArmadoRapido = {
+      ...paquete,
+      id: `pkg_copy_${Date.now()}`,
+      nombre: `[COPIA] ${paquete.nombre}`,
+    };
+    const newConfig = { ...config, paquetes: [...config.paquetes, newPaquete] };
+    setConfig(newConfig);
+    const result = await saveArmadoRapidoConfig(newConfig);
+    if (result.success) {
+      toast({ title: "Paquete duplicado" });
+      await loadData();
+    }
+  };
+
   // Helper function to sort services: Non-gifts by Category, then Gifts at the bottom
   const sortServices = (services: {id: string, esRegalo?: boolean}[]) => {
     return [...services].sort((a, b) => {
@@ -234,8 +249,8 @@ export default function BudgetDisplaySettingsPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-6 pb-20">
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-2xl rounded-3xl border-none shadow-2xl">
-           <DialogHeader><DialogTitle className="font-headline text-2xl">{currentItem?.id ? 'Editar' : 'Nuevo'} {modalType === 'paquete' ? 'Paquete' : 'Menú'}</DialogTitle></DialogHeader>
+        <DialogContent className="sm:max-w-2xl">
+           <DialogHeader><DialogTitle>{currentItem?.id ? 'Editar' : 'Nuevo'} {modalType === 'paquete' ? 'Paquete' : 'Menú'}</DialogTitle></DialogHeader>
            {currentItem && (
                 <form onSubmit={handleSaveItem} className="space-y-6 py-4">
                     <div className="space-y-1.5"><Label className="text-xs uppercase font-black tracking-widest text-slate-400">Nombre del Paquete</Label><Input value={currentItem.nombre || ''} onChange={e => setCurrentItem(p => p ? {...p, nombre: e.target.value} : null)} className="h-12 rounded-xl bg-slate-50 border-none text-lg font-bold" required/></div>
@@ -309,7 +324,7 @@ export default function BudgetDisplaySettingsPage() {
                             ))}
                         </ScrollArea>
                     </div>
-                    <DialogFooter className="pt-2"><Button onClick={handleSaveItem} disabled={isSaving} className="w-full h-12 rounded-xl font-bold shadow-lg shadow-primary/20">Guardar Paquete</Button></DialogFooter>
+                    <DialogFooter className="pt-2"><Button type="submit" disabled={isSaving} className="w-full h-12 rounded-xl font-bold shadow-lg shadow-primary/20">Guardar Paquete</Button></DialogFooter>
                 </form>
            )}
         </DialogContent>
@@ -409,6 +424,7 @@ export default function BudgetDisplaySettingsPage() {
                       </div>
                     </AccordionTrigger>
                     <div className="flex gap-2 ml-4">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl" onClick={(e) => { e.stopPropagation(); handleDuplicatePackage(pkg); }}><Copy className="w-4 h-4"/></Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl" onClick={(e) => { e.stopPropagation(); handleOpenModal('paquete', pkg); }}><Edit className="w-4 h-4"/></Button>
                         <Button variant="ghost" size="icon" className="text-destructive rounded-xl h-8 w-8 hover:bg-red-50" onClick={(e) => {
                             e.stopPropagation();
