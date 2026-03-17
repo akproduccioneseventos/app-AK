@@ -13,7 +13,7 @@
     "salonFiestas": "Union 589",
     "itemsPresupuestados": [
       {
-        "idServicioCatalogo": "serv_mozos_1223",
+        "idServicioCatalogo": "serv_mozos",
         "nombreServicio": "Mozos",
         "cantidad": 3,
         "precioUnitario": 2990,
@@ -23,7 +23,7 @@
         "calculationMethod": "fijo"
       },
       {
-        "idServicioCatalogo": "serv_mozo_cocina_1223",
+        "idServicioCatalogo": "serv_mozo_cocina",
         "nombreServicio": "Mozo de cocina",
         "cantidad": 3,
         "precioUnitario": 2990,
@@ -33,8 +33,8 @@
         "calculationMethod": "fijo"
       },
       {
-        "idServicioCatalogo": "serv_logistica_1223",
-        "nombreServicio": "Vajilla, mantelería y moviliario",
+        "idServicioCatalogo": "serv_logistica",
+        "nombreServicio": "Vajilla, mantelería y mobiliario",
         "cantidad": 71,
         "precioUnitario": 230,
         "precioUnitarioPresupuesto": 230,
@@ -43,7 +43,7 @@
         "calculationMethod": "porPersona"
       },
       {
-        "idServicioCatalogo": "dish_entrada_15_1223",
+        "idServicioCatalogo": "dish_entrada_15",
         "nombreServicio": "Entrada 15: Show de pizzas",
         "cantidad": 71,
         "precioUnitario": 190,
@@ -53,7 +53,7 @@
         "calculationMethod": "porPersona"
       },
       {
-        "idServicioCatalogo": "dish_entrada_8_1223",
+        "idServicioCatalogo": "dish_entrada_8",
         "nombreServicio": "Entrada 8: Picada de fiambres",
         "cantidad": 71,
         "precioUnitario": 190,
@@ -63,7 +63,7 @@
         "calculationMethod": "porPersona"
       },
       {
-        "idServicioCatalogo": "dish_main_1223",
+        "idServicioCatalogo": "dish_main_pollo",
         "nombreServicio": "Pollo arrollado con mesa bufet",
         "cantidad": 47,
         "precioUnitario": 549,
@@ -73,7 +73,7 @@
         "calculationMethod": "fijo"
       },
       {
-        "idServicioCatalogo": "dish_child_1223",
+        "idServicioCatalogo": "dish_child_hamburguesa",
         "nombreServicio": "Menú niños- Hamburguesa c/ fritas",
         "cantidad": 24,
         "precioUnitario": 299,
@@ -83,21 +83,75 @@
         "calculationMethod": "porPersona"
       },
       {
-        "idServicioCatalogo": "serv_extra_page2_1223",
-        "nombreServicio": "Servicios adicionales (Página 2)",
+        "idServicioCatalogo": "serv_discoteca",
+        "nombreServicio": "Discoteca estándar",
         "cantidad": 1,
-        "precioUnitario": 41860,
-        "precioUnitarioPresupuesto": 41860,
-        "costoTotalItem": 41860,
-        "categoriaServicio": "Otros servicios",
+        "precioUnitario": 9990,
+        "precioUnitarioPresupuesto": 9990,
+        "costoTotalItem": 9990,
+        "categoriaServicio": "Servicio de discoteca",
         "calculationMethod": "fijo"
+      },
+      {
+        "idServicioCatalogo": "serv_decoracion",
+        "nombreServicio": "Decoración Estándar",
+        "cantidad": 1,
+        "precioUnitario": 14990,
+        "precioUnitarioPresupuesto": 14990,
+        "costoTotalItem": 14990,
+        "categoriaServicio": "Servicio de decoración",
+        "calculationMethod": "fijo"
+      },
+      {
+        "idServicioCatalogo": "serv_cuadro_firmas",
+        "nombreServicio": "Cuadro de firmas",
+        "cantidad": 1,
+        "precioUnitario": 2990,
+        "precioUnitarioPresupuesto": 2990,
+        "costoTotalItem": 2990,
+        "categoriaServicio": "Servicio de decoración",
+        "calculationMethod": "fijo"
+      },
+      {
+        "idServicioCatalogo": "serv_foto_pintada",
+        "nombreServicio": "Fotografía de la pintada",
+        "cantidad": 1,
+        "precioUnitario": 3990,
+        "precioUnitarioPresupuesto": 3990,
+        "costoTotalItem": 3990,
+        "categoriaServicio": "Servicio de fotografía",
+        "calculationMethod": "fijo"
+      },
+      {
+        "idServicioCatalogo": "serv_organizamos",
+        "nombreServicio": "Organizamos de la fiesta",
+        "cantidad": 1,
+        "precioUnitario": 11000,
+        "precioUnitarioPresupuesto": 0,
+        "costoTotalItem": 0,
+        "categoriaServicio": "Regalo exclusivo",
+        "calculationMethod": "fijo",
+        "esRegalo": true
+      },
+      {
+        "idServicioCatalogo": "serv_fuegos_frios",
+        "nombreServicio": "Fuegos fríos",
+        "cantidad": 1,
+        "precioUnitario": 3500,
+        "precioUnitarioPresupuesto": 0,
+        "costoTotalItem": 0,
+        "categoriaServicio": "Regalo exclusivo",
+        "calculationMethod": "fijo",
+        "esRegalo": true
       }
     ],
-    "costoTotalEstimated": 136089,
+    "costoTotalEstimado": 139365,
     "totalConDescuento": 136089,
+    "descuentoTipo": "fijo",
+    "descuentoValor": 3276,
     "timestamp": "2026-03-16T10:00:00.000Z",
     "estado": "Enviado",
-    "notas": "Presupuesto generado según documento físico. Válido hasta 15/04/2026.",
+    "notas": "Presupuesto consolidado de 2 páginas. Incluye beneficios especiales y regalos por contratación anticipada. Válido hasta 15/04/2026.",
     "source": "manual"
   },
   {
@@ -289,7 +343,7 @@
         "idServicioCatalogo": "serv_invitaciones_regalo",
         "nombreServicio": "Invitaciones digitales",
         "cantidad": 1,
-        "precioUnitario": 2500,
+        "precioUnitacy": 2500,
         "precioUnitarioPresupuesto": 0,
         "costoTotalItem": 0,
         "categoriaServicio": "Regalo exclusivo",
