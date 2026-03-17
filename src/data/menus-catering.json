@@ -2251,124 +2251,6 @@
     "description": "Selección completa de las 19 opciones principales.",
     "items": [
       {
-        "id": "dish_main_1",
-        "name": "CHIVITO C/ FRITAS",
-        "type": "Menú Infantil/Adolescente",
-        "ingredients": [
-          {
-            "id": "i1",
-            "name": "Huevo duro",
-            "quantityPerPerson": "0.3",
-            "unit": "Unidades",
-            "costoUnitario": 10,
-            "origenId": "ing-huevo",
-            "costoTotalReceta": 3
-          },
-          {
-            "id": "i2",
-            "name": "Tortuga",
-            "quantityPerPerson": "1",
-            "unit": "Unidades",
-            "costoUnitario": 16,
-            "origenId": "ing-tortuga",
-            "costoTotalReceta": 16
-          },
-          {
-            "id": "i3",
-            "name": "Emboltorio",
-            "quantityPerPerson": "1",
-            "unit": "Unidades",
-            "costoUnitario": 6,
-            "origenId": "ing-emboltorio",
-            "costoTotalReceta": 6
-          },
-          {
-            "id": "i4",
-            "name": "Jamon",
-            "quantityPerPerson": "25",
-            "unit": "Gramos",
-            "costoUnitario": 180,
-            "origenId": "ing-jamon",
-            "costoTotalReceta": 4.5
-          },
-          {
-            "id": "i5",
-            "name": "Lechuga",
-            "quantityPerPerson": "100",
-            "unit": "Unidades",
-            "costoUnitario": 25,
-            "origenId": "ing-lechuga",
-            "costoTotalReceta": 2500
-          },
-          {
-            "id": "i6",
-            "name": "Tomate",
-            "quantityPerPerson": "150",
-            "unit": "Gramos",
-            "costoUnitario": 90,
-            "origenId": "ing-tomate",
-            "costoTotalReceta": 13.5
-          },
-          {
-            "id": "i7",
-            "name": "Aderesos",
-            "quantityPerPerson": "101",
-            "unit": "Gramos",
-            "costoUnitario": 46,
-            "origenId": "ing-aderezos",
-            "costoTotalReceta": 4.646
-          },
-          {
-            "id": "i8",
-            "name": "Carne",
-            "quantityPerPerson": "120",
-            "unit": "Gramos",
-            "costoUnitario": 400,
-            "origenId": "ing-carne",
-            "costoTotalReceta": 48
-          },
-          {
-            "id": "i9",
-            "name": "Aceite",
-            "quantityPerPerson": "100",
-            "unit": "ml",
-            "costoUnitario": 60,
-            "origenId": "ing-aceite",
-            "costoTotalReceta": 6
-          },
-          {
-            "id": "i10",
-            "name": "Queso Muzzarella",
-            "quantityPerPerson": "50",
-            "unit": "Gramos",
-            "costoUnitario": 400,
-            "origenId": "ing-muzarella",
-            "costoTotalReceta": 20
-          },
-          {
-            "id": "i11",
-            "name": "Fritas",
-            "quantityPerPerson": "200",
-            "unit": "Gramos",
-            "costoUnitario": 120,
-            "origenId": "ing-fritas",
-            "costoTotalReceta": 24
-          },
-          {
-            "id": "i12",
-            "name": "Gas",
-            "quantityPerPerson": "5",
-            "unit": "No definido",
-            "costoUnitario": 1000,
-            "origenId": "ing-gas",
-            "costoTotalReceta": 5
-          }
-        ],
-        "totalDishCost": 2650.646,
-        "profitMargin": 100,
-        "suggestedSellingPrice": 5301
-      },
-      {
         "id": "dish_main_2",
         "name": "POLLO ARROLLADO C/ GUARNICIÓN",
         "type": "Plato Principal",
@@ -3782,7 +3664,7 @@
         "suggestedSellingPrice": 107
       }
     ],
-    "updatedAt": "2026-03-14T22:56:36.243Z"
+    "updatedAt": "2026-03-17T23:37:52.196Z"
   },
   {
     "id": "menu_infantil_maestro",
@@ -4009,7 +3891,126 @@
             "origenId": "ing-gas"
           }
         ]
+      },
+      {
+        "id": "dish_child_4",
+        "name": "CHIVITO C/ FRITAS",
+        "type": "Menú Infantil/Adolescente",
+        "ingredients": [
+          {
+            "id": "i1",
+            "name": "Huevo duro",
+            "quantityPerPerson": "0.3",
+            "unit": "Unidades",
+            "costoUnitario": 10,
+            "origenId": "ing-huevo",
+            "costoTotalReceta": 3
+          },
+          {
+            "id": "i2",
+            "name": "Tortuga",
+            "quantityPerPerson": "1",
+            "unit": "Unidades",
+            "costoUnitario": 16,
+            "origenId": "ing-tortuga",
+            "costoTotalReceta": 16
+          },
+          {
+            "id": "i3",
+            "name": "Emboltorio",
+            "quantityPerPerson": "1",
+            "unit": "Unidades",
+            "costoUnitario": 6,
+            "origenId": "ing-emboltorio",
+            "costoTotalReceta": 6
+          },
+          {
+            "id": "i4",
+            "name": "Jamon",
+            "quantityPerPerson": "25",
+            "unit": "Gramos",
+            "costoUnitario": 180,
+            "origenId": "ing-jamon",
+            "costoTotalReceta": 4.5
+          },
+          {
+            "id": "i5",
+            "name": "Lechuga",
+            "quantityPerPerson": "100",
+            "unit": "Gramos",
+            "costoUnitario": 25,
+            "origenId": "ing-lechuga",
+            "costoTotalReceta": 2.5
+          },
+          {
+            "id": "i6",
+            "name": "Tomate",
+            "quantityPerPerson": "150",
+            "unit": "Gramos",
+            "costoUnitario": 90,
+            "origenId": "ing-tomate",
+            "costoTotalReceta": 13.5
+          },
+          {
+            "id": "i7",
+            "name": "Aderesos",
+            "quantityPerPerson": "101",
+            "unit": "Gramos",
+            "costoUnitario": 46,
+            "origenId": "ing-aderezos",
+            "costoTotalReceta": 4.646
+          },
+          {
+            "id": "i8",
+            "name": "Carne",
+            "quantityPerPerson": "120",
+            "unit": "Gramos",
+            "costoUnitario": 400,
+            "origenId": "ing-carne-bife",
+            "costoTotalReceta": 48
+          },
+          {
+            "id": "i9",
+            "name": "Aceite",
+            "quantityPerPerson": "100",
+            "unit": "ml",
+            "costoUnitario": 60,
+            "origenId": "ing-aceite",
+            "costoTotalReceta": 6
+          },
+          {
+            "id": "i10",
+            "name": "Queso Muzzarella",
+            "quantityPerPerson": "50",
+            "unit": "Gramos",
+            "costoUnitario": 400,
+            "origenId": "ing-muzarella",
+            "costoTotalReceta": 20
+          },
+          {
+            "id": "i11",
+            "name": "Fritas",
+            "quantityPerPerson": "200",
+            "unit": "Gramos",
+            "costoUnitario": 120,
+            "origenId": "ing-fritas",
+            "costoTotalReceta": 24
+          },
+          {
+            "id": "i12",
+            "name": "Gas",
+            "quantityPerPerson": "1",
+            "unit": "No definido",
+            "costoUnitario": 5,
+            "origenId": "ing-gas",
+            "costoTotalReceta": 5
+          }
+        ],
+        "totalDishCost": 153.146,
+        "profitMargin": 100,
+        "suggestedSellingPrice": 306
       }
-    ]
+    ],
+    "updatedAt": "2026-03-17T23:37:52.196Z"
   }
 ]
