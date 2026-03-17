@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -16,7 +17,7 @@ import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from '@/components/ui/checkbox';
-import type { ServicioEmpresa, AnyCategoria } from '@/types/empresa';
+import type { ServicioEmpresa } from '@/types/empresa';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { getMenus } from '@/app/actions/menus-catering';
@@ -62,8 +63,6 @@ export default function BudgetDisplaySettingsPage() {
   const [currentItem, setCurrentItem] = useState<Partial<PaqueteArmadoRapido | MenuArmadoRapido> | null>(null);
   
   const [servicioSearchTerm, setServicioSearchTerm] = useState('');
-  const [gastronomiaSearchTerm, setGastronomiaSearchTerm] = useState('');
-  const [newDependency, setNewDependency] = useState({ triggerServiceId: '', requiredServiceId: '' });
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -102,38 +101,13 @@ export default function BudgetDisplaySettingsPage() {
       return allAvailableItemsForSelection.find(i => i.id === id)?.nombre || id;
   }, [allAvailableItemsForSelection]);
 
-  const { entradasDisponibles, principalesDisponibles, menusNinoDisponibles } = useMemo(() => {
-    if (!config || !allMenus.length) {
-      return { entradasDisponibles: [], principalesDisponibles: [], menusNinoDisponibles: [] };
-    }
-    const allDishes = allMenus.flatMap(m => m.items);
-    
-    const enhancedDishes = allDishes.map(item => ({
-        ...item,
-        precioVenta: item.suggestedSellingPrice ?? ((item.totalDishCost || 0) * (1 + (item.profitMargin ?? 120) / 100)),
-    }));
-    
-    return { 
-        entradasDisponibles: enhancedDishes.filter(item => item.type === 'Entrada').map(menuItemToServicioEmpresa), 
-        principalesDisponibles: enhancedDishes.filter(item => item.type === 'Plato Principal').map(menuItemToServicioEmpresa), 
-        menusNinoDisponibles: enhancedDishes.filter(item => item.type === 'Menú Infantil/Adolescente').map(menuItemToServicioEmpresa)
-    };
-  }, [config, allMenus]);
-
-  const handlePlatoVisibilityChange = async (platoId: string, visible: boolean) => {
-    if (!config) return;
-    const newPlatosVisibles = [...(config.platosVisibles || [])];
-    const existingIndex = newPlatosVisibles.findIndex(p => p.id === platoId);
-    if (existingIndex > -1) newPlatosVisibles[existingIndex] = { id: platoId, visible };
-    else newPlatosVisibles.push({ id: platoId, visible });
-    const newConfig = { ...config, platosVisibles: newPlatosVisibles };
-    setConfig(newConfig);
-    await saveArmadoRapidoConfig(newConfig);
-  };
-
-  const isPlatoVisible = (platoId: string) => {
-    const setting = config?.platosVisibles?.find(p => p.id === platoId);
-    return setting !== undefined ? setting.visible : true; 
+  const handleBudgetSettingsSave = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!budgetSettings) return;
+    setIsSaving(true);
+    const result = await saveBudgetDisplaySettings(budgetSettings);
+    if (result.success) toast({ title: "Ajustes de Presupuesto guardados" });
+    setIsSaving(false);
   };
 
   const handleOpenModal = (type: 'paquete' | 'menu', item?: PaqueteArmadoRapido | MenuArmadoRapido) => {
@@ -162,38 +136,6 @@ export default function BudgetDisplaySettingsPage() {
     setIsSaving(false);
   };
 
-  const handleBudgetSettingsSave = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!budgetSettings) return;
-    setIsSaving(true);
-    const result = await saveBudgetDisplaySettings(budgetSettings);
-    if (result.success) toast({ title: "Ajustes de Presupuesto guardados" });
-    setIsSaving(false);
-  };
-
-  const handleAddDependency = async () => {
-      if (!config || !newDependency.triggerServiceId || !newDependency.requiredServiceId) return;
-      const newDep: ServiceDependency = {
-          id: `dep_${Date.now()}`,
-          triggerServiceId: newDependency.triggerServiceId,
-          requiredServiceId: newDependency.requiredServiceId,
-      };
-      const newConfig = { ...config, serviceDependencies: [...(config.serviceDependencies || []), newDep] };
-      setConfig(newConfig);
-      await saveArmadoRapidoConfig(newConfig);
-      setNewDependency({ triggerServiceId: '', requiredServiceId: '' });
-      toast({ title: "Dependencia añadida" });
-  };
-
-  const handleDeleteDependency = async (id: string) => {
-      if (!config) return;
-      const updated = (config.serviceDependencies || []).filter(d => d.id !== id);
-      const newConfig = { ...config, serviceDependencies: updated };
-      setConfig(newConfig);
-      await saveArmadoRapidoConfig(newConfig);
-      toast({ title: "Dependencia eliminada" });
-  };
-
   const handleDuplicatePackage = async (paquete: PaqueteArmadoRapido) => {
     if (!config) return;
     const newPaquete: PaqueteArmadoRapido = {
@@ -210,86 +152,63 @@ export default function BudgetDisplaySettingsPage() {
     }
   };
 
-  const sortServices = (services: {id: string, esRegalo?: boolean}[]) => {
-    return [...services].sort((a, b) => {
-        if (a.esRegalo && !b.esRegalo) return 1;
-        if (!a.esRegalo && b.esRegalo) return -1;
-        const itemA = allAvailableItemsForSelection.find(i => i.id === a.id);
-        const itemB = allAvailableItemsForSelection.find(i => i.id === b.id);
-        const catA = itemA?.categoria || '';
-        const catB = itemB?.categoria || '';
-        if (catA !== catB) return catA.localeCompare(catB);
-        const nameA = itemA?.nombre || '';
-        const nameB = itemB?.nombre || '';
-        return nameA.localeCompare(nameB);
-    });
-  };
+  if (isLoading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-primary w-12 h-12"/></div>;
 
   return (
     <div className="max-w-3xl mx-auto space-y-6 pb-20">
+      {/* Modal de Paquetes/Menús */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-2xl max-h-[95vh] flex flex-col p-0 overflow-hidden">
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col p-0 overflow-hidden">
            <DialogHeader className="p-6 pb-2">
              <DialogTitle className="text-2xl font-headline">{currentItem?.id ? 'Editar' : 'Nuevo'} {modalType === 'paquete' ? 'Paquete' : 'Menú'}</DialogTitle>
            </DialogHeader>
+           
            {currentItem && (
-                <div className="flex-1 overflow-y-auto px-6 py-4 custom-scrollbar">
+                <div className="flex-1 overflow-y-auto px-6 py-4">
                     <form id="package-form" onSubmit={handleSaveItem} className="space-y-6">
                         <div className="space-y-1.5">
-                            <Label className="text-xs uppercase font-black tracking-widest text-slate-400">Nombre del Paquete</Label>
-                            <Input value={currentItem.nombre || ''} onChange={e => setCurrentItem(p => p ? {...p, nombre: e.target.value} : null)} className="h-12 rounded-xl bg-slate-50 border-none text-lg font-bold" required/>
+                            <Label className="text-xs uppercase font-black tracking-widest text-slate-400">Nombre</Label>
+                            <Input 
+                                value={currentItem.nombre || ''} 
+                                onChange={e => setCurrentItem(p => p ? {...p, nombre: e.target.value} : null)} 
+                                className="h-12 rounded-xl bg-slate-50 border-none text-lg font-bold" 
+                                required
+                            />
                         </div>
                         
-                        <div className="space-y-2">
-                            <div className="flex justify-between items-center px-1 mb-2">
-                                <Label className="text-[10px] font-black uppercase tracking-widest text-primary">Servicios Seleccionados ({currentItem.serviciosIncluidos?.length || 0})</Label>
-                                <span className="text-[9px] font-bold text-slate-400">Ordenados por tipo • Regalos abajo</span>
-                            </div>
-                            <ScrollArea className="h-48 border rounded-2xl bg-slate-50 p-2 shadow-inner">
-                                {currentItem.serviciosIncluidos && currentItem.serviciosIncluidos.length > 0 ? (
-                                    <div className="space-y-2">
-                                        {sortServices(currentItem.serviciosIncluidos).map(si => {
-                                            const originalItem = allAvailableItemsForSelection.find(i => i.id === si.id);
-                                            return (
-                                                <div key={si.id} className={cn(
-                                                    "flex items-center justify-between p-3 rounded-xl border transition-all group",
-                                                    si.esRegalo ? "bg-rose-50/50 border-rose-100 shadow-sm" : "bg-white border-slate-100 shadow-sm"
-                                                )}>
-                                                    <div className="flex items-center gap-3">
-                                                        <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-red-50 rounded-lg" onClick={() => {
-                                                            setCurrentItem(prev => prev ? ({...prev, serviciosIncluidos: prev.serviciosIncluidos?.filter(item => item.id !== si.id)}) : null);
-                                                        }}>
-                                                            <Trash2 className="w-4 h-4"/>
-                                                        </Button>
-                                                        <div className="flex flex-col">
-                                                            <span className={cn("text-xs font-bold uppercase", si.esRegalo && "text-rose-600")}>{originalItem?.nombre || si.id}</span>
-                                                            <span className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">{originalItem?.categoria}</span>
-                                                        </div>
-                                                    </div>
-                                                    <div className="flex items-center gap-2 pr-2">
-                                                        <Checkbox 
-                                                            id={`regalo-modal-${si.id}`} 
-                                                            checked={si.esRegalo} 
-                                                            onCheckedChange={(val) => {
-                                                                setCurrentItem(prev => prev ? ({
-                                                                    ...prev,
-                                                                    serviciosIncluidos: prev.serviciosIncluidos?.map(item => item.id === si.id ? {...item, esRegalo: !!val} : item)
-                                                                }) : null);
-                                                            }}
-                                                        />
-                                                        <Label htmlFor={`regalo-modal-${si.id}`} className={cn("text-[9px] font-black uppercase cursor-pointer", si.esRegalo ? "text-rose-600" : "text-slate-400")}>Es Regalo</Label>
-                                                    </div>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                ) : (
-                                    <div className="h-full flex flex-col items-center justify-center text-slate-400 opacity-50 space-y-2">
-                                        <Package className="w-8 h-8"/>
-                                        <p className="text-[10px] font-black uppercase tracking-widest">Sin servicios</p>
-                                    </div>
+                        <div className="space-y-3">
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-primary">Servicios Seleccionados ({currentItem.serviciosIncluidos?.length || 0})</Label>
+                            <div className="space-y-2 max-h-48 overflow-y-auto border rounded-xl p-2 bg-slate-50/50">
+                                {currentItem.serviciosIncluidos?.map(si => {
+                                    const original = allAvailableItemsForSelection.find(i => i.id === si.id);
+                                    return (
+                                        <div key={si.id} className="flex items-center justify-between p-2 bg-white rounded-lg border shadow-sm">
+                                            <div className="flex items-center gap-2">
+                                                <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => {
+                                                    setCurrentItem(prev => prev ? ({...prev, serviciosIncluidos: prev.serviciosIncluidos?.filter(item => item.id !== si.id)}) : null);
+                                                }}><Trash2 className="w-4 h-4"/></Button>
+                                                <span className="text-sm font-bold">{original?.nombre || si.id}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <Checkbox 
+                                                    id={`regalo-${si.id}`} 
+                                                    checked={si.esRegalo} 
+                                                    onCheckedChange={(val) => {
+                                                        setCurrentItem(prev => prev ? ({
+                                                            ...prev,
+                                                            serviciosIncluidos: prev.serviciosIncluidos?.map(item => item.id === si.id ? {...item, esRegalo: !!val} : item)
+                                                        }) : null);
+                                                    }}
+                                                />
+                                                <Label htmlFor={`regalo-${si.id}`} className="text-[10px] font-bold uppercase cursor-pointer">Regalo</Label>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                                {(!currentItem.serviciosIncluidos || currentItem.serviciosIncluidos.length === 0) && (
+                                    <p className="text-center py-8 text-xs text-muted-foreground italic">Sin servicios seleccionados</p>
                                 )}
-                            </ScrollArea>
+                            </div>
                         </div>
 
                         <Separator/>
@@ -300,9 +219,14 @@ export default function BudgetDisplaySettingsPage() {
                             </Label>
                             <div className="relative">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"/>
-                                <Input placeholder="Buscar servicios..." value={servicioSearchTerm} onChange={(e) => setServicioSearchTerm(e.target.value)} className="pl-9 h-11 rounded-xl bg-slate-50 border-none shadow-inner"/>
+                                <Input 
+                                    placeholder="Buscar servicios..." 
+                                    value={servicioSearchTerm} 
+                                    onChange={(e) => setServicioSearchTerm(e.target.value)} 
+                                    className="pl-9 h-11 rounded-xl bg-slate-50 border-none shadow-inner"
+                                />
                             </div>
-                            <ScrollArea className="h-64 border rounded-2xl p-2 bg-white shadow-sm">
+                            <ScrollArea className="h-64 border rounded-2xl p-2 bg-white">
                                 {allAvailableItemsForSelection.filter(s => s.nombre.toLowerCase().includes(servicioSearchTerm.toLowerCase())).map(s => (
                                     <div key={s.id} className="flex items-center space-x-2 py-2 px-3 border-b last:border-b-0 hover:bg-slate-50 transition-colors">
                                         <Checkbox 
@@ -322,7 +246,7 @@ export default function BudgetDisplaySettingsPage() {
                                             }}
                                         />
                                         <Label htmlFor={`catalog-${s.id}`} className="text-sm font-medium flex-grow cursor-pointer">{s.nombre}</Label>
-                                        <Badge variant="outline" className="text-[8px] font-black uppercase tracking-tighter border-slate-200">{s.categoria}</Badge>
+                                        <Badge variant="outline" className="text-[8px] font-black uppercase tracking-tighter">{s.categoria}</Badge>
                                     </div>
                                 ))}
                             </ScrollArea>
@@ -330,6 +254,7 @@ export default function BudgetDisplaySettingsPage() {
                     </form>
                 </div>
            )}
+
            <DialogFooter className="p-6 border-t bg-slate-50/50">
                 <Button type="submit" form="package-form" disabled={isSaving} className="w-full h-14 rounded-2xl font-black text-base shadow-xl shadow-primary/20">
                     {isSaving ? <Loader2 className="animate-spin mr-3"/> : <Save className="w-5 h-5 mr-3"/>}
@@ -340,13 +265,14 @@ export default function BudgetDisplaySettingsPage() {
       </Dialog>
 
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Configuración del Simulador</h1></div>
+        <div className="flex items-center gap-3"><Wand2 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Simulador de Presupuestos</h1></div>
         <Link href="/empresa/contabilidad" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
       </div>
 
-       <form onSubmit={handleBudgetSettingsSave}>
+      {/* Ajustes Globales */}
+      <form onSubmit={handleBudgetSettingsSave}>
         <Card className="shadow-lg">
-          <CardHeader><CardTitle className="font-headline text-xl">Ajustes Generales de Presupuestos</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="font-headline text-xl">Ajustes de Presupuestos</CardTitle></CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
               <Label className="flex items-center gap-2"><Percent className="w-4 h-4" />Porcentaje de Ajuste Anual (%)</Label>
@@ -363,7 +289,7 @@ export default function BudgetDisplaySettingsPage() {
                             const updated = (prev.promotionalDiscounts || []).filter((_, i) => i !== index);
                             return { ...prev, promotionalDiscounts: updated };
                         });
-                    }}><X className="w-3 h-3"/></Button>
+                    }}><X className="w-3 shadow-sm h-3"/></Button>
                     <div className="space-y-1"><Label className="text-[10px] uppercase">Nombre</Label><Input value={discount.name} onChange={e => {
                         setBudgetSettings(prev => {
                             if (!prev) return null;
@@ -403,21 +329,22 @@ export default function BudgetDisplaySettingsPage() {
         </Card>
       </form>
 
+      {/* Paquetes */}
       <Card className="shadow-lg">
           <CardHeader>
-              <CardTitle className="font-headline text-xl">Paquetes de Servicios</CardTitle>
-              <CardDescription>Configura los paquetes predefinidos que los clientes pueden elegir en el simulador.</CardDescription>
+              <CardTitle className="font-headline text-xl">Paquetes Disponibles</CardTitle>
+              <CardDescription>Configura los paquetes predefinidos para el simulador público.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <Button onClick={() => handleOpenModal('paquete')}><PlusCircle className="w-4 h-4 mr-2"/>Crear Paquete</Button>
             <Accordion type="single" collapsible className="w-full space-y-3">
-              {config.paquetes.map(pkg => (
+              {config?.paquetes?.map(pkg => (
                 <AccordionItem key={pkg.id} value={pkg.id} className="border rounded-3xl bg-white shadow-sm px-4 group hover:border-primary/30 transition-all">
                   <div className="flex items-center justify-between">
                     <AccordionTrigger className="flex-1 hover:no-underline py-4">
                       <div className="flex flex-col items-start text-left space-y-1">
                         <p className="font-black text-slate-800 text-base uppercase tracking-tight">{pkg.nombre}</p>
-                        <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">{pkg.serviciosIncluidos.length} servicios configurados</p>
+                        <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">{pkg.serviciosIncluidos.length} servicios</p>
                       </div>
                     </AccordionTrigger>
                     <div className="flex gap-2 ml-4">
@@ -425,28 +352,25 @@ export default function BudgetDisplaySettingsPage() {
                         <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl" onClick={(e) => { e.stopPropagation(); handleOpenModal('paquete', pkg); }}><Edit className="w-4 h-4"/></Button>
                         <Button variant="ghost" size="icon" className="text-destructive rounded-xl h-8 w-8 hover:bg-red-50" onClick={(e) => {
                             e.stopPropagation();
-                            const updated = config.paquetes.filter(p => p.id !== pkg.id);
-                            const newConfig = { ...config, paquetes: updated };
-                            setConfig(newConfig);
-                            saveArmadoRapidoConfig(newConfig);
+                            if(config) {
+                                const updated = config.paquetes.filter(p => p.id !== pkg.id);
+                                saveArmadoRapidoConfig({ ...config, paquetes: updated }).then(loadData);
+                            }
                         }}><Trash2 className="w-4 h-4"/></Button>
                     </div>
                   </div>
                   <AccordionContent className="pb-4 pt-0">
                     <ul className="space-y-2 border-t pt-4">
-                        {sortServices(pkg.serviciosIncluidos).map(s => {
-                            const originalItem = allAvailableItemsForSelection.find(i => i.id === s.id);
+                        {pkg.serviciosIncluidos.map(s => {
+                            const original = allAvailableItemsForSelection.find(i => i.id === s.id);
                             return (
                                 <li key={s.id} className={cn(
-                                    "text-xs font-bold uppercase tracking-tight flex items-center justify-between p-2 rounded-xl transition-colors",
+                                    "text-xs font-bold uppercase tracking-tight flex items-center justify-between p-2 rounded-xl",
                                     s.esRegalo ? "bg-rose-50 text-rose-600" : "bg-slate-50 text-slate-600"
                                 )}>
                                     <span className="flex items-center gap-2">
                                         {s.esRegalo ? <Gift className="w-3.5 h-3.5" /> : <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />}
-                                        <div className="flex flex-col">
-                                            <span>{originalItem?.nombre || s.id}</span>
-                                            <span className="text-[8px] opacity-60 tracking-normal font-normal">({originalItem?.categoria})</span>
-                                        </div>
+                                        {original?.nombre || s.id}
                                     </span>
                                     {s.esRegalo && <span className="text-[9px] font-black bg-rose-600 text-white px-2 py-0.5 rounded-full">REGALO</span>}
                                 </li>
@@ -457,63 +381,6 @@ export default function BudgetDisplaySettingsPage() {
                 </AccordionItem>
               ))}
             </Accordion>
-          </CardContent>
-      </Card>
-
-      <Card className="shadow-lg border-primary/20">
-          <CardHeader>
-              <CardTitle className="font-headline text-xl flex items-center gap-2">
-                  <Package className="text-primary w-6 h-6"/> Dependencias Automáticas (Lógica de Negocio)
-              </CardTitle>
-              <CardDescription>
-                  Define qué servicios se deben añadir automáticamente al seleccionar otro (ej: si el cliente elige Asado, sumar Asador).
-              </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end bg-muted/30 p-4 rounded-2xl">
-                  <div className="md:col-span-5 space-y-1.5">
-                      <Label className="text-[10px] uppercase font-black tracking-widest">Si se elige...</Label>
-                      <Select value={newDependency.triggerServiceId} onValueChange={v => setNewDependency(p => ({...p, triggerServiceId: v}))}>
-                          <SelectTrigger className="bg-white"><SelectValue placeholder="Elegir plato/servicio..."/></SelectTrigger>
-                          <SelectContent>
-                              {allAvailableItemsForSelection.map(i => <SelectItem key={i.id} value={i.id}>{i.nombre}</SelectItem>)}
-                          </SelectContent>
-                      </Select>
-                  </div>
-                  <div className="md:col-span-1 text-center pb-2 text-slate-400 font-bold">→</div>
-                  <div className="md:col-span-5 space-y-1.5">
-                      <Label className="text-[10px] uppercase font-black tracking-widest">Añadir automáticamente</Label>
-                      <Select value={newDependency.requiredServiceId} onValueChange={v => setNewDependency(p => ({...p, requiredServiceId: v}))}>
-                          <SelectTrigger className="bg-white"><SelectValue placeholder="Elegir servicio..."/></SelectTrigger>
-                          <SelectContent>
-                              {serviciosCatalogo.map(i => <SelectItem key={i.id} value={i.id}>{i.nombre}</SelectItem>)}
-                          </SelectContent>
-                      </Select>
-                  </div>
-                  <div className="md:col-span-1">
-                      <Button onClick={handleAddDependency} disabled={!newDependency.triggerServiceId || !newDependency.requiredServiceId} size="icon" className="h-10 w-10 rounded-xl">
-                          <PlusCircle className="w-5 h-5"/>
-                      </Button>
-                  </div>
-              </div>
-
-              <div className="space-y-2">
-                  {(config.serviceDependencies || []).map(dep => (
-                      <div key={dep.id} className="flex items-center justify-between p-4 border rounded-2xl bg-white group hover:border-primary/30 transition-all">
-                          <div className="flex items-center gap-3 text-sm font-bold">
-                              <span className="text-primary">{findItemName(dep.triggerServiceId)}</span>
-                              <span className="text-slate-300">activa a</span>
-                              <span className="text-emerald-600">{findItemName(dep.requiredServiceId)}</span>
-                          </div>
-                          <Button variant="ghost" size="icon" onClick={() => handleDeleteDependency(dep.id)} className="text-destructive opacity-0 group-hover:opacity-100 rounded-xl">
-                              <Trash2 className="w-4 h-4"/>
-                          </Button>
-                      </div>
-                  ))}
-                  {(config.serviceDependencies || []).length === 0 && (
-                      <p className="text-center text-slate-400 py-8 text-xs font-medium italic">No hay dependencias configuradas.</p>
-                  )}
-              </div>
           </CardContent>
       </Card>
     </div>
