@@ -2,52 +2,6 @@
   "descuentoGeneral": 15,
   "paquetes": [
     {
-      "id": "pkg_basico",
-      "nombre": "Paquete Básico",
-      "serviciosIncluidos": [
-        {
-          "id": "serv_mozos",
-          "esRegalo": false
-        },
-        {
-          "id": "serv_mozo_cocina",
-          "esRegalo": false
-        },
-        {
-          "id": "serv_invitaciones_digitales",
-          "esRegalo": true
-        },
-        {
-          "id": "serv_1773234908609_4pe9i1v",
-          "esRegalo": false
-        },
-        {
-          "id": "serv_1773155046161_v5ye5ck",
-          "esRegalo": false
-        },
-        {
-          "id": "serv_mobiliario_completo",
-          "esRegalo": false
-        },
-        {
-          "id": "serv_organizacion",
-          "esRegalo": false
-        },
-        {
-          "id": "serv_vajilla_completa",
-          "esRegalo": false
-        },
-        {
-          "id": "serv_1773318550669_mrmyyqe",
-          "esRegalo": false
-        },
-        {
-          "id": "serv_foto_fiesta",
-          "esRegalo": false
-        }
-      ]
-    },
-    {
       "id": "pkg_intermedio",
       "nombre": "Paquete Intermedio",
       "serviciosIncluidos": [

@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -429,54 +428,6 @@ export default function BudgetDisplaySettingsPage() {
                                 </li>
                             );
                         })}
-                    </ul>
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </CardContent>
-      </Card>
-
-      <Card className="shadow-2xl border-none rounded-[2rem] overflow-hidden bg-white">
-          <CardHeader className="bg-slate-50 border-b border-slate-100 p-8">
-              <div className="flex justify-between items-center">
-                  <div>
-                    <CardTitle className="font-headline text-2xl text-slate-800">Menús Base</CardTitle>
-                    <CardDescription>Agrupaciones de platos maestros para selección rápida.</CardDescription>
-                  </div>
-                  <Button variant="secondary" onClick={() => handleOpenModal('menu')} className="rounded-xl font-bold h-11"><PlusCircle className="w-4 h-4 mr-2"/>Nuevo Menú</Button>
-              </div>
-          </CardHeader>
-          <CardContent className="p-8">
-            <Accordion type="single" collapsible className="w-full space-y-4">
-              {config?.menus?.map(m => (
-                <AccordionItem key={m.id} value={m.id} className="border rounded-[1.5rem] bg-white shadow-sm px-6 group hover:border-primary/30 transition-all overflow-hidden">
-                  <div className="flex items-center justify-between">
-                    <AccordionTrigger className="flex-1 hover:no-underline py-5">
-                      <div className="flex flex-col items-start text-left space-y-1">
-                        <p className="font-black text-slate-800 text-lg uppercase tracking-tight">{m.nombre}</p>
-                        <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">{m.serviciosIncluidos.length} platos incluidos</p>
-                      </div>
-                    </AccordionTrigger>
-                    <div className="flex gap-2 ml-4">
-                        <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-slate-100 text-primary" onClick={(e) => { e.stopPropagation(); handleOpenModal('menu', m); }}><Edit className="w-4 h-4"/></Button>
-                        <Button variant="ghost" size="icon" className="text-destructive rounded-xl h-9 w-9 hover:bg-red-50" onClick={(e) => {
-                            e.stopPropagation();
-                            if(config) {
-                                const updated = config.menus.filter(p => p.id !== m.id);
-                                saveArmadoRapidoConfig({ ...config, menus: updated }).then(loadData);
-                            }
-                        }}><Trash2 className="w-4 h-4"/></Button>
-                    </div>
-                  </div>
-                  <AccordionContent className="pb-6 pt-0 border-t border-slate-50">
-                    <ul className="space-y-2 mt-4">
-                        {m.serviciosIncluidos.map(s => (
-                            <li key={s.id} className="text-xs font-bold uppercase tracking-tight flex items-center gap-3 p-3 rounded-xl bg-slate-50 text-slate-600 border border-slate-100">
-                                <ChefHat className="w-4 h-4 opacity-40" />
-                                {findItemName(s.id)}
-                            </li>
-                        ))}
                     </ul>
                   </AccordionContent>
                 </AccordionItem>
