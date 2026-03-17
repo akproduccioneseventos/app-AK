@@ -1,5 +1,16 @@
 [
   {
+    "id": "cust_maria_rosa_1223",
+    "name": "Maria Rosa Rodriguez",
+    "phone": "",
+    "estadoCliente": "Actual",
+    "partyDate": "2026-03-16T00:00:00.000Z",
+    "partyType": "Evento",
+    "venueName": "Union 589",
+    "taxId": "3.964.281-7",
+    "guestCount": 95
+  },
+  {
     "id": "cust_lorena_leal_177077",
     "name": "Lorena Leal",
     "phone": "1132",
