@@ -9,7 +9,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, ArrowRight, Save, Loader2, Wand2, PlusCircle, Trash2, Search, Percent, Tag, X, Check, ChevronDown, Package, Edit, Gift, Copy, ChefHat, Info, Zap, Link2 } from 'lucide-react';
+import { 
+    ArrowLeft, ArrowRight, Save, Loader2, Wand2, PlusCircle, Trash2, 
+    Search, Percent, Tag, X, Check, ChevronDown, Package, Edit, 
+    Gift, Copy, ChefHat, Info, Zap, Link2 
+} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServiceDependency } from '@/types/armado-rapido';
 import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
@@ -27,6 +31,7 @@ import { saveBudgetDisplaySettings, getBudgetDisplaySettings } from '@/app/actio
 import type { BudgetDisplaySettings } from '@/types/settings';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -586,7 +591,7 @@ export default function BudgetDisplaySettingsPage() {
       <Alert className="bg-blue-50 border-blue-200 text-blue-800 rounded-[1.5rem]">
           <Info className="h-5 w-5 text-blue-600" />
           <div>
-              <AlertTitle className="font-black uppercase text-[10px] tracking-widest">Sincronización Total</AlertTitle>
+              <AlertTitle className="font-black uppercase text-xs tracking-widest">Sincronización Total</AlertTitle>
               <AlertDescription className="text-sm font-medium opacity-80 leading-relaxed">
                   Los ajustes realizados aquí impactan directamente en el simulador público. Recuerda revisar los precios en el Catálogo Maestro periódicamente.
               </AlertDescription>
