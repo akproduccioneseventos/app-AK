@@ -2,13 +2,14 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Save, Loader2, Wand2, PlusCircle, Trash2, Search, Percent, Tag, X, Check, ChevronDown, Package, Edit, Gift, Copy, ChefHat, Info, Zap, Link2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, Loader2, Wand2, PlusCircle, Trash2, Search, Percent, Tag, X, Check, ChevronDown, Package, Edit, Gift, Copy, ChefHat, Info, Zap, Link2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServiceDependency } from '@/types/armado-rapido';
 import { getArmadoRapidoConfig, saveArmadoRapidoConfig } from '@/app/actions/armado-rapido';
@@ -26,7 +27,6 @@ import { saveBudgetDisplaySettings, getBudgetDisplaySettings } from '@/app/actio
 import type { BudgetDisplaySettings } from '@/types/settings';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -191,7 +191,6 @@ export default function BudgetDisplaySettingsPage() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-10 pb-32">
-      {/* Modal de Paquetes/Menús */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col p-0 overflow-hidden">
            <DialogHeader className="p-6 pb-2">
@@ -202,7 +201,7 @@ export default function BudgetDisplaySettingsPage() {
                 <div className="flex-1 overflow-y-auto px-6 py-4">
                     <form id="package-form" onSubmit={handleSaveItem} className="space-y-6">
                         <div className="space-y-1.5">
-                            <Label className="text-xs uppercase font-black tracking-widest text-slate-400">Nombre</Label>
+                            <Label className="text-xs uppercase font-black tracking-widest text-slate-400">Nombre del Paquete</Label>
                             <Input 
                                 value={currentItem.nombre || ''} 
                                 onChange={e => setCurrentItem(p => p ? {...p, nombre: e.target.value} : null)} 
@@ -312,7 +311,6 @@ export default function BudgetDisplaySettingsPage() {
         <Link href="/empresa/contabilidad" passHref><Button variant="outline" className="rounded-xl"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
       </div>
 
-      {/* Ajustes Globales */}
       <Card className="shadow-2xl border-none rounded-[2rem] overflow-hidden bg-white">
         <CardHeader className="bg-slate-50 border-b border-slate-100"><CardTitle className="font-headline text-xl text-slate-800">Ajustes del Simulador</CardTitle></CardHeader>
         <CardContent className="p-8 space-y-8">
@@ -376,13 +374,12 @@ export default function BudgetDisplaySettingsPage() {
         </CardContent>
       </Card>
 
-      {/* Paquetes */}
       <Card className="shadow-2xl border-none rounded-[2rem] overflow-hidden bg-white">
           <CardHeader className="bg-slate-50 border-b border-slate-100 p-8">
               <div className="flex justify-between items-center">
                   <div>
-                    <CardTitle className="font-headline text-2xl text-slate-800">Paquetes de Venta</CardTitle>
-                    <CardDescription>Configura los paquetes predefinidos para la captura de prospectos.</CardDescription>
+                    <CardTitle className="font-headline text-2xl text-slate-800">Paquetes Disponibles</CardTitle>
+                    <CardDescription>Configura los paquetes predefinidos para el simulador público.</CardDescription>
                   </div>
                   <Button onClick={() => handleOpenModal('paquete')} className="rounded-xl font-bold h-11"><PlusCircle className="w-4 h-4 mr-2"/>Crear Paquete</Button>
               </div>
@@ -435,12 +432,11 @@ export default function BudgetDisplaySettingsPage() {
           </CardContent>
       </Card>
 
-      {/* Menús Base (Similares a paquetes pero para gastronomía) */}
       <Card className="shadow-2xl border-none rounded-[2rem] overflow-hidden bg-white">
           <CardHeader className="bg-slate-50 border-b border-slate-100 p-8">
               <div className="flex justify-between items-center">
                   <div>
-                    <CardTitle className="font-headline text-2xl text-slate-800">Menús de Temporada</CardTitle>
+                    <CardTitle className="font-headline text-2xl text-slate-800">Menús Base</CardTitle>
                     <CardDescription>Agrupaciones de platos maestros para selección rápida.</CardDescription>
                   </div>
                   <Button variant="secondary" onClick={() => handleOpenModal('menu')} className="rounded-xl font-bold h-11"><PlusCircle className="w-4 h-4 mr-2"/>Nuevo Menú</Button>
@@ -484,11 +480,10 @@ export default function BudgetDisplaySettingsPage() {
           </CardContent>
       </Card>
 
-      {/* Visibilidad de Platos Individuales */}
       <Card className="shadow-2xl border-none rounded-[2rem] overflow-hidden bg-white">
           <CardHeader className="bg-slate-50 border-b border-slate-100 p-8">
               <CardTitle className="font-headline text-2xl text-slate-800 flex items-center gap-3">
-                  <ChefHat className="w-7 h-7 text-primary"/> Visibilidad de Platos en Simulador
+                  <ChefHat className="w-7 h-7 text-primary"/> Visibilidad de Platos
               </CardTitle>
               <CardDescription>Activa o desactiva qué platos de tu catálogo maestro pueden ver los clientes.</CardDescription>
           </CardHeader>
@@ -527,13 +522,12 @@ export default function BudgetDisplaySettingsPage() {
           </CardContent>
       </Card>
 
-      {/* Inteligencia de Selección (Dependencias) */}
       <Card className="shadow-2xl border-none rounded-[2rem] overflow-hidden bg-slate-900 text-white">
           <CardHeader className="p-8 border-b border-white/5">
               <CardTitle className="font-headline text-2xl flex items-center gap-3">
                   <Zap className="w-7 h-7 text-primary"/> Reglas de Inteligencia Automática
               </CardTitle>
-              <CardDescription className="text-slate-400">Define qué servicios se deben añadir automáticamente al seleccionar otros (ej: Plato de Asado -> Añadir Asador).</CardDescription>
+              <CardDescription className="text-slate-400">Define asociaciones automáticas de servicios (ej: Asado -> Añadir Asador).</CardDescription>
           </CardHeader>
           <CardContent className="p-8 space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
@@ -584,10 +578,20 @@ export default function BudgetDisplaySettingsPage() {
           <CardFooter className="bg-black/20 p-6 flex items-center gap-4">
               <div className="p-3 bg-white/10 rounded-2xl"><Info className="w-5 h-5 text-primary"/></div>
               <p className="text-xs font-medium text-slate-400 leading-relaxed">
-                  Estas reglas garantizan que servicios críticos como el asador, el flete o el personal extra se cobren siempre que el cliente seleccione los servicios base correspondientes.
+                  Estas reglas garantizan que servicios críticos se cobren siempre que el cliente seleccione los servicios base correspondientes.
               </p>
           </CardFooter>
       </Card>
+
+      <Alert className="bg-blue-50 border-blue-200 text-blue-800 rounded-[1.5rem]">
+          <Info className="h-5 w-5 text-blue-600" />
+          <div>
+              <AlertTitle className="font-black uppercase text-[10px] tracking-widest">Sincronización Total</AlertTitle>
+              <AlertDescription className="text-sm font-medium opacity-80 leading-relaxed">
+                  Los ajustes realizados aquí impactan directamente en el simulador público. Recuerda revisar los precios en el Catálogo Maestro periódicamente.
+              </AlertDescription>
+          </div>
+      </Alert>
     </div>
   );
 }
