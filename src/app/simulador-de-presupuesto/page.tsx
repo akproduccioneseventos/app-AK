@@ -144,7 +144,7 @@ export default function ArmadoRapidoPage() {
 
     const [formData, setFormData] = useState<{serviciosSeleccionados: Map<string, ServicioSeleccionadoValue>}>({serviciosSeleccionados: new Map()});
     
-    // DEFINICIÓN DE maxEntradas EN EL ÁMBITO DEL COMPONENTE
+    // DEFINICIÓN DE maxEntradas GLOBAL PARA EL COMPONENTE
     const maxEntradas = useMemo(() => (duracionHoras > 4 ? 2 : 1), [duracionHoras]);
 
     const { entradasDisponibles, principalesDisponibles, menusNinoDisponibles } = useMemo(() => {
@@ -293,31 +293,30 @@ export default function ArmadoRapidoPage() {
             });
         }
 
-        let totalBase = 0;
+        let subtotalBase = 0;
         let ahorroRegalos = 0;
         const detallados: ServicioDetallado[] = [];
         
         allSelectedServicesMap.forEach(({ servicio, esRegalo }) => {
             const { qty, unitPrice, total } = getServicioCalculatedData(servicio, adultos, ninosYAdolescentes);
             if (!esRegalo) {
-                totalBase += total;
+                subtotalBase += total;
             } else {
                 ahorroRegalos += total;
             }
             detallados.push({ id: servicio.id, nombre: servicio.nombre, esRegalo, cantidad: qty, precioUnitario: unitPrice, costoTotal: total, categoria: servicio.categoria || 'Varios' });
         });
         
-        const descPorcentaje = (config.descuentoGeneral || 0) / 100;
-        let bruto = totalBase;
-        if (descPorcentaje > 0 && descPorcentaje < 1) bruto = totalBase / (1 - descPorcentaje);
-        const descPromo = bruto - totalBase;
+        // CÁLCULO DE DESCUENTO FICTICIO DEL 10%
+        const descPromo = subtotalBase * 0.10;
+        const totalSinAjuste = subtotalBase - descPromo;
 
         const eventYear = eventoFecha ? eventoFecha.getFullYear() : new Date().getFullYear();
         const currentYear = new Date().getFullYear();
         const aniosDiferencia = Math.max(0, eventYear - currentYear);
         const factorAjuste = Math.pow(1.15, aniosDiferencia);
-        const totalConAjuste = totalBase * factorAjuste;
-        const ajusteAnual = totalConAjuste - totalBase;
+        const totalFinal = totalSinAjuste * factorAjuste;
+        const ajusteAnual = totalFinal - totalSinAjuste;
 
         const agrupados = detallados.reduce((acc, item) => {
             const categoria = item.esRegalo ? 'Regalos Incluidos' : (item.categoria || 'Varios');
@@ -327,12 +326,12 @@ export default function ArmadoRapidoPage() {
         }, {} as Record<string, ServicioDetallado[]>);
 
         return { 
-            subtotalBruto: Math.round(bruto),
+            subtotalBruto: Math.round(subtotalBase),
             descPromo: Math.round(descPromo),
             ahorroRegalos: Math.round(ahorroRegalos),
-            totalSinAjuste: Math.round(totalBase),
+            totalSinAjuste: Math.round(totalSinAjuste),
             ajusteAnual: Math.round(ajusteAnual),
-            totalFinal: Math.round(totalConAjuste),
+            totalFinal: Math.round(totalFinal),
             aniosDiferencia,
             agrupados,
             detallados
@@ -369,7 +368,7 @@ export default function ArmadoRapidoPage() {
                 ninos: ninosYAdolescentes,
                 subtotal: stats.subtotalBruto,
                 costoEstimado: stats.totalFinal,
-                descuentoGeneral: config?.descuentoGeneral,
+                descuentoGeneral: 10, // Hardcoded 10% fictional
                 serviciosIncluidos: stats.detallados.map(s => s.id),
                 paqueteNombre: config?.paquetes.find(p => p.id === selectedPaqueteId)?.nombre,
                 items: stats.detallados.map(s => {
@@ -446,7 +445,10 @@ export default function ArmadoRapidoPage() {
                                                 <TableRow className="bg-muted/30"><TableCell colSpan={3} className="font-black text-[10px] uppercase text-primary pl-6 tracking-widest">{categoria}</TableCell></TableRow>
                                                 {items.map(item => (
                                                     <TableRow key={item.id} className="hover:bg-slate-50/50">
-                                                        <TableCell className="pl-6 py-3 font-medium text-xs">{item.nombre}</TableCell>
+                                                        <TableCell className="pl-6 py-3 font-medium text-xs">
+                                                            {item.nombre}
+                                                            <p className="text-[10px] text-muted-foreground">{formatCurrency(item.precioUnitario)} c/u</p>
+                                                        </TableCell>
                                                         <TableCell className="text-center text-xs font-bold text-slate-400">{item.cantidad}</TableCell>
                                                         <TableCell className="text-right pr-6">
                                                             {item.esRegalo ? (
@@ -471,7 +473,7 @@ export default function ArmadoRapidoPage() {
                                 </div>
                                 {stats.descPromo > 0 && (
                                     <div className="flex justify-between items-center text-[10px] font-black uppercase text-rose-500 tracking-widest">
-                                        <span>Bonificación:</span>
+                                        <span>Bonificación Promo:</span>
                                         <span>-{formatCurrency(stats.descPromo)}</span>
                                     </div>
                                 )}
@@ -487,6 +489,13 @@ export default function ArmadoRapidoPage() {
                                     <span>{formatCurrency(stats.totalFinal)}</span>
                                 </div>
                             </div>
+                         </div>
+                         <div className="p-6 bg-blue-50 border border-blue-100 rounded-[1.5rem] text-center space-y-2">
+                            <p className="text-sm font-bold text-blue-800 uppercase tracking-tighter">Condiciones de Reserva</p>
+                            <p className="text-xs text-blue-700 font-medium">
+                                Para confirmar la promoción y reservar todos los servicios, se requiere una seña de $5.000. 
+                                <br />El presupuesto es válido por 30 días.
+                            </p>
                          </div>
                     </CardContent>
                     <CardFooter className="flex-col sm:flex-row gap-3 p-8 bg-slate-50 print:hidden border-t">
