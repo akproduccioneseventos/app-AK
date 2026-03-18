@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -196,6 +195,19 @@ export default function BudgetDisplaySettingsPage() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-10 pb-32">
+      <header className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+            <div className="p-3 bg-primary rounded-2xl shadow-xl shadow-primary/20 text-white">
+                <Wand2 className="w-8 h-8" />
+            </div>
+            <div>
+                <h1 className="text-3xl font-black tracking-tight font-headline uppercase">Simulador de Presupuestos</h1>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Configuración Maestra</p>
+            </div>
+        </div>
+        <Link href="/settings" passHref><Button variant="outline" className="rounded-xl"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
+      </header>
+
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col p-0 overflow-hidden">
            <DialogHeader className="p-6 pb-2">
@@ -303,21 +315,8 @@ export default function BudgetDisplaySettingsPage() {
         </DialogContent>
       </Dialog>
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-            <div className="p-3 bg-primary rounded-2xl shadow-xl shadow-primary/20 text-white">
-                <Wand2 className="w-8 h-8" />
-            </div>
-            <div>
-                <h1 className="text-3xl font-black tracking-tight font-headline uppercase">Simulador de Presupuestos</h1>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Configuración Maestra</p>
-            </div>
-        </div>
-        <Link href="/empresa/contabilidad" passHref><Button variant="outline" className="rounded-xl"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
-      </div>
-
       <Card className="shadow-2xl border-none rounded-[2rem] overflow-hidden bg-white">
-        <CardHeader className="bg-slate-50 border-b border-slate-100"><CardTitle className="font-headline text-xl text-slate-800">Ajustes del Simulador</CardTitle></CardHeader>
+        <CardHeader className="bg-slate-50 border-b border-slate-100"><CardTitle className="font-headline text-xl text-slate-800">Ajustes Generales</CardTitle></CardHeader>
         <CardContent className="p-8 space-y-8">
             <form onSubmit={handleBudgetSettingsSave} className="space-y-6">
                 <div className="space-y-2">
@@ -391,48 +390,59 @@ export default function BudgetDisplaySettingsPage() {
           </CardHeader>
           <CardContent className="p-8">
             <Accordion type="single" collapsible className="w-full space-y-4">
-              {config?.paquetes?.map(pkg => (
-                <AccordionItem key={pkg.id} value={pkg.id} className="border rounded-[1.5rem] bg-white shadow-sm px-6 group hover:border-primary/30 transition-all overflow-hidden">
-                  <div className="flex items-center justify-between">
-                    <AccordionTrigger className="flex-1 hover:no-underline py-5">
-                      <div className="flex flex-col items-start text-left space-y-1">
-                        <p className="font-black text-slate-800 text-lg uppercase tracking-tight">{pkg.nombre}</p>
-                        <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">{pkg.serviciosIncluidos.length} servicios configurados</p>
+              {config?.paquetes?.map(pkg => {
+                // ORDENAR SERVICIOS: Categoría y Regalos al final
+                const sortedIncluded = [...pkg.serviciosIncluidos].sort((a, b) => {
+                    if (a.esRegalo && !b.esRegalo) return 1;
+                    if (!a.esRegalo && b.esRegalo) return -1;
+                    const sA = allAvailableItemsForSelection.find(i => i.id === a.id);
+                    const sB = allAvailableItemsForSelection.find(i => i.id === b.id);
+                    return (sA?.categoria || '').localeCompare(sB?.categoria || '');
+                });
+
+                return (
+                  <AccordionItem key={pkg.id} value={pkg.id} className="border rounded-[1.5rem] bg-white shadow-sm px-6 group hover:border-primary/30 transition-all overflow-hidden">
+                    <div className="flex items-center justify-between">
+                      <AccordionTrigger className="flex-1 hover:no-underline py-5">
+                        <div className="flex flex-col items-start text-left space-y-1">
+                          <p className="font-black text-slate-800 text-lg uppercase tracking-tight">{pkg.nombre}</p>
+                          <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">{pkg.serviciosIncluidos.length} servicios configurados</p>
+                        </div>
+                      </AccordionTrigger>
+                      <div className="flex gap-2 ml-4">
+                          <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-slate-100" onClick={(e) => { e.stopPropagation(); handleDuplicatePackage(pkg); }} title="Duplicar"><Copy className="w-4 h-4"/></Button>
+                          <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-slate-100 text-primary" onClick={(e) => { e.stopPropagation(); handleOpenModal('paquete', pkg); }} title="Editar"><Edit className="w-4 h-4"/></Button>
+                          <Button variant="ghost" size="icon" className="text-destructive rounded-xl h-9 w-9 hover:bg-red-50" onClick={(e) => {
+                              e.stopPropagation();
+                              if(config) {
+                                  const updated = config.paquetes.filter(p => p.id !== pkg.id);
+                                  saveArmadoRapidoConfig({ ...config, paquetes: updated }).then(loadData);
+                              }
+                          }} title="Eliminar"><Trash2 className="w-4 h-4"/></Button>
                       </div>
-                    </AccordionTrigger>
-                    <div className="flex gap-2 ml-4">
-                        <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-slate-100" onClick={(e) => { e.stopPropagation(); handleDuplicatePackage(pkg); }} title="Duplicar"><Copy className="w-4 h-4"/></Button>
-                        <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-slate-100 text-primary" onClick={(e) => { e.stopPropagation(); handleOpenModal('paquete', pkg); }} title="Editar"><Edit className="w-4 h-4"/></Button>
-                        <Button variant="ghost" size="icon" className="text-destructive rounded-xl h-9 w-9 hover:bg-red-50" onClick={(e) => {
-                            e.stopPropagation();
-                            if(config) {
-                                const updated = config.paquetes.filter(p => p.id !== pkg.id);
-                                saveArmadoRapidoConfig({ ...config, paquetes: updated }).then(loadData);
-                            }
-                        }} title="Eliminar"><Trash2 className="w-4 h-4"/></Button>
                     </div>
-                  </div>
-                  <AccordionContent className="pb-6 pt-0 border-t border-slate-50">
-                    <ul className="space-y-2 mt-4">
-                        {pkg.serviciosIncluidos.map(s => {
-                            const original = allAvailableItemsForSelection.find(i => i.id === s.id);
-                            return (
-                                <li key={s.id} className={cn(
-                                    "text-xs font-bold uppercase tracking-tight flex items-center justify-between p-3 rounded-xl border",
-                                    s.esRegalo ? "bg-rose-50 border-rose-100 text-rose-600" : "bg-slate-50 border-slate-100 text-slate-600"
-                                )}>
-                                    <span className="flex items-center gap-3">
-                                        {s.esRegalo ? <Gift className="w-4 h-4" /> : <Package className="w-4 h-4 opacity-40" />}
-                                        {original?.nombre || s.id}
-                                    </span>
-                                    {s.esRegalo && <Badge className="bg-rose-600 text-white border-none font-black text-[8px] px-2 py-0.5">REGALO</Badge>}
-                                </li>
-                            );
-                        })}
-                    </ul>
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
+                    <AccordionContent className="pb-6 pt-0 border-t border-slate-50">
+                      <ul className="space-y-2 mt-4">
+                          {sortedIncluded.map(s => {
+                              const original = allAvailableItemsForSelection.find(i => i.id === s.id);
+                              return (
+                                  <li key={s.id} className={cn(
+                                      "text-xs font-bold uppercase tracking-tight flex items-center justify-between p-3 rounded-xl border",
+                                      s.esRegalo ? "bg-rose-50 border-rose-100 text-rose-600" : "bg-slate-50 border-slate-100 text-slate-600"
+                                  )}>
+                                      <span className="flex items-center gap-3">
+                                          {s.esRegalo ? <Gift className="w-4 h-4" /> : <Package className="w-4 h-4 opacity-40" />}
+                                          {original?.nombre || s.id}
+                                      </span>
+                                      {s.esRegalo && <Badge className="bg-rose-600 text-white border-none font-black text-[8px] px-2 py-0.5">REGALO</Badge>}
+                                  </li>
+                              );
+                          })}
+                      </ul>
+                    </AccordionContent>
+                  </AccordionItem>
+                );
+              })}
             </Accordion>
           </CardContent>
       </Card>
@@ -524,7 +534,7 @@ export default function BudgetDisplaySettingsPage() {
                               <ArrowRight className="w-4 h-4 text-slate-600"/>
                               <span className="text-slate-300">{findItemName(dep.requiredServiceId)}</span>
                           </div>
-                          <Button variant="ghost" size="icon" onClick={() => handleDeleteDependency(dep.id)} className="text-rose-400 opacity-0 group-hover:opacity-100 h-8 w-8 rounded-lg"><Trash2 className="w-4 h-4"/></Button>
+                          <Button variant="ghost" size="icon" className="text-rose-400 opacity-0 group-hover:opacity-100 h-8 w-8 rounded-lg"><Trash2 className="w-4 h-4"/></Button>
                       </div>
                   ))}
                   {(!config?.serviceDependencies || config.serviceDependencies.length === 0) && (

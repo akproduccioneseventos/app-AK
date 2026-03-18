@@ -503,20 +503,31 @@ export default function ArmadoRapidoPage() {
                         <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
                             <h3 className="font-bold text-lg text-slate-800">Selecciona el paquete de servicios</h3>
                             <RadioGroup value={selectedPaqueteId} onValueChange={setSelectedPaqueteId} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {config?.paquetes.map(p => (
-                                    <label key={p.id} className={cn("p-6 border-2 rounded-3xl cursor-pointer transition-all flex flex-col gap-4", selectedPaqueteId === p.id ? "border-primary bg-primary/5 shadow-lg" : "border-slate-100 hover:border-primary/20")}>
-                                        <div className="flex items-start justify-between">
-                                            <p className="font-black uppercase tracking-tight text-lg">{p.nombre}</p>
-                                            <RadioGroupItem value={p.id} />
-                                        </div>
-                                        <ul className="text-xs space-y-1.5 text-slate-500 font-medium">
-                                            {p.serviciosIncluidos.map(s => {
-                                                const serv = allSimuladorServices.find(os => os.id === s.id);
-                                                return serv && <li key={s.id} className={cn("flex items-center gap-2", s.esRegalo && "text-rose-600 font-bold")}><Check className="w-3 h-3"/> {serv.nombre} {s.esRegalo && "(REGALO)"}</li>
-                                            })}
-                                        </ul>
-                                    </label>
-                                ))}
+                                {config?.paquetes.map(p => {
+                                    // ORDENAR SERVICIOS: Categoría y Regalos al final
+                                    const sortedIncluded = [...p.serviciosIncluidos].sort((a, b) => {
+                                        if (a.esRegalo && !b.esRegalo) return 1;
+                                        if (!a.esRegalo && b.esRegalo) return -1;
+                                        const sA = allSimuladorServices.find(os => os.id === a.id);
+                                        const sB = allSimuladorServices.find(os => os.id === b.id);
+                                        return (sA?.categoria || '').localeCompare(sB?.categoria || '');
+                                    });
+
+                                    return (
+                                        <label key={p.id} className={cn("p-6 border-2 rounded-3xl cursor-pointer transition-all flex flex-col gap-4", selectedPaqueteId === p.id ? "border-primary bg-primary/5 shadow-lg" : "border-slate-100 hover:border-primary/20")}>
+                                            <div className="flex items-start justify-between">
+                                                <p className="font-black uppercase tracking-tight text-lg">{p.nombre}</p>
+                                                <RadioGroupItem value={p.id} />
+                                            </div>
+                                            <ul className="text-xs space-y-1.5 text-slate-500 font-medium">
+                                                {sortedIncluded.map(s => {
+                                                    const serv = allSimuladorServices.find(os => os.id === s.id);
+                                                    return serv && <li key={s.id} className={cn("flex items-center gap-2", s.esRegalo && "text-rose-600 font-bold")}><Check className="w-3 h-3"/> {serv.nombre} {s.esRegalo && "(REGALO)"}</li>
+                                                })}
+                                            </ul>
+                                        </label>
+                                    );
+                                })}
                             </RadioGroup>
                         </div>
                     )}

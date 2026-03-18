@@ -379,5 +379,270 @@
     "ajusteAnualActivo": true,
     "notas": "Presupuesto consolidado. Incluye ajuste anual del 15% aplicado por diferencia de año (2025 a 2026).",
     "source": "manual"
+  },
+  {
+    "clienteNombre": "a",
+    "clienteContacto": "098765543",
+    "eventoTipo": "Evento (desde Simulador)",
+    "eventoFecha": "2026-03-18T20:43:15.408Z",
+    "invitadosCantidad": 110,
+    "invitadosAdultos": 50,
+    "invitadosAdolescentes": 0,
+    "invitadosNinos": 60,
+    "salonFiestas": "A definir",
+    "itemsPresupuestados": [
+      {
+        "idServicioCatalogo": "serv_1773234908609_4pe9i1v",
+        "nombreServicio": "Mozo ",
+        "cantidad": 1,
+        "unidad": "Unidad",
+        "precioUnitario": 14950,
+        "precioUnitarioPresupuesto": 14950,
+        "esRegalo": false,
+        "categoriaServicio": "Personal",
+        "calculationMethod": "ratio",
+        "precioBase": 2990,
+        "invitadosPorUnidad": 25,
+        "costoTotalItem": 14950
+      },
+      {
+        "idServicioCatalogo": "serv_mozo_cocina",
+        "nombreServicio": "Mozo de cocina",
+        "cantidad": 1,
+        "unidad": "Unidad",
+        "precioUnitario": 14950,
+        "precioUnitarioPresupuesto": 14950,
+        "esRegalo": false,
+        "categoriaServicio": "Personal",
+        "calculationMethod": "ratio",
+        "precioBase": 2990,
+        "invitadosPorUnidad": 25,
+        "costoTotalItem": 14950
+      },
+      {
+        "idServicioCatalogo": "serv_vajilla_completa",
+        "nombreServicio": "Vajilla Completa",
+        "cantidad": 1,
+        "unidad": "Unidad",
+        "precioUnitario": 8690,
+        "precioUnitarioPresupuesto": 8690,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de catering",
+        "calculationMethod": "porPersona",
+        "precioPorPersona": 79,
+        "costoTotalItem": 8690
+      },
+      {
+        "idServicioCatalogo": "serv_1773318550669_mrmyyqe",
+        "nombreServicio": "Manteleria básica (sin cubre sillas) ",
+        "cantidad": 1,
+        "unidad": "Unidad",
+        "precioUnitario": 5390,
+        "precioUnitarioPresupuesto": 5390,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de catering",
+        "calculationMethod": "porPersona",
+        "precioPorPersona": 49,
+        "costoTotalItem": 5390
+      },
+      {
+        "idServicioCatalogo": "serv_1773155046161_v5ye5ck",
+        "nombreServicio": "Servicio de Discoteca ",
+        "cantidad": 1,
+        "unidad": "Unidad",
+        "precioUnitario": 14900,
+        "precioUnitarioPresupuesto": 14900,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de discoteca",
+        "calculationMethod": "tramos",
+        "tramosDePrecio": [
+          {
+            "id": "tramo_1773155179692",
+            "desde": 1,
+            "hasta": 70,
+            "precio": 9900
+          },
+          {
+            "id": "tramo_1773155207858",
+            "desde": 71,
+            "hasta": 120,
+            "precio": 14900
+          },
+          {
+            "id": "tramo_1773155230278",
+            "desde": 121,
+            "hasta": 300,
+            "precio": 25900
+          }
+        ],
+        "costoTotalItem": 14900
+      },
+      {
+        "idServicioCatalogo": "serv_1773515866815_p44b51y",
+        "nombreServicio": "Decoración Básica (atrás de la torta)",
+        "cantidad": 1,
+        "unidad": "Unidad",
+        "precioUnitario": 8490,
+        "precioUnitarioPresupuesto": 8490,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de decoración",
+        "calculationMethod": "fijo",
+        "costoTotalItem": 8490
+      },
+      {
+        "idServicioCatalogo": "serv_torta_principal",
+        "nombreServicio": "Torta Principal",
+        "cantidad": 1,
+        "unidad": "Unidad",
+        "precioUnitario": 5450,
+        "precioUnitarioPresupuesto": 5450,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de repostería",
+        "calculationMethod": "porPersona",
+        "precioPorPersona": 109,
+        "costoTotalItem": 5450
+      },
+      {
+        "idServicioCatalogo": "serv_foto_fiesta",
+        "nombreServicio": "Fotografía de la fiesta",
+        "cantidad": 1,
+        "unidad": "Unidad",
+        "precioUnitario": 9990,
+        "precioUnitarioPresupuesto": 9990,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de fotografía",
+        "calculationMethod": "fijo",
+        "costoTotalItem": 9990
+      },
+      {
+        "idServicioCatalogo": "serv_invitaciones_regalo",
+        "nombreServicio": "Invitaciones digitales",
+        "cantidad": 1,
+        "unidad": "Unidad",
+        "precioUnitario": 2500,
+        "precioUnitarioPresupuesto": 2500,
+        "esRegalo": true,
+        "categoriaServicio": "Regalo exclusivo",
+        "calculationMethod": "fijo",
+        "costoTotalItem": 0
+      },
+      {
+        "idServicioCatalogo": "serv_organizacion",
+        "nombreServicio": "Organizamos de la fiesta",
+        "cantidad": 1,
+        "unidad": "Unidad",
+        "precioUnitario": 11000,
+        "precioUnitarioPresupuesto": 11000,
+        "esRegalo": true,
+        "categoriaServicio": "Regalo exclusivo",
+        "calculationMethod": "fijo",
+        "costoTotalItem": 0
+      },
+      {
+        "idServicioCatalogo": "serv_1773832054730_brrfi3m",
+        "nombreServicio": "Mesa de café",
+        "cantidad": 1,
+        "unidad": "Unidad",
+        "precioUnitario": 1900,
+        "precioUnitarioPresupuesto": 1900,
+        "esRegalo": true,
+        "categoriaServicio": "Regalo exclusivo",
+        "calculationMethod": "fijo",
+        "tramosDePrecio": [
+          {
+            "id": "tramo_1",
+            "desde": 0,
+            "hasta": 50,
+            "precio": 0
+          }
+        ],
+        "costoTotalItem": 0
+      },
+      {
+        "idServicioCatalogo": "serv_1773832114106_jgm7qct",
+        "nombreServicio": "Album digital",
+        "cantidad": 1,
+        "unidad": "Unidad",
+        "precioUnitario": 2500,
+        "precioUnitarioPresupuesto": 2500,
+        "esRegalo": true,
+        "categoriaServicio": "Regalo exclusivo",
+        "calculationMethod": "fijo",
+        "tramosDePrecio": [
+          {
+            "id": "tramo_1",
+            "desde": 0,
+            "hasta": 50,
+            "precio": 0
+          }
+        ],
+        "costoTotalItem": 0
+      },
+      {
+        "idServicioCatalogo": "dish_entrada_11",
+        "nombreServicio": "EMPANADAS",
+        "cantidad": 1,
+        "precioUnitario": 16390,
+        "precioUnitarioPresupuesto": 16390,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de catering",
+        "subcategoria": "Entrada",
+        "calculationMethod": "porPersona",
+        "precioBase": 149,
+        "precioPorPersona": 149,
+        "costoTotalItem": 16390
+      },
+      {
+        "idServicioCatalogo": "dish_entrada_7",
+        "nombreServicio": "MINI BROCHETAS",
+        "cantidad": 1,
+        "precioUnitario": 19690,
+        "precioUnitarioPresupuesto": 19690,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de catering",
+        "subcategoria": "Entrada",
+        "calculationMethod": "porPersona",
+        "precioBase": 179,
+        "precioPorPersona": 179,
+        "costoTotalItem": 19690
+      },
+      {
+        "idServicioCatalogo": "dish_main_17_virtual_buffet",
+        "nombreServicio": "CORDERO ASADO CON MESA BUFET",
+        "cantidad": 1,
+        "precioUnitario": 36450,
+        "precioUnitarioPresupuesto": 36450,
+        "esRegalo": false,
+        "categoriaServicio": "Servicio de catering",
+        "subcategoria": "Plato Principal",
+        "calculationMethod": "porPersona",
+        "precioBase": 729,
+        "precioPorPersona": 729,
+        "costoTotalItem": 36450
+      },
+      {
+        "idServicioCatalogo": "serv_asador",
+        "nombreServicio": "Asador profesional",
+        "cantidad": 1,
+        "unidad": "Unidad",
+        "precioUnitario": 3990,
+        "precioUnitarioPresupuesto": 3990,
+        "esRegalo": false,
+        "categoriaServicio": "Personal",
+        "calculationMethod": "fijo",
+        "costoTotalItem": 3990
+      }
+    ],
+    "timestamp": "2026-03-18T20:43:15.420Z",
+    "notas": "Presupuesto generado desde el Simulador. Paquete: Paquete basico . Costo estimado: $ 159.330,00",
+    "costoTotalEstimado": 159330,
+    "descuentoTipo": "porcentaje",
+    "descuentoValor": 15,
+    "totalConDescuento": 135431,
+    "estado": "Enviado",
+    "source": "simulator",
+    "id": "pres_1773866595419_s4meicl",
+    "numero": 1148,
+    "leadId": "lead_1773866595427"
   }
 ]
