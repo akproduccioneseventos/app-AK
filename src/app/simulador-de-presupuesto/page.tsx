@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -9,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, Package, ChefHat, FileText, Send, CheckCircle, Gift, User, Phone, MessageSquare, Share2, Printer, Edit, CalendarDays, Search, Check, Info, TrendingUp, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, Package, ChefHat, FileText, Send, CheckCircle, Gift, User, Phone, MessageSquare, Share2, Printer, Edit, CalendarDays, Search, Check, Info, TrendingUp, AlertTriangle, X, Percent } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
@@ -36,9 +35,6 @@ const formatCurrency = (amount?: number) => {
     return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 };
 
-/**
- * MOTOR DE CÁLCULO UNIFICADO PARA EL SIMULADOR
- */
 function getServicioCalculatedData(servicio: ServicioEmpresa, adultos: number, ninosYAdolescentes: number): { qty: number, unitPrice: number, total: number } {
   if (!servicio) return { qty: 0, unitPrice: 0, total: 0 };
   
@@ -63,7 +59,6 @@ function getServicioCalculatedData(servicio: ServicioEmpresa, adultos: number, n
 
   const total = recalcularCostoItem(itemDataForCalc, adultos, 0, ninosYAdolescentes);
   
-  // Calcular la cantidad visual (lo que el cliente entiende)
   let qty = 1;
   if (servicio.calculationMethod === 'porPersona') qty = qtyTarget;
   else if (servicio.calculationMethod === 'ratio' && servicio.invitadosPorUnidad) qty = Math.ceil(qtyTarget / servicio.invitadosPorUnidad);
@@ -100,7 +95,7 @@ type ServicioSeleccionadoValue = {
 const menuItemToServicioSeleccionado = (item: ServicioEmpresa, invitados: number): ServicioSeleccionadoValue => {
     return {
         cantidad: invitados,
-        precioUnitario: item.precioPorPersona || 0,
+        precioUnitario: item.precioPorPersona || item.precioVenta || 0,
         nombreServicio: item.nombre,
         unidad: 'personas',
         categoriaServicio: item.categoria,
@@ -149,6 +144,9 @@ export default function ArmadoRapidoPage() {
 
     const [formData, setFormData] = useState<{serviciosSeleccionados: Map<string, ServicioSeleccionadoValue>}>({serviciosSeleccionados: new Map()});
     
+    // DEFINICIÓN DE maxEntradas EN EL ÁMBITO DEL COMPONENTE
+    const maxEntradas = useMemo(() => (duracionHoras > 4 ? 2 : 1), [duracionHoras]);
+
     const { entradasDisponibles, principalesDisponibles, menusNinoDisponibles } = useMemo(() => {
         if (!config || !allMenus.length) {
             return { entradasDisponibles: [], principalesDisponibles: [], menusNinoDisponibles: [] };
@@ -187,7 +185,7 @@ export default function ArmadoRapidoPage() {
         return { 
             entradasDisponibles: enhancedDishes.filter(item => item.type === 'Entrada').map(menuItemToServicioEmpresa).sort(sortByPrice), 
             principalesDisponibles: enhancedDishes.filter(item => item.type === 'Plato Principal').map(menuItemToServicioEmpresa).sort(sortByPrice), 
-            menusNinoDisponibles: enhancedDishes.filter(item => item.type === 'Menú Infantil/Adolescente').map(menuItemToServicioEmpresa).sort(sortByPrice)
+            menusNinoDisponibles: enhancedDishes.filter(item => item.type === 'Menú Infantil/Adolescente' || item.type === 'Menú Infantil').map(menuItemToServicioEmpresa).sort(sortByPrice)
         };
     }, [config, allMenus, gastronomiaSearchTerm]);
     
@@ -220,20 +218,19 @@ export default function ArmadoRapidoPage() {
     }, [toast]);
     
     const handleEntradaChange = (servicioId: string, checked: boolean) => {
-        const maxEntradas = duracionHoras > 4 ? 2 : 1;
-        
-        let newSelectedEntradas;
         if (checked) {
             if (selectedEntradas.length >= maxEntradas) {
                 toast({ title: "Límite alcanzado", description: `Puedes seleccionar hasta ${maxEntradas} entrada(s).`, variant: "default" });
                 return;
             }
-            newSelectedEntradas = [...selectedEntradas, servicioId];
+            const newSelected = [...selectedEntradas, servicioId];
+            setSelectedEntradas(newSelected);
+            handleGastronomicSelectionChange('entradas', newSelected);
         } else {
-            newSelectedEntradas = selectedEntradas.filter(id => id !== servicioId);
+            const newSelected = selectedEntradas.filter(id => id !== servicioId);
+            setSelectedEntradas(newSelected);
+            handleGastronomicSelectionChange('entradas', newSelected);
         }
-        setSelectedEntradas(newSelectedEntradas);
-        handleGastronomicSelectionChange('entradas', newSelectedEntradas);
     };
 
     const handleGastronomicSelectionChange = (type: 'entradas' | 'principal' | 'infantil', selectedIds: string | string[]) => {
@@ -274,7 +271,6 @@ export default function ArmadoRapidoPage() {
 
         const allSelectedServicesMap = new Map<string, { servicio: ServicioEmpresa, esRegalo: boolean }>();
         
-        // 1. Cargar Paquete
         const paqueteSeleccionado = config.paquetes.find(p => p.id === selectedPaqueteId);
         if (paqueteSeleccionado) {
             paqueteSeleccionado.serviciosIncluidos.forEach(s => {
@@ -283,13 +279,11 @@ export default function ArmadoRapidoPage() {
             });
         }
 
-        // 2. Cargar Selección Gastronómica
         formData.serviciosSeleccionados.forEach((data, id) => {
             const serv = allSimuladorServices.find(cat => cat.id === id);
             if (serv) allSelectedServicesMap.set(serv.id, { servicio: serv, esRegalo: data.esRegalo });
         });
 
-        // 3. Procesar Dependencias (Asador, etc)
         if (config.serviceDependencies) {
             config.serviceDependencies.forEach(dep => {
                 if (allSelectedServicesMap.has(dep.triggerServiceId) && !allSelectedServicesMap.has(dep.requiredServiceId)) {
@@ -318,7 +312,6 @@ export default function ArmadoRapidoPage() {
         if (descPorcentaje > 0 && descPorcentaje < 1) bruto = totalBase / (1 - descPorcentaje);
         const descPromo = bruto - totalBase;
 
-        // 4. Calcular Ajuste Anual 15%
         const eventYear = eventoFecha ? eventoFecha.getFullYear() : new Date().getFullYear();
         const currentYear = new Date().getFullYear();
         const aniosDiferencia = Math.max(0, eventYear - currentYear);
@@ -351,7 +344,6 @@ export default function ArmadoRapidoPage() {
             toast({ title: "Datos incompletos", description: "Ingresa nombre, celular de 9 dígitos y adultos.", variant: "destructive" });
             return;
         }
-        const maxEntradas = duracionHoras > 4 ? 2 : 1;
         if (step === 2) {
             if (!selectedPrincipal || selectedEntradas.length !== maxEntradas) {
                 toast({ title: "Selección incompleta", description: `Elige plato principal y exactamente ${maxEntradas} entrada(s).`, variant: "destructive" });
