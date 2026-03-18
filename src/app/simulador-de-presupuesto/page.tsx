@@ -28,7 +28,7 @@ import type { ItemPresupuestado } from '@/types/presupuesto';
 import type { FullMenu, MenuItem } from '@/types/catering';
 import { getMenus } from '@/app/actions/menus-catering';
 import { DatePickerDemo } from '@/components/date-picker-demo';
-import { getGuestCountForItem } from '@/app/actions/presupuestos';
+import { getGuestCountForItem, recalcularCostoItem } from '@/lib/calculations';
 import { cn } from '@/lib/utils';
 
 const formatCurrency = (amount?: number) => {
@@ -46,38 +46,23 @@ const formatDate = (date = new Date()) => {
 function calcularCostoServicio(servicio: ServicioEmpresa, adultos: number, ninosYAdolescentes: number): number {
   if (!servicio) return 0;
   
-  const invitadosTarget = getGuestCountForItem({ nombreServicio: servicio.nombre, categoriaServicio: servicio.categoria, subcategoria: servicio.subcategoria }, adultos, 0, ninosYAdolescentes);
-  const totalInvitados = adultos + ninosYAdolescentes;
-  
-  if (invitadosTarget === 0 && (servicio.calculationMethod === 'porPersona' || servicio.calculationMethod === 'ratio')) {
-    return 0;
-  }
-  
-  let total = 0;
+  const itemDataForCalc: ItemPresupuestado = {
+    idServicioCatalogo: servicio.id,
+    nombreServicio: servicio.nombre,
+    cantidad: 1,
+    precioUnitario: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
+    precioUnitarioPresupuesto: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
+    costoTotalItem: 0,
+    categoriaServicio: servicio.categoria,
+    subcategoria: servicio.subcategoria,
+    calculationMethod: servicio.calculationMethod,
+    precioBase: servicio.precioBase,
+    precioPorPersona: servicio.precioPorPersona,
+    invitadosPorUnidad: servicio.invitadosPorUnidad,
+    tramosDePrecio: servicio.tramosDePrecio,
+  };
 
-  switch (servicio.calculationMethod) {
-    case 'fijo': 
-      total = servicio.precioVenta ?? servicio.precioBase ?? 0; 
-      break;
-    case 'porPersona': 
-      total = (servicio.precioPorPersona ?? 0) * invitadosTarget; 
-      break;
-    case 'ratio':
-      const ratio = Number(servicio.invitadosPorUnidad);
-      if (ratio > 0) {
-        total = Math.ceil(invitadosTarget / ratio) * (servicio.precioBase ?? 0);
-      } else {
-        total = servicio.precioBase ?? 0;
-      }
-      break;
-    case 'tramos':
-      const tramo = servicio.tramosDePrecio?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta);
-      total = tramo?.precio || 0;
-      break;
-    default: 
-      total = servicio.precioVenta ?? 0;
-  }
-  return Math.round(total);
+  return recalcularCostoItem(itemDataForCalc, adultos, 0, ninosYAdolescentes);
 }
 
 const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): ServicioEmpresa => {
@@ -539,7 +524,7 @@ export default function ArmadoRapidoPage() {
                 </CardContent>
                 <CardFooter className="p-8 border-t bg-slate-50 flex justify-between">
                     <Button variant="ghost" onClick={prevStep} disabled={step === 1} className="rounded-xl h-12 px-8 font-bold"><ArrowLeft className="mr-2 w-4 h-4"/>Anterior</Button>
-                    <Button onClick={nextStep} disabled={isGeneratingLead} className="rounded-2xl h-14 px-12 font-black text-base shadow-xl shadow-primary/20">
+                    <Button onClick={nextStep} disabled={isGeneratingLead} className="rounded-2xl h-14 px-12 font-black text-base shadow-xl shadow-primary/30">
                         {isGeneratingLead ? <Loader2 className="animate-spin mr-2"/> : null}
                         {step === 3 ? "GENERAR PRESUPUESTO" : "SIGUIENTE"}
                         {step < 3 && <ArrowRight className="ml-2 w-5 h-5"/>}
