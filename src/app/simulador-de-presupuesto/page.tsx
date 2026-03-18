@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -8,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, Package, ChefHat, FileText, Send, CheckCircle, Gift, User, Phone, MessageSquare, Share2, Printer, Edit, CalendarDays, Search, Check } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, Package, ChefHat, FileText, Send, CheckCircle, Gift, User, Phone, MessageSquare, Share2, Printer, Edit, CalendarDays, Search, Check, Info, TrendingUp, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
@@ -21,7 +22,7 @@ import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableCaption } from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from '@/components/ui/table';
 import Image from 'next/image';
 import type { ItemPresupuestado } from '@/types/presupuesto';
 import type { FullMenu, MenuItem } from '@/types/catering';
@@ -35,22 +36,21 @@ const formatCurrency = (amount?: number) => {
     return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 };
 
-const formatDate = (date = new Date()) => {
-  return date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
-};
-
 /**
  * MOTOR DE CÁLCULO UNIFICADO PARA EL SIMULADOR
  */
-function calcularCostoServicio(servicio: ServicioEmpresa, adultos: number, ninosYAdolescentes: number): number {
-  if (!servicio) return 0;
+function getServicioCalculatedData(servicio: ServicioEmpresa, adultos: number, ninosYAdolescentes: number): { qty: number, unitPrice: number, total: number } {
+  if (!servicio) return { qty: 0, unitPrice: 0, total: 0 };
   
+  const unitPrice = servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0;
+  const qtyTarget = getGuestCountForItem({ nombreServicio: servicio.nombre, categoriaServicio: servicio.categoria, subcategoria: servicio.subcategoria }, adultos, 0, ninosYAdolescentes);
+
   const itemDataForCalc: ItemPresupuestado = {
     idServicioCatalogo: servicio.id,
     nombreServicio: servicio.nombre,
     cantidad: 1,
-    precioUnitario: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
-    precioUnitarioPresupuesto: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
+    precioUnitario: unitPrice,
+    precioUnitarioPresupuesto: unitPrice,
     costoTotalItem: 0,
     categoriaServicio: servicio.categoria,
     subcategoria: servicio.subcategoria,
@@ -61,7 +61,14 @@ function calcularCostoServicio(servicio: ServicioEmpresa, adultos: number, ninos
     tramosDePrecio: servicio.tramosDePrecio,
   };
 
-  return recalcularCostoItem(itemDataForCalc, adultos, 0, ninosYAdolescentes);
+  const total = recalcularCostoItem(itemDataForCalc, adultos, 0, ninosYAdolescentes);
+  
+  // Calcular la cantidad visual (lo que el cliente entiende)
+  let qty = 1;
+  if (servicio.calculationMethod === 'porPersona') qty = qtyTarget;
+  else if (servicio.calculationMethod === 'ratio' && servicio.invitadosPorUnidad) qty = Math.ceil(qtyTarget / servicio.invitadosPorUnidad);
+
+  return { qty, unitPrice, total };
 }
 
 const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): ServicioEmpresa => {
@@ -107,12 +114,13 @@ interface ServicioDetallado {
   id: string;
   nombre: string;
   esRegalo: boolean;
-  costo: number;
+  cantidad: number;
+  precioUnitario: number;
+  costoTotal: number;
   categoria: string;
 }
 
 export default function ArmadoRapidoPage() {
-    const router = useRouter();
     const { toast } = useToast();
     const [step, setStep] = useState(1);
 
@@ -259,12 +267,14 @@ export default function ArmadoRapidoPage() {
         return [...entradasDisponibles, ...principalesDisponibles, ...menusNinoDisponibles, ...serviciosCatalogo];
     }, [entradasDisponibles, principalesDisponibles, menusNinoDisponibles, serviciosCatalogo]);
 
-    const { valorServiciosAntesDeDescuento, descuentoPromocional, costoTotalRegalos, totalAPagar, serviciosAgrupados, serviciosDetallados } = useMemo(() => {
+    const stats = useMemo(() => {
         if (!config || !allSimuladorServices.length) {
-            return { valorServiciosAntesDeDescuento: 0, descuentoPromocional: 0, costoTotalRegalos: 0, totalAPagar: 0, serviciosAgrupados: {}, serviciosDetallados: [] };
+            return { subtotalBruto: 0, descPromo: 0, ahorroRegalos: 0, totalSinAjuste: 0, ajusteAnual: 0, totalFinal: 0, aniosDiferencia: 0, agrupados: {}, detallados: [] };
         }
 
         const allSelectedServicesMap = new Map<string, { servicio: ServicioEmpresa, esRegalo: boolean }>();
+        
+        // 1. Cargar Paquete
         const paqueteSeleccionado = config.paquetes.find(p => p.id === selectedPaqueteId);
         if (paqueteSeleccionado) {
             paqueteSeleccionado.serviciosIncluidos.forEach(s => {
@@ -272,10 +282,14 @@ export default function ArmadoRapidoPage() {
                 if (serv) allSelectedServicesMap.set(serv.id, { servicio: serv, esRegalo: s.esRegalo || false });
             });
         }
+
+        // 2. Cargar Selección Gastronómica
         formData.serviciosSeleccionados.forEach((data, id) => {
             const serv = allSimuladorServices.find(cat => cat.id === id);
             if (serv) allSelectedServicesMap.set(serv.id, { servicio: serv, esRegalo: data.esRegalo });
         });
+
+        // 3. Procesar Dependencias (Asador, etc)
         if (config.serviceDependencies) {
             config.serviceDependencies.forEach(dep => {
                 if (allSelectedServicesMap.has(dep.triggerServiceId) && !allSelectedServicesMap.has(dep.requiredServiceId)) {
@@ -285,28 +299,34 @@ export default function ArmadoRapidoPage() {
             });
         }
 
-        let totalReal = 0;
-        let costoRegalosCalc = 0;
-        const includedServicesList: ServicioDetallado[] = [];
+        let totalBase = 0;
+        let ahorroRegalos = 0;
+        const detallados: ServicioDetallado[] = [];
         
         allSelectedServicesMap.forEach(({ servicio, esRegalo }) => {
-            const costoRealItem = calcularCostoServicio(servicio, adultos, ninosYAdolescentes);
+            const { qty, unitPrice, total } = getServicioCalculatedData(servicio, adultos, ninosYAdolescentes);
             if (!esRegalo) {
-                totalReal += costoRealItem;
+                totalBase += total;
             } else {
-                costoRegalosCalc += costoRealItem;
+                ahorroRegalos += total;
             }
-            includedServicesList.push({ id: servicio.id, nombre: servicio.nombre, esRegalo, costo: costoRealItem, categoria: servicio.categoria || 'Varios' });
+            detallados.push({ id: servicio.id, nombre: servicio.nombre, esRegalo, cantidad: qty, precioUnitario: unitPrice, costoTotal: total, categoria: servicio.categoria || 'Varios' });
         });
         
-        const descuentoPorcentaje = (config.descuentoGeneral || 0) / 100;
-        let valorServiciosCalc = totalReal;
-        if (descuentoPorcentaje > 0 && descuentoPorcentaje < 1) {
-            valorServiciosCalc = totalReal / (1 - descuentoPorcentaje);
-        }
-        const descuentoCalculado = valorServiciosCalc - totalReal;
+        const descPorcentaje = (config.descuentoGeneral || 0) / 100;
+        let bruto = totalBase;
+        if (descPorcentaje > 0 && descPorcentaje < 1) bruto = totalBase / (1 - descPorcentaje);
+        const descPromo = bruto - totalBase;
 
-        const agrupados = includedServicesList.reduce((acc, item) => {
+        // 4. Calcular Ajuste Anual 15%
+        const eventYear = eventoFecha ? eventoFecha.getFullYear() : new Date().getFullYear();
+        const currentYear = new Date().getFullYear();
+        const aniosDiferencia = Math.max(0, eventYear - currentYear);
+        const factorAjuste = Math.pow(1.15, aniosDiferencia);
+        const totalConAjuste = totalBase * factorAjuste;
+        const ajusteAnual = totalConAjuste - totalBase;
+
+        const agrupados = detallados.reduce((acc, item) => {
             const categoria = item.esRegalo ? 'Regalos Incluidos' : (item.categoria || 'Varios');
             if (!acc[categoria]) acc[categoria] = [];
             acc[categoria].push(item);
@@ -314,14 +334,17 @@ export default function ArmadoRapidoPage() {
         }, {} as Record<string, ServicioDetallado[]>);
 
         return { 
-            valorServiciosAntesDeDescuento: Math.round(valorServiciosCalc),
-            descuentoPromocional: Math.round(descuentoCalculado),
-            costoTotalRegalos: Math.round(costoRegalosCalc),
-            totalAPagar: Math.round(totalReal),
-            serviciosAgrupados: agrupados,
-            serviciosDetallados: includedServicesList
+            subtotalBruto: Math.round(bruto),
+            descPromo: Math.round(descPromo),
+            ahorroRegalos: Math.round(ahorroRegalos),
+            totalSinAjuste: Math.round(totalBase),
+            ajusteAnual: Math.round(ajusteAnual),
+            totalFinal: Math.round(totalConAjuste),
+            aniosDiferencia,
+            agrupados,
+            detallados
         };
-    }, [config, allSimuladorServices, adultos, ninosYAdolescentes, selectedPaqueteId, formData.serviciosSeleccionados]);
+    }, [config, allSimuladorServices, adultos, ninosYAdolescentes, selectedPaqueteId, formData.serviciosSeleccionados, eventoFecha]);
     
     const nextStep = async () => {
         if (step === 1 && (!clienteNombre.trim() || !/^\d{9}$/.test(clienteContacto.trim()) || adultos <= 0)) {
@@ -329,9 +352,15 @@ export default function ArmadoRapidoPage() {
             return;
         }
         const maxEntradas = duracionHoras > 4 ? 2 : 1;
-        if (step === 2 && (!selectedPrincipal || selectedEntradas.length !== maxEntradas)) {
-            toast({ title: "Selección incompleta", description: `Elige plato principal y exactamente ${maxEntradas} entrada(s).`, variant: "destructive" });
-            return;
+        if (step === 2) {
+            if (!selectedPrincipal || selectedEntradas.length !== maxEntradas) {
+                toast({ title: "Selección incompleta", description: `Elige plato principal y exactamente ${maxEntradas} entrada(s).`, variant: "destructive" });
+                return;
+            }
+            if (ninosYAdolescentes > 0 && !selectedInfantil) {
+                toast({ title: "Menú infantil requerido", description: `Has ingresado niños, por favor elige un menú para ellos.`, variant: "destructive" });
+                return;
+            }
         }
         if (step === 3 && !selectedPaqueteId) {
             toast({ title: "Paquete requerido", description: "Elige un paquete de servicios.", variant: "destructive" });
@@ -346,20 +375,20 @@ export default function ArmadoRapidoPage() {
                 eventoFecha: eventoFecha ? eventoFecha.toISOString() : undefined,
                 adultos,
                 ninos: ninosYAdolescentes,
-                subtotal: valorServiciosAntesDeDescuento,
-                costoEstimado: totalAPagar,
+                subtotal: stats.subtotalBruto,
+                costoEstimado: stats.totalFinal,
                 descuentoGeneral: config?.descuentoGeneral,
-                serviciosIncluidos: serviciosDetallados.map(s => s.id),
+                serviciosIncluidos: stats.detallados.map(s => s.id),
                 paqueteNombre: config?.paquetes.find(p => p.id === selectedPaqueteId)?.nombre,
-                items: serviciosDetallados.map(s => {
+                items: stats.detallados.map(s => {
                     const original = allSimuladorServices.find(os => os.id === s.id);
                     return {
                         idServicioCatalogo: s.id,
                         nombreServicio: s.nombre,
-                        cantidad: 1,
+                        cantidad: s.cantidad,
                         unidad: original?.unidad,
-                        precioUnitario: s.costo,
-                        precioUnitarioPresupuesto: s.costo,
+                        precioUnitario: s.precioUnitario,
+                        precioUnitarioPresupuesto: s.precioUnitario,
                         esRegalo: s.esRegalo,
                         categoriaServicio: s.categoria,
                         subcategoria: original?.subcategoria,
@@ -391,7 +420,7 @@ export default function ArmadoRapidoPage() {
         if (!whatsappNumber) return;
         let texto = `*Resumen de Presupuesto Simulado*\n`;
         texto += `-----------------\n*Cliente:* ${clienteNombre}\n*Invitados:* ${adultos + ninosYAdolescentes}\n-----------------\n`;
-        texto += `*TOTAL A PAGAR:* *${formatCurrency(totalAPagar)}*\n`;
+        texto += `*TOTAL A PAGAR:* *${formatCurrency(stats.totalFinal)}*\n`;
         texto += `Ver detalle en: ${window.location.origin}/presupuestos/${generatedPresupuestoId}/ver`;
         window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(texto)}`, '_blank');
     };
@@ -401,50 +430,82 @@ export default function ArmadoRapidoPage() {
     if (step === 4 && generatedPresupuestoId) {
         return (
             <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4 print:bg-white print:p-0">
-                <Card className="w-full max-w-3xl shadow-xl print:shadow-none border-none">
-                    <CardHeader className="text-center">
-                        <CheckCircle className="w-16 h-16 mx-auto text-green-500" />
-                        <CardTitle className="font-headline text-3xl">¡Presupuesto Generado!</CardTitle>
+                <Card className="w-full max-w-3xl shadow-xl print:shadow-none border-none rounded-[2rem] overflow-hidden">
+                    <CardHeader className="text-center bg-primary/5 p-8">
+                        <CheckCircle className="w-16 h-16 mx-auto text-green-500 mb-4" />
+                        <CardTitle className="font-headline text-3xl font-black">¡Presupuesto Generado!</CardTitle>
                         <CardDescription className="text-lg">Gracias por tu interés. Un asesor te contactará pronto.</CardDescription>
                     </CardHeader>
-                    <CardContent className="print:p-2">
+                    <CardContent className="p-8 print:p-2 space-y-8">
                          <div className="space-y-4">
-                            <h3 className="font-headline text-2xl text-center">Resumen de Selección</h3>
-                            <Table>
-                                <TableHeader><TableRow><TableHead>Artículo</TableHead><TableHead className="text-right">Importe</TableHead></TableRow></TableHeader>
-                                <TableBody>
-                                    {Object.entries(serviciosAgrupados).map(([categoria, items]) => (
-                                        <React.Fragment key={categoria}>
-                                            <TableRow className="bg-muted/30"><TableCell colSpan={2} className="font-bold text-primary">{categoria}</TableCell></TableRow>
-                                            {items.map(item => (
-                                                <TableRow key={item.id}>
-                                                    <TableCell>{item.nombre}</TableCell>
-                                                    <TableCell className="text-right">{item.esRegalo ? 'REGALO' : formatCurrency(item.costo)}</TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </React.Fragment>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                            <Separator />
-                            <div className="w-full max-w-xs ml-auto space-y-1 text-sm font-medium">
-                                <div className="flex justify-between"><span>Subtotal:</span><span>{formatCurrency(valorServiciosAntesDeDescuento)}</span></div>
-                                {descuentoPromocional > 0 && <div className="flex justify-between text-destructive"><span>Bonificación:</span><span>-{formatCurrency(descuentoPromocional)}</span></div>}
-                                <div className="flex justify-between text-lg font-black pt-2 border-t text-primary"><span>TOTAL:</span><span>{formatCurrency(totalAPagar)}</span></div>
+                            <h3 className="font-headline text-2xl text-center uppercase tracking-tighter">Resumen de Selección</h3>
+                            <div className="border rounded-2xl overflow-hidden shadow-sm">
+                                <Table>
+                                    <TableHeader className="bg-slate-50">
+                                        <TableRow>
+                                            <TableHead className="font-black text-[10px] uppercase pl-6">Artículo</TableHead>
+                                            <TableHead className="text-center font-black text-[10px] uppercase">Cant.</TableHead>
+                                            <TableHead className="text-right pr-6 font-black text-[10px] uppercase">Importe</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {Object.entries(stats.agrupados).map(([categoria, items]) => (
+                                            <React.Fragment key={categoria}>
+                                                <TableRow className="bg-muted/30"><TableCell colSpan={3} className="font-black text-[10px] uppercase text-primary pl-6 tracking-widest">{categoria}</TableCell></TableRow>
+                                                {items.map(item => (
+                                                    <TableRow key={item.id} className="hover:bg-slate-50/50">
+                                                        <TableCell className="pl-6 py-3 font-medium text-xs">{item.nombre}</TableCell>
+                                                        <TableCell className="text-center text-xs font-bold text-slate-400">{item.cantidad}</TableCell>
+                                                        <TableCell className="text-right pr-6">
+                                                            {item.esRegalo ? (
+                                                                <div className="flex flex-col items-end">
+                                                                    <span className="text-[9px] line-through text-slate-300 font-bold">{formatCurrency(item.costoTotal)}</span>
+                                                                    <span className="text-xs font-black text-green-600 tracking-tighter">REGALO</span>
+                                                                </div>
+                                                            ) : <span className="text-xs font-black text-slate-700">{formatCurrency(item.costoTotal)}</span>}
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </React.Fragment>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                            
+                            <div className="w-full max-w-xs ml-auto space-y-2 py-4 px-6 bg-slate-50 rounded-[2rem] border border-slate-100">
+                                <div className="flex justify-between items-center text-[10px] font-black uppercase text-slate-400 tracking-widest">
+                                    <span>Subtotal Base:</span>
+                                    <span>{formatCurrency(stats.subtotalBruto)}</span>
+                                </div>
+                                {stats.descPromo > 0 && (
+                                    <div className="flex justify-between items-center text-[10px] font-black uppercase text-rose-500 tracking-widest">
+                                        <span>Bonificación:</span>
+                                        <span>-{formatCurrency(stats.descPromo)}</span>
+                                    </div>
+                                )}
+                                {stats.ajusteAnual > 0 && (
+                                    <div className="flex justify-between items-center text-[10px] font-black uppercase text-amber-600 tracking-widest">
+                                        <span>Ajuste Anual ({stats.aniosDiferencia} años):</span>
+                                        <span>+{formatCurrency(stats.ajusteAnual)}</span>
+                                    </div>
+                                )}
+                                <Separator className="bg-slate-200" />
+                                <div className="flex justify-between items-center text-xl font-black text-primary pt-1">
+                                    <span>TOTAL:</span>
+                                    <span>{formatCurrency(stats.totalFinal)}</span>
+                                </div>
                             </div>
                          </div>
                     </CardContent>
-                    <CardFooter className="flex-col sm:flex-row gap-2 pt-6 print:hidden">
-                        <Button onClick={handleShareWhatsApp} variant="secondary" className="w-full bg-green-500 hover:bg-green-600 text-white"><Share2 className="w-4 h-4 mr-2"/>WhatsApp</Button>
-                        <Button onClick={() => window.print()} className="w-full"><Printer className="w-4 h-4 mr-2"/>Imprimir</Button>
-                        <Button onClick={() => setStep(1)} variant="outline" className="w-full">Volver al inicio</Button>
+                    <CardFooter className="flex-col sm:flex-row gap-3 p-8 bg-slate-50 print:hidden border-t">
+                        <Button onClick={handleShareWhatsApp} variant="secondary" className="w-full h-12 rounded-xl bg-green-500 hover:bg-green-600 text-white font-bold"><Share2 className="w-4 h-4 mr-2"/>WhatsApp</Button>
+                        <Button onClick={() => window.print()} className="w-full h-12 rounded-xl font-bold"><Printer className="w-4 h-4 mr-2"/>Imprimir PDF</Button>
+                        <Button onClick={() => setStep(1)} variant="outline" className="w-full h-12 rounded-xl border-slate-200">Volver al inicio</Button>
                     </CardFooter>
                 </Card>
             </div>
         );
     }
-
-    const maxEntradas = duracionHoras > 4 ? 2 : 1;
 
     return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
@@ -459,22 +520,26 @@ export default function ArmadoRapidoPage() {
                     {step === 1 && (
                         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-2"><Label>Nombre Completo</Label><Input value={clienteNombre} onChange={e => setClienteNombre(e.target.value)} placeholder="Ej: Ana García" className="h-12 rounded-xl"/></div>
-                                <div className="space-y-2"><Label>Celular (9 dígitos)</Label><Input type="tel" value={clienteContacto} onChange={e => setClienteContacto(e.target.value)} placeholder="098355530" className="h-12 rounded-xl"/></div>
+                                <div className="space-y-2"><Label className="text-xs font-black uppercase tracking-widest text-slate-400">Nombre Completo</Label><Input value={clienteNombre} onChange={e => setClienteNombre(e.target.value)} placeholder="Ej: Ana García" className="h-12 rounded-xl bg-slate-50 border-none shadow-inner"/></div>
+                                <div className="space-y-2"><Label className="text-xs font-black uppercase tracking-widest text-slate-400">Celular (9 dígitos)</Label><Input type="tel" value={clienteContacto} onChange={e => setClienteContacto(e.target.value)} placeholder="098355530" className="h-12 rounded-xl bg-slate-50 border-none shadow-inner"/></div>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-2"><Label>Cantidad de Adultos</Label><Input type="number" value={adultos} onChange={e => setAdultos(Number(e.target.value))} className="h-12 rounded-xl font-bold"/></div>
-                                <div className="space-y-2"><Label>Niños y Adolescentes</Label><Input type="number" value={ninosYAdolescentes} onChange={e => setNinosYAdolescentes(Number(e.target.value))} className="h-12 rounded-xl font-bold"/></div>
+                                <div className="space-y-2"><Label className="text-xs font-black uppercase tracking-widest text-slate-400">Cantidad de Adultos</Label><Input type="number" value={adultos} onChange={e => setAdultos(Number(e.target.value))} className="h-12 rounded-xl font-bold bg-slate-50 border-none shadow-inner"/></div>
+                                <div className="space-y-2"><Label className="text-xs font-black uppercase tracking-widest text-slate-400">Niños y Adolescentes</Label><Input type="number" value={ninosYAdolescentes} onChange={e => setNinosYAdolescentes(Number(e.target.value))} className="h-12 rounded-xl font-bold bg-slate-50 border-none shadow-inner"/></div>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-2"><Label>Duración (Horas)</Label><Input type="number" value={duracionHoras} onChange={e => setDuracionHoras(Number(e.target.value))} className="h-12 rounded-xl font-bold"/></div>
-                                <div className="space-y-2"><Label>Fecha Tentativa</Label><DatePickerDemo selectedDate={eventoFecha} onDateChange={setEventoFecha} /></div>
+                                <div className="space-y-2"><Label className="text-xs font-black uppercase tracking-widest text-slate-400">Duración (Horas)</Label><Input type="number" value={duracionHoras} onChange={e => setDuracionHoras(Number(e.target.value))} className="h-12 rounded-xl font-bold bg-slate-50 border-none shadow-inner"/></div>
+                                <div className="space-y-2"><Label className="text-xs font-black uppercase tracking-widest text-slate-400">Fecha Tentativa</Label><DatePickerDemo selectedDate={eventoFecha} onDateChange={setEventoFecha} /></div>
                             </div>
                         </div>
                     )}
                     {step === 2 && (
                         <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
-                            <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"/><Input placeholder="Buscar plato..." value={gastronomiaSearchTerm} onChange={e => setGastronomiaSearchTerm(e.target.value)} className="pl-10 h-12 rounded-xl border-slate-200"/></div>
+                            <div className="relative">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"/>
+                                <Input placeholder="Buscar plato..." value={gastronomiaSearchTerm} onChange={e => setGastronomiaSearchTerm(e.target.value)} className="pl-10 h-12 rounded-xl bg-slate-50 border-none shadow-inner"/>
+                            </div>
+                            
                             <div className="space-y-4">
                                 <Label className="text-sm font-black uppercase tracking-widest text-primary">Entradas ({selectedEntradas.length} de {maxEntradas})</Label>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -486,8 +551,9 @@ export default function ArmadoRapidoPage() {
                                     ))}
                                 </div>
                             </div>
+
                             <div className="space-y-4">
-                                <Label className="text-sm font-black uppercase tracking-widest text-primary">Plato Principal</Label>
+                                <Label className="text-sm font-black uppercase tracking-widest text-primary">Plato Principal para Adultos ({adultos})</Label>
                                 <RadioGroup value={selectedPrincipal} onValueChange={v => { setSelectedPrincipal(v); handleGastronomicSelectionChange('principal', v); }} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     {principalesDisponibles.map(s => (
                                         <label key={s.id} className={cn("p-4 border-2 rounded-2xl cursor-pointer transition-all flex items-center gap-3", selectedPrincipal === s.id ? "border-primary bg-primary/5" : "border-slate-100 hover:border-primary/20")}>
@@ -497,14 +563,27 @@ export default function ArmadoRapidoPage() {
                                     ))}
                                 </RadioGroup>
                             </div>
+
+                            {ninosYAdolescentes > 0 && (
+                                <div className="space-y-4 animate-in zoom-in-95">
+                                    <Label className="text-sm font-black uppercase tracking-widest text-purple-600">Menú para Niños/Adolescentes ({ninosYAdolescentes})</Label>
+                                    <RadioGroup value={selectedInfantil} onValueChange={v => { setSelectedInfantil(v); handleGastronomicSelectionChange('infantil', v); }} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        {menusNinoDisponibles.map(s => (
+                                            <label key={s.id} className={cn("p-4 border-2 rounded-2xl cursor-pointer transition-all flex items-center gap-3", selectedInfantil === s.id ? "border-purple-500 bg-purple-50" : "border-slate-100 hover:border-purple-200")}>
+                                                <RadioGroupItem value={s.id} />
+                                                <span className="text-sm font-bold">{s.nombre}</span>
+                                            </label>
+                                        ))}
+                                    </RadioGroup>
+                                </div>
+                            )}
                         </div>
                     )}
                     {step === 3 && (
                         <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
-                            <h3 className="font-bold text-lg text-slate-800">Selecciona el paquete de servicios</h3>
+                            <h3 className="font-black text-lg text-slate-800 uppercase tracking-tighter">Selecciona el paquete de servicios</h3>
                             <RadioGroup value={selectedPaqueteId} onValueChange={setSelectedPaqueteId} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {config?.paquetes.map(p => {
-                                    // ORDENAR SERVICIOS: Categoría y Regalos al final
                                     const sortedIncluded = [...p.serviciosIncluidos].sort((a, b) => {
                                         if (a.esRegalo && !b.esRegalo) return 1;
                                         if (!a.esRegalo && b.esRegalo) return -1;
@@ -514,15 +593,15 @@ export default function ArmadoRapidoPage() {
                                     });
 
                                     return (
-                                        <label key={p.id} className={cn("p-6 border-2 rounded-3xl cursor-pointer transition-all flex flex-col gap-4", selectedPaqueteId === p.id ? "border-primary bg-primary/5 shadow-lg" : "border-slate-100 hover:border-primary/20")}>
+                                        <label key={p.id} className={cn("p-6 border-2 rounded-3xl cursor-pointer transition-all flex flex-col gap-4", selectedPaqueteId === p.id ? "border-primary bg-primary/5 shadow-xl" : "border-slate-100 hover:border-primary/20")}>
                                             <div className="flex items-start justify-between">
                                                 <p className="font-black uppercase tracking-tight text-lg">{p.nombre}</p>
                                                 <RadioGroupItem value={p.id} />
                                             </div>
-                                            <ul className="text-xs space-y-1.5 text-slate-500 font-medium">
+                                            <ul className="text-[10px] space-y-1.5 text-slate-500 font-bold uppercase tracking-tight">
                                                 {sortedIncluded.map(s => {
                                                     const serv = allSimuladorServices.find(os => os.id === s.id);
-                                                    return serv && <li key={s.id} className={cn("flex items-center gap-2", s.esRegalo && "text-rose-600 font-bold")}><Check className="w-3 h-3"/> {serv.nombre} {s.esRegalo && "(REGALO)"}</li>
+                                                    return serv && <li key={s.id} className={cn("flex items-center gap-2", s.esRegalo && "text-green-600 font-black")}><Check className="w-3.5 h-3.5"/> {serv.nombre} {s.esRegalo && "(REGALO)"}</li>
                                                 })}
                                             </ul>
                                         </label>
@@ -534,11 +613,14 @@ export default function ArmadoRapidoPage() {
                 </CardContent>
                 <CardFooter className="p-8 border-t bg-slate-50 flex justify-between">
                     <Button variant="ghost" onClick={prevStep} disabled={step === 1} className="rounded-xl h-12 px-8 font-bold"><ArrowLeft className="mr-2 w-4 h-4"/>Anterior</Button>
-                    <Button onClick={nextStep} disabled={isGeneratingLead} className="rounded-2xl h-14 px-12 font-black text-base shadow-xl shadow-primary/30">
-                        {isGeneratingLead ? <Loader2 className="animate-spin mr-2"/> : null}
-                        {step === 3 ? "GENERAR PRESUPUESTO" : "SIGUIENTE"}
-                        {step < 3 && <ArrowRight className="ml-2 w-5 h-5"/>}
-                    </Button>
+                    <div className="flex flex-col items-end gap-2">
+                        <Button onClick={nextStep} disabled={isGeneratingLead} className="rounded-2xl h-14 px-12 font-black text-base shadow-xl shadow-primary/30">
+                            {isGeneratingLead ? <Loader2 className="animate-spin mr-3"/> : null}
+                            {step === 3 ? "GENERAR PRESUPUESTO" : "SIGUIENTE"}
+                            {step < 3 && <ArrowRight className="ml-2 w-5 h-5"/>}
+                        </Button>
+                        <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Total Est: {formatCurrency(stats.totalFinal)}</p>
+                    </div>
                 </CardFooter>
             </Card>
         </div>

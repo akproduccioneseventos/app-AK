@@ -25,5 +25,19 @@
     "id": "lead_1773866595427",
     "createdAt": "2026-03-18T20:43:15.427Z",
     "updatedAt": "2026-03-18T20:43:15.427Z"
+  },
+  {
+    "name": "aknuth",
+    "phone": "098467738",
+    "presupuestoId": "pres_1773867319263_milmpw5",
+    "presupuestoEstado": "Enviado",
+    "partyType": "Evento (desde Simulador)",
+    "venueName": "A definir",
+    "guestCount": 100,
+    "budgetSource": "simulator",
+    "currentStageId": "s1",
+    "id": "lead_1773867319272",
+    "createdAt": "2026-03-18T20:55:19.272Z",
+    "updatedAt": "2026-03-18T20:55:19.272Z"
   }
 ]
