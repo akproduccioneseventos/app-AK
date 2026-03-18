@@ -1,3 +1,4 @@
+
 'use server';
 
 import type { FullMenu, MenuItem, Ingredient } from '@/types/catering';
@@ -198,8 +199,12 @@ export async function saveMenu(
   const [menus, catalog] = await Promise.all([readMenusFile(), readInsumosFile()]);
   let menuId: string;
 
+  // SANEAMIENTO CRÍTICO: Eliminar ítems virtuales antes de procesar para evitar Failed to Fetch (payload size o bucle)
+  const cleanItems = (menuDataInput.items || []).filter(item => !item.id.endsWith('_virtual_buffet'));
+  const sanitizedMenuInput = { ...menuDataInput, items: cleanItems } as FullMenu;
+
   const allDishes = menus.flatMap(m => m.items);
-  const menuToSave = recalculateMenu(menuDataInput as FullMenu, catalog, allDishes);
+  const menuToSave = recalculateMenu(sanitizedMenuInput, catalog, allDishes);
 
   if ('id' in menuToSave && menuToSave.id) {
     menuId = menuToSave.id;

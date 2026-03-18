@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -139,7 +140,10 @@ export default function CatalogoPlatosPage() {
         // Sincronización inteligente: Si es un item virtual (buffet), actualizamos el base
         const targetId = editingDish.id.replace('_virtual_buffet', '');
 
-        const updatedItems = menuToUpdate.items.map(item =>
+        // Limpiar ítems virtuales antes de actualizar para evitar Failed to Fetch por tamaño de objeto
+        const cleanItems = menuToUpdate.items.filter(item => !item.id.endsWith('_virtual_buffet'));
+
+        const updatedItems = cleanItems.map(item =>
             item.id === targetId ? { ...item, suggestedSellingPrice: editingDish.suggestedSellingPrice, profitMargin: editingDish.profitMargin } : item
         );
 
