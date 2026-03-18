@@ -38,15 +38,12 @@ const formatCurrency = (amount?: number) => {
 function getServicioCalculatedData(servicio: ServicioEmpresa, adultos: number, ninosYAdolescentes: number): { qty: number, unitPrice: number, total: number } {
   if (!servicio) return { qty: 0, unitPrice: 0, total: 0 };
   
-  const unitPrice = servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0;
-  const qtyTarget = getGuestCountForItem({ nombreServicio: servicio.nombre, categoriaServicio: servicio.categoria, subcategoria: servicio.subcategoria }, adultos, 0, ninosYAdolescentes);
-
   const itemDataForCalc: ItemPresupuestado = {
     idServicioCatalogo: servicio.id,
     nombreServicio: servicio.nombre,
     cantidad: 1,
-    precioUnitario: unitPrice,
-    precioUnitarioPresupuesto: unitPrice,
+    precioUnitario: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
+    precioUnitarioPresupuesto: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
     costoTotalItem: 0,
     categoriaServicio: servicio.categoria,
     subcategoria: servicio.subcategoria,
@@ -58,10 +55,30 @@ function getServicioCalculatedData(servicio: ServicioEmpresa, adultos: number, n
   };
 
   const total = recalcularCostoItem(itemDataForCalc, adultos, 0, ninosYAdolescentes);
-  
+  const qtyTarget = getGuestCountForItem(itemDataForCalc, adultos, 0, ninosYAdolescentes);
+
   let qty = 1;
-  if (servicio.calculationMethod === 'porPersona') qty = qtyTarget;
-  else if (servicio.calculationMethod === 'ratio' && servicio.invitadosPorUnidad) qty = Math.ceil(qtyTarget / servicio.invitadosPorUnidad);
+  let unitPrice = 0;
+
+  switch (servicio.calculationMethod) {
+    case 'porPersona':
+      qty = qtyTarget;
+      unitPrice = servicio.precioPorPersona || 0;
+      break;
+    case 'ratio':
+      const ratio = Number(servicio.invitadosPorUnidad) || 1;
+      qty = Math.ceil(qtyTarget / ratio);
+      unitPrice = servicio.precioBase || 0;
+      break;
+    case 'tramos':
+      qty = 1;
+      unitPrice = total; // El total del tramo actúa como el precio unitario del servicio
+      break;
+    case 'fijo':
+    default:
+      qty = 1;
+      unitPrice = servicio.precioVenta || 0;
+  }
 
   return { qty, unitPrice, total };
 }
@@ -144,7 +161,6 @@ export default function ArmadoRapidoPage() {
 
     const [formData, setFormData] = useState<{serviciosSeleccionados: Map<string, ServicioSeleccionadoValue>}>({serviciosSeleccionados: new Map()});
     
-    // DEFINICIÓN DE maxEntradas GLOBAL PARA EL COMPONENTE
     const maxEntradas = useMemo(() => (duracionHoras > 4 ? 2 : 1), [duracionHoras]);
 
     const { entradasDisponibles, principalesDisponibles, menusNinoDisponibles } = useMemo(() => {
@@ -293,9 +309,9 @@ export default function ArmadoRapidoPage() {
             });
         }
 
-        let totalSumaReal = 0; // Suma de todos (Regalos + Regulares)
-        let totalRegular = 0;  // Suma de solo los que se cobran
-        let totalRegalos = 0;  // Valor de los regalos
+        let totalSumaReal = 0; 
+        let totalRegular = 0;  
+        let totalRegalos = 0;  
         const detallados: ServicioDetallado[] = [];
         
         allSelectedServicesMap.forEach(({ servicio, esRegalo }) => {
@@ -317,7 +333,6 @@ export default function ArmadoRapidoPage() {
             });
         });
         
-        // CÁLCULO DE DESCUENTO FICTICIO DEL 10% sobre lo regular
         const descPromo = totalRegular * 0.10;
         const totalSinAjuste = totalRegular - descPromo;
 
@@ -328,7 +343,6 @@ export default function ArmadoRapidoPage() {
         const totalFinal = totalSinAjuste * factorAjuste;
         const ajusteAnual = totalFinal - totalSinAjuste;
 
-        // Grouping and Sorting by category
         const agrupados = detallados.reduce((acc, item) => {
             const cat = item.categoria;
             if (!acc[cat]) acc[cat] = [];
@@ -336,7 +350,6 @@ export default function ArmadoRapidoPage() {
             return acc;
         }, {} as Record<string, ServicioDetallado[]>);
 
-        // Sort keys: Categories alphabetically, but 'Regalos Incluidos' always last
         const sortedCategories = Object.keys(agrupados).sort((a, b) => {
             if (a === 'Regalos Incluidos') return 1;
             if (b === 'Regalos Incluidos') return -1;
@@ -349,8 +362,8 @@ export default function ArmadoRapidoPage() {
         });
 
         return { 
-            subtotalBruto: totalSumaReal, // Suma de TODO
-            subtotalVenta: totalRegular,  // Suma de lo NO regalado
+            subtotalBruto: totalSumaReal, 
+            subtotalVenta: totalRegular,  
             descPromo: Math.round(descPromo),
             ahorroRegalos: totalRegalos,
             totalSinAjuste: Math.round(totalSinAjuste),
