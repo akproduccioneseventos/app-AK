@@ -136,8 +136,11 @@ export default function CatalogoPlatosPage() {
         const menuToUpdate = allMenus.find(m => m.id === editingDish.menuId);
         if (!menuToUpdate) throw new Error("Menú original no encontrado.");
 
+        // Sincronización inteligente: Si es un item virtual (buffet), actualizamos el base
+        const targetId = editingDish.id.replace('_virtual_buffet', '');
+
         const updatedItems = menuToUpdate.items.map(item =>
-            item.id === editingDish.id ? { ...item, suggestedSellingPrice: editingDish.suggestedSellingPrice, profitMargin: editingDish.profitMargin } : item
+            item.id === targetId ? { ...item, suggestedSellingPrice: editingDish.suggestedSellingPrice, profitMargin: editingDish.profitMargin } : item
         );
 
         const result = await saveMenu({ ...menuToUpdate, items: updatedItems });

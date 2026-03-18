@@ -92,6 +92,25 @@
     "unidad": "Unidad"
   },
   {
+    "nombre": "Album digital",
+    "tipoItem": "Servicio",
+    "categoria": "Regalo exclusivo",
+    "calculationMethod": "fijo",
+    "precioVenta": 2500,
+    "tipoCosto": "Proveedor",
+    "proveedor": "none",
+    "tramosDePrecio": [
+      {
+        "id": "tramo_1",
+        "desde": 0,
+        "hasta": 50,
+        "precio": 0
+      }
+    ],
+    "valorUnitarioEstimado": 0,
+    "id": "serv_1773832114106_jgm7qct"
+  },
+  {
     "id": "serv_fuegos_frios",
     "nombre": "Fuegos fríos (2 disparos) ",
     "tipoItem": "Servicio",
@@ -122,6 +141,26 @@
     "tipoCosto": "Proveedor",
     "precioVenta": 1500,
     "calculationMethod": "fijo",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_1773832054730_brrfi3m",
+    "nombre": "Mesa de café",
+    "tipoItem": "Servicio",
+    "categoria": "Regalo exclusivo",
+    "valorUnitarioEstimado": 300,
+    "tipoCosto": "Insumo",
+    "proveedor": "TATA",
+    "precioVenta": 1900,
+    "calculationMethod": "fijo",
+    "tramosDePrecio": [
+      {
+        "id": "tramo_1",
+        "desde": 0,
+        "hasta": 50,
+        "precio": 0
+      }
+    ],
     "unidad": "Unidad"
   },
   {
