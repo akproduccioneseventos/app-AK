@@ -43,13 +43,9 @@ const formatDate = (dateString?: string) => {
 };
 
 const COMPANY_MAIN_TITLE = "Presupuesto para fiestas o eventos - AK PRODUCCIONES";
-const COMPANY_NAME_BRAND = "AK PRODUCCIONES";
 const COMPANY_CONTACT_PERSON = "SR. Alexander Knuth";
 const COMPANY_ADDRESS_LINE1_PDF = "Salto";
-const COMPANY_ADDRESS_LINE2_PDF = "50000 Salto";
 const COMPANY_CONTACT_EMAIL_PDF = "akproduccionessalto@gmail.com";
-const COMPANY_WEBSITE_PDF = "www.akproduccioneseventos.com";
-const BUDGET_VALIDITY_DAYS_PDF = 30;
 const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos los servicios, se requiere una seña de $5.000. El presupuesto es válido por 30 días.";
 
 function VerPresupuestoContent({ params }: { params: { id: string } }) {
@@ -74,7 +70,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
         getInvoiceTemplateSettings()
       ]);
       setDisplaySettings(fetchedSettings);
-      setLogoUrl(templateSettings.logoUrl);
+      setLogoUrl(templateSettings.logoUrl || null);
 
       if (fetchedPresupuesto) {
         setPresupuesto(fetchedPresupuesto);
@@ -180,9 +176,9 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
 
               <section className="mb-8 p-6 bg-slate-50 border border-slate-100 rounded-[2rem] print:bg-white print:border-none print:p-0">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-6 text-sm">
-                    <div className="space-y-1"><p className="text-[10px] font-black uppercase text-slate-400">Cliente</p><p className="font-bold">{presupuesto.clienteNombre}</p></div>
-                    <div className="space-y-1"><p className="text-[10px] font-black uppercase text-slate-400">Fecha</p><p className="font-bold">{formatDate(presupuesto.eventoFecha)}</p></div>
-                    <div className="space-y-1"><p className="text-[10px] font-black uppercase text-slate-400">Invitados</p><p className="font-bold">{presupuesto.invitadosCantidad}</p></div>
+                    <div className="space-y-1"><p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Cliente</p><p className="font-bold">{presupuesto.clienteNombre}</p></div>
+                    <div className="space-y-1"><p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Fecha</p><p className="font-bold">{formatDate(presupuesto.eventoFecha)}</p></div>
+                    <div className="space-y-1"><p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Invitados</p><p className="font-bold">{presupuesto.invitadosCantidad}</p></div>
                 </div>
               </section>
 
@@ -203,7 +199,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                                     {items.map(item => (
                                         <TableRow key={item.idServicioCatalogo} className="hover:bg-slate-50/50">
                                             <TableCell className="pl-6 py-3 text-xs">
-                                                {item.esRegalo ? <span className="text-rose-600 font-bold flex items-center gap-1.5"><Gift className="w-3.5 h-3.5"/> {item.nombreServicio}</span> : item.nombreServicio}
+                                                {item.esRegalo ? <span className="text-rose-600 font-bold flex items-center gap-1.5"><Gift className="w-3.5 h-3.5"/> {item.nombreServicio} (REGALO)</span> : item.nombreServicio}
                                                 <p className="text-[9px] text-muted-foreground">{formatCurrency(item.precioUnitarioPresupuesto)} c/u</p>
                                             </TableCell>
                                             <TableCell className="text-center text-xs font-bold text-slate-400">{item.cantidad}</TableCell>
@@ -227,8 +223,8 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                <section className="flex justify-end mb-8">
                   <div className="w-full max-w-xs space-y-2 py-6 px-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 print:bg-white print:border-slate-300">
                       <div className="flex justify-between items-center text-[10px] font-black uppercase text-slate-400 tracking-widest">
-                          <span>Subtotal Servicios:</span>
-                          <span>{formatCurrency(calculatedValues.subtotalBruto - calculatedValues.ahorroRegalos)}</span>
+                          <span>Valor Real Servicios:</span>
+                          <span>{formatCurrency(calculatedValues.subtotalBruto)}</span>
                       </div>
                       {calculatedValues.ahorroRegalos > 0 && (
                           <div className="flex justify-between items-center text-[10px] font-black uppercase text-green-600 tracking-widest">
@@ -238,19 +234,19 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                       )}
                       {calculatedValues.bonificacionPromo > 0 && (
                           <div className="flex justify-between items-center text-[10px] font-black uppercase text-rose-500 tracking-widest">
-                            <span>Bonificación:</span>
+                            <span>Bonificación Promo:</span>
                             <span>-{formatCurrency(calculatedValues.bonificacionPromo)}</span>
                           </div>
                       )}
                       {calculatedValues.ajusteAnual > 0 && (
                         <div className="flex justify-between items-center text-[10px] font-black uppercase text-amber-600 tracking-widest">
-                            <span>Ajuste Anual ({calculatedValues.aniosDiferencia} añ.):</span>
+                            <span>Ajuste Anual ({calculatedValues.aniosDiferencia} añ. 15%):</span>
                             <span>+{formatCurrency(calculatedValues.ajusteAnual)}</span>
                         </div>
                       )}
                       <Separator className="bg-slate-200" />
                       <div className="flex justify-between items-center text-2xl font-black text-primary pt-1">
-                          <span>TOTAL:</span>
+                          <span>TOTAL FINAL:</span>
                           <span>{formatCurrency(calculatedValues.totalFinal)}</span>
                       </div>
                   </div>

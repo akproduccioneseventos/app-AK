@@ -93,7 +93,7 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
     }, 0);
 
     let descPromo = 0;
-    const valorDesc = parseFloat(formData.descuentoValor || '0') || 0;
+    const valorDesc = parseFloat(formData.descuentoValue || formData.descuentoValor || '0') || 0;
     if (formData.descuentoTipo === 'porcentaje') descPromo = (brutoVenta * valorDesc) / 100;
     else if (formData.descuentoTipo === 'fijo') descPromo = valorDesc;
     
@@ -207,7 +207,7 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
               </div>
               <div className="space-y-2">
                 <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Valor</Label>
-                <Input type="number" value={formData.descuentoValor ?? ''} onChange={e => setFormData({...formData, descuentoValor: e.target.value})} className="rounded-xl border-slate-200 h-11 font-black text-primary bg-white shadow-sm" />
+                <Input type="number" value={formData.descuentoValue || formData.descuentoValor ?? ''} onChange={e => setFormData({...formData, descuentoValor: e.target.value})} className="rounded-xl border-slate-200 h-11 font-black text-primary bg-white shadow-sm" />
               </div>
             </div>
         </div>
@@ -216,7 +216,7 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
             <div className="absolute top-0 right-0 p-8 opacity-10"><TrendingUp className="w-32 h-32 text-primary"/></div>
             
             <div className="space-y-3 relative z-10">
-                <div className="flex justify-between items-center text-[10px] font-black uppercase opacity-40 tracking-[0.3em]"><span>Servicios Seleccionados:</span><span>{formatCurrency(subtotalBruto - ahorroRegalos)}</span></div>
+                <div className="flex justify-between items-center text-[10px] font-black uppercase opacity-40 tracking-[0.3em]"><span>Valor Real de Servicios:</span><span>{formatCurrency(subtotalBruto)}</span></div>
                 {ahorroRegalos > 0 && <div className="flex justify-between items-center text-[10px] font-black text-green-400 uppercase tracking-[0.3em]"><span>Ahorro por Regalos:</span><span>-{formatCurrency(ahorroRegalos)}</span></div>}
                 {bonificacionPromo > 0 && <div className="flex justify-between items-center text-[10px] font-black text-rose-400 uppercase tracking-[0.3em]"><span>{formData.nombrePromocion || 'Bonificación'}:</span><span>-{formatCurrency(bonificacionPromo)}</span></div>}
                 {ajusteAnual > 0 && (
