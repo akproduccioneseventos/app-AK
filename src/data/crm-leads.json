@@ -53,5 +53,19 @@
     "id": "lead_1773867738086",
     "createdAt": "2026-03-18T21:02:18.085Z",
     "updatedAt": "2026-03-18T21:02:18.085Z"
+  },
+  {
+    "name": "lskd",
+    "phone": "098355530",
+    "presupuestoId": "pres_1773868813359_vnjf06e",
+    "presupuestoEstado": "Enviado",
+    "partyType": "Evento (desde Simulador)",
+    "venueName": "A definir",
+    "guestCount": 100,
+    "budgetSource": "simulator",
+    "currentStageId": "s1",
+    "id": "lead_1773868813371",
+    "createdAt": "2026-03-18T21:20:13.370Z",
+    "updatedAt": "2026-03-18T21:20:13.370Z"
   }
 ]

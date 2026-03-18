@@ -231,11 +231,11 @@
         },
         {
           "id": "serv_lluvia_burbujas",
-          "esRegalo": false
+          "esRegalo": true
         },
         {
           "id": "serv_fuegos_frios",
-          "esRegalo": false
+          "esRegalo": true
         },
         {
           "id": "serv_filmacion_fiesta",
@@ -278,6 +278,14 @@
     },
     {
       "id": "dish_entrada_18",
+      "visible": false
+    },
+    {
+      "id": "dish_main_19",
+      "visible": false
+    },
+    {
+      "id": "dish_main_10",
       "visible": false
     }
   ],

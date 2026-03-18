@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, Package, ChefHat, FileText, Send, CheckCircle, Gift, User, Phone, MessageSquare, Share2, Printer, Edit, CalendarDays, Search, Check, Info, TrendingUp, AlertTriangle, X, Percent } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, Package, ChefHat, FileText, Send, CheckCircle, Gift, User, Phone, MessageSquare, Share2, Printer, Edit, CalendarDays, Search, Check, Info, TrendingUp, AlertTriangle, X, Percent, Layers } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
@@ -293,23 +293,33 @@ export default function ArmadoRapidoPage() {
             });
         }
 
-        let subtotalBase = 0;
-        let ahorroRegalos = 0;
+        let totalSumaReal = 0; // Suma de todos (Regalos + Regulares)
+        let totalRegular = 0;  // Suma de solo los que se cobran
+        let totalRegalos = 0;  // Valor de los regalos
         const detallados: ServicioDetallado[] = [];
         
         allSelectedServicesMap.forEach(({ servicio, esRegalo }) => {
             const { qty, unitPrice, total } = getServicioCalculatedData(servicio, adultos, ninosYAdolescentes);
-            if (!esRegalo) {
-                subtotalBase += total;
+            totalSumaReal += total;
+            if (esRegalo) {
+                totalRegalos += total;
             } else {
-                ahorroRegalos += total;
+                totalRegular += total;
             }
-            detallados.push({ id: servicio.id, nombre: servicio.nombre, esRegalo, cantidad: qty, precioUnitario: unitPrice, costoTotal: total, categoria: servicio.categoria || 'Varios' });
+            detallados.push({ 
+                id: servicio.id, 
+                nombre: servicio.nombre, 
+                esRegalo, 
+                cantidad: qty, 
+                precioUnitario: unitPrice, 
+                costoTotal: total, 
+                categoria: (esRegalo ? 'Regalos Incluidos' : (servicio.categoria || 'Varios')) as string
+            });
         });
         
-        // CÁLCULO DE DESCUENTO FICTICIO DEL 10%
-        const descPromo = subtotalBase * 0.10;
-        const totalSinAjuste = subtotalBase - descPromo;
+        // CÁLCULO DE DESCUENTO FICTICIO DEL 10% sobre lo regular
+        const descPromo = totalRegular * 0.10;
+        const totalSinAjuste = totalRegular - descPromo;
 
         const eventYear = eventoFecha ? eventoFecha.getFullYear() : new Date().getFullYear();
         const currentYear = new Date().getFullYear();
@@ -318,22 +328,36 @@ export default function ArmadoRapidoPage() {
         const totalFinal = totalSinAjuste * factorAjuste;
         const ajusteAnual = totalFinal - totalSinAjuste;
 
+        // Grouping and Sorting by category
         const agrupados = detallados.reduce((acc, item) => {
-            const categoria = item.esRegalo ? 'Regalos Incluidos' : (item.categoria || 'Varios');
-            if (!acc[categoria]) acc[categoria] = [];
-            acc[categoria].push(item);
+            const cat = item.categoria;
+            if (!acc[cat]) acc[cat] = [];
+            acc[cat].push(item);
             return acc;
         }, {} as Record<string, ServicioDetallado[]>);
 
+        // Sort keys: Categories alphabetically, but 'Regalos Incluidos' always last
+        const sortedCategories = Object.keys(agrupados).sort((a, b) => {
+            if (a === 'Regalos Incluidos') return 1;
+            if (b === 'Regalos Incluidos') return -1;
+            return a.localeCompare(b);
+        });
+
+        const sortedAgrupados: Record<string, ServicioDetallado[]> = {};
+        sortedCategories.forEach(cat => {
+            sortedAgrupados[cat] = agrupados[cat].sort((a, b) => a.nombre.localeCompare(b.nombre));
+        });
+
         return { 
-            subtotalBruto: Math.round(subtotalBase),
+            subtotalBruto: totalSumaReal, // Suma de TODO
+            subtotalVenta: totalRegular,  // Suma de lo NO regalado
             descPromo: Math.round(descPromo),
-            ahorroRegalos: Math.round(ahorroRegalos),
+            ahorroRegalos: totalRegalos,
             totalSinAjuste: Math.round(totalSinAjuste),
             ajusteAnual: Math.round(ajusteAnual),
             totalFinal: Math.round(totalFinal),
             aniosDiferencia,
-            agrupados,
+            agrupados: sortedAgrupados,
             detallados
         };
     }, [config, allSimuladorServices, adultos, ninosYAdolescentes, selectedPaqueteId, formData.serviciosSeleccionados, eventoFecha]);
@@ -366,9 +390,9 @@ export default function ArmadoRapidoPage() {
                 eventoFecha: eventoFecha ? eventoFecha.toISOString() : undefined,
                 adultos,
                 ninos: ninosYAdolescentes,
-                subtotal: stats.subtotalBruto,
+                subtotal: stats.subtotalVenta,
                 costoEstimado: stats.totalFinal,
-                descuentoGeneral: 10, // Hardcoded 10% fictional
+                descuentoGeneral: 10,
                 serviciosIncluidos: stats.detallados.map(s => s.id),
                 paqueteNombre: config?.paquetes.find(p => p.id === selectedPaqueteId)?.nombre,
                 items: stats.detallados.map(s => {
@@ -468,12 +492,18 @@ export default function ArmadoRapidoPage() {
                             
                             <div className="w-full max-w-xs ml-auto space-y-2 py-4 px-6 bg-slate-50 rounded-[2rem] border border-slate-100">
                                 <div className="flex justify-between items-center text-[10px] font-black uppercase text-slate-400 tracking-widest">
-                                    <span>Subtotal Base:</span>
+                                    <span>Valor Real de Servicios:</span>
                                     <span>{formatCurrency(stats.subtotalBruto)}</span>
                                 </div>
+                                {stats.ahorroRegalos > 0 && (
+                                    <div className="flex justify-between items-center text-[10px] font-black uppercase text-green-600 tracking-widest">
+                                        <span>Ahorro por Regalos:</span>
+                                        <span>-{formatCurrency(stats.ahorroRegalos)}</span>
+                                    </div>
+                                )}
                                 {stats.descPromo > 0 && (
                                     <div className="flex justify-between items-center text-[10px] font-black uppercase text-rose-500 tracking-widest">
-                                        <span>Bonificación Promo:</span>
+                                        <span>Bonificación Promo (10%):</span>
                                         <span>-{formatCurrency(stats.descPromo)}</span>
                                     </div>
                                 )}
@@ -485,14 +515,14 @@ export default function ArmadoRapidoPage() {
                                 )}
                                 <Separator className="bg-slate-200" />
                                 <div className="flex justify-between items-center text-xl font-black text-primary pt-1">
-                                    <span>TOTAL:</span>
+                                    <span>TOTAL FINAL:</span>
                                     <span>{formatCurrency(stats.totalFinal)}</span>
                                 </div>
                             </div>
                          </div>
                          <div className="p-6 bg-blue-50 border border-blue-100 rounded-[1.5rem] text-center space-y-2">
                             <p className="text-sm font-bold text-blue-800 uppercase tracking-tighter">Condiciones de Reserva</p>
-                            <p className="text-xs text-blue-700 font-medium">
+                            <p className="text-xs text-blue-700 font-medium leading-relaxed">
                                 Para confirmar la promoción y reservar todos los servicios, se requiere una seña de $5.000. 
                                 <br />El presupuesto es válido por 30 días.
                             </p>
@@ -620,7 +650,7 @@ export default function ArmadoRapidoPage() {
                             {step === 3 ? "GENERAR PRESUPUESTO" : "SIGUIENTE"}
                             {step < 3 && <ArrowRight className="ml-2 w-5 h-5"/>}
                         </Button>
-                        <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Total Est: {formatCurrency(stats.totalFinal)}</p>
+                        <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Total Final: {formatCurrency(stats.totalFinal)}</p>
                     </div>
                 </CardFooter>
             </Card>

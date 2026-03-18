@@ -534,7 +534,7 @@ export default function BudgetDisplaySettingsPage() {
                               <ArrowRight className="w-4 h-4 text-slate-600"/>
                               <span className="text-slate-300">{findItemName(dep.requiredServiceId)}</span>
                           </div>
-                          <Button variant="ghost" size="icon" className="text-rose-400 opacity-0 group-hover:opacity-100 h-8 w-8 rounded-lg"><Trash2 className="w-4 h-4"/></Button>
+                          <Button variant="ghost" size="icon" onClick={() => handleDeleteDependency(dep.id)} className="text-rose-400 opacity-0 group-hover:opacity-100 h-8 w-8 rounded-lg"><Trash2 className="w-4 h-4"/></Button>
                       </div>
                   ))}
                   {(!config?.serviceDependencies || config.serviceDependencies.length === 0) && (
