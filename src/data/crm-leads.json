@@ -42,17 +42,17 @@
   },
   {
     "name": "k",
-    "phone": "098746634",
-    "presupuestoId": "pres_1773867738073_y2v68tp",
+    "phone": "098355530",
+    "presupuestoId": "pres_1773869811359_9i2dv93",
     "presupuestoEstado": "Enviado",
     "partyType": "Evento (desde Simulador)",
     "venueName": "A definir",
     "guestCount": 100,
     "budgetSource": "simulator",
-    "currentStageId": "s1",
+    "currentStageId": "s3",
     "id": "lead_1773867738086",
     "createdAt": "2026-03-18T21:02:18.085Z",
-    "updatedAt": "2026-03-18T21:02:18.085Z"
+    "updatedAt": "2026-03-18T21:36:51.363Z"
   },
   {
     "name": "lskd",

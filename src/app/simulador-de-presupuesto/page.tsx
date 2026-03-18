@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -72,7 +73,8 @@ function getServicioCalculatedData(servicio: ServicioEmpresa, adultos: number, n
       break;
     case 'tramos':
       qty = 1;
-      unitPrice = total; // El total del tramo actúa como el precio unitario del servicio
+      // Para tramos en el simulador, el precio unitario es el total del tramo
+      unitPrice = total; 
       break;
     case 'fijo':
     default:
@@ -100,7 +102,8 @@ const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): Se
 
 type ServicioSeleccionadoValue = {
     cantidad: number;
-    precioUnitario: number;
+    precioUnitarioOriginal: number;
+    precioUnitarioPresupuesto: number;
     nombreServicio: string;
     unidad?: string;
     categoriaServicio?: string;
@@ -112,7 +115,8 @@ type ServicioSeleccionadoValue = {
 const menuItemToServicioSeleccionado = (item: ServicioEmpresa, invitados: number): ServicioSeleccionadoValue => {
     return {
         cantidad: invitados,
-        precioUnitario: item.precioPorPersona || item.precioVenta || 0,
+        precioUnitarioOriginal: item.precioPorPersona || item.precioVenta || 0,
+        precioUnitarioPresupuesto: item.precioPorPersona || item.precioVenta || 0,
         nombreServicio: item.nombre,
         unidad: 'personas',
         categoriaServicio: item.categoria,
@@ -300,6 +304,7 @@ export default function ArmadoRapidoPage() {
             if (serv) allSelectedServicesMap.set(serv.id, { servicio: serv, esRegalo: data.esRegalo });
         });
 
+        // Aplicar dependencias inteligentes
         if (config.serviceDependencies) {
             config.serviceDependencies.forEach(dep => {
                 if (allSelectedServicesMap.has(dep.triggerServiceId) && !allSelectedServicesMap.has(dep.requiredServiceId)) {
@@ -309,14 +314,14 @@ export default function ArmadoRapidoPage() {
             });
         }
 
-        let totalSumaReal = 0; 
+        let totalBrutoMercado = 0; 
         let totalRegular = 0;  
         let totalRegalos = 0;  
         const detallados: ServicioDetallado[] = [];
         
         allSelectedServicesMap.forEach(({ servicio, esRegalo }) => {
             const { qty, unitPrice, total } = getServicioCalculatedData(servicio, adultos, ninosYAdolescentes);
-            totalSumaReal += total;
+            totalBrutoMercado += total;
             if (esRegalo) {
                 totalRegalos += total;
             } else {
@@ -333,6 +338,7 @@ export default function ArmadoRapidoPage() {
             });
         });
         
+        // La bonificación promo se calcula sobre los servicios que SI se cobran
         const descPromo = totalRegular * 0.10;
         const totalSinAjuste = totalRegular - descPromo;
 
@@ -362,7 +368,7 @@ export default function ArmadoRapidoPage() {
         });
 
         return { 
-            subtotalBruto: totalSumaReal, 
+            subtotalBruto: totalBrutoMercado, 
             subtotalVenta: totalRegular,  
             descPromo: Math.round(descPromo),
             ahorroRegalos: totalRegalos,

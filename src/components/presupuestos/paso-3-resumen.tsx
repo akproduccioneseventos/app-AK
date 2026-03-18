@@ -85,7 +85,7 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
     const sortedAgrupados: Record<string, any[]> = {};
     sortedCategories.forEach(key => sortedAgrupados[key] = agrupados[key]);
 
-    // Cálculos financieros
+    // Cálculos financieros auditados
     const brutoVenta = items.filter(i => !i.esRegalo).reduce((sum, i) => sum + recalcularCostoItem(i as any, adultos, 0, ninos), 0);
     const regalosVal = items.filter(i => i.esRegalo).reduce((sum, i) => {
         const itemNormal = { ...i, esRegalo: false, precioUnitarioPresupuesto: i.precioUnitarioOriginal };
@@ -99,7 +99,7 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
     
     const totalSinAj = brutoVenta - descPromo;
 
-    // Ajuste Anual
+    // Ajuste Anual 15%
     let ajAnual = 0;
     let aniosDif = 0;
     if (formData.eventoFecha) {

@@ -92,13 +92,15 @@
     "unidad": "Unidad"
   },
   {
+    "id": "serv_1773832114106_jgm7qct",
     "nombre": "Album digital",
     "tipoItem": "Servicio",
     "categoria": "Regalo exclusivo",
-    "calculationMethod": "fijo",
-    "precioVenta": 2500,
+    "valorUnitarioEstimado": 0,
     "tipoCosto": "Proveedor",
     "proveedor": "none",
+    "precioVenta": 2500,
+    "calculationMethod": "fijo",
     "tramosDePrecio": [
       {
         "id": "tramo_1",
@@ -107,8 +109,7 @@
         "precio": 0
       }
     ],
-    "valorUnitarioEstimado": 0,
-    "id": "serv_1773832114106_jgm7qct"
+    "unidad": "Unidad"
   },
   {
     "id": "serv_fuegos_frios",
@@ -610,8 +611,9 @@
     "categoria": "Servicio de repostería",
     "valorUnitarioEstimado": 65,
     "tipoCosto": "Proveedor",
+    "proveedor": "none",
     "calculationMethod": "porPersona",
-    "precioPorPersona": 0,
+    "precioPorPersona": 119,
     "unidad": "Unidad"
   },
   {
