@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
@@ -28,6 +29,7 @@ import type { FullMenu, MenuItem } from '@/types/catering';
 import { getMenus } from '@/app/actions/menus-catering';
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import { getGuestCountForItem } from '@/app/actions/presupuestos';
+import { cn } from '@/lib/utils';
 
 const formatCurrency = (amount?: number) => {
     if (amount === undefined || isNaN(amount)) return 'N/A';
