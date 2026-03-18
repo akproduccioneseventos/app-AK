@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
@@ -43,7 +44,7 @@ const initialFormData: PresupuestoFormData = {
   estado: 'Borrador',
   nombrePromocion: 'Descuento Promocional',
   descuentoTipo: 'porcentaje',
-  descuentoValor: '15',
+  descuentoValor: '10', // Sincronizado con el simulador (10%)
   vigenciaPromocion: 'Válido por 30 días',
 };
 
@@ -141,7 +142,7 @@ function CrearPresupuestoContent() {
                             ...presupuestoToEdit,
                             eventoFecha: new Date(presupuestoToEdit.eventoFecha),
                             serviciosSeleccionados: serviciosMap,
-                            descuentoValor: presupuestoToEdit.descuentoValor?.toString() || ''
+                            descuentoValor: presupuestoToEdit.descuentoValor?.toString() || '10'
                         });
                          toast({ title: "Modo Edición", description: `Cargado el presupuesto de ${presupuestoToEdit.clienteNombre}.`});
                     } else {
@@ -206,7 +207,7 @@ function CrearPresupuestoContent() {
             protagonista2Nombre: formData.protagonista2Nombre,
             nombreEmpresa: formData.nombreEmpresa,
             itemsPresupuestados: Array.from(formData.serviciosSeleccionados.entries()).map(([id, serv]) => {
-              const invitadosParaItem = getGuestCountForItem(serv, formData.invitadosAdultos || 0, formData.invitadosAdolescentes || 0, formData.invitadosNinos || 0);
+              const invitadosParaItem = getGuestCountForItem(serv, formData.invitadosAdultos || 0, (formData.invitadosNinos || 0) + (formData.invitadosAdolescentes || 0));
               let cantidad = 1;
               switch (serv.calculationMethod) {
                 case 'porPersona':
