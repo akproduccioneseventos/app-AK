@@ -1,7 +1,6 @@
-
 'use client';
 
-import React, { useState, useEffect, useCallback, use } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import NextImage from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -15,8 +14,7 @@ import { UploadButton } from '@/components/invitacion/edit/UploadButton';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
-export default function ClientMoodboardPage({ params: paramsPromise }: { params: Promise<{ fiestaId: string }> }) {
-  const params = use(paramsPromise);
+export default function ClientMoodboardPage({ params }: { params: { fiestaId: string } }) {
   const fiestaId = params.fiestaId;
   const { toast } = useToast();
   

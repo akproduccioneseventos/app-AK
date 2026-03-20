@@ -1,10 +1,9 @@
-
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense, use } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextIcon, CalendarDays, Users, MapPin, Share2, Gift, ClipboardCopy, TrendingUp, Info } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
@@ -50,7 +49,7 @@ const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos l
 
 function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const presupuestoId = params.id as string;
+  const presupuestoId = params.id;
   const { toast } = useToast();
 
   const [presupuesto, setPresupuesto] = useState<Presupuesto | null>(null);
@@ -267,8 +266,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   );
 }
 
-export default function VerPresupuestoPage({ params: paramsProp }: { params: Promise<{ id: string }> }) {
-  const params = use(paramsProp);
+export default function VerPresupuestoPage({ params }: { params: { id: string } }) {
   return (
     <Suspense fallback={<div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>}>
       <VerPresupuestoContent params={params} />

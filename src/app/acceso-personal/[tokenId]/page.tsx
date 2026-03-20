@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, use } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,8 +20,7 @@ const MODULO_DETAILS: Record<ModuloPermiso, { label: string; href: string; icon:
   'fotografia': { label: 'Seguimiento de Material', href: '/fiestas/nueva/fotografia', icon: Camera },
 };
 
-export default function PortalPersonalPage({ params: paramsProp }: { params: { tokenId: string } }) {
-  const params = use(paramsProp);
+export default function PortalPersonalPage({ params }: { params: { tokenId: string } }) {
   const { toast } = useToast();
   const [acceso, setAcceso] = useState<AccesoPersonal | null>(null);
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);

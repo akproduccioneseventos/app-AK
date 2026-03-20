@@ -1,8 +1,6 @@
-
 'use client';
 
-import React, { useState, useEffect, useCallback, use } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,8 +16,7 @@ import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import NextImage from 'next/image';
 
-export default function ClientContractPage({ params: paramsPromise }: { params: Promise<{ fiestaId: string }> }) {
-  const params = use(paramsPromise);
+export default function ClientContractPage({ params }: { params: { fiestaId: string } }) {
   const fiestaId = params.fiestaId;
   const { toast } = useToast();
   

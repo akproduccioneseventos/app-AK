@@ -1,7 +1,6 @@
-
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent, use } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -14,8 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getProveedorById, saveProveedor } from '@/app/actions/proveedores';
 import type { Proveedor } from '@/types/proveedor';
 
-export default function EditProveedorPage({ params: paramsProp }: { params: { id: string } }) {
-  const params = use(paramsProp);
+export default function EditProveedorPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const { toast } = useToast();
   
@@ -58,7 +56,7 @@ export default function EditProveedorPage({ params: paramsProp }: { params: { id
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.nombreEmpresa?.trim()) {
       toast({ title: "Nombre Requerido", description: `El nombre de la ${formData.tipo === 'Proveedor' ? 'empresa' : 'servicio'} es obligatorio.`, variant: "destructive" });
