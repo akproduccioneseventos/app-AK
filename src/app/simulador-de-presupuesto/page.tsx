@@ -460,7 +460,7 @@ function SimuladorContent() {
         if (!whatsappNumber) return;
         let texto = `*Resumen de Presupuesto Simulado*\n`;
         texto += `-----------------\n*Cliente:* ${clienteNombre}\n*Invitados:* ${adultos + ninosYAdolescentes}\n-----------------\n`;
-        texto += `*TOTAL A PAGAR:* *${formatCurrency(stats.totalFinal)}*\n`;
+        texto += `*PRESUPUESTO ESTIMADO:* *${formatCurrency(stats.totalFinal)}*\n`;
         texto += `Ver detalle en: ${window.location.origin}/presupuestos/${generatedPresupuestoId}/ver`;
         window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(texto)}`, '_blank');
     };
@@ -574,7 +574,7 @@ function SimuladorContent() {
                                 )}
                                 <Separator className="bg-white/10" />
                                 <div className="flex justify-between items-center pt-2">
-                                    <span className="text-sm font-black uppercase tracking-tighter">Total Final:</span>
+                                    <span className="text-sm font-black uppercase tracking-tighter">Presupuesto Estimado:</span>
                                     <span className="text-3xl font-black text-primary drop-shadow-[0_0_15px_rgba(225,29,72,0.3)]">{formatCurrency(stats.totalFinal)}</span>
                                 </div>
                             </div>
@@ -772,7 +772,7 @@ function SimuladorContent() {
                             {step < 3 && <ArrowRight className="ml-3 w-6 h-6"/>}
                         </Button>
                         <div className="flex items-center gap-3 bg-white px-4 py-1.5 rounded-full border shadow-sm">
-                            <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Inversión Final Est.</p>
+                            <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Presupuesto Estimado:</p>
                             <p className="text-sm font-black text-primary">{formatCurrency(stats.totalFinal)}</p>
                         </div>
                     </div>

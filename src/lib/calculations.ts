@@ -4,7 +4,7 @@ import type { ItemPresupuestado } from '@/types/presupuesto';
  * MOTOR DE CÁLCULO UNIFICADO - PASO 1: Determinar el universo de personas para el ítem.
  */
 export function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?: string, subcategoria?: string }, adultos: number, adolescentes: number, ninos: number): number {
-  const name = item.nombreServicio.toLowerCase();
+  const name = (item.nombreServicio || '').toLowerCase();
   const cat = (item.categoriaServicio || '').toLowerCase();
   const sub = (item.subcategoria || '').toLowerCase();
   const ninosYAdolescentes = ninos + adolescentes;
