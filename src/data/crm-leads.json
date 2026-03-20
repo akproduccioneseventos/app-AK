@@ -14,17 +14,17 @@
   },
   {
     "name": "a",
-    "phone": "098763345",
-    "presupuestoId": "pres_1773870371472_s47x9hj",
+    "phone": "098355530",
+    "presupuestoId": "pres_1774011049982_grosrfe",
     "presupuestoEstado": "Enviado",
     "partyType": "Evento (desde Simulador)",
     "venueName": "A definir",
-    "guestCount": 90,
+    "guestCount": 100,
     "budgetSource": "simulator",
     "currentStageId": "s3",
     "id": "lead_1773866595427",
     "createdAt": "2026-03-18T20:43:15.427Z",
-    "updatedAt": "2026-03-18T21:46:11.484Z"
+    "updatedAt": "2026-03-20T12:50:49.988Z"
   },
   {
     "name": "aknuth",

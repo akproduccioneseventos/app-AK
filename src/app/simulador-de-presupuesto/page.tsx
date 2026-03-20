@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, type FormEvent, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -9,7 +9,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, Package, ChefHat, FileText, Send, CheckCircle, Gift, User, Phone, MessageSquare, Share2, Printer, Edit, CalendarDays, Search, Check, Info, TrendingUp, AlertTriangle, X, Percent, Layers } from 'lucide-react';
+import { 
+    ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, Package, ChefHat, 
+    FileText, Send, CheckCircle, Gift, User, Phone, MessageSquare, Share2, 
+    Printer, Edit, CalendarDays, Search, Check, Info, TrendingUp, AlertTriangle, 
+    X, Percent, Layers, Clock
+} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
@@ -17,12 +22,12 @@ import { getSocialConnections } from '@/app/actions/social-connections';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import type { SocialConnection } from '@/types/settings';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido } from '@/types/armado-rapido';
-import type { ServicioEmpresa, CategoriaServicio } from '@/types/empresa';
+import type { ServicioEmpresa } from '@/types/empresa';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import Image from 'next/image';
 import type { ItemPresupuestado } from '@/types/presupuesto';
 import type { FullMenu, MenuItem } from '@/types/catering';
@@ -73,7 +78,6 @@ function getServicioCalculatedData(servicio: ServicioEmpresa, adultos: number, n
       break;
     case 'tramos':
       qty = 1;
-      // Para tramos en el simulador, el precio unitario es el total del tramo
       unitPrice = total; 
       break;
     case 'fijo':
@@ -136,7 +140,7 @@ interface ServicioDetallado {
   categoria: string;
 }
 
-export default function ArmadoRapidoPage() {
+function SimuladorContent() {
     const { toast } = useToast();
     const [step, setStep] = useState(1);
 
@@ -160,7 +164,7 @@ export default function ArmadoRapidoPage() {
     const [gastronomiaSearchTerm, setGastronomiaSearchTerm] = useState('');
 
     const [isLoading, setIsLoading] = useState(true);
-    const [isGeneratingLead, setIsGeneratingLead] = useState(false);
+    const [isGenerating, setIsGenerating] = useState(false);
     const [generatedPresupuestoId, setGeneratedPresupuestoId] = useState<string | null>(null);
 
     const [formData, setFormData] = useState<{serviciosSeleccionados: Map<string, ServicioSeleccionadoValue>}>({serviciosSeleccionados: new Map()});
@@ -229,18 +233,18 @@ export default function ArmadoRapidoPage() {
                 }
                 setLogoUrl(templateSettings.logoUrl || null);
             } catch (error) {
-                toast({ title: "Error", description: "No se pudieron cargar las configuraciones.", variant: "destructive" });
+                console.error("Initial load failed", error);
             } finally {
                 setIsLoading(false);
             }
         };
         loadInitialData();
-    }, [toast]);
+    }, []);
     
     const handleEntradaChange = (servicioId: string, checked: boolean) => {
         if (checked) {
             if (selectedEntradas.length >= maxEntradas) {
-                toast({ title: "Límite alcanzado", description: `Puedes seleccionar hasta ${maxEntradas} entrada(s).`, variant: "default" });
+                toast({ title: "Límite alcanzado", description: `Puedes seleccionar hasta ${maxEntradas} entrada(s).` });
                 return;
             }
             const newSelected = [...selectedEntradas, servicioId];
@@ -304,7 +308,6 @@ export default function ArmadoRapidoPage() {
             if (serv) allSelectedServicesMap.set(serv.id, { servicio: serv, esRegalo: data.esRegalo });
         });
 
-        // Aplicar dependencias inteligentes
         if (config.serviceDependencies) {
             config.serviceDependencies.forEach(dep => {
                 if (allSelectedServicesMap.has(dep.triggerServiceId) && !allSelectedServicesMap.has(dep.requiredServiceId)) {
@@ -322,11 +325,9 @@ export default function ArmadoRapidoPage() {
         allSelectedServicesMap.forEach(({ servicio, esRegalo }) => {
             const { qty, unitPrice, total } = getServicioCalculatedData(servicio, adultos, ninosYAdolescentes);
             totalBrutoMercado += total;
-            if (esRegalo) {
-                totalRegalos += total;
-            } else {
-                totalRegular += total;
-            }
+            if (esRegalo) totalRegalos += total;
+            else totalRegular += total;
+            
             detallados.push({ 
                 id: servicio.id, 
                 nombre: servicio.nombre, 
@@ -338,7 +339,6 @@ export default function ArmadoRapidoPage() {
             });
         });
         
-        // La bonificación promo se calcula sobre los servicios que SI se cobran
         const descPromo = totalRegular * 0.10;
         const totalSinAjuste = totalRegular - descPromo;
 
@@ -381,9 +381,9 @@ export default function ArmadoRapidoPage() {
         };
     }, [config, allSimuladorServices, adultos, ninosYAdolescentes, selectedPaqueteId, formData.serviciosSeleccionados, eventoFecha]);
     
-    const nextStep = async () => {
+    const handleNext = async () => {
         if (step === 1 && (!clienteNombre.trim() || !/^\d{9}$/.test(clienteContacto.trim()) || adultos <= 0)) {
-            toast({ title: "Datos incompletos", description: "Ingresa nombre, celular de 9 dígitos y adultos.", variant: "destructive" });
+            toast({ title: "Datos incompletos", description: "Ingresa tu nombre, celular (9 dígitos) y cantidad de adultos.", variant: "destructive" });
             return;
         }
         if (step === 2) {
@@ -392,17 +392,17 @@ export default function ArmadoRapidoPage() {
                 return;
             }
             if (ninosYAdolescentes > 0 && !selectedInfantil) {
-                toast({ title: "Menú infantil requerido", description: `Has ingresado niños, por favor elige un menú para ellos.`, variant: "destructive" });
+                toast({ title: "Menú infantil requerido", description: `Por favor elige un menú para los niños.`, variant: "destructive" });
                 return;
             }
         }
         if (step === 3 && !selectedPaqueteId) {
-            toast({ title: "Paquete requerido", description: "Elige un paquete de servicios.", variant: "destructive" });
+            toast({ title: "Paquete requerido", description: "Elige un paquete de servicios para continuar.", variant: "destructive" });
             return;
         }
 
         if (step === 3) {
-            setIsGeneratingLead(true);
+            setIsGenerating(true);
             const data = {
                 clienteNombre,
                 clienteContacto,
@@ -443,12 +443,12 @@ export default function ArmadoRapidoPage() {
             } catch (e: any) {
                 toast({ title: "Error", description: e.message, variant: "destructive" });
             } finally {
-                setIsGeneratingLead(false);
+                setIsGenerating(false);
             }
         } else setStep(s => s + 1);
     };
 
-    const prevStep = () => { if (step > 1) setStep(s => s - 1); };
+    const handlePrev = () => { if (step > 1) setStep(s => s - 1); };
 
     const handleShareWhatsApp = () => {
         if (!whatsappNumber) return;
@@ -459,98 +459,106 @@ export default function ArmadoRapidoPage() {
         window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(texto)}`, '_blank');
     };
 
-    if (isLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
+    if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-slate-50"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
     
     if (step === 4 && generatedPresupuestoId) {
         return (
-            <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4 print:bg-white print:p-0">
-                <Card className="w-full max-w-3xl shadow-xl print:shadow-none border-none rounded-[2rem] overflow-hidden">
-                    <CardHeader className="text-center bg-primary/5 p-8">
+            <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-2 sm:p-4 print:bg-white print:p-0">
+                <Card className="w-full max-w-3xl shadow-3xl print:shadow-none border-none rounded-[2.5rem] overflow-hidden">
+                    <CardHeader className="text-center bg-primary/5 p-6 sm:p-10 border-b border-primary/10">
                         <CheckCircle className="w-16 h-16 mx-auto text-green-500 mb-4" />
-                        <CardTitle className="font-headline text-3xl font-black">¡Presupuesto Generado!</CardTitle>
-                        <CardDescription className="text-lg">Gracias por tu interés. Un asesor te contactará pronto.</CardDescription>
+                        <CardTitle className="font-headline text-3xl sm:text-4xl font-black uppercase tracking-tighter">¡Presupuesto Generado!</CardTitle>
+                        <CardDescription className="text-base sm:text-lg font-medium text-slate-500">Un asesor te contactará pronto para formalizar.</CardDescription>
                     </CardHeader>
-                    <CardContent className="p-8 print:p-2 space-y-8">
-                         <div className="space-y-4">
-                            <h3 className="font-headline text-2xl text-center uppercase tracking-tighter">Resumen de Selección</h3>
-                            <div className="border rounded-2xl overflow-hidden shadow-sm">
-                                <Table>
-                                    <TableHeader className="bg-slate-50">
-                                        <TableRow>
-                                            <TableHead className="font-black text-[10px] uppercase pl-6">Artículo</TableHead>
-                                            <TableHead className="text-center font-black text-[10px] uppercase">Cant.</TableHead>
-                                            <TableHead className="text-right pr-6 font-black text-[10px] uppercase">Importe</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {Object.entries(stats.agrupados).map(([categoria, items]) => (
-                                            <React.Fragment key={categoria}>
-                                                <TableRow className="bg-muted/30"><TableCell colSpan={3} className="font-black text-[10px] uppercase text-primary pl-6 tracking-widest">{categoria}</TableCell></TableRow>
-                                                {items.map(item => (
-                                                    <TableRow key={item.id} className="hover:bg-slate-50/50">
-                                                        <TableCell className="pl-6 py-3 font-medium text-xs">
-                                                            {item.nombre}
-                                                            <p className="text-[10px] text-muted-foreground">{formatCurrency(item.precioUnitario)} c/u</p>
-                                                        </TableCell>
-                                                        <TableCell className="text-center text-xs font-bold text-slate-400">{item.cantidad}</TableCell>
-                                                        <TableCell className="text-right pr-6">
-                                                            {item.esRegalo ? (
-                                                                <div className="flex flex-col items-end">
-                                                                    <span className="text-[9px] line-through text-slate-300 font-bold">{formatCurrency(item.costoTotal)}</span>
-                                                                    <span className="text-xs font-black text-green-600 tracking-tighter">REGALO</span>
-                                                                </div>
-                                                            ) : <span className="text-xs font-black text-slate-700">{formatCurrency(item.costoTotal)}</span>}
-                                                        </TableCell>
-                                                    </TableRow>
-                                                ))}
-                                            </React.Fragment>
-                                        ))}
-                                    </TableBody>
-                                </Table>
+                    <CardContent className="p-4 sm:p-10 print:p-2 space-y-10">
+                         <div className="space-y-6">
+                            <h3 className="font-headline text-2xl text-center uppercase tracking-tighter text-slate-800">Desglose de Servicios</h3>
+                            <div className="border rounded-[2rem] overflow-hidden shadow-sm print:border-slate-300">
+                                <div className="overflow-x-auto">
+                                    <Table>
+                                        <TableHeader className="bg-slate-50">
+                                            <TableRow>
+                                                <TableHead className="font-black text-[10px] uppercase pl-8 py-4">Artículo / Categoría</TableHead>
+                                                <TableHead className="text-center font-black text-[10px] uppercase">Cant.</TableHead>
+                                                <TableHead className="text-right pr-8 font-black text-[10px] uppercase">Subtotal</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {Object.entries(stats.agrupados).map(([categoria, items]) => (
+                                                <React.Fragment key={categoria}>
+                                                    <TableRow className="bg-muted/30 border-y"><TableCell colSpan={3} className="font-black text-[10px] uppercase text-primary pl-8 tracking-widest py-2">{categoria}</TableCell></TableRow>
+                                                    {items.map(item => (
+                                                        <TableRow key={item.id} className="hover:bg-slate-50/50 transition-colors border-slate-50">
+                                                            <TableCell className="pl-8 py-4">
+                                                                <p className="font-bold text-slate-800 text-sm">{item.nombre}</p>
+                                                                <p className="text-[10px] text-muted-foreground uppercase font-medium">{formatCurrency(item.precioUnitario)} c/u</p>
+                                                            </TableCell>
+                                                            <TableCell className="text-center text-sm font-black text-slate-400">{item.cantidad}</TableCell>
+                                                            <TableCell className="text-right pr-8">
+                                                                {item.esRegalo ? (
+                                                                    <div className="flex flex-col items-end">
+                                                                        <span className="text-[10px] line-through text-slate-300 font-bold">{formatCurrency(item.costoTotal)}</span>
+                                                                        <span className="text-[10px] font-black text-green-600 tracking-tighter">SIN COSTO</span>
+                                                                    </div>
+                                                                ) : <span className="text-sm font-black text-slate-700">{formatCurrency(item.costoTotal)}</span>}
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    ))}
+                                                </React.Fragment>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </div>
                             </div>
                             
-                            <div className="w-full max-w-xs ml-auto space-y-2 py-4 px-6 bg-slate-50 rounded-[2rem] border border-slate-100">
-                                <div className="flex justify-between items-center text-[10px] font-black uppercase text-slate-400 tracking-widest">
-                                    <span>Valor Real de Servicios:</span>
+                            <div className="w-full max-w-sm ml-auto space-y-3 py-8 px-10 bg-slate-900 rounded-[3rem] text-white shadow-2xl">
+                                <div className="flex justify-between items-center text-[10px] font-black uppercase text-slate-500 tracking-widest">
+                                    <span>Valor Real Servicios:</span>
                                     <span>{formatCurrency(stats.subtotalBruto)}</span>
                                 </div>
                                 {stats.ahorroRegalos > 0 && (
-                                    <div className="flex justify-between items-center text-[10px] font-black uppercase text-green-600 tracking-widest">
-                                        <span>Ahorro por Regalos:</span>
+                                    <div className="flex justify-between items-center text-[10px] font-black uppercase text-green-400 tracking-widest">
+                                        <span>Ahorro Regalos:</span>
                                         <span>-{formatCurrency(stats.ahorroRegalos)}</span>
                                     </div>
                                 )}
                                 {stats.descPromo > 0 && (
-                                    <div className="flex justify-between items-center text-[10px] font-black uppercase text-rose-500 tracking-widest">
-                                        <span>Bonificación Promo (10%):</span>
+                                    <div className="flex justify-between items-center text-[10px] font-black uppercase text-rose-400 tracking-widest">
+                                        <span>Bonificación Promo:</span>
                                         <span>-{formatCurrency(stats.descPromo)}</span>
                                     </div>
                                 )}
                                 {stats.ajusteAnual > 0 && (
-                                    <div className="flex justify-between items-center text-[10px] font-black uppercase text-amber-600 tracking-widest">
-                                        <span>Ajuste Anual ({stats.aniosDiferencia} años):</span>
+                                    <div className="flex justify-between items-center text-[10px] font-black uppercase text-amber-400 tracking-widest">
+                                        <span>Ajuste Anual ({stats.aniosDiferencia} añ.):</span>
                                         <span>+{formatCurrency(stats.ajusteAnual)}</span>
                                     </div>
                                 )}
-                                <Separator className="bg-slate-200" />
-                                <div className="flex justify-between items-center text-xl font-black text-primary pt-1">
-                                    <span>TOTAL FINAL:</span>
-                                    <span>{formatCurrency(stats.totalFinal)}</span>
+                                <Separator className="bg-white/10" />
+                                <div className="flex justify-between items-center pt-2">
+                                    <span className="text-sm font-black uppercase tracking-tighter">Total Final:</span>
+                                    <span className="text-3xl font-black text-primary drop-shadow-[0_0_15px_rgba(225,29,72,0.3)]">{formatCurrency(stats.totalFinal)}</span>
                                 </div>
                             </div>
                          </div>
-                         <div className="p-6 bg-blue-50 border border-blue-100 rounded-[1.5rem] text-center space-y-2">
-                            <p className="text-sm font-bold text-blue-800 uppercase tracking-tighter">Condiciones de Reserva</p>
+                         <div className="p-8 bg-blue-50 border border-blue-100 rounded-[2rem] space-y-3">
+                            <h4 className="text-xs font-black uppercase text-blue-800 tracking-widest flex items-center gap-2">
+                                <Info className="w-4 h-4"/> Condiciones de Reserva
+                            </h4>
                             <p className="text-xs text-blue-700 font-medium leading-relaxed">
                                 Para confirmar la promoción y reservar todos los servicios, se requiere una seña de $5.000. 
                                 <br />El presupuesto es válido por 30 días.
                             </p>
                          </div>
                     </CardContent>
-                    <CardFooter className="flex-col sm:flex-row gap-3 p-8 bg-slate-50 print:hidden border-t">
-                        <Button onClick={handleShareWhatsApp} variant="secondary" className="w-full h-12 rounded-xl bg-green-500 hover:bg-green-600 text-white font-bold"><Share2 className="w-4 h-4 mr-2"/>WhatsApp</Button>
-                        <Button onClick={() => window.print()} className="w-full h-12 rounded-xl font-bold"><Printer className="w-4 h-4 mr-2"/>Imprimir PDF</Button>
-                        <Button onClick={() => setStep(1)} variant="outline" className="w-full h-12 rounded-xl border-slate-200">Volver al inicio</Button>
+                    <CardFooter className="flex flex-col sm:flex-row gap-3 p-6 sm:p-10 bg-slate-50 print:hidden border-t">
+                        <Button onClick={handleShareWhatsApp} variant="secondary" className="w-full h-14 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-widest shadow-xl shadow-emerald-900/20">
+                            <Share2 className="w-5 h-5 mr-3"/> WhatsApp
+                        </Button>
+                        <Button onClick={() => window.print()} variant="outline" className="w-full h-14 rounded-2xl font-bold border-slate-200 shadow-sm">
+                            <Printer className="w-5 h-5 mr-3"/> Imprimir PDF
+                        </Button>
+                        <Button onClick={() => setStep(1)} variant="ghost" className="w-full h-14 rounded-2xl text-slate-400 font-bold">Cerrar</Button>
                     </CardFooter>
                 </Card>
             </div>
@@ -558,70 +566,88 @@ export default function ArmadoRapidoPage() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-            <Card className="w-full max-w-3xl shadow-2xl rounded-[2.5rem] overflow-hidden border-none">
-                <CardHeader className="text-center bg-primary/5 p-8 border-b border-primary/10">
-                    <Wand2 className="w-12 h-12 mx-auto text-primary mb-4"/>
-                    <CardTitle className="font-headline text-4xl font-black uppercase tracking-tighter">Simulador de Evento</CardTitle>
-                    <CardDescription className="text-lg">Paso {step} de 3: {['Tus Datos', 'Menú', 'Paquete'][step-1]}</CardDescription>
-                    <Progress value={(step / 3) * 100} className="w-full h-2 mt-6" />
+        <div className="min-h-screen bg-slate-100 flex items-center justify-center p-2 sm:p-6 lg:p-8">
+            <Card className="w-full max-w-3xl shadow-3xl rounded-[3rem] overflow-hidden border-none bg-white">
+                <CardHeader className="text-center bg-primary/5 p-6 sm:p-10 border-b border-primary/10">
+                    <Wand2 className="w-12 h-12 mx-auto text-primary mb-4 animate-pulse"/>
+                    <CardTitle className="font-headline text-3xl sm:text-5xl font-black uppercase tracking-tighter text-slate-900">Tu Gran Evento</CardTitle>
+                    <CardDescription className="text-base sm:text-xl font-bold text-slate-400 uppercase tracking-widest mt-2">Paso {step} de 3: {['Tus Datos', 'El Menú', 'El Paquete'][step-1]}</CardDescription>
+                    <div className="mt-8">
+                        <Progress value={(step / 3) * 100} className="h-2 bg-slate-200" />
+                    </div>
                 </CardHeader>
-                <CardContent className="p-8">
+                
+                <CardContent className="p-6 sm:p-10">
                     {step === 1 && (
-                        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
+                        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-2"><Label className="text-xs font-black uppercase tracking-widest text-slate-400">Nombre Completo</Label><Input value={clienteNombre} onChange={e => setClienteNombre(e.target.value)} placeholder="Ej: Ana García" className="h-12 rounded-xl bg-slate-50 border-none shadow-inner"/></div>
-                                <div className="space-y-2"><Label className="text-xs font-black uppercase tracking-widest text-slate-400">Celular (9 dígitos)</Label><Input type="tel" value={clienteContacto} onChange={e => setClienteContacto(e.target.value)} placeholder="098355530" className="h-12 rounded-xl bg-slate-50 border-none shadow-inner"/></div>
+                                <div className="space-y-2.5"><Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Nombre Completo</Label><Input value={clienteNombre} onChange={e => setClienteNombre(e.target.value)} placeholder="Ej: Ana García" className="h-14 rounded-2xl bg-slate-50 border-none shadow-inner text-lg font-bold px-6"/></div>
+                                <div className="space-y-2.5"><Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">WhatsApp (9 dígitos)</Label><Input type="tel" value={clienteContacto} onChange={e => setClienteContacto(e.target.value)} placeholder="098355530" className="h-14 rounded-2xl bg-slate-50 border-none shadow-inner text-lg font-bold px-6"/></div>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-2"><Label className="text-xs font-black uppercase tracking-widest text-slate-400">Cantidad de Adultos</Label><Input type="number" value={adultos} onChange={e => setAdultos(Number(e.target.value))} className="h-12 rounded-xl font-bold bg-slate-50 border-none shadow-inner"/></div>
-                                <div className="space-y-2"><Label className="text-xs font-black uppercase tracking-widest text-slate-400">Niños y Adolescentes</Label><Input type="number" value={ninosYAdolescentes} onChange={e => setNinosYAdolescentes(Number(e.target.value))} className="h-12 rounded-xl font-bold bg-slate-50 border-none shadow-inner"/></div>
+                                <div className="space-y-2.5"><Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Nº Adultos</Label><Input type="number" value={adultos} onChange={e => setAdultos(Number(e.target.value))} className="h-14 rounded-2xl font-black bg-slate-50 border-none shadow-inner text-xl text-primary px-6"/></div>
+                                <div className="space-y-2.5"><Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Nº Niños/Adolescentes</Label><Input type="number" value={ninosYAdolescentes} onChange={e => setNinosYAdolescentes(Number(e.target.value))} className="h-14 rounded-2xl font-black bg-slate-50 border-none shadow-inner text-xl text-primary px-6"/></div>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-2"><Label className="text-xs font-black uppercase tracking-widest text-slate-400">Duración (Horas)</Label><Input type="number" value={duracionHoras} onChange={e => setDuracionHoras(Number(e.target.value))} className="h-12 rounded-xl font-bold bg-slate-50 border-none shadow-inner"/></div>
-                                <div className="space-y-2"><Label className="text-xs font-black uppercase tracking-widest text-slate-400">Fecha Tentativa</Label><DatePickerDemo selectedDate={eventoFecha} onDateChange={setEventoFecha} /></div>
+                                <div className="space-y-2.5"><Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Duración (Horas)</Label><Input type="number" value={duracionHoras} onChange={e => setDuracionHoras(Number(e.target.value))} className="h-14 rounded-2xl font-black bg-slate-50 border-none shadow-inner text-xl px-6"/></div>
+                                <div className="space-y-2.5"><Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Fecha Tentativa</Label><DatePickerDemo selectedDate={eventoFecha} onDateChange={setEventoFecha} className="h-14 rounded-2xl bg-slate-50 border-none shadow-inner"/></div>
                             </div>
                         </div>
                     )}
                     {step === 2 && (
-                        <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
+                        <div className="space-y-10 animate-in fade-in slide-in-from-right-4 duration-700">
                             <div className="relative">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"/>
-                                <Input placeholder="Buscar plato..." value={gastronomiaSearchTerm} onChange={e => setGastronomiaSearchTerm(e.target.value)} className="pl-10 h-12 rounded-xl bg-slate-50 border-none shadow-inner"/>
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"/>
+                                <Input placeholder="Busca tu plato favorito..." value={gastronomiaSearchTerm} onChange={e => setGastronomiaSearchTerm(e.target.value)} className="pl-12 h-14 rounded-2xl bg-slate-50 border-none shadow-inner text-lg font-bold"/>
                             </div>
                             
-                            <div className="space-y-4">
-                                <Label className="text-sm font-black uppercase tracking-widest text-primary">Entradas ({selectedEntradas.length} de {maxEntradas})</Label>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div className="space-y-6">
+                                <Label className="text-xs font-black uppercase tracking-[0.2em] text-primary flex items-center gap-3">
+                                    <div className="w-2 h-6 bg-primary rounded-full"></div> ENTRADAS (Elige {maxEntradas})
+                                </Label>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     {entradasDisponibles.map(s => (
-                                        <label key={s.id} className={cn("p-4 border-2 rounded-2xl cursor-pointer transition-all flex items-center gap-3", selectedEntradas.includes(s.id) ? "border-primary bg-primary/5" : "border-slate-100 hover:border-primary/20")}>
-                                            <Checkbox checked={selectedEntradas.includes(s.id)} onCheckedChange={v => handleEntradaChange(s.id, !!v)} />
-                                            <span className="text-sm font-bold">{s.nombre}</span>
+                                        <label key={s.id} className={cn(
+                                            "group p-5 border-2 rounded-[1.5rem] cursor-pointer transition-all flex items-center gap-4",
+                                            selectedEntradas.includes(s.id) ? "border-primary bg-primary/5 shadow-lg shadow-primary/5" : "border-slate-100 hover:border-primary/20 bg-slate-50/50"
+                                        )}>
+                                            <Checkbox checked={selectedEntradas.includes(s.id)} onCheckedChange={v => handleEntradaChange(s.id, !!v)} className="h-6 w-6 rounded-lg"/>
+                                            <span className="text-sm font-black text-slate-700 uppercase tracking-tight">{s.nombre}</span>
                                         </label>
                                     ))}
                                 </div>
                             </div>
 
-                            <div className="space-y-4">
-                                <Label className="text-sm font-black uppercase tracking-widest text-primary">Plato Principal para Adultos ({adultos})</Label>
-                                <RadioGroup value={selectedPrincipal} onValueChange={v => { setSelectedPrincipal(v); handleGastronomicSelectionChange('principal', v); }} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div className="space-y-6">
+                                <Label className="text-xs font-black uppercase tracking-[0.2em] text-primary flex items-center gap-3">
+                                    <div className="w-2 h-6 bg-primary rounded-full"></div> PLATO PRINCIPAL (Adultos)
+                                </Label>
+                                <RadioGroup value={selectedPrincipal} onValueChange={v => { setSelectedPrincipal(v); handleGastronomicSelectionChange('principal', v); }} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     {principalesDisponibles.map(s => (
-                                        <label key={s.id} className={cn("p-4 border-2 rounded-2xl cursor-pointer transition-all flex items-center gap-3", selectedPrincipal === s.id ? "border-primary bg-primary/5" : "border-slate-100 hover:border-primary/20")}>
-                                            <RadioGroupItem value={s.id} />
-                                            <span className="text-sm font-bold">{s.nombre}</span>
+                                        <label key={s.id} className={cn(
+                                            "group p-5 border-2 rounded-[1.5rem] cursor-pointer transition-all flex items-center gap-4",
+                                            selectedPrincipal === s.id ? "border-primary bg-primary/5 shadow-lg shadow-primary/5" : "border-slate-100 hover:border-primary/20 bg-slate-50/50"
+                                        )}>
+                                            <RadioGroupItem value={s.id} className="h-6 w-6"/>
+                                            <span className="text-sm font-black text-slate-700 uppercase tracking-tight">{s.nombre}</span>
                                         </label>
                                     ))}
                                 </RadioGroup>
                             </div>
 
                             {ninosYAdolescentes > 0 && (
-                                <div className="space-y-4 animate-in zoom-in-95">
-                                    <Label className="text-sm font-black uppercase tracking-widest text-purple-600">Menú para Niños/Adolescentes ({ninosYAdolescentes})</Label>
-                                    <RadioGroup value={selectedInfantil} onValueChange={v => { setSelectedInfantil(v); handleGastronomicSelectionChange('infantil', v); }} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div className="space-y-6 animate-in zoom-in-95 duration-500">
+                                    <Label className="text-xs font-black uppercase tracking-[0.2em] text-purple-600 flex items-center gap-3">
+                                        <div className="w-2 h-6 bg-purple-500 rounded-full"></div> MENÚ INFANTIL
+                                    </Label>
+                                    <RadioGroup value={selectedInfantil} onValueChange={v => { setSelectedInfantil(v); handleGastronomicSelectionChange('infantil', v); }} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         {menusNinoDisponibles.map(s => (
-                                            <label key={s.id} className={cn("p-4 border-2 rounded-2xl cursor-pointer transition-all flex items-center gap-3", selectedInfantil === s.id ? "border-purple-500 bg-purple-50" : "border-slate-100 hover:border-purple-200")}>
-                                                <RadioGroupItem value={s.id} />
-                                                <span className="text-sm font-bold">{s.nombre}</span>
+                                            <label key={s.id} className={cn(
+                                                "group p-5 border-2 rounded-[1.5rem] cursor-pointer transition-all flex items-center gap-4",
+                                                selectedInfantil === s.id ? "border-purple-500 bg-purple-50 shadow-lg shadow-purple-900/5" : "border-slate-100 hover:border-purple-200 bg-slate-50/50"
+                                            )}>
+                                                <RadioGroupItem value={s.id} className="h-6 w-6 border-purple-300"/>
+                                                <span className="text-sm font-black text-slate-700 uppercase tracking-tight">{s.nombre}</span>
                                             </label>
                                         ))}
                                     </RadioGroup>
@@ -630,9 +656,9 @@ export default function ArmadoRapidoPage() {
                         </div>
                     )}
                     {step === 3 && (
-                        <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
-                            <h3 className="font-black text-lg text-slate-800 uppercase tracking-tighter">Selecciona el paquete de servicios</h3>
-                            <RadioGroup value={selectedPaqueteId} onValueChange={setSelectedPaqueteId} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-700">
+                            <h3 className="font-black text-xl text-slate-800 uppercase tracking-tighter text-center">Selecciona tu Paquete de Servicios</h3>
+                            <RadioGroup value={selectedPaqueteId} onValueChange={setSelectedPaqueteId} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {config?.paquetes.map(p => {
                                     const sortedIncluded = [...p.serviciosIncluidos].sort((a, b) => {
                                         if (a.esRegalo && !b.esRegalo) return 1;
@@ -643,17 +669,27 @@ export default function ArmadoRapidoPage() {
                                     });
 
                                     return (
-                                        <label key={p.id} className={cn("p-6 border-2 rounded-3xl cursor-pointer transition-all flex flex-col gap-4", selectedPaqueteId === p.id ? "border-primary bg-primary/5 shadow-xl" : "border-slate-100 hover:border-primary/20")}>
+                                        <label key={p.id} className={cn(
+                                            "p-8 border-2 rounded-[2.5rem] cursor-pointer transition-all flex flex-col gap-6 relative overflow-hidden",
+                                            selectedPaqueteId === p.id ? "border-primary bg-primary/5 shadow-2xl scale-[1.02]" : "border-slate-100 hover:border-primary/20 bg-white"
+                                        )}>
                                             <div className="flex items-start justify-between">
-                                                <p className="font-black uppercase tracking-tight text-lg">{p.nombre}</p>
-                                                <RadioGroupItem value={p.id} />
+                                                <p className="font-black uppercase tracking-tight text-xl text-slate-800 leading-none">{p.nombre}</p>
+                                                <RadioGroupItem value={p.id} className="h-6 w-6"/>
                                             </div>
-                                            <ul className="text-[10px] space-y-1.5 text-slate-500 font-bold uppercase tracking-tight">
-                                                {sortedIncluded.map(s => {
+                                            <ul className="text-[10px] space-y-2.5 text-slate-500 font-bold uppercase tracking-tight">
+                                                {sortedIncluded.slice(0, 10).map(s => {
                                                     const serv = allSimuladorServices.find(os => os.id === s.id);
-                                                    return serv && <li key={s.id} className={cn("flex items-center gap-2", s.esRegalo && "text-green-600 font-black")}><Check className="w-3.5 h-3.5"/> {serv.nombre} {s.esRegalo && "(REGALO)"}</li>
+                                                    return serv && (
+                                                        <li key={s.id} className={cn("flex items-center gap-3", s.esRegalo && "text-green-600 font-black")}>
+                                                            {s.esRegalo ? <Gift className="w-3.5 h-3.5"/> : <Check className="w-3.5 h-3.5 opacity-40"/>} 
+                                                            <span className="truncate">{serv.nombre} {s.esRegalo && "(REGALO)"}</span>
+                                                        </li>
+                                                    );
                                                 })}
+                                                {sortedIncluded.length > 10 && <li className="text-[9px] opacity-50">+ {sortedIncluded.length - 10} servicios adicionales</li>}
                                             </ul>
+                                            {selectedPaqueteId === p.id && <div className="absolute -bottom-2 -right-2 p-4 opacity-10 rotate-12"><PartyPopper className="w-20 h-20 text-primary"/></div>}
                                         </label>
                                     );
                                 })}
@@ -661,18 +697,30 @@ export default function ArmadoRapidoPage() {
                         </div>
                     )}
                 </CardContent>
-                <CardFooter className="p-8 border-t bg-slate-50 flex justify-between">
-                    <Button variant="ghost" onClick={prevStep} disabled={step === 1} className="rounded-xl h-12 px-8 font-bold"><ArrowLeft className="mr-2 w-4 h-4"/>Anterior</Button>
-                    <div className="flex flex-col items-end gap-2">
-                        <Button onClick={nextStep} disabled={isGeneratingLead} className="rounded-2xl h-14 px-12 font-black text-base shadow-xl shadow-primary/30">
-                            {isGeneratingLead ? <Loader2 className="animate-spin mr-3"/> : null}
-                            {step === 3 ? "GENERAR PRESUPUESTO" : "SIGUIENTE"}
-                            {step < 3 && <ArrowRight className="ml-2 w-5 h-5"/>}
+                
+                <CardFooter className="p-6 sm:p-10 border-t bg-slate-50 flex flex-col-reverse sm:flex-row justify-between items-center gap-6">
+                    <Button variant="ghost" onClick={handlePrev} disabled={step === 1} className="w-full sm:w-auto rounded-xl h-14 px-8 font-bold text-slate-400">ANTERIOR</Button>
+                    <div className="flex flex-col items-center sm:items-end gap-3 w-full sm:w-auto">
+                        <Button onClick={handleNext} disabled={isGenerating} className="w-full sm:w-auto rounded-2xl h-16 px-12 font-black text-lg shadow-2xl shadow-primary/30 transition-transform active:scale-95">
+                            {isGenerating ? <Loader2 className="animate-spin mr-3"/> : null}
+                            {step === 3 ? "GENERAR PRESUPUESTO" : "SIGUIENTE PASO"}
+                            {step < 3 && <ArrowRight className="ml-3 w-6 h-6"/>}
                         </Button>
-                        <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Total Final: {formatCurrency(stats.totalFinal)}</p>
+                        <div className="flex items-center gap-3 bg-white px-4 py-1.5 rounded-full border shadow-sm">
+                            <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Inversión Final Est.</p>
+                            <p className="text-sm font-black text-primary">{formatCurrency(stats.totalFinal)}</p>
+                        </div>
                     </div>
                 </CardFooter>
             </Card>
         </div>
+    );
+}
+
+export default function ArmadoRapidoPage() {
+    return (
+        <Suspense fallback={null}>
+            <SimuladorContent />
+        </Suspense>
     );
 }
