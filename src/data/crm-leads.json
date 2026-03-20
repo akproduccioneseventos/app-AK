@@ -109,5 +109,19 @@
     "id": "lead_1774017921702",
     "createdAt": "2026-03-20T14:45:21.702Z",
     "updatedAt": "2026-03-20T14:45:21.702Z"
+  },
+  {
+    "name": "G",
+    "phone": "098355305",
+    "presupuestoId": "pres_1774021140180_zc896c4",
+    "presupuestoEstado": "Enviado",
+    "partyType": "Evento (desde Simulador)",
+    "venueName": "A definir",
+    "guestCount": 100,
+    "budgetSource": "simulator",
+    "currentStageId": "s1",
+    "id": "lead_1774021140195",
+    "createdAt": "2026-03-20T15:39:00.195Z",
+    "updatedAt": "2026-03-20T15:39:00.195Z"
   }
 ]

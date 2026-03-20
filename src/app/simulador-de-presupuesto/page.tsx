@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { 
     ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, 
     Save, Clock, CalendarDays, Search, Check, Info, TrendingUp, 
-    Share2, Printer, Gift, ListPlus, ShieldCheck, Zap, Star, Calendar as CalendarIcon, CheckCircle2
+    Share2, Printer, Gift, ListPlus, ShieldCheck, Zap, Star, Calendar as CalendarIcon, CheckCircle2, Percent
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido';
@@ -185,8 +185,10 @@ function SimuladorContent() {
         const sortDishes = (a: ServicioEmpresa, b: ServicioEmpresa) => {
             const setA = getPlatoSettings(a.id);
             const setB = getPlatoSettings(b.id);
+            // First by recommended
             if (setA.recommended && !setB.recommended) return -1;
             if (!setA.recommended && setB.recommended) return 1;
+            // Then by price
             const pA = a.precioPorPersona || a.precioVenta || 0;
             const pB = b.precioPorPersona || b.precioVenta || 0;
             return pA - pB;
@@ -317,8 +319,8 @@ function SimuladorContent() {
         if (config.serviceDependencies) {
             config.serviceDependencies.forEach(dep => {
                 if (allSelectedServicesMap.has(dep.triggerServiceId) && !allSelectedServicesMap.has(dep.requiredServiceId)) {
-                    const serv = allSimuladorServices.find(s => s.id === dep.requiredServiceId);
-                    if (serv) allSelectedServicesMap.set(serv.id, { servicio: serv, esRegalo: false });
+                    const servicioRequerido = allSimuladorServices.find(s => s.id === dep.requiredServiceId);
+                    if (servicioRequerido) allSelectedServicesMap.set(servicioRequerido.id, { servicio: servicioRequerido, esRegalo: false });
                 }
             });
         }
@@ -510,7 +512,8 @@ function SimuladorContent() {
         const descPromo = totalRegular * 0.10;
         const totalSinAjuste = totalRegular - descPromo;
         const eventYear = eventoFecha ? eventoFecha.getFullYear() : new Date().getFullYear();
-        const aniosDif = Math.max(0, eventYear - new Date().getFullYear());
+        const currentYear = new Date().getFullYear();
+        const aniosDif = Math.max(0, eventYear - currentYear);
         return Math.round(totalSinAjuste * Math.pow(1.15, aniosDif));
     };
 
@@ -523,12 +526,12 @@ function SimuladorContent() {
         });
     }, [config?.paquetes]);
 
-    if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-slate-50"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
+    if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-slate-100"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
     
     if (step === 4 && generatedPresupuestoId) {
         return (
             <div className="min-h-screen bg-slate-50 flex flex-col items-center py-10 px-2 sm:px-4 print:bg-white print:p-0">
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-3xl space-y-8">
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="w-full max-w-3xl space-y-8">
                     
                     <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
                         <CardContent className="p-8 sm:p-12 flex flex-col items-center text-center space-y-8">
@@ -548,9 +551,9 @@ function SimuladorContent() {
                                 <Button 
                                     onClick={handleWhatsAppMeetingRequest}
                                     size="lg" 
-                                    className="w-full max-w-md h-20 rounded-[1.5rem] bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xl shadow-2xl shadow-emerald-900/30 transition-all hover:scale-[1.02] active:scale-95"
+                                    className="w-full max-w-md h-16 sm:h-20 rounded-[1.5rem] bg-emerald-600 hover:bg-emerald-700 text-white font-black text-base sm:text-xl shadow-2xl shadow-emerald-900/30 transition-all hover:scale-[1.02] active:scale-95"
                                 >
-                                    <CalendarIcon className="w-6 h-6 mr-3"/> AGENDAR REUNIÓN CON UN ASESOR
+                                    <CalendarIcon className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3"/> AGENDAR REUNIÓN CON UN ASESOR
                                 </Button>
 
                                 {(budgetSettings.valuePropositions?.length || 0) > 0 && (
@@ -605,7 +608,7 @@ function SimuladorContent() {
                                                             {item.esRegalo ? (
                                                                 <div className="flex flex-col items-end">
                                                                     <span className="text-[10px] line-through text-slate-300 font-bold">{formatCurrency(item.costoTotal)}</span>
-                                                                    <span className="text-[10px] font-black text-green-600 tracking-tighter">SIN COSTO</span>
+                                                                    <span className="text-[10px] font-black text-green-600 tracking-tighter uppercase">Sin Costo</span>
                                                                 </div>
                                                             ) : <span className="text-sm font-black text-slate-700">{formatCurrency(item.costoTotal)}</span>}
                                                         </TableCell>
@@ -665,7 +668,7 @@ function SimuladorContent() {
             <Card className="w-full max-w-3xl shadow-3xl rounded-[3rem] overflow-hidden border-none bg-white">
                 <CardHeader className="text-center bg-primary/5 p-6 sm:p-10 border-b border-primary/10">
                     <Wand2 className="w-12 h-12 mx-auto text-primary mb-4 animate-pulse"/>
-                    <CardTitle className="font-headline text-3xl sm:text-5xl font-black uppercase tracking-tighter text-slate-900">Tu Gran Evento</CardTitle>
+                    <CardTitle className="font-headline text-3xl sm:text-5xl font-black uppercase tracking-tighter text-slate-900 leading-tight">Tu Gran Evento</CardTitle>
                     <CardDescription className="text-base sm:text-xl font-bold text-slate-400 uppercase tracking-widest mt-2">Paso {step} de 3: {['Tus Datos', 'El Menú', 'El Paquete'][step-1]}</CardDescription>
                     <div className="mt-8">
                         <Progress value={(step / 3) * 100} className="h-2 bg-slate-200" />
@@ -710,7 +713,7 @@ function SimuladorContent() {
                                                 isRecommended && !selectedEntradas.includes(s.id) && "border-amber-200 bg-amber-50/30 shadow-md"
                                             )}>
                                                 {isRecommended && (
-                                                    <div className="absolute -top-2 -right-2 bg-amber-500 text-white text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg z-10">RECOMENDADO</div>
+                                                    <div className="absolute -top-2 -right-2 bg-amber-500 text-white text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg z-10 animate-pulse">RECOMENDADO</div>
                                                 )}
                                                 <Checkbox checked={selectedEntradas.includes(s.id)} onCheckedChange={v => handleEntradaChange(s.id, !!v)} className="h-6 w-6 rounded-lg"/>
                                                 <div className="flex flex-col flex-grow min-w-0">
@@ -737,7 +740,7 @@ function SimuladorContent() {
                                                 isRecommended && selectedPrincipal !== s.id && "border-amber-200 bg-amber-50/30 shadow-md"
                                             )}>
                                                 {isRecommended && (
-                                                    <div className="absolute -top-2 -right-2 bg-amber-500 text-white text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg z-10">RECOMENDADO</div>
+                                                    <div className="absolute -top-2 -right-2 bg-amber-500 text-white text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg z-10 animate-pulse">RECOMENDADO</div>
                                                 )}
                                                 <RadioGroupItem value={s.id} className="h-6 w-6"/>
                                                 <div className="flex flex-col flex-grow min-w-0">
@@ -765,7 +768,7 @@ function SimuladorContent() {
                                                     isRecommended && selectedInfantil !== s.id && "border-amber-200 bg-amber-50/30 shadow-md"
                                                 )}>
                                                     {isRecommended && (
-                                                        <div className="absolute -top-2 -right-2 bg-amber-500 text-white text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg z-10">RECOMENDADO</div>
+                                                        <div className="absolute -top-2 -right-2 bg-amber-500 text-white text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg z-10 animate-pulse">RECOMENDADO</div>
                                                     )}
                                                     <RadioGroupItem value={s.id} className="h-6 w-6 border-purple-300"/>
                                                     <div className="flex flex-col flex-grow min-w-0">
