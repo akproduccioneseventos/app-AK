@@ -1,4 +1,3 @@
-
 export interface PromotionalDiscount {
   id: string;
   name: string;
@@ -9,11 +8,16 @@ export interface PromotionalDiscount {
 export interface BudgetDisplaySettings {
   showClientData: boolean;
   showEventTypeAndDate: boolean;
-  showPaymentMethodNotes: boolean; // Controls "Notas y Condiciones" visibility
+  showPaymentMethodNotes: boolean;
   showCompanyLogo: boolean;
-  showPriceBreakdown: boolean; // Controls detailed item pricing visibility
+  showPriceBreakdown: boolean;
   annualAdjustmentPercentage?: number;
   promotionalDiscounts?: PromotionalDiscount[];
+  // Campos Estratégicos de Venta
+  successMessage?: string; // El mensaje persuasivo después de "Presupuesto Listo"
+  bookingTerms?: string; // El texto de la seña/reserva
+  whatsappMessageTemplate?: string; // Lo que se envía por WA
+  valuePropositions?: string[]; // Beneficios tipo "Por qué elegirnos"
 }
 
 export const defaultBudgetDisplaySettings: BudgetDisplaySettings = {
@@ -21,13 +25,22 @@ export const defaultBudgetDisplaySettings: BudgetDisplaySettings = {
   showEventTypeAndDate: true,
   showPaymentMethodNotes: true,
   showCompanyLogo: true,
-  showPriceBreakdown: true, // Default to true now
-  annualAdjustmentPercentage: 15, // Default annual adjustment
+  showPriceBreakdown: true,
+  annualAdjustmentPercentage: 15,
   promotionalDiscounts: [],
+  successMessage: "Ahora podés coordinar una reunión con nuestro equipo para revisar todos los detalles, despejar dudas y asegurar tu fecha.",
+  bookingTerms: "Para confirmar la promoción y reservar todos los servicios, se requiere una seña de $5.000. El presupuesto es válido por 30 días.",
+  whatsappMessageTemplate: "Hola, ya generé un presupuesto para mi evento y me gustaría coordinar una reunión para revisar detalles, despejar dudas y confirmar disponibilidad.",
+  valuePropositions: [
+    "Equipamiento profesional de alta gama",
+    "Personal capacitado y con amplia experiencia",
+    "Flexibilidad absoluta en la planificación",
+    "Garantía de satisfacción y puntualidad"
+  ]
 };
 
 export interface InvoiceTemplateSettings {
-  logoUrl?: string | null; // Data URL o URL externa
+  logoUrl?: string | null;
   primaryColor: string;
   accentColor: string;
   logoPosition: 'left' | 'center' | 'right';
@@ -35,22 +48,21 @@ export interface InvoiceTemplateSettings {
 
 export const defaultInvoiceTemplateSettings: InvoiceTemplateSettings = {
   logoUrl: "https://placehold.co/150x60.png?text=Mi+Logo",
-  primaryColor: "#EF4444", // App default red
-  accentColor: "#F97316", // App default orange/accent
+  primaryColor: "#EF4444",
+  accentColor: "#F97316",
   logoPosition: 'left',
 };
 
-// Types for Social Media Connections
 export type SocialPlatformName = 'Facebook' | 'Instagram' | 'TikTok' | 'WhatsApp';
 
 export interface SocialConnection {
   platform: SocialPlatformName;
   isConnected: boolean;
-  username?: string; // e.g. @yourhandle, or phone number
-  profileUrl?: string; // The actual URL to the profile
-  logoUrl?: string; // URL for the custom uploaded logo
-  connectedAt?: string; // ISO Date String of when the connection was established
-  phoneNumber?: string; // Specifically for WhatsApp
+  username?: string;
+  profileUrl?: string;
+  logoUrl?: string;
+  connectedAt?: string;
+  phoneNumber?: string;
 }
 
 export interface CompanyInfo {
@@ -60,7 +72,7 @@ export interface CompanyInfo {
     companyContact: string;
     defaultDocumentNotes: string;
     invoiceCustomFooter: string;
-    signatureUrl?: string | null; // Nueva propiedad para la firma del admin
+    signatureUrl?: string | null;
 }
 
 export const defaultCompanyInfo: CompanyInfo = {

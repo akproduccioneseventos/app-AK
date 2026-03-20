@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
@@ -6,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextIcon, CalendarDays, Users, MapPin, Share2, Gift, ClipboardCopy, TrendingUp, Info, CalendarDays as CalendarIcon, PartyPopper } from 'lucide-react';
+import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextIcon, CalendarDays, Users, MapPin, Share2, Gift, ClipboardCopy, TrendingUp, Info, CalendarDays as CalendarIcon, PartyPopper, CheckCircle2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge';
 import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto';
@@ -48,7 +47,6 @@ const COMPANY_MAIN_TITLE = "Presupuesto para fiestas o eventos - AK PRODUCCIONES
 const COMPANY_CONTACT_PERSON = "SR. Alexander Knuth";
 const COMPANY_ADDRESS_LINE1_PDF = "Salto";
 const COMPANY_CONTACT_EMAIL_PDF = "akproduccionessalto@gmail.com";
-const BUDGET_DEPOSIT_NOTE_PDF = "Para confirmar la promoción y reservar todos los servicios, se requiere una seña de $5.000. El presupuesto es válido por 30 días.";
 
 function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -159,10 +157,11 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const handlePrint = () => window.print();
 
   const handleWhatsAppMeetingRequest = () => {
-    if (!whatsappNumber || !presupuesto) return;
+    if (!whatsappNumber || !presupuesto || !displaySettings) return;
+    const template = displaySettings.whatsappMessageTemplate || "Hola, ya revisé el presupuesto y me gustaría coordinar una reunión.";
     let texto = `*Solicitud de Reunión - Presupuesto #${presupuesto.numero || 'Generado'}*\n`;
     texto += `-----------------\n`;
-    texto += `Hola, ya revisé el presupuesto para mi evento (*${presupuesto.eventoTipo}* para *${presupuesto.invitadosCantidad}* invitados) y me gustaría coordinar una reunión para revisar detalles, despejar dudas y confirmar disponibilidad.\n\n`;
+    texto += `${template}\n\n`;
     texto += `*Presupuesto Estimado:* ${formatCurrency(calculatedValues.totalFinal)}\n`;
     texto += `*Link:* ${window.location.href}`;
     
@@ -178,7 +177,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
           <Link href="/presupuestos/nuevo" passHref><Button variant="outline" size="sm"><ArrowLeft className="mr-2 h-4 w-4"/>Volver</Button></Link>
           <div className="flex gap-2">
             <Button onClick={handlePrint} size="sm"><Printer className="mr-2 h-4 w-4"/>Imprimir/PDF</Button>
-            <Link href={`/presupuestos/${presupuestoId}/editar`} passHref><Button variant="outline" size="sm"><Edit className="mr-2 h-4 w-4"/>Editar</Button></Link>
+            <Link href={`/presupuestos/${presupuestoId}/edit`} passHref><Button variant="outline" size="sm"><Edit className="mr-2 h-4 w-4"/>Editar</Button></Link>
           </div>
         </div>
 
@@ -196,11 +195,11 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                                 ¡Tu presupuesto está listo!
                             </h2>
                             <p className="text-slate-500 font-medium max-w-md mx-auto leading-relaxed">
-                                Ahora podés coordinar una reunión con nuestro equipo para revisar todos los detalles, despejar dudas y asegurar tu fecha.
+                                {displaySettings.successMessage}
                             </p>
                         </div>
                         
-                        <div className="w-full flex flex-col items-center gap-4">
+                        <div className="w-full flex flex-col items-center gap-6">
                             <Button 
                                 onClick={handleWhatsAppMeetingRequest}
                                 size="lg" 
@@ -208,6 +207,26 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                             >
                                 <CalendarIcon className="w-6 h-6 mr-3"/> AGENDAR REUNIÓN CON UN ASESOR
                             </Button>
+
+                            {(displaySettings.valuePropositions?.length || 0) > 0 && (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full text-left">
+                                    {displaySettings.valuePropositions?.map((prop, i) => (
+                                        <div key={i} className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                            <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0"/>
+                                            <span className="text-[10px] font-bold uppercase tracking-tight text-slate-600">{prop}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                            
+                            <div className="flex flex-wrap justify-center gap-2">
+                                <Button variant="ghost" onClick={() => { navigator.clipboard.writeText(window.location.href); toast({title: "Enlace Copiado"}); }} className="h-10 rounded-xl text-slate-400 font-bold uppercase tracking-widest text-[10px]">
+                                    <Share2 className="w-3.5 h-3.5 mr-2"/> Compartir Presupuesto
+                                </Button>
+                                <Button variant="ghost" onClick={() => window.print()} className="h-10 rounded-xl text-slate-400 font-bold uppercase tracking-widest text-[10px]">
+                                    <Printer className="w-3.5 h-3.5 mr-2"/> Guardar PDF
+                                </Button>
+                            </div>
                         </div>
                     </CardContent>
                 </Card>
@@ -238,23 +257,23 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                         <Table>
                             <TableHeader className="bg-slate-50">
                                 <TableRow>
-                                    <TableHead className="w-3/5 font-black text-[10px] uppercase pl-6 py-4">Artículo</TableHead>
+                                    <TableHead className="w-3/5 font-black text-[10px] uppercase pl-8 py-4 min-w-[200px]">Artículo</TableHead>
                                     <TableHead className="text-center font-black text-[10px] uppercase">Cant.</TableHead>
-                                    <TableHead className="text-right pr-6 font-black text-[10px] uppercase">Importe</TableHead>
+                                    <TableHead className="text-right pr-8 font-black text-[10px] uppercase min-w-[120px]">Importe</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {Object.entries(calculatedValues.itemsAgrupados).map(([categoria, items]) => (
                                     <React.Fragment key={categoria}>
-                                        <TableRow className="bg-muted/30 border-y"><TableCell colSpan={3} className="font-black text-[10px] uppercase text-primary pl-6 tracking-widest py-2">{categoria}</TableCell></TableRow>
+                                        <TableRow className="bg-muted/30 border-y"><TableCell colSpan={3} className="font-black text-[10px] uppercase text-primary pl-8 tracking-widest py-2">{categoria}</TableCell></TableRow>
                                         {items.map(item => (
                                             <TableRow key={item.idServicioCatalogo} className="hover:bg-slate-50/50">
-                                                <TableCell className="pl-6 py-3 text-xs">
+                                                <TableCell className="pl-8 py-3 text-xs">
                                                     {item.esRegalo ? <span className="text-rose-600 font-bold flex items-center gap-1.5"><Gift className="w-3.5 h-3.5"/> {item.nombreServicio} (REGALO)</span> : item.nombreServicio}
                                                     <p className="text-[9px] text-muted-foreground">{formatCurrency(item.precioUnitarioPresupuesto)} c/u</p>
                                                 </TableCell>
                                                 <TableCell className="text-center text-xs font-bold text-slate-400">{item.cantidad}</TableCell>
-                                                <TableCell className="text-right pr-6">
+                                                <TableCell className="text-right pr-8">
                                                     {item.esRegalo ? (
                                                         <div className="flex flex-col items-end">
                                                             <span className="text-[9px] line-through text-slate-300 font-bold">{formatCurrency(item.precioUnitario * item.cantidad)}</span>
@@ -272,7 +291,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 </section>
                     
                 <section className="flex justify-end mb-8">
-                    <div className="w-full max-w-xs space-y-2 py-6 px-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 print:bg-white print:border-slate-300">
+                    <div className="w-full max-w-sm space-y-2 py-8 px-10 bg-slate-50 rounded-[2.5rem] border border-slate-100 print:bg-white print:border-slate-300">
                         <div className="flex justify-between items-center text-[10px] font-black uppercase text-slate-400 tracking-widest">
                             <span>Valor Real Servicios:</span>
                             <span>{formatCurrency(calculatedValues.subtotalBruto)}</span>
@@ -306,7 +325,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 <footer className="space-y-6">
                     <div className="p-6 bg-blue-50/50 border border-blue-100 rounded-[1.5rem] print:bg-white print:border-slate-300">
                         <h4 className="text-xs font-black uppercase text-blue-800 tracking-widest mb-2 flex items-center gap-2"><Info className="w-4 h-4"/> Condiciones de Reserva</h4>
-                        <p className="text-xs text-blue-700 leading-relaxed font-medium">{BUDGET_DEPOSIT_NOTE_PDF}</p>
+                        <p className="text-xs text-blue-700 leading-relaxed font-medium">{displaySettings.bookingTerms}</p>
                     </div>
                     <div className="mt-16 grid grid-cols-2 gap-20 text-center">
                         <div className="border-t border-slate-200 pt-4"><p className="font-black text-[10px] uppercase tracking-widest">Tec. Alexander Knuth</p><p className="text-[9px] text-slate-400 uppercase font-bold">AK Producciones</p></div>

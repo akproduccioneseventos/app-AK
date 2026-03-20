@@ -9,17 +9,17 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
-    ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, Package, ChefHat, 
-    FileText, Send, CheckCircle, Gift, User, Phone, MessageSquare, Share2, 
-    Printer, Edit, CalendarDays, Search, Check, Info, TrendingUp, AlertTriangle, 
-    X, Percent, Layers, Clock, ListPlus, CalendarDays as CalendarIcon, Sparkles, Star
+    ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, 
+    Save, Clock, CalendarDays, Search, Check, Info, TrendingUp, 
+    Share2, Printer, Gift, ListPlus, ShieldCheck, Zap, Star
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { getSocialConnections } from '@/app/actions/social-connections';
-import { getInvoiceTemplateSettings } from '@/app/actions/settings';
-import type { SocialConnection } from '@/types/settings';
+import { getInvoiceTemplateSettings, getBudgetDisplaySettings } from '@/app/actions/settings';
+import type { SocialConnection, BudgetDisplaySettings } from '@/types/settings';
+import { defaultBudgetDisplaySettings } from '@/types/settings';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido } from '@/types/armado-rapido';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { Progress } from '@/components/ui/progress';
@@ -27,7 +27,6 @@ import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import Image from 'next/image';
 import type { ItemPresupuestado } from '@/types/presupuesto';
 import type { FullMenu, MenuItem } from '@/types/catering';
 import { getMenus } from '@/app/actions/menus-catering';
@@ -147,6 +146,7 @@ function SimuladorContent() {
     const [step, setStep] = useState(1);
 
     const [config, setConfig] = useState<ArmadoRapidoConfig | null>(null);
+    const [budgetSettings, setBudgetSettings] = useState<BudgetDisplaySettings>(defaultBudgetDisplaySettings);
     const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioEmpresa[]>([]);
     const [allMenus, setAllMenus] = useState<FullMenu[]>([]);
     const [whatsappNumber, setWhatsappNumber] = useState<string>('');
@@ -185,12 +185,8 @@ function SimuladorContent() {
         const sortDishes = (a: ServicioEmpresa, b: ServicioEmpresa) => {
             const setA = getPlatoSettings(a.id);
             const setB = getPlatoSettings(b.id);
-            
-            // 1. Recommended first
             if (setA.recommended && !setB.recommended) return -1;
             if (!setA.recommended && setB.recommended) return 1;
-            
-            // 2. Price Asc
             const pA = a.precioPorPersona || a.precioVenta || 0;
             const pB = b.precioPorPersona || b.precioVenta || 0;
             return pA - pB;
@@ -199,20 +195,15 @@ function SimuladorContent() {
         const allDishes = Array.from(
             allMenus.flatMap(m => m.items)
             .reduce((map, dish) => {
-                if (!map.has(dish.id)) {
-                    map.set(dish.id, dish);
-                }
+                if (!map.has(dish.id)) { map.set(dish.id, dish); }
                 return map;
             }, new Map<string, MenuItem>())
             .values()
         );
         
         const visibleDishes = allDishes.filter(d => getPlatoSettings(d.id).visible);
-
         const lowerCaseSearch = gastronomiaSearchTerm.toLowerCase();
-        const filteredDishes = gastronomiaSearchTerm.trim() === ''
-            ? visibleDishes 
-            : visibleDishes.filter(d => d.name.toLowerCase().includes(lowerCaseSearch));
+        const filteredDishes = gastronomiaSearchTerm.trim() === '' ? visibleDishes : visibleDishes.filter(d => d.name.toLowerCase().includes(lowerCaseSearch));
         
         const enhancedDishes = filteredDishes.map(item => ({
             ...item,
@@ -230,14 +221,16 @@ function SimuladorContent() {
         const loadInitialData = async () => {
             setIsLoading(true);
             try {
-                const [armadoConfig, serviciosData, socialConnections, templateSettings, menuData] = await Promise.all([
+                const [armadoConfig, bSettings, serviciosData, socialConnections, templateSettings, menuData] = await Promise.all([
                     getArmadoRapidoConfig(),
+                    getBudgetDisplaySettings(),
                     getServiciosEmpresa(),
                     getSocialConnections(),
                     getInvoiceTemplateSettings(),
                     getMenus(),
                 ]);
                 setConfig(armadoConfig);
+                setBudgetSettings(bSettings);
                 setServiciosCatalogo(serviciosData.filter(s => s.tipoItem === 'Servicio'));
                 setAllMenus(menuData);
                 const whatsappConnection = socialConnections.find(c => c.platform === 'WhatsApp' && c.isConnected);
@@ -289,7 +282,7 @@ function SimuladorContent() {
         idsToAdd.forEach(id => {
             const dishToAdd = allDishes.find(d => d.id === id);
             if (dishToAdd) {
-                const invitados = getGuestCountForItem({ nombreServicio: dishToAdd.nombre, categoriaServicio: dishToAdd.categoria, subcategoria: dishToAdd.subcategoria }, adultos, 0, ninosYAdolescentes);
+                const invitados = getGuestCountForItem(dishToAdd, adultos, 0, ninosYAdolescentes);
                 newSelected.set(dishToAdd.id, menuItemToServicioSeleccionado(dishToAdd, invitados));
             }
         });
@@ -303,7 +296,7 @@ function SimuladorContent() {
 
     const stats = useMemo(() => {
         if (!config || !allSimuladorServices.length) {
-            return { subtotalBruto: 0, descPromo: 0, ahorroRegalos: 0, totalSinAjuste: 0, ajusteAnual: 0, totalFinal: 0, aniosDiferencia: 0, agrupados: {}, detallados: [] };
+            return { subtotalBruto: 0, subtotalVenta: 0, descPromo: 0, ahorroRegalos: 0, totalSinAjuste: 0, ajusteAnual: 0, totalFinal: 0, aniosDiferencia: 0, agrupados: {}, detallados: [] };
         }
 
         const allSelectedServicesMap = new Map<string, { servicio: ServicioEmpresa, esRegalo: boolean }>();
@@ -465,9 +458,10 @@ function SimuladorContent() {
 
     const handleWhatsAppMeetingRequest = () => {
         if (!whatsappNumber) return;
+        const template = budgetSettings.whatsappMessageTemplate || "Hola, ya generé un presupuesto para mi evento y me gustaría coordinar una reunión.";
         let texto = `*Solicitud de Reunión - Presupuesto Simulado*\n`;
         texto += `-----------------\n`;
-        texto += `Hola, ya generé un presupuesto para mi evento (*${fiesta?.configuracion.tipoCelebracion || 'Fiesta'}* para *${adultos + ninosYAdolescentes}* invitados) y me gustaría coordinar una reunión para revisar detalles, despejar dudas y confirmar disponibilidad.\n\n`;
+        texto += `${template}\n\n`;
         texto += `*Nombre:* ${clienteNombre}\n`;
         texto += `*Presupuesto Estimado:* ${formatCurrency(stats.totalFinal)}\n`;
         texto += `*Link:* ${window.location.origin}/presupuestos/${generatedPresupuestoId}/ver`;
@@ -504,20 +498,10 @@ function SimuladorContent() {
 
         const disc = total * 0.10;
         const totalSinAjuste = total - disc;
-        
         const eventYear = eventoFecha ? eventoFecha.getFullYear() : new Date().getFullYear();
         const aniosDif = Math.max(0, eventYear - new Date().getFullYear());
         return totalSinAjuste * Math.pow(1.15, aniosDif);
     };
-
-    const sortedPaquetes = useMemo(() => {
-        if (!config) return [];
-        return [...config.paquetes].sort((a, b) => {
-            if (a.recommended && !b.recommended) return -1;
-            if (!a.recommended && b.recommended) return 1;
-            return calculatePackageEstimatedPrice(a) - calculatePackageEstimatedPrice(b);
-        });
-    }, [config, adultos, ninosYAdolescentes, formData.serviciosSeleccionados, eventoFecha]);
 
     if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-slate-50"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
     
@@ -526,7 +510,6 @@ function SimuladorContent() {
             <div className="min-h-screen bg-slate-50 flex flex-col items-center py-10 px-2 sm:px-4 print:bg-white print:p-0">
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-3xl space-y-8">
                     
-                    {/* BANNER VENTA PRO */}
                     <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
                         <CardContent className="p-8 sm:p-12 flex flex-col items-center text-center space-y-8">
                             <div className="p-4 bg-primary/10 rounded-full">
@@ -537,11 +520,11 @@ function SimuladorContent() {
                                     ¡Tu presupuesto está listo!
                                 </h2>
                                 <p className="text-slate-500 font-medium max-w-md mx-auto leading-relaxed">
-                                    Ahora podés coordinar una reunión con nuestro equipo para revisar todos los detalles, despejar dudas y asegurar tu fecha.
+                                    {budgetSettings.successMessage}
                                 </p>
                             </div>
                             
-                            <div className="w-full flex flex-col items-center gap-4">
+                            <div className="w-full flex flex-col items-center gap-6">
                                 <Button 
                                     onClick={handleWhatsAppMeetingRequest}
                                     size="lg" 
@@ -549,6 +532,17 @@ function SimuladorContent() {
                                 >
                                     <CalendarIcon className="w-6 h-6 mr-3"/> AGENDAR REUNIÓN CON UN ASESOR
                                 </Button>
+
+                                {(budgetSettings.valuePropositions?.length || 0) > 0 && (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full text-left">
+                                        {budgetSettings.valuePropositions?.map((prop, i) => (
+                                            <div key={i} className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                                <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0"/>
+                                                <span className="text-[10px] font-bold uppercase tracking-tight text-slate-600">{prop}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                                 
                                 <div className="flex flex-wrap justify-center gap-2">
                                     <Button variant="ghost" onClick={handleCopyToClipboard} className="h-10 rounded-xl text-slate-400 font-bold uppercase tracking-widest text-[10px]">
@@ -634,10 +628,10 @@ function SimuladorContent() {
                             </div>
                         </CardContent>
                         <CardFooter className="bg-slate-50 p-8 border-t flex flex-col items-center gap-4">
-                            <p className="text-[10px] text-center text-slate-400 uppercase tracking-widest font-bold leading-loose">
-                                Presupuesto generado por AK Producciones. <br/>
-                                Válido por 30 días a partir de hoy.
-                            </p>
+                            <div className="bg-blue-50 p-6 rounded-3xl border border-blue-100 w-full">
+                                <h4 className="text-[10px] font-black uppercase text-blue-800 tracking-widest mb-2 flex items-center gap-2"><Info className="w-4 h-4"/> Condiciones de Reserva</h4>
+                                <p className="text-xs text-blue-700 leading-relaxed font-medium">{budgetSettings.bookingTerms}</p>
+                            </div>
                             <Button variant="ghost" onClick={() => setStep(1)} className="rounded-xl text-slate-400 font-bold uppercase tracking-widest text-[10px] print:hidden">Iniciar Nueva Simulación</Button>
                         </CardFooter>
                     </Card>
