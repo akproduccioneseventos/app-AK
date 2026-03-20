@@ -11,7 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { 
     ArrowLeft, ArrowRight, Save, Loader2, Wand2, PlusCircle, Trash2, 
     Search, Percent, Tag, X, Check, ChevronDown, Package, Edit, 
-    Gift, Copy, ChefHat, Info, Zap, Link2 
+    Gift, Copy, ChefHat, Info, Zap, Link2, Star 
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido, MenuArmadoRapido, ServiceDependency } from '@/types/armado-rapido';
@@ -117,7 +117,7 @@ export default function BudgetDisplaySettingsPage() {
 
   const handleOpenModal = (type: 'paquete' | 'menu', item?: PaqueteArmadoRapido | MenuArmadoRapido) => {
     setModalType(type);
-    setCurrentItem(item ? {...item, serviciosIncluidos: item.serviciosIncluidos || []} : { nombre: '', serviciosIncluidos: [] });
+    setCurrentItem(item ? {...item, serviciosIncluidos: item.serviciosIncluidos || []} : { nombre: '', serviciosIncluidos: [], recommended: false });
     setServicioSearchTerm(''); 
     setIsModalOpen(true);
   };
@@ -147,9 +147,9 @@ export default function BudgetDisplaySettingsPage() {
       ...paquete,
       id: `pkg_copy_${Date.now()}`,
       nombre: `[COPIA] ${paquete.nombre}`,
+      recommended: false
     };
     const newConfig = { ...config, paquetes: [...config.paquetes, newPaquete] };
-    setConfig(newConfig);
     const result = await saveArmadoRapidoConfig(newConfig);
     if (result.success) {
       toast({ title: "Paquete duplicado" });
@@ -157,17 +157,34 @@ export default function BudgetDisplaySettingsPage() {
     }
   };
 
-  const handlePlatoVisibilityChange = async (platoId: string, visible: boolean) => {
+  const handlePlatoVisibilityChange = async (platoId: string, field: 'visible' | 'recommended', value: boolean) => {
     if (!config) return;
     const currentList = config.platosVisibles || [];
     const index = currentList.findIndex(p => p.id === platoId);
     let newList = [...currentList];
-    if (index > -1) newList[index] = { id: platoId, visible };
-    else newList.push({ id: platoId, visible });
+    if (index > -1) {
+        newList[index] = { ...newList[index], [field]: value };
+    } else {
+        newList.push({ id: platoId, visible: field === 'visible' ? value : true, recommended: field === 'recommended' ? value : false });
+    }
     
     const newConfig = { ...config, platosVisibles: newList };
     setConfig(newConfig);
     await saveArmadoRapidoConfig(newConfig);
+  };
+
+  const handlePackageRecommendation = async (pkgId: string, recommended: boolean) => {
+      if (!config) return;
+      const updatedPaquetes = config.paquetes.map(p => {
+          if (p.id === pkgId) return { ...p, recommended };
+          // If we are marking one as recommended, we might want to unmark others? 
+          // Usually only one is "Most Chosen". But let's allow multiple for flexibility.
+          return p;
+      });
+      const newConfig = { ...config, paquetes: updatedPaquetes };
+      setConfig(newConfig);
+      await saveArmadoRapidoConfig(newConfig);
+      toast({ title: recommended ? "Paquete marcado como recomendado" : "Recomendación quitada" });
   };
 
   const handleAddDependency = async (triggerId: string, requiredId: string) => {
@@ -226,6 +243,19 @@ export default function BudgetDisplaySettingsPage() {
                                 required
                             />
                         </div>
+
+                        {modalType === 'paquete' && (
+                            <div className="flex items-center justify-between p-4 bg-primary/5 rounded-2xl border border-primary/10">
+                                <div className="space-y-0.5">
+                                    <Label className="text-sm font-bold text-slate-800">Marcar como Recomendado</Label>
+                                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Aparecerá con la etiqueta "MÁS ELEGIDO"</p>
+                                </div>
+                                <Switch 
+                                    checked={currentItem.recommended || false} 
+                                    onCheckedChange={(val) => setCurrentItem(p => p ? ({...p, recommended: val}) : null)}
+                                />
+                            </div>
+                        )}
                         
                         <div className="space-y-3">
                             <Label className="text-[10px] font-black uppercase tracking-widest text-primary">Servicios Seleccionados ({currentItem.serviciosIncluidos?.length || 0})</Label>
@@ -332,7 +362,7 @@ export default function BudgetDisplaySettingsPage() {
               <h4 className="font-black text-xs uppercase tracking-[0.2em] text-slate-400">Descuentos Promocionales</h4>
               <div className="grid grid-cols-1 gap-3">
                 {(budgetSettings?.promotionalDiscounts || []).map((discount, index) => (
-                    <div key={discount.id} className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end p-4 bg-slate-50 rounded-2xl border border-slate-100 relative group">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end p-4 bg-slate-50 rounded-2xl border border-slate-100 relative group" key={discount.id}>
                         <Button variant="ghost" size="icon" className="absolute -top-2 -right-2 h-7 w-7 rounded-full bg-white border shadow-md opacity-0 group-hover:opacity-100 transition-opacity text-destructive" onClick={() => {
                             setBudgetSettings(prev => {
                                 if (!prev) return null;
@@ -391,7 +421,6 @@ export default function BudgetDisplaySettingsPage() {
           <CardContent className="p-8">
             <Accordion type="single" collapsible className="w-full space-y-4">
               {config?.paquetes?.map(pkg => {
-                // ORDENAR SERVICIOS: Categoría y Regalos al final
                 const sortedIncluded = [...pkg.serviciosIncluidos].sort((a, b) => {
                     if (a.esRegalo && !b.esRegalo) return 1;
                     if (!a.esRegalo && b.esRegalo) return -1;
@@ -401,15 +430,22 @@ export default function BudgetDisplaySettingsPage() {
                 });
 
                 return (
-                  <AccordionItem key={pkg.id} value={pkg.id} className="border rounded-[1.5rem] bg-white shadow-sm px-6 group hover:border-primary/30 transition-all overflow-hidden">
+                  <AccordionItem key={pkg.id} value={pkg.id} className={cn(
+                      "border rounded-[1.5rem] bg-white shadow-sm px-6 group transition-all overflow-hidden",
+                      pkg.recommended ? "border-primary/50 bg-primary/5 shadow-md ring-1 ring-primary/20" : "hover:border-primary/30"
+                  )}>
                     <div className="flex items-center justify-between">
                       <AccordionTrigger className="flex-1 hover:no-underline py-5">
                         <div className="flex flex-col items-start text-left space-y-1">
-                          <p className="font-black text-slate-800 text-lg uppercase tracking-tight">{pkg.nombre}</p>
+                          <div className="flex items-center gap-3">
+                            <p className="font-black text-slate-800 text-lg uppercase tracking-tight">{pkg.nombre}</p>
+                            {pkg.recommended && <Badge className="bg-primary text-white font-black text-[8px] tracking-widest uppercase h-5 px-3 rounded-full animate-pulse">MÁS ELEGIDO</Badge>}
+                          </div>
                           <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">{pkg.serviciosIncluidos.length} servicios configurados</p>
                         </div>
                       </AccordionTrigger>
                       <div className="flex gap-2 ml-4">
+                          <Button variant="ghost" size="icon" className={cn("h-9 w-9 rounded-xl hover:bg-slate-100", pkg.recommended ? "text-primary bg-primary/10" : "")} onClick={(e) => { e.stopPropagation(); handlePackageRecommendation(pkg.id, !pkg.recommended); }} title={pkg.recommended ? "Quitar Recomendado" : "Marcar como Más Elegido"}><Star className={cn("w-4 h-4", pkg.recommended && "fill-current")}/></Button>
                           <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-slate-100" onClick={(e) => { e.stopPropagation(); handleDuplicatePackage(pkg); }} title="Duplicar"><Copy className="w-4 h-4"/></Button>
                           <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-slate-100 text-primary" onClick={(e) => { e.stopPropagation(); handleOpenModal('paquete', pkg); }} title="Editar"><Edit className="w-4 h-4"/></Button>
                           <Button variant="ghost" size="icon" className="text-destructive rounded-xl h-9 w-9 hover:bg-red-50" onClick={(e) => {
@@ -450,9 +486,9 @@ export default function BudgetDisplaySettingsPage() {
       <Card className="shadow-2xl border-none rounded-[2rem] overflow-hidden bg-white">
           <CardHeader className="bg-slate-50 border-b border-slate-100 p-8">
               <CardTitle className="font-headline text-2xl text-slate-800 flex items-center gap-3">
-                  <ChefHat className="w-7 h-7 text-primary"/> Visibilidad de Platos
+                  <ChefHat className="w-7 h-7 text-primary"/> Visibilidad y Recomendados
               </CardTitle>
-              <CardDescription>Activa o desactiva qué platos de tu catálogo maestro pueden ver los clientes.</CardDescription>
+              <CardDescription>Activa platos del catálogo y marca las opciones estratégicas para tus clientes.</CardDescription>
           </CardHeader>
           <CardContent className="p-8">
               <Accordion type="multiple" defaultValue={['Entrada', 'Plato Principal', 'Postre']} className="w-full space-y-4">
@@ -465,18 +501,40 @@ export default function BudgetDisplaySettingsPage() {
                                   <span className="text-xs font-black uppercase tracking-widest text-slate-800">{cat} ({dishes.length})</span>
                               </AccordionTrigger>
                               <AccordionContent className="px-6 pb-6 pt-2">
-                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                  <div className="grid grid-cols-1 gap-2">
                                       {dishes.map(plato => {
-                                          const isVisible = config?.platosVisibles?.find(p => p.id === plato.id)?.visible ?? true;
+                                          const setting = config?.platosVisibles?.find(p => p.id === plato.id) || { id: plato.id, visible: true, recommended: false };
                                           return (
-                                              <div key={plato.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
-                                                  <Label htmlFor={`visible-${plato.id}`} className="text-xs font-bold text-slate-700 cursor-pointer flex-grow">{plato.name}</Label>
-                                                  <Switch 
-                                                      id={`visible-${plato.id}`} 
-                                                      checked={isVisible} 
-                                                      onCheckedChange={(val) => handlePlatoVisibilityChange(plato.id, val)} 
-                                                      className="scale-75"
-                                                  />
+                                              <div key={plato.id} className={cn(
+                                                  "flex items-center justify-between p-3 rounded-xl border transition-all",
+                                                  setting.recommended ? "bg-amber-50 border-amber-200" : "bg-slate-50 border-slate-100"
+                                              )}>
+                                                  <div className="flex-grow flex items-center gap-3">
+                                                      <div className="flex flex-col">
+                                                          <Label htmlFor={`visible-${plato.id}`} className="text-xs font-bold text-slate-700 cursor-pointer">{plato.name}</Label>
+                                                          <p className="text-[9px] text-slate-400 uppercase font-black tracking-widest">{formatCurrency(plato.suggestedSellingPrice)} p/p</p>
+                                                      </div>
+                                                      {setting.recommended && <Badge className="bg-amber-500 text-white font-black text-[7px] px-2 py-0 h-4">RECOMENDADO</Badge>}
+                                                  </div>
+                                                  <div className="flex items-center gap-6">
+                                                      <div className="flex items-center gap-2">
+                                                          <Label className="text-[9px] font-black uppercase text-slate-400">Recomendar</Label>
+                                                          <Switch 
+                                                              checked={setting.recommended || false} 
+                                                              onCheckedChange={(val) => handlePlatoVisibilityChange(plato.id, 'recommended', val)} 
+                                                              className="scale-75 data-[state=checked]:bg-amber-500"
+                                                          />
+                                                      </div>
+                                                      <div className="flex items-center gap-2">
+                                                          <Label className="text-[9px] font-black uppercase text-slate-400">Visible</Label>
+                                                          <Switch 
+                                                              id={`visible-${plato.id}`} 
+                                                              checked={setting.visible} 
+                                                              onCheckedChange={(val) => handlePlatoVisibilityChange(plato.id, 'visible', val)} 
+                                                              className="scale-75"
+                                                          />
+                                                      </div>
+                                                  </div>
                                               </div>
                                           )
                                       })}
@@ -528,7 +586,7 @@ export default function BudgetDisplaySettingsPage() {
 
               <div className="space-y-3 pt-4">
                   {config?.serviceDependencies?.map(dep => (
-                      <div key={dep.id} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 group hover:bg-white/10 transition-all">
+                      <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 group hover:bg-white/10 transition-all" key={dep.id}>
                           <div className="flex items-center gap-4 text-sm font-bold">
                               <Badge variant="outline" className="border-primary/30 text-primary font-black uppercase text-[9px]">{findItemName(dep.triggerServiceId)}</Badge>
                               <ArrowRight className="w-4 h-4 text-slate-600"/>

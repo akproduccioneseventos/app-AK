@@ -1,4 +1,3 @@
-
 import type { ServicioEmpresa } from './empresa';
 
 export interface ServicioIncluidoArmadoRapido {
@@ -11,6 +10,7 @@ export interface PaqueteArmadoRapido {
   nombre: string;
   descripcion?: string;
   serviciosIncluidos: ServicioIncluidoArmadoRapido[];
+  recommended?: boolean; // NEW: Flag for "Most Chosen" package
 }
 
 export interface MenuArmadoRapido {
@@ -24,6 +24,7 @@ export interface MenuArmadoRapido {
 export interface PlatoVisible {
   id: string; // ID del MenuItem
   visible: boolean;
+  recommended?: boolean; // NEW: Flag for recommended dish
 }
 
 export interface ServiceDependency {
@@ -39,6 +40,7 @@ export interface ArmadoRapidoConfig {
   mostrarPrecios?: boolean;
   platosVisibles?: PlatoVisible[]; // To control simulator dish visibility
   serviceDependencies?: ServiceDependency[];
+  recommendedDishIds?: string[]; // Alternative way to store recommended dishes
 }
 
 export interface LeadFromQuickBudget {

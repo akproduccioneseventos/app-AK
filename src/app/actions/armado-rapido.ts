@@ -31,6 +31,7 @@ export async function saveArmadoRapidoConfig(
         id: pkg.id,
         nombre: pkg.nombre,
         descripcion: pkg.descripcion,
+        recommended: pkg.recommended || false,
         serviciosIncluidos: pkg.serviciosIncluidos.map(serv => ({ id: serv.id, esRegalo: serv.esRegalo || false })),
       })),
       menus: (newConfigData.menus || []).map(menu => ({
@@ -39,7 +40,11 @@ export async function saveArmadoRapidoConfig(
         descripcion: menu.descripcion,
         serviciosIncluidos: menu.serviciosIncluidos.map(serv => ({ id: serv.id, esRegalo: serv.esRegalo || false })),
       })),
-      platosVisibles: newConfigData.platosVisibles || [],
+      platosVisibles: (newConfigData.platosVisibles || []).map(p => ({
+        id: p.id,
+        visible: p.visible,
+        recommended: p.recommended || false
+      })),
       serviceDependencies: (newConfigData.serviceDependencies || []).map(dep => ({
         id: dep.id,
         triggerServiceId: dep.triggerServiceId,

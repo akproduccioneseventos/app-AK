@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent, Suspense } from 'react';
@@ -13,7 +12,7 @@ import {
     ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, Package, ChefHat, 
     FileText, Send, CheckCircle, Gift, User, Phone, MessageSquare, Share2, 
     Printer, Edit, CalendarDays, Search, Check, Info, TrendingUp, AlertTriangle, 
-    X, Percent, Layers, Clock, ListPlus, CalendarDays as CalendarIcon, Sparkles
+    X, Percent, Layers, Clock, ListPlus, CalendarDays as CalendarIcon, Sparkles, Star
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido';
@@ -37,7 +36,7 @@ import { getGuestCountForItem, recalcularCostoItem } from '@/lib/calculations';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const formatCurrency = (amount?: number) => {
     if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -179,12 +178,19 @@ function SimuladorContent() {
             return { entradasDisponibles: [], principalesDisponibles: [], menusNinoDisponibles: [] };
         }
         
-        const isPlatoVisible = (platoId: string) => {
-            const setting = config.platosVisibles?.find(p => p.id === platoId);
-            return setting !== undefined ? setting.visible : true;
+        const getPlatoSettings = (platoId: string) => {
+            return config.platosVisibles?.find(p => p.id === platoId) || { id: platoId, visible: true, recommended: false };
         };
         
-        const sortByPrice = (a: ServicioEmpresa, b: ServicioEmpresa) => {
+        const sortDishes = (a: ServicioEmpresa, b: ServicioEmpresa) => {
+            const setA = getPlatoSettings(a.id);
+            const setB = getPlatoSettings(b.id);
+            
+            // 1. Recommended first
+            if (setA.recommended && !setB.recommended) return -1;
+            if (!setA.recommended && setB.recommended) return 1;
+            
+            // 2. Price Asc
             const pA = a.precioPorPersona || a.precioVenta || 0;
             const pB = b.precioPorPersona || b.precioVenta || 0;
             return pA - pB;
@@ -201,7 +207,7 @@ function SimuladorContent() {
             .values()
         );
         
-        const visibleDishes = allDishes.filter(d => isPlatoVisible(d.id));
+        const visibleDishes = allDishes.filter(d => getPlatoSettings(d.id).visible);
 
         const lowerCaseSearch = gastronomiaSearchTerm.toLowerCase();
         const filteredDishes = gastronomiaSearchTerm.trim() === ''
@@ -214,9 +220,9 @@ function SimuladorContent() {
         }));
 
         return { 
-            entradasDisponibles: enhancedDishes.filter(item => item.type === 'Entrada').map(menuItemToServicioEmpresa).sort(sortByPrice), 
-            principalesDisponibles: enhancedDishes.filter(item => item.type === 'Plato Principal').map(menuItemToServicioEmpresa).sort(sortByPrice), 
-            menusNinoDisponibles: enhancedDishes.filter(item => item.type === 'Menú Infantil/Adolescente' || item.type === 'Menú Infantil').map(menuItemToServicioEmpresa).sort(sortByPrice)
+            entradasDisponibles: enhancedDishes.filter(item => item.type === 'Entrada').map(menuItemToServicioEmpresa).sort(sortDishes), 
+            principalesDisponibles: enhancedDishes.filter(item => item.type === 'Plato Principal').map(menuItemToServicioEmpresa).sort(sortDishes), 
+            menusNinoDisponibles: enhancedDishes.filter(item => item.type === 'Menú Infantil/Adolescente' || item.type === 'Menú Infantil').map(menuItemToServicioEmpresa).sort(sortDishes)
         };
     }, [config, allMenus, gastronomiaSearchTerm]);
     
@@ -506,7 +512,11 @@ function SimuladorContent() {
 
     const sortedPaquetes = useMemo(() => {
         if (!config) return [];
-        return [...config.paquetes].sort((a, b) => calculatePackageEstimatedPrice(a) - calculatePackageEstimatedPrice(b));
+        return [...config.paquetes].sort((a, b) => {
+            if (a.recommended && !b.recommended) return -1;
+            if (!a.recommended && b.recommended) return 1;
+            return calculatePackageEstimatedPrice(a) - calculatePackageEstimatedPrice(b);
+        });
     }, [config, adultos, ninosYAdolescentes, formData.serviciosSeleccionados, eventoFecha]);
 
     if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-slate-50"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
@@ -677,18 +687,25 @@ function SimuladorContent() {
                                     <div className="w-2 h-6 bg-primary rounded-full"></div> ENTRADAS (Elige {maxEntradas})
                                 </Label>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    {entradasDisponibles.map(s => (
-                                        <label key={s.id} className={cn(
-                                            "group p-5 border-2 rounded-[1.5rem] cursor-pointer transition-all flex items-center gap-4",
-                                            selectedEntradas.includes(s.id) ? "border-primary bg-primary/5 shadow-lg shadow-primary/5" : "border-slate-100 hover:border-primary/20 bg-slate-50/50"
-                                        )}>
-                                            <Checkbox checked={selectedEntradas.includes(s.id)} onCheckedChange={v => handleEntradaChange(s.id, !!v)} className="h-6 w-6 rounded-lg"/>
-                                            <div className="flex flex-col flex-grow min-w-0">
-                                                <span className="text-sm font-black text-slate-700 uppercase tracking-tight truncate">{s.nombre}</span>
-                                                <span className="text-[10px] font-bold text-primary uppercase tracking-widest">{formatCurrency(s.precioPorPersona || s.precioVenta)} p/p</span>
-                                            </div>
-                                        </label>
-                                    ))}
+                                    {entradasDisponibles.map(s => {
+                                        const isRecommended = config?.platosVisibles?.find(p => p.id === s.id)?.recommended;
+                                        return (
+                                            <label key={s.id} className={cn(
+                                                "group relative p-5 border-2 rounded-[1.5rem] cursor-pointer transition-all flex items-center gap-4",
+                                                selectedEntradas.includes(s.id) ? "border-primary bg-primary/5 shadow-lg shadow-primary/5" : "border-slate-100 hover:border-primary/20 bg-slate-50/50",
+                                                isRecommended && !selectedEntradas.includes(s.id) && "border-amber-200 bg-amber-50/30 shadow-md"
+                                            )}>
+                                                {isRecommended && (
+                                                    <div className="absolute -top-2 -right-2 bg-amber-500 text-white text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg z-10">RECOMENDADO</div>
+                                                )}
+                                                <Checkbox checked={selectedEntradas.includes(s.id)} onCheckedChange={v => handleEntradaChange(s.id, !!v)} className="h-6 w-6 rounded-lg"/>
+                                                <div className="flex flex-col flex-grow min-w-0">
+                                                    <span className={cn("text-sm font-black uppercase tracking-tight truncate", isRecommended ? "text-amber-900" : "text-slate-700")}>{s.nombre}</span>
+                                                    <span className="text-[10px] font-bold text-primary uppercase tracking-widest">{formatCurrency(s.precioPorPersona || s.precioVenta)} p/p</span>
+                                                </div>
+                                            </label>
+                                        );
+                                    })}
                                 </div>
                             </div>
 
@@ -697,18 +714,25 @@ function SimuladorContent() {
                                     <div className="w-2 h-6 bg-primary rounded-full"></div> PLATO PRINCIPAL (Adultos)
                                 </Label>
                                 <RadioGroup value={selectedPrincipal} onValueChange={v => { setSelectedPrincipal(v); handleGastronomicSelectionChange('principal', v); }} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    {principalesDisponibles.map(s => (
-                                        <label key={s.id} className={cn(
-                                            "group p-5 border-2 rounded-[1.5rem] cursor-pointer transition-all flex items-center gap-4",
-                                            selectedPrincipal === s.id ? "border-primary bg-primary/5 shadow-lg shadow-primary/5" : "border-slate-100 hover:border-primary/20 bg-slate-50/50"
-                                        )}>
-                                            <RadioGroupItem value={s.id} className="h-6 w-6"/>
-                                            <div className="flex flex-col flex-grow min-w-0">
-                                                <span className="text-sm font-black text-slate-700 uppercase tracking-tight truncate">{s.nombre}</span>
-                                                <span className="text-[10px] font-bold text-primary uppercase tracking-widest">{formatCurrency(s.precioPorPersona || s.precioVenta)} p/p</span>
-                                            </div>
-                                        </label>
-                                    ))}
+                                    {principalesDisponibles.map(s => {
+                                        const isRecommended = config?.platosVisibles?.find(p => p.id === s.id)?.recommended;
+                                        return (
+                                            <label key={s.id} className={cn(
+                                                "group relative p-5 border-2 rounded-[1.5rem] cursor-pointer transition-all flex items-center gap-4",
+                                                selectedPrincipal === s.id ? "border-primary bg-primary/5 shadow-lg shadow-primary/5" : "border-slate-100 hover:border-primary/20 bg-slate-50/50",
+                                                isRecommended && selectedPrincipal !== s.id && "border-amber-200 bg-amber-50/30 shadow-md"
+                                            )}>
+                                                {isRecommended && (
+                                                    <div className="absolute -top-2 -right-2 bg-amber-500 text-white text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg z-10">RECOMENDADO</div>
+                                                )}
+                                                <RadioGroupItem value={s.id} className="h-6 w-6"/>
+                                                <div className="flex flex-col flex-grow min-w-0">
+                                                    <span className={cn("text-sm font-black uppercase tracking-tight truncate", isRecommended ? "text-amber-900" : "text-slate-700")}>{s.nombre}</span>
+                                                    <span className="text-[10px] font-bold text-primary uppercase tracking-widest">{formatCurrency(s.precioPorPersona || s.precioVenta)} p/p</span>
+                                                </div>
+                                            </label>
+                                        );
+                                    })}
                                 </RadioGroup>
                             </div>
 
@@ -718,18 +742,25 @@ function SimuladorContent() {
                                         <div className="w-2 h-6 bg-purple-500 rounded-full"></div> MENÚ INFANTIL
                                     </Label>
                                     <RadioGroup value={selectedInfantil} onValueChange={v => { setSelectedInfantil(v); handleGastronomicSelectionChange('infantil', v); }} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        {menusNinoDisponibles.map(s => (
-                                            <label key={s.id} className={cn(
-                                                "group p-5 border-2 rounded-[1.5rem] cursor-pointer transition-all flex items-center gap-4",
-                                                selectedInfantil === s.id ? "border-purple-500 bg-purple-50 shadow-lg shadow-purple-900/5" : "border-slate-100 hover:border-purple-200 bg-slate-50/50"
-                                            )}>
-                                                <RadioGroupItem value={s.id} className="h-6 w-6 border-purple-300"/>
-                                                <div className="flex flex-col flex-grow min-w-0">
-                                                    <span className="text-sm font-black text-slate-700 uppercase tracking-tight truncate">{s.nombre}</span>
-                                                    <span className="text-[10px] font-bold text-purple-600 uppercase tracking-widest">{formatCurrency(s.precioPorPersona || s.precioVenta)} p/p</span>
-                                                </div>
-                                            </label>
-                                        ))}
+                                        {menusNinoDisponibles.map(s => {
+                                            const isRecommended = config?.platosVisibles?.find(p => p.id === s.id)?.recommended;
+                                            return (
+                                                <label key={s.id} className={cn(
+                                                    "group relative p-5 border-2 rounded-[1.5rem] cursor-pointer transition-all flex items-center gap-4",
+                                                    selectedInfantil === s.id ? "border-purple-500 bg-purple-50 shadow-lg shadow-purple-900/5" : "border-slate-100 hover:border-purple-200 bg-slate-50/50",
+                                                    isRecommended && selectedInfantil !== s.id && "border-amber-200 bg-amber-50/30 shadow-md"
+                                                )}>
+                                                    {isRecommended && (
+                                                        <div className="absolute -top-2 -right-2 bg-amber-500 text-white text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg z-10">RECOMENDADO</div>
+                                                    )}
+                                                    <RadioGroupItem value={s.id} className="h-6 w-6 border-purple-300"/>
+                                                    <div className="flex flex-col flex-grow min-w-0">
+                                                        <span className={cn("text-sm font-black uppercase tracking-tight truncate", isRecommended ? "text-amber-900" : "text-slate-700")}>{s.nombre}</span>
+                                                        <span className="text-[10px] font-bold text-purple-600 uppercase tracking-widest">{formatCurrency(s.precioPorPersona || s.precioVenta)} p/p</span>
+                                                    </div>
+                                                </label>
+                                            );
+                                        })}
                                     </RadioGroup>
                                 </div>
                             )}
@@ -753,8 +784,14 @@ function SimuladorContent() {
                                     return (
                                         <label key={p.id} className={cn(
                                             "p-6 sm:p-8 border-2 rounded-[2.5rem] cursor-pointer transition-all flex flex-col gap-6 relative overflow-hidden",
-                                            selectedPaqueteId === p.id ? "border-primary bg-primary/5 shadow-2xl scale-[1.02]" : "border-slate-100 hover:border-primary/20 bg-white"
+                                            selectedPaqueteId === p.id ? "border-primary bg-primary/5 shadow-2xl scale-[1.02]" : "border-slate-100 hover:border-primary/20 bg-white",
+                                            p.recommended && selectedPaqueteId !== p.id && "border-amber-200 ring-4 ring-amber-50 shadow-xl"
                                         )}>
+                                            {p.recommended && (
+                                                <div className="absolute -top-3 -right-2 bg-primary text-white text-[9px] font-black uppercase tracking-[0.2em] px-6 py-2 rounded-full shadow-2xl z-10 animate-pulse">
+                                                    MÁS ELEGIDO
+                                                </div>
+                                            )}
                                             <div className="flex items-start justify-between">
                                                 <div className="space-y-1">
                                                     <p className="font-black uppercase tracking-tight text-xl text-slate-800 leading-none">{p.nombre}</p>
@@ -780,7 +817,7 @@ function SimuladorContent() {
                                                                         {s.esRegalo ? <Gift className="w-3.5 h-3.5 shrink-0"/> : <Check className="w-3.5 h-3.5 opacity-40 shrink-0"/>} 
                                                                         <span className="truncate">{serv.nombre}</span>
                                                                     </div>
-                                                                    {s.esRegalo && <Badge className="bg-emerald-600 text-white border-none font-black text-[7px] px-1.5 h-4">REGALO</Badge>}
+                                                                    {s.esRegalo && <Badge className="bg-emerald-600 text-white border-none font-black text-[8px] px-1.5 h-4">REGALO</Badge>}
                                                                 </li>
                                                             );
                                                         })}
