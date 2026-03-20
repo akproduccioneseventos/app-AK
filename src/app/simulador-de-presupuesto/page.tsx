@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { 
     ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, 
     Save, Clock, CalendarDays, Search, Check, Info, TrendingUp, 
-    Share2, Printer, Gift, ListPlus, ShieldCheck, Zap, Star
+    Share2, Printer, Gift, ListPlus, ShieldCheck, Zap, Star, Calendar as CalendarIcon, CheckCircle2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido';
@@ -62,7 +62,7 @@ function getServicioCalculatedData(servicio: ServicioEmpresa, adultos: number, n
   };
 
   const total = recalcularCostoItem(itemDataForCalc, adultos, 0, ninosYAdolescentes);
-  const qtyTarget = getGuestCountForItem(itemDataForCalc, adultos, 0, ninosYAdolescentes);
+  const qtyTarget = getGuestCountForItem(itemDataForCalc, adultos, ninosYAdolescentes, 0);
 
   let qty = 1;
   let unitPrice = 0;
@@ -282,7 +282,7 @@ function SimuladorContent() {
         idsToAdd.forEach(id => {
             const dishToAdd = allDishes.find(d => d.id === id);
             if (dishToAdd) {
-                const invitados = getGuestCountForItem(dishToAdd, adultos, 0, ninosYAdolescentes);
+                const invitados = getGuestCountForItem(dishToAdd, adultos, ninosYAdolescentes, 0);
                 newSelected.set(dishToAdd.id, menuItemToServicioSeleccionado(dishToAdd, invitados));
             }
         });
@@ -459,7 +459,7 @@ function SimuladorContent() {
     const handleWhatsAppMeetingRequest = () => {
         if (!whatsappNumber) return;
         const template = budgetSettings.whatsappMessageTemplate || "Hola, ya generé un presupuesto para mi evento y me gustaría coordinar una reunión.";
-        let texto = `*Solicitud de Reunión - Presupuesto Simulado*\n`;
+        let texto = `*Solicitud de Reunión - Presupuesto Estimado*\n`;
         texto += `-----------------\n`;
         texto += `${template}\n\n`;
         texto += `*Nombre:* ${clienteNombre}\n`;
@@ -478,30 +478,50 @@ function SimuladorContent() {
     const calculatePackageEstimatedPrice = (paquete: PaqueteArmadoRapido) => {
         if (!config || !allSimuladorServices.length) return 0;
         
-        let total = 0;
-        paquete.serviciosIncluidos.forEach(s => {
-            if (s.esRegalo) return;
-            const serv = allSimuladorServices.find(os => os.id === s.id);
-            if (serv) {
-                const { total: itemTotal } = getServicioCalculatedData(serv, adultos, ninosYAdolescentes);
-                total += itemTotal;
-            }
-        });
+        const tempSelectedMap = new Map<string, { servicio: ServicioEmpresa, esRegalo: boolean }>();
         
+        paquete.serviciosIncluidos.forEach(s => {
+            const serv = allSimuladorServices.find(os => os.id === s.id);
+            if (serv) tempSelectedMap.set(serv.id, { servicio: serv, esRegalo: s.esRegalo || false });
+        });
+
         formData.serviciosSeleccionados.forEach((data, id) => {
             const serv = allSimuladorServices.find(cat => cat.id === id);
-            if (serv) {
-                const { total: itemTotal } = getServicioCalculatedData(serv, adultos, ninosYAdolescentes);
-                total += itemTotal;
+            if (serv) tempSelectedMap.set(serv.id, { servicio: serv, esRegalo: data.esRegalo });
+        });
+
+        if (config.serviceDependencies) {
+            config.serviceDependencies.forEach(dep => {
+                if (tempSelectedMap.has(dep.triggerServiceId) && !tempSelectedMap.has(dep.requiredServiceId)) {
+                    const serv = allSimuladorServices.find(s => s.id === dep.requiredServiceId);
+                    if (serv) tempSelectedMap.set(serv.id, { servicio: serv, esRegalo: false });
+                }
+            });
+        }
+
+        let totalRegular = 0;
+        tempSelectedMap.forEach(({ servicio, esRegalo }) => {
+            if (!esRegalo) {
+                const { total } = getServicioCalculatedData(servicio, adultos, ninosYAdolescentes);
+                totalRegular += total;
             }
         });
 
-        const disc = total * 0.10;
-        const totalSinAjuste = total - disc;
+        const descPromo = totalRegular * 0.10;
+        const totalSinAjuste = totalRegular - descPromo;
         const eventYear = eventoFecha ? eventoFecha.getFullYear() : new Date().getFullYear();
         const aniosDif = Math.max(0, eventYear - new Date().getFullYear());
-        return totalSinAjuste * Math.pow(1.15, aniosDif);
+        return Math.round(totalSinAjuste * Math.pow(1.15, aniosDif));
     };
+
+    const sortedPaquetes = useMemo(() => {
+        if (!config?.paquetes) return [];
+        return [...config.paquetes].sort((a, b) => {
+            if (a.recommended && !b.recommended) return -1;
+            if (!a.recommended && b.recommended) return 1;
+            return 0;
+        });
+    }, [config?.paquetes]);
 
     if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-slate-50"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
     
@@ -537,7 +557,7 @@ function SimuladorContent() {
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full text-left">
                                         {budgetSettings.valuePropositions?.map((prop, i) => (
                                             <div key={i} className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl border border-slate-100">
-                                                <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0"/>
+                                                <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0"/>
                                                 <span className="text-[10px] font-bold uppercase tracking-tight text-slate-600">{prop}</span>
                                             </div>
                                         ))}
@@ -789,7 +809,7 @@ function SimuladorContent() {
                                             <div className="flex items-start justify-between">
                                                 <div className="space-y-1">
                                                     <p className="font-black uppercase tracking-tight text-xl text-slate-800 leading-none">{p.nombre}</p>
-                                                    <p className="text-sm font-black text-primary">{formatCurrency(estimatedTotal)} <span className="text-[8px] uppercase tracking-widest text-slate-400 ml-1">Est. Total</span></p>
+                                                    <p className="text-sm font-black text-primary">{formatCurrency(estimatedTotal)} <span className="text-[8px] uppercase tracking-widest text-slate-400 ml-1">Presupuesto Estimado</span></p>
                                                 </div>
                                                 <RadioGroupItem value={p.id} className="h-6 w-6"/>
                                             </div>
