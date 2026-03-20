@@ -13,7 +13,7 @@ import {
     ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, Package, ChefHat, 
     FileText, Send, CheckCircle, Gift, User, Phone, MessageSquare, Share2, 
     Printer, Edit, CalendarDays, Search, Check, Info, TrendingUp, AlertTriangle, 
-    X, Percent, Layers, Clock
+    X, Percent, Layers, Clock, ListPlus
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido';
@@ -35,6 +35,8 @@ import { getMenus } from '@/app/actions/menus-catering';
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import { getGuestCountForItem, recalcularCostoItem } from '@/lib/calculations';
 import { cn } from '@/lib/utils';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Badge } from '@/components/ui/badge';
 
 const formatCurrency = (amount?: number) => {
     if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -302,7 +304,7 @@ function SimuladorContent() {
         const paqueteSeleccionado = config.paquetes.find(p => p.id === selectedPaqueteId);
         if (paqueteSeleccionado) {
             paqueteSeleccionado.serviciosIncluidos.forEach(s => {
-                const serv = allSimuladorServices.find(cat => cat.id === s.id);
+                const serv = allSimuladorServices.find(os => os.id === s.id);
                 if (serv) allSelectedServicesMap.set(serv.id, { servicio: serv, esRegalo: s.esRegalo || false });
             });
         }
@@ -476,7 +478,6 @@ function SimuladorContent() {
             }
         });
         
-        // Add current selected dishes to the estimation if we are in step 3
         formData.serviciosSeleccionados.forEach((data, id) => {
             const serv = allSimuladorServices.find(cat => cat.id === id);
             if (serv) {
@@ -561,7 +562,7 @@ function SimuladorContent() {
                                 )}
                                 {stats.descPromo > 0 && (
                                     <div className="flex justify-between items-center text-[10px] font-black uppercase text-rose-400 tracking-widest">
-                                        <span>Bonificación Promo:</span>
+                                        <span>Bonificación Promo (10%):</span>
                                         <span>-{formatCurrency(stats.descPromo)}</span>
                                     </div>
                                 )}
@@ -718,7 +719,7 @@ function SimuladorContent() {
 
                                     return (
                                         <label key={p.id} className={cn(
-                                            "p-8 border-2 rounded-[2.5rem] cursor-pointer transition-all flex flex-col gap-6 relative overflow-hidden",
+                                            "p-6 sm:p-8 border-2 rounded-[2.5rem] cursor-pointer transition-all flex flex-col gap-6 relative overflow-hidden",
                                             selectedPaqueteId === p.id ? "border-primary bg-primary/5 shadow-2xl scale-[1.02]" : "border-slate-100 hover:border-primary/20 bg-white"
                                         )}>
                                             <div className="flex items-start justify-between">
@@ -728,18 +729,31 @@ function SimuladorContent() {
                                                 </div>
                                                 <RadioGroupItem value={p.id} className="h-6 w-6"/>
                                             </div>
-                                            <ul className="text-[10px] space-y-2.5 text-slate-500 font-bold uppercase tracking-tight">
-                                                {sortedIncluded.slice(0, 10).map(s => {
-                                                    const serv = allSimuladorServices.find(os => os.id === s.id);
-                                                    return serv && (
-                                                        <li key={s.id} className={cn("flex items-center gap-3", s.esRegalo && "text-green-600 font-black")}>
-                                                            {s.esRegalo ? <Gift className="w-3.5 h-3.5"/> : <Check className="w-3.5 h-3.5 opacity-40"/>} 
-                                                            <span className="truncate">{serv.nombre} {s.esRegalo && "(REGALO)"}</span>
-                                                        </li>
-                                                    );
-                                                })}
-                                                {sortedIncluded.length > 10 && <li className="text-[9px] opacity-50">+ {sortedIncluded.length - 10} servicios adicionales</li>}
-                                            </ul>
+                                            
+                                            <div className="space-y-3">
+                                                <Label className="text-[9px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                                                    <ListPlus className="w-3 h-3"/> Servicios Incluidos:
+                                                </Label>
+                                                <ScrollArea className="h-48 pr-3 border rounded-2xl bg-white shadow-inner p-2">
+                                                    <ul className="text-[10px] space-y-2 text-slate-500 font-bold uppercase tracking-tight">
+                                                        {sortedIncluded.map(s => {
+                                                            const serv = allSimuladorServices.find(os => os.id === s.id);
+                                                            return serv && (
+                                                                <li key={s.id} className={cn(
+                                                                    "flex items-center justify-between gap-3 p-2 rounded-xl border",
+                                                                    s.esRegalo ? "bg-emerald-50 border-emerald-100 text-emerald-700" : "bg-slate-50 border-slate-100 text-slate-600"
+                                                                )}>
+                                                                    <div className="flex items-center gap-2 min-w-0">
+                                                                        {s.esRegalo ? <Gift className="w-3.5 h-3.5 shrink-0"/> : <Check className="w-3.5 h-3.5 opacity-40 shrink-0"/>} 
+                                                                        <span className="truncate">{serv.nombre}</span>
+                                                                    </div>
+                                                                    {s.esRegalo && <Badge className="bg-emerald-600 text-white border-none font-black text-[7px] px-1.5 h-4">REGALO</Badge>}
+                                                                </li>
+                                                            );
+                                                        })}
+                                                    </ul>
+                                                </ScrollArea>
+                                            </div>
                                             {selectedPaqueteId === p.id && <div className="absolute -bottom-2 -right-2 p-4 opacity-10 rotate-12"><PartyPopper className="w-20 h-20 text-primary"/></div>}
                                         </label>
                                     );
