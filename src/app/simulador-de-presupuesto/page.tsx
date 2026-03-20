@@ -181,7 +181,11 @@ function SimuladorContent() {
             return setting !== undefined ? setting.visible : true;
         };
         
-        const sortByPrice = (a: { precioVenta: number }, b: { precioVenta: number }) => a.precioVenta - b.precioVenta;
+        const sortByPrice = (a: ServicioEmpresa, b: ServicioEmpresa) => {
+            const pA = a.precioPorPersona || a.precioVenta || 0;
+            const pB = b.precioPorPersona || b.precioVenta || 0;
+            return pA - pB;
+        };
     
         const allDishes = Array.from(
             allMenus.flatMap(m => m.items)
@@ -459,6 +463,41 @@ function SimuladorContent() {
         window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(texto)}`, '_blank');
     };
 
+    const calculatePackageEstimatedPrice = (paquete: PaqueteArmadoRapido) => {
+        if (!config || !allSimuladorServices.length) return 0;
+        
+        let total = 0;
+        paquete.serviciosIncluidos.forEach(s => {
+            if (s.esRegalo) return;
+            const serv = allSimuladorServices.find(os => os.id === s.id);
+            if (serv) {
+                const { total: itemTotal } = getServicioCalculatedData(serv, adultos, ninosYAdolescentes);
+                total += itemTotal;
+            }
+        });
+        
+        // Add current selected dishes to the estimation if we are in step 3
+        formData.serviciosSeleccionados.forEach((data, id) => {
+            const serv = allSimuladorServices.find(cat => cat.id === id);
+            if (serv) {
+                const { total: itemTotal } = getServicioCalculatedData(serv, adultos, ninosYAdolescentes);
+                total += itemTotal;
+            }
+        });
+
+        const disc = total * 0.10;
+        const totalSinAjuste = total - disc;
+        
+        const eventYear = eventoFecha ? eventoFecha.getFullYear() : new Date().getFullYear();
+        const aniosDif = Math.max(0, eventYear - new Date().getFullYear());
+        return totalSinAjuste * Math.pow(1.15, aniosDif);
+    };
+
+    const sortedPaquetes = useMemo(() => {
+        if (!config) return [];
+        return [...config.paquetes].sort((a, b) => calculatePackageEstimatedPrice(a) - calculatePackageEstimatedPrice(b));
+    }, [config, adultos, ninosYAdolescentes, formData.serviciosSeleccionados, eventoFecha]);
+
     if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-slate-50"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
     
     if (step === 4 && generatedPresupuestoId) {
@@ -473,45 +512,43 @@ function SimuladorContent() {
                     <CardContent className="p-4 sm:p-10 print:p-2 space-y-10">
                          <div className="space-y-6">
                             <h3 className="font-headline text-2xl text-center uppercase tracking-tighter text-slate-800">Desglose de Servicios</h3>
-                            <div className="border rounded-[2rem] overflow-hidden shadow-sm print:border-slate-300">
-                                <div className="overflow-x-auto">
-                                    <Table>
-                                        <TableHeader className="bg-slate-50">
-                                            <TableRow>
-                                                <TableHead className="font-black text-[10px] uppercase pl-8 py-4">Artículo / Categoría</TableHead>
-                                                <TableHead className="text-center font-black text-[10px] uppercase">Cant.</TableHead>
-                                                <TableHead className="text-right pr-8 font-black text-[10px] uppercase">Subtotal</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {Object.entries(stats.agrupados).map(([categoria, items]) => (
-                                                <React.Fragment key={categoria}>
-                                                    <TableRow className="bg-muted/30 border-y"><TableCell colSpan={3} className="font-black text-[10px] uppercase text-primary pl-8 tracking-widest py-2">{categoria}</TableCell></TableRow>
-                                                    {items.map(item => (
-                                                        <TableRow key={item.id} className="hover:bg-slate-50/50 transition-colors border-slate-50">
-                                                            <TableCell className="pl-8 py-4">
-                                                                <p className="font-bold text-slate-800 text-sm">{item.nombre}</p>
-                                                                <p className="text-[10px] text-muted-foreground uppercase font-medium">{formatCurrency(item.precioUnitario)} c/u</p>
-                                                            </TableCell>
-                                                            <TableCell className="text-center text-sm font-black text-slate-400">{item.cantidad}</TableCell>
-                                                            <TableCell className="text-right pr-8">
-                                                                {item.esRegalo ? (
-                                                                    <div className="flex flex-col items-end">
-                                                                        <span className="text-[10px] line-through text-slate-300 font-bold">{formatCurrency(item.costoTotal)}</span>
-                                                                        <span className="text-[10px] font-black text-green-600 tracking-tighter">SIN COSTO</span>
-                                                                    </div>
-                                                                ) : <span className="text-sm font-black text-slate-700">{formatCurrency(item.costoTotal)}</span>}
-                                                            </TableCell>
-                                                        </TableRow>
-                                                    ))}
-                                                </React.Fragment>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </div>
+                            <div className="border rounded-[2rem] overflow-x-auto shadow-sm print:border-slate-300">
+                                <Table>
+                                    <TableHeader className="bg-slate-50">
+                                        <TableRow>
+                                            <TableHead className="font-black text-[10px] uppercase pl-8 py-4 min-w-[200px]">Artículo / Categoría</TableHead>
+                                            <TableHead className="text-center font-black text-[10px] uppercase">Cant.</TableHead>
+                                            <TableHead className="text-right pr-8 font-black text-[10px] uppercase min-w-[120px]">Subtotal</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {Object.entries(stats.agrupados).map(([categoria, items]) => (
+                                            <React.Fragment key={categoria}>
+                                                <TableRow className="bg-muted/30 border-y"><TableCell colSpan={3} className="font-black text-[10px] uppercase text-primary pl-8 tracking-widest py-2">{categoria}</TableCell></TableRow>
+                                                {items.map(item => (
+                                                    <TableRow key={item.id} className="hover:bg-slate-50/50 transition-colors border-slate-50">
+                                                        <TableCell className="pl-8 py-4">
+                                                            <p className="font-bold text-slate-800 text-sm">{item.nombre}</p>
+                                                            <p className="text-[10px] text-muted-foreground uppercase font-medium">{formatCurrency(item.precioUnitario)} c/u</p>
+                                                        </TableCell>
+                                                        <TableCell className="text-center text-sm font-black text-slate-400">{item.cantidad}</TableCell>
+                                                        <TableCell className="text-right pr-8">
+                                                            {item.esRegalo ? (
+                                                                <div className="flex flex-col items-end">
+                                                                    <span className="text-[10px] line-through text-slate-300 font-bold">{formatCurrency(item.costoTotal)}</span>
+                                                                    <span className="text-[10px] font-black text-green-600 tracking-tighter">SIN COSTO</span>
+                                                                </div>
+                                                            ) : <span className="text-sm font-black text-slate-700">{formatCurrency(item.costoTotal)}</span>}
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </React.Fragment>
+                                        ))}
+                                    </TableBody>
+                                </Table>
                             </div>
                             
-                            <div className="w-full max-w-sm ml-auto space-y-3 py-8 px-10 bg-slate-900 rounded-[3rem] text-white shadow-2xl">
+                            <div className="w-full max-w-sm ml-auto space-y-3 py-8 px-10 bg-slate-900 text-white rounded-[3rem] shadow-2xl">
                                 <div className="flex justify-between items-center text-[10px] font-black uppercase text-slate-500 tracking-widest">
                                     <span>Valor Real Servicios:</span>
                                     <span>{formatCurrency(stats.subtotalBruto)}</span>
@@ -612,7 +649,10 @@ function SimuladorContent() {
                                             selectedEntradas.includes(s.id) ? "border-primary bg-primary/5 shadow-lg shadow-primary/5" : "border-slate-100 hover:border-primary/20 bg-slate-50/50"
                                         )}>
                                             <Checkbox checked={selectedEntradas.includes(s.id)} onCheckedChange={v => handleEntradaChange(s.id, !!v)} className="h-6 w-6 rounded-lg"/>
-                                            <span className="text-sm font-black text-slate-700 uppercase tracking-tight">{s.nombre}</span>
+                                            <div className="flex flex-col flex-grow min-w-0">
+                                                <span className="text-sm font-black text-slate-700 uppercase tracking-tight truncate">{s.nombre}</span>
+                                                <span className="text-[10px] font-bold text-primary uppercase tracking-widest">{formatCurrency(s.precioPorPersona || s.precioVenta)} p/p</span>
+                                            </div>
                                         </label>
                                     ))}
                                 </div>
@@ -629,7 +669,10 @@ function SimuladorContent() {
                                             selectedPrincipal === s.id ? "border-primary bg-primary/5 shadow-lg shadow-primary/5" : "border-slate-100 hover:border-primary/20 bg-slate-50/50"
                                         )}>
                                             <RadioGroupItem value={s.id} className="h-6 w-6"/>
-                                            <span className="text-sm font-black text-slate-700 uppercase tracking-tight">{s.nombre}</span>
+                                            <div className="flex flex-col flex-grow min-w-0">
+                                                <span className="text-sm font-black text-slate-700 uppercase tracking-tight truncate">{s.nombre}</span>
+                                                <span className="text-[10px] font-bold text-primary uppercase tracking-widest">{formatCurrency(s.precioPorPersona || s.precioVenta)} p/p</span>
+                                            </div>
                                         </label>
                                     ))}
                                 </RadioGroup>
@@ -647,7 +690,10 @@ function SimuladorContent() {
                                                 selectedInfantil === s.id ? "border-purple-500 bg-purple-50 shadow-lg shadow-purple-900/5" : "border-slate-100 hover:border-purple-200 bg-slate-50/50"
                                             )}>
                                                 <RadioGroupItem value={s.id} className="h-6 w-6 border-purple-300"/>
-                                                <span className="text-sm font-black text-slate-700 uppercase tracking-tight">{s.nombre}</span>
+                                                <div className="flex flex-col flex-grow min-w-0">
+                                                    <span className="text-sm font-black text-slate-700 uppercase tracking-tight truncate">{s.nombre}</span>
+                                                    <span className="text-[10px] font-bold text-purple-600 uppercase tracking-widest">{formatCurrency(s.precioPorPersona || s.precioVenta)} p/p</span>
+                                                </div>
                                             </label>
                                         ))}
                                     </RadioGroup>
@@ -659,7 +705,7 @@ function SimuladorContent() {
                         <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-700">
                             <h3 className="font-black text-xl text-slate-800 uppercase tracking-tighter text-center">Selecciona tu Paquete de Servicios</h3>
                             <RadioGroup value={selectedPaqueteId} onValueChange={setSelectedPaqueteId} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {config?.paquetes.map(p => {
+                                {sortedPaquetes.map(p => {
                                     const sortedIncluded = [...p.serviciosIncluidos].sort((a, b) => {
                                         if (a.esRegalo && !b.esRegalo) return 1;
                                         if (!a.esRegalo && b.esRegalo) return -1;
@@ -668,13 +714,18 @@ function SimuladorContent() {
                                         return (sA?.categoria || '').localeCompare(sB?.categoria || '');
                                     });
 
+                                    const estimatedTotal = calculatePackageEstimatedPrice(p);
+
                                     return (
                                         <label key={p.id} className={cn(
                                             "p-8 border-2 rounded-[2.5rem] cursor-pointer transition-all flex flex-col gap-6 relative overflow-hidden",
                                             selectedPaqueteId === p.id ? "border-primary bg-primary/5 shadow-2xl scale-[1.02]" : "border-slate-100 hover:border-primary/20 bg-white"
                                         )}>
                                             <div className="flex items-start justify-between">
-                                                <p className="font-black uppercase tracking-tight text-xl text-slate-800 leading-none">{p.nombre}</p>
+                                                <div className="space-y-1">
+                                                    <p className="font-black uppercase tracking-tight text-xl text-slate-800 leading-none">{p.nombre}</p>
+                                                    <p className="text-sm font-black text-primary">{formatCurrency(estimatedTotal)} <span className="text-[8px] uppercase tracking-widest text-slate-400 ml-1">Est. Total</span></p>
+                                                </div>
                                                 <RadioGroupItem value={p.id} className="h-6 w-6"/>
                                             </div>
                                             <ul className="text-[10px] space-y-2.5 text-slate-500 font-bold uppercase tracking-tight">
