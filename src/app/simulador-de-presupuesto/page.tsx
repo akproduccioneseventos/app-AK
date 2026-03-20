@@ -13,7 +13,7 @@ import {
     ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, Package, ChefHat, 
     FileText, Send, CheckCircle, Gift, User, Phone, MessageSquare, Share2, 
     Printer, Edit, CalendarDays, Search, Check, Info, TrendingUp, AlertTriangle, 
-    X, Percent, Layers, Clock, ListPlus
+    X, Percent, Layers, Clock, ListPlus, CalendarDays as CalendarIcon, Sparkles
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido';
@@ -37,6 +37,7 @@ import { getGuestCountForItem, recalcularCostoItem } from '@/lib/calculations';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
+import { motion } from 'framer-motion';
 
 const formatCurrency = (amount?: number) => {
     if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -456,13 +457,22 @@ function SimuladorContent() {
 
     const handlePrev = () => { if (step > 1) setStep(s => s - 1); };
 
-    const handleShareWhatsApp = () => {
+    const handleWhatsAppMeetingRequest = () => {
         if (!whatsappNumber) return;
-        let texto = `*Resumen de Presupuesto Simulado*\n`;
-        texto += `-----------------\n*Cliente:* ${clienteNombre}\n*Invitados:* ${adultos + ninosYAdolescentes}\n-----------------\n`;
-        texto += `*PRESUPUESTO ESTIMADO:* *${formatCurrency(stats.totalFinal)}*\n`;
-        texto += `Ver detalle en: ${window.location.origin}/presupuestos/${generatedPresupuestoId}/ver`;
+        let texto = `*Solicitud de Reunión - Presupuesto Simulado*\n`;
+        texto += `-----------------\n`;
+        texto += `Hola, ya generé un presupuesto para mi evento (*${fiesta?.configuracion.tipoCelebracion || 'Fiesta'}* para *${adultos + ninosYAdolescentes}* invitados) y me gustaría coordinar una reunión para revisar detalles, despejar dudas y confirmar disponibilidad.\n\n`;
+        texto += `*Nombre:* ${clienteNombre}\n`;
+        texto += `*Presupuesto Estimado:* ${formatCurrency(stats.totalFinal)}\n`;
+        texto += `*Link:* ${window.location.origin}/presupuestos/${generatedPresupuestoId}/ver`;
+        
         window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(texto)}`, '_blank');
+    };
+
+    const handleCopyToClipboard = () => {
+        const url = `${window.location.origin}/presupuestos/${generatedPresupuestoId}/ver`;
+        navigator.clipboard.writeText(url);
+        toast({ title: "Enlace Copiado", description: "El enlace al presupuesto se ha copiado al portapapeles." });
     };
 
     const calculatePackageEstimatedPrice = (paquete: PaqueteArmadoRapido) => {
@@ -503,16 +513,50 @@ function SimuladorContent() {
     
     if (step === 4 && generatedPresupuestoId) {
         return (
-            <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-2 sm:p-4 print:bg-white print:p-0">
-                <Card className="w-full max-w-3xl shadow-3xl print:shadow-none border-none rounded-[2.5rem] overflow-hidden">
-                    <CardHeader className="text-center bg-primary/5 p-6 sm:p-10 border-b border-primary/10">
-                        <CheckCircle className="w-16 h-16 mx-auto text-green-500 mb-4" />
-                        <CardTitle className="font-headline text-3xl sm:text-4xl font-black uppercase tracking-tighter">¡Presupuesto Generado!</CardTitle>
-                        <CardDescription className="text-base sm:text-lg font-medium text-slate-500">Un asesor te contactará pronto para formalizar.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="p-4 sm:p-10 print:p-2 space-y-10">
-                         <div className="space-y-6">
-                            <h3 className="font-headline text-2xl text-center uppercase tracking-tighter text-slate-800">Desglose de Servicios</h3>
+            <div className="min-h-screen bg-slate-50 flex flex-col items-center py-10 px-2 sm:px-4 print:bg-white print:p-0">
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-3xl space-y-8">
+                    
+                    {/* BANNER VENTA PRO */}
+                    <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
+                        <CardContent className="p-8 sm:p-12 flex flex-col items-center text-center space-y-8">
+                            <div className="p-4 bg-primary/10 rounded-full">
+                                <PartyPopper className="w-12 h-12 text-primary animate-bounce"/>
+                            </div>
+                            <div className="space-y-3">
+                                <h2 className="text-3xl sm:text-4xl font-black font-headline tracking-tighter text-slate-900 uppercase">
+                                    ¡Tu presupuesto está listo!
+                                </h2>
+                                <p className="text-slate-500 font-medium max-w-md mx-auto leading-relaxed">
+                                    Ahora podés coordinar una reunión con nuestro equipo para revisar todos los detalles, despejar dudas y asegurar tu fecha.
+                                </p>
+                            </div>
+                            
+                            <div className="w-full flex flex-col items-center gap-4">
+                                <Button 
+                                    onClick={handleWhatsAppMeetingRequest}
+                                    size="lg" 
+                                    className="w-full max-w-md h-20 rounded-[1.5rem] bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xl shadow-2xl shadow-emerald-900/30 transition-all hover:scale-[1.02] active:scale-95"
+                                >
+                                    <CalendarIcon className="w-6 h-6 mr-3"/> AGENDAR REUNIÓN CON UN ASESOR
+                                </Button>
+                                
+                                <div className="flex flex-wrap justify-center gap-2">
+                                    <Button variant="ghost" onClick={handleCopyToClipboard} className="h-10 rounded-xl text-slate-400 font-bold uppercase tracking-widest text-[10px]">
+                                        <Share2 className="w-3.5 h-3.5 mr-2"/> Compartir Presupuesto
+                                    </Button>
+                                    <Button variant="ghost" onClick={() => window.print()} className="h-10 rounded-xl text-slate-400 font-bold uppercase tracking-widest text-[10px]">
+                                        <Printer className="w-3.5 h-3.5 mr-2"/> Guardar PDF
+                                    </Button>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="shadow-3xl print:shadow-none border-none rounded-[2.5rem] overflow-hidden">
+                        <CardHeader className="text-center bg-slate-50 p-6 sm:p-10 border-b border-slate-100">
+                            <CardTitle className="font-headline text-2xl sm:text-3xl font-black uppercase tracking-tighter text-slate-800">Resumen de Servicios</CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-4 sm:p-10 print:p-2 space-y-10">
                             <div className="border rounded-[2rem] overflow-x-auto shadow-sm print:border-slate-300">
                                 <Table>
                                     <TableHeader className="bg-slate-50">
@@ -578,27 +622,16 @@ function SimuladorContent() {
                                     <span className="text-3xl font-black text-primary drop-shadow-[0_0_15px_rgba(225,29,72,0.3)]">{formatCurrency(stats.totalFinal)}</span>
                                 </div>
                             </div>
-                         </div>
-                         <div className="p-8 bg-blue-50 border border-blue-100 rounded-[2rem] space-y-3">
-                            <h4 className="text-xs font-black uppercase text-blue-800 tracking-widest flex items-center gap-2">
-                                <Info className="w-4 h-4"/> Condiciones de Reserva
-                            </h4>
-                            <p className="text-xs text-blue-700 font-medium leading-relaxed">
-                                Para confirmar la promoción y reservar todos los servicios, se requiere una seña de $5.000. 
-                                <br />El presupuesto es válido por 30 días.
+                        </CardContent>
+                        <CardFooter className="bg-slate-50 p-8 border-t flex flex-col items-center gap-4">
+                            <p className="text-[10px] text-center text-slate-400 uppercase tracking-widest font-bold leading-loose">
+                                Presupuesto generado por AK Producciones. <br/>
+                                Válido por 30 días a partir de hoy.
                             </p>
-                         </div>
-                    </CardContent>
-                    <CardFooter className="flex flex-col sm:flex-row gap-3 p-6 sm:p-10 bg-slate-50 print:hidden border-t">
-                        <Button onClick={handleShareWhatsApp} variant="secondary" className="w-full h-14 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-widest shadow-xl shadow-emerald-900/20">
-                            <Share2 className="w-5 h-5 mr-3"/> WhatsApp
-                        </Button>
-                        <Button onClick={() => window.print()} variant="outline" className="w-full h-14 rounded-2xl font-bold border-slate-200 shadow-sm">
-                            <Printer className="w-5 h-5 mr-3"/> Imprimir PDF
-                        </Button>
-                        <Button onClick={() => setStep(1)} variant="ghost" className="w-full h-14 rounded-2xl text-slate-400 font-bold">Cerrar</Button>
-                    </CardFooter>
-                </Card>
+                            <Button variant="ghost" onClick={() => setStep(1)} className="rounded-xl text-slate-400 font-bold uppercase tracking-widest text-[10px] print:hidden">Iniciar Nueva Simulación</Button>
+                        </CardFooter>
+                    </Card>
+                </motion.div>
             </div>
         );
     }
