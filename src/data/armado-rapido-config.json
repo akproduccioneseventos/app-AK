@@ -4,6 +4,7 @@
     {
       "id": "new_paquete_1773831921614",
       "nombre": "Paquete basico ",
+      "recommended": false,
       "serviciosIncluidos": [
         {
           "id": "serv_1773234908609_4pe9i1v",
@@ -58,6 +59,7 @@
     {
       "id": "pkg_copy_1773836513524",
       "nombre": "Paquete intermedio ",
+      "recommended": true,
       "serviciosIncluidos": [
         {
           "id": "serv_1773234908609_4pe9i1v",
@@ -144,6 +146,7 @@
     {
       "id": "pkg_copy_1773836938087",
       "nombre": "Paquete premium",
+      "recommended": false,
       "serviciosIncluidos": [
         {
           "id": "serv_1773234908609_4pe9i1v",
@@ -262,31 +265,58 @@
   "platosVisibles": [
     {
       "id": "dish_entrada_1",
-      "visible": false
+      "visible": false,
+      "recommended": false
     },
     {
       "id": "dish_entrada_3",
-      "visible": false
+      "visible": false,
+      "recommended": false
     },
     {
       "id": "dish_entrada_13",
-      "visible": false
+      "visible": false,
+      "recommended": false
     },
     {
       "id": "dish_entrada_19",
-      "visible": false
+      "visible": false,
+      "recommended": false
     },
     {
       "id": "dish_entrada_18",
-      "visible": false
+      "visible": false,
+      "recommended": false
     },
     {
       "id": "dish_main_19",
-      "visible": false
+      "visible": false,
+      "recommended": false
     },
     {
       "id": "dish_main_10",
-      "visible": false
+      "visible": false,
+      "recommended": false
+    },
+    {
+      "id": "dish_entrada_5",
+      "visible": false,
+      "recommended": false
+    },
+    {
+      "id": "dish_entrada_14",
+      "visible": true,
+      "recommended": true
+    },
+    {
+      "id": "dish_entrada_25",
+      "visible": false,
+      "recommended": false
+    },
+    {
+      "id": "dish_entrada_23",
+      "visible": true,
+      "recommended": true
     }
   ],
   "serviceDependencies": [

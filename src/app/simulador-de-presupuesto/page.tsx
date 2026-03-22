@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent, Suspense } from 'react';
@@ -518,12 +519,7 @@ function SimuladorContent() {
     };
 
     const sortedPaquetes = useMemo(() => {
-        if (!config?.paquetes) return [];
-        return [...config.paquetes].sort((a, b) => {
-            if (a.recommended && !b.recommended) return -1;
-            if (!a.recommended && b.recommended) return 1;
-            return 0;
-        });
+        return config?.paquetes || [];
     }, [config?.paquetes]);
 
     if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-slate-100"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
@@ -805,7 +801,7 @@ function SimuladorContent() {
                                             p.recommended && selectedPaqueteId !== p.id && "border-amber-200 ring-4 ring-amber-50 shadow-xl"
                                         )}>
                                             {p.recommended && (
-                                                <div className="absolute -top-3 -right-2 bg-primary text-white text-[9px] font-black uppercase tracking-[0.2em] px-6 py-2 rounded-full shadow-2xl z-10 animate-pulse">
+                                                <div className="absolute top-3 right-3 bg-primary text-white text-[8px] sm:text-[9px] font-black uppercase tracking-[0.2em] px-4 py-1.5 rounded-full shadow-2xl z-10 animate-pulse">
                                                     MÁS ELEGIDO
                                                 </div>
                                             )}
