@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -8,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { 
-    ArrowLeft, Save, Loader2, Wand2, PlusCircle, Trash2, 
+    ArrowLeft, ArrowRight, Save, Loader2, Wand2, PlusCircle, Trash2, 
     Percent, Tag, MessageSquare, ListPlus, ShieldCheck, Zap, Info, 
     Package, ChefHat, Layers, Check, Search, Star, Eye, EyeOff, X, Gift
 } from 'lucide-react';
