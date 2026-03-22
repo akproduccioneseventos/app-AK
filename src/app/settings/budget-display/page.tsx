@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { 
     ArrowLeft, Save, Loader2, Wand2, PlusCircle, Trash2, 
     Percent, Tag, MessageSquare, ListPlus, ShieldCheck, Zap, Info, 
-    Package, ChefHat, Layers, Check, Search, Star, Eye, EyeOff
+    Package, ChefHat, Layers, Check, Search, Star, Eye, EyeOff, X, Gift
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveArmadoRapidoConfig, getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
@@ -26,6 +26,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { cn } from '@/lib/utils';
 import {
   Dialog,
   DialogContent,
