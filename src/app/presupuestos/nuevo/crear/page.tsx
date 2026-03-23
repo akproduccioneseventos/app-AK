@@ -21,7 +21,7 @@ import { Progress } from '@/components/ui/progress';
 import { getMenus } from '@/app/actions/menus-catering';
 import type { FullMenu } from '@/types/catering';
 import { getOcupiedDates } from '@/app/actions/agenda';
-import { getGuestCountForItem, recalcularCostoItem } from '@/lib/calculations';
+import { getGuestCountForItem, recalcularCostoItem, calculateSuggestedQuantity } from '@/lib/calculations';
 
 const SESSION_STORAGE_KEY = 'presupuestoEnProgreso_v3';
 
@@ -44,7 +44,7 @@ const initialFormData: PresupuestoFormData = {
   estado: 'Borrador',
   nombrePromocion: 'Descuento Promocional',
   descuentoTipo: 'porcentaje',
-  descuentoValor: '10', // Sincronizado con el simulador (10%)
+  descuentoValor: '10', 
   vigenciaPromocion: 'Válido por 30 días',
 };
 
@@ -98,6 +98,31 @@ function CrearPresupuestoContent() {
         } catch (error) { console.warn("Could not save form state", error); }
     }, [formData]);
 
+    // SYNC LOGIC: Auto-update quantities of selected items when guest count changes
+    useEffect(() => {
+        if (formData.serviciosSeleccionados.size === 0) return;
+
+        const adultos = formData.invitadosAdultos || 0;
+        const ninos = (formData.invitadosNinos || 0) + (formData.invitadosAdolescentes || 0);
+
+        let changed = false;
+        const newSelected = new Map(formData.serviciosSeleccionados);
+
+        newSelected.forEach((item, id) => {
+            if (item.calculationMethod === 'porPersona' || item.calculationMethod === 'ratio') {
+                const newQty = calculateSuggestedQuantity(item, adultos, ninos);
+                if (item.cantidad !== newQty) {
+                    newSelected.set(id, { ...item, cantidad: newQty });
+                    changed = true;
+                }
+            }
+        });
+
+        if (changed) {
+            setFormData(prev => ({ ...prev, serviciosSeleccionados: newSelected }));
+        }
+    }, [formData.invitadosAdultos, formData.invitadosNinos, formData.invitadosAdolescentes]);
+
     useEffect(() => {
         const fetchInitialData = async () => {
             setIsLoadingInitialData(true);
@@ -144,9 +169,6 @@ function CrearPresupuestoContent() {
                             serviciosSeleccionados: serviciosMap,
                             descuentoValor: presupuestoToEdit.descuentoValor?.toString() || '10'
                         });
-                         toast({ title: "Modo Edición", description: `Cargado el presupuesto de ${presupuestoToEdit.clienteNombre}.`});
-                    } else {
-                        toast({ title: "Error", description: "No se encontró el presupuesto a editar.", variant: "destructive" });
                     }
                 } else {
                     const leadName = searchParams.get('leadName');
@@ -207,26 +229,14 @@ function CrearPresupuestoContent() {
             protagonista2Nombre: formData.protagonista2Nombre,
             nombreEmpresa: formData.nombreEmpresa,
             itemsPresupuestados: Array.from(formData.serviciosSeleccionados.entries()).map(([id, serv]) => {
-              const invitadosParaItem = getGuestCountForItem(serv, formData.invitadosAdultos || 0, (formData.invitadosNinos || 0) + (formData.invitadosAdolescentes || 0));
-              let cantidad = 1;
-              switch (serv.calculationMethod) {
-                case 'porPersona':
-                  cantidad = invitadosParaItem;
-                  break;
-                case 'ratio':
-                  cantidad = Math.ceil(invitadosParaItem / (serv.invitadosPorUnidad || 1));
-                  break;
-                default:
-                  cantidad = serv.cantidad;
-              }
               return {
                 idServicioCatalogo: id,
                 nombreServicio: serv.nombreServicio,
-                cantidad: cantidad,
+                cantidad: serv.cantidad,
                 unidad: serv.unidad,
                 precioUnitario: serv.precioUnitarioOriginal,
                 precioUnitarioPresupuesto: serv.precioUnitarioPresupuesto,
-                costoTotalItem: 0, // Recalculated on server
+                costoTotalItem: 0, 
                 esRegalo: serv.esRegalo,
                 categoriaServicio: serv.categoriaServicio,
                 subcategoria: serv.subcategoria,
@@ -237,7 +247,7 @@ function CrearPresupuestoContent() {
                 tramosDePrecio: serv.tramosDePrecio,
               };
             }),
-            costoTotalEstimado: 0, // Will be recalculated on the server
+            costoTotalEstimado: 0, 
             nombrePromocion: formData.nombrePromocion,
             descuentoTipo: formData.descuentoTipo,
             descuentoValor: descuentoValorNum > 0 ? descuentoValorNum : undefined,
@@ -272,7 +282,7 @@ function CrearPresupuestoContent() {
         <div className="space-y-6">
              <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold tracking-tight font-headline">{editingPresupuestoId ? 'Modificar Presupuesto' : 'Crear Presupuesto'}</h1>
-                <Link href="/presupuestos/nuevo" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver a la Central</Button></Link>
+                <Link href="/presupuestos/nuevo" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
             </div>
             <Card className="shadow-lg">
                 <CardHeader>

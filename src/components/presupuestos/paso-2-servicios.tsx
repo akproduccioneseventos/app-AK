@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import type { PresupuestoFormData, ItemPresupuestado, Presupuesto } from '@/types/presupuesto';
@@ -24,8 +23,9 @@ import type { FullMenu, MenuItem } from '@/types/catering';
 import { MultiSelect } from '@/components/ui/multi-select'; 
 import { useToast } from '@/hooks/use-toast';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandList, CommandItem } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
+import { getGuestCountForItem, calculateSuggestedQuantity } from '@/lib/calculations';
 
 interface Paso2ServiciosProps {
   formData: PresupuestoFormData;
@@ -45,52 +45,15 @@ const formatCurrency = (amount?: number) => {
 
 type ServicioSeleccionadoValue = PresupuestoFormData['serviciosSeleccionados'] extends Map<any, infer V> ? V : never;
 
-function calcularCostoItem(item: ItemPresupuestado, adultos: number, adolescentes: number, ninos: number): number {
-  if (item.esRegalo) return 0;
-  
-  const totalInvitados = adultos + adolescentes + ninos;
-  const cantidadInvitados = getGuestCountForItem(item, adultos, adolescentes, ninos);
-  
-  if (cantidadInvitados === 0 && (item.calculationMethod === 'porPersona' || item.calculationMethod === 'ratio')) {
-    return 0;
-  }
-
-  let itemTotal = 0;
-  const precioUnitario = item.precioUnitarioPresupuesto ?? item.precioUnitario;
-
-  switch (item.calculationMethod) {
-    case 'fijo': 
-      itemTotal = (item.precioBase ?? precioUnitario) * (item.cantidad > 0 ? item.cantidad : 1);
-      break;
-    case 'porPersona': 
-      itemTotal = (item.precioPorPersona ?? precioUnitario) * cantidadInvitados; 
-      break;
-    case 'ratio':
-      const invitadosPorUnidadNum = Number(item.invitadosPorUnidad);
-      if (invitadosPorUnidadNum > 0) {
-        itemTotal = Math.ceil(cantidadInvitados / invitadosPorUnidadNum) * (item.precioBase ?? precioUnitario);
-      } else {
-        itemTotal = item.precioBase ?? precioUnitario; // Fallback
-      }
-      break;
-    case 'tramos':
-      const tramo = item.tramosDePrecio?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta);
-      itemTotal = tramo?.precio || 0;
-      break;
-    default: // Fallback to simple calculation
-      itemTotal = item.cantidad * precioUnitario;
-  }
-  return itemTotal;
-}
-
-const menuItemToServicioSeleccionado = (item: ServicioEmpresa, invitados: number): ServicioSeleccionadoValue => {
+const menuItemToServicioSeleccionado = (item: ServicioEmpresa, adultos: number, ninos: number): ServicioSeleccionadoValue => {
+    const qty = calculateSuggestedQuantity(item, adultos, ninos);
     return {
-        cantidad: invitados,
-        precioUnitarioOriginal: item.precioPorPersona || 0,
-        precioUnitarioPresupuesto: item.precioPorPersona || 0,
+        cantidad: qty,
+        precioUnitarioOriginal: item.precioPorPersona || item.precioVenta || 0,
+        precioUnitarioPresupuesto: item.precioPorPersona || item.precioVenta || 0,
         nombreServicio: item.nombre,
         unidad: 'personas',
-        categoriaServicio: 'Servicio de catering', // Explicitly set category
+        categoriaServicio: 'Servicio de catering',
         subcategoria: item.subcategoria,
         esRegalo: false,
         calculationMethod: 'porPersona',
@@ -103,7 +66,7 @@ const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): Se
         id: item.id,
         nombre: item.name,
         tipoItem: 'Servicio',
-        categoria: 'Servicio de catering', // Explicitly set category
+        categoria: 'Servicio de catering',
         subcategoria: item.type,
         calculationMethod: 'porPersona',
         precioPorPersona: item.precioVenta,
@@ -112,23 +75,6 @@ const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): Se
         valorUnitarioEstimado: item.totalDishCost,
     };
 };
-
-// Helper function to decide which guest count to use for an item
-function getGuestCountForItem(servicio: { categoriaServicio?: string; subcategoria?: string }, adultos: number, ninosYAdolescentes: number): number {
-  const categoria = (servicio.categoriaServicio || '').toLowerCase();
-  const subcategoria = (servicio.subcategoria || '').toLowerCase();
-  
-  if (categoria.includes('infantil') || categoria.includes('adolescente') || subcategoria.includes('infantil') || subcategoria.includes('adolescente')) {
-    return ninosYAdolescentes;
-  }
-  
-  if (categoria.includes('plato principal') || subcategoria.includes('plato principal')) {
-    return adultos;
-  }
-  
-  return adultos + ninosYAdolescentes;
-};
-
 
 export default function Paso2Servicios({ formData, setFormData, serviciosCatalogo, paquetesBase, allMenus, onCatalogUpdate, totalInvitados, config }: Paso2ServiciosProps) {
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
@@ -148,13 +94,17 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
     const newSelected = new Map(formData.serviciosSeleccionados);
     let wasModified = false;
   
+    const adultos = formData.invitadosAdultos || 0;
+    const ninos = (formData.invitadosNinos || 0) + (formData.invitadosAdolescentes || 0);
+
     config.serviceDependencies.forEach(dep => {
       if (currentSelectedIds.has(dep.triggerServiceId) && !currentSelectedIds.has(dep.requiredServiceId)) {
         const servicioRequerido = serviciosCatalogo.find(s => s.id === dep.requiredServiceId);
         if (servicioRequerido) {
           wasModified = true;
+          const qty = calculateSuggestedQuantity(servicioRequerido, adultos, ninos);
           newSelected.set(servicioRequerido.id, {
-            cantidad: 1,
+            cantidad: qty,
             precioUnitarioOriginal: servicioRequerido.precioVenta || servicioRequerido.precioPorPersona || servicioRequerido.precioBase || 0,
             precioUnitarioPresupuesto: servicioRequerido.precioVenta || servicioRequerido.precioPorPersona || servicioRequerido.precioBase || 0,
             nombreServicio: servicioRequerido.nombre,
@@ -188,8 +138,12 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
       if (newSelected.has(servicio.id)) {
         newSelected.delete(servicio.id);
       } else {
+        const adultos = prev.invitadosAdultos || 0;
+        const ninos = (prev.invitadosNinos || 0) + (prev.invitadosAdolescentes || 0);
+        const qty = calculateSuggestedQuantity(servicio, adultos, ninos);
+
         newSelected.set(servicio.id, {
-          cantidad: 1,
+          cantidad: qty,
           precioUnitarioOriginal: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
           precioUnitarioPresupuesto: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
           nombreServicio: servicio.nombre,
@@ -220,16 +174,19 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
     const paquete = paquetesBase.find(p => p.id === paqueteId);
     setFormData(prev => {
       const newSelected = new Map(prev.serviciosSeleccionados);
-      // Remove all package-based services before adding new ones, but keep gastronomic selections
       paquetesBase.flatMap(p => p.serviciosIncluidos).forEach(s => newSelected.delete(s.id));
       
+      const adultos = prev.invitadosAdultos || 0;
+      const ninos = (prev.invitadosNinos || 0) + (prev.invitadosAdolescentes || 0);
+
       if (paquete) {
           paquete.serviciosIncluidos.forEach(servicioEnPaquete => {
               const servicioCompleto = serviciosCatalogo.find(s => s.id === servicioEnPaquete.id);
               if (servicioCompleto) {
                   const esRegalo = servicioEnPaquete.esRegalo || false;
+                  const qty = calculateSuggestedQuantity(servicioCompleto, adultos, ninos);
                   newSelected.set(servicioCompleto.id, {
-                      cantidad: 1,
+                      cantidad: qty,
                       precioUnitarioOriginal: servicioCompleto.precioVenta || servicioCompleto.precioPorPersona || servicioCompleto.precioBase || 0,
                       precioUnitarioPresupuesto: esRegalo ? 0 : (servicioCompleto.precioVenta || servicioCompleto.precioPorPersona || servicioCompleto.precioBase || 0),
                       nombreServicio: servicioCompleto.nombre,
@@ -290,31 +247,25 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
   const handleGastronomicSelectionChange = (type: 'entradas' | 'principal' | 'infantil', selectedIds: string | string[]) => {
       setFormData(prev => {
         const newSelected = new Map(prev.serviciosSeleccionados);
-        
         const allDishes = [...entradasDisponibles, ...principalesDisponibles, ...menusNinoDisponibles];
-        
-        // Define which items to clear based on the type of change
-        let itemsToClear: ServicioEmpresa[] = [];
+        const adultos = prev.invitadosAdultos || 0;
+        const ninos = (prev.invitadosNinos || 0) + (prev.invitadosAdolescentes || 0);
+
         if (type === 'entradas') {
-            // For multi-select, we only remove items that are no longer in `selectedIds`
             const currentEntradas = Array.from(newSelected.keys()).filter(id => entradasDisponibles.some(e => e.id === id));
             const removedEntradas = currentEntradas.filter(id => !selectedIds.includes(id));
             removedEntradas.forEach(id => newSelected.delete(id));
         } else if (type === 'principal') {
-            itemsToClear = principalesDisponibles || [];
-            itemsToClear.forEach(item => newSelected.delete(item.id));
+            principalesDisponibles.forEach(item => newSelected.delete(item.id));
         } else if (type === 'infantil') {
-            itemsToClear = menusNinoDisponibles || [];
-            itemsToClear.forEach(item => newSelected.delete(item.id));
+            menusNinoDisponibles.forEach(item => newSelected.delete(item.id));
         }
         
         const idsToAdd = Array.isArray(selectedIds) ? selectedIds : [selectedIds];
-        
         idsToAdd.forEach(id => {
             const dishToAdd = allDishes.find(d => d.id === id);
             if (dishToAdd) {
-                const invitados = getGuestCountForItem(dishToAdd, formData.invitadosAdultos || 0, (formData.invitadosNinos || 0) + (formData.invitadosAdolescentes || 0));
-                newSelected.set(dishToAdd.id, menuItemToServicioSeleccionado(dishToAdd, invitados));
+                newSelected.set(dishToAdd.id, menuItemToServicioSeleccionado(dishToAdd, adultos, ninos));
             }
         });
         
@@ -322,36 +273,18 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
       });
   };
 
-  const serviciosFiltrados = useMemo(() => {
+  const serviciosAgrupados = useMemo(() => {
     return serviciosCatalogo.filter(s => 
       s.nombre.toLowerCase().includes(searchTerm.toLowerCase()) || 
       s.categoria?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [serviciosCatalogo, searchTerm]);
-
-  const serviciosAgrupados = useMemo(() => {
-    return serviciosFiltrados.reduce((acc, servicio) => {
+    ).reduce((acc, servicio) => {
         const categoria = servicio.categoria || 'Otros';
         if (!acc[categoria]) acc[categoria] = [];
         acc[categoria].push(servicio);
         return acc;
     }, {} as Record<string, ServicioEmpresa[]>);
-  }, [serviciosFiltrados]);
+  }, [serviciosCatalogo, searchTerm]);
   
-   const totalCalculado = useMemo(() => {
-      let total = 0;
-      formData.serviciosSeleccionados.forEach((item, id) => {
-        const itemDataForCalc: ItemPresupuestado = {
-          idServicioCatalogo: id,
-          ...item,
-          precioUnitario: item.precioUnitarioPresupuesto,
-          costoTotalItem: 0,
-        };
-        total += calcularCostoItem(itemDataForCalc, formData.invitadosAdultos || 0, formData.invitadosAdolescentes || 0, formData.invitadosNinos || 0);
-      });
-      return total;
-    }, [formData]);
-
   const selectedPrincipalId = useMemo(() => Array.from(formData.serviciosSeleccionados.keys()).find(id => (principalesDisponibles || []).some(p => p.id === id)) || '', [formData.serviciosSeleccionados, principalesDisponibles]);
   const selectedInfantilId = useMemo(() => Array.from(formData.serviciosSeleccionados.keys()).find(id => (menusNinoDisponibles || []).some(m => m.id === id)) || '', [formData.serviciosSeleccionados, menusNinoDisponibles]);
   
@@ -371,14 +304,11 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
         <DialogContent className="sm:max-w-xl">
           <DialogHeader>
             <DialogTitle>Añadir Servicio desde Catálogo</DialogTitle>
-            <DialogDescription>
-                Selecciona los servicios que deseas añadir a este presupuesto.
-            </DialogDescription>
+            <DialogDescription>Selecciona los servicios que deseas añadir a este presupuesto.</DialogDescription>
           </DialogHeader>
           <div className="py-2 space-y-3">
             <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"/>
-                <Input placeholder="Buscar servicios..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-9"/>
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"/><Input placeholder="Buscar servicios..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-9"/>
             </div>
             <ScrollArea className="h-72 border rounded-md">
               <Accordion type="multiple" className="w-full" defaultValue={Object.keys(serviciosAgrupados)}>
@@ -403,21 +333,8 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
             </ScrollArea>
           </div>
           <DialogFooter>
-            <Sheet>
-                <SheetTrigger asChild>
-                    <Button variant="secondary" className="mr-auto">Editar Catálogo</Button>
-                </SheetTrigger>
-                <SheetContent>
-                    <SheetHeader>
-                        <SheetTitle>Gestionar Catálogo de Servicios</SheetTitle>
-                        <SheetDescription>Añade o edita servicios. Los cambios se reflejarán en todos los presupuestos.</SheetDescription>
-                    </SheetHeader>
-                    <EditServicioForm onCatalogUpdate={onCatalogUpdate} />
-                </SheetContent>
-            </Sheet>
-            <DialogClose asChild>
-              <Button variant="outline">Cerrar</Button>
-            </DialogClose>
+            <Sheet><SheetTrigger asChild><Button variant="secondary" className="mr-auto">Editar Catálogo</Button></SheetTrigger><SheetContent><SheetHeader><SheetTitle>Gestionar Catálogo</SheetTitle><SheetDescription>Añade o edita servicios.</SheetDescription></SheetHeader><EditServicioForm onCatalogUpdate={onCatalogUpdate} /></SheetContent></Sheet>
+            <DialogClose asChild><Button variant="outline">Cerrar</Button></DialogClose>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -428,20 +345,10 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
 
        <Accordion type="single" collapsible className="w-full" defaultValue="gastronomia">
         <AccordionItem value="gastronomia">
-          <AccordionTrigger className="text-lg font-medium text-primary hover:no-underline">
-              <div className="flex items-center gap-2"><ChefHat className="w-5 h-5"/>Menú Gastronómico</div>
-          </AccordionTrigger>
+          <AccordionTrigger className="text-lg font-medium text-primary hover:no-underline"><div className="flex items-center gap-2"><ChefHat className="w-5 h-5"/>Menú Gastronómico</div></AccordionTrigger>
           <AccordionContent className="pt-2">
             <div className="p-4 border rounded-md bg-muted/30 space-y-6">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input 
-                    placeholder="Buscar plato..."
-                    value={gastronomiaSearchTerm}
-                    onChange={e => setGastronomiaSearchTerm(e.target.value)}
-                    className="pl-9"
-                  />
-                </div>
+                <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" /><Input placeholder="Buscar plato..." value={gastronomiaSearchTerm} onChange={e => setGastronomiaSearchTerm(e.target.value)} className="pl-9"/></div>
                 <div className='space-y-2'>
                   <Label>Entradas (Selección múltiple)</Label>
                   <MultiSelect
@@ -455,60 +362,18 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                  <div className='space-y-2'>
                     <Label>Plato Principal (Selección única)</Label>
                     <Popover open={openPrincipal} onOpenChange={setOpenPrincipal}>
-                      <PopoverTrigger asChild>
-                        <Button variant="outline" role="combobox" aria-expanded={openPrincipal} className="w-full justify-between font-normal">
-                          {selectedPrincipalId ? (principalesDisponibles.find(p => p.id === selectedPrincipalId)?.nombre) + ` (${formatCurrency(principalesDisponibles.find(p => p.id === selectedPrincipalId)?.precioVenta)})` : "Selecciona un plato principal..."}
-                          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
-                      </PopoverTrigger>
+                      <PopoverTrigger asChild><Button variant="outline" className="w-full justify-between font-normal">{selectedPrincipalId ? (principalesDisponibles.find(p => p.id === selectedPrincipalId)?.nombre) + ` (${formatCurrency(principalesDisponibles.find(p => p.id === selectedPrincipalId)?.precioVenta)})` : "Selecciona un plato principal..."}<ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" /></Button></PopoverTrigger>
                       <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                        <Command>
-                          <CommandInput placeholder="Buscar plato principal..." />
-                          <CommandList>
-                            <CommandEmpty>No se encontraron platos.</CommandEmpty>
-                            <CommandGroup>
-                              {(gastronomiaFiltrada.principales || []).map(p => (
-                                <CommandItem key={p.id} value={p.nombre} onSelect={() => { handleGastronomicSelectionChange('principal', p.id); setOpenPrincipal(false); }}>
-                                  <Check className={cn("mr-2 h-4 w-4", selectedPrincipalId === p.id ? "opacity-100" : "opacity-0")} />
-                                  {p.nombre} ({formatCurrency(p.precioVenta)})
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
+                        <Command><CommandInput placeholder="Buscar..." /><CommandList><CommandEmpty>No encontrado.</CommandEmpty><CommandGroup>{(gastronomiaFiltrada.principales || []).map(p => (<CommandItem key={p.id} value={p.nombre} onSelect={() => { handleGastronomicSelectionChange('principal', p.id); setOpenPrincipal(false); }}><Check className={cn("mr-2 h-4 w-4", selectedPrincipalId === p.id ? "opacity-100" : "opacity-0")} />{p.nombre} ({formatCurrency(p.precioVenta)})</CommandItem>))}</CommandGroup></CommandList></Command>
                       </PopoverContent>
                     </Popover>
                   </div>
                  <div className='space-y-2'>
                     <Label>Menú Infantil/Adolescente</Label>
                     <Popover open={openInfantil} onOpenChange={setOpenInfantil}>
-                      <PopoverTrigger asChild>
-                        <Button 
-                          variant="outline" 
-                          role="combobox" 
-                          aria-expanded={openInfantil} 
-                          className="w-full justify-between font-normal"
-                          disabled={(formData.invitadosNinos || 0) + (formData.invitadosAdolescentes || 0) === 0}
-                        >
-                          {selectedInfantilId ? (menusNinoDisponibles.find(m => m.id === selectedInfantilId)?.nombre) + ` (${formatCurrency(menusNinoDisponibles.find(m => m.id === selectedInfantilId)?.precioVenta)})` : ((formData.invitadosNinos || 0) + (formData.invitadosAdolescentes || 0) > 0 ? "Selecciona un menú..." : "Añade niños/adolescentes en Paso 1")}
-                          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
-                      </PopoverTrigger>
+                      <PopoverTrigger asChild><Button variant="outline" className="w-full justify-between font-normal" disabled={(formData.invitadosNinos || 0) + (formData.invitadosAdolescentes || 0) === 0}>{selectedInfantilId ? (menusNinoDisponibles.find(m => m.id === selectedInfantilId)?.nombre) + ` (${formatCurrency(menusNinoDisponibles.find(m => m.id === selectedInfantilId)?.precioVenta)})` : ((formData.invitadosNinos || 0) + (formData.invitadosAdolescentes || 0) > 0 ? "Selecciona un menú..." : "Añade niños/adolescentes en Paso 1")}<ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" /></Button></PopoverTrigger>
                       <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                        <Command>
-                          <CommandInput placeholder="Buscar menú infantil..." />
-                          <CommandList>
-                            <CommandEmpty>No se encontraron menús.</CommandEmpty>
-                            <CommandGroup>
-                              {(gastronomiaFiltrada.infantiles || []).map(m => (
-                                <CommandItem key={m.id} value={m.nombre} onSelect={() => { handleGastronomicSelectionChange('infantil', m.id); setOpenInfantil(false); }}>
-                                  <Check className={cn("mr-2 h-4 w-4", selectedInfantilId === m.id ? "opacity-100" : "opacity-0")} />
-                                   {m.nombre} ({formatCurrency(m.precioVenta)})
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
+                        <Command><CommandInput placeholder="Buscar..." /><CommandList><CommandEmpty>No encontrado.</CommandEmpty><CommandGroup>{(gastronomiaFiltrada.infantiles || []).map(m => (<CommandItem key={m.id} value={m.nombre} onSelect={() => { handleGastronomicSelectionChange('infantil', m.id); setOpenInfantil(false); }}><Check className={cn("mr-2 h-4 w-4", selectedInfantilId === m.id ? "opacity-100" : "opacity-0")} />{m.nombre} ({formatCurrency(m.precioVenta)})</CommandItem>))}</CommandGroup></CommandList></Command>
                       </PopoverContent>
                     </Popover>
                 </div>
@@ -522,32 +387,9 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
       <div>
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-medium font-headline text-primary">Servicios Adicionales</h3>
-          <Button type="button" variant="outline" size="sm" onClick={() => setIsCatalogModalOpen(true)}>
-            <PlusCircle className="w-4 h-4 mr-2"/>Añadir Servicio desde Catálogo
-          </Button>
+          <Button type="button" variant="outline" size="sm" onClick={() => setIsCatalogModalOpen(true)}><PlusCircle className="w-4 h-4 mr-2"/>Añadir desde Catálogo</Button>
         </div>
-        <Card>
-          <CardContent className="p-4 space-y-2">
-            {Array.from(formData.serviciosSeleccionados.entries()).filter(([id, serv]) => serv.categoriaServicio !== 'Servicio de catering').length > 0 ? (
-                Array.from(formData.serviciosSeleccionados.entries())
-                  .filter(([id, serv]) => serv.categoriaServicio !== 'Servicio de catering')
-                  .map(([id, servicio]) => (
-                        <div key={id} className="flex justify-between items-center p-2 border-b last:border-b-0">
-                           <p className="font-semibold text-sm">{servicio.nombreServicio}</p>
-                           <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleRemoveServicio(id)}><Trash2 className="w-4 h-4" /></Button>
-                        </div>
-                    ))
-            ) : (
-                <div className="text-center py-6">
-                    <p className="text-muted-foreground">No hay servicios adicionales seleccionados.</p>
-                </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-      <div className="pt-4 mt-4 border-t text-right">
-        <p className="text-sm text-muted-foreground">Subtotal de Servicios</p>
-        <p className="text-2xl font-bold text-primary">{formatCurrency(totalCalculado)}</p>
+        <Card><CardContent className="p-4 space-y-2">{Array.from(formData.serviciosSeleccionados.entries()).filter(([id, serv]) => serv.categoriaServicio !== 'Servicio de catering').length > 0 ? (Array.from(formData.serviciosSeleccionados.entries()).filter(([id, serv]) => serv.categoriaServicio !== 'Servicio de catering').map(([id, servicio]) => (<div key={id} className="flex justify-between items-center p-2 border-b last:border-b-0"><p className="font-semibold text-sm">{servicio.nombreServicio}</p><Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleRemoveServicio(id)}><Trash2 className="w-4 h-4" /></Button></div>))) : (<div className="text-center py-6"><p className="text-muted-foreground">No hay servicios adicionales seleccionados.</p></div>)}</CardContent></Card>
       </div>
     </div>
   );
