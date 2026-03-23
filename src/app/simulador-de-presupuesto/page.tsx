@@ -14,7 +14,8 @@ import {
     Save, Clock, CalendarDays, Search, Check, Info, TrendingUp, 
     Share2, Printer, Gift, ListPlus, ShieldCheck, Zap, Star, Calendar as CalendarIcon, CheckCircle2, Percent,
     ChevronDown,
-    UserMinus
+    UserMinus,
+    X
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido';
@@ -39,8 +40,6 @@ import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 
 const formatCurrency = (amount?: number) => {
     if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -67,7 +66,7 @@ function getServicioCalculatedData(servicio: ServicioEmpresa, adultos: number, n
   };
 
   const total = recalcularCostoItem(itemDataForCalc, adultos, 0, ninosYAdolescentes);
-  const qtyTarget = getGuestCountForItem(itemDataForCalc, adultos, ninosYAdolescentes, 0);
+  const qtyTarget = getGuestCountForItem(itemDataForCalc, adultos, 0, ninosYAdolescentes);
 
   let qty = 1;
   let unitPrice = 0;
@@ -294,7 +293,7 @@ function SimuladorContent() {
         idsToAdd.forEach(id => {
             const dishToAdd = allDishes.find(d => d.id === id);
             if (dishToAdd) {
-                const invitados = getGuestCountForItem(dishToAdd, adultos, ninosYAdolescentes, 0);
+                const invitados = getGuestCountForItem(dishToAdd, adultos, 0, ninosYAdolescentes);
                 newSelected.set(dishToAdd.id, menuItemToServicioSeleccionado(dishToAdd, invitados));
             }
         });
@@ -390,7 +389,7 @@ function SimuladorContent() {
             subtotalVenta: totalRegular,  
             descPromo: Math.round(descPromo),
             ahorroRegalos: totalRegalos,
-            totalSinAjuste: Math.round(totalSinAj),
+            totalSinAjuste: Math.round(totalSinAjuste),
             ajusteAnual: Math.round(ajusteAnual),
             totalFinal: Math.round(totalFinal),
             aniosDiferencia,
@@ -556,7 +555,7 @@ function SimuladorContent() {
                                 <Button 
                                     onClick={handleWhatsAppMeetingRequest}
                                     size="lg" 
-                                    className="w-full max-w-md h-16 sm:h-20 rounded-[1.5rem] bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs sm:text-lg shadow-2xl shadow-emerald-900/30 transition-all hover:scale-[1.02] active:scale-95 px-4"
+                                    className="w-full max-w-md h-16 sm:h-20 rounded-[1.5rem] bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm sm:text-lg shadow-2xl shadow-emerald-900/30 transition-all hover:scale-[1.02] active:scale-95 px-4"
                                 >
                                     <CalendarIcon className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 shrink-0"/> 
                                     <span className="truncate">AGENDAR REUNIÓN CON UN ASESOR</span>
@@ -632,7 +631,7 @@ function SimuladorContent() {
                                     <span>{formatCurrency(stats.subtotalBruto)}</span>
                                 </div>
                                 {stats.ahorroRegalos > 0 && (
-                                    <div className="flex justify-between items-center text-[10px] font-black uppercase text-green-400 tracking-widest">
+                                    <div className="flex justify-between items-center text-[10px] font-black text-green-400 uppercase tracking-[0.3em]">
                                         <span>Ahorro Regalos:</span>
                                         <span>-{formatCurrency(stats.ahorroRegalos)}</span>
                                     </div>

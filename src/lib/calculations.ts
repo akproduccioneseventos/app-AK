@@ -1,9 +1,12 @@
+
 import type { ItemPresupuestado } from '@/types/presupuesto';
 
 /**
  * MOTOR DE CÁLCULO UNIFICADO - PASO 1: Determinar el universo de personas para el ítem.
  */
 export function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?: string, subcategoria?: string }, adultos: number, adolescentes: number, ninos: number): number {
+  if (!item) return adultos + adolescentes + ninos;
+  
   const name = (item.nombreServicio || '').toLowerCase();
   const cat = (item.categoriaServicio || '').toLowerCase();
   const sub = (item.subcategoria || '').toLowerCase();
@@ -27,6 +30,7 @@ export function getGuestCountForItem(item: { nombreServicio: string, categoriaSe
  * MOTOR DE CÁLCULO UNIFICADO - PASO 2: Calcular el importe total de la línea.
  */
 export function recalcularCostoItem(item: ItemPresupuestado, adultos: number, adolescentes: number, ninos: number): number {
+  if (!item) return 0;
   if (item.esRegalo) return 0;
   
   const totalInvitados = adultos + adolescentes + ninos;
