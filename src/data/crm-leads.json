@@ -14,9 +14,9 @@
   },
   {
     "name": "a",
-    "phone": "098355530",
-    "presupuestoId": "pres_1774308331430_gegd4aa",
-    "presupuestoEstado": "Enviado",
+    "phone": "098355530 ",
+    "presupuestoId": "pres_1774309950101_86a4uha",
+    "presupuestoEstado": "Borrador",
     "partyType": "Evento (desde Simulador)",
     "venueName": "A definir",
     "guestCount": 60,
@@ -24,7 +24,7 @@
     "currentStageId": "s3",
     "id": "lead_1773866595427",
     "createdAt": "2026-03-18T20:43:15.427Z",
-    "updatedAt": "2026-03-23T23:25:31.436Z"
+    "updatedAt": "2026-03-23T23:52:30.107Z"
   },
   {
     "name": "aknuth",

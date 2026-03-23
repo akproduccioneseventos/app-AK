@@ -1,4 +1,3 @@
-
 import type { ItemPresupuestado } from '@/types/presupuesto';
 
 /**
@@ -29,8 +28,8 @@ export function getGuestCountForItem(item: { nombreServicio: string, categoriaSe
 /**
  * MOTOR DE CÁLCULO UNIFICADO - PASO 2: Calcular la cantidad sugerida basada en el método
  */
-export function calculateSuggestedQuantity(item: { calculationMethod?: string, invitadosPorUnidad?: number, cantidad?: number }, adultos: number, ninos: number): number {
-    const totalGuests = getGuestCountForItem({ nombreServicio: (item as any).nombreServicio || '' }, adultos, 0, ninos);
+export function calculateSuggestedQuantity(item: { calculationMethod?: string, invitadosPorUnidad?: number, cantidad?: number, nombreServicio: string, categoriaServicio?: string, subcategoria?: string }, adultos: number, ninos: number): number {
+    const totalGuests = getGuestCountForItem(item, adultos, 0, ninos);
     
     switch (item.calculationMethod) {
         case 'porPersona':
@@ -81,6 +80,7 @@ export function recalcularCostoItem(item: ItemPresupuestado, adultos: number, ad
       }
       break;
     case 'tramos':
+      // Para tramos usamos el total general del evento como referencia de escala
       const tramo = item.tramosDePrecio?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta);
       itemTotal = tramo?.precio || 0;
       break;
