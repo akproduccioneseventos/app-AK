@@ -15,7 +15,8 @@ import {
     Share2, Printer, Gift, ListPlus, ShieldCheck, Zap, Star, Calendar as CalendarIcon, CheckCircle2, Percent,
     ChevronDown,
     UserMinus,
-    X
+    X,
+    MessageSquare
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido';
@@ -480,6 +481,12 @@ function SimuladorContent() {
         window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(texto)}`, '_blank');
     };
 
+    const handleWhatsAppQuickConsult = () => {
+        if (!whatsappNumber) return;
+        const texto = `¡Hola! Estuve viendo el simulador de presupuestos y tengo una consulta rápida. Mi nombre es ${clienteNombre}.`;
+        window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(texto)}`, '_blank');
+    };
+
     const handleCopyToClipboard = () => {
         const url = `${window.location.origin}/presupuestos/${generatedPresupuestoId}/ver`;
         navigator.clipboard.writeText(url);
@@ -552,14 +559,24 @@ function SimuladorContent() {
                             </div>
                             
                             <div className="w-full flex flex-col items-center gap-6">
-                                <Button 
-                                    onClick={handleWhatsAppMeetingRequest}
-                                    size="lg" 
-                                    className="w-full max-w-md h-16 sm:h-20 rounded-[1.5rem] bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm sm:text-lg shadow-2xl shadow-emerald-900/30 transition-all hover:scale-[1.02] active:scale-95 px-4"
-                                >
-                                    <CalendarIcon className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 shrink-0"/> 
-                                    <span className="truncate">AGENDAR REUNIÓN CON UN ASESOR</span>
-                                </Button>
+                                <div className="w-full flex flex-col gap-3 items-center">
+                                    <Button 
+                                        onClick={handleWhatsAppMeetingRequest}
+                                        size="lg" 
+                                        className="w-full max-w-md h-16 sm:h-20 rounded-[1.5rem] bg-emerald-600 hover:bg-emerald-700 text-white font-black shadow-2xl shadow-emerald-900/30 transition-all hover:scale-[1.02] active:scale-95 px-4"
+                                    >
+                                        <CalendarIcon className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 shrink-0"/> 
+                                        <span className="text-[10px] xs:text-sm sm:text-lg uppercase leading-tight">AGENDAR REUNIÓN CON UN ASESOR</span>
+                                    </Button>
+
+                                    <Button 
+                                        variant="outline"
+                                        onClick={handleWhatsAppQuickConsult}
+                                        className="w-full max-w-sm h-12 rounded-xl border-emerald-200 text-emerald-700 hover:bg-emerald-50 font-bold text-xs uppercase tracking-widest shadow-sm"
+                                    >
+                                        <MessageSquare className="w-4 h-4 mr-2"/> Consultar por WhatsApp
+                                    </Button>
+                                </div>
 
                                 {(budgetSettings.valuePropositions?.length || 0) > 0 && (
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full text-left">
