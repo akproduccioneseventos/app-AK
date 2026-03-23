@@ -120,6 +120,10 @@ type ServicioSeleccionadoValue = {
     subcategoria?: string;
     esRegalo: boolean;
     calculationMethod?: string;
+    precioPorPersona?: number;
+    precioBase?: number;
+    invitadosPorUnidad?: number;
+    tramosDePrecio?: any[];
 };
 
 const menuItemToServicioSeleccionado = (item: ServicioEmpresa, invitados: number): ServicioSeleccionadoValue => {
@@ -133,6 +137,7 @@ const menuItemToServicioSeleccionado = (item: ServicioEmpresa, invitados: number
         subcategoria: item.subcategoria,
         esRegalo: false,
         calculationMethod: 'porPersona',
+        precioPorPersona: item.precioPorPersona || 0,
     };
 };
 
@@ -190,10 +195,10 @@ function SimuladorContent() {
         const sortDishes = (a: ServicioEmpresa, b: ServicioEmpresa) => {
             const setA = getPlatoSettings(a.id);
             const setB = getPlatoSettings(b.id);
-            // First by recommended
+            // Primero recomendados
             if (setA.recommended && !setB.recommended) return -1;
             if (!setA.recommended && setB.recommended) return 1;
-            // Then by price
+            // Luego por precio
             const pA = a.precioPorPersona || a.precioVenta || 0;
             const pB = b.precioPorPersona || b.precioVenta || 0;
             return pA - pB;
@@ -385,7 +390,7 @@ function SimuladorContent() {
             subtotalVenta: totalRegular,  
             descPromo: Math.round(descPromo),
             ahorroRegalos: totalRegalos,
-            totalSinAjuste: Math.round(totalSinAjuste),
+            totalSinAjuste: Math.round(totalSinAj),
             ajusteAnual: Math.round(ajusteAnual),
             totalFinal: Math.round(totalFinal),
             aniosDiferencia,
@@ -551,9 +556,10 @@ function SimuladorContent() {
                                 <Button 
                                     onClick={handleWhatsAppMeetingRequest}
                                     size="lg" 
-                                    className="w-full max-w-md h-16 sm:h-20 rounded-[1.5rem] bg-emerald-600 hover:bg-emerald-700 text-white font-black text-base sm:text-xl shadow-2xl shadow-emerald-900/30 transition-all hover:scale-[1.02] active:scale-95"
+                                    className="w-full max-w-md h-16 sm:h-20 rounded-[1.5rem] bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs sm:text-lg shadow-2xl shadow-emerald-900/30 transition-all hover:scale-[1.02] active:scale-95 px-4"
                                 >
-                                    <CalendarIcon className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3"/> AGENDAR REUNIÓN CON UN ASESOR
+                                    <CalendarIcon className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 shrink-0"/> 
+                                    <span className="truncate">AGENDAR REUNIÓN CON UN ASESOR</span>
                                 </Button>
 
                                 {(budgetSettings.valuePropositions?.length || 0) > 0 && (
@@ -713,7 +719,7 @@ function SimuladorContent() {
                                                 isRecommended && !selectedEntradas.includes(s.id) && "border-amber-200 bg-amber-50/30 shadow-md"
                                             )}>
                                                 {isRecommended && (
-                                                    <div className="absolute -top-2 -right-2 bg-amber-500 text-white text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg z-10 animate-pulse">RECOMENDADO</div>
+                                                    <div className="absolute -top-3 left-4 bg-amber-500 text-white text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg z-10 animate-bounce">RECOMENDADO</div>
                                                 )}
                                                 <Checkbox checked={selectedEntradas.includes(s.id)} onCheckedChange={v => handleEntradaChange(s.id, !!v)} className="h-6 w-6 rounded-lg"/>
                                                 <div className="flex flex-col flex-grow min-w-0">
@@ -740,7 +746,7 @@ function SimuladorContent() {
                                                 isRecommended && selectedPrincipal !== s.id && "border-amber-200 bg-amber-50/30 shadow-md"
                                             )}>
                                                 {isRecommended && (
-                                                    <div className="absolute -top-2 -right-2 bg-amber-500 text-white text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg z-10 animate-pulse">RECOMENDADO</div>
+                                                    <div className="absolute -top-3 left-4 bg-amber-500 text-white text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg z-10 animate-bounce">RECOMENDADO</div>
                                                 )}
                                                 <RadioGroupItem value={s.id} className="h-6 w-6"/>
                                                 <div className="flex flex-col flex-grow min-w-0">
@@ -768,7 +774,7 @@ function SimuladorContent() {
                                                     isRecommended && selectedInfantil !== s.id && "border-amber-200 bg-amber-50/30 shadow-md"
                                                 )}>
                                                     {isRecommended && (
-                                                        <div className="absolute -top-2 -right-2 bg-amber-500 text-white text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg z-10 animate-pulse">RECOMENDADO</div>
+                                                        <div className="absolute -top-3 left-4 bg-amber-500 text-white text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg z-10 animate-bounce">RECOMENDADO</div>
                                                     )}
                                                     <RadioGroupItem value={s.id} className="h-6 w-6 border-purple-300"/>
                                                     <div className="flex flex-col flex-grow min-w-0">
