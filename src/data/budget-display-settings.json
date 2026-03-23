@@ -6,7 +6,7 @@
   "showPriceBreakdown": true,
   "annualAdjustmentPercentage": 15,
   "promotionalDiscounts": [],
-  "successMessage": "Ahora podés coordinar una reunión con nuestro equipo para revisar todos los detalles, despejar dudas y asegurar tu fecha.",
+  "successMessage": "Ahora podés coordinar una reunión con el organizador para revisar todos los detalles, despejar dudas y asegurar tu fecha.",
   "bookingTerms": "Para confirmar la promoción y reservar todos los servicios, se requiere una seña de $5.000. El presupuesto es válido por 30 días.",
   "whatsappMessageTemplate": "Hola, ya generé un presupuesto para mi evento y me gustaría coordinar una reunión para revisar detalles, despejar dudas y confirmar disponibilidad.",
   "valuePropositions": [

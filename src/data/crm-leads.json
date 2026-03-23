@@ -15,7 +15,7 @@
   {
     "name": "a",
     "phone": "098355530",
-    "presupuestoId": "pres_1774013191643_jgt8sgg",
+    "presupuestoId": "pres_1774281370300_mndybhq",
     "presupuestoEstado": "Enviado",
     "partyType": "Evento (desde Simulador)",
     "venueName": "A definir",
@@ -24,7 +24,7 @@
     "currentStageId": "s3",
     "id": "lead_1773866595427",
     "createdAt": "2026-03-18T20:43:15.427Z",
-    "updatedAt": "2026-03-20T13:26:31.649Z"
+    "updatedAt": "2026-03-23T15:56:10.305Z"
   },
   {
     "name": "aknuth",

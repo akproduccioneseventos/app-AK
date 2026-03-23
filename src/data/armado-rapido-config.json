@@ -317,6 +317,21 @@
       "id": "dish_entrada_23",
       "visible": true,
       "recommended": true
+    },
+    {
+      "id": "dish_child_3",
+      "visible": true,
+      "recommended": true
+    },
+    {
+      "id": "dish_main_2_virtual_buffet",
+      "visible": true,
+      "recommended": true
+    },
+    {
+      "id": "dish_main_7_virtual_buffet",
+      "visible": true,
+      "recommended": true
     }
   ],
   "serviceDependencies": [
