@@ -1,0 +1,114 @@
+
+'use client';
+
+import type { InvitacionDigitalData, ColorPalette, TextWithStyle, TextStyle } from '@/types/fiesta';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { UploadButton } from './UploadButton';
+import { Separator } from '@/components/ui/separator';
+import { TextStyleEditor } from './TextStyleEditor';
+import React from 'react';
+
+interface Props {
+  data: InvitacionDigitalData['cabecera'];
+  update: (newData: Partial<InvitacionDigitalData['cabecera']>) => void;
+  fiestaId?: string;
+}
+
+export const SeccionCabeceraEditor: React.FC<Props> = ({ data, update, fiestaId }) => {
+  
+  const handleFieldChange = (field: keyof typeof data, value: any) => {
+    update({ [field]: value });
+  };
+  
+  const handleColorChange = (colorType: keyof ColorPalette, value: string) => {
+    update({
+      paletaColores: {
+        ...(data.paletaColores || { primary: '', secondary: '', accent: '' }),
+        [colorType]: value,
+      },
+    });
+  };
+
+  const handleTextStyleChange = (style: Partial<TextStyle>) => {
+    const currentStyleData = data.subtitulo || { text: '', style: {} };
+    const newStyle = { ...currentStyleData.style, ...style };
+    handleFieldChange('subtitulo', { ...currentStyleData, style: newStyle });
+  };
+
+  const handleSubtituloTextChange = (text: string) => {
+     const currentStyleData = data.subtitulo || { text: '', style: {} };
+     update({ subtitulo: { ...currentStyleData, text: text } });
+  };
+
+  return (
+    <div className="space-y-4">
+        <div className="space-y-1">
+            <Label>Logo / Imagen Principal</Label>
+             <UploadButton
+                currentUrl={data.logoUrl}
+                onUrlChange={(url) => handleFieldChange('logoUrl', url)}
+                accept="image/*"
+                fiestaId={fiestaId}
+            />
+        </div>
+        <div className="space-y-1">
+            <Label>Imagen/Video de Fondo</Label>
+            <UploadButton
+                currentUrl={data.videoFondoUrl || data.imagenFondoUrl}
+                onUrlChange={(url) => {
+                    const isVideo = url.endsWith('.mp4') || url.endsWith('.webm');
+                    update({
+                        videoFondoUrl: isVideo ? url : undefined,
+                        imagenFondoUrl: !isVideo ? url : undefined,
+                    });
+                }}
+                accept="image/*,video/*"
+                fiestaId={fiestaId}
+            />
+        </div>
+        
+        <Separator />
+        
+        <div className="space-y-3">
+          <div className="space-y-1">
+              <Label htmlFor="protagonista1">Protagonista 1</Label>
+              <Input id="protagonista1" value={data.protagonista1 || ''} onChange={(e) => handleFieldChange('protagonista1', e.target.value)} />
+          </div>
+          <div className="space-y-1">
+              <Label htmlFor="protagonista2">Protagonista 2 (opcional, para bodas)</Label>
+              <Input id="protagonista2" value={data.protagonista2 || ''} onChange={(e) => handleFieldChange('protagonista2', e.target.value)} />
+          </div>
+        </div>
+
+        <Separator />
+
+        <div className="space-y-2 p-2 border rounded-md">
+            <Label>Subtítulo (Ej: "Nuestra Boda")</Label>
+             <Input
+                value={data.subtitulo?.text || ''}
+                onChange={(e) => handleSubtituloTextChange(e.target.value)}
+            />
+            <TextStyleEditor 
+                style={data.subtitulo?.style || {}}
+                onStyleChange={handleTextStyleChange}
+            />
+        </div>
+        <Separator />
+        <div className="space-y-2">
+            <Label className="font-medium">Paleta de Colores</Label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            {(['primary', 'secondary', 'accent'] as Array<keyof ColorPalette>).map(key => (
+                <div key={key} className="space-y-1">
+                <Label htmlFor={`color-${key}`} className="text-xs capitalize">{key}</Label>
+                <div className="flex items-center gap-1">
+                    <Input type="color" id={`color-picker-${key}`} value={data.paletaColores?.[key] || '#000000'} onChange={e => handleColorChange(key, e.target.value)} className="w-8 h-8 p-0.5 aspect-square"/>
+                    <Input type="text" id={`color-hex-${key}`} value={data.paletaColores?.[key] || '#000000'} onChange={e => handleColorChange(key, e.target.value)} className="h-8 text-xs" placeholder="#RRGGBB"/>
+                </div>
+                </div>
+            ))}
+            </div>
+        </div>
+    </div>
+  );
+};

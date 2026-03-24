@@ -1,0 +1,286 @@
+'use client';
+
+import Link from 'next/link';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { 
+    Wand2, 
+    ListChecks, 
+    Building2, 
+    BarChart3, 
+    Settings as SettingsIcon, 
+    DollarSign,
+    CreditCard,
+    Banknote,
+    Users,
+    CalendarClock,
+    Archive,
+    CalendarDays,
+    ArrowRight,
+    Bell,
+    Loader2,
+    CheckCircle2,
+    Sparkles,
+    MapPin
+} from 'lucide-react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { KpiCard } from '@/components/dashboard/kpi-card';
+import { getDashboardKpiData, type GlobalAlert } from '@/app/actions/dashboard';
+import { MonthlySalesChart } from '@/components/charts/MonthlySalesChart';
+import { PaymentStatusPieChart } from '@/components/charts/PaymentStatusPieChart';
+import { Separator } from '@/components/ui/separator';
+import { getFiestaActual, type FiestaEnPlanificacion } from './actions/fiesta/fiesta.actions';
+import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Badge } from '@/components/ui/badge';
+
+export default function MainDashboardPage() {
+    const [kpiData, setKpiData] = useState<any>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
+    const { toast } = useToast();
+
+    const formatCurrency = (value?: number) => {
+        if (isLoading) return '...';
+        if (value === undefined || value === null) return '$ 0';
+        return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
+    };
+
+    const fetchData = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const [dashboardResult, fiestaData] = await Promise.all([
+                getDashboardKpiData(),
+                getFiestaActual()
+            ]);
+            if (dashboardResult.success) {
+                setKpiData(dashboardResult.data);
+            }
+            setFiestaActual(fiestaData);
+        } catch(e) {
+            toast({ title: "Error", description: "No se pudieron cargar los datos del panel.", variant: "destructive" });
+        } finally {
+            setIsLoading(false);
+        }
+    }, [toast]);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+
+    const pieChartData = useMemo(() => {
+        if (!kpiData) return [];
+        return [
+            { name: 'Pagado', value: kpiData.montoPagado || 0, fill: 'hsl(var(--chart-2))' },
+            { name: 'Pendiente', value: kpiData.totalPendiente || 0, fill: 'hsl(var(--chart-5))' },
+        ];
+    }, [kpiData]);
+    
+    const mainHubItems = [
+        {
+          title: 'Planificador de Eventos',
+          description: 'Gestión integral de tus fiestas activas y archivos históricos.',
+          href: '/eventos',
+          icon: CalendarClock,
+          color: "bg-rose-500",
+          lightColor: "bg-rose-50 text-rose-600"
+        },
+        {
+          title: 'Gestión de la Empresa',
+          description: 'Control de servicios, personal, proveedores e inventario físico.',
+          href: '/empresa',
+          icon: Building2,
+          color: "bg-amber-500",
+          lightColor: "bg-amber-50 text-amber-600"
+        },
+        {
+          title: 'Panel Contable',
+          description: 'CRM de prospectos, presupuestos, facturación y salud financiera.',
+          href: '/empresa/contabilidad',
+          icon: BarChart3,
+          color: "bg-emerald-500",
+          lightColor: "bg-emerald-50 text-emerald-600"
+        },
+         {
+          title: "Agenda de Reuniones",
+          description: "Seguimiento de citas coordinadas con clientes potenciales.",
+          href: "/contabilidad/crm/agenda",
+          icon: CalendarDays,
+          color: "bg-blue-500",
+          lightColor: "bg-blue-50 text-blue-600"
+        },
+        {
+          title: 'Configuración',
+          description: 'Ajustes del sistema, plantillas maestras y detalles de cuenta.',
+          href: '/settings',
+          icon: SettingsIcon,
+          color: "bg-slate-600",
+          lightColor: "bg-slate-50 text-slate-600"
+        },
+    ]
+
+  return (
+    <div className="space-y-6 sm:space-y-10 pb-16">
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <motion.div 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="space-y-2"
+        >
+            <h1 className="text-3xl sm:text-5xl font-black tracking-tighter text-slate-900">
+                Panel de <span className="text-primary italic">Control</span>
+            </h1>
+            <p className="text-slate-500 font-semibold flex items-center gap-2 text-xs sm:text-base">
+                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse shrink-0"></div>
+                Gestión operativa y financiera de AK Producciones.
+            </p>
+        </motion.div>
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="flex items-center gap-3 hidden sm:flex"
+        >
+            <Badge variant="outline" className="bg-white text-primary border-primary/20 py-2 px-4 shadow-sm rounded-full font-black text-[10px] tracking-widest uppercase">
+                <Sparkles className="w-3.5 h-3.5 mr-2 text-primary animate-spin-slow"/> Sistema Optimizado
+            </Badge>
+        </motion.div>
+      </header>
+
+       <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <KpiCard title="Ventas Totales" value={formatCurrency(kpiData?.ventasTotales)} icon={DollarSign} isLoading={isLoading} />
+        <KpiCard title="Total Pagado" value={formatCurrency(kpiData?.montoPagado)} icon={CreditCard} isLoading={isLoading} />
+        <KpiCard title="Saldo Pendiente" value={formatCurrency(kpiData?.totalPendiente)} icon={Banknote} isLoading={isLoading} />
+        <KpiCard title="Prospectos Activos" value={isLoading ? '...' : (kpiData?.prospectosActivos ?? 0)} icon={Users} isLoading={isLoading} />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
+            <div className="lg:col-span-8 space-y-6 sm:space-y-8">
+                <MonthlySalesChart data={kpiData?.monthlyChartData || []} />
+                
+                <Card className="border-none shadow-2xl rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden bg-white">
+                    <CardHeader className="bg-slate-900 text-white p-6 sm:p-8">
+                        <CardTitle className="text-xl sm:text-2xl font-black tracking-tight">Acceso Directo</CardTitle>
+                        <CardDescription className="text-slate-400 font-medium">Herramientas de conversión y venta.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 p-6 sm:p-8">
+                        <Link href="/presupuestos/nuevo/crear" passHref>
+                            <div className="group p-6 sm:p-8 border border-slate-100 rounded-[1.25rem] sm:rounded-[1.5rem] hover:border-primary/30 hover:bg-primary/5 transition-all cursor-pointer h-full flex items-center gap-4 sm:gap-6 shadow-sm">
+                                <div className="p-4 sm:p-5 bg-primary/10 text-primary rounded-2xl group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-inner shrink-0">
+                                    <ListChecks className="w-6 h-6 sm:w-7 sm:h-7"/>
+                                </div>
+                                <div className="min-w-0">
+                                    <h3 className="font-black text-slate-800 text-base sm:text-lg">Nuevo Presupuesto</h3>
+                                    <p className="text-[10px] sm:text-xs font-semibold text-slate-400 mt-1 uppercase tracking-tighter">Cotización manual.</p>
+                                </div>
+                                <ArrowRight className="w-5 h-5 ml-auto text-slate-300 group-hover:text-primary group-hover:translate-x-2 transition-all shrink-0"/>
+                            </div>
+                        </Link>
+                        <Link href="/simulador-de-presupuesto" passHref>
+                            <div className="group p-6 sm:p-8 border border-slate-100 rounded-[1.25rem] sm:rounded-[1.5rem] hover:border-primary/30 hover:bg-primary/5 transition-all cursor-pointer h-full flex items-center gap-4 sm:gap-6 shadow-sm">
+                                <div className="p-4 sm:p-5 bg-primary/10 text-primary rounded-2xl group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-inner shrink-0">
+                                    <Wand2 className="w-6 h-6 sm:w-7 sm:h-7"/>
+                                </div>
+                                <div className="min-w-0">
+                                    <h3 className="font-black text-slate-800 text-base sm:text-lg">Simulador Público</h3>
+                                    <p className="text-[10px] sm:text-xs font-semibold text-slate-400 mt-1 uppercase tracking-tighter">Captura de leads.</p>
+                                </div>
+                                <ArrowRight className="w-5 h-5 ml-auto text-slate-300 group-hover:text-primary group-hover:translate-x-2 transition-all shrink-0"/>
+                            </div>
+                        </Link>
+                    </CardContent>
+                </Card>
+            </div>
+            <div className="lg:col-span-4">
+                <Card className="h-full border-none shadow-2xl flex flex-col bg-white rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden">
+                    <CardHeader className="bg-slate-50 border-b border-slate-100 pb-6 p-6 sm:p-8">
+                        <CardTitle className="text-lg sm:text-xl font-black flex items-center gap-3 text-slate-800">
+                            <div className="p-2.5 bg-primary/10 rounded-xl shadow-inner">
+                                <Bell className="w-5 h-5 text-primary"/>
+                            </div>
+                            Prioridades
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-4 px-0 flex-grow scrollbar-hide overflow-y-auto">
+                        {isLoading ? <div className="flex justify-center p-12"><Loader2 className="animate-spin text-primary/30 w-8 h-8"/></div> :
+                         kpiData?.alerts?.length > 0 ? (
+                            <div className="divide-y divide-slate-50">
+                                {kpiData.alerts.map((alert: GlobalAlert) => (
+                                    <Link key={alert.id} href={alert.href} className="flex items-start gap-4 sm:gap-5 p-5 sm:p-6 hover:bg-slate-50 transition-all group relative">
+                                        <div className={cn(
+                                          "p-2.5 sm:p-3 rounded-2xl mt-0.5 shadow-sm transition-transform group-hover:scale-110 duration-500 shrink-0", 
+                                          alert.severity === 'high' ? 'bg-rose-50 text-rose-600' : 'bg-amber-50 text-amber-600'
+                                        )}>
+                                            {alert.type === 'payment' ? <DollarSign className="w-4 h-4 sm:w-5 sm:h-5"/> : 
+                                             alert.type === 'meeting' ? <CalendarDays className="w-4 h-4 sm:w-5 sm:h-5"/> : 
+                                             <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5"/>}
+                                        </div>
+                                        <div className="flex-grow min-w-0">
+                                            <p className="text-xs sm:text-sm font-black text-slate-800 leading-tight group-hover:text-primary transition-colors">{alert.title}</p>
+                                            <p className="text-[10px] sm:text-[11px] font-semibold text-slate-400 mt-1.5 leading-relaxed">{alert.description}</p>
+                                        </div>
+                                        <ArrowRight className="w-4 h-4 text-slate-200 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all self-center shrink-0 hidden sm:block"/>
+                                        {alert.severity === 'high' && <div className="absolute left-0 top-4 bottom-4 w-1 bg-rose-500 rounded-r-full"></div>}
+                                    </Link>
+                                ))}
+                            </div>
+                         ) : (
+                            <div className="text-center py-16 sm:py-24 px-8 space-y-6">
+                                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-emerald-50 rounded-[1.5rem] sm:rounded-[2rem] flex items-center justify-center mx-auto shadow-inner">
+                                    <CheckCircle2 className="w-8 h-8 sm:w-10 sm:h-10 text-emerald-500/40"/>
+                                </div>
+                                <p className="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-widest">Todo en orden</p>
+                            </div>
+                         )}
+                    </CardContent>
+                    <CardFooter className="bg-slate-50 py-4 justify-center border-t border-slate-100">
+                        <p className="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Monitoreo Inteligente 24/7</p>
+                    </CardFooter>
+                </Card>
+            </div>
+      </div>
+      
+       <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        <KpiCard title="Archivos Históricos" value={isLoading ? '...' : (kpiData?.fiestasPasadas ?? 0)} icon={Archive} isLoading={isLoading} />
+        <KpiCard title="Eventos Activos" value={isLoading ? '...' : (kpiData?.fiestasFuturas ?? 0)} icon={CalendarClock} isLoading={isLoading} />
+        <PaymentStatusPieChart data={pieChartData} />
+      </div>
+
+      <Separator className="opacity-30" />
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 sm:gap-8">
+        <AnimatePresence>
+          {mainHubItems.map((item, idx) => (
+            <motion.div
+              key={item.title}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: idx * 0.05 + 0.3 }}
+            >
+              <Card className="group flex flex-col h-full border-none shadow-xl hover:shadow-2xl hover:translate-y-[-8px] transition-all duration-500 bg-white rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden">
+                  <CardHeader className="pb-4 space-y-4 sm:space-y-5 p-6 sm:p-8">
+                      <div className={cn("w-14 h-14 sm:w-16 sm:h-16 rounded-[1rem] sm:rounded-[1.25rem] flex items-center justify-center shadow-lg shadow-black/5 group-hover:rotate-6 transition-all duration-500 shrink-0", item.lightColor)}>
+                          <item.icon className="w-7 h-7 sm:w-8 sm:h-8" />
+                      </div>
+                      <CardTitle className="text-lg sm:text-xl font-black text-slate-800 tracking-tight">{item.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex-grow px-6 sm:px-8 pb-6 sm:pb-8">
+                      <p className="text-[10px] sm:text-xs font-medium text-slate-400 leading-relaxed uppercase tracking-tighter">
+                          {item.description}
+                      </p>
+                  </CardContent>
+                  <CardFooter className="pt-0 pb-6 sm:pb-8 px-6 sm:px-8">
+                      <Link href={item.href} passHref className="w-full">
+                          <Button variant="secondary" className="w-full justify-between group-hover:bg-primary group-hover:text-white rounded-2xl px-6 h-11 sm:h-12 font-black text-[9px] sm:text-[10px] tracking-widest uppercase transition-all duration-500 shadow-sm">
+                              Abrir <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-2 transition-transform duration-500" />
+                          </Button>
+                      </Link>
+                  </CardFooter>
+              </Card>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}

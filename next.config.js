@@ -1,0 +1,42 @@
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  output: 'standalone',
+  /* config options here */
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '20mb',
+    },
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.imgur.com',
+        port: '',
+        pathname: '/**',
+      },
+    ],
+  },
+};
+
+// Forcing a clean rebuild to apply the new public base URL environment variable.
+// This comment forces a rebuild to fix dynamic routing issues.
+module.exports = nextConfig;

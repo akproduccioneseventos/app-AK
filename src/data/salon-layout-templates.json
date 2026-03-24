@@ -1,0 +1,128 @@
+[
+  {
+    "id": "layout_tpl_1761093949486",
+    "name": "Club Uruguay",
+    "layoutData": {
+      "salonWidth": 800,
+      "salonHeight": 500,
+      "salonElements": [
+        {
+          "id": "el_1",
+          "name": "Mesa Principal",
+          "x": 320,
+          "y": 20,
+          "width": 160,
+          "height": 60,
+          "rotation": 0,
+          "quantity": 1,
+          "type": "predefined",
+          "category": "Mesa Rectangular"
+        },
+        {
+          "id": "el_2",
+          "name": "Pista de Baile",
+          "x": 280,
+          "y": 150,
+          "width": 240,
+          "height": 200,
+          "rotation": 0,
+          "quantity": 1,
+          "type": "predefined",
+          "category": "Pista de Baile"
+        },
+        {
+          "id": "el_3",
+          "name": "Mesa 1",
+          "x": 60,
+          "y": 100,
+          "width": 100,
+          "height": 100,
+          "rotation": 0,
+          "quantity": 1,
+          "type": "predefined",
+          "category": "Mesa Redonda",
+          "seats": 10
+        },
+        {
+          "id": "el_4",
+          "name": "Mesa 2",
+          "x": 60,
+          "y": 220,
+          "width": 100,
+          "height": 100,
+          "rotation": 0,
+          "quantity": 1,
+          "type": "predefined",
+          "category": "Mesa Redonda",
+          "seats": 10
+        },
+        {
+          "id": "el_5",
+          "name": "Mesa 3",
+          "x": 60,
+          "y": 340,
+          "width": 100,
+          "height": 100,
+          "rotation": 0,
+          "quantity": 1,
+          "type": "predefined",
+          "category": "Mesa Redonda",
+          "seats": 10
+        },
+        {
+          "id": "el_6",
+          "name": "Mesa 4",
+          "x": 640,
+          "y": 100,
+          "width": 100,
+          "height": 100,
+          "rotation": 0,
+          "quantity": 1,
+          "type": "predefined",
+          "category": "Mesa Redonda",
+          "seats": 10
+        },
+        {
+          "id": "el_7",
+          "name": "Mesa 5",
+          "x": 640,
+          "y": 220,
+          "width": 100,
+          "height": 100,
+          "rotation": 0,
+          "quantity": 1,
+          "type": "predefined",
+          "category": "Mesa Redonda",
+          "seats": 10
+        },
+        {
+          "id": "el_8",
+          "name": "Mesa 6",
+          "x": 640,
+          "y": 340,
+          "width": 100,
+          "height": 100,
+          "rotation": 0,
+          "quantity": 1,
+          "type": "predefined",
+          "category": "Mesa Redonda",
+          "seats": 10
+        },
+        {
+          "id": "el_1761093925239",
+          "name": "Barra DJ",
+          "x": 20,
+          "y": 20,
+          "rotation": 0,
+          "quantity": 1,
+          "type": "predefined",
+          "width": 15,
+          "height": 15,
+          "category": "Varios"
+        }
+      ],
+      "layoutTemplateName": "Club Uruguay"
+    },
+    "createdAt": "2025-10-22T00:45:49.486Z"
+  }
+]
