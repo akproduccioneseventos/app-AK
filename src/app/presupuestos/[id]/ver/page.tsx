@@ -196,6 +196,8 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   if (isLoading) return <div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
   if (!presupuesto || !displaySettings) return null;
 
+  const totalInvitados = (presupuesto.invitadosAdultos || 0) + (presupuesto.invitadosNinos || 0) + (presupuesto.invitadosAdolescentes || 0) || presupuesto.invitadosCantidad || 0;
+
   return (
     <div className="bg-gray-100 min-h-screen py-6 print:bg-white print:py-0 font-sans">
         <div className="flex justify-between items-center mb-6 print:hidden max-w-3xl mx-auto px-4">
@@ -375,8 +377,19 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                         </div>
                     )}
                     <div className="mt-16 grid grid-cols-2 gap-8 sm:gap-20 text-center">
-                        <div className="border-t border-slate-200 pt-4"><p className="font-black text-[9px] sm:text-[10px] uppercase tracking-widest">Tec. Alexander Knuth</p><p className="text-[8px] sm:text-[9px] text-slate-400 uppercase font-bold">AK Producciones</p></div>
-                        <div className="border-t border-slate-200 pt-4"><p className="font-black text-[9px] sm:text-[10px] uppercase tracking-widest truncate">{cliente?.name || presupuesto.clienteNombre}</p><p className="text-[8px] sm:text-[9px] text-slate-400 uppercase font-bold">Firma del Cliente</p></div>
+                        <div className="border-t border-slate-200 pt-4 relative">
+                            {companyInfo?.signatureUrl && (
+                                <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-32 h-16 pointer-events-none">
+                                    <NextImage src={companyInfo.signatureUrl} alt="Firma Empresa" layout="fill" objectFit="contain" />
+                                </div>
+                            )}
+                            <p className="font-black text-sm uppercase tracking-tighter text-slate-900">Tec. Alexander Knuth</p>
+                            <p className="text-[10px] text-slate-400 font-sans uppercase tracking-widest">Por la Empresa</p>
+                        </div>
+                        <div className="border-t border-slate-200 pt-4 relative">
+                            <p className="font-black text-sm uppercase tracking-tighter text-slate-900 truncate">{cliente?.name || presupuesto.clienteNombre}</p>
+                            <p className="text-[8px] sm:text-[9px] text-slate-400 uppercase font-bold">Firma del Cliente</p>
+                        </div>
                     </div>
                 </footer>
             </div>
