@@ -14,17 +14,17 @@
   },
   {
     "name": "a",
-    "phone": "098355530 ",
-    "presupuestoId": "pres_1774349699404_gyqvxz0",
-    "presupuestoEstado": "Borrador",
+    "phone": "098355530",
+    "presupuestoId": "pres_1774351607647_9ugha8m",
+    "presupuestoEstado": "Enviado",
     "partyType": "Evento (desde Simulador)",
     "venueName": "A definir",
-    "guestCount": 90,
+    "guestCount": 50,
     "budgetSource": "simulator",
     "currentStageId": "s3",
     "id": "lead_1773866595427",
     "createdAt": "2026-03-18T20:43:15.427Z",
-    "updatedAt": "2026-03-24T10:54:59.408Z"
+    "updatedAt": "2026-03-24T11:26:47.649Z"
   },
   {
     "name": "aknuth",
@@ -123,5 +123,19 @@
     "id": "lead_1774021140195",
     "createdAt": "2026-03-20T15:39:00.195Z",
     "updatedAt": "2026-03-20T15:39:00.195Z"
+  },
+  {
+    "name": "H",
+    "phone": "098335522",
+    "presupuestoId": "pres_1774350401919_8js8yjh",
+    "presupuestoEstado": "Enviado",
+    "partyType": "Evento (desde Simulador)",
+    "venueName": "A definir",
+    "guestCount": 60,
+    "budgetSource": "simulator",
+    "currentStageId": "s1",
+    "id": "lead_1774350401926",
+    "createdAt": "2026-03-24T11:06:41.926Z",
+    "updatedAt": "2026-03-24T11:06:41.926Z"
   }
 ]

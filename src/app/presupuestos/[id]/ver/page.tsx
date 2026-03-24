@@ -14,11 +14,10 @@ import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getCustomerById } from '@/app/actions/customers';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import type { Customer } from '@/types/customer';
-import type { BudgetDisplaySettings } from '@/types/settings';
-import { getBudgetDisplaySettings } from '@/app/actions/settings';
+import type { BudgetDisplaySettings, CompanyInfo } from '@/types/settings';
+import { getBudgetDisplaySettings, getInvoiceTemplateSettings, getCompanyInfo } from '@/app/actions/settings';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
-import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { getGuestCountForItem, recalcularCostoItem } from '@/lib/calculations';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -57,6 +56,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const [presupuesto, setPresupuesto] = useState<Presupuesto | null>(null);
   const [cliente, setCliente] = useState<Customer | null>(null);
   const [displaySettings, setDisplaySettings] = useState<BudgetDisplaySettings | null>(null);
+  const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [whatsappNumber, setWhatsappNumber] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
@@ -66,13 +66,15 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     if (!presupuestoId) return;
     setIsLoading(true);
     try {
-      const [fetchedPresupuesto, fetchedSettings, templateSettings, socialConnections] = await Promise.all([
+      const [fetchedPresupuesto, fetchedSettings, templateSettings, socialConnections, fetchedCompanyInfo] = await Promise.all([
         getPresupuestoById(presupuestoId),
         getBudgetDisplaySettings(),
         getInvoiceTemplateSettings(),
-        getSocialConnections()
+        getSocialConnections(),
+        getCompanyInfo()
       ]);
       setDisplaySettings(fetchedSettings);
+      setCompanyInfo(fetchedCompanyInfo);
       setLogoUrl(templateSettings.logoUrl || null);
       
       const whatsappConnection = socialConnections.find(c => c.platform === 'WhatsApp' && c.isConnected);
@@ -295,7 +297,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                         <Table>
                             <TableHeader className="bg-slate-50">
                                 <TableRow>
-                                    <TableHead className="w-1/2 font-black text-[9px] sm:text-[10px] uppercase pl-4 sm:pl-8 py-4 min-w-[150px]">Artículo</TableHead>
+                                    <TableHead className="w-1/2 font-black text-[9px] sm:text-[10px] uppercase pl-4 sm:pl-8 py-4 min-w-[200px]">Artículo</TableHead>
                                     <TableHead className="text-center font-black text-[9px] sm:text-[10px] uppercase min-w-[60px]">Cant.</TableHead>
                                     <TableHead className="text-right pr-4 sm:pr-8 font-black text-[9px] sm:text-[10px] uppercase min-w-[100px]">Importe</TableHead>
                                 </TableRow>
@@ -307,7 +309,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                                         {items.map(item => {
                                             const effectiveQty = getEffectiveQty(item);
                                             return (
-                                                <TableRow key={item.idServicioCatalogo} className="hover:bg-slate-50/50 transition-colors">
+                                                <TableRow key={item.idServicioCatalogo} className="hover:bg-slate-50/50 transition-colors border-slate-50">
                                                     <TableCell className="pl-4 sm:pl-8 py-3 text-[11px] sm:text-xs">
                                                         {item.esRegalo ? <span className="text-rose-600 font-bold flex items-center gap-1.5"><Gift className="w-3.5 h-3.5"/> {item.nombreServicio} (REGALO)</span> : item.nombreServicio}
                                                         <p className="text-[9px] text-muted-foreground">
@@ -380,7 +382,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                         <div className="border-t border-slate-200 pt-4 relative">
                             {companyInfo?.signatureUrl && (
                                 <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-32 h-16 pointer-events-none">
-                                    <NextImage src={companyInfo.signatureUrl} alt="Firma Empresa" layout="fill" objectFit="contain" />
+                                    <Image src={companyInfo.signatureUrl} alt="Firma Empresa" layout="fill" objectFit="contain" />
                                 </div>
                             )}
                             <p className="font-black text-sm uppercase tracking-tighter text-slate-900">Tec. Alexander Knuth</p>
