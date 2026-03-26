@@ -192,10 +192,11 @@ export async function getDashboardKpiData() {
 
 export async function getCashFlowProjection() {
     try {
-        const [fiestas, invoices, roles] = await Promise.all([
+        const [fiestas, invoices, roles, presupuestos] = await Promise.all([
             getAllFiestas(),
             getInvoices(),
-            getRoles()
+            getRoles(),
+            getPresupuestos()
         ]);
 
         const today = startOfToday();
@@ -212,7 +213,15 @@ export async function getCashFlowProjection() {
             });
         }
 
-        // 1. Calculate Future Income (Invoices amountDue grouped by dueDate or eventDate)
+        // Track presupuesto IDs already accounted for via invoices
+        const invoicedPresupuestoIds = new Set<string>();
+        presupuestos.forEach(pres => {
+            if (pres.invoiceId) {
+                invoicedPresupuestoIds.add(pres.id);
+            }
+        });
+
+        // 1. Calculate Future Income from Invoices (unpaid amounts)
         invoices.forEach(inv => {
             if (inv.status === 'Paid') return;
             
@@ -227,9 +236,30 @@ export async function getCashFlowProjection() {
             }
         });
 
+        // 1b. Calculate Projected Income from Presupuestos (Enviado/Facturado without invoice)
+        presupuestos.forEach(pres => {
+            // Skip borradores and already-invoiced presupuestos
+            if (pres.estado === 'Borrador') return;
+            if (invoicedPresupuestoIds.has(pres.id)) return;
+
+            const fechaEvento = pres.eventoFecha;
+            if (!fechaEvento) return;
+
+            const eventDate = new Date(fechaEvento);
+            if (isAfter(eventDate, today) || isSameDay(eventDate, today)) {
+                const monthKey = format(eventDate, 'MMM yyyy', { locale: es });
+                const monthEntry = projectionMonths.find(m => m.month === monthKey);
+                if (monthEntry) {
+                    // Use totalConDescuento if available, otherwise costoTotalEstimado
+                    const estimatedIncome = pres.totalConDescuento || pres.costoTotalEstimado || 0;
+                    monthEntry.income += estimatedIncome;
+                }
+            }
+        });
+
         // 2. Calculate Future Expenses (Catering, Staff, Manual Costs from future events)
         fiestas.forEach(fiesta => {
-            if (!fiesta.configuracion.fechaEvento) return;
+            if (!fiesta.configuracion?.fechaEvento) return;
             const eventDate = new Date(fiesta.configuracion.fechaEvento);
             
             if (isAfter(eventDate, today)) {
@@ -250,6 +280,32 @@ export async function getCashFlowProjection() {
 
                     monthEntry.expenses += (manualCosts - paidProviders) + staffCosts;
                 }
+            }
+        });
+
+        // 2b. Estimate expenses from presupuestos that don't have a fiesta created yet
+        // Use a rough expense ratio (40% of income as estimated costs)
+        const ESTIMATED_EXPENSE_RATIO = 0.40;
+        const fiestaClientNames = new Set(
+            fiestas.map(f => f.configuracion?.clienteNombre?.toLowerCase()).filter(Boolean)
+        );
+        
+        presupuestos.forEach(pres => {
+            if (pres.estado === 'Borrador') return;
+            if (!pres.eventoFecha) return;
+            
+            const eventDate = new Date(pres.eventoFecha);
+            if (!isAfter(eventDate, today)) return;
+            
+            // Skip if there's already a fiesta for this client (rough match)
+            const clientName = pres.clienteNombre?.toLowerCase();
+            if (clientName && fiestaClientNames.has(clientName)) return;
+            
+            const monthKey = format(eventDate, 'MMM yyyy', { locale: es });
+            const monthEntry = projectionMonths.find(m => m.month === monthKey);
+            if (monthEntry) {
+                const estimatedIncome = pres.totalConDescuento || pres.costoTotalEstimado || 0;
+                monthEntry.expenses += estimatedIncome * ESTIMATED_EXPENSE_RATIO;
             }
         });
 

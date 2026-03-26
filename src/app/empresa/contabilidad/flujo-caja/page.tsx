@@ -99,12 +99,12 @@ export default function FlujoCajaProyectadoPage() {
                         <div className="flex justify-between text-sm">
                             <span className="text-slate-400">Mes más rentable:</span>
                             <span className="font-bold text-emerald-400">
-                                {data.reduce((prev, curr) => (prev.balance > curr.balance) ? prev : curr).month}
+                                {data.length > 0 ? data.reduce((prev, curr) => (prev.balance > curr.balance) ? prev : curr).month : 'N/A'}
                             </span>
                         </div>
                         <div className="flex justify-between text-sm">
                             <span className="text-slate-400">Eficiencia Operativa:</span>
-                            <span className="font-bold">{((stats.netBalance / stats.totalIncome) * 100).toFixed(1)}%</span>
+                            <span className="font-bold">{stats.totalIncome > 0 ? ((stats.netBalance / stats.totalIncome) * 100).toFixed(1) + '%' : 'N/A'}</span>
                         </div>
                     </div>
                 </CardContent>
