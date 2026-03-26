@@ -44,7 +44,12 @@ export function CashFlowProjectionChart({ data }: Props) {
               className="font-bold text-[10px] uppercase tracking-widest text-slate-400"
             />
             <YAxis 
-                tickFormatter={(value) => `$${value / 1000}k`} 
+                tickFormatter={(value) => {
+                  if (value === 0) return '$0';
+                  if (Math.abs(value) >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
+                  if (Math.abs(value) >= 1000) return `$${Math.round(value / 1000)}k`;
+                  return `$${value}`;
+                }} 
                 axisLine={false}
                 tickLine={false}
                 className="font-mono text-[10px] text-slate-400"

@@ -53,7 +53,12 @@ export function MonthlySalesChart({ data }: MonthlySalesChartProps) {
               axisLine={false}
               tickFormatter={(value) => value.slice(0, 3)}
             />
-            <YAxis tickFormatter={(value) => `$${value / 1000}k`} />
+            <YAxis tickFormatter={(value) => {
+                  if (value === 0) return '$0';
+                  if (Math.abs(value) >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
+                  if (Math.abs(value) >= 1000) return `$${Math.round(value / 1000)}k`;
+                  return `$${value}`;
+                }} />
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent indicator="dashed" />}

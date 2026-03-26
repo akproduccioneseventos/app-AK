@@ -138,7 +138,7 @@ function AsignarPersonalEventoContent() {
           }
 
           if (name.includes('cocina') || name.includes('chef')) {
-            findAndAdd('Cocinero/Cheff', item.cantidad || 1, item.nombreServicio);
+            findAndAdd('Cocinero/Chef', item.cantidad || 1, item.nombreServicio);
           }
           if (name.includes('portero') || name.includes('seguridad')) {
             findAndAdd('Personal de Seguridad / Portero', item.cantidad || 1, item.nombreServicio);

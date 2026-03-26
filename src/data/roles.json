@@ -5,7 +5,7 @@
     "sueldoPorEvento": 2600,
     "porcentajeSalarioVacacional": 8.33,
     "porcentajeAguinaldo": 8.33,
-    "porcentajeAportesPatronales": 20,
+    "porcentajeAportesPatronales": 20.125,
     "costoAportesCalculado": 520,
     "id": "rol_1759834357947_a3kdp"
   },
@@ -15,7 +15,7 @@
     "sueldoPorEvento": 1800,
     "porcentajeSalarioVacacional": 8.33,
     "porcentajeAguinaldo": 8.33,
-    "porcentajeAportesPatronales": 20,
+    "porcentajeAportesPatronales": 20.125,
     "costoAportesCalculado": 360,
     "id": "rol_1759834185449_rvjwg"
   },
@@ -35,7 +35,7 @@
     "sueldoPorEvento": 2000,
     "porcentajeSalarioVacacional": 8.33,
     "porcentajeAguinaldo": 8.33,
-    "porcentajeAportesPatronales": 20,
+    "porcentajeAportesPatronales": 20.125,
     "costoAportesCalculado": 400,
     "id": "rol_1759834166269_6v47o"
   },
@@ -65,7 +65,7 @@
     "sueldoPorEvento": 2100,
     "porcentajeSalarioVacacional": 8.33,
     "porcentajeAguinaldo": 8.33,
-    "porcentajeAportesPatronales": 20,
+    "porcentajeAportesPatronales": 20.125,
     "costoAportesCalculado": 420,
     "id": "rol_1759527671533_wvewn"
   },
@@ -135,7 +135,7 @@
     "sueldoPorEvento": 1000,
     "porcentajeSalarioVacacional": 8.33,
     "porcentajeAguinaldo": 8.33,
-    "porcentajeAportesPatronales": 20,
+    "porcentajeAportesPatronales": 20.125,
     "costoAportesCalculado": 200,
     "id": "rol_1759834067607_e4pb7"
   },
@@ -146,7 +146,7 @@
     "sueldoPorEvento": 3500,
     "porcentajeSalarioVacacional": 8.33,
     "porcentajeAguinaldo": 8.33,
-    "porcentajeAportesPatronales": 20,
+    "porcentajeAportesPatronales": 20.125,
     "costoAportesCalculado": 700
   },
   {
@@ -156,7 +156,7 @@
     "sueldoPorEvento": 2000,
     "porcentajeSalarioVacacional": 8.33,
     "porcentajeAguinaldo": 8.33,
-    "porcentajeAportesPatronales": 20,
+    "porcentajeAportesPatronales": 20.125,
     "costoAportesCalculado": 400
   }
 ]

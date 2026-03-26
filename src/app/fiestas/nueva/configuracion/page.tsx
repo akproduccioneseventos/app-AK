@@ -108,6 +108,18 @@ function ConfiguracionEventoContent() {
   };
 
   const handleDateChange = (date?: Date) => {
+    if (date) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (date < today) {
+        toast({
+          title: "⚠️ Fecha en el pasado",
+          description: "La fecha seleccionada ya pasó. Por favor, elige una fecha futura para el evento.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
     handleChange('fechaEvento', date);
   };
   
@@ -139,6 +151,20 @@ function ConfiguracionEventoContent() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!config || !fiestaId) return;
+
+    // Validate date is not in the past
+    if (config.fechaEvento) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (config.fechaEvento < today) {
+        toast({
+          title: "⚠️ Fecha inválida",
+          description: "No se puede guardar un evento con fecha pasada. Por favor, selecciona una fecha futura.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
 
     setIsSaving(true);
     const configToSave: ConfigEventoDataStorage = {
