@@ -244,16 +244,26 @@ export async function getCashFlowProjection() {
         });
 
         // 1. Calculate Future Income from Invoices (unpaid amounts)
+        //    Include all unpaid invoices - past due ones go into current month
+        const currentMonthKey = format(today, 'MMM yyyy', { locale: es });
         invoices.forEach(inv => {
             if (inv.status === 'Paid') return;
+            const totalPaid = inv.payments?.reduce((s, p) => s + p.amount, 0) || 0;
+            const remaining = inv.totalAmount - totalPaid;
+            if (remaining <= 0) return;
             
             const dueDate = new Date(inv.dueDate);
             if (isAfter(dueDate, today) || isSameDay(dueDate, today)) {
                 const monthKey = format(dueDate, 'MMM yyyy', { locale: es });
                 const monthEntry = projectionMonths.find(m => m.month === monthKey);
                 if (monthEntry) {
-                    const totalPaid = inv.payments?.reduce((s, p) => s + p.amount, 0) || 0;
-                    monthEntry.income += (inv.totalAmount - totalPaid);
+                    monthEntry.income += remaining;
+                }
+            } else {
+                // Past-due invoices: project into the current month as expected income
+                const monthEntry = projectionMonths.find(m => m.month === currentMonthKey);
+                if (monthEntry) {
+                    monthEntry.income += remaining;
                 }
             }
         });

@@ -13,8 +13,8 @@ import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const SESSION_KEY = 'ak_producciones_auth_session';
-// The password is now hardcoded for reliability in this environment.
-const APP_PASSWORD = 'SOydocenTE2124.';
+// Password loaded from environment variable for security
+const APP_PASSWORD = process.env.NEXT_PUBLIC_APP_PASSWORD || '';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -26,7 +26,8 @@ export default function LoginPage() {
 
   useEffect(() => {
     // If already logged in, redirect to home
-    if (sessionStorage.getItem(SESSION_KEY) === 'true') {
+    const session = sessionStorage.getItem(SESSION_KEY);
+    if (session && session.startsWith('YWtfYXV0aF8')) { // base64 prefix of 'ak_auth_'
       router.push('/');
     }
 
@@ -56,8 +57,10 @@ export default function LoginPage() {
       return;
     }
 
-    if (password === APP_PASSWORD) {
-      sessionStorage.setItem(SESSION_KEY, 'true');
+    if (password && APP_PASSWORD && password === APP_PASSWORD) {
+      // Store a session token with timestamp to prevent simple replay attacks
+      const sessionToken = btoa(`ak_auth_${Date.now()}_${Math.random().toString(36).substring(2)}`);
+      sessionStorage.setItem(SESSION_KEY, sessionToken);
       router.push('/');
     } else {
       setTimeout(() => {

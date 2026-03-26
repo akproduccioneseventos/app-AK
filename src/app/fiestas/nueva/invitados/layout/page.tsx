@@ -269,7 +269,14 @@ function SalonLayoutContent() {
       const fiestaData = await getFiestaById(fiestaId);
       if (!fiestaData) throw new Error("Fiesta no encontrada.");
       setFiesta(fiestaData);
-      setDecoracion(fiestaData.decoracion || { salonElements: [], pixelsPerMeter: PIXELS_PER_METER_DEFAULT, salonWidth: 15, salonHeight: 15 });
+      const deco = fiestaData.decoracion || { salonElements: [], pixelsPerMeter: PIXELS_PER_METER_DEFAULT, salonWidth: 15, salonHeight: 15 };
+      // Sanitize: ensure salonElements is always an array with valid entries
+      if (!Array.isArray(deco.salonElements)) deco.salonElements = [];
+      deco.salonElements = deco.salonElements.filter(el => el && el.id && typeof el.x === 'number' && typeof el.y === 'number');
+      deco.pixelsPerMeter = deco.pixelsPerMeter || PIXELS_PER_METER_DEFAULT;
+      deco.salonWidth = deco.salonWidth || 15;
+      deco.salonHeight = deco.salonHeight || 15;
+      setDecoracion(deco);
     } catch (e: any) {
       setError("No se pudo cargar la información del evento.");
       toast({ title: "Error", description: e.message, variant: "destructive" });
@@ -855,12 +862,53 @@ function SalonLayoutContent() {
   );
 }
 
+class SalonErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean, error?: Error}> {
+    constructor(props: {children: React.ReactNode}) {
+        super(props);
+        this.state = { hasError: false };
+    }
+    static getDerivedStateFromError(error: Error) {
+        return { hasError: true, error };
+    }
+    render() {
+        if (this.state.hasError) {
+            return (
+                <div className="flex flex-col items-center justify-center h-[60vh] space-y-6 text-center p-8">
+                    <div className="p-4 bg-destructive/10 rounded-2xl">
+                        <AlertTriangle className="w-12 h-12 text-destructive"/>
+                    </div>
+                    <div className="space-y-2">
+                        <h2 className="text-2xl font-black text-slate-800">Error en Diseño de Salón</h2>
+                        <p className="text-sm text-slate-500 max-w-md">
+                            Ocurrió un error al cargar el diseñador visual. Esto puede deberse a datos de decoración corruptos.
+                        </p>
+                        <p className="text-xs text-slate-400 font-mono bg-slate-50 p-2 rounded-lg mt-2">
+                            {this.state.error?.message || 'Error desconocido'}
+                        </p>
+                    </div>
+                    <div className="flex gap-3">
+                        <Button variant="outline" onClick={() => this.setState({ hasError: false })} className="rounded-xl">
+                            <RotateCw className="w-4 h-4 mr-2"/> Reintentar
+                        </Button>
+                        <Button variant="default" onClick={() => window.history.back()} className="rounded-xl">
+                            <ArrowLeft className="w-4 h-4 mr-2"/> Volver
+                        </Button>
+                    </div>
+                </div>
+            );
+        }
+        return this.props.children;
+    }
+}
+
 export default function SalonLayoutPage() {
     return (
-        <Suspense fallback={<div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>}>
-            <DndProvider backend={HTML5Backend}>
-                <SalonLayoutContent />
-            </DndProvider>
-        </Suspense>
+        <SalonErrorBoundary>
+            <Suspense fallback={<div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>}>
+                <DndProvider backend={HTML5Backend}>
+                    <SalonLayoutContent />
+                </DndProvider>
+            </Suspense>
+        </SalonErrorBoundary>
     );
 }

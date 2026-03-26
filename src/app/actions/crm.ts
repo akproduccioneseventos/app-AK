@@ -119,6 +119,7 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
     await fs.writeFile(contractFilePath, Buffer.from(arrayBuffer));
 
     // 2. Create Customer with contract linked and full data from lead + budget
+    //    Skip automatic fiesta creation - we create the fiesta manually below with budget data
     const customerResult = await saveCustomer({
       name: lead.name,
       phone: lead.phone,
@@ -131,7 +132,7 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
       guestCount: presupuesto.invitadosCantidad,
       contractFileName: contractFileName,
       presupuestoId: presupuesto.id,
-    } as any);
+    } as any, { skipFiestaCreation: true });
 
     if (!customerResult.success || !customerResult.id) throw new Error(customerResult.error);
 
@@ -200,6 +201,7 @@ export async function confirmBooking(leadId: string, presupuestoId: string): Pro
     const conversionStage = stages.find(s => s.isConversionStage);
 
     // 1. Crear Cliente con datos completos del presupuesto y lead
+    //    Skip automatic fiesta creation - we create the fiesta manually below with budget data
     const customerResult = await saveCustomer({
       name: lead.name,
       phone: lead.phone,
@@ -211,7 +213,7 @@ export async function confirmBooking(leadId: string, presupuestoId: string): Pro
       venueName: presupuesto.salonFiestas,
       guestCount: presupuesto.invitadosCantidad,
       presupuestoId: presupuesto.id,
-    } as any);
+    } as any, { skipFiestaCreation: true });
 
     if (!customerResult.success || !customerResult.id) throw new Error(customerResult.error);
 
