@@ -42,6 +42,7 @@ import {
   PlusCircle,
   CircleDollarSign,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import AppLogo from "./app-logo";
 import { cn } from "@/lib/utils";
 

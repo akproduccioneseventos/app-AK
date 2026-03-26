@@ -2,7 +2,7 @@
 
 import { ReactNode, useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlus2Icon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, Edit, BarChart3, PackagePlus, BellRing, UserCog, Link as LinkIcon, Camera, Gift, Star, QrCode, Clock, TrendingUp, HardDriveDownload, Wand2, Film, FileArchive, KeyRound, Zap, Bot, Wallet } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlus2Icon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, Edit, BarChart3, PackagePlus, BellRing, UserCog, Link as LinkIcon, Camera, Gift, Star, QrCode, Clock, TrendingUp, HardDriveDownload, Wand2, Film, FileArchive, KeyRound, Zap, Bot, Wallet, History } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -243,97 +243,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   return null;
 };
 
-const getPageIcon = (pathname: string): React.ElementType | null => {
-  if (pathname === '/') return LayoutDashboard;
-  if (pathname.startsWith('/fiestas/nueva')) {
-    if (pathname === '/fiestas/nueva/personal') return UserCheck;
-    if (pathname === '/fiestas/nueva/personal/recibos') return Printer;
-    if (pathname === '/fiestas/nueva/reuniones') return MessageSquareText;
-    if (pathname === '/fiestas/nueva/decoracion') return Palette;
-    if (pathname === '/fiestas/nueva/decoracion/pdf') return Printer;
-    if (pathname === '/fiestas/nueva/catering') return ChefHat;
-    if (pathname === '/fiestas/nueva/catering/lista-compras') return ShoppingCart;
-    if (pathname === '/fiestas/nueva/musica') return Music2;
-    if (pathname === '/fiestas/nueva/musica/pdf') return Printer;
-    if (pathname === '/fiestas/nueva/fotografia') return Film;
-    if (pathname === '/fiestas/nueva/invitados') return Users;
-    if (pathname === '/fiestas/nueva/invitados/layout') return LayoutDashboard;
-    if (pathname === '/fiestas/nueva/itinerario') return Clock;
-    if (pathname === '/fiestas/nueva/tareas') return ClipboardListIcon;
-    if (pathname === '/fiestas/nueva/configuracion') return SettingsIcon;
-    if (pathname === '/fiestas/nueva/servicios-contratados') return ClipboardCheck;
-    if (pathname === '/fiestas/nueva/gestion-documental') return Archive;
-    if (pathname === '/fiestas/nueva/gestion-costos-rentabilidad') return BarChart3;
-    if (pathname === '/fiestas/nueva/carga-operativa') return PackageSearch;
-    if (pathname === '/fiestas/nueva/carga-operativa/pdf') return Printer;
-    if (pathname === '/fiestas/nueva/video-vida') return Camera;
-    if (pathname === '/fiestas/nueva/regalos') return Gift;
-    if (pathname === '/fiestas/nueva/resumen-imprimible') return Printer;
-    if (pathname === '/fiestas/nueva/pagina-web') return Globe;
-    if (pathname === '/fiestas/nueva/en-vivo') return Zap;
-    if (pathname === '/planner-costo-fiesta') return Calculator;
-    return PartyPopper;
-  }
 
-  if (pathname === '/empresa') return Building2;
-  if (pathname === '/empresa/servicios' || pathname === '/empresa/servicios/reporte' || pathname === '/empresa/servicios/nuevo' || pathname.startsWith('/empresa/servicios/editar')) return Sparkles;
-  if (pathname === '/empresa/contabilidad') return BarChart3; 
-  if (pathname === '/empresa/contabilidad/reportes') return TrendingUp; 
-  if (pathname === '/empresa/contabilidad/flujo-caja') return Wallet;
-  if (pathname === '/empresa/contabilidad/gastos') return Calculator;
-  if (pathname === '/empresa/activos-fijos' || pathname === '/empresa/activos-fijos/reporte' || pathname === '/empresa/activos-fijos/nuevo' || pathname.startsWith('/empresa/activos-fijos/editar')) return Package;
-  if (pathname === '/empresa/insumos' || pathname === '/empresa/insumos/reporte' || pathname === '/empresa/insumos/nuevo' || pathname.startsWith('/empresa/insumos/editar')) return Package;
-  if (pathname.startsWith('/empresa/redes-sociales')) return Sparkles;
-  if (pathname.startsWith('/empresa/menus')) return ChefHat;
-
-  if (pathname === '/proveedores' || pathname === '/proveedores/reporte') return Briefcase;
-  if (pathname === '/proveedores/new') return UserPlus2Icon;
-  if (pathname === '/empleados' || pathname === '/empleados/reporte') return ContactRound;
-  if (pathname === '/empleados/roles') return SettingsIcon;
-  if (pathname === '/customers' || pathname === '/customers/reporte') return Users;
-
-  if (pathname === '/eventos') return CalendarClock;
-  if (pathname === '/calendario') return CalendarDaysIcon;
-  
-  if (pathname === '/login') return LogInIcon;
-
-  if (pathname === '/presupuestos/nuevo') return ListChecks;
-  if (pathname.startsWith('/presupuestos')) return ListChecks;
-  if (pathname === '/invoices') return FileText;
-  if (pathname === '/contabilidad/crm') return KanbanSquare;
-  if (pathname === '/contabilidad/crm/agenda') return CalendarDaysIcon;
-  if (pathname === '/contabilidad/fiestas-historicas') return History;
-
-
-  if (pathname === '/settings') return SettingsIcon;
-  if (pathname.startsWith('/settings/templates')) return Palette;
-  if (pathname === '/settings/budget-display') return Wand2;
-  if (pathname === '/settings/company') return Building2;
-  if (pathname === '/settings/social-connections') return LinkIcon;
-  if (pathname === '/settings/notifications') return BellRing;
-  if (pathname === '/settings/account') return UserCog;
-  if (pathname === '/settings/feedback') return Star;
-  if (pathname === '/settings/backup') return HardDriveDownload;
-  if (pathname === '/settings/task-templates') return ListChecks;
-  if (pathname === '/settings/accesos-personal') return UserCog;
-  
-  if (pathname === '/admin/aaiff-fiesta') return PartyPopper;
-  if (pathname === '/admin/asistente-ak') return Bot;
-  if (pathname === '/admin/carga-historicos') return FileArchive;
-  
-  if (pathname === '/simulador-de-presupuesto') return Wand2;
-  
-  if (pathname === '/evento/actual') return PartyPopper;
-  if (pathname === '/evento/actual/mesa') return Ticket;
-  if (pathname === '/evento/actual/checkin') return UserCheck;
-  if (pathname.startsWith('/evento/social')) return Camera;
-  if (pathname.startsWith('/video-vida')) return Camera;
-  if (pathname.startsWith('/feedback')) return Star;
-  if (pathname.startsWith('/acceso-personal')) return UserCog;
-  if (pathname.startsWith('/portal')) return KeyRound;
-
-  return null;
-};
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
