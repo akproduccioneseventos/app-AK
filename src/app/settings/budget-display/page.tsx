@@ -439,7 +439,7 @@ export default function BudgetDisplaySettingsPage() {
                     <CardTitle className="font-headline text-lg md:text-xl text-slate-800 flex items-center gap-2">
                         <Layers className="w-5 h-5 text-primary"/> Reglas Automáticas
                     </CardTitle>
-                    <CardDescription className="text-xs">Define servicios que deben añadirse automáticamente según la elección del plato (ej: Asado -> Asador).</CardDescription>
+                    <CardDescription className="text-xs">Define servicios que deben añadirse automáticamente según la elección del plato (ej: Asado {'->'} Asador).</CardDescription>
                 </CardHeader>
                 <CardContent className="p-6 md:p-8 space-y-4">
                     {config?.serviceDependencies?.map(dep => (
