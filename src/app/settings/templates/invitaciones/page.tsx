@@ -112,7 +112,7 @@ export default function InvitationTemplatesPage() {
             Plantillas de Invitación Digital
           </h1>
         </div>
-        <Link href="/settings/templates" passHref>
+        <Link href="/settings/templates">
           <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver a Plantillas</Button>
         </Link>
       </div>
@@ -149,7 +149,7 @@ export default function InvitationTemplatesPage() {
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDuplicateTemplate(template.id, template.name)} disabled={!!processingId} title="Duplicar">
                             {processingId === template.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Copy className="w-4 h-4" />}
                         </Button>
-                        <Link href={`/fiestas/nueva/pagina-web?templateId=${template.id}`} passHref>
+                        <Link href={`/fiestas/nueva/pagina-web?templateId=${template.id}`}>
                             <Button variant="outline" size="icon" className="h-8 w-8"><Edit className="w-4 h-4"/></Button>
                         </Link>
                         <AlertDialog>

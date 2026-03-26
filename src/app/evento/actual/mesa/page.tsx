@@ -74,7 +74,7 @@ function MesaLookupContent() {
         </CardHeader>
         <CardContent className="text-center space-y-4 py-6">
           <p className="text-muted-foreground">{error}</p>
-          <Link href={`/evento/actual?fiestaId=${fiesta?.id || ''}`} passHref>
+          <Link href={`/evento/actual?fiestaId=${fiesta?.id || ''}`}>
             <Button variant="outline">Volver a la Página del Evento</Button>
           </Link>
         </CardContent>
@@ -128,7 +128,7 @@ function MesaLookupContent() {
         )}
       </CardContent>
       <CardFooter className="justify-center py-4">
-         <Link href={`/evento/actual?fiestaId=${fiesta?.id || ''}`} passHref>
+         <Link href={`/evento/actual?fiestaId=${fiesta?.id || ''}`}>
             <Button variant="outline" size="sm">Volver a la Página del Evento</Button>
           </Link>
       </CardFooter>

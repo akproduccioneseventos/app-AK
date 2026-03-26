@@ -48,7 +48,8 @@ function PresupuestoDashboardContent() {
     const kpis = useMemo(() => ({
         aceptados: presupuestos.filter(p => p.estado === 'Aceptado').length,
         facturados: presupuestos.filter(p => p.estado === 'Facturado').length,
-        pendientes: presupuestos.filter(p => p.estado === 'Borrador' || p.estado === 'Enviado').length,
+        pendientes: presupuestos.filter(p => p.estado === 'Enviado').length,
+        borradores: presupuestos.filter(p => p.estado === 'Borrador').length,
         rechazados: presupuestos.filter(p => p.estado === 'Rechazado').length,
     }), [presupuestos]);
 
@@ -59,16 +60,17 @@ function PresupuestoDashboardContent() {
                   <ListChecks className="w-8 h-8 text-primary"/> Central de Presupuestos
                 </h1>
                 <div className="flex gap-2 flex-wrap">
-                  <Link href="/presupuestos/reporte" passHref><Button variant="secondary">Reporte</Button></Link>
-                  <Link href="/presupuestos/nuevo/crear" passHref><Button><PlusCircle className="w-4 h-4 mr-2"/>Nuevo Presupuesto</Button></Link>
-                  <Link href="/empresa/contabilidad" passHref><Button variant="outline">Volver</Button></Link>
+                  <Link href="/presupuestos/reporte"><Button variant="secondary">Reporte</Button></Link>
+                  <Link href="/presupuestos/nuevo/crear"><Button><PlusCircle className="w-4 h-4 mr-2"/>Nuevo Presupuesto</Button></Link>
+                  <Link href="/empresa/contabilidad"><Button variant="outline">Volver</Button></Link>
                 </div>
             </div>
             
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+                <KpiCard title="Pendientes (Enviados)" value={kpis.pendientes} icon={FileClock} isLoading={isLoading}/>
+                <KpiCard title="Borradores" value={kpis.borradores} icon={FileText} isLoading={isLoading}/>
                 <KpiCard title="Aceptados" value={kpis.aceptados} icon={CheckCircle} isLoading={isLoading}/>
                 <KpiCard title="Facturados" value={kpis.facturados} icon={FileText} isLoading={isLoading}/>
-                <KpiCard title="Pendientes" value={kpis.pendientes} icon={FileClock} isLoading={isLoading}/>
                 <KpiCard title="Rechazados" value={kpis.rechazados} icon={XCircle} isLoading={isLoading}/>
             </div>
             

@@ -16,7 +16,7 @@ function ContratoSalonContent() {
         <div className="max-w-2xl mx-auto space-y-6 p-4">
             <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold">Contrato del Salón</h1>
-                <Link href={`/fiestas/nueva/gestion-documental?fiestaId=${fiestaId}`} passHref>
+                <Link href={`/fiestas/nueva/gestion-documental?fiestaId=${fiestaId}`}>
                 <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
                 </Link>
             </div>

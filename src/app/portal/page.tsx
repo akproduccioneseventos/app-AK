@@ -3,7 +3,7 @@
 
 import { Suspense, useEffect, useState, type FormEvent } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -175,16 +175,17 @@ function ClientPortalContent() {
                            
                            let finalHref = mod.href?.replace('[fiestaId]', fiesta.id);
                            if (mod.id === 'listaRegalos') finalHref = `/fiestas/nueva/regalos?fiestaId=${fiesta.id}`;
+                           const fullHref = finalHref ? (finalHref.includes('?') ? finalHref : `${finalHref}?fiestaId=${fiesta.id}`) : '#';
 
                            return (
-                               <Link href={`${finalHref}?fiestaId=${fiesta.id}`} key={mod.id} passHref>
-                                    <Button variant="outline" className="w-full h-auto justify-start p-4 text-left">
-                                        <Icon className="w-6 h-6 mr-4 text-primary"/>
+                               <Link href={fullHref} key={mod.id} className="block">
+                                    <div className="w-full flex items-center p-4 text-left border rounded-lg hover:bg-accent transition-colors">
+                                        <Icon className="w-6 h-6 mr-4 text-primary shrink-0"/>
                                         <div className="flex-grow">
                                             <p className="font-semibold">{mod.label}</p>
                                         </div>
-                                        <ArrowRight className="w-5 h-5 text-muted-foreground ml-auto"/>
-                                    </Button>
+                                        <ArrowRight className="w-5 h-5 text-muted-foreground ml-auto shrink-0"/>
+                                    </div>
                                 </Link>
                            )
                        })}

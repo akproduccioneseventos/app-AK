@@ -252,6 +252,8 @@ function CrearPresupuestoContent() {
             descuentoTipo: formData.descuentoTipo,
             descuentoValor: descuentoValorNum > 0 ? descuentoValorNum : undefined,
             vigenciaPromocion: formData.vigenciaPromocion,
+            cuponCodigo: formData.cuponCodigo,
+            cuponId: formData.cuponId,
             notas: formData.notas,
             estado: formData.estado,
             invoiceId: formData.invoiceId,
@@ -267,6 +269,15 @@ function CrearPresupuestoContent() {
           }
 
           if (result.success && result.id) {
+            // Registrar uso de cupón si se aplicó uno
+            if (formData.cuponId && formData.cuponDescuento && !editingPresupuestoId) {
+              try {
+                const { registrarUsoCupon } = await import('@/app/actions/cupones');
+                await registrarUsoCupon(formData.cuponId, result.id, formData.clienteNombre, formData.cuponDescuento, descuentoValorNum);
+              } catch (e) {
+                console.warn('Error registrando uso de cupón:', e);
+              }
+            }
             toast({ title: `Presupuesto ${editingPresupuestoId ? 'Actualizado' : 'Guardado'}` });
             sessionStorage.removeItem(SESSION_STORAGE_KEY);
             router.push(`/presupuestos/${result.id}/ver`);
@@ -282,7 +293,7 @@ function CrearPresupuestoContent() {
         <div className="space-y-6">
              <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold tracking-tight font-headline">{editingPresupuestoId ? 'Modificar Presupuesto' : 'Crear Presupuesto'}</h1>
-                <Link href="/presupuestos/nuevo" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
+                <Link href="/presupuestos/nuevo"><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
             </div>
             <Card className="shadow-lg">
                 <CardHeader>

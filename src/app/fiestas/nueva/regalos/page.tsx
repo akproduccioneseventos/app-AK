@@ -139,7 +139,7 @@ function GiftRegistryPageContent() {
       </Dialog>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3"><Gift className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Lista de Regalos</h1></div>
-        <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver al Planificador</Button></Link>
+        <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver al Planificador</Button></Link>
       </div>
 
        <Card className="shadow-lg">

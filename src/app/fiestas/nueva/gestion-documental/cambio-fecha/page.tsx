@@ -114,7 +114,7 @@ function CambioFechaContent({ fiestaId }: { fiestaId: string | null }) {
           <AlertTriangle className="w-16 h-16 text-destructive mb-4" />
           <h1 className="text-2xl font-bold">Error al Generar Documento</h1>
           <p className="text-muted-foreground mt-2">{error || "No se encontró la información necesaria."}</p>
-          <Link href={`/fiestas/nueva/gestion-documental?fiestaId=${fiestaId}`} passHref>
+          <Link href={`/fiestas/nueva/gestion-documental?fiestaId=${fiestaId}`}>
             <Button variant="outline" className="mt-4">Volver</Button>
           </Link>
       </div>
@@ -125,7 +125,7 @@ function CambioFechaContent({ fiestaId }: { fiestaId: string | null }) {
     <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans">
       <div className="max-w-3xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2">
         <div className="flex justify-between items-center mb-6 print:hidden">
-          <Link href={`/fiestas/nueva/gestion-documental?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver</Button></Link>
+          <Link href={`/fiestas/nueva/gestion-documental?fiestaId=${fiestaId}`}><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver</Button></Link>
           <div className="flex gap-2">
             <Button onClick={handleShare} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir</Button>
             <Button onClick={handlePrint} size="sm"><PrinterIcon className="w-4 h-4 mr-1.5" />Imprimir / PDF</Button>

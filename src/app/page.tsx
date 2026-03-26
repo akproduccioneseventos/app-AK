@@ -132,7 +132,7 @@ export default function MainDashboardPage() {
                 Panel de <span className="text-primary italic">Control</span>
             </h1>
             <p className="text-slate-500 font-semibold flex items-center gap-2 text-xs sm:text-base">
-                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse shrink-0"></div>
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse shrink-0 inline-block"></span>
                 Gestión operativa y financiera de AK Producciones.
             </p>
         </motion.div>
@@ -164,7 +164,7 @@ export default function MainDashboardPage() {
                         <CardDescription className="text-slate-400 font-medium">Herramientas de conversión y venta.</CardDescription>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 p-6 sm:p-8">
-                        <Link href="/presupuestos/nuevo/crear" passHref>
+                        <Link href="/presupuestos/nuevo/crear">
                             <div className="group p-6 sm:p-8 border border-slate-100 rounded-[1.25rem] sm:rounded-[1.5rem] hover:border-primary/30 hover:bg-primary/5 transition-all cursor-pointer h-full flex items-center gap-4 sm:gap-6 shadow-sm">
                                 <div className="p-4 sm:p-5 bg-primary/10 text-primary rounded-2xl group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-inner shrink-0">
                                     <ListChecks className="w-6 h-6 sm:w-7 sm:h-7"/>
@@ -176,7 +176,7 @@ export default function MainDashboardPage() {
                                 <ArrowRight className="w-5 h-5 ml-auto text-slate-300 group-hover:text-primary group-hover:translate-x-2 transition-all shrink-0"/>
                             </div>
                         </Link>
-                        <Link href="/simulador-de-presupuesto" passHref>
+                        <Link href="/simulador-de-presupuesto">
                             <div className="group p-6 sm:p-8 border border-slate-100 rounded-[1.25rem] sm:rounded-[1.5rem] hover:border-primary/30 hover:bg-primary/5 transition-all cursor-pointer h-full flex items-center gap-4 sm:gap-6 shadow-sm">
                                 <div className="p-4 sm:p-5 bg-primary/10 text-primary rounded-2xl group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-inner shrink-0">
                                     <Wand2 className="w-6 h-6 sm:w-7 sm:h-7"/>
@@ -270,7 +270,7 @@ export default function MainDashboardPage() {
                       </p>
                   </CardContent>
                   <CardFooter className="pt-0 pb-6 sm:pb-8 px-6 sm:px-8">
-                      <Link href={item.href} passHref className="w-full">
+                      <Link href={item.href} className="w-full">
                           <Button variant="secondary" className="w-full justify-between group-hover:bg-primary group-hover:text-white rounded-2xl px-6 h-11 sm:h-12 font-black text-[9px] sm:text-[10px] tracking-widest uppercase transition-all duration-500 shadow-sm">
                               Abrir <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-2 transition-transform duration-500" />
                           </Button>

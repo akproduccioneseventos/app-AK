@@ -108,7 +108,7 @@ export default function PortalPersonalPage({ params }: { params: { tokenId: stri
                         const linkHref = isEventSpecific ? `${modulo.href}?fiestaId=${fiesta!.id}` : modulo.href;
 
                         return (
-                            <Link href={linkHref} key={permisoId} passHref>
+                            <Link href={linkHref} key={permisoId}>
                                 <Button variant="outline" className="w-full h-auto justify-start p-4 text-left">
                                     <Icon className="w-6 h-6 mr-4 text-primary"/>
                                     <div className="flex-grow">

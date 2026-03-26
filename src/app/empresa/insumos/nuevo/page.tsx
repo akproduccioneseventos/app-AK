@@ -107,7 +107,7 @@ function NuevoInsumoContent() {
             Añadir Nuevo Insumo
           </h1>
         </div>
-        <Link href={backUrl} passHref>
+        <Link href={backUrl}>
           <Button variant="outline" disabled={isSaving}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Volver

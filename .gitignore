@@ -43,3 +43,15 @@ next-env.d.ts
 # firebase
 firebase-debug.log
 firestore-debug.log
+
+# contracts uploaded by users
+src/data/contracts/*.pdf
+
+# price adjustment history (generated at runtime)
+price-adjustments-history.json
+
+# backup files
+src/data/last-auto-backup.txt
+
+# abacus
+.abacus.donotdelete

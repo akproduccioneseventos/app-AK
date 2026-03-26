@@ -247,7 +247,7 @@ export default function BudgetDisplaySettingsPage() {
                 <p className="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest">Gestión de Paquetes, Platos y Estrategia</p>
             </div>
         </div>
-        <Link href="/settings" passHref className="w-full md:w-auto">
+        <Link href="/settings" className="w-full md:w-auto">
           <Button variant="outline" className="rounded-xl w-full md:w-auto"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
         </Link>
       </header>
@@ -439,7 +439,7 @@ export default function BudgetDisplaySettingsPage() {
                     <CardTitle className="font-headline text-lg md:text-xl text-slate-800 flex items-center gap-2">
                         <Layers className="w-5 h-5 text-primary"/> Reglas Automáticas
                     </CardTitle>
-                    <CardDescription className="text-xs">Define servicios que deben añadirse automáticamente según la elección del plato (ej: Asado -> Asador).</CardDescription>
+                    <CardDescription className="text-xs">Define servicios que deben añadirse automáticamente según la elección del plato (ej: Asado {'->'} Asador).</CardDescription>
                 </CardHeader>
                 <CardContent className="p-6 md:p-8 space-y-4">
                     {config?.serviceDependencies?.map(dep => (

@@ -118,10 +118,10 @@ function MusicaContent() {
           <h1 className="text-3xl font-bold tracking-tight font-headline">Música de la Fiesta</h1>
         </div>
         <div className="flex gap-2">
-            <Link href={`/fiestas/nueva/musica/pdf?fiestaId=${fiestaId}`} passHref>
+            <Link href={`/fiestas/nueva/musica/pdf?fiestaId=${fiestaId}`}>
               <Button variant="secondary"><Printer className="w-4 h-4 mr-2"/>Imprimir para DJ</Button>
             </Link>
-            <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref>
+            <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}>
               <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
             </Link>
         </div>

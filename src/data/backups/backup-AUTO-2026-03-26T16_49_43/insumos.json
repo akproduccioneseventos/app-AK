@@ -1,0 +1,21 @@
+[
+  { "id": "ing-harina", "nombre": "Harina", "tipoItem": "Insumo/Ingrediente", "categoria": "Insumos varios", "valorUnitarioEstimado": 180, "unidad": "Kg", "proveedor": "CALSAL" },
+  { "id": "ing-algas", "nombre": "Algas", "tipoItem": "Insumo/Ingrediente", "categoria": "Insumos varios", "valorUnitarioEstimado": 2000, "unidad": "Kg", "proveedor": "MONTEVIDEO" },
+  { "id": "ing-soja", "nombre": "Salsa de soja", "tipoItem": "Insumo/Ingrediente", "categoria": "Insumos varios", "valorUnitarioEstimado": 500, "unidad": "Litro", "proveedor": "UNIPLAS" },
+  { "id": "ing-aceite", "nombre": "Aceite", "tipoItem": "Insumo/Ingrediente", "categoria": "Insumos varios", "valorUnitarioEstimado": 60, "unidad": "Litro", "proveedor": "DK MOYORISTA" },
+  { "id": "ing-huevo", "nombre": "Huevo", "tipoItem": "Insumo/Ingrediente", "categoria": "Verduras", "valorUnitarioEstimado": 10, "unidad": "Unidad", "proveedor": "VERDULERIA" },
+  { "id": "ing-tapa", "nombre": "Tapa", "tipoItem": "Insumo/Ingrediente", "categoria": "Panificados", "valorUnitarioEstimado": 6, "unidad": "Gramos", "proveedor": "PASTAS LULU" },
+  { "id": "ing-cebolla", "nombre": "Cebollas", "tipoItem": "Insumo/Ingrediente", "categoria": "Verduras", "valorUnitarioEstimado": 100, "unidad": "Kg", "proveedor": "VERDULERIA" },
+  { "id": "ing-morron-rojo", "nombre": "Morron rojo", "tipoItem": "Insumo/Ingrediente", "categoria": "Verduras", "valorUnitarioEstimado": 120, "unidad": "Kg", "proveedor": "VERDULERIA" },
+  { "id": "ing-picada-carne", "nombre": "Picada de carne", "tipoItem": "Insumo/Ingrediente", "categoria": "Carnes", "valorUnitarioEstimado": 250, "unidad": "Kg", "proveedor": "CARNICERIA" },
+  { "id": "ing-gas", "nombre": "Gas", "tipoItem": "Insumo/Ingrediente", "categoria": "Insumos varios", "valorUnitarioEstimado": 1000, "unidad": "Kg", "proveedor": "AK PRODUCCIONES" },
+  { "id": "ing-tortuga", "nombre": "Tortuga", "tipoItem": "Insumo/Ingrediente", "categoria": "Panificados", "valorUnitarioEstimado": 16, "unidad": "Unidad", "proveedor": "DON DIEGO" },
+  { "id": "ing-emboltorio", "nombre": "Emboltorio", "tipoItem": "Insumo/Ingrediente", "categoria": "Descartables", "valorUnitarioEstimado": 6, "unidad": "Unidad", "proveedor": "UNIPLAS" },
+  { "id": "ing-jamon", "nombre": "Jamon", "tipoItem": "Insumo/Ingrediente", "categoria": "Fiambres", "valorUnitarioEstimado": 180, "unidad": "Kg", "proveedor": "EL TROPERO" },
+  { "id": "ing-lechuga", "nombre": "Lechuga", "tipoItem": "Insumo/Ingrediente", "categoria": "Verduras", "valorUnitarioEstimado": 25, "unidad": "Kg", "proveedor": "VERDULERIA" },
+  { "id": "ing-tomate", "nombre": "Tomate", "tipoItem": "Insumo/Ingrediente", "categoria": "Verduras", "valorUnitarioEstimado": 90, "unidad": "Kg", "proveedor": "VERDULERIA" },
+  { "id": "ing-aderezos", "nombre": "Aderesos", "tipoItem": "Insumo/Ingrediente", "categoria": "Insumos varios", "valorUnitarioEstimado": 46, "unidad": "Kg", "proveedor": "UNIPLAS" },
+  { "id": "ing-carne-bife", "nombre": "Carne (Bife)", "tipoItem": "Insumo/Ingrediente", "categoria": "Carnes", "valorUnitarioEstimado": 400, "unidad": "Kg", "proveedor": "CARNICERIA" },
+  { "id": "ing-muzarella", "nombre": "Queso Muzzarella", "tipoItem": "Insumo/Ingrediente", "categoria": "Lácteos", "valorUnitarioEstimado": 400, "unidad": "Kg", "proveedor": "EL TROPERO" },
+  { "id": "ing-fritas", "nombre": "Fritas", "tipoItem": "Insumo/Ingrediente", "categoria": "Congelados", "valorUnitarioEstimado": 120, "unidad": "Kg", "proveedor": "DOPACA" }
+]

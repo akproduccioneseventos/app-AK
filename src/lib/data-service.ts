@@ -68,4 +68,16 @@ export async function writeData<T>(
   
   // We don't await this to keep the UI fast
   triggerAutoBackup().catch(err => console.error("Background auto-backup failed:", err));
+
+  // DUAL-WRITE: Also sync to Firestore if enabled
+  if (process.env.USE_FIREBASE_DATA === 'true') {
+    try {
+      const { syncToFirestore } = await import('./firebase-sync');
+      syncToFirestore(filePath, dataToWrite).catch(err => 
+        console.warn("Background Firestore sync failed:", err)
+      );
+    } catch {
+      // Firebase sync module not available, skip silently
+    }
+  }
 }

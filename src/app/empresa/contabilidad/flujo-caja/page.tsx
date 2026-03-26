@@ -67,7 +67,7 @@ export default function FlujoCajaProyectadoPage() {
             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Módulo 5: CFO Virtual y Predicción Financiera</p>
           </div>
         </div>
-        <Link href="/empresa/contabilidad" passHref>
+        <Link href="/empresa/contabilidad">
           <Button variant="outline" className="rounded-xl border-slate-200 shadow-sm"><ArrowLeft className="w-4 h-4 mr-2" />Volver al Panel</Button>
         </Link>
       </div>
@@ -99,12 +99,12 @@ export default function FlujoCajaProyectadoPage() {
                         <div className="flex justify-between text-sm">
                             <span className="text-slate-400">Mes más rentable:</span>
                             <span className="font-bold text-emerald-400">
-                                {data.reduce((prev, curr) => (prev.balance > curr.balance) ? prev : curr).month}
+                                {data.length > 0 ? data.reduce((prev, curr) => (prev.balance > curr.balance) ? prev : curr).month : 'N/A'}
                             </span>
                         </div>
                         <div className="flex justify-between text-sm">
                             <span className="text-slate-400">Eficiencia Operativa:</span>
-                            <span className="font-bold">{((stats.netBalance / stats.totalIncome) * 100).toFixed(1)}%</span>
+                            <span className="font-bold">{stats.totalIncome > 0 ? ((stats.netBalance / stats.totalIncome) * 100).toFixed(1) + '%' : 'N/A'}</span>
                         </div>
                     </div>
                 </CardContent>

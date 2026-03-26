@@ -8,9 +8,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Trash2, Gift, Tag, Percent, Info, TrendingUp } from 'lucide-react';
+import { Trash2, Gift, Tag, Percent, Info, TrendingUp, Ticket, Loader2, CheckCircle2, XCircle } from 'lucide-react';
 import type { Dispatch, SetStateAction } from 'react';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { getGuestCountForItem, recalcularCostoItem } from '@/lib/calculations';
 import { Badge } from '@/components/ui/badge';
@@ -29,6 +29,59 @@ const formatCurrency = (amount?: number) => {
 };
 
 export default function Paso3Resumen({ formData, setFormData, totalCalculado, totalInvitados }: Paso3ResumenProps) {
+  const [cuponInput, setCuponInput] = useState(formData.cuponCodigo || '');
+  const [cuponValidating, setCuponValidating] = useState(false);
+  const [cuponResult, setCuponResult] = useState<{ valid: boolean; error?: string; nombre?: string; descuento?: number } | null>(
+    formData.cuponCodigo && formData.cuponDescuento ? { valid: true, nombre: formData.cuponCodigo, descuento: formData.cuponDescuento } : null
+  );
+
+  const handleValidarCupon = async () => {
+    if (!cuponInput.trim()) return;
+    setCuponValidating(true);
+    try {
+      const { validarCupon } = await import('@/app/actions/cupones');
+      // We need to calculate current subtotal for validation
+      const items = Array.from(formData.serviciosSeleccionados.entries()).map(([id, s]) => ({
+        idServicioCatalogo: id, ...s, precioUnitario: s.precioUnitarioPresupuesto, costoTotalItem: 0,
+      }));
+      const bruto = items.filter(i => !i.esRegalo).reduce((sum, i) => {
+        const itemCalc = { ...i, precioUnitario: i.precioUnitarioPresupuesto, costoTotalItem: 0 };
+        return sum + recalcularCostoItem(itemCalc as any, formData.invitadosAdultos || 0, 0, (formData.invitadosNinos || 0) + (formData.invitadosAdolescentes || 0));
+      }, 0);
+      const result = await validarCupon(cuponInput.trim(), bruto, formData.eventoTipo);
+      if (result.valid && result.coupon) {
+        setCuponResult({ valid: true, nombre: result.coupon.nombre, descuento: result.descuentoCalculado });
+        setFormData(prev => ({
+          ...prev,
+          cuponCodigo: result.coupon!.codigo,
+          cuponId: result.coupon!.id,
+          cuponDescuento: result.descuentoCalculado,
+          // Auto-fill discount fields from coupon
+          nombrePromocion: result.coupon!.nombre,
+          descuentoTipo: result.coupon!.tipo === 'porcentaje' ? 'porcentaje' : 'fijo',
+          descuentoValor: result.coupon!.valor.toString(),
+        }));
+      } else {
+        setCuponResult({ valid: false, error: result.error });
+        setFormData(prev => ({ ...prev, cuponCodigo: undefined, cuponId: undefined, cuponDescuento: undefined }));
+      }
+    } catch (e: any) {
+      setCuponResult({ valid: false, error: 'Error al validar el cupón.' });
+    } finally {
+      setCuponValidating(false);
+    }
+  };
+
+  const handleRemoveCupon = () => {
+    setCuponInput('');
+    setCuponResult(null);
+    setFormData(prev => ({
+      ...prev,
+      cuponCodigo: undefined,
+      cuponId: undefined,
+      cuponDescuento: undefined,
+    }));
+  };
 
   const handleServicioDetailChange = (
     servicioId: string,
@@ -111,6 +164,10 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
         }
     }
 
+    // Cupón = descuento REAL (no marketing)
+    const descuentoCupon = formData.cuponDescuento || 0;
+    const totalConCupon = Math.max(0, Math.round(totalSinAj + ajAnual - descuentoCupon));
+
     return {
       itemsAgrupados: sortedAgrupados,
       subtotalBruto: brutoVenta + regalosVal,
@@ -118,7 +175,8 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
       bonificacionPromo: Math.round(descPromo),
       totalSinAjuste: Math.round(totalSinAj),
       ajusteAnual: Math.round(ajAnual),
-      totalFinal: Math.round(totalSinAj + ajAnual),
+      descuentoCupon: Math.round(descuentoCupon),
+      totalFinal: totalConCupon,
       aniosDiferencia: aniosDif
     };
   }, [formData]);
@@ -193,6 +251,53 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
                 <div className="p-2.5 bg-primary/10 rounded-xl text-primary"><Tag className="w-5 h-5"/></div>
                 <h3 className="text-sm font-black uppercase tracking-[0.2em] text-slate-800">Promoción y Descuentos</h3>
             </div>
+
+            {/* Cupón Section */}
+            <div className="bg-white p-5 rounded-2xl border border-slate-200 space-y-3">
+              <div className="flex items-center gap-2">
+                <Ticket className="w-4 h-4 text-primary" />
+                <Label className="text-[10px] font-black uppercase text-slate-600 tracking-widest">Aplicar Cupón de Descuento</Label>
+              </div>
+              <div className="flex gap-2">
+                <Input
+                  value={cuponInput}
+                  onChange={e => { setCuponInput(e.target.value.toUpperCase()); if (cuponResult) setCuponResult(null); }}
+                  placeholder="Ej: AK-VERANO25"
+                  className="rounded-xl h-11 bg-slate-50 border-slate-200 font-mono font-bold"
+                  disabled={!!formData.cuponCodigo && cuponResult?.valid}
+                />
+                {formData.cuponCodigo && cuponResult?.valid ? (
+                  <Button variant="outline" className="rounded-xl h-11 px-4" onClick={handleRemoveCupon}>
+                    <XCircle className="w-4 h-4 mr-1" /> Quitar
+                  </Button>
+                ) : (
+                  <Button variant="secondary" className="rounded-xl h-11 px-6" onClick={handleValidarCupon} disabled={cuponValidating || !cuponInput.trim()}>
+                    {cuponValidating ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Validar'}
+                  </Button>
+                )}
+              </div>
+              {cuponResult && (
+                <div className={cn(
+                  "flex items-center gap-2 text-xs font-semibold p-2 rounded-lg",
+                  cuponResult.valid ? "bg-green-50 text-green-700" : "bg-red-50 text-red-600"
+                )}>
+                  {cuponResult.valid ? (
+                    <>
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>✓ Cupón &quot;{cuponResult.nombre}&quot; aplicado — Descuento: {formatCurrency(cuponResult.descuento || 0)}</span>
+                    </>
+                  ) : (
+                    <>
+                      <XCircle className="w-4 h-4" />
+                      <span>{cuponResult.error}</span>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <Separator className="opacity-30" />
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-2"><Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Nombre de la Promoción</Label><Input value={formData.nombrePromocion || ''} onChange={e => setFormData({...formData, nombrePromocion: e.target.value})} className="rounded-xl h-11 bg-white border-slate-200" placeholder="Ej: Descuento Amigos" /></div>
               <div className="space-y-2"><Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Vigencia</Label><Input value={formData.vigenciaPromocion || ''} onChange={e => setFormData({...formData, vigenciaPromocion: e.target.value})} className="rounded-xl h-11 bg-white border-slate-200" placeholder="Ej: Válido por 30 días" /></div>

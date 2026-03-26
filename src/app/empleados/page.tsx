@@ -99,22 +99,22 @@ export default function EmpleadosPage() {
             </h1>
         </div>
         <div className="flex gap-2 flex-wrap">
-            <Link href="/empleados/reporte" passHref>
+            <Link href="/empleados/reporte">
                 <Button variant="secondary"><Printer className="w-4 h-4 mr-2"/>Ver Reporte</Button>
             </Link>
-            <Link href="/empleados/roles" passHref>
+            <Link href="/empleados/roles">
                 <Button variant="outline">
                     <Settings2 className="w-5 h-5 mr-2" />
                     Configurar Roles
                 </Button>
             </Link>
-            <Link href="/empleados/nuevo" passHref>
+            <Link href="/empleados/nuevo">
               <Button>
                 <UserPlus className="w-5 h-5 mr-2" />
                 Añadir Empleado
               </Button>
             </Link>
-            <Link href="/empresa" passHref>
+            <Link href="/empresa">
                 <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2"/>Volver a Empresa</Button>
             </Link>
         </div>
@@ -163,7 +163,7 @@ export default function EmpleadosPage() {
                       </TableCell>
                       <TableCell className="text-right min-w-[120px]">
                         <div className="flex items-center justify-end gap-2">
-                          <Link href={`/empleados/${empleado.id}/editar`} passHref>
+                          <Link href={`/empleados/${empleado.id}/editar`}>
                             <Button variant="outline" size="icon" aria-label={`Editar ${empleado.nombre}`}>
                               <Edit className="w-4 h-4" />
                             </Button>
@@ -201,7 +201,7 @@ export default function EmpleadosPage() {
              <div className="py-10 text-center">
               <Users className="w-16 h-16 mx-auto text-muted-foreground/50 mb-4" />
               <p className="text-muted-foreground text-lg">No tienes empleados guardados todavía.</p>
-              <Link href="/empleados/nuevo" passHref>
+              <Link href="/empleados/nuevo">
                 <Button className="mt-6">
                   <UserPlus className="w-5 h-5 mr-2" />
                   Añadir Primer Empleado

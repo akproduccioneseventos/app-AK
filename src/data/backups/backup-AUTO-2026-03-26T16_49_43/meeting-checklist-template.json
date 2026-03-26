@@ -1,0 +1,18 @@
+
+{
+  "checklist": [
+    { "id": "c1", "text": "Confirmar cantidad final de invitados (Adultos/Niños)" },
+    { "id": "c2", "text": "Revisión detallada de Menú (Entradas, Principal, Postre)" },
+    { "id": "c3", "text": "Chequear menús especiales (Celíacos, Alergias)" },
+    { "id": "c4", "text": "Definir bebidas y funcionamiento de la barra" },
+    { "id": "c5", "text": "Elección de torta y diseño de mesa dulce" },
+    { "id": "c6", "text": "Revisar paleta de colores y estilo de decoración" },
+    { "id": "c7", "text": "Estado de la asignación de mesas" },
+    { "id": "c8", "text": "Canciones clave (Entrada, Vals, Torta, Cotillón)" },
+    { "id": "c9", "text": "Repasar cronograma minuto a minuto" },
+    { "id": "c10", "text": "Fotografía/Video: sesiones previas y cobertura" },
+    { "id": "c11", "text": "Verificar pagos pendientes y saldos" },
+    { "id": "c12", "text": "Detalles finales (Cotillón, Souvenirs, etc.)" }
+  ],
+  "guideNotes": "● Asegúrate de que el cliente haya visto la paleta de colores antes de decidir centros de mesa.\n● Si el menú es asado, recuerda mencionar el servicio de asador y leña.\n● Valida si el cliente prefiere barra libre o controlada."
+}

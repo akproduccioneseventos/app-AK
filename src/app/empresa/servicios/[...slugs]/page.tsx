@@ -28,7 +28,7 @@ function RedirectToInsumos() {
                     </p>
                 </CardContent>
                  <CardFooter className="justify-center">
-                    <Link href="/empresa/insumos" passHref>
+                    <Link href="/empresa/insumos">
                         <Button variant="link">
                             Si no eres redirigido, haz clic aquí.
                         </Button>

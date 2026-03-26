@@ -257,7 +257,7 @@ function FotografiaContent() {
                     <Button variant="ghost" size="sm" onClick={() => loadData(false)} title="Sincronizar con presupuesto">
                         <RefreshCw className="w-4 h-4 mr-2"/>Sincronizar con Presupuesto
                     </Button>
-                    <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
+                    <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
                 </div>
             </div>
             

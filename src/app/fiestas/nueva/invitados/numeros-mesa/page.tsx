@@ -187,7 +187,7 @@ function NumerosDeMesaContent() {
         {/* Sidebar Settings */}
         <div className="w-full md:w-80 bg-white border-r p-6 space-y-6 overflow-y-auto print:hidden shrink-0 h-screen">
             <div className="flex items-center gap-3 mb-2">
-                <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="ghost" size="icon" className="rounded-full"><ArrowLeft className="w-5 h-5"/></Button></Link>
+                <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><Button variant="ghost" size="icon" className="rounded-full"><ArrowLeft className="w-5 h-5"/></Button></Link>
                 <h1 className="font-headline text-xl font-bold text-slate-800">Torres de Mesa A4</h1>
             </div>
 

@@ -157,7 +157,7 @@ export default function EditarEmpleadoPage({ params }: { params: { id: string } 
             Editando: <span className="text-primary">{empleado?.nombre || params.id}</span>
           </h1>
         </div>
-        <Link href="/empleados" passHref>
+        <Link href="/empleados">
           <Button variant="outline" disabled={isSaving || isDeleting}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
         </Link>
       </div>

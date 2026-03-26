@@ -152,10 +152,10 @@ export default function ViewInvoicePage({ params }: { params: { id: string } }) 
   return (
     <div className="max-w-5xl mx-auto space-y-8 p-4 md:p-8 print:p-0 print:m-0">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 print:hidden">
-        <Link href="/invoices" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
+        <Link href="/invoices"><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => window.print()}><Printer className="w-4 h-4 mr-2" />Imprimir Todo</Button>
-          <Link href={`/invoices/${invoice.id}/edit`} passHref><Button variant="secondary"><Edit className="w-4 h-4 mr-2" />Editar</Button></Link>
+          <Link href={`/invoices/${invoice.id}/edit`}><Button variant="secondary"><Edit className="w-4 h-4 mr-2" />Editar</Button></Link>
         </div>
       </div>
 

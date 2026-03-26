@@ -77,7 +77,7 @@ export default function MeetingTemplatePage() {
           <ListChecks className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">Plantilla Maestra de Reuniones</h1>
         </div>
-        <Link href="/settings/templates" passHref>
+        <Link href="/settings/templates">
           <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
         </Link>
       </div>

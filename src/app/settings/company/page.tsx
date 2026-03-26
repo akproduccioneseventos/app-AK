@@ -118,7 +118,7 @@ export default function CompanySettingsPage() {
             Información de la Empresa
             </h1>
         </div>
-        <Link href="/settings" passHref>
+        <Link href="/settings">
           <Button variant="outline" disabled={isSaving}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Volver

@@ -47,18 +47,26 @@ export function AuthGuard({ children }: AuthGuardProps) {
     
     let isPublic = publicPathPrefixes.some(prefix => pathname.startsWith(prefix));
 
-    // Add a specific rule for public budget summary pages, which are also public.
+    // Budget view pages require a share token in the URL to be accessed publicly.
+    // Without a valid ?token= parameter, they require authentication.
     if (!isPublic) {
       const budgetRegex = /^\/presupuestos\/[^/]+\/ver\/?$/;
       if (budgetRegex.test(pathname)) {
-        isPublic = true;
+        // Only allow public access if a share token is present in the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('token')) {
+          isPublic = true;
+        }
       }
     }
 
-    // PERMITIR VISTAS PDF Y RESÚMENES IMPRIMIBLES (Para colaboradores y clientes sin login maestro)
+    // PDF and printable summaries: only public if accessed with a share token
     if (!isPublic) {
         if (pathname.endsWith('/pdf') || pathname.endsWith('/resumen-imprimible')) {
-            isPublic = true;
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('token')) {
+                isPublic = true;
+            }
         }
     }
     
@@ -67,7 +75,8 @@ export function AuthGuard({ children }: AuthGuardProps) {
       return;
     }
     
-    const isAuthenticated = sessionStorage.getItem(SESSION_KEY) === 'true';
+    const session = sessionStorage.getItem(SESSION_KEY);
+    const isAuthenticated = !!(session && session.startsWith('YWtfYXV0aF8')); // base64 prefix of 'ak_auth_'
     
     if (!isAuthenticated) {
       router.push('/login');

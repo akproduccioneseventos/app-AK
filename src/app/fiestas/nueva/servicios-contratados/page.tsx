@@ -214,7 +214,7 @@ export default function ServiciosContratadosPage() {
           <ClipboardList className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">Servicios Contratados</h1>
         </div>
-        <Link href="/fiestas/nueva" passHref>
+        <Link href="/fiestas/nueva">
           <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Planificador</Button>
         </Link>
       </div>

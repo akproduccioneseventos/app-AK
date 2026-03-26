@@ -301,10 +301,10 @@ function DecoracionYDisenoEventoContent() {
             <Button variant="ghost" size="sm" onClick={() => loadDecoracionData(true)} title="Sincronizar con presupuesto">
                 <RefreshCw className="w-4 h-4 mr-2"/> Sincronizar
             </Button>
-            <Link href={`/fiestas/nueva/decoracion/pdf?fiestaId=${fiestaId}`} passHref>
+            <Link href={`/fiestas/nueva/decoracion/pdf?fiestaId=${fiestaId}`}>
                 <Button variant="outline" disabled={isSaving}><FileText className="w-4 h-4 mr-2"/>Ver PDF</Button>
             </Link>
-            <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
+            <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
         </div>
       </div>
 

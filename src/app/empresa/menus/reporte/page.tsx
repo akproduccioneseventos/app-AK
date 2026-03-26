@@ -87,7 +87,7 @@ export default function ReporteMenusPage() {
           <AlertTriangle className="w-16 h-16 text-destructive mb-4" />
           <h1 className="text-2xl font-bold">Error al Generar Reporte</h1>
           <p className="text-muted-foreground mt-2">{error}</p>
-          <Link href="/empresa/menus" passHref>
+          <Link href="/empresa/menus">
             <Button variant="outline" className="mt-4">Volver</Button>
           </Link>
       </div>
@@ -101,7 +101,7 @@ export default function ReporteMenusPage() {
           <WatermarkedImage src={logoUrl} alt="Marca de agua" />
         </div>
         <div className="flex justify-between items-center mb-6 print:hidden">
-          <Link href="/empresa/menus" passHref>
+          <Link href="/empresa/menus">
             <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Menús</Button>
           </Link>
           <div className="flex gap-2">

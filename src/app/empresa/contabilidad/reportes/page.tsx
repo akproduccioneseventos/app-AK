@@ -62,7 +62,7 @@ export default function GananciasYPerdidasPage() {
         <div className="flex gap-2">
             <Button onClick={handlePrint} variant="outline" size="sm"><Eye className="w-4 h-4 mr-1.5"/>Vista Previa</Button>
             <Button onClick={handlePrint} size="sm"><Printer className="w-4 h-4 mr-1.5"/>Imprimir / PDF</Button>
-            <Link href="/empresa/contabilidad" passHref>
+            <Link href="/empresa/contabilidad">
               <Button variant="outline">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Volver a Contabilidad

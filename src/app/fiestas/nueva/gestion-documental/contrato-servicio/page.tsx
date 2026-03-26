@@ -176,7 +176,7 @@ function ContratoServicioContent() {
             <AlertTriangle className="w-12 h-12 mx-auto text-destructive mb-3" />
             <h2 className="font-semibold text-lg text-destructive">Datos Incompletos</h2>
             <p className="text-sm text-muted-foreground mt-2">{error}</p>
-             <Link href={`/fiestas/nueva/configuracion?fiestaId=${fiestaId}`} passHref>
+             <Link href={`/fiestas/nueva/configuracion?fiestaId=${fiestaId}`}>
                 <Button variant="secondary" className="mt-4">Ir a Configuración</Button>
             </Link>
         </div>
@@ -192,7 +192,7 @@ function ContratoServicioContent() {
         {/* BARRA DE HERRAMIENTAS ADM */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 p-4 bg-white shadow-sm print:hidden sticky top-0 z-50 rounded-b-xl border-x border-b">
           <div className="flex items-center gap-3">
-            <Link href={`/fiestas/nueva/gestion-documental?fiestaId=${fiestaId}`} passHref>
+            <Link href={`/fiestas/nueva/gestion-documental?fiestaId=${fiestaId}`}>
                 <Button variant="ghost" size="icon" className="rounded-full"><ArrowLeft className="w-5 h-5" /></Button>
             </Link>
             <div>

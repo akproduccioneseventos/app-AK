@@ -203,10 +203,10 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   return (
     <div className="bg-gray-100 min-h-screen py-6 print:bg-white print:py-0 font-sans">
         <div className="flex justify-between items-center mb-6 print:hidden max-w-3xl mx-auto px-4">
-          <Link href="/presupuestos/nuevo" passHref><Button variant="outline" size="sm" className="rounded-xl"><ArrowLeft className="mr-2 h-4 w-4"/>Volver</Button></Link>
+          <Link href="/presupuestos/nuevo"><Button variant="outline" size="sm" className="rounded-xl"><ArrowLeft className="mr-2 h-4 w-4"/>Volver</Button></Link>
           <div className="flex gap-2">
             <Button onClick={handlePrint} size="sm" className="rounded-xl"><Printer className="mr-2 h-4 w-4"/>Imprimir/PDF</Button>
-            <Link href={`/presupuestos/${presupuestoId}/edit`} passHref><Button variant="outline" size="sm" className="rounded-xl"><Edit className="mr-2 h-4 w-4"/>Editar</Button></Link>
+            <Link href={`/presupuestos/${presupuestoId}/edit`}><Button variant="outline" size="sm" className="rounded-xl"><Edit className="mr-2 h-4 w-4"/>Editar</Button></Link>
           </div>
         </div>
 

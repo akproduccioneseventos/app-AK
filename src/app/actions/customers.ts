@@ -39,7 +39,8 @@ export async function getCustomerById(id: string): Promise<Customer | null> {
 }
 
 export async function saveCustomer(
-  customerData: Omit<Customer, 'id'> | Customer | FormData
+  customerData: Omit<Customer, 'id'> | Customer | FormData,
+  options?: { skipFiestaCreation?: boolean }
 ): Promise<{ success: boolean; id?: string; customer?: Customer; error?: string }> {
   let customers = await getCustomers();
   let customerId: string;
@@ -173,7 +174,7 @@ export async function saveCustomer(
   
   await writeData(CUSTOMERS_FILE, customers, (a, b) => (a.companyName || a.name || '').localeCompare(b.companyName || b.name || ''));
 
-  if (isNewCustomer) {
+  if (isNewCustomer && !options?.skipFiestaCreation) {
     try {
       await createNewFiestaForCustomer(customerToSave as Customer);
     } catch (e: any) {

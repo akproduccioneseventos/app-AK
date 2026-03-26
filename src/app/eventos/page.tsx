@@ -81,10 +81,25 @@ export default function GestorFiestasPage() {
     loadData();
   }, [loadData]);
 
-  const filteredFiestasActivas = React.useMemo(() => 
-    fiestasActivas.filter(fiesta => 
-      fiesta.configuracion.nombreEvento.toLowerCase().includes(searchTerm.toLowerCase())
-    ), [fiestasActivas, searchTerm]);
+  const filteredFiestasActivas = React.useMemo(() => {
+    const now = new Date();
+    return fiestasActivas.filter(fiesta => {
+      const matchesSearch = fiesta.configuracion.nombreEvento.toLowerCase().includes(searchTerm.toLowerCase());
+      // Filter out events with dates in the past (they should be archived)
+      const eventDate = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : null;
+      const isFutureOrNoDate = !eventDate || eventDate >= now;
+      return matchesSearch && isFutureOrNoDate;
+    });
+  }, [fiestasActivas, searchTerm]);
+  
+  // Auto-identify past events that should be archived
+  const pastActiveEvents = React.useMemo(() => {
+    const now = new Date();
+    return fiestasActivas.filter(fiesta => {
+      const eventDate = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : null;
+      return eventDate && eventDate < now;
+    });
+  }, [fiestasActivas]);
 
   const filteredFiestasArchivadas = React.useMemo(() => 
     fiestasArchivadas.filter(fiesta => 
@@ -205,10 +220,10 @@ export default function GestorFiestasPage() {
                   </AlertDialogFooter>
               </AlertDialogContent>
            </AlertDialog>
-           <Link href="/calendario" passHref>
+           <Link href="/calendario">
               <Button variant="outline"><CalendarDays className="w-4 h-4 mr-2"/>Ver Calendario General</Button>
            </Link>
-            <Link href="/" passHref>
+            <Link href="/">
               <Button variant="outline">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Volver al Menú Principal
@@ -242,6 +257,36 @@ export default function GestorFiestasPage() {
        
        <Separator className="my-6 print:my-3"/>
 
+        {/* Banner for past events that should be archived */}
+        {pastActiveEvents.length > 0 && !isLoading && (
+          <Card className="bg-amber-50 border-amber-200 shadow-sm print:hidden mb-6">
+            <CardContent className="p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <AlertTriangle className="w-5 h-5 text-amber-600" />
+                <div>
+                  <p className="font-semibold text-amber-800 text-sm">
+                    {pastActiveEvents.length} evento(s) con fecha pasada necesitan ser archivados
+                  </p>
+                  <p className="text-xs text-amber-600">
+                    {pastActiveEvents.map(f => f.configuracion.nombreEvento).join(', ')}
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                {pastActiveEvents.map(fiesta => (
+                  <Button key={fiesta.id} variant="outline" size="sm" className="border-amber-300 text-amber-800 hover:bg-amber-100"
+                    onClick={() => handleArchivar(fiesta.id)}
+                    disabled={isProcessing === fiesta.id}
+                  >
+                    {isProcessing === fiesta.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Archive className="w-4 h-4 mr-1"/>}
+                    Archivar
+                  </Button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <div className="print:break-before-page">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold font-headline text-foreground print:text-lg">Eventos Activos en Planificación</h2>
@@ -272,9 +317,21 @@ export default function GestorFiestasPage() {
                       <div className="flex items-center gap-1.5 text-muted-foreground">
                         <Users className="w-3 h-3"/> Invitados: <span className="font-medium text-foreground">{fiesta.configuracion.invitadosEstimados}</span>
                       </div>
+                      {fiesta.configuracion.presupuestoEstimado ? (
+                        <div className="flex items-center gap-1.5 text-muted-foreground">
+                          <DollarSign className="w-3 h-3"/> Presupuesto: <span className="font-medium text-foreground">
+                            {new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(fiesta.configuracion.presupuestoEstimado)}
+                          </span>
+                        </div>
+                      ) : null}
+                      {fiesta.configuracion.nombreLugar ? (
+                        <div className="flex items-center gap-1.5 text-muted-foreground col-span-2">
+                          <FileText className="w-3 h-3"/> Lugar: <span className="font-medium text-foreground truncate">{fiesta.configuracion.nombreLugar}</span>
+                        </div>
+                      ) : null}
                     </CardContent>
                     <CardFooter className="p-2 border-t flex flex-col items-stretch gap-2 print:hidden">
-                        <Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`} passHref>
+                        <Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`}>
                           <Button variant="default" size="sm" className="w-full">
                             <Edit className="w-4 h-4 mr-2"/>Planificar
                           </Button>

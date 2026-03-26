@@ -162,7 +162,7 @@ function MenuDeMesaContent() {
                  <Button size="sm" onClick={handleSave} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}</Button>
                  <Button onClick={handleDownloadJpg} size="sm" variant="outline" title="Descargar como JPG"><Download className="w-4 h-4"/></Button>
                  <Button onClick={handlePrint} size="sm" variant="outline" title="Imprimir PDF"><PrinterIcon className="w-4 h-4"/></Button>
-                 <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4"/></Button></Link>
+                 <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4"/></Button></Link>
                </div>
             </div>
         </div>

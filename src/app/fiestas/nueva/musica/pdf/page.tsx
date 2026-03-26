@@ -98,7 +98,7 @@ function MusicaPdfContent({ fiestaId }: { fiestaId: string | null }) {
         <AlertTriangle className="w-16 h-16 text-destructive" />
         <h2 className="text-2xl font-bold text-destructive">Error al Generar Reporte</h2>
         <p className="text-muted-foreground">{error || "No hay preferencias musicales definidas."}</p>
-        <Link href={`/fiestas/nueva/musica?fiestaId=${fiestaId || ''}`} passHref>
+        <Link href={`/fiestas/nueva/musica?fiestaId=${fiestaId || ''}`}>
             <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver a la Planificación</Button>
         </Link>
       </div>
@@ -114,7 +114,7 @@ function MusicaPdfContent({ fiestaId }: { fiestaId: string | null }) {
             <WatermarkedImage src={logoUrl} alt="Logo" containerClassName='w-full h-full'/>
         </div>
         <div className="flex justify-between items-center mb-6 print:hidden">
-          <Link href={`/fiestas/nueva/musica?fiestaId=${fiestaId}`} passHref>
+          <Link href={`/fiestas/nueva/musica?fiestaId=${fiestaId}`}>
             <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Editar</Button>
           </Link>
           <div className="flex gap-2">

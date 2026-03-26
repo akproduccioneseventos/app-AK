@@ -8,8 +8,8 @@
       "phone": "1132",
       "estadoCliente": "Actual"
     },
-    "issueDate": "2025-01-22T12:00:00.000Z",
-    "dueDate": "2025-01-22T12:00:00.000Z",
+    "issueDate": "2026-01-22T12:00:00.000Z",
+    "dueDate": "2026-02-22T12:00:00.000Z",
     "items": [
       {
         "id": "item_inv_1147_1",
@@ -29,7 +29,7 @@
     "payments": [
       {
         "id": "pay_1147_hist",
-        "paymentDate": "2025-01-22T12:00:00.000Z",
+        "paymentDate": "2026-01-22T12:00:00.000Z",
         "amount": 203205,
         "method": "Transferencia",
         "notes": "Pago total registrado con ajuste del 15% incluido."

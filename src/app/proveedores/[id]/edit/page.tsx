@@ -102,7 +102,7 @@ export default function EditProveedorPage({ params }: { params: { id: string } }
             Editando: <span className="text-primary">{proveedor?.nombreEmpresa || proveedor?.nombre}</span>
           </h1>
         </div>
-        <Link href="/proveedores" passHref>
+        <Link href="/proveedores">
           <Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
         </Link>
       </div>

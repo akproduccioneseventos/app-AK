@@ -153,7 +153,7 @@ function GestionDocumentalContent() {
           <Archive className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">Gestión Documental</h1>
         </div>
-        <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref>
+        <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}>
           <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver al Planificador</Button>
         </Link>
       </div>
@@ -200,21 +200,21 @@ function GestionDocumentalContent() {
           <CardDescription>
             <div className="flex flex-wrap gap-2 mt-2">
                 {fiesta.presupuestoId ? (
-                   <Link href={`/presupuestos/${fiesta.presupuestoId}/ver`} passHref>
+                   <Link href={`/presupuestos/${fiesta.presupuestoId}/ver`}>
                      <Button variant="secondary" size="sm"><FileText className="w-4 h-4 mr-1.5"/>Ver Presupuesto</Button>
                    </Link>
                 ) : (
-                   <Link href={`/presupuestos/nuevo/crear?fiestaId=${fiestaId}`} passHref>
+                   <Link href={`/presupuestos/nuevo/crear?fiestaId=${fiestaId}`}>
                      <Button variant="secondary" size="sm"><ListChecks className="w-4 h-4 mr-1.5"/>Crear Presupuesto</Button>
                    </Link>
                 )}
-                <Link href={`/fiestas/nueva/gestion-documental/contrato-servicio?fiestaId=${fiestaId}`} passHref>
+                <Link href={`/fiestas/nueva/gestion-documental/contrato-servicio?fiestaId=${fiestaId}`}>
                   <Button variant="secondary" size="sm"><FileSignature className="w-4 h-4 mr-1.5"/>Borrador Contrato Servicio</Button>
                 </Link>
-                <Link href={`/fiestas/nueva/gestion-documental/cambio-fecha?fiestaId=${fiestaId}`} passHref>
+                <Link href={`/fiestas/nueva/gestion-documental/cambio-fecha?fiestaId=${fiestaId}`}>
                   <Button variant="secondary" size="sm"><FileArchive className="w-4 h-4 mr-1.5"/>Generar Cambio de Fecha</Button>
                 </Link>
-                <Link href={`/fiestas/nueva/gestion-documental/cancelacion-contrato?fiestaId=${fiestaId}`} passHref>
+                <Link href={`/fiestas/nueva/gestion-documental/cancelacion-contrato?fiestaId=${fiestaId}`}>
                   <Button variant="destructive" size="sm"><FileX className="w-4 h-4 mr-1.5"/>Generar Cancelación</Button>
                 </Link>
                 <Button onClick={handleDownloadAll} variant="outline" size="sm" disabled={isDownloading}>

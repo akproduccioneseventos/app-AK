@@ -176,7 +176,7 @@ function GestionCostosRentabilidadContent() {
                 {isSyncing ? <Loader2 className="animate-spin mr-2"/> : <Zap className="w-4 h-4 mr-2"/>} 
                 SINCRONIZAR TODO
             </Button>
-            <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline" className="rounded-xl h-12 border-slate-200"><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
+            <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><Button variant="outline" className="rounded-xl h-12 border-slate-200"><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
         </div>
       </div>
 

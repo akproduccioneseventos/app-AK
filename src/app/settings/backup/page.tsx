@@ -99,7 +99,7 @@ export default function BackupPage() {
           <HardDriveDownload className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">Backup y Protección</h1>
         </div>
-        <Link href="/settings" passHref>
+        <Link href="/settings">
           <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
         </Link>
       </div>

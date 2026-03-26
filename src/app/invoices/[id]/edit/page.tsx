@@ -155,7 +155,7 @@ export default function EditInvoicePage({ params }: { params: { id: string } }) 
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3"><Edit3 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Editar Factura #{invoice?.invoiceNumber}</h1></div>
-        <Link href={`/invoices/${invoiceId}`} passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver a Factura</Button></Link>
+        <Link href={`/invoices/${invoiceId}`}><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver a Factura</Button></Link>
       </div>
       
       <Card className="shadow-lg">

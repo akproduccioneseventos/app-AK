@@ -28,7 +28,7 @@ export default function DeprecatedAccesosPage() {
                     </p>
                 </CardContent>
                  <CardFooter className="justify-center">
-                    <Link href="/settings/accesos-personal" passHref>
+                    <Link href="/settings/accesos-personal">
                         <Button variant="link">
                             Si no eres redirigido, haz clic aquí.
                         </Button>

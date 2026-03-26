@@ -218,7 +218,7 @@ function PaginaWebPageContent() {
     <div className="h-[calc(100vh-64px)] flex flex-col bg-slate-50">
       <header className="flex-shrink-0 flex items-center justify-between p-4 border-b bg-white shadow-sm z-50">
         <div className="flex items-center gap-4">
-            <Link href={fiestaId ? `/fiestas/nueva?fiestaId=${fiestaId}` : '/settings/templates/invitaciones'} passHref>
+            <Link href={fiestaId ? `/fiestas/nueva?fiestaId=${fiestaId}` : '/settings/templates/invitaciones'}>
                 <Button variant="ghost" size="icon" className="rounded-full"><ArrowLeft className="w-5 h-5" /></Button>
             </Link>
             <h1 className="text-lg md:text-xl font-black font-headline tracking-tight hidden sm:block">
@@ -255,7 +255,7 @@ function PaginaWebPageContent() {
         </div>
 
         <div className="flex items-center gap-2">
-            <Link href={fiestaId ? `/evento/actual?fiestaId=${fiestaId}` : '#'} target="_blank" passHref className="hidden xs:block">
+            <Link href={fiestaId ? `/evento/actual?fiestaId=${fiestaId}` : '#'} target="_blank" className="hidden xs:block">
               <Button variant="outline" className="rounded-xl font-bold h-9"><Eye className="w-4 h-4 mr-2"/>Ver Real</Button>
             </Link>
            <Button onClick={handleSave} disabled={isSaving || fiestaId === 'template_preview'} className="rounded-xl font-bold h-9 shadow-lg shadow-primary/20">

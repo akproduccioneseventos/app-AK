@@ -455,12 +455,12 @@ function ListaDeCargaOperativaContent() {
           </div>
         </div>
         <div className="flex flex-wrap gap-2 w-full md:w-auto">
-           <Link href={`/fiestas/nueva/carga-operativa/pdf?fiestaId=${fiestaId}`} passHref className="flex-1 md:flex-none">
+           <Link href={`/fiestas/nueva/carga-operativa/pdf?fiestaId=${fiestaId}`} className="flex-1 md:flex-none">
               <Button variant="outline" className="w-full rounded-xl border-slate-200 shadow-sm" disabled={isSaving}>
                 <FileText className="w-4 h-4 mr-2"/>Generar Hoja de Carga
               </Button>
             </Link>
-            <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref className="flex-1 md:flex-none">
+            <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} className="flex-1 md:flex-none">
               <Button variant="outline" className="w-full rounded-xl border-slate-200 shadow-sm" disabled={isSaving}>
                 <ArrowLeft className="w-4 h-4 mr-2" /> Volver
               </Button>

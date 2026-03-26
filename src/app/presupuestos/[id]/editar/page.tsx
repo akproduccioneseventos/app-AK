@@ -184,7 +184,7 @@ export default function EditarPresupuestoPage({ params }: { params: { id: string
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3"><Edit3 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Editar Presupuesto #{presupuesto?.numero || presupuesto?.id.split('_').pop()?.substring(0,5)}</h1></div>
-        <Link href={`/presupuestos/${presupuestoId}/ver`} passHref><Button variant="outline" disabled={isSaving}><ArrowLeft />Volver al Resumen</Button></Link>
+        <Link href={`/presupuestos/${presupuestoId}/ver`}><Button variant="outline" disabled={isSaving}><ArrowLeft />Volver al Resumen</Button></Link>
       </div>
       
       <Card className="shadow-lg">
@@ -240,7 +240,7 @@ export default function EditarPresupuestoPage({ params }: { params: { id: string
             <div className="pt-6 border-t">
               <h3 className="text-lg font-medium font-headline text-primary mb-2">Editar Servicios</h3>
               <p className="text-sm text-muted-foreground mb-4">Para añadir, quitar o modificar los servicios y precios de este presupuesto, usa el creador de presupuestos.</p>
-              <Link href={`/presupuestos/nuevo/crear?editId=${presupuestoId}`} passHref>
+              <Link href={`/presupuestos/nuevo/crear?editId=${presupuestoId}`}>
                 <Button variant="secondary" type="button">
                   <Sparkles className="w-4 h-4 mr-2" />
                   Editar Servicios, Cantidades y Precios

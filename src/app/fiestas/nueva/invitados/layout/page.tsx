@@ -269,7 +269,14 @@ function SalonLayoutContent() {
       const fiestaData = await getFiestaById(fiestaId);
       if (!fiestaData) throw new Error("Fiesta no encontrada.");
       setFiesta(fiestaData);
-      setDecoracion(fiestaData.decoracion || { salonElements: [], pixelsPerMeter: PIXELS_PER_METER_DEFAULT, salonWidth: 15, salonHeight: 15 });
+      const deco = fiestaData.decoracion || { salonElements: [], pixelsPerMeter: PIXELS_PER_METER_DEFAULT, salonWidth: 15, salonHeight: 15 };
+      // Sanitize: ensure salonElements is always an array with valid entries
+      if (!Array.isArray(deco.salonElements)) deco.salonElements = [];
+      deco.salonElements = deco.salonElements.filter(el => el && el.id && typeof el.x === 'number' && typeof el.y === 'number');
+      deco.pixelsPerMeter = deco.pixelsPerMeter || PIXELS_PER_METER_DEFAULT;
+      deco.salonWidth = deco.salonWidth || 15;
+      deco.salonHeight = deco.salonHeight || 15;
+      setDecoracion(deco);
     } catch (e: any) {
       setError("No se pudo cargar la información del evento.");
       toast({ title: "Error", description: e.message, variant: "destructive" });
@@ -598,10 +605,10 @@ function SalonLayoutContent() {
          <div className="flex flex-wrap gap-2 w-full md:w-auto">
             <Button variant="outline" onClick={handleLoadTemplate} className="rounded-xl border-slate-200"><FolderUp className="w-4 h-4 mr-2"/>Cargar Plantilla</Button>
             <Button variant="outline" onClick={() => setIsSaveTemplateModalOpen(true)} className="rounded-xl border-slate-200"><FolderDown className="w-4 h-4 mr-2"/>Guardar Plantilla</Button>
-            <Link href={`/fiestas/nueva/decoracion/pdf?fiestaId=${fiestaId}&layout=true`} passHref className="flex-1 md:flex-none">
+            <Link href={`/fiestas/nueva/decoracion/pdf?fiestaId=${fiestaId}&layout=true`} className="flex-1 md:flex-none">
                 <Button variant="outline" className="w-full rounded-xl border-slate-200"><Printer className="w-4 h-4 mr-2"/>Imprimir Plano</Button>
             </Link>
-            <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref className="flex-1 md:flex-none">
+            <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} className="flex-1 md:flex-none">
                 <Button variant="outline" className="w-full rounded-xl border-slate-200"><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button>
             </Link>
          </div>
@@ -655,7 +662,7 @@ function SalonLayoutContent() {
                 <CardHeader className="p-6 bg-slate-50 border-b border-slate-100 space-y-4">
                   <div className="flex justify-between items-center">
                     <CardTitle className="text-sm font-black uppercase tracking-widest text-slate-800">Invitados Sin Mesa</CardTitle>
-                    <Badge variant="secondary" className="rounded-full bg-primary/10 text-primary border-none">{filteredGuests.sinMesa.length}</Badge>
+                    <Badge variant="secondary" className="rounded-full bg-primary/10 text-primary border-none">{filteredInvitados.sinMesa.length}</Badge>
                   </div>
                   
                   {/* Smart Seating Filters */}
@@ -687,8 +694,8 @@ function SalonLayoutContent() {
                 <CardContent className="flex-grow min-h-0 p-4">
                     <ScrollArea className="h-full">
                         <div className="space-y-2 pr-4">
-                            {filteredGuests.sinMesa.map(guest => <GuestCard key={guest.id} guest={guest} />)}
-                            {filteredGuests.sinMesa.length === 0 && (
+                            {filteredInvitados.sinMesa.map(guest => <GuestCard key={guest.id} guest={guest} />)}
+                            {filteredInvitados.sinMesa.length === 0 && (
                                 <div className="text-center py-12 opacity-30">
                                     <Users className="w-10 h-10 mx-auto mb-2"/>
                                     <p className="text-[10px] font-black uppercase tracking-widest">Sin resultados</p>
@@ -787,7 +794,7 @@ function SalonLayoutContent() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {filteredGuests.sinMesa.map(guest => (
+                            {filteredInvitados.sinMesa.map(guest => (
                                 <TableRow key={guest.id} className="border-b border-slate-50 hover:bg-slate-50/30">
                                     <TableCell className="font-medium text-sm pl-8 text-slate-700">
                                         <div className="flex items-center gap-2">
@@ -811,7 +818,7 @@ function SalonLayoutContent() {
                                     </TableCell>
                                 </TableRow>
                             ))}
-                            {filteredGuests.conMesa.map(guest => (
+                            {filteredInvitados.conMesa.map(guest => (
                                 <TableRow key={guest.id} className="bg-emerald-50/30 border-b border-emerald-100 hover:bg-emerald-50/50">
                                     <TableCell className="font-bold text-sm pl-8 text-emerald-700">
                                         <div className="flex items-center gap-2">
@@ -855,12 +862,53 @@ function SalonLayoutContent() {
   );
 }
 
+class SalonErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean, error?: Error}> {
+    constructor(props: {children: React.ReactNode}) {
+        super(props);
+        this.state = { hasError: false };
+    }
+    static getDerivedStateFromError(error: Error) {
+        return { hasError: true, error };
+    }
+    render() {
+        if (this.state.hasError) {
+            return (
+                <div className="flex flex-col items-center justify-center h-[60vh] space-y-6 text-center p-8">
+                    <div className="p-4 bg-destructive/10 rounded-2xl">
+                        <AlertTriangle className="w-12 h-12 text-destructive"/>
+                    </div>
+                    <div className="space-y-2">
+                        <h2 className="text-2xl font-black text-slate-800">Error en Diseño de Salón</h2>
+                        <p className="text-sm text-slate-500 max-w-md">
+                            Ocurrió un error al cargar el diseñador visual. Esto puede deberse a datos de decoración corruptos.
+                        </p>
+                        <p className="text-xs text-slate-400 font-mono bg-slate-50 p-2 rounded-lg mt-2">
+                            {this.state.error?.message || 'Error desconocido'}
+                        </p>
+                    </div>
+                    <div className="flex gap-3">
+                        <Button variant="outline" onClick={() => this.setState({ hasError: false })} className="rounded-xl">
+                            <RotateCw className="w-4 h-4 mr-2"/> Reintentar
+                        </Button>
+                        <Button variant="default" onClick={() => window.history.back()} className="rounded-xl">
+                            <ArrowLeft className="w-4 h-4 mr-2"/> Volver
+                        </Button>
+                    </div>
+                </div>
+            );
+        }
+        return this.props.children;
+    }
+}
+
 export default function SalonLayoutPage() {
     return (
-        <Suspense fallback={<div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>}>
-            <DndProvider backend={HTML5Backend}>
-                <SalonLayoutContent />
-            </DndProvider>
-        </Suspense>
+        <SalonErrorBoundary>
+            <Suspense fallback={<div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>}>
+                <DndProvider backend={HTML5Backend}>
+                    <SalonLayoutContent />
+                </DndProvider>
+            </Suspense>
+        </SalonErrorBoundary>
     );
 }

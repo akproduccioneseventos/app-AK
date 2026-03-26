@@ -188,18 +188,18 @@ export default function CatalogoServiciosPage() {
           </h1>
         </div>
          <div className="flex gap-2 flex-wrap">
-             <Link href="/empresa/servicios/reporte" passHref>
+             <Link href="/empresa/servicios/reporte">
                 <Button variant="secondary">
                     <Printer className="w-4 h-4 mr-2"/>Ver Reporte
                 </Button>
             </Link>
-            <Link href="/empresa/servicios/nuevo" passHref>
+            <Link href="/empresa/servicios/nuevo">
                 <Button variant="default">
                     <PackagePlus className="w-4 h-4 mr-2" />
                     Añadir Servicio
                 </Button>
             </Link>
-             <Link href="/empresa" passHref>
+             <Link href="/empresa">
                 <Button variant="outline" className="rounded-xl">
                     <ArrowLeft className="w-4 h-4 mr-2"/>
                     Volver
@@ -315,7 +315,7 @@ export default function CatalogoServiciosPage() {
                                   <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-white" onClick={() => handleDuplicate(item.id, item.nombre)} disabled={!!deletingId || !!duplicatingId} title="Duplicar">
                                       {duplicatingId === item.id ? <Loader2 className="w-3.5 h-3.5 animate-spin"/> : <Copy className="w-3.5 h-3.5"/>}
                                   </Button>
-                                  <Link href={`/empresa/servicios/editar/${item.id}`} passHref>
+                                  <Link href={`/empresa/servicios/editar/${item.id}`}>
                                       <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-white text-primary"><Edit className="w-3.5 h-3.5"/></Button>
                                   </Link>
                                   <AlertDialog>

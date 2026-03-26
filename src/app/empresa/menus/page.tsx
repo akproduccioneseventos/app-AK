@@ -309,9 +309,9 @@ export default function GestionMenusPage() {
           <h1 className="text-4xl font-black tracking-tighter uppercase font-headline">Planificador Gastronómico Maestro</h1>
         </div>
         <div className="flex gap-2 flex-wrap">
-            <Link href="/empresa/menus/catalogo" passHref><Button variant="secondary" className="rounded-xl font-bold">Catálogo de Platos</Button></Link>
-            <Link href="/empresa/menus/nuevo" passHref><Button className="rounded-xl font-bold"><PlusCircle className="w-4 h-4 mr-2"/>Crear Menú</Button></Link>
-            <Link href="/empresa" passHref><Button variant="outline" className="rounded-xl"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
+            <Link href="/empresa/menus/catalogo"><Button variant="secondary" className="rounded-xl font-bold">Catálogo de Platos</Button></Link>
+            <Link href="/empresa/menus/nuevo"><Button className="rounded-xl font-bold"><PlusCircle className="w-4 h-4 mr-2"/>Crear Menú</Button></Link>
+            <Link href="/empresa"><Button variant="outline" className="rounded-xl"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
         </div>
       </div>
 
@@ -502,7 +502,7 @@ export default function GestionMenusPage() {
                     <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-slate-400 hover:bg-white" onClick={() => handleDuplicateMenu(menu.id, menu.name)} disabled={!!processingId}>
                         {processingId === menu.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Copy className="w-4 h-4" />}
                     </Button>
-                    <Link href={`/empresa/menus/${menu.id}/editar`} passHref>
+                    <Link href={`/empresa/menus/${menu.id}/editar`}>
                         <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-primary hover:bg-white"><Edit className="w-4 h-4"/></Button>
                     </Link>
                     <AlertDialog>

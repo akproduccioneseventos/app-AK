@@ -184,18 +184,18 @@ function InventarioInsumosContent() {
           </h1>
         </div>
          <div className="flex gap-2 flex-wrap">
-            <Link href="/empresa/insumos/reporte" passHref>
+            <Link href="/empresa/insumos/reporte">
                 <Button variant="secondary">
                     <Printer className="w-4 h-4 mr-2"/>Ver Reporte de Stock
                 </Button>
             </Link>
-            <Link href="/empresa/insumos/nuevo" passHref>
+            <Link href="/empresa/insumos/nuevo">
                 <Button variant="default">
                     <PackagePlus className="w-4 h-4 mr-2" />
                     Añadir Insumo
                 </Button>
             </Link>
-             <Link href="/empresa" passHref>
+             <Link href="/empresa">
                 <Button variant="outline">
                     <ArrowLeft className="w-4 h-4 mr-2"/>
                     Volver a Empresa
@@ -326,7 +326,7 @@ function InventarioInsumosContent() {
                               <div className="flex justify-between items-start">
                                 <CardTitle className="text-base font-semibold">{item.nombre}</CardTitle>
                                 <div className="flex gap-1">
-                                     <Link href={`/empresa/insumos/editar/${item.id}`} passHref><Button variant="ghost" size="icon" className="h-7 w-7"><Edit className="w-3.5 h-3.5"/></Button></Link>
+                                     <Link href={`/empresa/insumos/editar/${item.id}`}><Button variant="ghost" size="icon" className="h-7 w-7"><Edit className="w-3.5 h-3.5"/></Button></Link>
                                       <AlertDialog>
                                         <AlertDialogTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:bg-destructive/10" disabled={deletingId === item.id}><Trash2 className="w-3.5 h-3.5" /></Button></AlertDialogTrigger>
                                         <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>¿Confirmar eliminación?</AlertDialogTitle><AlertDialogDescription>El ítem "{item.nombre}" será eliminado.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDelete(item.id, item.nombre)} disabled={deletingId === item.id} className="bg-destructive hover:bg-destructive/90">{deletingId === item.id && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin"/>}Eliminar</AlertDialogAction></AlertDialogFooter></AlertDialogContent>

@@ -171,7 +171,7 @@ function LiveEventDashboardContent() {
                         <Button variant="ghost" onClick={() => loadData(true)} className="rounded-xl h-12 bg-white/5 hover:bg-white/10 text-white">
                             <RefreshCw className="w-4 h-4 mr-2"/> Sincronizar
                         </Button>
-                        <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref>
+                        <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}>
                             <Button variant="outline" className="h-12 rounded-xl border-white/10 text-white hover:bg-white/5">
                                 <ArrowLeft className="w-4 h-4 mr-2"/> Salir
                             </Button>
