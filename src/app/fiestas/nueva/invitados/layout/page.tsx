@@ -655,7 +655,7 @@ function SalonLayoutContent() {
                 <CardHeader className="p-6 bg-slate-50 border-b border-slate-100 space-y-4">
                   <div className="flex justify-between items-center">
                     <CardTitle className="text-sm font-black uppercase tracking-widest text-slate-800">Invitados Sin Mesa</CardTitle>
-                    <Badge variant="secondary" className="rounded-full bg-primary/10 text-primary border-none">{filteredGuests.sinMesa.length}</Badge>
+                    <Badge variant="secondary" className="rounded-full bg-primary/10 text-primary border-none">{filteredInvitados.sinMesa.length}</Badge>
                   </div>
                   
                   {/* Smart Seating Filters */}
@@ -687,8 +687,8 @@ function SalonLayoutContent() {
                 <CardContent className="flex-grow min-h-0 p-4">
                     <ScrollArea className="h-full">
                         <div className="space-y-2 pr-4">
-                            {filteredGuests.sinMesa.map(guest => <GuestCard key={guest.id} guest={guest} />)}
-                            {filteredGuests.sinMesa.length === 0 && (
+                            {filteredInvitados.sinMesa.map(guest => <GuestCard key={guest.id} guest={guest} />)}
+                            {filteredInvitados.sinMesa.length === 0 && (
                                 <div className="text-center py-12 opacity-30">
                                     <Users className="w-10 h-10 mx-auto mb-2"/>
                                     <p className="text-[10px] font-black uppercase tracking-widest">Sin resultados</p>
@@ -787,7 +787,7 @@ function SalonLayoutContent() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {filteredGuests.sinMesa.map(guest => (
+                            {filteredInvitados.sinMesa.map(guest => (
                                 <TableRow key={guest.id} className="border-b border-slate-50 hover:bg-slate-50/30">
                                     <TableCell className="font-medium text-sm pl-8 text-slate-700">
                                         <div className="flex items-center gap-2">
@@ -811,7 +811,7 @@ function SalonLayoutContent() {
                                     </TableCell>
                                 </TableRow>
                             ))}
-                            {filteredGuests.conMesa.map(guest => (
+                            {filteredInvitados.conMesa.map(guest => (
                                 <TableRow key={guest.id} className="bg-emerald-50/30 border-b border-emerald-100 hover:bg-emerald-50/50">
                                     <TableCell className="font-bold text-sm pl-8 text-emerald-700">
                                         <div className="flex items-center gap-2">

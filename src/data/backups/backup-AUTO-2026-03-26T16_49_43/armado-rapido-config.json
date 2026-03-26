@@ -1,0 +1,360 @@
+{
+  "descuentoGeneral": 15,
+  "paquetes": [
+    {
+      "id": "new_paquete_1773831921614",
+      "nombre": "Paquete basico ",
+      "recommended": false,
+      "serviciosIncluidos": [
+        {
+          "id": "serv_1773234908609_4pe9i1v",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_mozo_cocina",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_vajilla_completa",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1773318550669_mrmyyqe",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1773155046161_v5ye5ck",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1773515866815_p44b51y",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_torta_principal",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_foto_fiesta",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_invitaciones_regalo",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_organizacion",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_1773832054730_brrfi3m",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_1773832114106_jgm7qct",
+          "esRegalo": true
+        }
+      ]
+    },
+    {
+      "id": "pkg_copy_1773836513524",
+      "nombre": "Paquete intermedio ",
+      "recommended": true,
+      "serviciosIncluidos": [
+        {
+          "id": "serv_1773234908609_4pe9i1v",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_mozo_cocina",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_vajilla_completa",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1773155046161_v5ye5ck",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_torta_principal",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_foto_fiesta",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_invitaciones_regalo",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_organizacion",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_1773832054730_brrfi3m",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_1773832114106_jgm7qct",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_fotocabina",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_cuadro_firmas",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_deco_basica",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_fuente_chocolate",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_video_vida_regalo",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_pantalla_regalo",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_barra_tragos",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_foto_ext",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_manteleria_completa",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_mobiliario_completo",
+          "esRegalo": false
+        }
+      ]
+    },
+    {
+      "id": "pkg_copy_1773836938087",
+      "nombre": "Paquete premium",
+      "recommended": false,
+      "serviciosIncluidos": [
+        {
+          "id": "serv_1773234908609_4pe9i1v",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_mozo_cocina",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_vajilla_completa",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1773155046161_v5ye5ck",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_torta_principal",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_foto_fiesta",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_invitaciones_regalo",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_organizacion",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_1773832054730_brrfi3m",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_1773832114106_jgm7qct",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_fotocabina",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_cuadro_firmas",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_deco_basica",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_fuente_chocolate",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_video_vida_regalo",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_pantalla_regalo",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_barra_tragos",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_foto_ext",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_1773235041932_c972ry7",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_banner",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_candy_bar_tematico",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_lluvia_burbujas",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_fuegos_frios",
+          "esRegalo": true
+        },
+        {
+          "id": "serv_filmacion_fiesta",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_manteleria_completa",
+          "esRegalo": false
+        },
+        {
+          "id": "serv_mobiliario_completo",
+          "esRegalo": false
+        }
+      ]
+    }
+  ],
+  "menus": [
+    {
+      "id": "menu_completo",
+      "nombre": "Menú Gastronómico Completo",
+      "serviciosIncluidos": []
+    }
+  ],
+  "platosVisibles": [
+    {
+      "id": "dish_entrada_1",
+      "visible": false,
+      "recommended": false
+    },
+    {
+      "id": "dish_entrada_3",
+      "visible": false,
+      "recommended": false
+    },
+    {
+      "id": "dish_entrada_13",
+      "visible": false,
+      "recommended": false
+    },
+    {
+      "id": "dish_entrada_19",
+      "visible": false,
+      "recommended": false
+    },
+    {
+      "id": "dish_entrada_18",
+      "visible": false,
+      "recommended": false
+    },
+    {
+      "id": "dish_main_19",
+      "visible": false,
+      "recommended": false
+    },
+    {
+      "id": "dish_main_10",
+      "visible": false,
+      "recommended": false
+    },
+    {
+      "id": "dish_entrada_5",
+      "visible": false,
+      "recommended": false
+    },
+    {
+      "id": "dish_entrada_14",
+      "visible": true,
+      "recommended": true
+    },
+    {
+      "id": "dish_entrada_25",
+      "visible": false,
+      "recommended": false
+    },
+    {
+      "id": "dish_entrada_23",
+      "visible": true,
+      "recommended": true
+    },
+    {
+      "id": "dish_child_3",
+      "visible": true,
+      "recommended": true
+    },
+    {
+      "id": "dish_main_2_virtual_buffet",
+      "visible": true,
+      "recommended": true
+    },
+    {
+      "id": "dish_main_7_virtual_buffet",
+      "visible": true,
+      "recommended": true
+    }
+  ],
+  "serviceDependencies": [
+    {
+      "id": "dep_1773514356104",
+      "triggerServiceId": "dish_main_18_virtual_buffet",
+      "requiredServiceId": "serv_asador"
+    },
+    {
+      "id": "dep_1773514369584",
+      "triggerServiceId": "dish_main_18",
+      "requiredServiceId": "serv_asador"
+    },
+    {
+      "id": "dep_1773514461886",
+      "triggerServiceId": "dish_main_17",
+      "requiredServiceId": "serv_asador"
+    },
+    {
+      "id": "dep_1773514506391",
+      "triggerServiceId": "dish_main_17_virtual_buffet",
+      "requiredServiceId": "serv_asador"
+    }
+  ],
+  "mostrarPrecios": true
+}

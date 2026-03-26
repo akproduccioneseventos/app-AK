@@ -1,0 +1,162 @@
+[
+  {
+    "nombre": "Asador",
+    "categoriaServicio": "Personal",
+    "sueldoPorEvento": 2600,
+    "porcentajeSalarioVacacional": 8.33,
+    "porcentajeAguinaldo": 8.33,
+    "porcentajeAportesPatronales": 20,
+    "costoAportesCalculado": 520,
+    "id": "rol_1759834357947_a3kdp"
+  },
+  {
+    "nombre": "Ayudante de Barman",
+    "categoriaServicio": "Personal",
+    "sueldoPorEvento": 1800,
+    "porcentajeSalarioVacacional": 8.33,
+    "porcentajeAguinaldo": 8.33,
+    "porcentajeAportesPatronales": 20,
+    "costoAportesCalculado": 360,
+    "id": "rol_1759834185449_rvjwg"
+  },
+  {
+    "id": "rol_17203",
+    "nombre": "Ayudante de Cocina",
+    "categoriaServicio": "Personal",
+    "sueldoPorEvento": 2500,
+    "porcentajeSalarioVacacional": 8.33,
+    "porcentajeAguinaldo": 8.33,
+    "porcentajeAportesPatronales": 20.125,
+    "costoAportesCalculado": 503.125
+  },
+  {
+    "nombre": "Barman",
+    "categoriaServicio": "Personal",
+    "sueldoPorEvento": 2000,
+    "porcentajeSalarioVacacional": 8.33,
+    "porcentajeAguinaldo": 8.33,
+    "porcentajeAportesPatronales": 20,
+    "costoAportesCalculado": 400,
+    "id": "rol_1759834166269_6v47o"
+  },
+  {
+    "id": "rol_17204",
+    "nombre": "Bartender",
+    "categoriaServicio": "Personal",
+    "sueldoPorEvento": 2800,
+    "porcentajeSalarioVacacional": 8.33,
+    "porcentajeAguinaldo": 8.33,
+    "porcentajeAportesPatronales": 20.125,
+    "costoAportesCalculado": 563.5
+  },
+  {
+    "id": "rol_17208",
+    "nombre": "Camarógrafo / Videógrafo",
+    "categoriaServicio": "Servicio de filmación",
+    "sueldoPorEvento": 12000,
+    "porcentajeSalarioVacacional": 8.33,
+    "porcentajeAguinaldo": 8.33,
+    "porcentajeAportesPatronales": 20.125,
+    "costoAportesCalculado": 2415
+  },
+  {
+    "nombre": "Cocinero",
+    "categoriaServicio": "Servicio de catering",
+    "sueldoPorEvento": 2100,
+    "porcentajeSalarioVacacional": 8.33,
+    "porcentajeAguinaldo": 8.33,
+    "porcentajeAportesPatronales": 20,
+    "costoAportesCalculado": 420,
+    "id": "rol_1759527671533_wvewn"
+  },
+  {
+    "id": "rol_17201",
+    "nombre": "Coordinador de Evento",
+    "categoriaServicio": "Personal",
+    "sueldoPorEvento": 5000,
+    "porcentajeSalarioVacacional": 8.33,
+    "porcentajeAguinaldo": 8.33,
+    "porcentajeAportesPatronales": 20.125,
+    "costoAportesCalculado": 1006.25
+  },
+  {
+    "id": "rol_17205",
+    "nombre": "DJ",
+    "categoriaServicio": "Servicio de discoteca",
+    "sueldoPorEvento": 8000,
+    "porcentajeSalarioVacacional": 8.33,
+    "porcentajeAguinaldo": 8.33,
+    "porcentajeAportesPatronales": 20.125,
+    "costoAportesCalculated": 1610
+  },
+  {
+    "id": "rol_17207",
+    "nombre": "Fotógrafo",
+    "categoriaServicio": "Servicio de fotografía",
+    "sueldoPorEvento": 12000,
+    "porcentajeSalarioVacacional": 8.33,
+    "porcentajeAguinaldo": 8.33,
+    "porcentajeAportesPatronales": 20.125,
+    "costoAportesCalculado": 2415
+  },
+  {
+    "id": "rol_17202",
+    "nombre": "Mozo",
+    "categoriaServicio": "Personal",
+    "sueldoPorEvento": 2100,
+    "porcentajeSalarioVacacional": 8.33,
+    "porcentajeAguinaldo": 8.33,
+    "porcentajeAportesPatronales": 20.125,
+    "costoAportesCalculado": 422.625
+  },
+  {
+    "id": "rol_17209",
+    "nombre": "Personal de Limpieza",
+    "categoriaServicio": "Otros servicios",
+    "sueldoPorEvento": 1800,
+    "porcentajeSalarioVacacional": 8.33,
+    "porcentajeAguinaldo": 8.33,
+    "porcentajeAportesPatronales": 20.125,
+    "costoAportesCalculado": 362.25
+  },
+  {
+    "id": "rol_17206",
+    "nombre": "Personal de Seguridad / Portero",
+    "categoriaServicio": "Personal",
+    "sueldoPorEvento": 2500,
+    "porcentajeSalarioVacacional": 8.33,
+    "porcentajeAguinaldo": 8.33,
+    "porcentajeAportesPatronales": 20.125,
+    "costoAportesCalculado": 503.125
+  },
+  {
+    "nombre": "Utilero",
+    "categoriaServicio": "Personal",
+    "sueldoPorEvento": 1000,
+    "porcentajeSalarioVacacional": 8.33,
+    "porcentajeAguinaldo": 8.33,
+    "porcentajeAportesPatronales": 20,
+    "costoAportesCalculado": 200,
+    "id": "rol_1759834067607_e4pb7"
+  },
+  {
+    "id": "rol_decoradora",
+    "nombre": "Decoradora",
+    "categoriaServicio": "Servicio de decoración",
+    "sueldoPorEvento": 3500,
+    "porcentajeSalarioVacacional": 8.33,
+    "porcentajeAguinaldo": 8.33,
+    "porcentajeAportesPatronales": 20,
+    "costoAportesCalculado": 700
+  },
+  {
+    "id": "rol_ayudante_deco",
+    "nombre": "Ayudante de Decoración",
+    "categoriaServicio": "Servicio de decoración",
+    "sueldoPorEvento": 2000,
+    "porcentajeSalarioVacacional": 8.33,
+    "porcentajeAguinaldo": 8.33,
+    "porcentajeAportesPatronales": 20,
+    "costoAportesCalculado": 400
+  }
+]

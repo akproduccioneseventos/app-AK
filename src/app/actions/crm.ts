@@ -118,17 +118,20 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
     const arrayBuffer = await contractFile.arrayBuffer();
     await fs.writeFile(contractFilePath, Buffer.from(arrayBuffer));
 
-    // 2. Create Customer with contract linked
+    // 2. Create Customer with contract linked and full data from lead + budget
     const customerResult = await saveCustomer({
       name: lead.name,
       phone: lead.phone,
+      companyName: (lead as any).companyName || presupuesto.clienteEmpresa || undefined,
+      taxId: (lead as any).taxId || undefined,
       estadoCliente: 'Actual',
       partyDate: presupuesto.eventoFecha,
       partyType: presupuesto.eventoTipo,
       venueName: presupuesto.salonFiestas,
       guestCount: presupuesto.invitadosCantidad,
       contractFileName: contractFileName,
-    });
+      presupuestoId: presupuesto.id,
+    } as any);
 
     if (!customerResult.success || !customerResult.id) throw new Error(customerResult.error);
 
@@ -157,16 +160,18 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
     // 5. Update Presupuesto
     await updatePresupuesto({ ...presupuesto, estado: 'Aceptado' });
 
-    // 6. Move Lead to conversion stage
-    if (conversionStage) await moveCrmLead(lead.id, conversionStage.id);
-
-    // 7. Update lead with contract info
-    const updatedLeads = await getCrmLeads();
-    const leadIdx = updatedLeads.findIndex(l => l.id === leadId);
-    if (leadIdx !== -1) {
-      (updatedLeads[leadIdx] as any).contractFileName = contractFileName;
-      updatedLeads[leadIdx].updatedAt = new Date().toISOString();
-      await writeData(LEADS_FILE, updatedLeads);
+    // 6. Move Lead to conversion stage AND update contract info in one write
+    {
+      const currentLeads = await getCrmLeads();
+      const leadIdx = currentLeads.findIndex(l => l.id === leadId);
+      if (leadIdx !== -1) {
+        if (conversionStage) {
+          currentLeads[leadIdx].currentStageId = conversionStage.id;
+        }
+        (currentLeads[leadIdx] as any).contractFileName = contractFileName;
+        currentLeads[leadIdx].updatedAt = new Date().toISOString();
+        await writeData(LEADS_FILE, currentLeads);
+      }
     }
 
     await createNotification({
@@ -194,16 +199,19 @@ export async function confirmBooking(leadId: string, presupuestoId: string): Pro
 
     const conversionStage = stages.find(s => s.isConversionStage);
 
-    // 1. Crear Cliente
+    // 1. Crear Cliente con datos completos del presupuesto y lead
     const customerResult = await saveCustomer({
       name: lead.name,
       phone: lead.phone,
+      companyName: (lead as any).companyName || presupuesto.clienteEmpresa || undefined,
+      taxId: (lead as any).taxId || undefined,
       estadoCliente: 'Actual',
       partyDate: presupuesto.eventoFecha,
       partyType: presupuesto.eventoTipo,
       venueName: presupuesto.salonFiestas,
-      guestCount: presupuesto.invitadosCantidad
-    });
+      guestCount: presupuesto.invitadosCantidad,
+      presupuestoId: presupuesto.id,
+    } as any);
 
     if (!customerResult.success || !customerResult.id) throw new Error(customerResult.error);
 

@@ -59,7 +59,12 @@ export async function getDashboardKpiData() {
     const today = startOfToday();
     const tomorrow = addDays(today, 1);
     
-    const ventasTotales = invoicesData.reduce((total, inv) => total + inv.totalAmount, 0);
+    // ventasTotales includes invoices + presupuestos enviados/aceptados (not yet invoiced)
+    const ventasFacturadas = invoicesData.reduce((total, inv) => total + inv.totalAmount, 0);
+    const ventasPresupuestadas = presupuestosData
+      .filter(p => (p.estado === 'Enviado' || p.estado === 'Aceptado') && !p.invoiceId)
+      .reduce((total, p) => total + (p.totalConDescuento || p.costoTotalEstimado || 0), 0);
+    const ventasTotales = ventasFacturadas + ventasPresupuestadas;
     const montoPagado = invoicesData.reduce((total, inv) => total + (inv.payments?.reduce((sum, p) => sum + p.amount, 0) || 0), 0);
     const totalPendiente = ventasTotales - montoPagado;
     const prospectosActivos = crmKpis.success ? crmKpis.data.activeLeads : 0;
@@ -165,6 +170,23 @@ export async function getDashboardKpiData() {
                 paymentMonthEntry.pagos += payment.amount;
             }
         });
+    });
+
+    // Also include presupuestos (Enviado/Aceptado) as projected sales in the monthly chart
+    const invoicedPresupuestoIds = new Set(
+        presupuestosData.filter(p => p.invoiceId).map(p => p.id)
+    );
+    presupuestosData.forEach(pres => {
+        if (pres.estado === 'Borrador' || pres.estado === 'Rechazado') return;
+        if (invoicedPresupuestoIds.has(pres.id)) return;
+        const fecha = pres.eventoFecha;
+        if (!fecha) return;
+        const eventDate = new Date(fecha);
+        const monthKey = format(eventDate, 'MMM yyyy', { locale: es });
+        const monthEntry = monthlyData.find(d => d.month === monthKey);
+        if (monthEntry) {
+            monthEntry.ventas += pres.totalConDescuento || pres.costoTotalEstimado || 0;
+        }
     });
 
     return {
