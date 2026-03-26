@@ -564,7 +564,7 @@ function SalonLayoutContent() {
             <LayoutDashboard className="w-6 h-6 text-primary"/>
             Diseño del Salón y Asignación de Mesas
         </h1>
-        <Link href={`/fiestas/nueva/decoracion/pdf?fiestaId=${fiestaId}&layout=true`} passHref><Button variant="secondary"><Printer className="w-4 h-4 mr-2"/>Imprimir Plano</Button></Link>
+        <Link href={`/fiestas/nueva/decoracion/pdf?fiestaId=${fiestaId}&layout=true`}><Button variant="secondary"><Printer className="w-4 h-4 mr-2"/>Imprimir Plano</Button></Link>
       </div>
 
        <Tabs defaultValue="visual">

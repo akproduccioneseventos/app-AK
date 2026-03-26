@@ -194,7 +194,7 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
             Editando: <span className="text-primary">{customer?.companyName || customer?.name || customerIdFromParams}</span>
           </h1>
         </div>
-        <Link href="/customers" passHref>
+        <Link href="/customers">
           <Button variant="outline" disabled={isSaving || isDeleting}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
         </Link>
       </div>

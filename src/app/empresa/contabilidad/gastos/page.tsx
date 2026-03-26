@@ -105,7 +105,7 @@ export default function GastosGeneralesPage() {
           <Calculator className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">Gastos Generales</h1>
         </div>
-        <Link href="/empresa/contabilidad" passHref>
+        <Link href="/empresa/contabilidad">
           <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver al Panel Contable</Button>
         </Link>
       </div>

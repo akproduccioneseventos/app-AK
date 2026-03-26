@@ -282,7 +282,7 @@ function CrearPresupuestoContent() {
         <div className="space-y-6">
              <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold tracking-tight font-headline">{editingPresupuestoId ? 'Modificar Presupuesto' : 'Crear Presupuesto'}</h1>
-                <Link href="/presupuestos/nuevo" passHref><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
+                <Link href="/presupuestos/nuevo"><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
             </div>
             <Card className="shadow-lg">
                 <CardHeader>

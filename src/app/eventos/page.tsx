@@ -205,10 +205,10 @@ export default function GestorFiestasPage() {
                   </AlertDialogFooter>
               </AlertDialogContent>
            </AlertDialog>
-           <Link href="/calendario" passHref>
+           <Link href="/calendario">
               <Button variant="outline"><CalendarDays className="w-4 h-4 mr-2"/>Ver Calendario General</Button>
            </Link>
-            <Link href="/" passHref>
+            <Link href="/">
               <Button variant="outline">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Volver al Menú Principal
@@ -274,7 +274,7 @@ export default function GestorFiestasPage() {
                       </div>
                     </CardContent>
                     <CardFooter className="p-2 border-t flex flex-col items-stretch gap-2 print:hidden">
-                        <Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`} passHref>
+                        <Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`}>
                           <Button variant="default" size="sm" className="w-full">
                             <Edit className="w-4 h-4 mr-2"/>Planificar
                           </Button>

@@ -176,7 +176,7 @@ function ResumenImprimibleContent({ fiestaId }: { fiestaId: string | null }) {
     <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans">
       <div className="max-w-3xl mx-auto">
         <div className="flex justify-between items-center mb-6 print:hidden">
-            <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver al Planificador</Button></Link>
+            <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver al Planificador</Button></Link>
             <div className="flex gap-2">
                 <Button onClick={handleDownloadJpg} variant="outline" size="sm" disabled={isProcessingAction}>{isProcessingAction ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin"/> : <Download className="w-4 h-4 mr-1.5"/>}JPG</Button>
                 <Button onClick={handleShare} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir</Button>

@@ -84,7 +84,7 @@ export default function NuevoEmpleadoPage() {
             Añadir Nuevo Empleado
           </h1>
         </div>
-        <Link href="/empleados" passHref>
+        <Link href="/empleados">
           <Button variant="outline" disabled={isSaving}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Volver a Empleados

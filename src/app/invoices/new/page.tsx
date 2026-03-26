@@ -216,7 +216,7 @@ function NewInvoicePageContent() {
             {sourcePresupuestoId && <span className="text-base font-normal text-muted-foreground"> (Desde Presupuesto)</span>}
           </h1>
         </div>
-        <Link href="/invoices" passHref>
+        <Link href="/invoices">
           <Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button>
         </Link>
       </div>

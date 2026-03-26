@@ -344,7 +344,7 @@ function SalonLayoutContent() {
        
        <div className="flex justify-between items-center">
          <h1 className="text-2xl font-bold tracking-tight font-headline flex items-center gap-2"><LayoutDashboard className="w-6 h-6 text-primary"/>Diseño del Salón</h1>
-        <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
+        <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
       </div>
 
        <Tabs defaultValue="visual">

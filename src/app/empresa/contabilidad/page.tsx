@@ -104,7 +104,7 @@ export default function ContabilidadHubPage() {
             Panel Contable y Financiero
           </h1>
         </div>
-        <Link href="/empresa" passHref>
+        <Link href="/empresa">
           <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver a Empresa</Button>
         </Link>
       </div>
@@ -143,7 +143,7 @@ export default function ContabilidadHubPage() {
               <p className="text-sm text-muted-foreground line-clamp-2">{item.description}</p>
             </CardContent>
             <CardFooter className="pt-3">
-              <Link href={item.href} passHref className="w-full">
+              <Link href={item.href} className="w-full">
                 <Button variant="secondary" className="w-full rounded-xl">
                   Acceder
                 </Button>
@@ -162,12 +162,12 @@ export default function ContabilidadHubPage() {
               <p className="text-sm text-muted-foreground line-clamp-2">Accede a la herramienta pública o configura los paquetes y precios que se ofrecen.</p>
             </CardContent>
             <CardFooter className="pt-3 flex flex-col sm:flex-row gap-2">
-              <Link href="/simulador-de-presupuesto" passHref className="w-full">
+              <Link href="/simulador-de-presupuesto" className="w-full">
                 <Button variant="secondary" className="w-full rounded-xl">
                   Ir al Simulador
                 </Button>
               </Link>
-              <Link href="/settings/budget-display" passHref className="w-full">
+              <Link href="/settings/budget-display" className="w-full">
                 <Button variant="outline" className="w-full rounded-xl">
                   Configurar
                 </Button>

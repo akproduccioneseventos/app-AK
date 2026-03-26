@@ -199,7 +199,7 @@ function ConfiguracionEventoContent() {
         <h1 className="text-3xl font-bold tracking-tight font-headline">
           Configuración General del Evento
         </h1>
-        <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref>
+        <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}>
           <Button variant="outline" disabled={isSaving}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Volver al Planificador

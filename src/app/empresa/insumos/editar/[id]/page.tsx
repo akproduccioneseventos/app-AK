@@ -154,7 +154,7 @@ export default function EditarInsumoPage({ params }: { params: { id: string } })
             Editando: <span className="text-primary">{item?.nombre}</span>
           </h1>
         </div>
-        <Link href={backUrl} passHref>
+        <Link href={backUrl}>
           <Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
         </Link>
       </div>

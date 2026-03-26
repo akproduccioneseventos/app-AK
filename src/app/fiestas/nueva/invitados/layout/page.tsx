@@ -598,10 +598,10 @@ function SalonLayoutContent() {
          <div className="flex flex-wrap gap-2 w-full md:w-auto">
             <Button variant="outline" onClick={handleLoadTemplate} className="rounded-xl border-slate-200"><FolderUp className="w-4 h-4 mr-2"/>Cargar Plantilla</Button>
             <Button variant="outline" onClick={() => setIsSaveTemplateModalOpen(true)} className="rounded-xl border-slate-200"><FolderDown className="w-4 h-4 mr-2"/>Guardar Plantilla</Button>
-            <Link href={`/fiestas/nueva/decoracion/pdf?fiestaId=${fiestaId}&layout=true`} passHref className="flex-1 md:flex-none">
+            <Link href={`/fiestas/nueva/decoracion/pdf?fiestaId=${fiestaId}&layout=true`} className="flex-1 md:flex-none">
                 <Button variant="outline" className="w-full rounded-xl border-slate-200"><Printer className="w-4 h-4 mr-2"/>Imprimir Plano</Button>
             </Link>
-            <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref className="flex-1 md:flex-none">
+            <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} className="flex-1 md:flex-none">
                 <Button variant="outline" className="w-full rounded-xl border-slate-200"><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button>
             </Link>
          </div>

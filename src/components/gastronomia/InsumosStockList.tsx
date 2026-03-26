@@ -98,7 +98,7 @@ export const InsumosStockList: React.FC<InsumosStockListProps> = ({ insumos, onU
                             className="pl-9"
                         />
                     </div>
-                     <Link href="/empresa/insumos/nuevo?from=gastronomia" passHref>
+                     <Link href="/empresa/insumos/nuevo?from=gastronomia">
                         <Button variant="outline" className="h-10"><PlusCircle className="w-4 h-4 mr-2"/>Añadir</Button>
                     </Link>
                 </div>
@@ -122,7 +122,7 @@ export const InsumosStockList: React.FC<InsumosStockListProps> = ({ insumos, onU
                                                     </p>
                                                 </div>
                                                 <div className="flex gap-1">
-                                                     <Link href={`/empresa/insumos/${insumo.id}/editar`} passHref>
+                                                     <Link href={`/empresa/insumos/${insumo.id}/editar`}>
                                                         <Button variant="ghost" size="icon" className="h-7 w-7"><Edit className="w-3.5 h-3.5"/></Button>
                                                      </Link>
                                                       <AlertDialog>

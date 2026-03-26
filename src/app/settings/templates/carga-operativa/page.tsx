@@ -221,7 +221,7 @@ export default function MasterCargaOperativaPage() {
               <PackageSearch className="w-8 h-8 text-primary" />
               <h1 className="text-3xl font-bold tracking-tight font-headline">Plantilla Maestra de Carga</h1>
             </div>
-            <Link href="/settings/templates" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
+            <Link href="/settings/templates"><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
         </div>
         <Card className="shadow-lg">
           <CardHeader>

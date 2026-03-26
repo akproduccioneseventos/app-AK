@@ -162,10 +162,10 @@ export default function CustomerDetailsPage({ params }: { params: { id: string }
           </div>
         </div>
         <div className="flex gap-2 w-full sm:w-auto">
-            <Link href="/customers" passHref className="flex-1 sm:flex-none">
+            <Link href="/customers" className="flex-1 sm:flex-none">
                 <Button variant="outline" className="w-full"><ArrowLeft className="w-4 h-4 mr-2"/>Clientes</Button>
             </Link>
-             <Link href={`/customers/${customerId}/edit`} passHref className="flex-1 sm:flex-none">
+             <Link href={`/customers/${customerId}/edit`} className="flex-1 sm:flex-none">
                 <Button variant="default" className="w-full">Editar Cliente</Button>
              </Link>
              <Button onClick={handlePrint} variant="secondary" className="flex-1 sm:flex-none">
@@ -210,7 +210,7 @@ export default function CustomerDetailsPage({ params }: { params: { id: string }
                     ) : (
                          <Button variant="outline" disabled><FileText className="w-4 h-4 mr-2"/> Contrato Salón no subido</Button>
                     )}
-                    <Link href="/settings/feedback" passHref>
+                    <Link href="/settings/feedback">
                         <Button variant="secondary"><Star className="w-4 h-4 mr-2"/>Ver Feedback</Button>
                     </Link>
                  </div>
@@ -248,14 +248,14 @@ export default function CustomerDetailsPage({ params }: { params: { id: string }
 
                      <div className="flex flex-wrap gap-2">
                         {eventDetail.presupuestoFiesta && (
-                          <Link href={`/presupuestos/${eventDetail.presupuestoFiesta.id}/ver`} passHref>
+                          <Link href={`/presupuestos/${eventDetail.presupuestoFiesta.id}/ver`}>
                             <Button variant="outline" size="sm" className="text-xs">
                               <FileText className="w-3 h-3 mr-1.5"/>Ver Presupuesto
                             </Button>
                           </Link>
                         )}
                         {eventDetail.facturasFiesta.map(factura => (
-                             <Link href={`/invoices/${factura.id}`} passHref key={factura.id}>
+                             <Link href={`/invoices/${factura.id}`} key={factura.id}>
                                 <Button variant="secondary" size="sm" className="text-xs">
                                     <FileText className="w-3 h-3 mr-1.5"/> Factura #{factura.invoiceNumber} <InvoiceStatusBadge status={factura.status} className="ml-1.5"/>
                                 </Button>

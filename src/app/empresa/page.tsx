@@ -76,7 +76,7 @@ export default function EmpresaHubPage() {
               Gestión de la Empresa
             </h1>
         </div>
-        <Link href="/" passHref>
+        <Link href="/">
           <Button variant="outline">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Volver al Menú Principal
@@ -102,7 +102,7 @@ export default function EmpresaHubPage() {
               <p className="text-sm text-muted-foreground line-clamp-3">{item.description}</p>
             </CardContent>
             <CardFooter className="pt-2">
-              <Link href={item.href} passHref className="w-full">
+              <Link href={item.href} className="w-full">
                 <Button variant="secondary" className="w-full">
                   {item.actionLabel}
                 </Button>

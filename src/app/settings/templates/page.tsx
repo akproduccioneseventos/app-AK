@@ -60,7 +60,7 @@ export default function TemplatesPage() {
             </p>
           </div>
         </div>
-         <Link href="/settings" passHref>
+         <Link href="/settings">
           <Button variant="outline">
             <ArrowLeft className="w-4 h-4 mr-2"/>
             Volver a Configuración
@@ -85,7 +85,7 @@ export default function TemplatesPage() {
               </p>
             </CardContent>
             <CardFooter className="pt-3">
-                 <Link href={item.href} passHref className="w-full">
+                 <Link href={item.href} className="w-full">
                     <Button variant="secondary" className="w-full">
                         Gestionar
                     </Button>

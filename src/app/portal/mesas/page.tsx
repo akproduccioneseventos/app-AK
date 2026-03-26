@@ -225,7 +225,7 @@ function AsignacionMesasContent() {
                     <h1 className="text-3xl font-bold font-headline text-primary">{fiesta.configuracion.nombreEvento}</h1>
                     <p className="text-muted-foreground italic">Gestión de Lista de Invitados y Mesas</p>
                 </div>
-                <Link href={`/portal?fiestaId=${fiestaId}`} passHref>
+                <Link href={`/portal?fiestaId=${fiestaId}`}>
                     <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Portal</Button>
                 </Link>
             </header>

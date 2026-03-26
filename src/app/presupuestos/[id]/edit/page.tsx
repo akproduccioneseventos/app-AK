@@ -185,7 +185,7 @@ export default function EditarPresupuestoPage({ params }: { params: { id: string
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3"><Edit3 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Editar Presupuesto #{presupuesto?.numero || presupuesto?.id.split('_').pop()?.substring(0,5)}</h1></div>
-        <Link href={`/presupuestos/${presupuestoId}/ver`} passHref><Button variant="outline" disabled={isSaving}><ArrowLeft />Volver al Resumen</Button></Link>
+        <Link href={`/presupuestos/${presupuestoId}/ver`}><Button variant="outline" disabled={isSaving}><ArrowLeft />Volver al Resumen</Button></Link>
       </div>
       
       <Card className="shadow-lg">
@@ -235,7 +235,7 @@ export default function EditarPresupuestoPage({ params }: { params: { id: string
             <div className="pt-6 border-t space-y-4">
               <h3 className="text-lg font-medium font-headline text-primary">Acciones de Catálogo</h3>
               <div className="flex flex-col sm:flex-row gap-3">
-                <Link href={`/presupuestos/nuevo/crear?editId=${presupuestoId}`} passHref className="flex-grow">
+                <Link href={`/presupuestos/nuevo/crear?editId=${presupuestoId}`} className="flex-grow">
                     <Button variant="secondary" type="button" className="w-full">
                     <Sparkles className="w-4 h-4 mr-2" /> Editar Servicios
                     </Button>

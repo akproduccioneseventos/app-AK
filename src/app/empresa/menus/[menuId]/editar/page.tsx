@@ -61,7 +61,7 @@ export default function EditarMenuPage({ params }: { params: { menuId: string } 
           </h1>
         </div>
         <div className="flex items-center gap-2">
-            <Link href="/empresa/menus" passHref>
+            <Link href="/empresa/menus">
                 <Button variant="outline">
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Volver a Menús

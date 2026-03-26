@@ -125,7 +125,7 @@ function NuevoActivoFijoContent() {
             Añadir Nuevo Activo Fijo
           </h1>
         </div>
-        <Link href="/empresa/activos-fijos" passHref>
+        <Link href="/empresa/activos-fijos">
           <Button variant="outline" disabled={isSaving}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Volver

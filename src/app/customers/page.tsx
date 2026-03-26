@@ -63,12 +63,12 @@ const CustomerTable = ({ title, customers, deletingId, onDelete }: { title: stri
                       <TableCell>{formatDate(customer.partyDate)}</TableCell>
                       <TableCell className="text-right print:hidden">
                         <div className="flex items-center justify-end gap-2">
-                          <Link href={`/customers/${customer.id}`} passHref>
+                          <Link href={`/customers/${customer.id}`}>
                             <Button variant="outline" size="icon" aria-label={`Ver Detalles de ${customer.companyName || customer.name}`} title="Ver Detalles">
                               <Eye className="w-4 h-4" />
                             </Button>
                           </Link>
-                          <Link href={`/customers/${customer.id}/edit`} passHref>
+                          <Link href={`/customers/${customer.id}/edit`}>
                             <Button variant="outline" size="icon" aria-label={`Editar Cliente ${customer.companyName || customer.name}`} title="Editar Cliente">
                               <Edit className="w-4 h-4" />
                             </Button>
@@ -225,10 +225,10 @@ export default function CustomersPage() {
           </h1>
         </div>
         <div className="flex gap-2 flex-wrap">
-          <Link href="/customers/reporte" passHref>
+          <Link href="/customers/reporte">
             <Button variant="secondary"><Printer className="w-4 h-4 mr-2" />Ver Reporte</Button>
           </Link>
-          <Link href="/customers/new" passHref>
+          <Link href="/customers/new">
             <Button>
               <UserPlus className="w-5 h-5 mr-2" />
               Añadir Cliente
@@ -273,7 +273,7 @@ export default function CustomersPage() {
                 {customers.length === 0 ? "No tienes clientes confirmados todavía." : "Ningún cliente coincide con tu búsqueda."}
               </p>
               {customers.length === 0 && (
-                <Link href="/customers/new" passHref>
+                <Link href="/customers/new">
                     <Button className="mt-6">
                     <UserPlus className="w-5 h-5 mr-2" />
                     Añadir Primer Cliente

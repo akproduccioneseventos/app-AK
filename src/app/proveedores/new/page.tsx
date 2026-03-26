@@ -82,7 +82,7 @@ export default function NewProveedorPage() {
             Añadir Registro
           </h1>
         </div>
-        <Link href="/proveedores" passHref>
+        <Link href="/proveedores">
           <Button variant="outline" disabled={isSaving}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Volver a Proveedores

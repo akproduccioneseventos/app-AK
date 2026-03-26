@@ -250,3 +250,30 @@ export async function updateNumerosMesa(fiestaId: string, data: NumerosMesaData)
   if (!f) return { success: false };
   return await saveFiesta({ ...f, numerosMesa: data });
 }
+
+/**
+ * Crea un nuevo evento/fiesta vinculado a un cliente recién creado.
+ * Se usa cuando se crea un cliente directamente (no desde el CRM).
+ */
+export async function createNewFiestaForCustomer(customer: { id: string; name: string; partyDate?: string; partyType?: string; venueName?: string; guestCount?: number; }): Promise<{ success: boolean; fiestaId?: string; error?: string }> {
+  try {
+    const newFiesta: FiestaEnPlanificacion = {
+      ...initialFiestaActualData,
+      id: `fiesta_${Date.now()}`,
+      estado: 'En Planificación',
+      configuracion: {
+        ...initialFiestaActualData.configuracion,
+        clienteId: customer.id,
+        nombreEvento: customer.partyType ? `${customer.partyType} de ${customer.name}` : `Evento de ${customer.name}`,
+        fechaEvento: customer.partyDate || '',
+        nombreLugar: customer.venueName || '',
+        invitadosEstimados: customer.guestCount || 0,
+      },
+      modulosContratados: { ...defaultModulosContratados },
+    };
+    const result = await saveFiesta(newFiesta);
+    return result.success ? { success: true, fiestaId: newFiesta.id } : { success: false, error: result.error };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}

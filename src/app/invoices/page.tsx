@@ -125,7 +125,7 @@ export default function InvoicesListPage() {
                     <FileTextIcon className="w-8 h-8 text-primary" />
                     <h1 className="text-2xl sm:text-3xl font-bold tracking-tight font-headline">Gestión de Facturas</h1>
                 </div>
-                <Link href="/invoices/new" passHref className="w-full sm:w-auto">
+                <Link href="/invoices/new" className="w-full sm:w-auto">
                     <Button className="w-full sm:w-auto h-11"><PlusCircle className="w-4 h-4 mr-2" />Nueva Factura</Button>
                 </Link>
             </div>

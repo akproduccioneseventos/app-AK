@@ -287,7 +287,7 @@ function ListaDeComprasContent() {
           <div className="flex gap-2">
             <Button variant="ghost" onClick={() => loadData(true)}><RefreshCw className="w-4 h-4 mr-2"/>Actualizar</Button>
             <Button onClick={() => window.print()} variant="outline"><Printer className="w-4 h-4 mr-2"/>PDF</Button>
-            <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
+            <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><Button><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
           </div>
         </div>
         

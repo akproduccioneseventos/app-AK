@@ -197,7 +197,7 @@ function CargaOperativaPdfContent() {
     return (
       <div className="p-8 max-w-3xl mx-auto bg-white text-center">
          <div className="flex justify-between items-center mb-6 print:hidden">
-             <Link href={fiestaId ? `/fiestas/nueva/carga-operativa?fiestaId=${fiestaId}` : "/eventos"} passHref>
+             <Link href={fiestaId ? `/fiestas/nueva/carga-operativa?fiestaId=${fiestaId}` : "/eventos"}>
                 <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Editar</Button>
             </Link>
         </div>
@@ -235,7 +235,7 @@ function CargaOperativaPdfContent() {
                 <WatermarkedImage src={logoUrl} alt="Logo" containerClassName='w-full h-full'/>
             </div>
             <div className="flex justify-between items-center mb-6 print:hidden">
-            <Link href={`/fiestas/nueva/carga-operativa?fiestaId=${fiestaId}`} passHref>
+            <Link href={`/fiestas/nueva/carga-operativa?fiestaId=${fiestaId}`}>
                 <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Editar</Button>
             </Link>
             <div className="flex gap-2">

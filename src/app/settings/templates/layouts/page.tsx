@@ -70,10 +70,10 @@ export default function LayoutTemplatesPage() {
           </h1>
         </div>
         <div className="flex gap-2">
-            <Link href="/fiestas/nueva/invitados/layout" passHref>
+            <Link href="/fiestas/nueva/invitados/layout">
                 <Button variant="default"><PlusCircle className="w-4 h-4 mr-2"/>Crear/Editar en el Diseñador</Button>
             </Link>
-            <Link href="/settings" passHref>
+            <Link href="/settings">
               <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver a Configuración</Button>
             </Link>
         </div>

@@ -41,7 +41,7 @@ export default function CalendarioGeneralPage() {
         <h1 className="text-3xl font-bold tracking-tight font-headline">
           Calendario General de Eventos
         </h1>
-        <Link href="/" passHref>
+        <Link href="/">
           <Button variant="outline">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Volver al Menú Principal

@@ -263,7 +263,7 @@ function CartaTragosContent() {
         </Dialog>
         <div className="py-2 px-4 print:hidden flex flex-col md:flex-row justify-between items-center gap-4 bg-white shadow-sm sticky top-0 z-50">
             <div className="flex items-center gap-2">
-                <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref>
+                <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}>
                     <Button variant="ghost" size="icon"><ArrowLeft className="w-5 h-5"/></Button>
                 </Link>
                 <h1 className="font-headline text-lg">Editor de Carta de Tragos (15x10 cm)</h1>

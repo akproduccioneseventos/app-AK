@@ -333,7 +333,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     <UserCircle className="mr-2 h-4 w-4" />
                     <span>Perfil</span>
                   </DropdownMenuItem>
-                  <Link href="/settings" passHref>
+                  <Link href="/settings">
                     <DropdownMenuItem>
                       <SettingsIcon className="mr-2 h-4 w-4" />
                       <span>Configuración</span>

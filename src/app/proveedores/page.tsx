@@ -127,16 +127,16 @@ export default function ProveedoresPage() {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-          <Link href="/proveedores/reporte" passHref>
+          <Link href="/proveedores/reporte">
              <Button variant="secondary"><Printer className="w-4 h-4 mr-2"/>Ver Reporte</Button>
           </Link>
-          <Link href="/proveedores/new" passHref>
+          <Link href="/proveedores/new">
             <Button>
               <UserPlus className="w-5 h-5 mr-2" />
               Añadir Registro
             </Button>
           </Link>
-           <Link href="/empresa" passHref>
+           <Link href="/empresa">
             <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button>
           </Link>
         </div>
@@ -177,7 +177,7 @@ export default function ProveedoresPage() {
                       <TableCell className="min-w-[180px]">{proveedor.servicioPrincipal}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <Link href={`/proveedores/${proveedor.id}/edit`} passHref>
+                          <Link href={`/proveedores/${proveedor.id}/edit`}>
                             <Button variant="outline" size="icon" aria-label={`Editar ${proveedor.nombreEmpresa || proveedor.nombre}`} title="Editar">
                               <Edit className="w-4 h-4" />
                             </Button>
@@ -218,7 +218,7 @@ export default function ProveedoresPage() {
                  {proveedores.length === 0 ? "No tienes registros guardados todavía." : "Ningún registro coincide con los filtros aplicados."}
               </p>
               {proveedores.length === 0 && (
-                <Link href="/proveedores/new" passHref>
+                <Link href="/proveedores/new">
                     <Button className="mt-6">
                     <UserPlus className="w-5 h-5 mr-2" />
                     Añadir Primer Registro

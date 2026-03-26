@@ -114,7 +114,7 @@ export default function CargaHistoricosPage() {
                     <FileArchive className="w-8 h-8 text-primary" />
                     <h1 className="text-3xl font-bold tracking-tight font-headline">Carga Automática de Históricos</h1>
                 </div>
-                <Link href="/contabilidad/fiestas-historicas" passHref>
+                <Link href="/contabilidad/fiestas-historicas">
                     <Button variant="outline" disabled={isSubmitting || isAnalyzing}>
                         <ArrowLeft className="w-4 h-4 mr-2" />
                         Volver

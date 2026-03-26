@@ -82,7 +82,7 @@ export default function ReporteEmpleadosPage() {
           <AlertTriangle className="w-16 h-16 text-destructive mb-4" />
           <h1 className="text-2xl font-bold">Error al Generar Reporte</h1>
           <p className="text-muted-foreground mt-2">{error}</p>
-          <Link href="/empleados" passHref>
+          <Link href="/empleados">
             <Button variant="outline" className="mt-4">Volver</Button>
           </Link>
       </div>
@@ -96,7 +96,7 @@ export default function ReporteEmpleadosPage() {
             <WatermarkedImage src={logoUrl} alt="Marca de agua" />
         </div>
         <div className="flex justify-between items-center mb-6 print:hidden">
-          <Link href="/empleados" passHref>
+          <Link href="/empleados">
             <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Personal</Button>
           </Link>
           <div className="flex gap-2">

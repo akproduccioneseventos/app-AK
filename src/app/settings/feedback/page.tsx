@@ -107,7 +107,7 @@ export default function FeedbackPage() {
           <Star className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">Feedback y Testimonios</h1>
         </div>
-        <Link href="/settings" passHref>
+        <Link href="/settings">
           <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver a Configuración</Button>
         </Link>
       </div>

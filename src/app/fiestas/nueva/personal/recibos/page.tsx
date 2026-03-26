@@ -183,7 +183,7 @@ function RecibosDePagoContent() {
           <AlertTriangle className="w-16 h-16 text-destructive mb-4" />
           <h1 className="text-2xl font-bold">Error al Generar Reporte</h1>
           <p className="text-muted-foreground mt-2">{error || "No se encontró información del evento."}</p>
-          <Link href={`/fiestas/nueva/personal?fiestaId=${fiestaId}`} passHref>
+          <Link href={`/fiestas/nueva/personal?fiestaId=${fiestaId}`}>
             <Button variant="outline" className="mt-4">Volver</Button>
           </Link>
       </div>
@@ -194,7 +194,7 @@ function RecibosDePagoContent() {
     <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans">
       <div className="max-w-3xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2">
         <div className="flex justify-between items-center mb-6 print:hidden">
-          <Link href={`/fiestas/nueva/personal?fiestaId=${fiestaId}`} passHref><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Asignar</Button></Link>
+          <Link href={`/fiestas/nueva/personal?fiestaId=${fiestaId}`}><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Asignar</Button></Link>
           <div className="flex gap-2">
              <Button onClick={handleSaveChanges} size="sm" variant="secondary" disabled={isSaving}>
                 {isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}

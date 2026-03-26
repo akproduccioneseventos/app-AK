@@ -67,7 +67,7 @@ export default function FlujoCajaProyectadoPage() {
             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Módulo 5: CFO Virtual y Predicción Financiera</p>
           </div>
         </div>
-        <Link href="/empresa/contabilidad" passHref>
+        <Link href="/empresa/contabilidad">
           <Button variant="outline" className="rounded-xl border-slate-200 shadow-sm"><ArrowLeft className="w-4 h-4 mr-2" />Volver al Panel</Button>
         </Link>
       </div>

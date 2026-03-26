@@ -247,7 +247,7 @@ export default function BudgetDisplaySettingsPage() {
                 <p className="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest">Gestión de Paquetes, Platos y Estrategia</p>
             </div>
         </div>
-        <Link href="/settings" passHref className="w-full md:w-auto">
+        <Link href="/settings" className="w-full md:w-auto">
           <Button variant="outline" className="rounded-xl w-full md:w-auto"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
         </Link>
       </header>

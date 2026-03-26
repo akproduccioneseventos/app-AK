@@ -266,7 +266,7 @@ function ResumenPlanificacionContent() {
         </div>
         <div className="flex gap-2">
           <Button onClick={handlePrint} variant="secondary" className="rounded-xl font-bold"><Printer className="w-4 h-4 mr-2"/>Imprimir / PDF</Button>
-          <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline" className="rounded-xl"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
+          <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><Button variant="outline" className="rounded-xl"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
         </div>
       </div>
 

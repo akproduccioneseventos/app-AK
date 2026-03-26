@@ -103,7 +103,7 @@ export default function SettingsPage() {
               </p>
             </CardContent>
             <CardFooter className="pt-3">
-                 <Link href={item.href} passHref className="w-full">
+                 <Link href={item.href} className="w-full">
                     <Button variant="secondary" className="w-full">
                         {item.buttonLabel || "Gestionar"}
                     </Button>

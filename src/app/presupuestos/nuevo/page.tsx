@@ -59,9 +59,9 @@ function PresupuestoDashboardContent() {
                   <ListChecks className="w-8 h-8 text-primary"/> Central de Presupuestos
                 </h1>
                 <div className="flex gap-2 flex-wrap">
-                  <Link href="/presupuestos/reporte" passHref><Button variant="secondary">Reporte</Button></Link>
-                  <Link href="/presupuestos/nuevo/crear" passHref><Button><PlusCircle className="w-4 h-4 mr-2"/>Nuevo Presupuesto</Button></Link>
-                  <Link href="/empresa/contabilidad" passHref><Button variant="outline">Volver</Button></Link>
+                  <Link href="/presupuestos/reporte"><Button variant="secondary">Reporte</Button></Link>
+                  <Link href="/presupuestos/nuevo/crear"><Button><PlusCircle className="w-4 h-4 mr-2"/>Nuevo Presupuesto</Button></Link>
+                  <Link href="/empresa/contabilidad"><Button variant="outline">Volver</Button></Link>
                 </div>
             </div>
             

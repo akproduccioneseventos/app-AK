@@ -67,7 +67,7 @@ export default function CrmAgendaPage() {
         </h1>
         <div className="flex gap-2">
             <Button onClick={() => setIsModalOpen(true)}><CalendarPlus className="w-4 h-4 mr-2"/>Agendar Nueva Reunión</Button>
-            <Link href="/contabilidad/crm" passHref>
+            <Link href="/contabilidad/crm">
               <Button variant="outline">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Volver al CRM
@@ -122,7 +122,7 @@ export default function CrmAgendaPage() {
                                 {new Date(meeting.followUpDate!).toLocaleString('es-UY', { timeStyle: 'short' })} hs.
                             </p>
                         </div>
-                        <Link href={`/contabilidad/crm?leadId=${meeting.id}`} passHref>
+                        <Link href={`/contabilidad/crm?leadId=${meeting.id}`}>
                            <Button variant="outline" size="sm">Ver en CRM</Button>
                         </Link>
                     </div>

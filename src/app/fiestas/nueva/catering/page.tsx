@@ -187,7 +187,7 @@ function PlannerGastronomicoFiestaContent() {
           <ChefHat className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">Gastronomía del Evento</h1>
         </div>
-        <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref>
+        <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}>
           <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver al Planificador</Button>
         </Link>
       </div>
@@ -238,7 +238,7 @@ function PlannerGastronomicoFiestaContent() {
       )}
       
        <div className="flex justify-end gap-2">
-         <Link href={`/fiestas/nueva/catering/lista-compras?fiestaId=${fiestaId}`} passHref>
+         <Link href={`/fiestas/nueva/catering/lista-compras?fiestaId=${fiestaId}`}>
            <Button variant="outline" className="bg-primary/5 border-primary/20 hover:bg-primary/10 text-primary">
              <ShoppingCart className="w-4 h-4 mr-2"/> Ver Lista de Compras
            </Button>

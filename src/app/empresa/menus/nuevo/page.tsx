@@ -17,7 +17,7 @@ export default function NuevoMenuPage() {
             Crear Nuevo Menú
           </h1>
         </div>
-        <Link href="/empresa/menus" passHref>
+        <Link href="/empresa/menus">
           <Button variant="outline">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Volver a Menús

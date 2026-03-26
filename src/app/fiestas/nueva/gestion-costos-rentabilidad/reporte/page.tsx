@@ -89,7 +89,7 @@ function ReporteEventoContent({ fiestaId }: { fiestaId: string | null }) {
           <AlertTriangle className="w-16 h-16 text-destructive mb-4" />
           <h1 className="text-2xl font-bold">Error al Generar Reporte</h1>
           <p className="text-muted-foreground mt-2">{error || "No se encontró información del evento."}</p>
-          <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref>
+          <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}>
             <Button variant="outline" className="mt-4">Volver</Button>
           </Link>
       </div>
@@ -103,7 +103,7 @@ function ReporteEventoContent({ fiestaId }: { fiestaId: string | null }) {
             <WatermarkedImage src={logoUrl} alt="Marca de agua" containerClassName='w-full h-full'/>
         </div>
         <div className="flex justify-between items-center mb-6 print:hidden">
-          <Link href={`/fiestas/nueva/gestion-costos-rentabilidad?fiestaId=${fiestaId}`} passHref>
+          <Link href={`/fiestas/nueva/gestion-costos-rentabilidad?fiestaId=${fiestaId}`}>
             <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver</Button>
           </Link>
           <div className="flex gap-2">

@@ -178,11 +178,11 @@ export default function CrmPage() {
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight font-headline">CRM de Prospectos</h1>
           </div>
           <div className="flex gap-2 flex-wrap w-full sm:w-auto">
-            <Link href="/contabilidad/crm/agenda" passHref className="flex-1 sm:flex-none">
+            <Link href="/contabilidad/crm/agenda" className="flex-1 sm:flex-none">
               <Button variant="outline" className="w-full h-11"><Clock className="w-4 h-4 mr-2"/>Agenda</Button>
             </Link>
             {stages.length > 0 && <AddLeadDialog stages={stages} onLeadAdded={fetchData} defaultStageId={stages[0].id} />}
-            <Link href="/empresa/contabilidad" passHref className="flex-1 sm:flex-none">
+            <Link href="/empresa/contabilidad" className="flex-1 sm:flex-none">
               <Button variant="outline" className="w-full h-11"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
             </Link>
           </div>

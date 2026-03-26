@@ -121,12 +121,12 @@ function PlannerDashboardContent() {
           </div>
         </motion.div>
         <div className="flex gap-2 w-full sm:w-auto">
-            <Link href={`/fiestas/nueva/en-vivo?fiestaId=${fiestaId}`} passHref className="flex-1 sm:flex-none">
+            <Link href={`/fiestas/nueva/en-vivo?fiestaId=${fiestaId}`} className="flex-1 sm:flex-none">
                 <Button className="rounded-2xl px-6 sm:px-8 h-12 bg-primary shadow-xl font-black tracking-widest w-full text-xs sm:text-sm">
                     <Zap className="w-4 h-4 mr-2 sm:mr-3 animate-pulse"/> EN VIVO
                 </Button>
             </Link>
-            <Link href="/eventos" passHref className="flex-1 sm:flex-none">
+            <Link href="/eventos" className="flex-1 sm:flex-none">
                 <Button variant="outline" className="rounded-2xl px-6 sm:px-8 h-12 border-slate-200 font-bold hover:bg-slate-50 transition-all w-full text-xs sm:text-sm">
                     <ArrowLeft className="w-4 h-4 mr-2 sm:mr-3"/>Volver
                 </Button>
@@ -186,7 +186,7 @@ function PlannerDashboardContent() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-8">
                   {categoryModules.map((module) => (
                     <motion.div key={module.id} whileHover={{ y: -8 }}>
-                        <Link href={module.href.startsWith('/') ? `${module.href}?fiestaId=${fiesta.id}` : `/fiestas/nueva/${module.href}?fiestaId=${fiesta.id}`} passHref>
+                        <Link href={module.href.startsWith('/') ? `${module.href}?fiestaId=${fiesta.id}` : `/fiestas/nueva/${module.href}?fiestaId=${fiesta.id}`}>
                             <Card className="h-full border-none premium-shadow hover:shadow-primary/10 transition-all duration-500 cursor-pointer flex flex-col group rounded-[2.5rem] overflow-hidden bg-white">
                             <CardHeader className="flex-row items-center gap-4 space-y-0 pb-4 p-6 sm:p-8">
                                 <div className={cn("p-3 sm:p-4 rounded-2xl group-hover:rotate-12 transition-all duration-500 shadow-inner shrink-0", module.color)}><module.icon className="w-6 h-6 sm:w-7 sm:h-7" /></div>

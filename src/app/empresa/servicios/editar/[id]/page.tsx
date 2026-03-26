@@ -142,7 +142,7 @@ export default function EditarServicioPage({ params }: { params: { id: string } 
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight font-headline flex items-center gap-2"><Edit3 className="w-8 h-8 text-primary"/> Editando Servicio</h1>
-        <Link href="/empresa/servicios" passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
+        <Link href="/empresa/servicios"><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
       </div>
       <Card className="shadow-lg">
         <form onSubmit={handleSubmit}>

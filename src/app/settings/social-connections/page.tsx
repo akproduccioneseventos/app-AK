@@ -131,7 +131,7 @@ export default function SocialConnectionsPage() {
                 Cuentas Sociales Vinculadas
             </h1>
         </div>
-        <Link href="/settings" passHref>
+        <Link href="/settings">
           <Button variant="outline">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Volver a Configuración

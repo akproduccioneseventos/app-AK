@@ -64,7 +64,7 @@ export default function TaskTemplatesPage() {
             Plantillas de Tareas
           </h1>
         </div>
-        <Link href="/settings" passHref>
+        <Link href="/settings">
           <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver a Configuración</Button>
         </Link>
       </div>

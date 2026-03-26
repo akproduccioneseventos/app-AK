@@ -104,31 +104,31 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting, isMobile, onMove, 
         </CardContent>
         <CardFooter className="p-2 border-t flex flex-wrap justify-end gap-1 bg-muted/10">
             {isBudgetFacturado ? (
-                 <Link href={`/invoices/${lead.invoiceId}`} passHref className="flex-grow">
+                 <Link href={`/invoices/${lead.invoiceId}`} className="flex-grow">
                     <Button variant="secondary" size="sm" className="h-8 text-[10px] gap-1 w-full bg-green-100 text-green-700 border-green-200">
                         <FileSignature className="w-3 h-3"/> FACTURADO
                     </Button>
                 </Link>
             ) : isBudgetAceptado ? (
                 <div className="flex-grow flex gap-1">
-                    <Link href={`/presupuestos/${lead.presupuestoId}/ver`} passHref className="flex-grow">
+                    <Link href={`/presupuestos/${lead.presupuestoId}/ver`} className="flex-grow">
                         <Button variant="outline" size="sm" className="h-8 text-[10px] w-full border-green-500 text-green-700">
                             ACEPTADO
                         </Button>
                     </Link>
-                    <Link href={`/invoices/new?fromPresupuesto=${lead.presupuestoId}`} passHref>
+                    <Link href={`/invoices/new?fromPresupuesto=${lead.presupuestoId}`}>
                         <Button size="sm" className="h-8 px-2"><FilePlus2 className="w-3.5 h-3.5"/></Button>
                     </Link>
                 </div>
             ) : hasBudget ? (
                 <div className="flex-grow flex gap-1">
-                    <Link href={`/presupuestos/${lead.presupuestoId}/ver`} passHref className="flex-grow">
+                    <Link href={`/presupuestos/${lead.presupuestoId}/ver`} className="flex-grow">
                         <Button variant="outline" size="sm" className="h-8 text-[10px] w-full">VER PRESUPUESTO</Button>
                     </Link>
                     {onHire && <Button onClick={onHire} size="sm" className="h-8 bg-green-600 hover:bg-green-700 px-2"><CheckCircle className="w-4 h-4"/></Button>}
                 </div>
             ) : (
-                <Link href={`/presupuestos/nuevo/crear?leadId=${lead.id}&leadName=${encodeURIComponent(lead.name)}`} passHref className="flex-grow">
+                <Link href={`/presupuestos/nuevo/crear?leadId=${lead.id}&leadName=${encodeURIComponent(lead.name)}`} className="flex-grow">
                     <Button variant="outline" size="sm" className="h-8 text-[10px] gap-1 w-full">
                         <FilePlus2 className="w-3 h-3" /> CREAR PRESUPUESTO
                     </Button>

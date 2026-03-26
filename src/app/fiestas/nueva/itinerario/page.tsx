@@ -327,10 +327,10 @@ function ItinerarioContent() {
           <h1 className="text-3xl font-bold tracking-tight font-headline">Cronograma de la Fiesta</h1>
         </div>
         <div className="flex gap-2">
-            <Link href={`/fiestas/nueva/itinerario/pdf?fiestaId=${fiestaId}`} passHref>
+            <Link href={`/fiestas/nueva/itinerario/pdf?fiestaId=${fiestaId}`}>
               <Button variant="secondary" size="sm"><Eye className="w-4 h-4 mr-2"/>Vista Previa / PDF</Button>
             </Link>
-            <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} passHref><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
+            <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
         </div>
       </div>
 
