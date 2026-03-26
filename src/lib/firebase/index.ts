@@ -1,7 +1,7 @@
 // src/lib/firebase/index.ts
 // Re-export all Firebase utilities
 
-export { dbAdmin, authAdmin, verifyIdToken } from './server';
+export { dbAdmin, authAdmin, verifyIdToken, isFirebaseAvailable } from './server';
 export {
   COLLECTIONS,
   createDocument,

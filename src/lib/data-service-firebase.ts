@@ -27,6 +27,17 @@ const FILE_TO_COLLECTION: Record<string, string> = {
   'crm-stages.json': 'crm_stages',
   'fiestas-historicas.json': 'fiestas_historicas',
   'menus-catering.json': 'menus_catering',
+  'price-adjustments-history.json': 'price_adjustments',
+  'feedback.json': 'feedback',
+  'historial-fiestas.json': 'historial_fiestas',
+  'invitacion-digital-templates.json': 'invitacion_digital_templates',
+  'itinerary-templates.json': 'itinerary_templates',
+  'salon-layout-templates.json': 'salon_layout_templates',
+  'social-connections.json': 'social_connections',
+  'social-posts.json': 'social_posts',
+  'task-templates.json': 'task_templates',
+  'testimonials.json': 'testimonials',
+  'accesos-personal.json': 'accesos_personal',
 };
 
 // Config files that map to single documents in 'configuracion' collection

@@ -8,7 +8,12 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "test": "jest"
+    "test": "jest",
+    "firebase:emulators": "firebase emulators:start --project presupuestador-ak-producciones",
+    "firebase:migrate": "npx tsx src/scripts/migrate-to-firebase.ts",
+    "firebase:migrate:verify": "npx tsx src/scripts/migrate-to-firebase.ts --verify",
+    "firebase:verify": "npx tsx src/scripts/migrate-to-firebase.ts verify",
+    "dev:firebase": "concurrently \"firebase emulators:start --project presupuestador-ak-producciones\" \"next dev\""
   },
   "dependencies": {
     "@dnd-kit/core": "^6.1.0",

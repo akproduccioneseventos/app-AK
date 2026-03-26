@@ -37,14 +37,21 @@ const envPath = path.join(process.cwd(), '.env.local');
 if (fs.existsSync(envPath)) {
   const envContent = fs.readFileSync(envPath, 'utf-8');
   envContent.split('\n').forEach(line => {
-    const [key, ...valueParts] = line.split('=');
-    if (key && valueParts.length > 0) {
-      const value = valueParts.join('=').trim();
-      if (!process.env[key.trim()]) {
-        process.env[key.trim()] = value;
-      }
+    const trimmedLine = line.trim();
+    if (!trimmedLine || trimmedLine.startsWith('#')) return;
+    const eqIndex = trimmedLine.indexOf('=');
+    if (eqIndex === -1) return;
+    const key = trimmedLine.substring(0, eqIndex).trim();
+    const value = trimmedLine.substring(eqIndex + 1).trim();
+    if (key && !process.env[key]) {
+      process.env[key] = value;
     }
   });
+}
+
+// Log emulator status
+if (process.env.FIRESTORE_EMULATOR_HOST) {
+  console.log(`📡 Usando Firestore Emulator en: ${process.env.FIRESTORE_EMULATOR_HOST}`);
 }
 
 const DATA_DIR = path.join(process.cwd(), 'src', 'data');
@@ -165,6 +172,50 @@ function prepareMigrationTasks(): MigrationTask[] {
   // 16. Menús Catering
   const menus = readJsonFile<any[]>('menus-catering.json', []);
   tasks.push({ collectionName: 'menus_catering', sourceFile: 'menus-catering.json', data: menus, isArray: true });
+
+  // 17. Feedback
+  const feedback = readJsonFile<any[]>('feedback.json', []);
+  tasks.push({ collectionName: 'feedback', sourceFile: 'feedback.json', data: feedback, isArray: true });
+
+  // 18. Historial Fiestas
+  const historialFiestas = readJsonFile<any[]>('historial-fiestas.json', []);
+  tasks.push({ collectionName: 'historial_fiestas', sourceFile: 'historial-fiestas.json', data: historialFiestas, isArray: true });
+
+  // 19. Invitación Digital Templates
+  const invitacionTemplates = readJsonFile<any[]>('invitacion-digital-templates.json', []);
+  tasks.push({ collectionName: 'invitacion_digital_templates', sourceFile: 'invitacion-digital-templates.json', data: invitacionTemplates, isArray: true });
+
+  // 20. Itinerary Templates
+  const itineraryTemplates = readJsonFile<any[]>('itinerary-templates.json', []);
+  tasks.push({ collectionName: 'itinerary_templates', sourceFile: 'itinerary-templates.json', data: itineraryTemplates, isArray: true });
+
+  // 21. Salon Layout Templates
+  const salonTemplates = readJsonFile<any[]>('salon-layout-templates.json', []);
+  tasks.push({ collectionName: 'salon_layout_templates', sourceFile: 'salon-layout-templates.json', data: salonTemplates, isArray: true });
+
+  // 22. Social Connections
+  const socialConnections = readJsonFile<any[]>('social-connections.json', []);
+  tasks.push({ collectionName: 'social_connections', sourceFile: 'social-connections.json', data: socialConnections, isArray: true });
+
+  // 23. Social Posts
+  const socialPosts = readJsonFile<any[]>('social-posts.json', []);
+  tasks.push({ collectionName: 'social_posts', sourceFile: 'social-posts.json', data: socialPosts, isArray: true });
+
+  // 24. Task Templates
+  const taskTemplates = readJsonFile<any[]>('task-templates.json', []);
+  tasks.push({ collectionName: 'task_templates', sourceFile: 'task-templates.json', data: taskTemplates, isArray: true });
+
+  // 25. Testimonials
+  const testimonials = readJsonFile<any[]>('testimonials.json', []);
+  tasks.push({ collectionName: 'testimonials', sourceFile: 'testimonials.json', data: testimonials, isArray: true });
+
+  // 26. Accesos Personal
+  const accesos = readJsonFile<any[]>('accesos-personal.json', []);
+  tasks.push({ collectionName: 'accesos_personal', sourceFile: 'accesos-personal.json', data: accesos, isArray: true });
+
+  // 27. Price Adjustments History
+  const priceAdj = readJsonFile<any[]>('price-adjustments-history.json', []);
+  tasks.push({ collectionName: 'price_adjustments', sourceFile: 'price-adjustments-history.json', data: priceAdj, isArray: true });
 
   return tasks;
 }
