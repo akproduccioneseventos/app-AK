@@ -55,6 +55,8 @@ export interface Presupuesto {
   descuentoValor?: number;
   totalConDescuento?: number; // Calculated: costoTotalEstimado - discount
   vigenciaPromocion?: string;
+  cuponCodigo?: string; // Código del cupón aplicado
+  cuponId?: string; // ID del cupón aplicado
   timestamp: string; // ISO String
   estado: 'Borrador' | 'Enviado' | 'Aceptado' | 'Rechazado' | 'Facturado';
   notas?: string;
@@ -102,6 +104,9 @@ export interface PresupuestoFormData {
   descuentoTipo?: 'porcentaje' | 'fijo';
   descuentoValor?: string;
   vigenciaPromocion?: string;
+  cuponCodigo?: string;
+  cuponId?: string;
+  cuponDescuento?: number; // Monto calculado del cupón
   notas: string;
   // Campos que no están en el form pero se necesitan para la lógica
   id?: string;

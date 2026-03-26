@@ -14,10 +14,62 @@ export interface PriceAdjustmentRecord {
   revertidoEn?: string;
 }
 
+export interface PreviewItem {
+  id: string;
+  nombre: string;
+  categoria: string;
+  precioVentaActual?: number;
+  precioVentaNuevo?: number;
+  costoActual?: number;
+  costoNuevo?: number;
+}
+
 const ADJUSTMENTS_FILE = 'price-adjustments-history.json';
 
 export async function getPriceAdjustmentHistory(): Promise<PriceAdjustmentRecord[]> {
   return readData<PriceAdjustmentRecord[]>(ADJUSTMENTS_FILE, []);
+}
+
+export async function previewPriceAdjustment(
+  percentage: number,
+  type: 'precios' | 'costos' | 'ambos'
+): Promise<{ success: boolean; preview?: PreviewItem[]; error?: string }> {
+  if (isNaN(percentage) || percentage === 0) {
+    return { success: false, error: 'El porcentaje debe ser un número distinto de cero.' };
+  }
+
+  try {
+    const servicios = await getServiciosEmpresa();
+    if (servicios.length === 0) {
+      return { success: false, error: 'No hay servicios en el catálogo.' };
+    }
+
+    const multiplier = 1 + percentage / 100;
+
+    const preview: PreviewItem[] = servicios.map(s => {
+      const item: PreviewItem = {
+        id: s.id,
+        nombre: s.nombre,
+        categoria: s.categoria,
+      };
+
+      if (type === 'precios' || type === 'ambos') {
+        item.precioVentaActual = s.precioVenta ?? s.precioBase ?? s.precioPorPersona ?? 0;
+        item.precioVentaNuevo = Math.round((item.precioVentaActual) * multiplier);
+      }
+
+      if (type === 'costos' || type === 'ambos') {
+        item.costoActual = s.valorUnitarioEstimado ?? 0;
+        item.costoNuevo = Math.round((item.costoActual) * multiplier);
+      }
+
+      return item;
+    });
+
+    return { success: true, preview };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Error al generar preview.' };
+  }
 }
 
 export async function applyPriceAdjustment(

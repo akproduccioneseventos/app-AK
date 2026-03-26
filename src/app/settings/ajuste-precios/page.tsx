@@ -9,8 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, TrendingUp, Undo2, AlertTriangle, CheckCircle2, History, ArrowLeft, Percent } from 'lucide-react';
-import { applyPriceAdjustment, getPriceAdjustmentHistory, revertPriceAdjustment, type PriceAdjustmentRecord } from '@/app/actions/price-adjustments';
+import { Loader2, TrendingUp, Undo2, AlertTriangle, History, ArrowLeft, Percent, Eye, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { applyPriceAdjustment, getPriceAdjustmentHistory, revertPriceAdjustment, previewPriceAdjustment, type PriceAdjustmentRecord, type PreviewItem } from '@/app/actions/price-adjustments';
 import Link from 'next/link';
 import {
   AlertDialog,
@@ -23,6 +23,19 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+const formatCurrency = (amount?: number) => {
+  if (amount === undefined || amount === null || isNaN(amount)) return '-';
+  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
+};
 
 export default function AjustePreciosPage() {
   const [percentage, setPercentage] = useState<string>('15');
@@ -31,6 +44,8 @@ export default function AjustePreciosPage() {
   const [isReverting, setIsReverting] = useState<string | null>(null);
   const [history, setHistory] = useState<PriceAdjustmentRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [preview, setPreview] = useState<PreviewItem[] | null>(null);
+  const [isPreviewing, setIsPreviewing] = useState(false);
   const { toast } = useToast();
 
   const fetchHistory = useCallback(async () => {
@@ -47,6 +62,27 @@ export default function AjustePreciosPage() {
 
   useEffect(() => { fetchHistory(); }, [fetchHistory]);
 
+  const handlePreview = async () => {
+    const pct = parseFloat(percentage);
+    if (isNaN(pct) || pct === 0) {
+      toast({ title: 'Error', description: 'Ingresa un porcentaje válido distinto de cero.', variant: 'destructive' });
+      return;
+    }
+    setIsPreviewing(true);
+    try {
+      const result = await previewPriceAdjustment(pct, adjustmentType);
+      if (result.success && result.preview) {
+        setPreview(result.preview);
+      } else {
+        toast({ title: 'Error', description: result.error, variant: 'destructive' });
+      }
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    } finally {
+      setIsPreviewing(false);
+    }
+  };
+
   const handleApply = async () => {
     const pct = parseFloat(percentage);
     if (isNaN(pct) || pct === 0) {
@@ -58,6 +94,7 @@ export default function AjustePreciosPage() {
       const result = await applyPriceAdjustment(pct, adjustmentType);
       if (result.success) {
         toast({ title: '¡Ajuste Aplicado!', description: `Se aplicó un ajuste de ${pct > 0 ? '+' : ''}${pct}% a ${result.record?.serviciosAfectados} servicios.` });
+        setPreview(null);
         fetchHistory();
       } else {
         toast({ title: 'Error', description: result.error, variant: 'destructive' });
@@ -90,7 +127,7 @@ export default function AjustePreciosPage() {
   const typeLabel = (t: string) => t === 'precios' ? 'Precios de Venta' : t === 'costos' ? 'Costos' : 'Precios y Costos';
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8">
+    <div className="max-w-4xl mx-auto space-y-8">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <TrendingUp className="w-8 h-8 text-primary" />
@@ -118,7 +155,7 @@ export default function AjustePreciosPage() {
                 id="percentage"
                 type="number"
                 value={percentage}
-                onChange={(e) => setPercentage(e.target.value)}
+                onChange={(e) => { setPercentage(e.target.value); setPreview(null); }}
                 placeholder="15"
                 min="-100"
                 max="1000"
@@ -127,7 +164,7 @@ export default function AjustePreciosPage() {
             </div>
             <div className="space-y-2">
               <Label>Aplicar a</Label>
-              <Select value={adjustmentType} onValueChange={(v: any) => setAdjustmentType(v)}>
+              <Select value={adjustmentType} onValueChange={(v: any) => { setAdjustmentType(v); setPreview(null); }}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="ambos">Precios y Costos</SelectItem>
@@ -146,28 +183,112 @@ export default function AjustePreciosPage() {
             </div>
           </div>
 
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button className="w-full h-12" disabled={isApplying}>
-                {isApplying ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <TrendingUp className="w-4 h-4 mr-2" />}
-                Aplicar Ajuste de {percentage || '0'}%
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>¿Confirmar ajuste de precios?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Se aplicará un ajuste de <strong>{percentage || '0'}%</strong> a {typeLabel(adjustmentType).toLowerCase()} de todos los servicios del catálogo. Esta acción se puede revertir desde el historial.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction onClick={handleApply}>Confirmar Ajuste</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <div className="flex gap-3">
+            <Button variant="outline" className="flex-1 h-12" onClick={handlePreview} disabled={isPreviewing}>
+              {isPreviewing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Eye className="w-4 h-4 mr-2" />}
+              Previsualizar Cambios
+            </Button>
+
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button className="flex-1 h-12" disabled={isApplying}>
+                  {isApplying ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <TrendingUp className="w-4 h-4 mr-2" />}
+                  Aplicar Ajuste de {percentage || '0'}%
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>¿Confirmar ajuste de precios?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Se aplicará un ajuste de <strong>{percentage || '0'}%</strong> a {typeLabel(adjustmentType).toLowerCase()} de todos los servicios del catálogo. Esta acción se puede revertir desde el historial.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleApply}>Confirmar Ajuste</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </CardContent>
       </Card>
+
+      {/* Preview */}
+      {preview && preview.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Eye className="w-5 h-5" /> Previsualización del Ajuste
+              <Badge variant="secondary" className="ml-2">{preview.length} servicios</Badge>
+            </CardTitle>
+            <CardDescription>
+              Así quedarán los precios tras aplicar el ajuste de {parseFloat(percentage) > 0 ? '+' : ''}{percentage}%.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="max-h-96 overflow-y-auto rounded-lg border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Servicio</TableHead>
+                    <TableHead>Categoría</TableHead>
+                    {(adjustmentType === 'precios' || adjustmentType === 'ambos') && (
+                      <>
+                        <TableHead className="text-right">Precio Actual</TableHead>
+                        <TableHead className="text-right">Precio Nuevo</TableHead>
+                      </>
+                    )}
+                    {(adjustmentType === 'costos' || adjustmentType === 'ambos') && (
+                      <>
+                        <TableHead className="text-right">Costo Actual</TableHead>
+                        <TableHead className="text-right">Costo Nuevo</TableHead>
+                      </>
+                    )}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {preview.map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell className="font-medium text-sm">{item.nombre}</TableCell>
+                      <TableCell className="text-xs text-muted-foreground">{item.categoria}</TableCell>
+                      {(adjustmentType === 'precios' || adjustmentType === 'ambos') && (
+                        <>
+                          <TableCell className="text-right text-sm">{formatCurrency(item.precioVentaActual)}</TableCell>
+                          <TableCell className="text-right text-sm font-semibold">
+                            <span className="flex items-center justify-end gap-1">
+                              {formatCurrency(item.precioVentaNuevo)}
+                              {(item.precioVentaNuevo ?? 0) > (item.precioVentaActual ?? 0) ? (
+                                <ArrowUpRight className="w-3 h-3 text-green-600" />
+                              ) : (
+                                <ArrowDownRight className="w-3 h-3 text-red-500" />
+                              )}
+                            </span>
+                          </TableCell>
+                        </>
+                      )}
+                      {(adjustmentType === 'costos' || adjustmentType === 'ambos') && (
+                        <>
+                          <TableCell className="text-right text-sm">{formatCurrency(item.costoActual)}</TableCell>
+                          <TableCell className="text-right text-sm font-semibold">
+                            <span className="flex items-center justify-end gap-1">
+                              {formatCurrency(item.costoNuevo)}
+                              {(item.costoNuevo ?? 0) > (item.costoActual ?? 0) ? (
+                                <ArrowUpRight className="w-3 h-3 text-green-600" />
+                              ) : (
+                                <ArrowDownRight className="w-3 h-3 text-red-500" />
+                              )}
+                            </span>
+                          </TableCell>
+                        </>
+                      )}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* History */}
       <Card>

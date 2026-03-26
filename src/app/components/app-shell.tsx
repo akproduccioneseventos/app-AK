@@ -125,6 +125,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/settings/account') return 'Cuenta y Seguridad';
   if (pathname === '/settings/feedback') return 'Feedback y Testimonios';
   if (pathname === '/settings/ajuste-precios') return 'Ajuste Anual de Precios';
+  if (pathname === '/settings/cupones') return 'Cupones y Descuentos';
   if (pathname === '/settings/backup') return 'Backup y Restauración';
   if (pathname === '/settings/task-templates') return 'Plantillas de Tareas';
   if (pathname === '/settings/accesos-personal') return 'Accesos Colaboradores';
@@ -221,6 +222,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/settings/notifications') return BellRing;
   if (pathname === '/settings/account') return UserCog;
   if (pathname === '/settings/feedback') return Star;
+  if (pathname === '/settings/cupones') return Ticket;
   if (pathname === '/settings/backup') return HardDriveDownload;
   if (pathname === '/settings/task-templates') return ListChecks;
   if (pathname === '/settings/accesos-personal') return UserCog;

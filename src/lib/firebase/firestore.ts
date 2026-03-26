@@ -19,6 +19,9 @@ export const COLLECTIONS = {
   NOTIFICACIONES: 'notificaciones',
   GASTOS_GENERALES: 'gastos_generales',
   ACTIVOS_FIJOS: 'activos_fijos',
+  AJUSTES_PRECIOS: 'price_adjustments',
+  CUPONES: 'cupones',
+  CUPONES_USAGE: 'cupones_usage',
 } as const;
 
 export type CollectionName = typeof COLLECTIONS[keyof typeof COLLECTIONS];

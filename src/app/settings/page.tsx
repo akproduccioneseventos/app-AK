@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Building, Bell, ShieldCheck, Settings as SettingsIcon, BarChart3, Link as LinkIcon, Star, HardDriveDownload, Wand2, UserCog, Palette, TrendingUp } from 'lucide-react';
+import { Building, Bell, ShieldCheck, Settings as SettingsIcon, BarChart3, Link as LinkIcon, Star, HardDriveDownload, Wand2, UserCog, Palette, TrendingUp, Ticket } from 'lucide-react';
 
 const settingsCards = [
    {
@@ -61,6 +61,13 @@ const settingsCards = [
     href: "/settings/ajuste-precios",
     icon: TrendingUp,
     buttonLabel: "Gestionar Ajustes"
+  },
+  {
+    title: "Cupones y Descuentos",
+    description: "Crea cupones promocionales con código, vigencia y límite de usos. Aplícalos en presupuestos para ofrecer descuentos.",
+    href: "/settings/cupones",
+    icon: Ticket,
+    buttonLabel: "Gestionar Cupones"
   },
   {
     title: "Backup y Restauración",

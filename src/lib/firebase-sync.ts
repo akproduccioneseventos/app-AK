@@ -33,6 +33,9 @@ const FILE_TO_COLLECTION: Record<string, string> = {
   'task-templates.json': 'task_templates',
   'testimonials.json': 'testimonials',
   'accesos-personal.json': 'accesos_personal',
+  'cupones.json': 'cupones',
+  'cupones-usage.json': 'cupones_usage',
+  'price-adjustments-history.json': 'price_adjustments',
 };
 
 const CONFIG_FILES: Record<string, string> = {
