@@ -38,7 +38,9 @@ import {
   FileArchive,
   History,
   Wallet,
-  Calculator
+  Calculator,
+  PlusCircle,
+  CircleDollarSign,
 } from "lucide-react";
 import AppLogo from "./app-logo";
 import { cn } from "@/lib/utils";
@@ -60,6 +62,22 @@ export function MainNav() {
         </Link>
       </SidebarHeader>
       <SidebarContent className="px-6 gap-8 scrollbar-hide">
+        {/* Quick Access Buttons */}
+        <div className="flex gap-2">
+          <Link href="/fiestas/nueva" passHref className="flex-1">
+            <Button className="w-full h-11 rounded-xl bg-gradient-to-r from-primary to-red-500 hover:from-red-600 hover:to-red-700 text-white shadow-lg shadow-primary/20 font-bold text-[10px] uppercase tracking-wider transition-all duration-300 hover:scale-[1.02]">
+              <PartyPopper className="w-4 h-4 mr-1.5" />
+              Nueva Fiesta
+            </Button>
+          </Link>
+          <Link href="/presupuestos/nuevo" passHref className="flex-1">
+            <Button variant="outline" className="w-full h-11 rounded-xl border-2 border-primary/30 hover:border-primary hover:bg-primary/5 font-bold text-[10px] uppercase tracking-wider text-primary transition-all duration-300 hover:scale-[1.02]">
+              <CircleDollarSign className="w-4 h-4 mr-1.5" />
+              Presupuesto
+            </Button>
+          </Link>
+        </div>
+
         <SidebarMenu>
           <SidebarMenuItem>
             <Link href="/" passHref>

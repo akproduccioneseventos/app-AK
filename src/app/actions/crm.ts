@@ -85,6 +85,102 @@ export async function deleteCrmLead(leadId: string): Promise<{ success: boolean;
     return { success: true };
 }
 
+export async function confirmBookingWithContract(formData: FormData): Promise<{ success: boolean; fiestaId?: string; error?: string }> {
+  try {
+    const leadId = formData.get('leadId') as string;
+    const presupuestoId = formData.get('presupuestoId') as string;
+    const contractFile = formData.get('contract') as File | null;
+
+    if (!leadId || !presupuestoId) throw new Error('Datos incompletos.');
+    if (!contractFile || contractFile.type !== 'application/pdf') {
+      throw new Error('El contrato firmado (PDF) es obligatorio.');
+    }
+
+    const [leads, presupuesto, stages] = await Promise.all([
+      getCrmLeads(),
+      getPresupuestoById(presupuestoId),
+      getCrmStages()
+    ]);
+
+    const lead = leads.find(l => l.id === leadId);
+    if (!lead || !presupuesto) throw new Error('Datos no encontrados');
+    const conversionStage = stages.find(s => s.isConversionStage);
+
+    // 1. Save contract file
+    const fs = await import('fs/promises');
+    const path = await import('path');
+    const DATA_DIR = path.join(process.cwd(), 'src', 'data');
+    const contractsDir = path.join(DATA_DIR, 'contracts');
+    try { await fs.access(contractsDir); } catch { await fs.mkdir(contractsDir, { recursive: true }); }
+    
+    const contractFileName = `contrato_${lead.name.replace(/\s+/g, '_')}_${Date.now()}.pdf`;
+    const contractFilePath = path.join(contractsDir, contractFileName);
+    const arrayBuffer = await contractFile.arrayBuffer();
+    await fs.writeFile(contractFilePath, Buffer.from(arrayBuffer));
+
+    // 2. Create Customer with contract linked
+    const customerResult = await saveCustomer({
+      name: lead.name,
+      phone: lead.phone,
+      estadoCliente: 'Actual',
+      partyDate: presupuesto.eventoFecha,
+      partyType: presupuesto.eventoTipo,
+      venueName: presupuesto.salonFiestas,
+      guestCount: presupuesto.invitadosCantidad,
+      contractFileName: contractFileName,
+    });
+
+    if (!customerResult.success || !customerResult.id) throw new Error(customerResult.error);
+
+    // 3. Create Fiesta
+    const newFiesta: FiestaEnPlanificacion = {
+      ...initialFiestaActualData,
+      id: `fiesta_${Date.now()}`,
+      estado: 'Contratada',
+      presupuestoId: presupuesto.id,
+      configuracion: {
+        ...initialFiestaActualData.configuracion,
+        clienteId: customerResult.id,
+        nombreEvento: `${presupuesto.eventoTipo} de ${lead.name}`,
+        fechaEvento: presupuesto.eventoFecha,
+        nombreLugar: presupuesto.salonFiestas,
+        invitadosEstimados: presupuesto.invitadosCantidad,
+        presupuestoEstimado: presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado,
+      }
+    };
+    newFiesta.modulosContratados = { ...defaultModulosContratados };
+    await saveFiesta(newFiesta);
+
+    // 4. Sync from budget
+    await syncFiestaFromBudget(newFiesta.id);
+
+    // 5. Update Presupuesto
+    await updatePresupuesto({ ...presupuesto, estado: 'Aceptado' });
+
+    // 6. Move Lead to conversion stage
+    if (conversionStage) await moveCrmLead(lead.id, conversionStage.id);
+
+    // 7. Update lead with contract info
+    const updatedLeads = await getCrmLeads();
+    const leadIdx = updatedLeads.findIndex(l => l.id === leadId);
+    if (leadIdx !== -1) {
+      (updatedLeads[leadIdx] as any).contractFileName = contractFileName;
+      updatedLeads[leadIdx].updatedAt = new Date().toISOString();
+      await writeData(LEADS_FILE, updatedLeads);
+    }
+
+    await createNotification({
+      mensaje: `¡Contratación Confirmada! ${lead.name} es ahora cliente. Contrato vinculado.`,
+      href: `/fiestas/nueva?fiestaId=${newFiesta.id}`,
+      icono: 'PartyPopper'
+    });
+
+    return { success: true, fiestaId: newFiesta.id };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
 export async function confirmBooking(leadId: string, presupuestoId: string): Promise<{ success: boolean; fiestaId?: string; error?: string }> {
   try {
     const [leads, presupuesto, stages] = await Promise.all([
