@@ -66,7 +66,6 @@ export async function savePresupuesto(
   const adolescentes = presupuestoData.invitadosAdolescentes || 0;
   const ninos = presupuestoData.invitadosNinos || 0;
 
-  // RECALCULAR TODAS LAS LÍNEAS PARA SEGURIDAD ABSOLUTA
   const validItems = presupuestoData.itemsPresupuestados.map(item => ({
     ...item,
     costoTotalItem: recalcularCostoItem(item, adultos, adolescentes, ninos),
@@ -137,7 +136,6 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
         totalConDescuento = subtotal - desc;
     }
 
-    // PROTECCIÓN FINANCIERA: APLICAR AJUSTE ANUAL COMPUESTO (15%)
     let finalTotal = totalConDescuento;
     if (presupuestoData.ajusteAnualActivo && presupuestoData.eventoFecha) {
         const yearCreated = new Date(presupuestoData.timestamp).getFullYear();
@@ -177,19 +175,46 @@ export async function deletePresupuesto(id: string): Promise<{ success: boolean;
   return { success: true };
 }
 
-export async function markPresupuestoAsFacturado(presupuestoId: string, invoiceId: string): Promise<{ success: boolean; error?: string }> {
+export async function markPresupuestoAsFacturado(
+  presupuestoId: string,
+  invoiceId: string
+): Promise<{ success: boolean; error?: string }> {
   let presupuestos = await getPresupuestos();
   const index = presupuestos.findIndex(p => p.id === presupuestoId);
-  if (index === -1) return { success: false, error: "No encontrado" };
+
+  if (index === -1) {
+    return { success: false, error: "No encontrado" };
+  }
+
   presupuestos[index].estado = 'Facturado';
   presupuestos[index].invoiceId = invoiceId;
   presupuestos[index].ajusteAnualActivo = true;
-  
+
+  let leadId = presupuestos[index].leadId;
+
   try {
-      await findLeadByBudgetOrCreate(presupuestos[index]);
-  } catch (e) { console.warn("CRM Sync error on invoice", e); }
+    const syncRes = await findLeadByBudgetOrCreate(presupuestos[index]);
+    presupuestos[index].leadId = syncRes.lead.id;
+    leadId = syncRes.lead.id;
+  } catch (e) {
+    console.warn("CRM Sync error on invoice", e);
+  }
 
   await writeData(PRESUPUESTOS_FILE, presupuestos);
+
+  try {
+    const fiestas = await getAllFiestas();
+    const existingFiesta = fiestas.find(f => f.presupuestoId === presupuestoId);
+
+    if (existingFiesta) {
+      await syncFiestaFromBudget(existingFiesta.id);
+    } else if (leadId) {
+      await confirmBooking(leadId, presupuestoId);
+    }
+  } catch (e) {
+    console.warn("Error auto-creating fiesta on invoice", e);
+  }
+
   return { success: true };
 }
 
