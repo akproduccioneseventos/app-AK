@@ -14,8 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 const SESSION_KEY = 'ak_producciones_auth_session';
 // Password loaded from environment variable for security
-const APP_PASSWORD = process.env.NEXT_PUBLIC_APP_PASSWORD || '';
-
+const APP_PASSWORD = 'SOydocenTE2124';
 export default function LoginPage() {
   const router = useRouter();
   const [password, setPassword] = useState('');
