@@ -4,7 +4,7 @@ import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto';
 import { readData, writeData } from '@/lib/data-service';
 import { getInvoiceById, saveInvoice } from './invoices';
 import type { Invoice, InvoiceItem } from '@/types/invoice';
-import { findLeadByBudgetOrCreate, getCrmStages, moveCrmLead } from './crm';
+import { findLeadByBudgetOrCreate, getCrmStages, moveCrmLead, confirmBooking } from './crm';
 import { createNotification } from './notifications';
 import { getServiciosEmpresa } from './servicios-empresa';
 import { getMenus } from './menus-catering';
