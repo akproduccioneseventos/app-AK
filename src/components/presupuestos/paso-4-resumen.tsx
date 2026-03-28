@@ -1,21 +1,18 @@
 
 'use client';
 
-import type { Presupuesto, PresupuestoFormData, ItemPresupuestado } from '@/types/presupuesto';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, ClipboardCopy, Send, Printer, Gift, Share2 } from 'lucide-react';
+import { AlertTriangle, ClipboardCopy, Printer, Gift, Share2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { Dispatch, SetStateAction } from 'react';
 import React, { useEffect, useState, useMemo } from 'react';
 import { getBudgetDisplaySettings } from '@/app/actions/settings';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import type { BudgetDisplaySettings } from '@/types/settings';
 import Image from 'next/image';
-import { Separator } from '../ui/separator';
 
 // Company Info Constants - To be moved to a settings file eventually
-const COMPANY_MAIN_TITLE = "Presupuesto para fiestas o eventos - AK PRODUCCIONES";
 const COMPANY_NAME_BRAND = "AK PRODUCCIONES";
 const COMPANY_CONTACT_PERSON = "SR. Alexander Knuth";
 const COMPANY_ADDRESS_LINE1_PDF = "Salto";
@@ -171,138 +168,193 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
     
   return (
     <div className="space-y-6">
+      {/* ── Printable Budget Document ── */}
       <Card className="shadow-lg print:shadow-none print:border-none" id="budget-summary-printable">
-        <CardHeader className="bg-muted/10 p-4 md:p-6 print:p-2 print:bg-transparent">
-          <h2 className="text-xl font-bold text-center mb-2 print:text-base leading-tight">{COMPANY_MAIN_TITLE}</h2>
-          <div className="flex flex-col md:flex-row justify-between items-start text-xs print:text-[8pt] gap-2">
-            <div className="space-y-px text-center md:text-left">
-              <p className="font-semibold">{COMPANY_CONTACT_PERSON}</p>
-              <p>{COMPANY_ADDRESS_LINE1_PDF}, {COMPANY_ADDRESS_LINE2_PDF}</p>
-              <p>{COMPANY_CONTACT_EMAIL_PDF} | {COMPANY_WEBSITE_PDF}</p>
+
+        {/* HEADER — company branding */}
+        <CardHeader className="p-4 md:p-6 print:p-0 print:bg-transparent">
+          <div className="print-header flex flex-col md:flex-row justify-between items-start gap-3
+                          border-b-2 border-gray-800 pb-3 mb-4
+                          print:flex print:flex-row print:justify-between print:items-start
+                          print:border-b-2 print:border-black print:pb-2 print:mb-3">
+
+            {/* Company info block */}
+            <div className="print-header-company space-y-0.5">
+              <h2 className="text-lg font-extrabold uppercase tracking-wide text-gray-900 print:text-[13pt] print:mb-1">
+                {COMPANY_NAME_BRAND}
+              </h2>
+              <p className="text-xs font-semibold text-gray-700 print:text-[8pt]">{COMPANY_CONTACT_PERSON}</p>
+              <p className="text-xs text-gray-600 print:text-[8pt]">{COMPANY_ADDRESS_LINE1_PDF} — {COMPANY_ADDRESS_LINE2_PDF}</p>
+              <p className="text-xs text-gray-600 print:text-[8pt]">{COMPANY_CONTACT_EMAIL_PDF}</p>
+              <p className="text-xs text-gray-600 print:text-[8pt]">{COMPANY_WEBSITE_PDF}</p>
             </div>
-            {displaySettings.showCompanyLogo && logoUrl && (
-                <div className="w-20 h-20 print:w-16 print:h-16 flex-shrink-0 self-center md:self-start">
-                    <Image src={logoUrl} alt={`${COMPANY_NAME_BRAND} Logo`} width={80} height={80} className="object-contain" data-ai-hint="company logo"/>
+
+            {/* Logo + document title */}
+            <div className="flex flex-col items-end gap-2 print-header-logo">
+              {displaySettings.showCompanyLogo && logoUrl && (
+                <div className="w-20 h-20 print:w-[70px] print:h-[70px] flex-shrink-0">
+                  <Image src={logoUrl} alt={`${COMPANY_NAME_BRAND} Logo`} width={80} height={80} className="object-contain" data-ai-hint="company logo" />
                 </div>
-            )}
+              )}
+              <span className="text-sm font-bold text-gray-800 uppercase tracking-wider text-right print:text-[10pt]">
+                Presupuesto para fiestas o eventos
+              </span>
+            </div>
           </div>
         </CardHeader>
-        <CardContent className="p-4 md:p-6 print:p-2 space-y-4 print:space-y-2">
-          {displaySettings.showClientData && (
-            <section className="mb-4 print:mb-2 text-sm print:text-[9pt] border-y py-2 print:py-1">
-              <p><span className="font-semibold">Cliente:</span> {presupuesto.clienteNombre}</p>
-              {presupuesto.clienteContacto && <p><span className="font-semibold">Contacto:</span> {presupuesto.clienteContacto}</p>}
-            </section>
-          )}
-          
-           <section className="mb-4 print:mb-2">
-            <table className="w-full text-xs print:text-[7pt] border-collapse">
-              <thead className="print:bg-gray-100">
-                <tr>
-                  <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Número de Presupuesto</th>
-                  <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Fecha</th>
-                  <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Válido hasta</th>
+
+        <CardContent className="p-4 md:p-6 print:p-0 space-y-4 print:space-y-3">
+
+          {/* Budget meta — number, dates */}
+          <section className="mb-4 print:mb-2">
+            <table className="w-full text-xs print:text-[8pt] border-collapse">
+              <thead>
+                <tr className="bg-gray-100 print:bg-gray-200">
+                  <th className="border border-gray-400 px-2 py-1.5 text-left font-semibold">Nº Presupuesto</th>
+                  <th className="border border-gray-400 px-2 py-1.5 text-left font-semibold">Fecha de emisión</th>
+                  <th className="border border-gray-400 px-2 py-1.5 text-left font-semibold">Válido hasta</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.id.split('_').pop()?.substring(0,6)}</td>
-                  <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(presupuesto.timestamp, true)}</td>
-                  <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(fechaValidoHasta.toISOString(), true)}</td>
+                  <td className="border border-gray-300 px-2 py-1.5 font-mono font-semibold">#{presupuesto.id.split('_').pop()?.substring(0,6).toUpperCase()}</td>
+                  <td className="border border-gray-300 px-2 py-1.5">{formatDate(presupuesto.timestamp, true)}</td>
+                  <td className="border border-gray-300 px-2 py-1.5">{formatDate(fechaValidoHasta.toISOString(), true)}</td>
                 </tr>
               </tbody>
             </table>
-             <table className="w-full text-xs print:text-[7pt] border-collapse mt-2">
-                <thead className="print:bg-gray-100">
-                    <tr>
-                         <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Tipo de Evento</th>
-                         <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Fecha del Evento</th>
-                         <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Lugar</th>
-                         <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50">Nº Invitados</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.eventoTipo}</td>
-                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{formatDate(presupuesto.eventoFecha)}</td>
-                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.salonFiestas}</td>
-                        <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1">{presupuesto.invitadosCantidad}</td>
-                    </tr>
-                </tbody>
-             </table>
           </section>
 
+          {/* Client + event data */}
+          <section className="print-client-section mb-4 print:mb-3
+                              bg-gray-50 border border-gray-300 rounded-md px-4 py-3
+                              print:bg-gray-100 print:border-gray-400 print:rounded-none print:px-3 print:py-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-sm print:text-[8.5pt]">
+              {displaySettings.showClientData && (
+                <>
+                  <p><span className="font-semibold">Cliente:</span> {presupuesto.clienteNombre}</p>
+                  {presupuesto.clienteContacto && (
+                    <p><span className="font-semibold">Contacto:</span> {presupuesto.clienteContacto}</p>
+                  )}
+                </>
+              )}
+              <p><span className="font-semibold">Tipo de evento:</span> {presupuesto.eventoTipo}</p>
+              <p><span className="font-semibold">Fecha del evento:</span> {formatDate(presupuesto.eventoFecha)}</p>
+              <p><span className="font-semibold">Lugar / Salón:</span> {presupuesto.salonFiestas}</p>
+              <p><span className="font-semibold">Número de invitados:</span> {presupuesto.invitadosCantidad}</p>
+            </div>
+          </section>
+
+          {/* Items table */}
           {displaySettings.showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0 && (
-            <section className="mb-4 print:mb-2">
-              <table className="w-full text-xs print:text-[7pt] border-collapse">
-                  <thead className="print:bg-gray-100">
-                  <tr>
-                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-left font-medium bg-gray-50 w-3/5">Artículo</th>
-                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right font-medium bg-gray-50">Precio</th>
-                      <th className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right font-medium bg-gray-50">Importe total</th>
+            <section className="mb-4 print:mb-3">
+              <table className="w-full text-xs print:text-[8pt] border-collapse">
+                <thead>
+                  <tr className="bg-gray-800 print:bg-gray-800 text-white">
+                    <th className="border border-gray-600 px-2 py-1.5 text-left font-semibold w-3/5">Descripción del Servicio</th>
+                    <th className="border border-gray-600 px-2 py-1.5 text-right font-semibold">Precio unitario</th>
+                    <th className="border border-gray-600 px-2 py-1.5 text-right font-semibold">Importe</th>
                   </tr>
-                  </thead>
-                  <tbody>
+                </thead>
+                <tbody>
                   {Object.entries(itemsAgrupados).map(([categoria, items]) => (
-                     <React.Fragment key={categoria}>
-                        <tr className="bg-gray-50 print:bg-gray-100">
-                          <td colSpan={3} className="border border-gray-300 print:border-gray-400 px-1.5 py-1 font-bold text-gray-600">{categoria}</td>
+                    <React.Fragment key={categoria}>
+                      {/* Category separator row */}
+                      <tr className="print-category-row bg-gray-200 print:bg-gray-200">
+                        <td colSpan={3} className="border border-gray-400 px-2 py-1 font-bold text-gray-700 text-xs print:text-[7.5pt] uppercase tracking-wide">
+                          {categoria}
+                        </td>
+                      </tr>
+                      {items.map((item) => (
+                        <tr key={item.idServicioCatalogo} className="even:bg-gray-50 print:even:bg-gray-50">
+                          <td className="border border-gray-300 px-2 py-1.5 align-top">
+                            {item.esRegalo ? (
+                              <span className="text-emerald-700 font-semibold flex items-center gap-1 print:text-green-800">
+                                <Gift className="w-3 h-3 print:hidden" /> {item.nombreServicio}
+                                <span className="text-xs font-normal italic print:inline">&nbsp;(regalo)</span>
+                              </span>
+                            ) : item.nombreServicio}
+                          </td>
+                          <td className="border border-gray-300 px-2 py-1.5 text-right align-top">
+                            {item.esRegalo
+                              ? <span className="line-through text-gray-400">{formatCurrency(item.precioUnitario, true)}</span>
+                              : formatCurrency(item.precioUnitario, true)}
+                          </td>
+                          <td className="border border-gray-300 px-2 py-1.5 text-right align-top font-semibold">
+                            {item.esRegalo ? <span className="text-emerald-700 print:text-green-800 font-bold">$ 0,00</span> : formatCurrency(item.costoTotalItem, true)}
+                          </td>
                         </tr>
-                        {items.map((item) => (
-                            <tr key={item.idServicioCatalogo}>
-                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 align-top">
-                                  {item.esRegalo ? <span className="text-red-600 font-semibold flex items-center gap-1"><Gift className="w-3 h-3"/> {item.nombreServicio} (REGALO)</span> : item.nombreServicio}
-                                </td>
-                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top">{item.esRegalo ? <span className="line-through text-gray-500">{formatCurrency(item.precioUnitario, true)}</span> : formatCurrency(item.precioUnitario, true)}</td>
-                                <td className="border border-gray-300 print:border-gray-400 px-1.5 py-1 text-right align-top font-semibold">{item.esRegalo ? formatCurrency(0, true) : formatCurrency(item.costoTotalItem, true)}</td>
-                            </tr>
-                        ))}
-                     </React.Fragment>
+                      ))}
+                    </React.Fragment>
                   ))}
-                  </tbody>
+                </tbody>
               </table>
             </section>
           )}
-          
-          <section className="flex justify-end mb-4 print:mb-2 text-sm print:text-xs">
-            <div className="w-full max-w-xs print:max-w-[220px] space-y-0.5">
-              <div className="flex justify-between">
-                <span>Subtotal:</span>
+
+          {/* Totals */}
+          <section className="print-totals flex justify-end mb-4 print:mb-3">
+            <div className="print-totals-inner w-full max-w-xs print:max-w-[240px] border border-gray-300 print:border-gray-400 rounded-md print:rounded-none p-3 print:p-2 space-y-1 text-sm print:text-[9pt]">
+              <div className="print-total-row flex justify-between">
+                <span className="text-gray-600 print:text-gray-700">Subtotal:</span>
                 <span>{formatCurrency(subtotalBruto, true, true)}</span>
               </div>
               {descuentoPromocional > 0 && (
-                  <div className="flex justify-between text-destructive">
-                    <span>Descuento{presupuesto.nombrePromocion ? ` (${presupuesto.nombrePromocion})` : ''}:</span>
-                    <span>-{formatCurrency(descuentoPromocional, true, true)}</span>
-                  </div>
+                <div className="print-total-row print-discount flex justify-between text-red-600 print:text-red-700">
+                  <span>Descuento{presupuesto.nombrePromocion ? ` (${presupuesto.nombrePromocion})` : ''}:</span>
+                  <span>−{formatCurrency(descuentoPromocional, true, true)}</span>
+                </div>
               )}
-               {costoTotalRegalos > 0 && (
-                 <div className="flex justify-between text-green-600">
-                    <span>Ahorro en Regalos:</span>
-                    <span>{formatCurrency(costoTotalRegalos, true, true)}</span>
-                  </div>
-               )}
-              <div className="flex justify-between font-bold pt-1 border-t-2 border-gray-600 print:border-gray-700">
-                <span className="text-base">Importe total</span>
-                <span className="text-base">{formatCurrency(totalFinal, true)}</span>
+              {costoTotalRegalos > 0 && (
+                <div className="print-total-row print-gift flex justify-between text-emerald-700 print:text-green-800">
+                  <span>Ahorro en Regalos:</span>
+                  <span>−{formatCurrency(costoTotalRegalos, true, true)}</span>
+                </div>
+              )}
+              <div className="print-total-row print-total-final flex justify-between font-bold border-t-2 border-gray-700 print:border-black pt-1.5 mt-1">
+                <span className="text-base print:text-[11pt]">TOTAL</span>
+                <span className="text-base print:text-[11pt]">{formatCurrency(totalFinal, true)}</span>
               </div>
             </div>
           </section>
-          
-           <footer className="mt-6 pt-3 border-t border-gray-300 print:mt-2 print:pt-1.5 print:border-gray-400 text-xs print:text-[8pt] text-gray-600 print:text-black">
-            <p>{BUDGET_DEPOSIT_NOTE_PDF}</p>
-            {presupuesto.notas && displaySettings.showPaymentMethodNotes && <p className="mt-1 print:mt-0.5 whitespace-pre-line">{presupuesto.notas}</p>}
-            {showAnnualAdjustmentLegend && (<p className="mt-1 print:mt-0.5 text-orange-600">Nota: Este presupuesto podría estar sujeto a un ajuste anual del {displaySettings.annualAdjustmentPercentage}% si el evento se realiza en un año posterior al actual.</p>)}
+
+          {/* Footer — deposit note, legal, notes */}
+          <footer className="print-footer mt-6 pt-4 border-t border-gray-300 print:border-gray-500 text-xs print:text-[8pt] text-gray-600 print:text-gray-800 space-y-1 print:space-y-0.5">
+            <p className="font-semibold text-gray-800 print:text-black">{BUDGET_DEPOSIT_NOTE_PDF}</p>
+            {presupuesto.notas && displaySettings.showPaymentMethodNotes && (
+              <p className="whitespace-pre-line">{presupuesto.notas}</p>
+            )}
+            {showAnnualAdjustmentLegend && (
+              <p className="text-orange-600 print:text-orange-700">
+                Nota: Este presupuesto podría estar sujeto a un ajuste anual del {displaySettings.annualAdjustmentPercentage}% si el evento se realiza en un año posterior al actual.
+              </p>
+            )}
+
+            {/* Signature area — print only */}
+            <div className="print-signature-area hidden print:flex justify-between mt-10 pt-2">
+              <div className="print-signature-block text-center" style={{ width: '38%', borderTop: '1px solid #666', paddingTop: '4pt', fontSize: '8pt', color: '#444' }}>
+                <p>Firma del Cliente</p>
+                <p className="mt-1">{presupuesto.clienteNombre}</p>
+              </div>
+              <div className="print-signature-block text-center" style={{ width: '38%', borderTop: '1px solid #666', paddingTop: '4pt', fontSize: '8pt', color: '#444' }}>
+                <p>Firma y sello de la empresa</p>
+                <p className="mt-1">{COMPANY_NAME_BRAND}</p>
+              </div>
+            </div>
           </footer>
+
         </CardContent>
       </Card>
-      
+
+      {/* ── UI Actions card — hidden on print ── */}
       <Card className="shadow-md border-primary/20 print:hidden mt-6">
-        <CardHeader className="bg-primary/5 p-4 md:p-6"><CardTitle className="font-headline text-lg md:text-xl text-primary">Acciones y Compartir</CardTitle></CardHeader>
+        <CardHeader className="bg-primary/5 p-4 md:p-6">
+          <CardTitle className="font-headline text-lg md:text-xl text-primary">Acciones y Compartir</CardTitle>
+        </CardHeader>
         <CardContent className="p-4 md:p-6 flex flex-col sm:flex-row gap-3">
-            <Button variant="outline" onClick={handlePrint} className="w-full"><Printer className="w-4 h-4 mr-2"/>Imprimir o Guardar como PDF</Button>
-            <Button variant="secondary" onClick={handleShareWhatsApp} className="w-full"><Share2 className="w-4 h-4 mr-2"/>Enviar por WhatsApp</Button>
-            <Button variant="secondary" onClick={handleCopyToClipboard} className="w-full"><ClipboardCopy className="w-4 h-4 mr-2"/>Copiar Resumen</Button>
+          <Button variant="outline" onClick={handlePrint} className="w-full"><Printer className="w-4 h-4 mr-2" />Imprimir o Guardar como PDF</Button>
+          <Button variant="secondary" onClick={handleShareWhatsApp} className="w-full"><Share2 className="w-4 h-4 mr-2" />Enviar por WhatsApp</Button>
+          <Button variant="secondary" onClick={handleCopyToClipboard} className="w-full"><ClipboardCopy className="w-4 h-4 mr-2" />Copiar Resumen</Button>
         </CardContent>
       </Card>
     </div>
