@@ -23,7 +23,7 @@ export async function updateShoppingListStatus(fiestaId: string, estados: Compra
     if (!fiestaId) return { success: false, error: "ID de Fiesta no proporcionado." };
 
     try {
-        const fiesta = await getFiestaById(fiestaId);
+        let fiesta = await getFiestaById(fiestaId);
         if (!fiesta) throw new Error("Fiesta no encontrada");
         
         // Buscar cambios para crear tareas automáticas de pago
@@ -34,7 +34,7 @@ export async function updateShoppingListStatus(fiestaId: string, estados: Compra
                 if (nuevo.pedido && !nuevo.pagado) {
                     await addTareaToFiestaActual(fiestaId, {
                         texto: `Pagar insumos a: ${nuevo.proveedor}`,
-                        descripcion: `Pedido realizado para el evento ${fiesta.configuracion.nombreEvento}. Pendiente de pago.`,
+                        descripcion: `Pedido realizado para el evento ${fiesta.configuracion?.nombreEvento ?? 'el evento'}. Pendiente de pago.`,
                         completada: false,
                         asignadaA: 'Organizador'
                     });
@@ -44,9 +44,8 @@ export async function updateShoppingListStatus(fiestaId: string, estados: Compra
                  const tareaTexto = `Pagar insumos a: ${nuevo.proveedor}`;
                  const tareaExistente = fiesta.tareas?.find(t => t.texto === tareaTexto);
                  if (tareaExistente) {
-                     // Marcar como completada si ya existe
-                     const updatedTareas = (fiesta.tareas || []).map(t => t.id === tareaExistente.id ? {...t, completada: true} : t);
-                     fiesta.tareas = updatedTareas;
+                     // Marcar como completada si ya existe (sin mutar el objeto original)
+                     fiesta = { ...fiesta, tareas: (fiesta.tareas || []).map(t => t.id === tareaExistente.id ? {...t, completada: true} : t) };
                  }
              }
         }

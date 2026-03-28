@@ -304,12 +304,19 @@ async function migrate() {
 
     // Use batched writes (max 500 per batch)
     const batchSize = 450;
+    let autoIdCounter = 0;
     for (let i = 0; i < task.data.length; i += batchSize) {
       const batch = db.batch();
       const chunk = task.data.slice(i, i + batchSize);
 
-      for (const item of chunk) {
-        const docId = item.id || `auto_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+      // Pre-compute docIds so both the batch and the individual fallback use the same IDs
+      const chunkWithIds = chunk.map(item => {
+        autoIdCounter++;
+        const docId = item.id || `auto_${Date.now()}_${autoIdCounter}_${Math.random().toString(36).substring(2, 9)}`;
+        return { item, docId };
+      });
+
+      for (const { item, docId } of chunkWithIds) {
         const docRef = db.collection(task.collectionName).doc(String(docId));
         
         // Add migration metadata
@@ -327,12 +334,48 @@ async function migrate() {
         batch.set(docRef, docData, { merge: true });
       }
 
-      try {
-        await batch.commit();
-        successCount += chunk.length;
-      } catch (error: any) {
-        console.error(`  ❌ Error en batch para ${task.collectionName}:`, error.message);
-        errorCount += chunk.length;
+      // Attempt batch commit with one retry
+      let committed = false;
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        try {
+          await batch.commit();
+          successCount += chunk.length;
+          committed = true;
+          break;
+        } catch (batchError: any) {
+          if (attempt < 2) {
+            console.warn(`  ⚠️  Reintentando batch para ${task.collectionName} (intento ${attempt})...`);
+            await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+          } else {
+            console.error(`  ❌ Error en batch para ${task.collectionName}:`, batchError.message);
+          }
+        }
+      }
+
+      // Fallback: commit documents individually when batch fails after retries
+      if (!committed) {
+        let individualSuccess = 0;
+        let individualFail = 0;
+        for (const { item, docId } of chunkWithIds) {
+          const docRef = db.collection(task.collectionName).doc(String(docId));
+          const docData = {
+            ...item,
+            _migratedAt: new Date().toISOString(),
+            _source: 'json-migration',
+          };
+          Object.keys(docData).forEach(key => {
+            if (docData[key] === undefined) delete docData[key];
+          });
+          try {
+            await docRef.set(docData, { merge: true });
+            individualSuccess++;
+          } catch (docError: any) {
+            console.error(`    ❌ Error guardando doc ${docId} en ${task.collectionName}:`, docError.message);
+            individualFail++;
+          }
+        }
+        successCount += individualSuccess;
+        errorCount += individualFail;
       }
     }
 
@@ -362,13 +405,51 @@ async function migrate() {
       batch.set(docRef, docData, { merge: true });
     }
 
-    try {
-      await batch.commit();
-      console.log(`  ✅ ${configDocs.length} configuraciones migradas`);
-      totalDocsMigrated += configDocs.length;
-    } catch (error: any) {
-      console.error(`  ❌ Error migrando configuraciones:`, error.message);
-      totalErrors += configDocs.length;
+    // Attempt batch commit with one retry
+    let configCommitted = false;
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        await batch.commit();
+        console.log(`  ✅ ${configDocs.length} configuraciones migradas`);
+        totalDocsMigrated += configDocs.length;
+        configCommitted = true;
+        break;
+      } catch (batchError: any) {
+        if (attempt < 2) {
+          console.warn(`  ⚠️  Reintentando batch de configuraciones (intento ${attempt})...`);
+          await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+        } else {
+          console.error(`  ❌ Error migrando configuraciones en batch:`, batchError.message);
+        }
+      }
+    }
+
+    // Fallback: migrate config documents individually when batch fails after retries
+    if (!configCommitted) {
+      console.log(`  🔄 Intentando migración individual de configuraciones...`);
+      let configSuccess = 0;
+      let configFail = 0;
+      for (const config of configDocs) {
+        const docRef = db.collection('configuracion').doc(config.docId);
+        const docData = {
+          ...config.data,
+          _migratedAt: new Date().toISOString(),
+          _source: 'json-migration',
+        };
+        Object.keys(docData).forEach(key => {
+          if (docData[key] === undefined) delete docData[key];
+        });
+        try {
+          await docRef.set(docData, { merge: true });
+          configSuccess++;
+        } catch (docError: any) {
+          console.error(`    ❌ Error guardando configuración "${config.docId}":`, docError.message);
+          configFail++;
+        }
+      }
+      console.log(`  ✅ ${configSuccess} configuraciones migradas | ${configFail > 0 ? `❌ ${configFail} errores` : 'Sin errores'}`);
+      totalDocsMigrated += configSuccess;
+      totalErrors += configFail;
     }
   }
 

@@ -9,14 +9,13 @@ import path from 'path';
 const EMPLEADOS_FILE = 'empleados.json';
 const CONTRACTS_DIR = path.join(process.cwd(), 'src', 'data', 'employee-contracts');
 
-async function ensureContractsDirectoryExists() {
+async function ensureContractsDirectoryExists(): Promise<void> {
     try {
         await fs.access(CONTRACTS_DIR);
     } catch {
         await fs.mkdir(CONTRACTS_DIR, { recursive: true });
     }
 }
-ensureContractsDirectoryExists();
 
 export async function getEmpleados(): Promise<Empleado[]> {
   return readData<Empleado[]>(EMPLEADOS_FILE, []);
@@ -54,6 +53,8 @@ export async function saveEmpleado(
     return { success: false, error: 'El nombre del empleado es obligatorio.' };
   }
 
+  let isNewEmployee = false;
+
   if (empleadoToSave.id) { // Update
     empleadoId = empleadoToSave.id;
     const index = empleados.findIndex(e => e.id === empleadoId);
@@ -74,13 +75,19 @@ export async function saveEmpleado(
     empleadoId = `emp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     empleadoToSave.id = empleadoId;
     empleados.push(empleadoToSave as Empleado);
+    isNewEmployee = true;
   }
 
   if (contractFile && contractFile.size > 0) {
     try {
       if (contractFile.type !== 'application/pdf') {
-        throw new Error('El contrato debe ser un archivo PDF.');
+        // Rollback in-memory addition for new employees before returning
+        if (isNewEmployee) {
+          empleados = empleados.filter(e => e.id !== empleadoId);
+        }
+        return { success: false, error: 'El contrato debe ser un archivo PDF.' };
       }
+      await ensureContractsDirectoryExists();
       const bytes = await contractFile.arrayBuffer();
       const buffer = Buffer.from(bytes);
       const uniqueFilename = `contract_${empleadoId}_${Date.now()}_${contractFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
@@ -88,6 +95,10 @@ export async function saveEmpleado(
       empleadoToSave.contractFileName = uniqueFilename;
     } catch (fileError: any) {
       console.error("Error saving employee contract file:", fileError);
+      // Rollback in-memory addition for new employees before returning
+      if (isNewEmployee) {
+        empleados = empleados.filter(e => e.id !== empleadoId);
+      }
       return { success: false, error: `Error al guardar archivo de contrato: ${fileError.message}` };
     }
   }
@@ -95,7 +106,12 @@ export async function saveEmpleado(
   const finalIndex = empleados.findIndex(e => e.id === empleadoId);
   if (finalIndex !== -1) empleados[finalIndex] = empleadoToSave as Empleado;
 
-  await writeData(EMPLEADOS_FILE, empleados, (a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
+  try {
+    await writeData(EMPLEADOS_FILE, empleados, (a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
+  } catch (writeError: any) {
+    console.error("Error writing empleados data:", writeError);
+    return { success: false, error: `Error al guardar los datos del empleado: ${writeError.message}` };
+  }
   return { success: true, id: empleadoId, empleado: empleadoToSave as Empleado };
 }
 
