@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, CalendarDays, Loader2, AlertTriangle, Clock, CalendarPlus } from 'lucide-react';
@@ -20,26 +20,36 @@ export default function CrmAgendaPage() {
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { toast } = useToast();
+  const isMountedRef = useRef(false);
+  const toastRef = useRef(toast);
+  useEffect(() => { toastRef.current = toast; }, [toast]);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => { isMountedRef.current = false; };
+  }, []);
 
   const fetchMeetings = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
       const leads = await getCrmLeads();
+      if (!isMountedRef.current) return;
       const meetingsWithDate = leads.filter(lead => !!lead.followUpDate);
       setAllMeetings(meetingsWithDate.sort((a,b) => new Date(a.followUpDate!).getTime() - new Date(b.followUpDate!).getTime()));
 
     } catch (err: any) {
+      if (!isMountedRef.current) return;
       setError("No se pudieron cargar las fechas de las reuniones.");
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+      toastRef.current({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
-      setIsLoading(false);
+      if (isMountedRef.current) setIsLoading(false);
     }
-  }, [toast]);
+  }, []); // Stable - dependencies accessed via refs
 
   useEffect(() => {
     fetchMeetings();
-  }, [fetchMeetings]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const meetingDates = useMemo(() => {
       return allMeetings.map(lead => new Date(lead.followUpDate!));

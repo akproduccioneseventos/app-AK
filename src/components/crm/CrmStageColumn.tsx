@@ -1,6 +1,7 @@
 
 'use client';
 
+import { memo } from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import type { CrmLead, CrmStage } from '@/types/crm';
@@ -16,7 +17,7 @@ interface CrmStageColumnProps {
   onHire: (lead: CrmLead) => void;
 }
 
-export function CrmStageColumn({
+export const CrmStageColumn = memo(function CrmStageColumn({
   stage,
   leads,
   onDeleteLead,
@@ -62,4 +63,4 @@ export function CrmStageColumn({
       </CardContent>
     </Card>
   );
-}
+});

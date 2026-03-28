@@ -25,8 +25,11 @@ export async function getCrmStages(): Promise<CrmStage[]> {
   return readData<CrmStage[]>(STAGES_FILE, defaultStages);
 }
 
-export async function getCrmLeads(): Promise<CrmLead[]> {
-  return readData<CrmLead[]>(LEADS_FILE, []);
+export async function getCrmLeads(page?: number, limit = 50): Promise<CrmLead[]> {
+  const allLeads = await readData<CrmLead[]>(LEADS_FILE, []);
+  if (page === undefined) return allLeads;
+  const start = page * limit;
+  return allLeads.slice(start, start + limit);
 }
 
 export async function addCrmLead(leadData: NewCrmLeadData): Promise<{ success: boolean; lead?: CrmLead; error?: string }> {
