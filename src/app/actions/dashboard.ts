@@ -59,10 +59,10 @@ export async function getDashboardKpiData() {
     const today = startOfToday();
     const tomorrow = addDays(today, 1);
     
-    // ventasTotales includes invoices + presupuestos enviados/aceptados (not yet invoiced)
+    // ventasTotales includes invoices + presupuestos aceptados (not yet invoiced)
     const ventasFacturadas = invoicesData.reduce((total, inv) => total + inv.totalAmount, 0);
     const ventasPresupuestadas = presupuestosData
-      .filter(p => (p.estado === 'Enviado' || p.estado === 'Aceptado') && !p.invoiceId)
+      .filter(p => p.estado === 'Aceptado' && !p.invoiceId)
       .reduce((total, p) => total + (p.totalConDescuento || p.costoTotalEstimado || 0), 0);
     const ventasTotales = ventasFacturadas + ventasPresupuestadas;
     const montoPagado = invoicesData.reduce((total, inv) => total + (inv.payments?.reduce((sum, p) => sum + p.amount, 0) || 0), 0);
