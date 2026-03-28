@@ -5,6 +5,7 @@ import type { Empleado, NuevoEmpleadoFormData } from '@/types/empleado';
 import { readData, writeData } from '@/lib/data-service';
 import fs from 'fs/promises';
 import path from 'path';
+import { randomUUID } from 'crypto';
 
 const EMPLEADOS_FILE = 'empleados.json';
 const CONTRACTS_DIR = path.join(process.cwd(), 'src', 'data', 'employee-contracts');
@@ -67,11 +68,11 @@ export async function saveEmpleado(
     };
     empleadoToSave = empleados[index];
   } else { // Create
-    const isDuplicate = empleados.some(emp => emp.nombre.trim().toLowerCase() === empleadoToSave.nombre!.trim().toLowerCase());
+    const isDuplicate = empleados.some(emp => emp.nombre && empleadoToSave.nombre && emp.nombre.trim().toLowerCase() === empleadoToSave.nombre.trim().toLowerCase());
     if (isDuplicate) {
         return { success: false, error: `Ya existe un empleado con el nombre "${empleadoToSave.nombre!.trim()}".` };
     }
-    empleadoId = `emp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    empleadoId = `emp_${randomUUID()}`;
     empleadoToSave.id = empleadoId;
     empleados.push(empleadoToSave as Empleado);
   }
