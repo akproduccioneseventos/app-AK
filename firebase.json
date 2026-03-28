@@ -3,23 +3,20 @@
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   },
-  "emulators": {
-    "firestore": {
-      "port": 8080,
-      "host": "127.0.0.1"
-    },
-    "auth": {
-      "port": 9099,
-      "host": "127.0.0.1"
-    },
-    "ui": {
-      "enabled": true,
-      "port": 4000,
-      "host": "127.0.0.1"
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "nextjs-app",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log"
+      ]
     }
-  },
+  ],
   "hosting": {
-    "public": "out",
+    "public": "public",
     "ignore": [
       "firebase.json",
       "**/.*",
@@ -28,8 +25,31 @@
     "rewrites": [
       {
         "source": "**",
-        "destination": "/index.html"
+        "function": "nextjsServer"
       }
     ]
+  },
+  "emulators": {
+    "functions": {
+      "port": 5001,
+      "host": "127.0.0.1"
+    },
+    "firestore": {
+      "port": 8080,
+      "host": "127.0.0.1"
+    },
+    "auth": {
+      "port": 9099,
+      "host": "127.0.0.1"
+    },
+    "hosting": {
+      "port": 5000,
+      "host": "127.0.0.1"
+    },
+    "ui": {
+      "enabled": true,
+      "port": 4000,
+      "host": "127.0.0.1"
+    }
   }
 }
