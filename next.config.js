@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
+  compress: true,
   /* config options here */
   typescript: {
     ignoreBuildErrors: true,
