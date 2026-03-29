@@ -22,6 +22,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { NotificationsHub } from '@/components/notifications-hub';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import { MainNav } from './components/main-nav';
+import { AKAssistantWidget } from '@/components/assistant/ak-assistant-widget';
 
 
 const getPageTitle = (pathname: string): string => {
@@ -353,6 +354,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </main>
         </div>
       </SidebarInset>
+      <AKAssistantWidget />
     </SidebarProvider>
   );
 }
