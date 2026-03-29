@@ -294,6 +294,19 @@ export default function BudgetDisplaySettingsPage() {
                             className="rounded-xl bg-slate-50 border-none shadow-inner min-h-[80px] text-sm"
                         />
                     </div>
+                    <div className="space-y-2">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Características de la Empresa (Beneficios)</Label>
+                        <Textarea 
+                            value={budgetSettings?.valuePropositions?.join('\n') || ''} 
+                            onChange={e => setBudgetSettings(s => s ? { 
+                                ...s, 
+                                valuePropositions: e.target.value.split('\n').filter(line => line.trim())
+                            } : null)}
+                            className="rounded-xl bg-slate-50 border-none shadow-inner min-h-[120px] text-sm"
+                            placeholder={"Equipamiento profesional de alta gama\nPersonal capacitado\nGarantía de satisfacción"}
+                        />
+                        <p className="text-[10px] text-slate-500">Escribe una característica por línea. Estas viñetas se mostrarán al final de los presupuestos manuales y del simulador.</p>
+                    </div>
                 </CardContent>
             </Card>
 

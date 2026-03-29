@@ -4,7 +4,7 @@
 import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, ClipboardCopy, Printer, Gift, Share2 } from 'lucide-react';
+import { AlertTriangle, ClipboardCopy, Printer, Gift, Share2, CheckCircle2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import React, { useEffect, useState, useMemo } from 'react';
 import { getBudgetDisplaySettings } from '@/app/actions/settings';
@@ -330,8 +330,25 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
               </p>
             )}
 
+            {/* Value Propositions — marketing block, screen only */}
+            {displaySettings?.valuePropositions && displaySettings.valuePropositions.length > 0 && (
+              <div className="mt-8 p-6 bg-slate-50 rounded-xl print:hidden">
+                <h3 className="text-lg font-bold text-slate-800 mb-4 text-center">
+                  ¿Por qué elegir AK Producciones?
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {displaySettings.valuePropositions.map((vp, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+                      <span className="text-sm text-slate-600">{vp}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Signature area — print only */}
-            <div className="print-signature-area hidden print:flex justify-between mt-10 pt-2">
+            <div className="hidden print:flex justify-between mt-10 pt-2 print-signature-area">
               <div className="print-signature-block text-center" style={{ width: '38%', borderTop: '1px solid #666', paddingTop: '4pt', fontSize: '8pt', color: '#444' }}>
                 <p>Firma del Cliente</p>
                 <p className="mt-1">{presupuesto.clienteNombre}</p>
