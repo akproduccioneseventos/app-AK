@@ -137,7 +137,7 @@ export async function getDashboardKpiData() {
                 alerts.push({
                     id: `expire_${pres.id}`,
                     type: 'budget',
-                    title: `Presupuesto Vencido: ${pres.clienteNombre}`,
+                    title: `Presupuesto Vencido: ${pres.clienteNombre || 'Sin nombre'}`,
                     description: `Enviado hace más de 30 días. Requiere seguimiento o actualización.`,
                     severity: 'medium',
                     href: `/presupuestos/${pres.id}/ver`
@@ -330,7 +330,7 @@ export async function getCashFlowProjection() {
             if (!isAfter(eventDate, today)) return;
             
             // Skip if there's already a fiesta for this client (rough match)
-            const clientName = pres.clienteNombre?.toLowerCase();
+            const clientName = (pres.clienteNombre || '').toLowerCase();
             if (clientName && fiestaClientNames.has(clientName)) return;
             
             const monthKey = format(eventDate, 'MMM yyyy', { locale: es });

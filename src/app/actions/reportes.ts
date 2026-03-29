@@ -60,7 +60,7 @@ export async function getProfitAndLossData(range: DateRange): Promise<{ success:
           ingresosDetalle.push({
             id: payment.id,
             fecha: payment.paymentDate,
-            concepto: `Pago Factura #${invoice.invoiceNumber} (Cliente: ${invoice.customer.name || invoice.customer.companyName})`,
+            concepto: `Pago Factura #${invoice.invoiceNumber} (Cliente: ${invoice.customer?.name || invoice.customer?.companyName || 'Sin cliente'})`,
             monto: payment.amount,
           });
           totalIngresos += payment.amount;

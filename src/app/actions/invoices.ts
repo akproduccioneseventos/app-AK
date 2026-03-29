@@ -44,60 +44,65 @@ export async function saveInvoice(
     return { success: false, error: 'Todos los ítems de la factura deben tener una descripción.' };
   }
 
-  let invoices = await getInvoices();
-  let finalInvoiceData: Invoice;
-  let invoiceId: string;
+  try {
+    let invoices = await getInvoices();
+    let finalInvoiceData: Invoice;
+    let invoiceId: string;
 
-  if ('id' in invoiceDataInput && invoiceDataInput.id) {
-    invoiceId = invoiceDataInput.id;
-    const index = invoices.findIndex(inv => inv.id === invoiceId);
-    if (index === -1) {
-      return { success: false, error: `Factura con ID ${invoiceId} no encontrada.` };
+    if ('id' in invoiceDataInput && invoiceDataInput.id) {
+      invoiceId = invoiceDataInput.id;
+      const index = invoices.findIndex(inv => inv.id === invoiceId);
+      if (index === -1) {
+        return { success: false, error: `Factura con ID ${invoiceId} no encontrada.` };
+      }
+      const { id, ...dataToUpdate } = invoiceDataInput;
+      
+      const updatedItems = (dataToUpdate.items || invoices[index].items).map((item, idx) => ({
+        ...item,
+        id: (item as InvoiceItem).id || `item_${invoiceId}_${idx + 1}_${Date.now()}_update`
+      }));
+
+      const subtotal = updatedItems.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
+      const taxRate = dataToUpdate.taxRate ?? invoices[index].taxRate ?? 0;
+      const taxAmount = (subtotal * taxRate) / 100;
+      const totalAmount = subtotal + taxAmount;
+      
+      invoices[index] = { 
+        ...invoices[index], 
+        ...dataToUpdate, 
+        items: updatedItems as InvoiceItem[],
+        payments: dataToUpdate.payments || invoices[index].payments || [],
+        subtotal,
+        taxRate,
+        taxAmount,
+        totalAmount,
+       };
+      finalInvoiceData = invoices[index];
+    } else {
+      invoiceId = `inv_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+      const itemsWithIds: InvoiceItem[] = invoiceDataInput.items.map((item, index) => ({
+        ...item,
+        id: `item_${invoiceId}_${index + 1}_${Date.now()}_create`
+      }));
+      finalInvoiceData = {
+        ...(invoiceDataInput as Omit<Invoice, 'id' | 'items' | 'payments'> & { items: Omit<InvoiceItem, 'id'>[] }),
+        id: invoiceId,
+        items: itemsWithIds,
+        payments: [], 
+      };
+      invoices.push(finalInvoiceData);
     }
-    const { id, ...dataToUpdate } = invoiceDataInput;
-    
-    const updatedItems = (dataToUpdate.items || invoices[index].items).map((item, idx) => ({
-      ...item,
-      id: (item as InvoiceItem).id || `item_${invoiceId}_${idx + 1}_${Date.now()}_update`
-    }));
+    await writeData(INVOICES_FILE, invoices, (a,b) => new Date(b.issueDate).getTime() - new Date(a.issueDate).getTime());
 
-    const subtotal = updatedItems.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
-    const taxRate = dataToUpdate.taxRate ?? invoices[index].taxRate ?? 0;
-    const taxAmount = (subtotal * taxRate) / 100;
-    const totalAmount = subtotal + taxAmount;
-    
-    invoices[index] = { 
-      ...invoices[index], 
-      ...dataToUpdate, 
-      items: updatedItems as InvoiceItem[],
-      payments: dataToUpdate.payments || invoices[index].payments || [],
-      subtotal,
-      taxRate,
-      taxAmount,
-      totalAmount,
-     };
-    finalInvoiceData = invoices[index];
-  } else {
-    invoiceId = `inv_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-    const itemsWithIds: InvoiceItem[] = invoiceDataInput.items.map((item, index) => ({
-      ...item,
-      id: `item_${invoiceId}_${index + 1}_${Date.now()}_create`
-    }));
-    finalInvoiceData = {
-      ...(invoiceDataInput as Omit<Invoice, 'id' | 'items' | 'payments'> & { items: Omit<InvoiceItem, 'id'>[] }),
-      id: invoiceId,
-      items: itemsWithIds,
-      payments: [], 
-    };
-    invoices.push(finalInvoiceData);
+    if (sourcePresupuestoId && !('id' in invoiceDataInput)) { 
+      await markPresupuestoAsFacturado(sourcePresupuestoId, finalInvoiceData.id);
+    }
+
+    return { success: true, id: invoiceId, invoice: finalInvoiceData };
+  } catch (error: any) {
+    console.error('Error guardando factura:', error);
+    return { success: false, error: error.message || 'Error al guardar la factura.' };
   }
-  await writeData(INVOICES_FILE, invoices, (a,b) => new Date(b.issueDate).getTime() - new Date(a.issueDate).getTime());
-
-  if (sourcePresupuestoId && !('id' in invoiceDataInput)) { 
-    await markPresupuestoAsFacturado(sourcePresupuestoId, finalInvoiceData.id);
-  }
-
-  return { success: true, id: invoiceId, invoice: finalInvoiceData };
 }
 
 export async function registerBookingDeposit(data: { fiestaId: string; amount: number; method: string; date: string }): Promise<{ success: boolean; error?: string }> {
