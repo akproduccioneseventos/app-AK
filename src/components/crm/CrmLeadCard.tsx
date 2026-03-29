@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 
 interface CrmLeadCardProps {
@@ -31,7 +31,7 @@ interface CrmLeadCardProps {
   onHire?: () => void;
 }
 
-export function CrmLeadCard({ lead, onDeleteLead, isDeleting, isMobile, onMove, onHire }: CrmLeadCardProps) {
+export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDeleting, isMobile, onMove, onHire }: CrmLeadCardProps) {
   const {
     attributes,
     listeners,
@@ -149,4 +149,4 @@ export function CrmLeadCard({ lead, onDeleteLead, isDeleting, isMobile, onMove, 
       </Card>
     </div>
   );
-}
+});

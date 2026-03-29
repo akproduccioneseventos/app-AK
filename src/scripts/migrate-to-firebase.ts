@@ -31,6 +31,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { randomUUID } from 'crypto';
 
 // We need to set up the environment before importing Firebase
 const envPath = path.join(process.cwd(), '.env.local');
@@ -238,7 +239,7 @@ function prepareConfigDocs(): { docId: string; sourceFile: string; data: any }[]
 
   for (const { docId, file } of configFiles) {
     const data = readJsonFile<any>(file, null);
-    if (data !== null && Object.keys(data).length > 0) {
+    if (data !== null && typeof data === 'object' && !Array.isArray(data) && Object.keys(data).length > 0) {
       configs.push({ docId, sourceFile: file, data });
     }
   }
@@ -312,7 +313,7 @@ async function migrate() {
       // Pre-compute docIds so both the batch and the individual fallback use the same IDs
       const chunkWithIds = chunk.map(item => {
         autoIdCounter++;
-        const docId = item.id || `auto_${Date.now()}_${autoIdCounter}_${Math.random().toString(36).substring(2, 9)}`;
+        const docId = item.id || `auto_${randomUUID()}`;
         return { item, docId };
       });
 

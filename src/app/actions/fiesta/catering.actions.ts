@@ -34,7 +34,7 @@ export async function updateShoppingListStatus(fiestaId: string, estados: Compra
                 if (nuevo.pedido && !nuevo.pagado) {
                     await addTareaToFiestaActual(fiestaId, {
                         texto: `Pagar insumos a: ${nuevo.proveedor}`,
-                        descripcion: `Pedido realizado para el evento ${fiesta.configuracion?.nombreEvento ?? 'el evento'}. Pendiente de pago.`,
+                        descripcion: `Pedido realizado para el evento ${fiesta?.configuracion?.nombreEvento ?? 'Evento sin nombre'}. Pendiente de pago.`,
                         completada: false,
                         asignadaA: 'Organizador'
                     });
