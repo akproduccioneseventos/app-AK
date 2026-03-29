@@ -1,23 +1,30 @@
-const cache = {};
-const TTL = 60 * 1000; // 1 minute in milliseconds
+'use client';
 
-const setCache = (key, data) => {
-    cache[key] = {
-        data,
-        timestamp: Date.now()
-    };
-};
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+}
 
-const getCache = (key) => {
-    const cached = cache[key];
-    if (!cached) return null;
-    const isExpired = (Date.now() - cached.timestamp) > TTL;
-    return isExpired ? null : cached.data;
-};
+const CACHE_TTL_MS = 60_000; // 1 minute
 
-// Getter functions for specific CRM data
-const getStages = () => getCache('stages');
-const getLeads = () => getCache('leads');
-const getKPI = () => getCache('kpi');
+const cacheStore: Record<string, CacheEntry<unknown>> = {};
 
-export { setCache, getStages, getLeads, getKPI };
+export function getCached<T>(key: string): T | null {
+  const entry = cacheStore[key] as CacheEntry<T> | undefined;
+  if (entry && Date.now() - entry.timestamp < CACHE_TTL_MS) {
+    return entry.data;
+  }
+  return null;
+}
+
+export function setCached<T>(key: string, data: T): void {
+  cacheStore[key] = { data, timestamp: Date.now() };
+}
+
+export function invalidateCache(key?: string): void {
+  if (key) {
+    delete cacheStore[key];
+  } else {
+    Object.keys(cacheStore).forEach(k => delete cacheStore[k]);
+  }
+}
