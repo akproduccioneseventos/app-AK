@@ -13,8 +13,13 @@ export async function getCupones(): Promise<Coupon[]> {
 }
 
 export async function getCuponById(id: string): Promise<Coupon | null> {
-  const cupones = await getCupones();
-  return cupones.find(c => c.id === id) || null;
+  try {
+    const cupones = await getCupones();
+    return cupones.find(c => c.id === id) || null;
+  } catch (error) {
+    console.error('Error al leer cupones, devolviendo null:', error);
+    return null;
+  }
 }
 
 export async function saveCupon(
