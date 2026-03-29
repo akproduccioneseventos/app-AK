@@ -64,19 +64,19 @@ export function recalcularCostoItem(item: ItemPresupuestado, adultos: number, ad
 
   switch (item.calculationMethod) {
     case 'fijo':
-      itemTotal = (item.precioBase ?? precioAplicado) * (item.cantidad > 0 ? item.cantidad : 1);
+      itemTotal = precioAplicado * (item.cantidad > 0 ? item.cantidad : 1);
       break;
     case 'porPersona':
-      itemTotal = (item.precioPorPersona ?? precioAplicado) * cantidadInvitadosTarget;
+      itemTotal = precioAplicado * cantidadInvitadosTarget;
       break;
     case 'ratio':
       const ratio = Number(item.invitadosPorUnidad);
       if (ratio > 0) {
         // MATEMÁTICA CRÍTICA: Redondeo hacia arriba para cubrir excedentes
         const unidadesNecesarias = Math.ceil(cantidadInvitadosTarget / ratio);
-        itemTotal = unidadesNecesarias * (item.precioBase ?? precioAplicado);
+        itemTotal = unidadesNecesarias * precioAplicado;
       } else {
-        itemTotal = item.precioBase ?? precioAplicado;
+        itemTotal = precioAplicado;
       }
       break;
     case 'tramos':
