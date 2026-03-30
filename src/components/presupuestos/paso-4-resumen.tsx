@@ -191,9 +191,15 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
 
             {/* Logo + document title */}
             <div className="flex flex-col items-end gap-2 print-header-logo">
-              {displaySettings.showCompanyLogo && logoUrl && (
+              {displaySettings.showCompanyLogo && logoUrl ? (
                 <div className="w-20 h-20 print:w-[70px] print:h-[70px] flex-shrink-0">
                   <Image src={logoUrl} alt={`${COMPANY_NAME_BRAND} Logo`} width={80} height={80} className="object-contain" data-ai-hint="company logo" />
+                </div>
+              ) : (
+                <div className="flex items-center justify-end">
+                  <span className="text-2xl font-extrabold tracking-widest text-gray-800 uppercase print:text-[18pt]">
+                    {COMPANY_NAME_BRAND}
+                  </span>
                 </div>
               )}
               <span className="text-sm font-bold text-gray-800 uppercase tracking-wider text-right print:text-[10pt]">
@@ -347,15 +353,15 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
               </div>
             )}
 
-            {/* Signature area — print only */}
-            <div className="hidden print:flex justify-between mt-10 pt-2 print-signature-area">
-              <div className="print-signature-block text-center" style={{ width: '38%', borderTop: '1px solid #666', paddingTop: '4pt', fontSize: '8pt', color: '#444' }}>
-                <p>Firma del Cliente</p>
-                <p className="mt-1">{presupuesto.clienteNombre}</p>
+            {/* Signature area — visible on screen and in print */}
+            <div className="flex justify-between mt-10 pt-4 border-t border-gray-300 print:border-gray-500 print-signature-area">
+              <div className="print-signature-block text-center" style={{ width: '38%', borderTop: '1px solid #999', paddingTop: '8px' }}>
+                <p className="text-xs text-gray-600 print:text-[8pt] print:text-gray-800">Firma del Cliente</p>
+                <p className="text-xs text-gray-500 mt-1 print:text-[8pt]">{presupuesto.clienteNombre}</p>
               </div>
-              <div className="print-signature-block text-center" style={{ width: '38%', borderTop: '1px solid #666', paddingTop: '4pt', fontSize: '8pt', color: '#444' }}>
-                <p>Firma y sello de la empresa</p>
-                <p className="mt-1">{COMPANY_NAME_BRAND}</p>
+              <div className="print-signature-block text-center" style={{ width: '38%', borderTop: '1px solid #999', paddingTop: '8px' }}>
+                <p className="text-xs text-gray-600 print:text-[8pt] print:text-gray-800">Firma y sello de la empresa</p>
+                <p className="text-xs text-gray-500 mt-1 print:text-[8pt]">{COMPANY_NAME_BRAND}</p>
               </div>
             </div>
           </footer>
