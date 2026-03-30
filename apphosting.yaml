@@ -1,6 +1,6 @@
 # Settings to manage and configure a Firebase App Hosting backend.
 # https://firebase.google.com/docs/app-hosting/configure
-# Updated: 2026-03-30 — fix dual-write and deploy trigger
+# Deploy trigger: 2026-03-30T01:10:00Z — force Firebase App Hosting rebuild
 
 runConfig:
   cpu: 1
