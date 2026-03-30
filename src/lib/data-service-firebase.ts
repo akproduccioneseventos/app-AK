@@ -57,7 +57,8 @@ const CONFIG_FILES: Record<string, string> = {
 };
 
 // Environment flag to enable/disable Firebase reads
-const USE_FIREBASE = process.env.USE_FIREBASE_DATA === 'true';
+// In production (Firebase App Hosting) always use Firestore as primary source
+const USE_FIREBASE = process.env.USE_FIREBASE_DATA === 'true' || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID !== undefined;
 
 /**
  * Attempts to get Firestore admin instance. Returns null if unavailable.
