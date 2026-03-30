@@ -380,6 +380,7 @@ export interface SocialGallerySettings {
   backgroundColor?: string;
   accentColor?: string;
   chatEnabled?: boolean;
+  maxPhotos?: number;
 }
 
 export interface MusicaFiesta {
