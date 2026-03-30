@@ -10,12 +10,23 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Camera, Download, Loader2, AlertTriangle, Music2, Type, CheckCircle, Link as LinkIcon, Save } from 'lucide-react';
+import { ArrowLeft, Camera, Download, Loader2, AlertTriangle, Music2, Type, CheckCircle, Link as LinkIcon, Save, Trash2, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, VideoVidaData } from '@/types/fiesta';
 import { getFiestaActual, updateVideoVidaSettingsFiestaActual as updateVideoVidaSettings } from '@/app/actions/fiesta-actual';
-import { getLifeStoryVideoPhotos, saveLifeStoryVideoPhoto } from '@/app/actions/fiesta/video-vida.actions';
+import { getLifeStoryVideoPhotos, saveLifeStoryVideoPhoto, deleteAllVideoVidaPhotos } from '@/app/actions/fiesta/video-vida.actions';
 import { Separator } from '@/components/ui/separator';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface PhotoSlot {
   number: number;
@@ -107,6 +118,7 @@ export default function VideoVidaAdminPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
@@ -208,6 +220,24 @@ export default function VideoVidaAdminPage() {
     setPhotoSlots(prev => prev.map(s => s.number === slotNumber ? {...s, imageUrl: url} : s));
   };
 
+  const handleDeleteAll = async () => {
+    if (!fiesta) return;
+    setIsDeleting(true);
+    try {
+      const result = await deleteAllVideoVidaPhotos(fiesta.id);
+      if (result.success) {
+        toast({ title: "Fotos Eliminadas", description: "Todas las fotos han sido borradas del servidor.", variant: "destructive" });
+        await loadData();
+      } else {
+        throw new Error(result.error || 'No se pudieron eliminar las fotos.');
+      }
+    } catch (error: any) {
+      toast({ title: "Error al Borrar", description: error.message, variant: "destructive" });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
 
   if (isLoading) {
     return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
@@ -295,10 +325,42 @@ export default function VideoVidaAdminPage() {
                     />
                 ))}
               </div>
-               <Button onClick={handleDownloadAll} className="mt-4" disabled={isDownloading || photosUploadedCount === 0}>
-                 {isDownloading ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Download className="w-4 h-4 mr-2"/>}
-                 Descargar Todas (.zip)
-               </Button>
+               <div className="flex flex-wrap gap-2 mt-4">
+                 <Button onClick={handleDownloadAll} disabled={isDownloading || photosUploadedCount === 0}>
+                   {isDownloading ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Download className="w-4 h-4 mr-2"/>}
+                   Descargar Todas (.zip)
+                 </Button>
+                 {photosUploadedCount > 0 && (
+                   <AlertDialog>
+                     <AlertDialogTrigger asChild>
+                       <Button variant="destructive" disabled={isDeleting}>
+                         {isDeleting ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Trash2 className="w-4 h-4 mr-2"/>}
+                         Borrar Todas las Fotos
+                       </Button>
+                     </AlertDialogTrigger>
+                     <AlertDialogContent>
+                       <AlertDialogHeader>
+                         <AlertDialogTitle>¿Borrar todas las fotos?</AlertDialogTitle>
+                         <AlertDialogDescription>
+                           Se eliminarán permanentemente las {photosUploadedCount} fotos subidas para este evento. Esta acción no se puede deshacer. Asegurate de haber descargado el ZIP antes de continuar.
+                         </AlertDialogDescription>
+                       </AlertDialogHeader>
+                       <AlertDialogFooter>
+                         <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                         <AlertDialogAction onClick={handleDeleteAll} className="bg-destructive hover:bg-destructive/90">Sí, borrar todo</AlertDialogAction>
+                       </AlertDialogFooter>
+                     </AlertDialogContent>
+                   </AlertDialog>
+                 )}
+               </div>
+               {photosUploadedCount > 0 && (
+                 <div className="mt-4 flex items-start gap-3 p-3 rounded-lg bg-blue-50 border border-blue-200 text-sm text-blue-800">
+                   <Info className="w-4 h-4 mt-0.5 shrink-0 text-blue-600"/>
+                   <p>
+                     <strong>Recordatorio:</strong> Descargá el ZIP y guardalo en tu Google Drive personal antes de borrar las fotos del servidor.
+                   </p>
+                 </div>
+               )}
             </>
            ) : (
              <div className="text-center py-8 text-muted-foreground">

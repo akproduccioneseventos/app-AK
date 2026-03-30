@@ -159,6 +159,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
 
   const [isAdminView, setIsAdminView] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
+  const [isDownloadingAndClearing, setIsDownloadingAndClearing] = useState(false);
   const [isSavingSettings, setIsSavingSettings] = useState(false);
   
   const [companyLogoUrl, setCompanyLogoUrl] = useState<string | null>(null);
@@ -174,7 +175,8 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
       accentColor: '#3b82f6',
       chatEnabled: true,
       title: '',
-      subtitle: ''
+      subtitle: '',
+      maxPhotos: 200
   });
 
 
@@ -358,6 +360,31 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
     setIsClearing(false);
   };
 
+  const handleDownloadAndClear = async () => {
+    setIsDownloadingAndClearing(true);
+    try {
+      const response = await fetch(`/api/social-gallery/${params.fiestaId}/download`);
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `mural-social-${params.fiestaId}.zip`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+      }
+      await clearGallery(params.fiestaId);
+      toast({ title: "ZIP descargado y galería limpiada", variant: "destructive" });
+      await fetchData();
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    } finally {
+      setIsDownloadingAndClearing(false);
+    }
+  };
+
   const handleSaveSettings = async () => {
       if (!fiesta) return;
       setIsSavingSettings(true);
@@ -492,6 +519,12 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                             <Separator/>
                             <div className="flex items-center justify-between"><div className="space-y-0.5"><Label className="text-base font-bold">Chat en Vivo</Label><p className="text-xs text-muted-foreground">Activa el panel de conversación inferior.</p></div><Switch checked={localSettings.chatEnabled} onCheckedChange={v => setLocalSettings(p => ({...p, chatEnabled: v}))}/></div>
                             <div className="flex items-center justify-between"><div className="space-y-0.5"><Label className="text-base font-bold">Permitir Subidas</Label><p className="text-xs text-muted-foreground">Habilitar el botón de "Subir Foto".</p></div><Switch checked={localSettings.uploadsActive} onCheckedChange={v => setLocalSettings(p => ({...p, uploadsActive: v}))}/></div>
+                            <Separator/>
+                            <div className="space-y-1.5">
+                                <Label className="text-base font-bold">Límite de Fotos</Label>
+                                <p className="text-xs text-muted-foreground">Máximo de fotos permitidas para este evento (10–500).</p>
+                                <Input type="number" min={10} max={500} value={localSettings.maxPhotos ?? 200} onChange={e => { const val = Math.min(500, Math.max(10, Number(e.target.value))); setLocalSettings(p => ({...p, maxPhotos: val})); }} />
+                            </div>
                         </div>
                         <DialogFooter><Button onClick={handleSaveSettings} disabled={isSavingSettings} className="w-full h-12 rounded-xl text-lg font-bold">{isSavingSettings ? <Loader2 className="animate-spin mr-2"/> : <Save className="w-5 h-5 mr-2"/>}Guardar Ajustes</Button></DialogFooter>
                     </DialogContent>
@@ -511,6 +544,13 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
             <div className="flex gap-2">
                 <Button size="sm" variant="ghost" className="h-7 text-[10px] font-bold text-amber-800 hover:bg-amber-100" onClick={handleDownloadChat}><Download className="w-3 h-3 mr-1.5"/>CHAT</Button>
                 <a href={`/api/social-gallery/${params.fiestaId}/download`} download><Button size="sm" variant="ghost" className="h-7 text-[10px] font-bold text-amber-800 hover:bg-amber-100"><Download className="w-3 h-3 mr-1.5"/>FOTOS</Button></a>
+                <AlertDialog>
+                    <AlertDialogTrigger asChild><Button size="sm" variant="ghost" className="h-7 text-[10px] font-bold text-destructive hover:bg-red-50" disabled={isDownloadingAndClearing} aria-label="Descargar ZIP y limpiar galería"><Download className="w-3 h-3 mr-1.5"/><Trash2 className="w-3 h-3 mr-1.5"/>ZIP + LIMPIAR</Button></AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader><AlertDialogTitle>¿Descargar ZIP y limpiar?</AlertDialogTitle><AlertDialogDescription>Se descargará el ZIP con todas las fotos y luego se eliminarán permanentemente del servidor.</AlertDialogDescription></AlertDialogHeader>
+                        <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={handleDownloadAndClear} className="bg-destructive hover:bg-destructive/90">Confirmar</AlertDialogAction></AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
                 <AlertDialog>
                     <AlertDialogTrigger asChild><Button size="sm" variant="ghost" className="h-7 text-[10px] font-bold text-destructive hover:bg-red-50" disabled={isClearing}><Trash2 className="w-3 h-3 mr-1.5"/>VACIAR</Button></AlertDialogTrigger>
                     <AlertDialogContent>

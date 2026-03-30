@@ -94,3 +94,13 @@ export async function getLifeStoryVideoPhotos(fiestaId: string): Promise<string[
         return []; // Directory doesn't exist, so no photos
     }
 }
+
+export async function deleteAllVideoVidaPhotos(fiestaId: string): Promise<{ success: boolean; error?: string }> {
+    const eventAssetDir = path.join(VIDEO_VIDA_DIR, fiestaId);
+    try {
+        await fs.rm(eventAssetDir, { recursive: true, force: true });
+        return { success: true };
+    } catch (error: any) {
+        return { success: false, error: error.message };
+    }
+}

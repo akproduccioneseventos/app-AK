@@ -5,6 +5,7 @@ import type { SocialGalleryPost, SocialComment, ChatMessage } from '@/types/soci
 import { readData, writeData } from '@/lib/data-service';
 import fs from 'fs/promises';
 import path from 'path';
+import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 
 const SOCIAL_GALLERY_DIR_NAME = 'social-gallery';
 const SOCIAL_CHAT_DIR_NAME = 'social-chat';
@@ -41,8 +42,10 @@ export async function uploadSocialPost(formData: FormData): Promise<{ success: b
   if (!fiestaId || !file) return { success: false, error: "Faltan datos (ID de fiesta o archivo)." };
   
   const allPosts = await getMetadata();
-  if (allPosts.filter(p => p.fiestaId === fiestaId).length >= MAX_PHOTOS_PER_EVENT) {
-    return { success: false, error: `Se ha alcanzado el límite de ${MAX_PHOTOS_PER_EVENT} fotos para este evento.` };
+  const fiestaData = await getFiestaById(fiestaId);
+  const limit = fiestaData?.socialGallerySettings?.maxPhotos ?? MAX_PHOTOS_PER_EVENT;
+  if (allPosts.filter(p => p.fiestaId === fiestaId).length >= limit) {
+    return { success: false, error: `Se ha alcanzado el límite de ${limit} fotos para este evento.` };
   }
 
   const eventPhotoDirPath = path.join(SOCIAL_GALLERY_DIR, fiestaId);
