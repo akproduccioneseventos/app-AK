@@ -392,6 +392,34 @@ export interface MusicaFiesta {
   sugerenciasInvitados?: string; 
 }
 
+export interface Trago {
+  id: string;
+  nombre: string;
+  imageUrl?: string;
+  aiHint?: string;
+}
+
+export interface CartaTragosData {
+  titulo?: string;
+  protagonistaNombre?: string;
+  numeroPrincipal?: string;
+  protagonistaFotoUrl?: string;
+  backgroundImageUrl?: string;
+  backgroundColor?: string;
+  paletaColores?: {
+    primary: string;
+    secondary: string;
+    accent: string;
+    background?: string;
+  };
+  items: Trago[];
+  empresa: {
+    linea1: string;
+    linea2: string;
+    contacto: string;
+  };
+}
+
 export interface ReposteriaItem {
   id: string;
   nombre: string;
@@ -597,6 +625,7 @@ export interface FiestaEnPlanificacion {
   videoVida?: VideoVidaData;
   programa?: ProgramaEventoItem[];
   fotografiaYFilmacion?: FotografiaYFilmacionData;
+  cartaTragos?: CartaTragosData;
   othersDocumentos?: OtroDocumento[];
   pagosProveedores?: PagoProveedor[];
   others?: any;

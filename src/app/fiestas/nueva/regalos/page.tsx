@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, Gift, Save, Loader2, PlusCircle, Trash2, Edit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { updateGiftRegistry } from '@/app/actions/fiesta/regalos.actions';
 import type { FiestaEnPlanificacion, GiftItem } from '@/types/fiesta';
 import {
@@ -41,8 +41,8 @@ function GiftRegistryPageContent() {
     if (!fiestaId) return;
     setIsLoading(true);
     try {
-      const fiestaData = await getFiestaActual();
-      let currentGiftList = fiestaData.webPageSettings?.giftRegistry || [];
+      const fiestaData = await getFiestaById(fiestaId);
+      let currentGiftList = fiestaData?.invitacionDigital?.regalos?.items || [];
 
       // If the list is empty, populate with defaults
       if (currentGiftList.length === 0) {
