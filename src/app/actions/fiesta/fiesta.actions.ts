@@ -198,6 +198,21 @@ export async function archiveFiesta(fiestaId: string): Promise<{ success: boolea
   }
 }
 
+export async function deleteFiestaArchivada(fiestaId: string): Promise<{ success: boolean; error?: string }> {
+  const dataDir = path.join(process.cwd(), 'src', 'data', ARCHIVE_DIR);
+  try {
+    const files = await fs.readdir(dataDir);
+    const fileToDelete = files.find(f => f.includes(fiestaId) && f.endsWith('.json'));
+    if (fileToDelete) {
+        await fs.unlink(path.join(dataDir, fileToDelete));
+        return { success: true };
+    }
+    return { success: false, error: "Archivo archivado no encontrado." };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
 export async function resetFiestaActual(): Promise<{ success: boolean; error?: string }> {
     try {
         const activas = await getFiestas(false);
