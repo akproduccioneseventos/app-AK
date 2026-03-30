@@ -200,7 +200,28 @@ export async function getDashboardKpiData() {
         montoPagado,
         totalPendiente,
         monthlyChartData: monthlyData,
-        alerts: alerts.sort((a, b) => a.severity === 'high' ? -1 : 1).slice(0, 6)
+        alerts: alerts.sort((a, b) => a.severity === 'high' ? -1 : 1).slice(0, 6),
+        proximoEvento: (() => {
+          const futuras = fiestasData
+            .filter(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) >= today)
+            .sort((a, b) => new Date(a.configuracion.fechaEvento!).getTime() - new Date(b.configuracion.fechaEvento!).getTime());
+          if (futuras.length === 0) return null;
+          const next = futuras[0];
+          return {
+            nombre: next.configuracion.nombreEvento || 'Evento sin nombre',
+            fecha: next.configuracion.fechaEvento!,
+          };
+        })(),
+        presupuestosPendientes: presupuestosData.filter(p => p.estado === 'Enviado').length,
+        facturasPorVencer: (() => {
+          const in7days = addDays(today, 7);
+          return invoicesData.filter(inv => {
+            if (inv.status !== 'Sent' && inv.status !== 'Overdue') return false;
+            if (!inv.dueDate) return false;
+            const due = new Date(inv.dueDate);
+            return due >= today && due <= in7days;
+          }).length;
+        })(),
       },
     };
   } catch (error: any) {

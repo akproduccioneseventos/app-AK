@@ -166,6 +166,14 @@ export async function syncFiestaFromBudget(fiestaId: string) {
         nombreLugar: presupuesto.salonFiestas
     };
 
+    // 6. SINCRONIZAR ESTADO DE LA FIESTA — nunca archivar automáticamente
+    // Solo el usuario puede archivar manualmente desde /eventos
+    if (presupuesto.estado === 'Facturado') {
+        updatedFiesta.estado = 'Facturado';
+    } else if (!updatedFiesta.estado || updatedFiesta.estado === 'Archivada') {
+        updatedFiesta.estado = 'En Planificación';
+    }
+
     return await saveFiesta(updatedFiesta);
 }
 
