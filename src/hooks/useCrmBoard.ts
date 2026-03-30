@@ -27,7 +27,7 @@ export function useCrmBoard() {
   const [error, setError] = useState<string | null>(null);
   const [deletingLeadId, setDeletingLeadId] = useState<string | null>(null);
 
-  const isMountedRef = useRef(false);
+  const isMountedRef = useRef(true);
   const { toast } = useToast();
   // Keep toast in a ref so callbacks don't need it as a dependency
   const toastRef = useRef(toast);
@@ -138,6 +138,7 @@ export function useCrmBoard() {
         if (!isMountedRef.current) return;
         if (result.success) {
           toastRef.current({ description: 'Prospecto eliminado.', variant: 'destructive' });
+          fetchData(true);
         } else {
           // Revert
           if (removedLead) {
@@ -155,7 +156,7 @@ export function useCrmBoard() {
         if (isMountedRef.current) setDeletingLeadId(null);
       }
     },
-    [] // All dependencies accessed via refs or are stable state setters/imports
+    [fetchData] // fetchData is stable (useCallback with no deps)
   );
 
   const leadsByStage = useMemo(

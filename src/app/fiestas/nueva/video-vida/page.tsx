@@ -226,7 +226,7 @@ export default function VideoVidaAdminPage() {
           <Camera className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">Video de Vida</h1>
         </div>
-        <Link href="/fiestas/nueva"><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver al Planificador</Button></Link>
+        <Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`}><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver al Planificador</Button></Link>
       </div>
 
       <Card>

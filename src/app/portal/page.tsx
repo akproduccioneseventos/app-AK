@@ -104,6 +104,22 @@ function ClientPortalContent() {
     }
 
     if (!isAuthenticated || !fiesta) {
+        // If the portal has no accessKey configured, show a friendly message
+        if (fiesta && !fiesta.clientPortalSettings?.accessKey) {
+            return (
+                <div className="flex items-center justify-center min-h-screen p-4">
+                    <Card className="max-w-md text-center">
+                        <CardHeader>
+                            <KeyRound className="w-12 h-12 mx-auto text-muted-foreground mb-2"/>
+                            <CardTitle className="font-headline text-2xl">Portal del Cliente</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-muted-foreground">El organizador aún no ha configurado una contraseña para este portal. Por favor, contacta a tu organizador.</p>
+                        </CardContent>
+                    </Card>
+                </div>
+            );
+        }
         return (
             <div className="flex items-center justify-center min-h-screen p-4">
                 <Card className="max-w-sm w-full">
