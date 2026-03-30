@@ -56,8 +56,10 @@ const CONFIG_FILES: Record<string, string> = {
   'meeting-checklist-template.json': 'meeting-checklist-template',
 };
 
-// Environment flag to enable/disable Firebase reads
-const USE_FIREBASE = process.env.USE_FIREBASE_DATA === 'true';
+// In production (Firebase App Hosting), NEXT_PUBLIC_FIREBASE_PROJECT_ID is always defined
+const USE_FIREBASE =
+  process.env.USE_FIREBASE_DATA === 'true' ||
+  process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID !== undefined;
 
 /**
  * Attempts to get Firestore admin instance. Returns null if unavailable.

@@ -1,5 +1,6 @@
 # Settings to manage and configure a Firebase App Hosting backend.
 # https://firebase.google.com/docs/app-hosting/configure
+# Updated: 2026-03-30 — fix dual-write and deploy trigger
 
 runConfig:
   cpu: 1
@@ -7,3 +8,10 @@ runConfig:
   maxInstances: 4
   minInstances: 0
   concurrency: 80
+
+env:
+  - variable: USE_FIREBASE_DATA
+    value: "true"
+    availability:
+      - RUNTIME
+      - BUILD
