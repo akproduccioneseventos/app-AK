@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, CalendarClock, Archive, Loader2, AlertTriangle, PlusCircle, Info, Users, DollarSign, FileText, PartyPopper, Printer, Edit, Calculator, ArrowRight, Share2, CalendarDays, Trash2, Copy, Search } from 'lucide-react';
-import { getFiestas, archiveFiesta, getHistorialFiestas, deleteFiestaArchivada, resetFiestaActual, duplicateFiesta, deleteFiesta as deleteFiestaAction } from '@/app/actions/fiesta-actual';
+import { getFiestas, archiveFiesta, getHistorialFiestas, deleteFiestaArchivada, resetFiestaActual, createFiestaVacia, duplicateFiesta, deleteFiesta as deleteFiestaAction } from '@/app/actions/fiesta-actual';
 import { getDashboardKpiData } from '@/app/actions/dashboard';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { useToast } from '@/hooks/use-toast';
@@ -143,9 +143,9 @@ export default function GestorFiestasPage() {
   const handleReset = async () => {
     setIsProcessing('reset-fiesta');
     try {
-        const result = await resetFiestaActual(); 
+        const result = await createFiestaVacia(); 
         if (result.success) {
-            toast({ title: "¡Nueva Planificación Creada!", description: "Se ha archivado el evento anterior y puedes empezar a organizar uno nuevo." });
+            toast({ title: "¡Nuevo Evento Creado!", description: "Se ha creado un nuevo evento en blanco." });
             await loadData();
         } else {
             throw new Error(result.error || "No se pudo crear el nuevo evento.");
@@ -211,7 +211,7 @@ export default function GestorFiestasPage() {
                   <AlertDialogHeader>
                       <AlertDialogTitle>¿Crear Nuevo Evento?</AlertDialogTitle>
                       <AlertDialogDescription>
-                          Esta acción archivará el evento que estás planificando actualmente y creará una nueva planificación en blanco. ¿Deseas continuar?
+                          Esta acción creará una nueva planificación en blanco sin archivar los eventos existentes. ¿Deseas continuar?
                       </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>

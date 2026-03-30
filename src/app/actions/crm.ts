@@ -142,7 +142,7 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
     // 3. Create Fiesta
     const newFiesta: FiestaEnPlanificacion = {
       ...initialFiestaActualData,
-      id: `fiesta_${Date.now()}`,
+      id: `fiesta_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
       estado: 'Contratada',
       presupuestoId: presupuesto.id,
       configuracion: {
@@ -223,7 +223,7 @@ export async function confirmBooking(leadId: string, presupuestoId: string): Pro
     // 2. Crear Fiesta
     const newFiesta: FiestaEnPlanificacion = {
       ...initialFiestaActualData,
-      id: `fiesta_${Date.now()}`,
+      id: `fiesta_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
       estado: 'Contratada',
       presupuestoId: presupuesto.id,
       configuracion: {

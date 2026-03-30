@@ -56,7 +56,7 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
     if (all.length > 0) {
         return all.sort((a,b) => new Date(b.configuracion.fechaEvento || 0).getTime() - new Date(a.configuracion.fechaEvento || 0).getTime())[0];
     }
-    return { ...initialFiestaActualData, id: `fiesta_${Date.now()}`};
+    return { ...initialFiestaActualData, id: `fiesta_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`};
 }
 
 export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ success: boolean; fiesta?: FiestaEnPlanificacion; error?: string }> {
@@ -173,7 +173,7 @@ export async function deleteFiesta(fiestaId: string): Promise<{ success: boolean
   const dataDir = path.join(process.cwd(), 'src', 'data', FIESTAS_DIR);
   try {
     const files = await fs.readdir(dataDir);
-    const fileToDelete = files.find(f => f.includes(fiestaId) && f.endsWith('.json'));
+    const fileToDelete = files.find(f => f === `${fiestaId}.json`);
     if (fileToDelete) {
         await fs.unlink(path.join(dataDir, fileToDelete));
         return { success: true };
@@ -202,7 +202,7 @@ export async function deleteFiestaArchivada(fiestaId: string): Promise<{ success
   const dataDir = path.join(process.cwd(), 'src', 'data', ARCHIVE_DIR);
   try {
     const files = await fs.readdir(dataDir);
-    const fileToDelete = files.find(f => f.includes(fiestaId) && f.endsWith('.json'));
+    const fileToDelete = files.find(f => f.endsWith(`_${fiestaId}.json`));
     if (fileToDelete) {
         await fs.unlink(path.join(dataDir, fileToDelete));
         return { success: true };
@@ -213,11 +213,21 @@ export async function deleteFiestaArchivada(fiestaId: string): Promise<{ success
   }
 }
 
+export async function createFiestaVacia(): Promise<{ success: boolean; error?: string }> {
+    try {
+        const newFiesta = { ...initialFiestaActualData, id: `fiesta_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`};
+        await saveFiesta(newFiesta);
+        return { success: true };
+    } catch(e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
 export async function resetFiestaActual(): Promise<{ success: boolean; error?: string }> {
     try {
         const activas = await getFiestas(false);
         for (const f of activas) { await archiveFiesta(f.id); }
-        const newFiesta = { ...initialFiestaActualData, id: `fiesta_${Date.now()}`};
+        const newFiesta = { ...initialFiestaActualData, id: `fiesta_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`};
         await saveFiesta(newFiesta);
         return { success: true };
     } catch(e: any) {
@@ -231,7 +241,7 @@ export async function duplicateFiesta(fiestaId: string): Promise<{ success: bool
     if (!original) throw new Error('Evento no encontrado.');
     const newFiesta: FiestaEnPlanificacion = {
       ...original,
-      id: `fiesta_copy_${Date.now()}`,
+      id: `fiesta_copy_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
       configuracion: { ...original.configuracion, nombreEvento: `[COPIA] ${original.configuracion.nombreEvento}` },
       presupuestoId: undefined, invoiceIds: [], pagosProveedores: [],
     };
@@ -274,7 +284,7 @@ export async function createNewFiestaForCustomer(customer: { id: string; name: s
   try {
     const newFiesta: FiestaEnPlanificacion = {
       ...initialFiestaActualData,
-      id: `fiesta_${Date.now()}`,
+      id: `fiesta_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
       estado: 'En Planificación',
       configuracion: {
         ...initialFiestaActualData.configuracion,
