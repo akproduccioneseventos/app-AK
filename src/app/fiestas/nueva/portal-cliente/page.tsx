@@ -86,6 +86,11 @@ function ClientPortalConfigContent() {
 
   const portalLink = typeof window !== 'undefined' ? `${window.location.origin}/portal?fiestaId=${fiestaId}` : '';
 
+  const handleCopyPassword = () => {
+    navigator.clipboard.writeText(portalSettings.accessKey || '');
+    toast({ title: "Contraseña del portal copiada al portapapeles" });
+  };
+
 
   if (isLoading) {
     return <div className="p-8 max-w-2xl mx-auto"><Loader2 className="w-8 h-8 animate-spin"/></div>
@@ -116,12 +121,18 @@ function ClientPortalConfigContent() {
                 </div>
                 <Switch id="portal-enabled" checked={portalSettings.enabled} onCheckedChange={(val) => setPortalSettings(p => ({...(p || defaultClientPortalSettings), enabled: val}))} />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="portal-password">Contraseña de Acceso del Cliente</Label>
+                <div className="flex items-center gap-2">
+                  <Input id="portal-password" value={portalSettings.accessKey || ''} onChange={(e) => setPortalSettings(p => ({...(p || defaultClientPortalSettings), accessKey: e.target.value}))} placeholder="Crear una contraseña segura..." />
+                  <Button type="button" size="icon" variant="outline" onClick={handleCopyPassword} disabled={!portalSettings.accessKey}><ClipboardCopy className="w-4 h-4"/></Button>
+                </div>
+                {portalSettings.enabled && (
+                  <p className="text-xs text-muted-foreground">Comparte esta contraseña con tu cliente para que pueda acceder a su portal en: <a href={portalLink} target="_blank" rel="noopener noreferrer" className="underline">{portalLink}</a></p>
+                )}
+              </div>
               {portalSettings.enabled && (
                 <div className="space-y-4 animate-in fade-in-20">
-                  <div className="space-y-2">
-                    <Label htmlFor="portal-password">Contraseña de Acceso del Cliente</Label>
-                    <Input id="portal-password" value={portalSettings.accessKey || ''} onChange={(e) => setPortalSettings(p => ({...(p || defaultClientPortalSettings), accessKey: e.target.value}))} placeholder="Crear una contraseña segura..." />
-                  </div>
                   <div className="space-y-2">
                     <Label>Enlace para compartir con el cliente</Label>
                     <div className="flex items-center gap-2">
