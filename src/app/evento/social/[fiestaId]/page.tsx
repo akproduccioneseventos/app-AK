@@ -7,8 +7,7 @@ import type { SocialGalleryPost, SocialComment, ChatMessage } from '@/types/soci
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import type { FiestaEnPlanificacion, SocialGallerySettings } from '@/types/fiesta';
-import type { SocialConnection } from '@/types/settings';
+import type { FiestaEnPlanificacion, SocialConnection, SocialGallerySettings } from '@/types/fiesta';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // UI Components
@@ -209,7 +208,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
           setLocalSettings(prev => ({ ...prev, ...fiestaData.socialGallerySettings }));
       }
       setChatMessages(fetchedChat);
-      setCompanyLogoUrl(settingsData.logoUrl ?? null);
+      setCompanyLogoUrl(settingsData.logoUrl);
       setWhatsappNumber(socialConnections.find(c => c.platform === 'WhatsApp')?.phoneNumber || null);
 
     } catch (e) {
