@@ -240,17 +240,8 @@ export async function createFiestaVacia(): Promise<{ success: boolean; newFiesta
 }
 
 export async function resetFiestaActual(): Promise<{ success: boolean; error?: string }> {
-    try {
-        const activas = await getFiestas(false);
-        for (const f of activas) { await archiveFiesta(f.id); }
-        const newFiesta = { ...initialFiestaActualData, id: `fiesta_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`};
-        await saveFiesta(newFiesta);
-        return { success: true };
-    } catch(e: any) {
-        return { success: false, error: e.message };
-    }
+    return { success: false, error: "Función deshabilitada por seguridad" };
 }
-
 export async function duplicateFiesta(fiestaId: string): Promise<{ success: boolean; newFiestaId?: string; error?: string }> {
   try {
     const original = await getFiestaById(fiestaId);
