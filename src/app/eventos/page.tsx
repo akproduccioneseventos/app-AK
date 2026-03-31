@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, CalendarClock, Archive, Loader2, AlertTriangle, PlusCircle, Info, Users, DollarSign, FileText, PartyPopper, Printer, Edit, Calculator, ArrowRight, Share2, CalendarDays, Trash2, Copy, Search } from 'lucide-react';
-import { getFiestas, archiveFiesta, getHistorialFiestas, deleteFiestaArchivada, resetFiestaActual, createFiestaVacia, duplicateFiesta, deleteFiesta as deleteFiestaAction } from '@/app/actions/fiesta-actual';
+import { ArrowLeft, CalendarClock, Archive, Loader2, AlertTriangle, PlusCircle, Info, Users, DollarSign, FileText, CalendarDays, Trash2, Copy, Search } from 'lucide-react';
+import { getFiestas, archiveFiesta, getHistorialFiestas, deleteFiestaArchivada, createFiestaVacia, duplicateFiesta, deleteFiesta as deleteFiestaAction } from '@/app/actions/fiesta-actual';
 import { getDashboardKpiData } from '@/app/actions/dashboard';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { useToast } from '@/hooks/use-toast';
@@ -36,6 +37,8 @@ const formatDate = (dateString?: string) => {
 
 export default function GestorFiestasPage() {
   const { toast } = useToast();
+  const router = useRouter();
+
   const [fiestasActivas, setFiestasActivas] = useState<FiestaEnPlanificacion[]>([]);
   const [fiestasArchivadas, setFiestasArchivadas] = useState<FiestaEnPlanificacion[]>([]);
   
@@ -55,7 +58,7 @@ export default function GestorFiestasPage() {
     try {
       const [kpiResult, activas, archivadas] = await Promise.all([
         getDashboardKpiData(),
-        getFiestas(false), // Solo fiestas activas
+        getFiestas(false),
         getHistorialFiestas()
       ]);
 
@@ -85,14 +88,12 @@ export default function GestorFiestasPage() {
     const now = new Date();
     return fiestasActivas.filter(fiesta => {
       const matchesSearch = fiesta.configuracion.nombreEvento.toLowerCase().includes(searchTerm.toLowerCase());
-      // Filter out events with dates in the past (they should be archived)
       const eventDate = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : null;
       const isFutureOrNoDate = !eventDate || eventDate >= now;
       return matchesSearch && isFutureOrNoDate;
     });
   }, [fiestasActivas, searchTerm]);
   
-  // Auto-identify past events that should be archived
   const pastActiveEvents = React.useMemo(() => {
     const now = new Date();
     return fiestasActivas.filter(fiesta => {
@@ -142,37 +143,48 @@ export default function GestorFiestasPage() {
   
   const handleReset = async () => {
     setIsProcessing('reset-fiesta');
+
     try {
-        const result = await createFiestaVacia(); 
-        if (result.success) {
-            toast({ title: "¡Nuevo Evento Creado!", description: "Se ha creado un nuevo evento en blanco." });
-            await loadData();
-        } else {
-            throw new Error(result.error || "No se pudo crear el nuevo evento.");
-        }
+      const result = await createFiestaVacia();
+
+      if (result.success && result.newFiestaId) {
+        toast({
+          title: "¡Nuevo Evento Creado!",
+          description: "Se ha creado un nuevo evento en blanco."
+        });
+
+        router.push(`/fiestas/nueva?fiestaId=${result.newFiestaId}`);
+        return;
+      }
+
+      throw new Error(result.error || "No se pudo crear el nuevo evento.");
     } catch (error: any) {
-        toast({title: "Error al Crear", description: error.message, variant: "destructive"});
+      toast({
+        title: "Error al Crear",
+        description: error.message,
+        variant: "destructive"
+      });
     } finally {
-        setIsProcessing(null);
+      setIsProcessing(null);
     }
   };
 
   const handleDeleteArchived = async (fiestaId: string) => {
-      setIsProcessing(fiestaId);
-      try {
-        const result = await deleteFiestaArchivada(fiestaId);
-        if (result.success) {
-            toast({ title: "Evento Archivado Eliminado", variant: "destructive"});
-            await loadData();
-        } else {
-            throw new Error(result.error || "No se pudo eliminar el evento archivado.");
-        }
-      } catch (error: any) {
-        toast({title: "Error al Eliminar", description: error.message, variant: "destructive"});
-      } finally {
-        setIsProcessing(null);
+    setIsProcessing(fiestaId);
+    try {
+      const result = await deleteFiestaArchivada(fiestaId);
+      if (result.success) {
+        toast({ title: "Evento Archivado Eliminado", variant: "destructive" });
+        await loadData();
+      } else {
+        throw new Error(result.error || "No se pudo eliminar el evento archivado.");
+      }
+    } catch (error: any) {
+      toast({ title: "Error al Eliminar", description: error.message, variant: "destructive" });
+    } finally {
+      setIsProcessing(null);
     }
-  }
+  };
 
   const handleDuplicate = async (fiestaId: string) => {
     setIsProcessing(fiestaId);
@@ -201,222 +213,272 @@ export default function GestorFiestasPage() {
           </h1>
         </div>
         <div className="flex gap-2 flex-wrap">
-           <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button>
-                  <PlusCircle className="w-4 h-4 mr-2"/>Crear Nuevo Evento Manual
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                  <AlertDialogHeader>
-                      <AlertDialogTitle>¿Crear Nuevo Evento?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                          Esta acción creará una nueva planificación en blanco sin archivar los eventos existentes. ¿Deseas continuar?
-                      </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                      <AlertDialogCancel>No, cancelar</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleReset}>Sí, crear nuevo evento</AlertDialogAction>
-                  </AlertDialogFooter>
-              </AlertDialogContent>
-           </AlertDialog>
-           <Link href="/calendario">
-              <Button variant="outline"><CalendarDays className="w-4 h-4 mr-2"/>Ver Calendario General</Button>
-           </Link>
-            <Link href="/">
-              <Button variant="outline">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Volver al Menú Principal
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button>
+                <PlusCircle className="w-4 h-4 mr-2" />
+                Crear Nuevo Evento Manual
               </Button>
-            </Link>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>¿Crear Nuevo Evento?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Esta acción creará una nueva planificación en blanco sin archivar los eventos existentes. ¿Deseas continuar?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>No, cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={handleReset}>
+                  Sí, crear nuevo evento
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
+          <Link href="/calendario">
+            <Button variant="outline">
+              <CalendarDays className="w-4 h-4 mr-2" />
+              Ver Calendario General
+            </Button>
+          </Link>
+
+          <Link href="/">
+            <Button variant="outline">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Volver al Menú Principal
+            </Button>
+          </Link>
         </div>
       </div>
       
-       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 print:hidden">
-            <Card className="shadow-md">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Eventos Pasados</CardTitle>
-                <Archive className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{kpiData.fiestasPasadas}</div>
-                <p className="text-xs text-muted-foreground">Total de eventos archivados.</p>
-              </CardContent>
-            </Card>
-            <Card className="shadow-md">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Eventos Futuros</CardTitle>
-                <CalendarClock className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{kpiData.fiestasFuturas}</div>
-                <p className="text-xs text-muted-foreground">Eventos en planificación activa.</p>
-              </CardContent>
-            </Card>
-       </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 print:hidden">
+        <Card className="shadow-md">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Eventos Pasados</CardTitle>
+            <Archive className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{kpiData.fiestasPasadas}</div>
+            <p className="text-xs text-muted-foreground">Total de eventos archivados.</p>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-md">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Eventos Futuros</CardTitle>
+            <CalendarClock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{kpiData.fiestasFuturas}</div>
+            <p className="text-xs text-muted-foreground">Eventos en planificación activa.</p>
+          </CardContent>
+        </Card>
+      </div>
        
-       <Separator className="my-6 print:my-3"/>
+      <Separator className="my-6 print:my-3" />
 
-        {/* Banner for past events that should be archived */}
-        {pastActiveEvents.length > 0 && !isLoading && (
-          <Card className="bg-amber-50 border-amber-200 shadow-sm print:hidden mb-6">
-            <CardContent className="p-4 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <AlertTriangle className="w-5 h-5 text-amber-600" />
-                <div>
-                  <p className="font-semibold text-amber-800 text-sm">
-                    {pastActiveEvents.length} evento(s) con fecha pasada necesitan ser archivados
-                  </p>
-                  <p className="text-xs text-amber-600">
-                    {pastActiveEvents.map(f => f.configuracion.nombreEvento).join(', ')}
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                {pastActiveEvents.map(fiesta => (
-                  <Button key={fiesta.id} variant="outline" size="sm" className="border-amber-300 text-amber-800 hover:bg-amber-100"
-                    onClick={() => handleArchivar(fiesta.id)}
-                    disabled={isProcessing === fiesta.id}
-                  >
-                    {isProcessing === fiesta.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Archive className="w-4 h-4 mr-1"/>}
-                    Archivar
-                  </Button>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        <div className="print:break-before-page">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold font-headline text-foreground print:text-lg">Eventos Activos en Planificación</h2>
-              <div className="relative w-full max-w-xs print:hidden">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"/>
-                <Input placeholder="Buscar evento activo..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-9"/>
+      {pastActiveEvents.length > 0 && !isLoading && (
+        <Card className="bg-amber-50 border-amber-200 shadow-sm print:hidden mb-6">
+          <CardContent className="p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <AlertTriangle className="w-5 h-5 text-amber-600" />
+              <div>
+                <p className="font-semibold text-amber-800 text-sm">
+                  {pastActiveEvents.length} evento(s) con fecha pasada necesitan ser archivados
+                </p>
+                <p className="text-xs text-amber-600">
+                  {pastActiveEvents.map(f => f.configuracion.nombreEvento).join(', ')}
+                </p>
               </div>
             </div>
-            {isLoading ? (
-                <div className="flex items-center justify-center py-10"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
-            ) : error ? (
-                 <Card className="text-destructive bg-destructive/10 p-6 text-center">
-                    <AlertTriangle className="w-12 h-12 mx-auto mb-3" />
-                    <p className="font-semibold text-lg">Error al Cargar Eventos</p>
-                    <p className="text-sm">{error}</p>
-                </Card>
-            ) : filteredFiestasActivas.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredFiestasActivas.map((fiesta) => (
-                  <Card key={fiesta.id} className="bg-card hover:shadow-md transition-shadow print:shadow-none print:border print:break-inside-avoid flex flex-col">
-                    <CardHeader className="pb-3 pt-4 px-4 print:pb-1 print:pt-1 print:px-2">
-                      <CardTitle className="text-md font-semibold text-primary/90 print:text-sm">{fiesta.configuracion.nombreEvento}</CardTitle>
-                      <CardDescription className="text-xs print:text-[10px]">
-                        {fiesta.configuracion.tipoCelebracion} - {formatDate(fiesta.configuracion.fechaEvento)}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="px-4 pb-4 grid grid-cols-2 gap-x-4 gap-y-1 text-xs print:px-2 print:pb-2 print:text-[10px] flex-grow">
-                      <div className="flex items-center gap-1.5 text-muted-foreground">
-                        <Users className="w-3 h-3"/> Invitados: <span className="font-medium text-foreground">{fiesta.configuracion.invitadosEstimados}</span>
-                      </div>
-                      {fiesta.configuracion.presupuestoEstimado ? (
-                        <div className="flex items-center gap-1.5 text-muted-foreground">
-                          <DollarSign className="w-3 h-3"/> Presupuesto: <span className="font-medium text-foreground">
-                            {new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(fiesta.configuracion.presupuestoEstimado)}
-                          </span>
-                        </div>
-                      ) : null}
-                      {fiesta.configuracion.nombreLugar ? (
-                        <div className="flex items-center gap-1.5 text-muted-foreground col-span-2">
-                          <FileText className="w-3 h-3"/> Lugar: <span className="font-medium text-foreground truncate">{fiesta.configuracion.nombreLugar}</span>
-                        </div>
-                      ) : null}
-                    </CardContent>
-                    <CardFooter className="p-2 border-t flex flex-col items-stretch gap-2 print:hidden">
-                        <Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`}>
-                          <Button variant="default" size="sm" className="w-full">
-                            <Edit className="w-4 h-4 mr-2"/>Planificar
-                          </Button>
-                        </Link>
-                         <div className="flex gap-2 w-full">
-                            <Button variant="outline" size="sm" className="flex-1" onClick={() => handleDuplicate(fiesta.id)} disabled={isProcessing === fiesta.id}>
-                                {isProcessing === fiesta.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Copy className="w-4 h-4"/>}
-                                <span className="ml-2">Duplicar</span>
-                            </Button>
-                            <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                <Button variant="destructive" size="sm" className="flex-1" disabled={isProcessing === fiesta.id}>
-                                    {isProcessing === fiesta.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4"/>}
-                                    <span className="ml-2">Eliminar</span>
-                                </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                        <AlertDialogTitle>¿Eliminar Evento Activo?</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                            El evento "{fiesta.configuracion.nombreEvento}" se eliminará permanentemente. Esta acción no se puede deshacer.
-                                        </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                        <AlertDialogAction onClick={() => handleDeleteFiesta(fiesta.id, fiesta.configuracion.nombreEvento)} className="bg-destructive hover:bg-destructive/90">Eliminar</AlertDialogAction>
-                                    </AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog>
-                         </div>
-                    </CardFooter>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <div className="py-6 text-center text-muted-foreground bg-muted/20 rounded-md print:hidden">
-                <Info className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                <p>No hay fiestas activas que coincidan con tu búsqueda.</p>
-              </div>
-            )}
-        </div>
-        
-        <Separator className="my-8 print:my-4" />
+            <div className="flex gap-2">
+              {pastActiveEvents.map(fiesta => (
+                <Button
+                  key={fiesta.id}
+                  variant="outline"
+                  size="sm"
+                  className="border-amber-300 text-amber-800 hover:bg-amber-100"
+                  onClick={() => handleArchivar(fiesta.id)}
+                  disabled={isProcessing === fiesta.id}
+                >
+                  {isProcessing === fiesta.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Archive className="w-4 h-4 mr-1" />}
+                  Archivar
+                </Button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
-        <div className="print:break-before-page">
-            <h2 className="text-xl font-semibold font-headline mb-4 text-foreground print:text-lg">Eventos Pasados y Archivados</h2>
-            {isLoading ? (
-                <div className="flex items-center justify-center py-10"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
-            ) : filteredFiestasArchivadas.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredFiestasArchivadas.map(fiesta => (
-                        <Card key={fiesta.id} className="bg-muted/40 print:border print:shadow-none">
-                            <CardHeader className="p-4 flex-row justify-between items-start">
-                                <div>
-                                    <CardTitle className="text-base font-medium text-muted-foreground print:text-sm">{fiesta.configuracion.nombreEvento}</CardTitle>
-                                    <CardDescription className="text-xs print:text-[10px]">{formatDate(fiesta.configuracion.fechaEvento)}</CardDescription>
-                                </div>
-                                <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                        <Button variant="destructive" size="icon" className="h-7 w-7" disabled={isProcessing === fiesta.id}>
-                                            {isProcessing === fiesta.id ? <Loader2 className="w-3.5 h-3.5 animate-spin"/> : <Trash2 className="w-3.5 h-3.5"/>}
-                                        </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                            <AlertDialogTitle>¿Eliminar Evento Archivado?</AlertDialogTitle>
-                                            <AlertDialogDescription>Esta acción eliminará permanentemente el archivo del evento "{fiesta.configuracion.nombreEvento}". No podrás recuperar sus datos.</AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                            <AlertDialogAction onClick={() => handleDeleteArchived(fiesta.id)} className="bg-destructive hover:bg-destructive/90">Eliminar</AlertDialogAction>
-                                        </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
-                            </CardHeader>
-                        </Card>
-                    ))}
-                </div>
-            ) : (
-                <div className="py-6 text-center text-muted-foreground bg-muted/20 rounded-md print:hidden">
-                    <Info className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                    <p>{searchTerm ? 'No hay eventos archivados que coincidan con tu búsqueda.' : 'No hay eventos en el archivo histórico.'}</p>
-                </div>
-            )}
+      <div className="print:break-before-page">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold font-headline text-foreground print:text-lg">
+            Eventos Activos en Planificación
+          </h2>
+          <div className="relative w-full max-w-xs print:hidden">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar evento activo..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="pl-9"
+            />
+          </div>
         </div>
+
+        {isLoading ? (
+          <div className="flex items-center justify-center py-10">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        ) : error ? (
+          <Card className="text-destructive bg-destructive/10 p-6 text-center">
+            <AlertTriangle className="w-12 h-12 mx-auto mb-3" />
+            <p className="font-semibold text-lg">Error al Cargar Eventos</p>
+            <p className="text-sm">{error}</p>
+          </Card>
+        ) : filteredFiestasActivas.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredFiestasActivas.map((fiesta) => (
+              <Card key={fiesta.id} className="bg-card hover:shadow-md transition-shadow print:shadow-none print:border print:break-inside-avoid flex flex-col">
+                <CardHeader className="pb-3 pt-4 px-4 print:pb-1 print:pt-1 print:px-2">
+                  <CardTitle className="text-md font-semibold text-primary/90 print:text-sm">
+                    {fiesta.configuracion.nombreEvento}
+                  </CardTitle>
+                  <CardDescription className="text-xs print:text-[10px]">
+                    {fiesta.configuracion.tipoCelebracion} - {formatDate(fiesta.configuracion.fechaEvento)}
+                  </CardDescription>
+                </CardHeader>
+
+                <CardContent className="px-4 pb-4 grid grid-cols-2 gap-x-4 gap-y-1 text-xs print:px-2 print:pb-2 print:text-[10px] flex-grow">
+                  <div className="flex items-center gap-1.5 text-muted-foreground">
+                    <Users className="w-3 h-3" /> Invitados: <span className="font-medium text-foreground">{fiesta.configuracion.invitadosEstimados}</span>
+                  </div>
+
+                  {fiesta.configuracion.presupuestoEstimado ? (
+                    <div className="flex items-center gap-1.5 text-muted-foreground">
+                      <DollarSign className="w-3 h-3" /> Presupuesto:{' '}
+                      <span className="font-medium text-foreground">
+                        {new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(fiesta.configuracion.presupuestoEstimado)}
+                      </span>
+                    </div>
+                  ) : null}
+
+                  {fiesta.configuracion.nombreLugar ? (
+                    <div className="flex items-center gap-1.5 text-muted-foreground col-span-2">
+                      <FileText className="w-3 h-3" /> Lugar: <span className="font-medium text-foreground truncate">{fiesta.configuracion.nombreLugar}</span>
+                    </div>
+                  ) : null}
+                </CardContent>
+
+                <CardFooter className="p-2 border-t flex flex-col items-stretch gap-2 print:hidden">
+                  <Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`}>
+                    <Button variant="default" size="sm" className="w-full">
+                      Planificar
+                    </Button>
+                  </Link>
+
+                  <div className="flex gap-2 w-full">
+                    <Button variant="outline" size="sm" className="flex-1" onClick={() => handleDuplicate(fiesta.id)} disabled={isProcessing === fiesta.id}>
+                      {isProcessing === fiesta.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Copy className="w-4 h-4" />}
+                      <span className="ml-2">Duplicar</span>
+                    </Button>
+
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="destructive" size="sm" className="flex-1" disabled={isProcessing === fiesta.id}>
+                          {isProcessing === fiesta.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                          <span className="ml-2">Eliminar</span>
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>¿Eliminar Evento Activo?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            El evento "{fiesta.configuracion.nombreEvento}" se eliminará permanentemente. Esta acción no se puede deshacer.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDeleteFiesta(fiesta.id, fiesta.configuracion.nombreEvento)}
+                            className="bg-destructive hover:bg-destructive/90"
+                          >
+                            Eliminar
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className="py-6 text-center text-muted-foreground bg-muted/20 rounded-md print:hidden">
+            <Info className="w-10 h-10 mx-auto mb-2 opacity-50" />
+            <p>No hay fiestas activas que coincidan con tu búsqueda.</p>
+          </div>
+        )}
+      </div>
+        
+      <Separator className="my-8 print:my-4" />
+
+      <div className="print:break-before-page">
+        <h2 className="text-xl font-semibold font-headline mb-4 text-foreground print:text-lg">
+          Eventos Pasados y Archivados
+        </h2>
+
+        {isLoading ? (
+          <div className="flex items-center justify-center py-10">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        ) : filteredFiestasArchivadas.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredFiestasArchivadas.map(fiesta => (
+              <Card key={fiesta.id} className="bg-muted/40 print:border print:shadow-none">
+                <CardHeader className="p-4 flex-row justify-between items-start">
+                  <div>
+                    <CardTitle className="text-base font-medium text-muted-foreground print:text-sm">
+                      {fiesta.configuracion.nombreEvento}
+                    </CardTitle>
+                    <CardDescription className="text-xs print:text-[10px]">
+                      {formatDate(fiesta.configuracion.fechaEvento)}
+                    </CardDescription>
+                  </div>
+
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" size="icon" className="h-7 w-7" disabled={isProcessing === fiesta.id}>
+                        {isProcessing === fiesta.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>¿Eliminar Evento Archivado?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Esta acción eliminará permanentemente el archivo del evento "{fiesta.configuracion.nombreEvento}". No podrás recuperar sus datos.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleDeleteArchived(fiesta.id)} className="bg-destructive hover:bg-destructive/90">
+                          Eliminar
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </CardHeader>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className="py-6 text-center text-muted-foreground bg-muted/20 rounded-md print:hidden">
+            <Info className="w-10 h-10 mx-auto mb-2 opacity-50" />
+            <p>{searchTerm ? 'No hay eventos archivados que coincidan con tu búsqueda.' : 'No hay eventos en el archivo histórico.'}</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
