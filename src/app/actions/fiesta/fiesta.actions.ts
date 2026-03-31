@@ -1,4 +1,3 @@
-
 'use server';
 
 import type { FiestaEnPlanificacion, MenuMesaData, NumerosMesaData, ModulosContratados, PersonalAsignadoDetalleStorage, CartaTragosData } from '@/types/fiesta';
@@ -221,12 +220,21 @@ export async function deleteFiestaArchivada(fiestaId: string): Promise<{ success
   }
 }
 
-export async function createFiestaVacia(): Promise<{ success: boolean; error?: string }> {
+export async function createFiestaVacia(): Promise<{ success: boolean; newFiestaId?: string; error?: string }> {
     try {
-        const newFiesta = { ...initialFiestaActualData, id: `fiesta_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`};
-        await saveFiesta(newFiesta);
-        return { success: true };
-    } catch(e: any) {
+        const newFiesta = {
+            ...initialFiestaActualData,
+            id: `fiesta_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+        };
+
+        const result = await saveFiesta(newFiesta);
+
+        if (!result.success) {
+            return { success: false, error: result.error || 'No se pudo crear el evento.' };
+        }
+
+        return { success: true, newFiestaId: newFiesta.id };
+    } catch (e: any) {
         return { success: false, error: e.message };
     }
 }
