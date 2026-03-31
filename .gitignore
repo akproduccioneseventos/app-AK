@@ -54,4 +54,4 @@ price-adjustments-history.json
 src/data/last-auto-backup.txt
 
 # abacus
-.abacus.donotdelete
+.abacus.donotdeletepackage-lock.json

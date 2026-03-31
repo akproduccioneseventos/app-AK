@@ -167,7 +167,7 @@ function CartaTragosContent() {
 
   const openEditModal = (item: Trago) => {
     setEditingItem(item);
-    setPreviewUrl(item.imageUrl);
+    setPreviewUrl(item.imageUrl ?? null);
     setFileToUpload(null);
     setIsEditModalOpen(true);
   };
@@ -304,7 +304,7 @@ function CartaTragosContent() {
         <div className="flex flex-col items-center py-10 print:py-0">
           <Card className="p-0 border-none shadow-2xl print:shadow-none bg-white">
             <div ref={printRef} className="w-[15cm] h-[10cm] bg-white print:mx-auto">
-                <CartaTragosMenu fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={setCartaTragos} openEditModal={openEditModal} />
+                <CartaTragosMenu fiesta={fiesta} carta={cartaTragos} isPreview={true} onUpdate={(newData) => setCartaTragos(prev => ({ ...prev, ...newData }))} openEditModal={openEditModal} />
             </div>
           </Card>
           <div className="mt-6 text-sm text-muted-foreground flex items-center gap-2 print:hidden bg-white/80 p-3 rounded-lg border border-dashed">

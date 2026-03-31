@@ -14,7 +14,9 @@ import type {
   MenuMesaData,
   ModulosContratados,
   ZonaContratada,
-  TextStyle
+  TextStyle,
+  CartaTragosData,
+  GiftItem,
 } from '@/types/fiesta';
 
 export const defaultPrograma: ProgramaEventoItem[] = [
@@ -138,6 +140,29 @@ export const defaultMenuMesaData: MenuMesaData = {
     paletaColores: { primary: '#8b5cf6', secondary: '#4b5563', accent: '#3b82f6', background: '#ffffff' },
     entrada: '', platoPrincipal: '', adolescentes: '', postres: '', bebidas: '',
     empresa: { linea1: 'AK PRODUCCIONES', linea2: 'Servicio integral', contacto: '098 355 530' }
+};
+
+export const defaultGiftItems: GiftItem[] = [];
+
+export const defaultCartaTragosData: CartaTragosData = {
+  titulo: 'CARTA DE TRAGOS',
+  protagonistaNombre: 'La Agasajada',
+  numeroPrincipal: 'Mis XV',
+  protagonistaFotoUrl: '',
+  backgroundImageUrl: '',
+  backgroundColor: '#ffffff',
+  paletaColores: { primary: '#9333ea', secondary: '#363636', accent: '#ffffff' },
+  items: [
+    { id: 'trago_1', nombre: 'Mojito', imageUrl: '', aiHint: 'mojito cocktail' },
+    { id: 'trago_2', nombre: 'Fernet', imageUrl: '', aiHint: 'fernet drink' },
+    { id: 'trago_3', nombre: 'Gin Tonic', imageUrl: '', aiHint: 'gin tonic cocktail' },
+    { id: 'trago_4', nombre: 'Espumante', imageUrl: '', aiHint: 'sparkling wine' },
+    { id: 'trago_5', nombre: 'Cerveza', imageUrl: '', aiHint: 'beer glass' },
+    { id: 'trago_6', nombre: 'Aperol Spritz', imageUrl: '', aiHint: 'aperol spritz cocktail' },
+    { id: 'trago_7', nombre: 'Clericó', imageUrl: '', aiHint: 'fruit punch drink' },
+    { id: 'trago_8', nombre: 'Sangría', imageUrl: '', aiHint: 'sangria wine drink' },
+  ],
+  empresa: { linea1: 'AK PRODUCCIONES', linea2: 'Servicio de fiestas integral', contacto: '098 355 530' },
 };
 
 export const defaultModulosContratados: ModulosContratados = {

@@ -65,9 +65,11 @@ export async function syncToFirestore(filePath: string, data: any): Promise<void
     return; // Firebase not available
   }
 
+  const normalizedPath = filePath.replace(/\\/g, '/');
+
   try {
     // Config file → single document in 'configuracion'
-    const configDocId = CONFIG_FILES[filePath];
+    const configDocId = CONFIG_FILES[normalizedPath];
     if (configDocId && data && typeof data === 'object' && !Array.isArray(data)) {
       const cleanData = { ...data };
       Object.keys(cleanData).forEach(key => {
@@ -81,7 +83,7 @@ export async function syncToFirestore(filePath: string, data: any): Promise<void
     }
 
     // Array collection
-    const collectionName = FILE_TO_COLLECTION[filePath];
+    const collectionName = FILE_TO_COLLECTION[normalizedPath];
     if (collectionName && Array.isArray(data)) {
       const batchSize = 450;
       
@@ -102,8 +104,88 @@ export async function syncToFirestore(filePath: string, data: any): Promise<void
         
         await batch.commit();
       }
+      return;
+    }
+
+    // Individual document file (e.g., fiestas/fiesta_xxx.json, archive/fiesta_archivada_xxx.json)
+    const pathParts = normalizedPath.split('/');
+    if (pathParts.length === 2 && data && typeof data === 'object' && !Array.isArray(data)) {
+      const [dir, filename] = pathParts;
+      if (!filename.endsWith('.json')) return;
+      const docId = filename.replace('.json', '');
+      const cleanData = { ...data };
+      Object.keys(cleanData).forEach(key => {
+        if (cleanData[key] === undefined) delete cleanData[key];
+      });
+      await db.collection(dir).doc(docId).set({
+        ...cleanData,
+        _syncedAt: new Date().toISOString(),
+      }, { merge: true });
     }
   } catch (error) {
     console.warn(`⚠️ Firestore sync failed for ${filePath}:`, error);
+  }
+}
+
+/**
+ * Read data from Firestore for a given file path.
+ * Returns null if no data is found or Firebase is unavailable.
+ */
+export async function readFromFirestore(filePath: string): Promise<any> {
+  let db: FirebaseFirestore.Firestore;
+
+  try {
+    const { dbAdmin } = await import('./firebase/server');
+    if (!dbAdmin) return null;
+    db = dbAdmin;
+  } catch {
+    return null; // Firebase not available
+  }
+
+  const normalizedPath = filePath.replace(/\\/g, '/');
+
+  try {
+    // Config file → read from 'configuracion' collection
+    const configDocId = CONFIG_FILES[normalizedPath];
+    if (configDocId) {
+      const doc = await db.collection('configuracion').doc(configDocId).get();
+      if (doc.exists) {
+        const data = doc.data();
+        if (data) delete data._syncedAt;
+        return data || null;
+      }
+      return null;
+    }
+
+    // Array collection → read all docs and return as array
+    const collectionName = FILE_TO_COLLECTION[normalizedPath];
+    if (collectionName) {
+      const snapshot = await db.collection(collectionName).get();
+      if (snapshot.empty) return null;
+      return snapshot.docs.map(doc => {
+        const data = doc.data();
+        delete data._syncedAt;
+        return data;
+      });
+    }
+
+    // Individual document file (e.g., fiestas/fiesta_xxx.json)
+    const pathParts = normalizedPath.split('/');
+    if (pathParts.length === 2) {
+      const [dir, filename] = pathParts;
+      if (!filename.endsWith('.json')) return null;
+      const docId = filename.replace('.json', '');
+      const doc = await db.collection(dir).doc(docId).get();
+      if (doc.exists) {
+        const data = doc.data();
+        if (data) delete data._syncedAt;
+        return data || null;
+      }
+    }
+
+    return null;
+  } catch (error) {
+    console.warn(`⚠️ Firestore read failed for ${filePath}:`, error);
+    return null;
   }
 }

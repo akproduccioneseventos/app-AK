@@ -1,7 +1,7 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, MenuMesaData, NumerosMesaData, ModulosContratados, PersonalAsignadoDetalleStorage } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, MenuMesaData, NumerosMesaData, ModulosContratados, PersonalAsignadoDetalleStorage, CartaTragosData } from '@/types/fiesta';
 import { initialFiestaActualData, defaultModulosContratados, defaultClientPortalSettings } from '@/lib/fiesta-defaults';
 import { readData, writeData } from '@/lib/data-service';
 import path from 'path';
@@ -282,6 +282,12 @@ export async function updateNumerosMesa(fiestaId: string, data: NumerosMesaData)
   const f = await getFiestaById(fiestaId);
   if (!f) return { success: false };
   return await saveFiesta({ ...f, numerosMesa: data });
+}
+
+export async function updateCartaTragos(fiestaId: string, data: CartaTragosData) {
+  const f = await getFiestaById(fiestaId);
+  if (!f) return { success: false };
+  return await saveFiesta({ ...f, cartaTragos: data });
 }
 
 /**
