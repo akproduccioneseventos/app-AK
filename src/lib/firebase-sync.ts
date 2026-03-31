@@ -50,6 +50,32 @@ const CONFIG_FILES: Record<string, string> = {
   'meeting-checklist-template.json': 'meeting-checklist-template',
 };
 
+const MAX_RETRIES = 2;
+const isDev = process.env.NODE_ENV === 'development';
+
+async function withRetry<T>(fn: () => Promise<T>, context: string): Promise<T> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const result = await fn();
+      if (attempt > 0 && isDev) {
+        console.log(`✅ [Firebase Sync] ${context} — exitoso en intento ${attempt + 1}`);
+      }
+      return result;
+    } catch (error) {
+      lastError = error;
+      if (attempt < MAX_RETRIES) {
+        const delay = Math.pow(2, attempt) * 500; // 500ms, 1000ms
+        if (isDev) {
+          console.warn(`🔄 [Firebase Sync] ${context} — intento ${attempt + 1} falló, reintentando en ${delay}ms...`);
+        }
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+  }
+  throw lastError;
+}
+
 /**
  * Synchronize data written to a JSON file to the corresponding Firestore collection.
  * This is called asynchronously from data-service.ts writeData() when USE_FIREBASE_DATA=true.
@@ -75,10 +101,10 @@ export async function syncToFirestore(filePath: string, data: any): Promise<void
       Object.keys(cleanData).forEach(key => {
         if (cleanData[key] === undefined) delete cleanData[key];
       });
-      await db.collection('configuracion').doc(configDocId).set({
+      await withRetry(() => db.collection('configuracion').doc(configDocId).set({
         ...cleanData,
         _syncedAt: new Date().toISOString(),
-      }, { merge: true });
+      }, { merge: true }), `config: ${configDocId}`);
       return;
     }
 
@@ -102,7 +128,7 @@ export async function syncToFirestore(filePath: string, data: any): Promise<void
           }
         }
         
-        await batch.commit();
+        await withRetry(() => batch.commit(), `collection: ${collectionName} (batch ${Math.floor(i/batchSize)+1})`);
       }
       return;
     }
@@ -117,13 +143,20 @@ export async function syncToFirestore(filePath: string, data: any): Promise<void
       Object.keys(cleanData).forEach(key => {
         if (cleanData[key] === undefined) delete cleanData[key];
       });
-      await db.collection(dir).doc(docId).set({
+      await withRetry(() => db.collection(dir).doc(docId).set({
         ...cleanData,
         _syncedAt: new Date().toISOString(),
-      }, { merge: true });
+      }, { merge: true }), `doc: ${dir}/${docId}`);
     }
-  } catch (error) {
-    console.warn(`⚠️ Firestore sync failed for ${filePath}:`, error);
+    if (isDev) {
+      const target = FILE_TO_COLLECTION[normalizedPath] || CONFIG_FILES[normalizedPath] || normalizedPath;
+      console.log(`✅ [Firebase Sync] "${target}" sincronizado correctamente.`);
+    }
+  } catch (error: unknown) {
+    const collectionName = FILE_TO_COLLECTION[normalizedPath] || CONFIG_FILES[normalizedPath] || normalizedPath;
+    console.warn(`⚠️ [Firebase Sync] Falló la sincronización de "${collectionName}" después de ${MAX_RETRIES + 1} intentos.`);
+    console.warn(`   Motivo: ${error instanceof Error ? error.message : error}`);
+    console.warn(`   ℹ️ Los datos JSON locales NO fueron afectados y están seguros.`);
   }
 }
 
