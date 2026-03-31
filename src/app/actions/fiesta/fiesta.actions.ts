@@ -224,7 +224,12 @@ export async function createFiestaVacia(): Promise<{ success: boolean; newFiesta
     try {
         const newFiesta = {
             ...initialFiestaActualData,
-            id: `fiesta_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+            id: `fiesta_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+            estado: 'En Planificación' as const,
+            configuracion: {
+                ...initialFiestaActualData.configuracion,
+                fechaEvento: ''
+            }
         };
 
         const result = await saveFiesta(newFiesta);
