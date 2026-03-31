@@ -49,6 +49,16 @@ Para migrar datos existentes a Firestore:
 npx tsx src/scripts/migrate-to-firebase.ts
 ```
 
+## ✅ Calidad
+
+```bash
+# Verificar tipos TypeScript
+npm run typecheck
+
+# Ejecutar linter
+npm run lint
+```
+
 ## 📖 Documentación
 
 - **Variables de entorno:** `.env.example`

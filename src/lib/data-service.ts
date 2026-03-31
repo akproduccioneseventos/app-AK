@@ -6,6 +6,7 @@
 
 import fs from 'fs/promises';
 import path from 'path';
+import * as logger from './logger';
 
 const DATA_DIR = path.join(process.cwd(), 'src', 'data');
 const LAST_AUTO_BACKUP_FILE = path.join(DATA_DIR, 'last-auto-backup.txt');
@@ -52,7 +53,7 @@ export async function readData<T>(filePath: string, defaultValue: T): Promise<T>
     }
     return defaultValue;
   } catch (error) {
-    console.error(`Error reading ${absolutePath}, returning default.`);
+    logger.error(`Error reading ${absolutePath}, returning default.`);
     return defaultValue;
   }
 }
@@ -67,7 +68,24 @@ export async function writeData<T>(
 ): Promise<void> {
   const absolutePath = path.join(DATA_DIR, filePath);
   await ensureFile(absolutePath);
-  
+
+  // PR 2.3: backup existing file before overwriting
+  try {
+    // Ensure absolutePath stays within DATA_DIR to prevent path traversal
+    const resolvedPath = path.resolve(absolutePath);
+    if (resolvedPath.startsWith(path.resolve(DATA_DIR) + path.sep) || resolvedPath === path.resolve(DATA_DIR)) {
+      await fs.access(resolvedPath);
+      const backupDir = path.join(DATA_DIR, '_backups');
+      await fs.mkdir(backupDir, { recursive: true });
+      const timestamp = new Date().toISOString().replace(/:/g, '-').replace(/\./g, '-').replace(/Z$/, '');
+      const baseName = path.basename(filePath).replace(/\.json$/, '');
+      const backupName = `${baseName}__${timestamp}.json`;
+      await fs.copyFile(resolvedPath, path.join(backupDir, backupName));
+    }
+  } catch {
+    // No existing file to back up, or backup failed — proceed without interrupting write
+  }
+
   let dataToWrite = data;
   if (Array.isArray(dataToWrite) && sortFn) {
     dataToWrite.sort(sortFn);
@@ -80,13 +98,13 @@ export async function writeData<T>(
   const { triggerAutoBackup } = await import('@/app/actions/backup');
   
   // We don't await this to keep the UI fast
-  triggerAutoBackup().catch(err => console.error("Background auto-backup failed:", err));
+  triggerAutoBackup().catch(err => logger.error("Background auto-backup failed:", err));
 
   // DUAL-WRITE: Always attempt Firestore sync; fail silently if unavailable
   try {
     const { syncToFirestore } = await import('./firebase-sync');
     syncToFirestore(filePath, dataToWrite).catch(err =>
-      console.warn("Background Firestore sync failed:", err)
+      logger.warn("Background Firestore sync failed:", err)
     );
   } catch {
     // Firebase sync module not available, skip silently

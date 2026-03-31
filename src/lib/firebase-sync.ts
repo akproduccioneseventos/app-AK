@@ -5,6 +5,8 @@
  */
 'use server';
 
+import * as logger from './logger';
+
 // Mapping of JSON file names to Firestore collection names
 const FILE_TO_COLLECTION: Record<string, string> = {
   'customers.json': 'clientes',
@@ -123,7 +125,7 @@ export async function syncToFirestore(filePath: string, data: any): Promise<void
       }, { merge: true });
     }
   } catch (error) {
-    console.warn(`⚠️ Firestore sync failed for ${filePath}:`, error);
+    logger.warn(`⚠️ Firestore sync failed for ${filePath}:`, error);
   }
 }
 
@@ -185,7 +187,7 @@ export async function readFromFirestore(filePath: string): Promise<any> {
 
     return null;
   } catch (error) {
-    console.warn(`⚠️ Firestore read failed for ${filePath}:`, error);
+    logger.warn(`⚠️ Firestore read failed for ${filePath}:`, error);
     return null;
   }
 }
