@@ -178,7 +178,7 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
   configuracion: {
     nombreEvento: 'Nuevo Evento',
     tipoCelebracion: 'Boda',
-    fechaEvento: new Date().toISOString(),
+    fechaEvento: '',
     horaInicio: '21:00',
     horaFin: '04:00',
     nombreLugar: 'Salón a definir',
