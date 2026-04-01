@@ -8,17 +8,27 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { defaultInvitacionDigitalData } from "@/lib/invitacion-digital-defaults";
 import type { InvitacionDigitalData, SeccionInvitacion, ColorPalette } from '@/types/fiesta';
-import { Sparkles, PlusCircle, Trash2, Edit, Link as LinkIcon, QrCode, ClipboardCopy, Camera } from "lucide-react";
-import React from 'react';
+import { Sparkles, PlusCircle, Trash2, Edit, Link as LinkIcon, ClipboardCopy, Camera, LayoutTemplate, Loader2 } from "lucide-react";
+import React, { useState } from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Card, CardContent, CardDescription } from "@/components/ui/card";
 import QRCodeStylized from 'qrcode.react';
 import { useToast } from "@/hooks/use-toast";
+import { getInvitationTemplates, type InvitacionDigitalTemplate } from "@/app/actions/invitacion-digital-templates";
+import { Badge } from "@/components/ui/badge";
+import { merge, cloneDeep } from 'lodash';
 
 interface ControlPanelProps {
     data: InvitacionDigitalData;
@@ -31,6 +41,9 @@ interface ControlPanelProps {
 export const ControlPanel: React.FC<ControlPanelProps> = ({ data, update, addSection, removeSection, onSectionClick }) => {
     
     const { toast } = useToast();
+    const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
+    const [templates, setTemplates] = useState<InvitacionDigitalTemplate[]>([]);
+    const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
 
     const allPossibleSections = defaultInvitacionDigitalData.secciones.map(s => s.tipo);
 
@@ -42,6 +55,26 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ data, update, addSec
     const handleCopyToClipboard = (url: string) => {
         navigator.clipboard.writeText(url);
         toast({ title: "Enlace Copiado" });
+    };
+
+    const openTemplateModal = async () => {
+        setIsTemplateModalOpen(true);
+        setIsLoadingTemplates(true);
+        try {
+            const tpls = await getInvitationTemplates();
+            setTemplates(tpls);
+        } catch {
+            toast({ title: "Error", description: "No se pudieron cargar las plantillas.", variant: "destructive" });
+        } finally {
+            setIsLoadingTemplates(false);
+        }
+    };
+
+    const applyTemplate = (template: InvitacionDigitalTemplate) => {
+        const merged = merge(cloneDeep(defaultInvitacionDigitalData), template);
+        update(merged);
+        setIsTemplateModalOpen(false);
+        toast({ title: "Plantilla aplicada", description: `Se aplicó "${template.name}".` });
     };
 
     const getFullLink = (path: string, hash?: string) => {
@@ -67,6 +100,50 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ data, update, addSec
 
     return (
         <div className="p-4 space-y-4">
+            {/* Load Template button */}
+            <Button variant="outline" className="w-full gap-2" onClick={openTemplateModal}>
+                <LayoutTemplate className="w-4 h-4" />
+                Cargar Plantilla
+            </Button>
+
+            {/* Template picker modal */}
+            <Dialog open={isTemplateModalOpen} onOpenChange={setIsTemplateModalOpen}>
+                <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>Seleccionar Plantilla</DialogTitle>
+                        <DialogDescription>
+                            Elige una plantilla para aplicarla a esta invitación. Los cambios no guardados se perderán.
+                        </DialogDescription>
+                    </DialogHeader>
+                    {isLoadingTemplates ? (
+                        <div className="flex justify-center py-10">
+                            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                            {templates.map(tpl => (
+                                <button
+                                    key={tpl.id}
+                                    onClick={() => applyTemplate(tpl)}
+                                    className="text-left p-4 border rounded-xl hover:bg-primary/5 hover:border-primary/30 transition-all space-y-1.5 group"
+                                >
+                                    <div className="flex items-center justify-between gap-2">
+                                        <span className="font-bold text-sm">{tpl.name}</span>
+                                        <Badge variant="secondary" className="text-[10px] shrink-0">{tpl.category}</Badge>
+                                    </div>
+                                    <p className="text-[11px] text-muted-foreground">
+                                        Estilo: {tpl.plantilla}
+                                    </p>
+                                </button>
+                            ))}
+                            {templates.length === 0 && (
+                                <p className="col-span-2 text-center text-sm text-muted-foreground py-8">No hay plantillas disponibles.</p>
+                            )}
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
+
             <Accordion type="multiple" defaultValue={['general', 'secciones']} className="w-full">
                 <AccordionItem value="general">
                     <AccordionTrigger><Sparkles className="w-4 h-4 mr-2"/>Diseño General</AccordionTrigger>

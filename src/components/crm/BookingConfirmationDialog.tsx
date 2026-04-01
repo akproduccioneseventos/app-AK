@@ -12,11 +12,12 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { CheckCircle, Loader2, PartyPopper, Calendar, MapPin, DollarSign, FileText, AlertCircle, Upload } from 'lucide-react';
+import { CheckCircle, Loader2, PartyPopper, Calendar, MapPin, DollarSign, FileText, AlertCircle, Upload, Archive } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { confirmBookingWithContract } from '@/app/actions/crm';
 import type { CrmLead } from '@/types/crm';
 import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
 
 interface Props {
   isOpen: boolean;
@@ -34,6 +35,7 @@ export function BookingConfirmationDialog({ isOpen, onOpenChange, lead, presupue
   const [isProcessing, setIsProcessing] = useState(false);
   const [contractFile, setContractFile] = useState<File | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
+  const [archiveLead, setArchiveLead] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -74,6 +76,7 @@ export function BookingConfirmationDialog({ isOpen, onOpenChange, lead, presupue
       formData.append('leadId', lead.id);
       formData.append('presupuestoId', lead.presupuestoId);
       formData.append('contract', contractFile);
+      formData.append('archiveLead', archiveLead ? 'true' : 'false');
 
       const result = await confirmBookingWithContract(formData);
       if (result.success && result.fiestaId) {
@@ -96,6 +99,7 @@ export function BookingConfirmationDialog({ isOpen, onOpenChange, lead, presupue
     if (!open) {
       setContractFile(null);
       setFileError(null);
+      setArchiveLead(false);
     }
     onOpenChange(open);
   };
@@ -184,6 +188,25 @@ export function BookingConfirmationDialog({ isOpen, onOpenChange, lead, presupue
             <p>● El contrato PDF se vinculará con el cliente.</p>
             <p>● Se activará el panel de planificación del evento.</p>
             <p>● El presupuesto se marcará como aceptado.</p>
+          </div>
+
+          {/* Option: move lead to conversion stage */}
+          <div className="flex items-center justify-between p-3 bg-slate-50 border rounded-lg">
+            <div className="flex items-center gap-2">
+              <Archive className="w-4 h-4 text-slate-500" />
+              <div>
+                <Label htmlFor="archive-lead-switch" className="text-sm font-semibold cursor-pointer">
+                  Mover prospecto a "Firmó contrato"
+                </Label>
+                <p className="text-[11px] text-muted-foreground">Por defecto el lead permanece activo en el CRM.</p>
+              </div>
+            </div>
+            <Switch
+              id="archive-lead-switch"
+              checked={archiveLead}
+              onCheckedChange={setArchiveLead}
+              disabled={isProcessing}
+            />
           </div>
         </div>
 

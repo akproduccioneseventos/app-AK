@@ -57,6 +57,8 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
   const [presupuesto, setPresupuesto] = useState<Presupuesto | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [companyName, setCompanyName] = useState('AK Producciones');
+  const [companyAddress, setCompanyAddress] = useState('');
+  const [companyContact, setCompanyContact] = useState('');
   const [whatsappNumber, setWhatsappNumber] = useState('');
   const [waEnabled, setWaEnabled] = useState(true);
   const [waTemplate, setWaTemplate] = useState<string | null>(null);
@@ -83,6 +85,8 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
       setPresupuesto(fetchedPresupuesto);
       setLogoUrl(templateSettings.logoUrl || null);
       setCompanyName(companyInfo?.companyName || 'AK Producciones');
+      setCompanyAddress(companyInfo?.companyAddress || '');
+      setCompanyContact(companyInfo?.companyContact || '');
       setWaEnabled(wpSettings.enabled);
       setWaTemplate(wpSettings.paymentReminderTemplate ?? null);
 
@@ -202,20 +206,28 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
         className="max-w-2xl mx-auto bg-white shadow-xl print:shadow-none rounded-[2rem] print:rounded-none overflow-hidden"
       >
         {/* Header */}
-        <div className="bg-primary px-8 py-6 print:px-6 print:py-4 flex justify-between items-center">
-          <div className="text-white space-y-1">
-            <p className="text-[10px] font-black uppercase tracking-widest opacity-70">Estado de Cuenta</p>
-            <h1 className="text-xl font-black uppercase tracking-tight">{companyName}</h1>
+        <div className="bg-primary px-8 py-6 print:px-6 print:py-5 flex justify-between items-center gap-4">
+          <div className="flex items-center gap-4">
+            {logoUrl ? (
+              <div className="w-14 h-14 relative shrink-0 bg-white/10 rounded-xl overflow-hidden">
+                <Image src={logoUrl} alt="Logo" fill className="object-contain p-1" />
+              </div>
+            ) : (
+              <div className="w-14 h-14 bg-white/10 rounded-xl flex items-center justify-center shrink-0">
+                <span className="text-xs font-black uppercase text-white text-center leading-tight px-1">AK</span>
+              </div>
+            )}
+            <div className="text-white space-y-0.5">
+              <h1 className="text-xl font-black uppercase tracking-tight">{companyName}</h1>
+              {companyAddress && <p className="text-[10px] opacity-75 font-medium">{companyAddress}</p>}
+              {companyContact && <p className="text-[10px] opacity-75 font-medium">{companyContact}</p>}
+            </div>
           </div>
-          {logoUrl ? (
-            <div className="w-14 h-14 relative shrink-0 bg-white/10 rounded-xl overflow-hidden">
-              <Image src={logoUrl} alt="Logo" fill className="object-contain p-1" />
-            </div>
-          ) : (
-            <div className="w-14 h-14 bg-white/10 rounded-xl flex items-center justify-center shrink-0">
-              <span className="text-[8px] font-black uppercase text-white text-center leading-tight px-1">AK</span>
-            </div>
-          )}
+          <div className="text-white text-right shrink-0">
+            <p className="text-[9px] font-black uppercase tracking-widest opacity-70">Documento</p>
+            <p className="text-sm font-black uppercase tracking-tight">Estado de Cuenta</p>
+            <p className="text-[10px] opacity-60 mt-0.5">{new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+          </div>
         </div>
 
         <div className="p-6 sm:p-10 print:p-6 space-y-8">
@@ -347,9 +359,19 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
 
           {/* Footer note */}
           <Separator />
-          <p className="text-center text-[10px] text-muted-foreground">
-            Documento generado por {companyName} · {new Date().toLocaleDateString('es-ES')}
-          </p>
+          <div className="text-center space-y-1">
+            <p className="text-[10px] text-muted-foreground font-medium">
+              Este documento fue generado por <strong>{companyName}</strong> el {new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' })}.
+            </p>
+            {(companyContact || companyAddress) && (
+              <p className="text-[9px] text-muted-foreground">
+                {[companyAddress, companyContact].filter(Boolean).join(' · ')}
+              </p>
+            )}
+            <p className="text-[9px] text-muted-foreground opacity-60">
+              Presupuesto #{presupuesto.numero || presupuesto.id.slice(-6).toUpperCase()}
+            </p>
+          </div>
         </div>
       </motion.div>
 
@@ -362,20 +384,51 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
           .no-print,
           .notifications-hub,
           .sidebar-inset > header,
-          aside {
+          aside,
+          nav {
             display: none !important;
           }
           body {
             background: white !important;
             padding: 0 !important;
             margin: 0 !important;
+            font-size: 11pt;
+            color: #1e293b;
           }
-          .shadow-xl {
+          .shadow-xl,
+          .shadow-lg,
+          .shadow-md {
             box-shadow: none !important;
+          }
+          .rounded-\\[2rem\\],
+          .rounded-xl {
+            border-radius: 0 !important;
+          }
+          /* Force background colors to print */
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          /* Ensure the main document fills the page */
+          .max-w-2xl {
+            max-width: 100% !important;
+            margin: 0 !important;
+          }
+          /* Section breaks */
+          section {
+            page-break-inside: avoid;
+          }
+          /* Table borders */
+          table {
+            width: 100%;
+            border-collapse: collapse;
+          }
+          th, td {
+            border: 1px solid #e2e8f0;
           }
           @page {
             size: A4 portrait;
-            margin: 1.5cm 1cm;
+            margin: 1.5cm 1.2cm;
           }
         }
       `}</style>
