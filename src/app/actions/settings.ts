@@ -2,14 +2,15 @@
 'use server';
 
 import { readData, writeData } from '@/lib/data-service';
-import type { BudgetDisplaySettings, InvoiceTemplateSettings, CompanyInfo, WhatsAppSettings } from '@/types/settings';
-import { defaultBudgetDisplaySettings, defaultInvoiceTemplateSettings, defaultCompanyInfo, defaultWhatsAppSettings } from '@/types/settings';
+import type { BudgetDisplaySettings, InvoiceTemplateSettings, CompanyInfo, WhatsAppSettings, WhatsAppTemplates } from '@/types/settings';
+import { defaultBudgetDisplaySettings, defaultInvoiceTemplateSettings, defaultCompanyInfo, defaultWhatsAppSettings, defaultWhatsAppTemplates } from '@/types/settings';
 
 const BUDGET_SETTINGS_FILE = 'budget-display-settings.json';
 const INVOICE_SETTINGS_FILE = 'invoice-template-settings.json';
 const COMPANY_INFO_FILE = 'company-info.json';
 const CONTRACT_TEMPLATE_FILE = 'contract-template.json';
 const WHATSAPP_SETTINGS_FILE = 'whatsapp-settings.json';
+const WHATSAPP_TEMPLATES_FILE = 'whatsapp-templates.json';
 
 const defaultContractTemplate = `CONTRATO DE PRESTACIÓN DE SERVICIOS PARA EVENTOS 
 
@@ -153,5 +154,24 @@ export async function saveWhatsAppSettings(
     return { success: true, settings: settingsToSave };
   } catch (error: any) {
     return { success: false, error: error.message || "Error desconocido al guardar la configuración de WhatsApp." };
+  }
+}
+
+// --- WhatsApp Templates ---
+export async function getWhatsAppTemplates(): Promise<WhatsAppTemplates> {
+  const data = await readData<Partial<WhatsAppTemplates>>(WHATSAPP_TEMPLATES_FILE, {});
+  return { ...defaultWhatsAppTemplates, ...data };
+}
+
+export async function saveWhatsAppTemplates(
+  templates: Partial<WhatsAppTemplates>
+): Promise<{ success: boolean; templates?: WhatsAppTemplates; error?: string }> {
+  try {
+    const currentTemplates = await getWhatsAppTemplates();
+    const templatesToSave: WhatsAppTemplates = { ...currentTemplates, ...templates };
+    await writeData(WHATSAPP_TEMPLATES_FILE, templatesToSave);
+    return { success: true, templates: templatesToSave };
+  } catch (error: any) {
+    return { success: false, error: error.message || "Error desconocido al guardar las plantillas de WhatsApp." };
   }
 }

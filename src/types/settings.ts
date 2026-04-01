@@ -67,6 +67,20 @@ export const defaultWhatsAppSettings: WhatsAppSettings = {
   paymentReminderTemplate: 'Hola {{NOMBRE}}, te recordamos que tienes un saldo pendiente de *{{SALDO}}* para tu evento del {{FECHA_EVENTO}}. Podés ver el detalle completo en: {{LINK}}',
 };
 
+export interface WhatsAppTemplates {
+  budgetShareTemplate: string;
+  contractShareTemplate: string;
+  welcomeTemplate: string;
+  eventConfirmationTemplate: string;
+}
+
+export const defaultWhatsAppTemplates: WhatsAppTemplates = {
+  budgetShareTemplate: 'Hola {{NOMBRE}}, te comparto el presupuesto para tu evento del {{FECHA_EVENTO}}. Podés verlo aquí: {{LINK}}',
+  contractShareTemplate: 'Hola {{NOMBRE}}, te enviamos el contrato para tu evento del {{FECHA_EVENTO}} para que lo puedas revisar: {{LINK}}',
+  welcomeTemplate: 'Hola {{NOMBRE}}, gracias por contactarte con *AK Producciones Eventos*. Estamos listos para hacer de tu evento una experiencia única. ¿En qué podemos ayudarte?',
+  eventConfirmationTemplate: 'Hola {{NOMBRE}}, te confirmamos la reserva de tu evento para el {{FECHA_EVENTO}} en {{SALON}}. ¡Muchas gracias por elegirnos!',
+};
+
 export type SocialPlatformName = 'Facebook' | 'Instagram' | 'TikTok' | 'WhatsApp';
 
 export interface SocialConnection {
