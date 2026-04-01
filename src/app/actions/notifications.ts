@@ -1,12 +1,13 @@
-
 'use server';
 
 import { readData, writeData } from '@/lib/data-service';
 import type { Notificacion } from '@/types/fiesta';
+import type { Presupuesto } from '@/types/presupuesto';
 import { getFiestas } from './fiesta/fiesta.actions';
-import { differenceInDays, isToday, startOfToday } from 'date-fns';
+import { differenceInDays, isToday, startOfToday, isFuture, parseISO } from 'date-fns';
 
 const NOTIFICATIONS_FILE = 'notifications.json';
+const PRESUPUESTOS_FILE = 'presupuestos.json';
 
 export async function getNotifications(): Promise<Notificacion[]> {
   try {
@@ -182,5 +183,143 @@ export async function checkAndCreateReunionReminders(): Promise<{ success: boole
     } catch(e) {
         console.error("Failed to check and create meeting reminders:", e);
         return { success: false, created: 0 };
+    }
+}
+
+export async function checkAndCreateEventAlerts(): Promise<{ success: boolean; created: number }> {
+    try {
+        const fiestasActivas = await getFiestas(false);
+        if (!fiestasActivas || fiestasActivas.length === 0) {
+            return { success: true, created: 0 };
+        }
+
+        const today = startOfToday();
+        let createdCount = 0;
+
+        for (const fiesta of fiestasActivas) {
+            if (!fiesta.configuracion.fechaEvento) continue;
+
+            const eventDate = parseISO(fiesta.configuracion.fechaEvento);
+            if (!isFuture(eventDate) && !isToday(eventDate)) continue;
+
+            const daysUntilEvent = differenceInDays(eventDate, today);
+            const eventName = fiesta.configuracion.nombreEvento || `Evento ${fiesta.id.substring(0, 6)}`;
+
+            // Alert: event in 7 days
+            if (daysUntilEvent === 7) {
+                const hasStaff = fiesta.personalAsignado && fiesta.personalAsignado.length > 0;
+                const mensaje = hasStaff
+                    ? `📅 El evento "${eventName}" es en 7 días. Personal asignado: ${fiesta.personalAsignado.length} personas.`
+                    : `⚠️ El evento "${eventName}" es en 7 días. Personal sin confirmar.`;
+                const result = await createNotification({
+                    mensaje,
+                    href: `/fiestas/nueva/personal?fiestaId=${fiesta.id}`,
+                    icono: 'KanbanSquare',
+                });
+                if (result.success) createdCount++;
+            }
+
+            // Alert: event in 3 days
+            if (daysUntilEvent === 3) {
+                const invitados = fiesta.configuracion.invitadosEstimados || 0;
+                const mensaje = `🎉 El evento "${eventName}" es en 3 días. ${invitados} invitados esperados.`;
+                const result = await createNotification({
+                    mensaje,
+                    href: `/fiestas/nueva?fiestaId=${fiesta.id}`,
+                    icono: 'KanbanSquare',
+                });
+                if (result.success) createdCount++;
+            }
+
+            // Alert: event is today
+            if (isToday(eventDate)) {
+                const mensaje = `🚀 ¡HOY es el evento "${eventName}"! ¡Mucho éxito!`;
+                const result = await createNotification({
+                    mensaje,
+                    href: `/fiestas/nueva/en-vivo?fiestaId=${fiesta.id}`,
+                    icono: 'KanbanSquare',
+                });
+                if (result.success) createdCount++;
+            }
+        }
+
+        return { success: true, created: createdCount };
+    } catch (e) {
+        console.error("Failed to check and create event alerts:", e);
+        return { success: false, created: 0 };
+    }
+}
+
+export async function checkAndCreatePendingBalanceAlerts(): Promise<{ success: boolean; created: number }> {
+    try {
+        const presupuestos = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
+        if (!presupuestos || presupuestos.length === 0) {
+            return { success: true, created: 0 };
+        }
+
+        const today = startOfToday();
+        let createdCount = 0;
+
+        for (const pres of presupuestos) {
+            if (pres.estado !== 'Aceptado' && pres.estado !== 'Enviado') continue;
+            if (!pres.eventoFecha) continue;
+
+            const eventDate = parseISO(pres.eventoFecha);
+            if (!isFuture(eventDate) && !isToday(eventDate)) continue;
+
+            const daysUntilEvent = differenceInDays(eventDate, today);
+            const total = pres.totalConDescuento ?? pres.costoTotalEstimado;
+            const clientName = pres.clienteNombre;
+
+            // Alert: accepted quote with event in ≤ 7 days → remind about balance
+            if (pres.estado === 'Aceptado' && daysUntilEvent <= 7 && daysUntilEvent >= 0) {
+                const formattedTotal = new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(total);
+                const mensaje = `💰 Saldo pendiente de ${formattedTotal} para el evento de ${clientName} (en ${daysUntilEvent === 0 ? 'HOY' : `${daysUntilEvent} día(s)`}).`;
+                const result = await createNotification({
+                    mensaje,
+                    href: `/fiestas/nueva/gestion-documental`,
+                    icono: 'ListChecks',
+                });
+                if (result.success) createdCount++;
+            }
+
+            // Alert: sent quote expiring soon (vigenciaPromocion)
+            if (pres.estado === 'Enviado' && pres.vigenciaPromocion) {
+                const expiryDate = parseISO(pres.vigenciaPromocion);
+                const daysUntilExpiry = differenceInDays(expiryDate, today);
+                if (daysUntilExpiry >= 0 && daysUntilExpiry <= 1) {
+                    const expiryLabel = daysUntilExpiry === 0 ? 'HOY' : 'mañana';
+                    const numero = pres.numero ? `#${pres.numero}` : '';
+                    const mensaje = `⏰ El presupuesto ${numero} para ${clientName} vence ${expiryLabel}. Enviar recordatorio.`;
+                    const result = await createNotification({
+                        mensaje,
+                        href: `/presupuestos`,
+                        icono: 'ListChecks',
+                    });
+                    if (result.success) createdCount++;
+                }
+            }
+        }
+
+        return { success: true, created: createdCount };
+    } catch (e) {
+        console.error("Failed to check and create balance alerts:", e);
+        return { success: false, created: 0 };
+    }
+}
+
+export async function generateAllSmartNotifications(): Promise<{ success: boolean; totalCreated: number }> {
+    try {
+        const [tasks, meetings, events, balances] = await Promise.all([
+            checkAndCreateTaskReminders(),
+            checkAndCreateReunionReminders(),
+            checkAndCreateEventAlerts(),
+            checkAndCreatePendingBalanceAlerts(),
+        ]);
+        const totalCreated = (tasks.created || 0) + (meetings.created || 0) + (events.created || 0) + (balances.created || 0);
+        return { success: true, totalCreated };
+    } catch (e) {
+        console.error("Failed to generate smart notifications:", e);
+        return { success: false, totalCreated: 0 };
     }
 }

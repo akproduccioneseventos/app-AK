@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { BellRing, Trash2, CheckCheck, KanbanSquare, Bell, ListChecks, MessageSquareText } from "lucide-react";
-import { getNotifications, markAllNotificationsAsRead, deleteNotification } from '@/app/actions/notifications';
+import { getNotifications, markAllNotificationsAsRead, deleteNotification, generateAllSmartNotifications } from '@/app/actions/notifications';
 import type { Notificacion } from '@/types/fiesta';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -44,7 +44,12 @@ export function NotificationsHub() {
 
   useEffect(() => {
     setIsLoading(true);
-    fetchNotifications().finally(() => setIsLoading(false));
+    // Generate smart notifications first, then fetch the updated list
+    generateAllSmartNotifications()
+      .catch(e => console.warn("Error generating smart notifications:", e))
+      .finally(() => {
+        fetchNotifications().finally(() => setIsLoading(false));
+      });
     
     // Configurar sondeo (polling) cada 30 segundos
     const interval = setInterval(fetchNotifications, 30000);
