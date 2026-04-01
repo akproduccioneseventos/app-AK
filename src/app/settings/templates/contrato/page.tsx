@@ -19,6 +19,7 @@ const PLACEHOLDERS = [
     { tag: '{{EVENTO_FECHA}}', desc: 'Fecha de la fiesta' },
     { tag: '{{EVENTO_SALON}}', desc: 'Nombre del salón' },
     { tag: '{{PRESUPUESTO_TOTAL}}', desc: 'Monto total (con ajuste)' },
+    { tag: '{{SENIA}}', desc: 'Monto de la seña / anticipo' },
     { tag: '{{FECHA_HOY}}', desc: 'Fecha actual' },
     { tag: '{{EMPRESA_NOMBRE}}', desc: 'Tu empresa' },
     { tag: '{{EMPRESA_RUT}}', desc: 'Tu RUT' },

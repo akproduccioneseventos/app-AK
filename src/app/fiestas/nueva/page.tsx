@@ -10,7 +10,7 @@ import {
     ListChecks, DollarSign, Camera, Gift, Archive, 
     Video, Globe, MessageSquare, LayoutDashboard, Star, Calculator, ShoppingCart, 
     ClipboardList, QrCode, Printer, Settings2, KeyRound, ClipboardCheck, ArrowRight, MapPin,
-    ArrowLeft, Clock
+    ArrowLeft, Clock, FileSignature
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateModulosContratadosFiestaActual, type FiestaEnPlanificacion, type ModulosContratados } from '../../actions/fiesta-actual';
@@ -145,6 +145,26 @@ function PlannerDashboardContent() {
         </div>
         <KpiCard title="Fecha" value={new Date(fiesta.configuracion.fechaEvento!).toLocaleDateString('es-ES', {month: 'short', day: 'numeric'})} icon={Calendar} />
       </div>
+
+      {/* Generate Contract Quick Action */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+        <Link href={`/fiestas/nueva/gestion-documental/contrato-servicio?fiestaId=${fiestaId}`}>
+          <div className="flex items-center justify-between gap-4 p-4 sm:p-5 bg-white rounded-2xl premium-shadow border border-slate-100 hover:border-primary/30 hover:shadow-primary/10 transition-all cursor-pointer group">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-primary/10 rounded-xl group-hover:bg-primary group-hover:text-white transition-all shrink-0">
+                <FileSignature className="w-5 h-5 text-primary group-hover:text-white transition-colors" />
+              </div>
+              <div>
+                <p className="font-black text-slate-800 text-sm sm:text-base tracking-tight">Generar Contrato</p>
+                <p className="text-[10px] sm:text-xs text-slate-400 font-bold uppercase tracking-widest">Autocompleta con datos del evento y cliente</p>
+              </div>
+            </div>
+            <Button variant="outline" size="sm" className="shrink-0 rounded-xl font-black text-[10px] uppercase tracking-widest group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-all">
+              Abrir <ArrowRight className="w-3.5 h-3.5 ml-1.5 group-hover:translate-x-1 transition-transform" />
+            </Button>
+          </div>
+        </Link>
+      </motion.div>
 
        <Accordion type="single" collapsible className="w-full">
         <AccordionItem value="settings" className="border-none">
