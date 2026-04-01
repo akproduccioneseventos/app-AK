@@ -13,6 +13,11 @@ import { initialFiestaActualData, defaultModulosContratados } from '@/lib/fiesta
 const LEADS_FILE = 'crm-leads.json';
 const STAGES_FILE = 'crm-stages.json';
 
+/** Normalizes a phone number: removes non-digits and keeps the last 9 digits. */
+function normalizePhone(phone: string): string {
+  return phone.replace(/\D/g, '').slice(-9);
+}
+
 const defaultStages: CrmStage[] = [
   { id: 's1', name: 'Consultó', order: 1, headerBgColor: "bg-sky-500", headerTextColor: 'text-sky-50', bgColor: 'bg-sky-100', borderColor: 'border-sky-500', textColor: 'text-sky-700' },
   { id: 's2', name: 'Agendó entrevista', order: 2, headerBgColor: "bg-teal-500", headerTextColor: 'text-teal-50', bgColor: 'bg-teal-100', borderColor: 'border-teal-500', textColor: 'text-teal-700' },
@@ -40,8 +45,8 @@ export async function addCrmLead(leadData: NewCrmLeadData): Promise<{ success: b
 
   // Duplicate detection by phone
   if (leadData.phone) {
-    const normalizedPhone = leadData.phone.replace(/\D/g, '').slice(-9);
-    const duplicate = leads.find(l => l.phone && l.phone.replace(/\D/g, '').slice(-9) === normalizedPhone);
+    const normalizedPhone = normalizePhone(leadData.phone);
+    const duplicate = leads.find(l => l.phone && normalizePhone(l.phone) === normalizedPhone);
     if (duplicate) {
       return { success: false, error: `Ya existe un prospecto con este teléfono: "${duplicate.name}".`, duplicate };
     }
@@ -147,8 +152,8 @@ export async function updateCrmLeadField(
 export async function checkDuplicatePhone(phone: string): Promise<{ duplicate: CrmLead | null }> {
     if (!phone) return { duplicate: null };
     const leads = await getCrmLeads();
-    const normalized = phone.replace(/\D/g, '').slice(-9);
-    const found = leads.find(l => l.phone && l.phone.replace(/\D/g, '').slice(-9) === normalized) ?? null;
+    const normalized = normalizePhone(phone);
+    const found = leads.find(l => l.phone && normalizePhone(l.phone) === normalized) ?? null;
     return { duplicate: found };
 }
 
@@ -356,7 +361,7 @@ export async function findLeadByBudgetOrCreate(presupuesto: any) {
     
     // Normalizar datos de búsqueda para evitar duplicados
     const searchName = presupuesto.clienteNombre?.toLowerCase().trim().replace(/\s+/g, ' ');
-    const searchPhone = presupuesto.clienteContacto?.replace(/\D/g, '').slice(-9);
+    const searchPhone = presupuesto.clienteContacto ? normalizePhone(presupuesto.clienteContacto) : undefined;
 
     // 1. Intentar encontrar por ID vinculada o ID de presupuesto
     let leadIndex = leads.findIndex(l => 
@@ -368,7 +373,7 @@ export async function findLeadByBudgetOrCreate(presupuesto: any) {
     if (leadIndex === -1 && (searchName || searchPhone)) {
         leadIndex = leads.findIndex(l => {
             const leadName = l.name?.toLowerCase().trim().replace(/\s+/g, ' ');
-            const leadPhone = l.phone?.replace(/\D/g, '').slice(-9);
+            const leadPhone = l.phone ? normalizePhone(l.phone) : undefined;
             return (searchName && leadName === searchName) || 
                    (searchPhone && leadPhone && leadPhone === searchPhone);
         });

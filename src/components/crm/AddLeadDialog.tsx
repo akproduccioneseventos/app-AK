@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useCallback, type FormEvent } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -41,6 +42,7 @@ export function AddLeadDialog({ stages, onLeadAdded, defaultStageId, currentUser
   const [duplicateLead, setDuplicateLead] = useState<CrmLead | null>(null);
   const [isCheckingDuplicate, setIsCheckingDuplicate] = useState(false);
   const { toast } = useToast();
+  const router = useRouter();
 
   const firstStageId = stages.length > 0 ? stages[0].id : '';
 
@@ -132,7 +134,7 @@ export function AddLeadDialog({ stages, onLeadAdded, defaultStageId, currentUser
                   variant="outline"
                   size="sm"
                   className="h-7 text-xs border-orange-400 text-orange-800 hover:bg-orange-100"
-                  onClick={() => { setIsOpen(false); window.location.href = `/contabilidad/crm`; }}
+                  onClick={() => { setIsOpen(false); router.push('/contabilidad/crm'); }}
                 >
                   <ExternalLink className="w-3 h-3 mr-1" /> Ver en CRM
                 </Button>

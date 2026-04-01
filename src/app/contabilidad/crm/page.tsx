@@ -208,7 +208,7 @@ export default function CrmPage() {
     { key: 'this_week', label: 'Esta semana', icon: <Clock className="w-3 h-3" /> },
     { key: 'no_followup', label: 'Sin cita', icon: <X className="w-3 h-3" /> },
     { key: 'inactive', label: `Sin actividad (${inactiveCount})`, icon: <AlertTriangle className="w-3 h-3" /> },
-    { key: 'my_leads', label: 'Mis leads', icon: <User className="w-3 h-3" /> },
+    { key: 'my_leads', label: 'Con responsable', icon: <User className="w-3 h-3" /> },
   ];
 
   return (

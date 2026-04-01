@@ -88,13 +88,14 @@ function buildTimeline(lead: CrmLead): CrmTimelineItem[] {
     });
   }
 
-  // Derive meeting from followUpDate if not already in timeline
-  if (lead.followUpDate && !items.some(i => i.type === 'meeting_scheduled')) {
+  // Derive meeting from followUpDate if not already in timeline with this specific date
+  if (lead.followUpDate && !items.some(i => i.type === 'meeting_scheduled' && i.meta?.date === lead.followUpDate)) {
     items.push({
       id: `meeting_${lead.id}`,
       type: 'meeting_scheduled',
       timestamp: lead.followUpDate,
       description: `Cita/Reunión agendada: ${new Date(lead.followUpDate).toLocaleString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}hs`,
+      meta: { date: lead.followUpDate },
     });
   }
 
