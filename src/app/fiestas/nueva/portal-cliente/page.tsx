@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Loader2, KeyRound, ClipboardCopy } from 'lucide-react';
+import { ArrowLeft, Loader2, KeyRound, ClipboardCopy, Share2, MessageCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, ClientPortalSettings } from '@/types/fiesta';
 import { getFiestaById, updatePortalSettingsFiestaActual } from '@/app/actions/fiesta-actual';
@@ -85,10 +85,26 @@ function ClientPortalConfigContent() {
   };
 
   const portalLink = typeof window !== 'undefined' ? `${window.location.origin}/portal?fiestaId=${fiestaId}` : '';
+  const publicPortalLink =
+    typeof window !== 'undefined' && portalSettings.accessKey
+      ? `${window.location.origin}/portal/c/${portalSettings.accessKey}`
+      : '';
 
   const handleCopyPassword = () => {
     navigator.clipboard.writeText(portalSettings.accessKey || '');
     toast({ title: "Contraseña del portal copiada al portapapeles" });
+  };
+
+  const handleCopyPublicLink = () => {
+    navigator.clipboard.writeText(publicPortalLink);
+    toast({ title: "Enlace copiado al portapapeles" });
+  };
+
+  const handleShareWhatsApp = () => {
+    const message = encodeURIComponent(
+      `¡Hola! Aquí podés ver el portal de tu evento: ${publicPortalLink}`
+    );
+    window.open(`https://wa.me/?text=${message}`, '_blank', 'noopener,noreferrer');
   };
 
 
@@ -140,6 +156,35 @@ function ClientPortalConfigContent() {
                       <Button type="button" size="icon" variant="outline" onClick={() => { navigator.clipboard.writeText(portalLink); toast({title: "Enlace copiado"}); }}><ClipboardCopy className="w-4 h-4"/></Button>
                     </div>
                   </div>
+                  {publicPortalLink && (
+                    <>
+                      <Separator />
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Share2 className="w-4 h-4 text-primary" />
+                          <h4 className="text-sm font-semibold">Compartir Portal Público</h4>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Este enlace lleva directamente al portal de tu cliente sin necesidad de contraseña. Compártelo con seguridad.
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <Input value={publicPortalLink} readOnly className="text-xs" />
+                          <Button type="button" size="icon" variant="outline" onClick={handleCopyPublicLink}>
+                            <ClipboardCopy className="w-4 h-4" />
+                          </Button>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="w-full border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white"
+                          onClick={handleShareWhatsApp}
+                        >
+                          <MessageCircle className="w-4 h-4 mr-2" />
+                          Enviar por WhatsApp
+                        </Button>
+                      </div>
+                    </>
+                  )}
                   <Separator/>
                    <h4 className="text-md font-medium pt-2">Módulos Visibles para el Cliente</h4>
                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

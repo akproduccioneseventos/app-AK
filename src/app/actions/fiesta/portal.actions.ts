@@ -3,7 +3,7 @@
 'use server';
 
 import type { FiestaEnPlanificacion, ClientTarea, ClientPortalSettings } from '@/types/fiesta';
-import { getFiestaById, saveFiesta } from './fiesta.actions';
+import { getFiestaById, saveFiesta, getFiestas } from './fiesta.actions';
 
 async function updateFiestaData(
   fiestaId: string,
@@ -44,6 +44,20 @@ export async function updatePortalSettings(
     };
     return updatedData;
   });
+}
+
+export async function getFiestaByAccessKey(accessKey: string): Promise<FiestaEnPlanificacion | null> {
+  if (!accessKey || accessKey.trim() === '') return null;
+  try {
+    const fiestas = await getFiestas(false);
+    return fiestas.find(
+      f =>
+        f.clientPortalSettings?.enabled === true &&
+        f.clientPortalSettings?.accessKey === accessKey
+    ) ?? null;
+  } catch {
+    return null;
+  }
 }
 
     
