@@ -7,8 +7,8 @@ import { Button } from '@/components/ui/button';
 import { AlertTriangle, ClipboardCopy, Printer, Gift, Share2, CheckCircle2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import React, { useEffect, useState, useMemo } from 'react';
-import { getBudgetDisplaySettings } from '@/app/actions/settings';
-import { getInvoiceTemplateSettings } from '@/app/actions/settings';
+import { getBudgetDisplaySettings, getInvoiceTemplateSettings, getWhatsAppTemplates } from '@/app/actions/settings';
+import { renderWhatsAppTemplate } from '@/lib/whatsapp-templates';
 import type { BudgetDisplaySettings } from '@/types/settings';
 import Image from 'next/image';
 
@@ -58,18 +58,21 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
   const { toast } = useToast();
   const [displaySettings, setDisplaySettings] = useState<BudgetDisplaySettings | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [crmFollowUpTemplate, setCrmFollowUpTemplate] = useState('');
   const [isLoadingSettings, setIsLoadingSettings] = useState(true);
 
   useEffect(() => {
     async function loadSettings() {
       setIsLoadingSettings(true);
       try {
-        const [budgetSettings, templateSettings] = await Promise.all([
+        const [budgetSettings, templateSettings, whatsappTemplates] = await Promise.all([
           getBudgetDisplaySettings(),
           getInvoiceTemplateSettings(),
+          getWhatsAppTemplates(),
         ]);
         setDisplaySettings(budgetSettings);
         setLogoUrl(templateSettings.logoUrl);
+        setCrmFollowUpTemplate(whatsappTemplates.crmFollowUp);
       } catch (e) {
         toast({title: "Error", description: "No se pudo cargar la configuración de visualización.", variant: "destructive"});
       } finally {
@@ -119,6 +122,22 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
  const generarTextoWhatsApp = () => {
     if (!presupuesto) return '';
     const pageUrl = `${window.location.origin}/presupuestos/${presupuesto.id}/ver`;
+
+    if (crmFollowUpTemplate) {
+      return renderWhatsAppTemplate(crmFollowUpTemplate, {
+        clienteNombre: presupuesto.clienteNombre || '',
+        eventoTipo: presupuesto.eventoTipo || '',
+        eventoFecha: presupuesto.eventoFecha || '',
+        totalEvento: formatCurrency(presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado),
+        totalPagado: '',
+        saldoPendiente: '',
+        linkEstadoCuenta: pageUrl,
+        empresaNombre: COMPANY_NAME_BRAND,
+        whatsappLink: pageUrl,
+        tareaNombre: '',
+      });
+    }
+
     let texto = `🎉 *¡Hola ${presupuesto.clienteNombre}!* 🎉\n\n`;
     texto += `Gracias por considerar a *${COMPANY_NAME_BRAND}*.`;
     texto += ` Hemos preparado un presupuesto para tu *${presupuesto.eventoTipo}*.\n\n`;

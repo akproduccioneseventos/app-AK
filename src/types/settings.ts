@@ -65,6 +65,21 @@ export interface SocialConnection {
   phoneNumber?: string;
 }
 
+export interface WhatsAppTemplates {
+  crmFollowUp: string;
+  paymentReminder: string;
+  taskReminder: string;
+}
+
+export const defaultWhatsAppTemplates: WhatsAppTemplates = {
+  crmFollowUp:
+    '🎉 *¡Hola {clienteNombre}!* 🎉\n\nGracias por considerar a *{empresaNombre}*. Hemos preparado un presupuesto para tu *{eventoTipo}*.\n\nPodés ver todos los detalles en el siguiente enlace:\n{whatsappLink}\n\n¡Esperamos tu consulta!\n*El equipo de {empresaNombre}*',
+  paymentReminder:
+    '📋 *Estado de Cuenta — {empresaNombre}*\n━━━━━━━━━━━━━━━━━━━━━━\n👤 *Cliente:* {clienteNombre}\n🎉 *Evento:* {eventoTipo} — {eventoFecha}\n━━━━━━━━━━━━━━━━━━━━━━\n💰 *Total del evento:* {totalEvento}\n✅ *Total pagado:* {totalPagado}\n💳 *Saldo pendiente:* {saldoPendiente}\n━━━━━━━━━━━━━━━━━━━━━━\n🔗 Ver detalle completo:\n{linkEstadoCuenta}',
+  taskReminder:
+    '📋 *Recordatorio de Tarea — {empresaNombre}*\n\n¡Hola {clienteNombre}! 👋\n\nTe recordamos que tenés una tarea pendiente:\n✅ *{tareaNombre}*\n\nPodés gestionar todas tus tareas desde tu portal:\n{whatsappLink}\n\n¡Estamos para ayudarte!',
+};
+
 export interface CompanyInfo {
     companyName: string;
     companyAddress: string;

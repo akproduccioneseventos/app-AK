@@ -11,7 +11,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import type { Presupuesto, PagoCliente } from '@/types/presupuesto';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getSocialConnections } from '@/app/actions/social-connections';
-import { getInvoiceTemplateSettings, getCompanyInfo } from '@/app/actions/settings';
+import { getInvoiceTemplateSettings, getCompanyInfo, getWhatsAppTemplates } from '@/app/actions/settings';
+import { renderWhatsAppTemplate } from '@/lib/whatsapp-templates';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 
@@ -58,18 +59,20 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [companyName, setCompanyName] = useState('AK Producciones');
   const [whatsappNumber, setWhatsappNumber] = useState('');
+  const [paymentReminderTemplate, setPaymentReminderTemplate] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [fetchedPresupuesto, templateSettings, socialConnections, companyInfo] =
+      const [fetchedPresupuesto, templateSettings, socialConnections, companyInfo, whatsappTemplates] =
         await Promise.all([
           getPresupuestoById(presupuestoId),
           getInvoiceTemplateSettings(),
           getSocialConnections(),
           getCompanyInfo(),
+          getWhatsAppTemplates(),
         ]);
 
       if (!fetchedPresupuesto) {
@@ -83,6 +86,7 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
 
       const wp = socialConnections.find(c => c.platform === 'WhatsApp' && c.isConnected);
       if (wp?.phoneNumber) setWhatsappNumber(wp.phoneNumber);
+      setPaymentReminderTemplate(whatsappTemplates.paymentReminder);
     } catch (err: any) {
       setError(err.message || 'Error al cargar los datos.');
     } finally {
@@ -112,21 +116,41 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
   const handleWhatsApp = () => {
     if (!presupuesto) return;
     const url = window.location.href;
-    const saldoText =
-      saldoPendiente <= 0
-        ? '✅ Tu cuenta está saldada. ¡Muchas gracias!'
-        : `💳 Saldo pendiente: ${formatCurrency(saldoPendiente)}`;
-    const texto =
-      `📋 *Estado de Cuenta — ${companyName}*\n` +
-      `━━━━━━━━━━━━━━━━━━━━━━\n` +
-      `👤 *Cliente:* ${presupuesto.clienteNombre}\n` +
-      `🎉 *Evento:* ${presupuesto.eventoTipo} — ${formatDate(presupuesto.eventoFecha)}\n` +
-      `━━━━━━━━━━━━━━━━━━━━━━\n` +
-      `💰 *Total del evento:* ${formatCurrency(totalCosto)}\n` +
-      `✅ *Total pagado:* ${formatCurrency(totalPagado)}\n` +
-      `${saldoText}\n` +
-      `━━━━━━━━━━━━━━━━━━━━━━\n` +
-      `🔗 Ver detalle completo:\n${url}`;
+
+    let texto: string;
+    if (paymentReminderTemplate) {
+      texto = renderWhatsAppTemplate(paymentReminderTemplate, {
+        clienteNombre: presupuesto.clienteNombre || '',
+        eventoTipo: presupuesto.eventoTipo || '',
+        eventoFecha: formatDate(presupuesto.eventoFecha),
+        totalEvento: formatCurrency(totalCosto),
+        totalPagado: formatCurrency(totalPagado),
+        saldoPendiente:
+          saldoPendiente <= 0
+            ? 'Tu cuenta está saldada. ¡Muchas gracias!'
+            : formatCurrency(saldoPendiente),
+        linkEstadoCuenta: url,
+        empresaNombre: companyName,
+        whatsappLink: url,
+        tareaNombre: '',
+      });
+    } else {
+      const saldoText =
+        saldoPendiente <= 0
+          ? '✅ Tu cuenta está saldada. ¡Muchas gracias!'
+          : `💳 Saldo pendiente: ${formatCurrency(saldoPendiente)}`;
+      texto =
+        `📋 *Estado de Cuenta — ${companyName}*\n` +
+        `━━━━━━━━━━━━━━━━━━━━━━\n` +
+        `👤 *Cliente:* ${presupuesto.clienteNombre}\n` +
+        `🎉 *Evento:* ${presupuesto.eventoTipo} — ${formatDate(presupuesto.eventoFecha)}\n` +
+        `━━━━━━━━━━━━━━━━━━━━━━\n` +
+        `💰 *Total del evento:* ${formatCurrency(totalCosto)}\n` +
+        `✅ *Total pagado:* ${formatCurrency(totalPagado)}\n` +
+        `${saldoText}\n` +
+        `━━━━━━━━━━━━━━━━━━━━━━\n` +
+        `🔗 Ver detalle completo:\n${url}`;
+    }
 
     const target = whatsappNumber
       ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(texto)}`

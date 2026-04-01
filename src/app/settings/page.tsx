@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Building, Bell, ShieldCheck, Settings as SettingsIcon, BarChart3, Link as LinkIcon, Star, HardDriveDownload, Wand2, UserCog, Palette, TrendingUp, Ticket, FileSignature } from 'lucide-react';
+import { Building, Bell, ShieldCheck, Settings as SettingsIcon, BarChart3, Link as LinkIcon, Star, HardDriveDownload, Wand2, UserCog, Palette, TrendingUp, Ticket, FileSignature, MessageCircle } from 'lucide-react';
 
 const settingsCards = [
    {
@@ -40,6 +40,13 @@ const settingsCards = [
     href: "/settings/social-connections",
     icon: LinkIcon,
     buttonLabel: "Gestionar Vínculos"
+  },
+  {
+    title: "Plantillas de WhatsApp",
+    description: "Personalizá los mensajes de seguimiento CRM, recordatorios de pago y tareas que se envían por WhatsApp.",
+    href: "/settings/whatsapp-templates",
+    icon: MessageCircle,
+    buttonLabel: "Editar Plantillas"
   },
   {
     title: "Accesos para Colaboradores",

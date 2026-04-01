@@ -12,6 +12,8 @@ import { ArrowLeft, Loader2, KeyRound, ClipboardCopy, Share2, MessageCircle } fr
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, ClientPortalSettings } from '@/types/fiesta';
 import { getFiestaById, updatePortalSettingsFiestaActual } from '@/app/actions/fiesta-actual';
+import { getWhatsAppTemplates, getCompanyInfo } from '@/app/actions/settings';
+import { renderWhatsAppTemplate } from '@/lib/whatsapp-templates';
 import { Separator } from '@/components/ui/separator';
 import { useSearchParams } from 'next/navigation';
 import { defaultClientPortalSettings } from '@/lib/fiesta-defaults';
@@ -35,6 +37,9 @@ function ClientPortalConfigContent() {
   const fiestaId = searchParams.get('fiestaId');
 
   const [portalSettings, setPortalSettings] = useState<ClientPortalSettings>(defaultClientPortalSettings);
+  const [taskReminderTemplate, setTaskReminderTemplate] = useState('');
+  const [companyName, setCompanyName] = useState('AK Producciones');
+  const [clienteNombre, setClienteNombre] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -42,9 +47,16 @@ function ClientPortalConfigContent() {
     if (!fiestaId) return;
     setIsLoading(true);
     try {
-      const fiestaData = await getFiestaById(fiestaId);
+      const [fiestaData, whatsappTemplates, companyInfo] = await Promise.all([
+        getFiestaById(fiestaId),
+        getWhatsAppTemplates(),
+        getCompanyInfo(),
+      ]);
       if (!fiestaData) throw new Error("Fiesta no encontrada");
       setPortalSettings(fiestaData.clientPortalSettings || defaultClientPortalSettings);
+      setTaskReminderTemplate(whatsappTemplates.taskReminder);
+      setCompanyName(companyInfo?.companyName || 'AK Producciones');
+      setClienteNombre(fiestaData.configuracion?.protagonista1Nombre || fiestaData.configuracion?.nombreEvento || '');
     } catch (e: any) {
       toast({ title: "Error", description: "No se pudieron cargar los datos.", variant: "destructive" });
     } finally {
@@ -101,10 +113,19 @@ function ClientPortalConfigContent() {
   };
 
   const handleShareWhatsApp = () => {
-    const message = encodeURIComponent(
-      `¡Hola! Aquí podés ver el portal de tu evento: ${publicPortalLink}`
-    );
-    window.open(`https://wa.me/?text=${message}`, '_blank', 'noopener,noreferrer');
+    let message: string;
+    if (taskReminderTemplate) {
+      message = renderWhatsAppTemplate(taskReminderTemplate, {
+        clienteNombre: clienteNombre,
+        linkEstadoCuenta: publicPortalLink,
+        empresaNombre: companyName,
+        whatsappLink: publicPortalLink,
+        tareaNombre: 'Portal del evento',
+      });
+    } else {
+      message = `¡Hola! Aquí podés ver el portal de tu evento: ${publicPortalLink}`;
+    }
+    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
   };
 
 

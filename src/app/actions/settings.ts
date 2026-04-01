@@ -2,13 +2,14 @@
 'use server';
 
 import { readData, writeData } from '@/lib/data-service';
-import type { BudgetDisplaySettings, InvoiceTemplateSettings, CompanyInfo } from '@/types/settings';
-import { defaultBudgetDisplaySettings, defaultInvoiceTemplateSettings, defaultCompanyInfo } from '@/types/settings';
+import type { BudgetDisplaySettings, InvoiceTemplateSettings, CompanyInfo, WhatsAppTemplates } from '@/types/settings';
+import { defaultBudgetDisplaySettings, defaultInvoiceTemplateSettings, defaultCompanyInfo, defaultWhatsAppTemplates } from '@/types/settings';
 
 const BUDGET_SETTINGS_FILE = 'budget-display-settings.json';
 const INVOICE_SETTINGS_FILE = 'invoice-template-settings.json';
 const COMPANY_INFO_FILE = 'company-info.json';
 const CONTRACT_TEMPLATE_FILE = 'contract-template.json';
+const WHATSAPP_TEMPLATES_FILE = 'whatsapp-templates.json';
 
 const defaultContractTemplate = `CONTRATO DE PRESTACIÓN DE SERVICIOS PARA EVENTOS 
 
@@ -133,5 +134,27 @@ export async function saveInvoiceTemplateSettings(
     return { success: true, settings: settingsToSave };
   } catch (error: any) {
     return { success: false, error: error.message || "Error desconocido al guardar la plantilla de factura." };
+  }
+}
+
+// --- WhatsApp Templates ---
+export async function getWhatsAppTemplates(): Promise<WhatsAppTemplates> {
+  const data = await readData<Partial<WhatsAppTemplates>>(WHATSAPP_TEMPLATES_FILE, {});
+  return { ...defaultWhatsAppTemplates, ...data };
+}
+
+export async function saveWhatsAppTemplates(
+  templates: Partial<WhatsAppTemplates>
+): Promise<{ success: boolean; templates?: WhatsAppTemplates; error?: string }> {
+  try {
+    const current = await getWhatsAppTemplates();
+    const toSave: WhatsAppTemplates = { ...current, ...templates };
+    if (!toSave.crmFollowUp?.trim() || !toSave.paymentReminder?.trim() || !toSave.taskReminder?.trim()) {
+      return { success: false, error: 'Las plantillas no pueden estar vacías.' };
+    }
+    await writeData(WHATSAPP_TEMPLATES_FILE, toSave);
+    return { success: true, templates: toSave };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Error desconocido al guardar las plantillas.' };
   }
 }
