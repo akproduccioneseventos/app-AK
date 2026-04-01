@@ -6,6 +6,23 @@ export interface CrmLeadHistoryItem {
   timestamp: string;
 }
 
+export type CrmTimelineEventType =
+  | 'stage_change'
+  | 'meeting_scheduled'
+  | 'note_added'
+  | 'presupuesto_created'
+  | 'contract_uploaded'
+  | 'whatsapp_sent'
+  | 'lead_created';
+
+export interface CrmTimelineItem {
+  id: string;
+  type: CrmTimelineEventType;
+  timestamp: string;
+  description: string;
+  meta?: Record<string, string | number | boolean>;
+}
+
 export interface CrmStage {
   id: string;
   name: string; 
@@ -29,6 +46,7 @@ export interface CrmLead {
   phone?: string;
   notes?: string;
   history?: CrmLeadHistoryItem[];
+  timeline?: CrmTimelineItem[];
   // Optional party details
   partyType?: string;
   venueName?: string;
@@ -38,6 +56,11 @@ export interface CrmLead {
   presupuestoEstado?: 'Borrador' | 'Enviado' | 'Aceptado' | 'Rechazado' | 'Facturado'; // Denormalized status
   invoiceId?: string; // If the budget was invoiced
   budgetSource?: 'manual' | 'simulator';
+  // Contact tracking
+  lastContactedAt?: string; // ISO date string
+  lastContactMethod?: 'whatsapp' | 'phone' | 'email' | 'in_person';
+  // Ownership
+  assignedTo?: string; // Empleado id or name
 }
 
 export type NewCrmLeadData = Omit<CrmLead, 'id' | 'createdAt' | 'updatedAt' | 'history' | 'presupuestoEstado' | 'invoiceId' >;

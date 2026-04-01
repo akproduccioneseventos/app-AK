@@ -1,7 +1,8 @@
 
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useState, useCallback, type FormEvent } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,10 +16,11 @@ import {
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
-import { PlusCircle, Loader2 } from 'lucide-react';
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { PlusCircle, Loader2, AlertTriangle, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { addCrmLead } from '@/app/actions/crm';
-import type { CrmStage, NewCrmLeadData } from '@/types/crm';
+import { addCrmLead, checkDuplicatePhone } from '@/app/actions/crm';
+import type { CrmLead, CrmStage, NewCrmLeadData } from '@/types/crm';
 import { Textarea } from '../ui/textarea';
 import type { TipoEvento } from '@/types/presupuesto';
 import { ALL_TIPOS_EVENTO } from '@/types/presupuesto';
@@ -27,25 +29,47 @@ import { DatePickerDemo } from '../date-picker-demo';
 
 interface AddLeadDialogProps {
   stages: CrmStage[];
-  onLeadAdded: () => void; // Callback to refresh leads list
+  onLeadAdded: () => void;
   defaultStageId?: string;
+  /** Current leads list for assignee suggestions (optional) */
+  currentUserName?: string;
 }
 
-export function AddLeadDialog({ stages, onLeadAdded, defaultStageId }: AddLeadDialogProps) {
+export function AddLeadDialog({ stages, onLeadAdded, defaultStageId, currentUserName }: AddLeadDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [formData, setFormData] = useState<Partial<NewCrmLeadData>>({ name: '', phone: '', notes: '', partyType: '', venueName: '', guestCount: undefined, followUpDate: undefined });
+  const [formData, setFormData] = useState<Partial<NewCrmLeadData>>({ name: '', phone: '', notes: '', partyType: '', venueName: '', guestCount: undefined, followUpDate: undefined, assignedTo: currentUserName || '' });
   const [isSaving, setIsSaving] = useState(false);
+  const [duplicateLead, setDuplicateLead] = useState<CrmLead | null>(null);
+  const [isCheckingDuplicate, setIsCheckingDuplicate] = useState(false);
   const { toast } = useToast();
+  const router = useRouter();
 
   const firstStageId = stages.length > 0 ? stages[0].id : '';
 
   const resetForm = () => {
-    setFormData({ name: '', phone: '', notes: '', partyType: '', venueName: '', guestCount: undefined, followUpDate: undefined });
+    setFormData({ name: '', phone: '', notes: '', partyType: '', venueName: '', guestCount: undefined, followUpDate: undefined, assignedTo: currentUserName || '' });
+    setDuplicateLead(null);
   };
 
   const handleInputChange = (field: keyof NewCrmLeadData, value: string | number | undefined | Date) => {
     setFormData(prev => ({...prev, [field]: value}));
   };
+
+  const handlePhoneBlur = useCallback(async (phone: string) => {
+    if (!phone || phone.trim().length < 6) {
+      setDuplicateLead(null);
+      return;
+    }
+    setIsCheckingDuplicate(true);
+    try {
+      const { duplicate } = await checkDuplicatePhone(phone.trim());
+      setDuplicateLead(duplicate);
+    } catch {
+      // ignore
+    } finally {
+      setIsCheckingDuplicate(false);
+    }
+  }, []);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -70,6 +94,10 @@ export function AddLeadDialog({ stages, onLeadAdded, defaultStageId }: AddLeadDi
         resetForm();
         setIsOpen(false);
         onLeadAdded();
+      } else if (result.duplicate) {
+        // Duplicate found server-side
+        setDuplicateLead(result.duplicate);
+        toast({ title: "Teléfono duplicado", description: result.error, variant: "destructive" });
       } else {
         throw new Error(result.error || "No se pudo añadir el prospecto.");
       }
@@ -96,14 +124,44 @@ export function AddLeadDialog({ stages, onLeadAdded, defaultStageId }: AddLeadDi
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 py-2 max-h-[70vh] overflow-y-auto pr-4">
+          {duplicateLead && (
+            <Alert variant="destructive" className="bg-orange-50 border-orange-300 text-orange-900">
+              <AlertTriangle className="w-4 h-4" />
+              <AlertDescription className="flex items-center justify-between gap-2 flex-wrap">
+                <span>Ya existe un prospecto con este teléfono: <strong>{duplicateLead.name}</strong></span>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-7 text-xs border-orange-400 text-orange-800 hover:bg-orange-100"
+                  onClick={() => { setIsOpen(false); router.push('/contabilidad/crm'); }}
+                >
+                  <ExternalLink className="w-3 h-3 mr-1" /> Ver en CRM
+                </Button>
+              </AlertDescription>
+            </Alert>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <Label htmlFor="lead-name">Nombre del Prospecto *</Label>
               <Input id="lead-name" value={formData.name} onChange={(e) => handleInputChange('name', e.target.value)} placeholder="Ej: Contacto de Empresa XYZ" required disabled={isSaving}/>
             </div>
             <div className="space-y-1">
-              <Label htmlFor="lead-phone">Teléfono *</Label>
-              <Input id="lead-phone" type="tel" value={formData.phone} onChange={(e) => handleInputChange('phone', e.target.value)} placeholder="099 123 456" disabled={isSaving} required/>
+              <Label htmlFor="lead-phone">
+                Teléfono *
+                {isCheckingDuplicate && <span className="text-xs text-muted-foreground ml-1">(verificando...)</span>}
+              </Label>
+              <Input
+                id="lead-phone"
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => { handleInputChange('phone', e.target.value); setDuplicateLead(null); }}
+                onBlur={(e) => handlePhoneBlur(e.target.value)}
+                placeholder="099 123 456"
+                disabled={isSaving}
+                required
+                className={duplicateLead ? 'border-orange-400 focus-visible:ring-orange-400' : ''}
+              />
             </div>
           </div>
            
@@ -132,6 +190,10 @@ export function AddLeadDialog({ stages, onLeadAdded, defaultStageId }: AddLeadDi
                 <Input id="lead-guests" type="number" value={formData.guestCount || ''} onChange={(e) => handleInputChange('guestCount', Number(e.target.value))} placeholder="Ej: 100" disabled={isSaving}/>
             </div>
           </div>
+          <div className="space-y-1">
+            <Label htmlFor="lead-assigned">Asignado a (Opcional)</Label>
+            <Input id="lead-assigned" value={formData.assignedTo || ''} onChange={(e) => handleInputChange('assignedTo', e.target.value)} placeholder="Ej: María García" disabled={isSaving}/>
+          </div>
            <div className="space-y-1">
             <Label htmlFor="lead-notes">Notas (Opcional)</Label>
             <Textarea id="lead-notes" value={formData.notes} onChange={(e) => handleInputChange('notes', e.target.value)} placeholder="Detalles de la consulta, fecha de primer contacto, etc." disabled={isSaving} rows={3}/>
@@ -150,3 +212,4 @@ export function AddLeadDialog({ stages, onLeadAdded, defaultStageId }: AddLeadDi
     </Dialog>
   );
 }
+

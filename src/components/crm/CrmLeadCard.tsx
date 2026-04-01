@@ -5,7 +5,7 @@ import { CSS } from '@dnd-kit/utilities';
 import type { CrmLead } from '@/types/crm';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Trash2, GripVertical, FilePlus2, Users, Building2, Clock, ChevronLeft, ChevronRight, FileText, FileSignature, CheckCircle, Smartphone } from 'lucide-react';
+import { Loader2, Trash2, GripVertical, FilePlus2, Users, Building2, Clock, ChevronLeft, ChevronRight, FileText, FileSignature, CheckCircle, Smartphone, MessageCircle, History, AlertTriangle, Bell } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,8 +19,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { memo, useMemo } from 'react';
+import { memo, useMemo, useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
+import { recordWhatsAppContact } from '@/app/actions/crm';
+import { useToast } from '@/hooks/use-toast';
+import { CrmLeadTimeline } from './CrmLeadTimeline';
+
+const INACTIVITY_DAYS = 7;
 
 interface CrmLeadCardProps {
   lead: CrmLead;
@@ -41,6 +46,9 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
     isDragging,
   } = useSortable({ id: lead.id, disabled: isMobile });
 
+  const [isTimelineOpen, setIsTimelineOpen] = useState(false);
+  const { toast } = useToast();
+
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -58,6 +66,47 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
   const isBudgetFacturado = lead.presupuestoEstado === 'Facturado';
   const isBudgetAceptado = lead.presupuestoEstado === 'Aceptado';
 
+  // Reminder badges
+  const { isInactive, isMeetingTomorrow } = useMemo(() => {
+    const now = new Date();
+    const lastActivity = new Date(lead.lastContactedAt || lead.updatedAt || lead.createdAt);
+    const diffDays = (now.getTime() - lastActivity.getTime()) / (1000 * 60 * 60 * 24);
+    const inactive = diffDays >= INACTIVITY_DAYS;
+
+    let meetingTomorrow = false;
+    if (lead.followUpDate) {
+      const meeting = new Date(lead.followUpDate);
+      const tomorrow = new Date(now);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      meetingTomorrow =
+        meeting.getFullYear() === tomorrow.getFullYear() &&
+        meeting.getMonth() === tomorrow.getMonth() &&
+        meeting.getDate() === tomorrow.getDate();
+    }
+
+    return { isInactive: inactive, isMeetingTomorrow: meetingTomorrow };
+  }, [lead.lastContactedAt, lead.updatedAt, lead.createdAt, lead.followUpDate]);
+
+  // WhatsApp handler: open wa.me link and record contact
+  const handleWhatsApp = useCallback(async () => {
+    if (!lead.phone) return;
+    const cleanPhone = lead.phone.replace(/\D/g, '');
+    const message = isMeetingTomorrow
+      ? `Hola ${lead.name.split(' ')[0]}, te recuerdo que mañana tenemos nuestra reunión agendada. ¡Nos vemos pronto!`
+      : `Hola ${lead.name.split(' ')[0]}, te escribo desde AK Producciones para hacer un seguimiento. ¿Cómo podemos ayudarte?`;
+    
+    const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+    window.open(waUrl, '_blank', 'noopener,noreferrer');
+
+    // Record contact in background
+    try {
+      await recordWhatsAppContact(lead.id, message);
+    } catch {
+      // non-blocking
+    }
+    toast({ description: `WhatsApp abierto para ${lead.name}. Contacto registrado.` });
+  }, [lead.phone, lead.name, lead.id, isMeetingTomorrow, toast]);
+
   return (
     <div ref={setNodeRef} style={style} className="mb-2 touch-none">
       <Card className="shadow-sm hover:shadow-md transition-shadow bg-card flex flex-col h-auto overflow-hidden">
@@ -70,10 +119,25 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
             <div className="flex-grow min-w-0">
                 <div className="flex items-center justify-between gap-2">
                     <p className="font-bold text-sm truncate" title={lead.name}>{lead.name}</p>
-                    <Badge variant="outline" className={cn("text-[10px] h-4 px-1 font-bold", budgetSource.className)}>
-                        {budgetSource.text}
-                    </Badge>
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      {isInactive && (
+                        <Badge variant="outline" className="text-[9px] h-4 px-1 bg-orange-50 text-orange-700 border-orange-300" title={`Sin actividad hace +${INACTIVITY_DAYS} días`}>
+                          <AlertTriangle className="w-2.5 h-2.5 mr-0.5" />Sin actividad
+                        </Badge>
+                      )}
+                      {isMeetingTomorrow && (
+                        <Badge variant="outline" className="text-[9px] h-4 px-1 bg-blue-50 text-blue-700 border-blue-300" title="Reunión mañana">
+                          <Bell className="w-2.5 h-2.5 mr-0.5" />Mañana
+                        </Badge>
+                      )}
+                      <Badge variant="outline" className={cn("text-[10px] h-4 px-1 font-bold", budgetSource.className)}>
+                          {budgetSource.text}
+                      </Badge>
+                    </div>
                 </div>
+                {lead.assignedTo && (
+                  <p className="text-[10px] text-muted-foreground mt-0.5 truncate">👤 {lead.assignedTo}</p>
+                )}
             </div>
         </CardHeader>
         <CardContent className="p-3 flex-grow min-h-0 text-xs text-muted-foreground space-y-2">
@@ -84,7 +148,7 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
               </div>
           )}
           {lead.followUpDate && (
-             <div className="flex items-center gap-2 font-bold text-amber-700 bg-amber-50 p-1 rounded">
+             <div className={cn("flex items-center gap-2 font-bold p-1 rounded", isMeetingTomorrow ? "text-blue-700 bg-blue-50" : "text-amber-700 bg-amber-50")}>
                 <Clock className="w-3.5 h-3.5"/>
                 <span className="truncate">Cita: {new Date(lead.followUpDate).toLocaleString('es-ES', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}hs</span>
             </div>
@@ -134,6 +198,28 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
                     </Button>
                 </Link>
             )}
+            {/* WhatsApp button */}
+            {lead.phone && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-green-600 hover:bg-green-50"
+                onClick={handleWhatsApp}
+                title="Abrir WhatsApp"
+              >
+                <MessageCircle className="w-3.5 h-3.5" />
+              </Button>
+            )}
+            {/* Timeline button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-muted-foreground hover:bg-muted/50"
+              onClick={() => setIsTimelineOpen(true)}
+              title="Ver historial"
+            >
+              <History className="w-3.5 h-3.5" />
+            </Button>
              <AlertDialog>
                 <AlertDialogTrigger asChild>
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" disabled={isDeleting}>
@@ -147,6 +233,8 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
               </AlertDialog>
         </CardFooter>
       </Card>
+
+      <CrmLeadTimeline lead={lead} isOpen={isTimelineOpen} onOpenChange={setIsTimelineOpen} />
     </div>
   );
 });

@@ -1,7 +1,7 @@
 
 'use server';
 
-import type { CrmLead, CrmStage, NewCrmLeadData } from '@/types/crm';
+import type { CrmLead, CrmStage, NewCrmLeadData, CrmTimelineItem } from '@/types/crm';
 import { readData, writeData } from '@/lib/data-service';
 import { saveCustomer } from '@/app/actions/customers'; 
 import { getPresupuestoById, updatePresupuesto } from '@/app/actions/presupuestos';
@@ -12,6 +12,11 @@ import { initialFiestaActualData, defaultModulosContratados } from '@/lib/fiesta
 
 const LEADS_FILE = 'crm-leads.json';
 const STAGES_FILE = 'crm-stages.json';
+
+/** Normalizes a phone number: removes non-digits and keeps the last 9 digits. */
+function normalizePhone(phone: string): string {
+  return phone.replace(/\D/g, '').slice(-9);
+}
 
 const defaultStages: CrmStage[] = [
   { id: 's1', name: 'Consultó', order: 1, headerBgColor: "bg-sky-500", headerTextColor: 'text-sky-50', bgColor: 'bg-sky-100', borderColor: 'border-sky-500', textColor: 'text-sky-700' },
@@ -32,18 +37,35 @@ export async function getCrmLeads(page?: number, limit = 50): Promise<CrmLead[]>
   return allLeads.slice(start, start + limit);
 }
 
-export async function addCrmLead(leadData: NewCrmLeadData): Promise<{ success: boolean; lead?: CrmLead; error?: string }> {
+export async function addCrmLead(leadData: NewCrmLeadData): Promise<{ success: boolean; lead?: CrmLead; error?: string; duplicate?: CrmLead }> {
   if (!leadData.name?.trim()) return { success: false, error: 'Nombre obligatorio' };
   const leads = await getCrmLeads();
   const stages = await getCrmStages();
   const now = new Date().toISOString();
-  
+
+  // Duplicate detection by phone
+  if (leadData.phone) {
+    const normalizedPhone = normalizePhone(leadData.phone);
+    const duplicate = leads.find(l => l.phone && normalizePhone(l.phone) === normalizedPhone);
+    if (duplicate) {
+      return { success: false, error: `Ya existe un prospecto con este teléfono: "${duplicate.name}".`, duplicate };
+    }
+  }
+
   const newLead: CrmLead = {
     ...leadData,
     id: `lead_${Date.now()}`,
     createdAt: now,
     updatedAt: now,
-    currentStageId: leadData.currentStageId || stages[0].id
+    currentStageId: leadData.currentStageId || stages[0].id,
+    timeline: [
+      {
+        id: `tl_${Date.now()}`,
+        type: 'lead_created',
+        timestamp: now,
+        description: 'Prospecto creado',
+      },
+    ],
   };
   leads.push(newLead);
   await writeData(LEADS_FILE, leads);
@@ -86,6 +108,53 @@ export async function deleteCrmLead(leadId: string): Promise<{ success: boolean;
     if (leads.length === initialLength) return { success: false, error: "No encontrado" };
     await writeData(LEADS_FILE, leads);
     return { success: true };
+}
+
+export async function recordWhatsAppContact(leadId: string, message: string): Promise<{ success: boolean; lead?: CrmLead; error?: string }> {
+    const leads = await getCrmLeads();
+    const index = leads.findIndex(l => l.id === leadId);
+    if (index === -1) return { success: false, error: "Prospecto no encontrado" };
+
+    const now = new Date().toISOString();
+    leads[index].lastContactedAt = now;
+    leads[index].lastContactMethod = 'whatsapp';
+    leads[index].updatedAt = now;
+
+    const noteEntry = `[WhatsApp ${new Date(now).toLocaleString('es-ES')}]: ${message.slice(0, 120)}${message.length > 120 ? '…' : ''}`;
+    const existingNotes = leads[index].notes || '';
+    leads[index].notes = existingNotes ? `${existingNotes}\n${noteEntry}` : noteEntry;
+
+    const timelineEntry: CrmTimelineItem = {
+        id: `tl_${Date.now()}`,
+        type: 'whatsapp_sent',
+        timestamp: now,
+        description: `WhatsApp enviado: ${message.slice(0, 80)}${message.length > 80 ? '…' : ''}`,
+    };
+    leads[index].timeline = [...(leads[index].timeline || []), timelineEntry];
+
+    await writeData(LEADS_FILE, leads);
+    return { success: true, lead: leads[index] };
+}
+
+export async function updateCrmLeadField(
+    leadId: string,
+    fields: Partial<Pick<CrmLead, 'assignedTo' | 'notes' | 'followUpDate'>>
+): Promise<{ success: boolean; lead?: CrmLead; error?: string }> {
+    const leads = await getCrmLeads();
+    const index = leads.findIndex(l => l.id === leadId);
+    if (index === -1) return { success: false, error: "Prospecto no encontrado" };
+
+    Object.assign(leads[index], fields, { updatedAt: new Date().toISOString() });
+    await writeData(LEADS_FILE, leads);
+    return { success: true, lead: leads[index] };
+}
+
+export async function checkDuplicatePhone(phone: string): Promise<{ duplicate: CrmLead | null }> {
+    if (!phone) return { duplicate: null };
+    const leads = await getCrmLeads();
+    const normalized = normalizePhone(phone);
+    const found = leads.find(l => l.phone && normalizePhone(l.phone) === normalized) ?? null;
+    return { duplicate: found };
 }
 
 export async function confirmBookingWithContract(formData: FormData): Promise<{ success: boolean; fiestaId?: string; error?: string }> {
@@ -292,7 +361,7 @@ export async function findLeadByBudgetOrCreate(presupuesto: any) {
     
     // Normalizar datos de búsqueda para evitar duplicados
     const searchName = presupuesto.clienteNombre?.toLowerCase().trim().replace(/\s+/g, ' ');
-    const searchPhone = presupuesto.clienteContacto?.replace(/\D/g, '').slice(-9);
+    const searchPhone = presupuesto.clienteContacto ? normalizePhone(presupuesto.clienteContacto) : undefined;
 
     // 1. Intentar encontrar por ID vinculada o ID de presupuesto
     let leadIndex = leads.findIndex(l => 
@@ -304,7 +373,7 @@ export async function findLeadByBudgetOrCreate(presupuesto: any) {
     if (leadIndex === -1 && (searchName || searchPhone)) {
         leadIndex = leads.findIndex(l => {
             const leadName = l.name?.toLowerCase().trim().replace(/\s+/g, ' ');
-            const leadPhone = l.phone?.replace(/\D/g, '').slice(-9);
+            const leadPhone = l.phone ? normalizePhone(l.phone) : undefined;
             return (searchName && leadName === searchName) || 
                    (searchPhone && leadPhone && leadPhone === searchPhone);
         });
