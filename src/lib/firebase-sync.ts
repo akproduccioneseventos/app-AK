@@ -5,6 +5,8 @@
  */
 'use server';
 
+import * as logger from './logger';
+
 // Mapping of JSON file names to Firestore collection names
 const FILE_TO_COLLECTION: Record<string, string> = {
   'customers.json': 'clientes',
@@ -59,7 +61,7 @@ async function withRetry<T>(fn: () => Promise<T>, context: string): Promise<T> {
     try {
       const result = await fn();
       if (attempt > 0 && isDev) {
-        console.log(`✅ [Firebase Sync] ${context} — exitoso en intento ${attempt + 1}`);
+        logger.info(`✅ [Firebase Sync] ${context} — exitoso en intento ${attempt + 1}`);
       }
       return result;
     } catch (error) {
@@ -67,7 +69,7 @@ async function withRetry<T>(fn: () => Promise<T>, context: string): Promise<T> {
       if (attempt < MAX_RETRIES) {
         const delay = Math.pow(2, attempt) * 500; // 500ms, 1000ms
         if (isDev) {
-          console.warn(`🔄 [Firebase Sync] ${context} — intento ${attempt + 1} falló, reintentando en ${delay}ms...`);
+          logger.warn(`🔄 [Firebase Sync] ${context} — intento ${attempt + 1} falló, reintentando en ${delay}ms...`);
         }
         await new Promise(resolve => setTimeout(resolve, delay));
       }
@@ -150,13 +152,13 @@ export async function syncToFirestore(filePath: string, data: any): Promise<void
     }
     if (isDev) {
       const target = FILE_TO_COLLECTION[normalizedPath] || CONFIG_FILES[normalizedPath] || normalizedPath;
-      console.log(`✅ [Firebase Sync] "${target}" sincronizado correctamente.`);
+      logger.info(`✅ [Firebase Sync] "${target}" sincronizado correctamente.`);
     }
   } catch (error: unknown) {
     const collectionName = FILE_TO_COLLECTION[normalizedPath] || CONFIG_FILES[normalizedPath] || normalizedPath;
-    console.warn(`⚠️ [Firebase Sync] Falló la sincronización de "${collectionName}" después de ${MAX_RETRIES + 1} intentos.`);
-    console.warn(`   Motivo: ${error instanceof Error ? error.message : error}`);
-    console.warn(`   ℹ️ Los datos JSON locales NO fueron afectados y están seguros.`);
+    logger.warn(`⚠️ [Firebase Sync] Falló la sincronización de "${collectionName}" después de ${MAX_RETRIES + 1} intentos.`);
+    logger.warn(`   Motivo: ${error instanceof Error ? error.message : error}`);
+    logger.warn(`   ℹ️ Los datos JSON locales NO fueron afectados y están seguros.`);
   }
 }
 
@@ -218,7 +220,7 @@ export async function readFromFirestore(filePath: string): Promise<any> {
 
     return null;
   } catch (error) {
-    console.warn(`⚠️ Firestore read failed for ${filePath}:`, error);
+    logger.warn(`⚠️ Firestore read failed for ${filePath}:`, error);
     return null;
   }
 }
