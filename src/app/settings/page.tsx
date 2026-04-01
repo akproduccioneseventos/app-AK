@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Building, Bell, ShieldCheck, Settings as SettingsIcon, BarChart3, Link as LinkIcon, Star, HardDriveDownload, Wand2, UserCog, Palette, TrendingUp, Ticket } from 'lucide-react';
+import { Building, Bell, ShieldCheck, Settings as SettingsIcon, BarChart3, Link as LinkIcon, Star, HardDriveDownload, Wand2, UserCog, Palette, TrendingUp, Ticket, FileSignature } from 'lucide-react';
 
 const settingsCards = [
    {
@@ -12,6 +12,13 @@ const settingsCards = [
     href: "/settings/company", 
     icon: Building,
     buttonLabel: "Gestionar Datos"
+  },
+  {
+    title: "Plantilla de Contrato Legal",
+    description: "Editá el texto base del contrato con etiquetas dinámicas como {{CLIENTE_NOMBRE}}, {{SENIA}}, {{PRESUPUESTO_TOTAL}} y más. Se autocompleta al generar desde cada evento.",
+    href: "/settings/contratos",
+    icon: FileSignature,
+    buttonLabel: "Editar Contrato"
   },
   {
     title: "Gestión de Plantillas",

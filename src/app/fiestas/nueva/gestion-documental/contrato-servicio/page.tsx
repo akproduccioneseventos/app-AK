@@ -16,6 +16,7 @@ import { getFiestaById, updateContratoFiestaActual, uploadPhysicalContract } fro
 import { getCustomerById } from '@/app/actions/customers';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getCompanyInfo, getInvoiceTemplateSettings, getContractTemplate } from '@/app/actions/settings';
+import { getInvoiceById } from '@/app/actions/invoices';
 import { WatermarkedImage } from '@/components/watermarked-image';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -92,6 +93,22 @@ function ContratoServicioContent() {
               setContractText(fiestaData.contratoServicioTexto);
           } else {
               let text = masterTemplate;
+
+              // Resolve seña: use first recorded payment on the linked invoice if available
+              let seniaValue = '__________________________';
+              if (fiestaData.invoiceIds?.length) {
+                try {
+                  const invoice = await getInvoiceById(fiestaData.invoiceIds[0]);
+                  const firstPayment = invoice?.payments?.[0];
+                  if (firstPayment?.amount) {
+                    seniaValue = formatCurrency(firstPayment.amount);
+                  }
+                } catch (err) {
+                  console.error('Could not resolve seña from invoice payments:', err);
+                  /* seña stays blank */
+                }
+              }
+
               const replacements: Record<string, string> = {
                   '{{FECHA_HOY}}': today,
                   '{{EMPRESA_NOMBRE}}': companyData.companyName,
@@ -104,7 +121,8 @@ function ContratoServicioContent() {
                   '{{CLIENTE_TELEFONO}}': clienteData?.phone || '_______________________',
                   '{{EVENTO_FECHA}}': formatDate(fiestaData.configuracion.fechaEvento),
                   '{{EVENTO_SALON}}': fiestaData.configuracion.nombreLugar || '____________',
-                  '{{PRESUPUESTO_TOTAL}}': formatCurrency(presupuestoData?.totalConDescuento ?? presupuestoData?.costoTotalEstimado)
+                  '{{PRESUPUESTO_TOTAL}}': formatCurrency(presupuestoData?.totalConDescuento ?? presupuestoData?.costoTotalEstimado),
+                  '{{SENIA}}': seniaValue,
               };
 
               Object.entries(replacements).forEach(([key, val]) => {
