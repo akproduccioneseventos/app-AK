@@ -111,8 +111,9 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ data, update, addSec
                 <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle>Seleccionar Plantilla</DialogTitle>
-                        <DialogDescription>
-                            Elige una plantilla para aplicarla a esta invitación. Los cambios no guardados se perderán.
+                        <DialogDescription className="flex items-start gap-1.5">
+                            <span className="text-amber-500 shrink-0 mt-0.5">⚠</span>
+                            <span>Elige una plantilla para aplicarla a esta invitación. <strong>Los cambios actuales no guardados se perderán</strong> al aplicar una plantilla nueva.</span>
                         </DialogDescription>
                     </DialogHeader>
                     {isLoadingTemplates ? (
