@@ -38,7 +38,7 @@ export function TopServicesChart({ data }: Props) {
           Top Servicios / Menús
         </CardTitle>
         <CardDescription className="text-slate-400 font-medium mt-1">
-          Servicios con mayor ingresos generados en todos los presupuestos.
+          Servicios con mayores ingresos generados en todos los presupuestos.
         </CardDescription>
       </CardHeader>
       <CardContent className="p-6">

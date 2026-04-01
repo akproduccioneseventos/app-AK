@@ -68,7 +68,10 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
     });
 
     // Revenue from accepted presupuestos not yet invoiced (by event date)
-    const invoicedPresupuestoIds = new Set(presupuestosData.filter(p => p.invoiceId).map(p => p.id));
+    const invoicedPresupuestoIds = presupuestosData.reduce<Set<string>>((acc, p) => {
+      if (p.invoiceId) acc.add(p.id);
+      return acc;
+    }, new Set());
     presupuestosData.forEach(pres => {
       if (pres.estado === 'Borrador' || pres.estado === 'Rechazado') return;
       if (invoicedPresupuestoIds.has(pres.id)) return;
