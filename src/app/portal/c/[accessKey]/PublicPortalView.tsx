@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ClientTarea } from '@/types/fiesta';
 import {
   Calendar,
   Clock,
@@ -16,11 +16,17 @@ import {
   MessageSquare,
   Star,
   ChevronRight,
+  Loader2,
+  Save,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { updateClientChecklist, updateClientNotes } from '@/app/actions/fiesta/portal.actions';
 
 interface PublicPortalViewProps {
   fiesta: FiestaEnPlanificacion;
@@ -90,6 +96,47 @@ export default function PublicPortalView({
   const { configuracion: config, clientPortalSettings: settings } = fiesta;
   const countdown = useCountdown(config.fechaEvento);
 
+  // Interactive Checklist state
+  const [checklist, setChecklist] = useState<ClientTarea[]>(fiesta.clientChecklist ?? []);
+  const [togglingTaskId, setTogglingTaskId] = useState<string | null>(null);
+
+  // Shared Notes state
+  const [notes, setNotes] = useState(fiesta.clientNotes ?? '');
+  const [notesSaved, setNotesSaved] = useState(false);
+  const [isSavingNotes, setIsSavingNotes] = useState(false);
+
+  const handleToggleTask = async (taskId: string) => {
+    const previous = checklist;
+    const newChecklist = checklist.map(t =>
+      t.id === taskId ? { ...t, completada: !t.completada } : t
+    );
+    setChecklist(newChecklist);
+    setTogglingTaskId(taskId);
+    try {
+      await updateClientChecklist(fiesta.id, newChecklist);
+    } catch {
+      setChecklist(previous);
+    } finally {
+      setTogglingTaskId(null);
+    }
+  };
+
+  const handleNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setNotes(e.target.value);
+    setNotesSaved(false);
+  };
+
+  const handleSaveNotes = async () => {
+    setNotesSaved(false);
+    setIsSavingNotes(true);
+    try {
+      await updateClientNotes(fiesta.id, notes);
+      setNotesSaved(true);
+    } finally {
+      setIsSavingNotes(false);
+    }
+  };
+
   const eventDate = config.fechaEvento
     ? (() => {
         const d = new Date(
@@ -116,13 +163,6 @@ export default function PublicPortalView({
     : `https://wa.me/?text=${whatsappMessage}`;
 
   const visibleSections = [
-    {
-      id: 'checklist',
-      label: 'Checklist de Tareas',
-      icon: CheckSquare,
-      visible: settings?.checklist?.visible,
-      description: 'Tus tareas pendientes para el evento.',
-    },
     {
       id: 'musica',
       label: 'Sugerencias Musicales',
@@ -227,6 +267,84 @@ export default function PublicPortalView({
             <CardContent className="py-6 text-center">
               <p className="text-2xl font-black">🎉 ¡Tu evento ya fue!</p>
               <p className="text-sm opacity-80 mt-1">¡Esperamos que haya sido increíble!</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Interactive Checklist */}
+        {settings?.checklist?.visible && checklist.length > 0 && (
+          <Card className="shadow-lg border-0 rounded-3xl">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base font-bold flex items-center gap-2">
+                <CheckSquare className="w-5 h-5 text-primary" />
+                Checklist de Tareas
+              </CardTitle>
+              <p className="text-xs text-muted-foreground">
+                {checklist.filter(t => t.completada).length} de {checklist.length} completadas
+              </p>
+            </CardHeader>
+            <CardContent className="pt-0 space-y-2">
+              {checklist.map((tarea, idx) => (
+                <div key={tarea.id}>
+                  {idx > 0 && <Separator className="my-1" />}
+                  <div className="flex items-center gap-3 py-2">
+                    <Checkbox
+                      id={`task-${tarea.id}`}
+                      checked={tarea.completada}
+                      onCheckedChange={() => handleToggleTask(tarea.id)}
+                      disabled={togglingTaskId !== null || !settings.checklist.editable}
+                    />
+                    <Label
+                      htmlFor={`task-${tarea.id}`}
+                      className={`text-sm cursor-pointer leading-snug ${tarea.completada ? 'line-through text-muted-foreground' : ''}`}
+                    >
+                      {tarea.texto}
+                    </Label>
+                    {togglingTaskId === tarea.id && <Loader2 className="w-3 h-3 ml-auto animate-spin text-muted-foreground shrink-0" />}
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Shared Notes */}
+        {settings?.notasCliente?.visible && (
+          <Card className="shadow-lg border-0 rounded-3xl">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base font-bold flex items-center gap-2">
+                <MessageSquare className="w-5 h-5 text-primary" />
+                Notas para el Organizador
+              </CardTitle>
+              <p className="text-xs text-muted-foreground">
+                Dejá un mensaje o consulta para el equipo de {companyName}.
+              </p>
+            </CardHeader>
+            <CardContent className="pt-0 space-y-3">
+              <Textarea
+                placeholder="Escribe aquí tus notas, consultas o comentarios..."
+                value={notes}
+                onChange={handleNotesChange}
+                disabled={!settings.notasCliente.editable || isSavingNotes}
+                rows={4}
+                className="resize-none rounded-xl text-sm"
+              />
+              {settings.notasCliente.editable && (
+                <Button
+                  onClick={handleSaveNotes}
+                  disabled={isSavingNotes}
+                  className="w-full rounded-xl"
+                  variant={notesSaved ? 'outline' : 'default'}
+                >
+                  {isSavingNotes ? (
+                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Guardando...</>
+                  ) : notesSaved ? (
+                    '✓ Notas guardadas'
+                  ) : (
+                    <><Save className="w-4 h-4 mr-2" />Guardar Notas</>
+                  )}
+                </Button>
+              )}
             </CardContent>
           </Card>
         )}
