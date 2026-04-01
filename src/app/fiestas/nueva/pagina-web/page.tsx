@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Loader2, ArrowLeft, Save, Link as LinkIcon, ClipboardCopy, Gift, Camera, Music, Check, Eye, Smartphone, Tablet, Monitor, Download } from 'lucide-react';
+import { Loader2, ArrowLeft, Save, Link as LinkIcon, ClipboardCopy, Gift, Camera, Music, Check, Eye, Smartphone, Tablet, Monitor, Download, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion, InvitacionDigitalData, SeccionInvitacion } from '@/types/fiesta';
@@ -265,8 +265,8 @@ function PaginaWebPageContent() {
         </div>
       </header>
 
-      <main className="flex-grow flex min-h-0">
-        <div className="w-[320px] md:w-[400px] flex-shrink-0 border-r bg-white overflow-y-auto custom-scrollbar shadow-xl z-40">
+      <main className="flex-grow flex flex-col md:flex-row min-h-0 overflow-hidden">
+        <div className="w-full md:w-[320px] lg:w-[400px] flex-shrink-0 border-b md:border-b-0 md:border-r bg-white overflow-y-auto custom-scrollbar shadow-xl z-40 max-h-[45vh] md:max-h-none">
             {selectedSectionId ? (
                 <SectionEditorPanel
                     data={invitacionData}
@@ -315,11 +315,11 @@ function PaginaWebPageContent() {
         </div>
         
         {/* LIENZO DE PREVISUALIZACIÓN CON MARCO DE DISPOSITIVO */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-8 flex justify-center items-start bg-slate-200 custom-scrollbar">
+        <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-2 sm:p-4 md:p-8 flex justify-center items-start bg-slate-200 custom-scrollbar">
           <div className={cn(
               "transition-all duration-700 ease-in-out shadow-3xl bg-white relative overflow-hidden",
-              previewMode === 'mobile' && "w-[375px] h-[667px] md:w-[390px] md:h-[844px] rounded-[3rem] border-[12px] border-slate-900 mt-10",
-              previewMode === 'tablet' && "w-[768px] h-[1024px] rounded-[2rem] border-[12px] border-slate-900 mt-4",
+              previewMode === 'mobile' && "w-[320px] h-[568px] xs:w-[375px] xs:h-[667px] md:w-[390px] md:h-[844px] rounded-[2rem] md:rounded-[3rem] border-[8px] md:border-[12px] border-slate-900 mt-4 md:mt-10",
+              previewMode === 'tablet' && "w-full max-w-[768px] h-[1024px] rounded-[2rem] border-[12px] border-slate-900 mt-4",
               previewMode === 'desktop' && "w-full max-w-full h-full rounded-lg"
           )}>
             {(previewMode === 'mobile' || previewMode === 'tablet') && (
