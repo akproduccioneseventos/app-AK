@@ -6,11 +6,15 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextIcon, CalendarDays, Users, MapPin, Share2, Gift, ClipboardCopy, TrendingUp, Info, CalendarDays as CalendarIcon, PartyPopper, CheckCircle2, MessageSquare } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextIcon, CalendarDays, Users, MapPin, Share2, Gift, ClipboardCopy, TrendingUp, Info, CalendarDays as CalendarIcon, PartyPopper, CheckCircle2, MessageSquare, PlusCircle, Trash2, CreditCard, Receipt, Clock } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge';
-import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto';
-import { getPresupuestoById } from '@/app/actions/presupuestos';
+import type { Presupuesto, ItemPresupuestado, PagoCliente, MetodoPago } from '@/types/presupuesto';
+import { ALL_METODOS_PAGO } from '@/types/presupuesto';
+import { getPresupuestoById, addPagoToPresupuesto, deletePagoFromPresupuesto } from '@/app/actions/presupuestos';
 import { getCustomerById } from '@/app/actions/customers';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import type { Customer } from '@/types/customer';
@@ -61,6 +65,15 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const [whatsappNumber, setWhatsappNumber] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Payment management state
+  const [isAddingPago, setIsAddingPago] = useState(false);
+  const [isSavingPago, setIsSavingPago] = useState(false);
+  const [isDeletingPagoId, setIsDeletingPagoId] = useState<string | null>(null);
+  const [newPagoFecha, setNewPagoFecha] = useState(new Date().toISOString().split('T')[0]);
+  const [newPagoMonto, setNewPagoMonto] = useState('');
+  const [newPagoMetodo, setNewPagoMetodo] = useState<MetodoPago>('Efectivo');
+  const [newPagoReferencia, setNewPagoReferencia] = useState('');
 
   const fetchPresupuestoAndSettings = useCallback(async () => {
     if (!presupuestoId) return;
@@ -177,6 +190,56 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`, '_blank');
   };
 
+  const pagosSummary = useMemo(() => {
+    if (!presupuesto) return { totalPagado: 0, saldoPendiente: 0, totalCosto: 0 };
+    const totalCosto = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
+    const totalPagado = (presupuesto.pagosCliente || []).reduce((sum, p) => sum + p.monto, 0);
+    return { totalCosto, totalPagado, saldoPendiente: totalCosto - totalPagado };
+  }, [presupuesto]);
+
+  const handleAddPago = async () => {
+    const monto = parseFloat(newPagoMonto);
+    if (!presupuesto || isNaN(monto) || monto <= 0) {
+      toast({ title: 'Error', description: 'Ingresá un monto válido mayor a 0.', variant: 'destructive' });
+      return;
+    }
+    setIsSavingPago(true);
+    try {
+      const result = await addPagoToPresupuesto(presupuesto.id, {
+        fecha: new Date(newPagoFecha).toISOString(),
+        monto,
+        metodoPago: newPagoMetodo,
+        referencia: newPagoReferencia.trim() || undefined,
+      });
+      if (!result.success) throw new Error(result.error);
+      setPresupuesto(result.presupuesto!);
+      setNewPagoMonto('');
+      setNewPagoReferencia('');
+      setNewPagoFecha(new Date().toISOString().split('T')[0]);
+      setIsAddingPago(false);
+      toast({ title: 'Pago registrado', description: `${formatCurrency(monto)} guardado correctamente.` });
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+    } finally {
+      setIsSavingPago(false);
+    }
+  };
+
+  const handleDeletePago = async (pagoId: string) => {
+    if (!presupuesto) return;
+    setIsDeletingPagoId(pagoId);
+    try {
+      const result = await deletePagoFromPresupuesto(presupuesto.id, pagoId);
+      if (!result.success) throw new Error(result.error);
+      setPresupuesto(result.presupuesto!);
+      toast({ title: 'Pago eliminado' });
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+    } finally {
+      setIsDeletingPagoId(null);
+    }
+  };
+
   const getEffectiveQty = (item: any): number => {
     if (!presupuesto) return item.cantidad || 1;
     const adults = presupuesto.invitadosAdultos || 0;
@@ -204,7 +267,8 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     <div className="bg-gray-100 min-h-screen py-6 print:bg-white print:py-0 font-sans">
         <div className="flex justify-between items-center mb-6 print:hidden max-w-3xl mx-auto px-4">
           <Link href="/presupuestos/nuevo"><Button variant="outline" size="sm" className="rounded-xl"><ArrowLeft className="mr-2 h-4 w-4"/>Volver</Button></Link>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap justify-end">
+            <Link href={`/presupuestos/${presupuestoId}/estado-de-cuenta`}><Button variant="outline" size="sm" className="rounded-xl"><Receipt className="mr-2 h-4 w-4"/>Estado de Cuenta</Button></Link>
             <Button onClick={handlePrint} size="sm" className="rounded-xl"><Printer className="mr-2 h-4 w-4"/>Imprimir/PDF</Button>
             <Link href={`/presupuestos/${presupuestoId}/edit`}><Button variant="outline" size="sm" className="rounded-xl"><Edit className="mr-2 h-4 w-4"/>Editar</Button></Link>
           </div>
@@ -410,6 +474,145 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                     </div>
                 </footer>
             </div>
+
+            {/* ── HISTORIAL DE PAGOS (admin only, hidden on print) ── */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="print:hidden">
+                <Card className="border-none shadow-xl rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden bg-white">
+                    <CardHeader className="pb-2 px-6 sm:px-10 pt-8">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div className="flex items-center gap-2">
+                                <CreditCard className="w-5 h-5 text-primary"/>
+                                <CardTitle className="font-headline text-xl">Historial de Pagos</CardTitle>
+                            </div>
+                            <Link href={`/presupuestos/${presupuestoId}/estado-de-cuenta`}>
+                                <Button variant="outline" size="sm" className="rounded-xl text-xs font-bold uppercase tracking-widest">
+                                    <Receipt className="w-3.5 h-3.5 mr-2"/> Ver Estado de Cuenta
+                                </Button>
+                            </Link>
+                        </div>
+                        {/* Balance summary pills */}
+                        <div className="flex flex-wrap gap-2 mt-4">
+                            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-600">
+                                <span>Total: {formatCurrency(pagosSummary.totalCosto)}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-100 rounded-full text-[10px] font-black uppercase tracking-widest text-emerald-700">
+                                <CheckCircle2 className="w-3 h-3"/> Pagado: {formatCurrency(pagosSummary.totalPagado)}
+                            </div>
+                            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${pagosSummary.saldoPendiente <= 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                                <Clock className="w-3 h-3"/> Pendiente: {formatCurrency(Math.max(0, pagosSummary.saldoPendiente))}
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="px-6 sm:px-10 pb-8 space-y-4">
+                        {/* Payment history table */}
+                        {(presupuesto.pagosCliente || []).length === 0 && !isAddingPago ? (
+                            <div className="text-center py-6 text-muted-foreground text-sm border border-dashed rounded-xl">
+                                Sin pagos registrados aún.
+                            </div>
+                        ) : (presupuesto.pagosCliente || []).length > 0 && (
+                            <div className="border rounded-xl overflow-hidden">
+                                <Table>
+                                    <TableHeader className="bg-slate-50">
+                                        <TableRow>
+                                            <TableHead className="text-[9px] font-black uppercase tracking-widest py-3 pl-4">Fecha</TableHead>
+                                            <TableHead className="text-[9px] font-black uppercase tracking-widest py-3">Método</TableHead>
+                                            <TableHead className="text-[9px] font-black uppercase tracking-widest py-3">Referencia</TableHead>
+                                            <TableHead className="text-[9px] font-black uppercase tracking-widest py-3 text-right pr-4">Monto</TableHead>
+                                            <TableHead className="w-10"/>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {(presupuesto.pagosCliente || []).map((pago) => (
+                                            <TableRow key={pago.id} className="text-sm">
+                                                <TableCell className="pl-4 py-3 font-medium text-slate-700">
+                                                    {new Date(pago.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                                                </TableCell>
+                                                <TableCell className="py-3">
+                                                    <Badge variant="secondary" className="text-[9px] font-bold uppercase">{pago.metodoPago}</Badge>
+                                                </TableCell>
+                                                <TableCell className="py-3 text-muted-foreground text-xs max-w-[150px] truncate">{pago.referencia || '—'}</TableCell>
+                                                <TableCell className="pr-4 py-3 text-right font-bold text-emerald-700">{formatCurrency(pago.monto)}</TableCell>
+                                                <TableCell className="py-3 text-right pr-2">
+                                                    <Button
+                                                        variant="ghost" size="icon"
+                                                        className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                                                        onClick={() => handleDeletePago(pago.id)}
+                                                        disabled={isDeletingPagoId === pago.id}
+                                                    >
+                                                        {isDeletingPagoId === pago.id ? <Loader2 className="w-3.5 h-3.5 animate-spin"/> : <Trash2 className="w-3.5 h-3.5"/>}
+                                                    </Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        )}
+
+                        {/* Add payment form */}
+                        {isAddingPago ? (
+                            <div className="border border-primary/20 rounded-xl p-4 space-y-3 bg-primary/5">
+                                <p className="text-[10px] font-black uppercase text-primary tracking-widest">Nuevo Pago</p>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="space-y-1">
+                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Monto *</Label>
+                                        <Input
+                                            type="number" min="1" placeholder="0"
+                                            value={newPagoMonto}
+                                            onChange={e => setNewPagoMonto(e.target.value)}
+                                            className="rounded-xl"
+                                        />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Fecha *</Label>
+                                        <Input
+                                            type="date"
+                                            value={newPagoFecha}
+                                            onChange={e => setNewPagoFecha(e.target.value)}
+                                            className="rounded-xl"
+                                        />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Método *</Label>
+                                        <Select value={newPagoMetodo} onValueChange={(v) => setNewPagoMetodo(v as MetodoPago)}>
+                                            <SelectTrigger className="rounded-xl">
+                                                <SelectValue/>
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {ALL_METODOS_PAGO.map(m => (
+                                                    <SelectItem key={m} value={m}>{m}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Referencia</Label>
+                                        <Input
+                                            placeholder="Ej: Nº transf. 12345"
+                                            value={newPagoReferencia}
+                                            onChange={e => setNewPagoReferencia(e.target.value)}
+                                            className="rounded-xl"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex gap-2 justify-end pt-1">
+                                    <Button variant="ghost" size="sm" className="rounded-xl" onClick={() => setIsAddingPago(false)} disabled={isSavingPago}>
+                                        Cancelar
+                                    </Button>
+                                    <Button size="sm" className="rounded-xl" onClick={handleAddPago} disabled={isSavingPago}>
+                                        {isSavingPago ? <Loader2 className="w-4 h-4 animate-spin mr-2"/> : <CheckCircle2 className="w-4 h-4 mr-2"/>}
+                                        Guardar Pago
+                                    </Button>
+                                </div>
+                            </div>
+                        ) : (
+                            <Button variant="outline" className="w-full rounded-xl font-bold uppercase tracking-widest text-xs" onClick={() => setIsAddingPago(true)}>
+                                <PlusCircle className="w-4 h-4 mr-2"/> Registrar Nuevo Pago
+                            </Button>
+                        )}
+                    </CardContent>
+                </Card>
+            </motion.div>
         </div>
 
         <style jsx global>{`

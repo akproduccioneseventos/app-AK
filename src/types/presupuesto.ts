@@ -2,6 +2,25 @@
 
 import type { ServicioEmpresa } from './empresa';
 
+export type MetodoPago = 'Efectivo' | 'Transferencia Bancaria' | 'MercadoPago' | 'Cheque' | 'Tarjeta' | 'Otro';
+
+export const ALL_METODOS_PAGO: MetodoPago[] = [
+  'Efectivo',
+  'Transferencia Bancaria',
+  'MercadoPago',
+  'Cheque',
+  'Tarjeta',
+  'Otro',
+];
+
+export interface PagoCliente {
+  id: string;
+  fecha: string; // ISO date string
+  monto: number;
+  metodoPago: MetodoPago;
+  referencia?: string; // Notes / transaction reference
+}
+
 export type TipoEvento =
   | 'Boda'
   | 'XV años'
@@ -64,6 +83,7 @@ export interface Presupuesto {
   ajusteAnualActivo?: boolean; // NEW: Controls visibility of annual adjustment
   leadId?: string;
   source?: 'manual' | 'simulator';
+  pagosCliente?: PagoCliente[]; // Detailed client payment records
 }
 
 // FormData for the new unified builder.
@@ -113,4 +133,5 @@ export interface PresupuestoFormData {
   numero?: number;
   estado: Presupuesto['estado'];
   invoiceId?: string;
+  pagosCliente?: PagoCliente[];
 }

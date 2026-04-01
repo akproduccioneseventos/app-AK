@@ -1,6 +1,6 @@
 'use server';
 
-import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto'; 
+import type { Presupuesto, ItemPresupuestado, PagoCliente } from '@/types/presupuesto'; 
 import { readData, writeData } from '@/lib/data-service';
 import { getInvoiceById, saveInvoice } from './invoices';
 import type { Invoice, InvoiceItem } from '@/types/invoice';
@@ -237,4 +237,31 @@ export async function recalculatePresupuestoFromCatalog(presupuestoId: string): 
   });
 
   return await updatePresupuesto({ ...presupuesto, itemsPresupuestados: updatedItems });
+}
+
+export async function addPagoToPresupuesto(
+  presupuestoId: string,
+  pago: Omit<PagoCliente, 'id'>
+): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
+  const presupuesto = await getPresupuestoById(presupuestoId);
+  if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado' };
+
+  const newPago: PagoCliente = {
+    ...pago,
+    id: `pago_${presupuestoId}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+  };
+
+  const updatedPagos = [...(presupuesto.pagosCliente || []), newPago];
+  return updatePresupuesto({ ...presupuesto, pagosCliente: updatedPagos });
+}
+
+export async function deletePagoFromPresupuesto(
+  presupuestoId: string,
+  pagoId: string
+): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
+  const presupuesto = await getPresupuestoById(presupuestoId);
+  if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado' };
+
+  const updatedPagos = (presupuesto.pagosCliente || []).filter(p => p.id !== pagoId);
+  return updatePresupuesto({ ...presupuesto, pagosCliente: updatedPagos });
 }
