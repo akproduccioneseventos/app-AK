@@ -1,0 +1,7 @@
+{
+  "crmFollowUp": "Hola {clienteNombre} 👋, te recordamos tu reunión con {empresaNombre} el *{eventoFecha}*. ¡Cualquier consulta estamos disponibles! 🎉",
+  "paymentReminder": "📋 *Estado de Cuenta — {empresaNombre}*\n━━━━━━━━━━━━━━━━━━━━━━\n👤 *Cliente:* {clienteNombre}\n🎉 *Evento:* {eventoFecha}\n━━━━━━━━━━━━━━━━━━━━━━\n💰 *Total del evento:* {totalEvento}\n💳 *Saldo pendiente:* {saldoPendiente}\n━━━━━━━━━━━━━━━━━━━━━━\n🔗 Ver detalle completo:\n{linkEstadoCuenta}",
+  "taskReminder": "Hola {clienteNombre} 👋, te recordamos que tenés una tarea pendiente para tu evento del *{eventoFecha}*.\n📋 *Tarea:* {tareaNombre}\nPara más detalles contactanos. ¡Seguimos organizando juntos! 🎉\nSaludos, {empresaNombre}",
+  "enabled": true,
+  "mode": "manual"
+}

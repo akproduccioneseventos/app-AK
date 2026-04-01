@@ -50,6 +50,7 @@ const CONFIG_FILES: Record<string, string> = {
   'carga-operativa-master-template.json': 'carga-operativa-master-template',
   'carga-operativa-templates.json': 'carga-operativa-templates',
   'meeting-checklist-template.json': 'meeting-checklist-template',
+  'whatsapp-templates.json': 'whatsapp-templates',
 };
 
 const MAX_RETRIES = 2;

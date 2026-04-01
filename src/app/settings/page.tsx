@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Building, Bell, ShieldCheck, Settings as SettingsIcon, BarChart3, Link as LinkIcon, Star, HardDriveDownload, Wand2, UserCog, Palette, TrendingUp, Ticket, FileSignature } from 'lucide-react';
+import { Building, Bell, ShieldCheck, Settings as SettingsIcon, BarChart3, Link as LinkIcon, Star, HardDriveDownload, Wand2, UserCog, Palette, TrendingUp, Ticket, FileSignature, MessageCircle } from 'lucide-react';
 
 const settingsCards = [
    {
@@ -25,6 +25,13 @@ const settingsCards = [
     description: "Crea y administra plantillas reutilizables para tareas, diseños, invitaciones y más.",
     href: "/settings/templates",
     icon: Palette,
+    buttonLabel: "Gestionar Plantillas"
+  },
+   {
+    title: "Plantillas de WhatsApp",
+    description: "Editá los mensajes de seguimiento CRM, recordatorio de pagos y tareas. Usá variables como {clienteNombre} para personalizar cada mensaje automáticamente.",
+    href: "/settings/whatsapp",
+    icon: MessageCircle,
     buttonLabel: "Gestionar Plantillas"
   },
   {

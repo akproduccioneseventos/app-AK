@@ -11,9 +11,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import type { Presupuesto, PagoCliente } from '@/types/presupuesto';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getSocialConnections } from '@/app/actions/social-connections';
-import { getInvoiceTemplateSettings, getCompanyInfo } from '@/app/actions/settings';
+import { getInvoiceTemplateSettings, getCompanyInfo, getWhatsAppTemplates } from '@/app/actions/settings';
+import type { WhatsAppTemplates } from '@/types/settings';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { WhatsAppSendModal } from '@/components/whatsapp/WhatsAppSendModal';
+import { renderTemplate, openWhatsApp } from '@/lib/whatsapp-templates';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -58,18 +61,22 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [companyName, setCompanyName] = useState('AK Producciones');
   const [whatsappNumber, setWhatsappNumber] = useState('');
+  const [waTemplates, setWaTemplates] = useState<WhatsAppTemplates | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [waSendModalOpen, setWaSendModalOpen] = useState(false);
+  const [waSendMessage, setWaSendMessage] = useState('');
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [fetchedPresupuesto, templateSettings, socialConnections, companyInfo] =
+      const [fetchedPresupuesto, templateSettings, socialConnections, companyInfo, waTemplatesData] =
         await Promise.all([
           getPresupuestoById(presupuestoId),
           getInvoiceTemplateSettings(),
           getSocialConnections(),
           getCompanyInfo(),
+          getWhatsAppTemplates(),
         ]);
 
       if (!fetchedPresupuesto) {
@@ -80,6 +87,7 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
       setPresupuesto(fetchedPresupuesto);
       setLogoUrl(templateSettings.logoUrl || null);
       setCompanyName(companyInfo?.companyName || 'AK Producciones');
+      setWaTemplates(waTemplatesData);
 
       const wp = socialConnections.find(c => c.platform === 'WhatsApp' && c.isConnected);
       if (wp?.phoneNumber) setWhatsappNumber(wp.phoneNumber);
@@ -112,6 +120,27 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
   const handleWhatsApp = () => {
     if (!presupuesto) return;
     const url = window.location.href;
+
+    // Use editable template if available, otherwise fall back to legacy message
+    if (waTemplates?.enabled) {
+      const rendered = renderTemplate(waTemplates.paymentReminder, {
+        clienteNombre: presupuesto.clienteNombre,
+        eventoFecha: `${presupuesto.eventoTipo} — ${formatDate(presupuesto.eventoFecha)}`,
+        totalEvento: formatCurrency(totalCosto),
+        saldoPendiente: saldoPendiente <= 0 ? '✅ Saldado' : formatCurrency(saldoPendiente),
+        linkEstadoCuenta: url,
+        empresaNombre: companyName,
+      });
+      if (waTemplates.mode === 'manual') {
+        setWaSendMessage(rendered);
+        setWaSendModalOpen(true);
+        return;
+      }
+      openWhatsApp(whatsappNumber, rendered);
+      return;
+    }
+
+    // Legacy fallback (no templates configured)
     const saldoText =
       saldoPendiente <= 0
         ? '✅ Tu cuenta está saldada. ¡Muchas gracias!'
@@ -157,6 +186,12 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
 
   return (
     <div className="bg-gray-50 min-h-screen py-6 print:bg-white print:py-0">
+      <WhatsAppSendModal
+        open={waSendModalOpen}
+        onOpenChange={setWaSendModalOpen}
+        initialMessage={waSendMessage}
+        phoneNumber={whatsappNumber}
+      />
       {/* Toolbar — hidden on print */}
       <div className="print:hidden flex justify-between items-center mb-6 max-w-2xl mx-auto px-4">
         <Link href={`/presupuestos/${presupuestoId}/ver`}>
@@ -168,13 +203,15 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
           <Button onClick={handlePrint} size="sm" className="rounded-xl">
             <Printer className="mr-2 h-4 w-4" /> Imprimir / PDF
           </Button>
-          <Button
-            onClick={handleWhatsApp}
-            size="sm"
-            className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white"
-          >
-            <MessageCircle className="mr-2 h-4 w-4" /> Enviar por WhatsApp
-          </Button>
+          {(!waTemplates || waTemplates.enabled) && (
+            <Button
+              onClick={handleWhatsApp}
+              size="sm"
+              className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white"
+            >
+              <MessageCircle className="mr-2 h-4 w-4" /> Enviar por WhatsApp
+            </Button>
+          )}
         </div>
       </div>
 

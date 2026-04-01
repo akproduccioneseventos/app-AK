@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, PlusCircle, Trash2, Loader2, AlertTriangle, ListChecks, Clock, Bell, FolderOpen, Save, RefreshCw, CalendarCheck, Users, UserCheck } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Trash2, Loader2, AlertTriangle, ListChecks, Clock, Bell, FolderOpen, Save, RefreshCw, CalendarCheck, Users, UserCheck, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { format as formatDateFn, formatDistanceToNowStrict, subDays, startOfWeek, isBefore } from 'date-fns';
@@ -20,6 +20,11 @@ import type { Tarea } from '@/types/fiesta';
 import { getFiestaById, updateTareasFiestaActual, addTareaToFiestaActual, deleteTareaFromFiestaActual } from '@/app/actions/fiesta-actual';
 import { getTaskTemplates, saveTaskTemplate, deleteTaskTemplate, type TaskTemplate } from '@/app/actions/task-templates';
 import { checkAndCreateTaskReminders } from '@/app/actions/notifications';
+import { getWhatsAppTemplates, getCompanyInfo } from '@/app/actions/settings';
+import { getSocialConnections } from '@/app/actions/social-connections';
+import type { WhatsAppTemplates } from '@/types/settings';
+import { WhatsAppSendModal } from '@/components/whatsapp/WhatsAppSendModal';
+import { renderTemplate, openWhatsApp } from '@/lib/whatsapp-templates';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -61,11 +66,19 @@ function TareasEventoContent() {
   const fiestaId = searchParams.get('fiestaId');
 
   const [fiestaEventDate, setFiestaEventDate] = useState<string | undefined>(undefined);
+  const [clienteNombre, setClienteNombre] = useState('');
   const [tareas, setTareas] = useState<Tarea[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // WhatsApp state
+  const [waTemplates, setWaTemplates] = useState<WhatsAppTemplates | null>(null);
+  const [waPhone, setWaPhone] = useState('');
+  const [companyName, setCompanyName] = useState('AK Producciones');
+  const [waSendModalOpen, setWaSendModalOpen] = useState(false);
+  const [waSendMessage, setWaSendMessage] = useState('');
 
   const [newTaskText, setNewTaskText] = useState('');
   const [newTaskDescription, setNewTaskDescription] = useState('');
@@ -89,10 +102,20 @@ function TareasEventoContent() {
     setIsLoading(true);
     setError(null);
     try {
-      const fiestaData = await getFiestaById(fiestaId);
+      const [fiestaData, waTemplatesData, connections, company] = await Promise.all([
+        getFiestaById(fiestaId),
+        getWhatsAppTemplates(),
+        getSocialConnections(),
+        getCompanyInfo(),
+      ]);
       if (!fiestaData) throw new Error("Fiesta no encontrada.");
       setTareas(fiestaData.tareas || []);
       setFiestaEventDate(fiestaData.configuracion.fechaEvento);
+      setClienteNombre(fiestaData.configuracion.protagonista1Nombre ?? '');
+      setWaTemplates(waTemplatesData);
+      setCompanyName(company?.companyName ?? 'AK Producciones');
+      const wp = connections.find(c => c.platform === 'WhatsApp' && c.isConnected);
+      if (wp?.phoneNumber) setWaPhone(wp.phoneNumber);
       
       // Trigger background reminder check
       checkAndCreateTaskReminders().catch(e => console.warn("Reminder check failed", e));
@@ -343,6 +366,25 @@ function TareasEventoContent() {
     setIsSaving(false);
   };
 
+  const handleRemindTask = (task: Tarea) => {
+    if (!waTemplates?.enabled) return;
+    const eventoFechaStr = fiestaEventDate
+      ? new Date(fiestaEventDate).toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' })
+      : '';
+    const rendered = renderTemplate(waTemplates.taskReminder, {
+      clienteNombre: clienteNombre || 'Cliente',
+      eventoFecha: eventoFechaStr,
+      tareaNombre: task.texto,
+      empresaNombre: companyName,
+    });
+    if (waTemplates.mode === 'manual') {
+      setWaSendMessage(rendered);
+      setWaSendModalOpen(true);
+    } else {
+      openWhatsApp(waPhone, rendered);
+    }
+  };
+
   const formatDateDisplay = (dateString?: string, timeString?: string): string => {
     if (!dateString) return 'Sin fecha';
     try {
@@ -389,6 +431,12 @@ function TareasEventoContent() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
+      <WhatsAppSendModal
+        open={waSendModalOpen}
+        onOpenChange={setWaSendModalOpen}
+        initialMessage={waSendMessage}
+        phoneNumber={waPhone}
+      />
        <Dialog open={isLoadTemplateModalOpen} onOpenChange={setIsLoadTemplateModalOpen}>
         <DialogContent>
           <DialogHeader><DialogTitle>Cargar Tareas desde Plantilla</DialogTitle></DialogHeader>
@@ -528,18 +576,32 @@ function TareasEventoContent() {
                         )}
                       </div>
                     </div>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive h-8 w-8" disabled={isSaving}><Trash2 className="w-4 h-4" /></Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader><AlertDialogTitle>¿Eliminar tarea?</AlertDialogTitle><AlertDialogDescription>"{task.texto}" será borrada permanentemente.</AlertDialogDescription></AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel disabled={isSaving}>Cancelar</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => deleteTask(task.id)} disabled={isSaving} className="bg-destructive hover:bg-destructive/90">Eliminar</AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                    <div className="flex items-center gap-1 shrink-0">
+                      {waTemplates?.enabled && task.asignadaA === 'Cliente' && !task.completada && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 h-8 w-8"
+                          title="Enviar recordatorio por WhatsApp"
+                          onClick={() => handleRemindTask(task)}
+                          disabled={isSaving}
+                        >
+                          <MessageCircle className="w-4 h-4" />
+                        </Button>
+                      )}
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive h-8 w-8" disabled={isSaving}><Trash2 className="w-4 h-4" /></Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader><AlertDialogTitle>¿Eliminar tarea?</AlertDialogTitle><AlertDialogDescription>"{task.texto}" será borrada permanentemente.</AlertDialogDescription></AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel disabled={isSaving}>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => deleteTask(task.id)} disabled={isSaving} className="bg-destructive hover:bg-destructive/90">Eliminar</AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
                   </li>
                 ))}
               </ul>

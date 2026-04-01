@@ -84,3 +84,41 @@ export const defaultCompanyInfo: CompanyInfo = {
     invoiceCustomFooter: "Información de pago: Banco X, Cuenta Y, Titular Z.\nConsulte por otros métodos de pago.",
     signatureUrl: null,
 };
+
+// --- WhatsApp Templates ---
+
+export interface WhatsAppTemplates {
+  /** Template for CRM follow-up / meeting reminder */
+  crmFollowUp: string;
+  /** Template for payment reminder (estado de cuenta) */
+  paymentReminder: string;
+  /** Template for task/checklist reminder */
+  taskReminder: string;
+  /** Whether WhatsApp features are globally enabled */
+  enabled: boolean;
+  /** 'automatic' = open wa.me directly; 'manual' = show edit modal first */
+  mode: 'automatic' | 'manual';
+}
+
+export const defaultWhatsAppTemplates: WhatsAppTemplates = {
+  crmFollowUp:
+    'Hola {clienteNombre} 👋, te recordamos tu reunión con {empresaNombre} el *{eventoFecha}*. ' +
+    '¡Cualquier consulta estamos disponibles! 🎉',
+  paymentReminder:
+    '📋 *Estado de Cuenta — {empresaNombre}*\n' +
+    '━━━━━━━━━━━━━━━━━━━━━━\n' +
+    '👤 *Cliente:* {clienteNombre}\n' +
+    '🎉 *Evento:* {eventoFecha}\n' +
+    '━━━━━━━━━━━━━━━━━━━━━━\n' +
+    '💰 *Total del evento:* {totalEvento}\n' +
+    '💳 *Saldo pendiente:* {saldoPendiente}\n' +
+    '━━━━━━━━━━━━━━━━━━━━━━\n' +
+    '🔗 Ver detalle completo:\n{linkEstadoCuenta}',
+  taskReminder:
+    'Hola {clienteNombre} 👋, te recordamos que tenés una tarea pendiente para tu evento del *{eventoFecha}*.\n' +
+    '📋 *Tarea:* {tareaNombre}\n' +
+    'Para más detalles contactanos. ¡Seguimos organizando juntos! 🎉\n' +
+    'Saludos, {empresaNombre}',
+  enabled: true,
+  mode: 'manual',
+};
