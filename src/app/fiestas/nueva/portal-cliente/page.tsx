@@ -135,7 +135,13 @@ function ClientPortalConfigContent() {
                   <Label htmlFor="portal-enabled" className="text-base font-medium">Habilitar Portal del Cliente</Label>
                   <p className="text-sm text-muted-foreground">Permite el acceso del cliente a su portal personalizado.</p>
                 </div>
-                <Switch id="portal-enabled" checked={portalSettings.enabled} onCheckedChange={(val) => setPortalSettings(p => ({...(p || defaultClientPortalSettings), enabled: val}))} />
+                <Switch id="portal-enabled" checked={portalSettings.enabled} onCheckedChange={(val) => setPortalSettings(p => {
+                  const current = p || defaultClientPortalSettings;
+                  const accessKey = val && !current.accessKey
+                    ? crypto.randomUUID().replace(/-/g, '').substring(0, 12)
+                    : current.accessKey;
+                  return { ...current, enabled: val, accessKey };
+                })} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="portal-password">Contraseña de Acceso del Cliente</Label>
