@@ -4,13 +4,16 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, CalendarDays, Loader2, AlertTriangle, Clock, CalendarPlus } from 'lucide-react';
+import { ArrowLeft, CalendarDays, Loader2, AlertTriangle, Clock, CalendarPlus, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 import { DashboardCalendar } from '@/components/dashboard-calendar';
 import { getCrmLeads } from '@/app/actions/crm';
+import { getWhatsAppSettings } from '@/app/actions/settings';
 import { useToast } from '@/hooks/use-toast';
 import type { CrmLead } from '@/types/crm';
-import { isSameDay, startOfToday } from 'date-fns';
+import type { WhatsAppSettings } from '@/types/settings';
+import { isSameDay, startOfToday, format } from 'date-fns';
+import { es } from 'date-fns/locale';
 import { ScheduleNewMeetingDialog } from '@/components/crm/ScheduleNewMeetingDialog';
 
 export default function CrmAgendaPage() {
@@ -19,6 +22,7 @@ export default function CrmAgendaPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [waSettings, setWaSettings] = useState<WhatsAppSettings | null>(null);
   const { toast } = useToast();
   const isMountedRef = useRef(false);
   const toastRef = useRef(toast);
@@ -33,11 +37,11 @@ export default function CrmAgendaPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const leads = await getCrmLeads();
+      const [leads, wpSettings] = await Promise.all([getCrmLeads(), getWhatsAppSettings()]);
       if (!isMountedRef.current) return;
       const meetingsWithDate = leads.filter(lead => !!lead.followUpDate);
       setAllMeetings(meetingsWithDate.sort((a,b) => new Date(a.followUpDate!).getTime() - new Date(b.followUpDate!).getTime()));
-
+      setWaSettings(wpSettings);
     } catch (err: any) {
       if (!isMountedRef.current) return;
       setError("No se pudieron cargar las fechas de las reuniones.");
@@ -63,6 +67,24 @@ export default function CrmAgendaPage() {
     }
     return allMeetings.filter(m => isSameDay(new Date(m.followUpDate!), selectedDate));
   }, [allMeetings, selectedDate]);
+
+  const buildReminderUrl = (meeting: CrmLead) => {
+    const date = new Date(meeting.followUpDate!);
+    const fecha = format(date, "EEEE d 'de' MMMM", { locale: es });
+    const hora = format(date, 'HH:mm');
+    const template = waSettings?.reminderMessageTemplate ??
+      'Hola {{NOMBRE}}, te recordamos que tienes una reunión con *AK Producciones* el {{FECHA}} a las {{HORA}} hs. ¡Te esperamos!';
+    const mensaje = template
+      .replace(/\{\{NOMBRE\}\}/g, meeting.name)
+      .replace(/\{\{FECHA\}\}/g, fecha)
+      .replace(/\{\{HORA\}\}/g, hora);
+    const phone = meeting.phone?.replace(/\D/g, '') ?? '';
+    return phone
+      ? `https://wa.me/${phone}?text=${encodeURIComponent(mensaje)}`
+      : `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
+  };
+
+  const showWhatsAppButton = waSettings?.enabled !== false;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -124,7 +146,7 @@ export default function CrmAgendaPage() {
             <CardContent className="space-y-3">
                 {isLoading ? <div className="flex justify-center p-4"><Loader2 className="w-6 h-6 animate-spin"/></div> :
                  meetingsForSelectedDay.length > 0 ? meetingsForSelectedDay.map(meeting => (
-                    <div key={meeting.id} className="p-3 border rounded-md flex items-center justify-between bg-muted/50">
+                    <div key={meeting.id} className="p-3 border rounded-md flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-muted/50">
                         <div>
                             <p className="font-semibold">{meeting.name}</p>
                             <p className="text-sm text-muted-foreground flex items-center gap-1.5">
@@ -132,9 +154,27 @@ export default function CrmAgendaPage() {
                                 {new Date(meeting.followUpDate!).toLocaleString('es-UY', { timeStyle: 'short' })} hs.
                             </p>
                         </div>
-                        <Link href={`/contabilidad/crm?leadId=${meeting.id}`}>
-                           <Button variant="outline" size="sm">Ver en CRM</Button>
-                        </Link>
+                        <div className="flex gap-2 shrink-0">
+                            {showWhatsAppButton && (
+                              <a
+                                href={buildReminderUrl(meeting)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
+                                >
+                                  <MessageCircle className="w-3.5 h-3.5 mr-1.5" />
+                                  Recordar por WhatsApp
+                                </Button>
+                              </a>
+                            )}
+                            <Link href={`/contabilidad/crm?leadId=${meeting.id}`}>
+                               <Button variant="outline" size="sm">Ver en CRM</Button>
+                            </Link>
+                        </div>
                     </div>
                  )) : <p className="text-sm text-muted-foreground text-center py-6">No hay reuniones agendadas para este día.</p>
                 }

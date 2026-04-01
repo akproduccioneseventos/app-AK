@@ -53,6 +53,20 @@ export const defaultInvoiceTemplateSettings: InvoiceTemplateSettings = {
   logoPosition: 'left',
 };
 
+export interface WhatsAppSettings {
+  enabled: boolean;
+  sendingMode: 'automatic' | 'manual';
+  reminderMessageTemplate: string;
+  paymentReminderTemplate: string;
+}
+
+export const defaultWhatsAppSettings: WhatsAppSettings = {
+  enabled: true,
+  sendingMode: 'manual',
+  reminderMessageTemplate: 'Hola {{NOMBRE}}, te recordamos que tienes una reunión con *AK Producciones* el {{FECHA}} a las {{HORA}} hs. ¡Te esperamos!',
+  paymentReminderTemplate: 'Hola {{NOMBRE}}, te recordamos que tienes un saldo pendiente de *{{SALDO}}* para tu evento del {{FECHA_EVENTO}}. Podés ver el detalle completo en: {{LINK}}',
+};
+
 export type SocialPlatformName = 'Facebook' | 'Instagram' | 'TikTok' | 'WhatsApp';
 
 export interface SocialConnection {
