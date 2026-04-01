@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import type { Presupuesto, PagoCliente } from '@/types/presupuesto';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getSocialConnections } from '@/app/actions/social-connections';
-import { getInvoiceTemplateSettings, getCompanyInfo } from '@/app/actions/settings';
+import { getInvoiceTemplateSettings, getCompanyInfo, getWhatsAppSettings } from '@/app/actions/settings';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 
@@ -58,18 +58,21 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [companyName, setCompanyName] = useState('AK Producciones');
   const [whatsappNumber, setWhatsappNumber] = useState('');
+  const [waEnabled, setWaEnabled] = useState(true);
+  const [waTemplate, setWaTemplate] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [fetchedPresupuesto, templateSettings, socialConnections, companyInfo] =
+      const [fetchedPresupuesto, templateSettings, socialConnections, companyInfo, wpSettings] =
         await Promise.all([
           getPresupuestoById(presupuestoId),
           getInvoiceTemplateSettings(),
           getSocialConnections(),
           getCompanyInfo(),
+          getWhatsAppSettings(),
         ]);
 
       if (!fetchedPresupuesto) {
@@ -80,6 +83,8 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
       setPresupuesto(fetchedPresupuesto);
       setLogoUrl(templateSettings.logoUrl || null);
       setCompanyName(companyInfo?.companyName || 'AK Producciones');
+      setWaEnabled(wpSettings.enabled);
+      setWaTemplate(wpSettings.paymentReminderTemplate ?? null);
 
       const wp = socialConnections.find(c => c.platform === 'WhatsApp' && c.isConnected);
       if (wp?.phoneNumber) setWhatsappNumber(wp.phoneNumber);
@@ -116,17 +121,27 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
       saldoPendiente <= 0
         ? '✅ Tu cuenta está saldada. ¡Muchas gracias!'
         : `💳 Saldo pendiente: ${formatCurrency(saldoPendiente)}`;
-    const texto =
-      `📋 *Estado de Cuenta — ${companyName}*\n` +
-      `━━━━━━━━━━━━━━━━━━━━━━\n` +
-      `👤 *Cliente:* ${presupuesto.clienteNombre}\n` +
-      `🎉 *Evento:* ${presupuesto.eventoTipo} — ${formatDate(presupuesto.eventoFecha)}\n` +
-      `━━━━━━━━━━━━━━━━━━━━━━\n` +
-      `💰 *Total del evento:* ${formatCurrency(totalCosto)}\n` +
-      `✅ *Total pagado:* ${formatCurrency(totalPagado)}\n` +
-      `${saldoText}\n` +
-      `━━━━━━━━━━━━━━━━━━━━━━\n` +
-      `🔗 Ver detalle completo:\n${url}`;
+
+    let texto: string;
+    if (waTemplate) {
+      texto = waTemplate
+        .replace(/\{\{NOMBRE\}\}/g, presupuesto.clienteNombre)
+        .replace(/\{\{SALDO\}\}/g, formatCurrency(saldoPendiente))
+        .replace(/\{\{FECHA_EVENTO\}\}/g, formatDate(presupuesto.eventoFecha))
+        .replace(/\{\{LINK\}\}/g, url);
+    } else {
+      texto =
+        `📋 *Estado de Cuenta — ${companyName}*\n` +
+        `━━━━━━━━━━━━━━━━━━━━━━\n` +
+        `👤 *Cliente:* ${presupuesto.clienteNombre}\n` +
+        `🎉 *Evento:* ${presupuesto.eventoTipo} — ${formatDate(presupuesto.eventoFecha)}\n` +
+        `━━━━━━━━━━━━━━━━━━━━━━\n` +
+        `💰 *Total del evento:* ${formatCurrency(totalCosto)}\n` +
+        `✅ *Total pagado:* ${formatCurrency(totalPagado)}\n` +
+        `${saldoText}\n` +
+        `━━━━━━━━━━━━━━━━━━━━━━\n` +
+        `🔗 Ver detalle completo:\n${url}`;
+    }
 
     const target = whatsappNumber
       ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(texto)}`
@@ -168,13 +183,15 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
           <Button onClick={handlePrint} size="sm" className="rounded-xl">
             <Printer className="mr-2 h-4 w-4" /> Imprimir / PDF
           </Button>
-          <Button
-            onClick={handleWhatsApp}
-            size="sm"
-            className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white"
-          >
-            <MessageCircle className="mr-2 h-4 w-4" /> Enviar por WhatsApp
-          </Button>
+          {waEnabled && (
+            <Button
+              onClick={handleWhatsApp}
+              size="sm"
+              className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white"
+            >
+              <MessageCircle className="mr-2 h-4 w-4" /> Enviar por WhatsApp
+            </Button>
+          )}
         </div>
       </div>
 
