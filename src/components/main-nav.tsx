@@ -40,7 +40,8 @@ import {
   Camera,
   Printer,
   Wallet,
-  Calculator
+  Calculator,
+  TrendingUp
 } from "lucide-react";
 import AppLogo from "./app-logo";
 import { cn } from "@/lib/utils";
@@ -185,7 +186,8 @@ export function MainNav() {
                     isActive("/contabilidad") ||
                     isActive("/presupuestos") ||
                     isActive("/invoices") ||
-                    isActive("/customers")
+                    isActive("/customers") ||
+                    isActive("/analytics")
                   }
                   isSubmenu
                   className="h-12 rounded-xl font-bold text-xs text-slate-500 hover:text-primary transition-all duration-300"
@@ -247,6 +249,14 @@ export function MainNav() {
                     <Link href="/contabilidad/fiestas-historicas" asChild>
                       <SidebarMenuSubButton isActive={isActive("/contabilidad/fiestas-historicas")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
                         Historial Base
+                      </SidebarMenuSubButton>
+                    </Link>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <Link href="/analytics" asChild>
+                      <SidebarMenuSubButton isActive={isActive("/analytics")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter text-primary">
+                        <TrendingUp className="w-3.5 h-3.5 mr-1" />
+                        Dashboard Analítico
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
