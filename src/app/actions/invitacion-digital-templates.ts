@@ -4,6 +4,14 @@
 import { readData, writeData } from '@/lib/data-service';
 import type { InvitacionDigitalData } from '@/types/fiesta';
 import { defaultInvitacionDigitalData } from '@/lib/invitacion-digital-defaults';
+import {
+  tplBodaRosaEterna,
+  tplBodaBohoMistica,
+  tplBodaEleganciaModerna,
+  tplXvPrincesaDorada,
+  tplXvNeonVibrante,
+  tplXvJardinDeSuenos,
+} from '@/lib/invitation-template-seeds';
 
 export interface InvitacionDigitalTemplate extends InvitacionDigitalData {
   id: string;
@@ -21,13 +29,32 @@ const defaultGraziaTemplate: InvitacionDigitalTemplate = {
     plantilla: 'Grazia',
 };
 
+const builtInTemplates: InvitacionDigitalTemplate[] = [
+  defaultGraziaTemplate,
+  tplBodaRosaEterna,
+  tplBodaBohoMistica,
+  tplBodaEleganciaModerna,
+  tplXvPrincesaDorada,
+  tplXvNeonVibrante,
+  tplXvJardinDeSuenos,
+];
+
 export async function getInvitationTemplates(): Promise<InvitacionDigitalTemplate[]> {
-  // Ensure the default template exists if the file is empty
-  const templates = await readData<InvitacionDigitalTemplate[]>(TEMPLATES_FILE, [defaultGraziaTemplate]);
-  if (templates.length === 0) {
-    return [defaultGraziaTemplate];
-  }
-  return templates.sort((a, b) => a.name.localeCompare(b.name));
+  const savedTemplates = await readData<InvitacionDigitalTemplate[]>(TEMPLATES_FILE, []);
+  const savedIds = new Set(savedTemplates.map(t => t.id));
+
+  // Include built-in templates that haven't been saved/edited by the user
+  const mergedTemplates = [
+    ...builtInTemplates.filter(t => !savedIds.has(t.id)),
+    ...savedTemplates,
+  ];
+
+  return mergedTemplates.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/** Reads only the user-saved templates from the JSON file (excludes built-ins). */
+async function readSavedTemplates(): Promise<InvitacionDigitalTemplate[]> {
+  return readData<InvitacionDigitalTemplate[]>(TEMPLATES_FILE, []);
 }
 
 export async function saveInvitationTemplate(
@@ -37,41 +64,52 @@ export async function saveInvitationTemplate(
     return { success: false, error: "El nombre de la plantilla es obligatorio." };
   }
 
-  const templates = await getInvitationTemplates();
+  // Work only with the saved-templates list so built-ins are never written to disk
+  const allTemplates = await getInvitationTemplates();
+  const savedTemplates = await readSavedTemplates();
   let savedTemplate: InvitacionDigitalTemplate;
 
   if ('id' in templateData && templateData.id) {
-    // Update
-    const index = templates.findIndex(t => t.id === templateData.id);
-    if (index === -1) {
+    // Update — look up the full template (may be built-in) to merge changes
+    const source = allTemplates.find(t => t.id === templateData.id);
+    if (!source) {
       return { success: false, error: "Plantilla no encontrada para actualizar." };
     }
-    savedTemplate = { ...templates[index], ...templateData };
-    templates[index] = savedTemplate;
+    savedTemplate = { ...source, ...templateData };
+    const idx = savedTemplates.findIndex(t => t.id === templateData.id);
+    if (idx !== -1) {
+      savedTemplates[idx] = savedTemplate;
+    } else {
+      // Built-in being edited for the first time — persist it in the saved list
+      savedTemplates.push(savedTemplate);
+    }
   } else {
-    // Create
+    // Create new template
     savedTemplate = { ...defaultInvitacionDigitalData, ...templateData, id: `tpl_${Date.now()}` };
-    templates.push(savedTemplate);
+    savedTemplates.push(savedTemplate);
   }
-  
-  await writeData(TEMPLATES_FILE, templates);
+
+  await writeData(TEMPLATES_FILE, savedTemplates);
   return { success: true, template: savedTemplate };
 }
 
 export async function deleteInvitationTemplate(id: string): Promise<{ success: boolean; error?: string }> {
-  let templates = await getInvitationTemplates();
-  const initialLength = templates.length;
-  templates = templates.filter(t => t.id !== id);
-  if (templates.length === initialLength) {
+  const allTemplates = await getInvitationTemplates();
+  const exists = allTemplates.some(t => t.id === id);
+  if (!exists) {
     return { success: false, error: "Plantilla no encontrada para eliminar." };
   }
-  await writeData(TEMPLATES_FILE, templates);
+
+  // Only remove from the saved list; built-ins simply won't appear in savedTemplates
+  const savedTemplates = await readSavedTemplates();
+  const filtered = savedTemplates.filter(t => t.id !== id);
+  await writeData(TEMPLATES_FILE, filtered);
   return { success: true };
 }
 
 export async function duplicateInvitationTemplate(templateId: string): Promise<{ success: boolean; newTemplate?: InvitacionDigitalTemplate, error?: string }> {
-  const templates = await getInvitationTemplates();
-  const templateToDuplicate = templates.find(t => t.id === templateId);
+  const allTemplates = await getInvitationTemplates();
+  const templateToDuplicate = allTemplates.find(t => t.id === templateId);
 
   if (!templateToDuplicate) {
     return { success: false, error: "Plantilla a duplicar no encontrada." };
@@ -83,7 +121,8 @@ export async function duplicateInvitationTemplate(templateId: string): Promise<{
     name: `[COPIA] ${templateToDuplicate.name}`,
   };
 
-  templates.push(newTemplate);
-  await writeData(TEMPLATES_FILE, templates);
+  const savedTemplates = await readSavedTemplates();
+  savedTemplates.push(newTemplate);
+  await writeData(TEMPLATES_FILE, savedTemplates);
   return { success: true, newTemplate };
 }
