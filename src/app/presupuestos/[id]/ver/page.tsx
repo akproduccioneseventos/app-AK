@@ -281,7 +281,15 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                             <p>{COMPANY_ADDRESS_LINE1_PDF} | {COMPANY_CONTACT_EMAIL_PDF}</p>
                         </div>
                     </div>
-                    {logoUrl && <div className="w-16 h-16 sm:w-24 sm:h-24 relative shrink-0"><Image src={logoUrl} alt="Logo" layout="fill" className="object-contain" /></div>}
+                    {logoUrl ? (
+                        <div className="w-16 h-16 sm:w-24 sm:h-24 relative shrink-0">
+                            <Image src={logoUrl} alt="Logo" layout="fill" className="object-contain" />
+                        </div>
+                    ) : (
+                        <div className="shrink-0 flex flex-col items-center justify-center w-16 h-16 sm:w-24 sm:h-24 bg-primary/5 border-2 border-primary/20 rounded-2xl text-center">
+                            <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-tighter text-primary leading-tight px-1">AK Producciones</span>
+                        </div>
+                    )}
                 </header>
 
                 <section className="mb-8 p-4 sm:p-6 bg-slate-50 border border-slate-100 rounded-[1.5rem] sm:rounded-[2rem] print:bg-white print:border-none print:p-0">
@@ -379,16 +387,23 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                         </div>
                     )}
                     <div className="mt-16 grid grid-cols-2 gap-8 sm:gap-20 text-center">
-                        <div className="border-t border-slate-200 pt-4 relative">
-                            {companyInfo?.signatureUrl && (
-                                <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-32 h-16 pointer-events-none">
+                        <div className="border-t-2 border-slate-300 pt-4 relative mt-16">
+                            {companyInfo?.signatureUrl ? (
+                                <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-32 h-14 pointer-events-none">
                                     <Image src={companyInfo.signatureUrl} alt="Firma Empresa" layout="fill" objectFit="contain" />
+                                </div>
+                            ) : (
+                                <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-36 pointer-events-none">
+                                    <div className="border-b border-dashed border-slate-300 h-6 w-full"></div>
                                 </div>
                             )}
                             <p className="font-black text-sm uppercase tracking-tighter text-slate-900">Tec. Alexander Knuth</p>
                             <p className="text-[10px] text-slate-400 font-sans uppercase tracking-widest">Por la Empresa</p>
                         </div>
-                        <div className="border-t border-slate-200 pt-4 relative">
+                        <div className="border-t-2 border-slate-300 pt-4 relative mt-16">
+                            <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-36 pointer-events-none">
+                                <div className="border-b border-dashed border-slate-300 h-6 w-full"></div>
+                            </div>
                             <p className="font-black text-sm uppercase tracking-tighter text-slate-900 truncate">{cliente?.name || presupuesto.clienteNombre}</p>
                             <p className="text-[8px] sm:text-[9px] text-slate-400 uppercase font-bold">Firma del Cliente</p>
                         </div>
@@ -402,7 +417,9 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 header, footer, button, .sidebar, .no-print, .notifications-hub, .sidebar-inset > header, aside { display: none !important; }
                 body { background: white !important; padding: 0 !important; margin: 0 !important; }
                 .bg-slate-50, .bg-muted\/30, .bg-primary\/5, .bg-blue-50\/50 { background-color: white !important; border: 1px solid #e2e8f0 !important; }
-                @page { size: A4; margin: 1cm; }
+                .shadow-xl, .shadow-2xl, .shadow-3xl { box-shadow: none !important; }
+                .rounded-\[2rem\], .rounded-\[2\.5rem\] { border-radius: 0 !important; }
+                @page { size: A4 portrait; margin: 1.5cm 1cm; }
             }
         `}</style>
     </div>
