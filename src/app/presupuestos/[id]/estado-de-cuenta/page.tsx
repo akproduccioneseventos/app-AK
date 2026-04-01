@@ -300,7 +300,7 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {pagos.map((pago, index) => (
+                    {pagos.map((pago) => (
                       <TableRow key={pago.id} className="text-sm">
                         <TableCell className="pl-4 py-3 font-medium text-slate-700">
                           {formatDate(pago.fecha)}

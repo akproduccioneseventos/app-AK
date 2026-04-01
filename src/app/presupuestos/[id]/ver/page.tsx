@@ -206,7 +206,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     setIsSavingPago(true);
     try {
       const result = await addPagoToPresupuesto(presupuesto.id, {
-        fecha: new Date(newPagoFecha).toISOString(),
+        fecha: `${newPagoFecha}T12:00:00.000Z`,
         monto,
         metodoPago: newPagoMetodo,
         referencia: newPagoReferencia.trim() || undefined,
