@@ -85,9 +85,17 @@ export async function writeData<T>(
   // DUAL-WRITE: Always attempt Firestore sync; fail silently if unavailable
   try {
     const { syncToFirestore } = await import('./firebase-sync');
-    syncToFirestore(filePath, dataToWrite).catch(err =>
-      console.warn("Background Firestore sync failed:", err)
-    );
+    syncToFirestore(filePath, dataToWrite)
+      .then(() => {
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`📝 [Dual-Write] "${filePath}" — JSON ✅ + Firebase ✅`);
+        }
+      })
+      .catch(err => {
+        console.warn(`⚠️ [Dual-Write] "${filePath}" — JSON ✅ guardado correctamente | Firebase ❌ falló.`);
+        console.warn(`   Tus datos están SEGUROS en el archivo JSON local.`);
+        console.warn(`   Detalle Firebase: ${err instanceof Error ? err.message : err}`);
+      });
   } catch {
     // Firebase sync module not available, skip silently
   }
