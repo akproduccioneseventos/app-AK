@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import type { FiestaEnPlanificacion, ClientTarea, MoodboardItem, ProgramaEventoItem } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ClientTarea, MoodboardItem, ProgramaEventoItem, BebidaCalculable, FaqItem } from '@/types/fiesta';
 import type { Presupuesto, PagoCliente } from '@/types/presupuesto';
 import {
   Calendar,
@@ -17,6 +17,8 @@ import {
   MessageSquare,
   Star,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   Loader2,
   Save,
   CreditCard,
@@ -31,6 +33,13 @@ import {
   CloudSun,
   FileSignature,
   GlassWater,
+  Navigation,
+  Utensils,
+  HelpCircle,
+  Shirt,
+  Wine,
+  Package,
+  ExternalLink,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -40,6 +49,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { updateClientChecklist, updateClientNotes } from '@/app/actions/fiesta/portal.actions';
+import { defaultBebidaItems } from '@/lib/fiesta-defaults';
 
 interface PublicPortalViewProps {
   fiesta: FiestaEnPlanificacion;
@@ -138,6 +148,36 @@ const MetodoPagoIcon = ({ metodo }: { metodo: string }) => {
   }
 };
 
+const colorMap: Record<string, { bg: string; border: string; text: string }> = {
+  amber: { bg: 'bg-amber-50', border: 'border-amber-100', text: 'text-amber-700' },
+  sky: { bg: 'bg-sky-50', border: 'border-sky-100', text: 'text-sky-700' },
+  slate: { bg: 'bg-slate-50', border: 'border-slate-200', text: 'text-slate-700' },
+  blue: { bg: 'bg-blue-50', border: 'border-blue-100', text: 'text-blue-700' },
+  pink: { bg: 'bg-pink-50', border: 'border-pink-100', text: 'text-pink-700' },
+  emerald: { bg: 'bg-emerald-50', border: 'border-emerald-100', text: 'text-emerald-700' },
+  violet: { bg: 'bg-violet-50', border: 'border-violet-100', text: 'text-violet-700' },
+};
+
+function getColorClasses(color: string) {
+  return colorMap[color] ?? colorMap['sky'];
+}
+
+/** Migrate old-format CalculadoraBebidas (boolean flags) to new items[] format */
+function resolveBebidasItems(settings: FiestaEnPlanificacion['clientPortalSettings']): BebidaCalculable[] {
+  const calc = settings?.calculadoraBebidas;
+  if (!calc) return defaultBebidaItems;
+  if (calc.items && calc.items.length > 0) return calc.items;
+
+  // Backward compatibility: convert legacy boolean flags
+  return defaultBebidaItems.map(item => {
+    let clienteLleva = false;
+    if (item.id === 'cerveza') clienteLleva = !!calc.clienteLlevaCerveza;
+    else if (item.id === 'refresco') clienteLleva = !!calc.clienteLlevaBebida;
+    else if (item.id === 'hielo') clienteLleva = !!calc.clienteLlevaHielo;
+    return { ...item, clienteLleva };
+  });
+}
+
 export default function PublicPortalView({
   fiesta,
   companyContact,
@@ -163,6 +203,9 @@ export default function PublicPortalView({
   const [likedItems, setLikedItems] = useState<Set<string>>(
     new Set((fiesta.decoracion?.moodboardItems ?? []).filter(i => i.likedByClient).map(i => i.id))
   );
+
+  // FAQ accordion state
+  const [openFaqId, setOpenFaqId] = useState<string | null>(null);
 
   const handleToggleTask = async (taskId: string) => {
     const previous = checklist;
@@ -265,11 +308,28 @@ export default function PublicPortalView({
   // Drink calculator
   const calcBebidas = settings?.calculadoraBebidas;
   const invitados = config.invitadosEstimados || 0;
+  const bebidasItems = resolveBebidasItems(settings);
 
   // Moodboard and program
   const moodboardItems: MoodboardItem[] = fiesta.decoracion?.moodboardItems ?? [];
   const programa: ProgramaEventoItem[] = fiesta.programa ?? [];
   const musica = fiesta.musica;
+
+  // Location data from digital invitation
+  const celebracion = fiesta.invitacionDigital?.detallesEvento?.celebracion;
+  const dressCode = fiesta.invitacionDigital?.dressCode;
+
+  // Budget items grouped by category
+  const itemsPresupuestados = presupuesto?.itemsPresupuestados ?? [];
+  const itemsByCategory = itemsPresupuestados.reduce<Record<string, typeof itemsPresupuestados>>((acc, item) => {
+    const cat = item.categoriaServicio || 'Servicios';
+    if (!acc[cat]) acc[cat] = [];
+    acc[cat].push(item);
+    return acc;
+  }, {});
+
+  // FAQ
+  const faqItems: FaqItem[] = fiesta.faqPortal ?? [];
 
   const visibleSections = [
     {
@@ -285,13 +345,6 @@ export default function PublicPortalView({
       icon: Gift,
       visible: settings?.listaRegalos?.visible,
       description: 'Gestiona tu lista de deseos.',
-    },
-    {
-      id: 'documentos',
-      label: 'Documentos',
-      icon: FileText,
-      visible: settings?.documentos?.visible,
-      description: 'Contratos y documentación del evento.',
     },
   ].filter(s => s.visible);
 
@@ -483,71 +536,303 @@ export default function PublicPortalView({
           </Card>
         )}
 
-        {/* Contract Summary */}
-        {settings?.contrato?.visible && (fiesta.contratoServicioTexto || fiesta.contratoFirmaInfo) && (
+        {/* Services / Budget Breakdown */}
+        {settings?.serviciosContratados?.visible && itemsPresupuestados.length > 0 && (
+          <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
+            <CardHeader className="pb-2 bg-gradient-to-r from-violet-50 to-primary/5">
+              <CardTitle className="text-base font-bold flex items-center gap-2">
+                <Package className="w-5 h-5 text-primary" />
+                ¿Qué estoy contratando?
+              </CardTitle>
+              <p className="text-xs text-muted-foreground">Resumen de los servicios incluidos en tu evento</p>
+            </CardHeader>
+            <CardContent className="pt-4 space-y-4">
+              {presupuesto?.nombrePromocion && (
+                <div className="flex items-center gap-2 p-2.5 rounded-xl bg-primary/5 border border-primary/20">
+                  <Star className="w-4 h-4 text-primary shrink-0" />
+                  <p className="text-xs font-semibold text-primary">Promoción aplicada: {presupuesto.nombrePromocion}</p>
+                </div>
+              )}
+              {Object.entries(itemsByCategory).map(([cat, items]) => (
+                <div key={cat} className="space-y-2">
+                  <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">{cat}</p>
+                  <div className="space-y-1.5">
+                    {items.map(item => (
+                      <div key={item.idServicioCatalogo} className="flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl bg-muted/40 text-sm">
+                        <span className="font-medium leading-snug flex-1">{item.nombreServicio}</span>
+                        {item.esRegalo && (
+                          <Badge variant="secondary" className="text-[9px] shrink-0 bg-emerald-100 text-emerald-700 border-emerald-200">
+                            🎁 ¡Incluido sin cargo!
+                          </Badge>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Contract Summary + Documents */}
+        {settings?.contrato?.visible && (fiesta.contratoServicioTexto || fiesta.contratoFirmaInfo || (fiesta.othersDocumentos && fiesta.othersDocumentos.length > 0)) && (
           <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
             <CardHeader className="pb-2">
               <CardTitle className="text-base font-bold flex items-center gap-2">
                 <FileSignature className="w-5 h-5 text-primary" />
-                Contrato de Servicio
+                Contrato y Documentos
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0 space-y-3">
-              {fiesta.contratoFirmaInfo?.isSigned ? (
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50 border border-emerald-200">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+              {(fiesta.contratoServicioTexto || fiesta.contratoFirmaInfo) && (
+                <>
+                  {fiesta.contratoFirmaInfo?.isSigned ? (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50 border border-emerald-200">
+                        <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                        <div className="flex-1">
+                          <p className="font-bold text-emerald-800 text-sm">Contrato Firmado ✅</p>
+                          {fiesta.contratoFirmaInfo.signedAt && (
+                            <p className="text-xs text-emerald-700">
+                              {formatDate(fiesta.contratoFirmaInfo.signedAt)}
+                              {fiesta.contratoFirmaInfo.method === 'digital' ? ' · Digital' : fiesta.contratoFirmaInfo.method === 'physical' ? ' · Físico' : ''}
+                            </p>
+                          )}
+                        </div>
+                        <a href={`/portal/${fiesta.id}/contrato`} target="_blank" rel="noopener noreferrer">
+                          <Button size="sm" variant="outline" className="rounded-xl shrink-0 text-xs gap-1">
+                            <ExternalLink className="w-3 h-3" /> Ver
+                          </Button>
+                        </a>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-amber-50 border border-amber-200">
+                      <div className="flex items-center gap-3">
+                        <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
+                        <div>
+                          <p className="font-bold text-amber-800 text-sm">Pendiente de firma ⏳</p>
+                          <p className="text-xs text-amber-700">Tu contrato aún no fue firmado</p>
+                        </div>
+                      </div>
+                      <a href={`/portal/${fiesta.id}/contrato`}>
+                        <Button size="sm" className="rounded-xl shrink-0 text-xs">
+                          Firmar
+                        </Button>
+                      </a>
+                    </div>
+                  )}
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    {config.tipoCelebracion && (
+                      <div className="space-y-0.5 p-2 rounded-lg bg-muted/40">
+                        <p className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">Tipo</p>
+                        <p className="font-semibold">{config.tipoCelebracion}</p>
+                      </div>
+                    )}
+                    {eventDate && (
+                      <div className="space-y-0.5 p-2 rounded-lg bg-muted/40">
+                        <p className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">Fecha</p>
+                        <p className="font-semibold capitalize">{eventDate}</p>
+                      </div>
+                    )}
+                    {config.nombreLugar && (
+                      <div className="space-y-0.5 p-2 rounded-lg bg-muted/40">
+                        <p className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">Lugar</p>
+                        <p className="font-semibold">{config.nombreLugar}</p>
+                      </div>
+                    )}
+                    {invitadosContratados > 0 && (
+                      <div className="space-y-0.5 p-2 rounded-lg bg-muted/40">
+                        <p className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">Invitados</p>
+                        <p className="font-semibold">{invitadosContratados}</p>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+
+              {/* Additional documents */}
+              {fiesta.othersDocumentos && fiesta.othersDocumentos.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Documentos Adicionales</p>
+                  <div className="space-y-1.5">
+                    {fiesta.othersDocumentos.map(doc => (
+                      <div key={doc.id} className="flex items-center gap-3 p-3 rounded-xl bg-muted/40 border border-muted/60">
+                        <FileText className="w-4 h-4 text-primary shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-sm truncate">{doc.nombre}</p>
+                          <p className="text-xs text-muted-foreground">{doc.tipo}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Location with Map */}
+        {settings?.ubicacion?.visible && celebracion?.visible && (celebracion.nombreLugar || celebracion.direccionLugar) && (
+          <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
+            <CardHeader className="pb-2 bg-gradient-to-r from-emerald-50 to-teal-50">
+              <CardTitle className="text-base font-bold flex items-center gap-2">
+                <MapPin className="w-5 h-5 text-emerald-600" />
+                Ubicación del Evento
+              </CardTitle>
+              <p className="text-xs text-muted-foreground">¿Cómo llegar?</p>
+            </CardHeader>
+            <CardContent className="pt-4 space-y-3">
+              {celebracion.nombreLugar && (
+                <div className="flex items-start gap-3 p-3 rounded-xl bg-muted/40">
+                  <MapPin className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
                   <div>
-                    <p className="font-bold text-emerald-800 text-sm">Contrato Firmado ✅</p>
-                    {fiesta.contratoFirmaInfo.signedAt && (
-                      <p className="text-xs text-emerald-700">
-                        {formatDate(fiesta.contratoFirmaInfo.signedAt)}
-                        {fiesta.contratoFirmaInfo.method === 'digital' ? ' · Digital' : fiesta.contratoFirmaInfo.method === 'physical' ? ' · Físico' : ''}
-                      </p>
+                    <p className="font-bold text-sm">{celebracion.nombreLugar}</p>
+                    {celebracion.direccionLugar && (
+                      <p className="text-xs text-muted-foreground mt-0.5">{celebracion.direccionLugar}</p>
                     )}
                   </div>
                 </div>
-              ) : (
-                <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-amber-50 border border-amber-200">
-                  <div className="flex items-center gap-3">
-                    <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
-                    <div>
-                      <p className="font-bold text-amber-800 text-sm">Pendiente de firma ⏳</p>
-                      <p className="text-xs text-amber-700">Tu contrato aún no fue firmado</p>
-                    </div>
-                  </div>
-                  <a href={`/portal/${fiesta.id}/contrato`}>
-                    <Button size="sm" className="rounded-xl shrink-0 text-xs">
-                      Firmar
+              )}
+              {celebracion.mapaUrl && (
+                <div className="rounded-xl overflow-hidden border border-muted">
+                  <iframe
+                    src={celebracion.mapaUrl}
+                    className="w-full h-48"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="Ubicación del evento"
+                  />
+                </div>
+              )}
+              {celebracion.direccionLugar && (
+                <div className="grid grid-cols-2 gap-2">
+                  <a
+                    href={`https://maps.google.com/?q=${encodeURIComponent(celebracion.direccionLugar)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block"
+                  >
+                    <Button variant="outline" className="w-full rounded-xl text-xs gap-1.5">
+                      <Navigation className="w-3.5 h-3.5" /> Google Maps
+                    </Button>
+                  </a>
+                  <a
+                    href={`https://waze.com/ul?q=${encodeURIComponent(celebracion.direccionLugar)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block"
+                  >
+                    <Button variant="outline" className="w-full rounded-xl text-xs gap-1.5">
+                      <Navigation className="w-3.5 h-3.5" /> Waze
                     </Button>
                   </a>
                 </div>
               )}
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                {config.tipoCelebracion && (
-                  <div className="space-y-0.5 p-2 rounded-lg bg-muted/40">
-                    <p className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">Tipo</p>
-                    <p className="font-semibold">{config.tipoCelebracion}</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Event Menu */}
+        {settings?.menu?.visible && fiesta.menuMesa && (fiesta.menuMesa.entrada || fiesta.menuMesa.platoPrincipal || fiesta.menuMesa.postres || fiesta.menuMesa.bebidas) && (
+          <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
+            <CardHeader className="pb-2 bg-gradient-to-r from-orange-50 to-amber-50">
+              <CardTitle className="text-base font-bold flex items-center gap-2">
+                <Utensils className="w-5 h-5 text-orange-500" />
+                Menú del Evento
+              </CardTitle>
+              <p className="text-xs text-muted-foreground">Lo que vas a disfrutar esa noche</p>
+            </CardHeader>
+            <CardContent className="pt-4 space-y-2">
+              {[
+                { label: 'Entrada', value: fiesta.menuMesa.entrada, emoji: '🥗' },
+                { label: 'Plato Principal', value: fiesta.menuMesa.platoPrincipal, emoji: '🍽️' },
+                { label: 'Opción Adolescentes', value: fiesta.menuMesa.adolescentes, emoji: '🍕' },
+                { label: 'Postres', value: fiesta.menuMesa.postres, emoji: '🍰' },
+                { label: 'Bebidas', value: fiesta.menuMesa.bebidas, emoji: '🥂' },
+              ]
+                .filter(row => !!row.value)
+                .map(row => (
+                  <div key={row.label} className="flex items-start gap-3 p-3 rounded-xl bg-muted/40">
+                    <span className="text-xl shrink-0">{row.emoji}</span>
+                    <div>
+                      <p className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">{row.label}</p>
+                      <p className="font-semibold text-sm leading-snug">{row.value}</p>
+                    </div>
                   </div>
-                )}
-                {eventDate && (
-                  <div className="space-y-0.5 p-2 rounded-lg bg-muted/40">
-                    <p className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">Fecha</p>
-                    <p className="font-semibold capitalize">{eventDate}</p>
+                ))}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Drinks Menu (Carta de Tragos) */}
+        {settings?.cartaTragos?.visible && fiesta.cartaTragos && fiesta.cartaTragos.items.length > 0 && (
+          <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
+            <CardHeader className="pb-2 bg-gradient-to-r from-purple-50 to-pink-50">
+              <CardTitle className="text-base font-bold flex items-center gap-2">
+                <Wine className="w-5 h-5 text-purple-600" />
+                {fiesta.cartaTragos.titulo || 'Carta de Tragos'}
+              </CardTitle>
+              <p className="text-xs text-muted-foreground">Bebidas disponibles en tu evento</p>
+            </CardHeader>
+            <CardContent className="pt-4">
+              <div className="grid grid-cols-2 gap-2">
+                {fiesta.cartaTragos.items.map(trago => (
+                  <div key={trago.id} className="flex items-center gap-2 p-3 rounded-xl bg-muted/40 border border-muted/60">
+                    {trago.imageUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={trago.imageUrl} alt={trago.nombre} className="w-8 h-8 object-cover rounded-lg shrink-0" />
+                    ) : (
+                      <span className="text-xl shrink-0">🍸</span>
+                    )}
+                    <p className="font-semibold text-sm leading-tight">{trago.nombre}</p>
                   </div>
-                )}
-                {config.nombreLugar && (
-                  <div className="space-y-0.5 p-2 rounded-lg bg-muted/40">
-                    <p className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">Lugar</p>
-                    <p className="font-semibold">{config.nombreLugar}</p>
-                  </div>
-                )}
-                {invitadosContratados > 0 && (
-                  <div className="space-y-0.5 p-2 rounded-lg bg-muted/40">
-                    <p className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">Invitados</p>
-                    <p className="font-semibold">{invitadosContratados}</p>
-                  </div>
-                )}
+                ))}
               </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Dress Code */}
+        {settings?.dressCode?.visible && dressCode?.visible && (dressCode.texto?.text || (dressCode.sugeridos && dressCode.sugeridos.length > 0) || (dressCode.evitar && dressCode.evitar.length > 0)) && (
+          <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
+            <CardHeader className="pb-2 bg-gradient-to-r from-rose-50 to-pink-50">
+              <CardTitle className="text-base font-bold flex items-center gap-2">
+                <Shirt className="w-5 h-5 text-rose-500" />
+                Dress Code
+              </CardTitle>
+              <p className="text-xs text-muted-foreground">¿Cómo vestirse para este evento?</p>
+            </CardHeader>
+            <CardContent className="pt-4 space-y-3">
+              {dressCode.texto?.text && (
+                <p className="text-sm text-muted-foreground leading-relaxed">{dressCode.texto.text}</p>
+              )}
+              {dressCode.sugeridos && dressCode.sugeridos.length > 0 && (
+                <div className="space-y-1.5">
+                  <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">✅ Sugerido</p>
+                  <div className="flex flex-wrap gap-2">
+                    {dressCode.sugeridos.map((s, i) => (
+                      <Badge key={i} variant="secondary" className="bg-emerald-100 text-emerald-700 border-emerald-200 rounded-xl">
+                        {s}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {dressCode.evitar && dressCode.evitar.length > 0 && (
+                <div className="space-y-1.5">
+                  <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">🚫 Evitar</p>
+                  <div className="flex flex-wrap gap-2">
+                    {dressCode.evitar.map((e, i) => (
+                      <Badge key={i} variant="secondary" className="bg-rose-100 text-rose-700 border-rose-200 rounded-xl">
+                        {e}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         )}
@@ -638,12 +923,12 @@ export default function PublicPortalView({
             <CardHeader className="pb-2 bg-gradient-to-r from-blue-50 to-sky-50">
               <CardTitle className="text-base font-bold flex items-center gap-2">
                 <GlassWater className="w-5 h-5 text-blue-600" />
-                ¿Te toca llevar las bebidas?
+                Calculadora de Bebidas
               </CardTitle>
-              <p className="text-xs text-muted-foreground">Calculamos todo por ti</p>
+              <p className="text-xs text-muted-foreground">Estimación para {invitados} invitados</p>
             </CardHeader>
             <CardContent className="pt-4 space-y-3">
-              {(calcBebidas.clienteLlevaCerveza || calcBebidas.clienteLlevaBebida || calcBebidas.clienteLlevaHielo) ? (
+              {bebidasItems.some(b => b.clienteLleva && b.visible) ? (
                 <p className="text-xs text-blue-700 font-medium bg-blue-50 rounded-xl px-3 py-2">
                   🎉 Según tu contrato, vos traés las siguientes bebidas para {invitados} personas:
                 </p>
@@ -653,51 +938,30 @@ export default function PublicPortalView({
                 </p>
               )}
               <div className="space-y-2">
-                {(calcBebidas.clienteLlevaCerveza || (!calcBebidas.clienteLlevaBebida && !calcBebidas.clienteLlevaHielo)) && (
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-amber-50 border border-amber-100">
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">🍺</span>
-                      <div>
-                        <p className="font-bold text-sm">Cerveza Corona</p>
-                        <p className="text-xs text-muted-foreground">5 por persona</p>
+                {bebidasItems
+                  .filter(item => item.visible)
+                  .map(item => {
+                    const { bg, border, text } = getColorClasses(item.color);
+                    const cantidad = Math.round(invitados * item.cantidadPorPersona * 10) / 10;
+                    return (
+                      <div key={item.id} className={`flex items-center justify-between p-3 rounded-xl ${bg} border ${border}`}>
+                        <div className="flex items-center gap-3">
+                          <span className="text-2xl">{item.emoji}</span>
+                          <div>
+                            <p className="font-bold text-sm">{item.nombre}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {item.cantidadPorPersona} {item.unidad} por persona
+                              {item.clienteLleva && <span className="ml-1 font-semibold text-amber-600">· Vos traés</span>}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className={`text-2xl font-black ${text}`}>{cantidad}</p>
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{item.unidad}</p>
+                        </div>
                       </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-2xl font-black text-amber-700">{invitados * 5}</p>
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">unidades</p>
-                    </div>
-                  </div>
-                )}
-                {(calcBebidas.clienteLlevaBebida || (!calcBebidas.clienteLlevaCerveza && !calcBebidas.clienteLlevaHielo)) && (
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-sky-50 border border-sky-100">
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">🥤</span>
-                      <div>
-                        <p className="font-bold text-sm">Agua / Gaseosa</p>
-                        <p className="text-xs text-muted-foreground">1.5 litros por persona</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-2xl font-black text-sky-700">{Math.round(invitados * 1.5)}</p>
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">litros</p>
-                    </div>
-                  </div>
-                )}
-                {(calcBebidas.clienteLlevaHielo || (!calcBebidas.clienteLlevaCerveza && !calcBebidas.clienteLlevaBebida)) && (
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">🧊</span>
-                      <div>
-                        <p className="font-bold text-sm">Hielo</p>
-                        <p className="text-xs text-muted-foreground">1 kg por persona</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-2xl font-black text-slate-700">{invitados}</p>
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">kg</p>
-                    </div>
-                  </div>
-                )}
+                    );
+                  })}
               </div>
             </CardContent>
           </Card>
@@ -875,6 +1139,42 @@ export default function PublicPortalView({
                     </Label>
                     {togglingTaskId === tarea.id && <Loader2 className="w-3 h-3 ml-auto animate-spin text-muted-foreground shrink-0" />}
                   </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* FAQ Accordion */}
+        {settings?.faq?.visible && faqItems.length > 0 && (
+          <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base font-bold flex items-center gap-2">
+                <HelpCircle className="w-5 h-5 text-primary" />
+                Preguntas Frecuentes
+              </CardTitle>
+              <p className="text-xs text-muted-foreground">Todo lo que necesitás saber</p>
+            </CardHeader>
+            <CardContent className="pt-0 space-y-1">
+              {faqItems.map((faq, idx) => (
+                <div key={faq.id}>
+                  {idx > 0 && <Separator className="my-1" />}
+                  <button
+                    className="w-full flex items-center justify-between gap-3 py-3 px-1 text-left"
+                    onClick={() => setOpenFaqId(openFaqId === faq.id ? null : faq.id)}
+                  >
+                    <span className="font-semibold text-sm leading-snug">{faq.pregunta}</span>
+                    {openFaqId === faq.id ? (
+                      <ChevronUp className="w-4 h-4 text-muted-foreground shrink-0" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
+                    )}
+                  </button>
+                  {openFaqId === faq.id && (
+                    <div className="pb-3 px-1">
+                      <p className="text-sm text-muted-foreground leading-relaxed">{faq.respuesta}</p>
+                    </div>
+                  )}
                 </div>
               ))}
             </CardContent>

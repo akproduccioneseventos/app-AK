@@ -46,6 +46,10 @@ export async function updatePortalSettings(
   });
 }
 
+export async function updateFaqPortal(fiestaId: string, faqItems: import('@/types/fiesta').FaqItem[]) {
+  return updateFiestaData(fiestaId, data => ({ ...data, faqPortal: faqItems }));
+}
+
 export async function getFiestaByAccessKey(accessKey: string): Promise<FiestaEnPlanificacion | null> {
   if (!accessKey || accessKey.trim() === '') return null;
   try {
