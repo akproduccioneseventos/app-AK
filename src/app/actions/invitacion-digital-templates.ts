@@ -11,8 +11,9 @@ import {
   tplXvPrincesaDorada,
   tplXvNeonVibrante,
   tplXvJardinDeSuenos,
-  tplCumpleBrillante,
-  tplCumpleInfantil,
+  tplCumpleFiesta,
+  tplCumpleElegante,
+  tplEventoGeneral,
 } from '@/lib/invitation-template-seeds';
 
 export interface InvitacionDigitalTemplate extends InvitacionDigitalData {
@@ -39,8 +40,9 @@ const builtInTemplates: InvitacionDigitalTemplate[] = [
   tplXvPrincesaDorada,
   tplXvNeonVibrante,
   tplXvJardinDeSuenos,
-  tplCumpleBrillante,
-  tplCumpleInfantil,
+  tplCumpleFiesta,
+  tplCumpleElegante,
+  tplEventoGeneral,
 ];
 
 export async function getInvitationTemplates(): Promise<InvitacionDigitalTemplate[]> {

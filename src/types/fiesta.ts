@@ -353,6 +353,12 @@ export interface PortalViewOnlyModuleSettings {
   visible: boolean;
 }
 
+export interface SimuladorInvitadosSettings {
+  visible: boolean;
+  minReductionPercent?: number;
+  maxIncreasePercent?: number;
+}
+
 export interface BebidaCalculable {
   id: string;
   nombre: string;
@@ -395,7 +401,7 @@ export interface ClientPortalSettings {
   moodboard: PortalModuleSettings;
   contrato: PortalViewOnlyModuleSettings;
   pagos: PortalViewOnlyModuleSettings;
-  simuladorInvitados: PortalViewOnlyModuleSettings;
+  simuladorInvitados: SimuladorInvitadosSettings;
   simuladorInvitadosConfig?: {
     limiteReduccionPorcentaje: number;
     limiteAumentoPorcentaje: number;
