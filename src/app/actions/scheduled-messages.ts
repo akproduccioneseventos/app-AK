@@ -16,7 +16,7 @@ export async function saveScheduledMessage(
     const messages = await getScheduledMessages();
     const newMessage: ScheduledMessage = {
       ...message,
-      id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: `msg_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
       createdAt: new Date().toISOString(),
     };
     await writeData(SCHEDULED_MESSAGES_FILE, [...messages, newMessage]);
