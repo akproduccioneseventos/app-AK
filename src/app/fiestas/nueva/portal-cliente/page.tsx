@@ -310,6 +310,111 @@ function ClientPortalConfigContent() {
                             </div>
                         ))}
                    </div>
+
+                   {/* Simulador de invitados config */}
+                   {getModuleVisibility('simuladorInvitados') && (
+                     <>
+                       <Separator />
+                       <h4 className="text-md font-medium pt-2">Configuración del Simulador de Invitados</h4>
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                         <div className="space-y-1.5">
+                           <Label htmlFor="limiteReduccion">Límite de reducción (%)</Label>
+                           <Input
+                             id="limiteReduccion"
+                             type="number"
+                             min={0}
+                             max={100}
+                             value={portalSettings.simuladorInvitadosConfig?.limiteReduccionPorcentaje ?? 10}
+                             onChange={e => setPortalSettings(prev => ({
+                               ...prev,
+                               simuladorInvitadosConfig: {
+                                 limiteReduccionPorcentaje: Number(e.target.value),
+                                 limiteAumentoPorcentaje: prev.simuladorInvitadosConfig?.limiteAumentoPorcentaje ?? 30,
+                                 penalizacionReduccion: prev.simuladorInvitadosConfig?.penalizacionReduccion ?? true,
+                                 textoReduccion: prev.simuladorInvitadosConfig?.textoReduccion,
+                                 textoAumento: prev.simuladorInvitadosConfig?.textoAumento,
+                               }
+                             }))}
+                           />
+                           <p className="text-xs text-muted-foreground">Cuánto puede bajar el cliente (ej: 10 = 10%)</p>
+                         </div>
+                         <div className="space-y-1.5">
+                           <Label htmlFor="limiteAumento">Límite de aumento (%)</Label>
+                           <Input
+                             id="limiteAumento"
+                             type="number"
+                             min={0}
+                             max={200}
+                             value={portalSettings.simuladorInvitadosConfig?.limiteAumentoPorcentaje ?? 30}
+                             onChange={e => setPortalSettings(prev => ({
+                               ...prev,
+                               simuladorInvitadosConfig: {
+                                 limiteReduccionPorcentaje: prev.simuladorInvitadosConfig?.limiteReduccionPorcentaje ?? 10,
+                                 limiteAumentoPorcentaje: Number(e.target.value),
+                                 penalizacionReduccion: prev.simuladorInvitadosConfig?.penalizacionReduccion ?? true,
+                                 textoReduccion: prev.simuladorInvitadosConfig?.textoReduccion,
+                                 textoAumento: prev.simuladorInvitadosConfig?.textoAumento,
+                               }
+                             }))}
+                           />
+                           <p className="text-xs text-muted-foreground">Máximo que puede agregar (ej: 30 = 30%)</p>
+                         </div>
+                         <div className="flex items-center space-x-2">
+                           <Switch
+                             id="penalizacion"
+                             checked={portalSettings.simuladorInvitadosConfig?.penalizacionReduccion ?? true}
+                             onCheckedChange={v => setPortalSettings(prev => ({
+                               ...prev,
+                               simuladorInvitadosConfig: {
+                                 limiteReduccionPorcentaje: prev.simuladorInvitadosConfig?.limiteReduccionPorcentaje ?? 10,
+                                 limiteAumentoPorcentaje: prev.simuladorInvitadosConfig?.limiteAumentoPorcentaje ?? 30,
+                                 penalizacionReduccion: v,
+                                 textoReduccion: prev.simuladorInvitadosConfig?.textoReduccion,
+                                 textoAumento: prev.simuladorInvitadosConfig?.textoAumento,
+                               }
+                             }))}
+                           />
+                           <Label htmlFor="penalizacion">Mostrar aviso de penalización al reducir</Label>
+                         </div>
+                         <div className="space-y-1.5 md:col-span-2">
+                           <Label htmlFor="textoReduccion">Texto personalizado al reducir (opcional)</Label>
+                           <Input
+                             id="textoReduccion"
+                             placeholder="Ej: Reducir invitados (penalización aplicable)"
+                             value={portalSettings.simuladorInvitadosConfig?.textoReduccion ?? ''}
+                             onChange={e => setPortalSettings(prev => ({
+                               ...prev,
+                               simuladorInvitadosConfig: {
+                                 limiteReduccionPorcentaje: prev.simuladorInvitadosConfig?.limiteReduccionPorcentaje ?? 10,
+                                 limiteAumentoPorcentaje: prev.simuladorInvitadosConfig?.limiteAumentoPorcentaje ?? 30,
+                                 penalizacionReduccion: prev.simuladorInvitadosConfig?.penalizacionReduccion ?? true,
+                                 textoReduccion: e.target.value || undefined,
+                                 textoAumento: prev.simuladorInvitadosConfig?.textoAumento,
+                               }
+                             }))}
+                           />
+                         </div>
+                         <div className="space-y-1.5 md:col-span-2">
+                           <Label htmlFor="textoAumento">Texto personalizado al agregar (opcional)</Label>
+                           <Input
+                             id="textoAumento"
+                             placeholder="Ej: Agregar invitados extra"
+                             value={portalSettings.simuladorInvitadosConfig?.textoAumento ?? ''}
+                             onChange={e => setPortalSettings(prev => ({
+                               ...prev,
+                               simuladorInvitadosConfig: {
+                                 limiteReduccionPorcentaje: prev.simuladorInvitadosConfig?.limiteReduccionPorcentaje ?? 10,
+                                 limiteAumentoPorcentaje: prev.simuladorInvitadosConfig?.limiteAumentoPorcentaje ?? 30,
+                                 penalizacionReduccion: prev.simuladorInvitadosConfig?.penalizacionReduccion ?? true,
+                                 textoReduccion: prev.simuladorInvitadosConfig?.textoReduccion,
+                                 textoAumento: e.target.value || undefined,
+                               }
+                             }))}
+                           />
+                         </div>
+                       </div>
+                     </>
+                   )}
                 </div>
               )}
            </CardContent>

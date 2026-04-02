@@ -50,6 +50,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { updateClientChecklist, updateClientNotes } from '@/app/actions/fiesta/portal.actions';
 import { defaultBebidaItems } from '@/lib/fiesta-defaults';
+import { PublicFooter } from '@/components/public-footer';
 
 interface PublicPortalViewProps {
   fiesta: FiestaEnPlanificacion;
@@ -296,6 +297,12 @@ export default function PublicPortalView({
   // Guest simulator
   const invitadosContratados = config.invitadosEstimados || 0;
   const precioPorPersona = invitadosContratados > 0 ? totalCosto / invitadosContratados : 0;
+  const simConfig = settings?.simuladorInvitadosConfig;
+  const limiteReduccion = simConfig?.limiteReduccionPorcentaje ?? 10;
+  const limiteAumento = simConfig?.limiteAumentoPorcentaje ?? 30;
+  const penalizacionReduccion = simConfig?.penalizacionReduccion ?? true;
+  const minDelta = -Math.floor(invitadosContratados * (limiteReduccion / 100));
+  const maxDelta = Math.floor(invitadosContratados * (limiteAumento / 100));
   const nuevaCantidad = invitadosContratados + guestDelta;
 
   const guestWhatsappMsg = encodeURIComponent(
@@ -848,12 +855,38 @@ export default function PublicPortalView({
               <p className="text-xs text-muted-foreground">Simulá agregar o quitar personas (sin confirmar cambios)</p>
             </CardHeader>
             <CardContent className="pt-4 space-y-4">
+              {/* Progress bar min/max */}
+              {(minDelta < 0 || maxDelta > 0) && (
+                <div className="space-y-1">
+                  <div className="flex justify-between text-[10px] text-muted-foreground">
+                    <span>{invitadosContratados + minDelta} mín</span>
+                    <span className="font-semibold">{invitadosContratados} contratados</span>
+                    <span>{invitadosContratados + maxDelta} máx</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-muted overflow-hidden relative">
+                    <div
+                      className="h-full rounded-full bg-primary/30 absolute"
+                      style={{ left: 0, right: 0 }}
+                    />
+                    <div
+                      className={`h-full rounded-full absolute transition-all duration-300 ${guestDelta > 0 ? 'bg-primary' : guestDelta < 0 ? 'bg-amber-500' : 'bg-primary/50'}`}
+                      style={{
+                        left: `${((guestDelta - minDelta) / (maxDelta - minDelta)) * 100}%`,
+                        width: '6px',
+                        transform: 'translateX(-50%)',
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+
               <div className="flex items-center justify-between gap-4">
                 <Button
                   variant="outline"
                   size="icon"
                   className="h-12 w-12 rounded-full border-2"
-                  onClick={() => setGuestDelta(d => d - 1)}
+                  onClick={() => setGuestDelta(d => Math.max(minDelta, d - 1))}
+                  disabled={guestDelta <= minDelta}
                 >
                   <MinusCircle className="w-5 h-5" />
                 </Button>
@@ -870,7 +903,8 @@ export default function PublicPortalView({
                   variant="outline"
                   size="icon"
                   className="h-12 w-12 rounded-full border-2"
-                  onClick={() => setGuestDelta(d => d + 1)}
+                  onClick={() => setGuestDelta(d => Math.min(maxDelta, d + 1))}
+                  disabled={guestDelta >= maxDelta}
                 >
                   <PlusCircle className="w-5 h-5" />
                 </Button>
@@ -878,24 +912,39 @@ export default function PublicPortalView({
 
               {guestDelta > 0 && precioPorPersona > 0 && (
                 <div className="p-3 rounded-xl bg-primary/5 border border-primary/20 text-sm space-y-1">
-                  <p className="font-bold text-primary">Agregar {guestDelta} persona{guestDelta > 1 ? 's' : ''}</p>
+                  <p className="font-bold text-primary">
+                    {simConfig?.textoAumento || `Agregar ${guestDelta} persona${guestDelta > 1 ? 's' : ''}`}
+                  </p>
                   <p className="text-muted-foreground text-xs">
                     Precio por persona estimado: <strong>{formatCurrency(precioPorPersona)}</strong>
                   </p>
                   <p className="text-muted-foreground text-xs">
                     Costo extra estimado: <strong className="text-primary">{formatCurrency(precioPorPersona * guestDelta)}</strong>
                   </p>
+                  <p className="text-muted-foreground text-xs">
+                    Nuevo total estimado: <strong className="text-primary">{formatCurrency(nuevaCantidad * precioPorPersona)}</strong>
+                  </p>
                 </div>
               )}
 
               {guestDelta < 0 && (
                 <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-sm space-y-1">
-                  <p className="font-bold text-amber-800">⚠️ Aviso importante</p>
-                  <p className="text-amber-700 text-xs">
-                    Por contrato, reducir invitados tiene una penalización del{' '}
-                    <strong>10% del número contratado</strong> ({Math.ceil(invitadosContratados * 0.1)} personas).
-                    No se realiza devolución por ese porcentaje.
+                  <p className="font-bold text-amber-800">
+                    {simConfig?.textoReduccion || `Reducir ${Math.abs(guestDelta)} persona${Math.abs(guestDelta) > 1 ? 's' : ''}`}
                   </p>
+                  {precioPorPersona > 0 && (
+                    <p className="text-amber-700 text-xs">
+                      Ahorro estimado: <strong>{formatCurrency(Math.abs(guestDelta) * precioPorPersona)}</strong>
+                    </p>
+                  )}
+                  {penalizacionReduccion && (
+                    <p className="text-amber-700 text-xs">
+                      ⚠️ Por contrato, hay una penalización del{' '}
+                      <strong>{limiteReduccion}% del número contratado</strong>{' '}
+                      ({Math.ceil(invitadosContratados * (limiteReduccion / 100))} personas).
+                      No se realiza devolución por ese porcentaje.
+                    </p>
+                  )}
                 </div>
               )}
 
@@ -910,7 +959,7 @@ export default function PublicPortalView({
 
               {guestDelta === 0 && (
                 <p className="text-center text-xs text-muted-foreground">
-                  Usá los botones + / − para simular cambios en la cantidad de invitados
+                  Usá los botones + / − para simular cambios (máx. +{limiteAumento}%, mín. -{limiteReduccion}%)
                 </p>
               )}
             </CardContent>
@@ -1301,6 +1350,8 @@ export default function PublicPortalView({
           </Button>
         </a>
       </div>
+
+      <PublicFooter variant="light" />
     </div>
   );
 }

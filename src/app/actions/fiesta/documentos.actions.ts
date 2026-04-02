@@ -144,6 +144,17 @@ export async function signContractDigitally(fiestaId: string, signerName: string
         }
 
         await saveFiesta(updatedFiesta);
+
+        // 4. SINCRONIZACIÓN: Sincronizar con presupuesto si existe
+        if (updatedFiesta.presupuestoId) {
+            try {
+                const { syncFiestaFromBudget } = await import('./fiesta.actions');
+                await syncFiestaFromBudget(updatedFiesta.id);
+            } catch (e) {
+                console.warn("No se pudo sincronizar fiesta desde presupuesto:", e);
+            }
+        }
+
         return { success: true };
     } catch (e: any) {
         return { success: false, error: e.message };

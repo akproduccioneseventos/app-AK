@@ -52,6 +52,12 @@ export const tplBodaRosaEterna: InvitacionDigitalTemplate = {
     },
     imagenFondoUrl: 'https://picsum.photos/seed/roses1200/1200/800',
   },
+  regalos: {
+    ...defaultInvitacionDigitalData.regalos,
+    titulo: { text: 'Lista de Regalos', style: { fontFamily: 'Playfair_Display', fontSize: '2rem', color: '#C8A2A2' } },
+    texto: { text: '🌹 Tu presencia es nuestro mejor regalo. Si aun así deseas obsequiarnos algo, puedes ayudarnos con nuestra luna de miel o elegir una de estas opciones.', style: { fontFamily: 'Playfair_Display', fontSize: '1rem', color: '#5C4033' } },
+  },
+  dressCode: { visible: true },
   cuentaRegresiva: { visible: true },
   confirmacion: { visible: true },
   detallesEvento: {
@@ -116,11 +122,17 @@ export const tplBodaBohoMistica: InvitacionDigitalTemplate = {
       style: { fontFamily: 'Dancing_Script', fontSize: '2.5rem', color: '#C97B5A' },
     },
     texto: {
-      text: 'Nos encontramos en el camino menos esperado y supimos que juntos formaríamos algo único. Una historia de amor salvaje, libre y llena de vida.',
+      text: 'Nos encontramos en el camino menos esperado y supimos que juntos formaríamos algo único. Una historia de amor salvaje, libre y llena de vida. Desde aquella tarde en el parque hasta el día en que Nicolás se arrodilló con un anillo hecho a mano, cada momento ha sido auténtico y lleno de magia natural. Hoy queremos que sean testigos de esta unión que nace del respeto, la libertad y el amor más puro.',
       style: { fontFamily: 'Dancing_Script', fontSize: '1rem', color: '#3D2B1F' },
     },
     imagenFondoUrl: 'https://picsum.photos/seed/boho1200/1200/800',
   },
+  regalos: {
+    ...defaultInvitacionDigitalData.regalos,
+    titulo: { text: 'Lista de Regalos', style: { fontFamily: 'Dancing_Script', fontSize: '2rem', color: '#C97B5A' } },
+    texto: { text: '🌿 Tu presencia es nuestro mejor regalo. Si aun así deseas obsequiarnos algo, puedes ayudarnos con nuestra luna de miel o elegir una de estas opciones.', style: { fontFamily: 'Dancing_Script', fontSize: '1rem', color: '#3D2B1F' } },
+  },
+  dressCode: { visible: true },
   cuentaRegresiva: { visible: true },
   confirmacion: { visible: true },
   detallesEvento: {
@@ -180,16 +192,24 @@ export const tplBodaEleganciaModerna: InvitacionDigitalTemplate = {
   },
   historia: {
     ...defaultInvitacionDigitalData.historia,
+    visible: false,
     titulo: {
       text: 'Nuestra Historia',
       style: { fontFamily: 'Belleza', fontSize: '2.5rem', color: '#1A1A2E' },
     },
     texto: {
-      text: 'Dos almas que encontraron en la elegancia y la complicidad la base perfecta para construir una vida juntos. Hoy celebramos ese amor que trasciende.',
+      text: 'Dos almas que encontraron en la elegancia y la complicidad la base perfecta para construir una vida juntos.',
       style: { fontFamily: 'Belleza', fontSize: '1rem', color: '#1A1A2E' },
     },
     imagenFondoUrl: 'https://picsum.photos/seed/modern1200/1200/800',
   },
+  regalos: {
+    ...defaultInvitacionDigitalData.regalos,
+    visible: false,
+    titulo: { text: 'Lista de Regalos', style: { fontFamily: 'Belleza', fontSize: '2rem', color: '#1A1A2E' } },
+    texto: { text: 'Tu presencia es nuestro mejor regalo.', style: { fontFamily: 'Belleza', fontSize: '1rem', color: '#1A1A2E' } },
+  },
+  dressCode: { visible: true },
   cuentaRegresiva: { visible: true },
   confirmacion: { visible: true },
   detallesEvento: {
@@ -263,6 +283,12 @@ export const tplXvPrincesaDorada: InvitacionDigitalTemplate = {
     },
     imagenFondoUrl: 'https://picsum.photos/seed/princess1200/1200/800',
   },
+  regalos: {
+    ...defaultInvitacionDigitalData.regalos,
+    titulo: { text: 'Mesa de Regalos', style: { fontFamily: 'Dancing_Script', fontSize: '2rem', color: '#D4AF37' } },
+    texto: { text: 'Tu presencia es mi mejor regalo. Si aun así deseas obsequiarme algo, mi familia te hará llegar las opciones disponibles con mucho cariño.', style: { fontFamily: 'Dancing_Script', fontSize: '1rem', color: '#8B6914' } },
+  },
+  dressCode: { visible: true },
   cuentaRegresiva: { visible: true },
   confirmacion: { visible: true },
   detallesEvento: {
@@ -337,6 +363,12 @@ export const tplXvNeonVibrante: InvitacionDigitalTemplate = {
     },
     imagenFondoUrl: 'https://picsum.photos/seed/neon1200/1200/800',
   },
+  regalos: {
+    ...defaultInvitacionDigitalData.regalos,
+    titulo: { text: 'Mis Regalos', style: { fontFamily: 'Belleza', fontSize: '2rem', color: '#9B59B6' } },
+    texto: { text: '¡Tu presencia es el mejor regalo! Si quieres sorprenderme, en el salón habrá una urna especial para colaborar con mis sueños 💜', style: { fontFamily: 'Belleza', fontSize: '1rem', color: '#2C0E37' } },
+  },
+  dressCode: { visible: true },
   cuentaRegresiva: { visible: true },
   confirmacion: { visible: true },
   detallesEvento: {
@@ -411,6 +443,12 @@ export const tplXvJardinDeSuenos: InvitacionDigitalTemplate = {
     },
     imagenFondoUrl: 'https://picsum.photos/seed/garden1200/1200/800',
   },
+  regalos: {
+    ...defaultInvitacionDigitalData.regalos,
+    titulo: { text: 'Mesa de Regalos', style: { fontFamily: 'Dancing_Script', fontSize: '2rem', color: '#9B7EC8' } },
+    texto: { text: '🌸 Tu presencia en este día especial es el regalo más hermoso. Si deseas obsequiarme algo, mi familia te orientará con cariño.', style: { fontFamily: 'Dancing_Script', fontSize: '1rem', color: '#4A2C6E' } },
+  },
+  dressCode: { visible: true },
   cuentaRegresiva: { visible: true },
   confirmacion: { visible: true },
   detallesEvento: {
@@ -436,5 +474,169 @@ export const tplXvJardinDeSuenos: InvitacionDigitalTemplate = {
     ...defaultInvitacionDigitalData.footer,
     titulo: { text: 'Con flores, Florencia y familia', style: { fontFamily: 'Dancing_Script', fontSize: '1.2rem', color: '#4A2C6E' } },
     nombreEmpresa: { text: 'AK Producciones', style: { fontFamily: 'Belleza', fontSize: '1.25rem', color: '#9B7EC8' } },
+  },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CUMPLEAÑOS
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** 7. 🎂 Fiesta de Cumpleaños — Clásico festivo. Paleta: azul marino + dorado + blanco. */
+export const tplCumpleBrillante: InvitacionDigitalTemplate = {
+  ...defaultInvitacionDigitalData,
+  id: 'tpl_cumple_brillante',
+  name: '🎂 Cumpleaños Brillante',
+  category: 'Cumpleaños',
+  plantilla: 'Grazia',
+  cabecera: {
+    ...defaultInvitacionDigitalData.cabecera,
+    protagonista1: 'Carlos',
+    protagonista2: '',
+    imagenFondoUrl: 'https://picsum.photos/seed/birthday1200/1200/1800',
+    subtitulo: {
+      text: 'te invita a su celebración de cumpleaños',
+      style: { fontFamily: 'Belleza', fontSize: '1.25rem', color: '#1A3A5C' },
+    },
+    paletaColores: {
+      primary: '#1A3A5C',
+      secondary: '#D4AF37',
+      accent: '#FFFFFF',
+    },
+  },
+  bienvenida: {
+    ...defaultInvitacionDigitalData.bienvenida,
+    imagenFondoUrl: 'https://picsum.photos/seed/birthday1200/1200/800',
+    titulo: {
+      text: '¡Cumpleaños!',
+      style: { fontFamily: 'Belleza', fontSize: '2.5rem', color: '#1A3A5C' },
+    },
+    texto: {
+      text: '🎂 Un año más para celebrar, reír y compartir momentos únicos con las personas que más quiero ✨',
+      style: { fontFamily: 'Belleza', fontSize: '1rem', color: '#1A3A5C' },
+    },
+  },
+  historia: {
+    ...defaultInvitacionDigitalData.historia,
+    visible: false,
+    titulo: {
+      text: 'Un Año Más',
+      style: { fontFamily: 'Belleza', fontSize: '2.5rem', color: '#1A3A5C' },
+    },
+    texto: {
+      text: 'Cada año que pasa trae nuevas experiencias, amigos y recuerdos. Gracias por ser parte de este camino.',
+      style: { fontFamily: 'Belleza', fontSize: '1rem', color: '#1A3A5C' },
+    },
+    imagenFondoUrl: 'https://picsum.photos/seed/birthday1200/1200/800',
+  },
+  regalos: {
+    ...defaultInvitacionDigitalData.regalos,
+    titulo: { text: 'Lista de Regalos', style: { fontFamily: 'Belleza', fontSize: '2rem', color: '#1A3A5C' } },
+    texto: { text: 'Tu presencia es el mejor regalo. Si aun así deseas obsequiarme algo, en el salón habrá una urna disponible con todo el cariño del mundo 🎁', style: { fontFamily: 'Belleza', fontSize: '1rem', color: '#1A3A5C' } },
+  },
+  dressCode: { visible: true },
+  cuentaRegresiva: { visible: true },
+  confirmacion: { visible: true },
+  detallesEvento: {
+    ...defaultInvitacionDigitalData.detallesEvento,
+    ceremoniaReligiosa: {
+      ...defaultInvitacionDigitalData.detallesEvento.ceremoniaReligiosa,
+      visible: false,
+    },
+    celebracion: {
+      ...defaultInvitacionDigitalData.detallesEvento.celebracion,
+      visible: true,
+      titulo: '¡La Fiesta!',
+    },
+  },
+  redesSociales: {
+    ...defaultInvitacionDigitalData.redesSociales,
+    hashtag: '#CumpleCarlos',
+    texto: { text: '¡Comparte el festejo!', style: { fontFamily: 'Belleza', fontSize: '2rem', color: '#1A3A5C' } },
+  },
+  despedida: { visible: true },
+  footer: {
+    ...defaultInvitacionDigitalData.footer,
+    titulo: { text: 'Con alegría, Carlos y familia', style: { fontFamily: 'Belleza', fontSize: '1rem', color: '#1A3A5C' } },
+    nombreEmpresa: { text: 'AK Producciones', style: { fontFamily: 'Belleza', fontSize: '1.25rem', color: '#D4AF37' } },
+  },
+};
+
+/** 8. 🎈 Cumpleaños Infantil — Colorido y alegre. Paleta: naranja + amarillo + turquesa. */
+export const tplCumpleInfantil: InvitacionDigitalTemplate = {
+  ...defaultInvitacionDigitalData,
+  id: 'tpl_cumple_infantil',
+  name: '🎈 Cumpleaños Infantil',
+  category: 'Cumpleaños',
+  plantilla: 'Allegria',
+  cabecera: {
+    ...defaultInvitacionDigitalData.cabecera,
+    protagonista1: 'Mateo',
+    protagonista2: '',
+    imagenFondoUrl: 'https://picsum.photos/seed/kidsparty1200/1200/1800',
+    subtitulo: {
+      text: 'cumple años y te invita a celebrar',
+      style: { fontFamily: 'Dancing_Script', fontSize: '1.5rem', color: '#C05E00' },
+    },
+    paletaColores: {
+      primary: '#FF6B35',
+      secondary: '#FFD700',
+      accent: '#00CED1',
+    },
+  },
+  bienvenida: {
+    ...defaultInvitacionDigitalData.bienvenida,
+    imagenFondoUrl: 'https://picsum.photos/seed/kidsparty1200/1200/800',
+    titulo: {
+      text: '¡Cumpleaños!',
+      style: { fontFamily: 'Dancing_Script', fontSize: '2.5rem', color: '#FF6B35' },
+    },
+    texto: {
+      text: '🎈 ¡Ven a jugar, reír y disfrutar de la fiesta más divertida del año! 🎂🎉',
+      style: { fontFamily: 'Dancing_Script', fontSize: '1.1rem', color: '#C05E00' },
+    },
+  },
+  historia: {
+    ...defaultInvitacionDigitalData.historia,
+    visible: false,
+    titulo: {
+      text: 'Mi Cuento',
+      style: { fontFamily: 'Dancing_Script', fontSize: '2.5rem', color: '#FF6B35' },
+    },
+    texto: {
+      text: 'Cada año es una nueva aventura llena de colores y sorpresas.',
+      style: { fontFamily: 'Dancing_Script', fontSize: '1rem', color: '#C05E00' },
+    },
+    imagenFondoUrl: 'https://picsum.photos/seed/kidsparty1200/1200/800',
+  },
+  regalos: {
+    ...defaultInvitacionDigitalData.regalos,
+    titulo: { text: 'Lista de Regalos', style: { fontFamily: 'Dancing_Script', fontSize: '2rem', color: '#FF6B35' } },
+    texto: { text: '🎁 ¡Con tu presencia ya tenemos el mejor regalo! Si quieres sorprenderme, en la entrada habrá una urna especial con mucho amor.', style: { fontFamily: 'Dancing_Script', fontSize: '1rem', color: '#C05E00' } },
+  },
+  dressCode: { visible: true },
+  cuentaRegresiva: { visible: true },
+  confirmacion: { visible: true },
+  detallesEvento: {
+    ...defaultInvitacionDigitalData.detallesEvento,
+    ceremoniaReligiosa: {
+      ...defaultInvitacionDigitalData.detallesEvento.ceremoniaReligiosa,
+      visible: false,
+    },
+    celebracion: {
+      ...defaultInvitacionDigitalData.detallesEvento.celebracion,
+      visible: true,
+      titulo: '¡La Fiesta!',
+    },
+  },
+  redesSociales: {
+    ...defaultInvitacionDigitalData.redesSociales,
+    hashtag: '#CumpleMateo',
+    texto: { text: '¡Compartí los momentos!', style: { fontFamily: 'Dancing_Script', fontSize: '2rem', color: '#FF6B35' } },
+  },
+  despedida: { visible: true },
+  footer: {
+    ...defaultInvitacionDigitalData.footer,
+    titulo: { text: 'Con alegría, Mateo y familia', style: { fontFamily: 'Dancing_Script', fontSize: '1.2rem', color: '#C05E00' } },
+    nombreEmpresa: { text: 'AK Producciones', style: { fontFamily: 'Belleza', fontSize: '1.25rem', color: '#FF6B35' } },
   },
 };
