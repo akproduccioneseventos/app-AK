@@ -596,11 +596,11 @@ export default function MarketingPage() {
                 </p>
                 <div className="grid grid-cols-2 gap-2">
                   {[
-                    { label: 'Nombre', value: varNombre, set: setVarNombre },
-                    { label: 'Fecha evento', value: varFecha, set: setVarFecha },
-                    { label: 'Invitados', value: varInvitados, set: setVarInvitados },
-                    { label: 'Precio lista', value: varPrecioLista, set: setVarPrecioLista },
-                    { label: 'Precio hoy', value: varPrecioHoy, set: setVarPrecioHoy },
+                    { label: 'Nombre cliente', value: varNombre, set: setVarNombre },
+                    { label: 'Fecha del evento', value: varFecha, set: setVarFecha },
+                    { label: 'Cantidad invitados', value: varInvitados, set: setVarInvitados },
+                    { label: 'Precio de lista', value: varPrecioLista, set: setVarPrecioLista },
+                    { label: 'Precio hoy (promo)', value: varPrecioHoy, set: setVarPrecioHoy },
                     { label: 'Ahorro', value: varAhorro, set: setVarAhorro },
                   ].map(({ label, value, set }) => (
                     <div key={label} className="space-y-0.5">
@@ -762,7 +762,7 @@ export default function MarketingPage() {
                           <AlertDialogHeader>
                             <AlertDialogTitle>¿Eliminar plantilla?</AlertDialogTitle>
                             <AlertDialogDescription>
-                              Esta acción no se puede deshacer. Se eliminará &ldquo;{t.nombre}&rdquo;
+                              Esta acción no se puede deshacer. Se eliminará "{t.nombre}"
                               permanentemente.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
