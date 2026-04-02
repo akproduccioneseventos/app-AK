@@ -4,21 +4,52 @@ import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, MessageCircle, Save, Loader2, Bot, Hand, AlertTriangle } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ArrowLeft, MessageCircle, Save, Loader2, Bot, Hand, AlertTriangle, Plus, Trash2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { getWhatsAppSettings, saveWhatsAppSettings } from '@/app/actions/settings';
 import type { WhatsAppSettings } from '@/types/settings';
+import type { WhatsAppAutomationRule, AutomationTrigger, MessageTemplateType } from '@/types/whatsapp-automation';
 
 export default function WhatsAppSettingsPage() {
   const { toast } = useToast();
   const [settings, setSettings] = useState<WhatsAppSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+
+  const automationRules = settings?.automationRules ?? [];
+
+  const setAutomationRules = (rules: WhatsAppAutomationRule[]) => {
+    setSettings(s => s ? { ...s, automationRules: rules } : s);
+  };
+
+  const addRule = () => {
+    const newRule: WhatsAppAutomationRule = {
+      id: `rule_${Date.now()}`,
+      name: 'Nueva regla',
+      trigger: 'presupuesto_enviado',
+      delayHours: 24,
+      templateType: 'presupuesto_24h',
+      enabled: true,
+      targetType: 'prospecto',
+      createdAt: new Date().toISOString(),
+    };
+    setAutomationRules([...automationRules, newRule]);
+  };
+
+  const updateRule = (id: string, field: keyof WhatsAppAutomationRule, value: string | number | boolean) => {
+    setAutomationRules(automationRules.map(r => r.id === id ? { ...r, [field]: value } : r));
+  };
+
+  const deleteRule = (id: string) => {
+    setAutomationRules(automationRules.filter(r => r.id !== id));
+  };
 
   const loadSettings = useCallback(async () => {
     setIsLoading(true);
@@ -235,6 +266,155 @@ export default function WhatsAppSettingsPage() {
             <Button type="submit" disabled={isSaving}>
               {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
               {isSaving ? 'Guardando...' : 'Guardar Configuración'}
+            </Button>
+          </CardFooter>
+        </Card>
+
+        {/* Automation Rules */}
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle className="font-headline text-xl flex items-center justify-between">
+              Reglas de Automatización
+              <Button type="button" size="sm" variant="outline" onClick={addRule}>
+                <Plus className="w-4 h-4 mr-1.5" />
+                Agregar Regla
+              </Button>
+            </CardTitle>
+            <CardDescription>
+              Configurá envíos automáticos de mensajes según eventos del sistema.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {automationRules.length === 0 ? (
+              <p className="text-muted-foreground text-sm text-center py-6">
+                No hay reglas configuradas. Agregá la primera regla para empezar.
+              </p>
+            ) : (
+              automationRules.map(rule => (
+                <div key={rule.id} className="border rounded-lg p-4 space-y-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <Input
+                      value={rule.name}
+                      onChange={e => updateRule(rule.id, 'name', e.target.value)}
+                      className="h-8 text-sm font-medium max-w-xs"
+                      disabled={isSaving}
+                    />
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        checked={rule.enabled}
+                        onCheckedChange={val => updateRule(rule.id, 'enabled', val)}
+                        disabled={isSaving}
+                      />
+                      <Badge variant={rule.enabled ? 'default' : 'secondary'}>
+                        {rule.enabled ? 'Activa' : 'Inactiva'}
+                      </Badge>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        className="text-destructive h-7 w-7 p-0"
+                        onClick={() => deleteRule(rule.id)}
+                        disabled={isSaving}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <Label className="text-xs">Disparador</Label>
+                      <Select
+                        value={rule.trigger}
+                        onValueChange={val => updateRule(rule.id, 'trigger', val as AutomationTrigger)}
+                        disabled={isSaving}
+                      >
+                        <SelectTrigger className="h-8 text-sm">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="simulador_completado">Simulador completado</SelectItem>
+                          <SelectItem value="presupuesto_generado">Presupuesto generado</SelectItem>
+                          <SelectItem value="presupuesto_enviado">Presupuesto enviado</SelectItem>
+                          <SelectItem value="contrato_firmado">Contrato firmado</SelectItem>
+                          <SelectItem value="pago_vencido">Pago vencido</SelectItem>
+                          <SelectItem value="pago_por_vencer">Pago por vencer</SelectItem>
+                          <SelectItem value="fiesta_creada">Fiesta creada</SelectItem>
+                          <SelectItem value="manual">Manual</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Demora (horas)</Label>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={rule.delayHours}
+                        onChange={e => updateRule(rule.id, 'delayHours', parseInt(e.target.value) || 0)}
+                        className="h-8 text-sm"
+                        disabled={isSaving}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Plantilla</Label>
+                      <Select
+                        value={rule.templateType}
+                        onValueChange={val => updateRule(rule.id, 'templateType', val as MessageTemplateType)}
+                        disabled={isSaving}
+                      >
+                        <SelectTrigger className="h-8 text-sm">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="recordatorio_reunion">Recordatorio reunión</SelectItem>
+                          <SelectItem value="presupuesto_24h">Presupuesto 24h</SelectItem>
+                          <SelectItem value="presupuesto_48h">Presupuesto 48h</SelectItem>
+                          <SelectItem value="simulador_completado">Simulador completado</SelectItem>
+                          <SelectItem value="pago_vencido">Pago vencido</SelectItem>
+                          <SelectItem value="pago_por_vencer">Pago por vencer</SelectItem>
+                          <SelectItem value="bienvenida">Bienvenida</SelectItem>
+                          <SelectItem value="contrato_firmado">Contrato firmado</SelectItem>
+                          <SelectItem value="personalizado">Personalizado</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Destinatario</Label>
+                      <Select
+                        value={rule.targetType}
+                        onValueChange={val => updateRule(rule.id, 'targetType', val as 'prospecto' | 'cliente')}
+                        disabled={isSaving}
+                      >
+                        <SelectTrigger className="h-8 text-sm">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="prospecto">Prospecto (CRM)</SelectItem>
+                          <SelectItem value="cliente">Cliente (Fiesta)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  {rule.templateType === 'personalizado' && (
+                    <div className="space-y-1">
+                      <Label className="text-xs">Texto personalizado</Label>
+                      <Textarea
+                        value={rule.customTemplate ?? ''}
+                        onChange={e => updateRule(rule.id, 'customTemplate', e.target.value)}
+                        rows={2}
+                        className="resize-none text-sm"
+                        disabled={isSaving}
+                        placeholder="Hola {{NOMBRE}}, ..."
+                      />
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
+          </CardContent>
+          <CardFooter className="border-t pt-6">
+            <Button type="submit" disabled={isSaving}>
+              {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+              {isSaving ? 'Guardando...' : 'Guardar Reglas'}
             </Button>
           </CardFooter>
         </Card>

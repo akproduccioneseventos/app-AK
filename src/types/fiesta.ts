@@ -643,6 +643,29 @@ export interface CompraProveedorEstado {
     pagado: boolean;
 }
 
+export type PlanPagoEstadoCuota = 'pendiente' | 'pagado' | 'vencido' | 'parcial';
+
+export interface CuotaPlanPago {
+  id: string;
+  descripcion: string; // e.g. "Seña", "Cuota 1", "Saldo Final"
+  monto: number;
+  fechaVencimiento: string; // ISO date
+  estado: PlanPagoEstadoCuota;
+  montoPagado?: number; // for 'parcial'
+  fechaPago?: string;
+  metodoPago?: string;
+  notas?: string;
+}
+
+export interface PlanDePagos {
+  id: string;
+  fiestaId: string;
+  cuotas: CuotaPlanPago[];
+  notas?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface FiestaEnPlanificacion {
   id: string;
   configuracion: ConfigEventoDataStorage;
@@ -681,6 +704,7 @@ export interface FiestaEnPlanificacion {
   estadosCompra?: CompraProveedorEstado[];
   generadoDesdeHistorico?: boolean; 
   liveState?: LiveEventState;
+  planDePagos?: PlanDePagos;
 }
 
 export interface ContratoFirmaInfo {

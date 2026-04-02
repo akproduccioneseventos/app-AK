@@ -13,6 +13,8 @@ export type CrmTimelineEventType =
   | 'presupuesto_created'
   | 'contract_uploaded'
   | 'whatsapp_sent'
+  | 'whatsapp_scheduled'
+  | 'payment_reminder_sent'
   | 'lead_created';
 
 export interface CrmTimelineItem {

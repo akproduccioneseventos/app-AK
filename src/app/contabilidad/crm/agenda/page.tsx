@@ -99,6 +99,12 @@ export default function CrmAgendaPage() {
         </h1>
         <div className="flex gap-2">
             <Button onClick={() => setIsModalOpen(true)}><CalendarPlus className="w-4 h-4 mr-2"/>Agendar Nueva Reunión</Button>
+            <Link href="/contabilidad/crm/outbox">
+              <Button variant="outline" className="border-green-500 text-green-600 hover:bg-green-50">
+                <MessageCircle className="w-4 h-4 mr-2" />
+                Cola de Mensajes
+              </Button>
+            </Link>
             <Link href="/contabilidad/crm">
               <Button variant="outline">
                 <ArrowLeft className="w-4 h-4 mr-2" />
