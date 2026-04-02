@@ -41,6 +41,8 @@ import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
+import NextImage from 'next/image';
+import { PublicFooter } from '@/components/public-footer';
 
 const formatCurrency = (amount?: number) => {
     if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -544,6 +546,13 @@ function SimuladorContent() {
             <div className="min-h-screen bg-slate-50 flex flex-col items-center py-10 px-2 sm:px-4 print:bg-white print:p-0">
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="w-full max-w-3xl space-y-8">
                     
+                    <div className="flex justify-center mb-2 print:hidden">
+                      {logoUrl ? (
+                        <NextImage src={logoUrl} alt="AK Producciones" width={40} height={40} className="object-contain opacity-50" />
+                      ) : (
+                        <NextImage src="/logo_ak_producciones.png" alt="AK Producciones" width={40} height={40} className="object-contain opacity-40" />
+                      )}
+                    </div>
                     <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
                         <CardContent className="p-8 sm:p-12 flex flex-col items-center text-center space-y-8">
                             <div className="p-4 bg-primary/10 rounded-full">
@@ -681,14 +690,24 @@ function SimuladorContent() {
                         </CardFooter>
                     </Card>
                 </motion.div>
+                <div className="w-full max-w-3xl print:hidden">
+                  <PublicFooter className="rounded-[1.5rem] mt-4" />
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-slate-100 flex items-center justify-center p-2 sm:p-6 lg:p-8">
+        <div className="min-h-screen bg-slate-100 flex flex-col items-center justify-center p-2 sm:p-6 lg:p-8 gap-4">
             <Card className="w-full max-w-3xl shadow-3xl rounded-[3rem] overflow-hidden border-none bg-white">
                 <CardHeader className="text-center bg-primary/5 p-6 sm:p-10 border-b border-primary/10">
+                    <div className="flex justify-center mb-4">
+                      {logoUrl ? (
+                        <NextImage src={logoUrl} alt="AK Producciones" width={36} height={36} className="object-contain opacity-60" />
+                      ) : (
+                        <NextImage src="/logo_ak_producciones.png" alt="AK Producciones" width={36} height={36} className="object-contain opacity-50" />
+                      )}
+                    </div>
                     <Wand2 className="w-12 h-12 mx-auto text-primary mb-4 animate-pulse"/>
                     <CardTitle className="font-headline text-3xl sm:text-5xl font-black uppercase tracking-tighter text-slate-900 leading-tight">Tu Gran Evento</CardTitle>
                     <CardDescription className="text-base sm:text-xl font-bold text-slate-400 uppercase tracking-widest mt-2">Paso {step} de 3: {['Tus Datos', 'El Menú', 'El Paquete'][step-1]}</CardDescription>
@@ -887,6 +906,7 @@ function SimuladorContent() {
                     </div>
                 </CardFooter>
             </Card>
+            <PublicFooter className="w-full max-w-3xl rounded-[1.5rem]" />
         </div>
     );
 }

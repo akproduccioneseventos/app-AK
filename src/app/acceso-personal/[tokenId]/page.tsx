@@ -9,6 +9,8 @@ import { useToast } from '@/hooks/use-toast';
 import { getAccesoById, type AccesoPersonal, type ModuloPermiso } from '@/app/actions/accesos-personal';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import Image from 'next/image';
+import { PublicFooter } from '@/components/public-footer';
 
 const MODULO_DETAILS: Record<ModuloPermiso, { label: string; href: string; icon: React.ElementType }> = {
   'musica': { label: 'Preferencias Musicales', href: '/fiestas/nueva/musica/pdf', icon: Music2 },
@@ -83,9 +85,13 @@ export default function PortalPersonalPage({ params }: { params: { tokenId: stri
   const portalTitle = fiesta ? `Portal para: ${fiesta.configuracion.nombreEvento}` : "Portal de Colaborador";
 
   return (
-    <div className="min-h-screen bg-muted/40 p-4 sm:p-8">
+    <div className="min-h-screen bg-muted/40 flex flex-col">
+      <div className="flex-grow p-4 sm:p-8">
         <div className="max-w-2xl mx-auto space-y-6">
             <header className="text-center">
+                <div className="mb-4 opacity-40">
+                  <Image src="/logo_ak_producciones.png" alt="AK Producciones" width={36} height={36} className="object-contain mx-auto" />
+                </div>
                 <KeyRound className="w-12 h-12 mx-auto text-primary mb-3"/>
                 <h1 className="text-3xl font-bold font-headline">{acceso.nombreAcceso}</h1>
                 <p className="text-lg text-muted-foreground">{portalTitle}</p>
@@ -122,6 +128,8 @@ export default function PortalPersonalPage({ params }: { params: { tokenId: stri
                 </CardContent>
             </Card>
         </div>
+      </div>
+      <PublicFooter />
     </div>
   );
 }

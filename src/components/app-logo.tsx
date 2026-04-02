@@ -41,9 +41,17 @@ const AppLogo = () => {
     );
   }
 
-  // Fallback to text if no logo URL
+  // Fallback to static logo file
   return (
-    <span className="text-xl font-bold tracking-tight">AK Producciones</span>
+    <NextImage
+      src="/logo_ak_producciones.png"
+      alt="AK Producciones"
+      width={120}
+      height={40}
+      className="object-contain h-8 w-auto"
+      priority
+      data-ai-hint="company logo"
+    />
   );
 };
 

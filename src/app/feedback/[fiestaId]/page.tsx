@@ -11,6 +11,8 @@ import { Loader2, AlertTriangle, CheckCircle, Send, PartyPopper } from 'lucide-r
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { saveFeedback } from '@/app/actions/feedback';
+import Image from 'next/image';
+import { PublicFooter } from '@/components/public-footer';
 
 function FeedbackContent({ fiestaId }: { fiestaId: string | null }) {
   const { toast } = useToast();
@@ -93,9 +95,13 @@ function FeedbackContent({ fiestaId }: { fiestaId: string | null }) {
   }
 
   return (
-    <div className="min-h-screen bg-muted/30 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-muted/30 flex flex-col">
+      <div className="flex-grow flex items-center justify-center p-4">
       <Card className="w-full max-w-2xl shadow-xl">
         <CardHeader className="text-center">
+            <div className="mx-auto mb-4 opacity-50">
+              <Image src="/logo_ak_producciones.png" alt="AK Producciones" width={40} height={40} className="object-contain mx-auto" />
+            </div>
             <PartyPopper className="w-12 h-12 mx-auto text-primary mb-3"/>
             <CardTitle className="text-3xl font-bold font-headline">¡Valora tu experiencia!</CardTitle>
             <CardDescription className="text-lg">Tu opinión sobre "{fiestaNombre}" es muy importante para nosotros.</CardDescription>
@@ -127,6 +133,8 @@ function FeedbackContent({ fiestaId }: { fiestaId: string | null }) {
           </CardFooter>
         </form>
       </Card>
+      </div>
+      <PublicFooter />
     </div>
   );
 }
