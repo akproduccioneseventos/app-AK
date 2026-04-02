@@ -396,6 +396,13 @@ export interface ClientPortalSettings {
   contrato: PortalViewOnlyModuleSettings;
   pagos: PortalViewOnlyModuleSettings;
   simuladorInvitados: PortalViewOnlyModuleSettings;
+  simuladorInvitadosConfig?: {
+    limiteReduccionPorcentaje: number;
+    limiteAumentoPorcentaje: number;
+    penalizacionReduccion: boolean;
+    textoReduccion?: string;
+    textoAumento?: string;
+  };
   calculadoraBebidas: CalculadoraBebidasSettings;
   serviciosContratados: PortalViewOnlyModuleSettings;
   ubicacion: PortalViewOnlyModuleSettings;

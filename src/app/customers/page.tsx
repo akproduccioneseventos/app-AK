@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { UserPlus, Edit, Trash2, Loader2, Users as UsersIcon, Filter, Tag, Printer, Eye, Search, CalendarDays } from 'lucide-react'; 
+import { UserPlus, Edit, Trash2, Loader2, Users as UsersIcon, Filter, Tag, Printer, Eye, Search, CalendarDays, MessageCircle } from 'lucide-react'; 
 import { useToast } from '@/hooks/use-toast';
 import type { Customer, CustomerStatus } from '@/types/customer';
 import { ALL_CUSTOMER_STATES } from '@/types/customer';
@@ -63,6 +63,17 @@ const CustomerTable = ({ title, customers, deletingId, onDelete }: { title: stri
                       <TableCell>{formatDate(customer.partyDate)}</TableCell>
                       <TableCell className="text-right print:hidden">
                         <div className="flex items-center justify-end gap-2">
+                          {customer.phone && (
+                            <a
+                              href={`https://wa.me/${customer.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola ${customer.name || customer.companyName || ''}!`)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <Button variant="outline" size="icon" className="text-[#25D366] border-[#25D366] hover:bg-[#25D366] hover:text-white" aria-label={`WhatsApp a ${customer.companyName || customer.name}`} title="Enviar WhatsApp">
+                                <MessageCircle className="w-4 h-4" />
+                              </Button>
+                            </a>
+                          )}
                           <Link href={`/customers/${customer.id}`}>
                             <Button variant="outline" size="icon" aria-label={`Ver Detalles de ${customer.companyName || customer.name}`} title="Ver Detalles">
                               <Eye className="w-4 h-4" />

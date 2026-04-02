@@ -57,6 +57,7 @@ export const defaultClientPortalSettings: ClientPortalSettings = {
     documentos: { visible: true }, notasCliente: { visible: false, editable: true }, invitados: { visible: true },
     paginaPublica: { visible: true }, fotografiaYFilmacion: { visible: true }, moodboard: { visible: false, editable: true },
     contrato: { visible: true }, pagos: { visible: true }, simuladorInvitados: { visible: true },
+    simuladorInvitadosConfig: { limiteReduccionPorcentaje: 10, limiteAumentoPorcentaje: 30, penalizacionReduccion: true },
     calculadoraBebidas: { visible: false, items: defaultBebidaItems },
     serviciosContratados: { visible: false },
     ubicacion: { visible: false },

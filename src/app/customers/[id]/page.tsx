@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, AlertTriangle, UserCircle, CalendarDays, DollarSign, FileText, CreditCard, UploadCloud, Info, Eye, Briefcase, Phone, Mail, Printer, Star } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, UserCircle, CalendarDays, DollarSign, FileText, CreditCard, UploadCloud, Info, Eye, Briefcase, Phone, Mail, Printer, Star, MessageCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Customer } from '@/types/customer';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -182,7 +182,11 @@ export default function CustomerDetailsPage({ params }: { params: { id: string }
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 text-sm">
               <div className="flex items-center gap-2"><Briefcase className="w-4 h-4 text-muted-foreground"/> <span className="font-medium">Empresa:</span> {customer.companyName || '-'}</div>
               <div className="flex items-center gap-2"><UserCircle className="w-4 h-4 text-muted-foreground"/> <span className="font-medium">Contacto:</span> {customer.name}</div>
-              <div className="flex items-center gap-2"><Phone className="w-4 h-4 text-muted-foreground"/> <span className="font-medium">Teléfono:</span> {customer.phone || '-'}</div>
+              <div className="flex items-center gap-2"><Phone className="w-4 h-4 text-muted-foreground"/> <span className="font-medium">Teléfono:</span> {customer.phone ? (
+                  <a href={`https://wa.me/${customer.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola ${customer.name || ''}!`)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[#25D366] hover:underline font-medium">
+                    {customer.phone} <MessageCircle className="w-3.5 h-3.5" />
+                  </a>
+                ) : '-'}</div>
               <div className="flex items-center gap-2"><FileText className="w-4 h-4 text-muted-foreground"/> <span className="font-medium">RUT/Cédula:</span> {customer.taxId || '-'}</div>
             </div>
             <Separator />
