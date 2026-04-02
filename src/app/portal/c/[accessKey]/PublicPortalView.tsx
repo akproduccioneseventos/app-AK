@@ -899,7 +899,7 @@ export default function PublicPortalView({
                     Nuevo total estimado: <strong className="text-primary">{formatCurrency(nuevoCostoTotal)}</strong>
                   </p>
                   <p className="text-muted-foreground text-xs">
-                    Te sale <strong className="text-primary">{formatCurrency(Math.abs(diferenciaCosto))} más</strong>
+                    Costo adicional estimado: <strong className="text-primary">{formatCurrency(Math.abs(diferenciaCosto))}</strong>
                   </p>
                 </div>
               )}
@@ -915,7 +915,7 @@ export default function PublicPortalView({
                   {precioPorPersona > 0 && (
                     <p className="text-amber-700 text-xs">
                       Nuevo total estimado: <strong>{formatCurrency(nuevoCostoTotal)}</strong>
-                      {' '}<span className="text-amber-600">(ahorrás {formatCurrency(Math.abs(diferenciaCosto))} sujeto a penalización)</span>
+                      {' '}<span className="text-amber-600">(diferencia: {formatCurrency(Math.abs(diferenciaCosto))} sujeto a penalización)</span>
                     </p>
                   )}
                 </div>
