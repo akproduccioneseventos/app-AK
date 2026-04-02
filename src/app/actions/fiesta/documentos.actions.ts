@@ -8,7 +8,7 @@ import fs from 'fs/promises';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 import { headers } from 'next/headers';
 import { registerBookingDeposit } from '../invoices';
-import { subDays } from 'date-fns';
+import { addDays } from 'date-fns';
 
 const DATA_DIR = path.join(process.cwd(), 'src', 'data');
 
@@ -135,12 +135,12 @@ export async function signContractDigitally(fiestaId: string, signerName: string
         if (!updatedFiesta.tareas || updatedFiesta.tareas.length === 0) {
             const eventDate = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : new Date();
             const initialTasks: Omit<Tarea, 'id'>[] = [
-                { texto: "Definir paleta de colores en Dream Designer", completada: false, asignadaA: 'Cliente', fechaLimite: subDays(new Date(), -7).toISOString() },
+                { texto: "Definir paleta de colores en Dream Designer", completada: false, asignadaA: 'Cliente', fechaLimite: addDays(new Date(), 7).toISOString() },
                 { texto: "Cargar primeras 10 fotos en Video de Vida", completada: false, asignadaA: 'Cliente' },
                 { texto: "Confirmar lista base de invitados", completada: false, asignadaA: 'Cliente' },
                 { texto: "Revisión técnica de Discoteca e Iluminación", completada: false, asignadaA: 'Organizador' }
             ];
-            updatedFiesta.tareas = initialTasks.map(t => ({ ...t, id: `auto_task_${Date.now()}_${Math.random().toString(36).substring(7)}` }));
+            updatedFiesta.tareas = initialTasks.map((t, i) => ({ ...t, id: `auto_task_${Date.now()}_${i}_${Math.random().toString(36).substring(7)}` }));
         }
 
         await saveFiesta(updatedFiesta);
@@ -220,12 +220,12 @@ export async function uploadPhysicalContract(formData: FormData): Promise<{ succ
         // Cargar tareas iniciales si está vacío
         if (!updatedFiesta.tareas || updatedFiesta.tareas.length === 0) {
             const initialTasks: Omit<Tarea, 'id'>[] = [
-                { texto: "Definir paleta de colores en Dream Designer", completada: false, asignadaA: 'Cliente', fechaLimite: subDays(new Date(), -7).toISOString() },
+                { texto: "Definir paleta de colores en Dream Designer", completada: false, asignadaA: 'Cliente', fechaLimite: addDays(new Date(), 7).toISOString() },
                 { texto: "Cargar primeras 10 fotos en Video de Vida", completada: false, asignadaA: 'Cliente' },
                 { texto: "Confirmar lista base de invitados", completada: false, asignadaA: 'Cliente' },
                 { texto: "Revisión técnica de Discoteca e Iluminación", completada: false, asignadaA: 'Organizador' }
             ];
-            updatedFiesta.tareas = initialTasks.map(t => ({ ...t, id: `auto_task_${Date.now()}_${Math.random().toString(36).substring(7)}` }));
+            updatedFiesta.tareas = initialTasks.map((t, i) => ({ ...t, id: `auto_task_${Date.now()}_${i}_${Math.random().toString(36).substring(7)}` }));
         }
 
         await saveFiesta(updatedFiesta);
