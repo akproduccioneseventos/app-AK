@@ -349,15 +349,34 @@ interface PortalModuleSettings {
   editable: boolean;
 }
 
-interface PortalViewOnlyModuleSettings {
+export interface PortalViewOnlyModuleSettings {
   visible: boolean;
+}
+
+export interface BebidaCalculable {
+  id: string;
+  nombre: string;
+  emoji: string;
+  cantidadPorPersona: number;
+  unidad: string;
+  clienteLleva: boolean;
+  visible: boolean;
+  color: string;
 }
 
 export interface CalculadoraBebidasSettings {
   visible: boolean;
-  clienteLlevaBebida: boolean;
-  clienteLlevaCerveza: boolean;
-  clienteLlevaHielo: boolean;
+  items: BebidaCalculable[];
+  // Legacy fields kept for backward compatibility
+  clienteLlevaBebida?: boolean;
+  clienteLlevaCerveza?: boolean;
+  clienteLlevaHielo?: boolean;
+}
+
+export interface FaqItem {
+  id: string;
+  pregunta: string;
+  respuesta: string;
 }
 
 export interface ClientPortalSettings {
@@ -378,6 +397,12 @@ export interface ClientPortalSettings {
   pagos: PortalViewOnlyModuleSettings;
   simuladorInvitados: PortalViewOnlyModuleSettings;
   calculadoraBebidas: CalculadoraBebidasSettings;
+  serviciosContratados: PortalViewOnlyModuleSettings;
+  ubicacion: PortalViewOnlyModuleSettings;
+  menu: PortalViewOnlyModuleSettings;
+  cartaTragos: PortalViewOnlyModuleSettings;
+  dressCode: PortalViewOnlyModuleSettings;
+  faq: PortalViewOnlyModuleSettings;
 }
 
 export interface SocialGallerySettings {
@@ -636,6 +661,7 @@ export interface FiestaEnPlanificacion {
   programa?: ProgramaEventoItem[];
   fotografiaYFilmacion?: FotografiaYFilmacionData;
   cartaTragos?: CartaTragosData;
+  faqPortal?: FaqItem[];
   othersDocumentos?: OtroDocumento[];
   pagosProveedores?: PagoProveedor[];
   others?: any;

@@ -17,6 +17,8 @@ import type {
   TextStyle,
   CartaTragosData,
   GiftItem,
+  BebidaCalculable,
+  FaqItem,
 } from '@/types/fiesta';
 
 export const defaultPrograma: ProgramaEventoItem[] = [
@@ -35,13 +37,33 @@ export const defaultPrograma: ProgramaEventoItem[] = [
   { id: 'prog_13', hora: '05:00', titulo: 'Final de la Fiesta', descripcion: 'Cierre del evento.', icono: 'Clock' },
 ];
 
+export const defaultBebidaItems: BebidaCalculable[] = [
+  { id: 'cerveza', nombre: 'Cerveza Corona', emoji: '🍺', cantidadPorPersona: 5, unidad: 'unidades', clienteLleva: false, visible: true, color: 'amber' },
+  { id: 'refresco', nombre: 'Agua / Gaseosa', emoji: '🥤', cantidadPorPersona: 1.5, unidad: 'litros', clienteLleva: false, visible: true, color: 'sky' },
+  { id: 'hielo', nombre: 'Hielo', emoji: '🧊', cantidadPorPersona: 1, unidad: 'kg', clienteLleva: false, visible: true, color: 'slate' },
+  { id: 'agua', nombre: 'Agua mineral', emoji: '💧', cantidadPorPersona: 0.5, unidad: 'litros', clienteLleva: false, visible: true, color: 'blue' },
+  { id: 'cotillon', nombre: 'Cotillón', emoji: '🎉', cantidadPorPersona: 1, unidad: 'kits', clienteLleva: false, visible: true, color: 'pink' },
+];
+
+export const defaultFaq: FaqItem[] = [
+  { id: 'faq_1', pregunta: '¿Hay estacionamiento disponible?', respuesta: 'Consultá con tu organizador para detalles de estacionamiento.' },
+  { id: 'faq_2', pregunta: '¿Puedo llegar antes del horario?', respuesta: 'Te pedimos llegar en el horario indicado para que todo esté listo.' },
+  { id: 'faq_3', pregunta: '¿Qué pasa si llueve?', respuesta: 'El evento cuenta con espacios cubiertos. No te preocupes.' },
+];
+
 export const defaultClientPortalSettings: ClientPortalSettings = {
     enabled: false, accessKey: '', checklist: { visible: false, editable: false }, itinerario: { visible: false },
     musica: { visible: false, editable: false }, videoVida: { visible: true, editable: true }, listaRegalos: { visible: false },
     documentos: { visible: true }, notasCliente: { visible: false, editable: true }, invitados: { visible: true },
     paginaPublica: { visible: true }, fotografiaYFilmacion: { visible: true }, moodboard: { visible: false, editable: true },
     contrato: { visible: true }, pagos: { visible: true }, simuladorInvitados: { visible: true },
-    calculadoraBebidas: { visible: false, clienteLlevaBebida: false, clienteLlevaCerveza: false, clienteLlevaHielo: false }
+    calculadoraBebidas: { visible: false, items: defaultBebidaItems },
+    serviciosContratados: { visible: false },
+    ubicacion: { visible: false },
+    menu: { visible: false },
+    cartaTragos: { visible: false },
+    dressCode: { visible: false },
+    faq: { visible: false },
 };
 
 export const defaultZonasContratadas: ZonaContratada[] = [
@@ -121,7 +143,7 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
   galeria: { visible: true, fotos: [] },
   historia: { visible: true, titulo: { text: 'Nuestra Historia', style: defaultTitleStyle }, texto: { text: '', style: defaultTextStyle } },
   regalos: { visible: true, titulo: { text: 'Lista de Regalos', style: defaultTitleStyle }, texto: { text: '', style: defaultTextStyle }, datosBancarios: '', items: [] },
-  dressCode: { visible: true, tipo: 'Formal' },
+  dressCode: { visible: true },
   musica: { visible: true, placeholder: 'Ej: Bohemian Rhapsody - Queen' },
   redesSociales: { visible: true, hashtag: '#BodaJuanYMaria', texto: { text: '¡Comparte tus momentos!', style: { ...defaultTitleStyle, fontSize: '2rem' } } },
   confirmacion: { visible: true, showRelationshipTags: true },
@@ -185,7 +207,7 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
     nombreLugar: 'Salón a definir',
     invitadosEstimados: 100,
     presupuestoEstimado: 0,
-    notasAdicionales: '',
+    notesAdicionales: '',
   },
   modulosContratados: defaultModulosContratados,
   personalAsignado: [],
