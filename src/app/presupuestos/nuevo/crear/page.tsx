@@ -257,6 +257,7 @@ function CrearPresupuestoContent() {
             notas: formData.notas,
             estado: formData.estado,
             invoiceId: formData.invoiceId,
+            marketingMarkupPercent: formData.marketingMarkupPercent,
         };
         
         setIsSaving(true);

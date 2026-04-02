@@ -431,6 +431,25 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                                 <span>+{formatCurrency(calculatedValues.ajusteAnual)}</span>
                             </div>
                         )}
+                        {(() => {
+                            const markupPct = presupuesto.marketingMarkupPercent || 0;
+                            const precioLista = markupPct > 0 ? Math.round(calculatedValues.totalFinal * (1 + markupPct / 100)) : 0;
+                            const ahorroMkt = precioLista > 0 ? precioLista - calculatedValues.totalFinal : 0;
+                            if (precioLista <= 0) return null;
+                            return (
+                                <>
+                                    <Separator className="bg-slate-200" />
+                                    <div className="flex justify-between items-center text-[9px] sm:text-[10px] font-black uppercase text-slate-400 tracking-widest line-through">
+                                        <span>Precio de Lista (+{markupPct}%):</span>
+                                        <span>{formatCurrency(precioLista)}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center text-[9px] sm:text-[10px] font-black uppercase text-violet-600 tracking-widest">
+                                        <span>Ahorro Cliente:</span>
+                                        <span>{formatCurrency(ahorroMkt)}</span>
+                                    </div>
+                                </>
+                            );
+                        })()}
                         <Separator className="bg-slate-200" />
                         <div className="flex justify-between items-center text-xl sm:text-2xl font-black text-primary pt-1">
                             <span className="tracking-tighter">TOTAL FINAL:</span>
