@@ -317,7 +317,7 @@ export function MainNav() {
           </SidebarMenuItem>
         </SidebarMenu>
         <div className="flex items-center justify-center gap-2 pt-2 border-t border-slate-50">
-          <p className="text-[8px] font-black uppercase tracking-[0.25em] text-slate-200 select-none">
+          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-200 select-none">
             © {new Date().getFullYear()} AK Producciones
           </p>
         </div>

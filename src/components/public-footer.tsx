@@ -95,7 +95,7 @@ export function PublicFooter({ className, variant = 'light' }: PublicFooterProps
       </div>
 
       {/* Copyright */}
-      <p className="text-[9px] font-bold uppercase tracking-[0.2em] order-last sm:order-none">
+      <p className="text-[10px] font-bold uppercase tracking-[0.2em] order-last sm:order-none">
         © {new Date().getFullYear()} AK Producciones Eventos
       </p>
 
