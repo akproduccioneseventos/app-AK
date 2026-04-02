@@ -353,6 +353,13 @@ interface PortalViewOnlyModuleSettings {
   visible: boolean;
 }
 
+export interface CalculadoraBebidasSettings {
+  visible: boolean;
+  clienteLlevaBebida: boolean;
+  clienteLlevaCerveza: boolean;
+  clienteLlevaHielo: boolean;
+}
+
 export interface ClientPortalSettings {
   enabled: boolean;
   accessKey?: string;
@@ -366,8 +373,11 @@ export interface ClientPortalSettings {
   invitados: PortalViewOnlyModuleSettings;
   paginaPublica: PortalViewOnlyModuleSettings;
   fotografiaYFilmacion: PortalViewOnlyModuleSettings;
-  moodboard: PortalModuleSettings; 
-  contrato: PortalViewOnlyModuleSettings; 
+  moodboard: PortalModuleSettings;
+  contrato: PortalViewOnlyModuleSettings;
+  pagos: PortalViewOnlyModuleSettings;
+  simuladorInvitados: PortalViewOnlyModuleSettings;
+  calculadoraBebidas: CalculadoraBebidasSettings;
 }
 
 export interface SocialGallerySettings {

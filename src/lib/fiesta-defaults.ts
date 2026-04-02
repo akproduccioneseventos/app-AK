@@ -40,7 +40,8 @@ export const defaultClientPortalSettings: ClientPortalSettings = {
     musica: { visible: false, editable: false }, videoVida: { visible: true, editable: true }, listaRegalos: { visible: false },
     documentos: { visible: true }, notasCliente: { visible: false, editable: true }, invitados: { visible: true },
     paginaPublica: { visible: true }, fotografiaYFilmacion: { visible: true }, moodboard: { visible: false, editable: true },
-    contrato: { visible: true }
+    contrato: { visible: true }, pagos: { visible: true }, simuladorInvitados: { visible: true },
+    calculadoraBebidas: { visible: false, clienteLlevaBebida: false, clienteLlevaCerveza: false, clienteLlevaHielo: false }
 };
 
 export const defaultZonasContratadas: ZonaContratada[] = [

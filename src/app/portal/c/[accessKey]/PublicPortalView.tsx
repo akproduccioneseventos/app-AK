@@ -1,8 +1,9 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
-import type { FiestaEnPlanificacion, ClientTarea } from '@/types/fiesta';
+import React, { useEffect, useState } from 'react';
+import type { FiestaEnPlanificacion, ClientTarea, MoodboardItem, ProgramaEventoItem } from '@/types/fiesta';
+import type { Presupuesto, PagoCliente } from '@/types/presupuesto';
 import {
   Calendar,
   Clock,
@@ -18,6 +19,18 @@ import {
   ChevronRight,
   Loader2,
   Save,
+  CreditCard,
+  CheckCircle2,
+  AlertCircle,
+  Banknote,
+  Smartphone,
+  FileCheck2,
+  Heart,
+  MinusCircle,
+  PlusCircle,
+  CloudSun,
+  FileSignature,
+  GlassWater,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -32,6 +45,7 @@ interface PublicPortalViewProps {
   fiesta: FiestaEnPlanificacion;
   companyContact: string;
   companyName: string;
+  presupuesto?: Presupuesto | null;
 }
 
 function useCountdown(targetDate: string | undefined) {
@@ -88,10 +102,47 @@ function CountdownUnit({ value, label }: { value: number; label: string }) {
   );
 }
 
+const formatCurrency = (amount?: number) => {
+  if (amount === undefined || isNaN(amount)) return 'N/A';
+  return new Intl.NumberFormat('es-UY', {
+    style: 'currency',
+    currency: 'UYU',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
+};
+
+const formatDate = (dateString?: string) => {
+  if (!dateString) return '—';
+  try {
+    return new Date(dateString).toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    });
+  } catch {
+    return '—';
+  }
+};
+
+const MetodoPagoIcon = ({ metodo }: { metodo: string }) => {
+  switch (metodo) {
+    case 'Efectivo':
+      return <Banknote className="w-3.5 h-3.5" />;
+    case 'MercadoPago':
+      return <Smartphone className="w-3.5 h-3.5" />;
+    case 'Transferencia Bancaria':
+      return <CreditCard className="w-3.5 h-3.5" />;
+    default:
+      return <FileCheck2 className="w-3.5 h-3.5" />;
+  }
+};
+
 export default function PublicPortalView({
   fiesta,
   companyContact,
   companyName,
+  presupuesto,
 }: PublicPortalViewProps) {
   const { configuracion: config, clientPortalSettings: settings } = fiesta;
   const countdown = useCountdown(config.fechaEvento);
@@ -104,6 +155,14 @@ export default function PublicPortalView({
   const [notes, setNotes] = useState(fiesta.clientNotes ?? '');
   const [notesSaved, setNotesSaved] = useState(false);
   const [isSavingNotes, setIsSavingNotes] = useState(false);
+
+  // Guest simulator state
+  const [guestDelta, setGuestDelta] = useState(0);
+
+  // Moodboard liked state
+  const [likedItems, setLikedItems] = useState<Set<string>>(
+    new Set((fiesta.decoracion?.moodboardItems ?? []).filter(i => i.likedByClient).map(i => i.id))
+  );
 
   const handleToggleTask = async (taskId: string) => {
     const previous = checklist;
@@ -162,14 +221,57 @@ export default function PublicPortalView({
     ? `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`
     : `https://wa.me/?text=${whatsappMessage}`;
 
+  // Payments data
+  const totalCosto = presupuesto
+    ? (presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado)
+    : 0;
+  const pagos: PagoCliente[] = presupuesto?.pagosCliente ?? [];
+  const totalPagado = pagos.reduce((sum, p) => sum + p.monto, 0);
+  const saldoPendiente = totalCosto - totalPagado;
+  const isPaid = saldoPendiente <= 0;
+  const porcentajePagado = totalCosto > 0 ? Math.min(100, (totalPagado / totalCosto) * 100) : 0;
+
+  // Days until event
+  const daysUntil = countdown && !countdown.isPast ? countdown.days : null;
+
+  // Smart alert banners
+  const alertas: { type: 'amber' | 'emerald' | 'blue'; message: string }[] = [];
+  if (settings?.pagos?.visible && presupuesto && saldoPendiente > 0) {
+    alertas.push({ type: 'amber', message: `💳 Recordá: tu saldo pendiente es de ${formatCurrency(saldoPendiente)}` });
+  }
+  if (daysUntil !== null && daysUntil <= 30 && daysUntil > 0) {
+    alertas.push({ type: 'blue', message: `⏰ ¡Faltan ${daysUntil} días para tu evento!` });
+  }
+  if (settings?.contrato?.visible && fiesta.contratoServicioTexto && !fiesta.contratoFirmaInfo?.isSigned) {
+    alertas.push({ type: 'amber', message: `📝 Tu contrato está pendiente de firma` });
+  }
+  const pendingTasks = checklist.filter(t => !t.completada).length;
+  if (settings?.checklist?.visible && pendingTasks > 0) {
+    alertas.push({ type: 'blue', message: `✅ Tenés ${pendingTasks} tarea${pendingTasks > 1 ? 's' : ''} pendiente${pendingTasks > 1 ? 's' : ''}` });
+  }
+
+  // Guest simulator
+  const invitadosContratados = config.invitadosEstimados || 0;
+  const precioPorPersona = invitadosContratados > 0 ? totalCosto / invitadosContratados : 0;
+  const nuevaCantidad = invitadosContratados + guestDelta;
+
+  const guestWhatsappMsg = encodeURIComponent(
+    `Hola, quiero modificar la cantidad de invitados de mi evento "${config.nombreEvento}" de ${invitadosContratados} a ${nuevaCantidad}. ¿Es posible?`
+  );
+  const guestWhatsappHref = hasValidPhone
+    ? `https://wa.me/${whatsappNumber}?text=${guestWhatsappMsg}`
+    : `https://wa.me/?text=${guestWhatsappMsg}`;
+
+  // Drink calculator
+  const calcBebidas = settings?.calculadoraBebidas;
+  const invitados = config.invitadosEstimados || 0;
+
+  // Moodboard and program
+  const moodboardItems: MoodboardItem[] = fiesta.decoracion?.moodboardItems ?? [];
+  const programa: ProgramaEventoItem[] = fiesta.programa ?? [];
+  const musica = fiesta.musica;
+
   const visibleSections = [
-    {
-      id: 'musica',
-      label: 'Sugerencias Musicales',
-      icon: Music,
-      visible: settings?.musica?.visible,
-      description: 'Comparte tus canciones favoritas.',
-    },
     {
       id: 'fotografiaYFilmacion',
       label: 'Fotografía y Filmación',
@@ -245,6 +347,27 @@ export default function PublicPortalView({
       </div>
 
       <div className="max-w-lg mx-auto px-4 -mt-4 space-y-5 pb-28">
+
+        {/* Smart Alert Banners */}
+        {alertas.length > 0 && (
+          <div className="space-y-2 pt-1">
+            {alertas.map((alerta, idx) => (
+              <div
+                key={idx}
+                className={`rounded-2xl px-4 py-3 text-sm font-medium border ${
+                  alerta.type === 'amber'
+                    ? 'bg-amber-50 border-amber-200 text-amber-800'
+                    : alerta.type === 'emerald'
+                    ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                    : 'bg-blue-50 border-blue-200 text-blue-800'
+                }`}
+              >
+                {alerta.message}
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Countdown */}
         {config.fechaEvento && countdown && !countdown.isPast && (
           <Card className="shadow-xl border-0 rounded-3xl overflow-hidden">
@@ -267,6 +390,456 @@ export default function PublicPortalView({
             <CardContent className="py-6 text-center">
               <p className="text-2xl font-black">🎉 ¡Tu evento ya fue!</p>
               <p className="text-sm opacity-80 mt-1">¡Esperamos que haya sido increíble!</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Payments & Balance */}
+        {settings?.pagos?.visible && presupuesto && (
+          <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
+            <CardHeader className="pb-2 bg-gradient-to-r from-primary/5 to-primary/10">
+              <CardTitle className="text-base font-bold flex items-center gap-2">
+                <CreditCard className="w-5 h-5 text-primary" />
+                Pagos y Saldo
+              </CardTitle>
+              <p className="text-xs text-muted-foreground">Resumen de tu estado de cuenta</p>
+            </CardHeader>
+            <CardContent className="pt-4 space-y-4">
+              {/* Progress bar */}
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-xs text-muted-foreground font-medium">
+                  <span>{Math.round(porcentajePagado)}% pagado</span>
+                  <span>{formatCurrency(totalPagado)} de {formatCurrency(totalCosto)}</span>
+                </div>
+                <div className="h-3 rounded-full bg-muted overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-500"
+                    style={{
+                      width: `${porcentajePagado}%`,
+                      background: isPaid
+                        ? 'linear-gradient(90deg, #10b981, #059669)'
+                        : 'linear-gradient(90deg, #f59e0b, #d97706)',
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Summary rows */}
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">Total del evento</span>
+                  <span className="font-bold">{formatCurrency(totalCosto)}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-emerald-700 flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Total pagado
+                  </span>
+                  <span className="font-bold text-emerald-700">{formatCurrency(totalPagado)}</span>
+                </div>
+                <Separator />
+                <div className={`flex justify-between items-center rounded-xl p-3 ${isPaid ? 'bg-emerald-50 border border-emerald-200' : 'bg-amber-50 border border-amber-200'}`}>
+                  <span className={`font-black uppercase text-sm tracking-tight flex items-center gap-2 ${isPaid ? 'text-emerald-700' : 'text-amber-700'}`}>
+                    {isPaid ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+                    {isPaid ? 'CUENTA SALDADA' : 'SALDO PENDIENTE'}
+                  </span>
+                  <span className={`font-black text-lg ${isPaid ? 'text-emerald-700' : 'text-amber-700'}`}>
+                    {isPaid ? formatCurrency(0) : formatCurrency(saldoPendiente)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Payment history */}
+              {pagos.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">
+                    Historial de Pagos
+                  </p>
+                  <div className="border rounded-xl overflow-hidden text-sm">
+                    {pagos.map((pago, idx) => (
+                      <div key={pago.id}>
+                        {idx > 0 && <Separator />}
+                        <div className="flex items-center justify-between px-3 py-2.5 gap-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <Badge variant="secondary" className="flex items-center gap-1 text-[9px] font-bold uppercase shrink-0">
+                              <MetodoPagoIcon metodo={pago.metodoPago} />
+                              {pago.metodoPago}
+                            </Badge>
+                            <span className="text-xs text-muted-foreground truncate">{formatDate(pago.fecha)}</span>
+                          </div>
+                          <span className="font-bold text-emerald-700 shrink-0">{formatCurrency(pago.monto)}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {pagos.length === 0 && (
+                <div className="text-center py-4 text-muted-foreground text-xs border border-dashed rounded-xl">
+                  Sin pagos registrados aún
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Contract Summary */}
+        {settings?.contrato?.visible && (fiesta.contratoServicioTexto || fiesta.contratoFirmaInfo) && (
+          <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base font-bold flex items-center gap-2">
+                <FileSignature className="w-5 h-5 text-primary" />
+                Contrato de Servicio
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0 space-y-3">
+              {fiesta.contratoFirmaInfo?.isSigned ? (
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50 border border-emerald-200">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                  <div>
+                    <p className="font-bold text-emerald-800 text-sm">Contrato Firmado ✅</p>
+                    {fiesta.contratoFirmaInfo.signedAt && (
+                      <p className="text-xs text-emerald-700">
+                        {formatDate(fiesta.contratoFirmaInfo.signedAt)}
+                        {fiesta.contratoFirmaInfo.method === 'digital' ? ' · Digital' : fiesta.contratoFirmaInfo.method === 'physical' ? ' · Físico' : ''}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-amber-50 border border-amber-200">
+                  <div className="flex items-center gap-3">
+                    <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
+                    <div>
+                      <p className="font-bold text-amber-800 text-sm">Pendiente de firma ⏳</p>
+                      <p className="text-xs text-amber-700">Tu contrato aún no fue firmado</p>
+                    </div>
+                  </div>
+                  <a href={`/portal/${fiesta.id}/contrato`}>
+                    <Button size="sm" className="rounded-xl shrink-0 text-xs">
+                      Firmar
+                    </Button>
+                  </a>
+                </div>
+              )}
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                {config.tipoCelebracion && (
+                  <div className="space-y-0.5 p-2 rounded-lg bg-muted/40">
+                    <p className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">Tipo</p>
+                    <p className="font-semibold">{config.tipoCelebracion}</p>
+                  </div>
+                )}
+                {eventDate && (
+                  <div className="space-y-0.5 p-2 rounded-lg bg-muted/40">
+                    <p className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">Fecha</p>
+                    <p className="font-semibold capitalize">{eventDate}</p>
+                  </div>
+                )}
+                {config.nombreLugar && (
+                  <div className="space-y-0.5 p-2 rounded-lg bg-muted/40">
+                    <p className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">Lugar</p>
+                    <p className="font-semibold">{config.nombreLugar}</p>
+                  </div>
+                )}
+                {invitadosContratados > 0 && (
+                  <div className="space-y-0.5 p-2 rounded-lg bg-muted/40">
+                    <p className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">Invitados</p>
+                    <p className="font-semibold">{invitadosContratados}</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Guest Simulator */}
+        {settings?.simuladorInvitados?.visible && invitadosContratados > 0 && (
+          <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
+            <CardHeader className="pb-2 bg-gradient-to-r from-violet-50 to-primary/5">
+              <CardTitle className="text-base font-bold flex items-center gap-2">
+                <Users className="w-5 h-5 text-primary" />
+                Simulador de Invitados
+              </CardTitle>
+              <p className="text-xs text-muted-foreground">Simulá agregar o quitar personas (sin confirmar cambios)</p>
+            </CardHeader>
+            <CardContent className="pt-4 space-y-4">
+              <div className="flex items-center justify-between gap-4">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-12 w-12 rounded-full border-2"
+                  onClick={() => setGuestDelta(d => d - 1)}
+                >
+                  <MinusCircle className="w-5 h-5" />
+                </Button>
+                <div className="text-center">
+                  <p className="text-4xl font-black tabular-nums">{nuevaCantidad}</p>
+                  <p className="text-xs text-muted-foreground">invitados</p>
+                  {guestDelta !== 0 && (
+                    <Badge variant={guestDelta > 0 ? 'default' : 'secondary'} className="mt-1 text-[10px]">
+                      {guestDelta > 0 ? `+${guestDelta}` : guestDelta} vs contrato ({invitadosContratados})
+                    </Badge>
+                  )}
+                </div>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-12 w-12 rounded-full border-2"
+                  onClick={() => setGuestDelta(d => d + 1)}
+                >
+                  <PlusCircle className="w-5 h-5" />
+                </Button>
+              </div>
+
+              {guestDelta > 0 && precioPorPersona > 0 && (
+                <div className="p-3 rounded-xl bg-primary/5 border border-primary/20 text-sm space-y-1">
+                  <p className="font-bold text-primary">Agregar {guestDelta} persona{guestDelta > 1 ? 's' : ''}</p>
+                  <p className="text-muted-foreground text-xs">
+                    Precio por persona estimado: <strong>{formatCurrency(precioPorPersona)}</strong>
+                  </p>
+                  <p className="text-muted-foreground text-xs">
+                    Costo extra estimado: <strong className="text-primary">{formatCurrency(precioPorPersona * guestDelta)}</strong>
+                  </p>
+                </div>
+              )}
+
+              {guestDelta < 0 && (
+                <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-sm space-y-1">
+                  <p className="font-bold text-amber-800">⚠️ Aviso importante</p>
+                  <p className="text-amber-700 text-xs">
+                    Por contrato, reducir invitados tiene una penalización del{' '}
+                    <strong>10% del número contratado</strong> ({Math.ceil(invitadosContratados * 0.1)} personas).
+                    No se realiza devolución por ese porcentaje.
+                  </p>
+                </div>
+              )}
+
+              {guestDelta !== 0 && (
+                <a href={guestWhatsappHref} target="_blank" rel="noopener noreferrer">
+                  <Button className="w-full rounded-xl bg-[#25D366] hover:bg-[#1eb356] text-white">
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    Solicitar cambio al organizador
+                  </Button>
+                </a>
+              )}
+
+              {guestDelta === 0 && (
+                <p className="text-center text-xs text-muted-foreground">
+                  Usá los botones + / − para simular cambios en la cantidad de invitados
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Drink Calculator */}
+        {calcBebidas?.visible && invitados > 0 && (
+          <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
+            <CardHeader className="pb-2 bg-gradient-to-r from-blue-50 to-sky-50">
+              <CardTitle className="text-base font-bold flex items-center gap-2">
+                <GlassWater className="w-5 h-5 text-blue-600" />
+                ¿Te toca llevar las bebidas?
+              </CardTitle>
+              <p className="text-xs text-muted-foreground">Calculamos todo por ti</p>
+            </CardHeader>
+            <CardContent className="pt-4 space-y-3">
+              {(calcBebidas.clienteLlevaCerveza || calcBebidas.clienteLlevaBebida || calcBebidas.clienteLlevaHielo) ? (
+                <p className="text-xs text-blue-700 font-medium bg-blue-50 rounded-xl px-3 py-2">
+                  🎉 Según tu contrato, vos traés las siguientes bebidas para {invitados} personas:
+                </p>
+              ) : (
+                <p className="text-xs text-muted-foreground bg-muted/40 rounded-xl px-3 py-2">
+                  Estimación de bebidas para {invitados} invitados:
+                </p>
+              )}
+              <div className="space-y-2">
+                {(calcBebidas.clienteLlevaCerveza || (!calcBebidas.clienteLlevaBebida && !calcBebidas.clienteLlevaHielo)) && (
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-amber-50 border border-amber-100">
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">🍺</span>
+                      <div>
+                        <p className="font-bold text-sm">Cerveza Corona</p>
+                        <p className="text-xs text-muted-foreground">5 por persona</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-2xl font-black text-amber-700">{invitados * 5}</p>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">unidades</p>
+                    </div>
+                  </div>
+                )}
+                {(calcBebidas.clienteLlevaBebida || (!calcBebidas.clienteLlevaCerveza && !calcBebidas.clienteLlevaHielo)) && (
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-sky-50 border border-sky-100">
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">🥤</span>
+                      <div>
+                        <p className="font-bold text-sm">Agua / Gaseosa</p>
+                        <p className="text-xs text-muted-foreground">1.5 litros por persona</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-2xl font-black text-sky-700">{(invitados * 1.5).toFixed(0)}</p>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">litros</p>
+                    </div>
+                  </div>
+                )}
+                {(calcBebidas.clienteLlevaHielo || (!calcBebidas.clienteLlevaCerveza && !calcBebidas.clienteLlevaBebida)) && (
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">🧊</span>
+                      <div>
+                        <p className="font-bold text-sm">Hielo</p>
+                        <p className="text-xs text-muted-foreground">1 kg por persona</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-2xl font-black text-slate-700">{invitados}</p>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">kg</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Event Schedule / Itinerary */}
+        {settings?.itinerario?.visible && programa.length > 0 && (
+          <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base font-bold flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-primary" />
+                Cronograma del Evento
+              </CardTitle>
+              <p className="text-xs text-muted-foreground">Así va a ser tu noche</p>
+            </CardHeader>
+            <CardContent className="pt-2 pb-4">
+              <div className="relative pl-6">
+                <div className="absolute left-2.5 top-3 bottom-3 w-0.5 bg-primary/20 rounded-full" />
+                <div className="space-y-0">
+                  {programa.map((item) => (
+                    <div key={item.id} className="relative flex items-start gap-4 py-3">
+                      <div className="absolute -left-3.5 top-4 w-4 h-4 rounded-full bg-primary flex items-center justify-center shadow-sm">
+                        <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-xs font-black text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                            {item.hora}
+                          </span>
+                          <span className="font-semibold text-sm">{item.titulo}</span>
+                        </div>
+                        {item.descripcion && (
+                          <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{item.descripcion}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Moodboard */}
+        {settings?.moodboard?.visible && moodboardItems.length > 0 && (
+          <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base font-bold flex items-center gap-2">
+                <Star className="w-5 h-5 text-primary" />
+                Inspiración y Moodboard
+              </CardTitle>
+              <p className="text-xs text-muted-foreground">
+                Dales ❤️ a las ideas que más te gustan
+              </p>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="grid grid-cols-2 gap-2">
+                {moodboardItems.map(item => (
+                  <div key={item.id} className="relative rounded-2xl overflow-hidden aspect-square bg-muted">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={item.url}
+                      alt={item.description || 'Inspiración'}
+                      className="w-full h-full object-cover"
+                    />
+                    <button
+                      onClick={() =>
+                        setLikedItems(prev => {
+                          const next = new Set(prev);
+                          if (next.has(item.id)) next.delete(item.id);
+                          else next.add(item.id);
+                          return next;
+                        })
+                      }
+                      className={`absolute bottom-2 right-2 w-8 h-8 rounded-full flex items-center justify-center shadow-lg transition-colors ${
+                        likedItems.has(item.id)
+                          ? 'bg-rose-500 text-white'
+                          : 'bg-white/80 text-rose-500'
+                      }`}
+                    >
+                      <Heart className="w-4 h-4" fill={likedItems.has(item.id) ? 'currentColor' : 'none'} />
+                    </button>
+                    {item.description && (
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                        <p className="text-white text-[10px] font-medium leading-tight">{item.description}</p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Music */}
+        {settings?.musica?.visible && musica && (musica.cancionEntrada || musica.cancionVals || (musica.cancionesTortaBrindis && musica.cancionesTortaBrindis.length > 0) || musica.listaNoReproducir) && (
+          <Card className="shadow-lg border-0 rounded-3xl">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base font-bold flex items-center gap-2">
+                <Music className="w-5 h-5 text-primary" />
+                Música de tu Evento
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0 space-y-3">
+              {musica.cancionEntrada && (
+                <div className="flex items-start gap-3 p-3 rounded-xl bg-muted/40">
+                  <span className="text-lg">🎵</span>
+                  <div>
+                    <p className="text-xs font-black uppercase text-muted-foreground tracking-wider">Canción de Entrada</p>
+                    <p className="font-semibold text-sm">{musica.cancionEntrada}</p>
+                  </div>
+                </div>
+              )}
+              {musica.cancionVals && (
+                <div className="flex items-start gap-3 p-3 rounded-xl bg-muted/40">
+                  <span className="text-lg">💃</span>
+                  <div>
+                    <p className="text-xs font-black uppercase text-muted-foreground tracking-wider">Vals / Baile</p>
+                    <p className="font-semibold text-sm">{musica.cancionVals}</p>
+                  </div>
+                </div>
+              )}
+              {musica.cancionesTortaBrindis && musica.cancionesTortaBrindis.length > 0 && (
+                <div className="flex items-start gap-3 p-3 rounded-xl bg-muted/40">
+                  <span className="text-lg">🥂</span>
+                  <div>
+                    <p className="text-xs font-black uppercase text-muted-foreground tracking-wider">Torta / Brindis</p>
+                    {musica.cancionesTortaBrindis.map((c, i) => (
+                      <p key={i} className="font-semibold text-sm">{c}</p>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {musica.listaNoReproducir && (
+                <div className="flex items-start gap-3 p-3 rounded-xl bg-rose-50 border border-rose-100">
+                  <span className="text-lg">🚫</span>
+                  <div>
+                    <p className="text-xs font-black uppercase text-muted-foreground tracking-wider">No Reproducir</p>
+                    <p className="text-sm text-muted-foreground">{musica.listaNoReproducir}</p>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         )}
@@ -349,7 +922,26 @@ export default function PublicPortalView({
           </Card>
         )}
 
-        {/* Sections */}
+        {/* Weather placeholder */}
+        {daysUntil !== null && daysUntil > 0 && (
+          <Card className="shadow-lg border-0 rounded-3xl">
+            <CardContent className="py-5 flex items-center gap-4">
+              <div className="p-3 rounded-2xl bg-sky-100">
+                <CloudSun className="w-8 h-8 text-sky-500" />
+              </div>
+              <div>
+                <p className="font-bold text-sm">Clima del Día de tu Evento</p>
+                <p className="text-xs text-muted-foreground">
+                  {daysUntil <= 7
+                    ? `¡Tu evento es en ${daysUntil} día${daysUntil > 1 ? 's' : ''}! El pronóstico estará disponible próximamente.`
+                    : 'El pronóstico del clima se mostrará 7 días antes del evento.'}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Other Sections */}
         {visibleSections.length > 0 && (
           <Card className="shadow-lg border-0 rounded-3xl">
             <CardHeader className="pb-2">
