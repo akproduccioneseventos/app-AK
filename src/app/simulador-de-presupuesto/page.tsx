@@ -43,6 +43,7 @@ import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
 import NextImage from 'next/image';
 import { PublicFooter } from '@/components/public-footer';
+import { MarketingBanner } from '@/components/marketing-banner';
 
 const formatCurrency = (amount?: number) => {
     if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -690,6 +691,13 @@ function SimuladorContent() {
                         </CardFooter>
                     </Card>
                 </motion.div>
+                <div className="w-full max-w-3xl print:hidden">
+                  <MarketingBanner
+                    variant="full"
+                    showCTA={true}
+                    className="mt-4"
+                  />
+                </div>
                 <div className="w-full max-w-3xl print:hidden">
                   <PublicFooter className="rounded-[1.5rem] mt-4" />
                 </div>

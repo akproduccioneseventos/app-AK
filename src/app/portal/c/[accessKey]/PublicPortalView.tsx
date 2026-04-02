@@ -50,6 +50,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { updateClientChecklist, updateClientNotes } from '@/app/actions/fiesta/portal.actions';
 import { defaultBebidaItems } from '@/lib/fiesta-defaults';
+import { MarketingBanner } from '@/components/marketing-banner';
 
 interface PublicPortalViewProps {
   fiesta: FiestaEnPlanificacion;
@@ -1288,6 +1289,13 @@ export default function PublicPortalView({
             <p className="text-center text-xs text-muted-foreground">{companyName}</p>
           </CardContent>
         </Card>
+
+        {/* Marketing / Powered by AK Producciones */}
+        <MarketingBanner
+          variant="compact"
+          showCTA={false}
+          className="mt-2"
+        />
       </div>
 
       {/* Floating WhatsApp button */}
