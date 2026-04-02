@@ -27,6 +27,11 @@ const portalModules: { id: keyof Omit<ClientPortalSettings, 'enabled' | 'accessK
     { id: 'invitados', label: 'Lista de Invitados y Asignación de Mesas' },
     { id: 'paginaPublica', label: 'Acceso a Página Pública' },
     { id: 'fotografiaYFilmacion', label: 'Seguimiento de Fotografía/Video' },
+    { id: 'pagos', label: 'Mostrar Pagos y Saldo' },
+    { id: 'simuladorInvitados', label: 'Simulador de Invitados (+/-)' },
+    { id: 'calculadoraBebidas', label: 'Calculadora de Bebidas' },
+    { id: 'moodboard', label: 'Moodboard / Galería de Inspiración' },
+    { id: 'contrato', label: 'Resumen del Contrato' },
 ];
 
 function ClientPortalConfigContent() {
@@ -82,6 +87,14 @@ function ClientPortalConfigContent() {
         [moduleId]: { ...moduleSettings, [field]: value }
       };
     });
+  };
+
+  const getModuleVisibility = (moduleId: keyof Omit<ClientPortalSettings, 'enabled' | 'accessKey'>): boolean => {
+    const mod = portalSettings[moduleId];
+    if (mod && typeof mod === 'object' && 'visible' in mod) {
+      return !!(mod as { visible: boolean }).visible;
+    }
+    return false;
   };
 
   const portalLink = typeof window !== 'undefined' ? `${window.location.origin}/portal?fiestaId=${fiestaId}` : '';
@@ -198,7 +211,7 @@ function ClientPortalConfigContent() {
                             <div key={mod.id} className="flex items-center space-x-2 p-3 border rounded-md">
                                 <Switch 
                                     id={`switch-${mod.id}`}
-                                    checked={portalSettings[mod.id as keyof typeof portalSettings]?.visible}
+                                    checked={getModuleVisibility(mod.id)}
                                     onCheckedChange={(v) => handlePortalSwitch(mod.id, 'visible', v)}
                                 />
                                 <Label htmlFor={`switch-${mod.id}`}>{mod.label}</Label>
