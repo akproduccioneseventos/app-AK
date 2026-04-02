@@ -144,7 +144,7 @@ export function MainNav() {
             <SidebarMenu className="gap-2">
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  isActive={(isActive("/empresa") && !isActive('/empresa/redes-sociales') && !isActive('/empresa/contabilidad')) || isActive('/empleados') || isActive('/proveedores')}
+                  isActive={(isActive("/empresa") && !isActive('/empresa/contabilidad')) || isActive('/empleados') || isActive('/proveedores')}
                   isSubmenu
                   className="h-12 rounded-xl font-bold text-xs text-slate-500 hover:text-primary transition-all duration-300"
                 >
@@ -288,8 +288,8 @@ export function MainNav() {
                 </Link>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <Link href="/empresa/redes-sociales">
-                  <SidebarMenuButton isActive={isActive("/empresa/redes-sociales")} className="h-12 rounded-xl font-bold text-xs text-slate-500 hover:text-primary transition-all duration-300">
+                <Link href="/marketing">
+                  <SidebarMenuButton isActive={isActive("/marketing")} className="h-12 rounded-xl font-bold text-xs text-slate-500 hover:text-primary transition-all duration-300">
                     <Sparkles className="w-5 h-5 text-indigo-500" />
                     <span className="ml-2">Marketing</span>
                   </SidebarMenuButton>
