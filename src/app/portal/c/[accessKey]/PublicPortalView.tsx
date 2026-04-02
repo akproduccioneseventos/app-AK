@@ -871,7 +871,7 @@ export default function PublicPortalView({
                     <div
                       className={`h-full rounded-full absolute transition-all duration-300 ${guestDelta > 0 ? 'bg-primary' : guestDelta < 0 ? 'bg-amber-500' : 'bg-primary/50'}`}
                       style={{
-                        left: `${((guestDelta - minDelta) / (maxDelta - minDelta)) * 100}%`,
+                        left: `${maxDelta !== minDelta ? ((guestDelta - minDelta) / (maxDelta - minDelta)) * 100 : 50}%`,
                         width: '6px',
                         transform: 'translateX(-50%)',
                       }}
