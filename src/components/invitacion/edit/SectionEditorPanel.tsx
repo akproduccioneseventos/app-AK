@@ -126,7 +126,7 @@ export const SectionEditorPanel: React.FC<Props> = ({ data, update, addSection, 
                 update={update}
                 addSection={addSection}
                 removeSection={removeSection}
-                onSectionClick={onSectionClick}
+                onSectionClick={() => {}}
             />
         </ScrollArea>
     );

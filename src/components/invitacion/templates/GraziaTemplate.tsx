@@ -354,7 +354,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
         return (
           <SectionWrapper {...wrapperProps} className="bg-white" innerClassName="max-w-6xl">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 md:gap-8">
-              {[seccion.data.ceremoniaReligiosa, seccion.data.ceremoniaCivil, seccion.data.celebracion].filter(d => d.visible).map((detalle, idx) => (
+              {[seccion.data.ceremoniaReligiosa, seccion.data.ceremoniaCivil, seccion.data.celebracion].filter(d => d?.visible).map((detalle, idx) => (
                 <motion.div 
                     key={idx} 
                     initial={{ opacity: 0, y: 30 }}
@@ -619,7 +619,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
 
       <footer className="py-24 md:py-32 text-center bg-slate-50 px-6 border-t border-slate-100">
         <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="space-y-8 md:space-y-12">
-            <h4 className="text-4xl md:text-7xl font-dancing text-slate-800" style={{ color: primaryColor }}>{invitacionData.footer.titulo.text}</h4>
+            <h4 className="text-4xl md:text-7xl font-dancing text-slate-800" style={{ color: primaryColor }}>{invitacionData.footer?.titulo?.text ?? ''}</h4>
             <div className="flex justify-center gap-6 md:gap-8">
             {socialConnections.filter(c => c.isConnected).map(c => (
                 <a key={c.platform} href={c.profileUrl} target="_blank" className="w-12 h-12 md:w-16 md:h-16 rounded-2xl md:rounded-3xl bg-white shadow-xl flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-500 text-slate-400">
@@ -629,7 +629,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
             </div>
             <div className="space-y-2">
                 <div className="w-12 md:w-16 h-1 bg-primary/20 mx-auto rounded-full mb-4 md:mb-6"></div>
-                <p className="text-[8px] md:text-[10px] font-black tracking-[0.5em] text-slate-300 uppercase">{invitacionData.footer.nombreEmpresa.text}</p>
+                <p className="text-[8px] md:text-[10px] font-black tracking-[0.5em] text-slate-300 uppercase">{invitacionData.footer?.nombreEmpresa?.text ?? ''}</p>
             </div>
         </motion.div>
       </footer>
@@ -668,7 +668,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
                 )}
             </div>
 
-            {invitacionData.confirmacion.showRelationshipTags && (
+            {invitacionData.confirmacion?.showRelationshipTags && (
                 <div className="space-y-2 md:space-y-3">
                     <Label className="text-[9px] md:text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Relación / Grupo</Label>
                     <Select value={rsvpTag} onValueChange={setRsvpTag}>
@@ -701,7 +701,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
               </div>
             ))}
             
-            {invitacionData.musica.visible && (
+            {invitacionData.musica?.visible && (
                 <div className="space-y-2 md:space-y-3">
                     <Label className="text-[9px] md:text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Sugerencia Musical</Label>
                     <Input value={rsvpMusicSuggestion} onChange={e => setRsvpMusicSuggestion(e.target.value)} placeholder={invitacionData.musica.placeholder} className="h-10 md:h-12 rounded-lg md:rounded-xl bg-slate-50 border-none text-sm" />

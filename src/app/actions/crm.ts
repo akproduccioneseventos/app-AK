@@ -162,6 +162,7 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
     const leadId = formData.get('leadId') as string;
     const presupuestoId = formData.get('presupuestoId') as string;
     const contractFile = formData.get('contract') as File | null;
+    const archiveLead = formData.get('archiveLead') === 'true';
 
     if (!leadId || !presupuestoId) throw new Error('Datos incompletos.');
     if (!contractFile || contractFile.type !== 'application/pdf') {
@@ -233,12 +234,12 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
     // 5. Update Presupuesto
     await updatePresupuesto({ ...presupuesto, estado: 'Aceptado' });
 
-    // 6. Move Lead to conversion stage AND update contract info in one write
+    // 6. Update lead: link contract file; optionally move to conversion stage
     {
       const currentLeads = await getCrmLeads();
       const leadIdx = currentLeads.findIndex(l => l.id === leadId);
       if (leadIdx !== -1) {
-        if (conversionStage) {
+        if (archiveLead && conversionStage) {
           currentLeads[leadIdx].currentStageId = conversionStage.id;
         }
         (currentLeads[leadIdx] as any).contractFileName = contractFileName;
@@ -259,7 +260,7 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
   }
 }
 
-export async function confirmBooking(leadId: string, presupuestoId: string): Promise<{ success: boolean; fiestaId?: string; error?: string }> {
+export async function confirmBooking(leadId: string, presupuestoId: string, archiveLead = false): Promise<{ success: boolean; fiestaId?: string; error?: string }> {
   try {
     const [leads, presupuesto, stages] = await Promise.all([
       getCrmLeads(),
@@ -316,8 +317,10 @@ export async function confirmBooking(leadId: string, presupuestoId: string): Pro
     // 4. Actualizar Presupuesto
     await updatePresupuesto({ ...presupuesto, estado: 'Aceptado' });
 
-    // 5. Mover Lead
-    if (conversionStage) await moveCrmLead(lead.id, conversionStage.id);
+    // 5. Mover Lead a conversión solo si el usuario lo solicitó explícitamente
+    if (archiveLead && conversionStage) {
+      await moveCrmLead(lead.id, conversionStage.id);
+    }
 
     await createNotification({
       mensaje: `¡Contratación Confirmada! ${lead.name} es ahora cliente.`,
