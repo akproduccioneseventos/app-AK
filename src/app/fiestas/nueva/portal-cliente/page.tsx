@@ -89,6 +89,14 @@ function ClientPortalConfigContent() {
     });
   };
 
+  const getModuleVisibility = (moduleId: keyof Omit<ClientPortalSettings, 'enabled' | 'accessKey'>): boolean => {
+    const mod = portalSettings[moduleId];
+    if (mod && typeof mod === 'object' && 'visible' in mod) {
+      return !!(mod as { visible: boolean }).visible;
+    }
+    return false;
+  };
+
   const portalLink = typeof window !== 'undefined' ? `${window.location.origin}/portal?fiestaId=${fiestaId}` : '';
   const publicPortalLink =
     typeof window !== 'undefined' && portalSettings.accessKey
@@ -203,7 +211,7 @@ function ClientPortalConfigContent() {
                             <div key={mod.id} className="flex items-center space-x-2 p-3 border rounded-md">
                                 <Switch 
                                     id={`switch-${mod.id}`}
-                                    checked={!!(portalSettings[mod.id as keyof typeof portalSettings] as { visible?: boolean })?.visible}
+                                    checked={getModuleVisibility(mod.id)}
                                     onCheckedChange={(v) => handlePortalSwitch(mod.id, 'visible', v)}
                                 />
                                 <Label htmlFor={`switch-${mod.id}`}>{mod.label}</Label>

@@ -678,7 +678,7 @@ export default function PublicPortalView({
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-2xl font-black text-sky-700">{(invitados * 1.5).toFixed(0)}</p>
+                      <p className="text-2xl font-black text-sky-700">{Math.round(invitados * 1.5)}</p>
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider">litros</p>
                     </div>
                   </div>
