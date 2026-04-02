@@ -51,6 +51,7 @@ import { Label } from '@/components/ui/label';
 import { updateClientChecklist, updateClientNotes } from '@/app/actions/fiesta/portal.actions';
 import { defaultBebidaItems } from '@/lib/fiesta-defaults';
 import { PublicFooter } from '@/components/public-footer';
+import { MarketingBanner } from '@/components/marketing-banner';
 
 interface PublicPortalViewProps {
   fiesta: FiestaEnPlanificacion;
@@ -298,8 +299,9 @@ export default function PublicPortalView({
   const invitadosContratados = config.invitadosEstimados || 0;
   const precioPorPersona = invitadosContratados > 0 ? totalCosto / invitadosContratados : 0;
   const simConfig = settings?.simuladorInvitadosConfig;
-  const limiteReduccion = simConfig?.limiteReduccionPorcentaje ?? 10;
-  const limiteAumento = simConfig?.limiteAumentoPorcentaje ?? 30;
+  // Support both new (simuladorInvitados.minReductionPercent) and legacy (simuladorInvitadosConfig) approaches
+  const limiteReduccion = settings?.simuladorInvitados?.minReductionPercent ?? simConfig?.limiteReduccionPorcentaje ?? 10;
+  const limiteAumento = settings?.simuladorInvitados?.maxIncreasePercent ?? simConfig?.limiteAumentoPorcentaje ?? 30;
   const penalizacionReduccion = simConfig?.penalizacionReduccion ?? true;
   const minDelta = -Math.floor(invitadosContratados * (limiteReduccion / 100));
   const maxDelta = Math.floor(invitadosContratados * (limiteAumento / 100));
@@ -430,10 +432,10 @@ export default function PublicPortalView({
 
         {/* Countdown */}
         {config.fechaEvento && countdown && !countdown.isPast && (
-          <Card className="shadow-xl border-0 rounded-3xl overflow-hidden">
-            <CardContent className="pt-6 pb-6">
-              <p className="text-center text-xs uppercase tracking-widest font-bold text-muted-foreground mb-4">
-                ¡Faltan para tu evento!
+          <Card className="shadow-xl border-0 rounded-3xl overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-violet-700 text-white">
+            <CardContent className="pt-5 pb-5">
+              <p className="text-center text-xs uppercase tracking-widest font-bold opacity-80 mb-3">
+                🎉 ¡Faltan para tu evento!
               </p>
               <div className="grid grid-cols-4 gap-2 text-center">
                 <CountdownUnit value={countdown.days} label="Días" />
@@ -1337,6 +1339,13 @@ export default function PublicPortalView({
             <p className="text-center text-xs text-muted-foreground">{companyName}</p>
           </CardContent>
         </Card>
+
+        {/* Marketing / Powered by AK Producciones */}
+        <MarketingBanner
+          variant="compact"
+          showCTA={false}
+          className="mt-2"
+        />
       </div>
 
       {/* Floating WhatsApp button */}

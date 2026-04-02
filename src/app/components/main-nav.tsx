@@ -41,6 +41,7 @@ import {
   Calculator,
   PlusCircle,
   CircleDollarSign,
+  MessageCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AppLogo from "./app-logo";
@@ -299,6 +300,14 @@ export function MainNav() {
                   <SidebarMenuButton isActive={isActive("/compras")} className="h-12 rounded-xl font-bold text-xs text-slate-500 hover:text-primary transition-all duration-300">
                     <ShoppingCart className="w-5 h-5 text-slate-400" />
                     <span className="ml-2">Insumos</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/settings/whatsapp">
+                  <SidebarMenuButton isActive={isActive("/settings/whatsapp")} className="h-12 rounded-xl font-bold text-xs text-slate-500 hover:text-primary transition-all duration-300">
+                    <MessageCircle className="w-5 h-5 text-[#25D366]" />
+                    <span className="ml-2">WhatsApp</span>
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>

@@ -17,6 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import QRCodeStylized from 'qrcode.react';
 import { motion } from "framer-motion";
+import { MarketingBanner } from '@/components/marketing-banner';
 
 function EventoPublicoPageContent() {
   const { toast } = useToast();
@@ -187,7 +188,18 @@ function EventoPublicoPageContent() {
     )
   }
 
-  return renderTemplate();
+  return (
+    <>
+      {renderTemplate()}
+      <div className="w-full px-4 py-8 bg-gradient-to-b from-white to-purple-50 flex justify-center">
+        <MarketingBanner
+          variant="full"
+          showCTA={true}
+          className="w-full max-w-xl"
+        />
+      </div>
+    </>
+  );
 }
 
 export default function EventoPublicoPage() {
