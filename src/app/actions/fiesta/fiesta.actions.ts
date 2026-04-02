@@ -215,7 +215,6 @@ function syncReposteriaFromItems(existing: ReposteriaData, reposteriaItems: Item
                 cantidad: item.cantidad,
                 unidad: item.unidad,
                 costoEstimado: item.costoTotalItem,
-                notas: item.descripcionServicio,
                 origenId: item.idServicioCatalogo,
             };
             cat.items.push(newItem);
