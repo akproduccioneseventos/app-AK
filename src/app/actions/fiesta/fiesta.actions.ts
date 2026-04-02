@@ -125,7 +125,7 @@ function syncBebidasFromItems(existing: BebidasData, bebidaItems: ItemPresupuest
 
     const categorias: BebidaCategoria[] = existing.categorias.map(cat => ({ ...cat, items: [...(cat.items || [])] }));
 
-    const findOrActivateCategory = (catId: string): BebidaCategoria => {
+    const findOrActivateCategory = (catId: string): BebidaCategoria | undefined => {
         let cat = categorias.find(c => c.id === catId);
         if (!cat) {
             const defaultCat = defaultBebidasData.categorias.find(c => c.id === catId);
@@ -135,7 +135,7 @@ function syncBebidasFromItems(existing: BebidasData, bebidaItems: ItemPresupuest
             }
         }
         if (cat) cat.activada = true;
-        return cat!;
+        return cat;
     };
 
     for (const item of bebidaItems) {
@@ -147,7 +147,7 @@ function syncBebidasFromItems(existing: BebidasData, bebidaItems: ItemPresupuest
         else if (name.includes('jugo')) targetCatId = 'jugos';
         else if (name.includes('gaseosa') || name.includes('refresco') || name.includes('cola')) targetCatId = 'refrescos_gaseosas';
         else if (name.includes('agua')) targetCatId = 'aguas_saborizadas';
-        else if (name.includes('café') || name.includes('cafe') || name.includes('te') || name.includes('té')) targetCatId = 'cafeteria';
+        else if (name.includes('café') || name.includes('cafe') || name.includes('cafetería') || name.includes('cafeteria') || name.includes('té ') || name.includes(' té') || name.includes('infusión')) targetCatId = 'cafeteria';
         else if (name.includes('cóctel') || name.includes('coctel') || name.includes('bienvenida')) targetCatId = 'coctel_bienvenida';
 
         const cat = findOrActivateCategory(targetCatId);
@@ -181,7 +181,7 @@ function syncReposteriaFromItems(existing: ReposteriaData, reposteriaItems: Item
 
     const categorias: ReposteriaCategoria[] = existing.categorias.map(cat => ({ ...cat, items: [...(cat.items || [])] }));
 
-    const findOrActivateCategory = (catId: string): ReposteriaCategoria => {
+    const findOrActivateCategory = (catId: string): ReposteriaCategoria | undefined => {
         let cat = categorias.find(c => c.id === catId);
         if (!cat) {
             const defaultCat = defaultReposteriaData.categorias.find(c => c.id === catId);
@@ -191,7 +191,7 @@ function syncReposteriaFromItems(existing: ReposteriaData, reposteriaItems: Item
             }
         }
         if (cat) cat.activada = true;
-        return cat!;
+        return cat;
     };
 
     for (const item of reposteriaItems) {
@@ -201,7 +201,7 @@ function syncReposteriaFromItems(existing: ReposteriaData, reposteriaItems: Item
         if (name.includes('torta') || name.includes('pastel') || name.includes('cake')) targetCatId = 'mesa_postres';
         else if (name.includes('candy') || name.includes('dulce') || name.includes('golosina')) targetCatId = 'candy_bar';
         else if (name.includes('chocolate') || name.includes('fuente')) targetCatId = 'fuente_chocolate';
-        else if (name.includes('helado') || name.includes('hela')) targetCatId = 'mesa_helada';
+        else if (name.includes('helado')) targetCatId = 'mesa_helada';
 
         const cat = findOrActivateCategory(targetCatId);
         if (!cat) continue;
