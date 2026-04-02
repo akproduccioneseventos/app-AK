@@ -1,13 +1,43 @@
 'use server';
 
-import type { FiestaEnPlanificacion, MenuMesaData, NumerosMesaData, ModulosContratados, PersonalAsignadoDetalleStorage, CartaTragosData } from '@/types/fiesta';
-import { initialFiestaActualData, defaultModulosContratados, defaultClientPortalSettings } from '@/lib/fiesta-defaults';
+import type {
+    FiestaEnPlanificacion,
+    MenuMesaData,
+    NumerosMesaData,
+    ModulosContratados,
+    PersonalAsignadoDetalleStorage,
+    CartaTragosData,
+    BebidasData,
+    BebidaCategoria,
+    BebidaItem,
+    ReposteriaData,
+    ReposteriaCategoria,
+    ReposteriaItem,
+    DecoracionData,
+    DecorationItem,
+    GestionCostosData,
+    CostoItem,
+    ListaDeCargaOperativa,
+    CargaOperativaCategoria,
+    CargaOperativaItem,
+} from '@/types/fiesta';
+import type { ItemPresupuestado } from '@/types/presupuesto';
+import {
+    initialFiestaActualData,
+    defaultModulosContratados,
+    defaultClientPortalSettings,
+    defaultBebidasData,
+    defaultReposteriaData,
+    defaultDecoracion,
+    defaultGestionCostos,
+} from '@/lib/fiesta-defaults';
 import { readData, writeData } from '@/lib/data-service';
 import path from 'path';
 import fs from 'fs/promises';
 import { getPresupuestoById } from '../presupuestos';
 import { getRoles } from '../roles';
 import { syncLaundryCosts } from './costos.actions';
+import { getActivosFijos } from '../activos-fijos';
 
 const FIESTAS_DIR = 'fiestas';
 const ARCHIVE_DIR = 'archive';
@@ -78,6 +108,251 @@ export async function getFiestaById(fiestaId: string): Promise<FiestaEnPlanifica
     return archivadas.find(f => f.id === fiestaId) || null;
 }
 
+// --- HELPERS DE SINCRONIZACIÓN ---
+
+/** Returns true if the item's service name or category contains any of the given keywords (case-insensitive). */
+function itemMatchesKeywords(item: ItemPresupuestado, keywords: string[]): boolean {
+    const haystack = `${item.nombreServicio} ${item.categoriaServicio || ''} ${item.subcategoria || ''}`.toLowerCase();
+    return keywords.some(k => haystack.includes(k.toLowerCase()));
+}
+
+/**
+ * Merges bebidas items from the budget into the fiesta's bebidas data.
+ * Activates matching categories and adds new items without overwriting existing ones.
+ */
+function syncBebidasFromItems(existing: BebidasData, bebidaItems: ItemPresupuestado[]): BebidasData {
+    if (bebidaItems.length === 0) return existing;
+
+    const categorias: BebidaCategoria[] = existing.categorias.map(cat => ({ ...cat, items: [...(cat.items || [])] }));
+
+    const findOrActivateCategory = (catId: string): BebidaCategoria | undefined => {
+        let cat = categorias.find(c => c.id === catId);
+        if (!cat) {
+            const defaultCat = defaultBebidasData.categorias.find(c => c.id === catId);
+            if (defaultCat) {
+                cat = { ...defaultCat, activada: true, items: [] };
+                categorias.push(cat);
+            }
+        }
+        if (cat) cat.activada = true;
+        return cat;
+    };
+
+    for (const item of bebidaItems) {
+        const name = item.nombreServicio.toLowerCase();
+        let targetCatId = 'barra_tragos'; // default
+
+        if (name.includes('cerveza')) targetCatId = 'cervezas';
+        else if (name.includes('vino') || name.includes('espumante') || name.includes('champagne')) targetCatId = 'vinos_espumantes';
+        else if (name.includes('jugo')) targetCatId = 'jugos';
+        else if (name.includes('gaseosa') || name.includes('refresco') || name.includes('cola')) targetCatId = 'refrescos_gaseosas';
+        else if (name.includes('agua')) targetCatId = 'aguas_saborizadas';
+        else if (name.includes('café') || name.includes('cafe') || name.includes('cafetería') || name.includes('cafeteria') || name.includes('té ') || name.includes(' té') || name.includes('infusión')) targetCatId = 'cafeteria';
+        else if (name.includes('cóctel') || name.includes('coctel') || name.includes('bienvenida')) targetCatId = 'coctel_bienvenida';
+
+        const cat = findOrActivateCategory(targetCatId);
+        if (!cat) continue;
+
+        // Only add if not already present (identified by origenId)
+        const alreadyExists = cat.items.some(i => i.origenId === item.idServicioCatalogo);
+        if (!alreadyExists) {
+            const newItem: BebidaItem = {
+                id: `sync_beb_${item.idServicioCatalogo}`,
+                nombre: item.nombreServicio,
+                cantidadNecesaria: item.cantidad || 1,
+                unidadCantidad: item.unidad,
+                costoUnitario: item.precioUnitario,
+                costoTotal: item.costoTotalItem,
+                notas: item.descripcionServicio,
+                origenId: item.idServicioCatalogo,
+            };
+            cat.items.push(newItem);
+        }
+    }
+
+    return { ...existing, categorias };
+}
+
+/**
+ * Merges repostería items from the budget into the fiesta's repostería data.
+ */
+function syncReposteriaFromItems(existing: ReposteriaData, reposteriaItems: ItemPresupuestado[]): ReposteriaData {
+    if (reposteriaItems.length === 0) return existing;
+
+    const categorias: ReposteriaCategoria[] = existing.categorias.map(cat => ({ ...cat, items: [...(cat.items || [])] }));
+
+    const findOrActivateCategory = (catId: string): ReposteriaCategoria | undefined => {
+        let cat = categorias.find(c => c.id === catId);
+        if (!cat) {
+            const defaultCat = defaultReposteriaData.categorias.find(c => c.id === catId);
+            if (defaultCat) {
+                cat = { ...defaultCat, activada: true, items: [] };
+                categorias.push(cat);
+            }
+        }
+        if (cat) cat.activada = true;
+        return cat;
+    };
+
+    for (const item of reposteriaItems) {
+        const name = item.nombreServicio.toLowerCase();
+        let targetCatId = 'mesa_postres'; // default
+
+        if (name.includes('torta') || name.includes('pastel') || name.includes('cake')) targetCatId = 'mesa_postres';
+        else if (name.includes('candy') || name.includes('dulce') || name.includes('golosina')) targetCatId = 'candy_bar';
+        else if (name.includes('chocolate') || name.includes('fuente')) targetCatId = 'fuente_chocolate';
+        else if (name.includes('helado')) targetCatId = 'mesa_helada';
+
+        const cat = findOrActivateCategory(targetCatId);
+        if (!cat) continue;
+
+        const alreadyExists = cat.items.some(i => i.origenId === item.idServicioCatalogo);
+        if (!alreadyExists) {
+            const newItem: ReposteriaItem = {
+                id: `sync_rep_${item.idServicioCatalogo}`,
+                nombre: item.nombreServicio,
+                description: item.descripcionServicio,
+                cantidad: item.cantidad,
+                unidad: item.unidad,
+                costoEstimado: item.costoTotalItem,
+                origenId: item.idServicioCatalogo,
+            };
+            cat.items.push(newItem);
+        }
+    }
+
+    return { ...existing, categorias };
+}
+
+/**
+ * Merges decoración items from the budget into the fiesta's decoración data.
+ */
+function syncDecoracionFromItems(existing: DecoracionData, decorItems: ItemPresupuestado[]): DecoracionData {
+    if (decorItems.length === 0) return existing;
+
+    const currentItems: DecorationItem[] = [...(existing.items || [])];
+
+    for (const item of decorItems) {
+        const alreadyExists = currentItems.some(i => i.id === `sync_dec_${item.idServicioCatalogo}`);
+        if (!alreadyExists) {
+            const newItem: DecorationItem = {
+                id: `sync_dec_${item.idServicioCatalogo}`,
+                name: item.nombreServicio,
+                category: item.subcategoria || item.categoriaServicio,
+                quantity: item.cantidad || 1,
+                estimatedCost: item.costoTotalItem,
+                notes: item.descripcionServicio,
+            };
+            currentItems.push(newItem);
+        }
+    }
+
+    return { ...existing, items: currentItems };
+}
+
+/**
+ * Pre-populates gestionCostos with all non-gift budget line items.
+ * Preserves manually-added cost items and updates existing synced items.
+ */
+function syncCostosFromBudget(existing: GestionCostosData, items: ItemPresupuestado[], totalConDescuento: number): GestionCostosData {
+    const SYNC_PREFIX = 'sync_budget_';
+    const manualItems = (existing.costosItems || []).filter(i => !i.id.startsWith(SYNC_PREFIX));
+    const syncedItems: CostoItem[] = [];
+
+    for (const item of items) {
+        if (item.esRegalo) continue;
+        syncedItems.push({
+            id: `${SYNC_PREFIX}${item.idServicioCatalogo}`,
+            nombre: item.nombreServicio,
+            category: item.categoriaServicio || 'Otros servicios',
+            montoEstimado: Math.round(item.costoTotalItem),
+            notas: `Sincronizado desde presupuesto. ${item.descripcionServicio || ''}`.trim(),
+        });
+    }
+
+    return {
+        ...existing,
+        ingresosTotalesEstimados: Math.round(totalConDescuento),
+        costosItems: [...manualItems, ...syncedItems],
+    };
+}
+
+/**
+ * Pre-populates listaDeCargaOperativa from budget items using the activos fijos catalog.
+ * Mirrors the logic of the "Sincronizar desde Presupuesto" button in the UI.
+ */
+async function syncCargaOperativaFromBudget(
+    fiestaId: string,
+    existing: ListaDeCargaOperativa,
+    items: ItemPresupuestado[],
+    totalInvitados: number,
+): Promise<ListaDeCargaOperativa> {
+    const activos = await getActivosFijos();
+
+    // Map budget item categories/names to activos categories
+    const targetAssetCategories = new Set<string>();
+    for (const item of items) {
+        const cat = (item.categoriaServicio || '').toLowerCase();
+        const name = item.nombreServicio.toLowerCase();
+        if (cat.includes('discoteca') || name.includes('dj')) targetAssetCategories.add('Discoteca');
+        if (cat.includes('decoración') || cat.includes('decoracion') || name.includes('ambientación') || name.includes('ambientacion')) {
+            targetAssetCategories.add('Decoración (Activo)');
+            targetAssetCategories.add('Mobiliario');
+        }
+        if (cat.includes('catering') || name.includes('vajilla') || name.includes('mantel') || name.includes('silla') || name.includes('mesa')) {
+            targetAssetCategories.add('Vajilla (Activo)');
+            targetAssetCategories.add('Mantelería');
+            targetAssetCategories.add('Equipamiento de Cocina');
+        }
+        if (cat.includes('bebida') || name.includes('barra') || name.includes('trago')) {
+            targetAssetCategories.add('Barra de Tragos');
+        }
+    }
+
+    if (targetAssetCategories.size === 0) return existing;
+
+    // Keep existing categories that were added manually or have a different source
+    const SYNC_CAT_PREFIX = 'sync_cat_';
+    const manualCategorias: CargaOperativaCategoria[] = (existing.categorias || []).filter(c => !c.id.startsWith(SYNC_CAT_PREFIX));
+    const newCategories: CargaOperativaCategoria[] = [];
+
+    for (const catName of Array.from(targetAssetCategories)) {
+        const matchingAssets = activos.filter(a => a.categoria === catName);
+        if (matchingAssets.length === 0) continue;
+
+        const itemsForCat: CargaOperativaItem[] = matchingAssets.map(asset => {
+            let qty = '1';
+            if (asset.categoria?.includes('Vajilla')) {
+                qty = String(totalInvitados);
+            } else if (asset.categoria?.includes('Mantelería') && asset.nombre.toLowerCase().includes('mantel')) {
+                qty = String(Math.ceil(totalInvitados / 8));
+            } else if (asset.invitadosPorUnidad) {
+                qty = String(Math.ceil(totalInvitados / asset.invitadosPorUnidad));
+            }
+
+            return {
+                id: `sync_asset_${asset.id}`,
+                nombre: asset.nombre,
+                cantidad: qty,
+                unidad: asset.unidad || 'Uds.',
+                cargado: false,
+                origenId: asset.id,
+            };
+        });
+
+        newCategories.push({
+            id: `${SYNC_CAT_PREFIX}${catName.replace(/\s+/g, '_').replace(/[()]/g, '')}`,
+            nombre: catName,
+            items: itemsForCat,
+        });
+    }
+
+    return {
+        ...existing,
+        categorias: [...manualCategorias, ...newCategories],
+    };
+}
+
 /**
  * MOTOR DE SINCRONIZACIÓN MAESTRA
  * Dispara la configuración operativa de la fiesta basándose en el presupuesto aceptado.
@@ -99,9 +374,10 @@ export async function syncFiestaFromBudget(fiestaId: string) {
     const modulos: ModulosContratados = { ...defaultModulosContratados };
     const hasItem = (term: string) => items.some(i => i.nombreServicio.toLowerCase().includes(term.toLowerCase()));
 
-    modulos.catering = items.some(i => ['Entrada', 'Plato Principal', 'Postre'].includes(i.categoriaServicio || ''));
-    modulos.musica = hasItem('discoteca') || hasItem(' dj');
-    modulos.fotografia = hasItem('foto') || hasItem('film') || hasItem('video');
+    modulos.catering = items.some(i => ['Entrada', 'Plato Principal', 'Postre', 'Servicio de catering', 'Menú Infantil', 'Menú Infantil/Adolescente'].includes(i.categoriaServicio || ''));
+    modulos.musica = hasItem('discoteca') || hasItem(' dj') || items.some(i => ['Servicio de discoteca', 'Servicio de entretenimiento'].includes(i.categoriaServicio || ''));
+    modulos.fotografia = hasItem('foto') || hasItem('film') || hasItem('video') || items.some(i => ['Servicio de filmación', 'Servicio de fotografía'].includes(i.categoriaServicio || ''));
+    modulos.decoracion = items.some(i => i.categoriaServicio === 'Servicio de decoración') || hasItem('decorac') || hasItem('ambientac');
     modulos.regalos = true; // Siempre activo para coordinar
     
     updatedFiesta.modulosContratados = modulos;
@@ -172,6 +448,48 @@ export async function syncFiestaFromBudget(fiestaId: string) {
     } else if (!updatedFiesta.estado || updatedFiesta.estado === 'Archivada') {
         updatedFiesta.estado = 'En Planificación';
     }
+
+    // 7. SINCRONIZAR BEBIDAS — activar categorías y agregar ítems del presupuesto
+    const bebidaItems = items.filter(i =>
+        i.categoriaServicio === 'Servicio de bebidas' ||
+        itemMatchesKeywords(i, ['barra', 'trago', 'cerveza', 'vino', 'espumante', 'champagne', 'licor', 'fernet', 'whisky', 'ron', 'vodka', 'jugo', 'gaseosa', 'refresco', 'agua'])
+    );
+    if (bebidaItems.length > 0) {
+        updatedFiesta.bebidas = syncBebidasFromItems(updatedFiesta.bebidas || defaultBebidasData, bebidaItems);
+    }
+
+    // 8. SINCRONIZAR REPOSTERÍA — activar categorías y agregar ítems del presupuesto
+    const reposteriaItems = items.filter(i =>
+        i.categoriaServicio === 'Servicio de repostería' ||
+        itemMatchesKeywords(i, ['torta', 'repostería', 'reposteria', 'dulce', 'candy', 'pastel', 'cake', 'chocolate', 'fuente', 'helado'])
+    );
+    if (reposteriaItems.length > 0) {
+        updatedFiesta.reposteria = syncReposteriaFromItems(updatedFiesta.reposteria || defaultReposteriaData, reposteriaItems);
+    }
+
+    // 9. SINCRONIZAR DECORACIÓN — agregar ítems decorativos del presupuesto
+    const decorItems = items.filter(i =>
+        i.categoriaServicio === 'Servicio de decoración' ||
+        itemMatchesKeywords(i, ['decorac', 'ambientac', 'globo', 'flor', 'centro de mesa', 'backdrop'])
+    );
+    if (decorItems.length > 0) {
+        updatedFiesta.decoracion = syncDecoracionFromItems(updatedFiesta.decoracion || defaultDecoracion, decorItems);
+    }
+
+    // 10. SINCRONIZAR COSTOS — pre-poblar con todos los ítems del presupuesto
+    updatedFiesta.gestionCostos = syncCostosFromBudget(
+        updatedFiesta.gestionCostos || defaultGestionCostos,
+        items,
+        presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado
+    );
+
+    // 11. SINCRONIZAR CARGA OPERATIVA — equipamiento y activos fijos relacionados
+    updatedFiesta.listaDeCargaOperativa = await syncCargaOperativaFromBudget(
+        fiestaId,
+        updatedFiesta.listaDeCargaOperativa || { categorias: [] },
+        items,
+        guests
+    );
 
     return await saveFiesta(updatedFiesta);
 }
