@@ -23,6 +23,7 @@ import {
     Sparkles,
     MapPin
 } from 'lucide-react';
+import { PublicFooter } from '@/components/public-footer';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { getDashboardKpiData, type GlobalAlert } from '@/app/actions/dashboard';
@@ -121,7 +122,7 @@ export default function MainDashboardPage() {
     ]
 
   return (
-    <div className="space-y-6 sm:space-y-10 pb-16">
+    <div className="space-y-6 sm:space-y-10 pb-4">
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <motion.div 
           initial={{ opacity: 0, x: -20 }}
@@ -281,6 +282,8 @@ export default function MainDashboardPage() {
           ))}
         </AnimatePresence>
       </div>
+
+      <PublicFooter className="rounded-[1.5rem]" />
     </div>
   );
 }
