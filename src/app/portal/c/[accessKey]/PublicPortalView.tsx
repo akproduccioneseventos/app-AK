@@ -950,7 +950,7 @@ export default function PublicPortalView({
                           <div>
                             <p className="font-bold text-sm">{item.nombre}</p>
                             <p className="text-xs text-muted-foreground">
-                              {item.cantidadPorPersona} {item.unidad === 'unidades' ? 'por persona' : `${item.unidad} por persona`}
+                              {item.cantidadPorPersona} {item.unidad} por persona
                               {item.clienteLleva && <span className="ml-1 font-semibold text-amber-600">· Vos traés</span>}
                             </p>
                           </div>

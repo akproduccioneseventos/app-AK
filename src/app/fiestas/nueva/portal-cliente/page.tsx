@@ -155,7 +155,7 @@ function ClientPortalConfigContent() {
 
   const addBebidaItem = () => {
     const newItem: BebidaCalculable = {
-      id: `bebida_${Date.now()}`,
+      id: `bebida_${crypto.randomUUID()}`,
       nombre: 'Nueva bebida',
       emoji: '🥃',
       cantidadPorPersona: 1,
@@ -174,7 +174,7 @@ function ClientPortalConfigContent() {
   // FAQ helpers
   const addFaqItem = () => {
     const newFaq: FaqItem = {
-      id: `faq_${Date.now()}`,
+      id: `faq_${crypto.randomUUID()}`,
       pregunta: '',
       respuesta: '',
     };
