@@ -53,11 +53,14 @@ export const defaultInvoiceTemplateSettings: InvoiceTemplateSettings = {
   logoPosition: 'left',
 };
 
+import type { WhatsAppAutomationRule } from './whatsapp-automation';
+
 export interface WhatsAppSettings {
   enabled: boolean;
   sendingMode: 'automatic' | 'manual';
   reminderMessageTemplate: string;
   paymentReminderTemplate: string;
+  automationRules?: WhatsAppAutomationRule[];
 }
 
 export const defaultWhatsAppSettings: WhatsAppSettings = {
