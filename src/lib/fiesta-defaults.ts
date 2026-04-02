@@ -46,9 +46,11 @@ export const defaultBebidaItems: BebidaCalculable[] = [
 ];
 
 export const defaultFaq: FaqItem[] = [
-  { id: 'faq_1', pregunta: '¿Hay estacionamiento disponible?', respuesta: 'Consultá con tu organizador para detalles de estacionamiento.' },
-  { id: 'faq_2', pregunta: '¿Puedo llegar antes del horario?', respuesta: 'Te pedimos llegar en el horario indicado para que todo esté listo.' },
-  { id: 'faq_3', pregunta: '¿Qué pasa si llueve?', respuesta: 'El evento cuenta con espacios cubiertos. No te preocupes.' },
+  { id: 'faq_1', pregunta: '¿Puedo agregar o quitar invitados?', respuesta: 'Sí, podés simularlo en el "Simulador de Invitados" del portal. Tené en cuenta que reducir tiene una penalización mínima según contrato. Para confirmar cambios, contactá al organizador.' },
+  { id: 'faq_2', pregunta: '¿Cómo confirmo mi asistencia?', respuesta: 'Podés confirmar tu asistencia usando el link de RSVP que figura en tu invitación digital. Es importante confirmar antes de la fecha indicada.' },
+  { id: 'faq_3', pregunta: '¿Cuándo debo pagar el saldo?', respuesta: 'El saldo restante debe abonarse antes del evento según lo pactado en contrato. Podés ver tu estado de pagos en la sección "Pagos y Saldo" del portal.' },
+  { id: 'faq_4', pregunta: '¿Puedo cambiar el menú?', respuesta: 'Sí, siempre que esté dentro de los plazos acordados. Contactá a tu organizador a través del botón de WhatsApp del portal para coordinar cambios.' },
+  { id: 'faq_5', pregunta: '¿Qué pasa si llueve?', respuesta: 'El evento cuenta con alternativas cubiertas. Tu organizador te informará el plan B en caso de necesitarlo.' },
 ];
 
 export const defaultClientPortalSettings: ClientPortalSettings = {
@@ -56,14 +58,14 @@ export const defaultClientPortalSettings: ClientPortalSettings = {
     musica: { visible: false, editable: false }, videoVida: { visible: true, editable: true }, listaRegalos: { visible: false },
     documentos: { visible: true }, notasCliente: { visible: false, editable: true }, invitados: { visible: true },
     paginaPublica: { visible: true }, fotografiaYFilmacion: { visible: true }, moodboard: { visible: false, editable: true },
-    contrato: { visible: true }, pagos: { visible: true }, simuladorInvitados: { visible: true },
+    contrato: { visible: true }, pagos: { visible: true }, simuladorInvitados: { visible: true, minReductionPercent: 10, maxIncreasePercent: 30 },
     calculadoraBebidas: { visible: false, items: defaultBebidaItems },
-    serviciosContratados: { visible: false },
-    ubicacion: { visible: false },
-    menu: { visible: false },
+    serviciosContratados: { visible: true },
+    ubicacion: { visible: true },
+    menu: { visible: true },
     cartaTragos: { visible: false },
     dressCode: { visible: false },
-    faq: { visible: false },
+    faq: { visible: true },
 };
 
 export const defaultZonasContratadas: ZonaContratada[] = [

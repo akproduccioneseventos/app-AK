@@ -296,7 +296,14 @@ export default function PublicPortalView({
   // Guest simulator
   const invitadosContratados = config.invitadosEstimados || 0;
   const precioPorPersona = invitadosContratados > 0 ? totalCosto / invitadosContratados : 0;
+  const simSettings = settings?.simuladorInvitados;
+  const minReductionPct = simSettings && 'minReductionPercent' in simSettings ? (simSettings.minReductionPercent ?? 10) : 10;
+  const maxIncreasePct = simSettings && 'maxIncreasePercent' in simSettings ? (simSettings.maxIncreasePercent ?? 30) : 30;
+  const maxReduccion = Math.floor(invitadosContratados * (minReductionPct / 100));
+  const maxAumento = Math.floor(invitadosContratados * (maxIncreasePct / 100));
   const nuevaCantidad = invitadosContratados + guestDelta;
+  const nuevoCostoTotal = precioPorPersona * nuevaCantidad;
+  const diferenciaCosto = nuevoCostoTotal - totalCosto;
 
   const guestWhatsappMsg = encodeURIComponent(
     `Hola, quiero modificar la cantidad de invitados de mi evento "${config.nombreEvento}" de ${invitadosContratados} a ${nuevaCantidad}. ¿Es posible?`
@@ -423,10 +430,10 @@ export default function PublicPortalView({
 
         {/* Countdown */}
         {config.fechaEvento && countdown && !countdown.isPast && (
-          <Card className="shadow-xl border-0 rounded-3xl overflow-hidden">
-            <CardContent className="pt-6 pb-6">
-              <p className="text-center text-xs uppercase tracking-widest font-bold text-muted-foreground mb-4">
-                ¡Faltan para tu evento!
+          <Card className="shadow-xl border-0 rounded-3xl overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-violet-700 text-white">
+            <CardContent className="pt-5 pb-5">
+              <p className="text-center text-xs uppercase tracking-widest font-bold opacity-80 mb-3">
+                🎉 ¡Faltan para tu evento!
               </p>
               <div className="grid grid-cols-4 gap-2 text-center">
                 <CountdownUnit value={countdown.days} label="Días" />
@@ -853,7 +860,8 @@ export default function PublicPortalView({
                   variant="outline"
                   size="icon"
                   className="h-12 w-12 rounded-full border-2"
-                  onClick={() => setGuestDelta(d => d - 1)}
+                  onClick={() => setGuestDelta(d => Math.max(d - 1, -maxReduccion))}
+                  disabled={guestDelta <= -maxReduccion}
                 >
                   <MinusCircle className="w-5 h-5" />
                 </Button>
@@ -870,10 +878,15 @@ export default function PublicPortalView({
                   variant="outline"
                   size="icon"
                   className="h-12 w-12 rounded-full border-2"
-                  onClick={() => setGuestDelta(d => d + 1)}
+                  onClick={() => setGuestDelta(d => Math.min(d + 1, maxAumento))}
+                  disabled={guestDelta >= maxAumento}
                 >
                   <PlusCircle className="w-5 h-5" />
                 </Button>
+              </div>
+
+              <div className="text-center text-xs text-muted-foreground space-y-0.5">
+                <p>Podés reducir hasta <strong>{maxReduccion}</strong> personas ({minReductionPct}%) o agregar hasta <strong>{maxAumento}</strong> personas ({maxIncreasePct}%)</p>
               </div>
 
               {guestDelta > 0 && precioPorPersona > 0 && (
@@ -883,7 +896,10 @@ export default function PublicPortalView({
                     Precio por persona estimado: <strong>{formatCurrency(precioPorPersona)}</strong>
                   </p>
                   <p className="text-muted-foreground text-xs">
-                    Costo extra estimado: <strong className="text-primary">{formatCurrency(precioPorPersona * guestDelta)}</strong>
+                    Nuevo total estimado: <strong className="text-primary">{formatCurrency(nuevoCostoTotal)}</strong>
+                  </p>
+                  <p className="text-muted-foreground text-xs">
+                    Te sale <strong className="text-primary">{formatCurrency(Math.abs(diferenciaCosto))} más</strong>
                   </p>
                 </div>
               )}
@@ -892,10 +908,16 @@ export default function PublicPortalView({
                 <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-sm space-y-1">
                   <p className="font-bold text-amber-800">⚠️ Aviso importante</p>
                   <p className="text-amber-700 text-xs">
-                    Por contrato, reducir invitados tiene una penalización del{' '}
-                    <strong>10% del número contratado</strong> ({Math.ceil(invitadosContratados * 0.1)} personas).
+                    Por contrato, reducir invitados tiene una penalización mínima del{' '}
+                    <strong>{minReductionPct}%</strong> ({maxReduccion} personas).
                     No se realiza devolución por ese porcentaje.
                   </p>
+                  {precioPorPersona > 0 && (
+                    <p className="text-amber-700 text-xs">
+                      Nuevo total estimado: <strong>{formatCurrency(nuevoCostoTotal)}</strong>
+                      {' '}<span className="text-amber-600">(ahorrás {formatCurrency(Math.abs(diferenciaCosto))} sujeto a penalización)</span>
+                    </p>
+                  )}
                 </div>
               )}
 

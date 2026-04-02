@@ -5,7 +5,7 @@ import type { FiestaEnPlanificacion, OtroDocumento, DocumentoTipo, Tarea } from 
 import { readData, writeData } from '@/lib/data-service';
 import path from 'path';
 import fs from 'fs/promises';
-import { getFiestaById, saveFiesta } from './fiesta.actions';
+import { getFiestaById, saveFiesta, syncFiestaFromBudget } from './fiesta.actions';
 import { headers } from 'next/headers';
 import { registerBookingDeposit } from '../invoices';
 import { subDays } from 'date-fns';
@@ -144,6 +144,16 @@ export async function signContractDigitally(fiestaId: string, signerName: string
         }
 
         await saveFiesta(updatedFiesta);
+
+        // 4. AUTOMATIZACIÓN: Sincronizar fiesta con presupuesto (servicios, personal, etc.)
+        if (updatedFiesta.presupuestoId) {
+            try {
+                await syncFiestaFromBudget(updatedFiesta.id);
+            } catch (e) {
+                console.warn("No se pudo sincronizar fiesta desde presupuesto:", e);
+            }
+        }
+
         return { success: true };
     } catch (e: any) {
         return { success: false, error: e.message };
@@ -173,6 +183,7 @@ export async function uploadPhysicalContract(formData: FormData): Promise<{ succ
 
         const updatedFiesta: FiestaEnPlanificacion = {
             ...fiesta,
+            estado: 'Contratada',
             contratoFirmaInfo: {
                 isSigned: true,
                 signedAt: new Date().toISOString(),
@@ -181,7 +192,52 @@ export async function uploadPhysicalContract(formData: FormData): Promise<{ succ
             }
         };
 
+        // Habilitar portal del cliente
+        if (updatedFiesta.clientPortalSettings) {
+            updatedFiesta.clientPortalSettings.enabled = true;
+            updatedFiesta.clientPortalSettings.checklist.visible = true;
+            updatedFiesta.clientPortalSettings.checklist.editable = true;
+            updatedFiesta.clientPortalSettings.musica.visible = true;
+            updatedFiesta.clientPortalSettings.moodboard.visible = true;
+        }
+
+        // Generar Factura de Seña si no existe
+        const hasDeposit = updatedFiesta.invoiceIds?.length && updatedFiesta.invoiceIds.some(id => id.includes('SEÑA'));
+        if (!hasDeposit) {
+            try {
+                await registerBookingDeposit({
+                    fiestaId: fiesta.id,
+                    amount: 20000,
+                    method: 'Transferencia',
+                    date: new Date().toISOString()
+                });
+            } catch (e) {
+                console.warn("No se pudo auto-generar factura de seña:", e);
+            }
+        }
+
+        // Cargar tareas iniciales si está vacío
+        if (!updatedFiesta.tareas || updatedFiesta.tareas.length === 0) {
+            const initialTasks: Omit<Tarea, 'id'>[] = [
+                { texto: "Definir paleta de colores en Dream Designer", completada: false, asignadaA: 'Cliente', fechaLimite: subDays(new Date(), -7).toISOString() },
+                { texto: "Cargar primeras 10 fotos en Video de Vida", completada: false, asignadaA: 'Cliente' },
+                { texto: "Confirmar lista base de invitados", completada: false, asignadaA: 'Cliente' },
+                { texto: "Revisión técnica de Discoteca e Iluminación", completada: false, asignadaA: 'Organizador' }
+            ];
+            updatedFiesta.tareas = initialTasks.map(t => ({ ...t, id: `auto_task_${Date.now()}_${Math.random().toString(36).substring(7)}` }));
+        }
+
         await saveFiesta(updatedFiesta);
+
+        // Sincronizar fiesta con presupuesto
+        if (updatedFiesta.presupuestoId) {
+            try {
+                await syncFiestaFromBudget(updatedFiesta.id);
+            } catch (e) {
+                console.warn("No se pudo sincronizar fiesta desde presupuesto:", e);
+            }
+        }
+
         return { success: true };
     } catch (e: any) {
         return { success: false, error: e.message };

@@ -11,7 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, Loader2, KeyRound, ClipboardCopy, Share2, MessageCircle, Plus, Trash2, GlassWater, HelpCircle, Edit2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, ClientPortalSettings, BebidaCalculable, FaqItem } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ClientPortalSettings, BebidaCalculable, FaqItem, SimuladorInvitadosSettings } from '@/types/fiesta';
 import { getFiestaById, updatePortalSettingsFiestaActual } from '@/app/actions/fiesta-actual';
 import { updateFaqPortal } from '@/app/actions/fiesta/portal.actions';
 import { Separator } from '@/components/ui/separator';
@@ -310,6 +310,53 @@ function ClientPortalConfigContent() {
                             </div>
                         ))}
                    </div>
+
+                   {/* Simulator limits config */}
+                   {getModuleVisibility('simuladorInvitados') && (
+                     <div className="space-y-3 p-4 border rounded-xl bg-muted/30">
+                       <h4 className="text-sm font-semibold">Configuración del Simulador de Invitados</h4>
+                       <div className="grid grid-cols-2 gap-4">
+                         <div className="space-y-1">
+                           <Label htmlFor="sim-min" className="text-xs">% máximo de reducción</Label>
+                           <Input
+                             id="sim-min"
+                             type="number"
+                             min={0}
+                             max={100}
+                             value={(portalSettings.simuladorInvitados as SimuladorInvitadosSettings)?.minReductionPercent ?? 10}
+                             onChange={e => setPortalSettings(p => ({
+                               ...p,
+                               simuladorInvitados: {
+                                 ...p.simuladorInvitados,
+                                 minReductionPercent: Number(e.target.value),
+                               } as SimuladorInvitadosSettings,
+                             }))}
+                             className="h-9"
+                           />
+                           <p className="text-[10px] text-muted-foreground">El cliente puede bajar hasta este % del total contratado</p>
+                         </div>
+                         <div className="space-y-1">
+                           <Label htmlFor="sim-max" className="text-xs">% máximo de aumento</Label>
+                           <Input
+                             id="sim-max"
+                             type="number"
+                             min={0}
+                             max={200}
+                             value={(portalSettings.simuladorInvitados as SimuladorInvitadosSettings)?.maxIncreasePercent ?? 30}
+                             onChange={e => setPortalSettings(p => ({
+                               ...p,
+                               simuladorInvitados: {
+                                 ...p.simuladorInvitados,
+                                 maxIncreasePercent: Number(e.target.value),
+                               } as SimuladorInvitadosSettings,
+                             }))}
+                             className="h-9"
+                           />
+                           <p className="text-[10px] text-muted-foreground">El cliente puede subir hasta este % del total contratado</p>
+                         </div>
+                       </div>
+                     </div>
+                   )}
                 </div>
               )}
            </CardContent>
