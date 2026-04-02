@@ -51,6 +51,7 @@ export default function EditarPresupuestoPage({ params }: { params: { id: string
   const [descuentoTipo, setDescuentoTipo] = useState<Presupuesto['descuentoTipo']>(undefined);
   const [descuentoValor, setDescuentoValor] = useState<string>(''); // Store as string for input
   const [vigenciaPromocion, setVigenciaPromocion] = useState('');
+  const [marketingMarkupPercent, setMarketingMarkupPercent] = useState<string>('');
   
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -78,6 +79,7 @@ export default function EditarPresupuestoPage({ params }: { params: { id: string
         setDescuentoTipo(loadedPresupuesto.descuentoTipo);
         setDescuentoValor(loadedPresupuesto.descuentoValor?.toString() || '');
         setVigenciaPromocion(loadedPresupuesto.vigenciaPromocion || '');
+        setMarketingMarkupPercent(loadedPresupuesto.marketingMarkupPercent?.toString() || '');
       } else {
         setNotFound(true);
         toast({ title: 'Error', description: `Presupuesto no encontrado.`, variant: 'destructive' });
@@ -141,6 +143,7 @@ export default function EditarPresupuestoPage({ params }: { params: { id: string
       descuentoValor: descuentoValorNum > 0 ? descuentoValorNum : undefined,
       // totalConDescuento will be recalculated in the server action
       vigenciaPromocion: vigenciaPromocion.trim() || undefined,
+      marketingMarkupPercent: marketingMarkupPercent ? (parseFloat(marketingMarkupPercent) || undefined) : undefined,
       timestamp: new Date().toISOString(),
     };
 
@@ -230,6 +233,33 @@ export default function EditarPresupuestoPage({ params }: { params: { id: string
                     Valor Descuento
                   </Label>
                   <Input id="descuento-valor-edit" type="number" value={descuentoValor ?? ''} onChange={e => setDescuentoValor(e.target.value)} min="0" step="any" disabled={isSaving || !descuentoTipo} placeholder="Ej: 10 o 5000"/>
+                </div>
+              </div>
+            </div>
+
+            {/* Marketing Markup */}
+            <div className="pt-4 border-t mt-4 space-y-4">
+              <h3 className="text-md font-medium flex items-center gap-2"><Percent className="w-5 h-5 text-primary"/>Ajuste de Marketing (Precio de Lista)</h3>
+              <p className="text-sm text-muted-foreground">
+                Porcentaje ficticio que <strong>infla el precio final</strong> para mostrar un &quot;Precio de Lista&quot; al cliente. No afecta cobros ni pagos reales.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+                <div className="space-y-1">
+                  <Label htmlFor="marketing-markup-edit" className="flex items-center gap-1">
+                    <Percent className="w-4 h-4 text-muted-foreground"/>
+                    Markup Marketing (%)
+                  </Label>
+                  <Input
+                    id="marketing-markup-edit"
+                    type="number"
+                    value={marketingMarkupPercent}
+                    onChange={e => setMarketingMarkupPercent(e.target.value)}
+                    min="0"
+                    max="200"
+                    step="1"
+                    disabled={isSaving}
+                    placeholder="Ej: 15 (0 = desactivado)"
+                  />
                 </div>
               </div>
             </div>

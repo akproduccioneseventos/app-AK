@@ -317,6 +317,26 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
                   <span>−{formatCurrency(costoTotalRegalos, true, true)}</span>
                 </div>
               )}
+              {(() => {
+                const markupPct = presupuesto.marketingMarkupPercent || 0;
+                const precioLista = markupPct > 0 ? Math.round(totalFinal * (1 + markupPct / 100)) : 0;
+                const ahorroMkt = precioLista > 0 ? precioLista - totalFinal : 0;
+                if (precioLista > 0) {
+                  return (
+                    <>
+                      <div className="print-total-row flex justify-between text-gray-400 print:text-gray-500 line-through">
+                        <span>Precio de Lista (+{markupPct}%):</span>
+                        <span>{formatCurrency(precioLista, true, true)}</span>
+                      </div>
+                      <div className="print-total-row flex justify-between text-violet-700 print:text-violet-800 font-semibold">
+                        <span>Ahorro:</span>
+                        <span>−{formatCurrency(ahorroMkt, true, true)}</span>
+                      </div>
+                    </>
+                  );
+                }
+                return null;
+              })()}
               <div className="print-total-row print-total-final flex justify-between font-bold border-t-2 border-gray-700 print:border-black pt-1.5 mt-1">
                 <span className="text-base print:text-[11pt]">TOTAL</span>
                 <span className="text-base print:text-[11pt]">{formatCurrency(totalFinal, true)}</span>

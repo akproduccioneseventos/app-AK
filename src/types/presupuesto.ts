@@ -84,6 +84,7 @@ export interface Presupuesto {
   leadId?: string;
   source?: 'manual' | 'simulator';
   pagosCliente?: PagoCliente[]; // Detailed client payment records
+  marketingMarkupPercent?: number; // Marketing: fictitious markup % over total real (e.g. 15 → Precio de Lista)
 }
 
 // FormData for the new unified builder.
@@ -134,4 +135,5 @@ export interface PresupuestoFormData {
   estado: Presupuesto['estado'];
   invoiceId?: string;
   pagosCliente?: PagoCliente[];
+  marketingMarkupPercent?: number; // Marketing: fictitious markup % over total real
 }

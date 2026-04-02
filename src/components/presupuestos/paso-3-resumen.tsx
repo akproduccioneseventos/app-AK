@@ -112,7 +112,7 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
     });
   };
 
-  const { itemsAgrupados, subtotalBruto, ahorroRegalos, bonificacionPromo, totalSinAjuste, ajusteAnual, totalFinal, aniosDiferencia } = useMemo(() => {
+  const { itemsAgrupados, subtotalBruto, ahorroRegalos, bonificacionPromo, totalSinAjuste, ajusteAnual, totalFinal, aniosDiferencia, precioLista, ahorroMarketing } = useMemo(() => {
     const adultos = formData.invitadosAdultos || 0;
     const ninos = (formData.invitadosNinos || 0) + (formData.invitadosAdolescentes || 0);
 
@@ -168,6 +168,11 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
     const descuentoCupon = formData.cuponDescuento || 0;
     const totalConCupon = Math.max(0, Math.round(totalSinAj + ajAnual - descuentoCupon));
 
+    // Marketing markup (fictitious — only for display, never affects real price)
+    const markupPct = formData.marketingMarkupPercent || 0;
+    const precioLista = markupPct > 0 ? Math.round(totalConCupon * (1 + markupPct / 100)) : 0;
+    const ahorroMarketing = precioLista > 0 ? precioLista - totalConCupon : 0;
+
     return {
       itemsAgrupados: sortedAgrupados,
       subtotalBruto: brutoVenta + regalosVal,
@@ -177,7 +182,9 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
       ajusteAnual: Math.round(ajAnual),
       descuentoCupon: Math.round(descuentoCupon),
       totalFinal: totalConCupon,
-      aniosDiferencia: aniosDif
+      aniosDiferencia: aniosDif,
+      precioLista,
+      ahorroMarketing,
     };
   }, [formData]);
 
@@ -315,6 +322,37 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
                 <Input type="number" value={formData.descuentoValue || formData.descuentoValor ?? ''} onChange={e => setFormData({...formData, descuentoValor: e.target.value})} className="rounded-xl border-slate-200 h-11 font-black text-primary bg-white shadow-sm" />
               </div>
             </div>
+
+            <Separator className="opacity-30" />
+
+            {/* Marketing Markup */}
+            <div className="bg-white p-5 rounded-2xl border border-slate-200 space-y-3">
+              <div className="flex items-center gap-2">
+                <Percent className="w-4 h-4 text-primary" />
+                <Label className="text-[10px] font-black uppercase text-slate-600 tracking-widest">Ajuste de Marketing (Precio de Lista)</Label>
+              </div>
+              <p className="text-[10px] text-slate-400 leading-relaxed">
+                Porcentaje ficticio que <strong>infla el precio final</strong> solo para mostrar al cliente (ej: &quot;Precio de Lista $X&quot; → &quot;Tu precio hoy $Y&quot;). No afecta cobros ni pagos.
+              </p>
+              <div className="flex items-center gap-3">
+                <Input
+                  type="number"
+                  min="0"
+                  max="200"
+                  step="1"
+                  value={formData.marketingMarkupPercent ?? ''}
+                  onChange={e => setFormData({...formData, marketingMarkupPercent: e.target.value ? Number(e.target.value) : undefined})}
+                  className="rounded-xl h-11 bg-slate-50 border-slate-200 font-black text-primary w-32"
+                  placeholder="0"
+                />
+                <span className="text-sm font-black text-slate-500">%</span>
+                {(formData.marketingMarkupPercent || 0) > 0 && (
+                  <span className="text-[10px] font-black text-violet-600 uppercase tracking-widest">
+                    Precio de Lista: {formatCurrency(precioLista)}
+                  </span>
+                )}
+              </div>
+            </div>
         </div>
         
         <div className="p-10 border-none shadow-3xl rounded-[3rem] bg-slate-900 text-white space-y-6 relative overflow-hidden">
@@ -338,6 +376,22 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
                 <span className="text-xl font-black uppercase tracking-tighter">Total Final Pactado:</span>
                 <span className="text-5xl font-black text-primary drop-shadow-[0_0_15px_rgba(225,29,72,0.3)]">{formatCurrency(totalFinal)}</span>
             </div>
+
+            {precioLista > 0 && (
+              <>
+                <Separator className="bg-white/10" />
+                <div className="relative z-10 space-y-2">
+                  <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-[0.3em] text-violet-300">
+                    <span>Precio de Lista (+{formData.marketingMarkupPercent}%):</span>
+                    <span className="line-through opacity-70">{formatCurrency(precioLista)}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-[0.3em] text-green-400">
+                    <span>Ahorro para el Cliente:</span>
+                    <span>{formatCurrency(ahorroMarketing)}</span>
+                  </div>
+                </div>
+              </>
+            )}
         </div>
         
         <div className="space-y-3">
