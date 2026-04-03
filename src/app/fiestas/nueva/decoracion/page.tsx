@@ -10,7 +10,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Palette, Save, Loader2, AlertTriangle, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, Settings2, StickyNote, CakeSlice, Building, Gift, Camera, Sparkles as SparklesIcon, ChevronDown, ListPlus, FileText, RefreshCw, Heart } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ArrowLeft, Palette, Save, Loader2, AlertTriangle, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, Settings2, StickyNote, CakeSlice, Building, Gift, Camera, Sparkles as SparklesIcon, ChevronDown, ListPlus, FileText, RefreshCw, Heart, Paintbrush } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion, DecoracionData, DecorationItem, ColorPalette, ZonaContratada, MoodboardItem } from '@/types/fiesta';
@@ -34,6 +35,7 @@ import { Suspense } from 'react';
 import { UploadButton } from '@/components/invitacion/edit/UploadButton';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { addMoodboardItem, deleteMoodboardItem } from '@/app/actions/fiesta/decoracion.actions';
+import VistaDecorativaEditor from '@/components/decoracion/VistaDecorativaEditor';
 
 
 const ALL_DECORATION_ITEM_CATEGORIES = [
@@ -288,6 +290,25 @@ function DecoracionYDisenoEventoContent() {
     }
   };
 
+  const handleSaveVistaDecorativa = useCallback(async (data: NonNullable<DecoracionData['vistaDecorativa']>) => {
+    if (!fiestaId) return;
+    setIsSaving(true);
+    try {
+      const updated: DecoracionData = { ...decoracionData, vistaDecorativa: data };
+      const result = await updateDecoracionFiestaActual(fiestaId, updated);
+      if (result.success) {
+        setDecoracionData(updated);
+        toast({ title: "¡Vista Decorativa Guardada!" });
+      } else {
+        throw new Error(result.error || "Error desconocido");
+      }
+    } catch (err: any) {
+      toast({ title: "Error al Guardar", description: err.message, variant: "destructive" });
+    } finally {
+      setIsSaving(false);
+    }
+  }, [fiestaId, decoracionData, toast]);
+
 
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando decoración...</p></div>;
@@ -308,6 +329,18 @@ function DecoracionYDisenoEventoContent() {
         </div>
       </div>
 
+      <Tabs defaultValue="decoracion">
+        <TabsList className="mb-4">
+          <TabsTrigger value="decoracion" className="gap-2">
+            <Wand2 className="w-4 h-4" /> Decoración
+          </TabsTrigger>
+          <TabsTrigger value="vista-decorativa" className="gap-2">
+            <Paintbrush className="w-4 h-4" /> Vista Decorativa
+          </TabsTrigger>
+        </TabsList>
+
+        {/* ── Tab: Decoración (existing content) ── */}
+        <TabsContent value="decoracion">
       <form onSubmit={handleSaveDecoracion}>
         <Card className="shadow-lg mb-6 border-primary/20">
           <CardHeader className="bg-primary/5">
@@ -539,6 +572,32 @@ function DecoracionYDisenoEventoContent() {
           </Button>
         </CardFooter>
       </form>
+        </TabsContent>
+
+        {/* ── Tab: Vista Decorativa ── */}
+        <TabsContent value="vista-decorativa">
+          <Card className="shadow-lg">
+            <CardHeader className="bg-primary/5">
+              <div className="flex items-center gap-3">
+                <Paintbrush className="w-6 h-6 text-primary" />
+                <CardTitle className="font-headline text-xl">Vista Decorativa</CardTitle>
+              </div>
+              <CardDescription>
+                Diseñá visualmente el salón: arrastrá elementos decorativos, asignales colores y exportá el resultado como imagen.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <VistaDecorativaEditor
+                vistaDecorativa={decoracionData.vistaDecorativa ?? { elementos: [] }}
+                paletaColores={decoracionData.paletaColores ?? { primary: '#D9B8FF', secondary: '#E6BFB2', accent: '#DCDCDC' }}
+                fiestaId={fiestaId ?? ''}
+                onSave={handleSaveVistaDecorativa}
+                isSaving={isSaving}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       {/* Item Modal */}
       <Dialog open={isItemModalOpen} onOpenChange={setIsItemModalOpen}>
