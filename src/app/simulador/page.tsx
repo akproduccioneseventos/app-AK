@@ -85,9 +85,12 @@ export default function SimuladorPage() {
     return { low, high, mid: Math.round(base / 1000) * 1000 };
   }, [config, guests]);
 
-  const whatsappMessage = encodeURIComponent(
-    `Hola! Usé el simulador de AK Producciones y me salió un estimado de ${estimate ? formatUYU(estimate.mid) : ''} para una ${eventType} de ${guests} invitados. Me gustaría congelar ese precio y agendar una reunión sin costo. ¿Cuándo podemos hablar?`
-  );
+  const whatsappMessage = useMemo(() => {
+    if (!estimate || !eventType) return '';
+    return encodeURIComponent(
+      `Hola! Usé el simulador de AK Producciones y me salió un estimado de ${formatUYU(estimate.mid)} para una ${eventType} de ${guests} invitados. Me gustaría congelar ese precio y agendar una reunión sin costo. ¿Cuándo podemos hablar?`
+    );
+  }, [estimate, eventType, guests]);
 
   const handleCalculate = () => {
     if (!eventType) return;

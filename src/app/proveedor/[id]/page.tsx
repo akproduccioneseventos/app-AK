@@ -93,7 +93,7 @@ function MenuSection({ fiesta, menu }: { fiesta: FiestaEnPlanificacion; menu: Fu
 }
 
 function MusicSection({ musica, invitados }: { musica?: MusicaFiesta; invitados?: FiestaEnPlanificacion['invitados'] }) {
-  const songSuggestions = invitados?.flatMap(i => i.cancionesDJ || []).filter(Boolean) || [];
+  const songSuggestions = invitados?.flatMap(i => i.cancionesDJ ?? []).filter(Boolean) ?? [];
   const hasMusic = musica && (musica.cancionEntrada || musica.cancionVals || musica.cancionesTortaBrindis?.length || musica.listaNoReproducir || musica.sugerenciasInvitados);
 
   if (!hasMusic && songSuggestions.length === 0) {
@@ -253,7 +253,7 @@ function ProveedorContent() {
             <CardDescription>Itinerario del día para coordinación de proveedores</CardDescription>
           </CardHeader>
           <CardContent>
-            <ItinerarioSection programa={programa || []} />
+            <ItinerarioSection programa={programa ?? []} />
           </CardContent>
         </Card>
 

@@ -24,6 +24,8 @@ const formatDate = (dateString?: string) => {
   } catch { return 'Fecha inválida'; }
 };
 
+const clampPercentage = (value: number) => Math.max(0, Math.min(100, value));
+
 interface FiestaFinancials {
   fiesta: FiestaEnPlanificacion;
   ingresos: number;
@@ -185,7 +187,7 @@ export default function AdminFinanzasPage() {
               {formatUYU(totals.ganancia)}
             </div>
             <div className="mt-2 space-y-1">
-              <Progress value={Math.max(0, Math.min(100, totalMargen))} className="h-1.5" />
+              <Progress value={clampPercentage(totalMargen)} className="h-1.5" />
               <p className={cn('text-xs', totals.ganancia >= 0 ? 'text-blue-600' : 'text-orange-600')}>
                 Margen neto: {totalMargen}%
               </p>
@@ -260,7 +262,7 @@ export default function AdminFinanzasPage() {
                           </div>
                         </div>
                         {ingresos > 0 && (
-                          <Progress value={Math.max(0, Math.min(100, margen))} className="h-1 mt-2" />
+                          <Progress value={clampPercentage(margen)} className="h-1 mt-2" />
                         )}
                       </div>
                       <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-1" />
