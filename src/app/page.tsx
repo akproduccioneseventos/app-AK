@@ -21,7 +21,10 @@ import {
     Loader2,
     CheckCircle2,
     Sparkles,
-    MapPin
+    MapPin,
+    Monitor,
+    Copy,
+    Check
 } from 'lucide-react';
 import { PublicFooter } from '@/components/public-footer';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -40,6 +43,7 @@ export default function MainDashboardPage() {
     const [kpiData, setKpiData] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
+    const [copiedLink, setCopiedLink] = useState(false);
     const { toast } = useToast();
 
     const formatCurrency = (value?: number) => {
@@ -189,6 +193,42 @@ export default function MainDashboardPage() {
                                 <ArrowRight className="w-5 h-5 ml-auto text-slate-300 group-hover:text-primary group-hover:translate-x-2 transition-all shrink-0"/>
                             </div>
                         </Link>
+                        <div className="md:col-span-2">
+                            <div className="group p-5 sm:p-6 border border-slate-100 rounded-[1.25rem] sm:rounded-[1.5rem] bg-slate-950 hover:bg-slate-900 transition-all cursor-pointer flex items-center gap-4 sm:gap-6 shadow-sm">
+                                <div className="p-4 sm:p-5 bg-white/10 text-white rounded-2xl shrink-0">
+                                    <Monitor className="w-6 h-6 sm:w-7 sm:h-7"/>
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <h3 className="font-black text-white text-base sm:text-lg">Modo Presentación LED</h3>
+                                    <p className="text-[10px] sm:text-xs font-semibold text-slate-400 mt-1 uppercase tracking-tighter">Pantalla kiosco para reuniones.</p>
+                                </div>
+                                <div className="flex items-center gap-2 shrink-0">
+                                    <button
+                                        onClick={() => {
+                                            const url = typeof window !== 'undefined'
+                                                ? `${window.location.origin}/presentacion`
+                                                : '/presentacion';
+                                            navigator.clipboard.writeText(url).then(() => {
+                                                setCopiedLink(true);
+                                                toast({ title: 'Link copiado', description: url });
+                                                setTimeout(() => setCopiedLink(false), 2000);
+                                            });
+                                        }}
+                                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-black uppercase tracking-wider transition-all"
+                                        title="Copiar link"
+                                    >
+                                        {copiedLink ? <Check className="w-3.5 h-3.5 text-green-400"/> : <Copy className="w-3.5 h-3.5"/>}
+                                        {copiedLink ? 'Copiado' : 'Copiar'}
+                                    </button>
+                                    <Link href="/presentacion" target="_blank">
+                                        <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-black uppercase tracking-wider transition-all">
+                                            <ArrowRight className="w-3.5 h-3.5"/>
+                                            Abrir
+                                        </button>
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
                     </CardContent>
                 </Card>
             </div>
