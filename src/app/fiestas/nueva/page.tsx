@@ -5,12 +5,13 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { 
     Zap, Loader2, AlertTriangle, PartyPopper, Calendar, Users, Palette, 
     ListChecks, DollarSign, Camera, Gift, Archive, 
     Video, Globe, MessageSquare, LayoutDashboard, Star, Calculator, ShoppingCart, 
     ClipboardList, QrCode, Printer, Settings2, KeyRound, ClipboardCheck, ArrowRight, MapPin,
-    ArrowLeft, Clock, FileSignature
+    ArrowLeft, Clock, FileSignature, FileText, Receipt, FileX, ChevronDown
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateModulosContratadosFiestaActual, type FiestaEnPlanificacion, type ModulosContratados } from '../../actions/fiesta-actual';
@@ -146,24 +147,68 @@ function PlannerDashboardContent() {
         <KpiCard title="Fecha" value={new Date(fiesta.configuracion.fechaEvento!).toLocaleDateString('es-ES', {month: 'short', day: 'numeric'})} icon={Calendar} />
       </div>
 
-      {/* Generate Contract Quick Action */}
+      {/* Generate Documents PDF – Quick Action Dropdown */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-        <Link href={`/fiestas/nueva/gestion-documental/contrato-servicio?fiestaId=${fiestaId}`}>
-          <div className="flex items-center justify-between gap-4 p-4 sm:p-5 bg-white rounded-2xl premium-shadow border border-slate-100 hover:border-primary/30 hover:shadow-primary/10 transition-all cursor-pointer group">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-primary/10 rounded-xl group-hover:bg-primary group-hover:text-white transition-all shrink-0">
-                <FileSignature className="w-5 h-5 text-primary group-hover:text-white transition-colors" />
-              </div>
-              <div>
-                <p className="font-black text-slate-800 text-sm sm:text-base tracking-tight">Generar Contrato</p>
-                <p className="text-[10px] sm:text-xs text-slate-400 font-bold uppercase tracking-widest">Autocompleta con datos del evento y cliente</p>
-              </div>
+        <div className="flex items-center justify-between gap-4 p-4 sm:p-5 bg-white rounded-2xl premium-shadow border border-slate-100">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-primary/10 rounded-xl shrink-0">
+              <FileText className="w-5 h-5 text-primary" />
             </div>
-            <Button variant="outline" size="sm" className="shrink-0 rounded-xl font-black text-[10px] uppercase tracking-widest group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-all">
-              Abrir <ArrowRight className="w-3.5 h-3.5 ml-1.5 group-hover:translate-x-1 transition-transform" />
-            </Button>
+            <div>
+              <p className="font-black text-slate-800 text-sm sm:text-base tracking-tight">Generar Documentos PDF</p>
+              <p className="text-[10px] sm:text-xs text-slate-400 font-bold uppercase tracking-widest">Recibo, Contrato y Cancelación — Diseño Premium</p>
+            </div>
           </div>
-        </Link>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="shrink-0 rounded-xl font-black text-[10px] uppercase tracking-widest gap-1.5">
+                PDF <ChevronDown className="w-3.5 h-3.5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-64">
+              <DropdownMenuLabel className="text-[10px] uppercase tracking-widest text-slate-400">Documentos Disponibles</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href={`/fiestas/nueva/gestion-documental/recibo-pago?fiestaId=${fiestaId}`} className="flex items-center gap-3 cursor-pointer">
+                  <Receipt className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <div>
+                    <p className="font-bold text-sm">Recibo de Pago</p>
+                    <p className="text-[10px] text-slate-400">Historial + Saldo pendiente</p>
+                  </div>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href={`/fiestas/nueva/gestion-documental/recibo-pago?fiestaId=${fiestaId}&includeContrato=true`} className="flex items-center gap-3 cursor-pointer">
+                  <Receipt className="w-4 h-4 text-blue-600 shrink-0" />
+                  <div>
+                    <p className="font-bold text-sm">Recibo + Contrato</p>
+                    <p className="text-[10px] text-slate-400">Recibo pág. 1 · Contrato pág. 2–3</p>
+                  </div>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href={`/fiestas/nueva/gestion-documental/contrato-servicio?fiestaId=${fiestaId}`} className="flex items-center gap-3 cursor-pointer">
+                  <FileSignature className="w-4 h-4 text-primary shrink-0" />
+                  <div>
+                    <p className="font-bold text-sm">Contrato de Servicios</p>
+                    <p className="text-[10px] text-slate-400">16 cláusulas autocompletas</p>
+                  </div>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href={`/fiestas/nueva/gestion-documental/cancelacion-contrato?fiestaId=${fiestaId}`} className="flex items-center gap-3 cursor-pointer">
+                  <FileX className="w-4 h-4 text-destructive shrink-0" />
+                  <div>
+                    <p className="font-bold text-sm">Constancia de Cancelación</p>
+                    <p className="text-[10px] text-slate-400">Multa 30% + monto acordado</p>
+                  </div>
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </motion.div>
 
        <Accordion type="single" collapsible className="w-full">
