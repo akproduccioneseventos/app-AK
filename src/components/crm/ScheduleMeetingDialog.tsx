@@ -48,7 +48,7 @@ export function ScheduleMeetingDialog({ isOpen, onOpenChange, leadName, meetingT
     try {
       await onSubmit(finalDateTime.toISOString());
     } catch (error: any) {
-      toast({ title: "Error al Agendar", description: error.message || "Ocurrió un error inesperado.", variant: "destructive" });
+      toast({ title: "Error al Agendar", description: error.message || "No se pudo agendar la reunión. Verifica tu conexión e inténtalo de nuevo.", variant: "destructive" });
     } finally {
       setIsSaving(false);
     }

@@ -282,7 +282,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
         setRsvpTag('');
       }
     } catch (error: any) {
-      toast({ title: "Error al confirmar asistencia", description: error.message || "Ocurrió un error inesperado.", variant: "destructive" });
+      toast({ title: "Error al confirmar asistencia", description: error.message || "No se pudo enviar tu confirmación. Verifica tu conexión e inténtalo de nuevo.", variant: "destructive" });
     } finally {
       setIsSubmittingRsvp(false);
     }

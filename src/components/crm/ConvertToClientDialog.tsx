@@ -78,7 +78,7 @@ export function ConvertToClientDialog({ isOpen, onOpenChange, lead, onSubmit, on
         if (onClose) onClose();
       }
     } catch (error: any) {
-      toast({ title: "Error", description: error.message || "Ocurrió un error inesperado.", variant: "destructive" });
+      toast({ title: "Error al Convertir Prospecto", description: error.message || "No se pudo completar la conversión. Verifica tu conexión e inténtalo de nuevo.", variant: "destructive" });
     } finally {
       setIsSaving(false);
     }
