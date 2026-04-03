@@ -121,8 +121,8 @@ const TIPO_EVENTO_OPTIONS: { value: SimV2TipoEvento; emoji: string; desc: string
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function computeTotal(state: SimV2State): { subtotal: number; total: number; totalConDescuento: number } {
-  const tipo = state.tipoEvento || 'Cumpleaños';
-  const paquete = state.paquete || 'Intermedio';
+  const tipo: SimV2TipoEvento = state.tipoEvento || 'Cumpleaños';
+  const paquete: SimV2Paquete = state.paquete || 'Intermedio';
   const guests = (state.adultos || 0) + (state.adolescentes || 0);
   const rates = BASE_RATES[tipo];
   const multiplier = PACKAGE_MULTIPLIERS[paquete];
@@ -326,7 +326,7 @@ function SimuladorV2Wizard() {
 
   // ── Services toggle ──────────────────────────────────────────────────────
   const getActiveServices = useCallback(() => {
-    const tipo = state.tipoEvento || 'Cumpleaños';
+    const tipo: SimV2TipoEvento = state.tipoEvento || 'Cumpleaños';
     const allServices = SERVICES_BY_TYPE[tipo] || [];
     const defaults = allServices
       .filter(s => !s.optional)
@@ -753,7 +753,7 @@ function SimuladorV2Wizard() {
                   subtitle={`Según tu tipo de evento (${state.tipoEvento || 'Cumpleaños'})`}
                 >
                   <div className="space-y-3">
-                    {(SERVICES_BY_TYPE[state.tipoEvento || 'Cumpleaños'] || []).map(srv => {
+                    {(SERVICES_BY_TYPE[(state.tipoEvento || 'Cumpleaños') as SimV2TipoEvento] || []).map(srv => {
                       const isDefault = !srv.optional;
                       const isActive = isDefault || toggledServices[srv.id];
                       return (
@@ -804,7 +804,7 @@ function SimuladorV2Wizard() {
                   <div className="space-y-3">
                     {(['Básico', 'Intermedio', 'Premium'] as SimV2Paquete[]).map(pkg => {
                       const guests = totalGuests || 30;
-                      const rates = BASE_RATES[state.tipoEvento || 'Cumpleaños'];
+                      const rates = BASE_RATES[(state.tipoEvento || 'Cumpleaños') as SimV2TipoEvento];
                       const mult = PACKAGE_MULTIPLIERS[pkg];
                       const price = (rates.perPerson * guests + rates.base) * mult * 0.8;
                       const isSelected = state.paquete === pkg;

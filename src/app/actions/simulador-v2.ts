@@ -145,26 +145,24 @@ export async function saveSimuladorV2Lead(state: SimV2State): Promise<{
 
     const serviciosActivados = state.serviciosActivados || [];
 
-    const items = [
+    const items: Omit<import('@/types/presupuesto').ItemPresupuestado, 'costoTotalItem'>[] = [
       {
-        servicioId: `sim_v2_paquete_${paquete.toLowerCase()}`,
-        nombre: `Paquete ${paquete} — ${tipoEvento}`,
+        idServicioCatalogo: `sim_v2_paquete_${paquete.toLowerCase()}`,
+        nombreServicio: `Paquete ${paquete} — ${tipoEvento}`,
         calculationMethod: 'fijo' as const,
-        precioVenta: subtotal,
         cantidad: 1,
         precioUnitario: subtotal,
-        total: subtotal,
+        precioUnitarioPresupuesto: subtotal,
         esRegalo: false,
-        notas: `Paquete ${paquete} para ${tipoEvento}. ${totalGuests} invitados.`,
+        descripcionServicio: `Paquete ${paquete} para ${tipoEvento}. ${totalGuests} invitados.`,
       },
       ...serviciosActivados.map(sId => ({
-        servicioId: sId,
-        nombre: sId,
+        idServicioCatalogo: sId,
+        nombreServicio: sId,
         calculationMethod: 'fijo' as const,
-        precioVenta: 0,
         cantidad: 1,
         precioUnitario: 0,
-        total: 0,
+        precioUnitarioPresupuesto: 0,
         esRegalo: false,
       })),
     ];
