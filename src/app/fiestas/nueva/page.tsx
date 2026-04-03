@@ -11,7 +11,7 @@ import {
     ListChecks, DollarSign, Camera, Gift, Archive, 
     Video, Globe, MessageSquare, LayoutDashboard, Star, Calculator, ShoppingCart, 
     ClipboardList, QrCode, Printer, Settings2, KeyRound, ClipboardCheck, ArrowRight, MapPin,
-    ArrowLeft, Clock, FileSignature, FileText, Receipt, FileX, ChevronDown
+    ArrowLeft, Clock, FileSignature, FileText, Receipt, FileX, ChevronDown, Link2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateModulosContratadosFiestaActual, type FiestaEnPlanificacion, type ModulosContratados } from '../../actions/fiesta-actual';
@@ -106,6 +106,16 @@ function PlannerDashboardContent() {
     } catch(e: any) { toast({ title: "Error al guardar", variant: "destructive"}); }
   };
 
+  const handleCopyProviderLink = () => {
+    if (!fiestaId) return;
+    const url = `${window.location.origin}/proveedor/${fiestaId}`;
+    navigator.clipboard.writeText(url).then(() => {
+      toast({ title: '¡Link copiado!', description: 'El link de proveedor fue copiado al portapapeles.' });
+    }).catch(() => {
+      toast({ title: 'Link de proveedor', description: url });
+    });
+  };
+
   if (isLoading) return <div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
   if (error || !fiesta) return <div className="text-center py-20 px-4"><AlertTriangle className="mx-auto text-destructive mb-4" /><p className="font-bold text-slate-800">{error || "Error al cargar."}</p></div>;
 
@@ -128,6 +138,9 @@ function PlannerDashboardContent() {
                     <Zap className="w-4 h-4 mr-2 sm:mr-3 animate-pulse"/> EN VIVO
                 </Button>
             </Link>
+            <Button variant="outline" onClick={handleCopyProviderLink} className="rounded-2xl px-4 h-12 border-slate-200 font-bold hover:bg-slate-50 transition-all text-xs sm:text-sm" title="Copiar link para proveedor">
+                <Link2 className="w-4 h-4 sm:mr-2"/><span className="hidden sm:inline">Link Proveedor</span>
+            </Button>
             <Link href="/eventos" className="flex-1 sm:flex-none">
                 <Button variant="outline" className="rounded-2xl px-6 sm:px-8 h-12 border-slate-200 font-bold hover:bg-slate-50 transition-all w-full text-xs sm:text-sm">
                     <ArrowLeft className="w-4 h-4 mr-2 sm:mr-3"/>Volver

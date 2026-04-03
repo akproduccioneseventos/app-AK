@@ -689,10 +689,18 @@ export interface PlanDePagos {
   updatedAt: string;
 }
 
+export type FiestaCrmStatus =
+  | 'Lead/Consulta'
+  | 'Reunión Agendada'
+  | 'Cotizado'
+  | 'Reservado/Seña'
+  | 'Completado';
+
 export interface FiestaEnPlanificacion {
   id: string;
   configuracion: ConfigEventoDataStorage;
   estado?: string;
+  crmStatus?: FiestaCrmStatus;
   modulosContratados?: ModulosContratados;
   personalAsignado: PersonalAsignadoDetalleStorage[];
   menuAsignadoId?: string;

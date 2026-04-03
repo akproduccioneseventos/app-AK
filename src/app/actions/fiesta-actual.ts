@@ -40,7 +40,8 @@ import type {
   ClientTarea, 
   ClientPortalSettings, 
   MenuMesaData, 
-  NumerosMesaData 
+  NumerosMesaData,
+  FiestaCrmStatus,
 } from '@/types/fiesta';
 
 // --- ACCIONES GENERALES ---
@@ -57,6 +58,12 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion) { return awa
 export async function addInvoiceIdToFiestaActual(fiestaId: string, invoiceId: string) { return await FiestaModule.addInvoiceId(fiestaId, invoiceId); }
 export async function removeInvoiceIdFromFiestaActual(fiestaId: string, invoiceId: string) { return await FiestaModule.removeInvoiceId(fiestaId, invoiceId); }
 export async function duplicateFiesta(fiestaId: string) { return await FiestaModule.duplicateFiesta(fiestaId); }
+export async function updateCrmStatusFiesta(fiestaId: string, crmStatus: FiestaCrmStatus): Promise<FiestaEnPlanificacion> {
+    const fiesta = await FiestaModule.getFiestaById(fiestaId);
+    if (!fiesta) throw new Error(`Fiesta ${fiestaId} no encontrada`);
+    const updated = { ...fiesta, crmStatus };
+    return await FiestaModule.saveFiesta(updated);
+}
 
 // --- CONFIGURACIÓN Y MÓDULOS ---
 export async function updateConfiguracionFiestaActual(fiestaId: string, config: any) { return await ConfigModule.updateConfiguracion(fiestaId, config); }

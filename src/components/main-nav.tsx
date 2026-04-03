@@ -204,6 +204,22 @@ export function MainNav() {
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
+                    <Link href="/admin/ventas" asChild>
+                      <SidebarMenuSubButton isActive={isActive("/admin/ventas")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter text-emerald-700">
+                        <KanbanSquare className="w-3.5 h-3.5 mr-1" />
+                        Tablero Comercial
+                      </SidebarMenuSubButton>
+                    </Link>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <Link href="/admin/finanzas" asChild>
+                      <SidebarMenuSubButton isActive={isActive("/admin/finanzas")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter text-blue-700">
+                        <TrendingUp className="w-3.5 h-3.5 mr-1" />
+                        Rentabilidad
+                      </SidebarMenuSubButton>
+                    </Link>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
                     <Link href="/contabilidad/crm/agenda" asChild>
                       <SidebarMenuSubButton isActive={isActive("/contabilidad/crm/agenda")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
                         Agenda Citas
