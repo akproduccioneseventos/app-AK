@@ -20,6 +20,13 @@ import { getCompanyInfo, getInvoiceTemplateSettings, getContractTemplate } from 
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
+/** Allow only http/https/relative URLs to prevent javascript: or data: URI injection */
+const sanitizeImageUrl = (url: string | null | undefined): string | null => {
+  if (!url) return null;
+  if (/^https?:\/\//i.test(url) || url.startsWith('/')) return url;
+  return null;
+};
+
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || amount === null || isNaN(amount)) return '$ -';
   return new Intl.NumberFormat('es-UY', {
@@ -218,7 +225,8 @@ function ReciboPagoContent({ fiestaId }: { fiestaId: string | null }) {
     );
   }
 
-  const { fiesta, cliente, presupuesto, invoices, companyInfo, logoUrl, contractText } = data;
+  const { fiesta, cliente, presupuesto, invoices, companyInfo, logoUrl: rawLogoUrl, contractText } = data;
+  const logoUrl = sanitizeImageUrl(rawLogoUrl);
 
   // Aggregate all payments from all invoices, sorted by date
   const allPayments: (Payment & { invoiceNumber: string })[] = [];
@@ -261,7 +269,7 @@ function ReciboPagoContent({ fiestaId }: { fiestaId: string | null }) {
         </div>
         <div className="flex items-center gap-2">
           <Link
-            href={`/fiestas/nueva/gestion-documental/recibo-pago?fiestaId=${fiestaId}${includeContrato ? '' : '&includeContrato=true'}`}
+            href={`/fiestas/nueva/gestion-documental/recibo-pago?fiestaId=${fiestaId}&includeContrato=${includeContrato ? 'false' : 'true'}`}
           >
             <Button
               variant={includeContrato ? 'default' : 'outline'}

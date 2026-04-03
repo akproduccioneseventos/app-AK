@@ -19,6 +19,13 @@ import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getInvoiceById } from '@/app/actions/invoices';
 import { getCompanyInfo, getInvoiceTemplateSettings } from '@/app/actions/settings';
 
+/** Allow only http/https/relative URLs to prevent javascript: or data: URI injection */
+const sanitizeImageUrl = (url: string | null | undefined): string | null => {
+  if (!url) return null;
+  if (/^https?:\/\//i.test(url) || url.startsWith('/')) return url;
+  return null;
+};
+
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return '____________';
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
@@ -72,7 +79,7 @@ function CancelacionContratoContent({ fiestaId }: { fiestaId: string | null }) {
       }
       setFiesta(fiestaData);
       setCompanyInfo(companyData);
-      setLogoUrl(settingsData.logoUrl ?? null);
+      setLogoUrl(sanitizeImageUrl(settingsData.logoUrl));
 
       const [clienteData, presupuestoData] = await Promise.all([
         getCustomerById(fiestaData.configuracion.clienteId),
