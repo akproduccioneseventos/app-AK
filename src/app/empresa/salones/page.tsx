@@ -30,13 +30,16 @@ const emptySalon: Omit<Salon, 'id'> = {
   capacidad: 0,
 };
 
-function isSafeUrl(url: string): boolean {
+function isSafeUrl(url: string): string | null {
   try {
     const parsed = new URL(url);
-    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+      return parsed.href;
+    }
   } catch {
-    return false;
+    // Invalid URL
   }
+  return null;
 }
 
 export default function SalonesPage() {
@@ -310,17 +313,21 @@ export default function SalonesPage() {
                         <span>{salon.capacidad} personas</span>
                       </div>
                     )}
-                    {salon.googleMapsUrl && isSafeUrl(salon.googleMapsUrl) && (
-                      <a
-                        href={salon.googleMapsUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 text-primary hover:underline"
-                      >
-                        <ExternalLink className="w-3.5 h-3.5" />
-                        Ver en Google Maps
-                      </a>
-                    )}
+                    {(() => {
+                      const safeUrl = salon.googleMapsUrl ? isSafeUrl(salon.googleMapsUrl) : null;
+                      if (!safeUrl) return null;
+                      return (
+                        <a
+                          href={safeUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1.5 text-primary hover:underline"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                          Ver en Google Maps
+                        </a>
+                      );
+                    })()}
                     {!salon.direccion && !salon.googleMapsUrl && salon.capacidad === 0 && (
                       <p className="text-xs text-muted-foreground/50 italic">Sin datos adicionales</p>
                     )}
