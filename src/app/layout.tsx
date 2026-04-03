@@ -34,6 +34,16 @@ const dancingScript = Dancing_Script({
 export const metadata: Metadata = {
   title: 'AK Producciones',
   description: 'Plataforma integral para la planificación y gestión de eventos de AK Producciones.',
+  manifest: '/manifest.webmanifest',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'AK Producciones',
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  themeColor: '#7c3aed',
 };
 
 export default function RootLayout({
