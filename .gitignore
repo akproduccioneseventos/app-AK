@@ -55,3 +55,9 @@ src/data/last-auto-backup.txt
 
 # abacus
 .abacus.donotdeletepackage-lock.json
+
+# PWA generated files (generated at build time by @ducanh2912/next-pwa)
+/public/sw.js
+/public/workbox-*.js
+/public/sw.js.map
+/public/workbox-*.js.map
