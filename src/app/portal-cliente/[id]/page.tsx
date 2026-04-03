@@ -120,15 +120,13 @@ export default function PortalClientePage() {
     loadFiesta();
   }, [loadFiesta]);
 
+  const fechaEvento = fiesta?.configuracion?.fechaEvento ?? null;
+
   useEffect(() => {
-    if (!fiesta || !fiestaId) return;
+    if (!fiestaId || !fechaEvento) return;
     const today = new Date();
-    const eventDate = fiesta.configuracion?.fechaEvento
-      ? new Date(fiesta.configuracion.fechaEvento)
-      : null;
-    const isToday = eventDate
-      ? eventDate.toDateString() === today.toDateString()
-      : false;
+    const eventDate = new Date(fechaEvento);
+    const isToday = eventDate.toDateString() === today.toDateString();
     if (!isToday) return;
     // Poll every 12 seconds on event day
     const pollInterval = setInterval(async () => {
@@ -138,8 +136,7 @@ export default function PortalClientePage() {
       } catch { /* ignore */ }
     }, 12000);
     return () => clearInterval(pollInterval);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fiestaId, fiesta?.configuracion?.fechaEvento]);
+  }, [fiestaId, fechaEvento]);
 
   const handleLogin = (e: FormEvent) => {
     e.preventDefault();

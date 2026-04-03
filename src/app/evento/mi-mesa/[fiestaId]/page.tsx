@@ -9,6 +9,12 @@ import { Input } from '@/components/ui/input';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion, Invitado } from '@/types/fiesta';
 
+// Minimum word length for partial match in fuzzy search
+const MIN_SEARCH_WORD_LENGTH = 3;
+
+// Contact phone for WhatsApp fallback (WhatsApp format: country code + number)
+const CONTACT_WHATSAPP = '59898355530';
+
 // Normalize string: lowercase, remove accents
 function normalize(str: string): string {
   return str
@@ -69,7 +75,7 @@ export default function MiMesaPage({ params }: { params: Promise<Params> }) {
 
     // Partial match (includes)
     const partial = invitados.filter(inv =>
-      normalize(inv.nombre).includes(q) || q.split(' ').some(word => word.length > 2 && normalize(inv.nombre).includes(word))
+      normalize(inv.nombre).includes(q) || q.split(' ').some(word => word.length >= MIN_SEARCH_WORD_LENGTH && normalize(inv.nombre).includes(word))
     );
 
     if (partial.length === 0) {
@@ -184,7 +190,7 @@ export default function MiMesaPage({ params }: { params: Promise<Params> }) {
 
   // ── Result: Not found ──────────────────────────────────────
   if (notFound) {
-    const whatsappUrl = `https://wa.me/59898355530?text=${encodeURIComponent(`Hola! No encuentro mi nombre en el buscador de mesas del evento "${config.nombreEvento}". Mi nombre es: ${query}`)}`;
+    const whatsappUrl = `https://wa.me/${CONTACT_WHATSAPP}?text=${encodeURIComponent(`Hola! No encuentro mi nombre en el buscador de mesas del evento "${config.nombreEvento}". Mi nombre es: ${query}`)}`;
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4"
         style={{ background: `linear-gradient(135deg, ${primaryColor}22, #0f172a)` }}>
