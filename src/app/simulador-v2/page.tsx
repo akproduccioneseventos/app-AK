@@ -14,6 +14,11 @@ import {
 } from '@/app/actions/simulador-v2';
 import type { SimV2State, SimV2Step, SimV2TipoEvento, SimV2Paquete } from '@/types/simulador-v2';
 import {
+  SIM_V2_BASE_RATES,
+  SIM_V2_PACKAGE_MULTIPLIERS,
+  SIM_V2_DISCOUNT_PERCENTAGE,
+} from '@/lib/simulador-v2-constants';
+import {
   ChevronLeft,
   ChevronRight,
   Check,
@@ -44,7 +49,6 @@ const formatCurrency = (amount: number) =>
     maximumFractionDigits: 0,
   }).format(amount);
 
-const DISCOUNT_PERCENTAGE = 20;
 const ADULTS_PER_WAITER = 20;
 const MIN_WAITERS = 2;
 const GUESTS_PER_KITCHEN_STAFF = 40;
@@ -53,19 +57,6 @@ const LITERS_PER_ADULT = 1.5;
 function parseEventDate(isoDate: string): Date {
   return new Date(`${isoDate}T12:00:00`);
 }
-
-const BASE_RATES: Record<SimV2TipoEvento, { perPerson: number; base: number }> = {
-  'Cumpleaños': { perPerson: 800, base: 5000 },
-  '15 años': { perPerson: 950, base: 8000 },
-  'Boda': { perPerson: 1100, base: 12000 },
-  'Evento empresarial': { perPerson: 750, base: 6000 },
-};
-
-const PACKAGE_MULTIPLIERS: Record<SimV2Paquete, number> = {
-  'Básico': 0.85,
-  'Intermedio': 1.0,
-  'Premium': 1.3,
-};
 
 const SERVICES_BY_TYPE: Record<SimV2TipoEvento, { id: string; nombre: string; descripcion: string; optional?: boolean }[]> = {
   'Cumpleaños': [
@@ -124,11 +115,13 @@ function computeTotal(state: SimV2State): { subtotal: number; total: number; tot
   const tipo: SimV2TipoEvento = state.tipoEvento || 'Cumpleaños';
   const paquete: SimV2Paquete = state.paquete || 'Intermedio';
   const guests = (state.adultos || 0) + (state.adolescentes || 0);
-  const rates = BASE_RATES[tipo];
-  const multiplier = PACKAGE_MULTIPLIERS[paquete];
+  const rates = SIM_V2_BASE_RATES[tipo];
+  const multiplier = SIM_V2_PACKAGE_MULTIPLIERS[paquete];
+  // subtotal = "valor de lista" (pre-discount, shown crossed out)
   const subtotal = (rates.perPerson * guests + rates.base) * multiplier;
-  const totalConDescuento = subtotal * (1 - DISCOUNT_PERCENTAGE / 100);
-  return { subtotal, total: subtotal * (100 / (100 - DISCOUNT_PERCENTAGE)), totalConDescuento };
+  // totalConDescuento = final price after 20% discount
+  const totalConDescuento = subtotal * (1 - SIM_V2_DISCOUNT_PERCENTAGE / 100);
+  return { subtotal, total: subtotal, totalConDescuento };
 }
 
 function formatDateLabel(isoDate: string): string {
@@ -653,7 +646,7 @@ function SimuladorV2Wizard() {
                     </div>
                     <div className="bg-white/10 rounded-xl p-4 grid grid-cols-2 gap-3">
                       <InfoChip icon={<Users className="w-4 h-4" />} label="Total invitados" value={String(totalGuests)} />
-                      <InfoChip icon={<Star className="w-4 h-4" />} label="Mozos estimados" value={`~${Math.max(MIN_WAITERS, Math.ceil((state.adultos || 0) / ADULTS_PER_WAITER))}`} />
+                      <InfoChip icon={<Star className="w-4 h-4" />} label="Mozos estimados" value={`~${mozosRecomendados}`} />
                     </div>
                     <NavButtons onPrev={goBack} onNext={goNext} />
                   </div>
@@ -804,9 +797,10 @@ function SimuladorV2Wizard() {
                   <div className="space-y-3">
                     {(['Básico', 'Intermedio', 'Premium'] as SimV2Paquete[]).map(pkg => {
                       const guests = totalGuests || 30;
-                      const rates = BASE_RATES[(state.tipoEvento || 'Cumpleaños') as SimV2TipoEvento];
-                      const mult = PACKAGE_MULTIPLIERS[pkg];
-                      const price = (rates.perPerson * guests + rates.base) * mult * 0.8;
+                      const rates = SIM_V2_BASE_RATES[(state.tipoEvento || 'Cumpleaños') as SimV2TipoEvento];
+                      const mult = SIM_V2_PACKAGE_MULTIPLIERS[pkg];
+                      // Show the discounted price for each package
+                      const price = (rates.perPerson * guests + rates.base) * mult * (1 - SIM_V2_DISCOUNT_PERCENTAGE / 100);
                       const isSelected = state.paquete === pkg;
                       const isRecommended = pkg === 'Intermedio';
 
@@ -947,7 +941,7 @@ function SimuladorV2Wizard() {
                         <span className="line-through">{formatCurrency(total)}</span>
                       </div>
                       <div className="flex justify-between text-green-400 font-medium">
-                        <span>Descuento 20%</span>
+                        <span>Descuento {SIM_V2_DISCOUNT_PERCENTAGE}%</span>
                         <span>− {formatCurrency(total - totalConDescuento)}</span>
                       </div>
                       <div className="border-t border-white/10 pt-2 flex justify-between">

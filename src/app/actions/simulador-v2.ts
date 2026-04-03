@@ -6,6 +6,11 @@ import { generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido'
 import type { SimV2DuplicateCheck, SimV2DateCheck, SimV2State } from '@/types/simulador-v2';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { CrmLead } from '@/types/crm';
+import {
+  SIM_V2_BASE_RATES,
+  SIM_V2_PACKAGE_MULTIPLIERS,
+  SIM_V2_DISCOUNT_PERCENTAGE,
+} from '@/lib/simulador-v2-constants';
 
 const PRESUPUESTOS_FILE = 'presupuestos.json';
 const CRM_LEADS_FILE = 'crm-leads.json';
@@ -114,19 +119,6 @@ export async function checkDateAvailability(fechaISO: string): Promise<SimV2Date
   }
 }
 
-const BASE_RATES: Record<string, { perPerson: number; base: number }> = {
-  'Cumpleaños': { perPerson: 800, base: 5000 },
-  '15 años': { perPerson: 950, base: 8000 },
-  'Boda': { perPerson: 1100, base: 12000 },
-  'Evento empresarial': { perPerson: 750, base: 6000 },
-};
-
-const PACKAGE_MULTIPLIERS: Record<string, number> = {
-  'Básico': 0.85,
-  'Intermedio': 1.0,
-  'Premium': 1.3,
-};
-
 export async function saveSimuladorV2Lead(state: SimV2State): Promise<{
   success: boolean;
   leadId?: string;
@@ -137,11 +129,11 @@ export async function saveSimuladorV2Lead(state: SimV2State): Promise<{
     const tipoEvento = state.tipoEvento || 'Cumpleaños';
     const paquete = state.paquete || 'Intermedio';
     const totalGuests = (state.adultos || 0) + (state.adolescentes || 0);
-    const rates = BASE_RATES[tipoEvento] || BASE_RATES['Cumpleaños'];
-    const multiplier = PACKAGE_MULTIPLIERS[paquete] || 1.0;
+    const rates = SIM_V2_BASE_RATES[tipoEvento] || SIM_V2_BASE_RATES['Cumpleaños'];
+    const multiplier = SIM_V2_PACKAGE_MULTIPLIERS[paquete] || 1.0;
+    // subtotal = pre-discount "list price"; costoEstimado = after-discount final price
     const subtotal = (rates.perPerson * totalGuests + rates.base) * multiplier;
-    const discountPct = 20;
-    const costoEstimado = subtotal * (1 - discountPct / 100);
+    const costoEstimado = subtotal * (1 - SIM_V2_DISCOUNT_PERCENTAGE / 100);
 
     const serviciosActivados = state.serviciosActivados || [];
 
@@ -151,8 +143,8 @@ export async function saveSimuladorV2Lead(state: SimV2State): Promise<{
         nombreServicio: `Paquete ${paquete} — ${tipoEvento}`,
         calculationMethod: 'fijo' as const,
         cantidad: 1,
-        precioUnitario: subtotal,
-        precioUnitarioPresupuesto: subtotal,
+        precioUnitario: costoEstimado,
+        precioUnitarioPresupuesto: costoEstimado,
         esRegalo: false,
         descripcionServicio: `Paquete ${paquete} para ${tipoEvento}. ${totalGuests} invitados.`,
       },
@@ -183,7 +175,7 @@ export async function saveSimuladorV2Lead(state: SimV2State): Promise<{
       ninos: state.adolescentes || 0,
       subtotal,
       costoEstimado,
-      descuentoGeneral: discountPct,
+      descuentoGeneral: SIM_V2_DISCOUNT_PERCENTAGE,
       serviciosIncluidos: serviciosActivados,
       paqueteNombre: `${paquete} — ${tipoEvento} — ${salonInfo} — ${duracionLabel}`,
       items,
