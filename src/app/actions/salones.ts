@@ -28,7 +28,7 @@ export async function saveSalon(
     savedSalon = { ...salones[idx], ...salonData };
     salones[idx] = savedSalon;
   } else {
-    savedSalon = { ...salonData, id: `salon_${Date.now()}` };
+    savedSalon = { ...salonData, id: `salon_${crypto.randomUUID()}` };
     salones.push(savedSalon);
   }
 

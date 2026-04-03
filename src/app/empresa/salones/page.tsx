@@ -30,6 +30,15 @@ const emptySalon: Omit<Salon, 'id'> = {
   capacidad: 0,
 };
 
+function isSafeUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
 export default function SalonesPage() {
   const { toast } = useToast();
   const [salones, setSalones] = useState<Salon[]>([]);
@@ -301,7 +310,7 @@ export default function SalonesPage() {
                         <span>{salon.capacidad} personas</span>
                       </div>
                     )}
-                    {salon.googleMapsUrl && /^https?:\/\//i.test(salon.googleMapsUrl) && (
+                    {salon.googleMapsUrl && isSafeUrl(salon.googleMapsUrl) && (
                       <a
                         href={salon.googleMapsUrl}
                         target="_blank"
