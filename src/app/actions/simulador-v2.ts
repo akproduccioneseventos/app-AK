@@ -12,7 +12,7 @@ const CRM_LEADS_FILE = 'crm-leads.json';
 
 function normalizePhone(phone: string): string {
   const digits = phone.replace(/\D/g, '');
-  return digits.slice(-8);
+  return digits.slice(-9);
 }
 
 function normalizeName(name: string): string {

@@ -44,6 +44,16 @@ const formatCurrency = (amount: number) =>
     maximumFractionDigits: 0,
   }).format(amount);
 
+const DISCOUNT_PERCENTAGE = 20;
+const ADULTS_PER_WAITER = 20;
+const MIN_WAITERS = 2;
+const GUESTS_PER_KITCHEN_STAFF = 40;
+const LITERS_PER_ADULT = 1.5;
+
+function parseEventDate(isoDate: string): Date {
+  return new Date(`${isoDate}T12:00:00`);
+}
+
 const BASE_RATES: Record<SimV2TipoEvento, { perPerson: number; base: number }> = {
   'Cumpleaños': { perPerson: 800, base: 5000 },
   '15 años': { perPerson: 950, base: 8000 },
@@ -117,12 +127,12 @@ function computeTotal(state: SimV2State): { subtotal: number; total: number; tot
   const rates = BASE_RATES[tipo];
   const multiplier = PACKAGE_MULTIPLIERS[paquete];
   const subtotal = (rates.perPerson * guests + rates.base) * multiplier;
-  const totalConDescuento = subtotal * 0.8; // 20% discount
-  return { subtotal, total: subtotal * 1.2, totalConDescuento };
+  const totalConDescuento = subtotal * (1 - DISCOUNT_PERCENTAGE / 100);
+  return { subtotal, total: subtotal * (100 / (100 - DISCOUNT_PERCENTAGE)), totalConDescuento };
 }
 
 function formatDateLabel(isoDate: string): string {
-  const d = new Date(isoDate + 'T12:00:00');
+  const d = parseEventDate(isoDate);
   return d.toLocaleDateString('es-UY', { weekday: 'long', day: 'numeric', month: 'short' });
 }
 
@@ -338,9 +348,9 @@ function SimuladorV2Wizard() {
 
   // ── Computed values ──────────────────────────────────────────────────────
   const totalGuests = (state.adultos || 0) + (state.adolescentes || 0);
-  const mozosRecomendados = Math.max(2, Math.ceil((state.adultos || 0) / 20));
-  const cocinerosRecomendados = Math.max(1, Math.ceil(totalGuests / 40));
-  const bebidasEstimadas = Math.round((state.adultos || 0) * 1.5);
+  const mozosRecomendados = Math.max(MIN_WAITERS, Math.ceil((state.adultos || 0) / ADULTS_PER_WAITER));
+  const cocinerosRecomendados = Math.max(1, Math.ceil(totalGuests / GUESTS_PER_KITCHEN_STAFF));
+  const bebidasEstimadas = Math.round((state.adultos || 0) * LITERS_PER_ADULT);
   const { subtotal, total, totalConDescuento } = computeTotal(state);
   const benefitsTotal = BENEFITS.reduce((sum, b) => sum + b.value, 0);
 
@@ -424,7 +434,9 @@ function SimuladorV2Wizard() {
             </h3>
             <p className="text-gray-600 text-sm text-center mb-5">
               Ya encontramos un presupuesto tuyo
-              {duplicateInfo?.existingClientName ? ` a nombre de <strong>${duplicateInfo.existingClientName}</strong>` : ''}.
+              {duplicateInfo?.existingClientName ? (
+                <> a nombre de <strong>{duplicateInfo.existingClientName}</strong></>
+              ) : null}.
               ¿Querés continuar ese presupuesto o crear uno nuevo?
             </p>
             <div className="flex flex-col gap-2">
@@ -641,7 +653,7 @@ function SimuladorV2Wizard() {
                     </div>
                     <div className="bg-white/10 rounded-xl p-4 grid grid-cols-2 gap-3">
                       <InfoChip icon={<Users className="w-4 h-4" />} label="Total invitados" value={String(totalGuests)} />
-                      <InfoChip icon={<Star className="w-4 h-4" />} label="Mozos estimados" value={`~${Math.max(2, Math.ceil((state.adultos || 0) / 20))}`} />
+                      <InfoChip icon={<Star className="w-4 h-4" />} label="Mozos estimados" value={`~${Math.max(MIN_WAITERS, Math.ceil((state.adultos || 0) / ADULTS_PER_WAITER))}`} />
                     </div>
                     <NavButtons onPrev={goBack} onNext={goNext} />
                   </div>
@@ -841,8 +853,8 @@ function SimuladorV2Wizard() {
                   <div className="space-y-3">
                     {[
                       { icon: '🤵', label: 'Mozos recomendados', value: `${mozosRecomendados} personas`, note: '1 mozo por cada 20 adultos' },
-                      { icon: '👨‍🍳', label: 'Personal de cocina', value: `${cocinerosRecomendados} persona${cocinerosRecomendados > 1 ? 's' : ''}`, note: '1 por cada 40 invitados' },
-                      { icon: '🍹', label: 'Bebidas estimadas', value: `${bebidasEstimadas} litros`, note: '1.5L por adulto' },
+                      { icon: '👨‍🍳', label: 'Personal de cocina', value: `${cocinerosRecomendados} persona${cocinerosRecomendados > 1 ? 's' : ''}`, note: `1 por cada ${GUESTS_PER_KITCHEN_STAFF} invitados` },
+                      { icon: '🍹', label: 'Bebidas estimadas', value: `${bebidasEstimadas} litros`, note: `${LITERS_PER_ADULT}L por adulto` },
                     ].map(item => (
                       <div key={item.label} className="bg-white/10 rounded-xl p-4 flex items-center gap-4">
                         <div className="text-3xl">{item.icon}</div>
@@ -961,7 +973,7 @@ function SimuladorV2Wizard() {
                       <p className="text-white font-semibold mb-2">
                         Los fines de semana en{' '}
                         {state.fechaEvento
-                          ? new Date(state.fechaEvento + 'T12:00:00').toLocaleDateString('es-UY', { month: 'long', year: 'numeric' })
+                          ? parseEventDate(state.fechaEvento).toLocaleDateString('es-UY', { month: 'long', year: 'numeric' })
                           : 'los próximos meses'}{' '}
                         ya tienen eventos confirmados.
                       </p>
