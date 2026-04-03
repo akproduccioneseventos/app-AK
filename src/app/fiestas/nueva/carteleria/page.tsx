@@ -222,9 +222,9 @@ function CarteleriaContent() {
         fiestaData.configuracion.protagonistaFotoUrl ||
         '';
       setProtagonistFotoUrl(sharedPhoto);
-    } catch (e: any) {
+    } catch (e: unknown) {
       setError('No se pudo cargar la información del evento.');
-      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+      toast({ title: 'Error', description: e instanceof Error ? e.message : 'Error desconocido', variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
@@ -264,7 +264,7 @@ function CarteleriaContent() {
       } else {
         throw new Error(result.error);
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       toast({ title: 'Error al subir foto', variant: 'destructive' });
     } finally {
       setIsUploading(false);
@@ -280,8 +280,8 @@ function CarteleriaContent() {
         updateMenuMesa(fiestaId, menuMesa),
       ]);
       toast({ title: '¡Kit guardado!', description: 'La cartelería ha sido actualizada.' });
-    } catch (e: any) {
-      toast({ title: 'Error al guardar', description: e.message, variant: 'destructive' });
+    } catch (e: unknown) {
+      toast({ title: 'Error al guardar', description: e instanceof Error ? e.message : 'Error desconocido', variant: 'destructive' });
     } finally {
       setIsSaving(false);
     }
@@ -309,7 +309,8 @@ function CarteleriaContent() {
   for (let i = 0; i < tableNumbers.length; i += 2) {
     tablePages.push(tableNumbers.slice(i, i + 2));
   }
-  const totalPages = 3 + tablePages.length; // carta + menu + QR + table-number pages
+  const FIXED_PAGES_COUNT = 3; // carta de tragos + menú de comida + cartel QR
+  const totalPages = FIXED_PAGES_COUNT + tablePages.length;
 
   return (
     <div className="bg-slate-100 min-h-screen print:bg-white">
