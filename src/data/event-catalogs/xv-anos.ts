@@ -13,9 +13,9 @@ const xvAnosData: EventCatalogData = {
   slug: 'xv-anos',
   name: 'XV Años',
   hero: {
-    headline: 'El mejor quinceañero de su vida',
+    headline: 'Los mejores XV años de su vida',
     subheadline:
-      'Convertimos sus XV años en una noche de ensueño. Decoraciones de cuento, music, catering y todo lo que necesita para brillar como merece.',
+      'Convertimos sus XV años en una noche de ensueño. Decoraciones de cuento, música, catering y todo lo que necesita para brillar como merece.',
     gradientClasses: 'from-purple-50 via-fuchsia-50 to-pink-50',
     accentColor: 'purple',
     emoji: '👑',

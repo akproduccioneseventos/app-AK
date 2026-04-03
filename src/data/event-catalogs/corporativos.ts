@@ -102,7 +102,7 @@ const corporativosData: EventCatalogData = {
         description: 'Recibís un presupuesto detallado y personalizado en menos de 48 horas hábiles.',
       },
       {
-        id: 'coordinacion',
+        id: 'coordinacion-empresa',
         icon: '📋',
         title: 'Coordinador dedicado',
         description: 'Un punto de contacto único que conoce tu empresa y tus necesidades.',
