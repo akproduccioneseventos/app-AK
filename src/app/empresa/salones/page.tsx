@@ -301,7 +301,7 @@ export default function SalonesPage() {
                         <span>{salon.capacidad} personas</span>
                       </div>
                     )}
-                    {salon.googleMapsUrl && (
+                    {salon.googleMapsUrl && /^https?:\/\//i.test(salon.googleMapsUrl) && (
                       <a
                         href={salon.googleMapsUrl}
                         target="_blank"
