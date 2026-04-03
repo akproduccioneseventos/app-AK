@@ -728,6 +728,18 @@ export interface FiestaEnPlanificacion {
   generadoDesdeHistorico?: boolean; 
   liveState?: LiveEventState;
   planDePagos?: PlanDePagos;
+  clientPaymentNotifications?: ClientPaymentNotification[];
+}
+
+export interface ClientPaymentNotification {
+  id: string;
+  fiestaId: string;
+  monto: number;
+  metodoPago: string;
+  referencia?: string;
+  comprobante?: string;
+  timestamp: string;
+  reviewed?: boolean;
 }
 
 export interface ContratoFirmaInfo {

@@ -50,6 +50,31 @@ export async function updateFaqPortal(fiestaId: string, faqItems: import('@/type
   return updateFiestaData(fiestaId, data => ({ ...data, faqPortal: faqItems }));
 }
 
+export async function notifyClientPayment(
+  fiestaId: string,
+  data: { monto: number; metodoPago: string; referencia?: string; comprobante?: string }
+): Promise<{ success: boolean; error?: string }> {
+  return updateFiestaData(fiestaId, (currentData) => {
+    const notification: import('@/types/fiesta').ClientPaymentNotification = {
+      id: `pay_notif_${Date.now()}`,
+      fiestaId,
+      monto: data.monto,
+      metodoPago: data.metodoPago,
+      referencia: data.referencia,
+      comprobante: data.comprobante,
+      timestamp: new Date().toISOString(),
+      reviewed: false,
+    };
+    return {
+      ...currentData,
+      clientPaymentNotifications: [
+        ...(currentData.clientPaymentNotifications ?? []),
+        notification,
+      ],
+    };
+  });
+}
+
 export async function getFiestaByAccessKey(accessKey: string): Promise<FiestaEnPlanificacion | null> {
   if (!accessKey || accessKey.trim() === '') return null;
   try {

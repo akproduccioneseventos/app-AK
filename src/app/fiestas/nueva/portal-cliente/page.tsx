@@ -190,6 +190,7 @@ function ClientPortalConfigContent() {
   };
 
   const portalLink = typeof window !== 'undefined' ? `${window.location.origin}/portal?fiestaId=${fiestaId}` : '';
+  const vipPortalLink = typeof window !== 'undefined' ? `${window.location.origin}/portal-cliente/${fiestaId}` : '';
   const publicPortalLink =
     typeof window !== 'undefined' && portalSettings.accessKey
       ? `${window.location.origin}/portal/c/${portalSettings.accessKey}`
@@ -203,6 +204,19 @@ function ClientPortalConfigContent() {
   const handleCopyPublicLink = () => {
     navigator.clipboard.writeText(publicPortalLink);
     toast({ title: "Enlace copiado al portapapeles" });
+  };
+
+  const handleCopyVipPortalLink = () => {
+    navigator.clipboard.writeText(vipPortalLink);
+    toast({ title: "Link del Portal VIP copiado al portapapeles" });
+  };
+
+  const handleShareVipPortalWhatsApp = () => {
+    const password = portalSettings.accessKey ? ` Contraseña: *${portalSettings.accessKey}*` : '';
+    const message = encodeURIComponent(
+      `¡Hola! Aquí podés acceder a tu Portal VIP del evento: ${vipPortalLink}${password}`
+    );
+    window.open(`https://wa.me/?text=${message}`, '_blank', 'noopener,noreferrer');
   };
 
   const handleShareWhatsApp = () => {
@@ -260,8 +274,45 @@ function ClientPortalConfigContent() {
               </div>
               {portalSettings.enabled && (
                 <div className="space-y-4 animate-in fade-in-20">
+                  {/* VIP Portal Link - New Dashboard */}
+                  <div className="space-y-3 p-4 border-2 border-primary/20 rounded-xl bg-primary/5">
+                    <div className="flex items-center gap-2">
+                      <Share2 className="w-4 h-4 text-primary" />
+                      <h4 className="text-sm font-bold text-primary">🌟 Portal VIP del Cliente (Nuevo)</h4>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Dashboard premium con Resumen Financiero, Lista de Invitados, Diseñador de Mesas y detalles del evento. Requiere la contraseña de acceso.
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <Input value={vipPortalLink} readOnly className="text-xs font-mono" />
+                      <Button type="button" size="icon" variant="outline" onClick={handleCopyVipPortalLink}>
+                        <ClipboardCopy className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full"
+                        onClick={handleCopyVipPortalLink}
+                      >
+                        <ClipboardCopy className="w-4 h-4 mr-2" />
+                        Copiar Link del Portal del Cliente
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white"
+                        onClick={handleShareVipPortalWhatsApp}
+                      >
+                        <MessageCircle className="w-4 h-4 mr-2" />
+                        Compartir por WhatsApp
+                      </Button>
+                    </div>
+                  </div>
+                  <Separator />
                   <div className="space-y-2">
-                    <Label>Enlace para compartir con el cliente</Label>
+                    <Label>Enlace clásico del portal</Label>
                     <div className="flex items-center gap-2">
                       <Input value={portalLink} readOnly/>
                       <Button type="button" size="icon" variant="outline" onClick={() => { navigator.clipboard.writeText(portalLink); toast({title: "Enlace copiado"}); }}><ClipboardCopy className="w-4 h-4"/></Button>

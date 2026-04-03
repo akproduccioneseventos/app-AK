@@ -45,6 +45,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
       '/video-vida',
       '/feedback',
       '/portal',
+      '/portal-cliente',
       '/simulador-de-presupuesto',
       '/acceso-personal',
     ];
