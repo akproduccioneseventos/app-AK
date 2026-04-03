@@ -172,7 +172,12 @@ export async function deleteInvoice(id: string): Promise<{ success: boolean; err
   if (invoices.length === initialLength) {
     return { success: false, error: `Factura con ID ${id} no encontrada para eliminar.` };
   }
-  await writeData(INVOICES_FILE, invoices);
+  try {
+    await writeData(INVOICES_FILE, invoices);
+  } catch (writeError: any) {
+    console.error("Error deleting invoice:", writeError);
+    return { success: false, error: writeError.message || "Error al eliminar la factura." };
+  }
   return { success: true };
 }
 

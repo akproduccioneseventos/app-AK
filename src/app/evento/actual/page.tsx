@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Suspense, useEffect, useState, useCallback } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Loader2, AlertTriangle, CheckCircle, Ticket, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -33,62 +33,53 @@ function EventoPublicoPageContent() {
   const [rsvpSuccess, setRsvpSuccess] = useState(false);
   const [confirmedGuest, setConfirmedGuest] = useState<Invitado | null>(null);
   
-  const loadEventData = useCallback(async () => {
-    if (!fiestaId) {
-      setError("No se especificó un ID de evento.");
-      setIsLoading(false);
-      return;
-    }
-    setIsLoading(true);
-    setError(null);
-    try {
-      const [data, socialData] = await Promise.all([
-          getFiestaById(fiestaId),
-          getSocialConnections()
-      ]);
-
-      if (!data) throw new Error("Evento no encontrado.");
-      
-      setFiesta(data);
-      const mergedInvitacionData = merge(cloneDeep(defaultInvitacionDigitalData), data.invitacionDigital || {});
-      
-      // SINCRONIZACIÓN DINÁMICA: Sobreescribir con datos de configuración real
-      if (data.configuracion) {
-          mergedInvitacionData.cabecera.protagonista1 = data.configuracion.protagonista1Nombre || mergedInvitacionData.cabecera.protagonista1;
-          mergedInvitacionData.cabecera.protagonista2 = data.configuracion.protagonista2Nombre || mergedInvitacionData.cabecera.protagonista2;
-          
-          // El tipo de celebración actúa como subtítulo si no hay uno personalizado
-          if (!data.invitacionDigital?.cabecera?.subtitulo?.text) {
-              mergedInvitacionData.cabecera.subtitulo.text = data.configuracion.tipoCelebracion || mergedInvitacionData.cabecera.subtitulo.text;
-          }
-          
-          // Sincronizar fechas en detalles si están vacías
-          if (data.configuracion.fechaEvento) {
-              if (mergedInvitacionData.detallesEvento.ceremoniaReligiosa.visible) {
-                  mergedInvitacionData.detallesEvento.ceremoniaReligiosa.fecha = data.configuracion.fechaEvento;
-              }
-              if (mergedInvitacionData.detallesEvento.celebracion.visible) {
-                  mergedInvitacionData.detallesEvento.celebracion.fecha = data.configuracion.fechaEvento;
-              }
-          }
-      }
-
-      setInvitacionData(mergedInvitacionData);
-      setSocialConnections(socialData);
-
-    } catch (err: any) {
-      console.error("Error loading event data for public page:", err);
-      setError("No se pudo cargar la información del evento.");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [fiestaId]);
-
   useEffect(() => {
-    loadEventData();
-  }, [loadEventData]);
+    let isMounted = true;
+    const run = async () => {
+      if (!fiestaId) {
+        if (isMounted) { setError("No se especificó un ID de evento."); setIsLoading(false); }
+        return;
+      }
+      if (isMounted) { setIsLoading(true); setError(null); }
+      try {
+        const [data, socialData] = await Promise.all([
+            getFiestaById(fiestaId),
+            getSocialConnections()
+        ]);
+        if (!isMounted) return;
+        if (!data) throw new Error("Evento no encontrado.");
+        setFiesta(data);
+        const mergedInvitacionData = merge(cloneDeep(defaultInvitacionDigitalData), data.invitacionDigital || {});
+        if (data.configuracion) {
+            mergedInvitacionData.cabecera.protagonista1 = data.configuracion.protagonista1Nombre || mergedInvitacionData.cabecera.protagonista1;
+            mergedInvitacionData.cabecera.protagonista2 = data.configuracion.protagonista2Nombre || mergedInvitacionData.cabecera.protagonista2;
+            if (!data.invitacionDigital?.cabecera?.subtitulo?.text) {
+                mergedInvitacionData.cabecera.subtitulo.text = data.configuracion.tipoCelebracion || mergedInvitacionData.cabecera.subtitulo.text;
+            }
+            if (data.configuracion.fechaEvento) {
+                if (mergedInvitacionData.detallesEvento.ceremoniaReligiosa.visible) {
+                    mergedInvitacionData.detallesEvento.ceremoniaReligiosa.fecha = data.configuracion.fechaEvento;
+                }
+                if (mergedInvitacionData.detallesEvento.celebracion.visible) {
+                    mergedInvitacionData.detallesEvento.celebracion.fecha = data.configuracion.fechaEvento;
+                }
+            }
+        }
+        setInvitacionData(mergedInvitacionData);
+        setSocialConnections(socialData);
+      } catch (err: any) {
+        if (!isMounted) return;
+        console.error("Error loading event data for public page:", err);
+        setError("No se pudo cargar la información del evento.");
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    };
+    run();
+    return () => { isMounted = false; };
+  }, [fiestaId]);
   
-  const onRsvpSubmit = async (submission: {nombreCompleto: string, confirmacion: string, numeroAsistentes: number, mensaje: string, companionNames: string[]}): Promise<boolean> => {
+  const onRsvpSubmit = async (submission: {nombreCompleto: string, confirmacion: string, adultsCount: number, kidsCount: number, mensaje: string, companionNames: string[], isCeliac?: boolean, tag?: string}): Promise<boolean> => {
     if(!fiestaId) return false;
     try {
       const result = await handleRsvpSubmission(fiestaId, submission);

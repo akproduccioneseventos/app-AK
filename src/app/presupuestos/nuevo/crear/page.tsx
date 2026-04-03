@@ -100,27 +100,28 @@ function CrearPresupuestoContent() {
 
     // SYNC LOGIC: Auto-update quantities of selected items when guest count changes
     useEffect(() => {
-        if (formData.serviciosSeleccionados.size === 0) return;
+        setFormData(prev => {
+            if (prev.serviciosSeleccionados.size === 0) return prev;
 
-        const adultos = formData.invitadosAdultos || 0;
-        const ninos = (formData.invitadosNinos || 0) + (formData.invitadosAdolescentes || 0);
+            const adultos = prev.invitadosAdultos || 0;
+            const ninos = (prev.invitadosNinos || 0) + (prev.invitadosAdolescentes || 0);
 
-        let changed = false;
-        const newSelected = new Map(formData.serviciosSeleccionados);
+            let changed = false;
+            const newSelected = new Map(prev.serviciosSeleccionados);
 
-        newSelected.forEach((item, id) => {
-            if (item.calculationMethod === 'porPersona' || item.calculationMethod === 'ratio') {
-                const newQty = calculateSuggestedQuantity(item, adultos, ninos);
-                if (item.cantidad !== newQty) {
-                    newSelected.set(id, { ...item, cantidad: newQty });
-                    changed = true;
+            newSelected.forEach((item, id) => {
+                if (item.calculationMethod === 'porPersona' || item.calculationMethod === 'ratio') {
+                    const newQty = calculateSuggestedQuantity(item, adultos, ninos);
+                    if (item.cantidad !== newQty) {
+                        newSelected.set(id, { ...item, cantidad: newQty });
+                        changed = true;
+                    }
                 }
-            }
-        });
+            });
 
-        if (changed) {
-            setFormData(prev => ({ ...prev, serviciosSeleccionados: newSelected }));
-        }
+            if (!changed) return prev;
+            return { ...prev, serviciosSeleccionados: newSelected };
+        });
     }, [formData.invitadosAdultos, formData.invitadosNinos, formData.invitadosAdolescentes]);
 
     useEffect(() => {

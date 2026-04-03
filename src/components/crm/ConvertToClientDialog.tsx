@@ -71,12 +71,17 @@ export function ConvertToClientDialog({ isOpen, onOpenChange, lead, onSubmit, on
     if (taxId.trim()) formData.append('taxId', taxId.trim());
     if (meetingDate) formData.append('meetingDate', meetingDate.toISOString());
 
-    const success = await onSubmit(formData);
-    if (success) {
-      onOpenChange(false); // Close dialog on successful submission
-      if (onClose) onClose();
+    try {
+      const success = await onSubmit(formData);
+      if (success) {
+        onOpenChange(false); // Close dialog on successful submission
+        if (onClose) onClose();
+      }
+    } catch (error: any) {
+      toast({ title: "Error al Convertir Prospecto", description: error.message || "No se pudo completar la conversión. Verifica tu conexión e inténtalo de nuevo.", variant: "destructive" });
+    } finally {
+      setIsSaving(false);
     }
-    setIsSaving(false);
   };
 
   return (
