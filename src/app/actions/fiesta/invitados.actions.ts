@@ -1,6 +1,6 @@
 'use server';
 
-import type { FiestaEnPlanificacion, Invitado, RsvpStatus, CategoriaInvitado } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, Invitado, RsvpStatus, CategoriaInvitado, DietaryRestriction } from '@/types/fiesta';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 
 
@@ -154,4 +154,45 @@ export async function checkInGuest(fiestaId: string, guestId: string): Promise<{
 
     if (!found) return { success: false, error: 'Invitado no encontrado.' };
     return { ...result, invitado: invitadoActualizado };
+}
+
+export async function submitPublicRsvp(fiestaId: string, submission: {
+    nombre: string;
+    asistencia: 'Confirmado' | 'Rechazado';
+    dietaryRestriction: DietaryRestriction;
+    cancionesDJ: string[];
+}): Promise<{ success: boolean; invitado?: Invitado; error?: string }> {
+    let savedInvitado: Invitado | undefined;
+
+    const result = await updateFiestaData(fiestaId, data => {
+        const currentInvitados = data.invitados || [];
+        const existingIndex = currentInvitados.findIndex(
+            inv => inv.nombre.trim().toLowerCase() === submission.nombre.trim().toLowerCase()
+        );
+
+        if (existingIndex > -1) {
+            savedInvitado = {
+                ...currentInvitados[existingIndex],
+                rsvp: submission.asistencia,
+                dietaryRestriction: submission.dietaryRestriction,
+                cancionesDJ: submission.cancionesDJ,
+                isCeliac: submission.dietaryRestriction === 'Celiaco',
+            };
+            currentInvitados[existingIndex] = savedInvitado;
+            return { ...data, invitados: [...currentInvitados] };
+        } else {
+            savedInvitado = {
+                id: `inv_rsvp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+                nombre: submission.nombre.trim(),
+                rsvp: submission.asistencia,
+                categoria: 'Adulto',
+                dietaryRestriction: submission.dietaryRestriction,
+                cancionesDJ: submission.cancionesDJ,
+                isCeliac: submission.dietaryRestriction === 'Celiaco',
+            };
+            return { ...data, invitados: [...currentInvitados, savedInvitado] };
+        }
+    });
+
+    return { ...result, invitado: savedInvitado };
 }
