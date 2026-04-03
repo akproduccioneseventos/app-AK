@@ -45,8 +45,13 @@ export function ScheduleMeetingDialog({ isOpen, onOpenChange, leadName, meetingT
     const [hours, minutes] = meetingTime.split(':').map(Number);
     finalDateTime.setHours(hours, minutes, 0, 0);
 
-    await onSubmit(finalDateTime.toISOString());
-    setIsSaving(false);
+    try {
+      await onSubmit(finalDateTime.toISOString());
+    } catch (error: any) {
+      toast({ title: "Error al Agendar", description: error.message || "Ocurrió un error inesperado.", variant: "destructive" });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (

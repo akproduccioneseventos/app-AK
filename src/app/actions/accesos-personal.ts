@@ -21,16 +21,21 @@ export async function createAccesoPersonal(
   if (!data.nombreAcceso.trim() || data.permisos.length === 0) {
     return { success: false, error: "Faltan datos para crear el acceso." };
   }
-  const accesos = await readData<AccesoPersonal[]>(ACCESOS_FILE, []);
-  const newAcceso: AccesoPersonal = {
-    ...data,
-    fiestaId: data.fiestaId || undefined, // Ensures fiestaId is not an empty string
-    id: randomUUID(),
-    fechaCreacion: new Date().toISOString(),
-  };
-  accesos.push(newAcceso);
-  await writeData(ACCESOS_FILE, accesos);
-  return { success: true, acceso: newAcceso };
+  try {
+    const accesos = await readData<AccesoPersonal[]>(ACCESOS_FILE, []);
+    const newAcceso: AccesoPersonal = {
+      ...data,
+      fiestaId: data.fiestaId || undefined,
+      id: randomUUID(),
+      fechaCreacion: new Date().toISOString(),
+    };
+    accesos.push(newAcceso);
+    await writeData(ACCESOS_FILE, accesos);
+    return { success: true, acceso: newAcceso };
+  } catch (error: any) {
+    console.error("Error creating acceso personal:", error);
+    return { success: false, error: error.message || "Error al crear el acceso." };
+  }
 }
 
 export async function getAccesosGenerales(): Promise<AccesoPersonal[]> {
@@ -44,12 +49,17 @@ export async function getAccesoById(tokenId: string): Promise<AccesoPersonal | n
 }
 
 export async function deleteAccesoPersonal(tokenId: string): Promise<{ success: boolean; error?: string }> {
-  let accesos = await readData<AccesoPersonal[]>(ACCESOS_FILE, []);
-  const initialLength = accesos.length;
-  accesos = accesos.filter(a => a.id !== tokenId);
-  if (accesos.length === initialLength) {
-    return { success: false, error: "No se encontró el acceso para eliminar." };
+  try {
+    let accesos = await readData<AccesoPersonal[]>(ACCESOS_FILE, []);
+    const initialLength = accesos.length;
+    accesos = accesos.filter(a => a.id !== tokenId);
+    if (accesos.length === initialLength) {
+      return { success: false, error: "No se encontró el acceso para eliminar." };
+    }
+    await writeData(ACCESOS_FILE, accesos);
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error deleting acceso personal:", error);
+    return { success: false, error: error.message || "Error al eliminar el acceso." };
   }
-  await writeData(ACCESOS_FILE, accesos);
-  return { success: true };
 }

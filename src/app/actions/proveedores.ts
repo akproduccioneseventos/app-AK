@@ -54,7 +54,12 @@ export async function saveProveedor(
     };
     proveedores.push(finalProveedorData);
   }
-  await writeData(PROVEEDORES_FILE, proveedores, (a, b) => (a.nombreEmpresa || a.nombre || '').localeCompare(b.nombreEmpresa || b.nombre || ''));
+  try {
+    await writeData(PROVEEDORES_FILE, proveedores, (a, b) => (a.nombreEmpresa || a.nombre || '').localeCompare(b.nombreEmpresa || b.nombre || ''));
+  } catch (writeError: any) {
+    console.error("Error saving proveedor:", writeError);
+    return { success: false, error: writeError.message || "Error al guardar el proveedor." };
+  }
   return { success: true, id: proveedorId, proveedor: finalProveedorData };
 }
 
@@ -65,6 +70,11 @@ export async function deleteProveedor(id: string): Promise<{ success: boolean; e
   if (proveedores.length === initialLength) {
     return { success: false, error: `Proveedor con ID ${id} no encontrado para eliminar.` };
   }
-  await writeData(PROVEEDORES_FILE, proveedores);
+  try {
+    await writeData(PROVEEDORES_FILE, proveedores);
+  } catch (writeError: any) {
+    console.error("Error deleting proveedor:", writeError);
+    return { success: false, error: writeError.message || "Error al eliminar el proveedor." };
+  }
   return { success: true };
 }

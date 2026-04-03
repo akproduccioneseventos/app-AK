@@ -105,7 +105,12 @@ export async function savePresupuesto(
   }
   
   presupuestos.push(nuevoPresupuesto);
-  await writeData(PRESUPUESTOS_FILE, presupuestos);
+  try {
+    await writeData(PRESUPUESTOS_FILE, presupuestos);
+  } catch (writeError: any) {
+    console.error("Error saving presupuesto:", writeError);
+    return { success: false, error: writeError.message || "Error al guardar el presupuesto." };
+  }
   
   await syncLinkedFiesta(nuevoPresupuesto);
 
@@ -161,7 +166,12 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
     }
 
     presupuestos[index] = updated;
-    await writeData(PRESUPUESTOS_FILE, presupuestos);
+    try {
+      await writeData(PRESUPUESTOS_FILE, presupuestos);
+    } catch (writeError: any) {
+      console.error("Error updating presupuesto:", writeError);
+      return { success: false, error: writeError.message || "Error al actualizar el presupuesto." };
+    }
     
     await syncLinkedFiesta(updated);
 
@@ -171,7 +181,12 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
 export async function deletePresupuesto(id: string): Promise<{ success: boolean; error?: string }> {
   let presupuestos = await getPresupuestos();
   presupuestos = presupuestos.filter(p => p.id !== id);
-  await writeData(PRESUPUESTOS_FILE, presupuestos);
+  try {
+    await writeData(PRESUPUESTOS_FILE, presupuestos);
+  } catch (writeError: any) {
+    console.error("Error deleting presupuesto:", writeError);
+    return { success: false, error: writeError.message || "Error al eliminar el presupuesto." };
+  }
   return { success: true };
 }
 
@@ -200,7 +215,12 @@ export async function markPresupuestoAsFacturado(
     console.warn("CRM Sync error on invoice", e);
   }
 
-  await writeData(PRESUPUESTOS_FILE, presupuestos);
+  try {
+    await writeData(PRESUPUESTOS_FILE, presupuestos);
+  } catch (writeError: any) {
+    console.error("Error saving presupuesto on invoice:", writeError);
+    return { success: false, error: writeError.message || "Error al actualizar el estado del presupuesto." };
+  }
 
   try {
     const fiestas = await getAllFiestas();

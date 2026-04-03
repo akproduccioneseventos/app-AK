@@ -125,23 +125,29 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
         e.preventDefault();
         if (!rsvpName.trim() || !onRsvpSubmit) return;
         setIsSubmittingRsvp(true);
-        const success = await onRsvpSubmit({
-            nombreCompleto: rsvpName,
-            confirmacion: 'Confirmado',
-            numeroAsistentes: rsvpGuests,
-            isCeliac: isCeliac,
-            mensaje: '',
-            companionNames: companionNames,
-            tag: rsvpTag || undefined
-        });
-        if (success) {
-            setIsRsvpModalOpen(false);
-            setRsvpName('');
-            setRsvpGuests(1);
-            setIsCeliac(false);
-            setRsvpTag('');
+        try {
+            const success = await onRsvpSubmit({
+                nombreCompleto: rsvpName,
+                confirmacion: 'Confirmado',
+                adultsCount: rsvpGuests,
+                kidsCount: 0,
+                isCeliac: isCeliac,
+                mensaje: '',
+                companionNames: companionNames,
+                tag: rsvpTag || undefined
+            });
+            if (success) {
+                setIsRsvpModalOpen(false);
+                setRsvpName('');
+                setRsvpGuests(1);
+                setIsCeliac(false);
+                setRsvpTag('');
+            }
+        } catch (error: any) {
+            toast({ title: "Error al confirmar asistencia", description: error.message || "Ocurrió un error inesperado.", variant: "destructive" });
+        } finally {
+            setIsSubmittingRsvp(false);
         }
-        setIsSubmittingRsvp(false);
     };
 
     const protagonist1 = fiesta.configuracion.protagonista1Nombre || invitacionData.cabecera.protagonista1;

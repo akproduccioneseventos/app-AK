@@ -261,26 +261,31 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
     if (!rsvpName.trim() || !onRsvpSubmit) return;
     setIsSubmittingRsvp(true);
     
-    const success = await onRsvpSubmit({
-      nombreCompleto: rsvpName,
-      confirmacion: 'Confirmado',
-      adultsCount: numAdults,
-      kidsCount: numKids,
-      isCeliac: isCeliac,
-      mensaje: rsvpMusicSuggestion.trim() ? `Sugerencia: ${rsvpMusicSuggestion}` : '',
-      companionNames: companionNames,
-      tag: rsvpTag || undefined
-    });
-    
-    if (success) {
-      setIsRsvpModalOpen(false);
-      setRsvpName('');
-      setNumAdults(1);
-      setNumKids(0);
-      setIsCeliac(false);
-      setRsvpTag('');
+    try {
+      const success = await onRsvpSubmit({
+        nombreCompleto: rsvpName,
+        confirmacion: 'Confirmado',
+        adultsCount: numAdults,
+        kidsCount: numKids,
+        isCeliac: isCeliac,
+        mensaje: rsvpMusicSuggestion.trim() ? `Sugerencia: ${rsvpMusicSuggestion}` : '',
+        companionNames: companionNames,
+        tag: rsvpTag || undefined
+      });
+      
+      if (success) {
+        setIsRsvpModalOpen(false);
+        setRsvpName('');
+        setNumAdults(1);
+        setNumKids(0);
+        setIsCeliac(false);
+        setRsvpTag('');
+      }
+    } catch (error: any) {
+      toast({ title: "Error al confirmar asistencia", description: error.message || "Ocurrió un error inesperado.", variant: "destructive" });
+    } finally {
+      setIsSubmittingRsvp(false);
     }
-    setIsSubmittingRsvp(false);
   };
 
   const handleSendChat = async (e: React.FormEvent) => {
