@@ -32,7 +32,8 @@ function calcularEgresos(fiesta: FiestaEnPlanificacion): number {
   const pagos = fiesta.pagosProveedores ?? [];
   const totalCostos = costos.reduce((s, c) => s + (c.montoEstimado ?? 0), 0);
   const totalPagos = pagos.reduce((s, p) => s + (p.monto ?? 0), 0);
-  // Use actual payments if available, otherwise use estimated costs
+  // Use actual payments if available (real money received is more accurate than estimates).
+  // Fall back to estimated costs when no actual payment records exist.
   return totalPagos > 0 ? totalPagos : totalCostos;
 }
 
