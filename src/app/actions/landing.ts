@@ -39,7 +39,7 @@ export async function savePromoPage(
   const now = new Date().toISOString();
   const savedPage: PromoLandingPage = {
     ...page,
-    id: page.id || `promo_${Date.now()}`,
+    id: page.id || crypto.randomUUID(),
     createdAt: page.createdAt || now,
   };
   const index = pages.findIndex((p) => p.id === savedPage.id);

@@ -4,10 +4,11 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { use } from 'react';
 import { MessageSquare, Check, Star, ExternalLink, Facebook, Instagram, Music, Loader2 } from 'lucide-react';
-import { getPromoPageBySlug } from '@/app/actions/landing';
+import { getPromoPageBySlug, getLandingPageSettings } from '@/app/actions/landing';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import type { PromoLandingPage } from '@/types/landing';
 import { cn } from '@/lib/utils';
+import { defaultLandingPageSettings } from '@/types/landing';
 
 // ─── Fallback social links ─────────────────────────────────────────────────
 
@@ -23,15 +24,18 @@ const FALLBACK_SOCIAL = [
 export default function PromoLandingPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
   const [page, setPage] = useState<PromoLandingPage | null>(null);
+  const [whatsappNumber, setWhatsappNumber] = useState(defaultLandingPageSettings.whatsappNumber);
   const [loading, setLoading] = useState(true);
   const [socialLinks, setSocialLinks] = useState(FALLBACK_SOCIAL);
 
   useEffect(() => {
     Promise.all([
       getPromoPageBySlug(slug),
+      getLandingPageSettings(),
       getSocialConnections(),
-    ]).then(([p, connections]) => {
+    ]).then(([p, landingSettings, connections]) => {
       setPage(p);
+      setWhatsappNumber(landingSettings.whatsappNumber || defaultLandingPageSettings.whatsappNumber);
       if (connections.length > 0) {
         const merged = FALLBACK_SOCIAL.map((fallback) => {
           const conn = connections.find(
@@ -73,7 +77,7 @@ export default function PromoLandingPage({ params }: { params: Promise<{ slug: s
 
   const accent = page.accentColor || '#9333ea';
   const waMessage = page.ctaWhatsAppMessage || `¡Hola! Vi la promoción "${page.title}" y me gustaría consultar.`;
-  const waHref = `https://wa.me/59899123456?text=${encodeURIComponent(waMessage)}`;
+  const waHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(waMessage)}`;
 
   return (
     <div className="min-h-screen bg-white font-body">
