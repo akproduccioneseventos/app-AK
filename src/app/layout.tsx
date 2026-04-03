@@ -1,5 +1,5 @@
 
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { AppShell } from '@/components/app-shell';
 import { Toaster } from "@/components/ui/toaster";
@@ -31,9 +31,28 @@ const dancingScript = Dancing_Script({
   variable: '--font-dancing_script',
 });
 
+export const viewport: Viewport = {
+  themeColor: '#0f172a',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+};
+
 export const metadata: Metadata = {
   title: 'AK Producciones',
   description: 'Plataforma integral para la planificación y gestión de eventos de AK Producciones.',
+  manifest: '/manifest.webmanifest',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'AK Producciones',
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  icons: {
+    apple: '/icons/icon-192x192.png',
+  },
 };
 
 export default function RootLayout({

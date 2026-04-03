@@ -1,3 +1,14 @@
+const withPWA = require('@ducanh2912/next-pwa').default({
+  dest: 'public',
+  cacheOnFrontEndNav: true,
+  aggressiveFrontEndNavCaching: true,
+  reloadOnOnline: true,
+  disable: process.env.NODE_ENV === 'development',
+  workboxOptions: {
+    disableDevLogs: true,
+  },
+});
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
@@ -40,4 +51,4 @@ const nextConfig = {
 
 // Forcing a clean rebuild to apply the new public base URL environment variable.
 // This comment forces a rebuild to fix dynamic routing issues.
-module.exports = nextConfig;
+module.exports = withPWA(nextConfig);
