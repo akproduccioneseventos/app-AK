@@ -695,3 +695,479 @@ export const tplEventoGeneral: InvitacionDigitalTemplate = {
     nombreEmpresa: { text: 'AK Producciones', style: { fontFamily: 'Belleza', fontSize: '1.25rem', color: '#7C6FA0' } },
   },
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ADULTOS / 50 AÑOS
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** 10. 🎩 Gatsby Dorado — Elegante Art Déco. Paleta: negro + dorado + champagne. */
+export const tplAdultos50Gatsby: InvitacionDigitalTemplate = {
+  ...defaultInvitacionDigitalData,
+  id: 'tpl_adultos_gatsby',
+  name: '🎩 Gatsby Dorado',
+  category: 'Cumpleaños',
+  plantilla: 'Grazia',
+  cabecera: {
+    ...defaultInvitacionDigitalData.cabecera,
+    protagonista1: 'Roberto',
+    protagonista2: '',
+    imagenFondoUrl: 'https://picsum.photos/seed/gatsby1200/1200/1800',
+    subtitulo: {
+      text: 'celebra sus 50 años y te invita a una noche extraordinaria',
+      style: { fontFamily: 'Playfair_Display', fontSize: '1.2rem', color: '#C6A84B' },
+    },
+    paletaColores: {
+      primary: '#C6A84B',
+      secondary: '#1A1A1A',
+      accent: '#F5EDD6',
+    },
+  },
+  bienvenida: {
+    ...defaultInvitacionDigitalData.bienvenida,
+    imagenFondoUrl: 'https://picsum.photos/seed/gatsby1200/1200/800',
+    titulo: {
+      text: '50 Años de Gran Historia',
+      style: { fontFamily: 'Playfair_Display', fontSize: '2.5rem', color: '#C6A84B' },
+    },
+    texto: {
+      text: '✨ Medio siglo de vida, de amor y de momentos que valen oro. Esta noche, el lujo y la elegancia se unen para celebrar una vida plena y extraordinaria.',
+      style: { fontFamily: 'Playfair_Display', fontSize: '1rem', color: '#1A1A1A' },
+    },
+  },
+  historia: {
+    ...defaultInvitacionDigitalData.historia,
+    titulo: {
+      text: 'Cinco Décadas de Vida',
+      style: { fontFamily: 'Playfair_Display', fontSize: '2.5rem', color: '#C6A84B' },
+    },
+    texto: {
+      text: 'Cincuenta años construyendo sueños, formando una familia y dejando huella en cada persona que tuvo el privilegio de conocerte. Esta noche es un brindis a todo lo vivido y a lo que aún está por venir.',
+      style: { fontFamily: 'Playfair_Display', fontSize: '1rem', color: '#1A1A1A' },
+    },
+    imagenFondoUrl: 'https://picsum.photos/seed/gatsby1200/1200/800',
+  },
+  cuentaRegresiva: { visible: true },
+  confirmacion: { visible: true },
+  detallesEvento: {
+    ...defaultInvitacionDigitalData.detallesEvento,
+    ceremoniaReligiosa: {
+      ...defaultInvitacionDigitalData.detallesEvento.ceremoniaReligiosa,
+      visible: false,
+    },
+    celebracion: {
+      ...defaultInvitacionDigitalData.detallesEvento.celebracion,
+      visible: true,
+      titulo: 'La Gran Velada',
+    },
+  },
+  regalos: {
+    ...defaultInvitacionDigitalData.regalos,
+    titulo: { text: 'Lista de Regalos', style: { fontFamily: 'Playfair_Display', fontSize: '2.5rem', color: '#C6A84B' } },
+    texto: { text: '🥂 Tu presencia ya es el mejor obsequio. Si deseás hacerle un regalo, encontrarás opciones a continuación.', style: { fontFamily: 'Playfair_Display', fontSize: '1rem', color: '#1A1A1A' } },
+  },
+  redesSociales: {
+    ...defaultInvitacionDigitalData.redesSociales,
+    hashtag: '#50AnosRoberto',
+    texto: { text: '¡Compartí esta noche dorada!', style: { fontFamily: 'Playfair_Display', fontSize: '2rem', color: '#C6A84B' } },
+  },
+  despedida: { visible: true },
+  footer: {
+    ...defaultInvitacionDigitalData.footer,
+    titulo: { text: 'Con cariño, Roberto y familia 🥂', style: { fontFamily: 'Playfair_Display', fontSize: '1rem', color: '#1A1A1A' } },
+    nombreEmpresa: { text: 'AK Producciones', style: { fontFamily: 'Belleza', fontSize: '1.25rem', color: '#C6A84B' } },
+  },
+};
+
+/** 11. 🪩 Retro Disco — Vibrante y festivo. Paleta: fucsia + turquesa neón + amarillo. */
+export const tplAdultos50Retro: InvitacionDigitalTemplate = {
+  ...defaultInvitacionDigitalData,
+  id: 'tpl_adultos_retro',
+  name: '🪩 Retro Disco',
+  category: 'Cumpleaños',
+  plantilla: 'Allegria',
+  cabecera: {
+    ...defaultInvitacionDigitalData.cabecera,
+    protagonista1: 'Graciela',
+    protagonista2: '',
+    imagenFondoUrl: 'https://picsum.photos/seed/disco1200/1200/1800',
+    subtitulo: {
+      text: '¡50 años y con más energía que nunca!',
+      style: { fontFamily: 'Belleza', fontSize: '1.25rem', color: '#FF1493' },
+    },
+    paletaColores: {
+      primary: '#FF1493',
+      secondary: '#00E5FF',
+      accent: '#FFE600',
+    },
+  },
+  bienvenida: {
+    ...defaultInvitacionDigitalData.bienvenida,
+    imagenFondoUrl: 'https://picsum.photos/seed/disco1200/1200/800',
+    titulo: {
+      text: '¡A Bailar los 50!',
+      style: { fontFamily: 'Belleza', fontSize: '2.5rem', color: '#FF1493' },
+    },
+    texto: {
+      text: '🕺 ¡La pista de baile está caliente y los años no se notan! Esta noche nos vamos a reír, bailar y celebrar como nunca. ¡No podés faltar! 💃',
+      style: { fontFamily: 'Belleza', fontSize: '1rem', color: '#1A0033' },
+    },
+  },
+  historia: {
+    ...defaultInvitacionDigitalData.historia,
+    titulo: {
+      text: '50 Años de Locura Sana',
+      style: { fontFamily: 'Belleza', fontSize: '2.5rem', color: '#FF1493' },
+    },
+    texto: {
+      text: 'Medio siglo de baile, de risas y de vivir con toda la energía del mundo. Graciela no celebra años, ¡celebra décadas de ser la más divertida del grupo!',
+      style: { fontFamily: 'Belleza', fontSize: '1rem', color: '#1A0033' },
+    },
+    imagenFondoUrl: 'https://picsum.photos/seed/disco1200/1200/800',
+  },
+  cuentaRegresiva: { visible: true },
+  confirmacion: { visible: true },
+  detallesEvento: {
+    ...defaultInvitacionDigitalData.detallesEvento,
+    ceremoniaReligiosa: {
+      ...defaultInvitacionDigitalData.detallesEvento.ceremoniaReligiosa,
+      visible: false,
+    },
+    celebracion: {
+      ...defaultInvitacionDigitalData.detallesEvento.celebracion,
+      visible: true,
+      titulo: '¡La Disco de los 50!',
+    },
+  },
+  regalos: {
+    ...defaultInvitacionDigitalData.regalos,
+    titulo: { text: 'Mesa de Regalos', style: { fontFamily: 'Belleza', fontSize: '2.5rem', color: '#FF1493' } },
+    texto: { text: '🎁 ¡Con que vengas a bailar ya es suficiente! Pero si insistís con el regalo, acá van los datos 😄', style: { fontFamily: 'Belleza', fontSize: '1rem', color: '#1A0033' } },
+  },
+  redesSociales: {
+    ...defaultInvitacionDigitalData.redesSociales,
+    hashtag: '#Graciela50Disco',
+    texto: { text: '¡Subí tus mejores fotos!', style: { fontFamily: 'Belleza', fontSize: '2rem', color: '#FF1493' } },
+  },
+  despedida: { visible: true },
+  footer: {
+    ...defaultInvitacionDigitalData.footer,
+    titulo: { text: 'Con todo el amor, Graciela 🕺', style: { fontFamily: 'Belleza', fontSize: '1rem', color: '#1A0033' } },
+    nombreEmpresa: { text: 'AK Producciones', style: { fontFamily: 'Belleza', fontSize: '1.25rem', color: '#FF1493' } },
+  },
+};
+
+/** 12. 🥂 Clásico Minimal — Limpio y formal. Paleta: blanco + gris pizarra + plata. */
+export const tplAdultos50Minimal: InvitacionDigitalTemplate = {
+  ...defaultInvitacionDigitalData,
+  id: 'tpl_adultos_minimal',
+  name: '🥂 Clásico Minimal',
+  category: 'Cumpleaños',
+  plantilla: 'Grazia',
+  cabecera: {
+    ...defaultInvitacionDigitalData.cabecera,
+    protagonista1: 'Elena',
+    protagonista2: '',
+    imagenFondoUrl: 'https://picsum.photos/seed/minimal50/1200/1800',
+    subtitulo: {
+      text: 'te invita a celebrar sus cincuenta años',
+      style: { fontFamily: 'Belleza', fontSize: '1.2rem', color: '#64748B' },
+    },
+    paletaColores: {
+      primary: '#64748B',
+      secondary: '#94A3B8',
+      accent: '#F8FAFC',
+    },
+  },
+  bienvenida: {
+    ...defaultInvitacionDigitalData.bienvenida,
+    imagenFondoUrl: 'https://picsum.photos/seed/minimal50/1200/800',
+    titulo: {
+      text: 'Cincuenta',
+      style: { fontFamily: 'Playfair_Display', fontSize: '3rem', color: '#334155' },
+    },
+    texto: {
+      text: 'Una celebración íntima y elegante para honrar este momento especial. Tu presencia es lo que hace que esta noche sea verdaderamente memorable.',
+      style: { fontFamily: 'Belleza', fontSize: '1rem', color: '#475569' },
+    },
+  },
+  historia: {
+    ...defaultInvitacionDigitalData.historia,
+    titulo: {
+      text: 'Mi Historia',
+      style: { fontFamily: 'Playfair_Display', fontSize: '2.5rem', color: '#334155' },
+    },
+    texto: {
+      text: 'Cincuenta años de aprender, crecer y disfrutar cada capítulo de la vida. Hoy quiero compartir este momento especial con las personas más importantes de mi camino.',
+      style: { fontFamily: 'Belleza', fontSize: '1rem', color: '#475569' },
+    },
+    imagenFondoUrl: 'https://picsum.photos/seed/minimal50/1200/800',
+  },
+  cuentaRegresiva: { visible: true },
+  confirmacion: { visible: true },
+  detallesEvento: {
+    ...defaultInvitacionDigitalData.detallesEvento,
+    ceremoniaReligiosa: {
+      ...defaultInvitacionDigitalData.detallesEvento.ceremoniaReligiosa,
+      visible: false,
+    },
+    celebracion: {
+      ...defaultInvitacionDigitalData.detallesEvento.celebracion,
+      visible: true,
+      titulo: 'La Celebración',
+    },
+  },
+  regalos: {
+    ...defaultInvitacionDigitalData.regalos,
+    titulo: { text: 'Regalos', style: { fontFamily: 'Playfair_Display', fontSize: '2.5rem', color: '#334155' } },
+    texto: { text: 'Tu presencia es mi regalo más valioso. Si deseas obsequiarme algo, encontrarás los datos a continuación.', style: { fontFamily: 'Belleza', fontSize: '1rem', color: '#475569' } },
+  },
+  redesSociales: {
+    ...defaultInvitacionDigitalData.redesSociales,
+    hashtag: '#Elena50',
+    texto: { text: 'Compartí este momento', style: { fontFamily: 'Playfair_Display', fontSize: '2rem', color: '#334155' } },
+  },
+  despedida: { visible: true },
+  footer: {
+    ...defaultInvitacionDigitalData.footer,
+    titulo: { text: 'Con cariño, Elena', style: { fontFamily: 'Belleza', fontSize: '1rem', color: '#475569' } },
+    nombreEmpresa: { text: 'AK Producciones', style: { fontFamily: 'Belleza', fontSize: '1.25rem', color: '#64748B' } },
+  },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INFANTILES
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** 13. 🦁 Safari Aventurero — Selva y animales. Paleta: verde selva + marrón + beige cálido. */
+export const tplInfantilSafari: InvitacionDigitalTemplate = {
+  ...defaultInvitacionDigitalData,
+  id: 'tpl_infantil_safari',
+  name: '🦁 Safari Aventurero',
+  category: 'Infantil',
+  plantilla: 'Allegria',
+  cabecera: {
+    ...defaultInvitacionDigitalData.cabecera,
+    protagonista1: 'Tomás',
+    protagonista2: '',
+    imagenFondoUrl: 'https://picsum.photos/seed/safari1200/1200/1800',
+    subtitulo: {
+      text: '¡cumple 5 años y te invita a una gran aventura!',
+      style: { fontFamily: 'Belleza', fontSize: '1.25rem', color: '#5C4218' },
+    },
+    paletaColores: {
+      primary: '#2D6A4F',
+      secondary: '#8B5E3C',
+      accent: '#F4E3C1',
+    },
+  },
+  bienvenida: {
+    ...defaultInvitacionDigitalData.bienvenida,
+    imagenFondoUrl: 'https://picsum.photos/seed/safari1200/1200/800',
+    titulo: {
+      text: '¡La Aventura Comienza!',
+      style: { fontFamily: 'Belleza', fontSize: '2.5rem', color: '#2D6A4F' },
+    },
+    texto: {
+      text: '🦁 Los animales de la selva están listos para la gran celebración. ¡Prepará tu mochila exploradora y venite a vivir la aventura más épica del año! 🌿🐘',
+      style: { fontFamily: 'Belleza', fontSize: '1rem', color: '#5C4218' },
+    },
+  },
+  historia: {
+    ...defaultInvitacionDigitalData.historia,
+    titulo: {
+      text: 'El Pequeño Explorador',
+      style: { fontFamily: 'Belleza', fontSize: '2.5rem', color: '#2D6A4F' },
+    },
+    texto: {
+      text: 'Desde que abrió los ojos al mundo, Tomás no paró de explorar, descubrir y sorprender. Hoy cumple 5 años y quiere celebrarlo rodeado de sus mejores amigos aventureros.',
+      style: { fontFamily: 'Belleza', fontSize: '1rem', color: '#5C4218' },
+    },
+    imagenFondoUrl: 'https://picsum.photos/seed/safari1200/1200/800',
+  },
+  cuentaRegresiva: { visible: true },
+  confirmacion: { visible: true },
+  detallesEvento: {
+    ...defaultInvitacionDigitalData.detallesEvento,
+    ceremoniaReligiosa: {
+      ...defaultInvitacionDigitalData.detallesEvento.ceremoniaReligiosa,
+      visible: false,
+    },
+    celebracion: {
+      ...defaultInvitacionDigitalData.detallesEvento.celebracion,
+      visible: true,
+      titulo: '¡Campamento Safari!',
+    },
+  },
+  regalos: {
+    ...defaultInvitacionDigitalData.regalos,
+    titulo: { text: 'Lista de Regalos', style: { fontFamily: 'Belleza', fontSize: '2.5rem', color: '#2D6A4F' } },
+    texto: { text: '🎁 ¡Con tu visita ya es suficiente aventura! Si querés traerle un regalo al explorador, acá encontrás los datos.', style: { fontFamily: 'Belleza', fontSize: '1rem', color: '#5C4218' } },
+  },
+  redesSociales: {
+    ...defaultInvitacionDigitalData.redesSociales,
+    hashtag: '#SafariDeTomas',
+    texto: { text: '¡Compartí la aventura!', style: { fontFamily: 'Belleza', fontSize: '2rem', color: '#2D6A4F' } },
+  },
+  despedida: { visible: true },
+  footer: {
+    ...defaultInvitacionDigitalData.footer,
+    titulo: { text: 'Con amor, la familia de Tomás 🦁', style: { fontFamily: 'Belleza', fontSize: '1rem', color: '#5C4218' } },
+    nombreEmpresa: { text: 'AK Producciones', style: { fontFamily: 'Belleza', fontSize: '1.25rem', color: '#2D6A4F' } },
+  },
+};
+
+/** 14. 🚀 Explorador Espacial — Ciencia ficción. Paleta: azul profundo + índigo + estrellas. */
+export const tplInfantilEspacio: InvitacionDigitalTemplate = {
+  ...defaultInvitacionDigitalData,
+  id: 'tpl_infantil_espacio',
+  name: '🚀 Explorador Espacial',
+  category: 'Infantil',
+  plantilla: 'Allegria',
+  cabecera: {
+    ...defaultInvitacionDigitalData.cabecera,
+    protagonista1: 'Valentín',
+    protagonista2: '',
+    imagenFondoUrl: 'https://picsum.photos/seed/space1200/1200/1800',
+    subtitulo: {
+      text: '¡cumple 6 años y parte en una misión intergaláctica!',
+      style: { fontFamily: 'Belleza', fontSize: '1.2rem', color: '#A5B4FC' },
+    },
+    paletaColores: {
+      primary: '#4F46E5',
+      secondary: '#1E1B4B',
+      accent: '#E0E7FF',
+    },
+  },
+  bienvenida: {
+    ...defaultInvitacionDigitalData.bienvenida,
+    imagenFondoUrl: 'https://picsum.photos/seed/space1200/1200/800',
+    titulo: {
+      text: '¡Despegue en 3, 2, 1!',
+      style: { fontFamily: 'Belleza', fontSize: '2.5rem', color: '#818CF8' },
+    },
+    texto: {
+      text: '🚀 La NASA no tiene la misión más épica del año, ¡la tiene Valentín! Astronautas de todas las galaxias están invitados a esta celebración intergaláctica. ⭐🌌',
+      style: { fontFamily: 'Belleza', fontSize: '1rem', color: '#C7D2FE' },
+    },
+  },
+  historia: {
+    ...defaultInvitacionDigitalData.historia,
+    titulo: {
+      text: 'El Pequeño Astronauta',
+      style: { fontFamily: 'Belleza', fontSize: '2.5rem', color: '#818CF8' },
+    },
+    texto: {
+      text: 'Desde su primer año de vida, Valentín miró las estrellas con la misma emoción con la que hoy cumple 6 años. Un niño que sueña en grande, ama los planetas y quiere explorar el universo.',
+      style: { fontFamily: 'Belleza', fontSize: '1rem', color: '#C7D2FE' },
+    },
+    imagenFondoUrl: 'https://picsum.photos/seed/space1200/1200/800',
+  },
+  cuentaRegresiva: { visible: true },
+  confirmacion: { visible: true },
+  detallesEvento: {
+    ...defaultInvitacionDigitalData.detallesEvento,
+    ceremoniaReligiosa: {
+      ...defaultInvitacionDigitalData.detallesEvento.ceremoniaReligiosa,
+      visible: false,
+    },
+    celebracion: {
+      ...defaultInvitacionDigitalData.detallesEvento.celebracion,
+      visible: true,
+      titulo: '¡Base Espacial!',
+    },
+  },
+  regalos: {
+    ...defaultInvitacionDigitalData.regalos,
+    titulo: { text: 'Lista de Regalos', style: { fontFamily: 'Belleza', fontSize: '2.5rem', color: '#818CF8' } },
+    texto: { text: '🎁 El astronauta agradece tu presencia. Si querés traerle un regalo a la misión, acá van los datos del comandante.', style: { fontFamily: 'Belleza', fontSize: '1rem', color: '#C7D2FE' } },
+  },
+  redesSociales: {
+    ...defaultInvitacionDigitalData.redesSociales,
+    hashtag: '#MisionValentin',
+    texto: { text: '¡Compartí la misión!', style: { fontFamily: 'Belleza', fontSize: '2rem', color: '#818CF8' } },
+  },
+  despedida: { visible: true },
+  footer: {
+    ...defaultInvitacionDigitalData.footer,
+    titulo: { text: 'Con amor, la familia de Valentín 🚀', style: { fontFamily: 'Belleza', fontSize: '1rem', color: '#C7D2FE' } },
+    nombreEmpresa: { text: 'AK Producciones', style: { fontFamily: 'Belleza', fontSize: '1.25rem', color: '#818CF8' } },
+  },
+};
+
+/** 15. 🏰 Castillo Mágico — Cuento de hadas. Paleta: rosa + lila + lavanda + destellos dorados. */
+export const tplInfantilCastillo: InvitacionDigitalTemplate = {
+  ...defaultInvitacionDigitalData,
+  id: 'tpl_infantil_castillo',
+  name: '🏰 Castillo Mágico',
+  category: 'Infantil',
+  plantilla: 'Grazia',
+  cabecera: {
+    ...defaultInvitacionDigitalData.cabecera,
+    protagonista1: 'Sofía',
+    protagonista2: '',
+    imagenFondoUrl: 'https://picsum.photos/seed/castle1200/1200/1800',
+    subtitulo: {
+      text: 'la princesa cumple 5 años y te invita a su reino mágico',
+      style: { fontFamily: 'Dancing_Script', fontSize: '1.3rem', color: '#9B59B6' },
+    },
+    paletaColores: {
+      primary: '#E91E8C',
+      secondary: '#9B59B6',
+      accent: '#FCE4EC',
+    },
+  },
+  bienvenida: {
+    ...defaultInvitacionDigitalData.bienvenida,
+    imagenFondoUrl: 'https://picsum.photos/seed/castle1200/1200/800',
+    titulo: {
+      text: '¡Bienvenidos al Reino Mágico!',
+      style: { fontFamily: 'Dancing_Script', fontSize: '2.5rem', color: '#E91E8C' },
+    },
+    texto: {
+      text: '👸 En un castillo lleno de magia, brillos y hadas madrinas, la princesa Sofía te espera para festejar su cumpleaños. ¡Vestite de cuento y venite a celebrar! 🌟🦄',
+      style: { fontFamily: 'Dancing_Script', fontSize: '1.1rem', color: '#6B1F7E' },
+    },
+  },
+  historia: {
+    ...defaultInvitacionDigitalData.historia,
+    titulo: {
+      text: 'La Princesa Sofía',
+      style: { fontFamily: 'Dancing_Script', fontSize: '2.5rem', color: '#E91E8C' },
+    },
+    texto: {
+      text: 'Hace 5 años llegó al mundo la princesa más especial del reino. Con su sonrisa mágica y su corazón de oro, Sofía ilumina la vida de todos los que la rodean. ¡Hoy es SU día!',
+      style: { fontFamily: 'Dancing_Script', fontSize: '1.1rem', color: '#6B1F7E' },
+    },
+    imagenFondoUrl: 'https://picsum.photos/seed/castle1200/1200/800',
+  },
+  cuentaRegresiva: { visible: true },
+  confirmacion: { visible: true },
+  detallesEvento: {
+    ...defaultInvitacionDigitalData.detallesEvento,
+    ceremoniaReligiosa: {
+      ...defaultInvitacionDigitalData.detallesEvento.ceremoniaReligiosa,
+      visible: false,
+    },
+    celebracion: {
+      ...defaultInvitacionDigitalData.detallesEvento.celebracion,
+      visible: true,
+      titulo: '¡La Gran Fiesta del Castillo!',
+    },
+  },
+  regalos: {
+    ...defaultInvitacionDigitalData.regalos,
+    titulo: { text: 'Lista de Regalos 🎁', style: { fontFamily: 'Dancing_Script', fontSize: '2.5rem', color: '#E91E8C' } },
+    texto: { text: '👑 ¡Con tu presencia el reino ya es más feliz! Si querés traerle un regalo a la princesa, acá encontrás los datos. 🌸', style: { fontFamily: 'Dancing_Script', fontSize: '1.1rem', color: '#6B1F7E' } },
+  },
+  redesSociales: {
+    ...defaultInvitacionDigitalData.redesSociales,
+    hashtag: '#CastilloDeSofia',
+    texto: { text: '¡Compartí la magia!', style: { fontFamily: 'Dancing_Script', fontSize: '2rem', color: '#E91E8C' } },
+  },
+  despedida: { visible: true },
+  footer: {
+    ...defaultInvitacionDigitalData.footer,
+    titulo: { text: 'Con todo el amor, la familia de Sofía 👸', style: { fontFamily: 'Dancing_Script', fontSize: '1.2rem', color: '#6B1F7E' } },
+    nombreEmpresa: { text: 'AK Producciones', style: { fontFamily: 'Belleza', fontSize: '1.25rem', color: '#E91E8C' } },
+  },
+};

@@ -9,15 +9,17 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DatePickerDemo } from '@/components/date-picker-demo';
-import { ArrowLeft, Save, Settings2, Loader2, AlertTriangle, UserCircle, FileText, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Save, Settings2, Loader2, AlertTriangle, UserCircle, FileText, RefreshCw, Building2 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import type { TipoEvento } from '@/types/presupuesto';
 import type { ConfigEventoDataStorage } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
+import type { Salon } from '@/types/salon';
 import { getFiestaById, updateConfiguracionFiestaActual } from '@/app/actions/fiesta-actual';
 import { initialFiestaActualData } from '@/lib/fiesta-defaults'; 
 import { getCustomers, getCustomerById, syncCustomerFromFiestaConfig } from '@/app/actions/customers';
+import { getSalones } from '@/app/actions/salones';
 import { Separator } from '@/components/ui/separator';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
@@ -38,6 +40,7 @@ function ConfiguracionEventoContent() {
 
   const [config, setConfig] = useState<ConfigFormState | null>(null);
   const [allCustomers, setAllCustomers] = useState<Customer[]>([]);
+  const [allSalones, setAllSalones] = useState<Salon[]>([]);
   const [linkedCustomer, setLinkedCustomer] = useState<Customer | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -53,14 +56,16 @@ function ConfiguracionEventoContent() {
     setIsLoadingCustomers(true);
     setLinkedCustomer(null);
     try {
-      const [fiesta, fetchedCustomers] = await Promise.all([
+      const [fiesta, fetchedCustomers, fetchedSalones] = await Promise.all([
         getFiestaById(fiestaId),
-        getCustomers()
+        getCustomers(),
+        getSalones(),
       ]);
 
       if (!fiesta) throw new Error("Evento no encontrado.");
       
       setAllCustomers(fetchedCustomers);
+      setAllSalones(fetchedSalones);
 
       let tempConfig: ConfigFormState = {
         ...(fiesta.configuracion || defaultEventConfigFromFiesta),
@@ -144,6 +149,21 @@ function ConfiguracionEventoContent() {
         setLinkedCustomer(null);
       }
       return updatedConfig;
+    });
+  };
+
+  const handleSalonChange = (salonId: string) => {
+    if (!salonId || salonId === 'ninguno') return;
+    const salon = allSalones.find((s) => s.id === salonId);
+    if (!salon) return;
+    setConfig((prev) => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        nombreLugar: salon.nombre,
+        direccionLugar: salon.direccion,
+        googleMapsUrl: salon.googleMapsUrl,
+      };
     });
   };
 
@@ -304,6 +324,28 @@ function ConfiguracionEventoContent() {
               <div className="space-y-2"><Label htmlFor="hora-fin" className="text-base">Hora de Fin (Opcional)</Label><Input id="hora-fin" type="time" value={config.horaFin || ''} onChange={(e) => handleChange('horaFin', e.target.value)} className="text-base p-3" disabled={isSaving}/></div>
             </div>
             <div className="space-y-2"><Label htmlFor="nombre-lugar" className="text-base">Lugar del Evento (Nombre)</Label><Input id="nombre-lugar" value={config.nombreLugar || ''} onChange={(e) => handleChange('nombreLugar', e.target.value)} placeholder="Ej: Salón Paraíso" className="text-base p-3" disabled={isSaving}/></div>
+            {allSalones.length > 0 && (
+              <div className="space-y-2">
+                <Label className="text-base flex items-center gap-2"><Building2 className="w-4 h-4 text-primary" />Seleccionar Salón Guardado</Label>
+                <Select onValueChange={handleSalonChange} disabled={isSaving}>
+                  <SelectTrigger className="text-base p-3 h-auto">
+                    <SelectValue placeholder="Elegir salón para auto-completar..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {allSalones.map((salon) => (
+                      <SelectItem key={salon.id} value={salon.id} className="text-base">
+                        {salon.nombre}{salon.capacidad > 0 ? ` (${salon.capacidad} pers.)` : ''}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">Al seleccionar un salón se completarán automáticamente el nombre, dirección y Google Maps.</p>
+              </div>
+            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2"><Label htmlFor="direccion-lugar" className="text-base">Dirección del Lugar</Label><Input id="direccion-lugar" value={config.direccionLugar || ''} onChange={(e) => handleChange('direccionLugar', e.target.value)} placeholder="Ej: Av. Libertador 1234, Montevideo" className="text-base p-3" disabled={isSaving}/></div>
+              <div className="space-y-2"><Label htmlFor="google-maps-url" className="text-base">Link Google Maps</Label><Input id="google-maps-url" type="url" value={config.googleMapsUrl || ''} onChange={(e) => handleChange('googleMapsUrl', e.target.value)} placeholder="https://maps.google.com/..." className="text-base p-3" disabled={isSaving}/></div>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2"><Label htmlFor="invitados-estimados" className="text-base">Nº Estimado de Invitados</Label><Input id="invitados-estimados" type="number" value={config.invitadosEstimados === undefined || config.invitadosEstimados === null ? '' : String(config.invitadosEstimados)} onChange={(e) => handleChange('invitadosEstimados', e.target.value === '' ? '' : parseInt(e.target.value, 10))} placeholder="Ej: 100" min="0" className="text-base p-3" disabled={isSaving}/></div>
                  <div className="space-y-2"><Label htmlFor="presupuesto-estimado" className="text-base">Presupuesto Total Pactado (UYU)</Label><Input id="presupuesto-estimado" type="number" value={config.presupuestoEstimado === undefined || config.presupuestoEstimado === null ? '' : String(config.presupuestoEstimado)} onChange={(e) => handleChange('presupuestoEstimado', e.target.value === '' ? '' : parseFloat(e.target.value))} placeholder="Ej: 500000" min="0" step="any" className="text-base p-3" disabled={isSaving}/></div>

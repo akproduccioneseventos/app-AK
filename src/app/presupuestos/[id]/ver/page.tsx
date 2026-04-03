@@ -269,6 +269,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
           <Link href="/presupuestos/nuevo"><Button variant="outline" size="sm" className="rounded-xl"><ArrowLeft className="mr-2 h-4 w-4"/>Volver</Button></Link>
           <div className="flex gap-2 flex-wrap justify-end">
             <Link href={`/presupuestos/${presupuestoId}/estado-de-cuenta`}><Button variant="outline" size="sm" className="rounded-xl"><Receipt className="mr-2 h-4 w-4"/>Estado de Cuenta</Button></Link>
+            <Link href={`/presupuestos/${presupuestoId}/recibo-contrato`}><Button size="sm" className="rounded-xl bg-primary hover:bg-primary/90 text-white"><FileSignature className="mr-2 h-4 w-4"/>Recibo y Contrato</Button></Link>
             <Button onClick={handlePrint} size="sm" className="rounded-xl"><Printer className="mr-2 h-4 w-4"/>Imprimir/PDF</Button>
             <Link href={`/presupuestos/${presupuestoId}/edit`}><Button variant="outline" size="sm" className="rounded-xl"><Edit className="mr-2 h-4 w-4"/>Editar</Button></Link>
           </div>
