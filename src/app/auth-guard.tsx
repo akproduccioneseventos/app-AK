@@ -50,6 +50,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
       '/public',
       '/portal-cliente',
       '/simulador',
+      '/simulador-ak',
       '/proveedor',
     ];
     
