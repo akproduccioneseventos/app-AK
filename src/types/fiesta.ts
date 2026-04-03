@@ -451,6 +451,14 @@ export interface SocialGallerySettings {
   accentColor?: string;
   chatEnabled?: boolean;
   maxPhotos?: number;
+  showAds?: boolean;
+  showSongRequests?: boolean;
+  showPolls?: boolean;
+  showDedications?: boolean;
+  photoFrame?: boolean;
+  momentosActivos?: { id: string; nombre: string; emoji: string; timestamp: string }[];
+  sorteoParticipantesRedes?: { nombre: string; timestamp: string }[];
+  sorteoGanadores?: string[];
 }
 
 export interface MusicaFiesta {

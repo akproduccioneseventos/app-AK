@@ -38,6 +38,8 @@ export async function uploadSocialPost(formData: FormData): Promise<{ success: b
   const fiestaId = formData.get('fiestaId') as string;
   const file = formData.get('file') as File;
   const authorName = (formData.get('authorName') as string) || 'Anónimo';
+  const dedication = (formData.get('dedication') as string) || undefined;
+  const momentTag = (formData.get('momentTag') as string) || undefined;
 
   if (!fiestaId || !file) return { success: false, error: "Faltan datos (ID de fiesta o archivo)." };
   
@@ -68,6 +70,8 @@ export async function uploadSocialPost(formData: FormData): Promise<{ success: b
       authorName: authorName,
       likes: 0,
       comments: [],
+      ...(dedication ? { dedication } : {}),
+      ...(momentTag ? { momentTag } : {}),
     };
     allPosts.push(newPost);
     await writeMetadata(allPosts);
