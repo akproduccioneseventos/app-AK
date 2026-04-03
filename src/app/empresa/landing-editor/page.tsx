@@ -26,10 +26,7 @@ import { defaultLandingPageSettings } from '@/types/landing';
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function uid() {
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-    return crypto.randomUUID();
-  }
-  return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  return crypto.randomUUID();
 }
 
 // ─── Gallery Item Row ─────────────────────────────────────────────────────────
@@ -361,7 +358,23 @@ export default function LandingEditorPage() {
   };
 
   const handleSavePromo = async (draft: Partial<PromoLandingPage>) => {
-    const result = await savePromoPage({ isActive: true, packages: [], ...draft } as any);
+    if (!draft.title?.trim() || !draft.slug?.trim()) {
+      toast({ title: 'Error', description: 'El título y el slug son obligatorios.', variant: 'destructive' });
+      return;
+    }
+    const result = await savePromoPage({
+      isActive: draft.isActive ?? true,
+      packages: draft.packages ?? [],
+      title: draft.title,
+      slug: draft.slug,
+      subtitle: draft.subtitle,
+      description: draft.description,
+      heroImageUrl: draft.heroImageUrl,
+      accentColor: draft.accentColor,
+      ctaWhatsAppMessage: draft.ctaWhatsAppMessage,
+      id: draft.id,
+      createdAt: draft.createdAt,
+    });
     if (result.success) {
       toast({ title: '¡Guardado!', description: 'La página promocional se guardó correctamente.' });
       setEditingPromo(null);

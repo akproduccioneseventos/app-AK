@@ -41,7 +41,7 @@ export default function PromoLandingPage({ params }: { params: Promise<{ slug: s
           const conn = connections.find(
             (c) => c.platform === fallback.platform && c.isConnected && c.profileUrl
           );
-          return conn ? { ...fallback, profileUrl: conn.profileUrl! } : fallback;
+          return conn && conn.profileUrl ? { ...fallback, profileUrl: conn.profileUrl } : fallback;
         });
         setSocialLinks(merged);
       }
