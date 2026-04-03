@@ -9,7 +9,6 @@ import NextImage from 'next/image';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 
 const REFRESH_INTERVAL_MS = 8000;
-const SLIDESHOW_INTERVAL_MS = 5000;
 
 export default function MuroEnVivoPage() {
   const params = useParams();
@@ -18,8 +17,6 @@ export default function MuroEnVivoPage() {
   const [posts, setPosts] = useState<SocialGalleryPost[]>([]);
   const [eventName, setEventName] = useState<string>('');
   const [isLoaded, setIsLoaded] = useState(false);
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [layoutMode] = useState<'masonry' | 'slideshow'>('masonry');
 
   const postsRef = useRef<SocialGalleryPost[]>([]);
 
@@ -58,15 +55,6 @@ export default function MuroEnVivoPage() {
     return () => clearInterval(interval);
   }, [fetchData]);
 
-  // Slideshow cycle
-  useEffect(() => {
-    if (posts.length === 0) return;
-    const timer = setInterval(() => {
-      setCurrentSlide(prev => (prev + 1) % posts.length);
-    }, SLIDESHOW_INTERVAL_MS);
-    return () => clearInterval(timer);
-  }, [posts.length]);
-
   return (
     <div className="fixed inset-0 bg-slate-950 overflow-hidden select-none">
       {/* Ambient gradient background */}
@@ -103,7 +91,7 @@ export default function MuroEnVivoPage() {
         </div>
       )}
 
-      {isLoaded && posts.length > 0 && layoutMode === 'masonry' && (
+      {isLoaded && posts.length > 0 && (
         <MasonryLayout posts={posts} />
       )}
     </div>

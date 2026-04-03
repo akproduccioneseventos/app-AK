@@ -84,15 +84,10 @@ function AccessControlContent() {
 
     try {
       const url = new URL(decodedText);
-      const scannedFiestaId = url.searchParams.get('fiestaId') ?? url.pathname.split('/').filter(Boolean).pop();
+      const scannedFiestaId = url.searchParams.get('fiestaId');
       const guestId = url.searchParams.get('guestId');
 
-      // Accept QRs that contain the right fiestaId OR are from the rsvp URL format
-      const isValidFiesta =
-        scannedFiestaId === fiestaId ||
-        url.pathname.includes(fiestaId);
-
-      if (!isValidFiesta) {
+      if (!scannedFiestaId || scannedFiestaId !== fiestaId) {
         setScanResult({ status: 'invalid', message: 'Este QR no pertenece a este evento.' });
         scheduleReset();
         return;

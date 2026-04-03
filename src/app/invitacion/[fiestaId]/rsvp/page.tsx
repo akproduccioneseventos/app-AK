@@ -124,10 +124,10 @@ function RsvpFormContent() {
   }
 
   const eventName = fiesta.configuracion?.nombreEvento || 'El Evento';
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
 
   if (confirmedGuest) {
-    const qrValue = `${baseUrl}/evento/accesos/${fiestaId}?guestId=${confirmedGuest.id}`;
+    const qrValue = `${baseUrl}/evento/accesos/${fiestaId}?fiestaId=${fiestaId}&guestId=${confirmedGuest.id}`;
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white flex flex-col items-center justify-center p-4">
         <motion.div
