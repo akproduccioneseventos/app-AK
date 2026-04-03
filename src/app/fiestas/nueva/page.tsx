@@ -62,6 +62,7 @@ const modules = [
   { id: 'listaCompras', title: "Compras", href: "catering/lista-compras", icon: ShoppingCart, description: "Insumos necesarios.", category: 'Herramientas Adicionales', color: "bg-slate-100 text-slate-600" },
   { id: 'menuMesa', title: "Menú Mesa", href: "menu-mesa", icon: Printer, description: "Diseño impreso.", category: 'Herramientas Adicionales', color: "bg-slate-100 text-slate-600" },
   { id: 'numerosMesa', title: "Números Mesa", href: "invitados/numeros-mesa", icon: Printer, description: "Impresión de señalética.", category: 'Herramientas Adicionales', color: "bg-slate-100 text-slate-600" },
+  { id: 'carteleria', title: "Cartelería de Mesas", href: "carteleria", icon: Printer, description: "Kit completo: tragos, menú, QR y números.", category: 'Herramientas Adicionales', color: "bg-violet-100 text-violet-600" },
 ];
 
 const moduleCategories = [
