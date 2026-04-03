@@ -179,14 +179,16 @@ export const defaultCartaTragosData: CartaTragosData = {
   backgroundColor: '#ffffff',
   paletaColores: { primary: '#9333ea', secondary: '#363636', accent: '#ffffff' },
   items: [
-    { id: 'trago_1', nombre: 'Mojito', imageUrl: '', aiHint: 'mojito cocktail' },
-    { id: 'trago_2', nombre: 'Fernet', imageUrl: '', aiHint: 'fernet drink' },
-    { id: 'trago_3', nombre: 'Gin Tonic', imageUrl: '', aiHint: 'gin tonic cocktail' },
-    { id: 'trago_4', nombre: 'Espumante', imageUrl: '', aiHint: 'sparkling wine' },
-    { id: 'trago_5', nombre: 'Cerveza', imageUrl: '', aiHint: 'beer glass' },
-    { id: 'trago_6', nombre: 'Aperol Spritz', imageUrl: '', aiHint: 'aperol spritz cocktail' },
-    { id: 'trago_7', nombre: 'Clericó', imageUrl: '', aiHint: 'fruit punch drink' },
-    { id: 'trago_8', nombre: 'Sangría', imageUrl: '', aiHint: 'sangria wine drink' },
+    { id: 'trago_1', nombre: 'Daiquiri de Durazno', imageUrl: '', aiHint: 'peach daiquiri cocktail' },
+    { id: 'trago_2', nombre: 'Caipirinha', imageUrl: '', aiHint: 'caipirinha lime cocktail' },
+    { id: 'trago_3', nombre: 'Arizona', imageUrl: '', aiHint: 'arizona iced tea cocktail' },
+    { id: 'trago_4', nombre: 'Daiquiri de Ananá', imageUrl: '', aiHint: 'pineapple daiquiri cocktail' },
+    { id: 'trago_5', nombre: 'Daiquiri de Frutilla', imageUrl: '', aiHint: 'strawberry daiquiri cocktail' },
+    { id: 'trago_6', nombre: 'Atomic Green', imageUrl: '', aiHint: 'green cocktail atomic' },
+    { id: 'trago_7', nombre: 'Daiquiri Primavera', imageUrl: '', aiHint: 'spring daiquiri colorful cocktail' },
+    { id: 'trago_8', nombre: 'Fernet con Coca', imageUrl: '', aiHint: 'fernet cola drink' },
+    { id: 'trago_9', nombre: 'Atardecer', imageUrl: '', aiHint: 'sunset tequila sunrise cocktail' },
+    { id: 'trago_10', nombre: 'Destornillador', imageUrl: '', aiHint: 'screwdriver vodka orange cocktail' },
   ],
   empresa: { linea1: 'AK PRODUCCIONES', linea2: 'Servicio de fiestas integral', contacto: '098 355 530' },
 };
@@ -196,7 +198,7 @@ export const defaultModulosContratados: ModulosContratados = {
     itinerario: true, documentos: true, costos: true, cargaOperativa: true, fotografia: true, videoVida: true,
     reuniones: true, muroSocial: true, regalos: false, feedback: false, menuMesa: false,
     checkin: false, resumenImprimible: false, configuracion: true, disenoSalon: true, listaCompras: true, portalCliente: true,
-    numerosMesa: true, mesasCliente: true, resumenPlanificacion: true, enVivo: true
+    numerosMesa: true, mesasCliente: true, resumenPlanificacion: true, enVivo: true, carteleria: true
 };
 
 export const initialFiestaActualData: FiestaEnPlanificacion = {

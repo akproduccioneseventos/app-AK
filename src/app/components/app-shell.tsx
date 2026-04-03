@@ -104,6 +104,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/resumen-imprimible') return 'Resumen Imprimible del Evento';
   if (pathname === '/fiestas/nueva/pagina-web') return 'Página Pública del Evento';
   if (pathname === '/fiestas/nueva/en-vivo') return 'Evento en Vivo (Táctico)';
+  if (pathname === '/fiestas/nueva/carteleria') return 'Cartelería de Mesas';
   if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
 
   if (pathname === '/contabilidad/crm') return 'Gestión de Prospectos (CRM)';
@@ -180,6 +181,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/resumen-imprimible') return Printer;
     if (pathname === '/fiestas/nueva/pagina-web') return Globe;
     if (pathname === '/fiestas/nueva/en-vivo') return Zap;
+    if (pathname === '/fiestas/nueva/carteleria') return Printer;
     if (pathname === '/planner-costo-fiesta') return Calculator;
     return PartyPopper;
   }

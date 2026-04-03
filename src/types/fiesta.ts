@@ -655,6 +655,7 @@ export interface ModulosContratados {
   mesasCliente: boolean;
   resumenPlanificacion: boolean;
   enVivo: boolean;
+  carteleria?: boolean;
 }
 
 export interface CompraProveedorEstado {
