@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, UploadCloud, FileText, Loader2, Archive, FileSignature, FileArchive, FileX, Download, ListChecks } from 'lucide-react';
+import { ArrowLeft, UploadCloud, FileText, Loader2, Archive, FileSignature, FileArchive, FileX, Download, ListChecks, Receipt } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { FiestaEnPlanificacion, DocumentoTipo } from '@/types/fiesta';
@@ -208,6 +208,9 @@ function GestionDocumentalContent() {
                      <Button variant="secondary" size="sm"><ListChecks className="w-4 h-4 mr-1.5"/>Crear Presupuesto</Button>
                    </Link>
                 )}
+                <Link href={`/fiestas/nueva/gestion-documental/recibo-pago?fiestaId=${fiestaId}`}>
+                  <Button variant="default" size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white"><Receipt className="w-4 h-4 mr-1.5"/>Recibo de Pago PDF</Button>
+                </Link>
                 <Link href={`/fiestas/nueva/gestion-documental/contrato-servicio?fiestaId=${fiestaId}`}>
                   <Button variant="secondary" size="sm"><FileSignature className="w-4 h-4 mr-1.5"/>Borrador Contrato Servicio</Button>
                 </Link>
