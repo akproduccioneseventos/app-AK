@@ -36,7 +36,7 @@ export function HeroSection({
       <div className="relative z-10 max-w-3xl mx-auto flex flex-col items-center gap-6">
         {/* Emoji badge */}
         <span
-          className="text-6xl sm:text-7xl drop-shadow-lg animate-bounce"
+          className="text-6xl sm:text-7xl drop-shadow-lg animate-bounce motion-reduce:animate-none"
           role="img"
           aria-label={hero.emoji}
           style={{ animationDuration: '2s' }}
@@ -64,7 +64,7 @@ export function HeroSection({
                 'text-white font-black text-base uppercase tracking-widest',
                 'shadow-xl shadow-green-900/25',
                 'transition-all duration-300 hover:scale-105 active:scale-95',
-                'animate-pulse hover:animate-none'
+                'animate-pulse hover:animate-none motion-reduce:animate-none'
               )}
             >
               <MessageSquare className="w-5 h-5 shrink-0" />

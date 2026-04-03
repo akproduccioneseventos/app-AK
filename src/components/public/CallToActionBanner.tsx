@@ -52,7 +52,7 @@ export function CallToActionBanner({
               'text-white font-black text-base uppercase tracking-widest',
               'shadow-xl shadow-black/20',
               'transition-all duration-300 hover:scale-105 active:scale-95',
-              'animate-pulse hover:animate-none'
+              'animate-pulse hover:animate-none motion-reduce:animate-none'
             )}
           >
             <MessageSquare className="w-5 h-5 shrink-0" />

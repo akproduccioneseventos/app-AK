@@ -79,7 +79,7 @@ export default function PublicCatalogPage() {
           </div>
 
           <a href={waHref} target="_blank" rel="noopener noreferrer">
-            <button className="flex items-center gap-3 px-8 py-4 rounded-2xl bg-[#25D366] hover:bg-[#1eb356] text-white font-black text-base uppercase tracking-widest shadow-xl shadow-green-900/25 transition-all duration-300 hover:scale-105 active:scale-95 animate-pulse hover:animate-none">
+            <button className="flex items-center gap-3 px-8 py-4 rounded-2xl bg-[#25D366] hover:bg-[#1eb356] text-white font-black text-base uppercase tracking-widest shadow-xl shadow-green-900/25 transition-all duration-300 hover:scale-105 active:scale-95 animate-pulse hover:animate-none motion-reduce:animate-none">
               <MessageSquare className="w-5 h-5 shrink-0" />
               Consultanos por WhatsApp
             </button>
