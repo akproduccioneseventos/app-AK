@@ -145,10 +145,6 @@ export default async function PromoLandingPage({ params }: PromoPageProps) {
   if (!config) notFound();
 
   const whatsappNumber = config.whatsappNumber ?? '59899123456';
-  const waMessage = config.whatsappMessage
-    ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(config.whatsappMessage)}`
-    : undefined;
-  void waMessage; // Available for future use
 
   return (
     <div className="min-h-screen bg-white">

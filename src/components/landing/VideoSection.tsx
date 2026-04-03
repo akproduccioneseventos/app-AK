@@ -99,7 +99,7 @@ export function VideoSection({ videos = DEFAULT_VIDEOS }: VideoSectionProps) {
             Nuestros Videos
           </h2>
           <p className="text-slate-400 text-lg max-w-xl mx-auto">
-            Revisivimos cada evento. Mirá el trabajo que ponemos en cada celebración.
+            Revivimos cada evento. Mirá el trabajo que ponemos en cada celebración.
           </p>
         </div>
 
