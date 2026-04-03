@@ -108,8 +108,8 @@ function AccessControlContent() {
       }
 
       if (result.invitado?.checkedIn && result.invitado.checkInTimestamp) {
-        const alreadyWas = new Date(result.invitado.checkInTimestamp).getTime() < Date.now() - 2000;
-        if (alreadyWas) {
+        const isExistingCheckIn = new Date(result.invitado.checkInTimestamp).getTime() < Date.now() - 2000;
+        if (isExistingCheckIn) {
           setScanResult({ status: 'already_entered', guest: result.invitado });
           scheduleReset(6000);
           return;

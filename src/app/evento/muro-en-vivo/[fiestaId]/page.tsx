@@ -32,8 +32,10 @@ export default function MuroEnVivoPage() {
         (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
       );
 
-      // Only update if there are new posts to avoid unnecessary re-renders
-      if (sorted.length !== postsRef.current.length) {
+      // Update if post count or the latest post ID changes
+      const latestId = sorted[0]?.id ?? '';
+      const prevLatestId = postsRef.current[0]?.id ?? '';
+      if (sorted.length !== postsRef.current.length || latestId !== prevLatestId) {
         postsRef.current = sorted;
         setPosts(sorted);
       }
