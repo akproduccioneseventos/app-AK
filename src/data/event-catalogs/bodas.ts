@@ -16,8 +16,7 @@ const bodasData: EventCatalogData = {
     headline: 'Tu boda perfecta, hecha realidad',
     subheadline:
       'Organizamos cada detalle para que el día más importante de tu vida sea exactamente como lo soñaste. Décor, catering, música, fotografía — todo en un solo lugar.',
-    gradientClasses:
-      'from-rose-50 via-pink-50 to-red-50',
+    gradientClasses: 'from-rose-50 via-pink-50 to-red-50',
     accentColor: 'rose',
     emoji: '💍',
     ctaLabel: '¡Cotizar mi boda!',
