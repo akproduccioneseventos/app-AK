@@ -41,7 +41,8 @@ import {
   Printer,
   Wallet,
   Calculator,
-  TrendingUp
+  TrendingUp,
+  Globe,
 } from "lucide-react";
 import AppLogo from "./app-logo";
 import { cn } from "@/lib/utils";
@@ -283,6 +284,14 @@ export function MainNav() {
                   <SidebarMenuButton isActive={isActive("/empresa/redes-sociales")} className="h-12 rounded-xl font-bold text-xs text-slate-500 hover:text-primary transition-all duration-300">
                     <Sparkles className="w-5 h-5 text-indigo-500" />
                     <span className="ml-2">Marketing</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/empresa/landing-editor">
+                  <SidebarMenuButton isActive={isActive("/empresa/landing-editor")} className="h-12 rounded-xl font-bold text-xs text-slate-500 hover:text-primary transition-all duration-300">
+                    <Globe className="w-5 h-5 text-teal-500" />
+                    <span className="ml-2">Landing Page</span>
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>

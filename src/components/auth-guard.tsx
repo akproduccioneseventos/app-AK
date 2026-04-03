@@ -45,6 +45,8 @@ export function AuthGuard({ children }: AuthGuardProps) {
       '/portal',
       '/simulador-de-presupuesto',
       '/acceso-personal',
+      '/empresa/landing',
+      '/landing',
     ];
     
     const isPublic = publicPaths.some(publicPath => pathname.startsWith(publicPath));

@@ -47,6 +47,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/customers/reporte') return 'Reporte de Clientes';
   
   if (pathname === '/empresa') return 'Gestión de la Empresa';
+  if (pathname === '/empresa/landing-editor') return 'Editor de Landing Page';
   if (pathname === '/empresa/servicios') return 'Catálogo de Servicios';
   if (pathname === '/empresa/servicios/nuevo') return 'Añadir Nuevo Servicio';
   if (pathname === '/empresa/servicios/reporte') return 'Reporte de Servicios';
@@ -268,6 +269,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const isAuthPage = pathname === '/login';
   const isPublicEventPage = pathname.startsWith('/evento/actual') || pathname.startsWith('/evento/social') || pathname.startsWith('/video-vida') || pathname.startsWith('/feedback') || pathname.startsWith('/acceso-personal') || pathname.startsWith('/portal');
   const isClientFacingTool = pathname === '/simulador-de-presupuesto';
+  const isPublicLandingPage = pathname.startsWith('/empresa/landing') || pathname.startsWith('/landing/');
 
   // Define pages that are printable views and should not have the shell.
   const isPdfPage = pathname.endsWith('/pdf') || pathname.endsWith('/resumen-imprimible') || pathname.endsWith('/reporte');
@@ -280,6 +282,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     isAuthPage || 
     isPublicEventPage || 
     isClientFacingTool ||
+    isPublicLandingPage ||
     isPdfPage ||
     isBudgetViewPage ||
     isInvoiceViewPage;

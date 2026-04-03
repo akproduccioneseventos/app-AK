@@ -248,6 +248,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const isAuthPage = pathname === '/login';
   const isPublicEventPage = pathname.startsWith('/evento/actual') || pathname.startsWith('/evento/social') || pathname.startsWith('/video-vida') || pathname.startsWith('/feedback') || pathname.startsWith('/acceso-personal') || pathname.startsWith('/portal');
   const isClientFacingTool = pathname === '/simulador-de-presupuesto';
+  const isPublicLandingPage = pathname.startsWith('/empresa/landing') || pathname.startsWith('/landing/');
 
   // Define pages that are printable views and should not have the shell.
   const isPdfPage = pathname.endsWith('/pdf') || pathname.endsWith('/resumen-imprimible') || pathname.endsWith('/reporte');
@@ -260,6 +261,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     isAuthPage || 
     isPublicEventPage || 
     isClientFacingTool ||
+    isPublicLandingPage ||
     isPdfPage ||
     isBudgetViewPage ||
     isInvoiceViewPage;
