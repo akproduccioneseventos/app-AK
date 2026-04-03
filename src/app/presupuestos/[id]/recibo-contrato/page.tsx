@@ -435,38 +435,30 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
                     );
                   }
 
-                  // Signature block (last paragraph)
-                  if (trimmed.includes('POR AK PRODUCCIONES')) {
-                    return (
-                      <div key={idx} className="mt-8 pt-6 border-t border-slate-200 grid grid-cols-2 gap-8">
-                        <div className="space-y-8">
-                          <div>
-                            <div className="border-b border-slate-400 h-12" />
-                            <p className="text-[9px] font-black uppercase text-slate-500 mt-1 text-center tracking-wider">
-                              POR AK PRODUCCIONES EVENTOS
-                            </p>
-                            <p className="text-[9px] text-slate-400 text-center">Tec. Alexander Knuth</p>
-                          </div>
-                        </div>
-                        <div className="space-y-8">
-                          <div>
-                            <div className="border-b border-slate-400 h-12" />
-                            <p className="text-[9px] font-black uppercase text-slate-500 mt-1 text-center tracking-wider">
-                              EL CLIENTE
-                            </p>
-                            <p className="text-[9px] text-slate-400 text-center">{presupuesto.clienteNombre}</p>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  }
-
                   return (
                     <p key={idx} className="text-[10px] print:text-[9pt] leading-relaxed text-slate-600 mb-2">
                       {trimmed}
                     </p>
                   );
                 })}
+              </div>
+
+              {/* Signature block — always shown at bottom of contract */}
+              <div className="mt-8 pt-6 border-t border-slate-200 grid grid-cols-2 gap-8">
+                <div>
+                  <div className="border-b border-slate-400 h-12" />
+                  <p className="text-[9px] font-black uppercase text-slate-500 mt-1 text-center tracking-wider">
+                    POR AK PRODUCCIONES EVENTOS
+                  </p>
+                  <p className="text-[9px] text-slate-400 text-center">Tec. Alexander Knuth</p>
+                </div>
+                <div>
+                  <div className="border-b border-slate-400 h-12" />
+                  <p className="text-[9px] font-black uppercase text-slate-500 mt-1 text-center tracking-wider">
+                    EL CLIENTE
+                  </p>
+                  <p className="text-[9px] text-slate-400 text-center">{presupuesto.clienteNombre}</p>
+                </div>
               </div>
             </div>
           </div>
