@@ -66,7 +66,7 @@ function GloboSvg({ colores }: { colores: string[] }) {
       <ellipse cx="30" cy="28" rx="26" ry="28" fill={c} />
       <ellipse cx="22" cy="16" rx="8" ry="6" fill="rgba(255,255,255,0.35)" />
       <path d="M30 56 C28 62 26 68 30 72 C34 68 32 62 30 56Z" fill={c} />
-      <line x1="30" y1="56" x2="30" y2="56" stroke="#888" strokeWidth="1.5" />
+      <line x1="30" y1="56" x2="30" y2="72" stroke="#888" strokeWidth="1.5" />
       <circle cx="30" cy="57" r="2" fill="#888" />
     </svg>
   );
@@ -298,7 +298,7 @@ export default function VistaDecorativaEditor({
     const maxC = TIPOS_ELEMENTOS.find(t => t.tipo === tipo)?.maxColores ?? 1;
     const colores = defaultColors.slice(0, maxC);
     const el: ElementoDecorativo = {
-      id: `elem_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+      id: crypto.randomUUID(),
       tipo,
       x: 10 + Math.random() * 60,
       y: 10 + Math.random() * 60,
