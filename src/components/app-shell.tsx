@@ -46,6 +46,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/customers/reporte') return 'Reporte de Clientes';
   
   if (pathname === '/empresa') return 'Gestión de la Empresa';
+  if (pathname === '/empresa/salones') return 'Gestor de Salones';
   if (pathname === '/empresa/servicios') return 'Catálogo de Servicios';
   if (pathname === '/empresa/servicios/nuevo') return 'Añadir Nuevo Servicio';
   if (pathname === '/empresa/servicios/reporte') return 'Reporte de Servicios';

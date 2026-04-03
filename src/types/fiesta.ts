@@ -103,6 +103,8 @@ export interface ConfigEventoDataStorage {
   horaInicio: string;
   horaFin: string;
   nombreLugar: string;
+  direccionLugar?: string;
+  googleMapsUrl?: string;
   invitadosEstimados: number;
   invitadosAdultos?: number;
   invitadosNinos?: number;
@@ -281,7 +283,7 @@ export interface SeccionInvitacion {
 
 export interface InvitacionDigitalData {
   name?: string; 
-  category?: 'Boda' | 'XV Años' | 'Cumpleaños' | 'General';
+  category?: 'Boda' | 'XV Años' | 'Cumpleaños' | 'General' | 'Infantil';
   plantilla: 'Grazia' | 'Allegria';
   musicaFondoUrl?: string;
   secciones: SeccionInvitacion[];
