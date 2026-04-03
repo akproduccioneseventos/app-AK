@@ -17,6 +17,8 @@ export interface Notificacion {
 export type RsvpStatus = 'Pendiente' | 'Confirmado' | 'Rechazado' | 'Tal vez';
 export type CategoriaInvitado = 'Adulto' | 'Niño/Adolescente';
 
+export type DietaryRestriction = 'Ninguna' | 'Celiaco' | 'Vegetariano' | 'Vegano' | 'Otro';
+
 export interface Invitado {
   id: string;
   nombre: string;
@@ -31,6 +33,8 @@ export interface Invitado {
   checkInTimestamp?: string;
   isCeliac?: boolean;
   tag?: string;
+  dietaryRestriction?: DietaryRestriction;
+  cancionesDJ?: string[];
 }
 
 // --- MENU MESA ---

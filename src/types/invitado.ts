@@ -1,5 +1,6 @@
 export type RsvpStatus = 'Pendiente' | 'Confirmado' | 'Rechazado' | 'Tal vez';
 export type CategoriaInvitado = 'Adulto' | 'Niño/Adolescente';
+export type DietaryRestriction = 'Ninguna' | 'Celiaco' | 'Vegetariano' | 'Vegano' | 'Otro';
 
 export interface Invitado {
   id: string;
@@ -15,6 +16,8 @@ export interface Invitado {
   checkInTimestamp?: string; // ISO date string of when they were checked in
   isCeliac?: boolean; // Módulo 2: Seguridad alimentaria
   tag?: string; // Punto 6: Etiqueta de relación (Familia, Amigos, etc.)
+  dietaryRestriction?: DietaryRestriction; // Restricción dietaria detallada
+  cancionesDJ?: string[]; // Sugerencias de canciones para el DJ
 }
 
 // Para el formulario de añadir nuevo invitado, antes de tener ID
