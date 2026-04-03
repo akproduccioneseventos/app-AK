@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ContactRound, Briefcase, BarChart3, Building2, Package, Sparkles, ChefHat, Globe } from 'lucide-react';
+import { ArrowLeft, ContactRound, Briefcase, BarChart3, Building2, Package, Sparkles, ChefHat, Globe, MapPin } from 'lucide-react';
 
 interface HubItem {
   title: string;
@@ -22,7 +22,14 @@ const empresaHubItems: HubItem[] = [
     icon: BarChart3,
     actionLabel: 'Ir al Panel',
   },
-   {
+  {
+    title: 'Gestor de Salones',
+    description: 'Administrá los salones con los que trabajás. Seleccioná un salón en cada evento para sincronizar dirección y Google Maps automáticamente.',
+    href: '/empresa/salones',
+    icon: MapPin,
+    actionLabel: 'Gestionar Salones',
+  },
+  {
     title: 'Catálogo de Servicios',
     description: 'Define y gestiona los servicios que vendes en tus presupuestos.',
     href: '/empresa/servicios',

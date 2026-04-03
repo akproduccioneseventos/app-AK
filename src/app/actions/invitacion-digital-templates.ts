@@ -14,12 +14,18 @@ import {
   tplCumpleFiesta,
   tplCumpleElegante,
   tplEventoGeneral,
+  tplAdultos50Gatsby,
+  tplAdultos50Retro,
+  tplAdultos50Minimal,
+  tplInfantilSafari,
+  tplInfantilEspacio,
+  tplInfantilCastillo,
 } from '@/lib/invitation-template-seeds';
 
 export interface InvitacionDigitalTemplate extends InvitacionDigitalData {
   id: string;
   name: string;
-  category: 'Boda' | 'XV Años' | 'Cumpleaños' | 'General';
+  category: 'Boda' | 'XV Años' | 'Cumpleaños' | 'General' | 'Infantil';
 }
 
 const TEMPLATES_FILE = 'invitacion-digital-templates.json';
@@ -43,6 +49,12 @@ const builtInTemplates: InvitacionDigitalTemplate[] = [
   tplCumpleFiesta,
   tplCumpleElegante,
   tplEventoGeneral,
+  tplAdultos50Gatsby,
+  tplAdultos50Retro,
+  tplAdultos50Minimal,
+  tplInfantilSafari,
+  tplInfantilEspacio,
+  tplInfantilCastillo,
 ];
 
 export async function getInvitationTemplates(): Promise<InvitacionDigitalTemplate[]> {

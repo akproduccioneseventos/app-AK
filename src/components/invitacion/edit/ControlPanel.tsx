@@ -161,6 +161,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ data, update, addSec
                                     <SelectItem value="Boda">Boda</SelectItem>
                                     <SelectItem value="XV Años">XV Años</SelectItem>
                                     <SelectItem value="Cumpleaños">Cumpleaños</SelectItem>
+                                    <SelectItem value="Infantil">Infantil</SelectItem>
                                     <SelectItem value="General">General</SelectItem>
                                 </SelectContent>
                             </Select>
