@@ -187,6 +187,17 @@ export interface MoodboardItem {
   timestamp: string;
 }
 
+export interface ElementoDecorativo {
+  id: string;
+  tipo: 'globo' | 'flor' | 'arco' | 'lazo' | 'candelabro' | 'mesaTorta' | 'tela' | 'globosMacizos' | 'centroMesa';
+  x: number;
+  y: number;
+  escala: number;
+  colores: string[];
+  rotacion?: number;
+  etiqueta?: string;
+}
+
 export interface DecoracionData {
   tema?: string;
   paletaColores?: ColorPalette;
@@ -210,6 +221,11 @@ export interface DecoracionData {
   layoutTemplateName?: string;
   pixelsPerMeter?: number; 
   seatingMode?: 'numerada' | 'mixta' | 'libre';
+  vistaDecorativa?: {
+    elementos: ElementoDecorativo[];
+    fondoColor?: string;
+    fondoImagenUrl?: string;
+  };
 }
 
 export interface GiftItem {
