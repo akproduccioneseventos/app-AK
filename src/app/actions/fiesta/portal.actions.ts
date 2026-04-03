@@ -56,7 +56,7 @@ export async function notifyClientPayment(
 ): Promise<{ success: boolean; error?: string }> {
   return updateFiestaData(fiestaId, (currentData) => {
     const notification: import('@/types/fiesta').ClientPaymentNotification = {
-      id: `pay_notif_${Date.now()}`,
+      id: `pay_notif_${crypto.randomUUID()}`,
       fiestaId,
       monto: data.monto,
       metodoPago: data.metodoPago,

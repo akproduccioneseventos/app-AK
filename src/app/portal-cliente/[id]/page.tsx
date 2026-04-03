@@ -144,7 +144,7 @@ function VipPortalContent() {
       setInvitados(fiestaData.invitados ?? []);
 
       const sessionKey = `${SESSION_KEY_PREFIX}${fiestaId}`;
-      const stored = typeof window !== 'undefined' ? sessionStorage.getItem(sessionKey) : null;
+      const stored = sessionStorage.getItem(sessionKey);
       if (stored === fiestaData.clientPortalSettings.accessKey) {
         setIsAuthenticated(true);
       }
@@ -209,7 +209,7 @@ function VipPortalContent() {
         monto: Number(payAmount),
         metodoPago: payMethod,
         referencia: payRef,
-        comprobante: payFile ?? undefined,
+        comprobante: payFile || undefined,
       });
       toast({
         title: '¡Pago informado!',
