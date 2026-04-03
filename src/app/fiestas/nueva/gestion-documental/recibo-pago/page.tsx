@@ -23,8 +23,16 @@ import { cn } from '@/lib/utils';
 /** Allow only http/https/relative URLs to prevent javascript: or data: URI injection */
 const sanitizeImageUrl = (url: string | null | undefined): string | null => {
   if (!url) return null;
-  if (/^https?:\/\//i.test(url) || url.startsWith('/')) return url;
-  return null;
+  try {
+    // Parse and reconstruct to break taint chain – prevents javascript:/data: injection
+    const parsed = new URL(url);
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return null;
+    return `${parsed.protocol}//${parsed.host}${parsed.pathname}${parsed.search}`;
+  } catch {
+    // Relative path: only allow /path (not //host or other forms)
+    if (/^\/[^/]/.test(url) || url === '/') return url;
+    return null;
+  }
 };
 
 const formatCurrency = (amount?: number) => {
