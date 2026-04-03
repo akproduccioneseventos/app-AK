@@ -36,6 +36,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
     
     const publicPathPrefixes = [
       '/login',
+      '/landing',
       '/evento/actual',
       '/evento/social',
       '/video-vida',

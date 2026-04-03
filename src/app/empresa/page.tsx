@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ContactRound, Briefcase, BarChart3, Building2, Package, Sparkles, ChefHat } from 'lucide-react';
+import { ArrowLeft, ContactRound, Briefcase, BarChart3, Building2, Package, Sparkles, ChefHat, Globe } from 'lucide-react';
 
 interface HubItem {
   title: string;
@@ -63,6 +63,13 @@ const empresaHubItems: HubItem[] = [
     href: '/empresa/redes-sociales',
     icon: Sparkles,
     actionLabel: 'Gestionar Contenido',
+  },
+  {
+    title: 'Página Pública & Landing Pages',
+    description: 'Mirá y compartí tu landing page pública. Úsala para mostrar tu catálogo de servicios a potenciales clientes.',
+    href: '/landing',
+    icon: Globe,
+    actionLabel: 'Ver Página Pública',
   },
 ];
 
