@@ -1,1 +1,2 @@
-// Temporarily disabled to ensure stable build
+// Temporarily disabled — stub for stable build.
+// Re-enable individual flows when their Genkit implementations are ready.
