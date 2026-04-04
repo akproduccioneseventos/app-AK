@@ -8,15 +8,18 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Loader2, Save, Users, UserCheck, AlertTriangle, Info, RefreshCw, UserPlus, Trash2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { ArrowLeft, Loader2, Save, Users, UserCheck, AlertTriangle, Info, RefreshCw, UserPlus, Trash2, MessageCircle, Send, CalendarDays, History } from 'lucide-react';
 import { getEmpleados } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
 import type { Empleado } from '@/types/empleado';
 import type { Rol } from '@/types/rol';
 import { useToast } from '@/hooks/use-toast';
-import type { PersonalAsignadoDetalleStorage } from '@/types/fiesta';
+import type { PersonalAsignadoDetalleStorage, FiestaEnPlanificacion } from '@/types/fiesta';
 import { getFiestaById, updatePersonalFiestaActual } from '@/app/actions/fiesta-actual';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
+import { getFiestasByEmpleado } from '@/app/actions/personal-fiestas';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useSearchParams } from 'next/navigation';
@@ -40,6 +43,23 @@ interface RequiredRole {
   customSalary?: number;
 }
 
+interface WhatsAppDialogState {
+  open: boolean;
+  empleado: Empleado | null;
+  roleName: string;
+  salary: number;
+  message: string;
+  phone: string;
+}
+
+interface RegistroFiestasDialogState {
+  open: boolean;
+  empleado: Empleado | null;
+  fiestas: FiestaEnPlanificacion[];
+  isLoading: boolean;
+  summaryPhone: string;
+}
+
 function AsignarPersonalEventoContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
@@ -52,6 +72,24 @@ function AsignarPersonalEventoContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentFiesta, setCurrentFiesta] = useState<FiestaEnPlanificacion | null>(null);
+
+  const [whatsAppDialog, setWhatsAppDialog] = useState<WhatsAppDialogState>({
+    open: false,
+    empleado: null,
+    roleName: '',
+    salary: 0,
+    message: '',
+    phone: '',
+  });
+
+  const [registroDialog, setRegistroDialog] = useState<RegistroFiestasDialogState>({
+    open: false,
+    empleado: null,
+    fiestas: [],
+    isLoading: false,
+    summaryPhone: '',
+  });
 
   const fetchInitialData = useCallback(async (showLoading = true) => {
     if (!fiestaId) return;
@@ -60,6 +98,7 @@ function AsignarPersonalEventoContent() {
     try {
       const fiestaActual = await getFiestaById(fiestaId);
       if (!fiestaActual) throw new Error("Fiesta no encontrada");
+      setCurrentFiesta(fiestaActual);
 
       const [empleadosData, rolesData, presupuestoData] = await Promise.all([
         getEmpleados(),
@@ -174,28 +213,42 @@ function AsignarPersonalEventoContent() {
 
   const handleUpdateAssignment = async (index: number, empleadoId: string | null, rolId: string, defaultSalary?: number) => {
     const updatedStaff = [...assignedStaff];
+    let newlyAssignedEmpleadoId: string | null = null;
+    let assignedSalary = 0;
     
     if (empleadoId === null) {
         updatedStaff.splice(index, 1);
     } else if (index >= updatedStaff.length) {
         const rol = allRoles.find(r => r.id === rolId);
+        assignedSalary = (defaultSalary ?? rol?.sueldoPorEvento) || 0;
         updatedStaff.push({
             empleadoId,
             rolId,
-            eventSalary: (defaultSalary ?? rol?.sueldoPorEvento) || 0
+            eventSalary: assignedSalary
         });
+        newlyAssignedEmpleadoId = empleadoId;
     } else {
         const rol = allRoles.find(r => r.id === rolId);
+        assignedSalary = (defaultSalary ?? rol?.sueldoPorEvento) || updatedStaff[index].eventSalary;
         updatedStaff[index] = {
             ...updatedStaff[index],
             empleadoId,
             rolId,
-            eventSalary: (defaultSalary ?? rol?.sueldoPorEvento) || updatedStaff[index].eventSalary
+            eventSalary: assignedSalary
         };
+        newlyAssignedEmpleadoId = empleadoId;
     }
     
     setAssignedStaff(updatedStaff);
     await handleAutoSave(updatedStaff);
+
+    if (newlyAssignedEmpleadoId && currentFiesta) {
+        const empleado = allEmpleados.find(e => e.id === newlyAssignedEmpleadoId);
+        const rol = allRoles.find(r => r.id === rolId);
+        if (empleado && rol) {
+            openWhatsAppDialog(empleado, rol.nombre, assignedSalary);
+        }
+    }
   };
 
   const handleSalaryChange = async (index: number, newSalary: number) => {
@@ -211,6 +264,99 @@ function AsignarPersonalEventoContent() {
           const updatedStaff = [...assignedStaff, { empleadoId: '', rolId: firstRole.id, eventSalary: firstRole.sueldoPorEvento }];
           setAssignedStaff(updatedStaff);
       }
+  };
+
+  const sanitizePhone = (raw: string) => raw.replace(/\D/g, '');
+
+  const formatEventDate = (fechaEvento: string | undefined, long = false) => {
+    if (!fechaEvento) return long ? 'Fecha a confirmar' : 'Sin fecha';
+    return new Date(fechaEvento + 'T00:00:00').toLocaleDateString(
+      'es-UY',
+      long
+        ? { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
+        : { day: '2-digit', month: '2-digit', year: 'numeric' }
+    );
+  };
+
+  const buildWhatsAppMessage = useCallback((
+    empleado: Empleado,
+    roleName: string,
+    salary: number,
+    fiesta: FiestaEnPlanificacion
+  ): string => {
+    const cfg = fiesta.configuracion;
+    const fecha = formatEventDate(cfg.fechaEvento, true);
+    const horario = cfg.horaInicio ? `${cfg.horaInicio}${cfg.horaFin ? ` - ${cfg.horaFin}` : ''}` : 'Horario a confirmar';
+    const lugar = [cfg.nombreLugar, cfg.direccionLugar].filter(Boolean).join(', ') || 'Lugar a confirmar';
+
+    return `¡Hola ${empleado.nombre}! 👋
+
+Te confirmamos tu asignación al siguiente evento:
+
+📅 *Evento:* ${cfg.nombreEvento || 'Sin nombre'}
+🗓️ *Fecha:* ${fecha}
+🕐 *Horario:* ${horario}
+📍 *Lugar:* ${lugar}
+👔 *Rol:* ${roleName}
+💰 *Honorario:* ${formatCurrency(salary)}
+
+Por favor confirmá tu asistencia respondiendo este mensaje.
+¡Gracias y hasta pronto!`;
+  }, []);
+
+  const openWhatsAppDialog = useCallback((empleado: Empleado, roleName: string, salary: number) => {
+    if (!currentFiesta) return;
+    const message = buildWhatsAppMessage(empleado, roleName, salary, currentFiesta);
+    setWhatsAppDialog({ open: true, empleado, roleName, salary, message, phone: '' });
+  }, [currentFiesta, buildWhatsAppMessage]);
+
+  const sendWhatsApp = () => {
+    const phone = sanitizePhone(whatsAppDialog.phone);
+    if (!phone) {
+      toast({ title: 'Teléfono requerido', description: 'Ingresá el número de WhatsApp del empleado.', variant: 'destructive' });
+      return;
+    }
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(whatsAppDialog.message)}`;
+    window.open(url, '_blank');
+    setWhatsAppDialog(prev => ({ ...prev, open: false }));
+  };
+
+  const openRegistroFiestas = async (empleado: Empleado) => {
+    setRegistroDialog({ open: true, empleado, fiestas: [], isLoading: true, summaryPhone: '' });
+    try {
+      const fiestas = await getFiestasByEmpleado(empleado.id);
+      setRegistroDialog(prev => ({ ...prev, fiestas, isLoading: false }));
+    } catch {
+      setRegistroDialog(prev => ({ ...prev, isLoading: false }));
+      toast({ title: 'Error', description: 'No se pudo cargar el historial de eventos.', variant: 'destructive' });
+    }
+  };
+
+  const sendRegistroWhatsApp = () => {
+    const { empleado, fiestas, summaryPhone } = registroDialog;
+    if (!empleado) return;
+    const phone = sanitizePhone(summaryPhone);
+    if (!phone) {
+      toast({ title: 'Teléfono requerido', description: 'Ingresá el número de WhatsApp del empleado.', variant: 'destructive' });
+      return;
+    }
+    const lines = fiestas.map((f, i) => {
+      const cfg = f.configuracion;
+      const fecha = formatEventDate(cfg.fechaEvento);
+      const asignaciones = (f.personalAsignado || [])
+        .filter(p => p.empleadoId === empleado.id)
+        .map(p => {
+          const rol = allRoles.find(r => r.id === p.rolId);
+          return `  • ${rol?.nombre || 'Rol desconocido'} — ${formatCurrency(p.eventSalary)}`;
+        })
+        .join('\n');
+      return `${i + 1}. *${cfg.nombreEvento || 'Sin nombre'}* (${fecha})\n${asignaciones}`;
+    });
+
+    const message = `¡Hola ${empleado.nombre}! 👋\n\nEste es tu registro de eventos contratados:\n\n${lines.join('\n\n')}\n\nPara cualquier consulta no dudes en escribirnos. ¡Gracias!`;
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+    setRegistroDialog(prev => ({ ...prev, open: false }));
   };
 
   const getEmployeesByRole = (roleId: string) => {
@@ -289,7 +435,7 @@ function AsignarPersonalEventoContent() {
                   <TableHead>Empleado Asignado</TableHead>
                   <TableHead className="text-right">Sueldo Evento</TableHead>
                   <TableHead className="text-right">Aportes (Extra)</TableHead>
-                  <TableHead className="w-[50px]"></TableHead>
+                  <TableHead className="w-[100px]"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -341,11 +487,38 @@ function AsignarPersonalEventoContent() {
                          +{formatCurrency(aportes)}
                       </TableCell>
                       <TableCell>
-                          {row.type === 'extra' && (
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleUpdateAssignment(row.originalIndex!, null, row.roleId)}>
-                                  <Trash2 className="w-4 h-4"/>
-                              </Button>
-                          )}
+                          <div className="flex items-center gap-1">
+                              {row.assignedId && (() => {
+                                  const emp = allEmpleados.find(e => e.id === row.assignedId);
+                                  return emp ? (
+                                      <>
+                                          <Button
+                                              variant="ghost"
+                                              size="icon"
+                                              className="h-8 w-8 text-green-600 hover:text-green-700"
+                                              title="Enviar WhatsApp"
+                                              onClick={() => openWhatsAppDialog(emp, row.roleName, row.salary)}
+                                          >
+                                              <MessageCircle className="w-4 h-4" />
+                                          </Button>
+                                          <Button
+                                              variant="ghost"
+                                              size="icon"
+                                              className="h-8 w-8 text-blue-600 hover:text-blue-700"
+                                              title="Registro de eventos"
+                                              onClick={() => openRegistroFiestas(emp)}
+                                          >
+                                              <History className="w-4 h-4" />
+                                          </Button>
+                                      </>
+                                  ) : null;
+                              })()}
+                              {row.type === 'extra' && (
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleUpdateAssignment(row.originalIndex!, null, row.roleId)}>
+                                      <Trash2 className="w-4 h-4"/>
+                                  </Button>
+                              )}
+                          </div>
                       </TableCell>
                     </TableRow>
                   );
@@ -383,6 +556,122 @@ function AsignarPersonalEventoContent() {
           </Link>
         </CardFooter>
       </Card>
+
+      {/* WhatsApp Dialog */}
+      <Dialog open={whatsAppDialog.open} onOpenChange={open => setWhatsAppDialog(prev => ({ ...prev, open }))}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <MessageCircle className="w-5 h-5 text-green-600" />
+              Enviar mensaje por WhatsApp
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-1">
+              <Label htmlFor="wa-phone">Número de WhatsApp</Label>
+              <Input
+                id="wa-phone"
+                placeholder="Ej: 59899123456 (con código de país)"
+                value={whatsAppDialog.phone}
+                onChange={e => setWhatsAppDialog(prev => ({ ...prev, phone: e.target.value }))}
+              />
+              <p className="text-xs text-muted-foreground">Incluí el código de país sin el &quot;+&quot;. Ej: 598 para Uruguay.</p>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="wa-message">Mensaje</Label>
+              <Textarea
+                id="wa-message"
+                rows={10}
+                value={whatsAppDialog.message}
+                onChange={e => setWhatsAppDialog(prev => ({ ...prev, message: e.target.value }))}
+                className="text-sm font-mono"
+              />
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setWhatsAppDialog(prev => ({ ...prev, open: false }))}>
+              Cancelar
+            </Button>
+            <Button className="bg-green-600 hover:bg-green-700 text-white" onClick={sendWhatsApp}>
+              <Send className="w-4 h-4 mr-2" />
+              Enviar por WhatsApp
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Registro de Fiestas Dialog */}
+      <Dialog open={registroDialog.open} onOpenChange={open => setRegistroDialog(prev => ({ ...prev, open }))}>
+        <DialogContent className="sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <History className="w-5 h-5 text-blue-600" />
+              Registro de eventos — {registroDialog.empleado?.nombre}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2 max-h-96 overflow-y-auto">
+            {registroDialog.isLoading ? (
+              <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
+            ) : registroDialog.fiestas.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-6">No hay eventos registrados para este empleado.</p>
+            ) : (
+              <div className="space-y-3">
+                {registroDialog.fiestas.map(fiesta => {
+                  const cfg = fiesta.configuracion;
+                  const fecha = cfg.fechaEvento
+                    ? new Date(cfg.fechaEvento + 'T00:00:00').toLocaleDateString('es-UY', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                    : 'Sin fecha';
+                  const asignaciones = (fiesta.personalAsignado || []).filter(
+                    p => p.empleadoId === registroDialog.empleado?.id
+                  );
+                  return (
+                    <div key={fiesta.id} className="rounded-lg border p-3 space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium text-sm">{cfg.nombreEvento || 'Sin nombre'}</span>
+                        <Badge variant="outline" className="text-xs flex items-center gap-1">
+                          <CalendarDays className="w-3 h-3" />
+                          {fecha}
+                        </Badge>
+                      </div>
+                      {asignaciones.map((a, i) => {
+                        const rol = allRoles.find(r => r.id === a.rolId);
+                        return (
+                          <div key={i} className="flex items-center justify-between text-xs text-muted-foreground pl-1">
+                            <span>{rol?.nombre || 'Rol desconocido'}</span>
+                            <span className="font-mono">{formatCurrency(a.eventSalary)}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+          {!registroDialog.isLoading && registroDialog.fiestas.length > 0 && (
+            <div className="space-y-3 border-t pt-4">
+              <div className="space-y-1">
+                <Label htmlFor="registro-phone">Enviar resumen por WhatsApp</Label>
+                <Input
+                  id="registro-phone"
+                  placeholder="Ej: 59899123456 (con código de país)"
+                  value={registroDialog.summaryPhone}
+                  onChange={e => setRegistroDialog(prev => ({ ...prev, summaryPhone: e.target.value }))}
+                />
+              </div>
+              <Button className="w-full bg-green-600 hover:bg-green-700 text-white" onClick={sendRegistroWhatsApp}>
+                <Send className="w-4 h-4 mr-2" />
+                Enviar resumen por WhatsApp
+              </Button>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRegistroDialog(prev => ({ ...prev, open: false }))}>
+              Cerrar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

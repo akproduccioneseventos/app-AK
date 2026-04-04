@@ -55,6 +55,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
       '/proveedor',
       '/presentacion',
       '/evento/mi-mesa',
+      '/evento/en-vivo',
     ];
     
     let isPublic = publicPathPrefixes.some(prefix => pathname.startsWith(prefix));
