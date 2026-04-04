@@ -219,7 +219,9 @@ export default function SimuladorAKPage() {
   useEffect(() => {
     getCuponesRegaloActivos().then(list => {
       if (list.length > 0) setCuponRegalo(list[0]);
-    }).catch(() => {/* ignore */});
+    }).catch((err) => {
+      console.error('Error al cargar cupones regalo:', err);
+    });
   }, []);
 
   useEffect(() => {
