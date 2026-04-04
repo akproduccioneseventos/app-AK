@@ -83,6 +83,9 @@ export async function saveCupon(
         montoMinimo: data.montoMinimo || undefined,
         creadoPor: data.creadoPor || 'Admin',
         creadoEn: new Date().toISOString(),
+        esRegalo: data.esRegalo || undefined,
+        serviciosRegalados: data.serviciosRegalados?.length ? data.serviciosRegalados : undefined,
+        mensajeOferta: data.mensajeOferta || undefined,
       };
 
       cupones.push(nuevo);
@@ -118,6 +121,22 @@ export async function deleteCupon(id: string): Promise<{ success: boolean; error
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
+  }
+}
+
+export async function getCuponesRegaloActivos(): Promise<Coupon[]> {
+  try {
+    const cupones = await getCupones();
+    const ahora = new Date();
+    return cupones.filter(c => {
+      if (!c.esRegalo || !c.activo) return false;
+      const fin = new Date(c.fechaFin);
+      fin.setHours(23, 59, 59, 999);
+      return ahora <= fin;
+    });
+  } catch (error) {
+    console.error('Error al obtener cupones regalo activos:', error);
+    return [];
   }
 }
 

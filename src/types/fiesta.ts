@@ -736,6 +736,7 @@ export interface FiestaEnPlanificacion {
   generadoDesdeHistorico?: boolean; 
   liveState?: LiveEventState;
   planDePagos?: PlanDePagos;
+  eventoEnVivo?: EventoEnVivoData;
 }
 
 export interface ContratoFirmaInfo {
@@ -745,4 +746,50 @@ export interface ContratoFirmaInfo {
     signedBy?: string;
     ip?: string;
     physicalContractUrl?: string; 
+}
+
+export interface FotoEnVivo {
+  id: string;
+  url: string;
+  autor: string;
+  mensaje?: string;
+  timestamp: string;
+}
+
+export interface SolicitudCancion {
+  id: string;
+  invitadoNombre: string;
+  cancion: string;
+  artista?: string;
+  timestamp: string;
+  reproducida?: boolean;
+}
+
+export interface MensajeEnVivo {
+  id: string;
+  autor: string;
+  mensaje: string;
+  timestamp: string;
+  destacado?: boolean;
+}
+
+export interface VotacionOpcion {
+  id: string;
+  texto: string;
+  votos: number;
+}
+
+export interface VotacionEnVivo {
+  id: string;
+  pregunta: string;
+  opciones: VotacionOpcion[];
+  activa: boolean;
+  timestamp: string;
+}
+
+export interface EventoEnVivoData {
+  fotos: FotoEnVivo[];
+  solicitudesCanciones: SolicitudCancion[];
+  mensajes: MensajeEnVivo[];
+  votaciones: VotacionEnVivo[];
 }

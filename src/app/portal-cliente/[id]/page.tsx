@@ -237,6 +237,13 @@ export default function PortalClientePage() {
   const config    = fiesta.configuracion;
   const invitados = fiesta.invitados ?? [];
   const plan      = fiesta.planDePagos;
+  const portalSettings = fiesta.clientPortalSettings;
+
+  // Module visibility helpers — default true when no settings configured (backward compatible)
+  const showFinancials = portalSettings?.pagos?.visible ?? true;
+  const showInvitados  = portalSettings?.invitados?.visible ?? true;
+  const showCatering   = portalSettings?.menu?.visible ?? true;
+  const showTimeline   = portalSettings?.itinerario?.visible ?? true;
 
   // ── Financials ───────────────────────────────────────────────
   const cuotas      = plan?.cuotas ?? [];
@@ -429,6 +436,7 @@ export default function PortalClientePage() {
         )}
 
         {/* ── Financials ────────────────────────────────────── */}
+        {showFinancials && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base font-black">
@@ -481,8 +489,10 @@ export default function PortalClientePage() {
             )}
           </CardContent>
         </Card>
+        )}
 
         {/* ── RSVP Tracker ─────────────────────────────────── */}
+        {showInvitados && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base font-black">
@@ -510,9 +520,10 @@ export default function PortalClientePage() {
             )}
           </CardContent>
         </Card>
+        )}
 
         {/* ── Seating Plan ─────────────────────────────────── */}
-        {confirmed.length > 0 && (
+        {showInvitados && confirmed.length > 0 && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base font-black">
@@ -557,7 +568,9 @@ export default function PortalClientePage() {
         )}
 
         {/* ── Catering / Timeline ──────────────────────────── */}
+        {(showCatering || showTimeline) && (
         <div className="grid sm:grid-cols-2 gap-6">
+          {showCatering && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base font-black">
@@ -575,7 +588,9 @@ export default function PortalClientePage() {
               )}
             </CardContent>
           </Card>
+          )}
 
+          {showTimeline && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base font-black">
@@ -597,7 +612,9 @@ export default function PortalClientePage() {
               )}
             </CardContent>
           </Card>
+          )}
         </div>
+        )}
 
       </main>
 
