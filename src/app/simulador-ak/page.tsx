@@ -16,6 +16,10 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { PublicFooter } from '@/components/public-footer';
 import { generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido';
+import { getCuponesRegaloActivos } from '@/app/actions/cupones';
+import { CountdownTimer } from '@/components/countdown-timer';
+import type { Coupon } from '@/types/coupon';
+import { esCuponRegalo } from '@/types/coupon';
 import { cn } from '@/lib/utils';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -208,8 +212,15 @@ export default function SimuladorAKPage() {
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [showResumeModal, setShowResumeModal] = useState(false);
   const [savedState, setSavedState] = useState<SimuladorState | null>(null);
+  const [cuponRegalo, setCuponRegalo] = useState<Coupon | null>(null);
 
   // ── Persistence ──────────────────────────────────────────────────────────
+
+  useEffect(() => {
+    getCuponesRegaloActivos().then(list => {
+      if (list.length > 0) setCuponRegalo(list[0]);
+    }).catch(() => {/* ignore */});
+  }, []);
 
   useEffect(() => {
     try {
@@ -472,7 +483,7 @@ export default function SimuladorAKPage() {
                 transition={{ duration: 0.25 }}
               >
                 {state.step === 0 && (
-                  <StepWelcome onStart={goNext} />
+                  <StepWelcome onStart={goNext} cuponRegalo={cuponRegalo} />
                 )}
                 {state.step === 1 && (
                   <StepClientInfo state={state} onChange={updateState} onNext={goNext} onPrev={goPrev} checkDuplicate={checkDuplicate} />
@@ -597,9 +608,38 @@ export default function SimuladorAKPage() {
 
 // ─── Step: Welcome ────────────────────────────────────────────────────────────
 
-function StepWelcome({ onStart }: { onStart: () => void }) {
+function StepWelcome({ onStart, cuponRegalo }: { onStart: () => void; cuponRegalo: Coupon | null }) {
+  const formatDate = (iso: string) =>
+    new Date(iso).toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
+
+  const getMensaje = (cupon: Coupon): string => {
+    if (esCuponRegalo(cupon) && cupon.mensajeOferta) {
+      return cupon.mensajeOferta
+        .replace('{fecha}', formatDate(cupon.fechaFin))
+        .replace('{regalo}', cupon.serviciosRegalados[0]?.nombre ?? 'un regalo');
+    }
+    if (esCuponRegalo(cupon)) {
+      return `Si contratás antes del ${formatDate(cupon.fechaFin)}, te regalamos ${cupon.serviciosRegalados[0]?.nombre ?? 'un regalo especial'}`;
+    }
+    return '';
+  };
+
   return (
     <div className="rounded-3xl bg-white/10 backdrop-blur border border-white/20 p-8 text-center space-y-6">
+      {cuponRegalo && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-2xl bg-gradient-to-r from-pink-500/80 to-violet-600/80 border border-pink-400/40 p-4 space-y-3"
+        >
+          <div className="flex items-center justify-center gap-2 text-white font-bold text-sm">
+            <Gift className="w-5 h-5 text-yellow-300" />
+            <span>¡Oferta especial por tiempo limitado!</span>
+          </div>
+          <p className="text-white/90 text-sm leading-snug">🎁 {getMensaje(cuponRegalo)}</p>
+          <CountdownTimer targetDate={cuponRegalo.fechaFin} />
+        </motion.div>
+      )}
       <div className="text-6xl">🎉</div>
       <div>
         <h1 className="text-2xl md:text-3xl font-black text-white leading-tight">

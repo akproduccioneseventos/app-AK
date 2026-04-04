@@ -74,6 +74,9 @@ interface CuponFormState {
   activo: boolean;
   tipoEvento: string;
   montoMinimo: string;
+  esRegalo: boolean;
+  regaloNombre: string;
+  mensajeOferta: string;
 }
 
 const emptyForm: CuponFormState = {
@@ -88,6 +91,9 @@ const emptyForm: CuponFormState = {
   activo: true,
   tipoEvento: '',
   montoMinimo: '',
+  esRegalo: false,
+  regaloNombre: '',
+  mensajeOferta: '',
 };
 
 export default function CuponesPage() {
@@ -133,6 +139,9 @@ export default function CuponesPage() {
       activo: cupon.activo,
       tipoEvento: cupon.tipoEvento || '',
       montoMinimo: cupon.montoMinimo?.toString() || '',
+      esRegalo: cupon.esRegalo ?? false,
+      regaloNombre: cupon.serviciosRegalados?.[0]?.nombre || '',
+      mensajeOferta: cupon.mensajeOferta || '',
     });
     setShowForm(true);
   };
@@ -154,6 +163,11 @@ export default function CuponesPage() {
         tipoEvento: formData.tipoEvento || undefined,
         montoMinimo: formData.montoMinimo ? parseFloat(formData.montoMinimo) : undefined,
         creadoPor: 'Admin',
+        esRegalo: formData.esRegalo || undefined,
+        serviciosRegalados: formData.esRegalo && formData.regaloNombre.trim()
+          ? [{ id: `srv_${Date.now()}`, nombre: formData.regaloNombre.trim() }]
+          : undefined,
+        mensajeOferta: formData.esRegalo && formData.mensajeOferta.trim() ? formData.mensajeOferta.trim() : undefined,
       });
 
       if (result.success) {
@@ -361,6 +375,42 @@ export default function CuponesPage() {
               </Select>
               <p className="text-xs text-muted-foreground">Deja vacío para que aplique a cualquier tipo de evento.</p>
             </div>
+
+            <Separator />
+
+            <div className="flex items-center gap-3 p-3 rounded-lg border bg-muted/40">
+              <input
+                type="checkbox"
+                id="esRegalo"
+                checked={formData.esRegalo}
+                onChange={e => setFormData({ ...formData, esRegalo: e.target.checked })}
+                className="w-4 h-4 accent-primary cursor-pointer"
+              />
+              <Label htmlFor="esRegalo" className="cursor-pointer font-medium">🎁 Es un cupón de regalo</Label>
+            </div>
+
+            {formData.esRegalo && (
+              <div className="space-y-3 pl-2 border-l-2 border-primary/30">
+                <div className="space-y-2">
+                  <Label>Descripción del regalo</Label>
+                  <Input
+                    value={formData.regaloNombre}
+                    onChange={e => setFormData({ ...formData, regaloNombre: e.target.value })}
+                    placeholder="Ej: Invitación digital personalizada"
+                  />
+                  <p className="text-xs text-muted-foreground">Nombre del servicio o regalo que se incluye.</p>
+                </div>
+                <div className="space-y-2">
+                  <Label>Mensaje de oferta (opcional)</Label>
+                  <Input
+                    value={formData.mensajeOferta}
+                    onChange={e => setFormData({ ...formData, mensajeOferta: e.target.value })}
+                    placeholder={`Si contratás antes del {fecha}, te regalamos {regalo}`}
+                  />
+                  <p className="text-xs text-muted-foreground">Aparecerá en el simulador. Podés usar {`{fecha}`} y {`{regalo}`} como variables.</p>
+                </div>
+              </div>
+            )}
           </div>
 
           <DialogFooter>
