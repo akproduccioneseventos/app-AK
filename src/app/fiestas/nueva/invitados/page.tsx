@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Plus, Trash2, Users, Edit3, Save, Loader2, AlertTriangle, QrCode, Printer, Tag, Search } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Users, Edit3, Save, Loader2, AlertTriangle, QrCode, Printer, Tag, Search, Download } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import type { Invitado, RsvpStatus, NuevoInvitadoData, CategoriaInvitado } from '@/types/invitado';
@@ -63,6 +63,7 @@ function InvitadosEventoContent() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [selectedGuestForQr, setSelectedGuestForQr] = useState<Invitado | null>(null);
+  const [isMesaQrOpen, setIsMesaQrOpen] = useState(false);
   
   const fetchInvitados = useCallback(async () => {
     if (!fiestaId) return;
@@ -159,6 +160,21 @@ function InvitadosEventoContent() {
           </Card>
       </div>
 
+      {/* QR Buscador de Mesas */}
+      <Card className="border-purple-200 bg-purple-50/50">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-black flex items-center gap-2">
+            <QrCode className="w-4 h-4 text-purple-600" /> QR Buscador de Mesas
+          </CardTitle>
+          <CardDescription className="text-xs">Imprimí un QR para el banner de entrada.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button size="sm" onClick={() => setIsMesaQrOpen(true)} className="w-full bg-purple-700 hover:bg-purple-800">
+            <Printer className="w-4 h-4 mr-2" /> Generar QR
+          </Button>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader><CardTitle>Nuevo Invitado</CardTitle></CardHeader>
         <CardContent>
@@ -201,6 +217,48 @@ function InvitadosEventoContent() {
             </Table>
         </CardContent>
       </Card>
+
+      {/* Mesa QR Dialog */}
+      <Dialog open={isMesaQrOpen} onOpenChange={setIsMesaQrOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>🪑 QR Buscador de Mesas</DialogTitle>
+            <DialogDescription>
+              Imprimí este QR en un banner para la entrada. Los invitados escanean y encuentran su mesa.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col items-center gap-4 py-4">
+            <div className="p-4 bg-white rounded-xl border border-slate-200">
+              <QRCodeStylized
+                id="qr-buscador-mesas"
+                value={`${typeof window !== 'undefined' ? window.location.origin : ''}/evento/mi-mesa/${fiestaId}`}
+                size={200}
+              />
+            </div>
+            <p className="text-xs text-slate-500 text-center">
+              Apunta a: <span className="font-mono text-purple-700 break-all">/evento/mi-mesa/{fiestaId}</span>
+            </p>
+            <Button
+              onClick={() => {
+                const canvas = document.getElementById('qr-buscador-mesas') as HTMLCanvasElement;
+                if (canvas) {
+                  const pngUrl = canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream');
+                  const link = document.createElement('a');
+                  link.href = pngUrl;
+                  link.download = `QR-Buscador-Mesas-${fiestaId}.png`;
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                }
+              }}
+              variant="outline"
+              className="w-full"
+            >
+              <Download className="w-4 h-4 mr-2" /> Descargar QR
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

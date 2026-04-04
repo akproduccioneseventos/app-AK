@@ -45,6 +45,8 @@ function LiveEventDashboardContent() {
     const [isActionLoading, setIsActionLoading] = useState<string | null>(null);
     const [incidenteInput, setIncidenteInput] = useState('');
     const [eventDuration, setEventDuration] = useState('00:00:00');
+    const [guestFilter, setGuestFilter] = useState<'all' | 'arrived' | 'waiting' | 'declined'>('all');
+    const [guestSearch, setGuestSearch] = useState('');
 
     const loadData = useCallback(async (showLoading = true) => {
         if (!fiestaId) return;
@@ -210,9 +212,10 @@ function LiveEventDashboardContent() {
                 </AnimatePresence>
 
                 <Tabs defaultValue="operaciones" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2 bg-slate-900 h-16 p-1 rounded-2xl border border-white/5 mb-8">
+                    <TabsList className="grid w-full grid-cols-3 bg-slate-900 h-16 p-1 rounded-2xl border border-white/5 mb-8">
                         <TabsTrigger value="operaciones" className="rounded-xl font-black uppercase text-xs tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white">Panel de Comando</TabsTrigger>
                         <TabsTrigger value="retorno" className="rounded-xl font-black uppercase text-xs tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white">Logística Inversa</TabsTrigger>
+                        <TabsTrigger value="invitados" className="rounded-xl font-black uppercase text-xs tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white">Check-in Invitados</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="operaciones" className="space-y-8">
@@ -333,6 +336,132 @@ function LiveEventDashboardContent() {
                                         ))}
                                     </div>
                                 )}
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+
+                    <TabsContent value="invitados" className="space-y-6">
+                        {/* Stats row */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <Card className="bg-primary border-none rounded-3xl overflow-hidden text-white">
+                                <CardContent className="p-5">
+                                    <p className="text-[10px] font-black uppercase tracking-widest opacity-70 mb-1">Presentes</p>
+                                    <p className="text-4xl font-black">{asistentesPresentes}</p>
+                                    <p className="text-xs opacity-60">de {totalConfirmados} confirmados</p>
+                                </CardContent>
+                            </Card>
+                            <Card className="bg-amber-500 border-none rounded-3xl overflow-hidden text-white">
+                                <CardContent className="p-5">
+                                    <p className="text-[10px] font-black uppercase tracking-widest opacity-70 mb-1">Esperando</p>
+                                    <p className="text-4xl font-black">{Math.max(0, totalConfirmados - asistentesPresentes)}</p>
+                                    <p className="text-xs opacity-60">por llegar</p>
+                                </CardContent>
+                            </Card>
+                            <Card className="bg-red-600 border-none rounded-3xl overflow-hidden text-white">
+                                <CardContent className="p-5">
+                                    <p className="text-[10px] font-black uppercase tracking-widest opacity-70 mb-1">No Vienen</p>
+                                    <p className="text-4xl font-black">{(fiesta?.invitados || []).filter(i => i.rsvp === 'declined' || i.rsvp === 'Declinado').length}</p>
+                                    <p className="text-xs opacity-60">confirmaron ausencia</p>
+                                </CardContent>
+                            </Card>
+                            <Card className="bg-slate-700 border-none rounded-3xl overflow-hidden text-white">
+                                <CardContent className="p-5">
+                                    <p className="text-[10px] font-black uppercase tracking-widest opacity-70 mb-1">Total</p>
+                                    <p className="text-4xl font-black">{(fiesta?.invitados || []).length}</p>
+                                    <p className="text-xs opacity-60">invitados</p>
+                                </CardContent>
+                            </Card>
+                        </div>
+
+                        {/* Progress */}
+                        <Card className="bg-slate-900/80 border-white/5 rounded-3xl overflow-hidden">
+                            <CardContent className="p-6">
+                                <div className="flex justify-between items-center mb-3">
+                                    <span className="text-sm font-black uppercase tracking-widest text-slate-300">Progreso de llegadas</span>
+                                    <span className="text-sm font-black text-primary">{totalConfirmados > 0 ? Math.round((asistentesPresentes / totalConfirmados) * 100) : 0}%</span>
+                                </div>
+                                <Progress value={totalConfirmados > 0 ? (asistentesPresentes / totalConfirmados) * 100 : 0} className="h-4 bg-slate-700" />
+                            </CardContent>
+                        </Card>
+
+                        {/* Filter + Search */}
+                        <Card className="bg-slate-900/80 border-white/5 rounded-3xl overflow-hidden">
+                            <CardContent className="p-6 space-y-4">
+                                <div className="flex flex-wrap gap-2">
+                                    {(['all', 'arrived', 'waiting', 'declined'] as const).map(f => (
+                                        <button
+                                            key={f}
+                                            onClick={() => setGuestFilter(f)}
+                                            className={cn(
+                                                "px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all",
+                                                guestFilter === f
+                                                    ? "bg-primary text-white shadow-lg"
+                                                    : "bg-white/5 text-slate-400 hover:bg-white/10"
+                                            )}
+                                        >
+                                            {f === 'all' ? 'Todos' : f === 'arrived' ? '✅ Llegaron' : f === 'waiting' ? '⏳ Esperando' : '❌ No vienen'}
+                                        </button>
+                                    ))}
+                                </div>
+                                <Input
+                                    value={guestSearch}
+                                    onChange={e => setGuestSearch(e.target.value)}
+                                    placeholder="Buscar invitado..."
+                                    className="h-11 rounded-xl bg-white/5 border-white/10 text-white placeholder:text-slate-500"
+                                />
+                            </CardContent>
+                        </Card>
+
+                        {/* Guest list */}
+                        <Card className="bg-slate-900/80 border-white/5 rounded-3xl overflow-hidden">
+                            <CardHeader className="p-6 border-b border-white/5">
+                                <CardTitle className="text-sm font-black uppercase tracking-widest text-slate-300">Lista de Invitados</CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-0">
+                                <ScrollArea className="h-[480px]">
+                                    <div className="divide-y divide-white/5">
+                                        {(fiesta?.invitados || [])
+                                            .filter(inv => {
+                                                if (guestFilter === 'arrived') return inv.checkedIn;
+                                                if (guestFilter === 'waiting') return !inv.checkedIn && inv.rsvp !== 'declined' && inv.rsvp !== 'Declinado';
+                                                if (guestFilter === 'declined') return inv.rsvp === 'declined' || inv.rsvp === 'Declinado';
+                                                return true;
+                                            })
+                                            .filter(inv => !guestSearch || inv.nombre.toLowerCase().includes(guestSearch.toLowerCase()))
+                                            .sort((a, b) => {
+                                                if (a.checkedIn && !b.checkedIn) return -1;
+                                                if (!a.checkedIn && b.checkedIn) return 1;
+                                                return a.nombre.localeCompare(b.nombre);
+                                            })
+                                            .map(inv => (
+                                                <div key={inv.id} className="flex items-center gap-4 px-6 py-3 hover:bg-white/5 transition-colors">
+                                                    <div className={cn(
+                                                        "w-8 h-8 rounded-full flex items-center justify-center text-xs font-black shrink-0",
+                                                        inv.checkedIn
+                                                            ? "bg-emerald-500/20 text-emerald-400"
+                                                            : (inv.rsvp === 'declined' || inv.rsvp === 'Declinado')
+                                                                ? "bg-red-500/20 text-red-400"
+                                                                : "bg-amber-500/20 text-amber-400"
+                                                    )}>
+                                                        {inv.checkedIn ? '✅' : (inv.rsvp === 'declined' || inv.rsvp === 'Declinado') ? '❌' : '⏳'}
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className={cn("font-bold text-sm truncate", inv.checkedIn ? "text-white" : "text-slate-400")}>{inv.nombre}</p>
+                                                        {inv.checkInTimestamp && (
+                                                            <p className="text-xs text-emerald-400 font-mono">
+                                                                Llegó: {new Date(inv.checkInTimestamp).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                    {inv.tableNumber && (
+                                                        <span className="text-xs font-black text-primary shrink-0 bg-primary/10 px-2 py-1 rounded-lg">
+                                                            Mesa {inv.tableNumber}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            ))}
+                                    </div>
+                                </ScrollArea>
                             </CardContent>
                         </Card>
                     </TabsContent>

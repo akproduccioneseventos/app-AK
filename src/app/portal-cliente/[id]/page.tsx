@@ -18,6 +18,7 @@ import {
   UtensilsCrossed,
   Clock,
   ChevronRight,
+  Activity,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -115,7 +116,27 @@ export default function PortalClientePage() {
     }
   }, [fiestaId, sessionKey]);
 
-  useEffect(() => { loadFiesta(); }, [loadFiesta]);
+  useEffect(() => {
+    loadFiesta();
+  }, [loadFiesta]);
+
+  const fechaEvento = fiesta?.configuracion?.fechaEvento ?? null;
+
+  useEffect(() => {
+    if (!fiestaId || !fechaEvento) return;
+    const today = new Date();
+    const eventDate = new Date(fechaEvento);
+    const isToday = eventDate.toDateString() === today.toDateString();
+    if (!isToday) return;
+    // Poll every 12 seconds on event day
+    const pollInterval = setInterval(async () => {
+      try {
+        const data = await getFiestaById(fiestaId);
+        if (data) setFiesta(data);
+      } catch { /* ignore */ }
+    }, 12000);
+    return () => clearInterval(pollInterval);
+  }, [fiestaId, fechaEvento]);
 
   const handleLogin = (e: FormEvent) => {
     e.preventDefault();
@@ -232,6 +253,19 @@ export default function PortalClientePage() {
   const declined  = invitados.filter(i => i.rsvp === 'declined');
   const pending   = invitados.filter(i => i.rsvp !== 'confirmed' && i.rsvp !== 'declined');
 
+  // ── Check-in stats ───────────────────────────────────────────
+  const today = new Date();
+  const eventDate = config.fechaEvento ? new Date(config.fechaEvento) : null;
+  const isEventToday = eventDate
+    ? eventDate.toDateString() === today.toDateString()
+    : false;
+  const isEventPast = eventDate ? eventDate < today && !isEventToday : false;
+  const checkedIn   = invitados.filter(i => i.checkedIn);
+  const recentArrivals = checkedIn
+    .filter(i => i.checkInTimestamp)
+    .sort((a, b) => b.checkInTimestamp!.localeCompare(a.checkInTimestamp!))
+    .slice(0, 10);
+
   // ── Render ───────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
@@ -292,6 +326,107 @@ export default function PortalClientePage() {
             )}
           </CardContent>
         </Card>
+
+        {/* ── Llegadas en Vivo / Resumen post-evento ─────────── */}
+        {(isEventToday || isEventPast) && (
+          <Card className={isEventToday ? 'border-green-200 bg-green-50/50' : ''}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base font-black">
+                <Activity className="w-5 h-5 text-green-600" />
+                {isEventToday ? 'Llegadas en Vivo' : 'Resumen de Asistencia'}
+                {isEventToday && (
+                  <span className="ml-2 flex items-center gap-1.5 text-xs font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded-full">
+                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse inline-block" />
+                    EN VIVO
+                  </span>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Big counter */}
+              <div className="flex items-end gap-2">
+                <span className="text-4xl font-black text-slate-900">{checkedIn.length}</span>
+                <span className="text-lg text-slate-400 font-semibold mb-1">/ {confirmed.length} invitados llegaron</span>
+              </div>
+              {/* Progress bar */}
+              {confirmed.length > 0 && (
+                <div>
+                  <div className="flex justify-between text-xs text-slate-500 mb-1">
+                    <span>Presencia</span>
+                    <span>{Math.round((checkedIn.length / confirmed.length) * 100)}% presentes</span>
+                  </div>
+                  <div className="h-3 rounded-full bg-slate-100 overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-green-500 transition-all"
+                      style={{ width: `${Math.min(100, (checkedIn.length / confirmed.length) * 100)}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+              {/* Stats row */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+                <div className="text-center p-3 bg-blue-50 rounded-xl">
+                  <p className="text-2xl font-black text-blue-700">{confirmed.length}</p>
+                  <p className="text-xs text-blue-500 font-semibold mt-0.5">Confirmados</p>
+                </div>
+                <div className="text-center p-3 bg-green-50 rounded-xl">
+                  <p className="text-2xl font-black text-green-700">{checkedIn.length}</p>
+                  <p className="text-xs text-green-500 font-semibold mt-0.5">Presentes</p>
+                </div>
+                <div className="text-center p-3 bg-amber-50 rounded-xl">
+                  <p className="text-2xl font-black text-amber-700">{confirmed.length - checkedIn.length}</p>
+                  <p className="text-xs text-amber-500 font-semibold mt-0.5">Pendientes</p>
+                </div>
+                <div className="text-center p-3 bg-red-50 rounded-xl">
+                  <p className="text-2xl font-black text-red-700">{declined.length}</p>
+                  <p className="text-xs text-red-500 font-semibold mt-0.5">No vienen</p>
+                </div>
+              </div>
+              {/* Recent arrivals list */}
+              {recentArrivals.length > 0 && (
+                <div>
+                  <p className="text-xs font-black uppercase tracking-wider text-slate-500 mb-2">
+                    {isEventToday ? 'Últimas llegadas' : 'Asistentes'}
+                  </p>
+                  <div className="space-y-1.5 max-h-52 overflow-y-auto pr-1">
+                    {recentArrivals.map(inv => (
+                      <div key={inv.id} className="flex items-center gap-2 p-2 bg-white rounded-lg border border-slate-100 text-sm">
+                        <span className="w-2 h-2 rounded-full bg-green-400 shrink-0" />
+                        <span className="flex-1 font-medium text-slate-800 truncate">{inv.nombre}</span>
+                        {inv.tableNumber && (
+                          <span className="text-xs text-slate-400 shrink-0">Mesa {inv.tableNumber}</span>
+                        )}
+                        {inv.checkInTimestamp && (
+                          <span className="text-xs text-slate-400 shrink-0">
+                            {new Date(inv.checkInTimestamp).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Post-event: who didn't show */}
+              {isEventPast && (
+                <div>
+                  <p className="text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Confirmados que no asistieron</p>
+                  {confirmed.filter(i => !i.checkedIn).length === 0 ? (
+                    <p className="text-sm text-green-600 font-semibold">🎉 ¡Todos los confirmados asistieron!</p>
+                  ) : (
+                    <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
+                      {confirmed.filter(i => !i.checkedIn).map(inv => (
+                        <div key={inv.id} className="flex items-center gap-2 p-2 bg-slate-50 rounded-lg border border-slate-100 text-sm">
+                          <XCircle className="w-3.5 h-3.5 text-red-400 shrink-0" />
+                          <span className="flex-1 font-medium text-slate-600 truncate">{inv.nombre}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         {/* ── Financials ────────────────────────────────────── */}
         <Card>
