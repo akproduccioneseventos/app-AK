@@ -51,7 +51,7 @@ export async function getFiestasByEmpleado(empleadoId: string): Promise<FiestaEn
   const unique = Array.from(new Map(results.map(f => [f.id, f])).values());
   return unique.sort(
     (a, b) =>
-      new Date(b.configuracion.fechaEvento || 0).getTime() -
-      new Date(a.configuracion.fechaEvento || 0).getTime()
+      new Date(b.configuracion.fechaEvento || '1970-01-01').getTime() -
+      new Date(a.configuracion.fechaEvento || '1970-01-01').getTime()
   );
 }

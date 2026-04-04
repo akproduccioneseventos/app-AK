@@ -266,6 +266,18 @@ function AsignarPersonalEventoContent() {
       }
   };
 
+  const sanitizePhone = (raw: string) => raw.replace(/\D/g, '');
+
+  const formatEventDate = (fechaEvento: string | undefined, long = false) => {
+    if (!fechaEvento) return long ? 'Fecha a confirmar' : 'Sin fecha';
+    return new Date(fechaEvento + 'T00:00:00').toLocaleDateString(
+      'es-UY',
+      long
+        ? { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
+        : { day: '2-digit', month: '2-digit', year: 'numeric' }
+    );
+  };
+
   const buildWhatsAppMessage = useCallback((
     empleado: Empleado,
     roleName: string,
@@ -273,9 +285,7 @@ function AsignarPersonalEventoContent() {
     fiesta: FiestaEnPlanificacion
   ): string => {
     const cfg = fiesta.configuracion;
-    const fecha = cfg.fechaEvento
-      ? new Date(cfg.fechaEvento + 'T00:00:00').toLocaleDateString('es-UY', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
-      : 'Fecha a confirmar';
+    const fecha = formatEventDate(cfg.fechaEvento, true);
     const horario = cfg.horaInicio ? `${cfg.horaInicio}${cfg.horaFin ? ` - ${cfg.horaFin}` : ''}` : 'Horario a confirmar';
     const lugar = [cfg.nombreLugar, cfg.direccionLugar].filter(Boolean).join(', ') || 'Lugar a confirmar';
 
@@ -301,7 +311,7 @@ Por favor confirmá tu asistencia respondiendo este mensaje.
   }, [currentFiesta, buildWhatsAppMessage]);
 
   const sendWhatsApp = () => {
-    const phone = whatsAppDialog.phone.replace(/\D/g, '');
+    const phone = sanitizePhone(whatsAppDialog.phone);
     if (!phone) {
       toast({ title: 'Teléfono requerido', description: 'Ingresá el número de WhatsApp del empleado.', variant: 'destructive' });
       return;
@@ -325,16 +335,14 @@ Por favor confirmá tu asistencia respondiendo este mensaje.
   const sendRegistroWhatsApp = () => {
     const { empleado, fiestas, summaryPhone } = registroDialog;
     if (!empleado) return;
-    const phone = summaryPhone.replace(/\D/g, '');
+    const phone = sanitizePhone(summaryPhone);
     if (!phone) {
       toast({ title: 'Teléfono requerido', description: 'Ingresá el número de WhatsApp del empleado.', variant: 'destructive' });
       return;
     }
     const lines = fiestas.map((f, i) => {
       const cfg = f.configuracion;
-      const fecha = cfg.fechaEvento
-        ? new Date(cfg.fechaEvento + 'T00:00:00').toLocaleDateString('es-UY', { day: '2-digit', month: '2-digit', year: 'numeric' })
-        : 'Sin fecha';
+      const fecha = formatEventDate(cfg.fechaEvento);
       const asignaciones = (f.personalAsignado || [])
         .filter(p => p.empleadoId === empleado.id)
         .map(p => {
@@ -345,7 +353,7 @@ Por favor confirmá tu asistencia respondiendo este mensaje.
       return `${i + 1}. *${cfg.nombreEvento || 'Sin nombre'}* (${fecha})\n${asignaciones}`;
     });
 
-    const message = `¡Hola ${empleado.nombre}! 👋\n\nEste es tu registro de eventos contratados:\n\n${lines.join('\n\n')}\n\nCualquier consulta no dudes en escribirnos. ¡Gracias!`;
+    const message = `¡Hola ${empleado.nombre}! 👋\n\nEste es tu registro de eventos contratados:\n\n${lines.join('\n\n')}\n\nPara cualquier consulta no dudes en escribirnos. ¡Gracias!`;
     const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
     setRegistroDialog(prev => ({ ...prev, open: false }));
