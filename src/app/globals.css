@@ -4,31 +4,39 @@
 
 @layer base {
   :root {
-    --background: 210 20% 98%;
+    --background: 240 20% 98%;
     --foreground: 224 71% 4%;
     --card: 0 0% 100%;
     --card-foreground: 224 71% 4%;
     --popover: 0 0% 100%;
     --popover-foreground: 224 71% 4%;
-    --primary: 348 83% 61%;
-    --primary-foreground: 210 20% 98%;
+    --primary: 243 75% 59%;
+    --primary-foreground: 0 0% 100%;
     --secondary: 220 14% 96%;
     --secondary-foreground: 224 71% 4%;
     --muted: 220 14% 96%;
     --muted-foreground: 220 8.9% 46.1%;
-    --accent: 348 83% 61%;
+    --accent: 38 92% 50%;
     --accent-foreground: 224 71% 4%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 20% 98%;
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 348 83% 61%;
+    --ring: 243 75% 59%;
     --radius: 1.25rem;
-    --chart-1: 348 83% 61%;
+    --chart-1: 243 75% 59%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+    --chart-4: 38 92% 50%;
+    --chart-5: 270 70% 56%;
+    --sidebar-background: 240 20% 98%;
+    --sidebar-foreground: 224 71% 4%;
+    --sidebar-primary: 243 75% 59%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 243 75% 97%;
+    --sidebar-accent-foreground: 243 75% 40%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 243 75% 59%;
   }
 
   .dark {
@@ -38,19 +46,27 @@
     --card-foreground: 210 20% 98%;
     --popover: 224 71% 4%;
     --popover-foreground: 210 20% 98%;
-    --primary: 348 83% 61%;
-    --primary-foreground: 224 71% 4%;
+    --primary: 243 75% 67%;
+    --primary-foreground: 0 0% 100%;
     --secondary: 215 27.9% 16.9%;
     --secondary-foreground: 210 20% 98%;
     --muted: 215 27.9% 16.9%;
     --muted-foreground: 217.9 10.6% 64.9%;
-    --accent: 215 27.9% 16.9%;
-    --accent-foreground: 210 20% 98%;
+    --accent: 38 92% 50%;
+    --accent-foreground: 224 71% 4%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 20% 98%;
     --border: 215 27.9% 16.9%;
     --input: 215 27.9% 16.9%;
-    --ring: 348 83% 61%;
+    --ring: 243 75% 67%;
+    --sidebar-background: 224 71% 4%;
+    --sidebar-foreground: 210 20% 98%;
+    --sidebar-primary: 243 75% 67%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 243 30% 15%;
+    --sidebar-accent-foreground: 243 75% 80%;
+    --sidebar-border: 215 27.9% 16.9%;
+    --sidebar-ring: 243 75% 67%;
   }
 }
 
@@ -115,11 +131,58 @@
   }
 
   .text-gradient-primary {
-    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(348 83% 45%) 100%);
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(270 70% 56%) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+
+  .gradient-primary {
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(270 70% 56%) 100%);
+  }
+
+  .btn-gradient-primary {
+    @apply bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/25 hover:from-indigo-700 hover:to-purple-700 hover:shadow-indigo-600/30 transition-all duration-200;
+  }
+
+  .input-focus-gradient:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px hsl(var(--primary) / 0.5);
+  }
+}
+
+/* ============================================================
+   CUSTOM SCROLLBAR — Brand colors
+   ============================================================ */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(243 75% 80%);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary));
+}
+
+/* ============================================================
+   GLOBAL FOCUS VISIBLE — Indigo ring
+   ============================================================ */
+*:focus-visible {
+  outline: 2px solid transparent;
+  box-shadow: 0 0 0 2px hsl(var(--primary) / 0.5);
+}
+
+/* ============================================================
+   SELECTION COLOR — Brand purple
+   ============================================================ */
+::selection {
+  background: hsl(243 75% 59% / 0.2);
+  color: hsl(243 75% 30%);
 }
 
 /* ============================================================

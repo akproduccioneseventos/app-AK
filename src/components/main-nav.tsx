@@ -52,17 +52,17 @@ export function MainNav() {
   const isExactly = (path: string) => pathname === path;
 
   return (
-    <Sidebar className="border-r border-slate-100 bg-white/95 backdrop-blur-xl shadow-[10px_0_40px_rgba(0,0,0,0.02)]">
-      <SidebarHeader className="p-8">
+    <Sidebar className="border-r border-indigo-100/50 bg-white/98 backdrop-blur-xl shadow-[10px_0_40px_rgba(79,70,229,0.04)]">
+      <SidebarHeader className="p-6">
         <Link href="/">
-          <div className="flex items-center justify-center gap-2 cursor-pointer py-6 bg-slate-50/50 rounded-3xl border border-slate-100/50 hover:border-primary/20 hover:bg-white transition-all duration-500 group shadow-inner">
+          <div className="flex items-center justify-center gap-2 cursor-pointer py-5 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl border border-indigo-100/60 hover:border-indigo-200/80 hover:from-indigo-100/50 hover:to-purple-100/50 transition-all duration-500 group shadow-sm shadow-indigo-100/50">
             <div className="group-hover:scale-110 transition-transform duration-700 ease-out">
                 <AppLogo />
             </div>
           </div>
         </Link>
       </SidebarHeader>
-      <SidebarContent className="px-6 gap-8 scrollbar-hide">
+      <SidebarContent className="px-5 gap-6 scrollbar-hide">
         <SidebarMenu>
           <SidebarMenuItem>
             <Link href="/">
@@ -70,35 +70,35 @@ export function MainNav() {
                 isActive={isExactly("/")} 
                 tooltip="Dashboard Principal"
                 className={cn(
-                    "h-14 rounded-2xl transition-all duration-500 font-black uppercase text-[10px] tracking-[0.2em]",
+                    "h-11 rounded-xl transition-all duration-300 font-black uppercase text-[10px] tracking-[0.2em]",
                     isExactly("/") 
-                      ? "bg-primary text-white shadow-xl shadow-primary/30 scale-[1.02]" 
-                      : "hover:bg-slate-50 text-slate-400 hover:text-primary"
+                      ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/30" 
+                      : "hover:bg-indigo-50 text-slate-400 hover:text-indigo-600"
                 )}
               >
-                <LayoutDashboard className={cn("w-5 h-5", isExactly("/") ? "text-white" : "text-primary/60")} />
-                <span className="ml-3">Dashboard</span>
+                <LayoutDashboard className={cn("w-4 h-4", isExactly("/") ? "text-white" : "text-indigo-400")} />
+                <span className="ml-2">Dashboard</span>
               </SidebarMenuButton>
             </Link>
           </SidebarMenuItem>
         </SidebarMenu>
 
         <SidebarGroup>
-          <SidebarGroupLabel className="px-3 text-[9px] font-black uppercase tracking-[0.3em] text-slate-300 mb-4">Planificación</SidebarGroupLabel>
+          <SidebarGroupLabel className="px-2 text-[9px] font-black uppercase tracking-[0.3em] text-indigo-300 mb-3">Planificación</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu className="gap-2">
+            <SidebarMenu className="gap-1.5">
               <SidebarMenuItem>
                 <Link href="/eventos">
                   <SidebarMenuButton 
                     isActive={isActive("/eventos") || isActive("/fiestas/nueva")}
                     className={cn(
-                        "h-12 rounded-xl transition-all duration-300 font-bold text-xs",
+                        "h-10 rounded-xl transition-all duration-300 font-bold text-xs",
                         (isActive("/eventos") || isActive("/fiestas/nueva")) 
-                          ? "bg-slate-50 text-primary shadow-sm" 
-                          : "text-slate-500 hover:bg-slate-50 hover:text-primary"
+                          ? "bg-indigo-50 text-indigo-700 shadow-sm" 
+                          : "text-slate-500 hover:bg-indigo-50/60 hover:text-indigo-600"
                     )}
                   >
-                    <PartyPopper className="w-5 h-5" />
+                    <PartyPopper className={cn("w-4 h-4", (isActive("/eventos") || isActive("/fiestas/nueva")) ? "text-indigo-600" : "text-purple-400")} />
                     <span className="ml-2">Eventos Activos</span>
                   </SidebarMenuButton>
                 </Link>
@@ -108,11 +108,11 @@ export function MainNav() {
                   <SidebarMenuButton 
                     isActive={isActive("/calendario")}
                     className={cn(
-                        "h-12 rounded-xl transition-all duration-300 font-bold text-xs",
-                        isActive("/calendario") ? "bg-slate-50 text-primary shadow-sm" : "text-slate-500 hover:bg-slate-50 hover:text-primary"
+                        "h-10 rounded-xl transition-all duration-300 font-bold text-xs",
+                        isActive("/calendario") ? "bg-indigo-50 text-indigo-700 shadow-sm" : "text-slate-500 hover:bg-indigo-50/60 hover:text-indigo-600"
                     )}
                   >
-                    <CalendarDays className="w-5 h-5" />
+                    <CalendarDays className={cn("w-4 h-4", isActive("/calendario") ? "text-indigo-600" : "text-purple-400")} />
                     <span className="ml-2">Calendario</span>
                   </SidebarMenuButton>
                 </Link>
@@ -122,57 +122,62 @@ export function MainNav() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel className="px-3 text-[9px] font-black uppercase tracking-[0.3em] text-slate-300 mb-4">Gestión Empresa</SidebarGroupLabel>
+          <SidebarGroupLabel className="px-2 text-[9px] font-black uppercase tracking-[0.3em] text-indigo-300 mb-3">Gestión Empresa</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu className="gap-2">
+            <SidebarMenu className="gap-1.5">
               <SidebarMenuItem>
                 <SidebarMenuButton
                   isActive={(isActive("/empresa") && !isActive('/empresa/redes-sociales')) || isActive('/empleados') || isActive('/proveedores')}
                   isSubmenu
-                  className="h-12 rounded-xl font-bold text-xs text-slate-500 hover:text-primary transition-all duration-300"
+                  className={cn(
+                    "h-10 rounded-xl font-bold text-xs transition-all duration-300",
+                    (isActive("/empresa") && !isActive('/empresa/redes-sociales')) || isActive('/empleados') || isActive('/proveedores')
+                      ? "text-blue-700 bg-blue-50"
+                      : "text-slate-500 hover:bg-blue-50/50 hover:text-blue-600"
+                  )}
                 >
-                  <Building2 className="w-5 h-5" />
+                  <Building2 className={cn("w-4 h-4", (isActive("/empresa") && !isActive('/empresa/redes-sociales')) || isActive('/empleados') || isActive('/proveedores') ? "text-blue-600" : "text-blue-400")} />
                   <span className="ml-2">Administración</span>
                 </SidebarMenuButton>
-                <SidebarMenuSub className="ml-6 border-l-2 border-slate-50 space-y-2 mt-2">
+                <SidebarMenuSub className="ml-5 border-l-2 border-blue-100 space-y-1 mt-1.5">
                   <SidebarMenuSubItem>
                     <Link href="/empresa/servicios" asChild>
-                      <SidebarMenuSubButton isActive={isActive("/empresa/servicios")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
+                      <SidebarMenuSubButton isActive={isActive("/empresa/servicios")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-blue-600">
                         Catálogo Maestro
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
                     <Link href="/empresa/menus" asChild>
-                      <SidebarMenuSubButton isActive={isActive("/empresa/menus")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
+                      <SidebarMenuSubButton isActive={isActive("/empresa/menus")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-blue-600">
                         Gastronomía
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
                     <Link href="/empresa/activos-fijos" asChild>
-                      <SidebarMenuSubButton isActive={isActive("/empresa/activos-fijos")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
+                      <SidebarMenuSubButton isActive={isActive("/empresa/activos-fijos")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-blue-600">
                         Activos Fijos
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
                     <Link href="/empresa/insumos" asChild>
-                      <SidebarMenuSubButton isActive={isActive("/empresa/insumos")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
+                      <SidebarMenuSubButton isActive={isActive("/empresa/insumos")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-blue-600">
                         Insumos
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
                     <Link href="/empleados" asChild>
-                      <SidebarMenuSubButton isActive={isActive("/empleados")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
+                      <SidebarMenuSubButton isActive={isActive("/empleados")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-blue-600">
                         Recursos Humanos
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
                     <Link href="/proveedores" asChild>
-                      <SidebarMenuSubButton isActive={isActive("/proveedores")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
+                      <SidebarMenuSubButton isActive={isActive("/proveedores")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-blue-600">
                         Proveedores
                       </SidebarMenuSubButton>
                     </Link>
@@ -190,71 +195,76 @@ export function MainNav() {
                     isActive("/analytics")
                   }
                   isSubmenu
-                  className="h-12 rounded-xl font-bold text-xs text-slate-500 hover:text-primary transition-all duration-300"
+                  className={cn(
+                    "h-10 rounded-xl font-bold text-xs transition-all duration-300",
+                    isActive("/contabilidad") || isActive("/presupuestos") || isActive("/invoices") || isActive("/customers") || isActive("/analytics")
+                      ? "text-emerald-700 bg-emerald-50"
+                      : "text-slate-500 hover:bg-emerald-50/50 hover:text-emerald-600"
+                  )}
                 >
-                  <BarChart3 className="w-5 h-5" />
+                  <BarChart3 className={cn("w-4 h-4", isActive("/contabilidad") || isActive("/presupuestos") || isActive("/invoices") || isActive("/customers") || isActive("/analytics") ? "text-emerald-600" : "text-emerald-400")} />
                   <span className="ml-2">Finanzas & Ventas</span>
                 </SidebarMenuButton>
-                <SidebarMenuSub className="ml-6 border-l-2 border-slate-50 space-y-2 mt-2">
+                <SidebarMenuSub className="ml-5 border-l-2 border-emerald-100 space-y-1 mt-1.5">
                   <SidebarMenuSubItem>
                     <Link href="/contabilidad/crm" asChild>
-                      <SidebarMenuSubButton isActive={isActive("/contabilidad/crm")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter text-emerald-600">
+                      <SidebarMenuSubButton isActive={isActive("/contabilidad/crm")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter text-emerald-600 hover:text-emerald-700">
                         CRM Prospectos
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
                     <Link href="/contabilidad/crm/agenda" asChild>
-                      <SidebarMenuSubButton isActive={isActive("/contabilidad/crm/agenda")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
+                      <SidebarMenuSubButton isActive={isActive("/contabilidad/crm/agenda")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-emerald-600">
                         Agenda Citas
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
                    <SidebarMenuSubItem>
                     <Link href="/customers" asChild>
-                      <SidebarMenuSubButton isActive={isActive("/customers")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
+                      <SidebarMenuSubButton isActive={isActive("/customers")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-emerald-600">
                         Base Clientes
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
                     <Link href="/presupuestos/nuevo" asChild>
-                      <SidebarMenuSubButton isActive={isActive("/presupuestos")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
+                      <SidebarMenuSubButton isActive={isActive("/presupuestos")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-emerald-600">
                         Presupuestos
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
                     <Link href="/invoices" asChild>
-                      <SidebarMenuSubButton isActive={isActive("/invoices")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
+                      <SidebarMenuSubButton isActive={isActive("/invoices")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-emerald-600">
                         Facturación
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
                     <Link href="/empresa/contabilidad/flujo-caja" asChild>
-                      <SidebarMenuSubButton isActive={isActive("/empresa/contabilidad/flujo-caja")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter text-blue-600">
+                      <SidebarMenuSubButton isActive={isActive("/empresa/contabilidad/flujo-caja")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter text-blue-600 hover:text-blue-700">
                         Flujo de Caja
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
                     <Link href="/empresa/contabilidad/gastos" asChild>
-                      <SidebarMenuSubButton isActive={isActive("/empresa/contabilidad/gastos")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
+                      <SidebarMenuSubButton isActive={isActive("/empresa/contabilidad/gastos")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-emerald-600">
                         Gastos Empresa
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
                     <Link href="/contabilidad/fiestas-historicas" asChild>
-                      <SidebarMenuSubButton isActive={isActive("/contabilidad/fiestas-historicas")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
+                      <SidebarMenuSubButton isActive={isActive("/contabilidad/fiestas-historicas")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-emerald-600">
                         Historial Base
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
                     <Link href="/analytics" asChild>
-                      <SidebarMenuSubButton isActive={isActive("/analytics")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter text-primary">
+                      <SidebarMenuSubButton isActive={isActive("/analytics")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter text-indigo-600 hover:text-indigo-700">
                         <TrendingUp className="w-3.5 h-3.5 mr-1" />
                         Dashboard Analítico
                       </SidebarMenuSubButton>
@@ -267,29 +277,29 @@ export function MainNav() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel className="px-3 text-[9px] font-black uppercase tracking-[0.3em] text-slate-300 mb-4">Herramientas</SidebarGroupLabel>
+          <SidebarGroupLabel className="px-2 text-[9px] font-black uppercase tracking-[0.3em] text-indigo-300 mb-3">Herramientas</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu className="gap-2">
+            <SidebarMenu className="gap-1.5">
               <SidebarMenuItem>
                 <Link href="/simulador-de-presupuesto">
-                  <SidebarMenuButton isActive={isActive("/simulador-de-presupuesto")} className="h-12 rounded-xl font-bold text-xs text-slate-500 hover:text-primary transition-all duration-300">
-                    <Wand2 className="w-5 h-5 text-amber-500" />
+                  <SidebarMenuButton isActive={isActive("/simulador-de-presupuesto")} className={cn("h-10 rounded-xl font-bold text-xs transition-all duration-300", isActive("/simulador-de-presupuesto") ? "bg-amber-50 text-amber-700" : "text-slate-500 hover:bg-amber-50/60 hover:text-amber-600")}>
+                    <Wand2 className="w-4 h-4 text-amber-500" />
                     <span className="ml-2">Simulador IA</span>
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <Link href="/empresa/redes-sociales">
-                  <SidebarMenuButton isActive={isActive("/empresa/redes-sociales")} className="h-12 rounded-xl font-bold text-xs text-slate-500 hover:text-primary transition-all duration-300">
-                    <Sparkles className="w-5 h-5 text-indigo-500" />
+                  <SidebarMenuButton isActive={isActive("/empresa/redes-sociales")} className={cn("h-10 rounded-xl font-bold text-xs transition-all duration-300", isActive("/empresa/redes-sociales") ? "bg-indigo-50 text-indigo-700" : "text-slate-500 hover:bg-indigo-50/60 hover:text-indigo-600")}>
+                    <Sparkles className="w-4 h-4 text-indigo-500" />
                     <span className="ml-2">Marketing</span>
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <Link href="/compras">
-                  <SidebarMenuButton isActive={isActive("/compras")} className="h-12 rounded-xl font-bold text-xs text-slate-500 hover:text-primary transition-all duration-300">
-                    <ShoppingCart className="w-5 h-5 text-slate-400" />
+                  <SidebarMenuButton isActive={isActive("/compras")} className={cn("h-10 rounded-xl font-bold text-xs transition-all duration-300", isActive("/compras") ? "bg-slate-100 text-slate-700" : "text-slate-500 hover:bg-slate-50 hover:text-slate-700")}>
+                    <ShoppingCart className="w-4 h-4 text-slate-400" />
                     <span className="ml-2">Insumos</span>
                   </SidebarMenuButton>
                 </Link>
@@ -299,27 +309,28 @@ export function MainNav() {
         </SidebarGroup>
 
       </SidebarContent>
-      <SidebarFooter className="p-6 space-y-4">
+      <SidebarFooter className="p-5 space-y-3">
         <SidebarMenu>
           <SidebarMenuItem>
             <Link href="/settings">
               <SidebarMenuButton 
                 isActive={isActive("/settings")}
                 className={cn(
-                    "h-14 rounded-2xl transition-all duration-500 font-black uppercase text-[10px] tracking-[0.2em]",
-                    isActive("/settings") ? "bg-slate-900 text-white shadow-xl" : "text-slate-400 hover:bg-slate-100 hover:text-slate-900"
+                    "h-11 rounded-xl transition-all duration-300 font-black uppercase text-[10px] tracking-[0.2em]",
+                    isActive("/settings") ? "bg-slate-900 text-white shadow-lg" : "text-slate-400 hover:bg-slate-100 hover:text-slate-900"
                 )}
               >
-                <Settings className="w-5 h-5" />
-                <span className="ml-3">Ajustes</span>
+                <Settings className="w-4 h-4" />
+                <span className="ml-2">Ajustes</span>
               </SidebarMenuButton>
             </Link>
           </SidebarMenuItem>
         </SidebarMenu>
-        <div className="flex items-center justify-center gap-2 pt-2 border-t border-slate-50">
-          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-200 select-none">
+        <div className="flex items-center justify-between pt-2 border-t border-indigo-50">
+          <p className="text-[9px] font-black uppercase tracking-[0.25em] text-slate-200 select-none">
             © {new Date().getFullYear()} AK Producciones
           </p>
+          <span className="text-[9px] font-bold text-indigo-200 select-none bg-indigo-50 px-1.5 py-0.5 rounded-full">v2.0</span>
         </div>
       </SidebarFooter>
     </Sidebar>
