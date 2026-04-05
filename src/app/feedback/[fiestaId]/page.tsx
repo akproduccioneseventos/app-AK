@@ -100,7 +100,7 @@ function FeedbackContent({ fiestaId }: { fiestaId: string | null }) {
       <Card className="w-full max-w-2xl shadow-xl">
         <CardHeader className="text-center">
             <div className="mx-auto mb-4 opacity-50">
-              <CompanyLogo size="sm" className="w-10 h-10 mx-auto" />
+              <CompanyLogo size="sm" className="mx-auto" />
             </div>
             <PartyPopper className="w-12 h-12 mx-auto text-primary mb-3"/>
             <CardTitle className="text-3xl font-bold font-headline">¡Valora tu experiencia!</CardTitle>

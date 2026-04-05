@@ -126,7 +126,7 @@ function ClientPortalContent() {
                 <Card className="max-w-sm w-full">
                     <CardHeader className="text-center">
                         <div className="mb-3 opacity-40">
-                          <CompanyLogo size="xs" className="w-8 h-8 mx-auto" />
+                          <CompanyLogo size="sm" className="mx-auto" />
                         </div>
                         <KeyRound className="w-12 h-12 mx-auto text-primary mb-2"/>
                         <CardTitle className="font-headline text-2xl">Portal del Cliente</CardTitle>

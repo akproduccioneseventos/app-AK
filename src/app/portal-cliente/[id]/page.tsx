@@ -280,7 +280,7 @@ export default function PortalClientePage() {
       <header className="bg-white border-b border-slate-100 shadow-sm sticky top-0 z-40">
         <div className="max-w-4xl mx-auto px-4 h-14 flex items-center gap-3">
           <div className="relative w-8 h-8 shrink-0">
-            <CompanyLogo size="xs" className="w-8 h-8" />
+            <CompanyLogo size="sm" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-black text-slate-900 truncate">{config.nombreEvento}</p>

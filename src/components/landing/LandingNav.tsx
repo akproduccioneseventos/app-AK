@@ -44,7 +44,7 @@ export function LandingNav({ whatsappNumber = '59899123456' }: LandingNavProps) 
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <Link href="/landing" className="flex items-center gap-3 shrink-0">
-            <CompanyLogo size="sm" className="w-10 h-10" />
+            <CompanyLogo size="sm" />
             <span
               className={cn(
                 'font-headline font-bold text-lg hidden sm:block transition-colors',

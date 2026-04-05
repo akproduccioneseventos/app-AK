@@ -243,7 +243,7 @@ export default function PublicCatalogPage() {
       <footer className="bg-slate-900 text-slate-400 py-10 px-4">
         <div className="max-w-3xl mx-auto space-y-6">
           <div className="flex items-center gap-3">
-            <CompanyLogo size="xs" className="w-8 h-8 opacity-60" />
+            <CompanyLogo size="sm" className="opacity-60" />
             <span className="text-white font-black text-sm uppercase tracking-widest">AK Producciones Eventos</span>
           </div>
           <div className="grid sm:grid-cols-2 gap-4 text-xs">

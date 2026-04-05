@@ -548,7 +548,7 @@ function SimuladorContent() {
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="w-full max-w-3xl space-y-8">
                     
                     <div className="flex justify-center mb-2 print:hidden">
-                      <CompanyLogo size="sm" src={logoUrl || undefined} className="w-10 h-10 opacity-40" />
+                      <CompanyLogo size="sm" src={logoUrl || undefined} className="opacity-40" />
                     </div>
                     <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
                         <CardContent className="p-8 sm:p-12 flex flex-col items-center text-center space-y-8">
