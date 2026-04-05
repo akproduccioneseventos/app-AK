@@ -22,6 +22,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { NotificationsHub } from '@/components/notifications-hub';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import { MainNav } from './main-nav';
+import { AKAssistantWidget } from '@/components/assistant/ak-assistant-widget';
 
 
 const getPageTitle = (pathname: string): string => {
@@ -251,7 +252,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   // Define public-facing paths that should not have the main AppShell (header, etc.)
   const isAuthPage = pathname === '/login';
-  const isPublicEventPage = pathname.startsWith('/evento/actual') || pathname.startsWith('/evento/social') || pathname.startsWith('/evento/accesos') || pathname.startsWith('/evento/muro-en-vivo') || pathname.startsWith('/invitacion') || pathname.startsWith('/video-vida') || pathname.startsWith('/feedback') || pathname.startsWith('/acceso-personal') || pathname.startsWith('/portal') || pathname.startsWith('/landing') || pathname.startsWith('/public') || pathname.startsWith('/portal-cliente') || pathname.startsWith('/simulador') || pathname.startsWith('/simulador-ak') || pathname.startsWith('/proveedor') || pathname.startsWith('/evento/mi-mesa') || pathname.startsWith('/evento/en-vivo');
+  const isPublicEventPage = pathname.startsWith('/evento/actual') || pathname.startsWith('/evento/social') || pathname.startsWith('/evento/accesos') || pathname.startsWith('/evento/muro-en-vivo') || pathname.startsWith('/invitacion') || pathname.startsWith('/video-vida') || pathname.startsWith('/feedback') || pathname.startsWith('/acceso-personal') || pathname.startsWith('/portal') || pathname.startsWith('/landing') || pathname.startsWith('/public') || pathname.startsWith('/portal-cliente') || pathname.startsWith('/simulador') || pathname.startsWith('/simulador-ak') || pathname.startsWith('/proveedor') || pathname.startsWith('/evento/mi-mesa') || pathname.startsWith('/evento/en-vivo') || pathname.startsWith('/presentacion-led');
   const isClientFacingTool = pathname === '/simulador-de-presupuesto';
 
   // Define pages that are printable views and should not have the shell.
@@ -282,8 +283,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <SidebarProvider>
       <MainNav />
       <SidebarInset>
-        <div className="flex min-h-screen w-full flex-col">
-          <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:px-6 print:hidden">
+        <div className="flex min-h-screen w-full flex-col">          <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:px-6 print:hidden">
             <div className="flex items-center gap-2">
               <SidebarTrigger className="md:hidden" />
               {PageIcon && <PageIcon className="h-6 w-6 text-primary" />}
@@ -339,6 +339,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </main>
         </div>
       </SidebarInset>
+      <AKAssistantWidget />
     </SidebarProvider>
   );
 }
