@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { MessageSquare, Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { CompanyLogo } from '@/components/company-logo';
 
 interface LandingNavProps {
   whatsappNumber?: string;
@@ -44,15 +44,7 @@ export function LandingNav({ whatsappNumber = '59899123456' }: LandingNavProps) 
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <Link href="/landing" className="flex items-center gap-3 shrink-0">
-            <div className="relative w-10 h-10">
-              <Image
-                src="/logo_ak_producciones.png"
-                alt="AK Producciones"
-                fill
-                className="object-contain"
-                sizes="40px"
-              />
-            </div>
+            <CompanyLogo size="sm" />
             <span
               className={cn(
                 'font-headline font-bold text-lg hidden sm:block transition-colors',

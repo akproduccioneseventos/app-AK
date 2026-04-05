@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, use } from 'react';
-import Image from 'next/image';
+import { CompanyLogo } from '@/components/company-logo';
 import { Search, Loader2, AlertTriangle, PartyPopper, ChevronRight, MessageCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -135,7 +135,7 @@ export default function MiMesaPage({ params }: { params: Promise<Params> }) {
         style={{ background: `linear-gradient(135deg, ${primaryColor}22, #0f172a)` }}>
         <div className="w-full max-w-sm text-center space-y-6 animate-in fade-in slide-in-from-bottom-6 duration-500">
           <div className="relative w-16 h-16 mx-auto">
-            <Image src="/logo_ak_producciones.png" alt="AK Producciones" fill className="object-contain" sizes="64px" />
+            <CompanyLogo size="md" className="mx-auto" />
           </div>
           <div className="p-8 rounded-3xl bg-white/10 backdrop-blur-sm border border-white/20 space-y-4 text-white">
             <PartyPopper className="w-12 h-12 mx-auto text-yellow-400" />
@@ -224,7 +224,7 @@ export default function MiMesaPage({ params }: { params: Promise<Params> }) {
         {/* Header */}
         <div className="text-center space-y-4">
           <div className="relative w-16 h-16 mx-auto">
-            <Image src="/logo_ak_producciones.png" alt="AK Producciones" fill className="object-contain" sizes="64px" />
+            <CompanyLogo size="md" className="mx-auto" />
           </div>
           <div className="text-white">
             <p className="text-xs font-bold uppercase tracking-[0.3em] opacity-50 mb-1">{config.tipoCelebracion}</p>

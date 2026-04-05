@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
 import { Facebook, Instagram, Music, MessageSquare } from 'lucide-react';
+import { CompanyLogo } from '@/components/company-logo';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import { cn } from '@/lib/utils';
 
@@ -79,15 +79,7 @@ export function PublicFooter({ className, variant = 'light' }: PublicFooterProps
     >
       {/* Logo + brand */}
       <div className="flex flex-col items-center gap-3">
-        <div className="relative w-14 h-14 drop-shadow-lg">
-          <Image
-            src="/logo_ak_producciones.png"
-            alt="AK Producciones"
-            fill
-            className="object-contain"
-            sizes="56px"
-          />
-        </div>
+        <CompanyLogo size="md" className="drop-shadow-lg" />
         <span
           className={cn(
             'text-xs font-black uppercase tracking-[0.25em]',

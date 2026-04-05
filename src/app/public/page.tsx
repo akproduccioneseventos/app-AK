@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import Image from 'next/image';
 import { MessageSquare, Phone, MapPin, Building2, User, CheckCircle, XCircle } from 'lucide-react';
 import { catalogList } from '@/data/event-catalogs';
+import { CompanyLogo } from '@/components/company-logo';
 
 export const metadata: Metadata = {
   title: 'Organizá tu Fiesta sin Estrés | AK Producciones Eventos – Salto, Uruguay',
@@ -24,15 +24,7 @@ export default function PublicCatalogPage() {
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="relative w-9 h-9 shrink-0">
-              <Image
-                src="/logo_ak_producciones.png"
-                alt="AK Producciones"
-                fill
-                className="object-contain"
-                sizes="36px"
-              />
-            </div>
+            <CompanyLogo size="sm" />
             <span className="text-sm font-black uppercase tracking-widest text-slate-800 hidden sm:block">
               AK Producciones
             </span>
@@ -54,15 +46,7 @@ export default function PublicCatalogPage() {
           <div className="absolute -bottom-40 -left-40 w-[600px] h-[600px] rounded-full bg-purple-300/10 blur-3xl" />
         </div>
         <div className="relative z-10 max-w-3xl mx-auto px-4 py-20 sm:py-28 text-center flex flex-col items-center gap-8">
-          <div className="relative w-20 h-20 drop-shadow-2xl">
-            <Image
-              src="/logo_ak_producciones.png"
-              alt="AK Producciones"
-              fill
-              className="object-contain"
-              sizes="80px"
-            />
-          </div>
+          <CompanyLogo size="lg" className="drop-shadow-2xl" />
           <div className="space-y-5">
             <p className="text-xs font-black uppercase tracking-[0.3em] text-purple-300">
               Salto · Uruguay
@@ -259,9 +243,7 @@ export default function PublicCatalogPage() {
       <footer className="bg-slate-900 text-slate-400 py-10 px-4">
         <div className="max-w-3xl mx-auto space-y-6">
           <div className="flex items-center gap-3">
-            <div className="relative w-8 h-8 shrink-0 opacity-60">
-              <Image src="/logo_ak_producciones.png" alt="AK Producciones" fill className="object-contain" sizes="32px" />
-            </div>
+            <CompanyLogo size="sm" className="opacity-60" />
             <span className="text-white font-black text-sm uppercase tracking-widest">AK Producciones Eventos</span>
           </div>
           <div className="grid sm:grid-cols-2 gap-4 text-xs">

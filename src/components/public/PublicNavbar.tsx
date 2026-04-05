@@ -1,9 +1,9 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { CompanyLogo } from '@/components/company-logo';
 
 interface PublicNavbarProps {
   whatsappNumber?: string;
@@ -30,15 +30,7 @@ export function PublicNavbar({
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo + Brand */}
         <Link href="/public" className="flex items-center gap-3 group">
-          <div className="relative w-9 h-9 shrink-0">
-            <Image
-              src="/logo_ak_producciones.png"
-              alt="AK Producciones"
-              fill
-              className="object-contain group-hover:scale-110 transition-transform duration-200"
-              sizes="36px"
-            />
-          </div>
+          <CompanyLogo size="sm" className="group-hover:scale-110 transition-transform duration-200" />
           <span className="text-sm font-black uppercase tracking-widest text-slate-800 hidden sm:block">
             AK Producciones
           </span>

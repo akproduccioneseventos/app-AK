@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 const AppLogo = () => {
   const [logoUrl, setLogoUrl] = useState<string | null | undefined>(undefined);
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     const fetchLogo = async () => {
@@ -27,6 +28,14 @@ const AppLogo = () => {
     return <Skeleton className="h-8 w-24 rounded-md" />;
   }
 
+  if (hasError) {
+    return (
+      <div className="h-8 px-3 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-white font-black text-sm shrink-0">
+        AK
+      </div>
+    );
+  }
+
   if (logoUrl) {
     return (
         <NextImage 
@@ -37,6 +46,7 @@ const AppLogo = () => {
             className="object-contain h-8 w-auto"
             priority
             data-ai-hint="company logo"
+            onError={() => setHasError(true)}
         />
     );
   }
@@ -51,6 +61,7 @@ const AppLogo = () => {
       className="object-contain h-8 w-auto"
       priority
       data-ai-hint="company logo"
+      onError={() => setHasError(true)}
     />
   );
 };

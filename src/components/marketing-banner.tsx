@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
 import { Facebook, Instagram, Music, MessageSquare } from 'lucide-react';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import { cn } from '@/lib/utils';
+import { CompanyLogo } from '@/components/company-logo';
 
 const FALLBACK_SOCIAL = [
   {
@@ -96,15 +96,7 @@ export function MarketingBanner({
       )}
     >
       {/* Logo */}
-      <div className="relative w-20 h-20 drop-shadow-[0_4px_24px_rgba(255,255,255,0.25)]">
-        <Image
-          src="/logo_ak_producciones.png"
-          alt="AK Producciones"
-          fill
-          className="object-contain"
-          sizes="80px"
-        />
-      </div>
+      <CompanyLogo size="lg" className="drop-shadow-[0_4px_24px_rgba(255,255,255,0.25)]" />
 
       {variant === 'full' && (
         <>
