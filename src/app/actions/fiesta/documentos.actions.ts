@@ -91,7 +91,7 @@ export async function signContractDigitally(fiestaId: string, signerName: string
         const fiesta = await getFiestaById(fiestaId);
         if (!fiesta) throw new Error("Evento no encontrado");
 
-        const headersList = headers();
+        const headersList = await headers();
         const ip = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'IP desconocida';
 
         const updatedFiesta: FiestaEnPlanificacion = {

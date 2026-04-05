@@ -89,8 +89,9 @@ export default function GestorFiestasPage() {
     return fiestasActivas.filter(fiesta => {
       const matchesSearch = fiesta.configuracion.nombreEvento.toLowerCase().includes(searchTerm.toLowerCase());
       const eventDate = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : null;
+      const isContracted = fiesta.estado === 'Contratada';
       const isFutureOrNoDate = !eventDate || eventDate >= now;
-      return matchesSearch && isFutureOrNoDate;
+      return matchesSearch && (isFutureOrNoDate || isContracted);
     });
   }, [fiestasActivas, searchTerm]);
   
@@ -98,7 +99,8 @@ export default function GestorFiestasPage() {
     const now = new Date();
     return fiestasActivas.filter(fiesta => {
       const eventDate = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : null;
-      return eventDate && eventDate < now;
+      const isContracted = fiesta.estado === 'Contratada';
+      return eventDate && eventDate < now && !isContracted;
     });
   }, [fiestasActivas]);
 
