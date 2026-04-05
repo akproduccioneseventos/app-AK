@@ -423,3 +423,35 @@ export async function findLeadByBudgetOrCreate(presupuesto: any) {
         return { lead, isNew: false };
     }
 }
+
+export interface LandingLeadData {
+  nombre: string;
+  telefono: string;
+  email?: string;
+  tipoEvento?: string;
+  fechaEstimada?: string;
+  invitados?: number;
+  mensaje?: string;
+  fuente: 'landing-bodas' | 'landing-xv' | 'landing-eventos' | 'promo-widget' | 'landing';
+}
+
+export async function saveLead(data: LandingLeadData): Promise<{ success: boolean; error?: string }> {
+  try {
+    const res = await addCrmLead({
+      name: data.nombre,
+      phone: data.telefono,
+      email: data.email,
+      partyType: data.tipoEvento,
+      followUpDate: data.fechaEstimada,
+      guestCount: data.invitados,
+      notes: [
+        data.mensaje ? `Mensaje: ${data.mensaje}` : '',
+        `Fuente: ${data.fuente}`,
+      ].filter(Boolean).join('\n'),
+      budgetSource: 'manual',
+    });
+    return { success: res.success, error: res.error };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}

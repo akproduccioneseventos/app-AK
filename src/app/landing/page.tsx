@@ -6,7 +6,12 @@ import { GallerySection } from '@/components/landing/GallerySection';
 import { VideoSection } from '@/components/landing/VideoSection';
 import { TestimonialsSection } from '@/components/landing/TestimonialsSection';
 import { CTASection } from '@/components/landing/CTASection';
+import { FAQSection } from '@/components/landing/FAQSection';
+import { StatsSection } from '@/components/landing/StatsSection';
+import { ProcessSection } from '@/components/landing/ProcessSection';
 import { PublicFooter } from '@/components/public-footer';
+import { getPromoActiva } from '@/app/actions/promos';
+import { PromoWidget } from '@/components/promo/PromoWidget';
 
 export const metadata: Metadata = {
   title: 'AK Producciones Eventos — Bodas, XV Años y más en Uruguay',
@@ -29,15 +34,20 @@ export const metadata: Metadata = {
 
 const WHATSAPP_NUMBER = '59899123456';
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const promo = await getPromoActiva();
   return (
     <div className="min-h-screen bg-white">
+      {promo && <PromoWidget promo={promo} />}
       <LandingNav whatsappNumber={WHATSAPP_NUMBER} />
-      <HeroSection whatsappNumber={WHATSAPP_NUMBER} />
+      <HeroSection whatsappNumber={WHATSAPP_NUMBER} promoActiva={promo} />
+      <StatsSection />
       <ServicesSection whatsappNumber={WHATSAPP_NUMBER} />
+      <ProcessSection />
       <GallerySection />
       <VideoSection />
       <TestimonialsSection />
+      <FAQSection />
       <CTASection whatsappNumber={WHATSAPP_NUMBER} />
       <PublicFooter variant="dark" />
     </div>

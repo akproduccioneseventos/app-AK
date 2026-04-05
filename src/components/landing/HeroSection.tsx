@@ -1,13 +1,15 @@
 'use client';
 
-import { MessageSquare, ChevronDown } from 'lucide-react';
+import { MessageSquare, ChevronDown, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import type { PromoActiva } from '@/types/promo';
 
 interface HeroSectionProps {
   whatsappNumber?: string;
   headline?: string;
   subheadline?: string;
   backgroundImageUrl?: string;
+  promoActiva?: PromoActiva | null;
 }
 
 export function HeroSection({
@@ -15,6 +17,7 @@ export function HeroSection({
   headline = 'Hacemos Realidad\ntu Celebración',
   subheadline = 'Bodas, XV Años, Cumpleaños y más — producción integral con calidad premium en Uruguay.',
   backgroundImageUrl = 'https://images.unsplash.com/photo-1519741497674-611481863552?w=1920&q=85&auto=format&fit=crop',
+  promoActiva,
 }: HeroSectionProps) {
   const waHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
     '¡Hola AK Producciones! Vi su página y me gustaría cotizar mi evento.'
@@ -54,6 +57,17 @@ export function HeroSection({
 
       {/* Content */}
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        {/* Promo badge */}
+        {promoActiva && (
+          <a
+            href="#promo"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-400/20 border border-yellow-400/40 text-yellow-300 text-xs font-black uppercase tracking-widest mb-4 hover:bg-yellow-400/30 transition-colors"
+          >
+            <Zap className="w-3.5 h-3.5 animate-pulse" />
+            🔥 PROMO ACTIVA — {promoActiva.titulo}
+          </a>
+        )}
+
         {/* Badge */}
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white text-xs font-black uppercase tracking-widest mb-8">
           <span className="w-2 h-2 rounded-full bg-pink-400 animate-pulse" />
@@ -93,7 +107,7 @@ export function HeroSection({
             ¡Cotizá tu evento!
           </a>
           <a
-            href="#servicios"
+            href="/simulador-ak"
             className={cn(
               'flex items-center gap-3 px-8 py-4 rounded-2xl',
               'bg-white/10 backdrop-blur-sm hover:bg-white/20',
@@ -103,7 +117,7 @@ export function HeroSection({
               'min-w-[220px] justify-center'
             )}
           >
-            Ver Servicios
+            Ver Simulador
           </a>
         </div>
 

@@ -41,7 +41,8 @@ import {
   Printer,
   Wallet,
   Calculator,
-  TrendingUp
+  TrendingUp,
+  Megaphone
 } from "lucide-react";
 import AppLogo from "./app-logo";
 import { cn } from "@/lib/utils";
@@ -293,6 +294,14 @@ export function MainNav() {
                   <SidebarMenuButton isActive={isActive("/empresa/redes-sociales")} className={cn("h-10 rounded-xl font-bold text-xs transition-all duration-300", isActive("/empresa/redes-sociales") ? "bg-indigo-50 text-indigo-700" : "text-slate-500 hover:bg-indigo-50/60 hover:text-indigo-600")}>
                     <Sparkles className="w-4 h-4 text-indigo-500" />
                     <span className="ml-2">Marketing</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/settings/promos">
+                  <SidebarMenuButton isActive={isActive("/settings/promos")} className="h-12 rounded-xl font-bold text-xs text-slate-500 hover:text-primary transition-all duration-300">
+                    <Megaphone className="w-5 h-5 text-purple-500" />
+                    <span className="ml-2">Promos</span>
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>
