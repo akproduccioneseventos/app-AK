@@ -2,9 +2,9 @@
 
 import React, { useState, useCallback } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { ArrowLeft, ExternalLink, FileText, Wand2, X, ChevronRight } from 'lucide-react';
 import { EVENT_TYPES, SERVICES, type EventType, type Service } from '@/data/presentacion';
+import { CompanyLogo } from '@/components/company-logo';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const WHATSAPP_NUMBER = '59898355530';
@@ -61,15 +61,7 @@ export default function PresentacionPage() {
             </button>
           )}
           <div className="flex items-center gap-3">
-            <div className="relative w-9 h-9 shrink-0">
-              <Image
-                src="/logo_ak_producciones.png"
-                alt="AK Producciones"
-                fill
-                className="object-contain"
-                sizes="36px"
-              />
-            </div>
+            <CompanyLogo size="sm" />
             <div className="hidden sm:block">
               <p className="text-xs font-black uppercase tracking-[0.25em] text-white leading-none">
                 AK Producciones

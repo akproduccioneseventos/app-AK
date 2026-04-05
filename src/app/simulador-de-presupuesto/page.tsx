@@ -41,7 +41,7 @@ import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
-import NextImage from 'next/image';
+import { CompanyLogo } from '@/components/company-logo';
 import { PublicFooter } from '@/components/public-footer';
 import { MarketingBanner } from '@/components/marketing-banner';
 
@@ -548,11 +548,7 @@ function SimuladorContent() {
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="w-full max-w-3xl space-y-8">
                     
                     <div className="flex justify-center mb-2 print:hidden">
-                      {logoUrl ? (
-                        <NextImage src={logoUrl} alt="AK Producciones" width={40} height={40} className="object-contain opacity-50" />
-                      ) : (
-                        <NextImage src="/logo_ak_producciones.png" alt="AK Producciones" width={40} height={40} className="object-contain opacity-40" />
-                      )}
+                      <CompanyLogo size="sm" src={logoUrl || undefined} className="w-10 h-10 opacity-40" />
                     </div>
                     <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
                         <CardContent className="p-8 sm:p-12 flex flex-col items-center text-center space-y-8">
@@ -710,11 +706,7 @@ function SimuladorContent() {
             <Card className="w-full max-w-3xl shadow-3xl rounded-[3rem] overflow-hidden border-none bg-white">
                 <CardHeader className="text-center bg-primary/5 p-6 sm:p-10 border-b border-primary/10">
                     <div className="flex justify-center mb-4">
-                      {logoUrl ? (
-                        <NextImage src={logoUrl} alt="AK Producciones" width={36} height={36} className="object-contain opacity-60" />
-                      ) : (
-                        <NextImage src="/logo_ak_producciones.png" alt="AK Producciones" width={36} height={36} className="object-contain opacity-50" />
-                      )}
+                      <CompanyLogo size="sm" src={logoUrl || undefined} className="opacity-50" />
                     </div>
                     <Wand2 className="w-12 h-12 mx-auto text-primary mb-4 animate-pulse"/>
                     <CardTitle className="font-headline text-3xl sm:text-5xl font-black uppercase tracking-tighter text-slate-900 leading-tight">Tu Gran Evento</CardTitle>

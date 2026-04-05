@@ -13,7 +13,7 @@ import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { notifyClientArrival } from '@/app/actions/fiesta/live.actions';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
-import Image from 'next/image';
+import { CompanyLogo } from '@/components/company-logo';
 
 const SESSION_KEY_PREFIX = 'portal_auth_';
 
@@ -126,7 +126,7 @@ function ClientPortalContent() {
                 <Card className="max-w-sm w-full">
                     <CardHeader className="text-center">
                         <div className="mb-3 opacity-40">
-                          <Image src="/logo_ak_producciones.png" alt="AK Producciones" width={32} height={32} className="object-contain mx-auto" />
+                          <CompanyLogo size="xs" className="w-8 h-8 mx-auto" />
                         </div>
                         <KeyRound className="w-12 h-12 mx-auto text-primary mb-2"/>
                         <CardTitle className="font-headline text-2xl">Portal del Cliente</CardTitle>
@@ -157,7 +157,7 @@ function ClientPortalContent() {
             <div className="max-w-2xl mx-auto space-y-6">
                 <header className="text-center">
                     <div className="mb-4 opacity-40">
-                      <Image src="/logo_ak_producciones.png" alt="AK Producciones" width={36} height={36} className="object-contain mx-auto" />
+                      <CompanyLogo size="sm" className="mx-auto" />
                     </div>
                     <h1 className="text-3xl font-bold font-headline">{fiesta.configuracion.nombreEvento}</h1>
                     <p className="text-lg text-muted-foreground">¡Bienvenido/a a tu portal!</p>

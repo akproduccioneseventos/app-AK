@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback, type FormEvent } from 'react';
 import { useParams } from 'next/navigation';
-import Image from 'next/image';
+import { CompanyLogo } from '@/components/company-logo';
 import {
   Loader2,
   AlertTriangle,
@@ -200,7 +200,7 @@ export default function PortalClientePage() {
         <Card className="max-w-sm w-full shadow-2xl">
           <CardHeader className="text-center space-y-3">
             <div className="relative w-14 h-14 mx-auto opacity-80">
-              <Image src="/logo_ak_producciones.png" alt="AK Producciones" fill className="object-contain" sizes="56px" />
+              <CompanyLogo size="md" className="mx-auto" />
             </div>
             <KeyRound className="w-10 h-10 mx-auto text-purple-600" />
             <CardTitle className="text-xl font-black">Portal del Cliente</CardTitle>
@@ -280,7 +280,7 @@ export default function PortalClientePage() {
       <header className="bg-white border-b border-slate-100 shadow-sm sticky top-0 z-40">
         <div className="max-w-4xl mx-auto px-4 h-14 flex items-center gap-3">
           <div className="relative w-8 h-8 shrink-0">
-            <Image src="/logo_ak_producciones.png" alt="AK Producciones" fill className="object-contain" sizes="32px" />
+            <CompanyLogo size="xs" className="w-8 h-8" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-black text-slate-900 truncate">{config.nombreEvento}</p>

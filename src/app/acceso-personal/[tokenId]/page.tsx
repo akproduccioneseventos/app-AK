@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getAccesoById, type AccesoPersonal, type ModuloPermiso } from '@/app/actions/accesos-personal';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
-import Image from 'next/image';
+import { CompanyLogo } from '@/components/company-logo';
 import { PublicFooter } from '@/components/public-footer';
 
 const MODULO_DETAILS: Record<ModuloPermiso, { label: string; href: string; icon: React.ElementType }> = {
@@ -90,7 +90,7 @@ export default function PortalPersonalPage({ params }: { params: { tokenId: stri
         <div className="max-w-2xl mx-auto space-y-6">
             <header className="text-center">
                 <div className="mb-4 opacity-40">
-                  <Image src="/logo_ak_producciones.png" alt="AK Producciones" width={36} height={36} className="object-contain mx-auto" />
+                  <CompanyLogo size="sm" className="mx-auto" />
                 </div>
                 <KeyRound className="w-12 h-12 mx-auto text-primary mb-3"/>
                 <h1 className="text-3xl font-bold font-headline">{acceso.nombreAcceso}</h1>

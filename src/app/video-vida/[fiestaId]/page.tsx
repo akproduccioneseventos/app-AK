@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, VideoVidaData } from '@/types/fiesta';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { saveLifeStoryVideoPhoto, getLifeStoryVideoPhotos } from '@/app/actions/fiesta/video-vida.actions';
-import NextImage from 'next/image';
+import { CompanyLogo } from '@/components/company-logo';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PublicFooter } from '@/components/public-footer';
@@ -168,7 +168,7 @@ function VideoVidaClientPageContent({ params }: { params: { fiestaId: string } }
         <div className="max-w-5xl mx-auto">
             <header className="mb-8 text-center">
                 <div className="mb-4 opacity-40">
-                  <NextImage src="/logo_ak_producciones.png" alt="AK Producciones" width={36} height={36} className="object-contain mx-auto" />
+                  <CompanyLogo size="sm" className="mx-auto" />
                 </div>
                 <PartyPopper className="w-12 h-12 mx-auto text-primary mb-3"/>
                 <h1 className="text-4xl font-bold tracking-tight font-headline">{fiesta.configuracion.nombreEvento}</h1>
