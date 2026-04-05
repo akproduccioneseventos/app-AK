@@ -10,7 +10,6 @@ import {
   Minimize,
   Check,
   Star,
-  Phone,
   Mail,
   MessageCircle,
   Sparkles,
@@ -24,7 +23,6 @@ import {
   Users,
   Zap,
   Package,
-  Heart,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -35,6 +33,19 @@ import { getBudgetDisplaySettings } from '@/app/actions/settings';
 import type { ServicioEmpresa } from '@/types/empresa';
 import type { CompanyInfo } from '@/types/settings';
 import { cn } from '@/lib/utils';
+
+// ---- Security helpers ----
+
+function isSafeImageUrl(url: string | null | undefined): url is string {
+  if (!url) return false;
+  // Allow https, http, and data URIs for images (logo is stored as data URI or https URL)
+  return /^https?:\/\//i.test(url) || /^data:image\//i.test(url);
+}
+
+function isSafeEmail(email: string | null | undefined): email is string {
+  if (!email) return false;
+  return /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/.test(email);
+}
 
 // ---- Types ----
 
@@ -113,7 +124,7 @@ function CompanySlide({
         transition={{ delay: 0.1, duration: 0.6 }}
         className="mb-8"
       >
-        {logoUrl ? (
+        {isSafeImageUrl(logoUrl) ? (
           <img src={logoUrl} alt="Logo" className="h-28 w-auto mx-auto object-contain drop-shadow-2xl" />
         ) : (
           <div className="flex items-center justify-center h-28 w-28 mx-auto rounded-full bg-white/10 border-4 border-white/30">
@@ -232,11 +243,7 @@ function ServiceSlide({
           className="flex justify-center mb-8"
         >
           <div className="h-32 w-32 rounded-3xl bg-gradient-to-br from-indigo-500/40 to-emerald-500/40 border border-white/20 backdrop-blur-sm flex items-center justify-center text-white/80">
-            {servicio.imageUrl ? (
-              <img src={servicio.imageUrl} alt={servicio.nombre} className="h-full w-full object-cover rounded-3xl" />
-            ) : (
-              getServiceIcon(servicio.categoria)
-            )}
+            {getServiceIcon(servicio.categoria)}
           </div>
         </motion.div>
 
@@ -328,8 +335,9 @@ function GiftsSlide({
   onGenerateBudget: () => void;
 }) {
   const gifts = servicios.filter(s => s.categoria === 'Regalo exclusivo');
-  const whatsapp = companyInfo.companyPhone?.replace(/\D/g, '') || '';
-  const waHref = whatsapp ? `https://wa.me/598${whatsapp.replace(/^0/, '')}?text=${encodeURIComponent('¡Hola! Estuve viendo sus servicios y me gustaría solicitar un presupuesto personalizado.')}` : '#';
+  const safeEmail = isSafeEmail(companyInfo.companyContact) ? companyInfo.companyContact : null;
+  // Build WhatsApp link from the email or contact info if available
+  const waHref = `https://wa.me/?text=${encodeURIComponent('¡Hola! Estuve viendo sus servicios y me gustaría solicitar un presupuesto personalizado.')}`;
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen px-8 py-12 text-center">
@@ -394,8 +402,7 @@ function GiftsSlide({
       >
         <h2 className="text-2xl md:text-3xl font-bold text-white mb-6">📞 ¿Cómo contratar?</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-          {companyInfo.companyPhone && (
-            <a
+          <a
               href={waHref}
               target="_blank"
               rel="noopener noreferrer"
@@ -403,17 +410,16 @@ function GiftsSlide({
             >
               <MessageCircle className="h-8 w-8 text-emerald-300" />
               <span className="text-white font-semibold text-sm">WhatsApp</span>
-              <span className="text-white/60 text-xs">{companyInfo.companyPhone}</span>
+              <span className="text-white/60 text-xs">Contactar</span>
             </a>
-          )}
-          {companyInfo.companyContact && (
+          {safeEmail && (
             <a
-              href={`mailto:${companyInfo.companyContact}`}
+              href={`mailto:${safeEmail}`}
               className="flex flex-col items-center gap-2 bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-400/40 rounded-2xl px-4 py-5 transition-colors"
             >
               <Mail className="h-8 w-8 text-indigo-300" />
               <span className="text-white font-semibold text-sm">Email</span>
-              <span className="text-white/60 text-xs truncate w-full text-center">{companyInfo.companyContact}</span>
+              <span className="text-white/60 text-xs truncate w-full text-center">{safeEmail}</span>
             </a>
           )}
           <button
@@ -507,32 +513,31 @@ export default function PresentacionLedPage() {
     setCurrentSlide(clamped);
   }, [data, currentSlide, totalSlides]);
 
-  const goNext = () => goToSlide(currentSlide + 1);
-  const goPrev = () => goToSlide(currentSlide - 1);
+  const goNext = useCallback(() => goToSlide(currentSlide + 1), [goToSlide, currentSlide]);
+  const goPrev = useCallback(() => goToSlide(currentSlide - 1), [goToSlide, currentSlide]);
 
   const toggleSelect = (id: string) => {
-    setSelectedServices(prev =>
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    setSelectedServices((prev: string[]) =>
+      prev.includes(id) ? prev.filter((x: string) => x !== id) : [...prev, id]
     );
   };
 
-  const handleGenerateBudget = () => {
-    const params = selectedServices.length > 0
-      ? `?servicios=${selectedServices.join(',')}`
-      : '';
-    if (selectedServices.length > 0) {
-      sessionStorage.setItem('presentacion_servicios_seleccionados', JSON.stringify(selectedServices));
+  const handleGenerateBudget = useCallback(() => {
+    // Only allow alphanumeric IDs (sanitize before putting in URL)
+    const safeIds = (selectedServices as string[]).filter((id: string) => /^[\w-]+$/.test(id));
+    if (safeIds.length > 0) {
+      sessionStorage.setItem('presentacion_servicios_seleccionados', JSON.stringify(safeIds));
     }
-    router.push(`/presupuestos/nuevo/crear${params}`);
-  };
+    router.push('/presupuestos/nuevo/crear');
+  }, [selectedServices, router]);
 
-  const toggleFullscreen = () => {
+  const toggleFullscreen = useCallback(() => {
     if (!document.fullscreenElement) {
       containerRef.current?.requestFullscreen().then(() => setIsFullscreen(true)).catch(() => {});
     } else {
       document.exitFullscreen().then(() => setIsFullscreen(false)).catch(() => {});
     }
-  };
+  }, []);
 
   useEffect(() => {
     const onFsChange = () => setIsFullscreen(!!document.fullscreenElement);
@@ -542,13 +547,14 @@ export default function PresentacionLedPage() {
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight' || e.key === ' ') goNext();
-      if (e.key === 'ArrowLeft') goPrev();
-      if (e.key === 'f' || e.key === 'F') toggleFullscreen();
+      if (e.key === 'ArrowRight') { goNext(); }
+      if (e.key === ' ') { e.preventDefault(); goNext(); }
+      if (e.key === 'ArrowLeft') { goPrev(); }
+      if (e.key === 'f' || e.key === 'F') { toggleFullscreen(); }
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  });
+  }, [goNext, goPrev, toggleFullscreen]);
 
   if (loading) {
     return (
@@ -584,7 +590,7 @@ export default function PresentacionLedPage() {
       {/* Top bar */}
       <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-2">
-          {data.logoUrl ? (
+          {isSafeImageUrl(data.logoUrl) ? (
             <img src={data.logoUrl} alt="Logo" className="h-10 w-auto object-contain" />
           ) : (
             <span className="text-white font-bold text-lg">{data.companyInfo.companyName || 'AK Producciones'}</span>

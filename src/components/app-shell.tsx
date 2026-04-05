@@ -283,7 +283,8 @@ export function AppShell({ children }: { children: ReactNode }) {
     <SidebarProvider>
       <MainNav />
       <SidebarInset>
-        <div className="flex min-h-screen w-full flex-col">          <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:px-6 print:hidden">
+        <div className="flex min-h-screen w-full flex-col">
+          <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:px-6 print:hidden">
             <div className="flex items-center gap-2">
               <SidebarTrigger className="md:hidden" />
               {PageIcon && <PageIcon className="h-6 w-6 text-primary" />}
