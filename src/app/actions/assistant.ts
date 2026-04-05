@@ -1,129 +1,92 @@
 'use server';
 
 import { chatWithAssistant } from '@/ai/flows/assistant-flow';
-import { getDashboardKpiData } from './dashboard';
-import { getAllFiestas } from './fiesta/fiesta.actions';
-import { getPresupuestos } from './presupuestos';
-import { getInvoices } from './invoices';
-import { format, addDays, startOfToday, isBefore } from 'date-fns';
-import { es } from 'date-fns/locale';
-
-function buildContext(
-  kpiData: any,
-  fiestas: any[],
-  presupuestos: any[],
-  invoices: any[]
-): string {
-  const today = startOfToday();
-  const now = new Date();
-  const fechaActual = format(now, "EEEE d 'de' MMMM 'de' yyyy, HH:mm", { locale: es });
-
-  const lines: string[] = [`Fecha y hora actual: ${fechaActual}`];
-
-  // Próximo evento
-  if (kpiData?.proximoEvento) {
-    const { nombre, fecha } = kpiData.proximoEvento;
-    const fechaEvento = format(new Date(fecha), "d 'de' MMMM yyyy", { locale: es });
-    lines.push(`\nPRÓXIMO EVENTO: ${nombre} — ${fechaEvento}`);
-  } else {
-    lines.push('\nPRÓXIMO EVENTO: No hay eventos programados próximamente.');
-  }
-
-  // KPIs del negocio
-  if (kpiData) {
-    lines.push(`\nKPIs DEL NEGOCIO:`);
-    lines.push(`- Eventos futuros: ${kpiData.fiestasFuturas ?? 0}`);
-    lines.push(`- Clientes activos: ${kpiData.clientesActivos ?? 0}`);
-    lines.push(`- Ventas totales: $${(kpiData.ventasTotales ?? 0).toLocaleString('es-UY')}`);
-    lines.push(`- Total cobrado: $${(kpiData.montoPagado ?? 0).toLocaleString('es-UY')}`);
-    lines.push(`- Total pendiente de cobro: $${(kpiData.totalPendiente ?? 0).toLocaleString('es-UY')}`);
-    lines.push(`- Presupuestos pendientes de respuesta: ${kpiData.presupuestosPendientes ?? 0}`);
-    lines.push(`- Facturas que vencen en 7 días: ${kpiData.facturasPorVencer ?? 0}`);
-  }
-
-  // Próximas fiestas
-  const fiestasFuturas = fiestas
-    .filter(f => f.configuracion?.fechaEvento && new Date(f.configuracion.fechaEvento) >= today)
-    .sort((a, b) => new Date(a.configuracion.fechaEvento).getTime() - new Date(b.configuracion.fechaEvento).getTime())
-    .slice(0, 5);
-
-  if (fiestasFuturas.length > 0) {
-    lines.push('\nPRÓXIMAS FIESTAS:');
-    fiestasFuturas.forEach(f => {
-      const fecha = format(new Date(f.configuracion.fechaEvento), "d MMM yyyy", { locale: es });
-      const nombre = f.configuracion.nombreEvento || 'Sin nombre';
-      const tipo = f.configuracion.tipoEvento || '';
-      const invitados = f.configuracion.cantidadInvitados || 0;
-      lines.push(`- ${nombre} (${tipo}) — ${fecha} — ${invitados} invitados`);
-    });
-  }
-
-  // Presupuestos recientes
-  const presupuestosPendientes = presupuestos.filter(p => p.estado === 'Enviado' || p.estado === 'Borrador');
-  const presupuestosAceptados = presupuestos.filter(p => p.estado === 'Aceptado');
-  if (presupuestos.length > 0) {
-    lines.push('\nPRESUPUESTOS:');
-    lines.push(`- Pendientes/Enviados: ${presupuestosPendientes.length}`);
-    lines.push(`- Aceptados: ${presupuestosAceptados.length}`);
-    const totalPresupuestado = presupuestos.reduce((sum, p) => sum + (p.totalConDescuento || p.costoTotalEstimado || 0), 0);
-    lines.push(`- Valor total presupuestado: $${totalPresupuestado.toLocaleString('es-UY')}`);
-    const recientes = presupuestosPendientesRecent(presupuestosPendientes).slice(0, 3);
-    if (recientes.length > 0) {
-      lines.push('- Presupuestos pendientes recientes:');
-      recientes.forEach(p => {
-        const monto = (p.totalConDescuento || p.costoTotalEstimado || 0).toLocaleString('es-UY');
-        lines.push(`  · ${p.nombreEvento || p.id} — $${monto} (${p.estado})`);
-      });
-    }
-  }
-
-  // Facturas pendientes/vencidas
-  const facturasPendientes = invoices.filter(inv => inv.status === 'Sent' || inv.status === 'Overdue');
-  const facturasVencidas = invoices.filter(inv => inv.status !== 'Paid' && inv.dueDate && isBefore(new Date(inv.dueDate), today));
-  if (invoices.length > 0) {
-    lines.push('\nFACTURAS:');
-    lines.push(`- Pendientes de pago: ${facturasPendientes.length}`);
-    lines.push(`- Vencidas: ${facturasVencidas.length}`);
-    const totalPendienteFacturas = facturasPendientes.reduce((sum, inv) => sum + (inv.totalAmount || 0), 0);
-    lines.push(`- Monto pendiente total: $${totalPendienteFacturas.toLocaleString('es-UY')}`);
-  }
-
-  // Alertas activas
-  if (kpiData?.alerts && kpiData.alerts.length > 0) {
-    lines.push('\nALERTAS ACTIVAS:');
-    kpiData.alerts.slice(0, 5).forEach((a: any) => {
-      lines.push(`- [${a.severity === 'high' ? 'URGENTE' : 'AVISO'}] ${a.title}: ${a.description}`);
-    });
-  }
-
-  return lines.join('\n');
-}
-
-function presupuestosPendientesRecent(presupuestos: any[]) {
-  return [...presupuestos].sort((a, b) => {
-    const dateA = a.fechaCreacion ? new Date(a.fechaCreacion).getTime() : 0;
-    const dateB = b.fechaCreacion ? new Date(b.fechaCreacion).getTime() : 0;
-    return dateB - dateA;
-  });
-}
+import { getDashboardKpiData, type GlobalAlert } from './dashboard';
+import { getCompanyInfo } from './settings';
+import { getPresupuestos, savePresupuesto } from './presupuestos';
+import { getCustomers, saveCustomer } from './customers';
 
 export async function sendAssistantMessage(
   message: string,
-  history: Array<{ role: 'user' | 'assistant'; content: string }>
-): Promise<{ success: boolean; response?: string; error?: string }> {
+  history: Array<{ role: 'user' | 'assistant'; content: string }>,
+  imageDataUri?: string
+): Promise<{
+  success: boolean;
+  response?: string;
+  action?: { type: string; data?: any; result?: any };
+  error?: string;
+}> {
   try {
-    const [kpiResult, fiestas, presupuestos, invoices] = await Promise.all([
+    // 1. Armar contexto rico con datos reales del negocio
+    const [kpiResult, companyInfo, presupuestos, customers] = await Promise.all([
       getDashboardKpiData(),
-      getAllFiestas(),
+      getCompanyInfo(),
       getPresupuestos(),
-      getInvoices(),
+      getCustomers(),
     ]);
 
-    const kpiData = kpiResult.success ? kpiResult.data : null;
-    const context = buildContext(kpiData, fiestas, presupuestos, invoices);
+    const kpi = kpiResult.success ? kpiResult.data : null;
 
-    const result = await chatWithAssistant({ message, history, context });
-    return { success: true, response: result.response };
+    const context = `
+FECHA Y HORA ACTUAL: ${new Date().toLocaleString('es-UY', { timeZone: 'America/Montevideo' })}
+
+EMPRESA:
+- Nombre: ${companyInfo.companyName || 'AK Producciones'}
+- Dirección: ${companyInfo.companyAddress || 'Salto, Uruguay'}
+- Contacto: ${companyInfo.companyContact || 'akproduccionessalto@gmail.com'}
+- RUT: ${companyInfo.companyTaxId || 'No configurado'}
+
+KPIs:
+- Próximo evento: ${kpi?.proximoEvento ? `${kpi.proximoEvento.nombre} (${kpi.proximoEvento.fecha})` : 'Sin eventos próximos'}
+- Presupuestos pendientes: ${kpi?.presupuestosPendientes ?? 0}
+- Facturas por vencer: ${kpi?.facturasPorVencer ?? 0}
+- Alertas activas: ${kpi?.alerts?.length ?? 0}
+${kpi?.alerts?.map((a: GlobalAlert) => `  · [${a.severity}] ${a.title}: ${a.description}`).join('\n') || ''}
+
+PRESUPUESTOS RECIENTES (últimos 5):
+${presupuestos.slice(-5).map(p => `- #${p.numero} ${p.clienteNombre} | ${p.eventoTipo} | $${p.totalConDescuento ?? p.costoTotalEstimado} | ${p.estado}`).join('\n') || 'Sin presupuestos'}
+
+CLIENTES (últimos 5):
+${customers.slice(-5).map(c => `- ${c.name} | ${c.partyType ?? 'Sin tipo'} | ${c.partyDate ?? 'Sin fecha'}`).join('\n') || 'Sin clientes'}
+`;
+
+    // 2. Llamar al flow
+    const result = await chatWithAssistant({
+      message,
+      history,
+      context,
+      imageDataUri,
+    });
+
+    // 3. Ejecutar acciones si la IA las pidió
+    let actionResult: any = null;
+
+    if (result.action?.type === 'create_customer' && result.action.data) {
+      const customerResult = await saveCustomer(result.action.data);
+      actionResult = customerResult;
+    }
+
+    if (result.action?.type === 'create_budget' && result.action.data) {
+      const budgetResult = await savePresupuesto({
+        clienteNombre: result.action.data.clienteNombre || 'Cliente nuevo',
+        eventoTipo: result.action.data.eventoTipo || '',
+        eventoFecha: result.action.data.eventoFecha || '',
+        invitadosCantidad: result.action.data.invitados || 0,
+        invitadosAdultos: result.action.data.invitados || 0,
+        invitadosNinos: 0,
+        invitadosAdolescentes: 0,
+        itemsPresupuestados: [],
+        notas: 'Creado desde el Asistente AK',
+        estado: 'Borrador',
+      } as Omit<import('@/types/presupuesto').Presupuesto, 'id'>);
+      actionResult = budgetResult;
+    }
+
+    return {
+      success: true,
+      response: result.response,
+      action: result.action ? { ...result.action, result: actionResult } : undefined,
+    };
   } catch (error: any) {
     return { success: false, error: error.message || 'Error al procesar el mensaje' };
   }
