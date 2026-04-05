@@ -44,7 +44,23 @@ export default function MainDashboardPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
     const [copiedLink, setCopiedLink] = useState(false);
+    const [greeting, setGreeting] = useState('');
+    const [greetingEmoji, setGreetingEmoji] = useState('');
     const { toast } = useToast();
+
+    useEffect(() => {
+        const hour = new Date().getHours();
+        if (hour >= 6 && hour < 12) {
+            setGreeting('Buenos días');
+            setGreetingEmoji('☀️');
+        } else if (hour >= 12 && hour < 20) {
+            setGreeting('Buenas tardes');
+            setGreetingEmoji('🌅');
+        } else {
+            setGreeting('Buenas noches');
+            setGreetingEmoji('🌙');
+        }
+    }, []);
 
     const formatCurrency = (value?: number) => {
         if (isLoading) return '...';
@@ -133,8 +149,13 @@ export default function MainDashboardPage() {
           animate={{ opacity: 1, x: 0 }}
           className="space-y-2"
         >
+            {greeting && (
+              <p className="text-sm font-semibold text-indigo-400 flex items-center gap-1.5">
+                <span>{greetingEmoji}</span> {greeting}, AK Producciones
+              </p>
+            )}
             <h1 className="text-3xl sm:text-5xl font-black tracking-tighter text-slate-900">
-                Panel de <span className="text-primary italic">Control</span>
+                Panel de <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent italic">Control</span>
             </h1>
             <p className="text-slate-500 font-semibold flex items-center gap-2 text-xs sm:text-base">
                 <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse shrink-0 inline-block"></span>
@@ -146,8 +167,8 @@ export default function MainDashboardPage() {
           animate={{ opacity: 1, scale: 1 }}
           className="flex items-center gap-3 hidden sm:flex"
         >
-            <Badge variant="outline" className="bg-white text-primary border-primary/20 py-2 px-4 shadow-sm rounded-full font-black text-[10px] tracking-widest uppercase">
-                <Sparkles className="w-3.5 h-3.5 mr-2 text-primary animate-spin-slow"/> Sistema Optimizado
+            <Badge variant="outline" className="bg-white text-indigo-600 border-indigo-200 py-2 px-4 shadow-sm rounded-full font-black text-[10px] tracking-widest uppercase">
+                <Sparkles className="w-3.5 h-3.5 mr-2 text-indigo-400 animate-spin-slow"/> Sistema Optimizado
             </Badge>
         </motion.div>
       </header>
@@ -164,33 +185,33 @@ export default function MainDashboardPage() {
                 <MonthlySalesChart data={kpiData?.monthlyChartData || []} />
                 
                 <Card className="border-none shadow-2xl rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden bg-white">
-                    <CardHeader className="bg-slate-900 text-white p-6 sm:p-8">
+                    <CardHeader className="bg-gradient-to-r from-indigo-600 to-purple-700 text-white p-6 sm:p-8">
                         <CardTitle className="text-xl sm:text-2xl font-black tracking-tight">Acceso Directo</CardTitle>
-                        <CardDescription className="text-slate-400 font-medium">Herramientas de conversión y venta.</CardDescription>
+                        <CardDescription className="text-indigo-200 font-medium">Herramientas de conversión y venta.</CardDescription>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 p-6 sm:p-8">
                         <Link href="/presupuestos/nuevo/crear">
-                            <div className="group p-6 sm:p-8 border border-slate-100 rounded-[1.25rem] sm:rounded-[1.5rem] hover:border-primary/30 hover:bg-primary/5 transition-all cursor-pointer h-full flex items-center gap-4 sm:gap-6 shadow-sm">
-                                <div className="p-4 sm:p-5 bg-primary/10 text-primary rounded-2xl group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-inner shrink-0">
+                            <div className="group p-6 sm:p-8 border border-slate-100 rounded-[1.25rem] sm:rounded-[1.5rem] hover:border-indigo-200 hover:bg-indigo-50/50 transition-all cursor-pointer h-full flex items-center gap-4 sm:gap-6 shadow-sm">
+                                <div className="p-4 sm:p-5 bg-indigo-50 text-indigo-600 rounded-2xl group-hover:bg-gradient-to-br group-hover:from-indigo-600 group-hover:to-purple-600 group-hover:text-white transition-all duration-500 shadow-inner shrink-0">
                                     <ListChecks className="w-6 h-6 sm:w-7 sm:h-7"/>
                                 </div>
                                 <div className="min-w-0">
                                     <h3 className="font-black text-slate-800 text-base sm:text-lg">Nuevo Presupuesto</h3>
                                     <p className="text-[10px] sm:text-xs font-semibold text-slate-400 mt-1 uppercase tracking-tighter">Cotización manual.</p>
                                 </div>
-                                <ArrowRight className="w-5 h-5 ml-auto text-slate-300 group-hover:text-primary group-hover:translate-x-2 transition-all shrink-0"/>
+                                <ArrowRight className="w-5 h-5 ml-auto text-slate-300 group-hover:text-indigo-500 group-hover:translate-x-2 transition-all shrink-0"/>
                             </div>
                         </Link>
                         <Link href="/simulador-de-presupuesto">
-                            <div className="group p-6 sm:p-8 border border-slate-100 rounded-[1.25rem] sm:rounded-[1.5rem] hover:border-primary/30 hover:bg-primary/5 transition-all cursor-pointer h-full flex items-center gap-4 sm:gap-6 shadow-sm">
-                                <div className="p-4 sm:p-5 bg-primary/10 text-primary rounded-2xl group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-inner shrink-0">
+                            <div className="group p-6 sm:p-8 border border-slate-100 rounded-[1.25rem] sm:rounded-[1.5rem] hover:border-amber-200 hover:bg-amber-50/30 transition-all cursor-pointer h-full flex items-center gap-4 sm:gap-6 shadow-sm">
+                                <div className="p-4 sm:p-5 bg-amber-50 text-amber-600 rounded-2xl group-hover:bg-gradient-to-br group-hover:from-amber-500 group-hover:to-orange-500 group-hover:text-white transition-all duration-500 shadow-inner shrink-0">
                                     <Wand2 className="w-6 h-6 sm:w-7 sm:h-7"/>
                                 </div>
                                 <div className="min-w-0">
                                     <h3 className="font-black text-slate-800 text-base sm:text-lg">Simulador Público</h3>
                                     <p className="text-[10px] sm:text-xs font-semibold text-slate-400 mt-1 uppercase tracking-tighter">Captura de leads.</p>
                                 </div>
-                                <ArrowRight className="w-5 h-5 ml-auto text-slate-300 group-hover:text-primary group-hover:translate-x-2 transition-all shrink-0"/>
+                                <ArrowRight className="w-5 h-5 ml-auto text-slate-300 group-hover:text-amber-500 group-hover:translate-x-2 transition-all shrink-0"/>
                             </div>
                         </Link>
                         <div className="md:col-span-2">
@@ -234,10 +255,10 @@ export default function MainDashboardPage() {
             </div>
             <div className="lg:col-span-4">
                 <Card className="h-full border-none shadow-2xl flex flex-col bg-white rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden">
-                    <CardHeader className="bg-slate-50 border-b border-slate-100 pb-6 p-6 sm:p-8">
+                    <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50/50 border-b border-indigo-100/50 pb-6 p-6 sm:p-8">
                         <CardTitle className="text-lg sm:text-xl font-black flex items-center gap-3 text-slate-800">
-                            <div className="p-2.5 bg-primary/10 rounded-xl shadow-inner">
-                                <Bell className="w-5 h-5 text-primary"/>
+                            <div className="p-2.5 bg-indigo-100 rounded-xl shadow-inner">
+                                <Bell className="w-5 h-5 text-indigo-600"/>
                             </div>
                             Prioridades
                         </CardTitle>
@@ -312,7 +333,7 @@ export default function MainDashboardPage() {
                   </CardContent>
                   <CardFooter className="pt-0 pb-6 sm:pb-8 px-6 sm:px-8">
                       <Link href={item.href} className="w-full">
-                          <Button variant="secondary" className="w-full justify-between group-hover:bg-primary group-hover:text-white rounded-2xl px-6 h-11 sm:h-12 font-black text-[9px] sm:text-[10px] tracking-widest uppercase transition-all duration-500 shadow-sm">
+                          <Button variant="secondary" className="w-full justify-between group-hover:bg-gradient-to-r group-hover:from-indigo-600 group-hover:to-purple-600 group-hover:text-white rounded-2xl px-6 h-11 sm:h-12 font-black text-[9px] sm:text-[10px] tracking-widest uppercase transition-all duration-500 shadow-sm">
                               Abrir <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-2 transition-transform duration-500" />
                           </Button>
                       </Link>

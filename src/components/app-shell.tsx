@@ -284,37 +284,41 @@ export function AppShell({ children }: { children: ReactNode }) {
       <MainNav />
       <SidebarInset>
         <div className="flex min-h-screen w-full flex-col">
-          <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:px-6 print:hidden">
-            <div className="flex items-center gap-2">
-              <SidebarTrigger className="md:hidden" />
-              {PageIcon && <PageIcon className="h-6 w-6 text-primary" />}
-              <h1 className="text-lg md:text-xl font-semibold text-foreground">
+          <header className="sticky top-0 z-10 flex h-16 items-center justify-between px-4 md:px-6 print:hidden bg-white/80 backdrop-blur-xl border-b border-white/60 shadow-sm shadow-indigo-500/5">
+            <div className="flex items-center gap-3">
+              <SidebarTrigger className="md:hidden text-slate-500 hover:text-primary transition-colors" />
+              {PageIcon && (
+                <div className="p-1.5 rounded-lg bg-primary/10 shrink-0">
+                  <PageIcon className="h-4 w-4 text-primary" />
+                </div>
+              )}
+              <h1 className="text-base md:text-lg font-playfair font-semibold text-slate-800 tracking-tight">
                 {pageTitle}
               </h1>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <NotificationsHub />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="relative h-10 w-10 rounded-full"
+                    className="relative h-10 w-10 rounded-full p-0 hover:ring-2 hover:ring-primary/30 transition-all duration-300"
                   >
-                    <Avatar className="h-9 w-9">
+                    <Avatar className="h-9 w-9 ring-2 ring-indigo-100">
                       {logoUrl === undefined ? (
                         <Skeleton className="h-9 w-9 rounded-full" />
                       ) : logoUrl ? (
                         <AvatarImage src={logoUrl} alt="Logo de la Empresa" />
                       ) : (
-                        <AvatarFallback className="bg-primary text-primary-foreground">
+                        <AvatarFallback className="bg-gradient-to-br from-indigo-600 to-purple-600 text-white font-black text-xs">
                           AK
                         </AvatarFallback>
                       )}
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
+                <DropdownMenuContent align="end" className="w-56 rounded-2xl border-white/60 shadow-xl shadow-indigo-500/10">
+                  <DropdownMenuLabel className="font-black text-xs uppercase tracking-widest text-slate-400">Mi Cuenta</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem disabled>
                     <UserCircle className="mr-2 h-4 w-4" />
@@ -327,7 +331,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     </DropdownMenuItem>
                   </Link>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogoutClick}>
+                  <DropdownMenuItem onClick={handleLogoutClick} className="text-rose-600 focus:text-rose-600 focus:bg-rose-50">
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Cerrar Sesión</span>
                   </DropdownMenuItem>
@@ -335,7 +339,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               </DropdownMenu>
             </div>
           </header>
-          <main className="flex-1 p-4 sm:p-6 lg:p-8 bg-background">
+          <main className="flex-1 p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-slate-50 via-white to-indigo-50/20">
             {children}
           </main>
         </div>
