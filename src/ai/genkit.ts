@@ -9,6 +9,6 @@ if (!apiKey) {
 
 export const ai = genkit({
   plugins: [
-    googleAI({ apiKey }),
+    googleAI(apiKey ? { apiKey } : {}),
   ],
 });

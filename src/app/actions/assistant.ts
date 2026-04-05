@@ -90,8 +90,7 @@ ${customers.slice(-5).map(c => `- ${c.name} | ${c.partyType ?? 'Sin tipo'} | ${c
   } catch (error: any) {
     const errorMessage: string = error.message || '';
     if (
-      errorMessage.includes('FAILED_PRECONDITION') ||
-      errorMessage.includes('API key') ||
+      (errorMessage.includes('FAILED_PRECONDITION') && errorMessage.includes('API key')) ||
       errorMessage.includes('GEMINI_API_KEY') ||
       errorMessage.includes('GOOGLE_API_KEY')
     ) {
