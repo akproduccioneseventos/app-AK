@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 const steps = [
   {
     icon: '💬',
-    title: 'Contactanos',
+    title: 'Contáctanos',
     description: 'Escribinos por WhatsApp o completá el formulario con los detalles de tu evento.',
     color: 'from-purple-500 to-fuchsia-500',
   },

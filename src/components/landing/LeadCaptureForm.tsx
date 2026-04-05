@@ -56,7 +56,7 @@ export function LeadCaptureForm({
     const res = await saveLead(data);
     setLoading(false);
 
-    if (res.success || res.error?.includes('teléfono')) {
+    if (res.success) {
       setSent(true);
       // Open WhatsApp with pre-filled message
       const parts = [

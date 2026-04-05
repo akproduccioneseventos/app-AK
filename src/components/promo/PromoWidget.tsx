@@ -12,6 +12,22 @@ interface PromoWidgetProps {
 
 const DISMISSED_KEY = 'ak_promo_dismissed';
 
+/** Allow only https://, http://, and relative (/) URLs to prevent open redirects/XSS */
+function sanitizeUrl(url: string): string {
+  if (!url) return '';
+  const trimmed = url.trim();
+  if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith('/')) {
+    return trimmed;
+  }
+  return '';
+}
+
+interface PromoWidgetProps {
+  promo: PromoActiva;
+}
+
+const DISMISSED_KEY = 'ak_promo_dismissed';
+
 export function PromoWidget({ promo }: PromoWidgetProps) {
   const [visible, setVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -44,7 +60,8 @@ export function PromoWidget({ promo }: PromoWidgetProps) {
 
   const waNumber = '59899123456';
   const waHref = `https://wa.me/${waNumber}?text=${encodeURIComponent(promo.whatsappMensaje)}`;
-  const ctaHref = promo.ctaUrl || waHref;
+  const rawCtaUrl = promo.ctaUrl ? sanitizeUrl(promo.ctaUrl) : '';
+  const ctaHref = rawCtaUrl || waHref;
 
   const gradientStyle = promo.colorFondo
     ? { background: promo.colorFondo }

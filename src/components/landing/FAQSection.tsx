@@ -11,7 +11,7 @@ const faqs = [
   },
   {
     q: '¿Con cuánta anticipación debo reservar?',
-    a: 'Para bodas y XV años recomendamos reservar con al menos 6-12 meses de anticipación. Para otros eventos puede ser menos tiempo. Lo importante es que cuanto antes nos contactes, más opciones tendrás disponibles.',
+    a: 'Para bodas y XV años recomendamos reservar con al menos 6-12 meses de anticipación. Para otros eventos puede ser menos tiempo. Lo importante es que cuanto antes nos contactés, más opciones tendrás disponibles.',
   },
   {
     q: '¿Qué incluye el servicio de producción integral?',

@@ -31,7 +31,6 @@ export const metadata: Metadata = {
 const WHATSAPP_NUMBER = '59899123456';
 
 const services = [
-  { icon: '💒', title: 'Ceremonia Completa', desc: 'Civil o religiosa, organizamos cada detalle.' },
   { icon: '🎨', title: 'Decoración Floral', desc: 'Ambientación y decoración floral a medida.' },
   { icon: '📸', title: 'Fotografía y Video 4K', desc: 'Capturamos cada momento para la eternidad.' },
   { icon: '🍽️', title: 'Catering Gourmet', desc: 'Menús personalizados para todos los gustos.' },
@@ -43,9 +42,6 @@ const services = [
 
 export default async function BodasLanding() {
   const promo = await getPromoActiva();
-  const waMsg = encodeURIComponent(
-    '¡Hola AK Producciones! Vi su landing de Bodas y me gustaría cotizar mi boda.'
-  );
 
   return (
     <div className="min-h-screen bg-white">
