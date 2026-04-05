@@ -88,6 +88,17 @@ ${customers.slice(-5).map(c => `- ${c.name} | ${c.partyType ?? 'Sin tipo'} | ${c
       action: result.action ? { ...result.action, result: actionResult } : undefined,
     };
   } catch (error: any) {
-    return { success: false, error: error.message || 'Error al procesar el mensaje' };
+    const errorMessage: string = error.message || '';
+    if (
+      (errorMessage.includes('FAILED_PRECONDITION') && errorMessage.includes('API key')) ||
+      errorMessage.includes('GEMINI_API_KEY') ||
+      errorMessage.includes('GOOGLE_API_KEY')
+    ) {
+      return {
+        success: false,
+        error: 'El Asistente IA no está configurado todavía. El administrador necesita configurar la API key de Google Gemini. Mientras tanto, podés usar las otras funciones de la app normalmente.',
+      };
+    }
+    return { success: false, error: errorMessage || 'Error al procesar el mensaje' };
   }
 }
