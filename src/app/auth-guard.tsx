@@ -54,6 +54,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
       '/simulador-v2',
       '/proveedor',
       '/presentacion',
+      '/presentacion-led',
       '/evento/mi-mesa',
       '/evento/en-vivo',
     ];
