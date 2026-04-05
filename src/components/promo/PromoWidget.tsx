@@ -22,12 +22,6 @@ function sanitizeUrl(url: string): string {
   return '';
 }
 
-interface PromoWidgetProps {
-  promo: PromoActiva;
-}
-
-const DISMISSED_KEY = 'ak_promo_dismissed';
-
 export function PromoWidget({ promo }: PromoWidgetProps) {
   const [visible, setVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
