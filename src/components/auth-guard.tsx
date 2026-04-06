@@ -4,17 +4,20 @@
 import { useState, useEffect, type ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
+import { subscribeToAuthState, signOut, isAdminEmail } from '@/lib/firebase/auth-client';
 
-const SESSION_KEY = 'ak_producciones_auth_session';
-
-export function triggerAppLogout() {
+export async function triggerAppLogout() {
+  try {
+    await signOut();
+  } catch {
+    // ignore sign-out errors
+  }
   if (typeof window !== 'undefined') {
-    sessionStorage.removeItem(SESSION_KEY);
     // Remove portal-specific session keys
     Object.keys(sessionStorage).forEach(key => {
-        if (key.startsWith('portal_auth_')) {
-            sessionStorage.removeItem(key);
-        }
+      if (key.startsWith('portal_auth_')) {
+        sessionStorage.removeItem(key);
+      }
     });
     window.location.href = '/login';
   }
@@ -30,12 +33,10 @@ export function AuthGuard({ children }: AuthGuardProps) {
   const [isVerified, setIsVerified] = useState(false);
 
   useEffect(() => {
-    // This check ensures sessionStorage is only accessed on the client-side.
     if (typeof window === 'undefined') {
       return;
     }
-    
-    // Define public paths that don't require authentication
+
     const publicPaths = [
       '/login',
       '/evento/actual',
@@ -46,28 +47,33 @@ export function AuthGuard({ children }: AuthGuardProps) {
       '/simulador-de-presupuesto',
       '/acceso-personal',
     ];
-    
+
     const isPublic = publicPaths.some(publicPath => pathname.startsWith(publicPath));
 
-    // If the path is public, we can verify immediately and let the user through.
     if (isPublic) {
       setIsVerified(true);
       return;
     }
-    
-    // If the path is not public, then check for authentication.
-    const isAuthenticated = sessionStorage.getItem(SESSION_KEY) === 'true';
-    
-    if (!isAuthenticated) {
-      router.push('/login');
-    } else {
-      setIsVerified(true);
-    }
 
+    const unsubscribe = subscribeToAuthState(async (user) => {
+      if (!user) {
+        router.push('/login');
+        return;
+      }
+
+      if (!isAdminEmail(user.email)) {
+        await signOut();
+        router.push('/login');
+        return;
+      }
+
+      setIsVerified(true);
+    });
+
+    return unsubscribe;
   }, [pathname, router]);
 
   if (!isVerified) {
-    // Render a loading state to avoid flashes of content
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="w-12 h-12 animate-spin text-primary" />
