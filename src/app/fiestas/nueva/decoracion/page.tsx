@@ -11,10 +11,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Palette, Save, Loader2, AlertTriangle, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, Settings2, StickyNote, CakeSlice, Building, Gift, Camera, Sparkles as SparklesIcon, ChevronDown, ListPlus, FileText, RefreshCw, Heart, Paintbrush } from 'lucide-react';
+import { ArrowLeft, Palette, Save, Loader2, AlertTriangle, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, Settings2, StickyNote, CakeSlice, Building, Gift, Camera, Sparkles as SparklesIcon, ChevronDown, ListPlus, FileText, RefreshCw, Heart, Paintbrush, CheckSquare, ShoppingCart, DollarSign, MapPin, Star, Flower2, Music2, PartyPopper, BookOpen, Package } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
-import type { FiestaEnPlanificacion, DecoracionData, DecorationItem, ColorPalette, ZonaContratada, MoodboardItem } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, DecoracionData, DecorationItem, ColorPalette, ZonaContratada, MoodboardItem, DecoItem, DecoZona, DecoChecklistItem } from '@/types/fiesta';
 import { defaultDecoracion, defaultZonasContratadas } from '@/lib/fiesta-defaults';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -36,10 +36,46 @@ import { UploadButton } from '@/components/invitacion/edit/UploadButton';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { addMoodboardItem, deleteMoodboardItem } from '@/app/actions/fiesta/decoracion.actions';
 import VistaDecorativaEditor from '@/components/decoracion/VistaDecorativaEditor';
+import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 
 
 const ALL_DECORATION_ITEM_CATEGORIES = [
   'Detalle Entrada', 'Centro de Mesa', 'Detalle Zona Regalos', 'Detalle Cuadro Firmas', 'Mobiliario', 'Flores y Plantas', 'Iluminación', 'Textiles', 'Vajilla y Cristalería', 'Señalética', 'Globos', 'Otro'
+];
+
+// --- CREATOR PARTY CONSTANTS ---
+
+const ESTILOS_DECORACION = [
+  { id: 'elegante', label: 'Elegante Clásico', emoji: '✨', colors: { primary: '#c9a96e', secondary: '#f5f0e8', accent: '#2c2c2c' }, description: 'Sofisticado y atemporal con dorados y blancos' },
+  { id: 'rustico', label: 'Rústico / Boho', emoji: '🌿', colors: { primary: '#8b6a3e', secondary: '#d4c5a9', accent: '#5c7a4e' }, description: 'Natural, madera, flores silvestres y tonos tierra' },
+  { id: 'moderno', label: 'Moderno Minimalista', emoji: '🖤', colors: { primary: '#1a1a2e', secondary: '#e8e8e8', accent: '#4a90d9' }, description: 'Líneas limpias, colores neutros, espacios despejados' },
+  { id: 'infantil', label: 'Infantil Colorido', emoji: '🎠', colors: { primary: '#ff6b9d', secondary: '#ffd93d', accent: '#6bcb77' }, description: 'Alegre, colorido, con personajes y juegos' },
+  { id: 'tropical', label: 'Tropical', emoji: '🌺', colors: { primary: '#ff6b35', secondary: '#ffd700', accent: '#2ecc71' }, description: 'Vibrante, palmas, flores tropicales y colores vivos' },
+  { id: 'romantico', label: 'Romántico', emoji: '🌹', colors: { primary: '#e91e8c', secondary: '#fce4ec', accent: '#9c27b0' }, description: 'Rosas, velas, tonos rosados y detalles delicados' },
+  { id: 'industrial', label: 'Industrial', emoji: '🏭', colors: { primary: '#607d8b', secondary: '#455a64', accent: '#ff9800' }, description: 'Acero, ladrillo expuesto, madera oscura y luces colgantes' },
+];
+
+const CATALOGO_ITEMS: { categoria: string; emoji: string; items: string[] }[] = [
+  { categoria: 'Centros de Mesa', emoji: '🌸', items: ['Flores naturales', 'Flores artificiales', 'Velas flotantes', 'Jarrones con ramas', 'Terrarios', 'Fanales con flores', 'Candelabros', 'Arreglo tropical'] },
+  { categoria: 'Globos', emoji: '🎈', items: ['Arco de globos', 'Columna de globos', 'Bouquet de globos', 'Globos con confetti', 'Globos metálicos', 'Globos personalizados', 'Guirnalda de globos'] },
+  { categoria: 'Guirnaldas', emoji: '✨', items: ['Fairy lights', 'Banderines de tela', 'Banderines de papel', 'Flores colgantes', 'Guirnalda de hojas', 'Luces LED', 'Tul colgante'] },
+  { categoria: 'Fundas y Lazos', emoji: '🪑', items: ['Fundas de silla blancas', 'Fundas de silla de color', 'Lazos de organza', 'Lazos de raso', 'Fajas para silla', 'Telas para mesas'] },
+  { categoria: 'Iluminación', emoji: '🕯️', items: ['Velas LED de mesa', 'Spots de color', 'Gobos personalizados', 'Luces de uplighting', 'Iluminación de piso', 'Disco ball', 'Lámpara araña'] },
+  { categoria: 'Flores y Plantas', emoji: '🌿', items: ['Arreglo de entrada', 'Centro altar', 'Corona floral', 'Guirnalda de flores', 'Planta decorativa', 'Ramo para mesa principal', 'Pétalos en piso'] },
+  { categoria: 'Mantelería', emoji: '🎀', items: ['Manteles blancos', 'Manteles de color', 'Caminos de mesa', 'Servilletas de tela', 'Cubrecaminos', 'Telas de organza', 'Hule de mesa'] },
+  { categoria: 'Candy Bar', emoji: '🍬', items: ['Mesa de dulces', 'Torta principal', 'Cupcakes', 'Mesa de macarons', 'Souvenirs', 'Piruletas personalizadas', 'Alfajores', 'Chocolates'] },
+  { categoria: 'Photobooth', emoji: '📸', items: ['Backdrop impreso', 'Marco de fotos', 'Props temáticos', 'Letras LED', 'Arco floral photobooth', 'Pizarra de nombres', 'Polaroid props'] },
+  { categoria: 'Entrada / Recepción', emoji: '🚪', items: ['Cartel de bienvenida', 'Mesa de regalos', 'Libro de firmas', 'Seating chart', 'Señalética de mesas', 'Paragüero de sobres', 'Ambientación de acceso'] },
+];
+
+const ZONAS_DEFAULT: DecoZona[] = [
+  { id: 'zona_entrada', nombre: 'Entrada', items: [] },
+  { id: 'zona_mesas', nombre: 'Mesas', items: [] },
+  { id: 'zona_principal', nombre: 'Mesa Principal', items: [] },
+  { id: 'zona_pista', nombre: 'Pista de Baile', items: [] },
+  { id: 'zona_candy', nombre: 'Candy Bar', items: [] },
+  { id: 'zona_photobooth', nombre: 'Photobooth', items: [] },
 ];
 
 const predefinedPalettes: { name: string; colors: ColorPalette }[] = [
@@ -107,6 +143,13 @@ function DecoracionYDisenoEventoContent() {
   const [currentItem, setCurrentItem] = useState<Partial<DecorationItem> | null>(null);
   
   const [failedImageUrls, setFailedImageUrls] = useState<Record<string, boolean>>({});
+  const [isDecoItemModalOpen, setIsDecoItemModalOpen] = useState(false);
+  const [currentDecoItem, setCurrentDecoItem] = useState<Partial<DecoItem> | null>(null);
+  const [newDecoItemName, setNewDecoItemName] = useState('');
+  const [newDecoItemCat, setNewDecoItemCat] = useState('');
+  const [newDecoItemQty, setNewDecoItemQty] = useState(1);
+  const [newDecoItemPrice, setNewDecoItemPrice] = useState<number | undefined>(undefined);
+  const [newDecoItemZona, setNewDecoItemZona] = useState('');
 
   
   const loadDecoracionData = useCallback(async (showLoading = true) => {
@@ -271,12 +314,11 @@ function DecoracionYDisenoEventoContent() {
       }
   };
   
-  const handleSaveDecoracion = async (e: FormEvent) => {
-    e.preventDefault();
+  const saveDecoracion = async (data: DecoracionData) => {
     if (!fiestaId) return;
     setIsSaving(true);
     try {
-      const result = await updateDecoracionFiestaActual(fiestaId, decoracionData);
+      const result = await updateDecoracionFiestaActual(fiestaId, data);
       if (result.success && result.updatedData) {
         toast({ title: "¡Decoración Guardada!", description: "Los detalles de decoración se han actualizado." });
         loadDecoracionData(false);
@@ -288,6 +330,15 @@ function DecoracionYDisenoEventoContent() {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleSaveDecoracion = async (e: FormEvent) => {
+    e.preventDefault();
+    await saveDecoracion(decoracionData);
+  };
+
+  const handleSaveClick = async () => {
+    await saveDecoracion(decoracionData);
   };
 
   const handleSaveVistaDecorativa = useCallback(async (data: NonNullable<DecoracionData['vistaDecorativa']>) => {
@@ -309,6 +360,100 @@ function DecoracionYDisenoEventoContent() {
     }
   }, [fiestaId, decoracionData, toast]);
 
+  // --- Creator Party Handlers ---
+
+  const handleSelectEstilo = (estiloId: string) => {
+    const estilo = ESTILOS_DECORACION.find(e => e.id === estiloId);
+    if (!estilo) return;
+    setDecoracionData(prev => ({
+      ...prev,
+      estiloDecoracion: estiloId as DecoracionData['estiloDecoracion'],
+      paletaColores: estilo.colors,
+      colorPalette: estilo.colors,
+      tema: prev.tema || estilo.label,
+    }));
+    toast({ title: `Estilo aplicado: ${estilo.label}`, description: 'Paleta de colores actualizada.' });
+  };
+
+  const handleAddDecoItem = (nombre: string, categoria: string, cantidad: number = 1, precio?: number, zona?: string) => {
+    const newItem: DecoItem = {
+      id: `di_${Date.now()}`,
+      nombre,
+      categoria,
+      cantidad,
+      precioUnitario: precio,
+      zona: zona || '',
+      estado: 'pendiente',
+    };
+    setDecoracionData(prev => ({
+      ...prev,
+      itemsDecoracion: [...(prev.itemsDecoracion || []), newItem],
+    }));
+  };
+
+  const handleUpdateDecoItemEstado = (itemId: string, estado: DecoItem['estado']) => {
+    setDecoracionData(prev => ({
+      ...prev,
+      itemsDecoracion: (prev.itemsDecoracion || []).map(it => it.id === itemId ? { ...it, estado } : it),
+    }));
+  };
+
+  const handleDeleteDecoItem = (itemId: string) => {
+    setDecoracionData(prev => ({
+      ...prev,
+      itemsDecoracion: (prev.itemsDecoracion || []).filter(it => it.id !== itemId),
+    }));
+  };
+
+  const handleToggleChecklist = (itemId: string) => {
+    setDecoracionData(prev => ({
+      ...prev,
+      checklistDecoracion: (prev.checklistDecoracion || []).map(ci =>
+        ci.id === itemId ? { ...ci, completado: !ci.completado } : ci
+      ),
+    }));
+  };
+
+  const handleAddChecklistItem = (item: string, zona: string) => {
+    const newCi: DecoChecklistItem = {
+      id: `ci_${Date.now()}`,
+      item,
+      zona,
+      completado: false,
+    };
+    setDecoracionData(prev => ({
+      ...prev,
+      checklistDecoracion: [...(prev.checklistDecoracion || []), newCi],
+    }));
+  };
+
+  const handleDeleteChecklistItem = (itemId: string) => {
+    setDecoracionData(prev => ({
+      ...prev,
+      checklistDecoracion: (prev.checklistDecoracion || []).filter(ci => ci.id !== itemId),
+    }));
+  };
+
+  const calcPresupuestoTotal = () => {
+    return (decoracionData.itemsDecoracion || []).reduce((sum, it) => {
+      return sum + ((it.precioUnitario || 0) * it.cantidad);
+    }, 0);
+  };
+
+  const openDecoItemModal = (categoria: string, nombre: string) => {
+    setNewDecoItemName(nombre);
+    setNewDecoItemCat(categoria);
+    setNewDecoItemQty(1);
+    setNewDecoItemPrice(undefined);
+    setNewDecoItemZona('');
+    setIsDecoItemModalOpen(true);
+  };
+
+  const handleSaveDecoItemFromModal = () => {
+    if (!newDecoItemName.trim()) return;
+    handleAddDecoItem(newDecoItemName, newDecoItemCat, newDecoItemQty, newDecoItemPrice, newDecoItemZona);
+    setIsDecoItemModalOpen(false);
+  };
 
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando decoración...</p></div>;
@@ -316,6 +461,50 @@ function DecoracionYDisenoEventoContent() {
 
   return (
     <div className="space-y-6">
+
+      {/* Deco Item Quick Add Modal */}
+      <Dialog open={isDecoItemModalOpen} onOpenChange={setIsDecoItemModalOpen}>
+        <DialogContent className="sm:max-w-md rounded-3xl border-none">
+          <DialogHeader>
+            <DialogTitle className="font-headline text-2xl">Añadir al Catálogo</DialogTitle>
+            <DialogDescription>Item: <span className="font-bold text-primary">{newDecoItemName}</span> — {newDecoItemCat}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label className="text-xs uppercase font-black tracking-widest text-slate-400">Nombre</Label>
+              <Input value={newDecoItemName} onChange={e => setNewDecoItemName(e.target.value)} className="rounded-xl h-12 bg-slate-50 border-none" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label className="text-xs uppercase font-black tracking-widest text-slate-400">Cantidad</Label>
+                <Input type="number" min={1} value={newDecoItemQty} onChange={e => setNewDecoItemQty(Number(e.target.value))} className="rounded-xl h-12 bg-slate-50 border-none" />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs uppercase font-black tracking-widest text-slate-400">Precio Unit. ($)</Label>
+                <Input type="number" min={0} step="0.01" value={newDecoItemPrice ?? ''} onChange={e => setNewDecoItemPrice(e.target.value ? Number(e.target.value) : undefined)} placeholder="Opcional" className="rounded-xl h-12 bg-slate-50 border-none" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-xs uppercase font-black tracking-widest text-slate-400">Zona</Label>
+              <Select value={newDecoItemZona} onValueChange={setNewDecoItemZona}>
+                <SelectTrigger className="rounded-xl h-12 bg-slate-50 border-none">
+                  <SelectValue placeholder="Seleccionar zona..." />
+                </SelectTrigger>
+                <SelectContent className="rounded-2xl border-none shadow-2xl">
+                  {ZONAS_DEFAULT.map(z => <SelectItem key={z.id} value={z.id}>{z.nombre}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <Button variant="outline" onClick={() => setIsDecoItemModalOpen(false)} className="flex-1 rounded-xl h-12">Cancelar</Button>
+            <Button onClick={handleSaveDecoItemFromModal} className="flex-1 rounded-xl h-12 shadow-lg shadow-primary/20">
+              <PlusCircle className="w-4 h-4 mr-2" /> Añadir
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3"><Palette className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Decoración y Diseño</h1></div>
         <div className="flex gap-2">
@@ -329,17 +518,487 @@ function DecoracionYDisenoEventoContent() {
         </div>
       </div>
 
-      <Tabs defaultValue="decoracion">
-        <TabsList className="mb-4">
-          <TabsTrigger value="decoracion" className="gap-2">
-            <Wand2 className="w-4 h-4" /> Decoración
+      <Tabs defaultValue="estilo">
+        <TabsList className="mb-4 flex flex-wrap h-auto gap-1 bg-slate-100 p-1 rounded-2xl">
+          <TabsTrigger value="estilo" className="gap-2 rounded-xl data-[state=active]:shadow-sm">
+            <Star className="w-4 h-4" /> Estilo
           </TabsTrigger>
-          <TabsTrigger value="vista-decorativa" className="gap-2">
-            <Paintbrush className="w-4 h-4" /> Vista Decorativa
+          <TabsTrigger value="catalogo" className="gap-2 rounded-xl data-[state=active]:shadow-sm">
+            <Package className="w-4 h-4" /> Catálogo
+          </TabsTrigger>
+          <TabsTrigger value="presupuesto" className="gap-2 rounded-xl data-[state=active]:shadow-sm">
+            <DollarSign className="w-4 h-4" /> Presupuesto
+          </TabsTrigger>
+          <TabsTrigger value="checklist" className="gap-2 rounded-xl data-[state=active]:shadow-sm">
+            <CheckSquare className="w-4 h-4" /> Checklist
+          </TabsTrigger>
+          <TabsTrigger value="zonas" className="gap-2 rounded-xl data-[state=active]:shadow-sm">
+            <MapPin className="w-4 h-4" /> Zonas
+          </TabsTrigger>
+          <TabsTrigger value="decoracion" className="gap-2 rounded-xl data-[state=active]:shadow-sm">
+            <Wand2 className="w-4 h-4" /> Detalles
+          </TabsTrigger>
+          <TabsTrigger value="vista-decorativa" className="gap-2 rounded-xl data-[state=active]:shadow-sm">
+            <Paintbrush className="w-4 h-4" /> Vista
           </TabsTrigger>
         </TabsList>
 
-        {/* ── Tab: Decoración (existing content) ── */}
+        {/* ── Tab: Estilo / Tema ── */}
+        <TabsContent value="estilo" className="space-y-6">
+          {/* Estilo selector */}
+          <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/80 backdrop-blur-md">
+            <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 p-6">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-primary rounded-2xl shadow-xl shadow-primary/20 text-white"><Star className="w-6 h-6"/></div>
+                <div>
+                  <CardTitle className="font-headline text-xl">Estilo del Evento</CardTitle>
+                  <CardDescription>Elegí el estilo y se aplicará la paleta de colores automáticamente</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {ESTILOS_DECORACION.map(estilo => (
+                  <button
+                    key={estilo.id}
+                    type="button"
+                    onClick={() => handleSelectEstilo(estilo.id)}
+                    className={cn(
+                      "relative p-4 rounded-2xl border-2 text-left transition-all duration-300 hover:scale-[1.02] hover:shadow-xl",
+                      decoracionData.estiloDecoracion === estilo.id
+                        ? "border-primary shadow-xl shadow-primary/20 bg-primary/5"
+                        : "border-slate-200 bg-white hover:border-primary/50"
+                    )}
+                  >
+                    {decoracionData.estiloDecoracion === estilo.id && (
+                      <div className="absolute top-2 right-2 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
+                        <CheckSquare className="w-3 h-3 text-white" />
+                      </div>
+                    )}
+                    <div className="text-3xl mb-2">{estilo.emoji}</div>
+                    <div className="font-bold text-sm text-slate-800">{estilo.label}</div>
+                    <div className="text-xs text-slate-500 mt-1 line-clamp-2">{estilo.description}</div>
+                    <div className="flex gap-1 mt-3">
+                      {Object.values(estilo.colors).map((c, i) => (
+                        <div key={i} className="w-4 h-4 rounded-full border border-white shadow-sm" style={{ backgroundColor: c }} />
+                      ))}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Paleta de colores */}
+          <Card className="border-none shadow-xl rounded-[2rem] bg-white/80 backdrop-blur-md">
+            <CardHeader className="p-6">
+              <CardTitle className="font-headline text-xl flex items-center gap-2"><Palette className="w-5 h-5 text-primary"/>Paleta de Colores</CardTitle>
+              <CardDescription>Personalizá los colores del evento</CardDescription>
+            </CardHeader>
+            <CardContent className="p-6 space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                {(['primary', 'secondary', 'accent'] as const).map((key) => (
+                  <div key={key} className="space-y-3">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 capitalize">{key === 'primary' ? 'Principal' : key === 'secondary' ? 'Secundario' : 'Acento'}</Label>
+                    <div className="flex gap-3 items-center">
+                      <div className="relative">
+                        <input
+                          type="color"
+                          value={decoracionData.paletaColores?.[key] || '#ffffff'}
+                          onChange={e => handleColorChange(key, e.target.value)}
+                          className="w-14 h-14 rounded-2xl border-none cursor-pointer p-1 shadow-lg"
+                          style={{ backgroundColor: decoracionData.paletaColores?.[key] || '#ffffff' }}
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <Input
+                          type="text"
+                          value={decoracionData.paletaColores?.[key] || ''}
+                          onChange={e => handleColorChange(key, e.target.value)}
+                          placeholder="#RRGGBB"
+                          className="rounded-xl h-10 bg-slate-50 border-none font-mono text-sm"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <Separator />
+              
+              <div className="space-y-3">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Paletas Predefinidas</Label>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {predefinedPalettes.map((palette) => (
+                    <Button
+                      key={palette.name}
+                      type="button"
+                      variant="outline"
+                      className="h-auto p-3 text-left flex flex-col items-start gap-2 rounded-2xl hover:border-primary/50"
+                      onClick={() => handleSelectPalette(palette.colors)}
+                    >
+                      <div className="flex gap-1.5">
+                        <div className="w-6 h-6 rounded-full border-2 border-white shadow-sm" style={{ backgroundColor: palette.colors.primary }} />
+                        <div className="w-6 h-6 rounded-full border-2 border-white shadow-sm" style={{ backgroundColor: palette.colors.secondary }} />
+                        <div className="w-6 h-6 rounded-full border-2 border-white shadow-sm" style={{ backgroundColor: palette.colors.accent }} />
+                      </div>
+                      <span className="text-sm font-semibold">{palette.name}</span>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Tema del Evento</Label>
+                  <Input value={decoracionData.tema || ''} onChange={e => handleInputChange('tema', e.target.value)} placeholder="Ej: Rústico Chic, Tropical, Años 80" className="rounded-xl h-12 bg-slate-50 border-none"/>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Color Cubremantel</Label>
+                  <Input value={decoracionData.colorCubremantel || ''} onChange={e => handleInputChange('colorCubremantel', e.target.value)} placeholder="Ej: Blanco, Azul Marino" className="rounded-xl h-12 bg-slate-50 border-none"/>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter className="border-t p-6">
+              <Button onClick={handleSaveClick} size="lg" className="w-full sm:w-auto rounded-2xl shadow-lg shadow-primary/20" disabled={isSaving}>
+                {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Save className="w-5 h-5 mr-2" />}
+                Guardar Estilo y Colores
+              </Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+
+        {/* ── Tab: Catálogo ── */}
+        <TabsContent value="catalogo" className="space-y-4">
+          <Card className="border-none shadow-xl rounded-[2rem] bg-white/80 backdrop-blur-md">
+            <CardHeader className="bg-gradient-to-r from-violet-500/10 to-violet-500/5 p-6">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-violet-500 rounded-2xl shadow-xl shadow-violet-500/20 text-white"><Package className="w-6 h-6"/></div>
+                <div>
+                  <CardTitle className="font-headline text-xl">Catálogo de Decoración</CardTitle>
+                  <CardDescription>Seleccioná items para agregar a tu evento. Se sincroniza con la vista 3D.</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6 space-y-6">
+              {CATALOGO_ITEMS.map(cat => (
+                <div key={cat.categoria} className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">{cat.emoji}</span>
+                    <h4 className="font-black text-sm uppercase tracking-widest text-slate-700">{cat.categoria}</h4>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                    {cat.items.map(itemNombre => {
+                      const ya = (decoracionData.itemsDecoracion || []).some(di => di.nombre === itemNombre && di.categoria === cat.categoria);
+                      return (
+                        <button
+                          key={itemNombre}
+                          type="button"
+                          onClick={() => ya ? undefined : openDecoItemModal(cat.categoria, itemNombre)}
+                          className={cn(
+                            "p-3 rounded-2xl border text-left text-xs font-semibold transition-all duration-200",
+                            ya
+                              ? "bg-primary/10 border-primary text-primary cursor-default"
+                              : "bg-white border-slate-200 hover:border-primary/50 hover:bg-primary/5 hover:shadow-md cursor-pointer"
+                          )}
+                        >
+                          {ya && <span className="mr-1">✓</span>}
+                          {itemNombre}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <Separator />
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* Items seleccionados */}
+          {(decoracionData.itemsDecoracion || []).length > 0 && (
+            <Card className="border-none shadow-xl rounded-[2rem] bg-white/80 backdrop-blur-md">
+              <CardHeader className="p-6">
+                <CardTitle className="font-headline text-xl flex items-center gap-2">
+                  <ShoppingCart className="w-5 h-5 text-primary"/>
+                  Items Seleccionados ({(decoracionData.itemsDecoracion || []).length})
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="space-y-3">
+                  {(decoracionData.itemsDecoracion || []).map(item => (
+                    <div key={item.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-bold text-sm">{item.nombre}</span>
+                          <Badge variant="outline" className="text-[10px] rounded-full">{item.categoria}</Badge>
+                          {item.zona && <Badge variant="secondary" className="text-[10px] rounded-full">{ZONAS_DEFAULT.find(z => z.id === item.zona)?.nombre || item.zona}</Badge>}
+                          <Badge
+                            className={cn("text-[10px] rounded-full cursor-pointer", 
+                              item.estado === 'instalado' ? 'bg-green-100 text-green-700 border-green-200' :
+                              item.estado === 'comprado' ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                              'bg-amber-100 text-amber-700 border-amber-200'
+                            )}
+                            onClick={() => {
+                              const next = item.estado === 'pendiente' ? 'comprado' : item.estado === 'comprado' ? 'instalado' : 'pendiente';
+                              handleUpdateDecoItemEstado(item.id, next);
+                            }}
+                          >
+                            {({ instalado: '✓ Instalado', comprado: '🛒 Comprado', pendiente: '⏳ Pendiente' } as Record<string, string>)[item.estado || 'pendiente'] || '⏳ Pendiente'}
+                          </Badge>
+                        </div>
+                        <div className="text-xs text-slate-500 mt-1">
+                          Cant: {item.cantidad} {item.precioUnitario ? `· $${(item.precioUnitario * item.cantidad).toLocaleString()}` : ''}
+                        </div>
+                      </div>
+                      <Button variant="ghost" size="icon" onClick={() => handleDeleteDecoItem(item.id)} className="h-8 w-8 text-destructive hover:bg-destructive/10 rounded-xl shrink-0">
+                        <Trash2 className="w-4 h-4"/>
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+              <CardFooter className="border-t p-6">
+                <Button onClick={handleSaveClick} size="lg" className="w-full sm:w-auto rounded-2xl shadow-lg shadow-primary/20" disabled={isSaving}>
+                  {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Save className="w-5 h-5 mr-2" />}
+                  Guardar Catálogo
+                </Button>
+              </CardFooter>
+            </Card>
+          )}
+        </TabsContent>
+
+        {/* ── Tab: Presupuesto ── */}
+        <TabsContent value="presupuesto">
+          <Card className="border-none shadow-xl rounded-[2rem] bg-white/80 backdrop-blur-md">
+            <CardHeader className="bg-gradient-to-r from-emerald-500/10 to-emerald-500/5 p-6">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-emerald-500 rounded-2xl shadow-xl shadow-emerald-500/20 text-white"><DollarSign className="w-6 h-6"/></div>
+                <div>
+                  <CardTitle className="font-headline text-xl">Presupuesto de Decoración</CardTitle>
+                  <CardDescription>Costos estimados de los items seleccionados</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6">
+              {(decoracionData.itemsDecoracion || []).length === 0 ? (
+                <div className="text-center py-16 opacity-40">
+                  <DollarSign className="w-16 h-16 mx-auto mb-4 text-slate-300"/>
+                  <p className="font-bold text-slate-500">Agrega items desde el Catálogo para ver el presupuesto</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="overflow-x-auto rounded-2xl border border-slate-100">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="bg-slate-50 border-b border-slate-100">
+                          <th className="text-left p-4 font-black text-[10px] uppercase tracking-widest text-slate-400">Item</th>
+                          <th className="text-left p-4 font-black text-[10px] uppercase tracking-widest text-slate-400">Categoría</th>
+                          <th className="text-left p-4 font-black text-[10px] uppercase tracking-widest text-slate-400">Zona</th>
+                          <th className="text-center p-4 font-black text-[10px] uppercase tracking-widest text-slate-400">Cant.</th>
+                          <th className="text-right p-4 font-black text-[10px] uppercase tracking-widest text-slate-400">P. Unit.</th>
+                          <th className="text-right p-4 font-black text-[10px] uppercase tracking-widest text-slate-400">Subtotal</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(decoracionData.itemsDecoracion || []).map((item, i) => (
+                          <tr key={item.id} className={cn("border-b border-slate-50", i % 2 === 0 ? "bg-white" : "bg-slate-50/50")}>
+                            <td className="p-4 font-semibold text-slate-800">{item.nombre}</td>
+                            <td className="p-4 text-slate-500 text-xs">{item.categoria}</td>
+                            <td className="p-4 text-slate-500 text-xs">{ZONAS_DEFAULT.find(z => z.id === item.zona)?.nombre || item.zona || '—'}</td>
+                            <td className="p-4 text-center font-bold text-slate-700">{item.cantidad}</td>
+                            <td className="p-4 text-right text-slate-500">{item.precioUnitario ? `$${item.precioUnitario.toLocaleString()}` : '—'}</td>
+                            <td className="p-4 text-right font-bold text-slate-800">
+                              {item.precioUnitario ? `$${(item.precioUnitario * item.cantidad).toLocaleString()}` : '—'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                      <tfoot>
+                        <tr className="bg-primary/5 border-t-2 border-primary/20">
+                          <td colSpan={5} className="p-4 font-black text-right text-primary uppercase tracking-widest text-sm">TOTAL ESTIMADO</td>
+                          <td className="p-4 text-right font-black text-xl text-primary">${calcPresupuestoTotal().toLocaleString()}</td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                  <p className="text-xs text-slate-400 italic text-center">* Los precios son estimados y pueden variar según proveedor</p>
+                </div>
+              )}
+            </CardContent>
+            <CardFooter className="border-t p-6">
+              <Button onClick={handleSaveClick} size="lg" className="w-full sm:w-auto rounded-2xl shadow-lg shadow-primary/20" disabled={isSaving}>
+                {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Save className="w-5 h-5 mr-2" />}
+                Guardar Presupuesto
+              </Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+
+        {/* ── Tab: Checklist ── */}
+        <TabsContent value="checklist">
+          <Card className="border-none shadow-xl rounded-[2rem] bg-white/80 backdrop-blur-md">
+            <CardHeader className="bg-gradient-to-r from-sky-500/10 to-sky-500/5 p-6">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-sky-500 rounded-2xl shadow-xl shadow-sky-500/20 text-white"><CheckSquare className="w-6 h-6"/></div>
+                <div>
+                  <CardTitle className="font-headline text-xl">Checklist de Decoración</CardTitle>
+                  <CardDescription>Para el día del evento: marcá cada item mientras lo instalás</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6 space-y-6">
+              {/* Auto-generate checklist from items */}
+              {(decoracionData.itemsDecoracion || []).length > 0 && (decoracionData.checklistDecoracion || []).length === 0 && (
+                <div className="p-4 bg-sky-50 rounded-2xl border border-sky-200 flex items-center justify-between">
+                  <div>
+                    <p className="font-bold text-sky-700 text-sm">Generar checklist automático</p>
+                    <p className="text-xs text-sky-600">Creá una lista basada en los items del catálogo</p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      (decoracionData.itemsDecoracion || []).forEach(item => {
+                        handleAddChecklistItem(`${item.nombre} (x${item.cantidad})`, item.zona || 'zona_mesas');
+                      });
+                    }}
+                    className="rounded-xl border-sky-300 text-sky-700 hover:bg-sky-100"
+                  >
+                    <Wand2 className="w-4 h-4 mr-2"/> Auto-generar
+                  </Button>
+                </div>
+              )}
+
+              {/* Group by zone */}
+              {ZONAS_DEFAULT.map(zona => {
+                const zonaItems = (decoracionData.checklistDecoracion || []).filter(ci => ci.zona === zona.id);
+                if (zonaItems.length === 0) return null;
+                const completados = zonaItems.filter(ci => ci.completado).length;
+                return (
+                  <div key={zona.id} className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-black text-sm uppercase tracking-widest text-slate-700 flex items-center gap-2">
+                        <MapPin className="w-4 h-4 text-primary"/>
+                        {zona.nombre}
+                      </h4>
+                      <Badge variant={completados === zonaItems.length ? "default" : "secondary"} className="rounded-full">
+                        {completados}/{zonaItems.length}
+                      </Badge>
+                    </div>
+                    <div className="space-y-2 pl-6">
+                      {zonaItems.map(ci => (
+                        <div key={ci.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
+                          <div className="flex items-center gap-3">
+                            <Checkbox
+                              checked={ci.completado}
+                              onCheckedChange={() => handleToggleChecklist(ci.id)}
+                              className="rounded-md"
+                            />
+                            <span className={cn("text-sm font-medium", ci.completado && "line-through text-slate-400")}>
+                              {ci.item}
+                            </span>
+                          </div>
+                          <Button variant="ghost" size="icon" onClick={() => handleDeleteChecklistItem(ci.id)} className="h-7 w-7 text-slate-400 hover:text-destructive rounded-lg">
+                            <Trash2 className="w-3.5 h-3.5"/>
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                    <Separator />
+                  </div>
+                );
+              })}
+
+              {/* Items without zone */}
+              {(decoracionData.checklistDecoracion || []).filter(ci => !ZONAS_DEFAULT.find(z => z.id === ci.zona)).length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="font-black text-sm uppercase tracking-widest text-slate-500">Sin zona asignada</h4>
+                  {(decoracionData.checklistDecoracion || []).filter(ci => !ZONAS_DEFAULT.find(z => z.id === ci.zona)).map(ci => (
+                    <div key={ci.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
+                      <div className="flex items-center gap-3">
+                        <Checkbox checked={ci.completado} onCheckedChange={() => handleToggleChecklist(ci.id)} />
+                        <span className={cn("text-sm font-medium", ci.completado && "line-through text-slate-400")}>{ci.item}</span>
+                      </div>
+                      <Button variant="ghost" size="icon" onClick={() => handleDeleteChecklistItem(ci.id)} className="h-7 w-7 text-slate-400 hover:text-destructive rounded-lg">
+                        <Trash2 className="w-3.5 h-3.5"/>
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {(decoracionData.checklistDecoracion || []).length === 0 && (
+                <div className="text-center py-16 opacity-40">
+                  <CheckSquare className="w-16 h-16 mx-auto mb-4 text-slate-300"/>
+                  <p className="font-bold text-slate-500">El checklist está vacío</p>
+                  <p className="text-xs text-slate-400 mt-1">Agrega items desde el Catálogo o usa auto-generar</p>
+                </div>
+              )}
+
+              {/* Manual add */}
+              <div className="pt-4 border-t border-slate-100">
+                <ChecklistAddForm onAdd={handleAddChecklistItem} />
+              </div>
+            </CardContent>
+            <CardFooter className="border-t p-6">
+              <Button onClick={handleSaveClick} size="lg" className="w-full sm:w-auto rounded-2xl shadow-lg shadow-primary/20" disabled={isSaving}>
+                {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Save className="w-5 h-5 mr-2" />}
+                Guardar Checklist
+              </Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+
+        {/* ── Tab: Zonas ── */}
+        <TabsContent value="zonas">
+          <Card className="border-none shadow-xl rounded-[2rem] bg-white/80 backdrop-blur-md">
+            <CardHeader className="bg-gradient-to-r from-rose-500/10 to-rose-500/5 p-6">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-rose-500 rounded-2xl shadow-xl shadow-rose-500/20 text-white"><MapPin className="w-6 h-6"/></div>
+                <div>
+                  <CardTitle className="font-headline text-xl">Decoración por Zona</CardTitle>
+                  <CardDescription>Vista de qué decoración hay en cada zona del salón</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                {ZONAS_DEFAULT.map(zona => {
+                  const zonaItems = (decoracionData.itemsDecoracion || []).filter(di => di.zona === zona.id);
+                  return (
+                    <div key={zona.id} className={cn(
+                      "p-5 rounded-2xl border-2 transition-all",
+                      zonaItems.length > 0 ? "border-primary/30 bg-primary/5" : "border-slate-200 bg-slate-50/50"
+                    )}>
+                      <div className="flex items-center gap-2 mb-3">
+                        <MapPin className="w-4 h-4 text-primary"/>
+                        <h4 className="font-black text-sm uppercase tracking-widest text-slate-700">{zona.nombre}</h4>
+                        <Badge variant={zonaItems.length > 0 ? "default" : "secondary"} className="ml-auto rounded-full text-[10px]">
+                          {zonaItems.length} items
+                        </Badge>
+                      </div>
+                      {zonaItems.length > 0 ? (
+                        <div className="space-y-1.5">
+                          {zonaItems.map(item => (
+                            <div key={item.id} className="flex items-center gap-2 text-xs">
+                              <div className="w-2 h-2 rounded-full bg-primary shrink-0"/>
+                              <span className="font-medium text-slate-700 truncate">{item.nombre}</span>
+                              <span className="text-slate-400 shrink-0">x{item.cantidad}</span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-xs text-slate-400 italic">Sin elementos asignados</p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ── Tab: Detalles Decoración (existing content) ── */}
         <TabsContent value="decoracion">
       <form onSubmit={handleSaveDecoracion}>
         <Card className="shadow-lg mb-6 border-primary/20">
@@ -625,6 +1284,39 @@ function DecoracionYDisenoEventoContent() {
         </DialogContent>
       </Dialog>
       
+    </div>
+  );
+}
+
+// --- ChecklistAddForm sub-component ---
+function ChecklistAddForm({ onAdd }: { onAdd: (item: string, zona: string) => void }) {
+  const [item, setItem] = React.useState('');
+  const [zona, setZona] = React.useState(ZONAS_DEFAULT[0].id);
+  return (
+    <div className="flex flex-col sm:flex-row gap-3">
+      <Input
+        value={item}
+        onChange={e => setItem(e.target.value)}
+        placeholder="Nuevo item del checklist..."
+        className="rounded-xl h-11 bg-slate-50 border-none flex-1"
+        onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); if (item.trim()) { onAdd(item, zona); setItem(''); } } }}
+      />
+      <Select value={zona} onValueChange={setZona}>
+        <SelectTrigger className="rounded-xl h-11 bg-slate-50 border-none w-full sm:w-44">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent className="rounded-2xl border-none shadow-2xl">
+          {ZONAS_DEFAULT.map(z => <SelectItem key={z.id} value={z.id}>{z.nombre}</SelectItem>)}
+        </SelectContent>
+      </Select>
+      <Button
+        type="button"
+        onClick={() => { if (item.trim()) { onAdd(item, zona); setItem(''); } }}
+        disabled={!item.trim()}
+        className="rounded-xl h-11 px-6 shadow-lg shadow-primary/20"
+      >
+        <PlusCircle className="w-4 h-4 mr-2"/> Añadir
+      </Button>
     </div>
   );
 }

@@ -19,6 +19,9 @@ import {
   Clock,
   ChevronRight,
   Activity,
+  Palette,
+  Image as ImageIcon,
+  Heart,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,6 +30,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion, Invitado, CuotaPlanPago } from '@/types/fiesta';
+import NextImage from 'next/image';
 import { updateInvitado } from '@/app/actions/fiesta/invitados.actions';
 import { useToast } from '@/hooks/use-toast';
 
@@ -274,6 +278,12 @@ export default function PortalClientePage() {
     .slice(0, 10);
 
   // ── Render ───────────────────────────────────────────────────
+  const hasDecorationPreview = !!(fiesta.decoracion && (
+    fiesta.decoracion.salonPreview3dUrl ||
+    fiesta.decoracion.paletaColores ||
+    (fiesta.decoracion.moodboardItems && fiesta.decoracion.moodboardItems.length > 0)
+  ));
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
       {/* Header */}
@@ -614,6 +624,72 @@ export default function PortalClientePage() {
           </Card>
           )}
         </div>
+        )}
+
+        {/* ── Decoración Preview ───────────────────────────── */}
+        {hasDecorationPreview && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base font-black">
+                <Palette className="w-5 h-5 text-pink-500" /> Diseño y Decoración
+              </CardTitle>
+              {fiesta.decoracion?.tema && (
+                <CardDescription>Tema: <strong>{fiesta.decoracion.tema}</strong></CardDescription>
+              )}
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Color palette */}
+              {fiesta.decoracion?.paletaColores && (
+                <div className="space-y-2">
+                  <p className="text-xs font-black uppercase tracking-wider text-slate-500">Paleta de Colores</p>
+                  <div className="flex gap-3 items-center">
+                    {Object.entries(fiesta.decoracion.paletaColores).map(([key, color]) => (
+                      <div key={key} className="flex flex-col items-center gap-1">
+                        <div className="w-10 h-10 rounded-2xl border-2 border-white shadow-lg" style={{ backgroundColor: color as string }} />
+                        <span className="text-[10px] font-bold text-slate-400 uppercase">{key === 'primary' ? 'Principal' : key === 'secondary' ? 'Secundario' : 'Acento'}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 3D Preview */}
+              {fiesta.decoracion?.salonPreview3dUrl && (
+                <div className="space-y-2">
+                  <p className="text-xs font-black uppercase tracking-wider text-slate-500">Vista del Salón</p>
+                  <div className="relative rounded-2xl overflow-hidden border border-slate-100 shadow-sm" style={{ aspectRatio: '16/9' }}>
+                    <NextImage
+                      src={fiesta.decoracion.salonPreview3dUrl}
+                      alt="Vista 3D del salón"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Moodboard */}
+              {fiesta.decoracion?.moodboardItems && fiesta.decoracion.moodboardItems.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                    <Heart className="w-3.5 h-3.5 text-rose-500" /> Inspiración / Moodboard
+                  </p>
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                    {fiesta.decoracion.moodboardItems.slice(0, 8).map(item => (
+                      <div key={item.id} className="relative aspect-square rounded-xl overflow-hidden border border-slate-100 shadow-sm bg-slate-50">
+                        <NextImage src={item.url} alt="inspiración" fill className="object-cover" />
+                        {item.likedByClient && (
+                          <div className="absolute top-1 right-1 bg-rose-500 text-white p-0.5 rounded-full shadow">
+                            <Heart className="w-2.5 h-2.5 fill-current" />
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         )}
 
       </main>

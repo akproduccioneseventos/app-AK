@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Disc, Clapperboard, Sofa, Camera as CameraIcon, Search, Printer, Settings2, FolderDown, FolderUp, Maximize, ZoomIn, ZoomOut, Upload, Map, ChevronsUp, ChevronsDown, X, Armchair, PartyPopper, Ticket, UserMinus, CookingPot, Beer, Layers, Ruler, Filter, Group } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Disc, Clapperboard, Sofa, Camera as CameraIcon, Search, Printer, Settings2, FolderDown, FolderUp, Maximize, ZoomIn, ZoomOut, Upload, Map, ChevronsUp, ChevronsDown, X, Armchair, PartyPopper, Ticket, UserMinus, CookingPot, Beer, Layers, Ruler, Filter, Group, Box, Monitor } from 'lucide-react';
 import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData, LayoutElementType } from '@/types/fiesta';
@@ -37,6 +38,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
+
+const SalonScene = dynamic(() => import('@/components/salon-3d/SalonScene'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex flex-col items-center justify-center h-full gap-4 bg-slate-900 rounded-[1.5rem]">
+      <Loader2 className="w-10 h-10 animate-spin text-primary" />
+      <p className="text-white/60 text-sm font-bold uppercase tracking-widest">Cargando Vista 3D...</p>
+    </div>
+  ),
+});
 
 const GUEST_ITEM_TYPE = 'guest';
 const PIXELS_PER_METER_DEFAULT = 40;
@@ -241,6 +252,9 @@ function SalonLayoutContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [view3d, setView3d] = useState(false);
+  const [isCapturing, setIsCapturing] = useState(false);
+  const salonSceneRef = useRef<{ captureScreenshot: () => string | null } | null>(null);
   
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingElement, setEditingElement] = useState<LayoutElement | null>(null);
@@ -441,6 +455,24 @@ function SalonLayoutContent() {
       toast({ title: "Error al subir", description: e.message, variant: "destructive" });
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const handleCapture3D = async () => {
+    if (!salonSceneRef.current || !decoracion || !fiestaId) return;
+    setIsCapturing(true);
+    try {
+      const dataUrl = salonSceneRef.current.captureScreenshot();
+      if (dataUrl) {
+        const updatedDeco = { ...decoracion, salonPreview3dUrl: dataUrl };
+        setDecoracion(updatedDeco);
+        await updateDecoracionFiestaActual(fiestaId, updatedDeco);
+        toast({ title: "📸 Vista 3D capturada", description: "Preview guardado en el portal del cliente." });
+      }
+    } catch (e: any) {
+      toast({ title: "Error al capturar", description: e.message, variant: "destructive" });
+    } finally {
+      setIsCapturing(false);
     }
   };
 
@@ -709,40 +741,82 @@ function SalonLayoutContent() {
                 <Card className="h-full flex flex-col flex-grow border-none shadow-2xl rounded-[2rem] overflow-hidden bg-white">
                     <CardHeader className="flex-row justify-between items-center p-4 border-b border-slate-100 bg-slate-50/50">
                       <div className="flex items-center gap-3">
-                         <Button variant="ghost" size="icon" onClick={() => setIsFullScreen(!isFullScreen)} className="rounded-xl h-10 w-10 hover:bg-white shadow-sm" title="Pantalla Completa"><Maximize className="w-5 h-5 text-slate-600"/></Button>
-                         <Separator orientation="vertical" className="h-6"/>
-                         <div className="flex items-center gap-1 bg-white p-1 rounded-xl shadow-sm border border-slate-200">
-                            <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setScale(s => Math.max(0.2, s / 1.2))}><ZoomOut className="w-4 h-4 text-slate-400"/></Button>
-                            <span className="text-[10px] font-black w-10 text-center text-slate-400">{Math.round(scale * 100)}%</span>
-                            <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setScale(s => Math.min(3, s * 1.2))}><ZoomIn className="w-4 h-4 text-slate-400"/></Button>
-                         </div>
+                         {!view3d && (
+                           <>
+                             <Button variant="ghost" size="icon" onClick={() => setIsFullScreen(!isFullScreen)} className="rounded-xl h-10 w-10 hover:bg-white shadow-sm" title="Pantalla Completa"><Maximize className="w-5 h-5 text-slate-600"/></Button>
+                             <Separator orientation="vertical" className="h-6"/>
+                             <div className="flex items-center gap-1 bg-white p-1 rounded-xl shadow-sm border border-slate-200">
+                                <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setScale(s => Math.max(0.2, s / 1.2))}><ZoomOut className="w-4 h-4 text-slate-400"/></Button>
+                                <span className="text-[10px] font-black w-10 text-center text-slate-400">{Math.round(scale * 100)}%</span>
+                                <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setScale(s => Math.min(3, s * 1.2))}><ZoomIn className="w-4 h-4 text-slate-400"/></Button>
+                             </div>
+                           </>
+                         )}
+                         {view3d && (
+                           <Button
+                             variant="ghost"
+                             size="sm"
+                             onClick={handleCapture3D}
+                             disabled={isCapturing}
+                             className="rounded-xl h-10 px-4 font-bold text-slate-600"
+                           >
+                             {isCapturing ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <CameraIcon className="w-4 h-4 mr-2"/>}
+                             Capturar Vista
+                           </Button>
+                         )}
                       </div>
-                      <div className="flex gap-2">
-                          <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                  <Button variant="default" className="rounded-xl h-10 px-6 font-bold shadow-lg shadow-primary/20"><PlusCircle className="w-4 h-4 mr-2"/>Añadir Elemento</Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="w-56 rounded-2xl p-2">
-                                  <DropdownMenuGroup>
-                                      <DropdownMenuItem className="rounded-xl" onClick={() => addElement('Mesa Redonda')}><Circle className="w-4 h-4 mr-2 text-primary"/> Mesa Redonda</DropdownMenuItem>
-                                      <DropdownMenuItem className="rounded-xl" onClick={() => addElement('Mesa Rectangular')}><Square className="w-4 h-4 mr-2 text-primary"/> Mesa Rectangular</DropdownMenuItem>
-                                      <DropdownMenuItem className="rounded-xl" onClick={() => addElement('Living')}><Sofa className="w-4 h-4 mr-2 text-primary"/> Living / Relax</DropdownMenuItem>
-                                  </DropdownMenuGroup>
-                                  <DropdownMenuSeparator/>
-                                  <DropdownMenuGroup>
-                                      <DropdownMenuItem className="rounded-xl" onClick={() => addElement('Pista de Baile', undefined, 'area')}><Disc className="w-4 h-4 mr-2 text-indigo-500"/> Pista de Baile</DropdownMenuItem>
-                                      <DropdownMenuItem className="rounded-xl" onClick={() => addElement('Escenario', undefined, 'area')}><Clapperboard className="w-4 h-4 mr-2 text-indigo-500"/> Escenario</DropdownMenuItem>
-                                      <DropdownMenuItem className="rounded-xl" onClick={() => addElement('Barra', undefined, 'area')}><Beer className="w-4 h-4 mr-2 text-emerald-500"/> Barra de Tragos</DropdownMenuItem>
-                                  </DropdownMenuGroup>
-                                  <DropdownMenuSeparator/>
-                                  <DropdownMenuItem className="rounded-xl font-bold text-primary" onClick={() => setIsCustomElementModalOpen(true)}>
-                                      <PlusCircle className="w-4 h-4 mr-2"/> Crear Personalizado...
-                                  </DropdownMenuItem>
-                              </DropdownMenuContent>
-                          </DropdownMenu>
+                      <div className="flex items-center gap-2">
+                          {/* 2D/3D Toggle */}
+                          <div className="flex items-center gap-0.5 bg-white p-1 rounded-xl shadow-sm border border-slate-200">
+                            <Button
+                              size="sm"
+                              variant={!view3d ? "default" : "ghost"}
+                              className="rounded-lg h-8 px-3 text-[10px] font-black uppercase tracking-widest"
+                              onClick={() => setView3d(false)}
+                            >
+                              <Monitor className="w-3.5 h-3.5 mr-1.5"/>2D
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant={view3d ? "default" : "ghost"}
+                              className="rounded-lg h-8 px-3 text-[10px] font-black uppercase tracking-widest"
+                              onClick={() => setView3d(true)}
+                            >
+                              <Box className="w-3.5 h-3.5 mr-1.5"/>3D
+                            </Button>
+                          </div>
+                          {!view3d && (
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="default" className="rounded-xl h-10 px-6 font-bold shadow-lg shadow-primary/20"><PlusCircle className="w-4 h-4 mr-2"/>Añadir Elemento</Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-56 rounded-2xl p-2">
+                                    <DropdownMenuGroup>
+                                        <DropdownMenuItem className="rounded-xl" onClick={() => addElement('Mesa Redonda')}><Circle className="w-4 h-4 mr-2 text-primary"/> Mesa Redonda</DropdownMenuItem>
+                                        <DropdownMenuItem className="rounded-xl" onClick={() => addElement('Mesa Rectangular')}><Square className="w-4 h-4 mr-2 text-primary"/> Mesa Rectangular</DropdownMenuItem>
+                                        <DropdownMenuItem className="rounded-xl" onClick={() => addElement('Living')}><Sofa className="w-4 h-4 mr-2 text-primary"/> Living / Relax</DropdownMenuItem>
+                                    </DropdownMenuGroup>
+                                    <DropdownMenuSeparator/>
+                                    <DropdownMenuGroup>
+                                        <DropdownMenuItem className="rounded-xl" onClick={() => addElement('Pista de Baile', undefined, 'area')}><Disc className="w-4 h-4 mr-2 text-indigo-500"/> Pista de Baile</DropdownMenuItem>
+                                        <DropdownMenuItem className="rounded-xl" onClick={() => addElement('Escenario', undefined, 'area')}><Clapperboard className="w-4 h-4 mr-2 text-indigo-500"/> Escenario</DropdownMenuItem>
+                                        <DropdownMenuItem className="rounded-xl" onClick={() => addElement('Barra', undefined, 'area')}><Beer className="w-4 h-4 mr-2 text-emerald-500"/> Barra de Tragos</DropdownMenuItem>
+                                    </DropdownMenuGroup>
+                                    <DropdownMenuSeparator/>
+                                    <DropdownMenuItem className="rounded-xl font-bold text-primary" onClick={() => setIsCustomElementModalOpen(true)}>
+                                        <PlusCircle className="w-4 h-4 mr-2"/> Crear Personalizado...
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                          )}
                       </div>
                     </CardHeader>
-                    <CardContent className="flex-grow p-0 overflow-auto relative bg-slate-50/30" onMouseDown={() => setSelectedElementId(null)}>
+                    <CardContent className={cn("flex-grow p-0 overflow-auto relative", view3d ? "bg-slate-900" : "bg-slate-50/30")} onMouseDown={() => !view3d && setSelectedElementId(null)}>
+                        {view3d ? (
+                          <div className="w-full h-full min-h-[500px]">
+                            <SalonScene captureRef={salonSceneRef} decoracion={decoracion} />
+                          </div>
+                        ) : (
                         <div className="relative canvas-grid-background transition-transform duration-300 ease-out" style={{ width: `${(decoracion.salonWidth || 15) * pixelsPerMeter}px`, height: `${(decoracion.salonHeight || 15) * pixelsPerMeter}px`, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
                             {decoracion.salonPlanBackgroundImageUrl && (<NextImage src={decoracion.salonPlanBackgroundImageUrl} alt="Plano de Fondo" layout="fill" objectFit="contain" className="opacity-40 pointer-events-none"/>)}
                             {(decoracion.salonElements || []).sort((a,b) => (a.zIndex || 0) - (b.zIndex || 0)).map(el => {
@@ -767,6 +841,7 @@ function SalonLayoutContent() {
                                 );
                             })}
                         </div>
+                        )}
                     </CardContent>
                 </Card>
             </div>
