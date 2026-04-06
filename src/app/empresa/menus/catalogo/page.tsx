@@ -282,7 +282,7 @@ export default function CatalogoPlatosPage() {
             <div className="space-y-4 py-2">
                 {sanitizeImageUrl(editingDish?.imageUrl) && (
                   <div className="w-full h-40 rounded-lg border overflow-hidden">
-                    <img src={sanitizeImageUrl(editingDish?.imageUrl)!} alt={editingDish.name} className="w-full h-full object-cover" />
+                    <img src={sanitizeImageUrl(editingDish?.imageUrl)!} alt={editingDish?.name} className="w-full h-full object-cover" />
                   </div>
                 )}
                 {(editingDish?.allergenTags || []).length > 0 && (
