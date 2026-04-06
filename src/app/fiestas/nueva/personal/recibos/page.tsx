@@ -93,7 +93,7 @@ function RecibosDePagoContent() {
         getInvoiceTemplateSettings()
       ]);
       setFiesta(fiestaData);
-      setLogoUrl(settings.logoUrl);
+      setLogoUrl(settings.logoUrl ?? null);
       
       const details = (fiestaData.personalAsignado || []).map(assigned => {
         const empleado = empleadosData.find(e => e.id === assigned.empleadoId);

@@ -65,7 +65,7 @@ function CambioFechaContent({ fiestaId }: { fiestaId: string | null }) {
       }
       setFiesta(fiestaData);
       setCompanyInfo(companyData);
-      setLogoUrl(settingsData.logoUrl);
+      setLogoUrl(settingsData.logoUrl ?? null);
 
       const [clienteData, presupuestoData] = await Promise.all([
         getCustomerById(fiestaData.configuracion.clienteId),

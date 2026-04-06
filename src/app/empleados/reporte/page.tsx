@@ -34,7 +34,7 @@ export default function ReporteEmpleadosPage() {
       ]);
       setAllItems(empleadosData);
       setAllRoles(rolesData);
-      setLogoUrl(settings.logoUrl);
+      setLogoUrl(settings.logoUrl ?? null);
     } catch (err: any) {
       setError("No se pudo cargar la lista de empleados.");
       toast({ title: "Error", description: err.message, variant: "destructive" });

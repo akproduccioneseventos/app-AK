@@ -48,7 +48,7 @@ function MenuDeMesaContent() {
       const [fiestaData, settings] = await Promise.all([getFiestaById(fiestaId), getInvoiceTemplateSettings()]);
       if (!fiestaData) throw new Error("Fiesta no encontrada");
       setFiesta(fiestaData);
-      setLogoUrl(settings.logoUrl);
+      setLogoUrl(settings.logoUrl ?? null);
       
       const mergedData = { ...defaultMenuMesaData, ...(fiestaData.menuMesa || {}) };
       setData(mergedData);

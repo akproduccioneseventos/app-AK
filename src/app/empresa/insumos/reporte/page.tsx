@@ -39,7 +39,7 @@ export default function ReporteInsumosPage() {
         s.cantidadDisponible !== undefined && s.cantidadDisponible > 0
       );
       setAllItems(inventoryItems);
-      setLogoUrl(settings.logoUrl);
+      setLogoUrl(settings.logoUrl ?? null);
     } catch (err: any) {
       setError("No se pudo cargar el inventario de insumos.");
       toast({ title: "Error", description: err.message, variant: "destructive" });

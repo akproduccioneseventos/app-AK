@@ -38,7 +38,7 @@ export default function ReporteClientesPage() {
           getInvoiceTemplateSettings()
       ]);
       setAllItems(data);
-      setLogoUrl(settings.logoUrl);
+      setLogoUrl(settings.logoUrl ?? null);
     } catch (err: any) {
       setError("No se pudo cargar la lista de clientes.");
       toast({ title: "Error", description: err.message, variant: "destructive" });

@@ -30,7 +30,7 @@ export default function ReporteProveedoresPage() {
           getInvoiceTemplateSettings()
       ]);
       setAllItems(data);
-      setLogoUrl(settings.logoUrl);
+      setLogoUrl(settings.logoUrl ?? null);
     } catch (err: any) {
       setError("No se pudo cargar la lista de proveedores.");
       toast({ title: "Error", description: err.message, variant: "destructive" });

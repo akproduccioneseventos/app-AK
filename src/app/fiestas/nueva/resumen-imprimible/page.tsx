@@ -64,7 +64,7 @@ function ResumenImprimibleContent({ fiestaId }: { fiestaId: string | null }) {
       
       if (!fiestaData) throw new Error("Evento no encontrado.");
       setFiesta(fiestaData);
-      setLogoUrl(templateSettings.logoUrl);
+      setLogoUrl(templateSettings.logoUrl ?? null);
 
       const dataPromises: Promise<any>[] = [];
       if (fiestaData.configuracion.clienteId) {

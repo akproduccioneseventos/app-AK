@@ -46,7 +46,7 @@ function ReporteEventoContent({ fiestaId }: { fiestaId: string | null }) {
       } else {
         throw new Error(reportResult.error || "No se pudo generar el reporte.");
       }
-      setLogoUrl(settings.logoUrl);
+      setLogoUrl(settings.logoUrl ?? null);
 
     } catch (err: any) {
       setError(err.message);
