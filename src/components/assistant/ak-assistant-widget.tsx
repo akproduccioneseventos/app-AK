@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
 import {
   Sparkles, Loader2, CalendarClock, ListChecks, DollarSign, CreditCard, X,
   ChevronRight, Calendar, FileText, Receipt, Send, Paperclip, Check, Copy,
@@ -312,6 +314,8 @@ function ActionResultCard({ action }: { action: { type: string; data?: any; resu
 }
 
 export function AKAssistantWidget() {
+  const router = useRouter();
+  const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('resumen');
 
@@ -393,6 +397,66 @@ export function AKAssistantWidget() {
       const result = await sendAssistantMessage(text || '(archivo adjunto)', historyForFlow, userMsg.imageDataUri);
       if (result.success && result.response) {
         setChatHistory(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'assistant', content: result.response!, action: result.action }]);
+
+        if (result.action && result.action.type && result.action.type !== 'none') {
+          switch (result.action.type) {
+            case 'navigate':
+              if (result.action.data?.href) {
+                router.push(result.action.data.href);
+              }
+              break;
+            case 'create_budget':
+              if (result.action.result?.success) {
+                toast({ title: '✅ Presupuesto creado', description: `Para ${result.action.data?.clienteNombre || 'el cliente'}` });
+              }
+              break;
+            case 'create_customer':
+              if (result.action.result?.success) {
+                toast({ title: '✅ Cliente ingresado', description: result.action.data?.name || '' });
+              }
+              break;
+            case 'create_event':
+              if (result.action.result?.success) {
+                toast({ title: '✅ Evento creado', description: `Para ${result.action.data?.clienteNombre || 'el cliente'}` });
+              }
+              break;
+            case 'import_budget_from_image':
+              if (result.action.result?.success) {
+                toast({ title: '✅ Presupuesto importado', description: `Para ${result.action.data?.clienteNombre || 'el cliente'}` });
+              }
+              break;
+            case 'register_payment':
+              if (result.action.result?.success) {
+                toast({ title: '✅ Pago registrado', description: result.action.data?.monto != null ? `$${Number(result.action.data.monto).toLocaleString('es-UY')}` : undefined });
+              }
+              break;
+            case 'create_invoice':
+              if (result.action.result?.success) {
+                toast({ title: '✅ Factura creada', description: `Para ${result.action.data?.clienteNombre || 'el cliente'}` });
+              }
+              break;
+            case 'update_service_price':
+              if (result.action.result?.success) {
+                toast({ title: '✅ Precio actualizado', description: result.action.data?.servicioNombre || '' });
+              }
+              break;
+            case 'create_employee':
+              if (result.action.result?.success) {
+                toast({ title: '✅ Empleado registrado', description: result.action.data?.nombre || '' });
+              }
+              break;
+            case 'create_supplier':
+              if (result.action.result?.success) {
+                toast({ title: '✅ Proveedor registrado', description: result.action.data?.nombreEmpresa || result.action.data?.nombre || '' });
+              }
+              break;
+            case 'update_event':
+              if (result.action.result?.success) {
+                toast({ title: '✅ Evento actualizado' });
+              }
+              break;
+          }
+        }
       } else {
         setChatHistory(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'assistant', content: result.error || 'Ocurrió un error.' }]);
       }

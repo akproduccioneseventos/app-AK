@@ -214,7 +214,7 @@ const assistantPrompt = ai.definePrompt({
 ## MENSAJE ACTUAL DEL USUARIO:
 {{{message}}}
 {{#if imageDataUri}}
-[El usuario adjuntó un archivo para análisis]
+{{media url=imageDataUri}}
 {{/if}}`,
   config: {
     temperature: 0.7,
